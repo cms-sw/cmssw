@@ -37,8 +37,8 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
    FEDNumbering fednum;
 //   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
 //   cout << "pixel feds: " << fedIds.first<<" "<<fedIds.second << endl;
-
-   TRange<int> fedIds = fednum.getSiPixelFEDIds();
+//   TRange<int> fedIds = fednum.getSiPixelFEDIds();
+   TRange<int> fedIds(0,40);
    edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
    vector<FedSpec> fedSpecs(fedIds.max()-fedIds.min()+1); 
@@ -74,7 +74,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
       fedSpecs[idx].rawids.push_back(geomid.rawId());
       fedSpecs[idx].names.push_back(name);
     } else edm::LogError("SiPixelFedCablingMapBuilder")
-          <<"problem with numbering! "<<fedId;
+          <<"problem with numbering! "<<fedId<<" name: " << name->name();
   }
   //cout << "here, pixels: " <<npxdets << endl;
 

@@ -2,9 +2,11 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-#include <iostream>
+//#include <iostream>
+#include <sstream>
 #include <fstream>
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -36,8 +38,8 @@ int PixelToFEDAssociate::operator()(const PixelBarrelName & id) const
            && ibd->f.inside( id.ladderName() ) ) return (*ibc).first; 
     }
   }
-  cout << "** PixelToFEDAssociate WARNING, name: "
-       << id.name()<<" not associated to FED" << endl;
+  edm::LogError("** PixelToFEDAssociate WARNING, name: ")
+       << id.name()<<" not associated to FED";
   return -1;
 }
 int PixelToFEDAssociate::operator()(const PixelEndcapName & id) const
@@ -52,8 +54,8 @@ int PixelToFEDAssociate::operator()(const PixelEndcapName & id) const
            && ied->b.inside( id.bladeName() ) ) return iec->first; 
     }
   }
-  cout << "** PixelToFEDAssociate WARNING, name: "
-       << id.name()<<" not associated to FED" << endl;
+  edm::LogError("** PixelToFEDAssociate WARNING, name: ")
+       << id.name()<<" not associated to FED";
   return -1;
 }
 
@@ -61,16 +63,16 @@ int PixelToFEDAssociate::operator()(const PixelEndcapName & id) const
 void PixelToFEDAssociate::init() const 
 {
   isInitialised = true;
-  cout << "PixelToFEDAssociate init: " << endl;
+  edm::LogInfo("PixelToFEDAssociate init: ");
 
   string cfg_name = "pixelToFED.ascii";
   std::ifstream file( cfg_name.c_str() );
   if ( !file ) {
-    cout << " ** HERE PixelToFEDAssociate,init ** "
-         << " cant open data file: " << cfg_name << endl;
+    edm::LogError(" ** PixelToFEDAssociate,init ** ")
+         << " cant open data file: " << cfg_name;
     return;
   } else {
-    cout << "PixelToFEDAssociate read data from: " <<cfg_name << endl;
+    edm::LogInfo("PixelToFEDAssociate, read data from: ") <<cfg_name ;
   }
 
   string line;
@@ -131,9 +133,7 @@ void PixelToFEDAssociate::init() const
   send(barCon,endCon);
   } 
   catch(exception& err) {
-    std::cout << " **PixelToFEDAssociate**  exception catched while" 
-         << " reading file, skip initialisation" << endl;
-    std::cout << err.what() << endl;
+    edm::LogError("**PixelToFEDAssociate**  exception")<<err.what();
     theBarrel.clear();
     theEndcap.clear();
   }
@@ -143,24 +143,26 @@ void PixelToFEDAssociate::init() const
   //
   bool debug = true;
   if (debug) {
-    std::cout <<" **PixelToFEDAssociate ** BARREL FED CONNECTIONS: " << endl;
-    for (BarrelConnections::const_iterator 
+    std::stringstream str;
+    str <<" **PixelToFEDAssociate ** BARREL FED CONNECTIONS: "<< endl;
+    for (BarrelConnections::const_iterator
         ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
-      std::cout << "FED: " << ibc->first << endl;
-      for (vector<Bdu>::const_iterator 
+      str << "FED: " << ibc->first << endl;
+      for (vector<Bdu>::const_iterator
           ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
-        std::cout << " l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
+        str << " l: "<<ibd->l<<" z: "<<ibd->z<<" f: "<<ibd->f<<endl;
       }
     }
-    std::cout <<" **PixelToFEDAssociate ** ENDCAP FED CONNECTIONS: " << endl;
-    for (EndcapConnections::const_iterator 
+    str <<" **PixelToFEDAssociate ** ENDCAP FED CONNECTIONS: " << endl;
+    for (EndcapConnections::const_iterator
         iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
-      std::cout << "FED: " << iec->first << endl;
-      for (vector<Edu>::const_iterator 
+      str << "FED: " << iec->first << endl;
+      for (vector<Edu>::const_iterator
           ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
-        std::cout << " e: "<<ied->e<<" d: "<<ied->d<<" b: "<<ied->b<<endl;
+        str << " e: "<<ied->e<<" d: "<<ied->d<<" b: "<<ied->b<<endl;
       }
     }
+    edm::LogInfo("PixelToFEDAssociate")<<str.str();
   } 
 }
 
@@ -227,7 +229,7 @@ PixelToFEDAssociate::Range
   }
   if (first) {
     string s = "** PixelToFEDAssociate, read data, cant intrpret: " ;
-    std::cout << s << endl 
+    edm::LogInfo(s) << endl 
               << l << endl 
               <<"=====> send exception " << endl;
     s += l;

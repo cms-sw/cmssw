@@ -3,6 +3,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 bool PixelEndcapLinkMaker::Order::operator()
@@ -49,18 +50,18 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
     Range rocIds(-1,-1);
     Plaquette type = v1x2;
 
-    if (e->pannelName() == 0) {
-      if (e->plaquetteName() == 0)      { rocIds = Range(0,1); type = v1x2; }
-      else if (e->plaquetteName() == 1) { rocIds = Range(0,5); type = v2x3; }
-      else if (e->plaquetteName() == 2) { rocIds = Range(0,7); type = v2x4; }
-      else if (e->plaquetteName() == 3) { rocIds = Range(0,4); type = v1x5; }
-      else { cout << " *** UNEXPECTED roc: " << e->name() << endl; }
+    if (e->pannelName() == 1) {
+      if (e->plaquetteName() == 1)      { rocIds = Range(0,1); type = v1x2; }
+      else if (e->plaquetteName() == 2) { rocIds = Range(0,5); type = v2x3; }
+      else if (e->plaquetteName() == 3) { rocIds = Range(0,7); type = v2x4; }
+      else if (e->plaquetteName() == 4) { rocIds = Range(0,4); type = v1x5; }
+      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
     }
     else {
-      if (e->plaquetteName() == 0)      { rocIds = Range(0,5); type = v2x3; }
-      else if (e->plaquetteName() == 1) { rocIds = Range(0,7); type = v2x4; }
-      else if (e->plaquetteName() == 2) { rocIds = Range(0,9); type = v2x5; }
-      else { cout << " *** UNEXPECTED roc: " << e->name() << endl; }
+      if (e->plaquetteName() == 1)      { rocIds = Range(0,5); type = v2x3; }
+      else if (e->plaquetteName() == 2) { rocIds = Range(0,7); type = v2x4; }
+      else if (e->plaquetteName() == 3) { rocIds = Range(0,9); type = v2x5; }
+      else { edm::LogError("PixelEndcapLinkMaker")<< " *** UNEXPECTED roc: " << e->name() ; }
     }
     item.rocIds = rocIds;
     item.type = type;
@@ -71,14 +72,15 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   //
 
   sort( linkItems.begin(), linkItems.end(), Order() );
-  bool debug = false;
-  if (debug) {
-    cout  << " ** PixelEndcapLinkMaker ** sorted: " << endl;
-    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
-      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
-    }
-    cout << endl;
-  }
+//
+//  bool debug = false;
+//  if (debug) {
+//    cout  << " ** PixelEndcapLinkMaker ** sorted: " << endl;
+//    for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
+//      cout << (*it).name->name() <<" r="<< (*it).rocIds << endl;
+//    }
+//    cout << endl;
+//  }
 
   result.reserve(36);
   PixelFEDLink * link = 0;
