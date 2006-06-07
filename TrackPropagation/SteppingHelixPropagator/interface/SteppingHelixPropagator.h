@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/04/25 19:27:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/03 06:48:55 $
+ *  $Revision: 1.3 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.2 2006/04/25 19:27:46 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.3 2006/05/03 06:48:55 slava77 Exp $
 //
 //
 
@@ -117,10 +117,11 @@ class SteppingHelixPropagator : public Propagator {
   /// Force no error propagation
   void setNoErrorPropagation(bool noErrorPropagation) { noErrorPropagation_ = noErrorPropagation;}
 
-  /// Apply radLength correction (1+0.036*ln(radX0)) to covariance matrix
-  /// Should be done with care .. currently makes no effect for radPath lengths < 1 X0
-  /// ... currently disabled
-  void applyRadX0Correction(bool applyRadX0Correction) { applyRadX0Correction_ = false;}
+  /// Apply radLength correction (1+0.036*ln(radX0+1)) to covariance matrix
+  /// +1 is added for IR-safety
+  /// Should be done with care: it's easy to make the end-point result dependent
+  /// on the intermediate stop points
+  void applyRadX0Correction(bool applyRadX0Correction) { applyRadX0Correction_ = applyRadX0Correction;}
 
  protected:
   /// (Internals) Init starting point
