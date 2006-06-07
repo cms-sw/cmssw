@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/02/15 09:42:29 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/03/30 15:19:30 $
+ *  $Revision: 1.15 $
  *
  * \author Ilaria Segoni
  */
@@ -58,7 +58,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
  /// Get Data from all FEDs
  Handle<FEDRawDataCollection> allFEDRawData; 
- e.getByLabel("DaqRawData", allFEDRawData); 
+ e.getByType(allFEDRawData); 
 
  edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  
