@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/05/24 17:14:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/05 14:54:35 $
+ *  $Revision: 1.5 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -55,9 +55,8 @@ using namespace std;
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
-
   cout<<"MuonSeedGenerator constructor called"<<endl;
-
+  
   // the name of the DT rec hits collection
   theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");
   // the name of the CSC rec hits collection
@@ -70,7 +69,7 @@ MuonSeedGenerator::~MuonSeedGenerator(){};
 
 // reconstruct muon's seeds
 void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup){
-
+  cout<<"MuonSeedGenerator::produce"<<endl;
   theSeeds.clear();
   
   // create the pointer to the Seed container
@@ -80,9 +79,11 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // RecHitContainer like it was in ORCA
   
   // Muon Geometry - DT, CSC and RPC 
+  cout<<"Getting the geometry"<<endl;
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
+  cout<<"extract the layers"<<endl;
   // get the DT layers
   vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
 
@@ -111,10 +112,12 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements;
+  cout<<"MuonSeedGenerator::produce, MuonDetLayerMeasurements instance"<<endl;
+  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   // ------------        EndCap disk z<0 + barrel
 
+  cout<<"MuonSeedGenerator::produce, MuonDetLayerMeasurements rechit"<<endl;
   RecHitContainer list24 = muonMeasurements.recHits(ME4Bwd,event);
   RecHitContainer list23 = muonMeasurements.recHits(ME3Bwd,event);
   
@@ -232,9 +235,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
     complete(Theseed, list4, ME4);
     complete(Theseed, list5, ME5);
     complete(Theseed, list6, MB3);
-    complete(Theseed, list7, MB2);
+    complete(Theseed, list7, MB2);    
     complete(Theseed, list8, MB1);
-
     checkAndFill(Theseed,eSetup);
   }
 
@@ -522,6 +524,10 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   // what is the id??
   //  output->put(chamberId, theSeeds.begin(),theSeeds.end());
+  for(vector<TrajectorySeed>::iterator seed = theSeeds.begin();
+      seed != theSeeds.end(); ++seed)
+    output->push_back(*seed);
+  
   event.put(output);
   //<<
 }
@@ -529,6 +535,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
 void MuonSeedGenerator::complete(MuonSeedFinder& seed,
                                  RecHitContainer &recHits, bool* used) const {
+
+  cout<<"MuonSeedGenerator::complete begin"<<endl;
 
   RecHitContainer good_rhit;
 
@@ -550,7 +558,6 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
       continue;
     }   // +vvp!!!
 
-
     if( fabs ( ptg2.eta() ) < 1.0 ) {     //  barrel only
 
       LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
@@ -571,15 +578,12 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
       //@@ Tim asks: what is the motivation for this cut?
       //@@ It requires (xpred-xrechit)< 0.1 * distance between rechit and seed in xz plane
-
       if ( dist < d_cut ) {
 	good_rhit.push_back(*iter);
 	if (used) used[nr]=true;
       }
 
     }  // eta  < 1.0
-
-
 
     if( fabs ( ptg2.eta() ) > 1.0 ) {    //  endcap & overlap.
 
@@ -595,7 +599,6 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
     nr++;
 
   }  // recHits iter
-
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
 
@@ -613,7 +616,6 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
     GlobalPoint  pos2 =  first->globalPosition();  // +v
       
     for ( RecHitIterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-
 
       GlobalPoint pos1 = (*iter)->globalPosition();  // +v
  
@@ -651,7 +653,6 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
   }  // eta > 1.0
 
-
   if( fabs ( ptg2.eta() ) < 1.0 ) {     //  barrel only
 
     // select the best rhit among the compatible ones (based on Dphi)
@@ -684,24 +685,23 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
 
   // add the best Rhit to the seed 
-  if ( best->isValid() ){
-    seed.add(best);
-  } 
+  if(best)
+    if ( best->isValid() ) seed.add(best);
 
 }  //   void complete.
 
 
 void MuonSeedGenerator::checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup){
 
+  cout<<"MuonSeedGenerator::checkAndFill"<<endl;
+
   if (Theseed.nrhit()>1 ) {
     vector<TrajectorySeed> the_seeds =  Theseed.seeds(eSetup);
     for (vector<TrajectorySeed>::const_iterator
 	   the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
-      
       // FIXME, ask for this method
       //if ( (*the_seed).isValid() )
       theSeeds.push_back(*the_seed);
     }
   }
-
 }
