@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/30 08:47:11 $
- * $Revision: 1.130 $
+ * $Date: 2006/06/06 07:48:14 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -545,30 +545,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   runtag.setGeneralTag(runTypes_[runtype_]);
 
-  Tm startRun;
+  // fetch the RunIOV from the DB
 
-  startRun.setToCurrentGMTime();
-  startRun.setToMicrosTime(startRun.microsTime());
-
-  // begin - setup the RunIOV (on behalf of the DAQ)
-
-  runiov_.setRunNumber(run_);
-  runiov_.setRunStart(startRun);
-  runiov_.setRunTag(runtag);
-
-  if ( econn ) {
-    try {
-      cout << "Inserting RunIOV ... " << flush;
-      econn->insertRunIOV(&runiov_);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
-
-  // end - setup the RunIOV (on behalf of the DAQ)
-
-  // fetch the RunIOV back from the DB
+  bool foundRunIOV = false;
 
   if ( econn ) {
     try {
@@ -576,10 +555,39 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       runiov_ = econn->fetchRunIOV(&runtag, run_);
 //      runiov_ = econn->fetchRunIOV(location_, run_);
       cout << "done." << endl;
+      foundRunIOV = true;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+      foundRunIOV = false;
     }
   }
+
+  // begin - setup the RunIOV (on behalf of the DAQ)
+
+  if ( ! foundRunIOV ) {
+
+    Tm startRun;
+
+    startRun.setToCurrentGMTime();
+    startRun.setToMicrosTime(startRun.microsTime());
+
+    runiov_.setRunNumber(run_);
+    runiov_.setRunStart(startRun);
+    runiov_.setRunTag(runtag);
+
+    if ( econn ) {
+      try {
+        cout << "Inserting RunIOV ... " << flush;
+        econn->insertRunIOV(&runiov_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
+    }
+
+  }
+
+  // end - setup the RunIOV (on behalf of the DAQ)
 
   location_ = runiov_.getRunTag().getLocationDef().getLocation();
 
@@ -705,8 +713,6 @@ void EcalBarrelMonitorClient::writeDb(void) {
     md.setTaskList(taskl);
     md.setTaskOutcome(tasko);
 
-    cout << "Creating MonRunDatObjects for the database ..." << endl;
-
     if ( econn ) {
       try {
         ecid = econn->getEcalLogicID("ECAL");
@@ -718,7 +724,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting dataset ... " << flush;
+        cout << "Inserting MonRunDat ... " << flush;
         econn->insertDataSet(&dataset, &moniov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
@@ -765,30 +771,50 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( h_ ) nevt = h_->GetEntries();
 
-  // setup the RunDat (on behalf of the DAQ)
-
   rd.setNumEvents(int(nevt));
 
-  cout << "Creating RunDatObjects for the database ..." << endl;
+  // fetch the RunDat from the DB
+
+  bool foundRunDat = false;
 
   if ( econn ) {
     try {
-      ecid = econn->getEcalLogicID("ECAL");
-      dataset[ecid] = rd;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
-
-  if ( econn ) {
-    try {
-      cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, &runiov_);
+      cout << "Fetching RunDat ... " << flush;
+      econn->fetchDataSet(&dataset, &runiov_);
       cout << "done." << endl;
+      foundRunDat = true;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
+      foundRunDat = false;
     }
   }
+
+  // begin - setup the RunDat (on behalf of the DAQ)
+
+  if ( ! foundRunDat ) {
+
+    if ( econn ) {
+      try {
+        ecid = econn->getEcalLogicID("ECAL");
+        dataset[ecid] = rd;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
+    }
+
+    if ( econn ) {
+      try {
+        cout << "Inserting RunDat ... " << flush;
+        econn->insertDataSet(&dataset, &runiov_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
+    }
+
+  }
+
+  // end - setup the RunDat (on behalf of the DAQ)
 
   if ( econn ) {
     try {
