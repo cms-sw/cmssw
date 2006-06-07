@@ -541,16 +541,6 @@ vector<float> PixelErrorParametrization::readVec( const string& name)
   }
   string fullName =  partialName + name;
   edm::FileInPath f1( fullName );
-  if ( ! f1.isLocal() ) {
-    LogDebug("PixelCPEParmError") << 
-      "File " << f1.fullPath() << " not found in " << fullName << endl;
-    assert(0);        // &&& throw a real exception!
-    //throw DetLogicError("TkPixelClusterizer parameter file " + fullName + 
-    // " not found");
-  }
-  else {
-    cout << "Reading " << f1.fullPath() << endl;
-  }
   ifstream invec( (f1.fullPath()).c_str() );
 
   vector<float> result;
