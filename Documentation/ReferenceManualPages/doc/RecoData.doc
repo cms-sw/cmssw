@@ -35,6 +35,30 @@ Reconstruction output.
   <th>Contact</th>
 </tr>
 <tr class="colgroup">
+  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
+</tr>
+<tr>
+  <td> PixelDigi </rd>
+  <td> edm::DetSetVector<PixelDigi> </td>
+  <td> \ref EventFilter_SiPixelRawToDigi </td>
+  <td class="description">Pixel digitized hit</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr>
+  <td> SiPixelCluster </rd>
+  <td> edm::DetSetVector<SiPixelDigi> </td>
+  <td> \ref RecoLocalTracker_SiPixelClusterizer  </td>
+  <td class="description">Pixel cluster</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr>
+  <td> SiPixelRecHit </rd>
+  <td> SiPixelRecHitCollection </td>
+  <td> \ref RecoLocalTracker_SiPixelRecHits</td>
+  <td class="description">Pixel reconstructed hit</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr class="colgroup">
   <td class="colgroup" colspan=5>Track collections</td>
 </tr>
 <tr>
