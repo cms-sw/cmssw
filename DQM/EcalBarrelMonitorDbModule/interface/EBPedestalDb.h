@@ -1,8 +1,8 @@
-#ifndef EcalBarrelMonitorDbModule_H
-#define EcalBarrelMonitorDbModule_H
+#ifndef EBPedestalDb_H
+#define EBPedestalDb_H
 
 /*
- * \file EcalBarrelMonitorDbModule.h
+ * \file EBPedestalDb.h
  *
  * $Date: 2006/06/06 18:10:58 $
  * $Revision: 1.3 $
@@ -27,10 +27,7 @@
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Exception.h"
-#include "SealKernel/MessageStream.h"
-
 #include "PluginManager/PluginManager.h"
-
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -41,8 +38,6 @@
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
-
-#include "CoralBase/Exception.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -50,55 +45,56 @@
 using namespace seal;
 using namespace coral;
 
-#include "DQM/EcalBarrelMonitorDbModule/interface/EBTemperatureDb.h"
-#include "DQM/EcalBarrelMonitorDbModule/interface/EBPedestalDb.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
-#include <memory>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <string>
 
 using namespace cms;
 using namespace edm;
 using namespace std;
 
-class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
+//class EBPedestalDb: public edm::EDAnalyzer{
+class EBPedestalDb{
+
+friend class EcalBarrelMonitorDbModule;
 
 public:
 
 /// Constructor
-EcalBarrelMonitorDbModule(const edm::ParameterSet& ps);
+EBPedestalDb(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
 
 /// Destructor
-virtual ~EcalBarrelMonitorDbModule();
+virtual ~EBPedestalDb();
 
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c, DaqMonitorBEInterface* dbe, ISessionProxy* isp);
 
 // BeginJob
 void beginJob(const edm::EventSetup& c);
 
 // EndJob
-void endJob(void);
+void endJob(void); 
+
+// HtmlOutput
+void htmlOutput(string htmlDir);
 
 private:
 
-int icycle_;
+int ievt_;
 
-bool enableMonitorDaemon_;
+MonitorElement* mePed01_;
+MonitorElement* mePed06_;
+MonitorElement* mePed12_;
 
-DaqMonitorBEInterface* dbe;
-
-string htmlDir_;
-
-EBTemperatureDb* tempDb_;
-
-EBPedestalDb* pedDb_;
-
-string outputFile_;
+MonitorElement* meRms01_;
+MonitorElement* meRms06_;
+MonitorElement* meRms12_;
 
 };
 

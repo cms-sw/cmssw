@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2006/06/06 18:10:58 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/07 08:36:56 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -44,6 +44,8 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const ParameterSet& ps){
 
   tempDb_ = new EBTemperatureDb(ps, dbe);
 
+  pedDb_ = new EBPedestalDb(ps, dbe);
+
   if ( dbe ) dbe->showDirStructure();
 
 }
@@ -51,6 +53,8 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const ParameterSet& ps){
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
 
   if ( tempDb_ ) delete tempDb_;
+
+  if ( pedDb_ ) delete pedDb_;
 
 }
 
@@ -60,11 +64,15 @@ void EcalBarrelMonitorDbModule::beginJob(const EventSetup& c){
 
   if ( tempDb_ ) tempDb_->beginJob(c);
 
+  if ( pedDb_ ) pedDb_->beginJob(c);
+
 }
 
 void EcalBarrelMonitorDbModule::endJob(void) {
 
   if ( tempDb_ ) tempDb_->endJob();
+
+  if ( pedDb_ ) pedDb_->endJob();
 
   cout << "EcalBarrelMonitorDbModule: endJob, icycle = " << icycle_ << endl;
 
@@ -91,8 +99,8 @@ void EcalBarrelMonitorDbModule::analyze(const Event& e, const EventSetup& c){
     context->query(v_msgSvc);
     if ( ! v_msgSvc.empty() ) {
       seal::Handle<IMessageService>& msgSvc = v_msgSvc.front();
-      msgSvc->setOutputLevel(Msg::Error);
-//      msgSvc->setOutputLevel(Msg::Debug);
+//      msgSvc->setOutputLevel(Msg::Error);
+      msgSvc->setOutputLevel(Msg::Debug);
     }
 
     loader->load("CORAL/Services/ConnectionService");
@@ -111,6 +119,8 @@ void EcalBarrelMonitorDbModule::analyze(const Event& e, const EventSetup& c){
 
     if ( tempDb_ ) tempDb_->analyze(e, c, dbe, readProxy);
 
+    if ( pedDb_ ) pedDb_->analyze(e, c, dbe, readProxy);
+
   } catch (coral::Exception& se) {
     cerr << "CORAL Exception : " << se.what() << endl;
   } catch (std::exception& e) {
@@ -122,6 +132,8 @@ void EcalBarrelMonitorDbModule::analyze(const Event& e, const EventSetup& c){
   if ( htmlDir_.size() != 0 ) {
 
     tempDb_->htmlOutput(htmlDir_);
+
+    pedDb_->htmlOutput(htmlDir_);
 
   }
 

@@ -2,7 +2,7 @@
 <servicelist>
 
  <logicalservice name="ECAL CondDB">
-   <service name="oracle://pccmsecdb:1521/ecalh4db/test05" accessMode="readonly" authentication="password" />
+   <service name="oracle://localhost:1521/ecalh4db/test05" accessMode="readonly" authentication="password" />
  </logicalservice>
 
 </servicelist>
