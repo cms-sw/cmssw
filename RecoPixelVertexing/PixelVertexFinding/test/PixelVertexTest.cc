@@ -45,7 +45,8 @@ private:
   double pt_[maxtrk_];
   double z0_[maxtrk_];
   double errz0_[maxtrk_];
-  double tanl_[maxtrk_];
+  //  double tanl_[maxtrk_];
+  double theta_[maxtrk_];
   int nvtx_;
   static const int maxvtx_=15;
   double vz_[maxvtx_];
@@ -95,7 +96,8 @@ void PixelVertexTest::beginJob(const edm::EventSetup& es) {
   t_->Branch("pt",pt_,"pt[ntrk]/D");
   t_->Branch("z0",z0_,"z0[ntrk]/D");
   t_->Branch("errz0",errz0_,"errz0[ntrk]/D");
-  t_->Branch("tanl",tanl_,"tanl[ntrk]/D");
+  //  t_->Branch("tanl",tanl_,"tanl[ntrk]/D");
+  t_->Branch("theta",theta_,"theta[ntrk]/D");
   gDirectory->cd(cwd);
 }
 
@@ -130,7 +132,8 @@ void PixelVertexTest::analyze(
       z0_[ntrk_] = tracks[i].dz();
       //      errz0_[ntrk_] = std::sqrt( tracks[i].covariance(3,3) );
       errz0_[ntrk_] = tracks[i].covariance().dzError();
-      tanl_[ntrk_] = tracks[i].tanDip();
+      //      tanl_[ntrk_] = tracks[i].tanDip();
+      theta_[ntrk_] = tracks[i].theta();
       ntrk_++;
     }
     if (verbose_ > 0) cout <<"------------------------------------------------"<<endl;
@@ -157,7 +160,7 @@ void PixelVertexTest::analyze(
   }
   nvtx2_ = vertexes.size();
   PVClusterComparer vcompare;
-  for (unsigned int i=0; i<nvtx2_ && i<maxvtx_; i++) {
+  for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
     vz2_[i] = vertexes[i].z();
     errvz2_[i] = std::sqrt(vertexes[i].error()(2,2));
     ntrk2_[i] = vertexes[i].tracksSize();
