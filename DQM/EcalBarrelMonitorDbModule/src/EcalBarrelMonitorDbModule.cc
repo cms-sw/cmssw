@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2006/06/06 14:51:19 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/06 18:10:58 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -97,7 +97,11 @@ void EcalBarrelMonitorDbModule::analyze(const Event& e, const EventSetup& c){
 
     loader->load("CORAL/Services/ConnectionService");
 
+    loader->load("CORAL/Services/EnvironmentAuthenticationService");
+
     IHandle<IConnectionService> connectionService = context->query<IConnectionService>("CORAL/Services/ConnectionService");
+
+    loader->load("CORAL/RelationalPlugins/oracle");
 
     // Set configuration parameters
     IConnectionServiceConfiguration& config = connectionService->configuration();
