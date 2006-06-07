@@ -123,9 +123,11 @@ namespace reco {
 	std::cout << "    aboveCharmMass   " << aboveCharmMass   << std::endl;
 	std::cout << "    pt               " << pt               << std::endl;
 	std::cout << "    rapidity         " << rapidity         << std::endl;
+	std::cout << "    eta              " << eta              << std::endl;
 	std::cout << "    d0               " << d0               << std::endl;
 	std::cout << "    d0Sign           " << d0Sign           << std::endl;
 	std::cout << "    d0Error          " << d0Error          << std::endl;
+	std::cout << "    jetDistance      " << jetDistance      << std::endl;
 	std::cout << "    nHitsTotal       " << nHitsTotal       << std::endl;
 	std::cout << "    nHitsPixel       " << nHitsPixel       << std::endl;
 	std::cout << "    firstHitPixel    " << firstHitPixel    << std::endl;
