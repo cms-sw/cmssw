@@ -7,7 +7,19 @@
 using std::ostream;
 using std::endl;
 
-// constructor
+// constructor by ID
+L1GctRegion::L1GctRegion(unsigned id, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
+  m_id(id)
+{
+  m_data = 
+    (et & 0x3ff) | 
+    ((overFlow) ? 0x400  : 0x0) |
+    ((tauVeto)  ? 0x800  : 0x0) |
+    ((mip)      ? 0x1000 : 0x0) |
+    ((quiet)    ? 0x2000 : 0x0);
+}
+
+// constructor by eta, phi index
 L1GctRegion::L1GctRegion(unsigned eta, unsigned phi, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
   m_eta(eta),
   m_phi(phi)
