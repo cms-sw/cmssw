@@ -50,8 +50,6 @@ class AlignableDTStation : public AlignableComposite
 
   AlignableDTChamber &chamber(int i);  
   
-  virtual void twist(float);
-
   /// Return alignable object identifier
   virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTStation; }
 

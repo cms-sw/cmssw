@@ -68,18 +68,6 @@ AlignableDTStation::RotationType AlignableDTStation::computeOrientation()
 }
 
 
-/// Twists all components by given angle
-void AlignableDTStation::twist(float rad) 
-{
-
-  for ( std::vector<AlignableDTChamber*>::iterator iter = theDTChambers.begin();
-	   iter != theDTChambers.end(); iter++ ) 
-	(*iter)->twist(rad);
-  
-}
-
-
-
 
 /// Output Station information
 std::ostream &operator << (std::ostream& os, const AlignableDTStation& b )

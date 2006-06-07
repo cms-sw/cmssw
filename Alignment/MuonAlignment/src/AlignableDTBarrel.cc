@@ -68,18 +68,6 @@ AlignableDTBarrel::RotationType AlignableDTBarrel::computeOrientation()
 }
 
 
-/// Twists all components by given angle
-void AlignableDTBarrel::twist(float rad) 
-{
-
-  for ( std::vector<AlignableDTWheel*>::iterator iter = theDTWheels.begin();
-	   iter != theDTWheels.end(); iter++ ) 
-	(*iter)->twist(rad);
-  
-}
-
-
-
 
 /// Output Half Barrel information
 std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )

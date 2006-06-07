@@ -50,8 +50,6 @@ class AlignableCSCEndcap : public AlignableComposite
 
   AlignableCSCStation &station(int i);  
   
-  virtual void twist(float);
-
   /// Return alignable object identifier
   virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
 

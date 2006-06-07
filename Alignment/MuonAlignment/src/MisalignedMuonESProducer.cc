@@ -4,8 +4,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
+//#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
+//#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 
@@ -36,38 +36,39 @@ MisalignedMuonESProducer::~MisalignedMuonESProducer() {}
 
 
 //__________________________________________________________________________________________________
-boost::shared_ptr<MuonGeometry> 
+boost::shared_ptr<DTGeometry> 
 MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 { 
 
   edm::LogInfo("MisalignedMuon") << "Producer called";
   
-//  edm::ESHandle<GeometricDet> gD;
-//  iRecord.getRecord<IdealGeometryRecord>().get( gD );
 
   // Create the Muon geometry from ideal geometry
   edm::ESHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
-  DTGeometryBuilderFromDDD  DTMuonBuilder;
-  CSCGeometryBuilderFromDDD CSCMuonBuilder;
+  DTGeometryBuilderFromDDD  DTGeometryBuilder;
+  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTMuon   = boost::shared_ptr<MuonGeometry>( DTMuonBuilder.build( &cpv ) );
-  theCSCMuon  = boost::shared_ptr<MuonGeometry>( CSCMuonBuilder.build( &cpv ) );
+  theDTGeometry   = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
+  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
+
 
   // Dump BEFORE
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theDTMuon->chambers().begin();
- 		iGeomDet != theDTMuon->chambers().end(); iGeomDet++ )
+  if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) ){
+    for ( std::vector<DTChamber*>::const_iterator iGeomDet = theDTGeometry->chambers().begin();
+ 		iGeomDet != theDTGeometry->chambers().end(); iGeomDet++ )
  	std::cout << (*iGeomDet)->geographicalId().rawId()
  			  << " " << (*iGeomDet)->position() << std::endl;
 
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theCSCMuon->chambers().begin();
- 		iGeomDet != theCSCMuon->chambers().end(); iGeomDet++ )
+    for ( std::vector<CSCChamber*>::const_iterator iGeomDet = theCSCGeometry->chambers().begin();
+ 		iGeomDet != theCSCGeometry->chambers().end(); iGeomDet++ )
  	std::cout << (*iGeomDet)->geographicalId().rawId()
  			  << " " << (*iGeomDet)->position() << std::endl;
+  }
 
   // Create the alignable hierarchy
-  AlignableMuon* theAlignableMuon = new AlignableMuon(  const edm::EventSetup&  iSetup );
+  AlignableMuon* theAlignableMuon = new AlignableMuon( *theDTGeometry , *theCSCGeometry );
 
   // Create misalignment scenario
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableMuon );
@@ -81,21 +82,22 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 
 
   // Dump AFTER
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theDTMuon->chambers().begin();
- 		iGeomDet != theDTMuon->chambers().end(); iGeomDet++ )
+  if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) ){
+
+    for ( std::vector<DTChamber*>::const_iterator iGeomDet = theDTGeometry->chambers().begin();
+ 		iGeomDet != theDTGeometry->chambers().end(); iGeomDet++ )
  	std::cout << (*iGeomDet)->geographicalId().rawId()
  			  << " " << (*iGeomDet)->position() << std::endl;
 
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theCSCMuon->chambers().begin();
- 		iGeomDet != theCSCMuon->chambers().end(); iGeomDet++ )
+    for ( std::vector<CSCChamber*>::const_iterator iGeomDet = theCSCGeometry->chambers().begin();
+ 		iGeomDet != theCSCGeometry->chambers().end(); iGeomDet++ )
  	std::cout << (*iGeomDet)->geographicalId().rawId()
  			  << " " << (*iGeomDet)->position() << std::endl;
 
- 
+  }
   edm::LogInfo("MisalignedMuon") << "Producer done";
 
-  // Store result to EventSetup
-  return theMuon;
+  return theDTGeometry; 
   
 }
 

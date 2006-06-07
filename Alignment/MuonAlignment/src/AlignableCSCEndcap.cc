@@ -68,19 +68,6 @@ AlignableCSCEndcap::RotationType AlignableCSCEndcap::computeOrientation()
 }
 
 
-/// Twists all components by given angle
-void AlignableCSCEndcap::twist(float rad) 
-{
-
-  for ( std::vector<AlignableCSCStation*>::iterator iter = theCSCStations.begin();
-	   iter != theCSCStations.end(); iter++ ) 
-	(*iter)->twist(rad);
-  
-}
-
-
-
-
 /// Output Half Barrel information
 std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 {

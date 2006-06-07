@@ -68,14 +68,14 @@ AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation()
 }
 
 
-/// Twists all components by given angle
-void AlignableCSCStation::twist(float rad) 
-{
-  for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin();
-           iter != theCSCChambers.end(); iter++ )
-        (*iter)->twist(rad);
+// /// Twists all components by given angle
+// void AlignableCSCStation::twist(float rad) 
+// {
+//   for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin();
+//            iter != theCSCChambers.end(); iter++ )
+//         (*iter)->twist(rad);
 
-}
+// }
 
 
 /// Output Station information

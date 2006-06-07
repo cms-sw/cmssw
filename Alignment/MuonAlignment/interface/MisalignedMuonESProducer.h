@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -26,13 +28,16 @@ public:
   virtual ~MisalignedMuonESProducer(); 
   
   /// Produce the misaligned Muon geometry and store it
-  boost::shared_ptr<MuonGeometry> produce( const MuonGeometryRecord& );
+//  boost::shared_ptr<DTGeometry> produce( const MuonGeometryRecord& , boost::shared_ptr<DTGeometry> , boost::shared_ptr<CSCGeometry> );
+
+  boost::shared_ptr<DTGeometry> produce( const MuonGeometryRecord&  );
 
 private:
 
   edm::ParameterSet theParameterSet;
   
-  boost::shared_ptr<MuonGeometry> theMuon;
+  boost::shared_ptr<DTGeometry> theDTGeometry;
+  boost::shared_ptr<CSCGeometry> theCSCGeometry;
 
 };
 

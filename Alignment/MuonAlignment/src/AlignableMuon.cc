@@ -51,6 +51,19 @@ AlignableMuon::AlignableMuon( const edm::EventSetup& iSetup  )
 
 }
 
+AlignableMuon::AlignableMuon( DTGeometry& theDTGeometry , CSCGeometry& theCSCGeometry )
+{
+
+  // Build the muon barrel
+  buildDTBarrel( &theDTGeometry );
+
+  // Build the muon end caps
+  buildCSCEndcap( &theCSCGeometry );
+
+  edm::LogInfo("AlignableMuon") << "Constructing alignable muon objects DONE";
+
+
+}
 
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::~AlignableMuon() 
@@ -141,10 +154,13 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
   }    
           
   // Create the alignable Muon Barrel
-  theDTBarrel  = new AlignableDTBarrel( theDTWheels );  
+  AlignableDTBarrel* tmpDTBarrel  = new AlignableDTBarrel( theDTWheels );  
   
-  // Store the barrel 
-  theMuonComponents.push_back( theDTBarrel );
+  // Store the barrel
+  theDTBarrel.push_back( tmpDTBarrel );
+
+  // Store the barrel in the muon 
+  theMuonComponents.push_back( tmpDTBarrel );
 
 
 }
@@ -251,45 +267,60 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
 
 
 //--------------------------------------------------------------------------------------------------
-std::vector<AlignableDTChamber*> AlignableMuon::DTChambers()
+std::vector<Alignable*> AlignableMuon::DTChambers()
 {
-  return theDTChambers;
+  std::vector<Alignable*> result;
+  copy( theDTChambers.begin(), theDTChambers.end(), back_inserter(result) );
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-std::vector<AlignableDTStation*> AlignableMuon::DTStations()
+std::vector<Alignable*> AlignableMuon::DTStations()
 {
-  return theDTStations;
+  std::vector<Alignable*> result;
+  copy( theDTStations.begin(), theDTStations.end(), back_inserter(result) );
+  return result;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableMuon::DTWheels()
+{
+  std::vector<Alignable*> result;
+  copy( theDTWheels.begin(), theDTWheels.end(), back_inserter(result) );
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-std::vector<AlignableDTWheel*> AlignableMuon::DTWheels()
+std::vector<Alignable*> AlignableMuon::DTBarrel()
 {
-  return theDTWheels;
+  std::vector<Alignable*> result ;
+  copy( theDTBarrel.begin(), theDTBarrel.end(), back_inserter(result) );
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-AlignableDTBarrel* AlignableMuon::DTBarrel()
+std::vector<Alignable*> AlignableMuon::CSCChambers()
 {
-  return theDTBarrel;
+  std::vector<Alignable*> result;
+  copy( theCSCChambers.begin(), theCSCChambers.end(), back_inserter(result) );
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-std::vector<AlignableCSCChamber*> AlignableMuon::CSCChambers()
+std::vector<Alignable*> AlignableMuon::CSCStations()
 {
-  return theCSCChambers;
+  std::vector<Alignable*> result;
+  copy( theCSCStations.begin(), theCSCStations.end(), back_inserter(result) );
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-std::vector<AlignableCSCStation*> AlignableMuon::CSCStations()
+std::vector<Alignable*> AlignableMuon::CSCEndcaps()
 {
-  return theCSCStations;
-}
-
-//--------------------------------------------------------------------------------------------------
-std::vector<AlignableCSCEndcap*> AlignableMuon::CSCEndcaps()
-{
-  return theCSCEndcaps;
+  std::vector<Alignable*> result;
+  copy( theCSCEndcaps.begin(), theCSCEndcaps.end(), back_inserter(result) );
+  return result;
 }
 
 

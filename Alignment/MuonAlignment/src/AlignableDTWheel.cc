@@ -68,19 +68,6 @@ AlignableDTWheel::RotationType AlignableDTWheel::computeOrientation()
 }
 
 
-/// Twists all components by given angle
-void AlignableDTWheel::twist(float rad) 
-{
-
-  for ( std::vector<AlignableDTStation*>::iterator iter = theDTStations.begin();
-	   iter != theDTStations.end(); iter++ ) 
-	(*iter)->twist(rad);
-  
-}
-
-
-
-
 /// Output Wheel information
 std::ostream &operator << (std::ostream& os, const AlignableDTWheel& b )
 {

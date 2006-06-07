@@ -51,7 +51,7 @@ class AlignableCSCStation : public AlignableComposite
 
   AlignableCSCChamber &chamber(int i);  
   
-  virtual void twist(float);
+  //virtual void twist(float);
 
   /// Return alignable object identifier
   virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCStation; }

@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Alignment
-//#include "Alignment/MuonAlignment/interface/MuonAlignableId.h"
 
 #include "Alignment/MuonAlignment/interface/MisalignmentScenarioBuilder.h"
 
@@ -27,37 +26,25 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
 	throw cms::Exception("BadConfig") << "No generator seed defined!";  
   
   // DT Barrel
-  std::vector<Alignable*> dtBarrels = theMuon->DTBarrel();
-  this->decodeMovements_( theScenario, dtBarrel, "TOB" );
+  std::vector<Alignable*> dtBarrel = theMuon->DTBarrel();
+  this->decodeMovements_( theScenario, dtBarrel, "DT" );
 
   // CSC Endcap
-  std::vector<Alignable*> cscEndcap = theMuon->CSCEndcaps();
-  this->decodeMovements_( theScenario, cscEndcap, "TIB" );
+  std::vector<Alignable*> cscEndcaps = theMuon->CSCEndcaps();
+  this->decodeMovements_( theScenario, cscEndcaps, "CSC" );
 
 
 }
 
 
 //__________________________________________________________________________________________________
-// Gets the level name from the first alignable and hands over to the more general version
-void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-												   std::vector<Alignable*> alignables )
-{
-
-  // Get name from first element
-  MuonAlignableId converter;
-  std::string levelName = converter.alignableTypeName( alignables.front() );
-  this->decodeMovements_( pSet, alignables, levelName );
-
-
-}
 
 
 //__________________________________________________________________________________________________
 // Decode nested parameter sets: this is the tricky part... Recursively called on components
 void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-													std::vector<Alignable*> alignables,
-													std::string levelName )
+						          std::vector<Alignable*> alignables,
+       							  std::string levelName )
 {
 
   indent += " "; // For indented output!
@@ -103,7 +90,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  localParameters.getParameterSetNames( parameterSetNames, true );
 	  if ( (*iter)->size() > 0 && parameterSetNames.size() > 0 )
 		// Has components and remaining parameter sets
-		this->decodeMovements_( localParameters, (*iter)->components() );
+		this->decodeMovements_( localParameters, (*iter)->components() , levelName );
 	}
 
   indent = indent.substr( 0, indent.length()-1 );

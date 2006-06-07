@@ -52,8 +52,11 @@ class AlignableMuon: public AlignableComposite
 
 public:
   
-  /// Constructor from record (builds the full hierarchy)
+  /// Constructor from event setup (builds the full hierarchy)
   AlignableMuon( const edm::EventSetup&  ); 
+
+  /// Constructor from records
+  AlignableMuon( DTGeometry& , CSCGeometry& );
 
   /// Destructor
   ~AlignableMuon();
@@ -63,7 +66,7 @@ public:
   // Some typdefs to simplify notation
   typedef GlobalPoint           _PositionType;
   typedef TkRotation<float>     _RotationType;
-  typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
+//  typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
 
   /// Recursive printout of the muon structure
   void dump( void ) const;
@@ -72,13 +75,15 @@ public:
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
 
   // Methods to return specific of components
-  std::vector<AlignableDTChamber*> DTChambers();
-  std::vector<AlignableDTStation*> DTStations();
-  std::vector<AlignableDTWheel*> DTWheels();
-  AlignableDTBarrel* DTBarrel();
-  std::vector<AlignableCSCChamber*> CSCChambers();
-  std::vector<AlignableCSCStation*> CSCStations();
-  std::vector<AlignableCSCEndcap*> CSCEndcaps();
+  std::vector<Alignable*> DTChambers();
+  std::vector<Alignable*> DTStations();
+  std::vector<Alignable*> DTWheels();
+  std::vector<Alignable*> DTBarrel();
+  std::vector<Alignable*> CSCChambers();
+  std::vector<Alignable*> CSCStations();
+  std::vector<Alignable*> CSCEndcaps();
+
+
 
 
 private:
@@ -120,7 +125,7 @@ private:
   std::vector<AlignableDTChamber*>   theDTChambers;
   std::vector<AlignableDTStation*>   theDTStations;
   std::vector<AlignableDTWheel*>     theDTWheels;
-  AlignableDTBarrel*                 theDTBarrel;
+  std::vector<AlignableDTBarrel*>      theDTBarrel;
   
   std::vector<AlignableCSCChamber*>   theCSCChambers;
   std::vector<AlignableCSCStation*>   theCSCStations;
