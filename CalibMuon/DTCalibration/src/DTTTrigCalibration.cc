@@ -1,20 +1,19 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/15 10:08:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/22 12:24:42 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
-#include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
 
-#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -23,7 +22,11 @@
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 
 #include "TFile.h"
@@ -62,9 +65,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
     theSync = 0;
   }
 
-  theTag = pset.getParameter<string>("tTrigTag");
-  theDBWriter = new DTDBWriterInterface(pset.getParameter<ParameterSet>("dtDBWriterConfig"));
-
+  theTag = pset.getUntrackedParameter<string>("tTrigTag", "ttrig_test");
+  checkNoisyChannels = pset.getParameter<bool>("checkNoisyChannels");
 
   if(debug) 
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
@@ -86,7 +88,6 @@ DTTTrigCalibration::~DTTTrigCalibration(){
 
   theFile->Close();
   delete theFitter;
-  delete theDBWriter;
 }
 
 
@@ -97,11 +98,16 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
   Handle<DTDigiCollection> digis; 
   event.getByLabel(digiLabel, digis);
 
+  ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    // Get the map of noisy channels
+    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+  }
+
+
   if(doSubtractT0)
     theSync->setES(eventSetup);
 
-  // Set the IOV of the objects FIXME: Where to put this?
-  theDBWriter->setIOV(edm::IOVSyncValue::endOfTime().eventID().run());
 
   // Iterate through all digi collections ordered by LayerId   
   DTDigiCollection::DigiRangeIterator dtLayerIt;
@@ -130,11 +136,25 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
     for (DTDigiCollection::const_iterator digi = digiRange.first;
 	 digi != digiRange.second;
 	 digi++) {
+      const DTWireId wireId(layerId, (*digi).wire());
+
+      // Check for noisy channels and skip them
+      if(checkNoisyChannels) {
+	bool isNoisy = false;
+	bool isFEMasked = false;
+	bool isTDCMasked = false;
+	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked);
+	if(isNoisy | isFEMasked | isTDCMasked) {
+	  if(debug)
+	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	  continue;
+	} 
+      }
+      
       theFile->cd();
       double offset = 0;
       if(doSubtractT0) {
 	const DTLayer* layer = 0;//fake
-	const DTWireId wireId(layerId, (*digi).wire());
 	const GlobalPoint glPt;//fake
 	offset = theSync->offset(layer, wireId, glPt);
       }
@@ -187,8 +207,22 @@ void DTTTrigCalibration::endJob() {
 
   if(debug) 
    cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
+
   // Write the ttrig object to DB
-  theDBWriter->write2DB<DTTtrig>(tTrig);
+  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
+ if( dbOutputSvc.isAvailable() ){
+    try{
+      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime());
+    }catch(const cond::Exception& er){
+      cout << er.what() << endl;
+    }catch(const std::exception& er){
+      cout << "[DTTTrigCalibration] caught std::exception " << er.what() << endl;
+    }catch(...){
+      cout << "[DTTTrigCalibration] Funny error" << endl;
+    }
+  }else{
+    cout << "Service PoolDBOutputService is unavailable" << endl;
+  }
 
 
 

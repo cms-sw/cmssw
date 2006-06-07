@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/04/27 13:49:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/22 12:24:42 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,7 +28,6 @@ class TFile;
 class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
-class DTDBWriterInterface;
 class DTTtrig;
 
 class DTTTrigCalibration : public edm::EDAnalyzer {
@@ -70,13 +69,13 @@ private:
   std::map<DTSuperLayerId, TH1F*> theHistoMap;
   // Switch for t0 subtraction
   bool doSubtractT0;
+  // Switch for checking of noisy channels
+  bool checkNoisyChannels;
   // The fitter
   DTTimeBoxFitter *theFitter;
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
   std::string theTag;
-  // The interface to DB to write ttrig objects
-  DTDBWriterInterface *theDBWriter;
 
 };
 #endif
