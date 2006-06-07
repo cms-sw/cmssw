@@ -7,15 +7,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.3 2006/05/02 16:13:33 llista Exp $
+ * \version $Id: Particle.h,v 1.4 2006/06/05 13:40:07 llista Exp $
  *
  */
-#include "DataFormats/Candidate/interface/ParticleBaseWithCharge.h"
+#include "DataFormats/Candidate/interface/ParticleWithCharge.h"
 #include "DataFormats/Math/interface/Point3D.h"
  
 namespace reco {
 
-  class Particle : public ParticleBaseWithCharge {
+  class Particle : public ParticleWithCharge {
   public:
     /// point in the space
     typedef math::XYZPoint Point;
@@ -23,7 +23,7 @@ namespace reco {
     Particle() { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      ParticleBaseWithCharge( q, p4 ), vtx_( vtx ) { }
+      ParticleWithCharge( q, p4 ), vtx_( vtx ) { }
     /// destructor
     virtual ~Particle() { }
     /// vertex position

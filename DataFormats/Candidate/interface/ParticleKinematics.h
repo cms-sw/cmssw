@@ -1,13 +1,13 @@
-#ifndef Candidate_ParticleBase_h
-#define Candidate_ParticleBase_h
-/** \class reco::ParticleBase
+#ifndef Candidate_ParticleKinematics_h
+#define Candidate_ParticleKinematics_h
+/** \class reco::ParticleKinematics
  *
  * Base class describing a generic reconstructed Particle with 
  * a momentum 4-vector measurement
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleBase.h,v 1.3 2006/05/02 16:13:33 llista Exp $
+ * \version $Id: ParticleKinematics.h,v 1.1 2006/06/05 13:40:07 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -15,19 +15,19 @@
  
 namespace reco {
 
-  class ParticleBase {
+  class ParticleKinematics {
   public:
     /// Lorentz vector
     typedef math::XYZTLorentzVector LorentzVector;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// default constructor
-    ParticleBase() { }
+    ParticleKinematics() { }
     /// constructor from values
-    ParticleBase( const LorentzVector & p4 ) : 
+    ParticleKinematics( const LorentzVector & p4 ) : 
       p4_( p4 ) { }
     /// destructor
-    virtual ~ParticleBase() { }
+    virtual ~ParticleKinematics() { }
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
     /// spatial momentum vector
@@ -63,6 +63,8 @@ namespace reco {
     double theta() const { return p4_.Theta(); }
     /// momentum pseudorapidity
     double eta() const { return p4_.Eta(); }
+    /// repidity
+    double y() const { return p4_.Rapidity(); }
   protected:
     /// four-momentum Lorentz vector
     LorentzVector p4_;
