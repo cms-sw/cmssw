@@ -38,23 +38,23 @@ Reconstruction output.
   <td class="colgroup" colspan=5>Pixel local reconstruction</td>
 </tr>
 <tr>
-  <td> PixelDigi </rd>
-  <td> edm::DetSetVector<PixelDigi> </td>
-  <td> \ref EventFilter_SiPixelRawToDigi </td>
+  <td> \endhtmlonly PixelDigi \htmlonly </rd>
+  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
+  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "xyz" \htmlonly </td>
   <td class="description">Pixel digitized hit</td>
   <td>V.Chiochia</td>
 </tr>
 <tr>
-  <td> SiPixelCluster </rd>
-  <td> edm::DetSetVector<SiPixelDigi> </td>
-  <td> \ref RecoLocalTracker_SiPixelClusterizer  </td>
+  <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
+  <td> \endhtmlonly edm::DetSetVector<SiPixelDigi> \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "xyz" \htmlonly </td>
   <td class="description">Pixel cluster</td>
   <td>V.Chiochia</td>
 </tr>
 <tr>
-  <td> SiPixelRecHit </rd>
-  <td> SiPixelRecHitCollection </td>
-  <td> \ref RecoLocalTracker_SiPixelRecHits</td>
+  <td> \endhtmlonly SiPixelRecHit \htmlonly </rd>
+  <td> \endhtmlonly SiPixelRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "xyz" \htmlonly</td>
   <td class="description">Pixel reconstructed hit</td>
   <td>V.Chiochia</td>
 </tr>
@@ -64,21 +64,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
-  <td>CTFAnalytical</td>
+  <td> \endhtmlonly CTFAnalytical \htmlonly </td>
   <td class="description">Combinatorial finder with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
-  <td>CTFAnalytical</td>
+  <td> \endhtmlonly CTFAnalytical \htmlonly </td>
   <td class="description">Combinatorial finder with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
-  <td>CTFAnalytical</td>
+  <td> \endhtmlonly CTFAnalytical \htmlonly </td>
   <td class="description">Combinatorial finder with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
@@ -86,21 +86,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
-  <td>CTFWMaterial</td>
+  <td> \endhtmlonly CTFWMaterial \htmlonly </td>
   <td class="description">Combinatorial finder with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
-  <td>CTFWMaterial</td>
+  <td> \endhtmlonly CTFWMaterial \htmlonly </td>
   <td class="description">Combinatorial finder with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
-  <td>CTFWMaterial</td>
+  <td> \endhtmlonly CTFWMaterial \htmlonly </td>
   <td class="description">Combinatorial finder with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
@@ -108,21 +108,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
-  <td>RSAnalytical</td>
+  <td> \endhtmlonly RSAnalytical \htmlonly </td>
   <td class="description">Road search with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
-  <td>RSAnalytical</td>
+  <td> \endhtmlonly RSAnalytical \htmlonly </td>
   <td class="description">Road search with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
-  <td>RSAnalytical</td>
+  <td> \endhtmlonly RSAnalytical \htmlonly </td>
   <td class="description">Road search with analytical propagator</td>
   <td>S.Magni</td>
 </tr>
@@ -130,21 +130,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
-  <td>RSWMaterial</td>
+  <td> \endhtmlonly RSWMaterial \htmlonly </td>
   <td class="description">Road search with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
-  <td>RSWMaterial</td>
+  <td> \endhtmlonly RSWMaterial \htmlonly </td>
   <td class="description">Road search with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
-  <td>RSWMaterial</td>
+  <td> \endhtmlonly RSWMaterial \htmlonly </td>
   <td class="description">Road search with propagation in the material</td>
   <td>S.Magni</td>
 </tr>
@@ -154,21 +154,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td>basicClsters<i>:hybrid</i></td>
+  <td> \endhtmlonly basicClsters<i>:hybrid</i> \htmlonly </td>
   <td class="description">Basic clusters reconstructed with hybrid algorithm</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td>basicClusters<i>:island</i></td>
+  <td> \endhtmlonly basicClusters<i>:island</i> \htmlonly </td>
   <td class="description">Basic clusters reconstructed with island algorithm</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
   <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
-  <td>superClusters
+  <td> \endhtmlonly superClusters \htmlonly </td>
   <td class="description">Super clusters</td>
   <td>&nbsp;</td>
 </tr>
@@ -186,28 +186,28 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
-  <td>CaloJetMcone5</td>
+  <td> \endhtmlonly CaloJetMcone5 \htmlonly </td>
   <td class="description">MidpointCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
-  <td>CaloJetMcone7</td>
+  <td> \endhtmlonly CaloJetMcone7 \htmlonly </td>
   <td class="description">MidpointCone R=0.7 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
-  <td>CaloJetKt</td>
+  <td> \endhtmlonly CaloJetKt \htmlonly </td>
   <td class="description">Kt jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
-  <td>CaloJetIcone5</td>
+  <td> \endhtmlonly CaloJetIcone5 \htmlonly </td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -217,28 +217,28 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td>GenJetMcone5</td>
+  <td> \endhtmlonly GenJetMcone5 \htmlonly </td>
   <td class="description">MidpointCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td>GenJetMcone7</td>
+  <td> \endhtmlonly GenJetMcone7 \htmlonly </td>
   <td class="description">MidpointCone R=0.7 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td>GenJetKt</td>
+  <td> \endhtmlonly GenJetKt \htmlonly </td>
   <td class="description">Kt jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td>GenJetIcone5</td>
+  <td> \endhtmlonly GenJetIcone5 \htmlonly </td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
