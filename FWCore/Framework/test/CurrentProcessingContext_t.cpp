@@ -1,0 +1,102 @@
+#include <cassert>
+#include <cstddef>
+#include <string>
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
+
+namespace
+{
+  // Forward declare test helpers
+  edm::ModuleDescription makeModuleDescription(std::string const& label);
+  void setup_ctx(edm::CurrentProcessingContext& ctx);
+
+  // Icky global junk, to mock lifetime of ModuleDescription.
+  static edm::ModuleDescription moduleA = makeModuleDescription("aaa");
+  static std::string pathName("path_a");
+  static std::size_t pathNumber(21);
+  static std::size_t slotInPath(13);  
+
+  static edm::ModuleDescription const* p_moduleA = &moduleA;
+  static std::string const*            p_pathName = &pathName;
+
+  // Test helpers
+  edm::ModuleDescription makeModuleDescription(std::string const& label)
+  {
+    edm::ModuleDescription temp;
+    temp.moduleLabel_ = label;
+    return temp;    
+  }
+  
+  void setup_ctx(edm::CurrentProcessingContext& ctx)
+  {
+    assert( p_moduleA );
+    ctx.activate(p_moduleA, p_pathName, pathNumber, slotInPath);
+  }
+
+} // unnamed namespace
+
+
+void test_default_ctor()
+{
+  edm::CurrentProcessingContext ctx;
+  assert( ctx.moduleLabel() == 0 );
+  assert( ctx.moduleDescription() == 0 );
+  
+}
+
+void test_activate()
+{
+  edm::CurrentProcessingContext ctx;
+  ctx.activate(p_moduleA, p_pathName, pathNumber, slotInPath);
+  {
+    edm::CurrentProcessingContext const& r_ctx = ctx;
+    assert( r_ctx.moduleDescription() == p_moduleA );
+    assert( r_ctx.moduleLabel() );
+    assert( *r_ctx.moduleLabel() == "aaa" );
+  }  
+}
+
+void test_deactivate()
+{
+  edm::CurrentProcessingContext ctx;
+  setup_ctx(ctx);
+  ctx.deactivate();
+  assert( ctx.moduleLabel() == 0 );
+  assert( ctx.moduleDescription() == 0 );  
+}
+
+
+int work()
+{
+  test_default_ctor();
+  test_deactivate();
+  return 0;
+}
+
+using namespace std;
+
+int main()
+{
+  int rc = -1;
+  try { rc = work(); }
+  catch ( cms::Exception& x )
+    {
+      cerr << "cms::Exception caught\n";
+      cerr << x.what() << '\n';
+      rc = -2;
+    }
+  catch ( std::exception& x )
+    {
+      cerr << "std::exception caught\n";
+      cerr << x.what() << '\n';
+      rc = -3;
+    }
+  catch ( ... )
+    {
+      cerr << "Unknown exception caught\n";
+      rc = -4;
+    }
+  return rc;      
+}
