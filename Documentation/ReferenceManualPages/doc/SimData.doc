@@ -1,8 +1,8 @@
 /*!
 \page SimData SIM data tier
 
-\section event RECO Event content
-Event products of Reconstruction.
+\section event SIM Event content
+Event products of Simulation.
 
 \htmlonly
 
