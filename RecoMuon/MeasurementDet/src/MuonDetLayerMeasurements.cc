@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/05/30 17:53:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/01 15:39:48 $
+ *  $Revision: 1.7 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -19,9 +19,9 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements() {
-  theDTRecHitLabel = "DTRecSegment4DProducer";
-  theCSCRecHitLabel = "CSCSegmentProducer";
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(std::string dtlabel, std::string csclabel) {
+  theDTRecHitLabel = dtlabel;
+  theCSCRecHitLabel = csclabel;
   theEventFlag = false;
   
 }

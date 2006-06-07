@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/05/30 17:53:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/01 15:39:48 $
+ *  $Revision: 1.5 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -30,7 +30,8 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 class MuonDetLayerMeasurements {
 public:
 
-   MuonDetLayerMeasurements();
+  MuonDetLayerMeasurements(std::string dtlabel = "DTRecSegment4DProducer", 
+			   std::string csclabel = "CSCSegmentProducer");
 
    virtual ~MuonDetLayerMeasurements();
 
