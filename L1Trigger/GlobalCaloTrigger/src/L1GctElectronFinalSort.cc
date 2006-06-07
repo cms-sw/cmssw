@@ -67,13 +67,7 @@ void L1GctElectronFinalSort::fetchInput() {
 }
 
 void L1GctElectronFinalSort::process(){
-  //First check that there are electron candidates in the input vector
-  for(unsigned i=0;i!=m_inputCands.size();i++){
-    if(m_inputCands[i].rank()==0){
-      throw cms::Exception("L1GctSetupError")
-      <<"L1GctElectronFinalSort::process() : No input candidate in vector at "<<i<<" ";
-    }
-  }
+ 
   //Make temporary copy of data
   std::vector<L1GctEmCand> data = m_inputCands;
  
