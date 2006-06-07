@@ -2,7 +2,7 @@
 \page RecoData RECO data tier
 
 \section event RECO Event content
-Event products of Reconstruction.
+Reconstruction output.
 
 \htmlonly
 
@@ -20,8 +20,7 @@ Event products of Reconstruction.
             else { row.className='even'; }
       }
     }
-  }
-  window.onload = alternate;
+  }  window.onload = alternate;
 -->
 </script>
 

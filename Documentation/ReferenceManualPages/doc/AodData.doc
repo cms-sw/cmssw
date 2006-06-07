@@ -1,0 +1,36 @@
+/*!
+\page AodData AOD data tier
+
+\section aod AOD Event content
+AOD will be a subset of \ref RecoData "RECO" data, still to be defined.
+
+\htmlonly
+
+<script type="text/javascript">
+<!--
+  function alternate() {
+    var i,t,row,table, tables;
+    tables = document.getElementsByTagName("table");
+    for( t = 0; t < tables.length; ++t ) {
+      table = tables[ t ];
+      if ( table.className == 'reftable' ) {
+        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) 
+          if ( row.className != 'colgroup' )
+            if(i % 2 == 1) { row.className='odd'; }
+            else { row.className='even'; }
+      }
+    }
+  }  window.onload = alternate;
+-->
+</script>
+
+\endhtmlonly
+
+\section contact Contact persons
+- Luca Lista
+- Tommaso Boccali
+
+<hr>
+Last updated: @DATE@ L.Lista
+
+*/

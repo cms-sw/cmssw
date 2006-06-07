@@ -1,8 +1,8 @@
 /*!
-\page SimData SIM data tier
+\page RawData RAW data tier
 
-\section sim SIM Event content
-Simulation output and Monte Carlo truth
+\section raw RAW Event content
+Raw detector output.
 
 \htmlonly
 
@@ -41,30 +41,29 @@ Simulation output and Monte Carlo truth
   <td> \endhtmlonly XYZObject \htmlonly </rd>
   <td> \endhtmlonly XYZCollection \htmlonly </td>
   <td>xyscollection</td>
-  <td class="description">Collectin of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
+  <td class="description">Collectin of xyz raw object ...</td>
+  <td>E.Meschi</td>
 </tr>
 <tr>
   <td> \endhtmlonly XYZObject \htmlonly </rd>
   <td> \endhtmlonly XYZCollection \htmlonly </td>
   <td>xyscollection</td>
-  <td class="description">Collectin of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
+  <td class="description">Collectin of xyz raw object ...</td>
+  <td>E.Meschi</td>
 </tr>
 <tr>
   <td> \endhtmlonly XYZObject \htmlonly </rd>
   <td> \endhtmlonly XYZCollection \htmlonly </td>
   <td>xyscollection</td>
-  <td class="description">Collectin of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
+  <td class="description">Collectin of xyz raw object ...</td>
+  <td>E.Meschi</td>
 </tr>
 </table>
 
 \endhtmlonly
 
 \section contact Contact persons
-- Daniel Elvira
-- Maya Stavrianakou
+- Emilio Meschi
 
 <hr>
 Last updated: @DATE@ L.Lista
