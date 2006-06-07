@@ -4,6 +4,8 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
+//#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
+
 /*
  * A calorimeter trigger region
  * author: Jim Brooke, Robert Frazier
@@ -11,10 +13,13 @@
  * 
  */
 
+//class L1GctMap;
+
 class L1GctRegion
 {
 public:
   L1GctRegion(unsigned eta=0, unsigned phi=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
+  L1GctRegion(unsigned id=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
   ~L1GctRegion();
   
   // region position //
@@ -29,7 +34,7 @@ public:
   int phi() const { return m_phi; }
 
   /// get RCT crate index (0-17)
-  int rctCrate() const { return L1GctMap::getMap()->rctCrate(*this); }
+  unsigned rctCrate() const;
 
   // get region data //
 

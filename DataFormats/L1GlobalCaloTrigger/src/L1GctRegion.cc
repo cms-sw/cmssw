@@ -3,6 +3,7 @@
 #include <ostream>
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
 using std::ostream;
 using std::endl;
@@ -35,6 +36,11 @@ L1GctRegion::L1GctRegion(unsigned eta, unsigned phi, unsigned et, bool overFlow,
 
 // destructor
 L1GctRegion::~L1GctRegion() { }
+
+// get RCT crate
+unsigned L1GctRegion::rctCrate() const { 
+  return L1GctMap::getMap()->rctCrate(*this); 
+}
 
 
 // set mip bit

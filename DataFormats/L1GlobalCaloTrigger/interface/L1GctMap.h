@@ -34,10 +34,10 @@ class L1GctMap {
   unsigned phi(L1GctRegion r);
 
   /// get physical eta 
-  double eta(L1GctRegion r);
+  // double eta(L1GctRegion r);
 
   /// get physical eta 
-  double phi(L1GctRegion r);
+  //  double phi(L1GctRegion r);
 
 
  private:        // methods
@@ -46,7 +46,7 @@ class L1GctMap {
 
  private:        // data
 
-  L1GctMap * m_instance;  // the instance, this is a singleton
+  static L1GctMap * m_instance;  // the instance, this is a singleton
 
 
 };

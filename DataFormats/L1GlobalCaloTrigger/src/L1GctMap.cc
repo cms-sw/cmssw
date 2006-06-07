@@ -1,6 +1,8 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
+L1GctMap* L1GctMap::m_instance = 0;
+
 /// constructor
 L1GctMap::L1GctMap() { 
 
@@ -42,11 +44,11 @@ unsigned L1GctMap::phi(L1GctRegion r) {
 }
 
 /// get physical eta 
-double L1GctMap::eta(L1GctRegion r) {
-
-}
+//double L1GctMap::eta(L1GctRegion r) {
+//
+//}
 
 /// get physical phi
-double L1GctMap::phi(L1GctRegion r) {
-
-}
+//double L1GctMap::phi(L1GctRegion r) {
+//
+//}
