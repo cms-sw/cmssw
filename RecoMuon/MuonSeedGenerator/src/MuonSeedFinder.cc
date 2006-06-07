@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/30 13:50:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/05 14:54:35 $
+ *  $Revision: 1.5 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -102,46 +102,55 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 
     if ( dPhiGloDir > .2 ) quality = quality +1;  
 
-    if ( !me1->isValid() ) {
+    if(!me1){
       me1 = meit;
       quality1 = quality; 
       bestdPhiGloDir = dPhiGloDir;
     }
-
-    if ( me1->isValid() && quality < quality1 ) {
-        me1 = meit;
-        quality1 = quality; 
-        bestdPhiGloDir = dPhiGloDir;
-    }    
-
-    if ( me1->isValid() && bestdPhiGloDir > .03 ) {
-      if ( dPhiGloDir < bestdPhiGloDir - .01 && quality == quality1 ) {
-        me1 = meit;
-        quality1 = quality; 
-        bestdPhiGloDir = dPhiGloDir;
+    
+    if(me1) {
+      
+      if ( !me1->isValid() ) {
+	me1 = meit;
+	quality1 = quality; 
+	bestdPhiGloDir = dPhiGloDir;
       }
-    }    
-
+      
+      if ( me1->isValid() && quality < quality1 ) {
+        me1 = meit;
+        quality1 = quality; 
+        bestdPhiGloDir = dPhiGloDir;
+      }    
+      
+      if ( me1->isValid() && bestdPhiGloDir > .03 ) {
+	if ( dPhiGloDir < bestdPhiGloDir - .01 && quality == quality1 ) {
+	  me1 = meit;
+	  quality1 = quality; 
+	  bestdPhiGloDir = dPhiGloDir;
+	}
+      }    
+    }
+    
   }   //  iter 
-
+  
 
   if ( quality1 == 0 ) quality1 = 1;  
 
   bool good=false;
 
-  if ( me1->isValid() ) {
-
-    good = createEndcapSeed(me1, theSeeds,eSetup); 
+  if(me1)
+    if ( me1->isValid() )
+      good = createEndcapSeed(me1, theSeeds,eSetup); 
   
-  }
-
-    return theSeeds;
+  return theSeeds;
 }
 
 bool 
 MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
+
+  cout<<"MuonSeedFinder::createEndcapSeed"<<endl;
 
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
