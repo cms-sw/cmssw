@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.3 2006/04/10 22:06:41 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.4 2006/05/29 17:44:54 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -103,14 +103,12 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 						 << " " << real_fit.Z0() << " " << real_fit.Tanl() ;
 
 		      double para[5];
-		      para[0] = real_fit.D0();
-		      para[1] = real_fit.Phi0();
-//		      para[2] = real_fit.Omega();
-		      para[2] = -real_fit.Omega()/0.0120;
-		      para[3] = real_fit.Z0();
-		      para[4] = real_fit.Tanl();
+		      para[0] = real_fit.Omega();
+		      para[1] = half_pi - atan(real_fit.Tanl());
+		      para[2] = real_fit.Phi0();
+		      para[3] = - real_fit.D0();
+		      para[4] = real_fit.Z0();
 		      // OLI: 060529: changes in reco::Track (perigee parametrization, interface changes)
-		      // Attention: filles parameter's still wrong, have to wait for instructions from authors
 // 		      reco::Track::Parameters params(para);
 		      reco::Track::Parameters params(para,real_fit.Pt());
 		      double covpara[15];
