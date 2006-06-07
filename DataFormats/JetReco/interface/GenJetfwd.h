@@ -1,5 +1,5 @@
 // F.R.
-// $Id$
+// $Id: GenJetfwd.h,v 1.3 2006/05/24 00:40:43 fedor Exp $
 #ifndef JetReco_GenJetfwd_h
 #define JetReco_GenJetfwd_h
 #include "DataFormats/Common/interface/Ref.h"
@@ -11,6 +11,6 @@ class GenJet;
 typedef std::vector<GenJet> GenJetCollection;
 /// edm references
 typedef edm::Ref<GenJetCollection> GenJetRef;
-typedef edm::RefVector<GenJetCollection> GenJetRefs;
-typedef edm::RefProd<GenJetCollection> GenJetsRef;
+typedef edm::RefVector<GenJetCollection> GenJetRefVector;
+typedef edm::RefProd<GenJetCollection> GenJetRefProd;
 #endif

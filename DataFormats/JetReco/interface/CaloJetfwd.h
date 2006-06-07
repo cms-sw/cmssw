@@ -1,5 +1,5 @@
 // F.R.
-// $Id$
+// $Id: CaloJetfwd.h,v 1.4 2006/05/24 00:40:43 fedor Exp $
 #ifndef JetReco_CaloJetfwd_h
 #define JetReco_CaloJetfwd_h
 #include "DataFormats/Common/interface/Ref.h"
@@ -11,6 +11,6 @@ class CaloJet;
 typedef std::vector<CaloJet> CaloJetCollection;
 /// edm references
 typedef edm::Ref<CaloJetCollection> CaloJetRef;
-typedef edm::RefVector<CaloJetCollection> CaloJetRefs;
-typedef edm::RefProd<CaloJetCollection> CaloJetsRef;
+typedef edm::RefVector<CaloJetCollection> CaloJetRefVector;
+typedef edm::RefProd<CaloJetCollection> CaloJetRefProd;
 #endif
