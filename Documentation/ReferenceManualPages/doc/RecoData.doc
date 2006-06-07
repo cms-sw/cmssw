@@ -40,21 +40,21 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly PixelDigi \htmlonly </rd>
   <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
-  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "xyz" \htmlonly </td>
+  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
   <td class="description">Pixel digitized hit</td>
   <td>V.Chiochia</td>
 </tr>
 <tr>
   <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
   <td> \endhtmlonly edm::DetSetVector<SiPixelDigi> \htmlonly </td>
-  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "xyz" \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "pixClust" \htmlonly </td>
   <td class="description">Pixel cluster</td>
   <td>V.Chiochia</td>
 </tr>
 <tr>
   <td> \endhtmlonly SiPixelRecHit \htmlonly </rd>
   <td> \endhtmlonly SiPixelRecHitCollection \htmlonly </td>
-  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "xyz" \htmlonly</td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "pixRecHitConverter" \htmlonly</td>
   <td class="description">Pixel reconstructed hit</td>
   <td>V.Chiochia</td>
 </tr>
