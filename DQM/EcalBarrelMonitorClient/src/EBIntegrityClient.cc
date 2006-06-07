@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/24 20:42:25 $
- * $Revision: 1.90 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -239,8 +239,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
   map<EcalLogicID, MonMemChConsistencyDat> dataset3;
   MonMemTTConsistencyDat c4;
   map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
-
-  cout << "Creating MonConsistencyDatObjects for the database ..." << endl;
 
   float num00;
 
@@ -571,7 +569,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonCrystalConsistencyDat ... " << flush;
       if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataSet(&dataset3, moniov);

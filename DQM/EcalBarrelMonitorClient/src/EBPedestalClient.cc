@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/05/24 20:42:26 $
- * $Revision: 1.72 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -346,8 +346,6 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset1;
 
-  cout << "Creating MonPedestalsDatObjects for the database ..." << endl;
-
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
@@ -438,7 +436,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonPedestalsDat ... " << flush;
       if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -448,8 +446,6 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
-
-  cout << "Creating MonPnDatObjects for the database ..." << endl;
 
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
@@ -522,7 +518,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonPNPedDat ... " << flush;
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

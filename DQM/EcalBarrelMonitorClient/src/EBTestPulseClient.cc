@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/05/24 20:42:26 $
- * $Revision: 1.69 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -260,8 +260,6 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
 
-  cout << "Creating MonTestPulseDatObjects for the database ..." << endl;
-
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
 
@@ -409,7 +407,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonTestPulseDat ... " << flush;
       if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
@@ -420,8 +418,6 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
-
-  cout << "Creating MonPnDatObjects for the database ..." << endl;
 
   const float m_min_tot = 100.;
   const float m_min_bin = 10.;
@@ -521,7 +517,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonPNMGPADat ... " << flush;
       if ( dataset3.size() != 0 ) econn->insertDataSet(&dataset3, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

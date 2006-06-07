@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/05/24 20:42:25 $
- * $Revision: 1.69 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -392,8 +392,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset1_rd;
 
-  cout << "Creating MonLaserDatObjects for the database ..." << endl;
-
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
@@ -630,7 +628,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonLaserDat ... " << flush;
       if ( dataset1_bl.size() != 0 ) econn->insertDataSet(&dataset1_bl, moniov);
       if ( dataset1_ir.size() != 0 ) econn->insertDataSet(&dataset1_ir, moniov);
       if ( dataset1_gr.size() != 0 ) econn->insertDataSet(&dataset1_gr, moniov);
@@ -649,8 +647,6 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
   map<EcalLogicID, MonPNIRedDat> dataset2_ir;
   MonPNRedDat pn_rd;
   map<EcalLogicID, MonPNRedDat> dataset2_rd;
-
-  cout << "Creating MonPnDatObjects for the database ..." << endl;
 
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
@@ -986,7 +982,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonPnDat ... " << flush;
       if ( dataset2_bl.size() != 0 ) econn->insertDataSet(&dataset2_bl, moniov);
       if ( dataset2_ir.size() != 0 ) econn->insertDataSet(&dataset2_ir, moniov);
       if ( dataset2_gr.size() != 0 ) econn->insertDataSet(&dataset2_gr, moniov);

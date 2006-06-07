@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/05/24 20:42:25 $
- * $Revision: 1.48 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -137,8 +137,6 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
 
-  cout << "Creating MonOccupancyDatObjects for the database ..." << endl;
-
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
 
@@ -211,7 +209,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int 
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonOccupancyDat ... " << flush;
       if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {

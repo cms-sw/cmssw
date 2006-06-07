@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/27 18:13:06 $
- * $Revision: 1.23 $
+ * $Date: 2006/05/28 07:49:00 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -194,8 +194,6 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
-  cout << "Creating MonPedestalsOnlineDatObjects for the database ..." << endl;
-
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
@@ -260,7 +258,7 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting MonPedestalsOnlineDat ... " << flush;
       if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
