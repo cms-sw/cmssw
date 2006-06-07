@@ -1,3 +1,5 @@
+<Flags CXXFLAGS=-g>
+
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
@@ -10,6 +12,7 @@
 <use name=oracle>
 <lib name=occi>
 <lib name=condbon>
+<lib name=condbc>
 <lib name=cscmap>
 
 <lib name=Minuit2>
@@ -22,11 +25,14 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
- 
    <use name=DataFormats/CSCDigi>
    <use name=EventFilter/CSCRawToDigi>
    <use name=clhep>
    <use name=root>
+   <lib name=occi>
+   <lib name=condbon>
+   <lib name=condbc>
+   <lib name=cscmap>
    <lib name=Minuit2>
 </export>
 
