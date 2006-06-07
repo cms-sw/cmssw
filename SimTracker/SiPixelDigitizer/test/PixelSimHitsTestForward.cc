@@ -5,10 +5,8 @@
 // 
 /**\class PixelSimHitsTest PixelSimHitsTest.cc 
 
- Description: Test pixel simhits. Barrel only. Uses root histos.
- Modifed for module() method in PXBDetId. 2/06
- Add global coordiantes. 21/2/06
- Works with CMSSW_0_7_0_pre
+ Description: Test pixel simhits. Forward only. Uses root histos.
+ Works with CMSSW_0_7_0_pre 
  
  Implementation:
      <Notes on implementation>
@@ -46,7 +44,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+//#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
@@ -61,13 +60,15 @@
 using namespace std;
 using namespace edm;
 
-//#define CHECK_GEOM
+//
+// class decleration
+//
 
-class PixelSimHitsTest : public edm::EDAnalyzer {
+class PixelSimHitsTestForward : public edm::EDAnalyzer {
 
 public:
-  explicit PixelSimHitsTest(const edm::ParameterSet&);
-  ~PixelSimHitsTest();
+  explicit PixelSimHitsTestForward(const edm::ParameterSet&);
+  ~PixelSimHitsTestForward();
   virtual void beginJob(const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(); 
@@ -101,35 +102,48 @@ private:
 
   TProfile *hp1, *hp2, *hp3, *hp4, *hp5;
 
-#ifdef CHECK_GEOM
-  float modulePositionZ[3][44][8];
-  float modulePositionR[3][44][8];
-  float modulePositionPhi[3][44][8];
-#endif
+  //float modulePositionZ[3][44][8];
+  //float modulePositionR[3][44][8];
+  //float modulePositionPhi[3][44][8];
 
 };
+
 //
-PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet& iConfig) {
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+PixelSimHitsTestForward::PixelSimHitsTestForward(const edm::ParameterSet& iConfig) {
   //We put this here for the moment since there is no better place 
   //edm::Service<MonitorDaemon> daemon;
   //daemon.operator->();
 
-  cout<<" Construct PixelSimHitsTest "<<endl;
+  cout<<" Construct PixelSimHitsTestForward "<<endl;
 }
 
-PixelSimHitsTest::~PixelSimHitsTest() {
+
+PixelSimHitsTestForward::~PixelSimHitsTestForward() {
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  cout<<" Destroy PixelSimHitsTest "<<endl;
+  cout<<" Destroy PixelSimHitsTestForward "<<endl;
 
 }
 
+//
+// member functions
+//
 // ------------ method called at the begining   ------------
-void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
+void PixelSimHitsTestForward::beginJob(const edm::EventSetup& iSetup) {
 
    using namespace edm;
-   cout << "Initialize PixelSimHitsTest " <<endl;
+   cout << "Initialize PixelSimHitsTestForward " <<endl;
 
    // put here whatever you want to do at the beginning of the job
    hFile = new TFile ( "simhistos.root", "RECREATE" );
@@ -242,27 +256,26 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
     hp4 = new TProfile("hp4"," ",50,0.,50.);
     hp5 = new TProfile("hp5"," ",50,0.,50.);
 
-#ifdef CHECK_GEOM
     // To get the module position
-    for(int i=0;i<3;i++) {
-      for(int n=0;n<44;n++) {
-	for(int m=0;m<8;m++) {
- 	  modulePositionR[i][n][m]=-1;
- 	  modulePositionZ[i][n][m]=-1;
- 	  modulePositionPhi[i][n][m]=-1;
-	}
-      }
-    }
-#endif
+//     for(int i=0;i<3;i++) {
+//       for(int n=0;n<44;n++) {
+// 	for(int m=0;m<8;m++) {
+//  	  modulePositionR[i][n][m]=-1;
+//  	  modulePositionZ[i][n][m]=-1;
+//  	  modulePositionPhi[i][n][m]=-1;
+// 	}
+//       }
+//     }
+
 }
 
 // ------------ method called to produce the data  ------------
-void PixelSimHitsTest::analyze(const edm::Event& iEvent, 
+void PixelSimHitsTestForward::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup) {
   const double PI = 3.142;
 
   using namespace edm;
-  if(PRINT) cout<<" Analyze PixelSimHitsTest "<<endl;
+  if(PRINT) cout<<" Analyze PixelSimHitsTestForward "<<endl;
   
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -275,7 +288,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
   int totalNumOfSimHits2 = 0;
   int totalNumOfSimHits3 = 0;
 
-   // To count simhits per det module 
+  // To count simhits per det module 
    //typedef std::map<unsigned int, std::vector<PSimHit>,
    //std::less<unsigned int>> simhit_map;
    //typedef simhit_map::iterator simhit_map_iterator;
@@ -284,29 +297,34 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
    map<unsigned int, vector<PSimHit>, less<unsigned int> > SimHitMap2;
    map<unsigned int, vector<PSimHit>, less<unsigned int> > SimHitMap3;
 
-   Handle<PSimHitContainer> PixelBarrelHitsLowTof;
-   Handle<PSimHitContainer> PixelBarrelHitsHighTof;
+   Handle<PSimHitContainer> PixelForwardHitsLowTof;
+   Handle<PSimHitContainer> PixelForwardHitsHighTof;
 
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
+   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof",
+		     PixelForwardHitsLowTof);
+   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof",
+		     PixelForwardHitsHighTof);
+
    //vector<PSimHit> pixelHits;
    //pixelHits.insert(pixelHits.end(),PixelBarrelHitsLowTof->begin(),
    //       PixelBarrelHitsLowTof->end());
 
+   //cout<<" size = "<<PixelForwardHitsLowTof->size()<<endl;
+
    //for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsHighTof->begin();
    //  isim != PixelBarrelHitsHighTof->end(); ++isim){
-   for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
-       isim != PixelBarrelHitsLowTof->end(); ++isim){
+   for(vector<PSimHit>::const_iterator isim = PixelForwardHitsLowTof->begin();
+       isim != PixelForwardHitsLowTof->end(); ++isim){
 
      totalNumOfSimHits++;
      // Det id
      DetId detId=DetId((*isim).detUnitId());
      unsigned int detid=detId.det(); // for pixel=1
-     unsigned int subid=detId.subdetId();// barrel=1
+     unsigned int subid=detId.subdetId();// barrel=1, forward=2
      
-     if(detid!=1 && subid!=1) cout<<" error in det id "<<detid<<" "
+     if(detid!=1 && subid!=2) cout<<" error in det id "<<detid<<" "
 				  <<subid<<endl;
-     //if(PRINT) cout<<(*isim).detUnitId()<<" "<<detId.rawId()<<" "
+     //if(PRINT) cout<<" Forward det id "<<(*isim).detUnitId()<<" "<<detId.rawId()<<" "
      //	   <<detId.null()<<" "<<detid<<" "<<subid<<endl;
 
      //const GeomDetUnit * theGeomDet = theTracker.idToDet(detId);
@@ -330,23 +348,25 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 
      hcolsB->Fill(float(cols));
      hrowsB->Fill(float(rows));
-     if(PRINT) cout<<"det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
+     if(PRINT) cout<<"Forward det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
 		   <<detLength<<" "<<detWidth<<" "<<cols<<" "<<rows
 		   <<endl;
 
-     PXBDetId pdetId = PXBDetId(detId.rawId());
-     unsigned int layer=pdetId.layer();
-     unsigned int ladder=pdetId.ladder();
-     unsigned int zindex=pdetId.module();
-     if(PRINT) cout<<"det id "<<detId.rawId()<<" "
-		   <<detid<<" "<<subid<<" "<<layer<<" "
-		   <<ladder<<" "<<zindex<<endl;
-#ifdef CHECK_GEOM
+     PXFDetId pdetId = PXFDetId(detId.rawId());
+     unsigned int disk=pdetId.disk(); //1,2,3
+     unsigned int blade=pdetId.blade(); //1-24
+     unsigned int zindex=pdetId.module(); //
+     unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
+     unsigned int panel=pdetId.panel(); //panel=1
+
+     if(PRINT) cout<<"det "<<subid<<", disk "<<disk<<", blade "
+		   <<blade<<", module "<<zindex<<", side "<<side<<", panel "
+		   <<panel<<" pos = "<<detZ<<" "<<detR<<" "<<detPhi<<endl;
+
      // To get the module position
-     modulePositionR[layer-1][ladder-1][zindex-1] = detR;
-     modulePositionZ[layer-1][ladder-1][zindex-1] = detZ;
-     modulePositionPhi[layer-1][ladder-1][zindex-1] = detPhi;
-#endif
+//      modulePositionR[disk-1][blade-1][zindex-1] = detR;
+//      modulePositionZ[disk-1][blade-1][zindex-1] = detZ;
+//      modulePositionPhi[disk-1][blade-1][zindex-1] = detPhi;
 
      // SimHit information 
      float eloss = (*isim).energyLoss() * 1000000/3.7;//convert GeV to ke 
@@ -373,9 +393,9 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      float ypos = (y+y2)/2.;
      float zpos = (z+z2)/2.;
 
-     if(PRINT) cout<<" simhit "<<pid<<" "<<tid<<" "<<procType<<" "<<tof<<" "
+     if(PRINT) cout<<"simhit "<<pid<<" "<<tid<<" "<<procType<<" "<<tof<<" "
 		   <<eloss<<" "<<p<<" "<<x<<" "<<y<<" "<<z<<" "<<dz<<endl;
-     if(PRINT) cout<<"  pos "<<xpos<<" "<<ypos<<" "<<zpos;
+     if(PRINT) cout<<" pos "<<xpos<<" "<<ypos<<" "<<zpos;
      
      LocalPoint loc(xpos,ypos,zpos);
      //GlobalPoint glo = theGeomDet->surface().toGlobal(loc); // does not work!
@@ -393,23 +413,23 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      htid->Fill(float(tid));
      hpixid->Fill(float(detid));
      hpixsubid->Fill(float(subid));
-     hlayerid->Fill(float(layer));
+     hlayerid->Fill(float(disk));
  
      // Transform the theta from local module coordinates to global
      //if(theta<= PI/2.) theta = PI/2. - theta; // For +z global
      //else theta = (PI/2. + PI) - theta;
 
-     if(layer==1) {
-       //cout<<" layer "<<layer<<endl;
+     if(disk==1) {
+       //cout<<" disk "<<disk<<endl;
        totalNumOfSimHits1++;
        heloss1->Fill(eloss);
        if(pid==11) heloss1e->Fill(eloss);
        else heloss1mu->Fill(eloss);	 
-       hladder1id->Fill(float(ladder));
+       hladder1id->Fill(float(blade));
        hz1id->Fill(float(zindex));
        hthick1->Fill(dz);
        hlength1->Fill(y);
-       if(ladder==5 || ladder==6 || ladder==15 || ladder==16 ) {
+       if(blade==5 || blade==6 || blade==15 || blade==16 ) {
 	 // half-modules
 	 hwidth1h->Fill(x);
 	 if(pid==13 && p>1.) {  // select primary muons
@@ -423,7 +443,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 // 	     theGeomDet->surface().toGlobal(LocalPoint(0,0,0)).y(); // 
 // 	   double gloR1 = 
 // 	     theGeomDet->surface().toGlobal(LocalPoint(0,0,0)).perp();
-// 	   cout<<" "<<ladder<<" "<<gloX1<<" "<<gloY1<<" "<<gloR1<<" "
+// 	   cout<<" "<<blade<<" "<<gloX1<<" "<<gloY1<<" "<<gloR1<<" "
 // 	       <<detR<<" "<<detPhi<<" "<<detZ<<" "<<gloX<<" "<<gloY<<" "
 // 	       <<xpos<<" "<<ypos<<" "<<zpos<<endl;
 
@@ -443,24 +463,24 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
        if(pid != 11) htest2->Fill(gloZ,eloss);
 
        if(pid!=11 && moduleDirectionUp) 
-	 hladder1idUp->Fill(float(ladder));
+	 hladder1idUp->Fill(float(blade));
 
-       if(ladder==6) htest4->Fill(xpos,gloX);
-       hp1->Fill(float(ladder),detR,1);
-       hp2->Fill(float(ladder),detPhi);
+       if(blade==6) htest4->Fill(xpos,gloX);
+       hp1->Fill(float(blade),detR,1);
+       hp2->Fill(float(blade),detPhi);
        hdetphi1->Fill(detPhi);
 
-     } else if(layer==2) {
-       //cout<<" layer "<<layer<<endl;
+     } else if(disk==2) {
+       //cout<<" disk "<<disk<<endl;
        totalNumOfSimHits2++;
        heloss2->Fill(eloss);
        if(pid==11) heloss2e->Fill(eloss);
        else heloss2mu->Fill(eloss);	 
-       hladder2id->Fill(float(ladder));
+       hladder2id->Fill(float(blade));
        hz2id->Fill(float(zindex));
        hthick2->Fill(dz);
        hlength2->Fill(y);
-       if(ladder==8 || ladder==9 || ladder==24 || ladder==25 ) {
+       if(blade==8 || blade==9 || blade==24 || blade==25 ) {
 	 hwidth2h->Fill(x);
        } else {
 	 hwidth2->Fill(x);
@@ -470,20 +490,20 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
        hglobr2->Fill(gloR);
        hglobz2->Fill(gloZ);
        hdetphi2->Fill(detPhi);
-       if(pid!=11 && moduleDirectionUp) hladder2idUp->Fill(float(ladder));
+       if(pid!=11 && moduleDirectionUp) hladder2idUp->Fill(float(blade));
 
-     } else if(layer==3) {
-       //cout<<" layer "<<layer<<endl;
+     } else if(disk==3) {
+       //cout<<" disk "<<disk<<endl;
        totalNumOfSimHits3++;
        heloss3->Fill(eloss);
        if(pid==11) heloss3e->Fill(eloss);
        else heloss3mu->Fill(eloss);	 
 
-       hladder3id->Fill(float(ladder));
+       hladder3id->Fill(float(blade));
        hz3id->Fill(float(zindex));
        hthick3->Fill(dz);
        hlength3->Fill(y);
-       if(ladder==11 || ladder==12 || ladder==33 || ladder==34 ) {
+       if(blade==11 || blade==12 || blade==33 || blade==34 ) {
 	 hwidth3h->Fill(x);
        } else {
 	 hwidth3->Fill(x); 
@@ -493,7 +513,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
        hglobr3->Fill(gloR);
        hglobz3->Fill(gloZ);
        hdetphi3->Fill(detPhi);
-       if(pid!=11 && moduleDirectionUp) hladder3idUp->Fill(float(ladder));
+       if(pid!=11 && moduleDirectionUp) hladder3idUp->Fill(float(blade));
      }
    }
 
@@ -543,31 +563,30 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 
 }
 // ------------ method called to at the end of the job  ------------
-void PixelSimHitsTest::endJob(){
-  cout << " End PixelSimHitsTest " << endl;
+void PixelSimHitsTestForward::endJob(){
+  cout << " End PixelSimHitsTestForward " << endl;
   hFile->Write();
   hFile->Close();
 
-#ifdef CHECK_GEOM
-  // To get module positions
-  cout<< " Module position"<<endl;
-  cout<<" Layer Ladder Zindex    R      Z      Phi "<<endl; 
-  for(int i=0;i<3;i++) {
-    int max_lad=0;
-    if(i==0) max_lad=20;
-    else if(i==1) max_lad=32;
-    else if(i==2) max_lad=44;
-    for(int n=0;n<max_lad;n++) {
-      for(int m=0;m<8;m++) {
-	cout<<"   "<<i+1<<"      "<<n+1<<"      "<<m+1<<"    "
-	    <<modulePositionR[i][n][m]<<" "
-	    <<modulePositionZ[i][n][m]<<" "<<modulePositionPhi[i][n][m]<<endl;
-      }
-    }
-  }
-#endif
+//   // To get module positions
+//   cout<< " Module position"<<endl;
+//   cout<<" Layer Ladder Zindex    R      Z      Phi "<<endl; 
+//   for(int i=0;i<3;i++) {
+//     int max_lad=0;
+//     if(i==0) max_lad=20;
+//     else if(i==1) max_lad=32;
+//     else if(i==2) max_lad=44;
+//     for(int n=0;n<max_lad;n++) {
+//       for(int m=0;m<8;m++) {
+// 	cout<<"   "<<i+1<<"      "<<n+1<<"      "<<m+1<<"    "
+// 	    <<modulePositionR[i][n][m]<<" "
+// 	    <<modulePositionZ[i][n][m]<<" "<<modulePositionPhi[i][n][m]<<endl;
+//       }
+//     }
+//   }
+
 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(PixelSimHitsTest)
+DEFINE_FWK_MODULE(PixelSimHitsTestForward)

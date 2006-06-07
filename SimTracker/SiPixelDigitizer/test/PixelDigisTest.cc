@@ -15,7 +15,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.2 2006/05/17 08:09:38 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.3 2006/05/26 08:50:57 pioppi Exp $
 //
 //
 // system include files
@@ -44,8 +44,12 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
+// data formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+//#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/DetId/interface/DetId.h"
 //#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
 // For the big pixel recongnition
@@ -80,7 +84,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  const static bool PRINT = false;
+  bool PRINT;
 
   TFile* hFile;
   TH1F *heloss1,*heloss2, *heloss3,*hdetunit;
@@ -114,6 +118,7 @@ PixelDigisTest::PixelDigisTest(const edm::ParameterSet& iConfig) {
   //edm::Service<MonitorDaemon> daemon;
   //daemon.operator->();
 
+  PRINT = iConfig.getUntrackedParameter<bool>("Verbosity",false);
   cout<<" Construct PixelDigisTest "<<endl;
 }
 
@@ -208,7 +213,10 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
   
   // Get digis
-  edm::Handle<PixelDigiCollection> pixelDigis;
+  //edm::Handle<PixelDigiCollection> pixelDigis;
+  //iEvent.getByLabel("pixdigi", pixelDigis);
+
+  edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
   iEvent.getByLabel("pixdigi", pixelDigis);
 
   // Get simlink data
@@ -232,40 +240,43 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   int numOfDigisPerDet2 = 0;
   int numOfDigisPerDet3 = 0;
   
-   // Get vector of detIDs in map
-   const std::vector<unsigned int> detIDs = pixelDigis->detIDs();
 
-   //--- Loop over detunits.
-   std::vector<unsigned int>::const_iterator detunit_it;
-   for (detunit_it  = detIDs.begin(); detunit_it != detIDs.end(); 
-	detunit_it++ ) {
-     unsigned int detid = *detunit_it; // return uint, = rawid
+  // Iterate on detector units
+  edm::DetSetVector<PixelDigi>::const_iterator DSViter;
+  for(DSViter = pixelDigis->begin(); DSViter != pixelDigis->end(); DSViter++) {
 
-     // Det id
-     DetId detId = DetId(detid);       // Get the Detid
-     unsigned int detType=detId.det(); // det type, tracker=1
-     unsigned int subid=detId.subdetId(); //subdetector type, barrel=1
+    //unsigned int detid = *detunit_it; // return uint, = rawid
+    // Det id
+    //DetId detId = DetId(detid);       // Get the Detid
+    
 
-     if(PRINT) 
-       cout<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
-
-     hdetunit->Fill(float(detid));
-     hpixid->Fill(float(detType));
-     hpixsubid->Fill(float(subid));
-
-     if(detType!=1) continue; // look only at tracker
- 
-     // Get the geom-detector 
-     const PixelGeomDetUnit * theGeomDet = 
-       dynamic_cast<const PixelGeomDetUnit*> ( theTracker.idToDet(detId) );
-     double detZ = theGeomDet->surface().position().z();
-     double detR = theGeomDet->surface().position().perp();
-      //const BoundPlane plane = theGeomDet->surface(); // does not work
-
-     double detThick = theGeomDet->specificSurface().bounds().thickness();
-     int cols = theGeomDet->specificTopology().ncolumns();
-     int rows = theGeomDet->specificTopology().nrows();
- 
+    unsigned int detid = DSViter->id; // = rawid
+    DetId detId(detid);
+    //const GeomDetUnit      * geoUnit = geom->idToDetUnit( detId );
+    //const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+    unsigned int detType=detId.det(); // det type, tracker=1
+    unsigned int subid=detId.subdetId(); //subdetector type, barrel=1
+    
+    if(PRINT) 
+      cout<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
+    
+    hdetunit->Fill(float(detid));
+    hpixid->Fill(float(detType));
+    hpixsubid->Fill(float(subid));
+    
+    if(detType!=1) continue; // look only at tracker
+    
+    // Get the geom-detector 
+    const PixelGeomDetUnit * theGeomDet = 
+      dynamic_cast<const PixelGeomDetUnit*> ( theTracker.idToDet(detId) );
+    double detZ = theGeomDet->surface().position().z();
+    double detR = theGeomDet->surface().position().perp();
+    //const BoundPlane plane = theGeomDet->surface(); // does not work
+    
+    double detThick = theGeomDet->specificSurface().bounds().thickness();
+    int cols = theGeomDet->specificTopology().ncolumns();
+    int rows = theGeomDet->specificTopology().nrows();
+    
     // Subdet it, pix barrel=1
      if(subid != 1) {
        if(subid==2) {
@@ -346,10 +357,18 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
      unsigned int numberOfDigis = 0;
      // Look at digis now
-     const PixelDigiCollection::Range digiRange = pixelDigis->get(detid);
-     PixelDigiCollection::ContainerIterator di;
-     // Loop over Digis in this det unit
-     for(di = digiRange.first; di != digiRange.second; ++di) { 
+
+//      const PixelDigiCollection::Range digiRange = pixelDigis->get(detid);
+//      PixelDigiCollection::ContainerIterator di;
+//      // Loop over Digis in this det unit
+//      for(di = digiRange.first; di != digiRange.second; ++di) { 
+
+
+     edm::DetSet<PixelDigi>::const_iterator  begin = DSViter->data.begin();          
+     edm::DetSet<PixelDigi>::const_iterator  end   = DSViter->data.end();
+     edm::DetSet<PixelDigi>::const_iterator  di;
+     for(di = begin; di != end; di++) {
+
        numberOfDigis++;
        totalNumOfDigis++;
        int adc = di->adc();    // charge
@@ -358,9 +377,9 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
        //int tof = di->time();    // tof always 0
 
        // channel index needed to look for the simlink to simtracks
-       //int channel = PixelChannelIdentifier::pixelToChannel(row,col);
-       //cout <<numberOfDigis<< " Col: " << col << " Row: " << row 
-       //   << " ADC: " << adc <<" chanel = "<<channel<<endl;
+       int channel = PixelChannelIdentifier::pixelToChannel(row,col);
+       if(PRINT) cout <<numberOfDigis<< " Col: " << col << " Row: " << row 
+		      << " ADC: " << adc <<" channel = "<<channel<<endl;
 
        if(col>415) cout<<" Error: column index too large "<<col<<endl;
        if(row>159) cout<<" Error: row index too large "<<row<<endl;
