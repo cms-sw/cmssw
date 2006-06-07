@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/05/03 16:34:20 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/29 08:38:39 $
+ *  $Revision: 1.10 $
  *
  * \author Ilaria Segoni
  */
@@ -71,17 +71,18 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
 		int bit = *(pBit);
 		RPCReadOutMapping rmap;
-		int region;
-		int ring;
-		int station;
-		int sector; 
-		int layer;
-		int subsector;
-		int roll;
-		int strip;
-		rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
-				       region,ring,station,sector,layer,
-				       subsector,roll,strip);
+		int region(0);
+		int ring(1);
+		int station(2);
+		int sector(10); 
+		int layer(1);
+		int subsector(1);
+		int roll(2);
+		int strip(20);
+		// Not working yet
+		//rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
+		//		      region,ring,station,sector,layer,
+		//		      subsector,roll,strip);
 
 		RPCDetId detId(region,ring,station,sector,
 			       layer,subsector,roll);
