@@ -67,7 +67,7 @@ void L1GctElectronFinalSort::fetchInput() {
 }
 
 void L1GctElectronFinalSort::process(){
- 
+
   //Make temporary copy of data
   std::vector<L1GctEmCand> data = m_inputCands;
  

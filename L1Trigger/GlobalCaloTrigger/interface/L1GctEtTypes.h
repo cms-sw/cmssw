@@ -88,6 +88,7 @@ L1GctTwosComplement<nBits>::L1GctTwosComplement() {
 template <int nBits>
 L1GctTwosComplement<nBits>::L1GctTwosComplement(uint32_t raw) {
   m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  m_overFlow = false;
   this->setRaw(raw);
 }
 
@@ -95,6 +96,7 @@ L1GctTwosComplement<nBits>::L1GctTwosComplement(uint32_t raw) {
 template <int nBits>
 L1GctTwosComplement<nBits>::L1GctTwosComplement(int value) {
   m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  m_overFlow = false;
   this->setValue(value);
 }
 
@@ -273,6 +275,7 @@ template <int nBits>
 L1GctUnsignedInt<nBits>::L1GctUnsignedInt(unsigned value) {
 
   m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  m_overFlow = false;
   this->setValue(value);
 }
 
