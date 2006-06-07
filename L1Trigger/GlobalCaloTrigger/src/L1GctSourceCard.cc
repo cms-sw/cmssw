@@ -126,10 +126,10 @@ void L1GctSourceCard::setRegions(vector<L1GctRegion> regions) {
   }
   else {
     if (m_cardType==cardType2 && regions.size()==12) {
-    
+      m_regions = regions;
     }
     else if (m_cardType==cardType3 && regions.size()==10) {
-
+      m_regions = regions;
     }
     else {
     throw cms::Exception("L1GctSetupError")
