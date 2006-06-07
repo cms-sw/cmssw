@@ -1,7 +1,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCAFEBThrAnalysis.h"
 #include "CalibMuon/CSCCalibration/interface/CSCToAFEB.h"
 #include <CalibMuon/CSCCalibration/interface/CSCFitAFEBThr.h>
-#include "CLHEP/Random/RandGaussQ.h"
 #include "TMath.h"
 
 class CSCFitAFEBThr;
@@ -13,12 +12,15 @@ hist_file=0; // set to null
 nmbev=0;
 nmbev_no_wire=0;
 
-npulses=10;
+npulses=100;
 vecDac.clear();
 BegDac=1; 
-EvDac=10; 
+EndDac=29;
+EvDac=1; 
 StepDac=1;
+indDac=0;
 
+vecDacOccup.assign(150,0);
 m_wire_dac.clear();
 m_res_for_db.clear();
 mh_ChanEff.clear();
@@ -100,7 +102,30 @@ void CSCAFEBThrAnalysis::bookForId(int flag, const int& idint,
   mh_AfebChi2perNDF[idint]->SetOption("BOX");
   ss.str(""); // clear
   }
+}
 
+void CSCAFEBThrAnalysis::hf1ForId(std::map<int, TH1*>& mp, int flag, 
+const int& id, float& x, float w) {
+
+  std::map<int,TH1*>::iterator h;
+  h=mp.find(id);
+  if (h==mp.end()) {
+     bookForId(flag,id,"");
+     h=mp.find(id);
+  }
+  h->second->Fill(x,w);
+}
+
+void CSCAFEBThrAnalysis::hf2ForId(std::map<int, TH2*>& mp, int flag,
+const int& id, float& x, float& y,  float w) {
+                                                                                
+  std::map<int,TH2*>::iterator h;
+  h=mp.find(id);
+  if (h==mp.end()) {
+     bookForId(flag,id,"");
+     h=mp.find(id);
+  }
+  h->second->Fill(x,y,w);
 }
 
 
@@ -111,18 +136,16 @@ std::ostringstream ss;
 std::map<int,std::vector<int> >::iterator intIt;
 std::map<int, std::vector<std::vector<int> > >::iterator wiredacIt;
 
-std::map<int,TH1*>::iterator h1;
-std::map<int,TH2*>::iterator h2;
 std::vector<int> vec; 
 int afeb,ch;
 float x,y;
 
 m_wire_ev.clear();
 
-/// Find DAC from event number nmbev
+/// Store DAC 
 
 nmbev++;
-indDac=(nmbev-1)/EvDac;
+//indDac=(nmbev-1)/EvDac;
 float dac=BegDac+StepDac*indDac;
 if(vecDac.size() <= indDac) vecDac.push_back(dac);
 
@@ -135,6 +158,8 @@ if(vecDac.size() <= indDac) vecDac.push_back(dac);
   if(wirecltn.begin() == wirecltn.end())  nmbev_no_wire++; 
 
   if(wirecltn.begin() !=  wirecltn.end()) {
+
+  vecDacOccup[indDac]=vecDacOccup[indDac]+1;
 
   for (wiredetUnitIt=wirecltn.begin();
        wiredetUnitIt!=wirecltn.end();
@@ -165,26 +190,10 @@ if(vecDac.size() <= indDac) vecDac.push_back(dac);
 
           /// Plot time bin of the first hit vs AFEB channels
 
-          h2=mh_FirstTime.find(idchamber); 
-          if (h2==mh_FirstTime.end()) {
-            bookForId(100,idchamber,"");
-            h2=mh_FirstTime.find(idchamber); 
-          }
           x=(afeb-1)*16+ch;
           y=wireplane[iwire-1];
-          h2->second->Fill(x,y,1.0);
+          hf2ForId(mh_FirstTime, 100, idchamber,x, y, 1.0);
 
-          ///  Plot "efficiency" in first 100 pulses vs  AFEB channels
-
-	  if(nmbev <=100) {
-            h1=mh_ChanEff.find(idchamber); 
-            if (h1==mh_ChanEff.end()) {
-              bookForId(101,idchamber,"");
-              h1=mh_ChanEff.find(idchamber); 
-            }
-            x=(afeb-1)*16+ch;
-            h1->second->Fill(x,1.0);
-	  }
         } // end if wireplane[iwire-1]==0
       }   // end if iwire<=csctoafeb.getMaxWire(id.station(),id.ring()
     }     // end of for digis in layer
@@ -201,27 +210,25 @@ if(vecDac.size() <= indDac) vecDac.push_back(dac);
 
   for(intIt=m_wire_ev.begin(); intIt!=m_wire_ev.end(); ++intIt) {
     const int idwirev=(*intIt).first;
-    const std::vector<int> wiretemp=(*intIt).second;
+    const std::vector<int> wiretemp=(*intIt).second; // What for?
+    int nsize=EndDac-BegDac+1;
+    std::vector<int> zer(nsize,0);
 
     wiredacIt=m_wire_dac.find(idwirev);
-    std::vector<int> zer(1,0);
-
     if(wiredacIt==m_wire_dac.end()) {
-      for(unsigned int i=0;i<(*intIt).second.size();i++)
-	m_wire_dac[idwirev].push_back(zer);   
-      wiredacIt=m_wire_dac.find(idwirev);      
+      for(unsigned int j=0;j<wiretemp.size();j++)
+         m_wire_dac[idwirev].push_back(zer);
+      wiredacIt=m_wire_dac.find(idwirev);
+//      std::cout<<idwirev<<"  "<<wiredacIt->second.size()<<"  "<<
+//                 wiredacIt->second[0].size()<<std::endl;      
     }
-
-    int unsigned ndacsize=wiredacIt->second[0].size();
-    for(unsigned int j=0;j<(indDac+1-ndacsize);j++)
-         for(unsigned int i=0;i<(*intIt).second.size();i++)
-	   wiredacIt->second[i].push_back(0);
-    
     for(unsigned int i=0;i<(*intIt).second.size();i++)
       if((*intIt).second[i]>0) wiredacIt->second[i][indDac]=
 			       wiredacIt->second[i][indDac]+1;          
   } // end of adding hits to the map of wire/DAC
-  } // end of if wire collection not empty  
+  } // end of if wire collection not empty
+    indDac++;
+    if(dac==(float)EndDac) indDac=0;  
 }   // end of void CSCAFEBThrAnalysis
 
 
@@ -232,10 +239,15 @@ void CSCAFEBThrAnalysis::done() {
   std::map<int, std::vector<std::vector<int> > >::iterator mwiredacIt;
   std::map<int, std::vector<std::vector<float> > >::iterator mresfordbIt;
   std::vector<int>::iterator vecIt;
-  std::map<int,TH2*>::iterator h2;
 
   std::cout<<"Events analyzed  "<<nmbev<<std::endl;
   std::cout<<"Events no anodes "<<nmbev_no_wire<<std::endl<<std::endl;
+
+  std::cout<<"DAC occupancy"<<std::endl;
+  int ndacsize=EndDac-BegDac+1;
+  for(int i=0;i<ndacsize;i++) std::cout
+                                       <<" "<<vecDacOccup[i];
+  std::cout<<"\n\n"<<std::endl; 
 
   std::vector<float> inputx;
   std::vector<float> inputy;
@@ -251,6 +263,7 @@ void CSCAFEBThrAnalysis::done() {
 
   std::vector<float> fitres(4,0);
 
+//  std::cout<<"Threshold curves:\n"<<std::endl;
 
   for(mwiredacIt=m_wire_dac.begin();mwiredacIt!=m_wire_dac.end();++mwiredacIt){
     int idwiredac=(*mwiredacIt).first;
@@ -264,18 +277,19 @@ void CSCAFEBThrAnalysis::done() {
        ch=csctoafeb.getAfebCh(layer,iwire+1);
        int afebid=(idwiredac/10)*100+csctoafeb.getAfebPos(layer,iwire+1);
 
-       h2=mh_AfebDac.find(afebid); 
-         if(h2==mh_AfebDac.end()) {
-           bookForId(200,afebid,"");
-           h2=mh_AfebDac.find(afebid);
-       }
-
        indDac=0;
        for(vecIt=mwiredacIt->second[iwire].begin();
           vecIt!=mwiredacIt->second[iwire].end(); ++vecIt) {
 
           x=vecDac[indDac]; y=*vecIt; 
-          h2->second->Fill(x,y);
+          hf2ForId(mh_AfebDac, 200, afebid,x, y,1.0);
+
+          ///  Plot "efficiency"  vs  AFEB channels
+          if(indDac==0) {
+             x=(afeb-1)*16+ch;
+             y=*vecIt;
+             hf1ForId(mh_ChanEff, 101, idchmb, x, y);
+          }
 
           inputx.push_back(x);
           inputy.push_back(y);
@@ -284,11 +298,10 @@ void CSCAFEBThrAnalysis::done() {
        }    
        // end of DAC cycle to form vectors of input data (inputx,inputy)for fit
  
-
-       //    std::cout<<afebid<<" "<<ch<<std::endl;
-       //    for(unsigned int i=0;i<inputx.size();i++)
-       //       std::cout<<" "<<inputy[i];
-       //    std::cout<<std::endl;
+//           std::cout<<afebid<<" "<<ch<<std::endl;
+//           for(unsigned int i=0;i<inputx.size();i++)
+//              std::cout<<" "<<inputy[i];
+//           std::cout<<std::endl;
 
 
   for(unsigned int i=0;i<2;i++) {mypar[i]=0.0; ermypar[i]=0.0;}
@@ -300,52 +313,33 @@ void CSCAFEBThrAnalysis::done() {
 
   /// Fitting threshold curve
   fitAnodeThr=new CSCFitAFEBThr();
-  fitAnodeThr->ThresholdNoise(inputx,inputy,npulses,mypar,ermypar,ercorr,chisq,ndf,niter,edm);
+  
+fitAnodeThr->ThresholdNoise(inputx,inputy,npulses,vecDacOccup,mypar,ermypar,ercorr,chisq,ndf,niter,edm);
   delete fitAnodeThr;
 
-  //  std::cout<<"Fit "<<mypar[0]<<" "<<mypar[1]<<" "<<ndf<<" "<<chisq
-  //           <<std::endl<<std::endl;
+//  std::cout<<"Fit "<<mypar[0]<<" "<<mypar[1]<<" "<<ndf<<" "<<chisq
+//           <<std::endl<<std::endl;
 
   /// Histogram fit results for given CSC vs wire defined as x=(afeb-1)*16+ch 
 
     x=(afeb-1)*16+ch;
 
     /// Threshold 
-    h2=mh_AfebThrPar.find(idchmb); 
-    if(h2==mh_AfebThrPar.end()) {
-      bookForId(300,idchmb,"");
-      h2=mh_AfebThrPar.find(idchmb);
-    }
     y=mypar[0];
-    h2->second->Fill(x,y);
+    hf2ForId(mh_AfebThrPar, 300, idchmb,x, y, 1.0);
 
     /// Noise 
-    h2=mh_AfebNoisePar.find(idchmb); 
-    if(h2==mh_AfebNoisePar.end()) {
-      bookForId(400,idchmb,"");
-      h2=mh_AfebNoisePar.find(idchmb);
-    }
     y=mypar[1];
-    h2->second->Fill(x,y);
+    hf2ForId(mh_AfebNoisePar, 400, idchmb,x, y, 1.0);
 
     /// NDF 
-    h2=mh_AfebNDF.find(idchmb); 
-    if(h2==mh_AfebNDF.end()) {
-      bookForId(500,idchmb,"");
-      h2=mh_AfebNDF.find(idchmb);
-    }
     y=ndf;
-    h2->second->Fill(x,y);
+    hf2ForId(mh_AfebNDF, 500, idchmb,x, y, 1.0);
 
     /// Chi2/NDF 
-    h2=mh_AfebChi2perNDF.find(idchmb); 
-    if(h2==mh_AfebChi2perNDF.end()) {
-      bookForId(600,idchmb,"");
-      h2=mh_AfebChi2perNDF.find(idchmb);
-    }
     y=0.0;
     if(ndf>0) y=chisq/(float)ndf;
-    h2->second->Fill(x,y);
+    hf2ForId(mh_AfebChi2perNDF, 600, idchmb,x, y, 1.0);
 
     /// Prepare vector of fit results 
     fitres[0]=mypar[0];
@@ -369,7 +363,7 @@ void CSCAFEBThrAnalysis::done() {
   
   std::cout<<"Size of map for DB "<<m_res_for_db.size()<<std::endl;
   
-  std::cout<<"The following CSCs went to DB"<<std::endl<<std::endl;
+  std::cout<<"The following CSCs will go to DB"<<std::endl<<std::endl;
 
   for(mresfordbIt=m_res_for_db.begin(); mresfordbIt!=m_res_for_db.end(); 
       ++mresfordbIt) {

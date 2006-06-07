@@ -156,10 +156,4 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
   }
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(CSCGainAnalyzer)
-
-
-
-
 

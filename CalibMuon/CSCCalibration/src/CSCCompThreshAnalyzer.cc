@@ -163,9 +163,3 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
      }
    }
 }
-
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(CSCCompThreshAnalyzer)
-
-	   

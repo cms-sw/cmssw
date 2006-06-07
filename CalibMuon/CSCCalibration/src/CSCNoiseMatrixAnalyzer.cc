@@ -28,7 +28,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include "CalibMuon/CSCCalibration/interface/AutoCorrMat.h"
+//#include "CalibMuon/CSCCalibration/interface/AutoCorrMat.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixAnalyzer.h"
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
@@ -130,7 +130,3 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
     }
   }
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(CSCNoiseMatrixAnalyzer)
-    

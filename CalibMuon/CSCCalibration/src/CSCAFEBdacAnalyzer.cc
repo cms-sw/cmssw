@@ -117,7 +117,3 @@ void CSCAFEBdacAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSe
      }
    }
 }
-
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(CSCAFEBdacAnalyzer)

@@ -7,19 +7,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CalibMuon/CSCCalibration/interface/CSCAFEBAnalyzer.h"
 #include "CalibMuon/CSCCalibration/interface/CSCAFEBThrAnalysis.h"
-
-
-class CSCAFEBAnalyzer : public edm::EDAnalyzer {
-public:
-  explicit CSCAFEBAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-  virtual void endJob();
-private:
-  /// variables persistent across events should be declared here.
-
-  CSCAFEBThrAnalysis analysisthr_;
-};
 
 CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf) {
 
@@ -49,12 +38,3 @@ void CSCAFEBAnalyzer::analyze(edm::Event const& e,edm::EventSetup const& iSetup)
 void CSCAFEBAnalyzer::endJob() {
   analysisthr_.done();
 }
-
-/// Here are the necessary incantations to declare your module to the
-/// framework, so it can be referenced in a cmsRun file.
-
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CSCAFEBAnalyzer)

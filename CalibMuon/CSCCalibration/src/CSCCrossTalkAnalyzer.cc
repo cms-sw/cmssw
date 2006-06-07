@@ -230,6 +230,3 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
     }
   }
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(CSCCrossTalkAnalyzer)
