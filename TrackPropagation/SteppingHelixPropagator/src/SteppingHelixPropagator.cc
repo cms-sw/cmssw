@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/05/03 06:48:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/06 22:22:39 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.3 2006/05/03 06:48:55 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.4 2006/06/06 22:22:39 slava77 Exp $
 //
 //
 
@@ -576,7 +576,7 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
     double x0 = fabs(radPath_[cInd]);
     double dX0 = fabs(dS)/radX0;
     double alphaX0 = 13.6e-3/p0; alphaX0 *= alphaX0;
-    double betaX0 = 0.036;
+    double betaX0 = 0.038;
     theta02 = dX0*alphaX0*(1+betaX0*log(x0+1))*(1 + betaX0*log(x0+1) + 2.*betaX0*x0/(x0+1) );
   }
 
@@ -695,14 +695,14 @@ double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime, double& radX
   //in GeV/cm .. 0.8 to get closer to the median or MPV
   double dEdX_HCal = 0.95*dEdX_mat; //extracted from sim
   double dEdX_ECal = 0.45*dEdX_mat;
-  double dEdX_coil = 0.35*dEdX_mat; //extracted from sim
+  double dEdX_coil = 0.35*dEdX_mat; //extracted from sim .. closer to 40% in fact
   double dEdX_Fe =   dEdX_mat;
   double dEdX_MCh =  0.053*dEdX_mat; //chambers on average
   double dEdX_Trk =  0.0114*dEdX_mat;
 
   double radX0_HCal = 1.44/0.8; //guessing
   double radX0_ECal = 0.89/0.7;
-  double radX0_coil = 25.; //
+  double radX0_coil = 4.; //
   double radX0_Fe =   1.76;
   double radX0_MCh =  1e3; //
   double radX0_Trk =  500.;
