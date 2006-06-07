@@ -46,7 +46,7 @@ Reconstruction output.
 </tr>
 <tr>
   <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
-  <td> \endhtmlonly edm::DetSetVector<SiPixelDigi> \htmlonly </td>
+  <td> \endhtmlonly edm::DetSetVector<SiPixelCluster> \htmlonly </td>
   <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "pixClust" \htmlonly </td>
   <td class="description">Pixel cluster</td>
   <td>V.Chiochia</td>
