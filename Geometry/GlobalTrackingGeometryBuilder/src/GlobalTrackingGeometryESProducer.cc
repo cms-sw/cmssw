@@ -1,21 +1,23 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/05/10 12:56:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/10 18:05:36 $
+ *  $Revision: 1.4 $
  *  \author Matteo Sani
  */
 
-#include "Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryESProducer.h"
-#include "Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryBuilder.h"
+#include <Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryESProducer.h>
+#include <Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryBuilder.h>
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/ModuleFactory.h>
+#include <FWCore/Framework/interface/ESProducer.h>
+
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/Framework/interface/NoProxyException.h>
 
 #include <memory>
 
@@ -42,9 +44,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
     if (tk.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid Tracker geometry is available.";
 
-  } catch (...) {
+  } catch (edm::eventsetup::NoProxyException<TrackerGeometry>& e) {
     // No Tk geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available." << e.what();
   }    
 
   try {
@@ -53,9 +55,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
     if (dt.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid DT geometry is available.";
 
-  } catch (...) {
+  } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
     // No DT geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available." << e.what();
   }    
 
   try {
@@ -64,9 +66,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
     if (csc.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid CSC geometry is available.";
 
-  } catch (...) {
+  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     // No CSC geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available." << e.what();
   }    
 
   try {
@@ -75,9 +77,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
     if (rpc.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid RPC geometry is available.";
 
-  } catch (...) {
+  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     // No RPC geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available." << e.what();
   }    
 
   GlobalTrackingGeometryBuilder builder;
