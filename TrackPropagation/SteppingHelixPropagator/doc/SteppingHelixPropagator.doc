@@ -25,11 +25,13 @@ SteppingHelixPropagator
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-
+test/SteppingHelixPropagatorAnalyzer .. see below.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+SteppingHelixPropagatorAnalyzer.cc can be used to produce ntuples of MC hit matching.
+testPropagatorAnalyzer.cfg and .sh files help runnig the Analyzer
+MuProp.h and .C files correspond to (compileable) root scripts for making analyzis of the ntuple.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
@@ -37,9 +39,12 @@ Still in development.
 Muon swimming is working fine.
 Decent quality error propagation is also implemented.
 Radiation length non-additive (1+0.036*log(x)) effects relevant to multiple scattering 
-are not accounted for mostly due to missing interface of the basic class.
-This results in an underestimate of relevant errors, significant for large X/X0:
-15 to 20% if going from (0,0,0) to the outer muon chambers.
+are optionally accounted assuming the path integral at the starting point is zero.
+Some additions to the  interface of the base (Propagator) class might've halped to handle
+this better.
+The errors in the cov matrix due to multiple scattering appear to be good to within a few percent.
+Since the tails of Eloss fluctuations are not accounted for (not a Gaussian part), 
+the distributions of the matching values might be wider than predicted from naive model of Gaussian errors.
 
 <hr>
 Last updated:
