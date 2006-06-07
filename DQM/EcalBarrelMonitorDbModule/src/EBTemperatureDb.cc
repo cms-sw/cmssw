@@ -1,8 +1,8 @@
 /*
  * \file EBTemperatureDb.cc
  * 
- * $Date: 2006/06/06 18:10:58 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/07 07:34:31 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -40,8 +40,6 @@ void EBTemperatureDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEI
 
   ievt_++;
 
-//  char* temp_sql = "select CHANNELVIEW.ID1, CHANNELVIEW.ID2, cast(MON_TR_CAPS_DAT.CAPS_TEMP as number) from CHANNELVIEW, MON_TR_CAPS_DAT where MON_TR_CAPS_DAT.IOV_ID = (SELECT MAX(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID=MON_TR_CAPS_DAT.LOGIC_ID order by ID1, ID2";
-
   if ( session )  {
 
     // Query stuff
@@ -51,16 +49,15 @@ void EBTemperatureDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEI
 
     IQuery* query = schema.newQuery();
 
-    query->addToOutputList("CHANNELVIEW.ID1", "X");
-    query->addToOutputList("CHANNELVIEW.ID2", "Y");
-    query->addToOutputList("cast(MON_TR_CAPS_DAT.CAPS_TEMP as number)", "Z");
-
     query->addToTableList("CHANNELVIEW");
     query->addToTableList("MON_TR_CAPS_DAT");
 
-    query->setCondition("MON_TR_CAPS_DAT.IOV_ID = (SELECT max(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID = MON_TR_CAPS_DAT.LOGIC_ID", AttributeList());
+    query->addToOutputList("cast( floor((CHANNELVIEW.ID2-1) / 10) as float )", "X");
+    query->addToOutputList("cast( mod((CHANNELVIEW.ID2-1) , 10) as float )", "Y");
+    query->addToOutputList("cast( MON_TR_CAPS_DAT.CAPS_TEMP as float )", "Z");
 
-    query->addToOrderList("ID1");
+    query->setCondition("MON_TR_CAPS_DAT.IOV_ID = (select max(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID = MON_TR_CAPS_DAT.LOGIC_ID", AttributeList());
+
     query->addToOrderList("ID2");
 
     ICursor& cursor = query->execute();
@@ -74,18 +71,13 @@ void EBTemperatureDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEI
 
       const AttributeList& row = cursor.currentRow();
 
-//      cout << row["X"].data<int>() << " "
-//           << row["Y"].data<int>() << " "
-//           << row["Z"].data<float>() << " " << endl;
-
-      int chan = row["Y"].data<int>();
+      float xchan = row["X"].data<float>();
+      float ychan = row["Y"].data<float>();
       float temp = row["Z"].data<float>();
 
-      meTemp_->Fill(((chan-1)/10), ((chan-1)%10), temp);
+      meTemp_->Fill(xchan, ychan, temp);
 
-//      cout << chan << " " << ((chan-1)/10)
-//                   << " " << ((chan-1)%10)
-//                   << " " << temp << endl;
+//      cout << xchan << " " << ychan << " " << temp << endl;
 
       j++;
 
