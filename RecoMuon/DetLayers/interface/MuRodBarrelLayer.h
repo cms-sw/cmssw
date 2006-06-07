@@ -4,8 +4,8 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/06/02 12:21:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -19,6 +19,7 @@ class GeomDet;
 class MuRodBarrelLayer : public RodBarrelLayer {
 public:
 
+  /// Constructor, takes ownership of pointers
   MuRodBarrelLayer(std::vector<const DetRod*>& rods);
 
   virtual ~MuRodBarrelLayer();
@@ -27,11 +28,7 @@ public:
 
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
-  
-  virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
-	      const MeasurementEstimator&) const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;  
 
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -59,6 +56,10 @@ public:
 
 
 private:
+
+  float xError(const TrajectoryStateOnSurface& tsos,
+	       const MeasurementEstimator& est) const;
+
   std::vector<const DetRod*> theRods;
   std::vector <const GeometricSearchDet*> theComponents; // duplication of the above
   std::vector<const GeomDet*> theBasicComps; // All chambers

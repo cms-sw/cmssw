@@ -5,8 +5,8 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/05/16 10:39:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -22,7 +22,7 @@
 class RBorderFinder {
 public:
   
-  typedef GeomDet Det; //FIXME!!!
+  typedef ForwardDetRing Det; //FIXME!!!
   typedef geomsort::ExtractR<Det,float> DetR;
 
   RBorderFinder(std::vector<const Det*> theDets) 

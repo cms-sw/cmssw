@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/01 16:47:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/02 12:21:39 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -27,6 +27,7 @@ using namespace std;
 MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
+  theBinFinder(0),
   isOverlapping(false) 
 {
   // Cache chamber pointers (the basic components_)
@@ -36,9 +37,9 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
     theBasicComps.insert(theBasicComps.end(),tmp2.begin(),tmp2.end());
   }  
 
-//   RBorderFinder bf(rings); // FIXME: change the iface of RBorderFinder...
-//   isOverlapping = bf.isROverlapping();
-//   theBinFinder = new GeneralBinFinderInR<double>(bf);
+  RBorderFinder bf(rings);
+  isOverlapping = bf.isROverlapping();
+  theBinFinder = new GeneralBinFinderInR<double>(bf);
 
   ForwardDetLayer::initialize(); // Compute surface
 
@@ -54,16 +55,9 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
 
 
 MuRingForwardLayer::~MuRingForwardLayer(){
-}
-
-
-
-pair<bool, TrajectoryStateOnSurface>
-MuRingForwardLayer::compatible(const TrajectoryStateOnSurface& ts,
-			       const Propagator& prop, 
-			       const MeasurementEstimator& est) const {
-  // FIXME
-  return make_pair(bool(), TrajectoryStateOnSurface());
+  delete theBinFinder;
+  for (vector <const ForwardDetRing*>::iterator i = theRings.begin();
+       i<theRings.end(); i++) {delete *i;}
 }
 
 
@@ -71,8 +65,108 @@ vector<GeometricSearchDet::DetWithState>
 MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				   const Propagator& prop, 
 				   const MeasurementEstimator& est) const {
+  vector<DetWithState> result; 
   // FIXME
-  return vector<DetWithState>();
+  if ( MDEBUG ) 
+    cout << "MuRingForwardLayer::compatibleDets," 
+ 	 << " R1 " << specificSurface().innerRadius()
+	 << " R2: " << specificSurface().outerRadius()
+ 	 << " FTS at R: " << startingState.globalPosition().perp()
+ 	 << endl;
+
+  pair<bool, TrajectoryStateOnSurface> compat =
+    compatible(startingState, prop, est);
+
+  if (!compat.first) {
+    if ( MDEBUG )
+      cout << "     MuRingForwardLayer::compatibleDets: not compatible"
+	   << " (should not have been selected!)" <<endl;
+    return result;
+  }
+
+
+  TrajectoryStateOnSurface& tsos = compat.second;
+  
+  int closest = theBinFinder->binIndex(tsos.globalPosition().perp());
+  const ForwardDetRing* closestRing = theRings[closest];
+
+  // Check the closest ring
+  if ( MDEBUG ) 
+    cout << "     MuRingForwardLayer::fastCompatibleDets, closestRing: "
+ 	 << closest
+ 	 << " R1 " << closestRing->specificSurface().innerRadius()
+	 << " R2: " << closestRing->specificSurface().outerRadius()
+ 	 << " FTS R: " << tsos.globalPosition().perp() 
+	 << " sR: " << sqrt(tsos.localError().positionError().yy())
+	 << " sX: " << sqrt(tsos.localError().positionError().xx())
+	 << endl;
+
+  result = closestRing->compatibleDets(tsos, prop, est);
+
+  int nclosest = result.size(); int nnextdet=0; // MDEBUG counters
+
+  //FIXME: if closest is not compatible next cannot be either?
+  
+  // Use state on layer surface. Note that local coordinates and errors
+  // are the same on the layer and on all rings surfaces, since 
+  // all BoundDisks are centered in 0,0 and have the same rotation.
+  // CAVEAT: if the rings are not at the same Z, the local position and error
+  // will be "Z-projected" to the rings. This is a fairly good approximation.
+  // However in this case additional propagation will be done when calling
+  // compatibleDets.
+  GlobalPoint startPos = tsos.globalPosition();
+  LocalPoint nextPos(surface().toLocal(startPos));
+  
+  for (unsigned int idet=closest+1; idet < theRings.size(); idet++) {
+    if (theRings[idet]->specificSurface().bounds().inside(
+           nextPos,tsos.localError().positionError())){
+      if ( MDEBUG ) 
+	cout << "     MuRingForwardLayer::fastCompatibleDets:NextRing" << idet
+	     << " R1 " << theRings[idet]->specificSurface().innerRadius()
+	     << " R2: " << theRings[idet]->specificSurface().outerRadius()
+	     << " FTS R " << nextPos.perp()
+	     << endl;
+      nnextdet++;      
+      vector<DetWithState> nextRodDets =
+	theRings[idet]->compatibleDets(tsos, prop, est);
+      if (nextRodDets.size()!=0) {
+	result.insert( result.end(), 
+		       nextRodDets.begin(), nextRodDets.end());
+      } else {
+	break;
+      }
+    }
+  }
+
+  for (int idet=closest-1; idet >= 0; idet--) {
+    if (theRings[idet]->specificSurface().bounds().inside(
+           nextPos,tsos.localError().positionError())){
+      if ( MDEBUG ) 
+	cout << "     MuRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
+	     << " R1 " << theRings[idet]->specificSurface().innerRadius()
+	     << " R2: " << theRings[idet]->specificSurface().outerRadius()
+	     << " FTS R " << nextPos.perp()
+	     << endl;
+      nnextdet++;
+      vector<DetWithState> nextRodDets =
+	theRings[idet]->compatibleDets(tsos, prop, est);
+      if (nextRodDets.size()!=0) {
+	result.insert( result.end(), 
+		       nextRodDets.begin(), nextRodDets.end());
+      } else {
+	break;
+      }
+    }
+  }
+  
+  if ( MDEBUG ) 
+    cout << "     MuRingForwardLayer::fastCompatibleDets: found: "
+	 << result.size()
+	 << " on closest: " << nclosest
+	 << " # checked rings: " << 1 + nnextdet
+	 << endl;
+  
+  return result;
 }
 
 
@@ -80,7 +174,8 @@ vector<DetGroup>
 MuRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 					   const Propagator& prop,
 					   const MeasurementEstimator& est) const {
-  // FIXME
+  // FIXME should return only 1 group 
+  cout << "dummy implementation of MuRingForwardLayer::groupedCompatibleDets()" << endl;
   return vector<DetGroup>();
 }
 

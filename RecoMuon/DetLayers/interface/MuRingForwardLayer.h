@@ -4,8 +4,8 @@
 /** \class MuRingForwardLayer
  *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
  *
- *  $Date: 2006/06/02 12:21:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -21,6 +21,7 @@ class MuRingForwardLayer : public RingedForwardLayer {
 
  public:  
 
+  /// Constructor, takes ownership of pointers
   MuRingForwardLayer(std::vector<const ForwardDetRing*>& rings);
 
   virtual ~MuRingForwardLayer();
@@ -31,10 +32,6 @@ class MuRingForwardLayer : public RingedForwardLayer {
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
   virtual const std::vector<const GeometricSearchDet*>& components() const;
-
-  virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
-	      const MeasurementEstimator& est) const;
 
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
