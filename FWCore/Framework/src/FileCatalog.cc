@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.1 2006/04/06 23:26:29 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.2 2006/05/23 09:13:43 elmer Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -23,11 +23,12 @@ namespace edm {
 
   FileCatalog::FileCatalog(ParameterSet const& pset) :
       catalog_(),
-      url_(pset.getUntrackedParameter<std::string>("catalog", std::string())) {
+      url_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
+      active_(false) {
   }
 
   FileCatalog::~FileCatalog() {
-    catalog_.commit();
+    if (active_) catalog_.commit();
     catalog_.disconnect();
   }
 
@@ -53,11 +54,17 @@ namespace edm {
 
     catalog().addReadCatalog(parser.contactstring());
     catalog().connect();
-    catalog().start();
+
+    // Starting the catalog will write a catalog out if it does not exist.
+    // So, do not start the catalog unless it is needed.
 
     typedef std::vector<std::string>::iterator iter;
     for(iter it = fileNames_.begin(); it != fileNames_.end(); ++it) {
       if (!isPhysical(*it)) {
+	if (!active()) {
+          catalog().start();
+	  setActive();
+        }
 	findFile(*it, *it);
       }
     }
@@ -92,6 +99,7 @@ namespace edm {
     catalog().setWriteCatalog(parser.contactstring());
     catalog().connect();
     catalog().start();
+    setActive();
   }
 
   OutputFileCatalog::~OutputFileCatalog() {}

@@ -2,7 +2,7 @@
 #define Framework_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.3 2006/01/20 20:45:13 wmtan Exp $
+// $Id: FileCatalog.h,v 1.1 2006/04/06 23:26:28 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -30,9 +30,12 @@ namespace edm {
     }
     pool::IFileCatalog& catalog() {return catalog_;}
     std::string& url() {return url_;}
+    void setActive() {active_ = true;}
+    bool active() const {return active_;}
   private:
     pool::IFileCatalog catalog_;
     std::string url_;
+    bool active_;
   };
 
   class InputFileCatalog : public FileCatalog {
