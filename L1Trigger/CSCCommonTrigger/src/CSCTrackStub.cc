@@ -1,10 +1,9 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCBitWidths.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 double CSCTrackStub::thePhiBinning = CSCConstants::SECTOR_RAD/(1<<CSCBitWidths::kGlobalPhiDataBitWidth);
-double CSCTrackStub::theEtaBinning = (CSCConstants::maxEta - CSCConstants::minEta)/CSCConstants::etaBins;
+double CSCTrackStub::theEtaBinning = (CSCConstants::maxEta - CSCConstants::minEta)/(CSCConstants::etaBins);
 
 CSCTrackStub::CSCTrackStub(const CSCCorrelatedLCTDigi& aDigi,
 			   const CSCDetId& aDetId): theDetId_(aDetId),

@@ -17,6 +17,8 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+
 class CSCTrackStub : public CSCTransientDataType
 {
  public:
@@ -34,7 +36,7 @@ class CSCTrackStub : public CSCTransientDataType
   void setPhiPacked(const unsigned& phi_) {thePhi_ = phi_;}
 
   /// return the Eta Value of this stub's position.
-  double etaValue() const {return (theEta_*theEtaBinning);}
+  double etaValue() const {return (theEta_*theEtaBinning + CSCConstants::minEta);}
   /// return the Phi Value of this stub's position.
   double phiValue() const {return (thePhi_*thePhiBinning);}
 
