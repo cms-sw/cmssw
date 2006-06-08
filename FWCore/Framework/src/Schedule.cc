@@ -22,6 +22,8 @@
 
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
+#include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
 
 #include <string>
 #include <memory>
@@ -31,12 +33,31 @@
 #include <algorithm>
 
 using namespace std;
-using boost::bind;
 
 namespace edm
 {
   namespace
   {
+
+    // -----------------------------
+    // run_one_event is a functor that has bound a specific
+    // EventPrincipal and Event Setup, and can be called with a Path, to
+    // execute Path::runOneEvent for that event
+    
+    class run_one_event
+    {
+    public:
+      typedef void result_type;
+      run_one_event(EventPrincipal& principal, EventSetup const& setup) :
+	ep(principal), es(setup) { };
+
+      void operator()(Path& p) { p.runOneEvent(ep, es); }
+
+    private:      
+      EventPrincipal&   ep;
+      EventSetup const& es;
+    };
+
     // Function template to transform each element in the input range to
     // a value placed into the output range. The supplied function
     // should take a const_reference to the 'input', and write to a
@@ -68,11 +89,12 @@ namespace edm
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    Schedule::WorkerPtr makeInserter(const ParameterSet& trig_pset,
-				     const string& proc_name,
-				     ProductRegistry& preg,
-				     ActionTable& actions,
-				     Schedule::TrigResPtr trptr)
+    Schedule::WorkerPtr 
+    makeInserter(const ParameterSet& trig_pset,
+		 const string& proc_name,
+		 ProductRegistry& preg,
+		 ActionTable& actions,
+		 Schedule::TrigResPtr trptr)
     {
 #if 1
       WorkerParams work_args(trig_pset,preg,actions,proc_name);
@@ -100,20 +122,26 @@ namespace edm
     public:
       CallPrePost(ActivityRegistry* a,
 		  EventPrincipal* ep,
-		  const EventSetup* es):
+		  const EventSetup* es) :
 	a_(a),ep_(ep),es_(es)
-      { a_->preProcessEventSignal_(ep_->id(),ep_->time()); }
-      ~CallPrePost() {
-	ModuleDescription dummy;
-	Event evt(*ep_,dummy);
-	const Event& eref(evt);
-	a_->postProcessEventSignal_(eref,*es_);
+      {
+	// Avoid possible order-of-evaluation trouble
+	// by not having two function calls as actual arguments.
+	EventID id = ep_->id();
+	a_->preProcessEventSignal_(id, ep_->time()); 
+      }
+
+      ~CallPrePost() 
+      {
+	a_->postProcessEventSignal_(Event(*ep_, ModuleDescription()),
+				    *es_);
       }
 
     private:
-      ActivityRegistry* a_;
-      EventPrincipal* ep_;
-      const EventSetup* es_;
+      // We own none of these resources.
+      ActivityRegistry*  a_;
+      EventPrincipal*    ep_;
+      const EventSetup*  es_;
     };
 
 
@@ -184,12 +212,9 @@ namespace edm
     demandGroups_(),
     endpathsAreActive_(true)
   {
-    ParameterSet defopts;
-    ParameterSet opts =
-      pset_.getUntrackedParameter<ParameterSet>("options", defopts);
+    ParameterSet opts(pset_.getUntrackedParameter("options", ParameterSet()));
 
     bool hasFilter = false;
-
     vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
     int trig_bitpos=0, non_bitpos=0;
 
@@ -411,7 +436,7 @@ namespace edm
 
     Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_);
     end_paths_.push_back(p);
-    all_workers_.insert(holder.begin(),holder.end());
+    all_workers_.insert(holder.begin(), holder.end());
   }
 
   void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es)
@@ -421,34 +446,16 @@ namespace edm
     this->resetAll();
     //CurrentProcessingContext moduleContext;
     state_ = Running;
-    this->setupOnDemandSystem(ep, es);
+    setupOnDemandSystem(ep, es);
     try 
       {
-	CallPrePost cpp(act_reg_.get(),&ep,&es);
+	CallPrePost cpp(act_reg_.get(), &ep, &es);
 
-	// go through normal paths and check only trigger paths for accept
-	bool result = false;
-	int which_one = 0;
-	for (TrigPaths::iterator ti = trig_paths_.begin(), te = trig_paths_.end();
-	     ti != te;
-	     ++ti)
-	  {
-	    ti->runOneEvent(ep,es);
-	    if (trig_name_set_.find(ti->name()) != trig_name_set_.end()) 
-	      {
-		result = result || ((*results_)[which_one]).accept();
-		++which_one;
-	      }
-	  }
-	
-	if(result) ++total_passed_;
+	if ( runTriggerPaths(ep, es) ) ++total_passed_;
 	state_ = Latched;
 	
 	if(results_inserter_.get()) results_inserter_->doWork(ep,es);
 	
-	// go through end paths next.  Note there is no state-checking
-	// safety controlling the activation/deactivation of endpaths.
-
 	if (endpathsAreActive_) runEndPaths(ep,es);
       }
     catch(cms::Exception& e) {
@@ -861,7 +868,7 @@ namespace edm
   void
   Schedule::resetAll()
   {
-    for_each(workersBegin(), workersEnd(), bind(&Worker::reset, _1));
+    for_each(workersBegin(), workersEnd(), boost::bind(&Worker::reset, _1));
     results_->reset();
     endpath_results_->reset();
   }
@@ -886,12 +893,43 @@ namespace edm
       }
   }
 
+  bool
+  Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es)
+  {
+    bool result = false;
+    int which_one = 0;
+    // Execute all paths, but check only trigger paths for accept.
+    for (TrigPaths::iterator i = trig_paths_.begin(), e = trig_paths_.end();
+	 i != e;
+	 ++i)
+      {
+	i->runOneEvent(ep,es);
+	if (trig_name_set_.find(i->name()) != trig_name_set_.end()) 
+	  {
+	    result = result || ((*results_)[which_one]).accept();
+	    ++which_one;
+	  }
+      }
+    return result;
+  }
+
   void
   Schedule::runEndPaths(EventPrincipal& ep, EventSetup const& es)
   {
-    typedef TrigPaths::iterator iter;
+    // Note there is no state-checking safety controlling the
+    // activation/deactivation of endpaths.
+    for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep,es));
 
-    for (iter i = end_paths_.begin(), e = end_paths_.end(); i != e; ++i) 
-      i->runOneEvent(ep,es);
+    // We could get rid of the functor run_one_event if we used
+    // boost::lambda, but the use of lambda with member functions
+    // which take multiple arguments, by both non-const and const
+    // reference, seems much more obscure...
+    //
+    // using namespace boost::lambda;
+    // for_each(end_paths_.begin(), end_paths_.end(),
+    //          bind(&Path::runOneEvent, 
+    //               boost::lambda::_1, // qualification to avoid ambiguity
+    //               var(ep),           //  pass by reference (not copy)
+    //               constant_ref(es))); // pass by const-reference (not copy)
   }
 }
