@@ -57,7 +57,8 @@ void L1GctRegion::setQuiet(bool quiet) {
 
 // print to stream
 ostream& operator << (ostream& os, const L1GctRegion& reg) {
-  os << "L1GctRegion: eta=" << reg.eta();
+  os << "L1GctRegion: id=" << reg.id();
+  os << " eta=" << reg.eta();
   os << " phi=" << reg.phi();
   os << " Et=" << reg.et();
   os << " o/f=" << reg.overFlow();

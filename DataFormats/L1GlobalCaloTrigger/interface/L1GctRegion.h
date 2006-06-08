@@ -23,7 +23,7 @@ public:
   
   // region position //
 
-  /// get Region unique ID
+  /// get Region ID - defined for now as 18eta + phi
   unsigned id() const { return m_id; }
   
   /// get eta index (0-21) of the region
@@ -66,15 +66,15 @@ public:
 
 
 
-  // print to stream
+  /// print to stream
   friend std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
 
 private:
 
-  // region ID
+  /// region ID
   unsigned m_id;
   
-  // region data : et, overflow, tau veto, mip and quiet bits
+  /// region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
 
 };

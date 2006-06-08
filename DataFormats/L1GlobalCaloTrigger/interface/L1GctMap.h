@@ -5,6 +5,11 @@
 
 class L1GctMap {
  public:
+
+  static const unsigned N_RGN_ETA;
+  static const unsigned N_RGN_PHI;
+
+ public:
   
   /// destructor
   ~L1GctMap();
@@ -14,7 +19,6 @@ class L1GctMap {
     if (m_instance==0) { m_instance = new L1GctMap(); }
     return m_instance;
   }
-  
  
   /// get the RCT crate number
   unsigned rctCrate(L1GctRegion r);
