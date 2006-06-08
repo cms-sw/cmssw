@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/22 12:24:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/08 09:51:06 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTT0Calibration.h"
@@ -167,11 +167,11 @@ void DTT0Calibration::endJob() {
        float t0mean = hist->GetBinContent(bin);
        if(t0mean != 0) {
 	 meanAndN.first = (meanAndN.first * meanAndN.second + t0mean)/(++meanAndN.second);
-	 if(debug) {
-	   cout << " Chamber: " << (*lHisto).first.chamberId() << endl
-		<< "     new Mean (TDC counts): " << meanAndN.first << endl
-		<< "     N entries: " << meanAndN.second << endl;
-	 }
+// 	 if(debug) {
+// 	   cout << " Chamber: " << (*lHisto).first.chamberId() << endl
+// 		<< "     new Mean (TDC counts): " << meanAndN.first << endl
+// 		<< "     N entries: " << meanAndN.second << endl;
+// 	 }
        }
      }
      chamberMeanMap[(*lHisto).first.chamberId()] = meanAndN;
@@ -185,7 +185,7 @@ void DTT0Calibration::endJob() {
       lHisto++) {
     TProfile *hist = (*lHisto).second;
     int nBins = hist->GetNbinsX();
-    int channel =  hist->GetXaxis()->GetXmin();
+    int channel =  (int)(hist->GetXaxis()->GetXmin());
     // Loop over all the channels
     for(int bin = 1; bin <= nBins; bin++) {
       float t0mean = hist->GetBinContent(bin);
