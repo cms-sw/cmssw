@@ -15,23 +15,40 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
     {
       std::vector<csc::L1Track> tks = tracks.get(bx);
       std::sort(tks.begin(),tks.end(),std::greater<csc::L1Track>());
-      tks.resize(4); // resize to max number of muons the MS can output
+      if(tks.size() > 4) tks.resize(4); // resize to max number of muons the MS can output
       
       std::vector<csc::L1Track>::iterator itr = tks.begin();
       std::vector<csc::L1Track>::const_iterator end = tks.end();
       for(; itr != end; itr++)
 	{
 	  unsigned gbl_phi = itr->localPhi() + ((itr->sector() - 1)*24) + 6; // for now, convert using this.. LUT in the future
-	  itr->setPhiPacked(gbl_phi);
-	  unsigned gbl_eta = itr->eta_packed() | (itr->endcap() == 1 ? 0 : 1) << (L1MuRegionalCand::ETA_LENGTH - 1);
-	  itr->setEtaPacked(gbl_eta);
+	  if(gbl_phi > 143) gbl_phi -= 143;	  
+	  itr->setPhiPacked(gbl_phi & 0xff);
+	  unsigned eta_sign = (itr->endcap() == 1 ? 0 : 1);
+	  int gbl_eta = itr->eta_packed() | eta_sign << (L1MuRegionalCand::ETA_LENGTH - 1);
+	  itr->setEtaPacked(gbl_eta & 0x3f);
 	  unsigned pt = 0, quality = 0;
 	  decodeRank(itr->rank(), quality, pt);
-	  itr->setQualityPacked(quality);
-	  itr->setPtPacked(pt);
+
+	  std::cout << std::hex << itr->rank() << ' ' << quality << ' ' << pt << std::dec << std::endl;
+	  
+	  itr->setQualityPacked(quality & 0x3);
+	  itr->setPtPacked(pt & 0x1f);
+
+	  itr->Print();
+	  std::cout << std::endl;
+
 	  if(!itr->empty()) result.push_back(*itr);
 	}
     }
+
+  std::vector<L1MuRegionalCand>::const_iterator ittr = result.begin();
+  for(; ittr != result.end(); ittr++)
+    {
+      ittr->print();
+      std::cout << std::endl;
+    }
+
   return result;
 }
 

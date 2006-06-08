@@ -55,7 +55,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 		subs1 = m_muonportcard->sort(e, st, se, CSCTriggerNumbering::minTriggerSubSectorId(), bx);
 		subs2 = m_muonportcard->sort(e, st, se, CSCTriggerNumbering::maxTriggerSubSectorId(), bx);
 		stub_list.insert(stub_list.end(), subs1.begin(), subs1.end());
-		stub_list.insert(stub_list.end(), subs1.begin(), subs2.end());
+		stub_list.insert(stub_list.end(), subs2.begin(), subs2.end());
 	      }
 	    else
 	      {
@@ -64,7 +64,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 		stub_list.insert(stub_list.end(), sector.begin(), sector.end());
 	      }
 	  }
-  
+
   CSCTriggerContainer<CSCTrackStub> the_stubs(stub_list);
       
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
@@ -74,8 +74,10 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	{
 	  CSCTriggerContainer<CSCTrackStub> current_e_s = the_stubs.get(e, s);
 	  if(my_SPs[e-1][s-1]->run(current_e_s))
-	    trks->insert(trks->end(), my_SPs[e-1][s-1]->tracks().get().begin(), 
-			 my_SPs[e-1][s-1]->tracks().get().end());
+	    {
+	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
+	      trks->insert(trks->end(), theTracks.begin(), theTracks.end());
+	    }
 	}
     }
 }

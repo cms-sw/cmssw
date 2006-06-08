@@ -2,6 +2,8 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1","F2","F3","F4","F5"};
 
 CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap, 
@@ -51,8 +53,8 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
 {
-  for(int i = 0; i < 6; ++i)
-    {
+  for(int i = 0; i < 5; ++i)
+    {      
       delete srLUTs_[FPGAs[i]]; // delete the pointer
       srLUTs_[FPGAs[i]] = NULL; // point it at a safe place
     }
@@ -74,20 +76,27 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
    *  This is independent of what BX we are on so we can
    *  process one large vector of stubs.
    */
-
-  std::vector<CSCTrackStub>::iterator itr = stubs.get().begin();
-  std::vector<CSCTrackStub>::const_iterator end = stubs.get().end();
+    
+  std::vector<CSCTrackStub> stub_vec = stubs.get();
+  std::vector<CSCTrackStub>::iterator itr = stub_vec.begin();
+  std::vector<CSCTrackStub>::const_iterator end = stub_vec.end();
 
   for(; itr != end; itr++)
     {
       CSCDetId id = itr->getDetId();
       unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
+      
       lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getCLCTPattern(), itr->getQuality(), itr->getBend());
       gblphidat gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
       gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
       itr->setEtaPacked(gblEta.global_eta);
       itr->setPhiPacked(gblPhi.global_phi);
+
+      LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
+					     << "LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
     }
+
+  CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
 
   /** STEP TWO
    *  We take the stubs filled by the SR LUTs and load them
@@ -95,26 +104,34 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
    *  After loading we run and then retrieve any tracks generated.
    */
 
-  core_->loadData(stubs, m_endcap, m_sector, m_minBX, m_maxBX);
+  std::vector<csc::L1Track> tftks;
+
+  core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
 
   if( core_->run(m_endcap, m_sector, m_latency, m_etawin[0],
 		 m_etawin[1], m_etawin[2], m_etawin[3],
 		 m_etawin[4], m_etawin[5], m_bxa_on,
 		 m_extend_length, m_minBX, m_maxBX) )
-    l1_tracks = core_->tracks();
+    {
+      LogDebug("CSCTFSectorProcessor:run()") << "FOUND " << core_->tracks().get().size() << " L1Track(s)\n";
+      l1_tracks = core_->tracks();
+    }
   
+  tftks = l1_tracks.get();
+
   /** STEP THREE
    *  Now that we have the found tracks from the core,
    *  we must assign their Pt. 
    */
 
-  std::vector<csc::L1Track>::iterator titr = l1_tracks.get().begin();
-  std::vector<csc::L1Track>::const_iterator tend = l1_tracks.get().end();
+  std::vector<csc::L1Track>::iterator titr = tftks.begin();
+  std::vector<csc::L1Track>::const_iterator tend = tftks.end();
 
   for(; titr != tend; titr++)
     {
       ptadd thePtAddress(titr->ptLUTAddress());
       ptdat thePtData = ptLUT_->Pt(thePtAddress);
+
       if(thePtAddress.track_fr)
 	{
 	  titr->setRank(thePtData.front_rank);
@@ -126,6 +143,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 	  titr->setChargeValidPacked(thePtData.charge_valid_rear);
 	}
     }
+  
+  l1_tracks = tftks;
 
   return (l1_tracks.get().size() > 0);
 }

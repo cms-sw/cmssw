@@ -6,6 +6,8 @@
 #include <L1Trigger/CSCTrackFinder/src/spbits.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 SPvpp CSCTFSPCoreLogic::sp_;
 
 
@@ -16,185 +18,186 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 {
   io_.clear();
   runme = 0;
-  io_.reserve(maxBX - minBX + 1);
-
+  io_.resize(maxBX - minBX + 1);
+  unsigned relative_bx = 0;
 
   for(int bx = minBX; bx <= maxBX; ++bx)
-    for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
-      {
-	std::vector<CSCTrackStub> stub_list;
-	std::vector<CSCTrackStub>::const_iterator stubi;
-	if(st == 1)
-	  {
-	    stub_list = theStubs.get(endcap, st, sector, 1, bx);
-	    std::vector<CSCTrackStub> stub_list2 = theStubs.get(endcap, st, sector, 2, bx);
-	    std::vector<CSCTrackStub>::const_iterator stub_conc = stub_list2.begin();	      
-	    for(; stub_conc != stub_list2.end(); stub_conc++)
-	      stub_list.push_back(*stub_conc);
-	  }
-	else stub_list = theStubs.get(endcap, st, sector, 0, bx);
-
-	for(stubi = stub_list.begin(); stubi != stub_list.end(); stubi++)
-	  {
-	    runme |= stubi->isValid();
-	    switch(st)
-	      {
-	      case 1:
-		switch(stubi->getMPCLink())
-		  {
-		  case 1:		    
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
-		      {
-			io_[bx].me1aVp   = stubi->isValid();
-			io_[bx].me1aQp   = stubi->getQuality(); 
-			io_[bx].me1aEtap = stubi->etaPacked(); 
-			io_[bx].me1aPhip = stubi->phiPacked();  
-			io_[bx].me1aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1aCSCIdp  = stubi->cscid();
-		      }
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
-		      {
-			io_[bx].me1dVp   = stubi->isValid();
-			io_[bx].me1dQp   = stubi->getQuality(); 
-			io_[bx].me1dEtap = stubi->etaPacked(); 
-			io_[bx].me1dPhip = stubi->phiPacked();  
-			io_[bx].me1dAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1dCSCIdp  = stubi->cscid();
-		      }
-		    break;		   
-		  case 2:
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
-		      {
-			io_[bx].me1bVp   = stubi->isValid();
-			io_[bx].me1bQp   = stubi->getQuality(); 
-			io_[bx].me1bEtap = stubi->etaPacked(); 
-			io_[bx].me1bPhip = stubi->phiPacked();  
-			io_[bx].me1bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1bCSCIdp  = stubi->cscid();
-		      }
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
-		      {
-			io_[bx].me1eVp   = stubi->isValid();
-			io_[bx].me1eQp   = stubi->getQuality(); 
-			io_[bx].me1eEtap = stubi->etaPacked(); 
-			io_[bx].me1ePhip = stubi->phiPacked();  
-			io_[bx].me1eAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1eCSCIdp  = stubi->cscid();
-		      }
-		    break;
-		  case 3:
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
-		      {
-			io_[bx].me1cVp   = stubi->isValid();
-			io_[bx].me1cQp   = stubi->getQuality(); 
-			io_[bx].me1cEtap = stubi->etaPacked(); 
-			io_[bx].me1cPhip = stubi->phiPacked();  
-			io_[bx].me1cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1cCSCIdp  = stubi->cscid();
-		      }
-		    if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
-		      {
-			io_[bx].me1fVp   = stubi->isValid();
-			io_[bx].me1fQp   = stubi->getQuality(); 
-			io_[bx].me1fEtap = stubi->etaPacked(); 
-			io_[bx].me1fPhip = stubi->phiPacked();  
-			io_[bx].me1fAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-			io_[bx].me1fCSCIdp  = stubi->cscid();
-		      }
-		    break;
-		  default:
-		    std::cout<< "SERIOUS ERROR\n";
-		  };
-		break;
-	      case 2:
-		switch(stubi->getMPCLink())
-		  {
-		  case 1:
-		    io_[bx].me2aVp   = stubi->isValid();
-		    io_[bx].me2aQp   = stubi->getQuality(); 
-		    io_[bx].me2aEtap = stubi->etaPacked(); 
-		    io_[bx].me2aPhip = stubi->phiPacked();  
-		    io_[bx].me2aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  		    
-		    break;
-		  case 2:
-		    io_[bx].me2bVp   = stubi->isValid();
-		    io_[bx].me2bQp   = stubi->getQuality(); 
-		    io_[bx].me2bEtap = stubi->etaPacked(); 
-		    io_[bx].me2bPhip = stubi->phiPacked();  
-		    io_[bx].me2bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  case 3:
-		    io_[bx].me2cVp   = stubi->isValid();
-		    io_[bx].me2cQp   = stubi->getQuality(); 
-		    io_[bx].me2cEtap = stubi->etaPacked(); 
-		    io_[bx].me2cPhip = stubi->phiPacked();  
-		    io_[bx].me2cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  default:
-		    std::cout<< "SERIOUS ERROR\n";
-		  };
-		break;
-	      case 3:
-		switch(stubi->getMPCLink())
-		  {
+    {
+      for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
+	{
+	  std::vector<CSCTrackStub> stub_list;
+	  std::vector<CSCTrackStub>::const_iterator stubi;
+	  if(st == 1)
+	    {
+	      stub_list = theStubs.get(endcap, st, sector, 1, bx);
+	      std::vector<CSCTrackStub> stub_list2 = theStubs.get(endcap, st, sector, 2, bx);
+	      stub_list.insert(stub_list.end(), stub_list2.begin(), stub_list2.end());
+	    }
+	  else stub_list = theStubs.get(endcap, st, sector, 0, bx);
+	  
+	  for(stubi = stub_list.begin(); stubi != stub_list.end(); stubi++)
+	    {
+	      runme |= stubi->isValid();
+	      switch(st)
+		{
+		case 1:
+		  switch(stubi->getMPCLink())
+		    {
+		    case 1:		    
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+			{
+			  io_[relative_bx].me1aVp   = stubi->isValid();
+			  io_[relative_bx].me1aQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1aEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1aPhip = stubi->phiPacked();  
+			  io_[relative_bx].me1aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			  io_[relative_bx].me1aCSCIdp  = stubi->cscid();
+			}
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+			{
+			  io_[relative_bx].me1dVp   = stubi->isValid();
+			  io_[relative_bx].me1dQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1dEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1dPhip = stubi->phiPacked();  
+			  io_[relative_bx].me1dAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			  io_[relative_bx].me1dCSCIdp  = stubi->cscid();
+			}
+		      break;		   
+		    case 2:
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+			{
+			  io_[relative_bx].me1bVp   = stubi->isValid();
+			  io_[relative_bx].me1bQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1bEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1bPhip = stubi->phiPacked();  
+			  io_[relative_bx].me1bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			io_[relative_bx].me1bCSCIdp  = stubi->cscid();
+			}
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+			{
+			  io_[relative_bx].me1eVp   = stubi->isValid();
+			  io_[relative_bx].me1eQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1eEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1ePhip = stubi->phiPacked();  
+			  io_[relative_bx].me1eAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			  io_[relative_bx].me1eCSCIdp  = stubi->cscid();
+			}
+		      break;
+		    case 3:
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+			{
+			  io_[relative_bx].me1cVp   = stubi->isValid();
+			  io_[relative_bx].me1cQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1cEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1cPhip = stubi->phiPacked();  
+			  io_[relative_bx].me1cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			  io_[relative_bx].me1cCSCIdp  = stubi->cscid();
+			}
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+			{
+			  io_[relative_bx].me1fVp   = stubi->isValid();
+			  io_[relative_bx].me1fQp   = stubi->getQuality(); 
+			  io_[relative_bx].me1fEtap = stubi->etaPacked(); 
+			  io_[relative_bx].me1fPhip = stubi->phiPacked();  
+			  io_[relative_bx].me1fAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+			  io_[relative_bx].me1fCSCIdp  = stubi->cscid();
+			}
+		      break;
+		    default:
+		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		    };
+		  break;
+		case 2:
+		  switch(stubi->getMPCLink())
+		    {
 		    case 1:
-		    io_[bx].me3aVp   = stubi->isValid();
-		    io_[bx].me3aQp   = stubi->getQuality(); 
-		    io_[bx].me3aEtap = stubi->etaPacked(); 
-		    io_[bx].me3aPhip = stubi->phiPacked();  
-		    io_[bx].me3aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  case 2:
-		    io_[bx].me3bVp   = stubi->isValid();
-		    io_[bx].me3bQp   = stubi->getQuality(); 
-		    io_[bx].me3bEtap = stubi->etaPacked(); 
-		    io_[bx].me3bPhip = stubi->phiPacked();  
-		    io_[bx].me3bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  case 3:
-		    io_[bx].me3cVp   = stubi->isValid();
-		    io_[bx].me3cQp   = stubi->getQuality(); 
-		    io_[bx].me3cEtap = stubi->etaPacked(); 
-		    io_[bx].me3cPhip = stubi->phiPacked();  
-		    io_[bx].me3cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  default:
-		    std::cout<< "SERIOUS ERROR\n";
-		  };
-		break;
-	      case 4:
-		switch(stubi->getMPCLink())
-		  {
+		      io_[relative_bx].me2aVp   = stubi->isValid();
+		      io_[relative_bx].me2aQp   = stubi->getQuality(); 
+		      io_[relative_bx].me2aEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me2aPhip = stubi->phiPacked();  
+		      io_[relative_bx].me2aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  		    
+		      break;
+		    case 2:
+		      io_[relative_bx].me2bVp   = stubi->isValid();
+		      io_[relative_bx].me2bQp   = stubi->getQuality(); 
+		      io_[relative_bx].me2bEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me2bPhip = stubi->phiPacked();  
+		      io_[relative_bx].me2bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    case 3:
+		      io_[relative_bx].me2cVp   = stubi->isValid();
+		      io_[relative_bx].me2cQp   = stubi->getQuality(); 
+		      io_[relative_bx].me2cEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me2cPhip = stubi->phiPacked();  
+		      io_[relative_bx].me2cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    default:
+		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		    };
+		  break;
+		case 3:
+		  switch(stubi->getMPCLink())
+		    {
 		    case 1:
-		    io_[bx].me4aVp   = stubi->isValid();
-		    io_[bx].me4aQp   = stubi->getQuality(); 
-		    io_[bx].me4aEtap = stubi->etaPacked(); 
-		    io_[bx].me4aPhip = stubi->phiPacked();  
-		    io_[bx].me4aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  case 2:
-		    io_[bx].me4bVp   = stubi->isValid();
-		    io_[bx].me4bQp   = stubi->getQuality(); 
-		    io_[bx].me4bEtap = stubi->etaPacked(); 
-		    io_[bx].me4bPhip = stubi->phiPacked();  
-		    io_[bx].me4bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  case 3:
-		    io_[bx].me4cVp   = stubi->isValid();
-		    io_[bx].me4cQp   = stubi->getQuality(); 
-		    io_[bx].me4cEtap = stubi->etaPacked(); 
-		    io_[bx].me4cPhip = stubi->phiPacked();  
-		    io_[bx].me4cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
-		    break;
-		  default:
-		    std::cout<< "SERIOUS ERROR\n";
-		  };
-		break;
-	      default:
-		std::cout << "Should never get here!\n";
-	      };
-	  }
-      }
+		      io_[relative_bx].me3aVp   = stubi->isValid();
+		      io_[relative_bx].me3aQp   = stubi->getQuality(); 
+		      io_[relative_bx].me3aEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me3aPhip = stubi->phiPacked();  
+		      io_[relative_bx].me3aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    case 2:
+		      io_[relative_bx].me3bVp   = stubi->isValid();
+		      io_[relative_bx].me3bQp   = stubi->getQuality(); 
+		      io_[relative_bx].me3bEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me3bPhip = stubi->phiPacked();  
+		      io_[relative_bx].me3bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    case 3:
+		      io_[relative_bx].me3cVp   = stubi->isValid();
+		      io_[relative_bx].me3cQp   = stubi->getQuality(); 
+		      io_[relative_bx].me3cEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me3cPhip = stubi->phiPacked();  
+		      io_[relative_bx].me3cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    default:
+		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		    };
+		  break;
+		case 4:
+		  switch(stubi->getMPCLink())
+		    {
+		    case 1:
+		      io_[relative_bx].me4aVp   = stubi->isValid();
+		      io_[relative_bx].me4aQp   = stubi->getQuality(); 
+		      io_[relative_bx].me4aEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me4aPhip = stubi->phiPacked();  
+		      io_[relative_bx].me4aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    case 2:
+		      io_[relative_bx].me4bVp   = stubi->isValid();
+		      io_[relative_bx].me4bQp   = stubi->getQuality(); 
+		      io_[relative_bx].me4bEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me4bPhip = stubi->phiPacked();  
+		      io_[relative_bx].me4bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    case 3:
+		      io_[relative_bx].me4cVp   = stubi->isValid();
+		      io_[relative_bx].me4cQp   = stubi->getQuality(); 
+		      io_[relative_bx].me4cEtap = stubi->etaPacked(); 
+		      io_[relative_bx].me4cPhip = stubi->phiPacked();  
+		      io_[relative_bx].me4cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
+		      break;
+		    default:
+		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		    };
+		  break;
+		default:
+		  std::cout<< "SERIOUS ERROR: STATION" << st << "NOT IN RANGE [1,4]\n";
+		};
+	    }
+	}
+      ++relative_bx;
+    }
 }
 
 // Here we should assume the loadData() has been called...
@@ -266,6 +269,82 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 0, 0, 0, 0, // eta offsets
 	 ((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
 	 );
+      
+      LogDebug("CSCTFSPCoreLogic:run()") << std::hex 
+					 << "Input:  F1/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1aVp << " "
+					 << io->me1aQp << " "<< io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << std::endl
+					 << "Input:  F1/M2{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1bVp << " "
+					 << io->me1bQp << " "<< io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << std::endl
+					 << "Input:  F1/M3{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1cVp << " "
+					 << io->me1cQp << " "<< io->me1cEtap << " " << io->me1cPhip << " " << io->me1cCSCIdp << std::endl
+					 << "Input:  F2/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1dVp << " "
+					 << io->me1dQp << " "<< io->me1dEtap << " " << io->me1dPhip << " " << io->me1dCSCIdp << std::endl
+					 << "Input:  F2/M2{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1eVp << " "
+					 << io->me1eQp << " "<< io->me1eEtap << " " << io->me1ePhip << " " << io->me1eCSCIdp << std::endl
+					 << "Input:  F2/M3{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1fVp << " "
+					 << io->me1fQp << " "<< io->me1fEtap << " " << io->me1fPhip << " " << io->me1fCSCIdp << std::endl
+					 << "Input:  F3/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2aVp << " "
+					 << io->me2aQp << " "<< io->me2aEtap << " " << io->me2aPhip << " " << std::endl
+					 << "Input:  F3/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2bVp << " "
+					 << io->me2bQp << " "<< io->me2bEtap << " " << io->me2bPhip << " " << std::endl
+					 << "Input:  F3/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2cVp << " "
+					 << io->me2cQp << " "<< io->me2cEtap << " " << io->me2cPhip << " " << std::endl
+					 << "Input:  F4/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3aVp << " "
+					 << io->me3aQp << " "<< io->me3aEtap << " " << io->me3aPhip << " " << std::endl
+					 << "Input:  F4/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3bVp << " "
+					 << io->me3bQp << " "<< io->me3bEtap << " " << io->me3bPhip << " " << std::endl
+					 << "Input:  F4/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3cVp << " "
+					 << io->me3cQp << " "<< io->me3cEtap << " " << io->me3cPhip << " " << std::endl
+					 << "Input:  F5/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4aVp << " "
+					 << io->me4aQp << " "<< io->me4aEtap << " " << io->me4aPhip << " " << std::endl
+					 << "Input:  F5/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4bVp << " "
+					 << io->me4bQp << " "<< io->me4bEtap << " " << io->me4bPhip << " " << std::endl
+					 << "Input:  F5/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4cVp << " "
+					 << io->me4cQp << " "<< io->me4cEtap << " " << io->me4cPhip << " " << std::endl
+					 << "Input:  MB 1A{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1aVp << " "
+					 << io->mb1aQp << " "<< io->mb1aPhip << " " << std::endl
+					 << "Input:  MB 1B{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1bVp << " "
+					 << io->mb1bQp << " "<< io->mb1bPhip << " " << std::endl
+					 << "Input:  MB 1C{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1cVp << " "
+					 << io->mb1cQp << " "<< io->mb1cPhip << " " << std::endl
+					 << "Input:  MB 1D{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1dVp << " "
+					 << io->mb1dQp << " "<< io->mb1dPhip << " " << std::endl
+					 << "Input:  MB 2A{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2aVp << " "
+					 << io->mb2aQp << " "<< io->mb2aPhip << " " << std::endl
+					 << "Input:  MB 2B{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2bVp << " "
+					 << io->mb2bQp << " "<< io->mb2bPhip << " " << std::endl
+					 << "Input:  MB 2C{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2cVp << " "
+					 << io->mb2cQp << " "<< io->mb2cPhip << " " << std::endl
+					 << "Input:  MB 2D{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2dVp << " "
+					 << io->mb2dQp << " "<< io->mb2dPhip << " " << std::endl
+					 << std::dec << std::endl ;
+
+      if(io->ptHp !=0 || io->ptMp !=0 || io->ptLp !=0)
+	LogDebug("CSCTFSPCoreLogic:run()")<<"ENDCAP/SECTOR "<< endcap << "/" << sector << std::endl;
+      if(io->ptHp !=0)
+	{
+	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M1: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptHp << "/" << io->signHp << "/"
+					     <<  io->modeMemHp << "/" <<  io->etaPTHp << "/" <<  io->FRHp << "/" <<  io->phiHp<<std::endl
+					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : " 
+					     << io->me1idH <<'/'<< io->me2idH <<'/'<< io->me3idH <<'/'<< io->me4idH <<'/'
+					     << io->mb1idH <<'/'<< io->mb2idH << std::dec << std::endl;
+	}
+      if(io->ptMp !=0)
+	{
+	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M2: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptMp << "/" << io->signMp << "/"
+					     <<  io->modeMemMp << "/" <<  io->etaPTMp << "/" <<  io->FRMp << "/" <<  io->phiMp << std::endl
+					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : " 
+					     << io->me1idM <<'/'<< io->me2idM <<'/'<< io->me3idM <<'/'<< io->me4idM <<'/'
+					     << io->mb1idM <<'/'<< io->mb2idM << std::dec << std::endl;
+	}
+      if(io->ptLp !=0)
+	{
+	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M3: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptLp << "/" << io->signLp << "/"
+					     <<  io->modeMemLp << "/" <<  io->etaPTLp << "/" <<  io->FRLp << "/" <<  io->phiLp << std::endl
+					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : " 
+					     << io->me1idL <<'/'<< io->me2idL <<'/'<< io->me3idL <<'/'<< io->me4idL <<'/'
+					     << io->mb1idL <<'/'<< io->mb2idL << std::dec << std::endl;
+	}
 
       ++bx;
     }
@@ -307,37 +386,34 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       LUTAddressL.delta_phi_sign = (io->ptLp >> (BWPT-1)) & 0x1;
       LUTAddressL.track_fr       = io->FRLp & 0x1;
     
-      trkH.setPtLUTAddress(LUTAddressH.toint());
-      trkM.setPtLUTAddress(LUTAddressM.toint());
-      trkL.setPtLUTAddress(LUTAddressL.toint());
-
-      // set each muon's sign
-      trkH.setChargePacked(~(io->signHp));
-
-      trkM.setChargePacked(~(io->signMp));
-            
-      trkL.setChargePacked(~(io->signLp));
       
-      // set eta and local phi of each muon
-      trkH.setLocalPhi(io->phiHp);
-      trkH.setEtaPacked(io->etaPTHp);
-
-      trkM.setLocalPhi(io->phiMp);
-      trkM.setEtaPacked(io->etaPTMp);
-
-      trkL.setLocalPhi(io->phiLp);
-      trkL.setEtaPacked(io->etaPTLp);
-
-      // set the BX of each muon
-      trkH.setBx((int)((bx-latency)+minBX));
-      trkM.setBx((int)((bx-latency)+minBX));
-      trkL.setBx((int)((bx-latency)+minBX));
-    
-      // finally, put the tracks into our trigger container
-      mytracks.push_back(trkH);
-      mytracks.push_back(trkM);
-      mytracks.push_back(trkL);
-      
+      if(LUTAddressH.toint()) 
+	{	  	  
+	  trkH.setPtLUTAddress(LUTAddressH.toint());
+	  trkH.setChargePacked(~(io->signHp)&0x1);
+	  trkH.setLocalPhi(io->phiHp);
+	  trkH.setEtaPacked(io->etaPTHp);
+	  trkH.setBx((int)(bx)+minBX);
+	  mytracks.push_back(trkH);
+	}
+      if(LUTAddressM.toint())
+	{
+	  trkM.setPtLUTAddress(LUTAddressM.toint());
+	  trkM.setChargePacked(~(io->signMp)&0x1);
+	  trkM.setLocalPhi(io->phiMp);
+	  trkM.setEtaPacked(io->etaPTMp);
+	  trkM.setBx((int)(bx)+minBX);
+	  mytracks.push_back(trkM);
+	}
+      if(LUTAddressL.toint())
+	{
+	  trkL.setPtLUTAddress(LUTAddressL.toint());
+	  trkL.setChargePacked(~(io->signLp)&0x1);
+	  trkL.setLocalPhi(io->phiLp);
+	  trkL.setEtaPacked(io->etaPTLp);
+	  trkL.setBx((int)(bx)+minBX);
+	  mytracks.push_back(trkL);
+	}
       ++bx;
     }
   return runme;
