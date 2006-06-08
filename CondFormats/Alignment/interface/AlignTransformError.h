@@ -1,6 +1,7 @@
 #ifndef AlignTransformError_H
 #define AlignTransformError_H
 #include "CLHEP/Matrix/SymMatrix.h"
+#include <boost/cstdint.hpp>
 
 
 /// Class holding error due to an Alignment transformation

@@ -2,8 +2,14 @@
  <class name="Alignments" id="2F16F0A9-79D5-4881-CE0B-C271DD84A7F3"/>
  <class name="AlignTransform"/>
  <class name="std::vector<AlignTransform>"/>
+ <class name="uint32_t"/>
  <class name="CLHEP::HepEulerAngles"/>
  <class name="CLHEP::Hep3Vector"/>
- <class name="CLHEP::HepRotation"/>
+
+ <class name="AlignmentErrors"/>
+ <class name="AlignTransformError"/>
+ <class name="std::vector<AlignTransformError>"/>
+ <class name="CLHEP::HepSymMatrix"/>
+
  <class pattern="*iterator*"/>
 </lcgdict>   

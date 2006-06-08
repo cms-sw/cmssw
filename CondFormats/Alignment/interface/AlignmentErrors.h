@@ -1,5 +1,5 @@
-#ifndef AlignmentErrors_H
-#define AlignmentErrors_H
+#ifndef CondFormats_Alignment_AlignmentErrors_H
+#define CondFormats_Alignment_AlignmentErrors_H
 
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 
