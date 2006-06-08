@@ -11,6 +11,7 @@ namespace csc {
     m_empty = true;
     setType(2); 
     setPtPacked(0);
+    m_rank = 0;
   }
   
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -25,7 +26,8 @@ namespace csc {
     m_lphi = rhs.m_lphi;
     m_id = rhs.m_id;
     m_ptAddress = rhs.m_ptAddress;
-  }
+    m_rank = rhs.m_rank;
+}
 
   L1Track::~L1Track()
   {
@@ -54,13 +56,14 @@ namespace csc {
 	this->setQualityPacked(rhs.quality_packed());
 	m_id      = rhs.m_id;
 	m_ptAddress = rhs.m_ptAddress;
+	m_rank = rhs.m_rank;
       }
     return *this;
   }
 
   unsigned L1Track::rank() const
   {
-    return pt_packed() | quality_packed() << 5;
+    return m_rank;
   }
 
   float L1Track::ptValueMid() const
@@ -83,12 +86,12 @@ namespace csc {
   {
     return scale->getPhiScale()->getLowEdge(m_lphi);
   }
-
+  /*
   void L1Track::addTrackStub(const CSCDetId& id, const CSCCorrelatedLCTDigi& digi)
   {
     m_id.addSegment(id, digi);
   }
-
+  */
   unsigned L1Track::encodeRank(const unsigned& pt, const unsigned& quality)
   {
     if(pt == 0) return 0;

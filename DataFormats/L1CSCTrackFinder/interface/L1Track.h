@@ -29,7 +29,7 @@ namespace csc{
       virtual ~L1Track();
 
       unsigned rank() const;
-      void setRank(const unsigned& rank) { m_id.setRank(rank); }
+      void setRank(const unsigned& rank) { m_rank = rank; }
       float ptValueMid() const;
       float etaValueLow() const;
       float phiValueMid() const;
@@ -38,7 +38,7 @@ namespace csc{
       unsigned localPhi() const { return m_lphi; }
       void setLocalPhi(const unsigned& lphi) { m_lphi = lphi; } 
 
-      void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
+      //void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
       
       unsigned endcap() const { return m_id.side(); }
       unsigned sector() const { return m_sector; }
@@ -79,6 +79,7 @@ namespace csc{
       unsigned m_ptAddress;
       unsigned m_sector;
       int m_bx;
+      unsigned m_rank;
       bool m_empty;
      };
 }

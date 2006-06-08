@@ -21,7 +21,7 @@ namespace csc
     m_erase = id.m_erase;
     m_overlap = id.m_overlap;
     id_ = id.id_;
-    stubs = id.stubs;
+    //stubs = id.stubs;  // add stubs back later
   }
 
   const csc::L1TrackId& L1TrackId::operator=(const csc::L1TrackId& rhs)
@@ -33,7 +33,7 @@ namespace csc
 	m_erase = rhs.m_erase;
 	m_overlap = rhs.m_overlap;
 	id_ = rhs.id_;
-	stubs = rhs.stubs;
+	//stubs = rhs.stubs;
       }
     return *this;
   }

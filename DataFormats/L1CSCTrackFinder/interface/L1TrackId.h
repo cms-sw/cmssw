@@ -45,7 +45,7 @@ namespace csc
       void overlapMode(const unsigned& rank, int& mode, int& stnA, int& stnB);
       unsigned encodeLUTMode(const unsigned& rank) const;
 
-      void addSegment(const CSCDetId& id, const CSCCorrelatedLCTDigi& digi) { stubs.insertDigi(id,digi); }
+      //void addSegment(const CSCDetId& id, const CSCCorrelatedLCTDigi& digi) { stubs.insertDigi(id,digi); }
 
       /// Functions to determine which stations are in this track.
       bool hasME1(const unsigned& rank) const;
@@ -62,7 +62,7 @@ namespace csc
 
       CSCDetId id_;
 
-      CSCCorrelatedLCTDigiCollection stubs;
+      //CSCCorrelatedLCTDigiCollection stubs;
     };
 
 }
