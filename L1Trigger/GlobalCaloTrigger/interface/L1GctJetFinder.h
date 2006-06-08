@@ -95,11 +95,10 @@ public:
   /// Return input data   
   std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
 
-  /// Return output data
-  std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
-  L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }
-  L1GctScalarEtVal getEtStrip1() const { return m_outputEtStrip1; }
-  L1GctScalarEtVal getHt() const { return m_outputHt; }
+  std::vector<L1GctJetCand> getJets() const { return m_outputJets; } ///< Get the located jets. 
+  L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
+  L1GctScalarEtVal getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
+  L1GctScalarEtVal getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
 
 private:
 

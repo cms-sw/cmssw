@@ -26,6 +26,7 @@ public:
   typedef std::vector<L1GctJetCand> JetVector;
   static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
 
+  /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
 	L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> m_wheelFpgas);
 	~L1GctJetFinalStage();
 
@@ -41,20 +42,17 @@ public:
   /// process the data, fill output buffers
   virtual void process();
     	
-  // set input data
-  void setInputCentralJet(int i, L1GctJetCand jet);
-  void setInputForwardJet(int i, L1GctJetCand jet);
-  void setInputTauJet(int i, L1GctJetCand jet); 
+  void setInputCentralJet(int i, L1GctJetCand jet);  ///< set the central jets input data
+  void setInputForwardJet(int i, L1GctJetCand jet);  ///< set the forward jets input data
+  void setInputTauJet(int i, L1GctJetCand jet);      ///< set the tau jets input data
 
-  // return input data
-  JetVector getInputCentralJets() const { return m_inputCentralJets; }
-  JetVector getInputForwardJets() const { return m_inputForwardJets; }
-  JetVector getInputTauJets() const { return m_inputTauJets; }
+  JetVector getInputCentralJets() const { return m_inputCentralJets; } ///< get the central jets input data
+  JetVector getInputForwardJets() const { return m_inputForwardJets; } ///< get the forward jets input data
+  JetVector getInputTauJets() const { return m_inputTauJets; }         ///< get the tau jets input data
 
-  // return output data
-  JetVector getCentralJets() const { return m_centralJets; }
-  JetVector getForwardJets() const { return m_forwardJets; }
-  JetVector getTauJets() const { return m_tauJets; }
+  JetVector getCentralJets() const { return m_centralJets; } ///< get the central jets output data
+  JetVector getForwardJets() const { return m_forwardJets; } ///< get the forward jets output data
+  JetVector getTauJets() const { return m_tauJets; }         ///< get the tau jets output data
 private:
 
   static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in

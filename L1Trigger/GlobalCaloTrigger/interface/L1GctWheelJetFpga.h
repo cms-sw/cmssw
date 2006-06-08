@@ -28,6 +28,7 @@ public:
   static const int MAX_JETS_OUT;   ///< Max number of jets of each type we output.
   static const unsigned int MAX_LEAF_CARDS;  ///< Max number of leaf card pointers
 
+  /// id must be 0 or 1 for -ve/+ve eta halves of CMS
   L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
   ~L1GctWheelJetFpga();
 
