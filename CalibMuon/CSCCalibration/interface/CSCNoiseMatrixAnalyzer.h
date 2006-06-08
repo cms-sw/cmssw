@@ -34,10 +34,10 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
   explicit CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 468
-#define LAYERS 6
-#define STRIPS 80
-#define DDU 36
+#define CHAMBERS_ma 468
+#define LAYERS_ma 6
+#define STRIPS_ma 80
+#define DDU_ma 36
 
   ~CSCNoiseMatrixAnalyzer(){
     //get time of Run file for DB transfer
@@ -85,7 +85,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
        map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
        std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
        
-       for (int j=0; j<LAYERS; j++){
+       for (int j=0; j<LAYERS_ma; j++){
 	 int layer_id=chamber_num+j+1;
 	 if(sector==-100)continue;
 	 cn->obj[layer_id].resize(size[i]);
@@ -149,7 +149,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  std::string chamber_id;
  int eventNumber,evt,strip,misMatch,NChambers,Nddu;
  int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,run;
- int dmbID[CHAMBERS],crateID[CHAMBERS],size[CHAMBERS];
+ int dmbID[CHAMBERS_ma],crateID[CHAMBERS_ma],size[CHAMBERS_ma];
  int lines;
  std::ifstream filein;
  string PSet,name;
@@ -168,5 +168,5 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  float newMatrix11[480];
  float newMatrix12[480];
 
- Chamber_AutoCorrMat cam[CHAMBERS];
+ Chamber_AutoCorrMat cam[CHAMBERS_ma];
 };

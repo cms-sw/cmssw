@@ -38,9 +38,9 @@ CSCCompThreshAnalyzer::CSCCompThreshAnalyzer(edm::ParameterSet const& conf) {
   length = 1, NChambers=0;
   timebin=-999,mycompstrip=-999,comparator=0,compstrip=0;
 
-  for(int i=0;i<CHAMBERS;i++){
-    for(int j=0; j<LAYERS; j++){
-      for(int k=0; k<STRIPS; k++){
+  for(int i=0;i<CHAMBERS_ct;i++){
+    for(int j=0; j<LAYERS_ct; j++){
+      for(int k=0; k<STRIPS_ct; k++){
 	theMeanThresh[i][j][k] = 0.;
 	arrayMeanThresh[i][j][k] = 0.;
 	mean[i][j][k]=0.;
@@ -146,9 +146,9 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	 }//end chamber loop
 
 	 if((evt-1)%25==0){
-	   for(int ii=0;ii<CHAMBERS;ii++){
-	     for(int jj=0;jj<LAYERS;jj++){
-	       for(int kk=0;kk<STRIPS;kk++){
+	   for(int ii=0;ii<CHAMBERS_ct;ii++){
+	     for(int jj=0;jj<LAYERS_ct;jj++){
+	       for(int kk=0;kk<STRIPS_ct;kk++){
 		 mean[ii][jj][kk]=0.0;
 		 meanTot[ii][jj][kk]=0.0;
 	       }

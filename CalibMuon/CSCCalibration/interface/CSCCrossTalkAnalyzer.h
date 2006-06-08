@@ -48,13 +48,13 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   explicit CSCCrossTalkAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
    
-#define CHAMBERS 18
-#define LAYERS 6
-#define STRIPS 80
-#define TIMEBINS 8
-#define DDU 36
-#define TOTALSTRIPS 480
-#define TOTALEVENTS 320
+#define CHAMBERS_xt 18
+#define LAYERS_xt 6
+#define STRIPS_xt 80
+#define TIMEBINS_xt 8
+#define DDU_xt 36
+#define TOTALSTRIPS_xt 480
+#define TOTALEVENTS_xt 320
 
   ~CSCCrossTalkAnalyzer(){
 
@@ -126,7 +126,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	thePeakRMS  =0.0;
 	theSumFive  =0.0;
 
-	for (int j=0; j<LAYERS; j++){
+	for (int j=0; j<LAYERS_xt; j++){
 	  mean=0.,sum=0.;
 	  for (int s=0; s<size[i]; s++) {
 	    //re-zero convd and nconvd
@@ -137,7 +137,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	      }
 	    }
 	    
-	    for (int l=0; l < TIMEBINS*20; l++){
+	    for (int l=0; l < TIMEBINS_xt*20; l++){
 	      adc_ped_sub_left  = theadccountsl[iii][i][j][s][l] - (theadccountsl[iii][i][j][s][0] + theadccountsl[iii][i][j][s][1])/2.;
 	      adc_ped_sub       = theadccountsc[iii][i][j][s][l] - (theadccountsc[iii][i][j][s][0] + theadccountsc[iii][i][j][s][1])/2.;
 	      adc_ped_sub_right = theadccountsr[iii][i][j][s][l] - (theadccountsr[iii][i][j][s][0] + theadccountsr[iii][i][j][s][1])/2.;
@@ -194,7 +194,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	      }
 	    }
 	    
-	    for (int l=0; l < TIMEBINS*20; l++){
+	    for (int l=0; l < TIMEBINS_xt*20; l++){
 	      adc_ped_sub_left  = theadccountsl[iii][i][j][k][l] - (theadccountsl[iii][i][j][k][0] + theadccountsl[iii][i][j][k][1])/2.;	  
 	      adc_ped_sub       = theadccountsc[iii][i][j][k][l] - (theadccountsc[iii][i][j][k][0] + theadccountsc[iii][i][j][k][1])/2.;
 	      adc_ped_sub_right = theadccountsr[iii][i][j][k][l] - (theadccountsr[iii][i][j][k][0] + theadccountsr[iii][i][j][k][1])/2.;
@@ -355,50 +355,50 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
   int i_chamber,i_layer,reportedChambers,chamber_num,sector,run,NChambers ;
-  int dmbID[CHAMBERS],crateID[CHAMBERS],size[CHAMBERS];
+  int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;
   std::string tid;
-  int thebins[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
-  int theadccountsc[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
-  int theadccountsl[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
-  int theadccountsr[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
+  int thebins[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
   float pedMean,pedMean1,time,max1,max2,aPeak,sumFive;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
   float thePeak,thePeakRMS,theSumFive,thePedestal,theRSquare;
-  float thetime[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
-  float xtalk_intercept_left[DDU][CHAMBERS][LAYERS][STRIPS];
-  float xtalk_intercept_right[DDU][CHAMBERS][LAYERS][STRIPS];
-  float xtalk_slope_left[DDU][CHAMBERS][LAYERS][STRIPS];
-  float xtalk_slope_right[DDU][CHAMBERS][LAYERS][STRIPS];
-  float xtalk_chi2_left[DDU][CHAMBERS][LAYERS][STRIPS];
-  float xtalk_chi2_right[DDU][CHAMBERS][LAYERS][STRIPS];
-  float myPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
-  float myMeanPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
-  float array_meanPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayOfPed[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayOfPedSquare[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayPed[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayPeak[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayOfPeak[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arrayOfPeakSquare[DDU][CHAMBERS][LAYERS][STRIPS];
-  float arraySumFive[DDU][CHAMBERS][LAYERS][STRIPS];
-  float myTime[TIMEBINS];
-  float myADC[TIMEBINS];
-  int myTbin[TIMEBINS];
-  float newPed[TOTALSTRIPS];
-  float newRMS[TOTALSTRIPS];
-  float newPeakRMS[TOTALSTRIPS];
-  float newPeak[TOTALSTRIPS];
-  float newSumFive[TOTALSTRIPS];
-  float new_xtalk_intercept_right[TOTALSTRIPS];
-  float new_xtalk_intercept_left[TOTALSTRIPS];
-  float new_xtalk_slope_right[TOTALSTRIPS];
-  float new_xtalk_slope_left[TOTALSTRIPS];
-  float new_rchi2[TOTALSTRIPS];
-  float new_lchi2[TOTALSTRIPS];
-  float newPeakTime[TOTALSTRIPS];
-  float newMeanPeakTime[TOTALSTRIPS];
+  float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  float xtalk_intercept_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float xtalk_intercept_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float xtalk_slope_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float xtalk_slope_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float xtalk_chi2_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float xtalk_chi2_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float myPeakTime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float myMeanPeakTime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float array_meanPeakTime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayOfPed[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayOfPedSquare[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayPed[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayPeak[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayOfPeak[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arrayOfPeakSquare[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float arraySumFive[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
+  float myTime[TIMEBINS_xt];
+  float myADC[TIMEBINS_xt];
+  int myTbin[TIMEBINS_xt];
+  float newPed[TOTALSTRIPS_xt];
+  float newRMS[TOTALSTRIPS_xt];
+  float newPeakRMS[TOTALSTRIPS_xt];
+  float newPeak[TOTALSTRIPS_xt];
+  float newSumFive[TOTALSTRIPS_xt];
+  float new_xtalk_intercept_right[TOTALSTRIPS_xt];
+  float new_xtalk_intercept_left[TOTALSTRIPS_xt];
+  float new_xtalk_slope_right[TOTALSTRIPS_xt];
+  float new_xtalk_slope_left[TOTALSTRIPS_xt];
+  float new_rchi2[TOTALSTRIPS_xt];
+  float new_lchi2[TOTALSTRIPS_xt];
+  float newPeakTime[TOTALSTRIPS_xt];
+  float newMeanPeakTime[TOTALSTRIPS_xt];
   int lines;
   std::ifstream filein;
   string PSet,name;

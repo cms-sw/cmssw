@@ -13,19 +13,19 @@ class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
   explicit CSCCompThreshAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 9
-#define LAYERS 6
-#define STRIPS 80
-#define TOTALSTRIPS 480
-#define DDU 2
-#define NUMMOD 875
-#define NUMBERPLOTTED 25
+#define CHAMBERS_ct 9
+#define LAYERS_ct 6
+#define STRIPS_ct 80
+#define TOTALSTRIPS_ct 480
+#define DDU_ct 9
+#define NUMMOD_ct 875
+#define NUMBERPLOTTED_ct 25
 
   ~CSCCompThreshAnalyzer(){
  
     //create array (480 entries) for database transfer
-    condbc *cdb = new condbc();
-    cscmap *map = new cscmap();
+    //condbc *cdb = new condbc();
+    //cscmap *map = new cscmap();
 
     for(int myChamber=0; myChamber<NChambers; myChamber++){
 
@@ -35,11 +35,11 @@ class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
       std::string answer;
 
       //print out result here
-      for (int i=0; i<CHAMBERS; i++){
+      for (int i=0; i<CHAMBERS_ct; i++){
 	if (myChamber !=i) continue;
 	
-	for (int j=0; j<LAYERS; j++){
-	  for (int k=0; k<STRIPS; k++){
+	for (int j=0; j<LAYERS_ct; j++){
+	  for (int k=0; k<STRIPS_ct; k++){
 	    //arrayMeanThresh[i][j][k]= meanmod[tmp][i_chamber][i_layer-1][mycompstrip];
 	    fff = (j*80)+k;
 	    //theMeanThresh  = arrayMeanThresh[i][j][k];
@@ -60,12 +60,12 @@ private:
   int eventNumber,evt,event,pedSum, strip, misMatch,fff,ret_code,NChambers,Nddu;
   int length,i_chamber,i_layer,reportedChambers,chamber_num,sector; 
   int timebin,mycompstrip,comparator,compstrip;
-  int dmbID[CHAMBERS],crateID[CHAMBERS]; 
-  float theMeanThresh[CHAMBERS][LAYERS][STRIPS];
-  float	arrayMeanThresh[CHAMBERS][LAYERS][STRIPS];
-  float	mean[CHAMBERS][LAYERS][STRIPS];
-  float	meanTot[CHAMBERS][LAYERS][STRIPS];
-  float meanmod[NUMMOD][CHAMBERS][LAYERS][STRIPS];
-  float newThresh[TOTALSTRIPS];
+  int dmbID[CHAMBERS_ct],crateID[CHAMBERS_ct]; 
+  float theMeanThresh[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
+  float	arrayMeanThresh[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
+  float	mean[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
+  float	meanTot[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
+  float meanmod[NUMMOD_ct][CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
+  float newThresh[TOTALSTRIPS_ct];
 
 };

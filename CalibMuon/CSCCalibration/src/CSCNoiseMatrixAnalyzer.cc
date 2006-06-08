@@ -37,7 +37,7 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
-  for(int k=0;k<CHAMBERS;k++) cam[k].zero();
+  for(int k=0;k<CHAMBERS_ma;k++) cam[k].zero();
 
   for (int i=0;i<480;i++){
     newMatrix1[i] = 0.0;
@@ -55,7 +55,7 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   
   }
 
-  for (int i=0; i< CHAMBERS; i++){
+  for (int i=0; i< CHAMBERS_ma; i++){
     size[i]=0;
   }
 }
@@ -102,7 +102,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) { 
 	  
-	  for(int i_layer = 1; i_layer <= LAYERS; ++i_layer) {
+	  for(int i_layer = 1; i_layer <= LAYERS_ma; ++i_layer) {
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
 	    const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
 	    

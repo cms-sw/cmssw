@@ -37,10 +37,10 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
-  for (int i=0; i<NUMMODTEN; i++){
-    for (int j=0; j<CHAMBERS; j++){
-      for (int k=0; k<LAYERS; k++){
-	for (int l=0; l<STRIPS; l++){
+  for (int i=0; i<NUMMODTEN_ga; i++){
+    for (int j=0; j<CHAMBERS_ga; j++){
+      for (int k=0; k<LAYERS_ga; k++){
+	for (int l=0; l<STRIPS_ga; l++){
 	  maxmodten[i][j][k][l] = 0.0;
 	}
       }
@@ -48,14 +48,14 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   }
   
 
-  for (int i=0; i<CHAMBERS; i++){
+  for (int i=0; i<CHAMBERS_ga; i++){
     size[i]  = 0;
   }
 
-  for (int iii=0;iii<DDU;iii++){
-    for (int i=0; i<CHAMBERS; i++){
-      for (int j=0; j<LAYERS; j++){
-	for (int k=0; k<STRIPS; k++){
+  for (int iii=0;iii<DDU_ga;iii++){
+    for (int i=0; i<CHAMBERS_ga; i++){
+      for (int j=0; j<LAYERS_ga; j++){
+	for (int k=0; k<STRIPS_ga; k++){
 	  adcMax[iii][i][j][k]            = -999.0;
 	  adcMean_max[iii][i][j][k]       = -999.0;
 	}
@@ -128,8 +128,8 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/20.;  
 		
 		//On the 10th event save
-		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN){
-		  int ten = int((evt-1)/20)%NUMBERPLOTTED ;
+		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_ga){
+		  int ten = int((evt-1)/20)%NUMBERPLOTTED_ga ;
 		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
@@ -138,10 +138,10 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	}//end chamber loop
 	
 	if((evt-1)%20==0){
-	  for(int iii=0;iii<DDU;iii++){
-	    for(int ii=0; ii<CHAMBERS; ii++){
-	      for(int jj=0; jj<LAYERS; jj++){
-		for(int kk=0; kk<STRIPS; kk++){
+	  for(int iii=0;iii<DDU_ga;iii++){
+	    for(int ii=0; ii<CHAMBERS_ga; ii++){
+	      for(int jj=0; jj<LAYERS_ga; jj++){
+		for(int kk=0; kk<STRIPS_ga; kk++){
 		  adcMean_max[iii][ii][jj][kk]=0.0;
 		}
 	      }

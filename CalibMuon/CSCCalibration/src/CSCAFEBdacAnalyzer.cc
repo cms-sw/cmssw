@@ -96,7 +96,7 @@ void CSCAFEBdacAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSe
 	     
 	     std::vector<CSCWireDigi> wire = cscData[i_chamber].wireDigis(i_layer) ;
 	     const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
-	     //if (thisDMBheader.afebAvailable()){//check that AFEB data exists
+	     //if (thisDMBheader.afebAvailable()){};//check that AFEB data exists
 	     
 	     dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); 
 	     crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID(); 
@@ -110,7 +110,7 @@ void CSCAFEBdacAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSe
 	     }//end digis loop
 	   }//end layer loop
 	 }//end chamber loop
-
+	 
 	 eventNumber++;
 	 edm::LogInfo ("CSCAFEBdacAnalyzer")  << "end of event number " << eventNumber;
        }//end DDU loop

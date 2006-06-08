@@ -20,16 +20,16 @@ class CSCAFEBdacAnalyzer : public edm::EDAnalyzer {
   explicit CSCAFEBdacAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 9
-#define LAYERS 6
-#define WIRES 64
-#define TOTALWIRES 384
+#define CHAMBERS_dac 9
+#define LAYERS_dac 6
+#define WIRES_dac 64
+#define TOTALWIRES_dac 384
 #define DDU 2
 
   ~CSCAFEBdacAnalyzer(){
  
     //create array (480 entries) for database transfer
-    condbc *cdb = new condbc();
+    //condbc *cdb = new condbc();
     cscmap *map = new cscmap();
 
     for(int myDDU=0;myDDU<Nddu;myDDU++){
@@ -48,8 +48,8 @@ class CSCAFEBdacAnalyzer : public edm::EDAnalyzer {
 	  for (int i=0; i<NChambers; i++){
 	    if (myChamber !=i) continue;
 	    
-	    for (int j=0; j<LAYERS; j++){
-	      for (int k=0; k<WIRES; k++){
+	    for (int j=0; j<LAYERS_dac; j++){
+	      for (int k=0; k<WIRES_dac; k++){
 		fff = (j*80)+k;
 
 	      }
@@ -93,6 +93,6 @@ class CSCAFEBdacAnalyzer : public edm::EDAnalyzer {
 
   int eventNumber,evt,misMatch,fff,ret_code,NChambers,Nddu,event;
   int wireGroup,wireTBin,length,i_chamber,i_layer,reportedChambers,chamber_num,sector; 
-  int dmbID[CHAMBERS],crateID[CHAMBERS];
+  int dmbID[CHAMBERS_dac],crateID[CHAMBERS_dac];
   std::string chamber_id;
 };

@@ -53,11 +53,11 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   }
   
 
- //  for (int iii=0;iii<DDU;iii++){
-//     for (int i=0; i<CHAMBERS; i++){
-//       for (int j=0; j<LAYERS; j++){
-// 	for (int k=0; k<STRIPS; k++){
-  for (int l=0; l<TIMEBINS; l++){
+ //  for (int iii=0;iii<DDU_xt;iii++){
+//     for (int i=0; i<CHAMBERS_xt; i++){
+//       for (int j=0; j<LAYERS_xt; j++){
+// 	for (int k=0; k<STRIPS_xt; k++){
+  for (int l=0; l<TIMEBINS_xt; l++){
     myTime[l] = 0.0;
     myADC[l]  = 0.0;
     myTbin[l] = 0;
@@ -67,15 +67,15 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 //     }
 // }
 
-  for (int i=0;i<CHAMBERS;i++){
+  for (int i=0;i<CHAMBERS_xt;i++){
     size[i]                      = 0;
   }
 
-  for (int iii=0;iii<DDU;iii++){
-    for (int i=0; i<CHAMBERS; i++){
-      for (int j=0; j<LAYERS; j++){
-	for (int k=0; k<STRIPS; k++){
-	  for (int l=0; l<TIMEBINS*20; l++){
+  for (int iii=0;iii<DDU_xt;iii++){
+    for (int i=0; i<CHAMBERS_xt; i++){
+      for (int j=0; j<LAYERS_xt; j++){
+	for (int k=0; k<STRIPS_xt; k++){
+	  for (int l=0; l<TIMEBINS_xt*20; l++){
 	    thetime[iii][i][j][k][l]       = 0.0;
 	    thebins[iii][i][j][k][l]       = 0  ;
 	    theadccountsc[iii][i][j][k][l] = 0  ;
@@ -96,10 +96,10 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   }
   
   
-  for (int iii=0;iii<DDU;iii++){
-    for (int i=0; i<CHAMBERS; i++){
-      for (int j=0; j<LAYERS; j++){
-	for (int k=0; k<STRIPS; k++){
+  for (int iii=0;iii<DDU_xt;iii++){
+    for (int i=0; i<CHAMBERS_xt; i++){
+      for (int j=0; j<LAYERS_xt; j++){
+	for (int k=0; k<STRIPS_xt; k++){
 	  xtalk_intercept_left[iii][i][j][k]  = -999.;
 	  xtalk_intercept_right[iii][i][j][k] = -999.;
 	  xtalk_slope_left[iii][i][j][k]      = -999.;

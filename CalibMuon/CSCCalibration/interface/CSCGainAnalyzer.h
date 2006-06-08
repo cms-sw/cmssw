@@ -29,12 +29,12 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   explicit CSCGainAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 468
-#define LAYERS 6
-#define STRIPS 80
-#define NUMBERPLOTTED 10 
-#define NUMMODTEN 200
-#define DDU 36
+#define CHAMBERS_ga 468
+#define LAYERS_ga 6
+#define STRIPS_ga 80
+#define NUMBERPLOTTED_ga 10 
+#define NUMMODTEN_ga 200
+#define DDU_ga 36
 
   ~CSCGainAnalyzer(){
 //get time of Run file for DB transfer
@@ -84,10 +84,10 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 	  map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
 	  std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	  
-	  for (int layeriter=0; layeriter<LAYERS; layeriter++){
-	    for (int stripiter=0; stripiter<STRIPS; stripiter++){
+	  for (int layeriter=0; layeriter<LAYERS_ga; layeriter++){
+	    for (int stripiter=0; stripiter<STRIPS_ga; stripiter++){
 	      
-	      for (int j=0; j<LAYERS; j++){//layer
+	      for (int j=0; j<LAYERS_ga; j++){//layer
 		if (j != layeriter) continue;
 		
 		int layer_id=chamber_num+j+1;
@@ -103,9 +103,9 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 		  float gainIntercept = 0.0;
 		  float chi2      = 0.0;
 		  
-		  float charge[NUMBERPLOTTED]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
+		  float charge[NUMBERPLOTTED_ga]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
 		  
-		  for(int ii=0; ii<NUMBERPLOTTED; ii++){//numbers    
+		  for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){//numbers    
 		    sumOfX  += charge[ii];
 		    sumOfY  += maxmodten[ii][cham][j][k];
 		    sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
@@ -113,11 +113,11 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 		  }
 		 
 		  //Fit parameters for straight line
-		  gainSlope     = ((NUMBERPLOTTED*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED*sumx2) - (sumOfX*sumOfX));//k
-		  gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED*sumx2)-(sumOfX*sumOfX));//m
+		  gainSlope     = ((NUMBERPLOTTED_ga*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_ga*sumx2) - (sumOfX*sumOfX));//k
+		  gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_ga*sumx2)-(sumOfX*sumOfX));//m
 		  
-		  for(int ii=0; ii<NUMBERPLOTTED; ii++){
-		    chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED*NUMBERPLOTTED);
+		  for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){
+		    chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_ga*NUMBERPLOTTED_ga);
 		  }
 		  
 		  std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
@@ -157,11 +157,11 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   int eventNumber,evt,chamber_num,sector,i_chamber,i_layer,reportedChambers;
   int fff,ret_code,length,strip,misMatch,NChambers,Nddu,run;
   time_t rawtime;
-  int dmbID[CHAMBERS],crateID[CHAMBERS],size[CHAMBERS]; 
+  int dmbID[CHAMBERS_ga],crateID[CHAMBERS_ga],size[CHAMBERS_ga]; 
   float gainSlope,gainIntercept;
-  float adcMax[DDU][CHAMBERS][LAYERS][STRIPS];
-  float adcMean_max[DDU][CHAMBERS][LAYERS][STRIPS];
-  float maxmodten[NUMMODTEN][CHAMBERS][LAYERS][STRIPS];
+  float adcMax[DDU_ga][CHAMBERS_ga][LAYERS_ga][STRIPS_ga];
+  float adcMean_max[DDU_ga][CHAMBERS_ga][LAYERS_ga][STRIPS_ga];
+  float maxmodten[NUMMODTEN_ga][CHAMBERS_ga][LAYERS_ga][STRIPS_ga];
   float newGain[480];
   float newIntercept[480];
   float newChi2[480];
