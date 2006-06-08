@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/22 12:24:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/07 16:02:38 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -46,7 +46,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug");
 
   // Get the label to retrieve digis from the event
-  digiLabel = pset.getParameter<string>("digiLabel");
+  digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
   // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -56,17 +56,17 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   if(debug)
     theFitter->setVerbosity(1);
 
-  doSubtractT0 = pset.getParameter<bool>("doSubtractT0");
+  doSubtractT0 = pset.getUntrackedParameter<bool>("doSubtractT0","false");
   // Get the synchronizer
   if(doSubtractT0) {
-    theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-						pset.getParameter<ParameterSet>("tTrigModeConfig"));
+    theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
+						pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
   } else {
     theSync = 0;
   }
 
   theTag = pset.getUntrackedParameter<string>("tTrigTag", "ttrig_test");
-  checkNoisyChannels = pset.getParameter<bool>("checkNoisyChannels");
+  checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
 
   if(debug) 
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
@@ -79,12 +79,12 @@ DTTTrigCalibration::~DTTTrigCalibration(){
   if(debug) 
     cout << "[DTTTrigCalibration]Destructor called!" << endl;
 
-  // Delete all histos
-  for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
-      slHisto != theHistoMap.end();
-      slHisto++) {
-    delete (*slHisto).second;
-  }
+//   // Delete all histos
+//   for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
+//       slHisto != theHistoMap.end();
+//       slHisto++) {
+//     delete (*slHisto).second;
+//   }
 
   theFile->Close();
   delete theFitter;
