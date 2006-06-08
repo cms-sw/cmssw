@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.12 2006/05/24 16:09:11 llista Exp $
+ * $Id: AssociationMap.h,v 1.13 2006/05/30 08:00:49 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -219,6 +219,8 @@ namespace edm {
 
     /// default constructor
     AssociationMap() { }
+    /// clear map
+    void clear() { map_.clear(); transientMap_.clear(); }
     /// map size
     size_type size() const { return map_.size(); }
     /// return true if empty

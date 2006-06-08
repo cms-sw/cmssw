@@ -1,4 +1,4 @@
-// $Id: testOneToManyAssociation.cc,v 1.6 2006/05/24 15:53:39 llista Exp $
+// $Id: testOneToManyAssociation.cc,v 1.7 2006/05/30 08:00:49 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -42,4 +42,5 @@ void testOneToManyAssociation::dummy() {
   n++;
   edm::Ref<Assoc> r;
   v[ edm::Ref<CKey>() ];
+  v.clear();
 }
