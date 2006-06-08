@@ -41,7 +41,7 @@ namespace csc{
       //void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
       
       unsigned endcap() const { return m_id.side(); }
-      unsigned sector() const { return m_sector; }
+      unsigned sector() const { return m_id.sector(); }
       unsigned station() const { return 0; }
       // these next two are needed by the trigger container class
       unsigned subsector() const { return 0; }
