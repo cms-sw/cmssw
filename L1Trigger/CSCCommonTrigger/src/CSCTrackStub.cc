@@ -10,7 +10,8 @@ CSCTrackStub::CSCTrackStub(const CSCCorrelatedLCTDigi& aDigi,
 			   const CSCDetId& aDetId): theDetId_(aDetId),
 						    theDigi_(aDigi),
 						    thePhi_(0),
-						    theEta_(0)
+						    theEta_(0),
+						    link_(0)
 {}
 
 CSCTrackStub::CSCTrackStub(const CSCCorrelatedLCTDigi& aDigi,
@@ -18,13 +19,15 @@ CSCTrackStub::CSCTrackStub(const CSCCorrelatedLCTDigi& aDigi,
 			   const unsigned& phi, const unsigned& eta): theDetId_(aDetId),
 								      theDigi_(aDigi),
 								      thePhi_(phi),
-								      theEta_(eta)
+								      theEta_(eta),
+								      link_(0)
 {}
 
 CSCTrackStub::CSCTrackStub(const CSCTrackStub& aTrackStub): theDetId_(aTrackStub.theDetId_),
 							    theDigi_(aTrackStub.theDigi_),
 							    thePhi_(aTrackStub.thePhi_),
-							    theEta_(aTrackStub.theEta_)
+							    theEta_(aTrackStub.theEta_),
+							    link_(aTrackStub.link_)
 {}
 
 unsigned CSCTrackStub::endcap() const
