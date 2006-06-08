@@ -5,9 +5,9 @@
 // 
 /**\class PixelDigisTest PixelDigisTest.cc 
 
- Description: Test pixel digis. Barrel only. Uses root histos.
- Works with CMSSW_0_5_0 
- Modifed for module() method in PXBDetId. 2/06
+ Description: Test pixel digis. 
+ Barrel & Forward digis. Uses root histos.
+ Works with CMSSW_0_7_0 
 
  Implementation:
      <Notes on implementation>
@@ -15,7 +15,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.3 2006/05/26 08:50:57 pioppi Exp $
+// $Id: PixelDigisTest.cc,v 1.4 2006/06/07 15:44:14 dkotlins Exp $
 //
 //
 // system include files
@@ -44,6 +44,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -245,11 +246,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   edm::DetSetVector<PixelDigi>::const_iterator DSViter;
   for(DSViter = pixelDigis->begin(); DSViter != pixelDigis->end(); DSViter++) {
 
-    //unsigned int detid = *detunit_it; // return uint, = rawid
-    // Det id
-    //DetId detId = DetId(detid);       // Get the Detid
-    
-
     unsigned int detid = DSViter->id; // = rawid
     DetId detId(detid);
     //const GeomDetUnit      * geoUnit = geom->idToDetUnit( detId );
@@ -258,13 +254,14 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     unsigned int subid=detId.subdetId(); //subdetector type, barrel=1
     
     if(PRINT) 
-      cout<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
+      cout<<"Det: "<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
     
     hdetunit->Fill(float(detid));
     hpixid->Fill(float(detType));
     hpixsubid->Fill(float(subid));
     
     if(detType!=1) continue; // look only at tracker
+    ++numberOfDetUnits;
     
     // Get the geom-detector 
     const PixelGeomDetUnit * theGeomDet = 
@@ -277,66 +274,73 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     int cols = theGeomDet->specificTopology().ncolumns();
     int rows = theGeomDet->specificTopology().nrows();
     
-    // Subdet it, pix barrel=1
-     if(subid != 1) {
-       if(subid==2) {
-	 // test cols & rows
-	 //cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-	 //  <<cols<<" "<<rows<<endl;
-	 hdetrF->Fill(detR);
-	 hdetzF->Fill(detZ);
-	 hcolsF->Fill(float(cols));
-	 hrowsF->Fill(float(rows));
+    unsigned int layer=0;
+    unsigned int ladder=0;
+    unsigned int zindex=0;
 
-	 if(PRINT) cout<<" forward hit "<<endl;
-       }
-       continue; // look only at barrel
-     }
+    // Subdet it, pix barrel=1, forward=2
+    if(subid==2) {   // forward
 
-     ++numberOfDetUnits;
+      hdetrF->Fill(detR);
+      hdetzF->Fill(detZ);
+      hcolsF->Fill(float(cols));
+      hrowsF->Fill(float(rows));
 
-     if(PRINT) cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-		   <<cols<<" "<<rows<<endl;
+      PXFDetId pdetId = PXFDetId(detid);
+      unsigned int disk=pdetId.disk(); //1,2,3
+      unsigned int blade=pdetId.blade(); //1-24
+      unsigned int zindex=pdetId.module(); //
+      unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
+      unsigned int panel=pdetId.panel(); //panel=1
+      
+      if(PRINT) cout<<"Forward det "<<subid<<", disk "<<disk<<", blade "
+		    <<blade<<", module "<<zindex<<", side "<<side<<", panel "
+		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
+ 
+    } else if(subid == 1) { // Barrel 
 
-     hdetr->Fill(detR);
-     hdetz->Fill(detZ);
-     hcolsB->Fill(float(cols));
-     hrowsB->Fill(float(rows));
-     
-     PXBDetId pdetId = PXBDetId(detid);
-     unsigned int detTypeP=pdetId.det();
-     unsigned int subidP=pdetId.subdetId();
-     // Barell layer = 1,2,3
-     unsigned int layer=pdetId.layer();
-     // Barrel ladder id 1-20,32,44.
-     unsigned int ladder=pdetId.ladder();
-     // Barrel Z-index=1,8
-     unsigned int zindex=pdetId.module();
-     if(PRINT) 
-       cout<<detTypeP<<" "<<subidP<<" "<<layer<<" "<<ladder<<" "<<zindex<<" "
-	   <<pdetId.rawId()<<" "<<pdetId.null()<<endl;
-     
-     // Some histos
-     hlayerid->Fill(float(layer));
-     if(layer==1) {
-       hladder1id->Fill(float(ladder));
-       hz1id->Fill(float(zindex));
-       ++numberOfDetUnits1;
-       numOfDigisPerDet1=0;
-       
-     } else if(layer==2) {
+
+      hdetr->Fill(detR);
+      hdetz->Fill(detZ);
+      hcolsB->Fill(float(cols));
+      hrowsB->Fill(float(rows));
+      
+      PXBDetId pdetId = PXBDetId(detid);
+      unsigned int detTypeP=pdetId.det();
+      unsigned int subidP=pdetId.subdetId();
+      // Barell layer = 1,2,3
+      layer=pdetId.layer();
+      // Barrel ladder id 1-20,32,44.
+      ladder=pdetId.ladder();
+      // Barrel Z-index=1,8
+      zindex=pdetId.module();
+      if(PRINT) cout<<" Barrel det, z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
+		    <<cols<<" "<<rows<<" layer, ladder, module "
+		    <<layer<<" "<<ladder<<" "<<zindex<<endl;
+      
+      // Some histos
+      hlayerid->Fill(float(layer));
+      if(layer==1) {
+	hladder1id->Fill(float(ladder));
+	hz1id->Fill(float(zindex));
+	++numberOfDetUnits1;
+	numOfDigisPerDet1=0;
+	
+      } else if(layer==2) {
         hladder2id->Fill(float(ladder));
         hz2id->Fill(float(zindex));
 	++numberOfDetUnits2;
 	numOfDigisPerDet2=0;
-     } else if(layer==3) {
+      } else if(layer==3) {
         hladder3id->Fill(float(ladder));
         hz3id->Fill(float(zindex));
 	++numberOfDetUnits3;
 	numOfDigisPerDet3=0;
-     }
- 
-     // Has to be changed 
+      }
+      
+    } // end bar-fb 
+
+      // Has to be changed 
 //      const PixelDigiSimLinkCollection::Range simLinkRange = 
 //        pixelSimLinks->get(detid);
 //      int numberOfSimLinks = 0;
@@ -355,21 +359,14 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 //        // (below) with the digis.
 //      }
 
-     unsigned int numberOfDigis = 0;
-     // Look at digis now
+      unsigned int numberOfDigis = 0;
 
-//      const PixelDigiCollection::Range digiRange = pixelDigis->get(detid);
-//      PixelDigiCollection::ContainerIterator di;
-//      // Loop over Digis in this det unit
-//      for(di = digiRange.first; di != digiRange.second; ++di) { 
-
-
-     edm::DetSet<PixelDigi>::const_iterator  begin = DSViter->data.begin();          
-     edm::DetSet<PixelDigi>::const_iterator  end   = DSViter->data.end();
-     edm::DetSet<PixelDigi>::const_iterator  di;
-     for(di = begin; di != end; di++) {
-
-       numberOfDigis++;
+      // Look at digis now
+      edm::DetSet<PixelDigi>::const_iterator  di;
+      for(di = DSViter->data.begin(); di != DSViter->data.end(); di++) {
+	//for(di = begin; di != end; di++) {
+	
+	numberOfDigis++;
        totalNumOfDigis++;
        int adc = di->adc();    // charge
        int col = di->column(); // column 
@@ -417,8 +414,8 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
        } // end if layer
         
      } // end for digis
-     if(PRINT) 
-       cout<<" for det "<<detid<<" digis = "<<numberOfDigis<<endl;
+      //if(PRINT) 
+      //cout<<" for det "<<detid<<" digis = "<<numberOfDigis<<endl;
 
      if(layer==1) {
        hdigisPerDet1->Fill(float(numberOfDigis));
