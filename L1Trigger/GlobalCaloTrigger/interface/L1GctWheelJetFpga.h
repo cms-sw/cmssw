@@ -1,6 +1,19 @@
 #ifndef L1GCTWHEELJETFPGA_H_
 #define L1GCTWHEELJETFPGA_H_
 
+/*
+* \class L1GctWheelJetFpga
+* \brief Represents a GCT Wheel Jet FPGA
+*
+*  Takes as input the Jet and Ht data from one eta half of CMS
+*  (three leaf cards of data) and summarises/reduces this data
+*  before passing it onto the L1GctJetFinalStage processing that
+*  takes place (physically) on the concentrator card.
+* 
+* \author Jim Brooke & Robert Frazier
+* \date June 2006
+*/ 
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"

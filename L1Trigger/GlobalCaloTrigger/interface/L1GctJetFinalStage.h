@@ -9,11 +9,16 @@
 #include <vector>
 
 /*
- * The GCT Jet classify and sort algorithms
- * author: Jim Brooke
- * date: 20/2/2006
- * 
- */
+* \class L1GctJetFinalStage
+* \brief Represents the final stage of L1 jet processing.
+*
+*  Takes as input the jet data from the two Wheel Jet FPGAs
+*  and outputs the top four of each type of jet - central, forward,
+*  and tau - for the whole of the CMS detector.
+* 
+* \author Jim Brooke & Robert Frazier
+* \date June 2006
+*/ 
 
 class L1GctJetFinalStage : public L1GctProcessor
 {
