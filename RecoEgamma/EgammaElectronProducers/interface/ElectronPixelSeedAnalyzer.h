@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ElectronPixelSeedAnalyzer.h,v 1.1 2006/06/02 15:32:44 uberthon Exp $
 //
 //
   
@@ -28,6 +28,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 class MagneticField;  
+class TFile;
+class TH1F;
+class TH1I;
 
 class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
 {
@@ -45,6 +48,9 @@ class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
   TrajectoryStateTransform transformer_;
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> theMagField;
+  TFile *histfile_;
+  TH1F *histpt_;
+  TH1I *histnrseeds_;
  };
   
 #endif

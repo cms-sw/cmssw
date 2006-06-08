@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.2 2006/06/06 17:17:56 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.3 2006/06/06 23:20:25 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -44,9 +44,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-ElectronPixelSeedGenerator::ElectronPixelSeedGenerator():  theMode_(unknown), theMeasurementTracker(0)
-{
-}
+ElectronPixelSeedGenerator::ElectronPixelSeedGenerator( 
+			  float iephimin1,
+			  float iephimax1,
+			  float ipphimin1,
+			  float ipphimax1,
+			  float iphimin2,
+			  float iphimax2,
+			  float izmin1,
+			  float izmax1,
+			  float izmin2,
+			  float izmax2
+		):  theMode_(unknown), theMeasurementTracker(0)
+{}
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
   delete theMeasurementTracker;
@@ -81,18 +91,6 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
- 
- // gets configurable parameters
-  ephimin1 = conf.getParameter<double>("ePhiMin1");
-  ephimax1 = conf.getParameter<double>("ePhiMax1");
-  pphimin1 = conf.getParameter<double>("pPhiMin1");
-  pphimax1 = conf.getParameter<double>("pPhiMax1");
-  pphimin2 = conf.getParameter<double>("pPhiMin2");
-  pphimax2 = conf.getParameter<double>("pPhiMax2");
-  zmin1 = conf.getParameter<double>("ZMin1");
-  zmax1 = conf.getParameter<double>("ZMax1");
-  zmin2 = conf.getParameter<double>("ZMin2");
-  zmax2 = conf.getParameter<double>("ZMax2");
 }
 
 void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedCollection & out){

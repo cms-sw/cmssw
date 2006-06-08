@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.1 2006/06/02 15:32:45 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.2 2006/06/06 17:17:43 uberthon Exp $
 //
 //
 
@@ -41,8 +41,17 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   //register your products
   produces<ElectronPixelSeedCollection>();
 
-  //create top algorithm and initialize
-  matcher_ = new ElectronPixelSeedGenerator();
+  matcher_ = new ElectronPixelSeedGenerator(iConfig.getParameter<double>("ePhiMin1"),
+					    iConfig.getParameter<double>("ePhiMax1"),
+					    iConfig.getParameter<double>("pPhiMin1"),
+					    iConfig.getParameter<double>("pPhiMax1"),
+					    iConfig.getParameter<double>("pPhiMin2"),
+					    iConfig.getParameter<double>("pPhiMax2"),
+					    iConfig.getParameter<double>("ZMin1"),
+					    iConfig.getParameter<double>("ZMax1"),
+					    iConfig.getParameter<double>("ZMin2"),
+					    iConfig.getParameter<double>("ZMax2") );
+					      
   matcher_->setup(true); //always set to offline in our case!
 }
 

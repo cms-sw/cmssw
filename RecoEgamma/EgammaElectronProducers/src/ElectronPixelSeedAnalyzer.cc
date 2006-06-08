@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.1 2006/06/02 15:32:45 uberthon Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -44,11 +45,15 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <iostream>
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH1I.h"
 
 using namespace reco;
  
 ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& iConfig)
 {
+  histfile_ = new TFile("histos.root","UPDATE");
 }
 
 ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
@@ -56,11 +61,15 @@ ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  histfile_->Write();
+  histfile_->Close();
 }
 
 void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD); 
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  histpt_ = new TH1F("pt","pt of seed ",100,0.,100.);
+  histnrseeds_ = new TH1I("nrs","Nr seeds/evt",50,0.,50.);
 }     
 
 void
@@ -106,7 +115,12 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
     std::cout<<" momentum: "<<t.globalMomentum()<<std::endl;
     const SuperCluster *theClus=(*MyS).superCluster();
     std::cout<<" SuperCluster energy: "<<theClus->energy()<<", position: "<<theClus->position()<<std::endl;
+  histpt_->Fill(TMath::Sqrt(t.globalMomentum().x()*t.globalMomentum().x() + t.globalMomentum().y()*t.globalMomentum().y()));
   }
+  // get input clusters 
+  edm::Handle<SuperClusterCollection> clusters;
+  e.getByType(clusters);
+  if (clusters.product()->size()>0)      histnrseeds_->Fill(elSeeds.product()->size());
 }
 
 
