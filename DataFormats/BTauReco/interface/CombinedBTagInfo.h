@@ -173,20 +173,35 @@ namespace reco {
       double       flightDistance3DSignificance;
 
       void init() {
-      chi2                         = -999;
-      ndof                         = -999;
-      nTracks                      = -999; 
-      mass                         = -999;   
-      isV0                         = -999;     
-      fracPV                       = -999;    
-      flightDistance2D             = -999;
-      flightDistance2DError        = -999;
-      flightDistance2DSignificance = -999;
-      flightDistance3D             = -999;
-      flightDistance3DError        = -999;
-      flightDistance3DSignificance = -999;	
-	
+	chi2                         = -999;
+	ndof                         = -999;
+	nTracks                      = -999; 
+	mass                         = -999;   
+	isV0                         = -999;     
+	fracPV                       = -999;    
+	flightDistance2D             = -999;
+	flightDistance2DError        = -999;
+	flightDistance2DSignificance = -999;
+	flightDistance3D             = -999;
+	flightDistance3DError        = -999;
+	flightDistance3DSignificance = -999;		
       } //init
+
+      void print() {
+	std::cout << "****** print VertexData from extended bTag information (combined bTag) " << std::endl;
+	std::cout << "chi2                         " << chi2                         << std::endl;
+	std::cout << "ndof                         " << ndof                         << std::endl;
+	std::cout << "nTracks                      " << nTracks                      << std::endl; 
+	std::cout << "mass                         " << mass                         << std::endl;   
+	std::cout << "isV0                         " << isV0                         << std::endl;     
+	std::cout << "fracPV                       " << fracPV                       << std::endl;    
+	std::cout << "flightDistance2D             " << flightDistance2D             << std::endl;
+	std::cout << "flightDistance2DError        " << flightDistance2DError        << std::endl;
+	std::cout << "flightDistance2DSignificance " << flightDistance2DSignificance << std::endl;
+	std::cout << "flightDistance3D             " << flightDistance3D             << std::endl;
+	std::cout << "flightDistance3DError        " << flightDistance3DError        << std::endl;
+	std::cout << "flightDistance3DSignificance " << flightDistance3DSignificance << std::endl;		
+      } // print
     }; // struct
 
 
@@ -341,6 +356,8 @@ namespace reco {
     int               sizeVertexData();
     VertexData*       getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
 
+    std::string       getTaggingVarName(reco::CombinedBTagInfo::TaggingVariable taggingVar);
+
 
     ////////////////////////////////////////////////////
     //
@@ -487,9 +504,10 @@ namespace reco {
     // maps for detailed track and vertex information
     //
 
-    // maybe easier/better to have templated class to handle the maps?
     TrackDataAssociation                                                                 trackDataMap_;
     std::map <std::vector<reco::Vertex>::const_iterator, CombinedBTagInfo::VertexData>   vertexDataMap_;
+    std::map <reco::CombinedBTagInfo::TaggingVariable, std::string>                      taggingVarName_;
+
 
   }; // class
  

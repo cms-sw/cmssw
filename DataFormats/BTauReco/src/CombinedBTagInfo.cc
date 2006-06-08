@@ -24,6 +24,16 @@ reco::CombinedBTagInfo::CombinedBTagInfo() {
   // reset everything
   reco::CombinedBTagInfo::reset();
 
+  // fill map with string name of tagging variable
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::Category]                        = "Category";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::VertexMass]                      = "VertexMass";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::VertexMultiplicity]              = "VertexMultiplicity";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::FlightDistance2DSignificance]    = "FlightDistance2DSignificance";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::ESVXOverE]                       = "ESVXOverE";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackRapidity]                   = "TrackRapidity";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackIP2DSignificance]           = "TrackIP2DSignificance";
+  reco::CombinedBTagInfo::taggingVarName_[reco::CombinedBTagInfo::TrackIP2DSignificanceAboveCharm] = "TrackIP2DSignificanceAboveCharm";
+  
 } // constructor
 
 
@@ -42,6 +52,20 @@ reco::CombinedBTagInfo::~CombinedBTagInfo() {
 // map related
 //
 
+std::string reco::CombinedBTagInfo::getTaggingVarName(reco::CombinedBTagInfo::TaggingVariable taggingVar) {
+
+  std::map <reco::CombinedBTagInfo::TaggingVariable, std::string>::const_iterator iter;
+  iter = reco::CombinedBTagInfo::taggingVarName_.find(taggingVar);
+
+  if (iter != reco::CombinedBTagInfo::taggingVarName_.end())
+    return reco::CombinedBTagInfo::taggingVarName_[taggingVar];
+  else
+    return "notFound";
+  
+
+} // void printTaggingVarName
+
+// -------------------------------------------------------------------------------
 bool reco::CombinedBTagInfo::existTrackData(reco::TrackRef trackRef) {
 
   bool returnValue = false;
@@ -58,7 +82,8 @@ bool reco::CombinedBTagInfo::existTrackData(reco::TrackRef trackRef) {
 // -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::flushTrackData() {
-  // reco::CombinedBTagInfo::trackDataMap_.clear();
+
+  reco::CombinedBTagInfo::trackDataMap_.clear();
   
 } // void flushTrackData
 // -------------------------------------------------------------------------------
@@ -66,7 +91,15 @@ void reco::CombinedBTagInfo::flushTrackData() {
 void reco::CombinedBTagInfo::storeTrackData(reco::TrackRef trackRef,
 					    const reco::CombinedBTagInfo::TrackData& trackData) {
   
+  //  std::cout << "*** trackData to store " << std::endl;
+  //  trackData.print();
+
   reco::CombinedBTagInfo::trackDataMap_.insert(trackRef, trackData);
+
+//   reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
+//   iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
+//   if (iter != reco::CombinedBTagInfo::trackDataMap_.end())
+//     (iter->val).print();
 
 } //void storeTrackData
 // -------------------------------------------------------------------------------
