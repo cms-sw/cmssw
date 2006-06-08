@@ -42,7 +42,8 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   // Check that DetIds are nonzero
   std::vector<DetId>::iterator n;
   for (n = passedDetIds.begin(); n != passedDetIds.end(); n++) {
-    if ((*n) != DetId(0))
+    if (((*n) != DetId(0)) 
+	&& (storedRecHitsMap_->find(*n) != storedRecHitsMap_->end()))
       validDetIds.push_back(*n);
   }
 
@@ -71,25 +72,6 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     
     eTot += e_i;
   }
-
-  // T-zero values for various scenarios
-  const double bar_t_zero = 5.7;
-  const double end_t_zero = 4.0;
-  const double pre_t_zero = 0.4;
-
-  if (param_CollectionType_ == "EcalBarrel") {
-    param_T0_ = bar_t_zero;
-  }
-
-  if (param_CollectionType_ == "EcalEndcap") {
-    param_T0_ = end_t_zero;
-  }
-
-  if (param_CollectionType_ == "Presh") {
-    param_T0_ = pre_t_zero;
-  }
-
-
   
   // Calculate shower depth
   float depth = param_X0_ * (param_T0_ + log(eTot));
@@ -181,7 +163,8 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   // Check that DetIds are nonzero
   std::vector<DetId>::iterator m;
   for (m = passedDetIds.begin(); m != passedDetIds.end(); m++) {
-    if ((*m) != DetId(0))
+    if (((*m) != DetId(0))
+	&& (storedRecHitsMap_->find(*m) != storedRecHitsMap_->end()))
       validDetIds.push_back(*m);
   }
 
