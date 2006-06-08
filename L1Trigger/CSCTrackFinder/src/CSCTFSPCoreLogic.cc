@@ -269,7 +269,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 0, 0, 0, 0, // eta offsets
 	 ((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
 	 );
-      
+      /* // Extremely verbose debug
       LogDebug("CSCTFSPCoreLogic:run()") << std::hex 
 					 << "Input:  F1/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1aVp << " "
 					 << io->me1aQp << " "<< io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << std::endl
@@ -345,7 +345,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 					     << io->me1idL <<'/'<< io->me2idL <<'/'<< io->me3idL <<'/'<< io->me4idL <<'/'
 					     << io->mb1idL <<'/'<< io->mb2idL << std::dec << std::endl;
 	}
-
+      */
       ++bx;
     }
   

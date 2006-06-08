@@ -93,7 +93,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
       itr->setPhiPacked(gblPhi.global_phi);
 
       LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
-					     << "LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
+					     << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
     }
 
   CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
@@ -113,7 +113,6 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 		 m_etawin[4], m_etawin[5], m_bxa_on,
 		 m_extend_length, m_minBX, m_maxBX) )
     {
-      LogDebug("CSCTFSectorProcessor:run()") << "FOUND " << core_->tracks().get().size() << " L1Track(s)\n";
       l1_tracks = core_->tracks();
     }
   

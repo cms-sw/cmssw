@@ -1,5 +1,7 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 CSCTFMuonSorter::CSCTFMuonSorter(const edm::ParameterSet& pset)
 {
   m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
@@ -25,28 +27,27 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
 	  if(gbl_phi > 143) gbl_phi -= 143;	  
 	  itr->setPhiPacked(gbl_phi & 0xff);
 	  unsigned eta_sign = (itr->endcap() == 1 ? 0 : 1);
+
 	  int gbl_eta = itr->eta_packed() | eta_sign << (L1MuRegionalCand::ETA_LENGTH - 1);
+
 	  itr->setEtaPacked(gbl_eta & 0x3f);
 	  unsigned pt = 0, quality = 0;
 	  decodeRank(itr->rank(), quality, pt);
 
-	  std::cout << std::hex << itr->rank() << ' ' << quality << ' ' << pt << std::dec << std::endl;
-	  
 	  itr->setQualityPacked(quality & 0x3);
 	  itr->setPtPacked(pt & 0x1f);
-
-	  itr->Print();
-	  std::cout << std::endl;
 
 	  if(!itr->empty()) result.push_back(*itr);
 	}
     }
 
   std::vector<L1MuRegionalCand>::const_iterator ittr = result.begin();
+  unsigned ii = 1;
   for(; ittr != result.end(); ittr++)
     {
-      ittr->print();
-      std::cout << std::endl;
+      LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii << ": Eta: " << ittr->etaValue() 
+					<< " Phi: " << ittr->phiValue() << " Pt: " << ittr->ptValue()
+					<< " Quality: " << ittr->quality();
     }
 
   return result;
