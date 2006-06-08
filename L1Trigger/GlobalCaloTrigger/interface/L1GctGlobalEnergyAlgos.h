@@ -9,7 +9,7 @@
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
 
-/*
+/*!
  * \class L1GctGlobalEnergyAlgos
  * \brief Emulates the GCT global energy algorithms
  *

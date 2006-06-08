@@ -4,7 +4,7 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-/*
+/*!
  * \class L1GctEtTypes
  * \brief Definitions of unsigned and signed integer types with overflow
  *

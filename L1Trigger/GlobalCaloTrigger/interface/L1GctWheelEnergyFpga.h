@@ -8,7 +8,7 @@
 
 class L1GctJetLeafCard;
 
-/*
+/*!
  * \class L1GctWheelEnergyFpga
  * \brief Emulates the energy summing on a GCT Wheel card
  *
