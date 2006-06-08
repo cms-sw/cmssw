@@ -11,28 +11,6 @@ using namespace std;
 
 namespace edm
 {
-  namespace
-  {
-    class CallPrePost
-    {
-    public:
-      CallPrePost(ActivityRegistry* areg,const string& name, int bit):
-	a_(areg),name_(name),bit_(bit)
-      {
-	//a_->prePathSignal(name_,bit_);
-      }
-      ~CallPrePost()
-      {
-	//a_->postPathSignal(name_,bit_);
-      }
-    private:
-      ActivityRegistry* a_;
-      std::string name_;
-      int bit_;
-    };
-  }
-  
-
   Path::Path(int bitpos, const std::string& path_name,
 	     const Workers& workers,
 	     TrigResPtr trptr,
@@ -44,7 +22,6 @@ namespace edm
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-  //abortWorker_(),
     state_(edm::hlt::Ready),
     bitpos_(bitpos),
     name_(path_name),
@@ -54,15 +31,6 @@ namespace edm
     workers_(workers)
   {
   }
-
-#if 0
-  void Worker::connect(ActivityRegistry::PrePath& pre,
-		       ActivityRegistry::PostPath& post)
-  {
-    sigs_.prePathSignal.connect(pre);
-    sigs_.postPathSignal.connect(post);
-  }
-#endif
   
   void Path::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {
@@ -72,7 +40,6 @@ namespace edm
     // nwrue =  numWorkersRunWithoutUnhandledException
     int nwrwue = 0;
 
-    CallPrePost cpp(act_reg_.get(),name_,bitpos_);
     bool should_continue = true;
 
     for ( Workers::iterator i = workers_.begin(), e = workers_.end();
