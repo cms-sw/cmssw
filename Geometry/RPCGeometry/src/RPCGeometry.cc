@@ -55,10 +55,13 @@ const GeomDetUnit* RPCGeometry::idToDetUnit(DetId id) const{
 
 
 const GeomDet* RPCGeometry::idToDet(DetId id) const{
-  if (idtoDet.find(id) != idtoDet.end())
-    return (idtoDet.find(id))->second;
-  else
-    return 0;
+//   if (idtoDet.find(id) != idtoDet.end())
+//     return (idtoDet.find(id))->second;
+//   else
+//     return 0;
+
+  // For the time being, the only RPC dets are the rolls...
+  return idToDetUnit(id);
 }
 
 
