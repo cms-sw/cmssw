@@ -1,19 +1,5 @@
-
-/*! \file L1GctElectronFinalSort.cc
- * \Class that does the final sorting of electron candidates
- *
- * This class sorts the electron candidates by rank in 
- * ascending order. Inputs are the 4 highest Et electrons from
- * the leaf? cards
- *
- * \author  Maria Hansen
- * \date    12/05/06
- * \version 1.2
- */
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include <iostream>
 
 
