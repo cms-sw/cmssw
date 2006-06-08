@@ -26,11 +26,14 @@ using namespace std;
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
-
-
+//#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
+
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 
@@ -186,20 +189,22 @@ void ReadPixClusters::analyze(const edm::Event& e,
   std::string rechitProducer = 
     conf_.getParameter<std::string>("RecHitProducer"); 
 
-  // Get event setup (to get global transformation)
-  //edm::ESHandle<TrackingGeometry> geom;
+  // Get event setup 
   edm::ESHandle<TrackerGeometry> geom;
   es.get<TrackerDigiGeometryRecord>().get( geom );
-  //const TrackingGeometry& theTracker(*geom);
   const TrackerGeometry& theTracker(*geom);
 
   // Clusters
-  edm::Handle<SiPixelClusterCollection> clusters;
+  //edm::Handle<SiPixelClusterCollection> clusters;
   //e.getByLabel("pixClustMaker", clusters);
+  //e.getByLabel(rechitProducer, clusters);
+
+  edm::Handle< edm::DetSetVector<SiPixelCluster> > clusters;
   e.getByLabel(rechitProducer, clusters);
-  
-  const SiPixelClusterCollection * input = clusters.product();
-  if(PRINT) std::cout<<"Clusters : "<<std::endl;
+
+  const edm::DetSetVector<SiPixelCluster>& input = *clusters;     
+
+  if(PRINT) cout<<"Clusters : "<<endl;
   
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
@@ -214,27 +219,24 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfClustersPerLay3=0;        
   
   // get vector of detunit ids
-  const std::vector<unsigned int> detIDs = input->detIDs();
-  
-  
   //--- Loop over detunits.
-  std::vector<unsigned int>::const_iterator detunit_it;
-  for (detunit_it  = detIDs.begin(); detunit_it != detIDs.end(); 
-       ++detunit_it ) {
-    unsigned int detid = *detunit_it;  
+  edm::DetSetVector<SiPixelCluster>::const_iterator DSViter;  
+  for (DSViter=input.begin(); DSViter != input.end() ; DSViter++) {
+
+    unsigned int detid = DSViter->id;
     // Det id
     DetId detId = DetId(detid);       // Get the Detid object
     unsigned int detType=detId.det(); // det type, pixel=1
     unsigned int subid=detId.subdetId(); //subdetector type, barrel=1
  
     if(PRINT)
-      cout<<"Det: "<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
-    
+      cout<<"Det: "<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;    
     hdetunit->Fill(float(detid));
     hpixid->Fill(float(detType));
     hpixsubid->Fill(float(subid));
 
     if(detType!=1) continue; // look only at pixels
+    ++numberOfDetUnits;
   
     //const GeomDetUnit * genericDet = geom->idToDet(detId);
     //const PixelGeomDetUnit * pixDet = 
@@ -252,65 +254,72 @@ void ReadPixClusters::analyze(const edm::Event& e,
     int cols = theGeomDet->specificTopology().ncolumns();
     int rows = theGeomDet->specificTopology().nrows();
     
-    // Subdet it, pix barrel=1
-    if(subid != 1) {
-      if(subid==2) {
-	// test cols & rows
-	//cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-	//  <<cols<<" "<<rows<<endl;
-	//hdetrF->Fill(detR);
-	//hdetzF->Fill(detZ);
-	//hcolsF->Fill(float(cols));
-	//hrowsF->Fill(float(rows));
-	if(PRINT) cout<<" forward hit "<<endl;
+
+    // barrel ids
+    unsigned int layer=0;
+    unsigned int ladder=0;
+    unsigned int zindex=0;
+
+    // Subdet id, pix barrel=1, forward=2
+    if(subid==2) {  // forward
+
+      PXFDetId pdetId = PXFDetId(detid);       
+      unsigned int disk=pdetId.disk(); //1,2,3
+      unsigned int blade=pdetId.blade(); //1-24
+      unsigned int zindex=pdetId.module(); //
+      unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
+      unsigned int panel=pdetId.panel(); //panel=1
+      
+      if(PRINT) cout<<" forward det, disk "<<disk<<", blade "
+ 		    <<blade<<", module "<<zindex<<", side "<<side<<", panel "
+ 		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
+ 
+    } else if (subid==1) {  // barrel
+
+      hdetr->Fill(detR);
+      hdetz->Fill(detZ);
+      //hcolsB->Fill(float(cols));
+      //hrowsB->Fill(float(rows));
+      
+      PXBDetId pdetId = PXBDetId(detid);
+      unsigned int detTypeP=pdetId.det();
+      unsigned int subidP=pdetId.subdetId();
+      // Barell layer = 1,2,3
+      layer=pdetId.layer();
+      // Barrel ladder id 1-20,32,44.
+      ladder=pdetId.ladder();
+      // Barrel Z-index=1,8
+      zindex=pdetId.module();
+      if(PRINT)
+	cout<<"  barrel det "<<detTypeP<<" "<<subidP
+	    <<" layer, ladder. module "<<layer<<" "<<ladder<<" "<<zindex<<endl;
+      
+      hlayerid->Fill(float(layer));
+      if(layer==1) {
+	hladder1id->Fill(float(ladder));
+	hz1id->Fill(float(zindex));
+	++numberOfDetUnits1;
+	numOfClustersPerDet1=0;        
+      } else if(layer==2) {
+	hladder2id->Fill(float(ladder));
+	hz2id->Fill(float(zindex));
+	++numberOfDetUnits2;
+	numOfClustersPerDet2=0;
+      } else if(layer==3) {
+	hladder3id->Fill(float(ladder));
+	hz3id->Fill(float(zindex));
+	++numberOfDetUnits3;
+	numOfClustersPerDet3=0;
       }
-      continue; // look only at barrel
-    }
+    } // end barrel/forward
 
-    ++numberOfDetUnits;
-    hdetr->Fill(detR);
-    hdetz->Fill(detZ);
-    //hcolsB->Fill(float(cols));
-    //hrowsB->Fill(float(rows));
-
-    PXBDetId pdetId = PXBDetId(detid);
-    unsigned int detTypeP=pdetId.det();
-    unsigned int subidP=pdetId.subdetId();
-    // Barell layer = 1,2,3
-    unsigned int layer=pdetId.layer();
-    // Barrel ladder id 1-20,32,44.
-    unsigned int ladder=pdetId.ladder();
-    // Barrel Z-index=1,8
-    unsigned int zindex=pdetId.module();
-    if(PRINT)
-      cout<<"     "<<detTypeP<<" "<<subidP<<" "<<layer<<" "<<ladder<<" "
-	  <<zindex<<" "<<pdetId.rawId()<<" "<<pdetId.null()<<endl;
-
-    hlayerid->Fill(float(layer));
-    if(layer==1) {
-      hladder1id->Fill(float(ladder));
-      hz1id->Fill(float(zindex));
-      ++numberOfDetUnits1;
-      numOfClustersPerDet1=0;        
-    } else if(layer==2) {
-      hladder2id->Fill(float(ladder));
-      hz2id->Fill(float(zindex));
-      ++numberOfDetUnits2;
-      numOfClustersPerDet2=0;
-    } else if(layer==3) {
-      hladder3id->Fill(float(ladder));
-      hz3id->Fill(float(zindex));
-      ++numberOfDetUnits3;
-      numOfClustersPerDet3=0;
-    }
-    
     if(PRINT) cout<<"List clusters : "<<endl;
     numberOfClusters = 0;
-    const SiPixelClusterCollection::Range clustRange = 
-      input->get(detid);
-    SiPixelClusterCollection::ContainerIterator clustIt; 
-    for (clustIt = clustRange.first; clustIt != clustRange.second; 
-	 ++clustIt ) {
+
+    edm::DetSet<SiPixelCluster>::const_iterator clustIt;
+    for (clustIt = DSViter->data.begin(); clustIt != DSViter->data.end(); 
+	 clustIt++) {
+
       numberOfClusters++;
       float ch = (clustIt->charge())/1000.; // convert ke to electrons
       int size = clustIt->size();
@@ -329,53 +338,59 @@ void ReadPixClusters::analyze(const edm::Event& e,
       
       //const vector<Pixel>  = clustIt->pixels();
       
-      if(PRINT) cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
-		    <<x<<" "<<y<<" "<<geoId<<" "<<edgeHitX<<" "
-		    <<edgeHitY<<endl;
+      if(PRINT) 
+	cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
+	    <<x<<" "<<y<<" "<<geoId<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
       
-      if(layer==1) {
-	hcharge1->Fill(ch);
-        hcols1->Fill(y);
-	hrows1->Fill(x);
-	hsize1->Fill(float(size));
-	hsizex1->Fill(float(sizeX));
-	hsizey1->Fill(float(sizeY));
-	numOfClustersPerDet1++;
-	numOfClustersPerLay1++;
-	//htest2->Fill(float(zindex),float(adc));
-      } else if(layer==2) {
-	hcharge2->Fill(ch);
-	hcols2->Fill(y);
-	hrows2->Fill(x);
-	hsize2->Fill(float(size));
-	hsizex2->Fill(float(sizeX));
-	hsizey2->Fill(float(sizeY));
-	numOfClustersPerDet2++;
-	numOfClustersPerLay2++;
-      } else if(layer==3) {
-	hcharge3->Fill(ch);
-	hcols3->Fill(y);
-	hrows3->Fill(x);
-	hsize3->Fill(float(size));
-	hsizex3->Fill(float(sizeX));
-	hsizey3->Fill(float(sizeY));
-	numOfClustersPerDet3++;
-	numOfClustersPerLay3++;
-      } // end if layer
-
+      if (subid==1) {  // barrel
+	if(layer==1) {
+	  hcharge1->Fill(ch);
+	  hcols1->Fill(y);
+	  hrows1->Fill(x);
+	  hsize1->Fill(float(size));
+	  hsizex1->Fill(float(sizeX));
+	  hsizey1->Fill(float(sizeY));
+	  numOfClustersPerDet1++;
+	  numOfClustersPerLay1++;
+	  //htest2->Fill(float(zindex),float(adc));
+	} else if(layer==2) {
+	  hcharge2->Fill(ch);
+	  hcols2->Fill(y);
+	  hrows2->Fill(x);
+	  hsize2->Fill(float(size));
+	  hsizex2->Fill(float(sizeX));
+	  hsizey2->Fill(float(sizeY));
+	  numOfClustersPerDet2++;
+	  numOfClustersPerLay2++;
+	} else if(layer==3) {
+	  hcharge3->Fill(ch);
+	  hcols3->Fill(y);
+	  hrows3->Fill(x);
+	  hsize3->Fill(float(size));
+	  hsizex3->Fill(float(sizeX));
+	  hsizey3->Fill(float(sizeY));
+	  numOfClustersPerDet3++;
+	  numOfClustersPerLay3++;
+	} // end if layer
+      } // end barrel/forward
     } // clusters 
 
-    if(layer==1) {
-      hclusPerDet1->Fill(float(numOfClustersPerDet1));
-      if(PRINT) cout<<"Lay1: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-    } else if(layer==2) {
-      hclusPerDet2->Fill(float(numOfClustersPerDet2));
-      if(PRINT) cout<<"Lay2: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-    } else if(layer==3) { 
-      hclusPerDet3->Fill(float(numOfClustersPerDet3));
-      if(PRINT) cout<<"Lay3: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-    }
-  } // detunits
+
+    
+    if (subid==1) {  // barrel
+      if(layer==1) {
+	hclusPerDet1->Fill(float(numOfClustersPerDet1));
+	if(PRINT) cout<<"Lay1: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+      } else if(layer==2) {
+	hclusPerDet2->Fill(float(numOfClustersPerDet2));
+	if(PRINT) cout<<"Lay2: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+      } else if(layer==3) { 
+	hclusPerDet3->Fill(float(numOfClustersPerDet3));
+	if(PRINT) cout<<"Lay3: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+      }
+    } // end barrel/endcaps
+
+  } // detunits loop
   
 
   if(PRINT) {
