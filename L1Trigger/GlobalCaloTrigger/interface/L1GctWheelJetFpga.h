@@ -1,7 +1,7 @@
 #ifndef L1GCTWHEELJETFPGA_H_
 #define L1GCTWHEELJETFPGA_H_
 
-/*
+/*!
 * \class L1GctWheelJetFpga
 * \brief Represents a GCT Wheel Jet FPGA
 *

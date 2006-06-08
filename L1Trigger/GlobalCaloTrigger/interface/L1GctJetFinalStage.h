@@ -8,7 +8,7 @@
 
 #include <vector>
 
-/*
+/*!
 * \class L1GctJetFinalStage
 * \brief Represents the final stage of L1 jet processing.
 *
