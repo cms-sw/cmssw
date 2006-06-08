@@ -291,7 +291,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 L1GctRegion readSingleRegion(ifstream &fin)
 {   
   //Represents how many numbers there are per line for a region in the input file
-  const int numRegionComponents = 7; //the phi/eta co-ords, Et, Mip, Quiet, tauVeto & overFlow.
+  const int numRegionComponents = 6; //the id, et, overFlow, tauVeto, mip, quiet, tauVeto.
   
   ULong regionComponents[numRegionComponents];
   
@@ -312,11 +312,10 @@ L1GctRegion readSingleRegion(ifstream &fin)
   //return object
   L1GctRegion tempRegion(regionComponents[0],
                          regionComponents[1],
-                         regionComponents[2],
+                         static_cast<bool>(regionComponents[2]),
                          static_cast<bool>(regionComponents[3]),
                          static_cast<bool>(regionComponents[4]),
-                         static_cast<bool>(regionComponents[5]),
-                         static_cast<bool>(regionComponents[6]));
+                         static_cast<bool>(regionComponents[5]));
   
   return tempRegion;
 }
@@ -376,8 +375,7 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
       //compare the vectors
       for(ULong i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
-        if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
+        if(vector1[i].id() != vector2[i].id()) { testPass = false; break; }
         if(vector1[i].et() != vector2[i].et()) { testPass = false; break; }
         if(vector1[i].overFlow() != vector2[i].overFlow()) {testPass = false; break; }
         if(vector1[i].tauVeto() != vector2[i].tauVeto()) {testPass = false; break; }
@@ -447,8 +445,7 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
   {
     for (unsigned int i=0; i < regions.size(); ++i)
     {
-      fout << regions[i].eta() << "\t"
-           << regions[i].phi() << "\t"
+      fout << regions[i].id() << "\t"
            << regions[i].et() << "\t"
            << regions[i].overFlow() << "\t"
            << regions[i].tauVeto() << "\t"
