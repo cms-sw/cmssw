@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.4 2006/05/31 16:02:18 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.5 2006/06/04 17:52:23 goitom Exp $
 //
 //
 
@@ -42,6 +42,19 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
 //
 // constants, enums and typedefs
@@ -153,18 +166,6 @@ void
 MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
-
-
-   using namespace edm;
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
@@ -178,6 +179,16 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
    std::string TrackCandidateProducer = conf_.getParameter<std::string>("TrackCandidateProducer");
    std::string TrackCandidateLabel = conf_.getParameter<std::string>("TrackCandidateLabel");
+
+   ESHandle<TrackerGeometry> theRG;
+   ESHandle<MagneticField> theRMF;
+   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+   edm::ESHandle<TrajectoryFitter> theRFitter;
+
+   const TransientTrackingRecHitBuilder* builder = theBuilder.product();
+   const TrackingGeometry * theG = theRG.product();
+   const MagneticField * theMF = theRMF.product();
+   const TrajectoryFitter * theFitter = theRFitter.product();
 
    Handle<TrackCandidateCollection> trackCandidateCollection;
    iEvent.getByLabel(TrackCandidateProducer, TrackCandidateLabel, trackCandidateCollection);
@@ -217,22 +228,68 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   std::vector<uint32_t>::const_iterator TECdetid_begin = TECDetIds.begin();
   std::vector<uint32_t>::const_iterator TECdetid_end = TECDetIds.end() -1;
 
-
-
   for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); track!=trackCandidateCollection->end(); ++track)
     {
+
+      const TrackCandidate * theTC = &(*track);
+      PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
+      const TrackCandidate::range& recHitVec=theTC->recHits();
+      const TrajectorySeed& seed = theTC->seed();
+
+      //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
+      TrajectoryStateTransform transformer;
+  
+      DetId * detId = new DetId(state.detId());
+      TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(*detId)->surface()), theMF);
+
+      OwnVector<TransientTrackingRecHit> hits;
+      float ndof=0;
+
       TrackingRecHitCollection::const_iterator hit;
-      for (hit=track->recHits().first; hit!= track->recHits().second; ++hit)
+      for (hit=recHitVec.first; hit!= recHitVec.second; ++hit)
 	{
-	  double hitPos = hit->localPosition().x();
+	  hits.push_back(builder->build(&(*hit)));
+	  if ((*hit).isValid())
+	    {
+	      ndof = ndof + (hit->dimension())*(hit->weight());
+	    }
+
+	  ndof = ndof - 5;
+
+	  std::vector<Trajectory> trajVec;
+	  //reco::Track * theTrack;
+	  Trajectory * theTraj;
+
+	  trajVec = theFitter->fit(seed,  hits, theTSOS);
+
+	  TrajectoryStateOnSurface innertsos;  
+	  if (trajVec.size() != 0)
+	    {   
+	      theTraj = new Trajectory( trajVec.front() );
+    
+	      if (theTraj->direction() == alongMomentum)
+		{      
+		  innertsos = theTraj->firstMeasurement().updatedState();    
+		} else 
+		{
+		  innertsos = theTraj->lastMeasurement().updatedState();    
+		}
+	    }
+
+	  /*
+	  std::vector<TrajectoryMeasurement> measurements = theTraj->measurements();
+	  for (std::vector<TrajectoryMeasurement>::const_iterator i = measurements.begin(); i != measurements.end(); ++i)
+	    {
+	      i->predictedState().localPosition().x;
+	    }
+	  */
+
+	  //double hitPos = hit->localPosition().x();
 	  DetId detId = hit->geographicalId();
 	  //const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
 	  //const BoundPlane & localSurface = detUnit->surface();
-	  PTrajectoryStateOnDet state = track->trajectoryStateOnDet();
-	  LocalTrajectoryParameters TSOS = state.parameters();
-	  double TSOSPos = TSOS.position().x();
 
-	  double residual = TSOSPos - hitPos;
+	  double residual = innertsos.localPosition().x() - hit->localPosition().x();
 
 	  uint32_t rawDetId = detId.rawId();
           int CutRawDetId=(rawDetId)&0x1ffffff;

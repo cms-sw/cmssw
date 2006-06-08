@@ -9,6 +9,8 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerTopology>
 <lib name=GeometryTrackerGeometryBuilder>
+<use name=TrackingTools/TransientTrackingRecHit> 
+<use name=TrackingTools/TransientTrack> 
 <flags SEAL_PLUGIN_NAME="DQMTrackerMonitorTrack">
 <export>
    <lib name=DQMTrackerMonitorTrack>
@@ -23,4 +25,6 @@
    <use name=Geometry/CommonTopologies>
    <use name=Geometry/TrackerTopology>
    <lib name=GeometryTrackerGeometryBuilder>
+   <use name=TrackingTools/TransientTrackingRecHit> 
+   <use name=TrackingTools/TransientTrack> 
 </export>
