@@ -8,7 +8,7 @@
 #include <vector>
 #include <ostream>
 
-/*
+/*!
  * \Class L1GctEmLeafCard
  * \Class does the 1st stage sorting of electron candidates.
  *

@@ -8,7 +8,7 @@
 #include <ostream>
 
 
-/*
+/*!
  * \Class L1GctElectronSorter
  * \Class that sorts electron candidates
  *

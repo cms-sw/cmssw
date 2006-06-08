@@ -9,7 +9,7 @@
 #include <functional>
 #include <ostream>
 
-/*
+/*!
  * \Class L1GctElectronFinalSort
  * \Class does the final sorting of electron candidates
  *
