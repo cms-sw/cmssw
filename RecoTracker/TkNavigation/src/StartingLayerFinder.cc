@@ -19,7 +19,7 @@ vector<const DetLayer*>
 StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 
 
-  std::cout << " StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) " << std::endl;
+
   
   vector<const DetLayer*> mylayers; 
   mylayers.reserve(3);
@@ -42,7 +42,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 
     if(rangesIntersect(trajZRange, barrZRange)) {
       mylayers.push_back(firstPixelBarrelLayer());
-      std::cout << " StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) pushing a barrel pixel layer " << std::endl;
+
     }
   }
 
@@ -60,7 +60,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 		       pTsos.globalPosition().perp() + dr);
       if(rangesIntersect(trajRRange, nfwdRRange)) {
 	mylayers.push_back(*infwd);
-	std::cout << " StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) pushing a neg fwd  pixel layer " << std::endl;
+
       }
     }
   }
@@ -77,7 +77,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 		       pTsos.globalPosition().perp() + dr);
       if(rangesIntersect(trajRRange, pfwdRRange)) {
 	mylayers.push_back(*ipfwd);
-	std::cout << " StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) pushing a pos  fwd  pixel layer " << std::endl;
+
       }
     }
   }
@@ -95,7 +95,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 vector<const DetLayer*> 
 StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
 
-  std::cout << " StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed)" << std::endl;
+
 
   float dr = 0., dz = 0.;
 
@@ -157,11 +157,11 @@ const vector<ForwardDetLayer*>  StartingLayerFinder::firstPosPixelFwdLayer() con
 
 void StartingLayerFinder::checkPixelLayers() const {
 
-  std::cout << " StartingLayerFinder::checkPixelLayers() " << std::endl;
+
   if(!thePixelLayersValid) {
    
     const GeometricSearchTracker* theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker();
-    std::cout << " StartingLayerFinder:: checkPixelLayers() pixel barrel layers " << theGeometricSearchTracker->pixelBarrelLayers().size() << std::endl;
+
    
     theFirstPixelBarrelLayer = theGeometricSearchTracker->pixelBarrelLayers().front();
     theFirstNegPixelFwdLayer = theGeometricSearchTracker->negPixelForwardLayers();
