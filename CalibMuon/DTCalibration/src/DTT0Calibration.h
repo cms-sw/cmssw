@@ -2,12 +2,13 @@
 #define CalibMuon_DTT0Calibration_H
 
 /** \class DTT0Calibration
- *  Analyzer class which fills plots with layer granularity
- *  for t0 computation and writes the mean and the RMS to the DB.
- *  The plot are written to file.
+ *  Analyzer class computes the mean and RMS of t0 from pulses.
+ *  Those values are written in the DB with cell granularity. The
+ *  mean value for each channel is normalized to the mean within the chamber.
+ *  The TProfile histograms filled with cell granularity are also saved to root file.
  *
- *  $Date: 2006/05/22 12:24:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/08 09:51:06 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -65,10 +66,6 @@ private:
   
   // Map of the histograms by Layer
   std::map<DTLayerId, TProfile*> theHistoMap;
-
-
-
-
 
 };
 #endif
