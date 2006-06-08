@@ -14,23 +14,21 @@
 typedef unsigned long int ULong;
 typedef unsigned short int UShort;
 
-
 /*
+ * \class L1GctSourceCard
+ * \brief Represents a GCT Source Card
  * \author Jim Brooke & Robert Frazier
  * \date April 2006
- */
-
-/*! \class L1GctSourceCard
- * \brief Represents a GCT Source Card
  *
- *  Can be constructed to be one of three different variants of 
+ * Can be constructed to be one of three different variants of
  *  source card, depending on which pairs of RCT crate output
  *  cables are being read in.
  */
 
+
 /**
   * 
-  *RCT Input File Format 
+  *Rct Input File Format 
   *Line 1: Crossing no as "Crossing x" (2)     
   *Line 2: isoe0 isoe1 isoe2 isoe3 nonIsoe0 nonIsoe1 nonIso2 nonIso3 (8) 
   *Line 3: RC0mip0 RC0mip1 RC1mip0 RC1mip1 RC2mip0 RC2mip1 RC3mip0 RC3mip1 RC4mip0 RC4mip1 
