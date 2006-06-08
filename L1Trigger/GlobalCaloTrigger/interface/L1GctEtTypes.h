@@ -4,56 +4,73 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-// this header file contains method definitions because these are template classes
-// see http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12
+/*
+ * \class L1GctEtTypes
+ * \brief Definitions of unsigned and signed integer types with overflow
+ *
+ * This file defines the template classes L1GctUnsignedInteger and L1GctTwosComplement.
+ * They are used to store energy values that are represented in a given number of bits
+ * in hardware. Each type has a built-in overFlow that is set if the value to be
+ * represented is outside the allowed range for that number of bits. The two types
+ * represent unsigned and signed integers respectively. Functionss are defined to
+ * add two values, and to copy data into a different number of bits.
+ *
+ * We also define L1GctJetCount, as a special case of an unsigned counter that sets
+ * its value to the maximum when an overFlow condition occurs.
+ *
+ * this header file contains method definitions because these are template classes
+ * see http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12
+ *
+ * \author Jim Brooke & Greg Heath
+ * \date May 2006
+ * 
+ */
 
-/* Signed integer representations */
-
-// class to store a 2s complement number
-// in the range -X to X-1
-// including overflow
 
 template <int nBits>
 class L1GctTwosComplement {
  public:
+  /// Construct a signed integer with initial value zero
   L1GctTwosComplement();
+  /// Construct a signed integer from raw data, checking for overFlow
   L1GctTwosComplement(uint32_t raw);
+  /// Construct a signed integer, checking for overflow
   L1GctTwosComplement(int value);
+  /// Destructor
   ~L1GctTwosComplement() { }
 
-  // copy contructor to move data between
-  // representations with different numbers of bits
+  /// Copy contructor to move data between representations with different numbers of bits
   template <int mBits>
   L1GctTwosComplement(const L1GctTwosComplement<mBits>& rhs);
 
-  // reset value and overflow to zero
+  /// reset value and overflow to zero
   void reset();
 
-  // set the raw data
+  /// set the raw data
   void setRaw(uint32_t raw);
 
-  // set value from signed int
+  /// set value from signed int
   void setValue(int value);
 
-  // set the overflow bit
+  /// set the overflow bit
   void setOverFlow(bool oflow) { m_overFlow = oflow; }
 
-  // access raw data
+  /// access raw data
   uint32_t raw() const { return m_data; }
 
-  // access value as signed int
+  /// access value as signed int
   int value() const;
 
-  // access overflow
+  /// access overflow
   bool overFlow() const { return m_overFlow; }
 
-  // return number of bits
+  /// return number of bits
   int size() const { return m_nBits; }
 
-  // add two numbers of the same size
+  /// add two numbers of the same size
   L1GctTwosComplement operator+ (const L1GctTwosComplement &rhs) const;
 
-  // overload = operator
+  /// overload = operator
   L1GctTwosComplement& operator= (int value);
 
  private:
@@ -70,6 +87,7 @@ class L1GctTwosComplement {
   static const int MAX_NBITS = 24;
   static const int MAX_VALUE = 1<<(MAX_NBITS-1);
 
+  // PRIVATE MEMBER FUNCTION
   // function to check overflow
   void checkOverFlow(uint32_t rawValue, uint32_t &maskValue, bool &overFlow);
 };
@@ -213,37 +231,39 @@ class L1GctUnsignedInt {
 
  public:
 
+  /// Construct an unsigned integer with initial value zero
   L1GctUnsignedInt();
+  /// Construct an unsigned integer and check for overFlow
   L1GctUnsignedInt(unsigned value);
+  /// Destructor
   ~L1GctUnsignedInt();
 
-  // copy contructor to move data between
-  // representations with different numbers of bits
+  /// Copy contructor to move data between representations with different numbers of bits
   template <int mBits>
   L1GctUnsignedInt(const L1GctUnsignedInt<mBits>& rhs);
 
-  // reset value and overflow to zero
+  /// reset value and overflow to zero
   void reset() { m_value = static_cast<unsigned>(0); m_overFlow = false; }
 
-  // Set value from unsigned
+  /// Set value from unsigned
   void setValue(unsigned value);
 
-  // set the overflow bit
+  /// set the overflow bit
   void setOverFlow(bool oflow) { m_overFlow = oflow; }
 
-  // access value as unsigned
+  /// access value as unsigned
   unsigned value() const { return m_value; }
 
-  // access overflow
+  /// access overflow
   bool overFlow() const { return m_overFlow; }
 
-  // return number of bits
+  /// return number of bits
   int size() const { return m_nBits; }
 
-  // add two numbers
+  /// add two numbers
   L1GctUnsignedInt operator+ (const L1GctUnsignedInt &rhs) const;
 
-  // overload = operator
+  /// overload = operator
   L1GctUnsignedInt& operator= (int value);
 
  protected:
@@ -350,30 +370,31 @@ class L1GctJetCount : public L1GctUnsignedInt<nBits> {
 
  public:
 
+  /// Construct a counter and initialise its value to zero
   L1GctJetCount();
+  /// Construct a counter, checking for overFlow 
   L1GctJetCount(unsigned value);
+  /// Destructor
   ~L1GctJetCount();
 
-  // copy contructor to move data between
-  // representations with different numbers of bits
+  /// Copy contructor to move data between representations with different numbers of bits
   template <int mBits>
   L1GctJetCount(const L1GctJetCount<mBits>& rhs);
 
-  // Set value from unsigned
+  /// Set value from unsigned
   void setValue(unsigned value);
 
-  // set the overflow bit
+  /// set the overflow bit
   void setOverFlow(bool oflow);
 
-  // since this is a counter, we want
-  // increment operators
+  /// Define increment operators, since this is a counter.
   L1GctJetCount& operator++ ();
   L1GctJetCount operator++ (int);
 
-  // add two numbers
+  /// add two numbers
   L1GctJetCount operator+ (const L1GctJetCount &rhs) const;
 
-  // overload = operator
+  /// overload = operator
   L1GctJetCount& operator= (int value);
 
 };
@@ -502,12 +523,15 @@ std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
 
 
 
-/// Here are the typedef's for the data types used in the energy sum calculations
-
+/// typedef for the data type used for Ex and Ey in the energy sum calculations
 typedef L1GctTwosComplement<12> L1GctEtComponent;
+/// typedef for the data type used for Et and Ht, and missing Et magnitude, in the energy sum calculations
 typedef L1GctUnsignedInt<12>    L1GctScalarEtVal;
+/// typedef for the data type used for missing Et phi bin in the energy sum calculations
 typedef L1GctUnsignedInt<7>     L1GctEtAngleBin;
+/// typedef for the data type used for final output jet counts
 typedef L1GctJetCount<5>        L1GctJcFinalType;
+/// typedef for the data type used for Wheel card jet counts
 typedef L1GctJetCount<3>        L1GctJcWheelType;
 
 
