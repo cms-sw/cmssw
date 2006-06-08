@@ -1,14 +1,3 @@
-/*! \file L1GctElectronSorter.cc
- * \Class that sort electron candidates
- *
- * This class sorts the electron candidates by rank in 
- * ascending order.
- *
- * \author  Maria Hansen
- * \date    21/04/06
- * \version 1.1
- */
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
