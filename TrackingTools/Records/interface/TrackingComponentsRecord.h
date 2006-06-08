@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"                
 
@@ -11,7 +11,7 @@
 
 
 class  TrackingComponentsRecord: public edm::eventsetup::DependentRecordImplementation<TrackingComponentsRecord,
-  boost::mpl::vector<TrackerDigiGeometryRecord,IdealMagneticFieldRecord> > {};
+  boost::mpl::vector<IdealMagneticFieldRecord> > {};
 
 #endif 
 
