@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.3 2006/05/19 18:50:11 evansde Exp $
+// $Id: JobReport.cc,v 1.4 2006/05/19 18:53:05 evansde Exp $
 //
 
 
@@ -300,7 +300,7 @@ namespace edm
     {
       std::ostringstream msg;
       msg << "<SkippedEvent Run=\"" << id.run() << "\"";
-      msg << " Event=\"" << id.event() << "\" </SkippedEvent>\n";
+      msg << " Event=\"" << id.event() << "\" />\n";
       LogInfo("FwkJob") << msg.str();
     }
 
