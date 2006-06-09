@@ -1,17 +1,19 @@
 #ifndef L1GCTEMULATOR_H
 #define L1GCTEMULATOR_H
 
-/*! 
- * \author Jim Brooke
- * \date May 2006
- */
+/**\class L1GctEmulator L1GctEmulator.h src/L1Trigger/GlobalCaloTrigger/src/L1GctEmulator.h
 
-/*! \class L1GctEmulator L1GctEmulator.h src/L1Trigger/GlobalCaloTrigger/src/L1GctEmulator.h
- *  \brief Framework module that runs the GCT Emulator
- *
- *  An EDProducer that contains an instance of L1GlobalCaloTrigger.
- *
- */
+ Description:  Framework module that runs the GCT bit-level emulator
+
+ Implementation:
+       An EDProducer that contains an instance of L1GlobalCaloTrigger.
+*/
+//
+// Original Author:  Jim Brooke
+//         Created:  Thu May 18 15:04:56 CEST 2006
+// $Id: L1GctEmulator.h,v 1.2 2006/05/30 12:22:35 jbrooke Exp $
+//
+//
 
 
 // EDM includes
