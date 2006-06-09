@@ -1,6 +1,5 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 
-
 EventMsgView::EventMsgView(void* buf, uint32 size,
                            uint32 hlt_bit_cnt, uint32 l1_bit_cnt):
   buf_((uint8*)buf),size_(size),head_(buf,size),

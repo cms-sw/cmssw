@@ -50,6 +50,9 @@ void EventMsgBuilder::setEventLength(uint32 len)
 
 uint32 EventMsgBuilder::size() const
 {
+
+  //cout<<"EventMsgBuilder::size()"<<size_<<endl;
+  //return size_;
   HeaderView v(buf_,size_);
   return v.size();
 }

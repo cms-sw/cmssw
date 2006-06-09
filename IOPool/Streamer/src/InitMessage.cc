@@ -4,6 +4,7 @@
 InitMsgView::InitMsgView(void* buf, uint32 size):
   buf_((uint8*)buf),size_(size),head_(buf,size)
 {
+
   release_start_ = buf_ + sizeof(InitHeader);
   release_len_ = *release_start_;
   release_start_ += sizeof(uint8);
@@ -13,7 +14,6 @@ InitMsgView::InitMsgView(void* buf, uint32 size):
   hlt_trig_start_ += sizeof(char_uint32);
   hlt_trig_len_ = convert32(hlt_trig_start_);
   hlt_trig_start_ += sizeof(char_uint32);
-
   l1_trig_start_ = hlt_trig_start_ + hlt_trig_len_;
   l1_trig_count_ = convert32(l1_trig_start_);
   l1_trig_start_ += sizeof(char_uint32);
