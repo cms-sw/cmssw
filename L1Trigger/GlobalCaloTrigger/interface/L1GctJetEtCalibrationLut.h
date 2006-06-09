@@ -14,6 +14,8 @@
  * Input is 10 bit Et and 4 bit eta
  * Outputs are 6 bit rank (for jet sorting) and 10 bit Et (for Ht calculation)
  * 
+ * Currently just performs a truncation from 10 to 6 bits, no eta dependence
+ *
  */
 
 
