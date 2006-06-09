@@ -1,6 +1,6 @@
 #include "SimG4Core/TrackingVerbose/interface/TrackingVerboseAction.h"
-#include "SimG4Core/UtilityAction/interface/UtilityActionPluginFactory.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "PluginManager/ModuleDef.h"
    
 DEFINE_SEAL_MODULE ();
-DEFINE_UTILITYACTION(TrackingVerboseAction);
+DEFINE_SIMWATCHER(TrackingVerboseAction);

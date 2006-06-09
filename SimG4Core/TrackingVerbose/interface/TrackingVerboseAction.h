@@ -17,17 +17,17 @@
 
 #ifndef SimG4Core_TrackingVerbose_h
 #define SimG4Core_TrackingVerbose_h 1
-class G4TrackingManager;
 
-#include "SimG4Core/UtilityAction/interface/UtilityAction.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
 class BeginOfTrack;
 class BeginOfEvent;
 class BeginOfRun;
+class G4TrackingManager;
 
-class TrackingVerboseAction :  public UtilityAction,
+class TrackingVerboseAction :  public SimWatcher,
 			       public Observer<const BeginOfRun *>, 
 			       public Observer<const BeginOfEvent *>, 
 			       public Observer<const BeginOfTrack *>

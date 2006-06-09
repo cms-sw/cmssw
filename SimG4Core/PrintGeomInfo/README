@@ -2,7 +2,6 @@ TO USE:
  
 in .cfg file:
  
-          PSet UtilityActions =
 		VPSet Watchers = {
  		{	string type = "PrintGeomInfoAction"
 			untracked bool DumpSummary    = false

@@ -7,7 +7,7 @@
 #include "G4RunManagerKernel.hh"
 
 KillSecondariesRunAction::KillSecondariesRunAction(edm::ParameterSet const & p)
-    : UtilityAction(p) {}
+    {}
 
 KillSecondariesRunAction::~KillSecondariesRunAction() {}
  

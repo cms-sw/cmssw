@@ -30,7 +30,7 @@ class PrimaryTransformer;
 class Generator;
 // class BaseEventVertexGenerator;
 class PhysicsList;
-class UtilityAction;
+
 class SimWatcher;
 class SimProducer;
 class G4SimEvent;
@@ -80,7 +80,6 @@ private:
     bool m_nonBeam;
     // std::auto_ptr<BaseEventVertexGenerator> m_eventVertexGenerator;
     std::auto_ptr<PhysicsList> m_physicsList;
-    std::auto_ptr<UtilityAction> m_utilityAction;
     PrimaryTransformer * m_primaryTransformer;
     CLHEP::HepJamesRandom * m_engine;
     bool m_managerInitialized;
@@ -111,7 +110,6 @@ private:
     edm::ParameterSet m_pEventAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
-    edm::ParameterSet m_pUtilityActions;
     edm::ParameterSet m_p;
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
