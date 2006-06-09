@@ -1,0 +1,28 @@
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/KalmanUpdators>
+<use name=RecoTracker/TkSeedGenerator>
+<use name=rootrflx>
+<use name=boost>
+<use name=root>
+<use name=clhep>
+<flags SEAL_PLUGIN_NAME="RecoMuonTrackerSeedGenerator">
+<export>
+   <lib name=RecoMuonTrackerSeedGenerator>
+   <use name=FWCore/Framework>
+   <use name=FWCore/Utilities>
+   <use name=FWCore/ParameterSet>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackingTools/MaterialEffects>
+   <use name=TrackingTools/KalmanUpdators>
+   <use name=RecoTracker/TkSeedGenerator>
+   <use name=rootrflx>
+   <use name=boost>
+   <use name=root>
+   <use name=clhep>
+</export>
+
+
