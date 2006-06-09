@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.6 2006/06/08 13:06:59 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.7 2006/06/09 09:23:47 dkcira Exp $
 //
 //
 
@@ -144,8 +144,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   ESHandle<TrajectoryFitter> theRFitter;
 
-  //const TransientTrackingRecHitBuilder* builder = theBuilder.product();
-  TransientTrackingRecHitBuilder* builder = theBuilder.product();
+  const TransientTrackingRecHitBuilder* builder = theBuilder.product();
   const TrackingGeometry * theG = theRG.product();
   const MagneticField * theMF = theRMF.product();
   const TrajectoryFitter * theFitter = theRFitter.product();
@@ -168,7 +167,8 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
       DetId * detId = new DetId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(*detId)->surface()), theMF);
 
-      OwnVector<TransientTrackingRecHit> hits;
+//      OwnVector<TransientTrackingRecHit> hits;
+      Trajectory::RecHitContainer hits;
       TrackingRecHitCollection::const_iterator hit;
       for (hit=recHitVec.first; hit!= recHitVec.second; ++hit)
 	{
