@@ -30,7 +30,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-
+ 
 
 HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 {
@@ -85,28 +85,32 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     CorrMap.insert(std::make_pair(it->id(), *it));    
   }
   
-  // get the barrel geometry:
+  // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
   CaloGeometry geometry = *geoHandle;
-  const CaloSubdetectorGeometry *geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  //Setup for core tools objects.
+  const CaloSubdetectorGeometry *geometry_p;
+
+  std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
   
+  if(hitcollection_ == "EcalRecHitsEB") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  else if(hitcollection_ == "EcalRecHitsEE") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  else if(hitcollection_ == "EcalRecHitsPS") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
+    
+  //Setup for core tools objects.
   std::map<std::string,double> providedParameters;  
-  //Sould be created with vars found in parameterset,
-  //if they are not found do not put anything in the map for it.  
-  //parameter names are case sensitive
   providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
   providedParameters.insert(std::make_pair("X0",clustershape_x0));
   providedParameters.insert(std::make_pair("T0",clustershape_t0));
   providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, &CorrMap, hitcollection_, &(*geometry_p));
-  ClusterShapeAlgo::Initialize(&CorrMap, hitcollection_);
+  PositionCalc::Initialize(providedParameters, &CorrMap, &(*geometry_p));
+  ClusterShapeAlgo::Initialize(&CorrMap, &geoHandle);
   //Done with setup
   
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(CorrMap, geoHandle, basicClusters);
+  hybrid_p->makeClusters(CorrMap, geometry_p, basicClusters);
   std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
   std::vector <reco::ClusterShape> ClusVec;

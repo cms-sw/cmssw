@@ -72,7 +72,7 @@ class HybridClusterAlgo
   }
   
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(std::map<DetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
+  void makeClusters(std::map<DetId, EcalRecHit>, const CaloSubdetectorGeometry *, reco::BasicClusterCollection &basicClusters);
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);

@@ -11,7 +11,7 @@
 
 // Return a vector of clusters from a collection of EcalRecHits:
 void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap, 
-				     edm::ESHandle<CaloGeometry> geometry_h,  
+				     CaloSubdetectorGeometry const *geometry,
 				     reco::BasicClusterCollection &basicClusters)
 {
   //Initialize my map.
@@ -25,17 +25,13 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
   
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
 
-  //Get subdetector geometry.
-  const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry const geometry = *geometry_p;
-
   std::map<DetId, EcalRecHit>::iterator it;
 
   for (it = CorrMap.begin(); it != CorrMap.end(); it++){
     
     //Make the vector of seeds that we're going to use.
     //One of the few places position is used, needed for ET calculation.    
-    const CaloCellGeometry *this_cell = geometry.getGeometry(it->first);
+    const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->first);
     GlobalPoint position = this_cell->getPosition();
    
     float ET = it->second.energy() * sin(position.theta());

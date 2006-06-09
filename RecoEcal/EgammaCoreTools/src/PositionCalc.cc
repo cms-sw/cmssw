@@ -8,23 +8,20 @@ bool        PositionCalc::param_LogWeighted_;
 Double32_t  PositionCalc::param_X0_;
 Double32_t  PositionCalc::param_T0_; 
 Double32_t  PositionCalc::param_W0_;
-std::string PositionCalc::param_CollectionType_ = ""; 
-std::map<DetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
-CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
+const std::map<DetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
+const CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
 
 void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
-                                       const std::map<DetId,EcalRecHit> *passedRecHitsMap,
-                                       std::string passedCollectionType,
-                                       const CaloSubdetectorGeometry *passedGeometry) 
+			      const std::map<DetId,EcalRecHit> *passedRecHitsMap,
+			      const CaloSubdetectorGeometry *passedGeometry) 
 {
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
   param_X0_ = providedParameters.find("X0")->second;
   param_T0_ = providedParameters.find("T0")->second; 
   param_W0_ = providedParameters.find("W0")->second;
 
-  storedRecHitsMap_ = const_cast<std::map<DetId,EcalRecHit>*>(passedRecHitsMap);
-  param_CollectionType_ = passedCollectionType;
-  storedSubdetectorGeometry_ = const_cast<CaloSubdetectorGeometry*>(passedGeometry);
+  storedRecHitsMap_ = passedRecHitsMap;
+  storedSubdetectorGeometry_ = passedGeometry;
 }
 
 
@@ -34,7 +31,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   
   // Throw an error if the cluster was not initialized properly
 
-  if(storedRecHitsMap_ == NULL || param_CollectionType_ == "" || storedSubdetectorGeometry_ == NULL)
+  if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Location called uninitialized or wrong initialization.\n\n"));
 
   std::vector<DetId> validDetIds;
@@ -155,7 +152,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 }
 
 std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint passedPoint,
-                                                                    std::vector<DetId> passedDetIds)
+								 std::vector<DetId> passedDetIds)
 {
 
   std::vector<DetId> validDetIds;
@@ -173,7 +170,7 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   
   // Check to see that PositionCalc was initialized.  Throw an error if not.
 
-  if(storedRecHitsMap_ == NULL || param_CollectionType_ == "" || storedSubdetectorGeometry_ == NULL)
+  if(storedRecHitsMap_ == NULL || storedSubdetectorGeometry_ == NULL)
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Covariance called uninitialized or wrong initialization.\n\n"));
 
   // Init cov variable

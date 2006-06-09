@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.2 2006/06/01 11:29:20 rahatlou Exp $
+ * \version $Id: PositionCalc.h,v 1.3 2006/06/06 16:59:34 tkolberg Exp $
  *
  */
 
@@ -28,7 +28,6 @@ class PositionCalc
 
   static void Initialize(std::map<std::string,double> providedParameters,
                          const std::map<DetId,EcalRecHit> *passedRecHitsMap,
-                         std::string passedCollectionType, 
                          const CaloSubdetectorGeometry *passedGeometry);  
 
   // Calculate_Location calculates an arithmetically or logarithmically
@@ -51,9 +50,8 @@ class PositionCalc
   static Double32_t  param_X0_;
   static Double32_t  param_T0_;
   static Double32_t  param_W0_;
-  static std::string param_CollectionType_;
-  static std::map<DetId,EcalRecHit> *storedRecHitsMap_;
-  static CaloSubdetectorGeometry *storedSubdetectorGeometry_;
+  static const std::map<DetId,EcalRecHit> *storedRecHitsMap_;
+  static const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 
 };
 
