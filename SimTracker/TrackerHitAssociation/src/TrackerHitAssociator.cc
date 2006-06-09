@@ -11,6 +11,9 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+//for accumulate
+#include <numeric>
+
 using namespace std;
 using namespace edm;
 
@@ -69,7 +72,8 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       unsigned int simHitid = ihit.trackId();
       for(size_t i=0; i<simtrackid.size();i++){
 	//cout << " Associator -->  check sihit id's = " << simHitid << endl;
-	if(simHitid == simtrackid[i] && simtrackid[i]!= 65535){ //exclude the geant particles. they all have the same id
+	//	if(simHitid == simtrackid[i] && simtrackid[i]!= 65535){ //exclude the geant particles. they all have the same id
+	if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
 	  // cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	  //	   << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl;	    
 	  result.push_back(ihit);
@@ -84,33 +88,69 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 {
   DetId detid=  simplerechit->geographicalId();
   uint32_t detID = detid.rawId();
-  
+
+  //to store temporary charge information
+  std::vector<unsigned int> cache_simtrackid; 
+  cache_simtrackid.clear();
+  std::map<unsigned int, vector<float> > temp_simtrackid;
+  float chg;
+  temp_simtrackid.clear();
+
   edm::DetSetVector<StripDigiSimLink>::const_iterator isearch = stripdigisimlink->find(detID); 
   if(isearch != stripdigisimlink->end()) {  //if it is not empty
     //link_detset is a structure, link_detset.data is a std::vector<StripDigiSimLink>
     edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
     //cout << "Associator ---> get digilink! in Detid n = " << link_detset.data.size() << endl;
     
-    //const std::vector<const SiStripCluster*> clust=simplerechit->cluster();
     const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
     //cout << "Associator ---> get cluster info " << endl;
-    //for(vector<const SiStripCluster*>::const_iterator ic = clust.begin(); ic!=clust.end(); ic++) {
-      unsigned int clusiz = clust->amplitudes().size();
-      unsigned int first  = clust->firstStrip();     
-      unsigned int last   = first + clusiz;
-      // cout << "Associator ---> clus size = " << clusiz << " first = " << first << " last = " << last << endl;
-      for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
-	StripDigiSimLink link = *linkiter;
-	if( link.channel() >= first  && link.channel() < last ){
-	  simtrackid.push_back(link.SimTrackId());
-	  //cout << "Associator --> digi list first= " << first << " last = " << last << endl;
-	  //cout << "Associator link--> channel= " << link.channel() << "  trackid = " << link.SimTrackId() << endl;
-	}
+    int clusiz = clust->amplitudes().size();
+    int first  = clust->firstStrip();     
+    int last   = first + clusiz;
+    float cluchg = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(),0);
+    // cout << "Associator ---> Clus size = " << clusiz << " first = " << first << "  last = " << last << "  tot charge = " << cluchg << endl;
+    
+    for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
+      StripDigiSimLink link = *linkiter;
+      if( link.channel() >= first  && link.channel() < last ){
+	cache_simtrackid.push_back(link.SimTrackId());
+	//get the charge released in the cluster
+	chg = 0;
+	int mychan = link.channel()-first;
+	chg = (clust->amplitudes()[mychan])*link.fraction();
+	temp_simtrackid[link.SimTrackId()].push_back(chg);
       }
-      //}
-  }
+    }
+    
+    vector<float> tmpchg;
+    float simchg;
+    float simfraction;
+    std::map<float, unsigned int> temp_map;
+    
+    //loop over the unique ID's
+    vector<unsigned int>::iterator new_end = unique(cache_simtrackid.begin(),cache_simtrackid.end());
+    for(vector<unsigned int>::iterator i=cache_simtrackid.begin(); i != new_end; i++){
+      std::map<unsigned int, vector<float> >::const_iterator it = temp_simtrackid.find(*i);
+      if(it != temp_simtrackid.end()){
+	tmpchg = it->second;
+	for(size_t ii=0; ii<tmpchg.size(); ii++){
+	  simchg +=tmpchg[ii];
+	}
+	simfraction = simchg/cluchg;
+	//cout << " Track id = " << *i << " Total fraction = " << simfraction << endl;
+	temp_map.insert(std::pair<float, unsigned int> (simfraction,*i));
+      }
+    }	
+    //copy the list of ID's ordered in the charge fraction 
+    for(std::map<float , unsigned int>::const_iterator it = temp_map.begin(); it!=temp_map.end(); it++){
+      //      cout << " Final simtrackid list = " << it->second << endl;
+      //      if(it->second > 50000) std::cout << " Secondary simtrackid = " << it->second << endl;
+      simtrackid.push_back(it->second);
+    }
+  }    
   
   return simtrackid;
+  
 }
 
 
