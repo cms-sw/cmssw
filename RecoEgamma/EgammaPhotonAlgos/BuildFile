@@ -1,0 +1,42 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrajectorySeed>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/DetLayers>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/GeometryESProducer>	
+<use name=RecoTracker/TkNavigation>	
+<use name=RecoTracker/TkTrackingRegions>	
+<use name=MagneticField/Engine>
+
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaPhotonAlgos">
+
+<export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <lib name=RecoEgammaEgammaPhotonAlgos>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=TrackingTools/MaterialEffects>
+  <use name=TrackingTools/GeomPropagators>
+  <use name=TrackingTools/KalmanUpdators>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/DetLayers>
+  <use name=RecoTracker/TkDetLayers>
+  <use name=RecoTracker/GeometryESProducer>
+  <use name=RecoTracker/TkNavigation> 		
+  <use name=RecoTracker/TkTrackingRegions>	
+  <use name=MagneticField/Engine>
+  <use name=clhep>
+
+</export>
+
+
