@@ -16,7 +16,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id$
+// $Id: MonitorTrackResiduals.h,v 1.1 2006/05/26 14:22:28 goitom Exp $
 //
 //
 
@@ -61,7 +61,6 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
 
   HistoClass HitResidual;
-
 };
 
 #endif
