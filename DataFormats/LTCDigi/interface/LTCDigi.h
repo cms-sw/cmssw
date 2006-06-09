@@ -2,14 +2,17 @@
 #define DataFormats_LTCDigi_h
 
 #include <vector>
+#include <ostream>
+#include <string>
 
 #include "boost/cstdint.hpp"
 
 /** \class LTCDigi
  *  Data from the Local Trigger Controller (LTC)
  *
- * $Id$
+ * $Id: LTCDigi.h,v 1.2 2006/05/26 10:42:25 wittich Exp $
  */
+
 
 class LTCDigi
 {
@@ -17,11 +20,15 @@ class LTCDigi
   // need a default constructor!
   LTCDigi() {}
   LTCDigi(const unsigned char* data);
+  
+  // STATIC functions
   // These are to allow the event builder to grab the run number 
   // from a butter it knows points at LTC data.
-  static uint32_t GetEventNumberFromBuffer(const unsigned char *databuffer) ;
-  static uint32_t  GetRunNumberFromBuffer(const unsigned char *databuffer) ;
- public:
+  static uint32_t GetEventNumberFromBuffer(const unsigned char *databuffer);
+  static uint32_t  GetRunNumberFromBuffer(const unsigned char *databuffer);
+  static std::string utcTime(uint64_t t);
+  static std::string locTime(uint64_t t);
+
   // right now these are just silly but maybe if we pack the internals
   // then this won't seem as silly
   unsigned int eventNumber() const { return eventNumber_; };
@@ -41,22 +48,22 @@ class LTCDigi
 
   uint64_t bstGpsTime() const { return bstGpsTime_;};
 
-  unsigned char bxMask() const { return ((triggerInputStatus()>>29)&0x1); } ;
-  unsigned char vmeTrigger() const 
-  { 
-    return ((triggerInputStatus()>>28)&0x1); 
-  } ;
-  unsigned char ramTrigger() const 
+  unsigned int bxMask() const { return ((triggerInputStatus()>>28)&0x1); } ;
+  unsigned int vmeTrigger() const 
   { 
     return ((triggerInputStatus()>>27)&0x1); 
   } ;
-  unsigned char externTriggerMask() const
+  unsigned int ramTrigger() const 
   { 
-    return ((triggerInputStatus()>>20)&0xFFU); 
+    return ((triggerInputStatus()>>26)&0x1); 
   } ;
-  unsigned char cyclicTriggerMask() const
+  unsigned char externTriggerMask() const // six bits
   { 
-    return (triggerInputStatus()&0xFFU); 
+    return ((triggerInputStatus()>>20)&0x3FU); 
+  } ;
+  unsigned char cyclicTriggerMask() const // six bits
+  { 
+    return (triggerInputStatus()&0x3FU); 
   } ;
   
   
@@ -65,6 +72,9 @@ class LTCDigi
     if ( i > 5 ) return false; // throw exception?
     return (externTriggerMask()&(0x1U<<i)!=0);
   }
+
+  
+
  private:
   // unpacked for now
   unsigned int trigType_; // 4 bits
@@ -85,12 +95,14 @@ class LTCDigi
                                // same as event number up to resets
   uint32_t     trigInputStat_; // 32 bits
   uint32_t     trigInhibitNumber_; // 32 bits
-  uint64_t     bstGpsTime_; // 64 bits
+  uint64_t     bstGpsTime_; // 64 bits - is standard unix time in seconds
 
-  
+
     
 };
 
+std::ostream & operator<<(std::ostream & stream, 
+			  const LTCDigi & myDigi);
 
 typedef std::vector<LTCDigi> LTCDigiCollection;
 
