@@ -11,7 +11,7 @@
 *  takes place (physically) on the concentrator card.
 * 
 * \author Jim Brooke & Robert Frazier
-* \date June 2006
+* \date May 2006
 */ 
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
@@ -25,11 +25,17 @@ class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
-  static const int MAX_JETS_OUT;   ///< Max number of jets of each type we output.
-  static const unsigned int MAX_LEAF_CARDS;  ///< Max number of leaf card pointers
 
-  /// id must be 0 or 1 for -ve/+ve eta halves of CMS
+  /// Max number of jets of each type we output.
+  static const int MAX_JETS_OUT;
+
+  /// Max number of leaf card pointers
+  static const unsigned int MAX_LEAF_CARDS;
+
+  /// id must be 0 / 1 for -ve/+ve eta halves of CMS
   L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
+
+  /// destructor
   ~L1GctWheelJetFpga();
 
   /// Overload << operator
@@ -56,11 +62,17 @@ public:
     
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
+
+  /// get the output jets
   JetVector getForwardJets() const { return m_forwardJets; }
+
+  /// get the output jets
   JetVector getTauJets() const { return m_tauJets; }
     
-  /// get the output Ht and jet counts
+  /// get the output Ht
   L1GctScalarEtVal getOutputHt() const { return m_outputHt; }
+
+  /// get the output jet counts
   L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 
 private:

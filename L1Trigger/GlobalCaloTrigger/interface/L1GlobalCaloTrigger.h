@@ -8,16 +8,18 @@
 
 #include <vector>
 
+/*!
+ * \author Jim Brooke
+ * \date Feb 2006
+ */
 
+/*!
+ * \class L1GlobalCaloTrigger
+ * \brief Bit-level emulation of the Global Calorimeter Trigger
+ * 
+ * 
+ */
 
-/**
-  * Represents the GCT system
-  * This is the main point of access for the user
-  * 
-  * author: Jim Brooke
-  * date: 20/2/2006
-  * 
-  **/ 
 
 class L1GctSourceCard;
 class L1GctJetLeafCard;
@@ -33,18 +35,21 @@ class L1GctJetEtCalibrationLut;
 
 class L1GlobalCaloTrigger {
 public:
-  /// Declare numbers of each card type
+  /// Number of source cards
   static const int N_SOURCE_CARDS;
+  /// Number of Leaf Cards configured for jet processing
   static const int N_JET_LEAF_CARDS;
+  /// Number of Leaf Cards configured for EM processing
   static const int N_EM_LEAF_CARDS;
+  /// Number of Wheel Cards
   static const int N_WHEEL_CARDS;
   
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false);
-  ///
+  
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
-  ///
+  
   /// load files into Source Cards
   void openSourceCardFiles(std::string fileBase);
   
@@ -146,8 +151,10 @@ public:
   /// energy final stage algos
   L1GctGlobalEnergyAlgos* theEnergyFinalStage;	
   
-  /// electron final stage sorters
+  /// iso electron final stage sorter
   L1GctElectronFinalSort* theIsoEmFinalStage;
+
+  /// non-iso electron final stage sorter
   L1GctElectronFinalSort* theNonIsoEmFinalStage;
 
   /// Jet Et calibraion LUT
