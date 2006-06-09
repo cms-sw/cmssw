@@ -7,11 +7,15 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
-/*
- * A GCT jet candidate
- * author: Jim Brooke
- * date: 20/2/2006
+/*!
+ * \author Jim Brooke & Robert Frazier
+ * \date April 2006
+ */
+
+/*! \class L1GctJetCand
+ * \brief A Level-1 jet candidate, used within GCT emulation
  * 
+ *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
 class L1GctJetCand

@@ -1,19 +1,18 @@
 #ifndef L1GCTEMULATOR_H
 #define L1GCTEMULATOR_H
 
-/**\class L1GctEmulator L1GctEmulator.h src/L1Trigger/GlobalCaloTrigger/src/L1GctEmulator.h
+/*! 
+ * \author Jim Brooke
+ * \date May 2006
+ */
 
- Description:  Framework interface to the GCT emulator
+/*! \class L1GctEmulator L1GctEmulator.h src/L1Trigger/GlobalCaloTrigger/src/L1GctEmulator.h
+ *  \brief Framework module that runs the GCT Emulator
+ *
+ *  An EDProducer that contains an instance of L1GlobalCaloTrigger.
+ *
+ */
 
- Implementation:
-       A wrapper around L1GlobalCaloTrigger to handle the EDM interface
-*/
-//
-// Original Author:  Jim Brooke
-//         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.1 2006/05/23 13:24:55 jbrooke Exp $
-//
-//
 
 // EDM includes
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -27,8 +26,13 @@
 class L1GctEmulator : public edm::EDProducer {
  public:
 
+  /// constructor
   explicit L1GctEmulator(const edm::ParameterSet& ps);
+
+  /// destructor
   virtual ~L1GctEmulator();
+
+  /// method inherited from EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:

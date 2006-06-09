@@ -3,6 +3,18 @@
 
 #include <boost/cstdint.hpp> //for uint16_t
 
+/*!
+ * \author Robert Frazier
+ * \date May 2006
+ */
+
+/*! \class L1GctJetEtCalibrationLut
+ * \brief Jet Et calibration LUT
+ * 
+ * Input is 10 bit Et and 4 bit eta
+ * Outputs are 6 bit rank (for jet sorting) and 10 bit Et (for Ht calculation)
+ * 
+ */
 
 
 class L1GctJetEtCalibrationLut
@@ -11,11 +23,11 @@ public:
   L1GctJetEtCalibrationLut();
   ~L1GctJetEtCalibrationLut();
   
-  /// Converts a 10-bit jet energy to a six-bit rank.
+  /// Converts a 10-bit jet Et to a 6-bit rank.
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
   uint16_t convertToSixBitRank(uint16_t jetEnergy, uint16_t eta) const;
 
-  /// Converts a 10-bit jet energy to a 10-bit rank.
+  /// Converts a 10-bit jet Et to a 10-bit Et (applying eta-dependent calibration)
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
   uint16_t convertToTenBitRank(uint16_t jetEnergy, uint16_t eta) const;
   
