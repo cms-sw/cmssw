@@ -2,6 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -26,6 +27,7 @@ namespace {
     edm::RefProd<reco::PhotonCandidateCollection> rp3;
     edm::RefVector<reco::PhotonCandidateCollection> rv3;
 
+
     reco::ElectronCandidateCollection v4;
     edm::Wrapper<reco::ElectronCandidateCollection> w4;
     edm::Ref<reco::ElectronCandidateCollection> r4;
@@ -38,8 +40,17 @@ namespace {
     edm::RefProd<reco::SiStripElectronCandidateCollection> rp5;
     edm::RefVector<reco::SiStripElectronCandidateCollection> rv5;
 
+
+    reco::ConvertedPhotonCandidateCollection v6;
+    edm::Wrapper<reco::ConvertedPhotonCandidateCollection> w6;
+    edm::Ref<reco::ConvertedPhotonCandidateCollection> r6;
+    edm::RefProd<reco::ConvertedPhotonCandidateCollection> rp6;
+    edm::RefVector<reco::ConvertedPhotonCandidateCollection> rv6;
+
+
     edm::reftobase::Holder<reco::Candidate, reco::ElectronCandidateRef> rb1;
     edm::reftobase::Holder<reco::Candidate, reco::PhotonCandidateRef> rb2;
     edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronCandidateRef> rb3;
+    edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonCandidateRef> rb4;
   }
 }
