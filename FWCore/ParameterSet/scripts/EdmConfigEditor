@@ -27,9 +27,28 @@ class CmsBuilder(cmd.Cmd):
         self._esModuleLabels = dict()
         self._esSourceLabels = dict()
         self.addedCommands = list()
+        r = re.compile('do_*')
+        self._builtInCommandNames = [x[3:] for x in CmsBuilder.__dict__.keys() if r.match(x)]
+        self._builtInCommandNames.sort()
+#        print self._builtInCommandNames
         if 0 != len(fileName):
             self.do__read(fileName)
         
+    def do_help(self,line):
+        """Description: Show general help information
+        Commands:
+        help            show all available commands
+        help <command>  show specific info about <command>"""
+        if 0 != len(line):
+            cmd.Cmd.do_help(self,line)
+        else:
+            print "Standard commands: "
+            self.columnize(self._builtInCommandNames)
+            print "\nConfiguration file commands: "
+            r = re.compile('do_*')
+            extraCommands = self.addedCommands
+            extraCommands.sort()
+            self.columnize(extraCommands)
    
     def do_process(self,line):
         """Description: Show the configuration for the process
@@ -492,10 +511,10 @@ if __name__=="__main__":
                                  es_module = ESProd2 {}
                                }""")
                 testFile.flush()
-                self.__names = {'source':('ASource'),
-                                'module':('b','c','c2'),
-                                'es_source':('ESSource1','ESSource2','ess1'),
-                                'es_module':('esm1','ESProd2')}
+                self.__info = {'source':(('ASource',{'maxEvents':('untracked','int32','-1')}),),
+                                'module':(('b',{'st':('tracked','string',"st")}),('c',{}),('c2',{})),
+                                'es_source':(('ESSource1',{}),('ESSource2',{}),('ess1',{})),
+                                'es_module':(('esm1',{}),('ESProd2',{}))}
                 #self.stdout.write(testFile.name)
                 self.__builder = CmsBuilder("")
                 self.__builder.do__read(testFile.name)
@@ -510,22 +529,52 @@ if __name__=="__main__":
                     self.assertNotEqual(-1,self.__printIntercept.lastPrint().find(fileName))
                 finally:
                     self.__reset()
+            def __checkForLabelAndValues(self,labelValueString,label,values):
+                    return labelValueString.find(label)
             def testdolist(self):
-                for type in self.__names.keys():
+                for type in self.__info.keys():
                     exec ("self._TestModuleCommand__builder.do_"+type+"('')")
                     try:
-                        for name  in self.__names[type]:
+                        for info in self.__info[type]:
+                            #sys.stderr.write( "info " + str(info) )
+                            #sys.stderr.flush()
+                            name = info[0]
                             self.assertNotEqual(-1,self.__printIntercept.lastPrint().find(name))
                     finally:
                         self.__reset()
+                    #check for each module that it has the proper data
+                    if type == "source":
+                        continue
+                    for info in self.__info[type]:
+                        name = info[0]
+                        exec("self._TestModuleCommand__builder.do_"+type+"('"+name+"')")
+                        try:
+                            for label in info[1].keys():
+                                self.assertNotEqual(-1,
+                                                    self.__checkForLabelAndValues(self.__printIntercept.lastPrint(),
+                                                                                  label,
+                                                                                  info[1][label]))
+                        finally:
+                            self.__reset()
+                        #also try just the label as a command
+                        exec("self._TestModuleCommand__builder.do_"+name+"('')")
+                        try:
+                            for label in info[1].keys():
+                                self.assertNotEqual(-1,
+                                                    self.__checkForLabelAndValues(self.__printIntercept.lastPrint(),
+                                                                                  label,
+                                                                                  info[1][label]))
+                        finally:
+                            self.__reset()
             def testcompletelist(self):
-                for type in self.__names.keys():
+                for type in self.__info.keys():
                     if type == 'source':
                         continue
                     length = str(0)
                     result = eval ("self._TestModuleCommand__builder.complete_"+type+"('','"+type+" ',"+length+","+length+")")
                     try:
-                        for name  in self.__names[type]:
+                        for info in self.__info[type]:
+                            name = info[0]
                             success=False
                             try:
                                 self.assert_(name in result)
@@ -536,8 +585,9 @@ if __name__=="__main__":
                     finally:
                         self.__reset()
                     #now try each one individual trying a different length for the text
-                    for name in self.__names[type]:
-                        for index in range(1,len(name)):
+                    for info in self.__info[type]:
+                        name = info[0]
+                        for index in range(1,len(name[0])):
                             length = str(index)
                             result = eval( "self._TestModuleCommand__builder.complete_"+type+"('"+name[0:index]+"','"+type+" ',"+length+","+length+")")
                             success= False
@@ -548,6 +598,25 @@ if __name__=="__main__":
                                 if not success:
                                     sys.stderr.write("prefix:"+name[0:index]+" completions:"+str(result)+" type :"+type+" name: "+name)
                                 self.__reset()
+            def testcompletemodule(self):
+                for type in self.__info.keys():
+                    for info in self.__info[type]:
+                        name = info[0]
+                        length = str(0)
+                        result = eval("self._TestModuleCommand__builder.complete_"+name+"('','"+name+".',"+length+","+length+")")
+                        try:
+                            for label in info[1].keys():
+                                success=False
+                                try:
+                                    self.assert_(label in result)
+                                    success=True
+                                finally:
+                                    if not success:
+                                        sys.stderr.write("completions:"+str(result)+" object: "+name+" label: "+label)
+                        finally:
+                            self.__reset()
+
+                    
 
         #the test system also reads the command line options so I must remove '--test'
         sys.argv.remove("--test")
