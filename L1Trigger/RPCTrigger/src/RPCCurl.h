@@ -24,6 +24,7 @@ class RPCCurl {
     struct stripCords {
       uint32_t detRawId;
       int stripNo;
+      bool isVirtual;
     };
     
     struct stripCordsOp{
@@ -51,8 +52,9 @@ class RPCCurl {
     ~RPCCurl();
     
     bool addDetId(RPCDetInfo detInfo);
-    int makeConnections( const RPCCurl *);
-    
+    int makeRefConnections(RPCCurl *);
+    int makeOtherConnections(float phiCenter);
+
     void printContents();
     
     int getMinTower() const;
@@ -62,6 +64,7 @@ class RPCCurl {
     
   private:
     void setRefPlane();
+    void doVirtualStrips();
     int giveLogPlaneForTower(int tower);
     
     void updatePhiStripsMap(RPCDetInfo detInfo);//
@@ -74,12 +77,14 @@ class RPCCurl {
     int m_ring;  ///< Wheel number for barell, ring number for endcaps
     int m_roll;  ///< roll no
     int m_curlId;///< this curlId
+    int m_physStripsInCurl; ///< Number of existing strips in curl;
+    int m_virtStripsInCurl; ///< Number of virtual strips in curl;
     
     int m_globRoll;
     
     bool m_isDataFresh; ///< Defines if data has real world contents
     bool m_isRefPlane;  ///< tells if detIds from this curl form a reference plane
-            
+    bool m_didVirtuals;
     RPCLinks m_links;
     
     
@@ -118,6 +123,7 @@ class RPCCurl {
     static const int mrtow [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::NPOS];
     static const int mrlogp [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::NPOS];
     static const unsigned int LOGPLANE_SIZE[17][6];
+    //static const unsigned short int stripsToAdd[RPCCurl::IROLL_MAX+1];
 
 
 

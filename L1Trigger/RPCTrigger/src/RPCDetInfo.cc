@@ -6,7 +6,7 @@
  */
 
 #include <cmath>
-//#include <iostream>
+#include <algorithm>
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
 
 
@@ -59,8 +59,38 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   m_towerMax = etaToTower(m_etaMax);
   
   m_phi = transformPhi( (float)(roll->toGlobal(LocalPoint(0., 0., 0.)).phi()) );
-      
-  makeStripPhiMap(roll);
+
+
+  // add strips to the map
+  for (int i=1; i<=roll->nstrips(); i++ ) { // note: the strip numbering convention is likely to chnage in future
+  
+    LocalPoint lStripCentre = roll->centreOfStrip(i);
+    GlobalPoint gStripCentre = roll->toGlobal(lStripCentre);
+    float phiRaw = gStripCentre.phi();
+    float phi = transformPhi( phiRaw );
+    
+    m_stripPhiMap[i]=phi;
+    
+  }
+
+  // Fill m_phiMin and m_phiMax values
+  LocalPoint lStripCentre = roll->centreOfStrip(1); // XXX - strip numbering convention(!)
+  GlobalPoint gStripCentre = roll->toGlobal(lStripCentre);
+  float phi1 = transformPhi(gStripCentre.phi());
+
+  LocalPoint lStripCentre2 = roll->centreOfStrip(roll->nstrips());// XXX - strip numbering convention(!)
+  GlobalPoint gStripCentre2 = roll->toGlobal(lStripCentre2);
+  float phi2 =  transformPhi(gStripCentre2.phi());
+
+  m_phiMin = std::min(phi1,phi2);
+  m_phiMax = std::max(phi1,phi2);
+  
+  // fix the problem around phi=0: (2pi - epsilon) < (0+epsilon)
+  if ( (m_phiMin<1)&&(m_phiMax>5) ){ 
+    float temp = m_phiMin;
+    m_phiMin = m_phiMax;
+    m_phiMax = temp;
+  }
 
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,40 +105,27 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 */
 ///////////////////////////////////////////////////////////////////////////////
 int RPCDetInfo::getCurlId(){
-
-  /*
-  // Constants are added to have positive numbers      
-  int curlId = 1000*(m_region+2) +  // barell is now 2, endcaps are 1 and 3
-                100*(m_ring+2) +    // barell may have negative wheel no !                
-                 10*(m_hwPlane) +     //1...6
-                  1*(m_roll);
-  */
-  int gr = getGlobRollNo();
   
+  int gr = getGlobRollNo();
   int curlId = 1000*(m_hwPlane) +     //1...6
                 100*(etaToSign(gr) ) + //
                   1*( std::abs(getGlobRollNo()) );     //-17...17
-                  
   
   return curlId;
-  
 }
 //#############################################################################
 /**
  *
  * \brief Calculates globall iroll no
- * \note The ring numbering is nontrivial for endcaps
+ *
  */
 //#############################################################################
 int RPCDetInfo::getGlobRollNo(){
-
-  
   int globRoll=20;
     
   if (m_region==0){ //barell
     
     int hr = 0;
-  
     switch (m_roll) {
       case 1:
         hr=1;
@@ -120,21 +137,31 @@ int RPCDetInfo::getGlobRollNo(){
         hr=-1;
         break;
     }
-    
-    
     if (m_ring > 0)
       globRoll = m_ring*3-hr;
     else
       globRoll = m_ring*3+hr;
-  }
-  else if (m_region==-1){ //-endcap
-    globRoll=-13+(m_ring-1)*3-m_roll;
+  } 
+  else {
   
-  }else if (m_region==1){ //+endcap
-    globRoll= 4+m_ring*3+m_roll;
-    
+    int mr = 0;
+    switch (m_ring) {
+      case 1:
+        mr=3;
+        break;
+      case 2:
+        mr=2;
+        break;
+      case 3:
+        mr=1;
+        break;
+    }
+    globRoll=((mr-1)*3+m_roll+7);
   }
-      
+  
+  if (m_region==-1)
+    globRoll= -globRoll;
+  
   if (globRoll==20)
     std::cout << "Trouble. " << std::endl;
     
@@ -225,6 +252,8 @@ uint32_t RPCDetInfo::rawId(){
 int RPCDetInfo::getMinTower(){ return m_towerMin; }///<Gives the lowest tower number
 int RPCDetInfo::getMaxTower(){ return m_towerMax; } ///<Gives the highest tower number
 float RPCDetInfo::getPhi(){ return m_phi; }///<Gets phi of this detid
+float RPCDetInfo::getMinPhi(){ return m_phiMin; }///<Gets minPhi of this detid
+float RPCDetInfo::getMaxPhi(){ return m_phiMax; }///<Gets maxPhi of this detid
 float RPCDetInfo::getEtaCentre(){ return m_etaCentre;}
 int RPCDetInfo::getRegion(){ return m_region; }///<Gets region
 int RPCDetInfo::getRing(){ return m_ring; }///<Gets ring
@@ -247,27 +276,6 @@ float RPCDetInfo::transformPhi(float phi){
     return phi+2*pi;
   else
     return phi;
-  
-}
-///////////////////////////////////////////////////////////////////////////////
-/**
- *
- *  \brief   Makes strip phi map
- *  \todo Strip numbering convention may change in future. Check it.
- *
- */
-///////////////////////////////////////////////////////////////////////////////
-void RPCDetInfo::makeStripPhiMap(RPCRoll* roll){
-
-  for (int i=1; i<=roll->nstrips(); i++ ) {
-  
-    LocalPoint lStripCentre = roll->centreOfStrip(i);
-    GlobalPoint gStripCentre = roll->toGlobal(lStripCentre);
-    float phi = transformPhi( gStripCentre.phi() );
-    
-    m_stripPhiMap[i]=phi;
-    
-  }
   
 }
 ///////////////////////////////////////////////////////////////////////////////

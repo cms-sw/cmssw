@@ -33,6 +33,8 @@ class RPCDetInfo{
 
     uint32_t rawId();
     float getPhi();
+    float getMinPhi();
+    float getMaxPhi();
     float getEtaCentre();
     int getCurlId();
     //void setEtaMin(float);
@@ -75,12 +77,15 @@ class RPCDetInfo{
     float m_etaMax;  ///< etaMin and etaMax define to which tower(s) chamber contributes
     float m_etaCentre; ///< eta of centre of this detId
     float m_phi;    ///< Phi of center of this detId (different than globalPoint.phi() - [0...2PI[)
+    float m_phiMin; ///< The lowest phi of strips
+    float m_phiMax; ///< The highest phi of strips
         
     int m_towerMin; ///< Lowest tower number to which chamber contributes
     int m_towerMax; ///< Highest tower number to which chamber contributes
     
     static const float m_towerBounds[]; ///< Defines tower bounds
-       
+    
+    
     RPCStripPhiMap m_stripPhiMap;
     
 };

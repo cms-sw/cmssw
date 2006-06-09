@@ -1,7 +1,7 @@
 /** \file RPCCurl.cc
  *
- *  $Date: 2006/05/31 16:52:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/06 16:25:00 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
@@ -26,9 +26,13 @@ RPCCurl::RPCCurl()
   m_curlId = 0;
   m_globRoll = 0;
   
+  m_physStripsInCurl = 0;
+  m_virtStripsInCurl = 0;
+  
   m_isRefPlane = false;
   m_isDataFresh = true;
-   
+  m_didVirtuals = false; 
+  
 }
 
 RPCCurl::~RPCCurl(){ }
@@ -75,6 +79,10 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
       }
     }
     
+    if (m_globRoll < 0){
+      m_towerMin = -m_towerMin;
+      m_towerMax = -m_towerMax;
+    }
     
     m_isDataFresh=false;
   } 
@@ -98,24 +106,46 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
   
   return true;
 }
+
 //#############################################################################
 /**
  *
- * \brief Returns conn
- * \todo Check if strips are stored in phi order
- * \todo Calculate centrePhi in more elegant way
- * \bug It seems that in some refCurls we have less strips than they should have. 
+ * \brief Returns conn for curls not beeing a refernce ones
+ * \todo Implement. 
  *
  */
 //#############################################################################
-int RPCCurl::makeConnections(const RPCCurl *otherCurl){
-
-  if (!isRefPlane()){
-    std::cout << "Trouble. Curl " << m_curlId 
-        << " is not a reference curl. makeConnections() is good only for reference curls"
+int RPCCurl::makeOtherConnections(float phiCenter){
+  if (isRefPlane()){
+    std::cout << "Trouble. Curl " << m_curlId
+        << " is a reference curl. makeOtherConnections() is not good for reference curls"
         << std::endl;
     return -1;
   }
+
+  doVirtualStrips();
+  return 0;
+  
+}
+//#############################################################################
+/**
+ *
+ * \brief Returns conn for reference curls
+ * \todo Check if strips are stored in phi order
+ * \todo Calculate centrePhi in more elegant way
+ *
+ */
+//#############################################################################
+int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
+  
+  if (!isRefPlane()){
+    std::cout << "Trouble. Curl " << m_curlId 
+        << " is not a reference curl. makeRefConnections() is good only for reference curls"
+        << std::endl;
+    return -1;
+  }
+  
+  doVirtualStrips();
   
   int curPacNo=0;
   int curStripNo=0;
@@ -149,7 +179,7 @@ int RPCCurl::makeConnections(const RPCCurl *otherCurl){
         if (centrePhi<0)
           centrePhi += 2*pi;
       }
-      // makeOtherConnections();
+      otherCurl->makeOtherConnections(centrePhi);
     } // new pac end
     
     RPCConnection newConnection;
@@ -161,7 +191,7 @@ int RPCCurl::makeConnections(const RPCCurl *otherCurl){
     int lpTemp = -1;
     for (int i=0;i<3;i++){
       int ttemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
-      if ( ttemp == newConnection.tower)
+      if ( ttemp == std::abs(newConnection.tower) )
         lpTemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
     }
     
@@ -191,11 +221,9 @@ int RPCCurl::makeConnections(const RPCCurl *otherCurl){
             << std::endl;
       }
       
-    }
-    
-    
+    } // end check if strip allready in map
     curStripNo++;
-  }
+  }// end loop over strips
   
   
   return 0;    
@@ -204,6 +232,7 @@ int RPCCurl::makeConnections(const RPCCurl *otherCurl){
 /**
  *
  * \brief Updates m_stripPhiMap
+ * \todo Verify that virtual strips are added correctly
  *
  */
 //#############################################################################
@@ -214,14 +243,129 @@ void RPCCurl::updatePhiStripsMap(RPCDetInfo detInfo){
   RPCDetInfo::RPCStripPhiMap sourceMap = detInfo.getRPCStripPhiMap();
   RPCDetInfo::RPCStripPhiMap::const_iterator it;
   
+  float maxPhi=0, minPhi=0;
+  int maxStripNo=0;
+  bool firstIt=true;
+  
   for (it = sourceMap.begin(); it != sourceMap.end(); it++){
+
     float phi = it->second;
     stripCords sc;
     sc.stripNo = it->first;
     sc.detRawId = rawId;
+    sc.isVirtual = false;
     m_stripPhiMap[phi]=sc;
+    
+    if(firstIt){
+      maxPhi=phi;
+      minPhi=phi;
+      maxStripNo = sc.stripNo;
+      firstIt=false;          
+    } 
+    
+    if(phi < minPhi){
+      minPhi=phi;
+    }
+    if(phi > maxPhi){
+      maxPhi=phi;
+    }
+    
+    if (maxStripNo<sc.stripNo)
+      maxStripNo=sc.stripNo;
+    
+    m_physStripsInCurl++;
+  }// loop end
+  
+}
+//#############################################################################
+/**
+ *
+ * \brief Fills strip map with virtual strips
+ * \bug current implementation produces wrong number of virtuals
+ * \bug Curl 4102 has diffrent no. of virtuals than 4002.
+ * \todo Try iterating over phi strips map
+ *
+ */
+//#############################################################################
+void RPCCurl::doVirtualStrips(){
+  
+  if (m_didVirtuals){
+    return;
   }
+  m_didVirtuals=true;
+  
+  const float pi = 3.141592654;
 
+  bool firstRun=true;
+  GlobalStripPhiMap newVirtualStrips;
+  
+  double dphi=2.0*pi/1152;
+  
+  float phiMinNext=0, phiMaxNext=0, phiMinLast=0,phiMaxLast=0;
+  uint32_t rawDetIDLast=0,rawDetIDNext=0;
+  //now we iterate over all dets adding virtual strips begining from phiMax+dphi
+  RPCDetInfoPhiMap::const_iterator it;
+  for (it=m_RPCDetPhiMap.begin(); it != m_RPCDetPhiMap.end(); it++){
+    
+    RPCDetInfo *det = &m_RPCDetInfoMap[it->second];
+    
+    /*
+      In first iteration we dont have phiMinLast and phiMinLast values. We must suck them
+      in 'artificial' way
+    */
+    if(firstRun){
+      phiMinNext = det->getMinPhi();
+      phiMaxNext = det->getMaxPhi();
+      rawDetIDNext=it->second; // not really needed
+      
+      RPCDetInfoPhiMap::const_reverse_iterator itTemp = m_RPCDetPhiMap.rbegin();
+      RPCDetInfo *detTemp = &m_RPCDetInfoMap[itTemp->second];
+      phiMinLast=detTemp->getMinPhi();
+      phiMaxLast=detTemp->getMaxPhi();
+      rawDetIDLast= itTemp->second;
+      firstRun=false;
+    }
+    else {
+      rawDetIDLast=rawDetIDNext;
+      rawDetIDNext=it->second;
+      phiMinLast = phiMinNext;
+      phiMaxLast = phiMaxNext;
+      phiMinNext = det->getMinPhi();
+      phiMaxNext = det->getMaxPhi();
+    }
+    
+    float delta = phiMinNext - phiMaxLast;
+    delta += 2*pi*(delta<-5);// (-5) Fixes problem of overlaping chambers
+    
+    if (delta<0)
+      continue;
+    
+    int stripsToAdd = (int)((delta)/dphi+0.5)-1;
+
+    if (m_region==0 && m_hwPlane==1)
+      stripsToAdd--;
+    if (m_region==0 && m_hwPlane==3)
+      stripsToAdd+=2;
+//    if (m_region==0 && m_hwPlane==5)
+//      stripsToAdd=;
+//    if (m_region==0 && m_hwPlane==3)
+//      stripsToAdd=8;
+//    if (stripsToAdd<3)
+//      stripsToAdd=0;//  not add anything
+    
+    stripCords sc;
+    sc.detRawId = rawDetIDLast;
+    sc.stripNo = 0;
+    sc.isVirtual = true;
+    for (int i = 0;i<stripsToAdd;i++){
+        sc.stripNo--;
+        newVirtualStrips[phiMaxLast+dphi*(i+1)]=sc;
+        m_virtStripsInCurl++;
+     }
+    
+  } // loop end over dets
+  
+  m_stripPhiMap.insert(newVirtualStrips.begin(),newVirtualStrips.end() );
 }
 //#############################################################################
 /**
@@ -236,7 +380,7 @@ void RPCCurl::setRefPlane() {
   m_isRefPlane = false;
   if (m_region == 0 && std::abs(m_ring)<2 && m_hwPlane == 2) // for barell wheel -1,0,1 refplane is hwPlane=2
     m_isRefPlane = true;
-  else if (m_region == 0 && std::abs(m_ring)==2 && m_hwPlane == 6) // for barell wheel -2,0,2 refplane is hwPlane=6
+  else if (m_region == 0 && std::abs(m_ring)==2 && m_hwPlane == 6) // for barell wheel -2,2 refplane is hwPlane=6
     m_isRefPlane = true;
   else if (m_region != 0 && m_hwPlane == 2) // for endcaps
     m_isRefPlane = true;
@@ -340,21 +484,41 @@ const unsigned int RPCCurl::LOGPLANE_SIZE[17][6] = {
 */
 //#############################################################################
 void RPCCurl::printContents() {
-  
+
   //*
-  //std::cout << " ---------------------------------------------------" << std::endl;
-  if (isRefPlane())
-    std::cout<<" + ";
-  else
-    std::cout<<"   ";
+  if (getCurlId()==71001){
+
+    GlobalStripPhiMap::const_iterator it;
+    for (it=m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
+      std::cout << "phi" << it->first
+          << " stripNo=" << (it->second).stripNo
+          << " isVirtual=" << (it->second).isVirtual
+          <<std::endl;
+    }
+  }//*/
+
   
-  std::cout << " No. of RPCDetInfo's " << m_RPCDetInfoMap.size()
-  //    << "; towers: min= " << m_towerMin 
-  //    << " max= " << m_towerMax 
-      << " globRoll= " << m_globRoll
+  if (m_virtStripsInCurl+m_physStripsInCurl==1152){
+    std::cout<<"Nothing to see here, move along" << std::endl;
+    return;
+  }
+  
+  if (isRefPlane())
+    std::cout<<"+";
+  else
+    std::cout<<" ";
+  
+  std::cout << "No. of DetInfo's " << m_RPCDetInfoMap.size()
+      << "; towers: min= " << m_towerMin 
+      << " max= " << m_towerMax 
+      << "|globRoll= " << m_globRoll
       << " hwPlane= " << m_hwPlane
-      << " connections: " << m_links.size()
-      << std::endl;;
+      << "|strips:"
+      << " phys= " << m_physStripsInCurl
+      << " virt= " << m_virtStripsInCurl
+      << " all= " << m_virtStripsInCurl+m_physStripsInCurl
+      //<< "|connections: " << m_links.size()
+      << std::endl;
   
   
   /*

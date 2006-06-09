@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/05/31 16:52:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/06 16:25:00 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 
@@ -113,18 +113,22 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
   //loop over reference curls
   for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
         itRefCurl != m_refRPCCurlMap.end();
+        //itRefCurl != ++m_refRPCCurlMap.begin();
         itRefCurl++)
   {
     
+    
+    //(itRefCurl->second).makeConnections(&(itRefCurl->second)); // XXX - clear me!!!
     //loop over other curls
+    //*
     for ( RPCCurlMap::iterator itOtherCurl=m_otherRPCCurlMap.begin(); 
           itOtherCurl != m_otherRPCCurlMap.end();
           itOtherCurl++)
     {
-      (itRefCurl->second).makeConnections(&(itOtherCurl->second));
+      (itRefCurl->second).makeRefConnections(&(itOtherCurl->second));
     
     } //otherCurl loop end
-    
+    //*/
   } // refCurl's loop end
   
   
