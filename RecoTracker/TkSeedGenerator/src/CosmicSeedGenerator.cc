@@ -33,7 +33,7 @@ CosmicSeedGenerator::~CosmicSeedGenerator() { }
 void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
 
-
+ 
 
   
   // get Inputs
@@ -41,14 +41,15 @@ void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
   edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
   e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
-  
+  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits; 	 
+  e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
-
-  cosmic_seed.init(*stereorecHits,*rphirecHits,es);
-
+ 
+  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits,es);
+ 
   // invoke the seed finding algorithm
   cosmic_seed.run(*output,es);
 

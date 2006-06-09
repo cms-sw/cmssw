@@ -11,26 +11,28 @@
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 			      const SiStripRecHit2DLocalPosCollection &collrphi ,
+			      const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 			      const edm::EventSetup& iSetup)
 {
-
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   thePropagatorAl=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
   thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
   theUpdator=       new KFUpdator();
   
-  //
   // get the transient builder
   //
+
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   TTTRHBuilder = theBuilder.product();
 
- CosmicLayerPairs cosmiclayers;
- cosmiclayers.init(collstereo,collrphi,iSetup);
- thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
+
+
+  CosmicLayerPairs cosmiclayers;
+  cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
+  thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
 
 }
 
@@ -42,6 +44,8 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
   float originradius=conf_.getParameter<double>("originRadius");
   float halflength=conf_.getParameter<double>("originHalfLength");
   float originz=conf_.getParameter<double>("originZPosition");
+  builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
   region=GlobalTrackingRegion(ptmin,originradius,
  			      halflength,originz);
 
@@ -82,10 +86,10 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     hits.push_back(HitPairs[0].inner()->clone());
     
 
- 
-    if(outer.y()>0){
-  
-      
+
+    //    if(outer.y()>0){
+    if((outer.y()-inner.y())>0){
+
       GlobalTrajectoryParameters Gtp(outer,
 				     inner-outer,
 				     -1, &(*magfield));
@@ -117,6 +121,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       
     }
     else{
+
       GlobalTrajectoryParameters Gtp(outer,
 				     outer-inner,
 				     -1, &(*magfield));

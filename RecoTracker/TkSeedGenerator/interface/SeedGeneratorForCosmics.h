@@ -29,6 +29,7 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   virtual ~SeedGeneratorForCosmics(){};
   void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	    const SiStripRecHit2DLocalPosCollection &collrphi,
+	    const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 	    const edm::EventSetup& c);
 
 
@@ -49,6 +50,8 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
   const TransientTrackingRecHitBuilder *TTTRHBuilder;
+  std::string builderName;
+  std::string geometry;
 };
 #endif
 

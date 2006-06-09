@@ -47,13 +47,12 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   while ( (oh=outerHits.getHit()) ) {
     LayerHitMapLoop innerHits = innerHitsMap.loop();
     const TkHitPairsCachedHit * ih;
-  
     while ( (ih=innerHits.getHit()) ) {
       float z_diff =ih->z()-oh->z();
       float inny=ih->r()*sin(ih->phi());
       float outy=oh->r()*sin(oh->phi());
      
-     if( (abs(z_diff)<30)&&((inny-outy)<30) &&(inny*outy>0)) 
+      if( (abs(z_diff)<30)&&((abs(inny-outy))<30) &&(inny*outy>0)) 
        allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
     }
     

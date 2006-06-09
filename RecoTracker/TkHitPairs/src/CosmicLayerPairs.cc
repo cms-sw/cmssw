@@ -16,20 +16,22 @@
 vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {
   vector<LayerPair> result;
-
-  //seeds from the barrel
-  
-  result.push_back( LayerPair(lh2,lh3));
-  result.push_back( LayerPair(lh1,lh3));
   result.push_back( LayerPair(lh1,lh2));
+  //seeds from the barrel
+  if (_geometry=="STANDARD"){
+    result.push_back( LayerPair(lh2,lh3));
+    result.push_back( LayerPair(lh1,lh3));
+  }
 
   return result;
 }
 
 void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 			    const SiStripRecHit2DLocalPosCollection &collrphi, 
+			    const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+			    std::string geometry,
 			    const edm::EventSetup& iSetup){
-
+  _geometry=geometry;
 
   edm::ESHandle<GeometricSearchTracker> track;
 
@@ -38,20 +40,29 @@ void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  rphi_range1=collrphi.get(acc.stripTOBLayer(4));
-  rphi_range2=collrphi.get(acc.stripTOBLayer(5));
-  rphi_range3=collrphi.get(acc.stripTOBLayer(6));
-
-  const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[10]);
-  const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[11]);
-  const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[12]);
-
+  LogDebug("CosmicSeedFinder") <<"Reconstruction fro geometry  "<<_geometry;
+  if (_geometry=="STANDARD"){
+    rphi_range1=collrphi.get(acc.stripTOBLayer(4));
+    rphi_range2=collrphi.get(acc.stripTOBLayer(5));
+    rphi_range3=collrphi.get(acc.stripTOBLayer(6));
+    
+    const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[10]);
+    const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[11]);
+    const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[12]);
+    
   
 
-//   //LayersWithHits
-  lh1=new  LayerWithHits(bl1,rphi_range1);
-  lh2=new  LayerWithHits(bl2,rphi_range2);
-  lh3=new  LayerWithHits(bl3,rphi_range3);
-
+    //   //LayersWithHits
+    lh1=new  LayerWithHits(bl1,rphi_range1);
+    lh2=new  LayerWithHits(bl2,rphi_range2);
+    lh3=new  LayerWithHits(bl3,rphi_range3);
+  }
+  if(_geometry=="MTCC"){ 
+    const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[0]);
+    const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[1]);
+    match_range1=collmatched.get(acc.stripTIBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
+    lh1=new  LayerWithHits(bl1,match_range1);
+    lh2=new  LayerWithHits(bl2,rphi_range2);
+  }
 }
