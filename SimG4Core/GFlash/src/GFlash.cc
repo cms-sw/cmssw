@@ -9,7 +9,7 @@
 #include "SimG4Core/Packaging/src/MuonPhysics.hh"
 #include "SimG4Core/Packaging/src/IonPhysics.hh"
 
-GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p)
+GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p), caloModel(0)
 {
     G4DataQuestionaire it(photon);
     std::cout << "You are using the simulation engine: QGSP 2.8 + CMS GFLASH" << std::endl;
