@@ -114,8 +114,22 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	ndof = ndof - 5;
 
 	//SORT RECHITS ALONGMOMENTUM
+	TransientTrackingRecHit * firstHit;
+	for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.begin(); it!=tmp.end();it++){
+	  if (it->isValid()) {
+	    firstHit=*it;
+	    break;
+	  }
+	}
+	TransientTrackingRecHit * lastHit;
+	for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	  if (it->isValid()) {
+	    lestHit=*it;
+	    break;
+	  }
+	}
+	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()){
 	//FIXME temporary should use reverse
-	if (tmp.begin()->globalPosition().mag2() > (tmp.end()-1)->globalPosition().mag2()){
 	  for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
 	    hits.push_back(it->clone());
 	  }
