@@ -1,6 +1,6 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/src/CurrentG4Track.h"
-#include "SimG4Core/Application/src/NewTrackAction.h"
+#include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Notification/interface/NewTrackAction.h"
  
 StackingAction::StackingAction() {}
 
