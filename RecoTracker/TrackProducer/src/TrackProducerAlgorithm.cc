@@ -96,8 +96,8 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	//meanwhile computes the number of degrees of freedom
 
-	edm::OwnVector<TransientTrackingRecHit> tmp;
-	edm::OwnVector<TransientTrackingRecHit> hits;
+	TransientTrackingRecHit::RecHitContainer tmp;
+	TransientTrackingRecHit::RecHitContainer hits;
 	
 	float ndof=0;
 	
@@ -114,23 +114,23 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	ndof = ndof - 5;
 
 	//SORT RECHITS ALONGMOMENTUM
-	TransientTrackingRecHit * firstHit;
-	for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.begin(); it!=tmp.end();it++){
+	const TransientTrackingRecHit * firstHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
 	  if (it->isValid()) {
-	    firstHit=*it;
+	    firstHit=&(*it);
 	    break;
 	  }
 	}
-	TransientTrackingRecHit * lastHit;
-	for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	const TransientTrackingRecHit * lastHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
 	  if (it->isValid()) {
-	    lestHit=*it;
+	    lastHit=&(*it);
 	    break;
 	  }
 	}
-	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()){
+	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ){
 	//FIXME temporary should use reverse
-	  for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+	  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
 	    hits.push_back(it->clone());
 	  }
 	} else hits=tmp;
