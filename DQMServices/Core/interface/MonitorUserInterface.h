@@ -16,16 +16,30 @@ class MonitorUserInterface : public StringUtil
 
  protected:
   /* Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
-     using <client_name>; if hostname ="", no connection will be attempted
-     MonitorUserInterface(const std::string hostname, int port_no, 
-                          const std::string client_name,
-		        // use delay < 0 for no reconnection attempts
-		        int reconnect_delay_secs = 5); */
+     using <client_name>; if flag=true, client will accept downstream connections
+     MonitorUserInterface(std::string hostname,int port_no,std::string client_name,
 
-  // Use the default constructor for running in standalone mode (ie. no collector)
-  MonitorUserInterface(void);
-  // when in standalone mode, there is no client
-  virtual bool standaloneMode(void) const = 0;
+     int reconnect_delay_secs = 5, bool actAsServer = false); */
+
+  /* Connect with monitoring server (DQM Collector) with a list of hostnames at 
+     <port_no> using <client_name>;   
+     if flag=true, client will accept downstream connections
+     MonitorUIRoot::MonitorUIRoot(std::vector<std::string> hostnames, int port_no, 
+     std::string client_name, int reconnect_delay_secs=5, bool actAsServer=false); */ 
+
+/* Use the default constructor for running in standalone mode (ie. without
+   sources or collectors); if flag=true, client will accept downstream connections
+*/
+  MonitorUserInterface(bool actAsServer = false);
+ 
+  inline bool isServer() const {return actAsServer_;}
+  // flag for accepting downstream connections
+  bool actAsServer_; 
+ // when in "standalone mode", there are no upstream connections
+  // (but there may be downstream clients...)
+  bool needUpstreamConnections() const {return !standaloneMode_;}
+  // 
+  bool standaloneMode_;
 
  public:
 
@@ -35,24 +49,33 @@ class MonitorUserInterface : public StringUtil
   // ---------------- Getters -----------------------------
   // get ME from full pathname (e.g. "my/long/dir/my_histo")
   virtual MonitorElement * get(const std::string & fullpath) const = 0;
-  // this is the "main" loop where we receive monitoring;
+  // this is the "main" loop where we receive monitoring/send subscription requests;
+  // if client acts as server, method runQTests is also sending monitoring & 
+  // test results to clients downstream;
   // returns success flag
   bool update(void);
 
   // *****************  NOTE ******************************************
   // instead of calling "update", users can use the following two methods:
-  // 1. retrieval of monitoring, sending of subscription requests/cancellations,
+  // 1. Retrieval of monitoring, sending of subscription requests/cancellations,
   // calculation of "collate"-type Monitoring Elements;
   // returns success flag
   virtual bool doMonitoring(void) = 0;
-  // 2. run quality tests on all MonitorElements that have been updated (or added)
-  // since last monitoring cycle
+  // 2. Run quality tests on all MonitorElements that have been updated (or added)
+  // since last monitoring cycle;
+  // Method is overloaded if client acts as server to other clients downstream
   virtual void runQTests(void)
   {bei->runQTests();}
   // *****************  NOTE ******************************************
 
+  // allow downstream clients to connect to this client
+  // (to be used only with no-arg ctor; use boolean switch for other ctors)
+  virtual void actAsServer(int port_no, std::string client_name) = 0;
+
   // return # of monitoring cycles received
   virtual int getNumUpdates(void) const = 0;
+  // set maximum # of attempts to reconnect to server (upon connection problems)
+  virtual void setMaxAttempts2Reconnect(unsigned Nrecon_attempts) = 0;
 
   // get pointer to back-end interface
   DaqMonitorBEInterface * getBEInterface(void){return bei;}
