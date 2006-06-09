@@ -9,6 +9,43 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
+  
+  // Consistency check with HW addresses
+  if ( fecCrate_ && fecCrate_ != conn.fecCrate() ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addDevices]" 
+				<< " Unexpected FEC crate ("
+				<< conn.fecCrate() << ") for this module ("
+				<< fecCrate_ << ")!";
+    return;
+  }
+  if ( fecSlot_ && fecSlot_ != conn.fecSlot() ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addDevices]" 
+				<< " Unexpected FEC slot ("
+				<< conn.fecSlot() << ") for this module ("
+				<< fecSlot_ << ")!";
+    return;
+  }
+  if ( fecRing_ && fecRing_ != conn.fecRing() ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addDevices]" 
+				<< " Unexpected FEC ring ("
+				<< conn.fecRing() << ") for this module ("
+				<< fecRing_ << ")!";
+    return;
+  }
+  if ( ccuAddr_ && ccuAddr_ != conn.ccuAddr() ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addDevices]" 
+				<< " Unexpected CCU addr ("
+				<< conn.ccuAddr() << ") for this module ("
+				<< ccuAddr_ << ")!";
+    return;
+  }
+  if ( ccuChan_ && ccuChan_ != conn.ccuChan() ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addDevices]" 
+				<< " Unexpected CCU chan ("
+				<< conn.ccuChan() << ") for this module ("
+				<< ccuChan_ << ")!";
+    return;
+  }
 
   // APVs
   addApv( conn.i2cAddr(0) );
@@ -65,22 +102,46 @@ vector<uint16_t> SiStripModule::activeApvs() const {
 // -----------------------------------------------------------------------------
 //
 void SiStripModule::addApv( const uint16_t& apv_address ) {
-  if      ( apv_address == 32 ) { apv0x32_ = 32; }
-  else if ( apv_address == 33 ) { apv0x33_ = 33; }
-  else if ( apv_address == 34 ) { apv0x34_ = 34; }
-  else if ( apv_address == 35 ) { apv0x35_ = 35; }
-  else if ( apv_address == 36 ) { apv0x36_ = 36; }
-  else if ( apv_address == 37 ) { apv0x37_ = 37; }
-  else if ( apv_address == 0 )  { } //@@ nothing?
-  else { edm::LogError("FecCabling") << "[SiStripFecCabling::addApv]" 
-				     << " Unexpected I2C address (" 
-				     << apv_address << ") for APV!"; }
-  stringstream ss;
-  ss << "[SiStripModule::addApv] Found following APV devices: ";
-  for ( uint16_t iapv = 32; iapv < 38; iapv++ ) {
-    if ( activeApv(iapv) ) { ss << activeApv(iapv) << ", "; }
+
+  // Some checks on value of APV I2C address
+  if ( apv_address == 0 ) {
+    edm::LogWarning("FecCabling") << "[SiStripFecCabling::addApv]" 
+				  << " Null APV I2C address!"; 
+    return;
+  } else if ( apv_address < 32 && apv_address > 37 ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addApv]" 
+				<< " Unexpected I2C address (" 
+				<< apv_address << ") for APV!"; 
+    return;
   }
-  LogDebug("FecCabling") << ss.str();
+
+  bool added_apv = false; 
+  if      ( !apv0x32_ && apv_address == 32 ) { apv0x32_ = 32; added_apv = true; }
+  else if ( !apv0x33_ && apv_address == 33 ) { apv0x33_ = 33; added_apv = true; }
+  else if ( !apv0x34_ && apv_address == 34 ) { apv0x34_ = 34; added_apv = true; }
+  else if ( !apv0x35_ && apv_address == 35 ) { apv0x35_ = 35; added_apv = true; }
+  else if ( !apv0x36_ && apv_address == 36 ) { apv0x36_ = 36; added_apv = true; }
+  else if ( !apv0x37_ && apv_address == 37 ) { apv0x37_ = 37; added_apv = true; }
+  else { 
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addApv]" 
+				<< "APV with I2C address " 
+				<< apv_address
+				<< " already exists!"; 
+  }
+  
+  if ( added_apv ) { 
+    stringstream ss;
+    ss << "[SiStripModule::addApv] Added new APV with HW addresses:"
+       << " FecCrate/FecSlot/CcuAddr/CcuChan/I2cAddr: "
+       << fecCrate_ << "/"
+       << fecSlot_ << "/"
+       << fecRing_ << "/"
+       << ccuAddr_ << "/"
+       << ccuChan_ << "/"
+       << apv_address;
+    LogDebug("FecCabling") << ss.str();
+  } 
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -93,7 +154,9 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
     if ( apv0x34_ || apv0x35_ ) { nApvPairs_++; }
     if ( apv0x36_ || apv0x37_ ) { nApvPairs_++; }
   } else { 
-    edm::LogError("FecCabling") << "[SiStripModule::nApvPairs] Unexpected number of APV pairs: " << npairs;
+    edm::LogError("FecCabling") << "[SiStripModule::nApvPairs]"
+				<< " Unexpected number of APV pairs: " 
+				<< npairs;
   }
 } 
 
@@ -195,7 +258,7 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 // -----------------------------------------------------------------------------
 //
 void SiStripModule::print() const {
-  std::stringstream ss;
+  stringstream ss;
   ss << "[SiStripModule::print]"
      << "  FecCrate/FecSlot/CcuAddr/CcuChan: "
      << "?/" // << fecCrate() << "/"
@@ -215,10 +278,10 @@ void SiStripModule::print() const {
      << pll() << "/"
      << lld() 
      << "  DcuId/DetId/nPairs: "
-     << std::hex
-     << std::setfill('0') << std::setw(8) << dcuId() << "/"
-     << std::setfill('0') << std::setw(8) << detId() << "/"
-     << std::dec
+     << hex
+     << setfill('0') << setw(8) << dcuId() << "/"
+     << setfill('0') << setw(8) << detId() << "/"
+     << dec
      << nApvPairs();
   ss << "  nConnected/apvAddr-FedId-FedCh: " 
      << fedChannels().size() << "/";

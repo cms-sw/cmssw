@@ -47,24 +47,24 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
-  LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-			 << " Adding new Device with following I2C addresses. " 
-			 << " FEC crate: " << conn.fecCrate()
-			 << " FEC slot: " << conn.fecSlot()
-			 << " FEC ring: " << conn.fecRing()
-			 << " CCU addr: " << conn.ccuAddr()
-			 << " CCU chan: " << conn.ccuChan();
+  //   LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+  // 			 << " Adding new Device with following I2C addresses. " 
+  // 			 << " FEC crate: " << conn.fecCrate()
+  // 			 << " FEC slot: " << conn.fecSlot()
+  // 			 << " FEC ring: " << conn.fecRing()
+  // 			 << " CCU addr: " << conn.ccuAddr()
+  // 			 << " CCU chan: " << conn.ccuChan();
   vector<SiStripFecCrate>::const_iterator icrate = crates().begin();
   while ( icrate != crates().end() && (*icrate).fecCrate() != conn.fecCrate() ) { icrate++; }
   if ( icrate == crates().end() ) { 
-    LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-			   << " Adding new FEC crate with address " 
-			   << conn.fecCrate();
+    //     LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+    // 			   << " Adding new FEC crate with address " 
+    // 			   << conn.fecCrate();
     crates_.push_back( SiStripFecCrate( conn ) ); 
   } else { 
-    LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-			   << " FEC crate already exists with address " 
-			   << icrate->fecCrate();
+    //     LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+    // 			   << " FEC crate already exists with address " 
+    // 			   << icrate->fecCrate();
     const_cast<SiStripFecCrate&>(*icrate).addDevices( conn ); 
   }
 }
@@ -209,6 +209,11 @@ const NumberOfDevices& SiStripFecCabling::countDevices() const {
   return num_of_devices;
   
 }
+
+// -----------------------------------------------------------------------------
+// 
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+EVENTSETUP_DATA_REG(SiStripFecCabling);
 
 // -----------------------------------------------------------------------------
 //

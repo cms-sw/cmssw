@@ -1,6 +1,6 @@
-// Last commit: $Id$
-// Latest tag:  $Name$
-// Location:    $Source$
+// Last commit: $Id: SiStripModule.h,v 1.1 2006/06/02 13:16:28 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -20,7 +20,11 @@ class SiStripModule {
   
   /** */
   SiStripModule( const FedChannelConnection& conn ) 
-    : ccuChan_( conn.ccuChan() ), 
+    : fecCrate_( conn.fecCrate() ), 
+    fecSlot_( conn.fecSlot() ), 
+    fecRing_( conn.fecRing() ), 
+    ccuAddr_( conn.ccuAddr() ), 
+    ccuChan_( conn.ccuChan() ), 
     apv0x32_(0), apv0x33_(0), apv0x34_(0), apv0x35_(0), apv0x36_(0), apv0x37_(0), 
     dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0),
     dcuId_(0), detId_(0), nApvPairs_(0),
@@ -123,6 +127,10 @@ class SiStripModule {
 
  private: 
   
+  uint16_t fecCrate_;
+  uint16_t fecSlot_;
+  uint16_t fecRing_;
+  uint16_t ccuAddr_;
   uint16_t ccuChan_;
   
   // APVs found (with hex addr)  
