@@ -66,6 +66,7 @@ using namespace edm;
     using namespace edm;
     bool pixeldebug = true;
     int pixelcounter = 0;
+    int stripcounter=0;
 
     //std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
     
@@ -127,16 +128,25 @@ using namespace edm;
 	for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DLocalPos const rechit=*iter;
 	  int i=0;
-	  //--- add matching code here for testing
-	  //cout << "---> try association RPHI! " << endl;
+	  stripcounter++;
+	  cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	  float mindist = 999999;
+	  float dist;
+	  PSimHit closest;
 	  matched.clear();
 	  matched = associate.associateHit(rechit);
 	  if(!matched.empty()){
-	    cout << " detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
-		    cout << " matched = " << matched.size() << endl;
+	    cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	    if(matched.size()>1) cout << " matched = " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      cout << " hit  ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
+	      cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
+	      dist = rechit.localPosition().x() - (*m).localPosition().x();
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
 	    }  
+	    cout << " Closest Simhit = " << closest.localPosition() << endl;
 	  }
 	  i++;
 	} 

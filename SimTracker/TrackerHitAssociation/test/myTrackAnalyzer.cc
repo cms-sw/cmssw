@@ -67,11 +67,14 @@ class TrackerHitAssociator;
 	  cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
 	  cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
 	  //try SimHit matching
+	  float mindist = 999999;
+	  float dist;
+	  PSimHit closest;
 	  matched.clear();	  
 	  matched = associate.associateHit((**it));
 	  if(!matched.empty()){
 	    cout << "\t\t\tmatched  " << matched.size() << endl;
-	    // 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    // 	      cout << "\t\t\tSimhit  ID  " << (*m).trackId() 
 	    // 		   << "\t\t\tSimhit  LP  " << (*m).localPosition() 
 	    // 		   << "\t\t\tSimhit  GP  " << theG->idToDet((*it)->geographicalId())->surface().toGlobal((*m).localPosition()) << endl;   
@@ -83,7 +86,13 @@ class TrackerHitAssociator;
 	    //  << "\t\t\tSimhit  GP  " << theG->idToDet((*it)->geographicalId())->surface().toGlobal(matched[0].localPosition()) << endl;   
 	    //cout << "Track parameters " << theSimTracks[matched[0].trackId()].momentum() << endl;
 	    //now figure out which is the majority of the ids
-	    SimTrackIds.push_back(matched[0].trackId());
+	      dist = (*it)->localPosition().x() - (*m).localPosition().x();
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
+	    }
+	    SimTrackIds.push_back(closest.trackId());
 	  }
 	}else{
 	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
