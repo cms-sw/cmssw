@@ -3,6 +3,20 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 
+/*!
+ * \author Jim Brooke
+ * \date May 2006
+ */
+
+/*! \class L1GctMap
+ * \brief Get position information from Region, jet, EM objects
+ *
+ * This is a singleton, which breaks coding rules. Will be converted
+ * to appropriate mechanism once we know what that is!
+ *
+ */
+
+
 class L1GctMap {
  public:
 
@@ -38,10 +52,10 @@ class L1GctMap {
   /// get the global phi index
   unsigned phi(L1GctRegion r);
 
-  /// get physical eta 
+  // get physical eta 
   // double eta(L1GctRegion r);
 
-  /// get physical eta 
+  // get physical eta 
   //  double phi(L1GctRegion r);
 
   /// get ID from eta, phi indices

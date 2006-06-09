@@ -3,6 +3,19 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
+/*!
+ * \author Jim Brooke
+ * \date May 2006
+ */
+
+/*! \class L1GctEtScales
+ * \brief Convert digital Et scales to physical units
+ *
+ * This is a singleton, which breaks coding rules. Will be converted
+ * to appropriate mechanism once we know what that is!
+ *
+ */
+
 class L1GctEtScales {
  public:
   
@@ -16,16 +29,16 @@ class L1GctEtScales {
   }
   
 
-  /// electron Et
+  /// get electron Et
   double et(L1GctEmCand cand);
 
-  /// jet Et
+  /// get jet Et
   double et(L1GctCenJet cand);
 
-  /// jet Et
+  /// get jet Et
   double et(L1GctTauJet cand);
 
-  /// jet Et
+  /// get jet Et
   double et(L1GctForJet cand);
 
 

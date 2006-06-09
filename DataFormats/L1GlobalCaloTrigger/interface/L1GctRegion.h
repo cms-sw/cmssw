@@ -4,25 +4,27 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-//#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
-
-/*
- * A calorimeter trigger region
- * author: Jim Brooke, Robert Frazier
- * date: 20/2/2006
- * 
+/*!
+ * \author Jim Brooke & Robert Frazier
+ * \date May 2006
  */
 
-//class L1GctMap;
+/*!
+ * \class L1GctRegion
+ * \brief A calorimeter trigger region (sum of 4x4 trigger towers)
+ */
+
 
 class L1GctRegion
 {
 public:
+
+  /// constructor
   L1GctRegion(unsigned id=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
+
+  /// destructor
   ~L1GctRegion();
   
-  // region position //
-
   /// get Region ID - defined for now as 18eta + phi
   unsigned id() const { return m_id; }
   
@@ -55,8 +57,6 @@ public:
   /// get quiet bit
   bool quiet() const { return ((m_data>>13) & 0x1)!=0; }
 
-
-  // set methods //
 
   /// set MIP bit (required because MIP/quiet bits arrive at different source card from the rest of the region!)
   void setMip(bool mip);
