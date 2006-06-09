@@ -4,9 +4,6 @@
 // Joanna Weng 08.2005
 // setup of volumes for GFLASH
 
-#include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Geometry/interface/DDDWorld.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 class GFlashHomoShowerParamterisation;
@@ -17,13 +14,13 @@ class GFlashParticleBounds;
 /* observes the world volume (standard COBRA  Observer) and creates  
 theFastShowerModel and theParametrisation for the logical volumes 
 named in OscarApplication/G4SimApplication/test/ShowerModelVolumes.xml  */
-class CaloModel : public Observer<const DDDWorld *>
+class CaloModel 
 {
 public:
     CaloModel(edm::ParameterSet const & p);
     ~CaloModel();
-    void update(const DDDWorld * w);  
 private:
+    void build();  
     GFlashHomoShowerParamterisation *theParametrisation;
     GFlashHitMaker *theHMaker;
     GFlashParticleBounds *theParticleBounds;

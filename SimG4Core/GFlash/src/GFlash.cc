@@ -12,7 +12,7 @@ GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p)
 {
     G4DataQuestionaire it(photon);
     std::cout << "You are using the simulation engine: QGSP 2.8 + CMS GFLASH" << std::endl;
-  
+
     RegisterPhysics(new GeneralPhysics("general"));
     RegisterPhysics(new EMPhysics("EM"));
     RegisterPhysics(new MuonPhysics("muon"));
