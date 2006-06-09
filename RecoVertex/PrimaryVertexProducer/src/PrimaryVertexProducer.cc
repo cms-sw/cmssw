@@ -58,26 +58,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       << "Reconstructing event number: " << iEvent.id() << "\n";
     
     // get RECO tracks from the event
-    edm::Handle<reco::TrackCollection> trackCollection;
-    //    iEvent.getByLabel("recoTracks", trackCollection);
-    //    iEvent.getByType(trackCollection);
+    // `tks` can be used as a ptr to a reco::TrackCollection
+    edm::Handle<reco::TrackCollection> tks;
+    iEvent.getByLabel(trackLabel(), tks);
 
-    iEvent.getByLabel(trackLabel(), trackCollection);
-    //    std::vector< edm::Handle<reco::TrackCollection> > trackCollections;
-    //    iEvent.getManyByType(trackCollections);
-    //    trackCollection = trackCollections[1];
-
-    reco::TrackCollection tks = *(trackCollection.product());
-    
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << tks.size() << " reconstructed tracks" << "\n";
-    cout << "got " << tks.size() << " tracks " << endl;
+      << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
+    cout << "got " << (*tks).size() << " tracks " << endl;
     vector<TransientTrack> t_tks;
-    for (reco::TrackCollection::const_iterator it = tks.begin();
-	 it != tks.end(); it++) {
+    for (unsigned int i = 0; i < (*tks).size() ; i++) {
+      TrackRef trkRef(tks, i);
+      t_tks.push_back(trkRef);
+    }
+
+    /* for (reco::TrackCollection::const_iterator it = (*tks).begin();
+            it != (*tks).end(); it++) {
       t_tks.push_back(*it);
     }
+    */
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
@@ -98,15 +97,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
-      //      TransientVertex tv = kvf.vertex(t_tks);
-      CachingVertex tv = kvf.vertex(t_tks);
+      TransientVertex tv = kvf.vertex(t_tks);
+      // CachingVertex tv = kvf.vertex(t_tks);
       Vertex v(Vertex::Point(tv.position()), 
-	       //	       RecoVertex::convertError(tv.positionError()), 
-	       RecoVertex::convertError(tv.error()), 
+	       RecoVertex::convertError(tv.positionError()), 
+	       // RecoVertex::convertError(tv.error()), 
 	       (tv).totalChiSquared(), 
 	       (tv).degreesOfFreedom() , 
-	       (tv).tracks().size());
-      //	       (tv).originalTracks().size());
+	       // (tv).tracks().size());
+      	       (tv).originalTracks().size());
       vColl.push_back(v);
     }
     
