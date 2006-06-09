@@ -20,7 +20,7 @@
 #include "GFlashParticleBounds.hh"
 
 CaloModel::CaloModel(const edm::ParameterSet & p) : 
-  m_pCaloModel(p.getParameter<edm::ParameterSet>("GFlashCaloModel")) 
+  m_pCaloModel(p) 
 { 
   build();
   std::cout <<" CaloModel built !!!  "<< std::endl;
@@ -82,9 +82,9 @@ void CaloModel::build()
 		barrel_log->GetFastSimulationManager()->AddFastSimulationModel(theShowerModel);
 	}
 	
-	double pEmin = m_pCaloModel.getParameter<double>("Emin");
-	double pEmax = m_pCaloModel.getParameter<double>("Emax");
-	double pToKill = m_pCaloModel.getParameter<double>("EToKill");
+	double pEmin = m_pCaloModel.getParameter<double>("GFlashEmin");
+	double pEmax = m_pCaloModel.getParameter<double>("GFlashEmax");
+	double pToKill = m_pCaloModel.getParameter<double>("GFlashEToKill");
 	theParticleBounds->SetMaxEneToParametrise(*G4Electron::ElectronDefinition(), pEmax);
 	theParticleBounds->SetMinEneToParametrise(*G4Electron::ElectronDefinition(), pEmin); 
 	theParticleBounds->SetEneToKill(*G4Electron::ElectronDefinition(), pToKill);	

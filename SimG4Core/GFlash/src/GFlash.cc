@@ -1,4 +1,5 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
+#include "SimG4Core/GFlash/interface/CaloModel.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/GFlash/src/DefaultHadronPhysicsQGSP.hh"
 
@@ -13,6 +14,7 @@ GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p)
     G4DataQuestionaire it(photon);
     std::cout << "You are using the simulation engine: QGSP 2.8 + CMS GFLASH" << std::endl;
 
+    if (caloModel==0) caloModel = new CaloModel(p);
     RegisterPhysics(new GeneralPhysics("general"));
     RegisterPhysics(new EMPhysics("EM"));
     RegisterPhysics(new MuonPhysics("muon"));
@@ -21,5 +23,5 @@ GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p)
     RegisterPhysics(new ParametrisedPhysics("parametrised"));
 }
 
-GFlash::~GFlash() {}
+GFlash::~GFlash() { if (caloModel!=0) delete caloModel; }
 

@@ -6,12 +6,15 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
+class CaloModel;
+
 class GFlash : public PhysicsList
 {
-
 public:
     GFlash(const edm::ParameterSet & p);
     virtual ~GFlash();
+private:
+    CaloModel * caloModel;   
 };
 
 #endif
