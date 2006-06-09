@@ -1,32 +1,3 @@
-/****
-   This code basically performs following steps
-
-   // make a buffer area to "serial" the information
-   vector<unsigned char> buf(1024);
-
-   // write the header in to the buffer during construction
-   InitMsgBuilder init_build(&buf[0],buf.size(), ... all the data for the header);
-   // write the registry directly after the header
-   unsigned int bytes_written = serialize_registry_here(registry_thing, init_build.dataAddress());
-   init_build.setDescLength(bytes_written);
-     // write an event header into the buffer during construction
-   EventMsgBuilder evt_build(&buf[0],buf.size(), ... all the header data);
-   // write the event data after the header
-   unsigned int bytes_written = serial_event_here(event,evt_build.eventData());
-   evt_build.setEventLength(bytes_written);
-
-   // look at the init message
-   InitMsgView init_view(&buf[0],buf.size());
-   // use member function to pull out the data
-
-   // look at the event message
-   EventMsgView evt_view(&buf[0],buf.size());
-   // use member functions to pull out the data
-
-*****/
-
-
-
 #include <iostream>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
@@ -34,72 +5,9 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
+#include "IOPool/Streamer/interface/DumpTools.h"
+
 using namespace std;
-
-void dumpInit(uint8* buf, uint32 bufsize)
-{
-  InitMsgView view(buf,bufsize);
-
-  cout
-    << "code = " << view.code() << ", "
-    << "size = " << view.size() << "\n"
-    << "run = " << view.run() << ", "
-    << "proto = " << view.protocolVersion() << "\n"
-    << "release = " << view.releaseTag() << "\n";
-
-  uint8 vpset[17];
-  view.pset(vpset);
-  vpset[16]='\0';
-  Strings vhltnames,vl1names;
-  view.hltTriggerNames(vhltnames);
-  view.l1TriggerNames(vl1names);
-
-  cout << "pset = " << vpset << "\n";
-  cout << "\nHLT names = \n";
-  copy(vhltnames.begin(),vhltnames.end(),ostream_iterator<string>(cout,"\n"));
-  cout << "\nL1 names = \n";
-  copy(vl1names.begin(),vl1names.end(),ostream_iterator<string>(cout,"\n"));
-  cout << "\n";
-
-  cout << "desc len = " << view.descLength() << "\n";
-  const uint8* pos = view.descData();
-  copy(pos,pos+view.descLength(),ostream_iterator<uint8>(cout,""));
-  cout << "\n";
-}
-
-void dumpEvent(uint8* buf,uint32 bufsize,uint32 hltsize,uint32 l1size)
-{
-  EventMsgView eview(buf,bufsize,hltsize,l1size);
-
-  cout << "----------------------\n";
-  cout << "code=" << eview.code() << "\n"
-       << "size=" << eview.size() << "\n"
-       << "run=" << eview.run() << "\n"
-       << "event=" << eview.event() << "\n"
-       << "lumi=" << eview.lumi() << "\n"
-       << "reserved=" << eview.reserved() << "\n"
-       << "event length=" << eview.eventLength() << "\n";
-
-  std::vector<bool> l1_out;
-  uint8 hlt_out[10];
-  eview.l1TriggerBits(l1_out);
-  eview.hltTriggerBits(hlt_out);
-
-  cout << "\nl1 size= " << l1_out.size() << " l1 bits=\n";
-  copy(l1_out.begin(),l1_out.end(),ostream_iterator<bool>(cout," "));
-
-  cout << "\nhlt bits=\n(";
-  copy(&hlt_out[0],&hlt_out[0]+hltsize/4,ostream_iterator<char>(cout,""));
-  cout << ")\n";
-
-  const uint8* edata = eview.eventData();
-  cout << "\nevent data=\n(";
-  copy(&edata[0],&edata[0]+eview.eventLength(),
-       ostream_iterator<char>(cout,""));
-  cout << ")\n";
-
-}
-
 
 int main()
 { 
@@ -137,9 +45,6 @@ int main()
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 
-  cout<<"\n\nAnzar:::Dumping Init Msg::\n"<<endl;
-  dumpInit(&buf[0],buf.size());
-
   InitMsgView view(&buf[0],buf.size());
   uint8 psetid2[16];
   Strings hlt2;
@@ -158,9 +63,6 @@ int main()
   init2.setDescLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
             init2.dataAddress());
-
-  cout<<"\n\nAnzar:::Dumping Init Msg After Copying::\n"<<endl;
-  dumpInit(&buf2[0],buf2.size());
 
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
@@ -189,10 +91,6 @@ int main()
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             emb.eventAddr());
 
-  cout<<"Anzar: Dumping Event:\n"<<endl;
-  cout << "l1bit size input=" << l1bit.size() << "\n";
-  dumpEvent(&buf[0],buf.size(),hltsize,l1bit.size());
-
   // ------ check for sameness
 
   EventMsgView eview(&buf[0],buf.size(),hltsize,l1bit.size());
@@ -214,9 +112,6 @@ int main()
   emb2.setEventLength(eview.eventLength());
   std::copy(eview.eventData(),eview.eventData()+eview.eventLength(),
             emb2.eventAddr());
-
-  cout<<"Anzar: Dumping Recreated Event:\n"<<endl;
-  dumpEvent(&buf2[0],buf2.size(),hltsize,l1_out.size());
 
   if(equal(&buf[0],&buf[0]+emb.size(),buf2.begin())==false)
     {
