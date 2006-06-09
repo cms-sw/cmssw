@@ -1,0 +1,31 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/TrajectorySeed>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=RecoEgamma/EgammaPhotonAlgos>
+<use name=DataFormats/Math>
+<use name=RecoEcal/EgammaClusterProducers>
+<use name=RecoTracker/MeasurementDet>
+<use name=RecoTracker/CkfPattern>
+<use name=clhep>
+<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaPhotonProducers">
+<export>
+  <lib name=RecoEgammaEgammaPhotonProducers>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/EgammaCandidates
+  <use name=DataFormats/TrajectorySeed>
+  <use name=Geometry/CaloEventSetup>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloTopology>
+  <use name=RecoEcal/EgammaClusterAlgos>
+  <use name=RecoEgamma/EgammaPhotonAlgos> 
+  <use name=DataFormats/Math>
+  <use name=RecoTracker/MeasurementDet>
+  <use name=RecoTracker/CkfPattern>
+  <use name=clhep>
+</export>
