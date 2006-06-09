@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.3 2006/04/13 21:26:35 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.4 2006/05/22 21:33:38 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -67,6 +67,8 @@ namespace edm
       void write(ParseResults& parsetree, std::ostream& out);
 
     private:
+      // common code for PSet & ContentsNodes
+      void writeCompositeNode(const CompositeNode & n);
       // Data accumulated while walking the tree.
 
       // Mapping type of module to printable contents

@@ -199,7 +199,12 @@ namespace edm
     PythonFormWriter::visitContents(const ContentsNode& n)
     { 
       MYDEBUG(5) << "Saw a ContentsNode\n";
+      writeCompositeNode(n);
+    }
 
+
+    void PythonFormWriter::writeCompositeNode(const CompositeNode &n)
+    {
       // If the module stack is not empty, we're working on a PSet
       // inside a module (maybe inside something inside of a
       // module). Otherwise, we're working on a top-level PSet (not
@@ -261,8 +266,7 @@ namespace edm
 
 	  moduleStack_.top() += out.str();
 
-	  // Now print the guts...
-	  n.acceptForChildren(*this);
+	  writeCompositeNode(n);
 
 	  // And finish up
 	  //moduleStack_.top() += ")\n";
