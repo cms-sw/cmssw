@@ -150,7 +150,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   providedParameters.insert(std::make_pair("X0",clustershape_x0));
   providedParameters.insert(std::make_pair("T0",clustershape_t0));
   providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, &rechits_m, hitCollection, geometry_p);
+  PositionCalc::Initialize(providedParameters, &rechits_m, geometry_p);
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
