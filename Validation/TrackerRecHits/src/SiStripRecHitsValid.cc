@@ -316,8 +316,18 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 	matched.clear();
 	matched = associate.associateHit(rechit);
+	float mindist = 999999;
+	float dist;
+	PSimHit closest;
 	if(!matched.empty()){
-	  rechitrphires[i] = rechitrphix[i] - matched[0].localPosition().x();
+	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    dist = rechitrphix[i] - (*m).localPosition().x();
+	    if(dist<mindist){
+	      mindist = dist;
+	      closest = (*m);
+	    }
+	    rechitrphires[i] = rechitrphix[i] - closest.localPosition().x();
+	  }  
 	}
 	i++;
       }
@@ -351,10 +361,20 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	clusizsas[j] = clusiz;
 	cluchgsas[j] = totcharge;
 	
+	float mindist = 999999;
+	float dist;
+	PSimHit closest;
 	matched.clear();
 	matched = associate.associateHit(rechit);
 	if(!matched.empty()){
-	  rechitsasres[j] = rechitsasx[j] - matched[0].localPosition().x();
+	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    dist = rechitsasx[j] - (*m).localPosition().x();
+	    if(dist<mindist){
+	      mindist = dist;
+	      closest = (*m);
+	    }
+	    rechitsasres[j] = rechitsasx[j] - closest.localPosition().x();
+	  }  
 	}
 	j++;
       }
@@ -376,6 +396,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
 	
+	float mindistx = 999999;
+	float distx, disty;
+	std::pair<LocalPoint,LocalVector> closestPair;
 	matched.clear();
 	const SiStripRecHit2DLocalPos *mono = rechit.monoHit();
 	const SiStripRecHit2DLocalPos *st = rechit.stereoHit();
@@ -391,30 +414,28 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	//	cout << " errors = " << sqrt(error.xx()) << ", " << error.xy() << ", " << sqrt(error.yy()) <<  endl;
 	matched = associate.associateHit(*st);
 	if(!matched.empty()){
-// 	  cout << " detector = " << myid << " #match = " << matched.size() << endl;
-// 	  cout << " Matched x = " << position.x() << " y = "<< position.y() << " z = " << position.z() << endl;
-// 	  cout << " Mono    x = " << monopos.x() << " y = "<< monopos.y() << " z = " << monopos.z() << endl;
-// 	  cout << " Stereo  x = " << stpos.x() << " y = "<< stpos.y() << " z = " << stpos.z() << endl;
-	  
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-// 	    cout << " hit  ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition().x() 
-// 		 << " y = " <<  (*m).localPosition().y() << " z = " <<  (*m).localPosition().x() << endl;
-	  }
 	  //project simhit;
 	  const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
 	  const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
-	  std::pair<LocalPoint,LocalVector> hitPair= projectHit(matched[0],partnerstripdet,gluedDet->surface());
-	  //	    rechitmatchedresx[j] = rechitmatchedx[j] - matched[0].localPosition().x();
-	  // rechitmatchedresy[j] = rechitmatchedy[j] - matched[0].localPosition().y();
-	  rechitmatchedresx[j] = rechitmatchedx[j] - hitPair.first.x();
-	  rechitmatchedresy[j] = rechitmatchedy[j] - hitPair.first.y();
+	  std::pair<LocalPoint,LocalVector> hitPair;
 	  
-// 	  cout << " res x = " << rechitmatchedresx[j] << " rec(x) = " <<  rechitmatchedx[j] 
-// 	    //		 << " sim(x) = " << matched[0].localPosition().x() << endl;
-// 	       << " sim(x) = " << hitPair.first.x() << endl;
-// 	  cout << " res y = " << rechitmatchedresy[j] << " rec(y) = " <<  rechitmatchedy[j] 
-// 	    //		 << " sim(x) = " << matched[0].localPosition().y() << endl;
-// 	       << " sim(y) = " <<  hitPair.first.y()<< endl;
+	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    //project simhit;
+	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
+	    distx = rechitmatchedx[j] - hitPair.first.x();
+	    disty = rechitmatchedy[j] - hitPair.first.y();
+	    if(distx<mindistx){
+	      mindistx = distx;
+	      closestPair = hitPair;
+	    }
+	  }
+	  rechitmatchedresx[j] = rechitmatchedx[j] - closestPair.first.x();
+	  rechitmatchedresy[j] = rechitmatchedy[j] - closestPair.first.y();
+	  
+	  // 	  cout << " res x = " << rechitmatchedresx[j] << " rec(x) = " <<  rechitmatchedx[j] 
+ 	  //     << " sim(x) = " << hitPair.first.x() << endl;
+ 	  //cout << " res y = " << rechitmatchedresy[j] << " rec(y) = " <<  rechitmatchedy[j] 
+ 	  //     << " sim(y) = " <<  hitPair.first.y()<< endl;
 	}
 	
 	j++;
