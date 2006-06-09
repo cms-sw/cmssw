@@ -16,7 +16,7 @@
     to your /CMSSW_x_x_x/lib/slc3_ia32_gcc323/ area. Ask Igor Vorobiev, Oana Boeriu, Nikolai Terentiev 
     for the username and password !
 
-0.3 COMPILE & LINK under OnlineDB/CSCCondBC !!
+0.3 COMPILE & LINK under OnlineDB/CSCCondDB !!
 
 1.0 CSCGainAnalyzer.cc and .h, run: cmsRun CSCgain.cfg 
 
