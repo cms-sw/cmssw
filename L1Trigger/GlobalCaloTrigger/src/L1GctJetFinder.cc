@@ -372,10 +372,13 @@ L1GctScalarEtVal L1GctJetFinder::calcEtStrip(const UShort strip) const
   // Add the Et values from regions 13 to 23 for strip 0,
   //     the Et values from regions 25 to 35 for strip 1.
   unsigned et = 0;
+  bool of = false;
   for (UShort i=1; i < COL_OFFSET; ++i) {
     et += m_inputRegions[(COL_OFFSET*(strip+1)+i)].et();
+    of |= m_inputRegions[(COL_OFFSET*(strip+1)+i)].overFlow();
   }
   L1GctScalarEtVal temp(et);
+  temp.setOverFlow(temp.overFlow() || of);
   return temp;
 }
 
