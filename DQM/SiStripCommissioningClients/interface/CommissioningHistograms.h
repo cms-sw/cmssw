@@ -22,6 +22,7 @@ class CommissioningHistograms {
  public:
   
   struct HistoSet {
+    SiStripHistoNamingScheme::HistoTitle title_;
     MonitorElement* combined_;
     MonitorElement* sumOfSquares_;
     MonitorElement* sumOfContents_;
@@ -33,29 +34,34 @@ class CommissioningHistograms {
   CommissioningHistograms( MonitorUserInterface* );
   /** */
   virtual ~CommissioningHistograms();
+
+  // ----- "Actions" -----
   
   /** */
-  void update( std::vector<std::string>& added_contents );
+  void createCollateMEs();
   /** */
-  virtual void histoAnalysis();
+  void createProfileHistos();
   /** */
-  virtual void updateConfigDb();
-
+  virtual void createSummaryHistos();
+  /** */
+  virtual void createTrackerMap();
+  /** */
+  virtual void uploadToConfigDb();
+  
  protected:
-
+  
   inline MonitorUserInterface* const mui() const;
+  
   inline void task( const sistrip::Task& );
   inline const sistrip::Task& task() const;
-
-  void fillHistoSet( const SiStripHistoNamingScheme::HistoTitle&, 
+  
+  void initHistoSet( const SiStripHistoNamingScheme::HistoTitle&, 
 		     HistoSet&, 
 		     MonitorElement* );
   void updateHistoSet( HistoSet& );
   
  private: // ----- private methods -----
   
-  void createCollateMEs( std::vector<std::string>& added_contents );
-  void createClientMEs();
   void getListOfDirs( std::vector<std::string>& dir_list );
   void cdIntoDir( const std::string& pwd, 
 		  std::vector<std::string>& dir_list );

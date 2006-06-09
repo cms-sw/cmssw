@@ -4,7 +4,15 @@
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
+//#include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+
+// This line is necessary
+XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient);
 
 using namespace std;
 
@@ -14,7 +22,8 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
     histo_(0) {
-  web_ = new SiStripCommissioningWebClient( this->getContextURL(),
+  web_ = new SiStripCommissioningWebClient( this,
+					    this->getContextURL(),
 					    this->getApplicationURL(), 
 					    &(this->mui_) );
   xgi::bind( this, &SiStripCommissioningClient::handleWebRequest, "Request" );
@@ -47,33 +56,41 @@ void SiStripCommissioningClient::newRun() {
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
-  histo_->histoAnalysis();
-  histo_->updateConfigDb();
+  // Do histogram analysis and upload monitorables to database
+  if ( histo_ ) { 
+    histo_->createCollateMEs();
+    histo_->createProfileHistos();
+    histo_->createSummaryHistos();
+    histo_->uploadToConfigDb(); 
+  }
   if ( mui_ ) { mui_->save("SiStripCommissioningClient.root"); }
   else { //edm::LogError("SiStrip|Commissioning|Client") 
     cerr << "[SiStripCommissioningClient::endRun]"
 	 << "Null pointer for MonitorUserInterface!" << endl;
   }
+  
 }
 
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
-
+  cout << "[SiStripCommissioningClient::onUpdate]"
+       << "Number of updates: " << mui_->getNumUpdates() << endl;
+  
   // Subscribe to new monitorables and retrieve updated contents
   ( this->mui_ )->subscribeNew( "*" ); //@@ temporary?
   vector<string> added_contents;
   ( this->mui_ )->getAddedContents( added_contents );
+  if ( added_contents.empty() ) { return; }
   
-  // Retrieve commissioning task and create new object
-  if ( !histo_ && !added_contents.empty() ) { 
-    createHistograms( added_contents ); 
+  // Create CommissioningHistogram object 
+  createCommissioningHistos( added_contents );
+  
+  //@@ anything here?
+  if ( histo_ ) { 
+    histo_->createCollateMEs();
+    histo_->createProfileHistos();
   }
-  
-  cout << "*********** nUpdates: " << mui_->getNumUpdates() << endl ;
-
-  // Update contents (histograms etc...)
-  if ( histo_ ) { histo_->update( added_contents ); } 
   
 }
 
@@ -99,14 +116,16 @@ void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* 
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms* SiStripCommissioningClient::createHistograms( vector<string>& added_contents ) const {
-
-  if ( histo_ ) { return histo_; }
+void SiStripCommissioningClient::createCommissioningHistos( const vector<string>& added_contents ) const {
+  cout << "[SiStripCommissioningClient::createCommissioningHistos]" << endl;
   
-  // Iterate through "contents" strings and retrieve "commissioning task" 
+  if ( added_contents.empty() ) { return; }
+  if ( histo_ ) { return; }
+  
+  // Iterate through "added contents" and retrieve "commissioning task" 
   string task_str = "";
-  sistrip::Task task = sistrip::UNKNOWN_TASK;
-  vector<string>::iterator istr;
+  sistrip::Task task = sistrip::NO_TASK;
+  vector<string>::const_iterator istr;
   for ( istr = added_contents.begin(); istr != added_contents.end(); istr++ ) { 
     string pattern = sistrip::commissioningTask_;
     string::size_type pos = istr->find( pattern );
@@ -116,27 +135,25 @@ CommissioningHistograms* SiStripCommissioningClient::createHistograms( vector<st
       continue; 
     }
   }
-  cout << "[SiStripCommissioningClient::createHistograms]"
+  cout << "[SiStripCommissioningClient::createCommissioningHistos]"
        << " Found 'SiStripCommissioningTask' string with value " 
        << task_str << endl;
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::NO_TASK )   { histo_ = new CommissioningHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS ) { histo_ = new PedestalsHistograms( mui_ ); }
+  if      ( task == sistrip::APV_TIMING )  { histo_ = new ApvTimingHistograms( mui_ ); }
+  //@@ else if ( task == sistrip::FED_CABLING ) { histo_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING )  { histo_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN )   { histo_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS )   { histo_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN )   { histo_ = new VpspScanHistograms( mui_ ); }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histo_ = 0;
     //edm::LogError("SiStrip|Commissioning|Client") 
-    cerr << "[SiStripCommissioningClient::createHistograms]"
+    cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
 	 << "Unknown commissioning task!" << endl;
-  } else { 
-    histo_ = 0;
-    //edm::LogError("SiStrip|Commissioning|Client") 
-    cerr << "[SiStripCommissioningClient::createHistograms]"
-	 << "Unexpected commissioning task!" << endl;
-  } 
-  
-  return histo_;
-  
+  } else if ( task == sistrip::NO_TASK ) { 
+    cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
+	 << "No commissioning task string found!" << endl;
+  }
+
 }
-
-

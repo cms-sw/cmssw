@@ -21,42 +21,43 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   SiStripCommissioningClient( xdaq::ApplicationStub* );
   /** Destructor. */
   ~SiStripCommissioningClient();
-  
-  /** Called whenever the client enters the "Configured" state. */ 
-  void configure();
-  /** Called whenever the client enters the "Enabled" state. */ 
-  void newRun();
-  /** Called whenever the client enters the "Halted" state. */ 
-  void endRun();
-  /** Called by the "Updater" whenever there is an update. */
-  void onUpdate() const;
 
-  /** Outputs the page with the widgets (declared in DQMBaseClient) */
-  void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
+  /** "Configured" state. */ 
+  void configure();
+  /** "Enabled" state. */ 
+  void newRun();
+  /** "Halted" state. */ 
+  void endRun();
+  /** Called by the "Updater". */
+  void onUpdate() const;
   
   /** Answers all HTTP requests of the form ".../Request?RequestID=..." */
   void handleWebRequest( xgi::Input*, xgi::Output* );
   
- private: // ----- methods -----
+  /** Outputs the page with the widgets (declared in DQMBaseClient) */
+  void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
   
-  /** */
-  CommissioningHistograms* createHistograms( std::vector<std::string>& added_contents ) const;
+  /** Friend method to allow access to CommissioningHistograms object. */
+  inline friend CommissioningHistograms* histo( const SiStripCommissioningClient& );
+  
+ private:
 
-  /** */
-  void createCollateMonitorElements( std::vector<std::string>& added_contents ) const;
-  
- private: // ----- member data -----
+  /** Extracts "commissioning task" string and creates a new
+      CommissioningHistogram object based on the task. */
+  void createCommissioningHistos( const std::vector<std::string>& added_contents ) const;
   
   /** Web-based commissioning client. */
   SiStripCommissioningWebClient* web_;
-
   /** */
   mutable CommissioningHistograms* histo_;
-
+  
 };
 
-// This line is necessary
-XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient)
-     
+// ---------- inline methods ----------
+
+CommissioningHistograms* histo( const SiStripCommissioningClient& client ) {
+  return client.histo_;
+}
+
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
-     
+

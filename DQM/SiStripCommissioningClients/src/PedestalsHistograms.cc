@@ -46,14 +46,14 @@ void PedestalsHistograms::book( const vector<string>& me_list ) {
 					   path.ccuChan_,
 					   title.channel_ );
     if ( title.extraInfo_.find( sistrip::pedsAndRawNoise_ ) ) { 
-      fillHistoSet( title, mePeds_[key], me ); 
+      initHistoSet( title, mePeds_[key], me ); 
     } else if ( title.extraInfo_.find( sistrip::residualsAndNoise_ ) ) { 
-      fillHistoSet( title, meNoise_[key], me );
+      initHistoSet( title, meNoise_[key], me );
     } else if ( title.extraInfo_.find( sistrip::commonMode_ ) ) {
       if ( title.channel_%2 == 0 ) { 
-	fillHistoSet( title, meCommonModeApv0_[key], me ); 
+	initHistoSet( title, meCommonModeApv0_[key], me ); 
       } else { 
-	fillHistoSet( title, meCommonModeApv1_[key], me ); 
+	initHistoSet( title, meCommonModeApv1_[key], me ); 
       }
     } else {
       cerr << "[PedestalsHistograms::book]"
@@ -69,6 +69,7 @@ void PedestalsHistograms::book( const vector<string>& me_list ) {
 // -----------------------------------------------------------------------------
 /** */
 void PedestalsHistograms::update() {
+
   map< uint32_t, HistoSet >::iterator ipeds = mePeds_.begin();
   for ( ; ipeds != mePeds_.end(); ipeds++ ) {
     if ( ipeds->second.profile_ ) { updateHistoSet( ipeds->second ); }

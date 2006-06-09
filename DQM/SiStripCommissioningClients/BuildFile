@@ -1,9 +1,11 @@
 #<use name=FWCore/MessageLogger>
+<use name=DataFormats/SiStripDetId>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQM/SiStripCommon>
-<use name=DataFormats/SiStripDetId>
+<use name=DQM/SiStripCommissioningAnalysis>
+<use name=DQM/SiStripCommissioningSummary>
 <use name=boost>
 <use name=root> 
 <lib name=xdaq>
@@ -12,11 +14,13 @@
 <export>
   <lib name=DQMSiStripMonitorClient>
   #<use name=FWCore/MessageLogger>
+  <use name=DataFormats/SiStripDetId>
   <use name=DQMServices/Core>
   <use name=DQMServices/Components>
   <use name=DQMServices/WebComponents>
   <use name=DQM/SiStripCommon>
-  <use name=DataFormats/SiStripDetId>
+  <use name=DQM/SiStripCommissioningAnalysis>
+  <use name=DQM/SiStripCommissioningSummary>
   <use name=boost> 
   <use name=root> 
   <lib name=xdaq>

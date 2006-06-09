@@ -21,29 +21,23 @@ CommissioningHistograms::~CommissioningHistograms() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::update( vector<string>& added_contents ) {
-  createCollateMEs( added_contents );
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::histoAnalysis() {
-  cout << "[CommissioningHistograms::histoAnalysis]" << endl;
-  createClientMEs();
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::updateConfigDb() {
-  cout << "[CommissioningHistograms::updateConfigDb]" << endl;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::createCollateMEs( vector<string>& added_contents ) {
+void CommissioningHistograms::createCollateMEs() {
+  cout << "[CommissioningHistograms::createCollateMEs]" << endl;
   
-  if ( added_contents.empty() ) { return; }
-    
+  mui_->subscribeNew( "*" ); //@@ temporary?
+  vector<string> added_contents;
+  mui_->getAddedContents( added_contents );
+  
+  if ( added_contents.empty() ) { 
+    cout << "[CommissioningHistograms::createCollateMEs]"
+	 << " No 'added contents' found!" << endl;
+    return; 
+  } else {  
+    cout << "[CommissioningHistograms::createCollateMEs]"
+	 << " Found " << added_contents.size () 
+	 << " 'added contents' found!" << endl;
+  }
+
   vector<string>::iterator idir;
   for ( idir = added_contents.begin(); idir != added_contents.end(); idir++ ) {
     
@@ -55,7 +49,14 @@ void CommissioningHistograms::createCollateMEs( vector<string>& added_contents )
 							       path.fecRing_,
 							       path.ccuAddr_,
 							       path.ccuChan_ );
-    
+    cout << "[CommissioningHistograms::createCollateMEs]"
+	 << " FEC crate/ring/slot, CCU addr/chan: "
+	 << path.fecCrate_ << "/"
+	 << path.fecSlot_ << "/"
+	 << path.fecRing_ << ", "
+	 << path.ccuAddr_ << "/"
+	 << path.ccuChan_ << endl;
+
     if ( path.fecCrate_ == sistrip::all_ ||
 	 path.fecSlot_ == sistrip::all_ ||
 	 path.fecRing_ == sistrip::all_ ||
@@ -66,8 +67,8 @@ void CommissioningHistograms::createCollateMEs( vector<string>& added_contents )
     mui_->setCurrentFolder( collector_dir );
     vector<string> me = mui_->getMEs();
     cout << "[CommissioningHistograms::createCollateMEs]"
-	 << "  Found " << me.size() << " MEs in " << collector_dir << endl;
-
+	 << " Found " << me.size() << " MEs in " << collector_dir << endl;
+    
     uint16_t n_cme = 0;
     vector<string>::iterator ime = me.begin(); 
     for ( ; ime != me.end(); ime++ ) {
@@ -80,13 +81,13 @@ void CommissioningHistograms::createCollateMEs( vector<string>& added_contents )
 	mui_->add( cme, search_str );
 	cme_.push_back( cme_dir );
 	n_cme++;
-	// 	cout << "[CommissioningHistograms::createCollateMEs]"
-	// 	     << " CollateME number " << cme_.size()
-	// 	     << " CollateME name " << cme_name
-	// 	     << " CollateME title " << cme_title
-	// 	     << " CollateME dir " << cme_dir
-	// 	     << " CollateME search string " << search_str
-	// 	     << endl;
+	cout << "[CommissioningHistograms::createCollateMEs]"
+	     << " CollateME number " << cme_.size() 
+	     << " CollateME name " << cme_name
+	     << " CollateME title " << cme_title
+	     << " CollateME dir " << cme_dir
+	     << " CollateME search string " << search_str
+	     << endl;
       }
     }
     cout << "[CommissioningHistograms::createCollateMEs]"
@@ -97,7 +98,8 @@ void CommissioningHistograms::createCollateMEs( vector<string>& added_contents )
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createClientMEs() {
+void CommissioningHistograms::createProfileHistos() {
+  cout << "[CommissioningHistograms::createProfileHistos]" << endl;
   if ( mui_ ) { 
     vector<string> dirs;
     getListOfDirs( dirs );
@@ -105,11 +107,30 @@ void CommissioningHistograms::createClientMEs() {
     for ( ; idir != dirs.end(); idir++ ) {
       mui_->setCurrentFolder( *idir );
       vector<string> me = mui_->getMEs();
-      book( me ); 
+      book(me); 
       update();
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::createSummaryHistos() {
+  cout << "[CommissioningHistograms::createSummaryHistos] Nothing done!" << endl;
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::createTrackerMap() {
+  cout << "[CommissioningHistograms::createTrackerMap] Nothing done!" << endl;
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::uploadToConfigDb() {
+  cout << "[CommissioningHistograms::uploadToConfigDb] Nothing done!" << endl;
+}
+
 
 // -----------------------------------------------------------------------------
 /** */
@@ -148,7 +169,7 @@ void CommissioningHistograms::update() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::fillHistoSet( const SiStripHistoNamingScheme::HistoTitle& title, 
+void CommissioningHistograms::initHistoSet( const SiStripHistoNamingScheme::HistoTitle& title, 
 					    HistoSet& histo_set, 
 					    MonitorElement* me ) {
   // Set ME pointers for "sum2", "sum" and "num" histos
@@ -157,7 +178,7 @@ void CommissioningHistograms::fillHistoSet( const SiStripHistoNamingScheme::Hist
   else if ( title.contents_ == sistrip::SUM )      { histo_set.sumOfContents_ = me; }
   else if ( title.contents_ == sistrip::NUM )      { histo_set.numOfEntries_ = me; }
   else {
-    cerr << "[CommissioningHistograms::fillHistoSet]"
+    cerr << "[CommissioningHistograms::initHistoSet]"
 	 << " Unexpected sistrip::Contents value!" << endl;
   }
   
@@ -174,18 +195,15 @@ void CommissioningHistograms::fillHistoSet( const SiStripHistoNamingScheme::Hist
   
   if ( num->GetNbinsX() != sum->GetNbinsX() ||
        sum->GetNbinsX() != sum2->GetNbinsX() ) { 
-    cerr << "[CommissioningHistograms::fillHistoSet]"
+    cerr << "[CommissioningHistograms::initHistoSet]"
 	 << " Inconsistent number of bins for TObjects!" << endl;
     return;
   }
   
-  string name = SiStripHistoNamingScheme::histoTitle( title.task_,
-						      sistrip::COMBINED,
-						      title.keyType_,
-						      title.keyValue_,
-						      title.granularity_,
-						      title.channel_,
-						      title.extraInfo_ );
+  histo_set.title_ = title;
+  histo_set.title_.contents_ = sistrip::COMBINED;
+  string name = SiStripHistoNamingScheme::histoTitle( histo_set.title_ );
+  
   int bins = num->GetNbinsX();
   double low = num->GetXaxis()->GetXmin();
   double high = num->GetXaxis()->GetXmax();
@@ -197,7 +215,7 @@ void CommissioningHistograms::fillHistoSet( const SiStripHistoNamingScheme::Hist
 //   							    num->GetXaxis()->GetXmin(),
 //   							    num->GetXaxis()->GetXmax(),
 //   							    1024, 0., 1024. );
-  cout << "[CommissioningHistograms::fillHistoSet]"
+  cout << "[CommissioningHistograms::initHistoSet]"
        << " Created TProfile called " << name 
        << " in " << mui_->pwd() << endl;
   

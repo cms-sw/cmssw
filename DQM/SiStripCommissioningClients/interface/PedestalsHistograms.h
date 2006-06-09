@@ -19,8 +19,6 @@ class PedestalsHistograms : public CommissioningHistograms {
   virtual void book( const std::vector<std::string>& me_list );
   virtual void update();
   
-  //void constructHistoSets( const vector<string>& me_list );
-  
  private: // ----- private data members -----
 
   // One map entry per LLD channel...

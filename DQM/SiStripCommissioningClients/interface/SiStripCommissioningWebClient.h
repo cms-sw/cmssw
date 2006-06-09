@@ -3,29 +3,31 @@
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
 
+class SiStripCommissioningClient;
+
 class SiStripCommissioningWebClient : public WebInterface {
+
  public:
   
-  SiStripCommissioningWebClient( std::string, 
+  SiStripCommissioningWebClient( SiStripCommissioningClient*,
 				 std::string, 
-				 MonitorUserInterface** _mui_p );
+				 std::string, 
+				 MonitorUserInterface** mui );
   ~SiStripCommissioningWebClient();
-  
-  void Default( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );
   
   virtual void handleCustomRequest( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );
   
  private: // ----- private methods -----
   
-/*   void subscribeAll( xgi::Input* in,  */
-/* 		     xgi::Output* out ) throw ( xgi::exception::Exception ); */
+  void createSummary( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
+  void createTkMap( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ) {;} //@@ to be implemented
+  void saveToFile( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ) {;}  //@@ to be implemented
   
-/*   int getUpdates(); */
-
  private: // ----- private data members -----
   
-  WebPage* webpage_;
+  SiStripCommissioningClient* client_;
   
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningWebClient_H
+
