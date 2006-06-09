@@ -37,26 +37,21 @@ void QReport::resetStatusMessage(void)
 // run QCriterion algorithm
 void QReport::runTest(void)
 {
+  // qcriterion may be null if results are received from another node
+  if(!qcriterion_)return;
+
   int old_status = status_;
   string old_message = message_;
-  badChannels_.clear();
 
-  if(qcriterion_)
-    {
-      qcriterion_->runTest(myME_);
-      setStatus(qcriterion_->getStatus());
-      setMessage(qcriterion_->getMessage());
-      badChannels_ = qcriterion_->getBadChannels();
-    }
-  else
-    {
-      cerr << " *** Attempt to run null test " << qtname_ << endl;
-      resetStatusMessage();
-    }
+  badChannels_.clear();
+  qcriterion_->runTest(myME_);
+  setStatus(qcriterion_->getStatus());
+  setMessage(qcriterion_->getMessage());
+  badChannels_ = qcriterion_->getBadChannels();
 
   // if status or message has changed, need to notify derived class
   if(old_status != status_ || old_message != message_)
     // calling derived class method
-    this->update();
+    this->updateReport();
 }
 

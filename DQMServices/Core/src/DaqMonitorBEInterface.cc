@@ -112,6 +112,8 @@ void DaqMonitorBEInterface::resetStuff(void)
   updatedContents.clear();
   // reset updated QReports
   updatedQReports.clear();
+
+  resetWasCalled = true;
 }
 
 /* come here at end of monitoring cycle for all receivers;
@@ -119,6 +121,7 @@ void DaqMonitorBEInterface::resetStuff(void)
    
    (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
    [flag resetMe is typically set by sources (false by default)];
+   [Clients in standalone mode should also have resetMEs = true] 
    
    (c) if callResetStuff = true, call resetStuff
    (typical behaviour: Sources & Collector have callResetStuff = true, whereas
@@ -150,8 +153,9 @@ void DaqMonitorBEInterface::doneSending(bool resetMEs, bool callResetStuff)
     }  // loop over all pathnames/directories
   
   // reset "update" flag for QReports that have been updated/added
-  for(meIt it = updatedQReports.begin(); it != updatedQReports.end(); ++it)
-    {
+  for(set<QReport *>::iterator it = updatedQReports.begin(); 
+      it != updatedQReports.end(); ++it)
+    {      
       if(*it)
 	(*it)->resetUpdate();
     }
@@ -206,6 +210,12 @@ void DaqMonitorBEInterface::add2UpdatedContents(string name, string pathname)
 // including newly added content) 
 void DaqMonitorBEInterface::runQTests(void)
 {
+  if(!wasResetCalled())
+    {
+      cout << " *** Warning! Need to call MonitorUserInterface::doMonitoring\n"
+	   << " before calling MonitorUserInterface::runQTests again! " << endl;
+    }
+
   // keep track here of modified algorithm since last time runQTests ran
   vector<QCriterion *> modifiedAlgos;
   for(qc_it qc = qtests_.begin(); qc != qtests_.end(); ++qc)
@@ -243,6 +253,7 @@ void DaqMonitorBEInterface::runQTests(void)
   for(vqc_it it = modifiedAlgos.begin(); it != modifiedAlgos.end(); ++it)
     (*it)->wasModified_ = false;
 
+  resetWasCalled = false;
 }
 
 // run quality tests (also finds updated contents in last monitoring cycle,

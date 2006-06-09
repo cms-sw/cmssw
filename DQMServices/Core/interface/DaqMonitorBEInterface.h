@@ -26,6 +26,7 @@ class DaqMonitorBEInterface: public StringUtil
   DaqMonitorBEInterface(edm::ParameterSet const &pset)
   {
     pthread_mutex_init(&mutex_,0); DQM_VERBOSE = 1;
+    resetStuff();
   }  
   virtual ~DaqMonitorBEInterface();
  
@@ -191,6 +192,7 @@ class DaqMonitorBEInterface: public StringUtil
 
      (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
      [flag resetMe is typically set by sources (false by default)];
+     [Clients in standalone mode should also have resetMEs = true] 
 
      (c) if callResetStuff = true, call resetStuff
      (typical behaviour: Sources & Collector have callResetStuff = true, whereas
@@ -303,8 +305,8 @@ class DaqMonitorBEInterface: public StringUtil
 			   std::string pathname);
 
   // add (QReport) MonitorElement to back-end intereface's updatedQReports
-  void add2UpdatedQReports(MonitorElement * me)
-  {updatedQReports.insert(me);}
+  void add2UpdatedQReports(QReport * qr)
+  {updatedQReports.insert(qr);}
 
   // (a) reset modifications to monitorable since last cycle 
   // (b) reset sets of added/removed/updated contents and updated QReports
@@ -351,7 +353,7 @@ class DaqMonitorBEInterface: public StringUtil
   dqm::qtests::QC_map qtests_;
 
   // set of updated quality reports since last monitoring cycle
-  std::set<MonitorElement *> updatedQReports;
+  std::set<QReport *> updatedQReports;
 
   // get "global" folder <inpath> status (one of: STATUS_OK, WARNING, ERROR, OTHER);
   // returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
@@ -423,8 +425,15 @@ class DaqMonitorBEInterface: public StringUtil
   void scanContents(QCriterion * qc, const std::string & search_string,
 		    dqm::me_util::cglob_it & path) const;
 
- private:
+  // check if resetStuff was called 
+  // (to be reset in MonitorUserInterface::runQualityTests)
+  inline bool wasResetCalled() const{return resetWasCalled;}
 
+ private:
+  // use to printout warning when calling quality tests twice without
+  // having called resetStuff in between...
+  // (to be reset in MonitorUserInterface::runQualityTests)
+  bool resetWasCalled;
   // run quality tests (also finds updated contents in last monitoring cycle,
   // including newly added content) <-- to be called only by runQTests
   void runQualityTests(void);

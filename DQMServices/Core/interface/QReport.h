@@ -52,8 +52,11 @@ class QReport
 
   // to be called after test has run and status/message have been updated
   // (implemented in derived class)
-  virtual void update(void) = 0;
-
+  virtual void updateReport(void) = 0;
+  // to be called after QReport has been sent downstream
+  // (implemented in derived class)
+  virtual void resetUpdate(void) = 0;
+  
   //
   std::vector<dqm::me_util::Channel> badChannels_;
 
@@ -75,7 +78,8 @@ class QReport
   friend class MonitorElement;
   // for setting QReport parameters after receiving report
   friend class ReceiverBase;
-
+  // for calling resetUpdate
+  friend class DaqMonitorBEInterface;
 }; 
 
 namespace dqm
