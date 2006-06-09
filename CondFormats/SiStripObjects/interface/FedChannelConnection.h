@@ -3,6 +3,7 @@
 
 #include <boost/cstdint.hpp>
 #include <vector>
+#include <sstream>
 
 /** 
     @class FedChannelConnection 
@@ -48,11 +49,11 @@ class FedChannelConnection {
 
   // ----- Control structure -----
 
-  inline const uint16_t& fecCrate() const { return fecCrate_; } 
-  inline const uint16_t& fecSlot() const { return fecSlot_; } 
-  inline const uint16_t& fecRing() const { return fecRing_; }
-  inline const uint16_t& ccuAddr() const { return ccuAddr_; }
-  inline const uint16_t& ccuChan() const { return ccuChan_; }
+  inline const uint16_t& fecCrate() const;
+  inline const uint16_t& fecSlot() const;
+  inline const uint16_t& fecRing() const;
+  inline const uint16_t& ccuAddr() const;
+  inline const uint16_t& ccuChan() const;
 
   // ----- APV I2C addresses -----
 
@@ -60,16 +61,16 @@ class FedChannelConnection {
 
   // ----- Other hybrid devices -----
 
-  inline const bool& dcu() const { return dcu0x00_; }
-  inline const bool& mux() const { return mux0x43_; }
-  inline const bool& pll() const { return pll0x44_; }
-  inline const bool& lld() const { return lld0x60_; }
+  inline const bool& dcu() const;
+  inline const bool& mux() const;
+  inline const bool& pll() const;
+  inline const bool& lld() const;
   
   // ----- Module / Detector -----
 
-  inline const uint32_t& dcuId() const { return dcuId_; }
-  inline const uint32_t& detId() const { return detId_; }
-  inline const uint16_t& nApvPairs() const { return nApvPairs_; }
+  inline const uint32_t& dcuId() const;
+  inline const uint32_t& detId() const;
+  inline const uint16_t& nApvPairs() const;
   /** Returns APV pair number for this connection (this can be either
       0->1 or 0->2, depending on number of detector strips). */
   uint16_t apvPairNumber() const;
@@ -78,15 +79,15 @@ class FedChannelConnection {
   
   // ----- FED -----
 
-  inline const uint16_t& fedId() const { return fedId_; }
-  inline const uint16_t& fedCh() const { return fedCh_; }
+  inline const uint16_t& fedId() const;
+  inline const uint16_t& fedCh() const;
 
-  void fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
-  void fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
+  inline void fedId( uint16_t& fed_id );
+  inline void fedCh( uint16_t& fed_ch );
   
   // ----- Misc -----
 
-  void print() const;
+  void print( std::stringstream& ) const;
 
  private: 
 
@@ -118,6 +119,29 @@ class FedChannelConnection {
   bool lld0x60_; 
   
 };
+
+// ---------- inline methods ----------
+
+const uint16_t& FedChannelConnection::fecCrate() const { return fecCrate_; } 
+const uint16_t& FedChannelConnection::fecSlot() const { return fecSlot_; } 
+const uint16_t& FedChannelConnection::fecRing() const { return fecRing_; }
+const uint16_t& FedChannelConnection::ccuAddr() const { return ccuAddr_; }
+const uint16_t& FedChannelConnection::ccuChan() const { return ccuChan_; }
+
+const bool& FedChannelConnection::dcu() const { return dcu0x00_; }
+const bool& FedChannelConnection::mux() const { return mux0x43_; }
+const bool& FedChannelConnection::pll() const { return pll0x44_; }
+const bool& FedChannelConnection::lld() const { return lld0x60_; }
+
+const uint32_t& FedChannelConnection::dcuId() const { return dcuId_; }
+const uint32_t& FedChannelConnection::detId() const { return detId_; }
+const uint16_t& FedChannelConnection::nApvPairs() const { return nApvPairs_; }
+
+const uint16_t& FedChannelConnection::fedId() const { return fedId_; }
+const uint16_t& FedChannelConnection::fedCh() const { return fedCh_; }
+
+void FedChannelConnection::fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
+void FedChannelConnection::fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
 
 #endif // CondFormats_SiStripObjects_FedChannelConnection_H
 

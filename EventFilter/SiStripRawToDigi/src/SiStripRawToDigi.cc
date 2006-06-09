@@ -15,6 +15,7 @@
 //
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
 #include "interface/shared/include/fed_header.h"
+#include "interface/shared/include/fed_trailer.h"
 // fed exception handling 
 #include "ICException.hh"
 // std
@@ -303,11 +304,22 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 
   if ( trigger_fed.data() &&
        trigger_fed.size() > sizeof(fedh_t)  ) {
-
+    
     uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
     uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
     uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
 
+    // Check whether buffer is really "trigger FED" (and not a FED buffer)
+    fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
+    fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
+    if ( fed_trailer->conscheck != 0xDEADFACE ) {
+      edm::LogError("RawToDigi") << "[SiStripRawToDigi::triggerFed]"
+				 << " Buffer does not appear to contain 'Trigger FED' information!"
+				 << " Trigger FED id: " << triggerFedId_
+				 << " Source id: " << fed_header->sourceid;
+      return;
+    } //@@ if not trigger FED, perform search?...
+    
     if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
       TFHeaderDescription* header = (TFHeaderDescription*) data_u32;

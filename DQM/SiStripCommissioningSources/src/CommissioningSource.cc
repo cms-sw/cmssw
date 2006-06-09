@@ -130,7 +130,7 @@ void CommissioningSource::analyze( const edm::Event& event,
   uint32_t fec_key = 0;
   if ( cablingTask_ ) {
     uint32_t id = summary->deviceId();
-    fec_key = SiStripControlKey::key( 0,                 // FEC crate
+    fec_key = SiStripControlKey::key( 0,                 // FEC crate  //@@ what to do here???
 				      ((id>>27)&0x1F),   // FEC slot
 				      ((id>>23)&0x0F),   // FEC ring
 				      ((id>>16)&0x7F),   // CCU address
