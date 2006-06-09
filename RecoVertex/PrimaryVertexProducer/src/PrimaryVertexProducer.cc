@@ -72,11 +72,6 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       t_tks.push_back(trkRef);
     }
 
-    /* for (reco::TrackCollection::const_iterator it = (*tks).begin();
-            it != (*tks).end(); it++) {
-      t_tks.push_back(*it);
-    }
-    */
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
@@ -106,6 +101,17 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       (tv).degreesOfFreedom() , 
 	       // (tv).tracks().size());
       	       (tv).originalTracks().size());
+      vector<reco::TransientTrack> prongs = (tv).originalTracks();
+      for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
+	   it != prongs.end(); it++) {
+	if ((*it).persistentTrackRef()) {
+	  v.add(*(*it).persistentTrackRef());
+	}
+	else {
+	  cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+	}
+      }
+
       vColl.push_back(v);
     }
     
