@@ -1,28 +1,25 @@
 #include <iostream>
+
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
-#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
-
-//Temp Protyping...
-//Removeal Pending CaloNavigator Update
-void offsetBy(int deltaX, int deltaY, EcalBarrelNavigator &posCurrent);
-
-
-std::string ClusterShapeAlgo::param_CollectionType_ = "";
-const std::map<DetId,EcalRecHit> *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
+const edm::ESHandle<CaloGeometry> *ClusterShapeAlgo::storedGeoHandle_ = NULL;
+const std::map<DetId,EcalRecHit>  *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
 
 void ClusterShapeAlgo::Initialize(const std::map<DetId,EcalRecHit> *passedRecHitsMap,
-				  std::string passedCollectionType)
+				  const edm::ESHandle<CaloGeometry> *geoHandle)
 {
   storedRecHitsMap_ = passedRecHitsMap;
-  param_CollectionType_ = passedCollectionType;
+  storedGeoHandle_ = geoHandle;
 }
 
 reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
 {
-  if(storedRecHitsMap_ == NULL || param_CollectionType_ == "")
+ if(storedRecHitsMap_ == NULL || storedGeoHandle_ == NULL)
     throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo::Calculate called unitialized.\n\n"));
    
   ClusterShapeAlgo dataHolder;
@@ -48,7 +45,7 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
 
 void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
 {
-  Double32_t eMax=0;
+  double eMax=0;
   DetId eMaxId;
 
   std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
@@ -58,13 +55,16 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-    testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
-
-    if(testEcalRecHit.energy() > eMax)
+    if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
     {
-      eMax = testEcalRecHit.energy();
-      eMaxId = testEcalRecHit.id();
-    } 
+      testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
+
+      if(testEcalRecHit.energy() > eMax)
+	{
+	  eMax = testEcalRecHit.energy();
+	  eMaxId = testEcalRecHit.id();
+	} 
+    }
   }
  
   eMax_ = eMax;
@@ -73,7 +73,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
 
 void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
 {
-  Double32_t e2nd=0;
+  double e2nd=0;
   DetId e2ndId;
 
   std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
@@ -82,14 +82,17 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
   EcalRecHit testEcalRecHit;
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
-  {
-    testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
-
-    if(testEcalRecHit.energy() > e2nd && testEcalRecHit.energy() < eMax_)
+  { 
+    if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
     {
-      e2nd = testEcalRecHit.energy();
-      e2ndId = testEcalRecHit.id();
-    } 
+      testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
+
+      if(testEcalRecHit.energy() > e2nd && testEcalRecHit.id() != eMaxId_)
+	{
+	  e2nd = testEcalRecHit.energy();
+	  e2ndId = testEcalRecHit.id();
+	} 
+    }
   }
  
   e2nd_ = e2nd;
@@ -98,23 +101,24 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
 
 void ClusterShapeAlgo::Create_Map()
 {
-
-  //In future this will be a switch statement that chooses which hardcoded geometry to use
-  //At Presest the barrel is the only one implemented. 
-  EcalBarrelHardcodedTopology *barrelTopology = new EcalBarrelHardcodedTopology();
-  EcalBarrelNavigator posCurrent(eMaxId_, barrelTopology);
-
   EcalRecHit tempEcalRecHit;
+  CaloNavigator<DetId> posCurrent;
 
+  switch(eMaxId_.subdetId())
+  {
+     case EcalBarrel:    posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalBarrelTopology(*storedGeoHandle_))); break;
+     case EcalEndcap:    posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalEndcapTopology(*storedGeoHandle_))); break;
+     case EcalPreshower: posCurrent = *(new CaloNavigator<DetId>(eMaxId_, new EcalPreshowerTopology(*storedGeoHandle_))); break;
+     default: throw(std::runtime_error("\n\nClusterShapeAlgo: No known topology for given subdetId. Giving up... =(\n\n"));
+  }
+  
   for(int x = 0; x < 5; x++)
     for(int y = 0; y < 5; y++)
     {
       posCurrent.home();
-      offsetBy(-2+x,-2+y, posCurrent);
-      //offsetBy will be replaced by similiar function in CaloNavigator
-      //pending next update      
+      posCurrent.offsetBy(-2+x,-2+y);
 
-      if(posCurrent.pos() != DetId(0))
+      if((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
       {
 	tempEcalRecHit = storedRecHitsMap_->find(posCurrent.pos())->second;
 	energyMap_[y][x] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
@@ -123,7 +127,7 @@ void ClusterShapeAlgo::Create_Map()
 	energyMap_[y][x] = std::make_pair(DetId(0), 0);  
     }
 
-/*  
+  /*
   //Prints map for testing purposes, remove in final. 
   std::cout << "\n\n\n";
 
@@ -138,7 +142,7 @@ void ClusterShapeAlgo::Create_Map()
   }
 
   std::cout << "\n\n\n" << std::endl;
-*/
+  */
   
 }
 
@@ -212,7 +216,7 @@ void ClusterShapeAlgo::Calculate_e3x2()
 
 void ClusterShapeAlgo::Calculate_e3x3()
 {
-  Double32_t e3x3=0; 
+  double e3x3=0; 
 
   for(int i = 1; i <= 3; i++)
     for(int j = 1; j <= 3; j++)
@@ -224,7 +228,7 @@ void ClusterShapeAlgo::Calculate_e3x3()
 
 void ClusterShapeAlgo::Calculate_e5x5()
 {
-  Double32_t e5x5=0; 
+  double e5x5=0; 
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
@@ -240,7 +244,7 @@ void ClusterShapeAlgo::Calculate_Location()
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
-      usedDetIds.push_back(energyMap_[i][j].first);
+      if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
   location_ = PositionCalc::Calculate_Location(usedDetIds);
 }
@@ -252,7 +256,7 @@ void ClusterShapeAlgo::Calculate_Covariances()
 
   for(int i = 0; i <= 4; i++)
     for(int j = 0; j <= 4; j++)
-      usedDetIds.push_back(energyMap_[i][j].first);
+      if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
 
   std::map<std::string,double> covReturned = 
     PositionCalc::Calculate_Covariances(location_,usedDetIds);
@@ -262,21 +266,3 @@ void ClusterShapeAlgo::Calculate_Covariances()
   covPhiPhi_ = covReturned.find("covPhiPhi")->second;
 }
 
-
-//Temp Global Function to Move Around the 5x5
-//Removeal Pending CaloNavigator Update
-
-void offsetBy(int deltaX, int deltaY, EcalBarrelNavigator &posCurrent)
-{
-  for(int x=0; x < fabs(deltaX) && posCurrent.pos() != DetId(0); x++)
-  {
-    if(deltaX > 0) posCurrent.east();
-    else           posCurrent.west();
-  }
-
-  for(int y=0; y < fabs(deltaY) && posCurrent.pos() != DetId(0); y++)
-  {
-    if(deltaY > 0) posCurrent.south();
-    else           posCurrent.north();
-  }
-}
