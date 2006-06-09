@@ -1,8 +1,15 @@
+/** Event Message Represented here
+
+code 1 | size 4 | run 4 | event 4 |lumi 4 | reserved 4 |hltbits bits/4 |
+l1bits bits/8  | eventdatalegth 4 | eventdata blob var 
+
+*/
+
 #ifndef _EventMessage_h
 #define _EventMessage_h
 
-#include "MsgTools.h"
-#include "MsgHeader.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
 
 // ----------------------- event message ------------------------
 
@@ -26,7 +33,7 @@ public:
 
   const uint8* eventData() const { return event_start_; }
   uint32 eventLength() const { return event_len_; }
-
+  uint32 headerSize() const {return event_start_-buf_;}
   uint32 run() const;
   uint32 event() const;
   uint32 lumi() const;

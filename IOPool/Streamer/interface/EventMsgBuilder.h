@@ -16,9 +16,10 @@ public:
                   uint8* hlt_bits, uint32 hlt_bit_count);
 
   void setReserved(uint32);
+  uint8* startAddress() { return buf_; }
   void setEventLength(uint32 len);
   uint8* eventAddr() { return event_addr_; }
-
+  uint32 headerSize() const {return event_addr_-buf_;} 
   uint32 size() const;
 
 private:

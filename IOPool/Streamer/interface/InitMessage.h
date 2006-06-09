@@ -1,3 +1,8 @@
+/** Init Message
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | releaseTagLength 1 | ReleaseTag var| HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
+
+*/
+
 #ifndef _InitMessage_h
 #define _InitMessage_h
 
@@ -18,7 +23,7 @@ struct InitHeader
 {
   InitHeader(const Header& h, uint32 run, const Version& v):
     header_(h),version_(v)
-  { convert(run,run_); }
+  { cout<<"HEAD"<<endl;convert(run,run_); }
 
   Header header_;
   Version version_;
@@ -45,7 +50,8 @@ public:
   // needed for streamer file
   uint32 descLength() const { return desc_len_; }
   const uint8* descData() const { return desc_start_; }
-
+  uint32 headerSize() const {return desc_start_-buf_;}
+ 
 private:
   void getNames(uint8* from, uint32 from_len, Strings& to) const;
 
