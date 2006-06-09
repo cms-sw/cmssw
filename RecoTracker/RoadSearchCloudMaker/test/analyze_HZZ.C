@@ -12,8 +12,7 @@
 
   std::vector<reco::Track> trackCollection;
 
-//  TBranch *branch = tree->GetBranch("recoTracks_RoadSearchDebugTracks__RoadSearch.obj");
-  TBranch *branch = tree->GetBranch("recoTracks_trackp__RoadSearch.obj");
+  TBranch *branch = tree->GetBranch("recoTracks_RSWMaterial__Higgs.obj");
   branch->SetAddress(&trackCollection);
 
   for ( unsigned int index = 0; index < tree->GetEntries(); ++index ) {
@@ -29,7 +28,7 @@
       double pT = sqrt(track->px()*track->px()+track->py()*track->py());
       std::cout << "pT: " << pT << std::endl;
       h_pttr->Fill(pT);
-      n4++; if (track->omega()>0.0){q4++;}else{q4--;}
+      n4++; if (track->transverseCurvature()>0.0){q4++;}else{q4--;}
       px4+=track->px(); py4+=track->py(); pz4+=track->pz(); 
       e4+=sqrt(track->px()*track->px()+track->py()*track->py()
               +track->pz()*track->pz()+0.011163691);
@@ -48,7 +47,7 @@
         reco::Track* track1 = (reco::Track*)trackCollection[bindex];
         for ( unsigned int cindex = bindex+1; cindex < trackCollection.size(); ++cindex ) {
           reco::Track* track2 = (reco::Track*)trackCollection[cindex];
-          if (track1->omega()*track2->omega() < 0.0){
+          if (track1->transverseCurvature()*track2->transverseCurvature() < 0.0){
             double e1 = sqrt((track1->px()*track1->px())
                             +(track1->py()*track1->py())
                             +(track1->pz()*track1->pz())+0.011163691);
