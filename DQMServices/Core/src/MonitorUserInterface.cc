@@ -8,17 +8,12 @@ using namespace std;
 using namespace dqm::me_util;
 using namespace dqm::qtests;
 
-// Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
-// using <client_name>; if hostname ="", no connection will be attempted
-//MonitorUserInterface::MonitorUserInterface(const string hostname, int port_no, 
-//					   const string client_name) 
-//{
-//}
-
-// Use the default constructor for running in standalone mode (ie. no collector)
-MonitorUserInterface::MonitorUserInterface(void)
+/* Use the default constructor for running in standalone mode (ie. without
+   sources or collectors); if flag=true, client will accept downstream connections
+*/
+MonitorUserInterface::MonitorUserInterface(bool actAsServer)
 {
-  collate_mes.clear(); numUpdates_ = 0; bei = 0;
+  collate_mes.clear(); numUpdates_ = 0; bei = 0; actAsServer_ = actAsServer;
 }
 
 MonitorUserInterface::~MonitorUserInterface(void)
@@ -91,7 +86,7 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
 void MonitorUserInterface::subscribe(const string & subsc_request)
 {
-  if(standaloneMode()) return;
+  if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;
   subscribe_base(subsc_request, true);
 }
@@ -100,7 +95,7 @@ void MonitorUserInterface::subscribe(const string & subsc_request)
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
 void MonitorUserInterface::unsubscribe(const string & subsc_request)
 {
-  if(standaloneMode()) return;
+  if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;
   subscribe_base(subsc_request, false);
 }
@@ -108,7 +103,7 @@ void MonitorUserInterface::unsubscribe(const string & subsc_request)
 // similar to method subscribe; use only additions to monitorable in last cycle
 void MonitorUserInterface::subscribeNew(const string & subsc_request)
 {
-  if(standaloneMode()) return;
+  if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;
 
   vector<string> put_here; put_here.clear();
@@ -284,7 +279,9 @@ void MonitorUserInterface::doSummary(void)
     }
 }
 
-// this is the "main" loop where we receive monitoring;
+// this is the "main" loop where we receive monitoring/send subscription requests;
+// if client acts as server, method runQTests is also sending monitoring & 
+// test results to clients downstream;
 // returns success flag
 bool MonitorUserInterface::update(void)
 {
@@ -293,7 +290,8 @@ bool MonitorUserInterface::update(void)
   // calculation of "collate"-type Monitoring Elements;
   bool ret = doMonitoring();
 
-  // Run quality tests (and determine updated contents)
+  // Run quality tests (and determine updated contents);
+  // Method is overloaded if client acts as server to other clients downstream
   runQTests();
 
   return ret;
