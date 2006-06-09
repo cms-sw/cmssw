@@ -95,29 +95,37 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	
 	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	//meanwhile computes the number of degrees of freedom
-	edm::OwnVector<const TransientTrackingRecHit> hits;
+
+	edm::OwnVector<TransientTrackingRecHit> tmp;
+	edm::OwnVector<TransientTrackingRecHit> hits;
 	
 	float ndof=0;
 	
 	for (trackingRecHit_iterator i=theT->recHitsBegin();
 	     i!=theT->recHitsEnd(); i++){
 	  // 	hits.push_back(builder->build(&**i ));
-	  if ((*i)->isValid()){
-	    hits.push_back(builder->build(&**i ));
-	    ndof = ndof + ((*i)->dimension())*((*i)->weight());
-	  }
+	  // 	  if ((*i)->isValid()){
+	    tmp.push_back(builder->build(&**i ));
+	    if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+	    //	  }
 	}
 	
 	
 	ndof = ndof - 5;
 
 	//SORT RECHITS ALONGMOMENTUM
-	hits.sort(TrackingRecHitLessFromGlobalPosition(theG,alongMomentum));
+	//FIXME temporary should use reverse
+	if (tmp.begin()->globalPosition().mag2() > (tmp.end()-1)->globalPosition().mag2()){
+	  for (edm::OwnVector<TransientTrackingRecHit>::iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+	    hits.push_back(it->clone());
+	  }
+	} else hits=tmp;
 	
 	reco::TransientTrack theTT(*theT);
 	
 	//       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
 	//       theTSOS.rescaleError(100);
+
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
 	AlgebraicSymMatrix C(5,1);
 	C *= 100.;
