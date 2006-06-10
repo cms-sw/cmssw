@@ -40,6 +40,12 @@ class L1GctMap {
   /// get the SC number
   unsigned sourceCard(L1GctRegion r);
 
+  /// get the SC type
+  unsigned sourceCardType(L1GctRegion r);
+
+  /// get the SC input
+  unsigned sourceCardInput(L1GctRegion r);
+
   /// get the eta index within an RCT crate
   unsigned rctEta(L1GctRegion r);
 
@@ -61,6 +67,8 @@ class L1GctMap {
   /// get ID from eta, phi indices
   unsigned id(unsigned ieta, unsigned iphi);
 
+  /// get ID from position in system
+  unsigned id(unsigned rctCrate, unsigned scType, unsigned in); 
 
  private:        // methods
 
