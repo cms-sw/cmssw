@@ -4,7 +4,10 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/MeasurementDet>
 <use name=RecoTracker/TkSeedGenerator>
+<use name=RecoTracker/MeasurementDet>
+<use name=RecoTracker/TkTrackingRegions>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=rootrflx>
@@ -20,7 +23,10 @@
    <use name=TrackingTools/TrajectoryState>
    <use name=TrackingTools/MaterialEffects>
    <use name=TrackingTools/KalmanUpdators>
+   <use name=TrackingTools/MeasurementDet>
    <use name=RecoTracker/TkSeedGenerator>
+   <use name=RecoTracker/MeasurementDet>
+   <use name=RecoTracker/TkTrackingRegions>
    <use name=RecoMuon/TrackingTools>
    <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=rootrflx>
