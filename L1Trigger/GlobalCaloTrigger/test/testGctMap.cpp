@@ -35,9 +35,39 @@ int main() {
     cout << endl;
 
   }
-    
 
+  cout << "testing source card mapping\n";
 
+  for (unsigned crate=0; crate<18; crate++) {
+
+    cout << "Crate " << crate << " source 2 \n"; 
+    for (unsigned in=0; in<12; in++) {
+      L1GctRegion temp(map->id(crate,2,in), 100,
+		       false, false, false, false);
+      if ((map->rctCrate(temp)!=crate) ||
+	  (map->sourceCardType(temp)!=2) ||
+	  (map->sourceCardInput(temp)!=in)) {
+	cout << "Error for crate " << crate
+	     << " source card 2, input " << in
+	     << " id is " << temp.id() << endl;
+      } else { cout << "  " << temp.id(); }
+    }
+    cout << endl;
+
+    cout << "Crate " << crate << " source 3 \n";
+    for (unsigned in=0; in<10; in++) {
+      L1GctRegion temp(map->id(crate,3,in), 100,
+		       false, false, false, false);
+      if ((map->rctCrate(temp)!=crate) ||
+	  (map->sourceCardType(temp)!=3) ||
+	  (map->sourceCardInput(temp)!=in)) {
+	cout << "Error for crate " << crate
+	     << " source card 3, input " << in
+	     << " id is " << temp.id() << endl;
+      } else { cout << "  " << temp.id(); }
+    }
+    cout << endl;
+  }
 
   return 0;
 
