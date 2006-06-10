@@ -12,7 +12,7 @@ using std::endl;
 L1GctRegion::L1GctRegion(unsigned id, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
   m_id(id)
 {
-  bool checkOvF = overFlow | (et>=0x400);
+  bool checkOvF = overFlow || (et>=0x400);
   m_data = 
     (et & 0x3ff) | 
     ((checkOvF) ? 0x400  : 0x0) |
