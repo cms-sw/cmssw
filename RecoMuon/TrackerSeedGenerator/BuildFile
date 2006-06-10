@@ -5,6 +5,8 @@
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/KalmanUpdators>
 <use name=RecoTracker/TkSeedGenerator>
+<use name=RecoMuon/TrackingTools>
+<use name=TrackPropagation/SteppingHelixPropagator>
 <use name=rootrflx>
 <use name=boost>
 <use name=root>
@@ -19,6 +21,8 @@
    <use name=TrackingTools/MaterialEffects>
    <use name=TrackingTools/KalmanUpdators>
    <use name=RecoTracker/TkSeedGenerator>
+   <use name=RecoMuon/TrackingTools>
+   <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=rootrflx>
    <use name=boost>
    <use name=root>
