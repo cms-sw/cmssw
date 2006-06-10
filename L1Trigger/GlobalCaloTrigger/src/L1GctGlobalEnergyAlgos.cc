@@ -289,7 +289,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctEtComponent ex, const L
   unsigned eFact;
 
   unsigned b,phibin;
-  bool midphi;
+  bool midphi=false;
 
   // Here's the coarse calculation, with just one multiply operation
   //
