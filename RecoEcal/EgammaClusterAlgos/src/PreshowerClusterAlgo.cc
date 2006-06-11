@@ -1,20 +1,22 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-#include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
+//#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+//#include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 
 #include <vector>
 #include <map>
 
 
-reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::ESHandle<CaloTopology> theCaloTopology)
+reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::ESHandle<CaloTopology> theCaloTopology,
+                                                            edm::ESHandle<CaloGeometry> geometry_h)
 {
-
   int plane = strip.plane();
 
   std::cout << "Preshower Seeded Algorithm - looking for clusters" << std::endl;
@@ -22,7 +24,8 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
 
   //  std::vector<EcalRecHit*> dummy; 
   EcalRecHitCollection dummy;
-  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(dummy,plane);
+  Point posi(0,0,0);
+  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(posi,dummy,plane);
 
   if ( strip == ESDetId(0) ) return nullcluster;
                                                   
@@ -33,8 +36,9 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
   int n = 2*PreshSeededNstr_+1;
   unsigned int m = 3*n;
   std::vector<ESDetId> road_2d(m) ;
-  EcalRecHitCollection clusterReco;                                                                                                                                                                                                                                        
-  // EcalEndcapNavigator should be replaced by ESNavigator!
+  EcalRecHitCollection clusterRecHits;          
+  std::vector<reco::EcalRecHitData> recHits_pos;  
+
   std::cout << "Starting at : (" << strip.six() << "," << strip.siy() << ")" << std::endl;
   //Make a navigator, and set it to the strip cell.
   //  const CaloSubdetectorTopology* esTopology;
@@ -161,10 +165,15 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
    float E = thisStrip.first.energy();
      // Save strip for clustering if it is not already in use and satisfies energy threshold
    if ( !thisStrip.second && E > PreshStripEnergyCut_) {
-      clusterReco.push_back(thisStrip.first);
+      clusterRecHits.push_back(thisStrip.first);
+      reco::EcalRecHitData data(thisStrip.first.energy(),0,thisStrip.first.id());
+      recHits_pos.push_back(data);
       std::cout << " Central hottest strip is saved " << std::endl;
       std::cout << " with energy E = " <<  E << std::endl;
    }  
+
+  //adjacent strips positions:
+  ESDetId strip_1, strip_2;
 
   theESNav.setHome(strip_max);
   if (plane == 1) {
@@ -177,7 +186,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
        float E = thisStrip.first.energy();
        // Save strip for clustering if it exists and is not already in use, and satisfies energy threshold
        if ( strip_in_rhits_it != rhits_presh.end() && (!thisStrip.second) && E > PreshStripEnergyCut_ ) {
-          clusterReco.push_back(thisStrip.first);
+          clusterRecHits.push_back(thisStrip.first);        
           std::cout << " East adjacent strip # " << nadjacents_east << " is saved with energy E = " << E << std::endl;
        }  
        ++nadjacents_east;
@@ -191,11 +200,16 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
        std::pair <EcalRecHit, bool> thisStrip = strip_in_rhits_it->second;
        // Save strip for clustering if it exists and is not already in use, and satisfies energy threshold
        if ( strip_in_rhits_it != rhits_presh.end() && (!thisStrip.second)  && E > PreshStripEnergyCut_) {
-          clusterReco.push_back(thisStrip.first);
+          clusterRecHits.push_back(thisStrip.first);
           std::cout << " West adjacent strip # " << nadjacents_west << " is saved with energy E = " << E << std::endl;
        }  
        ++nadjacents_west;
     }
+    //adjacent strips positions:
+    theESNav.setHome(strip_max);
+    strip_1 = theESNav.east();
+    theESNav.setHome(strip_max);
+    strip_2 = theESNav.west();
   }
   else if (plane == 2) {
     // Save two neighbouring strips to the north
@@ -207,7 +221,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
        float E = thisStrip.first.energy();
        // Save strip for clustering if it exists and is not already in use, and satisfies energy threshold
        if ( strip_in_rhits_it != rhits_presh.end() && (!thisStrip.second) && E > PreshStripEnergyCut_ ) {
-          clusterReco.push_back(thisStrip.first);
+          clusterRecHits.push_back(thisStrip.first);
           std::cout << " North adjacent strip # " << nadjacents_north << " is saved with energy E = " << E << std::endl;
        }  
        ++nadjacents_north;
@@ -221,20 +235,41 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
        std::pair <EcalRecHit, bool> thisStrip = strip_in_rhits_it->second;
        // Save strip for clustering if it exists and is not already in use, and satisfies energy threshold
        if ( strip_in_rhits_it != rhits_presh.end() && (!thisStrip.second)  && E > PreshStripEnergyCut_) {
-          clusterReco.push_back(thisStrip.first);
+          clusterRecHits.push_back(thisStrip.first);
           std::cout << " South adjacent strip # " << nadjacents_south << " is saved with energy E = " << E << std::endl;
        }  
        ++nadjacents_south;
     }
+    //adjacent strips positions:
+    theESNav.setHome(strip_max);
+    strip_1 = theESNav.north();
+    theESNav.setHome(strip_max);
+    strip_2 = theESNav.south();
   }
   else {
     std::cout << " Wrong plane number, null cluster will be returned! " << std::endl;
     return nullcluster;
   } // end of if
 
-  // a cluster is created from vector clusterReco
-  reco::PreshowerCluster cluster=reco::PreshowerCluster(clusterReco,plane) ;
-  //cluster.correct();    // correction method from class PreshowerCluster should exist! absolutely no! (Shahram)
+  // strips for position calculation
+  std::map<ESDetId, std::pair<EcalRecHit, bool> >::iterator strip_in_rhits_it = rhits_presh.find(strip_1);
+  std::pair <EcalRecHit, bool> thisStrip1 = strip_in_rhits_it->second;
+  strip_in_rhits_it = rhits_presh.find(strip_2);
+  std::pair <EcalRecHit, bool> thisStrip2 = strip_in_rhits_it->second;
+  reco::EcalRecHitData data1(thisStrip1.first.energy(),0,thisStrip1.first.id());
+  reco::EcalRecHitData data2(thisStrip2.first.energy(),0,thisStrip2.first.id());
+  recHits_pos.push_back(data1);
+  recHits_pos.push_back(data2);
+
+  // create cluster
+  const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorGeometry const geometry = *geometry_p;
+
+  //Get cluster position from 3 central strips
+  Point pos = getECALposition(recHits_pos, geometry);
+
+  // a cluster is created from vector clusterRecHits
+  reco::PreshowerCluster cluster=reco::PreshowerCluster(pos,clusterRecHits,plane);
 
   // return the cluster if its energy is greater a threshold
   if( cluster.Energy() > PreshClusterEnergyCut_ ) 
