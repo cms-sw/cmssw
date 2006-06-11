@@ -1,51 +1,39 @@
-#ifndef PreshowerCluster_h
-#define PreshowerCluster_h
-
+#ifndef DataFormats_EgammaReco_PreshowerCluster_h
+#define DataFormats_EgammaReco_PreshowerCluster_h
+//
+// $Id: $
+//
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <cmath>
-#include <vector>
 
 namespace reco {
-  
-  class PreshowerCluster {
-  
+
+  // should we inherit it from EcalCluster ???
+  class PreshowerCluster { // : public EcalCluster {
   public:
 
     typedef math::XYZPoint Point;
-    
+
     // default constructor
     PreshowerCluster();
 
-    
-
-    virtual ~PreshowerCluster();
+    ~PreshowerCluster();
 
     // Constructor from EcalRecHits
-    PreshowerCluster(const std::vector<EcalRecHit*> &rhits,
-		     int layer_,
-		     const CaloSubdetectorGeometry *geometry_p,
-		     const CaloSubdetectorTopology *topology_p);
-
+    PreshowerCluster(const Point& position, const EcalRecHitCollection & rhits_, int layer_);
 
     // Constructor from cluster
     PreshowerCluster(const PreshowerCluster&);
 
-
     Point Position() const {
       return Point(radius*cos(phi)*sin(theta),
-		   radius*sin(phi)*sin(theta),
-		   radius*cos(theta));
+                   radius*sin(phi)*sin(theta),
+                   radius*cos(theta));
     }
 
     double Ex() const {
@@ -64,73 +52,48 @@ namespace reco {
       return energy*sin(theta);
     }
 
-    double Energy() const;
-    double EnergyUncorrected() const;
-    double Radius() const;
-    double Theta() const;
-    double Eta() const;
-    double Phi() const;
-    int Nhits() const;
+// Methods that return information about the cluster
+    double Energy() const {return energy;}
+    double Radius() const {return radius;}
+    double Theta() const {return theta;}
+    double Eta() const {return eta;}
+    double Phi() const {return phi;}
+    int Nhits() const {return rhits.size();}
 
-    std::vector<EcalRecHit*>::const_iterator RHBegin() const {
+    EcalRecHitCollection::const_iterator RHBegin() const {
       return rhits.begin();
     }
-      
-    std::vector<EcalRecHit*>::const_iterator RHEnd() const {
+
+    EcalRecHitCollection::const_iterator RHEnd() const {
       return rhits.end();
     }
 
     int Plane() {
-      return layer_;
+      return layer;
     }
-
-    // Cluster correction
-    void Correct();
 
     static const char * name() {return "PreshowerCluster";}
 
     // Comparisons
-    int operator==(const PreshowerCluster&) const;
-    int operator<(const PreshowerCluster&) const;
+    bool operator==(const PreshowerCluster&) const;
+    bool operator<(const PreshowerCluster&) const;
 
     reco::BasicCluster * getBCPtr() {return bc_ptr;}
 
-  protected:
-
-
+  private:
 
     double energy;
+    double euncorrected;
     double et;
 
     double radius;
     double theta;
     double eta;
     double phi;
-
-    double x;
-    double y;
-    double z;
-
-    double euncorrected;
- 
-    int nhits;
-
-    virtual void init();
-    virtual void init(const PreshowerCluster &);
-    
-    CaloSubdetectorGeometry geometry;
- 
-    CaloSubdetectorTopology topology;
+    int layer;
 
     reco::BasicCluster *bc_ptr;
-
-  private:
-    
-    int layer_;
-
-    std::vector<EcalRecHit*> rhits;
+    EcalRecHitCollection rhits;
   };
-
 }
-
 #endif

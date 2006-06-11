@@ -35,5 +35,12 @@
   <class name="std::vector<reco::ElectronPixelSeed>"/>
   <class name="edm::Wrapper<std::vector<reco::ElectronPixelSeed> >"/>
 
+  <class name="reco::PreshowerCluster"/>
+  <class name="std::vector<reco::PreshowerCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::PreshowerCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
+  <class name="edm::RefProd<std::vector<reco::PreshowerCluster> >"/>
+  <class name="edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
+
 </lcgdict>
 

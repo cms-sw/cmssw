@@ -6,6 +6,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 
 namespace { 
   namespace {
@@ -46,6 +47,12 @@ namespace {
 
     reco::ElectronPixelSeedCollection v111;
     edm::Wrapper<reco::ElectronPixelSeedCollection> w111;
+
+    reco::PreshowerClusterCollection ps5;
+    edm::Wrapper<reco::PreshowerClusterCollection> psw5;
+    edm::Ref<reco::PreshowerClusterCollection> psr5;
+    edm::RefProd<reco::PreshowerClusterCollection> psrp5;
+    edm::RefVector<reco::PreshowerClusterCollection> psrv5;
 
   }
 }
