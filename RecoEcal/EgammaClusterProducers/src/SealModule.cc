@@ -6,6 +6,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/SuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSCCorrectionMaker.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -15,3 +16,4 @@ DEFINE_ANOTHER_FWK_MODULE(HybridClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(SuperClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(EgammaSCCorrectionMaker);
 DEFINE_ANOTHER_FWK_MODULE(EgammaSimpleAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterProducer);
