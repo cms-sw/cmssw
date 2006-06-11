@@ -35,7 +35,7 @@ private:
     void dumpG4LVList(std::ostream& out = std::cout);
     void dumpG4LVTree(std::ostream& out = std::cout);
     void dumpMaterialList(std::ostream& out = std::cout);
-    void dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, std::ostream & out = std::cout);
+    void dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out = std::cout);
     int countNoTouchables();
     void add1touchable(G4LogicalVolume * lv, int & nTouch);
     void dumpHierarchyTreePVLV(std::ostream& out = std::cout);

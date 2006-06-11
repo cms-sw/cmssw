@@ -27,6 +27,7 @@
 #include "G4TransportationManager.hh"
 
 #include <set>
+#include <map>
 
 PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p)
 {
@@ -153,14 +154,14 @@ void PrintGeomInfoAction::dumpG4LVList(std::ostream & out)
     const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
     std::vector<G4LogicalVolume*>::const_iterator lvcite;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
-	out << "LV: " << (*lvcite)->GetName() << std::endl;
+      out << "LV:" << (*lvcite)->GetName() << "\tMaterial: " << (*lvcite)->GetMaterial()->GetName() << std::endl;
 }
 
 void PrintGeomInfoAction::dumpG4LVTree(std::ostream & out)
 {
     out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's Tree  " << std::endl;
     G4LogicalVolume * lv = getTopLV(); 
-    dumpG4LVLeaf(lv,0,out);
+    dumpG4LVLeaf(lv,0,1,out);
 }
 
 void PrintGeomInfoAction::dumpMaterialList(std::ostream & out)
@@ -173,18 +174,21 @@ void PrintGeomInfoAction::dumpMaterialList(std::ostream & out)
 	out << "Material: " << (*matite) << std::endl;
 }
 
-void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, std::ostream & out)
+void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out)
 {
-    uint ii;
-    for (ii=0; ii < leafDepth; ii++) out << "  ";
-    out << " LV:(" << leafDepth << ") " << lv->GetName() << std::endl;
-    uint siz = lv->GetNoDaughters();
+    for (uint ii=0; ii < leafDepth; ii++) out << "  ";
+    out << " LV:(" << leafDepth << ") " << lv->GetName() << " (" << count
+	<< ")" << std::endl;
     //--- If a volume is placed n types as daughter of this LV, it should only be counted once
-    std::set< G4LogicalVolume* > lvDaughters;
-    for (ii = 0; ii < siz; ii++) lvDaughters.insert(lv->GetDaughter(ii)->GetLogicalVolume());
-    std::set< G4LogicalVolume* >::const_iterator cite;
-    for (cite = lvDaughters.begin(); cite != lvDaughters.end(); cite++)
-	dumpG4LVLeaf(*cite, leafDepth+1, out);
+    std::map<G4LogicalVolume*, uint> lvCount;
+    std::map<G4LogicalVolume*, uint>::const_iterator cite;
+    for (int ii = 0; ii < lv->GetNoDaughters(); ii++) {
+	cite = lvCount.find(lv->GetDaughter(ii)->GetLogicalVolume());
+	if (cite != lvCount.end()) lvCount[cite->first] = (cite->second) + 1;
+	else lvCount.insert(std::pair< G4LogicalVolume*,uint>(lv->GetDaughter(ii)->GetLogicalVolume(),1));
+    }
+    for (cite = lvCount.begin(); cite != lvCount.end(); cite++) 
+	dumpG4LVLeaf((cite->first), leafDepth+1, (cite->second), out);
 }
 
 int PrintGeomInfoAction::countNoTouchables()
