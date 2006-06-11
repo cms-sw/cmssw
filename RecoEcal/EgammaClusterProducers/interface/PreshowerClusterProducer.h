@@ -1,44 +1,40 @@
 #ifndef RecoEcal_EgammaClusterProducers_PreshowerClusterProducer_h
 #define RecoEcal_EgammaClusterProducers_PreshowerClusterProducer_h
-/** \class PreshowerClusterProducer
- **   example of producer for BasicCluster from recHits
- **
- **  $Id: PreshowerClusterProducer.h,v 1.1 2006/04/13 14:40:05 rahatlou Exp $
- **  $Date: 2006/04/13 14:40:05 $
- **  $Revision: 1.1 $
- **  \author Shahram Rahatlou, University of Rome & INFN, April 2006
- **
- ***/
+
+#include <memory>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
-#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-// PreshowerClusterProducer inherits from EDProducer, so it can be a module:
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
+
+
 class PreshowerClusterProducer : public edm::EDProducer {
 
  public:
 
+  typedef math::XYZPoint Point;
+
   PreshowerClusterProducer (const edm::ParameterSet& ps);
+
   ~PreshowerClusterProducer();
 
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
-  const ESDetId getClosestCellInPlane( const reco::Point&, const int&) const;
+  const ESDetId getClosestCellInPlane(Point &point, const int plane) const;
 
  private:
 
-  //typedef math::XYZPoint Point;
-  PreshowerClusterAlgo* presh_algo_; // algorithm doing the real work
+  int nEvt_;         // internal counter of events
 
   std::string hitProducer_;   // name of module/plugin/producer producing hits
   std::string hitCollection_; // secondary name given to collection of hits by hitProducer
   std::string clusterCollection1_;  // secondary name to be given to collection of cluster produced in this module
   std::string clusterCollection2_;  
+  std::string superclusterCollection_;
 
   int PreshNclust_;
 
@@ -46,7 +42,9 @@ class PreshowerClusterProducer : public edm::EDProducer {
   double calib_plane2_;
   double miptogev_;
 
-  std::string SClusterCollection_;    // name of super cluster collection
+  PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
+
+  std::string SClusterCollection_;    // name of super cluster output collection
 
 };
 #endif
