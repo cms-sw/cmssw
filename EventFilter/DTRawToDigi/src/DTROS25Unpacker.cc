@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 10:31:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/05/30 08:29:32 $
+ *  $Revision: 1.15 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -80,12 +80,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
     rosID++; // to be mapped;
     
-    // matching the ROS number with the enabled DDU channel
-    if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;      
-
-    if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList
-		   <<" ROS ID "<<rosID<<endl;
-    
+    if ( pset.getUntrackedParameter<bool>("readingDDU",true) ) {
+      // matching the ROS number with the enabled DDU channel
+      if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;      
+      
+      if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList
+		     <<" ROS ID "<<rosID<<endl;
+    }
     
     // ROS Header; 
     if (DTROSWordType(word).type() == DTROSWordType::ROSHeader) {
@@ -196,18 +197,21 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	// Check the eventual Sector Collector Header       
         else if (DTROSWordType(word).type() == DTROSWordType::SCHeader) {
-	  // implement this
+	  DTLocalTriggerHeaderWord scHeaderWord(word);
+	  if (debug) cout<<"[DTROS25Unpacker]: SCHeader  eventID"<<scHeaderWord.eventID()<<endl;
 	  do {
             wordCounter++; word = index[wordCounter];
 	    
 	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
-	      // implement this
+	      DTLocalTriggerDataWord scDataWord(word);
+	      if (debug) cout<<"[DTROS25Unpacker]: SCData bits"<<scDataWord.SCData()<<endl;
 	    }
 
-	  } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
+	  } while ( DTROSWordType(word).type() != DTROSWordType::SCTrailer );
 
 	  if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
-	    // implement this
+	    DTLocalTriggerTrailerWord scTrailerWord(word);
+	    if (debug) cout<<"[DTROS25Unpacker]: SCTrailer, number of words"<<scTrailerWord.wordCount()<<endl;
 	  }
 	}
 
