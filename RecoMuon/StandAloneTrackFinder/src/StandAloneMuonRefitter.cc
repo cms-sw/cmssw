@@ -1,32 +1,36 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/30 17:46:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/01 15:43:46 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
+
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/Enumerators.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
-#include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 
 #include <vector>
 
@@ -55,32 +59,22 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
   // The errors of the trajectory state are multiplied by nSigma 
   // to define acceptance of BoundPlane and maximalLocalDisplacement
   theNSigma = par.getParameter<double>("NumberOfSigma"); // default = 3.
-
-  // The propagator: it propagates a state
-  thePropagator = new SteppingHelixPropagator();
-  // FIXME!!it Must be:
-  // thePropagator = new SteppingHelixPropagator(magField,thePropagationDirection);
-  // the propagation direction must be set via parameter set
-
-  // The estimator: makes the decision wheter a measure is good or not for the fit
+  
+  // The estimator: makes the decision wheter a measure is good or not
+  // it isn't used by the updator which does the real fit. In fact, in principle,
+  // a looser request onto the measure set can be requested 
+  // (w.r.t. the request on the accept/reject measure in the fit)
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma);
 
-  // FIXME: Do I want different propagator and estimator??
-  // The best measurement finder: search for the best measurement among the TMs available
-  theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator);
-
-  // the muon updator (it doesn't inhert from an updator, but it has one!)
-  // the updator is suitable both for FW and BW filtering. The difference between the two fitter are two:
-  // the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
-  // parameter set, and the propagation direction which is embeded in the propagator.
+  // FIXME: Do I need it??
+  // theMuonUpdatorName = par.getParameter<string>("MuonUpdatorName");
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
-  theMuonUpdator = new MuonTrajectoryUpdator(thePropagator,muonUpdatorPSet);
+  theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet); //FIXME this is very very temp!!!
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
-  delete thePropagator;
+  //  delete thePropagator;
   delete theEstimator;
-  delete theBestMeasurementFinder;
   delete theMuonUpdator;
 }
 
@@ -95,16 +89,44 @@ void StandAloneMuonRefitter::reset(){
 
 void StandAloneMuonRefitter::setES(const EventSetup& setup){
   
-  // Set the muon DetLayer geometry in the navigation school
-//   edm::ESHandle<MuonDetLayerGeometry> muonDetLayerGeometry;
-//   setup.get<MuonRecoGeometryRecord>().get(muonDetLayerGeometry);     
-
-//   MuonNavigationSchool muonSchool(&*muonDetLayerGeometry);
-//   NavigationSetter setter(muonSchool);
+  init(setup);
+  
 }
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
   theMeasurementExtractor.setEvent(event);
+}
+
+void StandAloneMuonRefitter::init(const EventSetup& setup){
+  cout<<"StandAloneMuonRefitter::init"<<endl;
+
+  // FIXME: it is temporary solution waiting for the es_producers...
+
+  // set the magnetic field
+  edm::ESHandle<MagneticField> mgField;
+  setup.get<IdealMagneticFieldRecord>().get(mgField);
+  
+  // Init each event the members of the class
+  
+  // The propagator: it propagates a state
+  // the propagation direction must be set via parameter set
+  
+  // FIXME: take it from the event setup. This is very temp!!!!!
+  cout<<"StandAloneMuonRefitter::init 1"<<endl;
+  SteppingHelixPropagator prop(&*mgField,thePropagationDirection);
+  thePropagator = prop.clone();
+  cout<<"StandAloneMuonRefitter::init 2"<<endl;  
+
+  // the muon updator (it doesn't inhert from an updator, but it has one!)
+  // the updator is suitable both for FW and BW filtering. The difference between the two fitter are two:
+  // the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
+  // parameter set, and the propagation direction which is embeded in the propagator.
+
+  // TODO fare che theMuonUpdatorName = MuonUpdator + nome Propagator
+  // FIXME put it into the event setup and extract it from es. i.e.:
+  // theSetup.get<TrackingComponentsRecord>().get(theMuonUpdatorName,theMuonUpdator);
+  theMuonUpdator->setPropagator( propagator() ); // FIXME this function will disappear asap!!!
+  cout<<"StandAloneMuonRefitter::init 3"<<endl;
 }
 
 void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
@@ -156,21 +178,19 @@ StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterato
 
 
 void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
-  
+  cout<<"StandAloneMuonRefitter::refit"<<endl;
+
   std::string metname = "StandAloneMuonRefitter::refit";
   bool timing = true;
   
   MuonPatternRecoDumper debug;
-  LogDebug(metname) << "Starting the refit"; 
+  // FIXME
+  // LogDebug(metname) << "Starting the refit"; 
+  cout << "Starting the refit"<<endl;; 
   TimeMe t(metname,timing);
-  
-  //   // this is the most outward FTS updated with a recHit
-  //   FreeTrajectoryState lastUpdatedFts;
-  //   // this is the last but one most outward FTS updated with a recHit
-  //   FreeTrajectoryState lastButOneUpdatedFts;
-  //   // this is the most outward FTS (updated or predicted)
-  //   FreeTrajectoryState lastFts;
-  //   lastUpdatedFts = lastButOneUpdatedFts = lastFts = *(initialTSOS.freeTrajectoryState());
+
+  // The best measurement finder: search for the best measurement among the TMs available
+  MuonBestMeasurementFinder bestMeasurementFinder( propagator() );
   
   // this is the most outward TSOS updated with a recHit onto a DetLayer
   TrajectoryStateOnSurface lastUpdatedTSOS;
@@ -183,9 +203,12 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   
   // FIXME: check the prop direction!
   // it must be alongMomentum for the in-out refit
+  cout<<"compatible layers searching"<<endl;
   vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
 								     propagationDirection());  
 
+  cout<<"compatible layers found: "<<detLayers.size()<<endl;
+  
   vector<const DetLayer*>::const_iterator layer;
   vector<const DetLayer*>::const_iterator detLayers_begin;
   vector<const DetLayer*>::const_iterator detLayers_end;
@@ -194,20 +217,28 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   vectorLimits(detLayers,detLayers_begin,detLayers_end);
   
   // increment/decrement the iterator according to the propagation direction 
+  cout<<"loop over the compatible layers"<<endl;
   for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
     
-    debug.dumpLayer(*layer,metname);
-    
-    LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
+    // FIXME
+    // debug.dumpLayer(*layer,metname);
+    debug.dumpLayer(*layer);
+
+    // FIXME
+    //  LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
+    cout << "search Trajectory Measurement from: " << lastTSOS.globalPosition()<<endl;;
 
     vector<TrajectoryMeasurement> measL = 
       theMeasurementExtractor.measurements(*layer,
       					   lastTSOS, 
       					   *propagator(), 
 					   *estimator());
-    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
+
+    //    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
+    // FIXME
+    cout << "Number of Trajectory Measurement:" << measL.size();
     
-    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
+    TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     
     // RB: Different ways can be choosen if no bestMeasurement is available:
     // 1- check on lastTSOS-initialTSOS eta difference
@@ -225,13 +256,17 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
 
+      // FIXME
+      cout << "No measurement and big eta variation wrt seed" << endl
+	   << "trying with lastButOneUpdatedTSOS"<<endl;
+      
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
       measL = theMeasurementExtractor.measurements(*layer,
 						   lastButOneUpdatedTSOS, 
 						   *propagator(), 
 						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
+      bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     }
     
     //if no measurement found and the current FTS has an eta very different
@@ -240,23 +275,33 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     if( !bestMeasurement && 
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
+
+      // FIXME
+      cout << "No measurement and big eta variation wrt seed" << endl
+	   << "tryng with seed TSOS"<<endl;
       
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
+
       measL = theMeasurementExtractor.measurements(*layer,
 						   initialTSOS, 
 						   *propagator(), 
 						   *estimator());
-      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
+      bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     }
     
     // check if the there is a measurement
     if(bestMeasurement){
+      cout<<"best measurement found"<<endl
+	  <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
-      
+      cout<<"trajectory updated: "<<result.first<<endl;
+      debug.dumpTSOS(result.second);
+
       if(result.first){ 
 	lastTSOS = result.second;
 	incrementChamberCounters(*layer);
+	cout<<"Load layer"<<endl;
 	theDetLayers.push_back(*layer);
 	
 	lastButOneUpdatedTSOS = lastUpdatedTSOS;
@@ -266,9 +311,14 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     //SL in case no valid mesurement is found, still I want to use the predicted
     //state for the following measurement serches. I take the first in the
     //container. FIXME!!! I want to carefully check this!!!!!
-    else 
-      if (measL.size()>0) 
+    else{
+      cout<<"No best measurement found"<<endl;
+      if (measL.size()>0){
+	cout<<"but the #of measurement is "<<measL.size()<<endl;
         lastTSOS = measL.front().predictedState();
+      }
+    }
+
   }
   setLastUpdatedTSOS(lastUpdatedTSOS);
   setLastButOneUpdatedTSOS(lastButOneUpdatedTSOS);
