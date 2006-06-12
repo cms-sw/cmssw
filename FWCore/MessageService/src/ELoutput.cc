@@ -44,6 +44,7 @@
 //			till after the first 3 items (FILE:LINE) for
 //			debug messages. 
 //  6/06/06	mf	Verbatim
+//  6/12/06	mf	Set preambleMode true when printing the header
 // ----------------------------------------------------------------------
 
 
@@ -150,9 +151,12 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
                                         // Enh 001 2/13/01 mf
   if (emitAtStart) {
-  emit( "\n=================================================", true );
-  emit( "\nMessage Log File written by MessageLogger service \n" );
-  emit( "\n=================================================\n", true );
+    bool tprm = preambleMode;
+    preambleMode = true;
+    emit( "\n=================================================", true );
+    emit( "\nMessage Log File written by MessageLogger service \n" );
+    emit( "\n=================================================\n", true );
+    preambleMode = tprm;
   }
 
 }  // ELoutput()
@@ -182,6 +186,8 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     std::cerr << "Constructor for ELoutput( " << fileName << " )\n";
   #endif
 
+  bool tprm = preambleMode;
+  preambleMode = true;
   if ( os && *os )  {
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          Testing if os is owned\n";
@@ -222,6 +228,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     emit( "\n=======================================================\n",
                                                                 true );
   }
+  preambleMode = tprm;
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput completed.\n";

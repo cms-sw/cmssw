@@ -53,12 +53,16 @@
 //	The presence of the framework job report should not affect the output
 //      to the early destination (cerr).
 //
-//   9 - 6/6/06 mf  - in configure__dest()
+//   9 - 6/6/06 mf  - in configure_dest()
 //	Support for placeholder PSet without actually creating the destination.
 //	Useful in a .cfi file, in conjunction with potential replace commands.
 //
-//  10 - 6/6/06 mf  - in configure__dest()
+//  10 - 6/6/06 mf  - in configure_dest()
 //	Changed cfg keyward interval to reportEvery
+//
+//  11 - 6/12/06 mf  - in configure_errorlog()
+//	Check for placeholder before attaching a destination that may not be
+//	wanted.
 //
 // ----------------------------------------------------------------------
 
@@ -285,9 +289,16 @@ void
      ; ++it
      )
   {
+    String filename = *it;
+
+    // check that this destination is not just a placeholder // change log 11
+    PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
+    bool is_placeholder 
+	= getAparameter<bool>(&dest_pset,"placeholder", false);
+    if (is_placeholder) continue;
+
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
-    String filename = *it;
     if( filename == "cout" )  {
       dest_ctrl = admin_p->attach( ELoutput(std::cout) );
       stream_ps["cout"] = &std::cout;
