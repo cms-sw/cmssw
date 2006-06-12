@@ -156,9 +156,6 @@ void L1GctJetLeafCard::process() {
     m_etSum = m_etSum + etStripSum[i];
     m_exSum = m_exSum + exComponent(etStripSum[i], (phiPosition*6+i));
     m_eySum = m_eySum + eyComponent(etStripSum[i], (phiPosition*6+i));
-//     std::cout << "Jet Leaf " << m_id << " strip " << i << " adding strip sum " << etStripSum[i] << std::endl;
-//     std::cout << "Jet Leaf " << m_id << " strip " << i << " ex sum is now " << m_exSum << std::endl;
-//     std::cout << "Jet Leaf " << m_id << " strip " << i << " ey sum is now " << m_eySum << std::endl;
   }
 
   m_htSum =
