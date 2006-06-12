@@ -40,7 +40,7 @@ unsigned L1GctMap::sourceCardType(L1GctRegion r) {
 }
 
 // get the SC input number
-unsigned L1GctMap::sourceCardInput(L1GctRegion r) {
+unsigned L1GctMap::sourceCardOutput(L1GctRegion r) {
   unsigned result=99;
   unsigned localPhi = this->rctPhi(r);
   unsigned localEta = this->rctEta(r);

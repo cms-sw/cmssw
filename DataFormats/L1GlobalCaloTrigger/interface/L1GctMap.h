@@ -44,7 +44,7 @@ class L1GctMap {
   unsigned sourceCardType(L1GctRegion r);
 
   /// get the SC input
-  unsigned sourceCardInput(L1GctRegion r);
+  unsigned sourceCardOutput(L1GctRegion r);
 
   /// get the eta index within an RCT crate
   unsigned rctEta(L1GctRegion r);

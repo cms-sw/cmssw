@@ -157,7 +157,7 @@ void L1GlobalCaloTrigger::setRegion(L1GctRegion region) {
       << " setRegion method should not be used\n"; 
   }
   unsigned scnum = L1GctMap::getMap()->sourceCard(region);
-  unsigned input = L1GctMap::getMap()->sourceCardInput(region);
+  unsigned input = L1GctMap::getMap()->sourceCardOutput(region);
   L1GctSourceCard* sc = theSourceCards[scnum];
   std::vector<L1GctRegion> tempRegions = sc->getRegions();
   tempRegions[input] = region;

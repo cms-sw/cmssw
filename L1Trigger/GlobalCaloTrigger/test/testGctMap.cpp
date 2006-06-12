@@ -46,7 +46,7 @@ int main() {
 		       false, false, false, false);
       if ((map->rctCrate(temp)!=crate) ||
 	  (map->sourceCardType(temp)!=2) ||
-	  (map->sourceCardInput(temp)!=in)) {
+	  (map->sourceCardOutput(temp)!=in)) {
 	cout << "Error for crate " << crate
 	     << " source card 2, input " << in
 	     << " id is " << temp.id() << endl;
@@ -60,7 +60,7 @@ int main() {
 		       false, false, false, false);
       if ((map->rctCrate(temp)!=crate) ||
 	  (map->sourceCardType(temp)!=3) ||
-	  (map->sourceCardInput(temp)!=in)) {
+	  (map->sourceCardOutput(temp)!=in)) {
 	cout << "Error for crate " << crate
 	     << " source card 3, input " << in
 	     << " id is " << temp.id() << endl;
