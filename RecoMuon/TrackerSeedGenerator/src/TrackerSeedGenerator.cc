@@ -3,8 +3,8 @@
 /** \class MuonSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/10 17:38:19 $
+ *  $Revision: 1.2 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -40,6 +40,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
@@ -91,11 +92,20 @@ TrackerSeedGenerator::~TrackerSeedGenerator() {
 
 }
 
-
 //
-void TrackerSeedGenerator::findSeeds(const reco::Track& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+   theSeeds.clear();
+   findSeeds(muon, iEvent, iSetup);
+   return BTSeedCollection(theSeeds);
+
+}
+//
+void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
  // track at innermost muon station
-  TrajectoryStateOnSurface traj;// = muon.innermostState();
+  TrajectoryStateOnSurface traj = muon.firstMeasurement().updatedState();
+  if ( muon.direction() == oppositeToMomentum ) 
+    traj = muon.lastMeasurement().updatedState();
+
   //FIXME: the result of STA should contain Trajectory or something more
   if ( !traj.isValid() ) return;
 
@@ -124,7 +134,7 @@ void TrackerSeedGenerator::findSeeds(const reco::Track& muon, const edm::Event& 
   float eta2 = 0.0;
   float phi2 = 0.0;
   float theta2 = 0.0;
-  const vector<TransientTrackingRecHit> recHits; //FIXME: = muon.recHits();
+  const edm::OwnVector< const TransientTrackingRecHit> recHits = muon.recHits();
   const TransientTrackingRecHit& r = *(recHits.begin()+1);
   eta2   = r.globalPosition().eta();
   phi2   = r.globalPosition().phi();
@@ -247,7 +257,7 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
 
 // primitive seeds
 //
-void TrackerSeedGenerator::primitiveSeeds(const reco::Track& muon, 
+void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon, 
                                           const TrajectoryStateOnSurface& traj) {
   int nseeds = theSeeds.size();
   int nlayers = 0;
@@ -280,7 +290,8 @@ void TrackerSeedGenerator::primitiveSeeds(const reco::Track& muon,
       double maxChi2 = 150.0;
       Chi2MeasurementEstimator aEstimator(maxChi2);
       
-      const std::vector<TrajectoryMeasurement> meas = theLayerMeasurements->measurements((*layer),start,*thePropagator,aEstimator); 
+      const std::vector<TrajectoryMeasurement> meas = 
+      theLayerMeasurements->measurements((*layer),start,*thePropagator,aEstimator); 
       //?FIXME: no fast version for layer
 
       vector<TrajectoryMeasurement>::const_iterator it;
@@ -311,7 +322,7 @@ void TrackerSeedGenerator::primitiveSeeds(const reco::Track& muon,
 //
 // seeds from consecutive hits
 //
-void TrackerSeedGenerator::consecutiveHitsSeeds(const reco::Track& muon,
+void TrackerSeedGenerator::consecutiveHitsSeeds(const Trajectory& muon,
                                                 const TrajectoryStateOnSurface& traj,
                                                 const edm::EventSetup& iSetup,
                                                 const TrackingRegion& regionOfInterest) {
@@ -402,7 +413,7 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
 //
 // seeds from pixels
 //
-void TrackerSeedGenerator::pixelSeeds(const reco::Track& muon, 
+void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon, 
                                       const TrajectoryStateOnSurface& traj,
                                       const edm::EventSetup& iSetup,
                                       const TrackingRegion& regionOfInterest,

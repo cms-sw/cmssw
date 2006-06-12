@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/06/10 00:55:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/10 17:38:24 $
+ *  $Revision: 1.3 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -41,17 +41,18 @@ class TrackerSeedGenerator {
     /// destructor
     virtual ~TrackerSeedGenerator();
 
-    /// create seeds from muon trajectory
-    void findSeeds(const reco::Track& muon, const edm::Event& , const edm::EventSetup&);  
-
+    BTSeedCollection trackerSeeds(const Trajectory&, const edm::Event& , const edm::EventSetup&);
+    
   private:
+    /// create seeds from muon trajectory
+    void findSeeds(const Trajectory& muon, const edm::Event& , const edm::EventSetup&);  
 
     void findLayerList(const TrajectoryStateOnSurface& traj);
 
-    void primitiveSeeds(const reco::Track&, 
+    void primitiveSeeds(const Trajectory&, 
                         const TrajectoryStateOnSurface&);
 
-    void consecutiveHitsSeeds(const reco::Track&, 
+    void consecutiveHitsSeeds(const Trajectory&, 
                               const TrajectoryStateOnSurface&, 
                               const edm::EventSetup&,
                               const TrackingRegion&);
@@ -61,7 +62,7 @@ class TrackerSeedGenerator {
                     const edm::EventSetup&,
                     const TrackingRegion& regionOfInterest);
 
-    void pixelSeeds(const reco::Track&, 
+    void pixelSeeds(const Trajectory&, 
                     const TrajectoryStateOnSurface&, 
                     const edm::EventSetup&,
                     const TrackingRegion&,
