@@ -10,8 +10,10 @@
 using namespace edm;
 
 
-MessageSender::MessageSender( ELseverityLevel const & sev, ELstring const & id )
-: errorobj_p( new ErrorObj(sev,id) )
+MessageSender::MessageSender( ELseverityLevel const & sev, 
+			      ELstring const & id,
+			      bool verbatim )
+: errorobj_p( new ErrorObj(sev,id,verbatim) )
 {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }

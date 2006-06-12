@@ -13,7 +13,9 @@ class MessageSender
 {
 public:
   // ---  birth/death:
-  MessageSender( ELseverityLevel const & sev, ELstring const & id );
+  MessageSender( ELseverityLevel const & sev, 
+  		 ELstring const & id,
+		 bool verbatim = false );
   ~MessageSender();
 
   // ---  stream out the next part of a message:

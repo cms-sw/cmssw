@@ -5,7 +5,8 @@
 //
 // Package:     MessageLogger
 // Class  :     <none>
-// Functions:   LogError, LogWarning, LogInfo, LogDebug
+// Functions:   LogError, LogWarning, LogInfo,     LogDebug
+//                                  , LogVerbatim, LogTrace
 //
 
 //
@@ -13,13 +14,15 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.12 2006/04/27 19:26:00 fischler Exp $
+// $Id: MessageLogger.h,v 1.13 2006/05/12 20:49:18 fischler Exp $
 //
 // =================================================
 // Change log
 //
 // 1 mf 5/11/06	    Added a space before the file/line string in LogDebug_
 //		    to avoid the run-together with the run and event number
+//
+// 2 mf 6/6/06	    Added LogVerbatim and LogTrace
 //
 // =================================================
 
@@ -104,6 +107,28 @@ private:
   
 };  // LogInfo
 
+class LogVerbatim						// change log 2
+{
+public:
+  explicit LogVerbatim( std::string const & id ) 
+    : ap( new MessageSender(ELinfo,id,true) ) // the true is the verbatim arg 
+  { }
+
+  template< class T >
+    LogVerbatim & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogVerbatim & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogVerbatim & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+  
+};  // LogInfo
+
 static 
 std::string
 onlyLowestDirectory(const std::string & file) {
@@ -137,6 +162,27 @@ private:
 
 };  // LogDebug_
 
+class LogTrace_
+{
+public:
+  explicit LogTrace_( std::string const & id ) 
+    : ap( new MessageSender(ELsuccess,id,true) )
+  {  }
+  template< class T >
+    LogTrace_ & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogTrace_ & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    			      { (*ap) << f; return *this; }
+  LogTrace_ & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    			      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+
+};  // LogTrace_
+
 class Suppress_LogDebug_ 
 { 
   // With any decent optimization, use of Suppress_LogDebug_ (...)
@@ -166,12 +212,16 @@ public:
 
 #ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
 #define LogDebug(id) edm::Suppress_LogDebug_();
+#define LogTrace(id) edm::Suppress_LogDebug_();
 #else
 #define LogDebug(id)                                            \
   if ( edm::MessageDrop::instance()->debugEnabled )       	 \
-          edm::LogDebug_(id, __FILE__, __LINE__)                               
+          edm::LogDebug_(id, __FILE__, __LINE__)  		       
+#define LogTrace(id)                                            \
+  if ( edm::MessageDrop::instance()->debugEnabled )              \
+          edm::LogTrace_(id)                               
 #endif
 #undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
-							// change log 1 
+							// change log 1, 2
 #endif  // MessageLogger_MessageLogger_h
 
