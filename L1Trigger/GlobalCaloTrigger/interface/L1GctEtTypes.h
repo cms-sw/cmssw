@@ -208,15 +208,17 @@ template <int nBits>
 void L1GctTwosComplement<nBits>::checkOverFlow(uint32_t rawValue, uint32_t &maskValue, bool &overFlow) {
   uint32_t signBit = 1<<(m_nBits-1);
   uint32_t signExtendBits = (static_cast<uint32_t>(MAX_VALUE)-signBit)<<1;
+  // Consider and return only MAX_NBITS least significant bits
+  uint32_t mskRawValue = rawValue & ((1<<MAX_NBITS)-1);
   uint32_t value;
   bool ofl;
 
-  if ((rawValue&signBit)==0) {
-    value = rawValue & ~signExtendBits;
+  if ((mskRawValue&signBit)==0) {
+    value = mskRawValue & ~signExtendBits;
   } else {
-    value = rawValue | signExtendBits;
+    value = mskRawValue | signExtendBits;
   }
-  ofl = value != rawValue;
+  ofl = value != mskRawValue;
 
   maskValue = value;
   overFlow  = ofl;
