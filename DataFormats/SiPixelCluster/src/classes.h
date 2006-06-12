@@ -11,8 +11,7 @@ namespace {
     SiPixelClusterCollection c1;
     edm::Wrapper<SiPixelClusterCollection> w1;
     SiPixelClusterRef r1;
-    // warning: dictionary for SiPixelClusterRefVector does not work
-    //    SiPixelClusterRefVector rv1;
+    SiPixelClusterRefVector rv1;
     SiPixelClusterRefProd rp1;
   }
 }
