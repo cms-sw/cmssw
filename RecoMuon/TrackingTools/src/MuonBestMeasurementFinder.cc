@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/05/23 17:46:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/25 17:22:25 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -20,6 +20,9 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+// FIXME
+using namespace std;
 
 MuonBestMeasurementFinder::MuonBestMeasurementFinder(Propagator* prop):thePropagator(prop){
   theEstimator = new Chi2MeasurementEstimator(100000.);
@@ -55,6 +58,10 @@ TrajectoryMeasurement* MuonBestMeasurementFinder::findBestMeasurement(TMContaine
   if(NumValidMeas<=1) {
     LogDebug(metname) << "MuonBestMeasurement: just " << NumValidMeas
 		      << " valid measurement ";
+    // FIXME
+    cout << "MuonBestMeasurement: just " << NumValidMeas 
+	 << " valid measurement "<< bestMeasurement<<endl;
+
     return bestMeasurement;
   }
 
