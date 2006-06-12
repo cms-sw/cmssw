@@ -5,10 +5,13 @@
 
 namespace {
   namespace {
+    std::vector<SiPixelCluster> v1;
+    edm::DetSet<SiPixelCluster> ds1;
+    std::vector<edm::DetSet<SiPixelCluster> > vds1;
     SiPixelClusterCollection c1;
     edm::Wrapper<SiPixelClusterCollection> w1;
     SiPixelClusterRef r1;
-    // warning: RefVector dictionary does not compile
+    // warning: dictionary for SiPixelClusterRefVector does not work
     //    SiPixelClusterRefVector rv1;
     SiPixelClusterRefProd rp1;
   }
