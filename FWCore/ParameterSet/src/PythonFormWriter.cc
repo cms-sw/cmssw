@@ -43,12 +43,14 @@ namespace edm
     void 
     write_string_value(ostream& os, string const& val)
     {
-      string val_without_trailing_quote(val, 0, val.size()-1);
-      os << "'\\" 
-	 << val_without_trailing_quote 
-	 << "\\"             // escape for trailing quote
-	 << *(val.rbegin())  // the trailing quote in string
-	 << "'"; 
+      //make sure the quotes we add are different than the ones
+      // used in val
+      string quotes("'");
+      if( quotes == val.substr(0,1)) {
+	quotes = "\"";
+      }
+      // "r" means raw, to preserve all escape charactersOB
+      os <<"r"<<quotes<<val<<quotes;
     }
 
     void 
@@ -107,6 +109,7 @@ namespace edm
       modules_.insert(make_pair(string("path"),emptylist));
       modules_.insert(make_pair(string("endpath"),emptylist));
       modules_.insert(make_pair(string("service"),emptylist));
+      modules_.insert(make_pair(string("pset"), emptylist));
     }
 
     PythonFormWriter::~PythonFormWriter()
@@ -209,35 +212,32 @@ namespace edm
       // inside a module (maybe inside something inside of a
       // module). Otherwise, we're working on a top-level PSet (not
       // currently working), or on the process block itself.
-      if ( ! moduleStack_.empty() )
-	{
-         if(processingVPSet_ && nVPSetChildren_++) {
-            //if this is actually a PSet embedded in a VPSet then we will need
-            // to comma separate the children
-            moduleStack_.top()+= ",";
-         }
+      assert( ! moduleStack_.empty() );
+      if(processingVPSet_ && nVPSetChildren_++) {
+        //if this is actually a PSet embedded in a VPSet then we will need
+        // to comma separate the children
+        moduleStack_.top()+= ",";
+      }
          
-	  moduleStack_.top() += "{";
+      moduleStack_.top() += "{";
 
-	  // We can't just call acceptForChildren, because we need to
-	  // do something between children.
-	  //
-	  //n.acceptForChildren(*this);
-	  NodePtrList::const_iterator i = n.nodes_->begin();
-	  NodePtrList::const_iterator e = n.nodes_->end();
-	  for ( bool first = true; i != e; first = false, ++i)
-	    {
-	      if (!first) moduleStack_.top() += ", ";
-	      (*i)->accept(*this);	      
-	    }
+      // We can't just call acceptForChildren, because we need to
+      // do something between children.
+      //
+      //n.acceptForChildren(*this);
+      NodePtrList::const_iterator i = n.nodes_->begin();
+      NodePtrList::const_iterator e = n.nodes_->end();
+      for ( bool first = true; i != e; first = false, ++i)
+      {
+        if (!first)
+        {
+          moduleStack_.top() += ", ";
+        }
+        (*i)->accept(*this);	      
+      }
 
-	  //moduleStack_.top() += "}\n";
-	  moduleStack_.top() += "}";
-	}
-      else
-	{
-	  n.acceptForChildren(*this);
-	}
+      //moduleStack_.top() += "}\n";
+      moduleStack_.top() += "}";
     }
 
     void
@@ -264,6 +264,11 @@ namespace edm
 	      << n.name 
 	      << "': ('PSet', 'tracked', ";
 
+          bool atTopLevel = (moduleStack_.empty());
+          if(atTopLevel) 
+          {
+            moduleStack_.push(string());
+          }
 	  moduleStack_.top() += out.str();
 
 	  writeCompositeNode(n);
@@ -271,6 +276,12 @@ namespace edm
 	  // And finish up
 	  //moduleStack_.top() += ")\n";
 	  moduleStack_.top() += ")";
+
+          if(atTopLevel) 
+          {
+            modules_["pset"].push_back(moduleStack_.top());
+            moduleStack_.pop();
+          }
 	}
       else
 	{
@@ -475,13 +486,33 @@ namespace edm
       out << ", 'main_input': {\n";
       {
          list<string> const& input = modules_["source"];
-         if(!input.empty()){
+         if(input.empty()){
+            out << "}";
+         }
+         else {
 	    out << *(input.begin()) << '\n';
          }
          // print guts of main input here
       }
       //NOTE: no extra '}' added since it is added in the previous printing
       out << " # end of main_input\n";
+      //------------------------------
+      // Print top-level psets
+      //------------------------------
+      out << ", 'psets': {\n";
+      {
+        list<string> const& mods = modules_["pset"];
+        list<string>::const_iterator i = mods.begin();
+        list<string>::const_iterator e = mods.end();
+        for ( bool first = true ; i!=e; first=false, ++i)
+          {
+            out << "#--------------------\n";
+            if (!first) out << ',';
+            out << *i << '\n';
+          }
+      }
+      out << "} #end of psets\n";
+
 
       //------------------------------
       // Print real modules
@@ -532,7 +563,7 @@ namespace edm
 	    if (!first) out << ',';
 	    out << *i << '\n';
 	  }
-	cout << "} #end of es_sources\n";
+	out << "} #end of es_sources\n";
       }
 
       //------------------------------
@@ -636,6 +667,30 @@ namespace edm
       }
       
       out << '}';
+    }
+
+    void PythonFormWriter::writeType(const string & type, ostream & out)
+    {
+      // We're making plurals here
+      out << "# " << type << "s\n";
+      {
+        out << ", " << type << "s': {\n";
+        list<string> const& mods = modules_[type];
+        list<string>::const_iterator i = mods.begin();
+        list<string>::const_iterator e = mods.end();
+        for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+        out << "} #end of " << type << "s\n";
+      }
+    }
+
+    void 
+    PythonFormWriter::writeNames(const std::list<std::string> & names,
+	                 	 std::ostream & out)
+    {
     }
 
   } // namespace pset
