@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/05/29 17:22:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/05 07:49:59 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -48,6 +48,23 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
   // The granularity
   theGranularity = par.getParameter<int>("Granularity");
 }
+
+// FIXME: this c'tor is TMP since it could be dangerous
+/// Constructor with Propagator and Parameter set
+MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par){
+  // The max allowed chi2 to accept a rechit in the fit
+  theMaxChi2 = par.getParameter<double>("MaxChi2");
+  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  
+  // The KF updator
+  theUpdator= new KFUpdator();
+  
+  // The granularity
+  theGranularity = par.getParameter<int>("Granularity");
+}
+
+
+
 
 /// Destructor
 MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
@@ -93,6 +110,10 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	OwnVector<const TransientTrackingRecHit> segments2D = theMeas->recHit()->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), segments2D.begin(), segments2D.end());
+
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,segments2D);
+
 	}
 
       else if(detLayer->module()==rpc )
@@ -103,6 +124,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	OwnVector<const TransientTrackingRecHit> rechit2D = theMeas->recHit()->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
+
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,rechit2D);
       }
       break;
     }
@@ -122,6 +146,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	  OwnVector<const TransientTrackingRecHit> rechit1D = (*segment).transientHits();
 	  // FIXME: this function is not yet available!
 	  // recHitsForFit.insert(recHitsForFit.end(), rechit1D.begin(), rechit1D.end());
+
+	  // FIXME: remove this as insert will be available
+	  insert(recHitsForFit,rechit1D);
 	}
       }
       else if(detLayer->module()==rpc )
@@ -132,6 +159,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	OwnVector<const TransientTrackingRecHit> rechit2D = theMeas->recHit()->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
+	
+	// FIXME: remove this as insert will be available
+	insert(recHitsForFit,rechit2D);
       }
       
       break;
@@ -291,4 +321,13 @@ TrajectoryMeasurement MuonTrajectoryUpdator::updateMeasurement(  const Trajector
   //   else{
   //     LogError("MuonTrajectoryUpdator::updateMeasurement") <<"Wrong propagation direction!!";
   //   }
+}
+
+
+void MuonTrajectoryUpdator::insert(OwnVector<const TransientTrackingRecHit> & to,
+				   OwnVector<const TransientTrackingRecHit> & from){
+
+  for(OwnVector<const TransientTrackingRecHit>::const_iterator it = from.begin();
+      it != from.end(); ++it)
+    to.push_back(it->clone());
 }
