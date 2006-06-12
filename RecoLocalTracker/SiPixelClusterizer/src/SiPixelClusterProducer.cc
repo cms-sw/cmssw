@@ -4,7 +4,8 @@
  * Author:  P. Maksimovic (porting from original ORCA version)
  * History: Oct 14, 2005, initial version
  * Get rid of the noiseVector. d.k. 28/3/06
- * Implementation of the DetSetVector container. V.Chiochia, May 06
+ * Implementation of the DetSetVector container.    V.Chiochia, May 06
+ * SiPixelClusterCollection typedef of DetSetVector V.Chiochia, June 06
  * ---------------------------------------------------------------
  */
 
@@ -19,7 +20,6 @@
 // Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Framework
@@ -49,8 +49,7 @@ namespace cms
     readyToCluster_(false)    // since we obviously aren't
   {
     //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollection>(); // <-- For backward compatibility
-    produces< edm::DetSetVector<SiPixelCluster> >();
+    produces<SiPixelClusterCollection>(); 
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
@@ -81,31 +80,14 @@ namespace cms
 
 
     // Step B: create empty output collection
-    std::auto_ptr<SiPixelClusterCollection> 
-      output_old(new SiPixelClusterCollection);
-
-    std::auto_ptr< edm::DetSetVector<SiPixelCluster> > 
-      output( new edm::DetSetVector<SiPixelCluster> );
+    std::auto_ptr< SiPixelClusterCollection > 
+      output( new SiPixelClusterCollection );
 
     // Step C: Iterate over DetIds and invoke the strip clusterizer algorithm
     // on each DetUnit
     run(*input, *output, geom );
 
     // Step D: write output to file
-    //         A SiPixelClusterCollection is written for backward compatibility
-    if( output->size() ) {
-      edm::DetSetVector<SiPixelCluster>::const_iterator iter=output->begin();
-      for ( ; iter != output->end(); iter++ ) {
-	std::vector<SiPixelCluster> collector;
-	edm::DetSet<SiPixelCluster>::const_iterator jter=iter->data.begin();
-	for ( ; jter != iter->data.end() ; jter++ )  collector.push_back( *jter );
-	SiPixelClusterCollection::Range inputRange;
-	inputRange.first  = collector.begin();
-	inputRange.second = collector.end();
-	output_old->put(inputRange,iter->id);
-      }
-    }
-    e.put( output_old );
     e.put( output );
 
   }
@@ -136,7 +118,7 @@ namespace cms
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>& input, 
-				   edm::DetSetVector<SiPixelCluster> & output,
+				   SiPixelClusterCollection & output,
 				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! readyToCluster_ ) {
       edm::LogError("SiPixelClusterProducer")
