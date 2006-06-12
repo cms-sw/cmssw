@@ -25,12 +25,14 @@
 #include "boost/lambda/lambda.hpp"
 #include "boost/lambda/bind.hpp"
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <iomanip>
-#include <list>
 #include <algorithm>
+#include <iomanip>
+#include <iostream>   // MFP: debugging
+#include <list>
+#include <memory>
+#include <string>
+#include <vector>
+
 
 using namespace std;
 
@@ -215,18 +217,24 @@ namespace edm
     ParameterSet opts(pset_.getUntrackedParameter("options", ParameterSet()));
 
     bool hasFilter = false;
-    vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
     int trig_bitpos=0, non_bitpos=0;
-
-    for(;ib!=ie;++ib) {
-      if(trig_name_set_.find(*ib)!=trig_name_set_.end()) {
-	hasFilter += fillTrigPath(trig_bitpos,*ib, results_);
-	++trig_bitpos;
-      } else {
-	fillTrigPath(non_bitpos,*ib, nontrig_results_);
-	++non_bitpos;
-      }
-    }
+    set<string>::const_iterator trig_name_set_end = trig_name_set_.end();
+    for ( vstring::const_iterator i = path_name_list_.begin(),
+	    e = path_name_list_.end();
+	  i != e;
+	  ++i )
+       {
+	 if (trig_name_set_.find(*i) != trig_name_set_end) 
+	   {
+	     hasFilter += fillTrigPath(trig_bitpos,*i, results_);
+	     ++trig_bitpos;
+	   } 
+	 else
+	   {
+	     fillTrigPath(non_bitpos,*i, nontrig_results_);
+	     ++non_bitpos;
+	   }
+       }
 
     // the results inserter stands alone
     if(hasFilter || makeTriggerResults_) {
@@ -896,22 +904,38 @@ namespace edm
   bool
   Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es)
   {
-    bool result = false;
-    int which_one = 0;
-    // Execute all paths, but check only trigger paths for accept.
-    for (TrigPaths::iterator i = trig_paths_.begin(), e = trig_paths_.end();
-	 i != e;
-	 ++i)
-      {
-	i->runOneEvent(ep,es);
-	if (trig_name_set_.find(i->name()) != trig_name_set_.end()) 
-	  {
-	    result = result || ((*results_)[which_one]).accept();
-	    ++which_one;
-	  }
-      }
-    return result;
+    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es));
+    return results_->accept();
   }
+
+  // This is the old code, kept for the moment for reference. It seems
+  // that the search for a name in trig_name_set_ is not needed; the
+  // object results_ *already knows* the global result of the
+  // trigger. It seems that none of the current tests (as of June 12,
+  // 2006) exercise this sufficiently. But runs of this code, testing
+  // for equality between the returned result as calculated above, and
+  // as calculated below, demonstrate that for all existing cases, the
+  // same answer is returned.
+  //   bool
+  //   Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es)
+  //   {
+  //     bool result = false;
+  //     int which_one = 0;
+  //     // Execute all paths, but check only trigger paths for accept.
+  //     set<string>::const_iterator trig_name_set_end = trig_name_set_.end();
+  //     for (TrigPaths::iterator i = trig_paths_.begin(), e = trig_paths_.end();
+  // 	 i != e;
+  // 	 ++i)
+  //       {
+  // 	i->runOneEvent(ep,es);
+  //  	if (trig_name_set_.find(i->name()) != trig_name_set_end ) 
+  //  	  {
+  //  	    result = result || ((*results_)[which_one]).accept();
+  //  	    ++which_one;
+  //  	  }
+  //       }
+  //     return result;
+  //   }
 
   void
   Schedule::runEndPaths(EventPrincipal& ep, EventSetup const& es)

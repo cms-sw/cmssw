@@ -17,7 +17,7 @@ namespace edm
 	     ParameterSet const& proc_pset,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg):
-  stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesPassed_(),
     timesFailed_(),
