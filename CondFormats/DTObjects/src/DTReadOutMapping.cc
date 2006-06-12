@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/30 14:08:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/05/17 10:34:24 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,15 +32,15 @@
 // Constructors --
 //----------------
 DTReadOutMapping::DTReadOutMapping():
- cellMapVersion( " " ),
-  robMapVersion( " " ) {
+  cellMapVersion( " " ),
+   robMapVersion( " " ) {
 }
 
 
 DTReadOutMapping::DTReadOutMapping( const std::string& cell_map_version,
                                     const std::string&  rob_map_version ):
- cellMapVersion( cell_map_version ),
-  robMapVersion(  rob_map_version ) {
+  cellMapVersion( cell_map_version ),
+   robMapVersion(  rob_map_version ) {
 
 }
 
@@ -77,11 +77,12 @@ DTReadOutGeometryLink::~DTReadOutGeometryLink() {
 //--------------
 // Operations --
 //--------------
-DTWireId DTReadOutMapping::readOutToGeometry( int      dduId,
-                                              int      rosId,
-                                              int      robId,
-                                              int      tdcId,
-                                              int  channelId ) const {
+int DTReadOutMapping::readOutToGeometry( int      dduId,
+                                         int      rosId,
+                                         int      robId,
+                                         int      tdcId,
+                                         int  channelId,
+                                         DTWireId& wireId ) const {
 
   int   wheelId;
   int stationId;
@@ -90,33 +91,34 @@ DTWireId DTReadOutMapping::readOutToGeometry( int      dduId,
   int   layerId;
   int    cellId;
 
-  readOutToGeometry(      dduId,
-                          rosId,
-                          robId,
-                          tdcId,
-                      channelId,
-                        wheelId,
-                      stationId,
-                       sectorId,
-                           slId,
-                        layerId,
-                         cellId );
+  int status = readOutToGeometry(      dduId,
+                                       rosId,
+                                       robId,
+                                       tdcId,
+                                   channelId,
+                                     wheelId,
+                                   stationId,
+                                    sectorId,
+                                        slId,
+                                     layerId,
+                                      cellId );
 
-  return DTWireId( wheelId, stationId, sectorId, slId, layerId, cellId );
+  wireId = DTWireId( wheelId, stationId, sectorId, slId, layerId, cellId );
+  return status;
 
 }
 
-void DTReadOutMapping::readOutToGeometry( int      dduId,
-                                          int      rosId,
-                                          int      robId,
-                                          int      tdcId,
-                                          int  channelId,
-                                          int&   wheelId,
-                                          int& stationId,
-                                          int&  sectorId,
-                                          int&      slId,
-                                          int&   layerId,
-                                          int&    cellId ) const {
+int DTReadOutMapping::readOutToGeometry( int      dduId,
+                                         int      rosId,
+                                         int      robId,
+                                         int      tdcId,
+                                         int  channelId,
+                                         int&   wheelId,
+                                         int& stationId,
+                                         int&  sectorId,
+                                         int&      slId,
+                                         int&   layerId,
+                                         int&    cellId ) const {
 
   wheelId   =
   stationId =
@@ -143,37 +145,37 @@ void DTReadOutMapping::readOutToGeometry( int      dduId,
 //  if ( geometryId <= 0 ) return;
   int geometryId = 0;
   int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), geometryId );
-  if ( searchStatus ) return;
-     cellId = geometryId %  100;
-              geometryId /= 100;
-    layerId = geometryId %  10;
-              geometryId /= 10;
-       slId = geometryId %  10;
-              geometryId /= 10;
-   sectorId = geometryId %  100;
-              geometryId /= 100;
-  stationId = geometryId %  10;
-              geometryId /= 10;
-    wheelId = geometryId %  10;
-    wheelId -= 5;
+  if ( !searchStatus ) {
+       cellId = geometryId %  100;
+                geometryId /= 100;
+      layerId = geometryId %  10;
+                geometryId /= 10;
+         slId = geometryId %  10;
+                geometryId /= 10;
+     sectorId = geometryId %  100;
+                geometryId /= 100;
+    stationId = geometryId %  10;
+                geometryId /= 10;
+      wheelId = geometryId %  10;
+      wheelId -= 5;
+  }
 
-
-  return;
+  return searchStatus;
 
 }
 
 
-void DTReadOutMapping::geometryToReadOut( int    wheelId,
-                                          int  stationId,
-                                          int   sectorId,
-                                          int       slId,
-                                          int    layerId,
-                                          int     cellId,
-                                          int&     dduId,
-                                          int&     rosId,
-                                          int&     robId,
-                                          int&     tdcId,
-                                          int& channelId ) const {
+int DTReadOutMapping::geometryToReadOut( int    wheelId,
+                                         int  stationId,
+                                         int   sectorId,
+                                         int       slId,
+                                         int    layerId,
+                                         int     cellId,
+                                         int&     dduId,
+                                         int&     rosId,
+                                         int&     robId,
+                                         int&     tdcId,
+                                         int& channelId ) const {
 
   dduId =
   rosId =
@@ -199,18 +201,19 @@ void DTReadOutMapping::geometryToReadOut( int    wheelId,
 //  if ( readoutId <= 0 ) return;
   int readoutId = 0;
   int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), readoutId );
-  if ( searchStatus ) return;
-  channelId = readoutId %  100;
-              readoutId /= 100;
-      tdcId = readoutId %  10;
-              readoutId /= 10;
-      robId = readoutId %  10;
-              readoutId /= 10;
-      rosId = readoutId %  100;
-              readoutId /= 100;
-      dduId = readoutId %  1000;
+  if ( !searchStatus ) {
+    channelId = readoutId %  100;
+                readoutId /= 100;
+        tdcId = readoutId %  10;
+                readoutId /= 10;
+        robId = readoutId %  10;
+                readoutId /= 10;
+        rosId = readoutId %  100;
+                readoutId /= 100;
+        dduId = readoutId %  1000;
+   }
 
-  return;
+  return searchStatus;
 
 }
 

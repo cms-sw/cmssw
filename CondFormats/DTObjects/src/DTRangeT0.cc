@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 10:34:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/17 18:04:57 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,11 +32,11 @@
 // Constructors --
 //----------------
 DTRangeT0::DTRangeT0():
- dataVersion( " " ) {
+  dataVersion( " " ) {
 }
 
 DTRangeT0::DTRangeT0( const std::string& version ):
- dataVersion( version ) {
+  dataVersion( version ) {
 }
 
 DTSLRangeT0Data::DTSLRangeT0Data() :

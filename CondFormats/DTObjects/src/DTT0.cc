@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/04 06:54:26 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/17 10:34:24 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -32,13 +32,13 @@
 // Constructors --
 //----------------
 DTT0::DTT0():
- dataVersion( " " ),
- nsPerCount( 25.0 / 32.0 ) {
+  dataVersion( " " ),
+  nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTT0::DTT0( const std::string& version ):
- dataVersion( version ),
- nsPerCount( 25.0 / 32.0 ) {
+  dataVersion( version ),
+  nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTCellT0Data::DTCellT0Data() :

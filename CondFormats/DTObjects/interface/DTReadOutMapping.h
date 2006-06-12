@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2006/01/27 15:21:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/28 17:28:55 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -73,35 +73,36 @@ class DTReadOutMapping {
   void initSetup() const;
 
   /// transform identifiers
-  DTWireId readOutToGeometry( int      dduId,
-                              int      rosId,
-                              int      robId,
-                              int      tdcId,
-                              int  channelId ) const;
+  int readOutToGeometry( int      dduId,
+                         int      rosId,
+                         int      robId,
+                         int      tdcId,
+                         int  channelId,
+                         DTWireId& wireId ) const;
 
-  void readOutToGeometry( int      dduId,
-                          int      rosId,
-                          int      robId,
-                          int      tdcId,
-                          int  channelId,
-                          int&   wheelId,
-                          int& stationId,
-                          int&  sectorId,
-                          int&      slId,
-                          int&   layerId,
-                          int&    cellId ) const;
+  int readOutToGeometry( int      dduId,
+                         int      rosId,
+                         int      robId,
+                         int      tdcId,
+                         int  channelId,
+                         int&   wheelId,
+                         int& stationId,
+                         int&  sectorId,
+                         int&      slId,
+                         int&   layerId,
+                         int&    cellId ) const;
 
-  void geometryToReadOut( int    wheelId,
-                          int  stationId,
-                          int   sectorId,
-                          int       slId,
-                          int    layerId,
-                          int     cellId,
-                          int&     dduId,
-                          int&     rosId,
-                          int&     robId,
-                          int&     tdcId,
-                          int& channelId ) const;
+  int geometryToReadOut( int    wheelId,
+                         int  stationId,
+                         int   sectorId,
+                         int       slId,
+                         int    layerId,
+                         int     cellId,
+                         int&     dduId,
+                         int&     rosId,
+                         int&     robId,
+                         int&     tdcId,
+                         int& channelId ) const;
 
   /// access parent maps identifiers
   const

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/28 17:28:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/17 10:33:51 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -62,7 +62,7 @@ int DTBufferTree<Key,Content>::insert( ElementKey fKey,
     if ( iter == bufferMap.end() ) {
       map_node* bMap = new map_node;
       bufferMap.insert( std::pair<Key,
-                     DTBufferTree<Key,Content>*>( *fKey, bMap ) );
+                        DTBufferTree<Key,Content>*>( *fKey, bMap ) );
       bMap->insert( ++fKey, lKey, cont );
       status = 0;
     }
