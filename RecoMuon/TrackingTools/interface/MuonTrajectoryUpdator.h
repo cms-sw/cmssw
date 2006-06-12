@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/05/26 14:37:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/29 17:22:59 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -31,6 +31,19 @@ namespace edm{class ParameterSet;}
 
 class MuonTrajectoryUpdator {
 public:
+
+  //<< very temp
+  
+  // FIXME: this c'tor is temp!!
+  // It will dis as the Updator will be loaded in the es
+  /// Constructor with Parameter set
+  MuonTrajectoryUpdator(const edm::ParameterSet& par);
+  // FIXME: this function is temp!!
+  // It will dis as the Updator will be loaded in the es
+  void setPropagator(Propagator* prop) {thePropagator = prop;}
+
+  //>> end tmp
+
 
   /// Constructor with Propagator and Parameter set
   MuonTrajectoryUpdator(Propagator *propagator,
@@ -92,6 +105,11 @@ private:
 
   /// I have to use this method since I have to cope with two propagation direction
   void incrementIterator(edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitIterator);
+
+  /// copy objs from an OwnVector to another one
+  void insert(edm::OwnVector<const TransientTrackingRecHit> & to,
+	      edm::OwnVector<const TransientTrackingRecHit> & from);
+
 
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
