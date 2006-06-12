@@ -1,0 +1,47 @@
+
+/*!
+
+\page RecoLocalTracker_SiPixelClusterizer Package RecoLocalTracker/SiPixelClusterizer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/SiPixelClusterizer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/SiPixelClusterizer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package creates clusters using adjacent pixels above threshold. The SiPixelClusterProducer module
+reads a edm::DetSetVector<PixelDigi> and produces a SiPixelClusterCollection.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- PixelClusterizerBase Base class for clusterizer algorithm
+- PixelThresholdClusterizer Threshold-based clusterizer algorithm
+- SiPixelArrayBuffer
+- SiPixelClusterProducer 
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- SiPixelClusterProducer EDProducer of a SiPixelClusterCollection. The configuration parameters are defined in data/SiPixelClusterizer.cfi.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+An example of configuration file is available in test/runPxClust.cfg. To example to read back
+the stored clusters is available in test/readAndRunPxClust.cfg.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable. Implements the functionalities available in ORCA.  Missing fatures: Read calibration constants from offline DB (e.g. pedestals and gains).
+
+<hr>
+Last updated:
+@DATE@  Author: V.Chiochia
+*/
+
