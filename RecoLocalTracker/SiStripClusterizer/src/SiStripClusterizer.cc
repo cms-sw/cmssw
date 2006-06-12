@@ -60,10 +60,6 @@ namespace cms
     
 
     // Step D: write output to file
-    if ( output->size() )
-      {
-	e.put(output);
-      }
+    e.put(output);
   }
-
 }
