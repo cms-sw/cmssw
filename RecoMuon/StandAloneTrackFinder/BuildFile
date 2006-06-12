@@ -7,6 +7,7 @@
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/TransientTrackingRecHit>
+   <use name=RecoMuon/Navigation>
 
 <export>
    <lib name=RecoMuonStandAloneTrackFinder>
@@ -17,6 +18,7 @@
    <use name=FWCore/ParameterSet>
    <use name=Utilities/Timing>
    <use name=RecoMuon/MeasurementDet>
+   <use name=RecoMuon/Navigation>
    <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=TrackingTools/KalmanUpdators>
 
