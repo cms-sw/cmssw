@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
+$Id: RefVectorBase.h,v 1.4 2006/06/02 05:24:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,8 @@ namespace edm {
   class RefVectorBase {
   public:
     typedef std::vector<RefItem<T> > RefItems;
-    typedef typename RefItem<T>::index_type size_type;
+    typedef T key_type;
+    typedef typename RefItems::size_type size_type;
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefVectorBase() : product_(), items_() {}
 
@@ -35,7 +36,7 @@ namespace edm {
     /// Accessor for product ID and product getter
     RefCore const& product() const {return product_;}
 
-    /// Accessor for vector of indexes and pointers
+    /// Accessor for vector of keys and pointers
     RefItems const& items() const {return items_;}
 
     /// Is vector empty?
@@ -56,7 +57,7 @@ namespace edm {
     void reserve(size_type n) {items_.reserve(n);}
 
     /// erase an element from the vector 
-    typename RefItems::iterator eraseAtIndex(typename RefItems::size_type index) {
+    typename RefItems::iterator eraseAtIndex(size_type index) {
       return items_.erase(items_.begin() + index);
     }
     

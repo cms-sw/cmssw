@@ -6,10 +6,11 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
+$Id: RefVector.h,v 1.4 2006/04/28 23:02:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include <vector>
 #include <stdexcept>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
@@ -30,10 +31,12 @@ namespace edm {
     // C is the type of the collection
     // T is the type of a member the collection
     
-    typedef RefItem<typename Ref<C, T, F>::index_type> RefItemType;
+    // key_type is the type of the key into the collextion
+    typedef typename Ref<C, T, F>::index_type key_type;
+    typedef RefItem<key_type> RefItemType;
 
-    // size_type is the type of the index into the collection
-    typedef typename RefItemType::index_type size_type;
+    // size_type is the type of the index into the RefVector
+    typedef typename std::vector<RefItemType>::size_type size_type;
     
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
@@ -64,7 +67,7 @@ namespace edm {
     }
 
     /// Accessor for all data
-    RefVectorBase<size_type> const& refVector() const {return refVector_;}
+    RefVectorBase<key_type> const& refVector() const {return refVector_;}
 
     /// Is the RefVector empty
     bool empty() const {return refVector_.empty();}
@@ -91,7 +94,7 @@ namespace edm {
     iterator erase(iterator const& pos);
 
   private:
-    RefVectorBase<size_type> refVector_;
+    RefVectorBase<key_type> refVector_;
   };
 
   template <typename C, typename T, typename F>
@@ -111,8 +114,8 @@ namespace edm {
   template <typename C, typename T, typename F>
   inline
   typename RefVector<C, T, F>::iterator RefVector<C, T, F>::erase(iterator const& pos) {
-    typename RefVectorBase<size_type>::RefItems::size_type index = pos - begin();
-    typename RefVectorBase<size_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
+    typename RefVectorBase<key_type>::RefItems::size_type index = pos - begin();
+    typename RefVectorBase<key_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
     RefCore const& product = refVector_.product();
     return RefVector<C, T, F>::iterator(product, newPos);
 
