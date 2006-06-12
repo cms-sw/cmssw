@@ -1,6 +1,6 @@
 #ifndef Math_Vector3D_h
 #define Math_Vector3D_h
-// $Id: Vector3D.h,v 1.5 2006/03/06 12:45:29 llista Exp $
+// $Id: Vector3D.h,v 1.6 2006/04/10 08:19:34 llista Exp $
 #include <Rtypes.h>
 #include <Math/Cartesian3D.h>
 #include <Math/Polar3D.h>
@@ -28,6 +28,13 @@ namespace math {
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<float> > RhoEtaPhiVectorF;
   /// spatial vector with polar internal representation
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<float> > RThetaPhiVectorF;
+
+  /// vector in local coordinate system
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::LocalCoordinateSystemTag> LocalVector;
+  /// vector in glovbal coordinate system
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::GlobalCoordinateSystemTag> GlobalVector;
+
+
 }
 
 #endif

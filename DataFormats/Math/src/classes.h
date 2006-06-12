@@ -27,6 +27,11 @@ namespace {
     math::XYZTLorentzVectorD ld2;
     math::XYZTLorentzVectorF lf2;
 
+    math::LocalPoint lp1;
+    math::GlobalPoint gp1;
+    math::LocalVector lv1;
+    math::GlobalVector gv1;
+
     std::vector<math::XYZVector> vv1;
     std::vector<math::XYZVectorD> vvd1; 
     std::vector<math::XYZVectorF> vvf1; 
