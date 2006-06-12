@@ -302,12 +302,20 @@ namespace edm
       moduleStack_.top() += out.str();
 
       
-      moduleStack_.top() += "\n#start acceptForChildren in VPSetNode\n";
+      //moduleStack_.top() += "\n#start acceptForChildren in VPSetNode\n";
+      bool previouslyprocessingVPSet = processingVPSet_;
+      bool previousnVPSetChildren = nVPSetChildren_;
+
+      // start fresh for this level of VPSets-in-VPSets
       processingVPSet_ = true;
       nVPSetChildren_=0;
+
       n.acceptForChildren(*this);
-      processingVPSet_ = false;
-      moduleStack_.top() += "\n#end acceptForChildren in VPSetNode\n";
+
+      processingVPSet_ = previouslyprocessingVPSet;
+      nVPSetChildren_ = previousnVPSetChildren;
+
+      //moduleStack_.top() += "\n#end acceptForChildren in VPSetNode\n";
 
       moduleStack_.top() += "])";
     }
