@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.4 2006/06/02 13:17:56 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.5 2006/06/09 13:15:43 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -313,9 +313,9 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
     SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
     for ( ; ifed != feds_.end(); ifed++ ) {
       deviceFactory()->setFed9UDescription( **ifed, 
-				     (uint16_t*)(&partition_.major_), 
-				     (uint16_t*)(&partition_.minor_),
-				     (new_major_version?1:0) );
+					    (uint16_t*)(&partition_.major_), 
+					    (uint16_t*)(&partition_.minor_),
+					    (new_major_version?1:0) );
     }
   }
   catch (...) { 
@@ -766,8 +766,8 @@ bool SiStripConfigDb::usingXmlFiles() {
     if ( checkFileExists( inputModuleXml_ ) ) { 
       try { 
 	deviceFactory()->createInputFileAccess(); //@@ necessary?
-	deviceFactory()->addFileName( inputModuleXml_ ); //@@ obsolete?
-	//deviceFactory()->setFedFecConnectionInputFileName( inputModuleXml_ ); 
+	//deviceFactory()->addFileName( inputModuleXml_ ); //@@ obsolete?
+	deviceFactory()->setFedFecConnectionInputFileName( inputModuleXml_ ); 
       } catch (...) { 
 	handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
       }
@@ -789,7 +789,7 @@ bool SiStripConfigDb::usingXmlFiles() {
   } else { 
     if ( checkFileExists( inputDcuInfoXml_ ) ) { 
       try { 
-	//deviceFactory()->setTkDcuInfoInputFileName( inputDcuInfoXml_ ); 
+	deviceFactory()->setTkDcuInfoInputFileName( inputDcuInfoXml_ ); 
       } catch (...) { 
 	handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
       }
@@ -819,9 +819,9 @@ bool SiStripConfigDb::usingXmlFiles() {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
 	    if ( inputFecXml_.size() == 1 ) {
-	      //deviceFactory()->setFecInputFileName( *iter ); 
+	      deviceFactory()->setFecInputFileName( *iter ); 
 	    } else {
-	      //deviceFactory()->addFecFileName( *iter ); 
+	      deviceFactory()->addFecFileName( *iter ); 
 	    }
 	  } catch (...) { 
 	    handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
@@ -854,9 +854,9 @@ bool SiStripConfigDb::usingXmlFiles() {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
 	    if ( inputFecXml_.size() == 1 ) {
-	      //deviceFactory()->setFedInputFileName( *iter ); 
+	      deviceFactory()->setFedInputFileName( *iter ); 
 	    } else {
-	      //deviceFactory()->addFedFileName( *iter ); 
+	      deviceFactory()->addFedFileName( *iter ); 
 	    }
 	  } catch (...) { 
 	    handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
