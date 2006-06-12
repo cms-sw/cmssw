@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/05/23 17:48:32 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/06/06 17:08:33 $
+ *   $Revision: 1.7 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -39,6 +39,7 @@ using namespace std;
 
 /// constructor with config
 StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet){
+  cout<<"StandAloneMuonProducer::StandAloneMuonProducer called"<<endl;
 
   // Parameter set for the Builder
   ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
@@ -47,6 +48,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
+  // FIXME: potential memory leak??
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
   
   produces<reco::TrackCollection>();
@@ -54,28 +56,35 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   
 /// destructor
 StandAloneMuonProducer::~StandAloneMuonProducer(){
+  cout<<"StandAloneMuonProducer destructor called"<<endl;
   if (theTrackFinder) delete theTrackFinder;
 }
 
 
 /// reconstruct muons
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
-  
+  cout<<"StandAloneMuonProducer::produce"<<endl;
+
   // Take the seeds container
+  cout<<"Taking the seeds"<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
   // Percolate the event setup
+  cout<<"Event setup percolation"<<endl;
   theTrackFinder->setES(eventSetup);
 
-  // Percolate the event setup
+  // Percolate the event 
+  cout<<"Event percolation"<<endl;
   theTrackFinder->setEvent(event);
 
   // Reconstruct 
+  cout<<"Track Reconstruction"<<endl;
   std::auto_ptr<reco::TrackCollection> recMuons
     = theTrackFinder->reconstruct(seeds);
 
   // Load the RecMuon Container in the Event
+  cout<<"Load the tracks in the event"<<endl;
   event.put(recMuons);
 }
 
