@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/05/31 16:52:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/09 12:35:20 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
 
@@ -195,11 +195,10 @@ int RPCDetInfo::etaToTower(float eta){
 }
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * \brief Returns hardware plane number (mHwPlane)
  * 
- *      
- * \todo Clean this function
+ * \brief Returns hardware plane number (mHwPlane)
  * \note Layer convention seems to be ok.
+ *
 */
 ///////////////////////////////////////////////////////////////////////////////
 void RPCDetInfo::setHwPlane()

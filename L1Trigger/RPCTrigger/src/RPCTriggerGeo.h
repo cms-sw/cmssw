@@ -40,5 +40,7 @@ class RPCTriggerGeo {
     RPCCurlMap m_refRPCCurlMap; ///< Stores refernce curls
     RPCCurlMap m_otherRPCCurlMap; ///< Stores other curls
     
+    
+    RPCCurl::RPCLinks m_links;
 };
 #endif

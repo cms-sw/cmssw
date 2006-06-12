@@ -5,7 +5,6 @@
  *
  * \brief Class describng 2PI "rings" constructed from RpcDetId's of the same eta (same as L1RpcRoll in ORCA)
  * \author Tomasz Fruboes
- * \todo Implement & use global roll no
  *
  */
 
@@ -17,7 +16,7 @@
 class RPCCurl {
   public:
     
-    enum { IROLL_MAX = 17, NPOS = 3, NHPLANES  = 6 };  
+    enum { IROLL_MAX = 17, NPOS = 3, NHPLANES  = 6, TOWERMAX = 16 };  
     
     
     
@@ -53,8 +52,10 @@ class RPCCurl {
     
     bool addDetId(RPCDetInfo detInfo);
     int makeRefConnections(RPCCurl *);
-    int makeOtherConnections(float phiCenter);
-
+    int makeOtherConnections(float phiCenter, int tower, int PAC);
+    RPCLinks giveConnections();
+    
+    
     void printContents();
     
     int getMinTower() const;

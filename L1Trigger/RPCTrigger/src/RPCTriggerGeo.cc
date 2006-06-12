@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/06 16:25:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/09 12:35:20 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
 
@@ -68,7 +68,7 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
     
   } // RpcDet loop end
   
-  // Separete reference curls from others, should be done in one step
+  // Separete reference curls from others, should be done in previous step
   for(RPCCurlMap::iterator it = m_RPCCurlMap.begin();
       it!=m_RPCCurlMap.end();
       it++)
@@ -80,60 +80,44 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
       m_otherRPCCurlMap[it->first]=it->second;
   }
   
-  // Make links
-  /*
-  // Pseudo-code for all the action
-  for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
-        itRefCurl != m_refRPCCurlMap.end();
-        itRefCurl++)//loop over reference curls
-  {
-    for(;;) //within the refCurl loop over refGlobalStrips
-    {
-      
-        links.push(RefDetId.raw,stripNo,RPCConnection)// RPCConnection should contain tower no, plane no and PAC_no (1...144)
-        currentPac = 
-        
-        for(;;)// Loop over otherCurls
-        {
-          if( otherCurl contributes to this ref curl){
-            for(;;) // loop over otherGlobalStrips
-            {
-              if (otherGlobalStrip contributes to currentPac)
-              {
-                
-                  links.push(otherGlobalStrip,stripNo,RPCConnection)
-                
-              }
-            }//otherGlobalStrip
-        } //otherCurls loop end
-      } // refGlopbalStrips loop end
-  } // ref Curl's loop end
-  //*/
-  
   //loop over reference curls
   for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
         itRefCurl != m_refRPCCurlMap.end();
-        //itRefCurl != ++m_refRPCCurlMap.begin();
         itRefCurl++)
   {
-    
-    
-    //(itRefCurl->second).makeConnections(&(itRefCurl->second)); // XXX - clear me!!!
     //loop over other curls
-    //*
     for ( RPCCurlMap::iterator itOtherCurl=m_otherRPCCurlMap.begin(); 
           itOtherCurl != m_otherRPCCurlMap.end();
           itOtherCurl++)
     {
       (itRefCurl->second).makeRefConnections(&(itOtherCurl->second));
-    
     } //otherCurl loop end
-    //*/
   } // refCurl's loop end
   
   
+  // Copy all stripConections into one place
+  for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); 
+        it != m_refRPCCurlMap.end();
+        it++){
+          
+          RPCCurl::RPCLinks linksTemp = (it->second).giveConnections();
+          m_links.insert(linksTemp.begin(),linksTemp.end() );
+          
+        }
+        
+  //std::cout<< "Connections for refs: " << m_links.size() << std::endl;
   
+  for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); 
+        it != m_otherRPCCurlMap.end();
+        it++){
+          
+          RPCCurl::RPCLinks linksTemp = (it->second).giveConnections();
+          m_links.insert(linksTemp.begin(),linksTemp.end() );
   
+  }
+    
+    
+    
   m_isGeometryBuilt=true;
   printCurlMapInfo();
 }
@@ -142,7 +126,6 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
 /**
  *
  * \brief Adds detID to the collection
- * \todo Change method to calculate minTower and maxTower (use predefined table)
  *
 */
 //#############################################################################
@@ -150,6 +133,12 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 
   RPCDetInfo detInfo(roll);
 
+  // This two curls werent connected anywhere in ORCA. Filtered out for consitency with ORCA.
+  if ( (detInfo.getCurlId() == 2108) ||(detInfo.getCurlId() == 2008) ){
+    return;
+  }
+  
+  
   if( m_RPCCurlMap.find(detInfo.getCurlId()) != m_RPCCurlMap.end() ){ // Curl allready in map
 
      m_RPCCurlMap[detInfo.getCurlId()].addDetId(detInfo);
@@ -167,13 +156,12 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 /**
 *
 * \brief Util function to print rpcChambersMap contents
-* \note Since cout`s are forbidden most of code is commented out
 *
 */
 //#############################################################################
 void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
   
-  
+  //*
   for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); it != m_refRPCCurlMap.end(); it++){
     std::cout << "------------------------------"<< std::endl;
     std::cout << "CurlId " << (it->first) << " " << std::endl;
@@ -184,9 +172,10 @@ void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
     std::cout << "CurlId " << (it->first) << " " << std::endl;
     (it->second).printContents();
   }
+  //*/
   
   std::cout<< "No of refs: " << m_refRPCCurlMap.size() << std::endl;
   std::cout<< "No of others: " << m_otherRPCCurlMap.size() << std::endl;
-
+  std::cout<< "Connections: " << m_links.size() << std::endl;
 
 }

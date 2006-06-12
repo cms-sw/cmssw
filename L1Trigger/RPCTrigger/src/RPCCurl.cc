@@ -1,7 +1,7 @@
 /** \file RPCCurl.cc
  *
- *  $Date: 2006/06/06 16:25:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/09 12:35:20 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
@@ -80,8 +80,9 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
     }
     
     if (m_globRoll < 0){
-      m_towerMin = -m_towerMin;
-      m_towerMax = -m_towerMax;
+      int temp = m_towerMin;
+      m_towerMin = -m_towerMax;
+      m_towerMax = -temp; // swap is needed (!)
     }
     
     m_isDataFresh=false;
@@ -110,12 +111,12 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
 //#############################################################################
 /**
  *
- * \brief Returns conn for curls not beeing a refernce ones
- * \todo Implement. 
+ * \brief Makes connections for curls not beeing a refernce ones
  *
  */
 //#############################################################################
-int RPCCurl::makeOtherConnections(float phiCenter){
+int RPCCurl::makeOtherConnections(float phiCentre, int tower, int PAC){
+  
   if (isRefPlane()){
     std::cout << "Trouble. Curl " << m_curlId
         << " is a reference curl. makeOtherConnections() is not good for reference curls"
@@ -123,17 +124,86 @@ int RPCCurl::makeOtherConnections(float phiCenter){
     return -1;
   }
 
+  if ( (tower < getMinTower()) || (tower > getMaxTower()))  // This curl not contributes to this tower.
+    return 0;
+
   doVirtualStrips();
+  
+  RPCConnection newConnection;
+  newConnection.PAC = PAC;
+  newConnection.tower = tower; 
+  newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
+  
+  if (newConnection.logplane < 0){
+    std::cout << "Trouble. Curl "<< getCurlId()
+        << " wants to contribute to tower " << tower
+        << std::endl;
+    return -1;
+  }
+  
+  int logplaneSize = LOGPLANE_SIZE[std::abs(newConnection.tower)][newConnection.logplane-1];
+  //int logplaneSize = LOGPLANE_SIZE[std::abs(newConnection.tower)][m_hwPlane-1];
+  
+  if ((logplaneSize > 72)||(logplaneSize < 1)){
+    std::cout << "Trouble. Curl "<< getCurlId()
+        << " wants to have wrong strips number (" << logplaneSize<< ")"
+        << " in plane " << newConnection.logplane
+        << " in tower " << newConnection.tower
+        << std::endl;
+    return -1;
+  }
+  
+  const float pi = 3.141592654;
+      
+  // \note The  m_stripPhiMap is sorted in a special way (see header)
+  GlobalStripPhiMap::const_iterator it = m_stripPhiMap.lower_bound(phiCentre);
+  if (it==m_stripPhiMap.end()){
+    if (it->first<2*pi){
+      it == m_stripPhiMap.begin();
+    }
+    else{
+       std::cout << "Trouble. Phi to big " 
+          << "(" << phiCentre << ")"
+          << std::endl;
+       return -1;
+    }
+  }
+    
+  // XXX - possible source of logical errors - cones may be shifted +-1 comparing to ORCA
+  for (int i=0; i < logplaneSize/2; i++){
+    if (it==m_stripPhiMap.begin())
+      it=m_stripPhiMap.end();  // (m_stripPhiMap.end()--) is ok.
+    
+    it--;
+  }
+  
+  for (int i=0; i < logplaneSize; i++){
+    stripCords scTemp = it->second;
+    newConnection.posInCone = i+1;
+    m_links[it->second].push_back(newConnection);
+
+    it++;
+    if (it==m_stripPhiMap.end())
+      it=m_stripPhiMap.begin();
+  }
+  
   return 0;
   
 }
 //#############################################################################
+RPCCurl::RPCLinks RPCCurl::giveConnections(){
+  
+  return m_links;
+}
+//#############################################################################
 /**
  *
- * \brief Returns conn for reference curls
- * \todo Check if strips are stored in phi order
+ * \brief Makes connections for reference curls
  * \todo Calculate centrePhi in more elegant way
- *
+ * \todo The loop over phi strips should be done once - loop over otherCurls should be here, not in RPCTriggerGeo.
+ * \note Conevention: first strip in logplane is no. 1
+ * \todo Check if strip numbering convention is same as in ORCA
+*
  */
 //#############################################################################
 int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
@@ -150,8 +220,9 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
   int curPacNo=0;
   int curStripNo=0;
   int curBegStripNo=0;
-  GlobalStripPhiMap::const_iterator it;    
   
+  
+  GlobalStripPhiMap::const_iterator it;    
   // \note The  m_stripPhiMap is sorted in a special way (see header)
   for (it=m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
     
@@ -163,7 +234,7 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
       GlobalStripPhiMap::const_iterator plus8 = it;    
       for (int i=0;i<7;i++){  // i<7 (!) - there are 8 strips in ref plane !! i<8 would be wrong
         plus8++;
-        if (plus8==m_stripPhiMap.end()){
+        if (plus8==m_stripPhiMap.end()){ // \note The  m_stripPhiMap is sorted in a special way (see header)
           plus8--;
           break;
         }
@@ -172,6 +243,7 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
       float phi1 = it->first;
       float phi2 = plus8->first;
       float centrePhi = (phi1+phi2)/2;
+      
       if (std::min(phi1,phi2) < 1 && std::max(phi1,phi2) > 5)// to avoid (0+2pi)/2 = pi (should be = 0 )
       {
         const float pi = 3.141592654;
@@ -179,30 +251,22 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
         if (centrePhi<0)
           centrePhi += 2*pi;
       }
-      otherCurl->makeOtherConnections(centrePhi);
+      otherCurl->makeOtherConnections(centrePhi, m_towerMin, curPacNo);// Make Connections within the other curl
     } // new pac end
     
     RPCConnection newConnection;
     newConnection.PAC = curPacNo;
     newConnection.tower = m_towerMin; // For refCurl m_towerMin and m_towerMax are equal
-    newConnection.posInCone = curStripNo-curBegStripNo;
+    newConnection.posInCone = curStripNo-curBegStripNo+1;  // Conevention: first strip in logplane is no. 1
     
-    // Calculate logplane. Table's are straight from ORCA so the method is ugly
-    int lpTemp = -1;
-    for (int i=0;i<3;i++){
-      int ttemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
-      if ( ttemp == std::abs(newConnection.tower) )
-        lpTemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
-    }
-    
-    if (lpTemp < 0){
+    newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
+  
+    if (newConnection.logplane < 0){
       std::cout << "Trouble. Strip " << it->second.stripNo
-            << " of det " << it->second.detRawId
-            << " has negative logplane"
-            << std::endl;
+      << " of det " << it->second.detRawId
+      << " has negative logplane"
+      << std::endl;
     }
-    newConnection.logplane = lpTemp;
-    
     
     if (m_links.find(it->second)==m_links.end() ){// new strip in map
       m_links[it->second].push_back(newConnection);
@@ -231,8 +295,29 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
 //#############################################################################
 /**
  *
+ * \brief Calculates logplane
+ * \todo Clean this method
+ *
+ */
+//#############################################################################
+int RPCCurl::giveLogPlaneForTower(int tower){
+    
+  int logplane = -1;
+  for (int i=0;i<3;i++){
+    int ttemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
+    if ( ttemp == std::abs(tower) )
+      logplane = mrlogp [std::abs(m_globRoll)] [m_hwPlane-1][i];
+  }
+    
+
+
+  return logplane;
+
+}
+//#############################################################################
+/**
+ *
  * \brief Updates m_stripPhiMap
- * \todo Verify that virtual strips are added correctly
  *
  */
 //#############################################################################
@@ -281,15 +366,16 @@ void RPCCurl::updatePhiStripsMap(RPCDetInfo detInfo){
 /**
  *
  * \brief Fills strip map with virtual strips
- * \bug current implementation produces wrong number of virtuals
  * \bug Curl 4102 has diffrent no. of virtuals than 4002.
- * \todo Try iterating over phi strips map
+ * \todo Improve this function. Some curls seem to have wrong number of virtuals
+ * \todo Possible xcheck - check if virtual and physical strips sum to 1152 or more
+ * \todo Implement check if we have symetry (x1xx vs x0xx; whell +y vs -y)
  *
  */
 //#############################################################################
 void RPCCurl::doVirtualStrips(){
   
-  if (m_didVirtuals){
+  if (m_didVirtuals){ // Run once
     return;
   }
   m_didVirtuals=true;
@@ -299,10 +385,11 @@ void RPCCurl::doVirtualStrips(){
   bool firstRun=true;
   GlobalStripPhiMap newVirtualStrips;
   
-  double dphi=2.0*pi/1152;
+  double dphi=2.0*pi/1152;  // defines angular granulation of strips.
   
   float phiMinNext=0, phiMaxNext=0, phiMinLast=0,phiMaxLast=0;
   uint32_t rawDetIDLast=0,rawDetIDNext=0;
+  
   //now we iterate over all dets adding virtual strips begining from phiMax+dphi
   RPCDetInfoPhiMap::const_iterator it;
   for (it=m_RPCDetPhiMap.begin(); it != m_RPCDetPhiMap.end(); it++){
@@ -310,7 +397,7 @@ void RPCCurl::doVirtualStrips(){
     RPCDetInfo *det = &m_RPCDetInfoMap[it->second];
     
     /*
-      In first iteration we dont have phiMinLast and phiMinLast values. We must suck them
+      In first iteration we dont have *Last and *Next values. We must suck them
       in 'artificial' way
     */
     if(firstRun){
@@ -341,17 +428,6 @@ void RPCCurl::doVirtualStrips(){
       continue;
     
     int stripsToAdd = (int)((delta)/dphi+0.5)-1;
-
-    if (m_region==0 && m_hwPlane==1)
-      stripsToAdd--;
-    if (m_region==0 && m_hwPlane==3)
-      stripsToAdd+=2;
-//    if (m_region==0 && m_hwPlane==5)
-//      stripsToAdd=;
-//    if (m_region==0 && m_hwPlane==3)
-//      stripsToAdd=8;
-//    if (stripsToAdd<3)
-//      stripsToAdd=0;//  not add anything
     
     stripCords sc;
     sc.detRawId = rawDetIDLast;
@@ -361,9 +437,15 @@ void RPCCurl::doVirtualStrips(){
         sc.stripNo--;
         newVirtualStrips[phiMaxLast+dphi*(i+1)]=sc;
         m_virtStripsInCurl++;
-     }
-    
-  } // loop end over dets
+    }
+  } // loop over dets end 
+  
+  
+  if ( (isRefPlane()) && (m_virtStripsInCurl+m_physStripsInCurl!=1152)){
+    std::cout<<"Trouble. Reference curl " << getCurlId() 
+        << " has " << m_virtStripsInCurl+m_physStripsInCurl << " strips."
+        << std::endl;
+  }
   
   m_stripPhiMap.insert(newVirtualStrips.begin(),newVirtualStrips.end() );
 }
@@ -398,11 +480,16 @@ bool RPCCurl::isRefPlane() const { return m_isRefPlane;} ///< Returns value of m
 int RPCCurl::getMinTower() const { return m_towerMin;} ///< Returns value of min tower
 int RPCCurl::getMaxTower() const{ return m_towerMax;} ///< Returns value of max tower
 int RPCCurl::getCurlId() const{ return m_curlId;} ///< Returns value of max tower
+
+
 //#############################################################################
 //##
-//##
+//## \note Curl of hwPlane = 2, roll = 8 is connected nowhere. Why?
 //##
 //#############################################################################
+
+
+// Straigth from ORCA
 const int RPCCurl::mrtow [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::NPOS] =
 //const int RPCCurl::mrtow [] [] [] =
 {
@@ -452,8 +539,11 @@ const int RPCCurl::mrlogp [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::N
   {  {1,1,0},   {2,0,0},   {0,0,0},   {0,0,0},   {0,0,0},   {0,0,0} },  //      16
   {  {1,0,0},   {2,0,0},   {0,0,0},   {0,0,0},   {0,0,0},   {0,0,0} }   //      17
 };
-//const unsigned int RPCCurl::LOGPLANE_SIZE[RPCCurl::TOWER_COUNT][RPCCurl::LOGPLANES_COUNT] = {
-const unsigned int RPCCurl::LOGPLANE_SIZE[17][6] = {
+
+
+// Straigth from ORCA
+const unsigned int RPCCurl::LOGPLANE_SIZE[RPCCurl::TOWERMAX+1][RPCCurl::NHPLANES] = {
+//const unsigned int RPCCurl::LOGPLANE_SIZE[17][6] = {
  //LOGPLANE  1,  2,  3   4   5   6
            {72, 56,  8, 40, 40, 24}, //TOWER 0
            {72, 56,  8, 40, 40, 24}, //TOWER 1
@@ -474,8 +564,6 @@ const unsigned int RPCCurl::LOGPLANE_SIZE[17][6] = {
            {72,  8, 40, 24,  0,  0}  //TOWER 16
 
 };
-
-
 //#############################################################################
 /**
 *
@@ -485,7 +573,7 @@ const unsigned int RPCCurl::LOGPLANE_SIZE[17][6] = {
 //#############################################################################
 void RPCCurl::printContents() {
 
-  //*
+  /*
   if (getCurlId()==71001){
 
     GlobalStripPhiMap::const_iterator it;
@@ -497,12 +585,6 @@ void RPCCurl::printContents() {
     }
   }//*/
 
-  
-  if (m_virtStripsInCurl+m_physStripsInCurl==1152){
-    std::cout<<"Nothing to see here, move along" << std::endl;
-    return;
-  }
-  
   if (isRefPlane())
     std::cout<<"+";
   else
@@ -517,7 +599,7 @@ void RPCCurl::printContents() {
       << " phys= " << m_physStripsInCurl
       << " virt= " << m_virtStripsInCurl
       << " all= " << m_virtStripsInCurl+m_physStripsInCurl
-      //<< "|connections: " << m_links.size()
+      << "|strips conneced: " << m_links.size() // with or without virtual strips. Check it, it may have changed
       << std::endl;
   
   
