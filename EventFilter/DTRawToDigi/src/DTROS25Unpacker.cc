@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/30 08:29:32 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/06/12 10:27:50 $
+ *  $Revision: 1.16 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -21,7 +21,7 @@
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 #include <iostream>
-
+#include <math.h>
 
 using namespace std;
 using namespace edm;
@@ -198,20 +198,31 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	// Check the eventual Sector Collector Header       
         else if (DTROSWordType(word).type() == DTROSWordType::SCHeader) {
 	  DTLocalTriggerHeaderWord scHeaderWord(word);
-	  if (debug) cout<<"[DTROS25Unpacker]: SCHeader  eventID"<<scHeaderWord.eventID()<<endl;
+	  if (debug) cout<<"[DTROS25Unpacker]: SCHeader  eventID "<<scHeaderWord.eventID()<<endl;
+
+	  int bx_counter=0;
+
 	  do {
+	    bx_counter++;
             wordCounter++; word = index[wordCounter];
-	    
-	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
+  	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
 	      DTLocalTriggerDataWord scDataWord(word);
-	      if (debug) cout<<"[DTROS25Unpacker]: SCData bits"<<scDataWord.SCData()<<endl;
+	      if (debug) {
+		//cout<<"[DTROS25Unpacker]: SCData bits "<<scDataWord.SCData()<<endl;
+		if (scDataWord.hasTrigger(0)) 
+		  cout<<" at BX "<<round(bx_counter/2.)
+		      <<" lower part has trigger! with track quality "<<scDataWord.trackQuality(0)<<endl;
+		if (scDataWord.hasTrigger(1)) 
+		  cout<<" at BX "<<round(bx_counter/2.)
+		      <<" upper part has trigger! with track quality "<<scDataWord.trackQuality(1)<<endl;
+	      }
 	    }
 
 	  } while ( DTROSWordType(word).type() != DTROSWordType::SCTrailer );
 
 	  if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
 	    DTLocalTriggerTrailerWord scTrailerWord(word);
-	    if (debug) cout<<"[DTROS25Unpacker]: SCTrailer, number of words"<<scTrailerWord.wordCount()<<endl;
+	    if (debug) cout<<"[DTROS25Unpacker]: SCTrailer, number of words "<<scTrailerWord.wordCount()<<endl;
 	  }
 	}
 
