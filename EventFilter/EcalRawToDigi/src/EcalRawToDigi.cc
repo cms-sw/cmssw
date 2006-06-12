@@ -1,5 +1,16 @@
+/** 
+ * \class EcalRawToDigi
+ *
+ * This class takes care of unpacking ECAL's raw data info
+ *
+ * \author Pedro Silva (adapted from HcalRawToDigi and ECALTBRawToDigi)
+ *
+ * \version 1.0 
+ * \date June 08, 2006  
+ *
+ */
 
-#include "EventFilter/HcalRawToDigi/interface/HcalRawToDigi.h"
+#include "EventFilter/Interface/EcalRawToDigi.h"
 
 /*------------------------------------------------------------------*/
 /* EcalRawToDigi::EcalRawToDigi                                     */
@@ -40,13 +51,28 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     loggerOutput_ << fedUnpackList_[i] << " ";
   edm::LogInfo("ECAL") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
     
-  // products produced...
-  //  produces<HBHEDigiCollection>();
-  //  produces<HFDigiCollection>();
-  //  produces<HODigiCollection>();
-  //  produces<HcalTrigPrimDigiCollection>();
-  //  if (unpackCalib_)
-  //    produces<HcalCalibDigiCollection>();
+  //formatter = new EcalTBDaqFormatter();
+ 
+  // digis
+  produces<EBDigiCollection>();
+  produces<EcalPnDiodeDigiCollection>();
+  produces<EcalRawDataCollection>();
+
+  // crystals' integrity
+  produces<EBDetIdCollection>("EcalIntegrityDCCSizeErrors");
+  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
+  produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
+
+  // mem channels' integrity
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSize");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
 
   //allocate a new mapper and parse default map file
   myMap_ = new DCCMapper();
@@ -58,85 +84,106 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 /* Functions that gets called by framework every event                   */
 /*-----------------------------------------------------------------------*/
 void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
-
-  /*
   // Step A: Get Inputs 
-  edm::Handle<FEDRawDataCollection> rawraw;  
+  edm::Handle<FEDRawDataCollection> rawdata;  
+  e.getByType(rawdata);
 
-  // edm::ProcessNameSelector s("PROD"); 
-  e.getByType(rawraw);           // HACK!
-  // get the mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  es.get<HcalDbRecord>().get( pSetup );
-  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
-
-
-  // Step B: Create empty output  : three vectors for three classes...
-  std::vector<HBHEDataFrame> hbhe;
-  std::vector<HODataFrame> ho;
-  std::vector<HFDataFrame> hf;
-  std::vector<HcalTriggerPrimitiveDigi> htp;
-  std::vector<HcalCalibDataFrame> hc;
-*/
-
-  // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
-
-    //get fed raw data
-    const FEDRawData &fed = rawraw->FEDData(*i);
-    
-    //get SM id from dcc Id_ 
-    ulong smId myMap_->getSMId(*i);
-    
-    unpacker_.unpack(fed,*readoutMap,hbhe,ho,hf,hc,htp);
-  }
-
-/*
   // Step B: encapsulate vectors in actual collections
-  std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
-  std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
-  std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
-  std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
 
-  hbhe_prod->swap_contents(hbhe);
-  hf_prod->swap_contents(hf);
-  ho_prod->swap_contents(ho);
-  htp_prod->swap_contents(htp);
+  // create the collection of Ecal Digis
+  auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
 
-  // Step C2: filter FEDs, if required
-  if (filter_.active()) {
-    HBHEDigiCollection filtered_hbhe=filter_.filter(*hbhe_prod);
-    HODigiCollection filtered_ho=filter_.filter(*ho_prod);
-    HFDigiCollection filtered_hf=filter_.filter(*hf_prod);
+  // create the collection of Ecal PN's
+  auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
+  
+  //create the collection of Ecal DCC Header
+  auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
+
+  // create the collection of Ecal Integrity DCC Size
+  auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity TT Id
+  auto_ptr<EcalTrigTowerDetIdCollection> productTTId(new EcalTrigTowerDetIdCollection);
+
+  // create the collection of Ecal Integrity TT Block Size
+  auto_ptr<EcalTrigTowerDetIdCollection> productBlockSize(new EcalTrigTowerDetIdCollection);
+
+  // create the collection of Ecal Integrity Ch Id
+  auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity Gain
+  auto_ptr<EBDetIdCollection> productGain(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity Gain Switch
+  auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity Gain Switch Stay
+  auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity Mem towerBlock_id errors
+  auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
+  
+  // create the collection of Ecal Integrity Mem gain errors
+  auto_ptr< EcalElectronicsIdCollection> productMemBlockSize(new EcalElectronicsIdCollection);
+
+  // create the collection of Ecal Integrity Mem gain errors
+  auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
+
+  // create the collection of Ecal Integrity Mem ch_id errors
+  auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
+
+  
+  // Step C: unpack all requested FEDs
+  try{
+    for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
+
+      //get fed raw data and SM id
+      const FEDRawData &fedData_ = rawdata->FEDData(*i);
+      ulong smId_ myMap_->getSMId(*i);
+
+      //for debug purposes
+      cout << "Getting FED nb: " << *i << " data size is: " << fedData_.size() << endl;
+      cout << "Supermodule id is: " << smId_ << endl;
+
+      //if data size is no null interpret data
+      /*
+      if (data.size()){
+	
+      // do the data unpacking and fill the collections
+      formatter->interpretRawData(data,  *productEb, *productPN, 
+      *productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, 
+      *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+      *productMemTtId,  *productMemBlockSize,*productMemGain,  *productMemChIdErrors);      
+      }
+      */
+    }
+
+    // Step D: Put outputs into event 
+    e.put(productPN);
+    e.put(productEb);
+    e.put(productDCCHeader);
+
+    e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
+    e.put(productTTId,"EcalIntegrityTTIdErrors");
+    e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
+    e.put(productChId,"EcalIntegrityChIdErrors");
+    e.put(productGain,"EcalIntegrityGainErrors");
+    e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+    e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
     
-    hbhe_prod->swap(filtered_hbhe);
-    ho_prod->swap(filtered_ho);
-    hf_prod->swap(filtered_hf);    
+    e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
+    e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
+    e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
+    e.put(productMemGain,"EcalIntegrityMemGainErrors"); 
   }
-
-
-  // Step D: Put outputs into event
-  // just until the sorting is proven
-  hbhe_prod->sort();
-  ho_prod->sort();
-  hf_prod->sort();
-  htp_prod->sort();
-
-  e.put(hbhe_prod);
-  e.put(ho_prod);
-  e.put(hf_prod);
-  e.put(htp_prod);
-
-  /// calib
-  if (unpackCalib_) {
-    std::auto_ptr<HcalCalibDigiCollection> hc_prod(new HcalCalibDigiCollection());
-    hc_prod->swap_contents(hc);
-    hc_prod->sort();
-    e.put(hc_prod);
+  catch(ECALParserException &e){
+    cout << "Exception caught: " << e.what() << endl;
   }
-
-*/
+  catch(ECALParserBlockException &e){
+    cout << "Exception caught: " << e.what() << endl;
+  }
 }
+  
 
 /*------------------------------------------------------*/
 /* EcalRawToDigi::~EcalRawToDigi()                      */
@@ -145,4 +192,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 EcalRawToDigi::~EcalRawToDigi() { 
   //free mapper
   delete myMap_;
+
+  //free formatter
+  //  delete formatter;
 }  
