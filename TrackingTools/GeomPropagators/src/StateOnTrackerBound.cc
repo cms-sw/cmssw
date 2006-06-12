@@ -7,8 +7,8 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 
 //Ported from ORCA
-//  $Date: 2006/04/21 14:30:11 $
-//  $Revision: 1.1 $
+//  $Date: 2006/04/24 21:42:24 $
+//  $Revision: 1.2 $
 
 StateOnTrackerBound::StateOnTrackerBound( Propagator* prop) :
   thePropagator( prop->clone())
@@ -18,6 +18,12 @@ StateOnTrackerBound::~StateOnTrackerBound()
 {
   delete thePropagator;
 };
+
+TrajectoryStateOnSurface
+StateOnTrackerBound::operator()(const TrajectoryStateOnSurface& tsos) const
+{
+  return operator()(*tsos.freeState());
+}
 
 TrajectoryStateOnSurface 
 StateOnTrackerBound::operator()(const FreeTrajectoryState& fts) const
