@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/30 17:46:09 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/01 15:43:46 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -14,9 +14,10 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-class Propagator;
+// FIXME tmp!!
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+//class Propagator;
 class DetLayer;
-class MuonBestMeasurementFinder;
 class MuonTrajectoryUpdator;
 class Trajectory;
 
@@ -89,6 +90,9 @@ private:
   /// I have to use this method since I have to cope with two propagation direction
   void incrementIterator(std::vector<const DetLayer*>::const_iterator &iter) const;
 
+  /// Extract the Event Setup info at each event. It is called by setES
+  virtual void init(const edm::EventSetup& setup);
+  
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
   /// the trajectory state on the last but one available surface
@@ -98,10 +102,11 @@ private:
   MuonDetLayerMeasurements theMeasurementExtractor;
   
   /// The propagator
-  Propagator *thePropagator;
-  
+  //Propagator *thePropagator;
+  SteppingHelixPropagator *thePropagator;
   /// access at the propagator
-  Propagator *propagator() const {return thePropagator;}
+  //  Propagator *propagator() const {return thePropagator;}
+  SteppingHelixPropagator *propagator() const {return thePropagator;}
 
   /// The Estimator
   MeasurementEstimator *theEstimator;
@@ -109,15 +114,11 @@ private:
   /// access at the estimator
   MeasurementEstimator *estimator() const {return theEstimator;}
 
-  /// the bestMeasurementFinder
-  MuonBestMeasurementFinder *theBestMeasurementFinder;
-
-  /// access at the bestMeasurementFinder
-  MuonBestMeasurementFinder *bestMeasurementFinder() const {return theBestMeasurementFinder;}
-
   /// the muon updator (it doesn't inhert from an updator, but it has one!)
   MuonTrajectoryUpdator *theMuonUpdator;
-
+  /// its name
+  std::string theMuonUpdatorName;
+  
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
 
