@@ -136,10 +136,10 @@ namespace edmtest
     delete worker_;
   }
 
-  int I2OConsumer::i2oyield(unsigned int seconds)
+  int I2OConsumer::i2oyield(unsigned int microseconds)
   {
     // used to block (should yield to other threads)
-    sleep(seconds);
+    usleep(microseconds);
     return 0;
   }
   
@@ -170,14 +170,17 @@ namespace edmtest
                      << worker_->pool_->getMemoryUsage().getCommitted()
                      << " mem size used (bytes) "
                      << worker_->pool_->getMemoryUsage().getUsed());
+      unsigned int yc = 0;
       while (worker_->pool_->isLowThresholdExceeded())
       {
-        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
-          "I2OConsumer: Yield till low threshold reached");
         // Does this work? We need to receive e.g. the halt XOAP message!
         // this is probably not thread safe!
-        this->i2oyield(1);
+        this->i2oyield(50000);
+	yc++;
       }
+      LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+		     "I2OConsumer: Yielded " << yc << " time before low threshold reached");
+
       // get run and event numbers here from the buffer
       edm::EventMsg msg(cb.buffer(),cb.size());
       edm::RunNumber_t runID     = msg.getRunNumber();
@@ -195,6 +198,7 @@ namespace edmtest
     int sz = 0;
     // The special "other" message is hardwired to send a
     // terminate run message (close file)
+    std::cout << "stop called" << std::endl;
     writeI2OOther((const char*)pb.buffer(),sz);
   }
 
@@ -486,6 +490,9 @@ namespace edmtest
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+#include "xcept/include/xcept/tools.h"
+
   void I2OConsumer::writeI2OData(const char* buffer, unsigned int size,
                                  edm::RunNumber_t runid, edm::EventNumber_t eventid)
   //
@@ -500,6 +507,7 @@ namespace edmtest
     // This maxSizeInBytes here is for size for available data
     // the maxSizeInBytes in the loop below is for the total size as
     // posted to I2O
+
     unsigned int maxSizeInBytes = max_i2o_sm_datasize_;
     ///unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
     unsigned int headerNeededSize = sizeof(MsgCode::Codes)+sizeof(EventMsg::Header);
@@ -507,9 +515,11 @@ namespace edmtest
     unsigned int maxEvMsgDataFragSizeInBytes = maxSizeInBytes - headerNeededSize;
 //    unsigned int numFramesNeeded = size/maxSizeInBytes;
 //    unsigned int remainder = size%maxSizeInBytes;
-    int size4data = size - headerNeededSize;
-    unsigned int numFramesNeeded = size4data/maxEvMsgDataFragSizeInBytes;
-    unsigned int remainder = size4data%maxEvMsgDataFragSizeInBytes;
+    int size4data = size - headerNeededSize; // this is not used 
+    // @@EM FIXED. the header size should not be subtracted from data size for this computation !!!
+
+    unsigned int numFramesNeeded = size/maxEvMsgDataFragSizeInBytes;
+    unsigned int remainder = size%maxEvMsgDataFragSizeInBytes;
 
     if (remainder > 0) numFramesNeeded++;
     FDEBUG(10) << "I2OConsumer::writeI2OData: number of frames needed = " << numFramesNeeded 
@@ -543,7 +553,10 @@ namespace edmtest
 
       //size_t msgSizeInBytes = max_i2o_sm_datasize_;
       //size_t msgSizeInBytes = thisSize+headerNeededSize;
-      size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME)+max_i2o_sm_datasize_;
+      size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME)+thisSize+headerNeededSize;
+      // round up size to multiple of 8 bytes (i2o uses 32-bit words, but use 64 for future)
+      if(msgSizeInBytes & 0x7 != 0)
+	msgSizeInBytes = ((msgSizeInBytes >> 3) + 1) << 3;
       FDEBUG(10) << "I2OConsumer::writeI2OData: msgSizeInBytes data frame size = " 
                  << msgSizeInBytes << std::endl;
       if(thisSize > max_i2o_sm_datasize_) //MAX_I2O_SM_DATASIZE+MAX_I2O_SM_DATASIZE)
@@ -683,8 +696,17 @@ namespace edmtest
     if(worker_->destination_ !=0)
       {
         FDEBUG(10) << "I2OConsumer::writeI2OData: posting data chain frame " << std::endl;
-        worker_->app_->getApplicationContext()->postFrame(head,
-                       worker_->app_->getApplicationDescriptor(),worker_->destination_);
+        try{
+	  worker_->app_->getApplicationContext()->postFrame(head,
+							    worker_->app_->getApplicationDescriptor(),worker_->destination_);
+	}
+	catch(xcept::Exception &e)
+	  {
+	    LOG4CPLUS_ERROR(worker_->app_->getApplicationLogger(),
+			    "Exception writeI2OData postFrame" 
+			    << xcept::stdformat_exception_history(e));
+	    throw cms::Exception("CommunicationError",e.message());
+	  }
         // for performance measurements only using global variable!
         addMyXDAQMeasurement((unsigned long)(numFramesNeeded * i2o_max_size_));
       }
