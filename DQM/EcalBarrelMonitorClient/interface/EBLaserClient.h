@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/05/24 20:42:25 $
- * $Revision: 1.29 $
+ * $Date: 2006/05/26 07:27:39 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 using namespace cms;
 using namespace edm;
