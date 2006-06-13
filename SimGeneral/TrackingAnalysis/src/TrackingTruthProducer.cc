@@ -107,19 +107,18 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }
 
 // If outside cutoff, create another TrackingVertex,
-// otherwise add G4 vertex to closest one     
     
     if (closest > distanceCut_) {
-      TrackingVertex tV = TrackingVertex(mPosition);
-      tV.addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
-      // Add HepMC vertex
-      // Add TrackingParticle (or maybe elsewhere)
-      tVC -> push_back(tV);
-    } else {
-      (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
-      // Add HepMC vertex
-      // Add TrackingParticle
-    }  
+      tVC -> push_back(TrackingVertex(mPosition));
+      nearestVertex = tVC -> end();
+      --nearestVertex;
+    } 
+     
+// Add data to closest vertex
+         
+    (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
+    // Add HepMC vertex
+    // Add TrackingParticle (or maybe elsewhere)
 
     ++index;     
   }
@@ -143,13 +142,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //    ++index;  
 //  }
 
-//  index = 0;
-//  for (TrackingVertexContainer::const_iterator v =
-//       tVC -> begin();
-//       v != tVC ->end(); ++v) {
-//    edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " << (v -> g4Vertices()).size() << " G4 vertices";
-//    ++index;  
-//  }        
+//   index = 0;
+//   for (TrackingVertexContainer::const_iterator v =
+//        tVC -> begin();
+//        v != tVC ->end(); ++v) {
+//     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " << (v -> g4Vertices()).size() << " G4 vertices";
+//     ++index;  
+//   }        
   
   // Put new info into event record  
   
