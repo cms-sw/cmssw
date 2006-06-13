@@ -7,8 +7,8 @@
 #include <vector>
 #include <bitset>
 #include <string>
-#include "L1RCTRegion.h"
-#include "L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 using std::vector;
 using std::bitset;

@@ -1,4 +1,4 @@
-#include "L1RCTElectronIsolationCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 
 L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 						       int cardNumber) :

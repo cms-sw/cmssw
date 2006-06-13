@@ -2,8 +2,8 @@
 #define L1RCT_h
 
 #include <vector>
-#include "L1RCTCrate.h"
-#include "L1RCTNeighborMap.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 
 class L1RCT {
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "L1RCT.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
 int main(){
   char inputname[256];

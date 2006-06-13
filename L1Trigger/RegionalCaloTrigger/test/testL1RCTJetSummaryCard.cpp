@@ -1,4 +1,4 @@
-#include "L1RCTJetSummaryCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 
 int main() {
   L1RCTJetSummaryCard jsc(0);

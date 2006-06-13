@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "L1RCT.h"
-#include "L1RCTORCAMap.h"
-#include "L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTORCAMap.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 using std::vector;
 using std::fstream;
 using std::cout;

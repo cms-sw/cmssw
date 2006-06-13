@@ -2,9 +2,9 @@
 #define L1RCTCRate_h
 
 #include <vector>
-#include "L1RCTReceiverCard.h"
-#include "L1RCTElectronIsolationCard.h"
-#include "L1RCTJetSummaryCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 
 class L1RCTCrate {
 

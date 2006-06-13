@@ -1,4 +1,4 @@
-#include "L1RCTRegion.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
 
 L1RCTRegion::L1RCTRegion() : totalRegionEt(36),etIn9Bits(16),
 			     totalRegionHE_FG(36),muonBit(16),activityBit(16)

@@ -1,4 +1,4 @@
-#include "L1RCTReceiverCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
 
 L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber) :
   crtNo(crateNumber),cardNo(cardNumber),regions(2),etIn10Bits(2),

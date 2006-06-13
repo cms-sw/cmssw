@@ -1,4 +1,4 @@
-#include "L1RCTReceiverCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
 #include <vector>
 using std::vector;
 int main() {

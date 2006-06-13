@@ -1,4 +1,4 @@
-#include "L1RCT.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
 //Main method to process a single event, hence the name.
 //First it sets up all the neighbors, sharing the pointers to the proper

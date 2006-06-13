@@ -1,4 +1,4 @@
-#include "L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy){
   float energy = (float)hfenergy*0.5;

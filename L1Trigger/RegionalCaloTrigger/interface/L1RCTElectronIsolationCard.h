@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "L1RCTRegion.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
 
 using std::vector;
 using std::cout;

@@ -1,4 +1,4 @@
-#include "L1RCTJetSummaryCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 
 L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(), crtNo(crtNo),
 						    isolatedEGObjects(4),

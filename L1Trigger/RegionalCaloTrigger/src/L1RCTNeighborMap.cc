@@ -1,4 +1,4 @@
-#include "L1RCTNeighborMap.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 
 
 vector<int> L1RCTNeighborMap::north(int crate,int card,int region){

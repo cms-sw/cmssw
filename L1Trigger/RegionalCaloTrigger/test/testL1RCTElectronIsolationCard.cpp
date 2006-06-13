@@ -1,5 +1,5 @@
 #include <iostream>
-#include "L1RCTElectronIsolationCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 
 int main() {
   L1RCTElectronIsolationCard eic(0,0);

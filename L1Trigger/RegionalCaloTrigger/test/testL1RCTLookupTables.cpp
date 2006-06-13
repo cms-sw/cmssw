@@ -1,4 +1,4 @@
-#include "L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include <iostream>
 using std::cout;
 using std::endl;

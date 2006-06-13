@@ -4,7 +4,7 @@
 #include <bitset>
 #include <vector>
 #include <algorithm>
-#include "L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 using std::sort;
 using std::bitset;
