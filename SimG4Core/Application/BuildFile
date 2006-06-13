@@ -3,7 +3,6 @@
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/Packaging>
 <use name=SimG4Core/SensitiveDetector>
-<use name=SimG4Core/UtilityAction>
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/Generators>
 <use name=SimG4Core/Geometry>
@@ -28,7 +27,6 @@
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>               
-<use name=SimG4Core/UtilityAction>
 <use name=SimG4Core/Geometry>
 <use name=SimG4Core/MagneticField>
 <use name=SimDataFormats/Track>
