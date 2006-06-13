@@ -10,6 +10,7 @@ XdaqCollector::XdaqCollector(xdaq::ApplicationStub * s) : dqm::StateMachine(s)
   port_ = 9090;
   xdata::InfoSpace *sp = getApplicationInfoSpace();
   sp->fireItemAvailable("listenPort",&port_);
+  sp->fireItemAvailable("stateName",&fsm_.stateName_);
   xgi::bind(this, &XdaqCollector::Default, "Default");
   xgi::bind(this, &XdaqCollector::general, "general");
   dqm::StateMachine::bind("fsm");
