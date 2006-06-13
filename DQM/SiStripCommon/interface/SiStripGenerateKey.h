@@ -3,6 +3,9 @@
 
 #include <boost/cstdint.hpp>
 
+//@@ THIS IS LEGACY CODE AND WILL DISAPPEAR AT THE FIRST POSSIBLE OPPORTUNITY!
+//@@ PLEASE USE CONTROLKEY/READOUTKEY CLASSES IN DATAFORMATS/SISTRIPDETID/
+
 using namespace std;
 
 class SiStripGenerateKey {
