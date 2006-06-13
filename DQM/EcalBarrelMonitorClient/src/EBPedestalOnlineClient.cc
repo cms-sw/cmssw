@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/07 16:34:30 $
- * $Revision: 1.25 $
+ * $Date: 2006/06/13 10:08:36 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,13 +61,16 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(qtname, "EBPO quality SM%02d", ism);
+    sprintf(qtname, "EBPOT quality SM%02d", ism);
+
     qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
     qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
-    qth03_[ism-1]->setRMSRange(0.0, 2.0);
+
+    qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
 
 //    qth03_[ism-1]->setMinimumEntries(1000);
+
     qth03_[ism-1]->setErrorProb(1.00);
 
   }
