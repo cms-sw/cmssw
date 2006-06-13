@@ -2,12 +2,19 @@
 #define EmbdSimVertex_H
 
 #include "SimDataFormats/Vertex/interface/CoreSimVertex.h"
-
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include <vector>
 class EmbdSimVertex : public CoreSimVertex
 {
-public:
-    typedef CoreSimVertex Core;
-    /// constructor
+ public:
+  
+  typedef edm::Ref<std::vector<EmbdSimVertex> > EmbdSimVertexRef ;
+  typedef edm::RefProd<std::vector<EmbdSimVertex> > EmbdSimVertexRefProd;
+  typedef edm::RefVector<std::vector<EmbdSimVertex> > EmbdSimVertexRefVector;
+  typedef CoreSimVertex Core;
+  /// constructor
     EmbdSimVertex();
     EmbdSimVertex(const Hep3Vector & v, float tof);
     /// full constructor (position, time, index of parent in final vector)

@@ -4,5 +4,8 @@
   <class name="std::vector<EmbdSimVertex>"/>
   <class name="CoreSimVertex"/>
   <class name="EmbdSimVertex"/>
+  <class pattern="edm::Ref<std::vector<EmbdSimVertex>,*>" />
+  <class pattern="edm::RefVector<std::vector<EmbdSimVertex>,*>" />
+  <class name="edm::RefProd<std::vector<EmbdSimVertex> >" /> 
   <class name="edm::Wrapper<std::vector<EmbdSimVertex> >" id="03CAAC2E-3EE1-ACA3-D11B-775772E05B18"/>
 </lcgdict>
