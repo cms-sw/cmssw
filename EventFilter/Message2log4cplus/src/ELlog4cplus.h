@@ -109,7 +109,7 @@ protected:
 public:
   void xxxxSet( int i );  // Testing only
   void xxxxShout();       // Testing only
-  void setAppl(xdaq::Application *a){appl_ = a;}
+  void setAppl(xdaq::Application *a);
 
 protected:
   // --- member data:
