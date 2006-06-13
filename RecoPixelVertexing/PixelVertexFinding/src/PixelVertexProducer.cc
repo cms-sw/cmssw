@@ -81,6 +81,3 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Finally, put them in the event if things look OK
   if (ok) e.put(vertexes,"pixel");
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(PixelVertexProducer)
