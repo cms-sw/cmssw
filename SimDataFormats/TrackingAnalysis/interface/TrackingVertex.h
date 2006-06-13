@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.2 2006/05/07 15:34:14 tboccali Exp $
+ * \version $Id: TrackingVertex.h,v 1.3 2006/05/30 19:11:30 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -20,6 +20,9 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <vector>
+
+using edm::EmbdSimVertexRef;
+using edm::EmbdSimVertexRefVector;
 
 namespace HepMC {
   class GenVertex;
@@ -39,7 +42,7 @@ class TrackingVertex {
   typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
   typedef TrackingParticleContainer::iterator track_iterator;
   typedef const HepMC::GenVertex * GenVertexRef;
-//  typedef const std::vector<GenVertexRef> GenVertexRefVector;
+  typedef edm::RefVector< std::vector<HepMC::GenVertex> > GenVertexRefVector;
   
   /// default constructor
   TrackingVertex();
