@@ -55,9 +55,54 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
-  //put everything in th event
+  //put everything in the event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
   LogDebug("TrackProducer") << "end" << "\n";
+}
+
+
+std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEvent, const edm::EventSetup& setup)
+{
+  edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  //
+  // create empty output collections
+  //
+  std::vector<reco::TransientTrack> ttks;
+
+  //
+  //declare and get stuff to be retrieved from ES
+  //
+  edm::ESHandle<TrackerGeometry> theG;
+  edm::ESHandle<MagneticField> theMF;
+  edm::ESHandle<TrajectoryFitter> theFitter;
+  edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+
+  //
+  //declare and get TrackColection to be retrieved from the event
+  //
+  AlgoProductCollection algoResults;
+  try{  
+    edm::Handle<TrackCandidateCollection> theTCCollection;
+    getFromEvt(theEvent,theTCCollection);
+    
+    //
+    //run the algorithm  
+    //
+    LogDebug("TrackProducer") << "run the algorithm" << "\n";
+    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
+
+
+  for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
+    ttks.push_back( *((*prod).second) );
+  }
+
+  LogDebug("TrackProducer") << "end" << "\n";
+
+  return ttks;
 }
 
 
