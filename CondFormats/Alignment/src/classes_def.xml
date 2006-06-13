@@ -5,11 +5,11 @@
  <class name="uint32_t"/>
  <class name="CLHEP::HepEulerAngles"/>
  <class name="CLHEP::Hep3Vector"/>
+ <class name="CLHEP::HepSymMatrix"/>
 
  <class name="AlignmentErrors"/>
  <class name="AlignTransformError"/>
  <class name="std::vector<AlignTransformError>"/>
- <class name="CLHEP::HepSymMatrix"/>
 
  <class pattern="*iterator*"/>
 </lcgdict>   
