@@ -41,7 +41,7 @@
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
 
-#include "SimG4Core/Application/src/CurrentG4Track.h"
+#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
 #include "CLHEP/Random/JamesRandom.h"
 #include "Randomize.hh"
