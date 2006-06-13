@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id:$
+ * $Id: EcalTBMCInfoProducer.cc,v 1.1 2006/05/30 16:51:53 fabiocos Exp $
  *
 */
 
@@ -13,15 +13,15 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
 
   string CrystalMapFile = ps.getUntrackedParameter<string>("CrystalMapFile","BarrelSM1CrystalCenterElectron120GeV.dat");
   GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","VtxSmeared");
-  double fMinEta = ps.getParameter<double>("MinEta");
-  double fMaxEta = ps.getParameter<double>("MaxEta");
-  double fMinPhi = ps.getParameter<double>("MinPhi");
-  double fMaxPhi = ps.getParameter<double>("MaxPhi");
+  double fMinEta = ps.getUntrackedParameter<double>("MinEta");
+  double fMaxEta = ps.getUntrackedParameter<double>("MaxEta");
+  double fMinPhi = ps.getUntrackedParameter<double>("MinPhi");
+  double fMaxPhi = ps.getUntrackedParameter<double>("MaxPhi");
   beamEta = (fMaxEta+fMinEta)/2.;
   beamPhi = (fMaxPhi+fMinPhi)/2.;
   beamTheta = 2.0*atan(exp(-beamEta));
-  beamXoff = ps.getParameter<double>("BeamMeanX");
-  beamYoff = ps.getParameter<double>("BeamMeanX");
+  beamXoff = ps.getUntrackedParameter<double>("BeamMeanX");
+  beamYoff = ps.getUntrackedParameter<double>("BeamMeanX");
    
   theTestMap = new EcalTBCrystalMap(CrystalMapFile);
   crysNumber = theTestMap->CrystalIndex(beamEta, beamPhi);
