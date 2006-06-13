@@ -6,59 +6,63 @@
 
 using namespace edm;
 using namespace reco;
-/*
-RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( Ref<JetTagCollection> myTagJet,  const float size,  const float pt_min) { 
-       
-  CaloJet myjet = myTagJet->jet();
-   RefVector<TrackCollection> tmp = myTagJet->tracks();
 
-
-  math::XYZVector jet3Vec   (m_jet->px(),m_jet->py(),m_jet->pz()) ;
+RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector myVector, const float size,  const float pt_min) const { 
+  
+  RefVector<TrackCollection> tmp;
+ 
   RefVector<TrackCollection>::const_iterator myTrack = selectedTracks_.begin();
-  for(;myTracks != selectedTracks_.end(); myTracks++)
+  for(;myTrack != selectedTracks_.end(); myTrack++)
     {
-      math::XYZVector trackMomentum = myTrack->momentum() ;
-      float pt_tk = myTrack->momentum.pt();
-      float deltaR = ROOT::Math::VectorUtil::DeltaR(jet3Vec, trackMomentum);
+      const math::XYZVector trackMomentum = (*myTrack)->momentum() ;
+      float pt_tk = (*myTrack)->pt();
+      float deltaR = ROOT::Math::VectorUtil::DeltaR(myVector, trackMomentum);
       if ( deltaR < size && pt_tk > pt_min) tmp.push_back( *myTrack);
       }
 
   return tmp;
 }
-*/
-/*
-TrackRefs IsolatedTauTagInfo::tracksInRing( const Vector direction, const float inner, const float outer) { 
-       
-  TrackRefs sTracks;
-  
-  for (trackTagInfo_iterator it = selectedTracksWTI_.begin() ; 
-	   it != selectedTracksWTI_.end() ; it++) 
+
+
+TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
+
+  const Jet & myjet = m_jetTag->jet(); 
+  math::XYZVector jet3Vec   (myjet.px(),myjet.py(),myjet.pz()) ;
+
+  RefVector<TrackCollection>  sTracks = tracksInCone(jet3Vec, rm_cone, pt_min);
+  TrackRef leadTk;
+  float pt_cut = pt_min;
+  if (sTracks.size() >0) 
     {
-      const Track & track  = *(it)->track();
-      Vector trackVec = track.momentum();
-      float pt_tk = track.pt();
-      float deltaR = ROOT::Math::VectorUtil::DeltaR(trackVec,direction);
-      
-      if ( deltaR > inner && deltaR < outer && pt_tk > pt_min ) sTracks.push_back( &track );
+      RefVector<TrackCollection>::const_iterator myTrack =sTracks.begin();
+      for(;myTrack!=sTracks.end();myTrack++)
+	{
+	  if((*myTrack)->pt() > pt_cut) {
+	    leadTk = *myTrack;
+	    pt_cut = (*myTrack)->pt();
+	  }
+	}
     }
-  return sTracks;
+  return leadTk;
 }
 
+double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk) const
+{
+  double myDiscriminator = 0;
 
-TrackRef IsolatedTauTagInfo::leadingSignalTrack(const edm::Ref<JetTagCollection> myTagJet, const float rm_cone, const float pt_min) {
+  TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
+  if(!leadTk) return myDiscriminator;
 
-
-  edm::RefVector<TrackCollection>  sTracks = tracksInCone(myTagJet, rm_cone, pt_min);
-
-  if (sTracks.size() == 0) return NULL;
+  math::XYZVector trackMomentum = leadTk->momentum() ;
+  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
+  RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
   
-  std::sort( sTracks.begin(), sTracks.end(), SortByDescendingTrackPt() );
-  
-  if(*sTracks.begin().pt() > pt_min) {
-    return *sTracks.begin();
-  }else{
-    return NULL;
-  }
+  if(signalTracks.size() > 0 && (signalTracks.size() == isolationTracks.size()) )
+    myDiscriminator=1;
+
+  return myDiscriminator;
+
+
+
 
 }
-*/

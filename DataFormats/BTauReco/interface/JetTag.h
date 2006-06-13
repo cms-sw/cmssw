@@ -22,9 +22,9 @@ namespace reco {
       m_discriminator(discriminator), m_jetTracksAssociation(jetTracks){ }
     virtual ~JetTag(){}
     virtual JetTag* clone() const { return new JetTag( * this ); }
-    double discriminator () { return m_discriminator; }  
-    const Jet & jet() { return *m_jetTracksAssociation->key; }
-    const edm::RefVector<TrackCollection> & tracks() { return m_jetTracksAssociation->val; } 
+    double discriminator () const { return m_discriminator; }  
+    const Jet & jet() const { return *m_jetTracksAssociation->key; }
+    const edm::RefVector<TrackCollection> & tracks() const { return m_jetTracksAssociation->val; } 
 
   private:
     double m_discriminator;

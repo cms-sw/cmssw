@@ -83,7 +83,7 @@ bool reco::CombinedBTagInfo::existTrackData(reco::TrackRef trackRef) {
 
 void reco::CombinedBTagInfo::flushTrackData() {
 
-  reco::CombinedBTagInfo::trackDataMap_.clear();
+  //  reco::CombinedBTagInfo::trackDataMap_.clear();
   
 } // void flushTrackData
 // -------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ bool reco::CombinedBTagInfo::existVertexData(std::vector<reco::Vertex>::const_it
 // -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::flushVertexData() {
-  reco::CombinedBTagInfo::vertexDataMap_.clear();
+  //  reco::CombinedBTagInfo::vertexDataMap_.clear();
   
 } // void flushVertexData
 // -------------------------------------------------------------------------------
