@@ -465,6 +465,7 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
         else sig_new[i][i]=sig_nom[i][i];
 // off-diagonal elements are not validated at the moment, since it is
 // not clear how and it is not clear if we even need to do it
+        for(int j=i+1; j<4; j++) sig_new[i][j]=sig_nom[i][j];
 //        if(nTS==2){
 //          for(int j=i+1; j<4; j++){
 //            if(abs(sig_new[i][j]-sig_nom[i][j])>0.2+max(dsig_new[i][i],dsig_new[j][j])){

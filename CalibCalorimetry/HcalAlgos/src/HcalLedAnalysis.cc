@@ -285,7 +285,7 @@ void HcalLedAnalysis::LedDone()
   hfHists.LEDMEAN->Write();
 
   // Write the histo file and close it
-  m_file->Write();
+//  m_file->Write();
   m_file->Close();
   cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
 }
@@ -416,7 +416,7 @@ void HcalLedAnalysis::LedTSHists(int id, const HcalDetId detid, int TS, const Hc
     sprintf(name,"%s Peak TS error, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());  
     insert[14].first =  new TH1F(name,name,200,0.,0.05);
     sprintf(name,"%s Fit chi2, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());  
-    insert[15].first =  new TH1F(name,name,200,0.,400.);
+    insert[15].first =  new TH1F(name,name,100,0.,50.);
 
     toolT[detid] = insert;
     _meol = toolT.find(detid);
@@ -432,9 +432,11 @@ void HcalLedAnalysis::LedTSHists(int id, const HcalDetId detid, int TS, const Hc
     if(TS==m_startTS)_mei[11].first->Reset();
     _mei[11].first->SetBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
     float fcgap;
-    if(qie1.adc()==0)fcgap=0.3*(adc2fc[1]-adc2fc[0]);
-    else if(qie1.adc()==127)fcgap=0.3*(adc2fc[127]-adc2fc[126]);
-    else fcgap=0.15*(adc2fc[qie1.adc()+1]-adc2fc[qie1.adc()-1]);
+// size of errors should compensate for the TS width, this
+// certainly needs to be improved in future versions
+    if(qie1.adc()==0)fcgap=adc2fc[1]-adc2fc[0];
+    else if(qie1.adc()==127)fcgap=adc2fc[127]-adc2fc[126];
+    else fcgap=0.5*(adc2fc[qie1.adc()+1]-adc2fc[qie1.adc()-1]);
     _mei[11].first->SetBinError(TS+1,fcgap);
     if(TS==m_endTS){
       float sum=0.;
