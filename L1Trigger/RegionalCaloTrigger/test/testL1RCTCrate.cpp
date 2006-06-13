@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
+#include "L1RCTCrate.h"
 #include <vector>
 #include <iostream>
 using std::vector;

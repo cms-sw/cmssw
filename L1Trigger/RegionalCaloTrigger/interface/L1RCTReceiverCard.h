@@ -47,16 +47,16 @@ class L1RCTReceiverCard {
   // 19 23 27 31
   // 20 24 28 32
   //
-  //In either case it is set up as so
-  //8bit non linear ET for first tower + tower char. bit for first tower
-  //plus 8bit non linear ET for second tower + tower char. bit for second tower
-  //for ECAL tower char. bit is FG
-  //for HCAL it is muon bit
+  //In either case it is set up as so that 0-31 are the 8bit ecal energies
+  //plus the fine grain bit, and 32-63 are the 8bit hcal energies plus
+  //the muon bit.
   void fillInput(vector<unsigned short> input);
   void fillTauBits();
   void fillRegionSums();
   void fillMuonBits();
-    
+   
+  //For each of the following functions the appropriate arguments are
+  //0 or 1
   L1RCTRegion* getRegion(int i) {
     return &regions.at(i);
   }
@@ -68,18 +68,13 @@ class L1RCTReceiverCard {
 
   void print();
 
-  void printRaw(){
-    regions.at(0).printRaw();
-    regions.at(1).printRaw();
-  }
   void printEdges(){
     regions.at(0).printEdges();
-    regions.at(0).printEdges();
+    regions.at(1).printEdges();
   }
 
   void randomInput();
   void fileInput(char* filename);
-
  private:
  
   vector<L1RCTRegion> regions;
@@ -87,9 +82,9 @@ class L1RCTReceiverCard {
   unsigned short calcRegionSum(L1RCTRegion region);
   unsigned short calcTauBit(L1RCTRegion region);
   unsigned short calcMuonBit(L1RCTRegion region);
-
   unsigned short crtNo;
   unsigned short cardNo;
+  //The lookup table
   L1RCTLookupTables lut;
   vector<unsigned short> etIn10Bits;
   vector<unsigned short> muonBits;

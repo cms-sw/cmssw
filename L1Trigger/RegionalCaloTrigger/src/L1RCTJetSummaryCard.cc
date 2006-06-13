@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
+#include "L1RCTJetSummaryCard.h"
 
 L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(), crtNo(crtNo),
 						    isolatedEGObjects(4),
@@ -35,7 +35,7 @@ void L1RCTJetSummaryCard::fillJetRegions(){
     jetRegions.at(20) = barrelRegions.at(3);
     jetRegions.at(21) = barrelRegions.at(2);
   }
-  if(crtNo>9){
+  if(crtNo>=9){
     jetRegions.at(0) = barrelRegions.at(0);
     jetRegions.at(1) = barrelRegions.at(1);
     jetRegions.at(2) = barrelRegions.at(4);

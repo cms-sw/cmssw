@@ -1,5 +1,5 @@
 #include <iostream>
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
+#include "L1RCTNeighborMap.h"
 using std::cout;
 using std::endl;
 void printVec(vector<int> vec){

@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
+#include "L1RCTElectronIsolationCard.h"
 
 L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 						       int cardNumber) :
@@ -11,6 +11,7 @@ L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 
 L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){}
 
+
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
   vector<unsigned short> region0Electrons = calcElectronCandidates(regions.at(0));
   vector<unsigned short> region1Electrons = calcElectronCandidates(regions.at(1));
@@ -20,6 +21,13 @@ void L1RCTElectronIsolationCard::fillElectronCandidates(){
   nonIsoElectrons.at(1) = region1Electrons.at(1);
 }
 
+
+//This method is the bulk of this class.  It finds the electrons given a pointer to
+//a region.  It will return the largest nonIsoElectron candidate and the largest
+//isoElectron candidate.  A deposit is an electron candidate if the h/e||fg bit is
+//not on and it is higher energy than it's direct four neighbors.
+//An electron candidate is *always* a non-isolated electron.
+//If it also passes the neighbor cuts then it is an isolated electron as well.
 vector<unsigned short>
 L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
   
@@ -90,7 +98,7 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	  if(candidateEt > isoElectron)
 	    isoElectron = candidateEt;
 	}
-	if(candidateEt > nonIsoElectron)
+	else if(candidateEt > nonIsoElectron)
 	  nonIsoElectron = candidateEt;
       }
     }

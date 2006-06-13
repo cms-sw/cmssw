@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
+#include "L1RCTCrate.h"
 
 L1RCTCrate::L1RCTCrate(int crtNo) : crtNo(crtNo),jetSummaryCard(crtNo)
 {

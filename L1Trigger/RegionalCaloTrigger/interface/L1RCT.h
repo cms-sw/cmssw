@@ -37,6 +37,12 @@ class L1RCT {
   void printJSC(int i){
     crates.at(i).printJSC();
   }
+  void printJSC(){
+    for(int i=0;i<18;i++){
+      cout << "JSC for Crate " << i << endl;
+      crates.at(i).printJSC();
+    }
+  }
   void printRC(int i, int j){
     crates.at(i).printRC(j);
   }
@@ -46,6 +52,17 @@ class L1RCT {
   void printEICEdges(int i, int j){
     crates.at(i).printEICEdges(j);
   }
+
+  vector<unsigned short> getIsolatedEGObjects(int crate){
+    crates.at(crate).getIsolatedEGObjects();
+  }
+  vector<unsigned short> getNonisolatedEGObjects(int crate){
+    crates.at(crate).getNonisolatedEGObjects();
+  }
+  vector<unsigned short> getJetRegions(int crate){
+    crates.at(crate).getJetRegions();
+  }
+  
   
  private:
   

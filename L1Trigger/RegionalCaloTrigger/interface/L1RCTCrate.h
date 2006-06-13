@@ -49,7 +49,17 @@ class L1RCTCrate {
   void printEICEdges(int i){
     electronCards.at(i).printEdges();
   }
+
+  vector<unsigned short> getJetRegions(){
+    jetSummaryCard.getJetRegions();
+  }
   
+  vector<unsigned short> getIsolatedEGObjects(){
+    jetSummaryCard.getIsolatedEGObjects();
+  }
+  vector<unsigned short> getNonisolatedEGObjects(){
+    jetSummaryCard.getNonisolatedEGObjects();
+  }
 
  private:
   //The seven RCs and EICs

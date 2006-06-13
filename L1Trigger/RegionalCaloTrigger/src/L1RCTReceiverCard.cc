@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
+#include "L1RCTReceiverCard.h"
 
 L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber) :
   crtNo(crateNumber),cardNo(cardNumber),regions(2),etIn10Bits(2),
@@ -64,8 +64,8 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
     hcalMuon.at(i) = (input.at(i+32)>>8)&1;
     unsigned long lookup = lut.lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i));
     unsigned short etIn7Bits = lookup&127;
-    unsigned short etIn9Bits = (lookup >> 7)&511;
-    unsigned short HE_FGBit = (lookup>>16)&1;
+    unsigned short etIn9Bits = (lookup >> 8)&511;
+    unsigned short HE_FGBit = (lookup>>7)&1;
     unsigned short activityBit = (lookup>>17)&1;
     vector<unsigned short> indices = towerToRegionMap(i);
     unsigned short r = indices.at(0);

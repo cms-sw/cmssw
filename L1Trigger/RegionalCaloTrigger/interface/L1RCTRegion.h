@@ -26,9 +26,11 @@ class L1RCTRegion {
 
   unsigned short getEtIn7Bits(int i, int j);
   unsigned short getHE_FGBit(int i, int j);
-
+  
+  //diagnostic print functions.
+  //print prints the data contained in a convenient format
+  //print edges prints the neighboring edge information
   void print();
-  void printRaw();
   void printEdges();
 
   vector<unsigned short> giveNorthEt();
@@ -67,9 +69,10 @@ class L1RCTRegion {
   
  private:
   
-  //4x4 array
+  //6x6 matrices
   vector<unsigned short> totalRegionEt;
   vector<unsigned short> totalRegionHE_FG;
+  //4x4 matrices
   vector<unsigned short> etIn9Bits;
   //vector<unsigned short> HE_FGBit;
   vector<unsigned short> muonBit;

@@ -1,10 +1,20 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
+#include "L1RCTRegion.h"
 
 L1RCTRegion::L1RCTRegion() : totalRegionEt(36),etIn9Bits(16),
 			     totalRegionHE_FG(36),muonBit(16),activityBit(16)
 {
 }
 
+//So the whole point of the following two functions is that they provide
+//an interface to the "real" 4x4 region 7 bit energies and h/e||fg bits
+//that are used in electron finding.  
+//Now, you actually *can* give them arguments ranging from -1 to 4 
+//representing the outer neighbors.
+//This is actually quite helpful and allows you to write the electronfinding
+//algorithm in the same form no matter what tower you're centered on.
+//
+//As a reminder i is row and j is column, just like matrices.
+//row -1 is the northern neighbors and column -1 is the western neighbors
 unsigned short L1RCTRegion::getEtIn7Bits(int i, int j){
   //i & j run 0-3
   return totalRegionEt.at(6*(i+1) + j+1);
@@ -18,6 +28,19 @@ void L1RCTRegion::setEtIn7Bits(int i, int j,unsigned short energy){
     totalRegionEt.at(6*(i+1) + j+1) = 127;
 }
 
+
+unsigned short L1RCTRegion::getHE_FGBit(int i, int j){
+  return totalRegionHE_FG.at(6*(i+1)+j+1);
+}
+
+void L1RCTRegion::setHE_FGBit(int i, int j, unsigned short HE_FG){
+  totalRegionHE_FG.at(6*(i+1)+j+1) = HE_FG;
+}
+
+
+//The rest of the data stored in a region only works if i and j are
+//in the 0-3 range.  The arrays truly are 4x4 and will signal an error
+//if misused thanks to the vector function .at
 unsigned short L1RCTRegion::getEtIn9Bits(int i, int j){
   return etIn9Bits.at(4*i + j);
 }
@@ -27,14 +50,6 @@ void L1RCTRegion::setEtIn9Bits(int i, int j,unsigned short energy){
     etIn9Bits.at(4*i+j) = energy;
   else 
     etIn9Bits.at(4*i+j) = 511;
-}
-
-unsigned short L1RCTRegion::getHE_FGBit(int i, int j){
-  return totalRegionHE_FG.at(6*(i+1)+j+1);
-}
-
-void L1RCTRegion::setHE_FGBit(int i, int j, unsigned short HE_FG){
-  totalRegionHE_FG.at(6*(i+1)+j+1) = HE_FG;
 }
 
 unsigned short L1RCTRegion::getMuonBit(int i, int j){
@@ -53,6 +68,17 @@ unsigned short L1RCTRegion::getActivityBit(int i, int j){
   return activityBit.at(4*i+j);
 }
 
+//The following list of give and set functions are the core
+//of the work for neighbor sharing swept under the rug.
+//Basically, the way it works is that "give" methods return
+//what would be the appropriate neighbor information so that you can
+//use the set methods on the other region in order to set the neighbor
+//information.  For example, r0:crate 0 card 0 region 0 is the northern
+//neighbor of r1:crate 0 card 1 region 0.  Then to set the northern
+//neighbor information you call r1.setNorthEt(r0.getNorthEt())
+//That's why it's give insted of get.  It doesn't return the region's
+//northern neighbor information, it returns what would be its southern
+//neighbor's northern neighbor information.
 vector<unsigned short> L1RCTRegion::giveNorthEt(){
   vector<unsigned short> north(4);
   for(int i = 0; i<4;i++)
@@ -141,7 +167,11 @@ void L1RCTRegion::setEastHE_FG(vector<unsigned short> east){
 }
 
 unsigned short L1RCTRegion::giveNEEt(){
-  return getEtIn7Bits(3,0)&7;
+  unsigned short et = getEtIn7Bits(3,0);
+  if(et > 7)
+    return 7;
+  else
+    return et;
 }
 unsigned short L1RCTRegion::giveNEHE_FG(){
   return getHE_FGBit(3,0);
@@ -154,7 +184,11 @@ void L1RCTRegion::setNEHE_FG(unsigned short ne){
 }
 
 unsigned short L1RCTRegion::giveNWEt(){
-  return getEtIn7Bits(3,3)&7;
+  unsigned short et = getEtIn7Bits(3,3);
+  if(et > 7)
+    return 7;
+  else 
+    return et;
 }
 unsigned short L1RCTRegion::giveNWHE_FG(){
   return getHE_FGBit(3,3);
@@ -167,7 +201,11 @@ void L1RCTRegion::setNWHE_FG(unsigned short nw){
 }
 
 unsigned short L1RCTRegion::giveSWEt(){
-  return getEtIn7Bits(0,3)&7;
+  unsigned short et = getEtIn7Bits(0,3);
+  if(et > 7)
+    return 7;
+  else
+    return et;
 }
 unsigned short L1RCTRegion::giveSWHE_FG(){
   return getHE_FGBit(0,3);
@@ -180,10 +218,14 @@ void L1RCTRegion::setSWHE_FG(unsigned short sw){
 }
 
 unsigned short L1RCTRegion::giveSEEt(){
-  return getEtIn7Bits(0,0)&7;
+  unsigned short et = getEtIn7Bits(0,0);
+  if(et > 7)
+    return 7;
+  else
+    return et;
 }
 unsigned short L1RCTRegion::giveSEHE_FG(){
-  return getHE_FGBit(0,0)&7;
+  return getHE_FGBit(0,0);
 }
 void L1RCTRegion::setSEEt(unsigned short se){
   totalRegionEt.at(35) = se;
@@ -229,15 +271,6 @@ void L1RCTRegion::print() {
     }
   }
   cout << endl;
-}
-
-void L1RCTRegion::printRaw(){
-  for(int i = 0; i<16; i++){
-    cout << totalRegionEt.at(i) << endl;
-    cout << totalRegionHE_FG.at(i) << endl;
-    cout << etIn9Bits.at(i) << endl;
-    cout << muonBit.at(i) << endl;
-  }
 }
 
 void L1RCTRegion::printEdges(){

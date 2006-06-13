@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "L1RCTLookupTables.h"
 
 unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy){
   float energy = (float)hfenergy*0.5;
@@ -14,10 +14,10 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   unsigned long etIn9Bits = convertTo9Bits(ecalLinear+hcalLinear);
   unsigned long activityBit = calcActivityBit(ecalLinear,hcalLinear);
 
-  unsigned long shiftEtIn9Bits = etIn9Bits<<7;
-  unsigned long shiftHE_FGBit = HE_FGBit<<16;
+  unsigned long shiftEtIn9Bits = etIn9Bits<<8;
+  unsigned long shiftHE_FGBit = HE_FGBit<<7;
   unsigned long shiftActivityBit = activityBit<<17;
-  unsigned long output=etIn7Bits+shiftEtIn9Bits+shiftHE_FGBit+shiftActivityBit;
+  unsigned long output=etIn7Bits+shiftHE_FGBit+shiftEtIn9Bits+shiftActivityBit;
   return output;
 }
 

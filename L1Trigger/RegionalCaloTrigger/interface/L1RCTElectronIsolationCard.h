@@ -9,6 +9,13 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+//This class handles the electron isolation card.  Duh.
+//Each card has a crate and a cardnumber to identify it when
+//being called.
+//The class does not actually have instances of L1RCTRegions but
+//rather has pointers to regions that were created in L1RCTReceiverCard
+//for efficiency purposes.
+
 class L1RCTElectronIsolationCard {
 
  public:
@@ -24,6 +31,8 @@ class L1RCTElectronIsolationCard {
   void setRegion(int i, L1RCTRegion* region){
     regions.at(i) = region;
   }
+  //Valid arguments to the following two functions are 0 or 1,
+  //corresponding to region0 or region1
   unsigned short getIsoElectrons(int i) {
     return isoElectrons.at(i);
   }
