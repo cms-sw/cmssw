@@ -125,6 +125,7 @@ class CosmicTrajectoryBuilder
 
    int theMinHits;
    double chi2cut;
+   double finalchi2cut;
    std::vector<Trajectory> trajFit;
    edm::OwnVector<const TransientTrackingRecHit> hits;
    bool seed_plus;

@@ -86,10 +86,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     hits.push_back(HitPairs[0].inner()->clone());
     
 
-
-    //    if(outer.y()>0){
     if((outer.y()-inner.y())>0){
-
       GlobalTrajectoryParameters Gtp(outer,
 				     inner-outer,
 				     -1, &(*magfield));
@@ -121,7 +118,6 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       
     }
     else{
-
       GlobalTrajectoryParameters Gtp(outer,
 				     outer-inner,
 				     -1, &(*magfield));
@@ -138,7 +134,6 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
-	  
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
 	  

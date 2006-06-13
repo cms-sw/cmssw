@@ -24,6 +24,8 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) 
   theMinHits=conf_.getParameter<int>("MinHits");
   //cut on chi2
   chi2cut=conf_.getParameter<double>("Chi2Cut");
+  //cut on final chi2
+  finalchi2cut=conf_.getParameter<double>("FinalChi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
 }
 
@@ -106,9 +108,14 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
     }
 
     for (trajIter= trajSmooth.begin(); trajIter!=trajSmooth.end();trajIter++){
-      AlgoProduct tk=makeTrack((*trajIter));
-      algooutput.push_back(tk);
-   
+      if((*trajIter).isValid()){
+	if ((*trajIter).chiSquared()<500){
+	  AlgoProduct tk=makeTrack((*trajIter));
+	  algooutput.push_back(tk);
+	}else edm::LogError("CosmicTrackFinder")<<"Chi square of the track = "
+						<<(*trajIter).chiSquared()
+						<<" too high";
+      }
     }
   }
 };
@@ -168,64 +175,62 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
 				  const SiPixelRecHitCollection &collpixel,
 				  const TrajectorySeedCollection &collseed){
 
+
   //The Hits with global y more than the seed are discarded
   //The Hits correspondign to the seed are discarded
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
-  vector<const TrackingRecHit*> seedHits;
-  SiPixelRecHitCollection::const_iterator ipix;
-  for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
-    allHits.push_back(&(*ipix));
-  }
 
   SiStripRecHit2DLocalPosCollection::const_iterator istrip;
-  TrajectorySeedCollection::const_iterator iseed;
   TrajectorySeedCollection::const_iterator seedbegin=collseed.begin();
   TrajectorySeed::range hRange= (*seedbegin).recHits();
   TrajectorySeed::const_iterator ihit;
-  float ymin=0.;
+  float yref=0.;
   for (ihit = hRange.first; 
        ihit != hRange.second; ihit++) {
-    ymin=RHBuilder->build(&(*ihit))->globalPosition().y();
+    yref=RHBuilder->build(&(*ihit))->globalPosition().y();
+    hits.push_back((RHBuilder->build(&(*ihit)))); 
+    LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(&(*ihit))->globalPosition();
   }
- 
 
-  TrajectorySeedCollection::const_iterator seedend=collseed.end();
-  for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
-    bool differenthit= true;
-    for (iseed=seedbegin;iseed!=seedend;iseed++){
-      TrajectorySeed::range hitRange= (*iseed).recHits();
-      for (ihit = hitRange.first; 
-	   ihit != hitRange.second; ihit++) {
-	if((*ihit).geographicalId()==(*istrip).geographicalId()) {
-
-	  if(((*ihit).localPosition()-(*istrip).localPosition()).mag()<0.1)  differenthit=false;
-	}
-      }
+  
+  if ((&collpixel)!=0){
+    SiPixelRecHitCollection::const_iterator ipix;
+    for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
+      float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
+      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	allHits.push_back(&(*ipix));
     }
+  } 
+  
+  
 
-
-    if (differenthit) { 
+  if ((&collrphi)!=0){
+    for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<ymin)) || (!(seed_plus) && (ych>ymin)))
+      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*istrip));   
-    } 
-    else  seedHits.push_back(&(*istrip)); 
+    }
   }
 
-  hits.push_back((RHBuilder->build(seedHits.back()))); 
-  hits.push_back((RHBuilder->build(seedHits.front()))); 
 
-  LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(seedHits.back())->globalPosition()
-      <<" "<<RHBuilder->build(seedHits.front())->globalPosition();
-  for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
 
-      allHits.push_back(&(*istrip));
+
+  if ((&collstereo)!=0){
+    for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
+      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	allHits.push_back(&(*istrip));
+    }
   }
 
   SiStripRecHit2DMatchedLocalPosCollection::const_iterator istripm;
-  for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
-    
+  if ((&collmatched)!=0){
+    for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
+      float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
+      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	allHits.push_back(&(*istripm));
+    }
   }
 
   if (seed_plus){
@@ -234,6 +239,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   else {
     stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
   }
+
   return allHits;
 };
 
@@ -259,42 +265,38 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
      TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
  					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
-   
+     
      if (prSt.isValid()){
-      LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<prSt;
-
-      TSOS UpdatedState= theUpdator->update( prSt, *tmphit);
-      
- 
-      if (UpdatedState.isValid()){
-	LogDebug("CosmicTrackFinder") <<"STATE UPDATED WITH HIT AT POSITION "<<gphit<<UpdatedState;
-	float contr= theEstimator->estimate(UpdatedState, *tmphit).second;
-
-	if (contr<chi2cut)
-	  {	 
-	    traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[icosmhit])
-			 , contr));
-	    hits.push_back(&(*tmphit));
-	    LogDebug("CosmicTrackFinder") <<"HIT SELECTED  position" <<gphit
-					  <<" traj Chi2= "<<traj.chiSquared();
+       LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<prSt;
+       float contr= theEstimator->estimate(prSt, *tmphit).second;
+       if (contr<chi2cut)
+	 {	 
+	   TSOS UpdatedState= theUpdator->update( prSt, *tmphit);
+	   if (UpdatedState.isValid()){
+	     LogDebug("CosmicTrackFinder") <<"STATE UPDATED WITH HIT AT POSITION "<<gphit<<UpdatedState;
+	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[icosmhit])
+			  , contr));
+	     hits.push_back(&(*tmphit));
+	     LogDebug("CosmicTrackFinder") <<"HIT SELECTED  position" <<gphit
+					   <<" traj Chi2= "<<traj.chiSquared();
 	     
-	  }
-      }else edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
+	   }
+	 }else edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
      }else edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
-
-    
+     
+     
   }
   
   
   
 
   if ( qualityFilter( traj)){
-     const TrajectorySeed& tmpseed=traj.seed();
-     TSOS startingState=startingTSOS(tmpseed);     
-     trajFit = theFitter->fit(tmpseed,hits, startingState );
-   }
-
- 
+    const TrajectorySeed& tmpseed=traj.seed();
+    TSOS startingState=startingTSOS(tmpseed);     
+    trajFit = theFitter->fit(tmpseed,hits, startingState );
+  }
+  
+  
 }
 
 

@@ -23,7 +23,7 @@ namespace cms
     cosmicTrajectoryBuilder_(conf) ,
     conf_(conf)
   {
-
+    geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
     produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
     produces<reco::TrackExtraCollection>();
@@ -45,7 +45,7 @@ namespace cms
     e.getByType(seed);
     //retrieve PixelRecHits
     edm::Handle<SiPixelRecHitCollection> pixelHits;
-    e.getByType(pixelHits);
+    if (geometry!="MTCC")  e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
     e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
@@ -66,21 +66,34 @@ namespace cms
 
   
     if((*seed).size()>0){
-      unsigned int iraw=(*(*(*seed).begin()).recHits().first).geographicalId().rawId();
-      LocalPoint lp=(*(*(*seed).begin()).recHits().first).localPosition();
-      bool seedplus=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y()>0.);
+      TrajectorySeed::range hRange= (*(*seed).begin()).recHits();
+      TrajectorySeed::const_iterator ihit;
+      float yy1=0;
+      float yy2=0;
+      uint iny=1;
+      for (ihit = hRange.first; 
+	   ihit != hRange.second; ihit++) {
+
+	unsigned int iraw=(*ihit).geographicalId().rawId();
+	LocalPoint lp=(*ihit).localPosition();
+	if (iny==1)yy1=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y());
+	else yy2=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y());
+	iny++;
+      }
+
+
+      bool seedplus=((yy1-yy2)>0);
 
       if (seedplus)
-	LogDebug("CosmicTrackFinder")<<"Seed on the top part of the tracker";
+	LogDebug("CosmicTrackFinder")<<"Reconstruction in top-down direction";
       else
-	LogDebug("CosmicTrackFinder")<<"Seed on the bottom part of the tracker";
- 
+	LogDebug("CosmicTrackFinder")<<"Reconstruction in bottom-up direction";
       cosmicTrajectoryBuilder_.init(es,seedplus);
       
       vector<AlgoProduct> algooutput;
       edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
       
-      
+    
       cosmicTrajectoryBuilder_.run(*seed,
 				   *stereorecHits,
 				   *rphirecHits,
@@ -89,7 +102,7 @@ namespace cms
 				   es,
 				   e,
 				   algooutput);
-  
+   
      
       if(algooutput.size()>0){
 	int cc = 0;	

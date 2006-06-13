@@ -32,6 +32,7 @@ namespace cms
   private:
     CosmicTrajectoryBuilder cosmicTrajectoryBuilder_;
     edm::ParameterSet conf_;
+    std::string geometry;
   };
 }
 
