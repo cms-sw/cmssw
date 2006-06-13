@@ -45,7 +45,7 @@ public:
   ~HcalPedestalAnalysis();
   void setup(const std::string& m_outputFileROOT);
   void SampleAnalysis();
-  void done(const HcalPedestals* fInputPedestals, 
+  int done(const HcalPedestals* fInputPedestals, 
 	    const HcalPedestalWidths* fInputWidths,
 	    HcalPedestals* fOutputPedestals, 
 	    HcalPedestalWidths* fOutputWidths);
@@ -78,7 +78,7 @@ private:
   void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
   void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
   void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
-  int PedValidtn(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT);
+  int PedValidtn(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, int nTS);
   std::string m_outputFileROOT;
   std::string m_outputFileMean;
   std::string m_outputFileWidth;

@@ -182,6 +182,8 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       stats = _meot->second[i+12].first->GetEntries();
       dsigma = param1[i]*dparam1[(i+3)%4]*param1[i]*dparam1[(i+3)%4]+param1[(i+3)%4]*dparam1[i]*param1[(i+3)%4]*dparam1[i];
       dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
+      _meot->second[i].second.first[9].push_back(sigma);
+      _meot->second[i].second.first[10].push_back(dsigma);
     }
   }
 }
@@ -361,7 +363,7 @@ TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
 }
 
 //-----------------------------------------------------------------------------
-int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
+int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT, int nTS)
 {
   int PedsOK=1;
   for(_meot=toolT.begin(); _meot!=toolT.end(); _meot++){
@@ -434,34 +436,44 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
 //   widthsper2caps.addValue(_meot->first,sqrt(sig_new[0][0]+sig_new[1][1]+2*sig_new[0][1]),sqrt(sig_new[1][1]+sig_new[2][2]+2*sig_new[1][2]),sqrt(sig_new[2][2]+sig_new[3][3]+2*sig_new[2][3]),sqrt(sig_new[3][3]+sig_new[0][0]+2*sig_new[3][0]));
                                                                                 
 // here should go code that compares new values against nominal ones,
-// in the present implementation this is still somewhat simplistic: an update
-// of the DB is deemed necessary if any mean pedestal from two adjacent caps
-// summed together deviates from its nominal value by more than 0.5 ADC counts
-// plus the statistical error on its current measurement (no need to update
-// if the new measurement is just junk!), or when any width or sigma 
-// coefficient deviates by more than 3 times its measurement error from 
-// its nominal value
+// in the present implementation, an update of the DB is deemed necessary
+// if any mean pedestal deviates from its nominal value by more than 0.5 ADC
+// counts plus the statistical error on its current measurement (using 1 or
+// 2 time slices), or when any width deviates by more than 0.1 plus the 
+// statistical error from its nominal value
     if(m_pedValflag>0){
       for(int i=0; i<4; i++){
         int i2=(i+1)%4;
-        if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2])){
-          PedsOK=0;
+        if(nTS==1){
+          if(cap_new[i]>0 && abs(cap_new[i]-cap_nom[i])>0.5+dcap_new[i]){
+            PedsOK=0;
+          }
+          else cap_new[i]=cap_nom[i];
         }
+        if(nTS==2){
+          if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2])){
+            PedsOK=0;
+          }
 // if consistency with nominal value is found, the new value is abandoned
 // at this point and the nominal value is restored - only the constants
 // that have changed significantly are remembered and will get updated
-        else cap_new[i]=cap_nom[i];
-        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>3.*dsig_new[i][i]){
+          else cap_new[i]=cap_nom[i];
+        }
+        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>0.1+dsig_new[i][i]){
           PedsOK=0;
         }
         else sig_new[i][i]=sig_nom[i][i];
-        for(int j=i+1; j<4; j++){
-// error on off-diagonal elements are assumed the same as for diagonal
-          if(abs(sig_new[i][j]-sig_nom[i][j])>3.*dsig_new[i][i]){
-            PedsOK=0;
-          }
-          else sig_new[i][j]=sig_nom[i][j];
-        }
+// off-diagonal elements are not validated at the moment, since it is
+// not clear how and it is not clear if we even need to do it
+//        if(nTS==2){
+//          for(int j=i+1; j<4; j++){
+//            if(abs(sig_new[i][j]-sig_nom[i][j])>0.2+max(dsig_new[i][i],dsig_new[j][j])){
+//              PedsOK=0;
+//            }
+//            else sig_new[i][j]=sig_nom[i][j];
+//          }
+//        }
+//        if(nTS==1) for(int j=i+1; j<4; j++) sig_new[i][j]=sig_nom[i][j];
       }
     }
     if (pedCan) pedCan->addValue(_meot->first,cap_new[0],cap_new[1],cap_new[2],cap_new[3]);
@@ -483,7 +495,7 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
 }
 
 //-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
+int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
 				const HcalPedestalWidths* fInputPedestalWidths,
 				HcalPedestals* fOutputPedestals, 
 				HcalPedestalWidths* fOutputPedestalWidths)
@@ -515,12 +527,15 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   pedCan = fOutputPedestals;
   widthCan = fOutputPedestalWidths;
 
-  int HBPedsOK=PedValidtn(hbHists.PEDTRENDS);
-  int HOPedsOK=PedValidtn(hoHists.PEDTRENDS);
-  int HFPedsOK=PedValidtn(hfHists.PEDTRENDS);
+  int HBPedsOK=PedValidtn(hbHists.PEDTRENDS,2);
+  int HOPedsOK=PedValidtn(hoHists.PEDTRENDS,2);
+  int HFPedsOK=PedValidtn(hfHists.PEDTRENDS,1);
 // m_AllPedsOK says whether new pedestals are consistent with the ones
-// we read at input.  m_AllPedsOK=0 means not consistent or not checked.
-  m_AllPedsOK=m_pedValflag*HBPedsOK*HOPedsOK*HFPedsOK;
+// we read at input.  m_AllPedsOK=0 means not consistent, -1 not checked.
+  if(m_pedValflag==1){
+    m_AllPedsOK=HBPedsOK*HOPedsOK*HFPedsOK;
+  }
+  else m_AllPedsOK=-1;
   if(m_AllPedsOK==1){
     m_logFile<<"Pedestals checked OK"<<std::endl;
   }
@@ -553,6 +568,7 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
 //  m_file->Write();
   m_file->Close();
   cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
+  return (int)m_AllPedsOK;
 }
 
 //-----------------------------------------------------------------------------
