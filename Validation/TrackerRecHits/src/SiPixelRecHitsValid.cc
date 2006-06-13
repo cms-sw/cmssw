@@ -50,7 +50,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    //Cluster charge by module for 3 layers of barrel
    for (int i=0; i<8; i++) {
 	//Cluster charge by module for Layer1
-	sprintf(histo, "Clust_Charge_Layer1_Module%d", i+1);
+	sprintf(histo, "Clust_charge_Layer1_Module%d", i+1);
 	clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 100, 0., 200000.);
 
 	//Cluster charge by module for Layer2
@@ -59,7 +59,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
 
 	//Cluster charge by module for Layer3
 	sprintf(histo, "Clust_charge_Layer3_Module%d", i+1);
-	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",1020, 0., 200000.);	
+	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",100, 0., 200000.);	
    } // end for
 
    dbe_->setCurrentFolder("clustFPIX");
@@ -234,10 +234,10 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 		} // end sim hit loop
 		
 		if (subid==1) { //<----------barrel
-		   fillBarrel(pixeliter, closestit, detId, theGeomDet);	
+		   fillBarrel(*pixeliter, *closestit, detId, theGeomDet);	
 		} // end barrel
 		if (subid==2) { // <-------forward
-		   fillForward(pixeliter, closestit, detId, theGeomDet);
+		   fillForward(*pixeliter, *closestit, detId, theGeomDet);
 		}
 
 	   } // end matched emtpy
@@ -245,23 +245,23 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
    } // <------ end detunit loop
 }
 
-void SiPixelRecHitsValid::fillBarrel(SiPixelRecHitCollection::const_iterator recHit,std::vector<PSimHit>::const_iterator simHit, DetId detId, const PixelGeomDetUnit * theGeomDet) {
+void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit & simHit, DetId detId, const PixelGeomDetUnit * theGeomDet) {
 
    const float cmtomicron=10000.; 
 
-   LocalPoint lp = recHit->localPosition();
+   LocalPoint lp = recHit.localPosition();
    float lp_y = lp.y();  
    float lp_x = lp.x();
  
    recHitYAllModules->Fill(lp_y);
 
-   float sim_x1 = (*simHit).entryPoint().x();
-   float sim_x2 = (*simHit).exitPoint().x();
+   float sim_x1 = simHit.entryPoint().x();
+   float sim_x2 = simHit.exitPoint().x();
    float sim_xpos = 0.5*(sim_x1 + sim_x2);
    float res_x = (lp.x() - sim_xpos)*cmtomicron;
 
-   float sim_y1 = (*simHit).entryPoint().y();
-   float sim_y2 = (*simHit).exitPoint().y();
+   float sim_y1 = simHit.entryPoint().y();
+   float sim_y2 = simHit.exitPoint().y();
    float sim_ypos = 0.5*(sim_y1 + sim_y2);
    float res_y = (lp.y() - sim_ypos)*cmtomicron;
 
@@ -292,7 +292,7 @@ void SiPixelRecHitsValid::fillBarrel(SiPixelRecHitCollection::const_iterator rec
    }
 
    //get cluster
-   edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit->cluster();
+   edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill module dependent info
    for (int i=0; i<8; i++) {
@@ -323,14 +323,14 @@ void SiPixelRecHitsValid::fillBarrel(SiPixelRecHitCollection::const_iterator rec
    if (PXBDetId::PXBDetId(detId).layer() == 3) clustXSizeLayer[2]->Fill(sizeX);
 }
 
-void SiPixelRecHitsValid::fillForward(SiPixelRecHitCollection::const_iterator recHit, std::vector<PSimHit>::const_iterator simHit, DetId detId,const PixelGeomDetUnit * theGeomDet ) {
+void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHit & simHit, DetId detId,const PixelGeomDetUnit * theGeomDet ) {
 
    int rows = theGeomDet->specificTopology().nrows();
    int cols = theGeomDet->specificTopology().ncolumns();
 
    const float cmtomicron=10000.;
 
-   LocalPoint lp = recHit->localPosition();
+   LocalPoint lp = recHit.localPosition();
    float lp_x = lp.x();
    float lp_y = lp.y();
 
@@ -350,18 +350,18 @@ void SiPixelRecHitsValid::fillForward(SiPixelRecHitCollection::const_iterator re
 	recHitYPlaquetteSize5->Fill(lp_y);
    }
 
-   float sim_x1 = (*simHit).entryPoint().x();
-   float sim_x2 = (*simHit).exitPoint().x();
+   float sim_x1 = simHit.entryPoint().x();
+   float sim_x2 = simHit.exitPoint().x();
    float sim_xpos = 0.5*(sim_x1 + sim_x2);
    float res_x = (lp.x() - sim_xpos)*cmtomicron;
 
-   float sim_y1 = (*simHit).entryPoint().y();
-   float sim_y2 = (*simHit).exitPoint().y();
+   float sim_y1 = simHit.entryPoint().y();
+   float sim_y2 = simHit.exitPoint().y();
    float sim_ypos = 0.5*(sim_y1 + sim_y2);
    float res_y = (lp.y() - sim_ypos)*cmtomicron;
 
    // get cluster
-   edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit->cluster();
+   edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill module dependent info
    for (int i=0; i<7; i++) {
