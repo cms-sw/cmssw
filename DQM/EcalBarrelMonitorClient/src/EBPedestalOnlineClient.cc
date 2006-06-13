@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/13 10:08:36 $
- * $Revision: 1.26 $
+ * $Date: 2006/06/13 20:08:58 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,8 +61,7 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(qtname, "EBPOT quality SM%02d", ism);
-
+    sprintf(qtname, "EBPOT quality SM%02d G12", ism);
     qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
     qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
@@ -433,7 +432,7 @@ void EBPedestalOnlineClient::analyze(void){
         mean03 = -1.;
         rms03  = -1.;
 
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 2.);
 
         bool update_channel = false;
 

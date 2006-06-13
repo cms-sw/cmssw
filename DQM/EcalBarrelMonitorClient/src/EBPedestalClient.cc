@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.73 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,12 +83,45 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
   expectedMean_[0] = 200.0;
   expectedMean_[1] = 200.0;
   expectedMean_[2] = 200.0;
+
   discrepancyMean_[0] = 25.0;
   discrepancyMean_[1] = 25.0;
   discrepancyMean_[2] = 25.0;
+
   RMSThreshold_[0] = 1.0;
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
+
+  Char_t qtname[20];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(qtname, "EBPT quality SM%02d G01", ism);
+    qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBPT quality SM%02d G06", ism);
+    qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBPT quality SM%02d G12", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+  
+    qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
+    qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
+    qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
+
+    qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
+    qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
+    qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
+
+//    qth01_[ism-1]->setMinimumEntries(1000);
+//    qth02_[ism-1]->setMinimumEntries(1000);
+//    qth03_[ism-1]->setMinimumEntries(1000);
+
+    qth01_[ism-1]->setErrorProb(1.00);
+    qth02_[ism-1]->setErrorProb(1.00);
+    qth03_[ism-1]->setErrorProb(1.00);
+
+  }
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -341,6 +374,77 @@ void EBPedestalClient::cleanup(void) {
 }
 
 void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  vector<dqm::me_util::Channel> badChannels;
+
+  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth01_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth01_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
+  
+  if ( ! badChannels.empty() ) {
+  
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth02_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth02_[ism-1]->getAlgoName()
+         << ")" << endl;
+  
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {  
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+  
+  if ( ! badChannels.empty() ) {
+  
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth01_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth01_[ism-1]->getAlgoName()
+         << ")" << endl;
+  
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {  
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
 
   EcalLogicID ecid;
   MonPedestalsDat p;
@@ -615,6 +719,37 @@ void EBPedestalClient::subscribe(void){
 
   }
 
+  Char_t histo[80];
+  
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+    } else {
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+        mui_->useQTest(histo, qth01_[ism-1]->getName()); 
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+        mui_->useQTest(histo, qth02_[ism-1]->getName()); 
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName()); 
+      }
+    }
+
+  }
+
 }
 
 void EBPedestalClient::subscribeNew(void){
@@ -869,9 +1004,9 @@ void EBPedestalClient::analyze(void){
         mean01 = mean02 = mean03 = -1.;
         rms01  = rms02  = rms03  = -1.;
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 2.);
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 2.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 2.);
 
         bool update_channel = false;
 
@@ -904,39 +1039,60 @@ void EBPedestalClient::analyze(void){
 
         if ( update_channel ) {
 
-          float val;
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 1.);
 
-          val = 1.;
-          if ( abs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
-            val = 0.;
-          if ( rms01 > RMSThreshold_[0] )
-            val = 0.;
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
+          if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
+          if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
-          if ( mep01_[ism-1] ) mep01_[ism-1]->Fill( mean01 );
-          if ( mer01_[ism-1] ) mer01_[ism-1]->Fill( rms01 );
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 1.);
 
-          val = 1.;
-          if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
-            val = 0.;
-          if ( rms02 > RMSThreshold_[1] )
-            val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
+          if ( mep02_[ism-1] ) mep02_[ism-1]->Fill(mean02);
+          if ( mer02_[ism-1] ) mer02_[ism-1]->Fill(rms02);
 
-          if ( mep02_[ism-1] ) mep02_[ism-1]->Fill( mean02 );
-          if ( mer02_[ism-1] ) mer02_[ism-1]->Fill( rms02 );
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 1.);
 
-          val = 1.;
-          if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
-            val = 0.;
-          if ( rms03 > RMSThreshold_[2] )
-            val = 0.;
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
-
-          if ( mep03_[ism-1] ) mep03_[ism-1]->Fill( mean03 );
-          if ( mer03_[ism-1] ) mer03_[ism-1]->Fill( rms03 );
+          if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
+          if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
 
         }
+
+      } 
+    }
+
+    vector<dqm::me_util::Channel> badChannels;
+
+    if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+
+    if ( ! badChannels.empty() ) {
+
+      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+      }
+
+    }
+
+    if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
+
+    if ( ! badChannels.empty() ) {
+
+      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+      }
+
+    }
+    
+    if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
+
+    if ( ! badChannels.empty() ) {
+
+      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+      }
+ 
+    }
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
         float x3val01;
         float x3val02;
@@ -950,9 +1106,9 @@ void EBPedestalClient::analyze(void){
         float z3val02;
         float z3val03;
 
-        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent( ie, ip, -999. );
-        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent( ie, ip, -999. );
-        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
@@ -993,19 +1149,19 @@ void EBPedestalClient::analyze(void){
           if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(abs(x3val01 - y3val01));
           if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
 
-          if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent( ie, ip, z3val01 );
+          if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, z3val01);
 
           z3val02 = -999.;
           if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(abs(x3val02 - y3val02));
           if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
           
-          if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent( ie, ip, z3val02 );
+          if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, z3val02);
 
           z3val03 = -999.;
           if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(abs(x3val03 - y3val03));
           if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
           
-          if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent( ie, ip, z3val03 );
+          if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
 
         }
 
@@ -1021,9 +1177,9 @@ void EBPedestalClient::analyze(void){
         float z5val02;
         float z5val03;
 
-        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ie, ip, -999. );
-        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ie, ip, -999. );
-        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
@@ -1064,19 +1220,19 @@ void EBPedestalClient::analyze(void){
           if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(abs(x5val01 - y5val01));
           if ( (x5val01 - y5val01) < 0 ) z5val01 = -z5val01;
 
-          if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ie, ip, z5val01 );
+          if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, z5val01);
 
           z5val02 = -999.;
           if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(abs(x5val02 - y5val02));
           if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
           
-          if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ie, ip, z5val02 );
+          if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, z5val02);
 
           z5val03 = -999.;
           if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(abs(x5val03 - y5val03));
           if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
           
-          if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ie, ip, z5val03 );
+          if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, z5val03);
 
         }
 
