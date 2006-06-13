@@ -300,7 +300,13 @@ Alignments* AlignableComposite::alignments( void ) const
 
 	  uint32_t detId = this->geomDet()->geographicalId().rawId();
 
-	  AlignTransform transform( clhepVector, clhepRotation, detId );
+	  // TEMPORARILY also include alignment error
+	  HepSymMatrix clhepSymMatrix;
+	  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
+		clhepSymMatrix= this->geomDet()->alignmentPositionError()->globalError().matrix();
+
+	  AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
+
 	  m_alignments->m_align.push_back( transform );
 
 	}

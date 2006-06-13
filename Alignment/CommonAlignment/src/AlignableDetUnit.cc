@@ -13,10 +13,6 @@ void AlignableDetUnit::move( const GlobalVector& displacement)
   
   if ( misalignmentActive() ) 
     {
-      // DetPositioner is friend of GeomDet only
-      // => static_cast the GeomDetUnit to use interface
-      GeomDet* tmpGeomDet = static_cast<GeomDet*>( theGeomDetUnit );
-      DetPositioner::moveGeomDet( *tmpGeomDet, displacement );
       theDisplacement += displacement;
     }
   else 
@@ -36,8 +32,7 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 
   if ( misalignmentActive() ) 
     {
-      GeomDet* tmpGeomDet = static_cast<GeomDet*>( theGeomDetUnit );
-      DetPositioner::rotateGeomDet( *tmpGeomDet, rotation );
+      DetPositioner::rotateGeomDet( *theGeomDetUnit, rotation );
       theRotation *= rotation;
     }
   else 
@@ -52,10 +47,7 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
-  // Interface only exists at GeomDet level 
-  // => static cast (we know GeomDetUnit inherits from GeomDet)
-  GeomDet* tmpGeomDet = static_cast<GeomDet*>( theGeomDetUnit );
-  DetPositioner::setAlignmentPositionError( *tmpGeomDet, ape );
+  DetPositioner::setAlignmentPositionError( *theGeomDetUnit, ape );
 
 }
 
@@ -140,8 +132,7 @@ void AlignableDetUnit::deactivateMisalignment ()
   //
   // set position and rotation to original values
   //
-  GeomDet* tmpGeomDet = static_cast<GeomDet*>(theGeomDetUnit);
-  this->setGeomDetPosition( *tmpGeomDet, theOriginalPosition, theOriginalRotation );
+  this->setGeomDetPosition( *theGeomDetUnit, theOriginalPosition, theOriginalRotation );
 
   theMisalignmentActive = false;
 
@@ -162,8 +153,7 @@ void AlignableDetUnit::reactivateMisalignment ()
   theMisalignmentActive = true;
 
   // set position and rotation to modified values
-  GeomDet* tmpGeomDet = static_cast<GeomDet*>(theGeomDetUnit);
-  this->setGeomDetPosition(*tmpGeomDet, *theModifiedPosition, *theModifiedRotation );
+  this->setGeomDetPosition(*theGeomDetUnit, *theModifiedPosition, *theModifiedRotation );
 
   // save position and rotation after reactivation (for check at next deactivation)
   *theReactivatedPosition = globalPosition();
@@ -201,9 +191,17 @@ Alignments* AlignableDetUnit::alignments() const
 
   uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
 
-  AlignTransform transform( clhepVector, clhepRotation, detId );
+  // TEMPORARILY also include alignment error
+  HepSymMatrix clhepSymMatrix;
+  if ( this->geomDetUnit()->alignmentPositionError() ) 
+	{
+	  // Might not be set
+	  clhepSymMatrix = this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
+	  std::cout << detId << " " <<  clhepSymMatrix << std::endl;
+	}
+  
+  AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
 
- 
   m_alignments->m_align.push_back( transform );
 
   return m_alignments;
