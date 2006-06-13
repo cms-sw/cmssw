@@ -107,10 +107,12 @@ const FedChannelConnection& CommissioningTask::connection() const { return conne
 
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }
 const uint32_t& CommissioningTask::fedKey() const { return fedKey_; }
+
 void CommissioningTask::fedChannel( const uint32_t& fed_key ) { 
   SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fed_key ); 
   fedId_ = path.fedId_; fedCh_ = path.fedCh_;
 }
+
 const uint16_t& CommissioningTask::fedId() const { return fedId_; }
 const uint16_t& CommissioningTask::fedCh() const { return fedCh_; }
 

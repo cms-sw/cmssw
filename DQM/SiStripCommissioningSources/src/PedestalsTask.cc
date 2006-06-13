@@ -51,7 +51,7 @@ void PedestalsTask::book() {
 						  connection().lldChannel(),
 						  extra );
     peds_[ihisto].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-  
+    
     title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
 						  sistrip::SUM, 
 						  sistrip::FED, 

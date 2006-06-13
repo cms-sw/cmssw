@@ -147,7 +147,7 @@ void CommissioningSource::analyze( const edm::Event& event,
        << path.fecRing_ << "/"
        << path.ccuAddr_ << "/"
        << path.ccuChan_ << "/"
-       << path.lldChan_;
+       << path.channel_;
     LogDebug("Commissioning") << ss.str();
   }    
   
@@ -178,7 +178,7 @@ void CommissioningSource::analyze( const edm::Event& event,
 		 << path.fecRing_ << "/"
 		 << path.ccuAddr_ << "/"
 		 << path.ccuChan_ << "/"
-		 << path.lldChan_ 
+		 << path.channel_ 
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
