@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/28 07:49:00 $
- * $Revision: 1.24 $
+ * $Date: 2006/06/07 16:34:30 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,6 +56,21 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
   expectedMean_ = 200.0;
   discrepancyMean_ = 20.0;
   RMSThreshold_ = 2.0;
+
+  Char_t qtname[20];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(qtname, "EBPO quality SM%02d", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
+    qth03_[ism-1]->setRMSRange(0.0, 2.0);
+
+//    qth03_[ism-1]->setMinimumEntries(1000);
+    qth03_[ism-1]->setErrorProb(1.00);
+
+  }
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -190,6 +205,31 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
+  vector<dqm::me_util::Channel> badChannels;
+
+  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth03_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth03_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
@@ -292,6 +332,25 @@ void EBPedestalOnlineClient::subscribe(void){
 
   }
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+    } else {
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
+      }
+    }
+
+  }
+
 }
 
 void EBPedestalOnlineClient::subscribeNew(void){
@@ -386,21 +445,25 @@ void EBPedestalOnlineClient::analyze(void){
 
         if ( update_channel ) {
 
-          float val;
-
-          val = 1.;
-          if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
-            val = 0.;
-          if ( rms03 > RMSThreshold_ )
-            val = 0.;
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val);
-
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 1.);
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
           if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
 
         }
 
       }
+    }
+
+    vector<dqm::me_util::Channel> badChannels;
+
+    if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
+  
+    if ( ! badChannels.empty() ) {
+
+      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+      }
+  
     }
 
   }

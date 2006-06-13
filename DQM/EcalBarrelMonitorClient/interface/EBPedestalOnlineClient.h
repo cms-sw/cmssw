@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/05/24 20:42:25 $
- * $Revision: 1.10 $
+ * $Date: 2006/05/26 07:27:39 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,6 +25,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 using namespace cms;
 using namespace edm;
@@ -95,6 +98,8 @@ CollateMonitorElement* me_h03_[36];
 MonitorElement* meh03_[36];
 
 TProfile2D* h03_[36];
+
+MEContentsProf2DWithinRangeROOT* qth03_[36];
 
 MonitorElement* meg03_[36];
 MonitorElement* mep03_[36];
