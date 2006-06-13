@@ -28,24 +28,28 @@ SiStripCommissioningWebClient::SiStripCommissioningWebClient( SiStripCommissioni
   // Define web page
   string url = this->getApplicationURL();
   page_p = new WebPage( url );
-  
-  // Define general stuff
-  ConfigBox*     box = new ConfigBox( url, "50px", "50px");
-  Navigator*     nav = new Navigator( url, "210px", "50px");
-  ContentViewer* con = new ContentViewer( url, "340px", "50px");
-  GifDisplay*    dis = new GifDisplay( url, "50px", "370px", "270px", "550px", "MyGifDisplay" ); 
+
+  // Collector connection parameters
+  ConfigBox* box = new ConfigBox( url, "20px", "20px");
   add( "ConfigBox", box );
-  add( "Navigator", nav );
-  add( "ContentViewer", con );
-  add( "GifDisplay", dis );
   
-  // Define commissioning-specific buttons 
-  Button* summary = new Button( url, "400px", "150px", "CreateSummary", "Create Summary Histos" );
-  Button* tk_map  = new Button( url, "440px", "150px", "CreateTkMap", "Create Tracker Map" );
-  Button* save    = new Button( url, "480px", "150px", "SaveToFile", "Save To File" );
-  add( "SummaryButton", summary );
-  add( "TkMapButton", tk_map );
-  add( "SaveButton", save );
+  // Commissioning-specific buttons 
+  Button* update  = new Button( url, "20px", "350px", "Update", "Refresh Client Histos" );
+  Button* summary = new Button( url, "60px", "350px", "Summary", "Create Summary Histos" );
+  Button* tk_map  = new Button( url, "100px", "350px", "TkMap", "Create Tracker Map" );
+  Button* save    = new Button( url, "140px", "350px", "Save", "Save To File" );
+  add( "Update", update );
+  add( "Summary", summary );
+  add( "TkMap", tk_map );
+  add( "Save", save );
+
+  // Contents drop-down menu
+  ContentViewer* con = new ContentViewer( url, "200px", "20px");
+  add( "ContentViewer", con );
+  
+  // Histogram viewer
+  GifDisplay* dis = new GifDisplay( url, "650px", "20px", "400px", "600px", "GifDisplay" ); 
+  add( "GifDisplay", dis );
   
 }
 
@@ -62,9 +66,10 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   multimap< string, string > requests;
   reader.read_form(requests);
   string request = get_from_multimap( requests, "RequestID" );
-  if ( request == "CreateSummary" ) { createSummary( in, out ); }
-  if ( request == "CreateTkMap" )   { createTkMap( in, out ); }
-  if ( request == "SaveToFile" )    { saveToFile( in, out ); }
+  if ( request == "Update" )  { updateHistos( in, out ); }
+  if ( request == "Summary" ) { createSummary( in, out ); }
+  if ( request == "TkMap" )   { createTkMap( in, out ); }
+  if ( request == "Save" )    { saveToFile( in, out ); }
   
 }
 

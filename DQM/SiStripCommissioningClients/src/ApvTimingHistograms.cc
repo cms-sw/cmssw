@@ -8,7 +8,8 @@ using namespace std;
 /** */
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms(mui),
-    timing_()
+    timing_(),
+    delays_()
 {
   cout << "[ApvTimingHistograms::ApvTimingHistograms]"
        << " Created object for APV TIMING histograms" << endl;
