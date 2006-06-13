@@ -17,6 +17,9 @@
 @create_laser_core
 @create_laser_data
 
+@create_metadata
+
 @insert_defs
+@insert_metadata
 
 @show_db

@@ -12,5 +12,6 @@
 @clear_run_data
 @clear_run_core
 @clear_conddb_procedures
+@clear_metadata
 
 @show_db
