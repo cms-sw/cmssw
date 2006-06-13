@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/06 07:48:14 $
- * $Revision: 1.131 $
+ * $Date: 2006/06/07 16:42:13 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -213,7 +213,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   cout << " Selected Super Modules :" << endl;
 
   for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-    cout << setw(2) << setfill('0') << superModules_[i] << " ";
+    cout << " " << setw(2) << setfill('0') << superModules_[i];
   }
 
   cout << endl;
@@ -901,7 +901,11 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  if ( ! enableStateMachine_ ) mui_->doMonitoring();
+  if ( ! enableStateMachine_ ) {
+    if ( enableMonitorDaemon_ ) {
+      mui_->doMonitoring();
+    }
+  }
 
   this->subscribeNew();
 
