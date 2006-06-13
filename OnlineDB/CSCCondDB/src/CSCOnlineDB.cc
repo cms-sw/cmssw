@@ -1,4 +1,4 @@
-#include "condbon.h"
+#include "OnlineDB/CSCCondDB/interface/condbon.h"
 
   /**
    * Constructor for condbon
@@ -6,7 +6,7 @@
   condbon::condbon () throw (oracle::occi::SQLException)
   {
     env = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
-    con = env->createConnection ("cms_csc","cms_online_OMDS","omds");
+    con = env->createConnection ("db_account","passwd","db");
     std::cout << "Connection to DB is done." << std::endl;
   }// end of constructor condbon ()
   /**
