@@ -15,7 +15,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.4 2006/06/07 15:44:14 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.5 2006/06/08 16:50:51 dkotlins Exp $
 //
 //
 // system include files
@@ -273,6 +273,8 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     double detThick = theGeomDet->specificSurface().bounds().thickness();
     int cols = theGeomDet->specificTopology().ncolumns();
     int rows = theGeomDet->specificTopology().nrows();
+    float pitchX = theGeomDet->specificTopology().pitch().first;
+    float pitchY = theGeomDet->specificTopology().pitch().second;
     
     unsigned int layer=0;
     unsigned int ladder=0;
@@ -293,10 +295,14 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
       unsigned int panel=pdetId.panel(); //panel=1
       
-      if(PRINT) cout<<"Forward det "<<subid<<", disk "<<disk<<", blade "
+      if(PRINT) {
+	cout<<"Forward det "<<subid<<", disk "<<disk<<", blade "
 		    <<blade<<", module "<<zindex<<", side "<<side<<", panel "
 		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
- 
+	cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
+		    <<pitchX<<" "<<pitchY<<endl;
+      }
+
     } else if(subid == 1) { // Barrel 
 
 
@@ -314,10 +320,13 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       ladder=pdetId.ladder();
       // Barrel Z-index=1,8
       zindex=pdetId.module();
-      if(PRINT) cout<<" Barrel det, z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
-		    <<cols<<" "<<rows<<" layer, ladder, module "
+      if(PRINT) { 
+	cout<<" Barrel det, z/r "<<detZ<<" "<<detR<<" thick "<<detThick<<" "
+		    <<" layer, ladder, module "
 		    <<layer<<" "<<ladder<<" "<<zindex<<endl;
-      
+	cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
+		    <<pitchX<<" "<<pitchY<<endl;
+      }      
       // Some histos
       hlayerid->Fill(float(layer));
       if(layer==1) {
