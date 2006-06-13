@@ -23,7 +23,6 @@
 
 //--- for Pixel RecHit
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 
 //--- for StripDigiSimLink
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
