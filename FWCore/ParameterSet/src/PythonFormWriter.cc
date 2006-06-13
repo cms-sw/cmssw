@@ -504,92 +504,12 @@ namespace edm
       }
       //NOTE: no extra '}' added since it is added in the previous printing
       out << " # end of main_input\n";
-      //------------------------------
-      // Print top-level psets
-      //------------------------------
-      out << ", 'psets': {\n";
-      {
-        list<string> const& mods = modules_["pset"];
-        list<string>::const_iterator i = mods.begin();
-        list<string>::const_iterator e = mods.end();
-        for ( bool first = true ; i!=e; first=false, ++i)
-          {
-            out << "#--------------------\n";
-            if (!first) out << ',';
-            out << *i << '\n';
-          }
-      }
-      out << "} #end of psets\n";
 
-
-      //------------------------------
-      // Print real modules
-      //------------------------------
-      out << ", 'modules': {\n";
-      {
-	list<string> const& mods = modules_["module"];
-	list<string>::const_iterator i = mods.begin();
-	list<string>::const_iterator e = mods.end();
-	for ( bool first = true ; i!=e; first=false, ++i)
-	  {
-	    out << "#--------------------\n";
-	    if (!first) out << ',';
-	    out << *i << '\n';
-	  }
-      }
-      out << "} #end of modules\n";
-
-      //------------------------------
-      // Print es_modules
-      //------------------------------
-      out << "# es_modules\n";
-      {
-	out << ", 'es_modules': {\n";
-	list<string> const& mods = modules_["es_module"];
-	list<string>::const_iterator i = mods.begin();
-	list<string>::const_iterator e = mods.end();
-	for ( bool first = true; i!=e; first=false,++i)
-	  {
-	    if (!first) out << ',';
-	    out << *i << '\n';
-	  }
-	out << "} #end of es_modules\n";
-      }
-
-      //------------------------------
-      // Print es_sources
-      //------------------------------
-      out << "# es_sources\n";
-      {
-	out << ", 'es_sources': {\n";
-	
-	list<string> const& sources = modules_["es_source"];
-	list<string>::const_iterator i = sources.begin();
-	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; first=false,++i)
-	  {
-	    if (!first) out << ',';
-	    out << *i << '\n';
-	  }
-	out << "} #end of es_sources\n";
-      }
-
-      //------------------------------
-      // Print es_prefers
-      //------------------------------
-      out << "# es_prefers\n";
-      {
-	out << ", 'es_prefers': {\n";
-	list<string> const& mods = modules_["es_prefer"];
-	list<string>::const_iterator i = mods.begin();
-	list<string>::const_iterator e = mods.end();
-	for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
-	out << "} #end of es_prefers\n";
-      }
+      writeType("pset", out);
+      writeType("module", out);
+      writeType("es_module", out);
+      writeType("es_source", out);
+      writeType("es_prefer", out);
 
       out << "# output modules (names)\n";
       {
@@ -617,62 +537,11 @@ namespace edm
         out << " ]\n" ;
       }
 
-      out << "# sequences\n";
-      {
-         out <<", 'sequences': { \n";
-	list<string> const& sources = modules_["sequence"];
-	list<string>::const_iterator i = sources.begin();
-	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
-        out <<"}\n";
-      }
-      out << "# paths\n";
-      {
-         out <<", 'paths': { \n";
-	list<string> const& sources = modules_["path"];
-	list<string>::const_iterator i = sources.begin();
-	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
-        out <<"}\n";
-      }
-      out << "# endpaths\n";
-      {
-         out <<", 'endpaths': { \n";
-	list<string> const& sources = modules_["endpath"];
-	list<string>::const_iterator i = sources.begin();
-	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
-        out <<"}\n";
-      }
-      
-      //------------------------------
-      // Print services
-      //------------------------------
-      out << "# services\n";
-      {
-	out << ", 'services': {\n";
-	list<string> const& mods = modules_["service"];
-	list<string>::const_iterator i = mods.begin();
-	list<string>::const_iterator e = mods.end();
-	for ( bool first = true; i!=e; first=false,++i)
-        {
-          if (!first) out << ',';
-          out << *i << '\n';
-        }
-	out << "} #end of es_modules\n";
-      }
+      writeType("sequence", out);
+      writeType("path", out);
+      writeType("endpath", out);
+      writeType("service", out);
+
       
       out << '}';
     }
@@ -682,7 +551,7 @@ namespace edm
       // We're making plurals here
       out << "# " << type << "s\n";
       {
-        out << ", " << type << "s': {\n";
+        out << ", '" << type << "s': {\n";
         list<string> const& mods = modules_[type];
         list<string>::const_iterator i = mods.begin();
         list<string>::const_iterator e = mods.end();
