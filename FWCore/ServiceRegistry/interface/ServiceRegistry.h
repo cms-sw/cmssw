@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.8 2005/10/05 18:49:44 wmtan Exp $
+// $Id: ServiceRegistry.h,v 1.9 2005/10/11 19:30:37 chrjones Exp $
 //
 
 // system include files
@@ -88,6 +88,8 @@ namespace edm {
       // ---------- member functions ---------------------------
       
    
+      static ServiceToken createServicesFromConfig(const std::string& config);
+
    public: // Made public (temporarily) at the request of Emilio Meschi.
       static ServiceToken createSet(const std::vector<ParameterSet>&);
       static ServiceToken createSet(const std::vector<ParameterSet>&,
