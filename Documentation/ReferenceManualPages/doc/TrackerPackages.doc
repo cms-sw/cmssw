@@ -173,12 +173,17 @@ Data formats for simulated objects
  - \ref SimDataFormats_Vertex "Vertex"<br>
 
 - <b>SimTracker</b><br> 
-digitization
+Digitization and hit association
  - \ref SimTracker_Common "Common"<br>
  - \ref SimTracker_SiPixelDigitizer "SiPixelDigitizer"<br>
  - \ref SimTracker_SiStripDigitizer "SiStripDigitizer"<br>
+ - \ref SimTracker_TrackerHitAssociation "TrackerHitAssociation"<br>
 
-
+- <b>Validation</b><br>
+Simulation Validation Suite for tracker persistent objects
+ - \ref Validation_TrackerHits    "TrackerHits"<br>
+ - \ref Validation_TrackerDigis   "TrackerDigis"<br>
+ - \ref Validation_TrackerRecHits "TrackerRecHits"<br>
 
 - <b>VisReco</b><br>
 Visualization.
@@ -197,4 +202,5 @@ Visualization.
 Last updated:
 02-APR-2006 M. Vos
 05-MAY-2006 I. Tomalin
+13-JUN-2006 V. Chiochia
 */
