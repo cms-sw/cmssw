@@ -43,6 +43,12 @@ public:
 	rotateAlignableOnly(rotation); 
   }
 
+  /// Return vector of alignment data
+  virtual Alignments* alignments() const;
+
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const;
+
 private:
 
   /// Container of components

@@ -77,3 +77,77 @@ void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
 
 }
 
+
+//__________________________________________________________________________________________________
+Alignments* AlignableDet::alignments() const
+{
+
+  Alignments* m_alignments = new Alignments();
+
+  // Add associated geomDet alignments
+  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+
+  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
+							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
+							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+							 );
+
+  uint32_t detId = this->geomDet()->geographicalId().rawId();
+  
+  // TEMPORARILY also include alignment error
+  HepSymMatrix clhepSymMatrix;
+  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
+	clhepSymMatrix= this->geomDet()->alignmentPositionError()->globalError().matrix();
+  
+  AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
+  
+  m_alignments->m_align.push_back( transform );
+
+
+   // Add components recursively (if it is not already an alignable det unit)
+  std::vector<Alignable*> comp = this->components();
+  if ( comp.size() > 1 )
+	for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	  {
+		Alignments* tmpAlignments = (*i)->alignments();
+		std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				   std::back_inserter(m_alignments->m_align) );
+	  }
+
+  
+  return m_alignments;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableDet::alignmentErrors( void ) const
+{
+
+
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add associated geomDet alignment position error
+  uint32_t detId = this->geomDet()->geographicalId().rawId();
+  HepSymMatrix clhepSymMatrix;
+  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
+	{
+	  clhepSymMatrix= 
+		this->geomDet()->alignmentPositionError()->globalError().matrix();
+	}
+  AlignTransformError transformError( clhepSymMatrix, detId );
+  m_alignmentErrors->m_alignError.push_back( transformError );
+
+  // Add components recursively (if it is not already an alignable det unit)
+  std::vector<Alignable*> comp = this->components();
+  if ( comp.size() > 1 )
+	for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	  {
+		AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+		std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				   std::back_inserter(m_alignmentErrors->m_alignError) );
+	  }
+  
+  return m_alignmentErrors;
+
+}

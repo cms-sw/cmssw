@@ -288,30 +288,6 @@ Alignments* AlignableComposite::alignments( void ) const
 
   Alignments* m_alignments = new Alignments();
 
-  // Add associated geomDet, if available (i.e. this is an AlignableDet)
-  if ( this->geomDet() )
-	{
-	  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-
-	  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
-								 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
-								 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
-								 );
-
-	  uint32_t detId = this->geomDet()->geographicalId().rawId();
-
-	  // TEMPORARILY also include alignment error
-	  HepSymMatrix clhepSymMatrix;
-	  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
-		clhepSymMatrix= this->geomDet()->alignmentPositionError()->globalError().matrix();
-
-	  AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
-
-	  m_alignments->m_align.push_back( transform );
-
-	}
-
-
   // Add components recursively
   for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
 	{
@@ -334,20 +310,6 @@ AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
   std::vector<Alignable*> comp = this->components();
 
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
-
-  // Add associated geomDet, if available (i.e. this is an AlignableDetUnit)
-  if ( this->geomDet() )
-	{
-	  uint32_t detId = this->geomDet()->geographicalId().rawId();
-	  HepSymMatrix clhepSymMatrix;
-	  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
-		{
-		  clhepSymMatrix= 
-			this->geomDet()->alignmentPositionError()->globalError().matrix();
-		}
-	  AlignTransformError transformError( clhepSymMatrix, detId );
-	  m_alignmentErrors->m_alignError.push_back( transformError );
-	}
 
   // Add components recursively
   for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
