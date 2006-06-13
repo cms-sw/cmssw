@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummary.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include <boost/cstdint.hpp>
@@ -42,11 +43,13 @@ class CommissioningHistograms {
   /** */
   void createProfileHistos();
   /** */
-  virtual void createSummaryHistos();
+  virtual void histoAnalysis() {;}
   /** */
-  virtual void createTrackerMap();
+  virtual void createSummaryHistos() {;}
   /** */
-  virtual void uploadToConfigDb();
+  virtual void createTrackerMap() {;}
+  /** */
+  virtual void uploadToConfigDb() {;}
   
  protected:
   
@@ -60,6 +63,8 @@ class CommissioningHistograms {
 		     MonitorElement* );
   void updateHistoSet( HistoSet& );
   
+/*   inline CommissioningSummary* summary();  */
+
  private: // ----- private methods -----
   
   void getListOfDirs( std::vector<std::string>& dir_list );
@@ -80,12 +85,15 @@ class CommissioningHistograms {
   /** */
   sistrip::Task task_;
 
+/*   CommissioningSummary* summary_; */
+  
 };
 
 // inline methods
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 void CommissioningHistograms::task( const sistrip::Task& task ) { task_ = task; }
 const sistrip::Task& CommissioningHistograms::task() const { return task_; }
+/* CommissioningSummary* CommissioningHistograms::summary() { return summary_; } */
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 

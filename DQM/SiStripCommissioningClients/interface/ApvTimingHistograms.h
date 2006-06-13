@@ -14,7 +14,14 @@ class ApvTimingHistograms : public CommissioningHistograms {
   /** */
   virtual ~ApvTimingHistograms();
   
-  void createSummaryHistos(); 
+  /** */
+  virtual void histoAnalysis();
+  /** */
+  virtual void createSummaryHistos();
+  /** */
+  virtual void createTrackerMap() {;}
+  /** */
+  virtual void uploadToConfigDb() {;}
   
  private: // ----- private methods -----
   
@@ -23,8 +30,11 @@ class ApvTimingHistograms : public CommissioningHistograms {
 
  private: // ----- private data members -----
   
-  // One map entry per LLD channel...
+  // One map entry per LLD channel (key = control key)...
   std::map< uint32_t, HistoSet > timing_;
+  
+  // Key = control key, data = timing delay [ns]
+  std::map< uint32_t, uint32_t > delays_;
   
 };
 

@@ -37,7 +37,8 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
   
-  /** Friend method to allow access to CommissioningHistograms object. */
+  /** Friend method to allow web interface access to
+      CommissioningHistograms object. */
   inline friend CommissioningHistograms* histo( const SiStripCommissioningClient& );
   
  private:

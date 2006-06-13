@@ -87,3 +87,27 @@ void PedestalsHistograms::update() {
     if ( iapv1->second.profile_ ) { updateHistoSet( iapv1->second ); }
   }
 }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void PedestalsHistograms::histoAnalysis() {
+//   cout << "[PedestalsHistograms::histoAnalysis]" << endl;
+// }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void PedestalsHistograms::createSummaryHistos() {
+//   cout << "[PedestalsHistograms::createSummaryHistos]" << endl;
+// }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void PedestalsHistograms::createTrackerMap() {
+//   cout << "[PedestalsHistograms::createTrackerMap]" << endl;
+// }
+
+// // -----------------------------------------------------------------------------
+// /** */
+// void PedestalsHistograms::uploadToConfigDb() {
+//   cout << "[PedestalsHistograms::uploadToConfigDb]" << endl;
+// }

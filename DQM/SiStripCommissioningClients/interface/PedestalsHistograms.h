@@ -14,6 +14,16 @@ class PedestalsHistograms : public CommissioningHistograms {
   /** */
   virtual ~PedestalsHistograms();
 
+  /** */
+  virtual void histoAnalysis() {;}
+  /** */
+  virtual void createSummaryHistos() {;}
+  /** */
+  virtual void createTrackerMap() {;}
+  /** */
+  virtual void uploadToConfigDb() {;}
+  
+
  private: // ----- private methods -----
   
   virtual void book( const std::vector<std::string>& me_list );

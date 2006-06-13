@@ -115,25 +115,6 @@ void CommissioningHistograms::createProfileHistos() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createSummaryHistos() {
-  cout << "[CommissioningHistograms::createSummaryHistos] Nothing done!" << endl;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::createTrackerMap() {
-  cout << "[CommissioningHistograms::createTrackerMap] Nothing done!" << endl;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::uploadToConfigDb() {
-  cout << "[CommissioningHistograms::uploadToConfigDb] Nothing done!" << endl;
-}
-
-
-// -----------------------------------------------------------------------------
-/** */
 void CommissioningHistograms::getListOfDirs( vector<string>& dirs ) {
   dirs.clear();
   mui_->setCurrentFolder( sistrip::root_ );

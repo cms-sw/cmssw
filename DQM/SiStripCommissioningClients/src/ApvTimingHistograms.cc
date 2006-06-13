@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 #include <iostream>
 
 using namespace std;
@@ -23,7 +24,7 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 // -----------------------------------------------------------------------------
 /** */
 void ApvTimingHistograms::book( const vector<string>& me_list ) {
-
+  
   const SiStripHistoNamingScheme::ControlPath& path = SiStripHistoNamingScheme::controlPath( this->mui()->pwd() );
   
   vector<string>::const_iterator ime = me_list.begin();
@@ -31,7 +32,7 @@ void ApvTimingHistograms::book( const vector<string>& me_list ) {
     
     SiStripHistoNamingScheme::HistoTitle title = SiStripHistoNamingScheme::histoTitle( *ime );
     if ( title.task_ != task() ) { return; }
-
+    
     string path_and_title = this->mui()->pwd() + "/" + *ime;
     MonitorElement* me = this->mui()->get( path_and_title );
     
@@ -57,47 +58,63 @@ void ApvTimingHistograms::update() {
 }
 
 // -----------------------------------------------------------------------------
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
-#include "DQM/SiStripCommissioningSummary/interface/CommissioningSummary.h"
-#include "TProfile.h"
-#include "TH1F.h"
 /** */
-void ApvTimingHistograms::createSummaryHistos() {
-  cout << "[ApvTimingHistograms::createSummaryHistos]" << endl;
-
-  // Create summary histo and iterate through profile histograms
-  CommissioningSummary* summary = 0;
+void ApvTimingHistograms::histoAnalysis() {
+  cout << "[ApvTimingHistograms::histoAnalysis]" << endl;
+  
+  // Iterate through profile histograms in order to to fill delay map
+  delays_.clear();
   map< uint32_t, HistoSet >::iterator ihis = timing_.begin();
   for ( ; ihis != timing_.end(); ihis++ ) {
-
-    // Create summary histogram object
-    if ( !summary ) { 
-      summary = new CommissioningSummary( SiStripHistoNamingScheme::task( ihis->second.title_.task_ ),
-					  ihis->second.title_.granularity_ ); }
     
     // Extract profile histo from map
     vector<const TProfile*> histos;
     TProfile* prof = ExtractTObject<TProfile>()( ihis->second.profile_ );
     if ( !prof ) { continue; }
     histos.push_back( prof );
-
-    // Define monitorables container
-    vector<uint16_t> monitorables;
-
+    
     // Perform histo analysis and calc delay [ns]
+    vector<uint16_t> monitorables;
     ApvTimingAnalysis anal;
     anal.analysis( histos, monitorables );
     uint32_t delay_ns = 24*monitorables[0] + monitorables[1];
-
-    // Retrieve title and update summary histo
-    CommissioningSummary::ReadoutId readout( ihis->first, ihis->second.title_.channel_ ); 
-    if ( summary ) { summary->update( readout, delay_ns ); }
+    uint32_t key = ihis->first;
+    
+    // Store delay in map
+    if ( delays_.find( key ) != delays_.end() ) { 
+      cerr << "[ApvTimingHistograms::histoAnalysis]"
+	   << " Monitorable already exists!" << endl;
+    } else { delays_[key] = delay_ns; }
     
   }
   
-  // Generate summary histograms 
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void ApvTimingHistograms::createSummaryHistos() {
+  cout << "[ApvTimingHistograms::createSummaryHistos]" << endl;
+
+  // Extract monitorables from histos
+  histoAnalysis();
+  
+  // Retrive histo title and create summary histogram object
+  CommissioningSummary* summary = 0;
+  if ( !timing_.empty() ) {
+    string title = SiStripHistoNamingScheme::task( timing_.begin()->second.title_.task_ );
+    summary = new CommissioningSummary( title, timing_.begin()->second.title_.granularity_ ); 
+  }
+  if ( !summary ) { return; }
+  
+  // Iterate through monitorables, retrieve key and update summary histo
+  map< uint32_t, uint32_t >::iterator imon = delays_.begin();
+  for ( ; imon != delays_.end(); imon++ ) {
+    const SiStripControlKey::ControlPath& path = SiStripControlKey::path( imon->first );
+    CommissioningSummary::ReadoutId readout( imon->first, path.channel_ ); 
+    if ( summary ) { summary->update( readout, imon->second ); }
+  }
+  
+  // Generate summary histograms (based on control view)
   TH1F* control_his;
   TH1F* summary_his;
   if ( summary ) {
@@ -106,6 +123,7 @@ void ApvTimingHistograms::createSummaryHistos() {
     delete summary;
   }
   
+  //@@ do something with summary histos?...
+  
 }
-
 
