@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/05/16 10:39:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -24,7 +24,7 @@
 class PhiBorderFinder {
 public:
   
-  typedef GeomDet Det; //FIXME!!!
+  typedef DetRod Det; //FIXME!!!
   typedef geomsort::ExtractPhi<Det,float> DetPhi;
 
 

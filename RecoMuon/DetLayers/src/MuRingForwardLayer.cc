@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/07 14:17:03 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -37,7 +37,7 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
     theBasicComps.insert(theBasicComps.end(),tmp2.begin(),tmp2.end());
   }  
 
-  RBorderFinder bf(rings);
+  RBorderFinder bf(theRings);
   isOverlapping = bf.isROverlapping();
   theBinFinder = new GeneralBinFinderInR<double>(bf);
 

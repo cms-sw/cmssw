@@ -5,6 +5,9 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
@@ -77,6 +80,7 @@ MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
     }
 
     if (geomDets.size()!=0) {
+	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
       muDetRings.push_back(new MuDetRing(geomDets));
       LogDebug("Muon|CSC|RecoMuonDetLayers") << "New ring with " << geomDets.size()
 					     << " chambers at z="<< muDetRings.back()->position().z();
@@ -84,6 +88,8 @@ MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
   }
   
   if (muDetRings.size()!=0) {
+    // How should they be sorted?
+    //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
     result = new MuRingForwardLayer(muDetRings);  
     LogDebug("Muon|CSC|RecoMuonDetLayers") << "New layer with " << muDetRings.size() 
 					   << " rings, at Z " << result->position().z();

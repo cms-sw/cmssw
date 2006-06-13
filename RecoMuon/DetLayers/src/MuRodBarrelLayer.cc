@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/01 16:47:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/07 14:17:03 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -37,7 +37,7 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   }
 
   // Initialize the binfinder
-  PhiBorderFinder bf(basicComponents());
+  PhiBorderFinder bf(theRods);
   isOverlapping = bf.isPhiOverlapping();
 
   if ( bf.isPhiPeriodic() ) { 

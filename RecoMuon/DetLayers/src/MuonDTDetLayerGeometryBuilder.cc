@@ -5,6 +5,9 @@
 #include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRod.h>
 
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
@@ -40,13 +43,14 @@ MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
       }
                 
       if (geomDets.size()!=0) {
+	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
 	muDetRods.push_back(new MuDetRod(geomDets));
 	LogDebug("Muon|DT|RecoMuonDetLayers") << "  New MuDetRod with " << geomDets.size()
 				      << " chambers at R=" << muDetRods.back()->position().perp()
 				      << ", phi=" << muDetRods.back()->position().phi();
       }
     }
-
+    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractPhi<GeometricSearchDet,float>());
     result.push_back(new MuRodBarrelLayer(muDetRods));  
     LogDebug("Muon|DT|RecoMuonDetLayers") << "    New MuRodBarrelLayer with " << muDetRods.size()
 					  << " rods, at R " << result.back()->specificSurface().radius();
