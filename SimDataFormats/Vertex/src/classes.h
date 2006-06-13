@@ -14,8 +14,8 @@ namespace {
     EmbdSimVertex dummy33;
     std::vector<EmbdSimVertex> dummy333;
     edm::Wrapper<edm::EmbdSimVertexContainer> dummy33333;
-    EmbdSimVertex::EmbdSimVertexRef r1;
-    EmbdSimVertex::EmbdSimVertexRefVector rv1;
-    EmbdSimVertex::EmbdSimVertexRefProd rp1; 
+    edm::EmbdSimVertexRef r1;
+    edm::EmbdSimVertexRefVector rv1;
+    edm::EmbdSimVertexRefProd rp1; 
 }
 }
