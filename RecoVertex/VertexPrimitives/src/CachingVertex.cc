@@ -224,18 +224,17 @@ CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1,
 
 CachingVertex::operator TransientVertex() const
 {
-
   typedef map<reco::TransientTrack, float> TransientTrackToFloatMap;
 
 // Construct Track vector
   vector<reco::TransientTrack> ttVect;
+  ttVect.reserve(theTracks.size());
   TransientTrackToFloatMap theWeightMap;
   TTtoTTmap ttCovMap;
   float theMinWeight = 0.5;
 
   for (vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
        i != theTracks.end(); ++i) {
-
     // discard tracks with too low weight
     if ((**i).weight() < theMinWeight) continue;
 
@@ -257,7 +256,6 @@ CachingVertex::operator TransientVertex() const
       }
     }
   }
-
   TransientVertex tv;
   if (withPrior) {
     tv =  TransientVertex(priorVertexState(), vertexState(), ttVect, totalChiSquared(), degreesOfFreedom());
