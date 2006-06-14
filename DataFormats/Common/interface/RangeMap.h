@@ -30,7 +30,7 @@
 
 namespace edm {
   
-  template<typename ID, typename C, typename P = clonehelper::CloneTrait<C> >
+  template<typename ID, typename C, typename P = typename clonehelper::CloneTrait<C>::type >
   class RangeMap {
   public:
     /// contained object type
