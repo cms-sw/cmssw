@@ -37,7 +37,12 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
 				     bool activateDecays) : 
-  mySimEvent(aSimEvent) {
+  mySimEvent(aSimEvent), 
+  _theGeometry(0), 
+  theMaterialEffects(0), 
+  myDecayEngine(0) 
+
+{
   
   // Initialize the simplified tracker geometry
   _theGeometry = new TrackerInteractionGeometry();
