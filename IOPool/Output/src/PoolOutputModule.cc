@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.26 2006/05/23 01:47:19 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.27 2006/05/30 20:09:21 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/EventProvenance.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -180,13 +181,15 @@ namespace edm {
 	event.productID_ = id;
 	eventProvenance.data_.push_back(event);
 
-	std::string const wrapperBegin("edm::Wrapper<");
-	std::string const wrapperEnd1(">");
-	std::string const wrapperEnd2(" >");
 	std::string const& name = i->first->fullClassName_;
-	std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-	std::string const className = wrapperBegin + name + wrapperEnd;
+	std::string const className = wrappedClassName(name);
 	TClass *cp = gROOT->GetClass(className.c_str());
+	if (cp == 0) {
+	  throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	    << "TypeID::className: No dictionary for class " << className << '\n'
+	    << "Add an entry for this class\n"
+	    << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
+	}
 	EDProduct *p = static_cast<EDProduct *>(cp->New());
 	pool::Ref<EDProduct const> ref(context(), p);
 	ref.markWrite(i->second);
