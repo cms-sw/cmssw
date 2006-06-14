@@ -1,6 +1,7 @@
 <use name=root>
 <use name=clhep>
 <use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/Records>
 <use name=Utilities/Timing>
 <use name=FWCore/MessageLogger>
 <use name=MagneticField/Engine>
@@ -13,6 +14,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<flags SEAL_PLUGIN_NAME="TrackPropagationSteppingHelixPropagator">
 <export>
    <lib name=TrackPropagationSteppingHelixPropagator>
 </export>
