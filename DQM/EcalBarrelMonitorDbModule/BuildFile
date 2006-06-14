@@ -5,6 +5,7 @@
 <use name=boost>
 <use name=root>
 <use name=coral>
+<use name=xerces-c>
 
 <export>
  <lib name=DQMEcalBarrelMonitorDbModule>
@@ -14,4 +15,5 @@
  <use name=boost>
  <use name=root>
  <use name=coral>
+ <use name=xerces-c>
 </export>
