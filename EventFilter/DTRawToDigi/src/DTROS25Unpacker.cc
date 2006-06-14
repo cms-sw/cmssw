@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/12 10:27:50 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/06/12 13:39:45 $
+ *  $Revision: 1.17 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -174,14 +174,19 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      }
 	    
               // Map the RO channel to the DetId and wire
- 	      DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
- 	      if (debug) cout<<"[DTROS25Unpacker] "<<detId<<endl;
- 	      int wire = detId.wire();
+ 	      DTWireId detId; 
+	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
+		if (debug) cout<<"[DTROS25Unpacker] "<<detId<<endl;
+		int wire = detId.wire();
 
-	      // Produce the digi
-	      DTDigi digi( wire, tdcMeasurementWord.tdcTime(), hitOrder[channelIndex.getCode()]-1);
-              product->insertDigi(detId.layerId(),digi);
-            }
+		// Produce the digi
+		DTDigi digi( wire, tdcMeasurementWord.tdcTime(), hitOrder[channelIndex.getCode()]-1);
+
+		// Commit to the event
+		product->insertDigi(detId.layerId(),digi);
+	      }
+	      else if (debug) cout<<"[DTROS25Unpacker] Missing wire!"<<endl;
+	    }
                 
           } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
           
