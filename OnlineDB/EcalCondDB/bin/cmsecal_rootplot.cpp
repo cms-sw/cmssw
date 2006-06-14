@@ -198,7 +198,7 @@ public:
   void setTimeAxis(TAxis* axis) {
     axis->SetTimeOffset(m_T0.Convert());
     axis->SetTimeDisplay(1);
-    axis->SetTimeFormat("#splitline{%d\/%m}{%H:%M:%S}");
+    axis->SetTimeFormat("#splitline{%d/%m}{%H:%M:%S}");
     axis->SetLabelOffset(0.02);
     axis->SetLabelSize(0.03);
   }
