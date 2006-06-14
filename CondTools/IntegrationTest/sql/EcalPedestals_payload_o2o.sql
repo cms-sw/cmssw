@@ -16,11 +16,11 @@ BEGIN
   SELECT 
     miov.iov_id, riov.run_num
   FROM 
-    location_def@cmsomds ldef, run_type_def@cmsomds rdef, run_tag@cmsomds rtag, run_iov@cmsomds riov,
+    location_def@omds ldef, run_type_def@omds rdef, run_tag@omds rtag, run_iov@omds riov,
     /* Selects the mon_run_iov with the greatest subrun_num */
     (SELECT iov_id, run_iov_id, 
        MAX(subrun_num) KEEP (DENSE_RANK FIRST ORDER BY subrun_num ASC)
-       FROM mon_run_iov@cmsomds GROUP BY iov_id, run_iov_id) miov
+       FROM mon_run_iov@omds GROUP BY iov_id, run_iov_id) miov
   WHERE
       miov.run_iov_id = riov.iov_id
   AND riov.tag_id = rtag.tag_id
@@ -47,7 +47,7 @@ BEGIN
     dat.ped_mean_g1,
     dat.ped_rms_g1
   FROM 
-    ecalpedestals iov, mon_pedestals_dat@cmsomds dat, channelview@cmsomds cv
+    ecalpedestals iov, mon_pedestals_dat@omds dat, channelview@omds cv
   WHERE dat.iov_id = iov.iov_value_id
     AND cv.logic_id = dat.logic_id
     AND cv.name='Offline_det_id'

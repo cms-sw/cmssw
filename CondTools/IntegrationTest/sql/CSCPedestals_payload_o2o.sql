@@ -16,7 +16,7 @@ insert into "CSCPEDESTALS"
 SELECT
  record_id iov_value_id,
  run_num time
-FROM PEDESTALS@cmsomds
+FROM PEDESTALS@omds
 WHERE record_id > last_id
 ;
 
@@ -26,7 +26,7 @@ SELECT
  map_index map_id,
  record_id iov_value_id,
  layer_id csc_int_id
-FROM PEDESTALS_MAP@cmsomds
+FROM PEDESTALS_MAP@omds
 WHERE record_id > last_id
 ;
 
@@ -38,7 +38,7 @@ SELECT
  PEDESTALS_MAP.record_id iov_value_id,
  PEDESTALS_DATA.ped pedestals_ped, 
  PEDESTALS_DATA.rms pedestals_rms
-FROM PEDESTALS_DATA@cmsomds, PEDESTALS_MAP@cmsomds
+FROM PEDESTALS_DATA@omds, PEDESTALS_MAP@omds
 WHERE
  PEDESTALS_DATA.map_id=PEDESTALS_MAP.map_id
 AND PEDESTALS_MAP.record_id > last_id

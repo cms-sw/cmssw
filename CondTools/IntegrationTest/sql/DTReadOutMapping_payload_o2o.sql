@@ -41,31 +41,31 @@ SELECT dt_wheel_numbering.object_number,
        dt_tdc.read_out_number,
        dt_tdc_channel.read_out_number,
        rownum, dtread_id_sq.CurrVal
-  FROM dt_wheel_numbering@cmsomds       dt_wheel_numbering,
-       dt_chamber_numbering@cmsomds     dt_chamber_numbering,    
-       dt_superlayer_numbering@cmsomds  dt_superlayer_numbering, 
-       dt_layer_numbering@cmsomds       dt_layer_numbering,      
-       dt_cell_numbering@cmsomds        dt_cell_numbering,       
-       dt_wheel@cmsomds                 dt_wheel,                
-       dt_sector@cmsomds                dt_sector,               
-       dt_chamber@cmsomds               dt_chamber,              
-       dt_superlayer@cmsomds            dt_superlayer,           
-       dt_layer@cmsomds                 dt_layer,                
-       dt_cell@cmsomds                  dt_cell,                 
-       dt_cell_readout_map@cmsomds      dt_cell_readout_map,     
-       dt_tdc_channel@cmsomds           dt_tdc_channel,          
-       dt_tdc@cmsomds                   dt_tdc,                  
-       dt_rob@cmsomds                   dt_rob,                  
-       dt_rob_ros_connection@cmsomds    dt_rob_ros_connection,   
-       dt_ros_channel@cmsomds           dt_ros_channel,          
-       dt_ros@cmsomds                   dt_ros,                  
-       dt_ddu@cmsomds                   dt_ddu,                  
-       (SELECT numbering_id FROM dt_numbering_master@cmsomds
+  FROM dt_wheel_numbering@omds       dt_wheel_numbering,
+       dt_chamber_numbering@omds     dt_chamber_numbering,    
+       dt_superlayer_numbering@omds  dt_superlayer_numbering, 
+       dt_layer_numbering@omds       dt_layer_numbering,      
+       dt_cell_numbering@omds        dt_cell_numbering,       
+       dt_wheel@omds                 dt_wheel,                
+       dt_sector@omds                dt_sector,               
+       dt_chamber@omds               dt_chamber,              
+       dt_superlayer@omds            dt_superlayer,           
+       dt_layer@omds                 dt_layer,                
+       dt_cell@omds                  dt_cell,                 
+       dt_cell_readout_map@omds      dt_cell_readout_map,     
+       dt_tdc_channel@omds           dt_tdc_channel,          
+       dt_tdc@omds                   dt_tdc,                  
+       dt_rob@omds                   dt_rob,                  
+       dt_rob_ros_connection@omds    dt_rob_ros_connection,   
+       dt_ros_channel@omds           dt_ros_channel,          
+       dt_ros@omds                   dt_ros,                  
+       dt_ddu@omds                   dt_ddu,                  
+       (SELECT numbering_id FROM dt_numbering_master@omds
          WHERE numbering_version='CMSSW_NUMBERING') dt_num,
-       (SELECT connection_id FROM dt_connection_master@cmsomds
+       (SELECT connection_id FROM dt_connection_master@omds
          WHERE connection_type='DT_CELL_READOUT_CONNECTION'
            AND mapping_version='CMSSW_CELL') rob_con,
-       (SELECT connection_id FROM dt_connection_master@cmsomds
+       (SELECT connection_id FROM dt_connection_master@omds
          WHERE connection_type='DT_ROB_ROS_CONNECTION'
            AND mapping_version='CMSSW_ROS') ros_con,
         dual /* No idea why this is needed, but it is (sequence?) */

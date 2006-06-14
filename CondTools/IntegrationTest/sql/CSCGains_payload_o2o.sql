@@ -16,7 +16,7 @@ insert into "CSCGAINS"
 SELECT
  record_id iov_value_id,
  run_num time
-FROM GAINS@cmsomds
+FROM GAINS@omds
 WHERE record_id > last_id
 ;
 
@@ -25,7 +25,7 @@ SELECT
  map_index map_id,
  record_id iov_value_id,
  layer_id csc_int_id
-FROM GAINS_MAP@cmsomds
+FROM GAINS_MAP@omds
 WHERE record_id > last_id
 ;
 
@@ -38,7 +38,7 @@ SELECT
  GAINS_DATA.gain_chi2 gains_chi2, 
  GAINS_DATA.gain_intercept gains_intercept,
  GAINS_DATA.gain_slope gains_slope
-FROM GAINS_DATA@cmsomds, GAINS_MAP@cmsomds
+FROM GAINS_DATA@omds, GAINS_MAP@omds
 WHERE
  GAINS_DATA.map_id=GAINS_MAP.map_id
 AND record_id > last_id
