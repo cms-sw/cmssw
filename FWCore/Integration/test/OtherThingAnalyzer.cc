@@ -57,14 +57,6 @@ namespace edmtest {
       if (!shouldBeTrue) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "RefProd '!' has incorrect value\n";
       }
-      shouldBeTrue = bool(otc.refVec[0]);
-      if (!shouldBeTrue) {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "bool() has incorrect value\n";
-      }
-      shouldBeTrue = bool(otc.refProd);
-      if (!shouldBeTrue) {
-        throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "RefProd bool() has incorrect value\n";
-      }
       shouldBeTrue = !otc.refVec.empty();
       if (!shouldBeTrue) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "empty() has incorrect value\n";
