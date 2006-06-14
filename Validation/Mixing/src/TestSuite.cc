@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.3 2006/03/24 15:40:13 uberthon Exp $
+// $Id: TestSuite.cc,v 1.4 2006/03/27 08:14:43 uberthon Exp $
 //
 //
 
@@ -88,7 +88,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<MixCollection<EmbdSimTrack> > col1(new MixCollection<EmbdSimTrack>(cf.product()));
     MixCollection<EmbdSimTrack>::iterator cfi1;
     for (cfi1=col1->begin(); cfi1!=col1->end();cfi1++) {
-       if (cfi1.getTrigger()) {
+       if (cfi1.getTrigger()==0) {
 	 trhist->Fill(cfi1.bunch());
 	 trindhist->Fill(cfi1->vertIndex());
        } else {
@@ -96,10 +96,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 trhistsig->Fill(cfi1.bunch());
        }
      }
-//      std::cout <<"[OVAL] Mean of track pileup histo (bcrossings) "<<trhist->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of track signal histo (bcrossings) "<<trhistsig->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of track pileup histo (vtx indices) "<<trindhist->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of track signal histo (vtx indices) "<<trindhistsig->GetMean()<<std::endl;
+
 
 //vertex histo
     char histovertices[30], sighistovertices[30],histovertexindices[30],histovertexindicessig[30];
@@ -114,7 +111,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<MixCollection<EmbdSimVertex> > col2(new MixCollection<EmbdSimVertex>(cf.product()));
     MixCollection<EmbdSimVertex>::iterator cfi2;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
-	if (cfi2.getTrigger()) {
+	if (cfi2.getTrigger()==0) {
 	  vtxhist->Fill(cfi2.bunch());
 	  if (!cfi2->noParent()) 	vtxindhist->Fill(cfi2->parentIndex());
 	} else {
@@ -122,11 +119,6 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (!cfi2->noParent()) 	vtxindhistsig->Fill(cfi2->parentIndex());
 	}
     }
-//      std::cout <<"[OVAL] Mean of vertex pileup histo (bcrossings) "<<vtxhist->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of vertex signal histo (bcrossings) "<<vtxhistsig->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of vertex pileup histo (track indices) "<<vtxindhist->GetMean()<<std::endl;
-//      std::cout <<"[OVAL] Mean of vertex signal histo (track indices) "<<vtxindhistsig->GetMean()<<std::endl;
-
 	
     int bsp=cf->getBunchSpace();
     char tof[30];
@@ -136,16 +128,18 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     TH1I * tofhist = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     sprintf(tof,"SignalTrackerHit_Tof_bcr_%d",bunchcr_);
     TH1I * tofhist_sig = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
-    //    std::string subdet("TrackerHitsTECLowTof");
-    std::string subdet("TrackerHitsTIBLowTof");
+    std::string subdet("TrackerHitsTECLowTof");
+    //    std::string subdet("TrackerHitsTIBLowTof");
     std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf.product(),std::string(subdet)));
     MixCollection<PSimHit>::iterator cfish;
     for (cfish=colsh->begin(); cfish!=colsh->end();cfish++) {
-      if (cfish.getTrigger())  tofhist->Fill(cfish->timeOfFlight());
-      else  tofhist_sig->Fill(cfish->timeOfFlight());
+      if (cfish.getTrigger())  {
+	tofhist_sig->Fill(cfish->timeOfFlight());
+      }
+      else  {
+	tofhist->Fill(cfish->timeOfFlight());
+      }
     }
-    //    std::cout <<"[OVAL] Mean of tracker pileup histo (ToF) "<<tofhist->GetMean()<<std::endl;
-    //    std::cout <<"[OVAL] Mean of tracker signal histo (ToF) "<<tofhist_sig->GetMean()<<std::endl;
 
     //Ecal
     sprintf(tof,"EcalEBHit_Tof_bcr_%d",bunchcr_);
@@ -156,11 +150,9 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<MixCollection<PCaloHit> > colecal(new MixCollection<PCaloHit>(cf.product(),std::string(ecalsubdet)));
     MixCollection<PCaloHit>::iterator cfiecal;
     for (cfiecal=colecal->begin(); cfiecal!=colecal->end();cfiecal++) {
-      if (cfiecal.getTrigger())    tofecalhist->Fill(cfiecal->time());
-      else    tofecalhist_sig->Fill(cfiecal->time());
+      if (cfiecal.getTrigger())    tofecalhist_sig->Fill(cfiecal->time());
+      else    tofecalhist->Fill(cfiecal->time());
     }
-//     std::cout <<"[OVAL] Mean of Ecal pileup histo (ToF) "<<tofecalhist->GetMean()<<", sigma: "<<tofecalhist->GetRMS()<<std::endl;
-//     std::cout <<"[OVAL] Mean of Ecal signal histo (ToF) "<<tofecalhist_sig->GetMean()<<", sigma: "<<tofecalhist_sig->GetRMS()<<std::endl;
 
     // Hcal
     sprintf(tof,"HcalHit_Tof_bcr_%d",bunchcr_);
@@ -171,10 +163,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf.product(),std::string(hcalsubdet)));
     MixCollection<PCaloHit>::iterator cfihcal;
     for (cfihcal=colhcal->begin(); cfihcal!=colhcal->end();cfihcal++) {
-      if (cfihcal.getTrigger())  tofhcalhist->Fill(cfihcal->time());
-      else  tofhcalhist_sig->Fill(cfihcal->time());
+      if (cfihcal.getTrigger())  tofhcalhist_sig->Fill(cfihcal->time());
+      else  tofhcalhist->Fill(cfihcal->time());
     }
-//     std::cout <<"[OVAL] Mean of Hcal pileup histo (ToF) "<<tofhcalhist->GetMean()<<", sigma: "<<tofhcalhist->GetRMS()<<std::endl;
-//     std::cout <<"[OVAL] Mean of Hcal signal histo (ToF) "<<tofhcalhist_sig->GetMean()<<", sigma: "<<tofhcalhist_sig->GetRMS()<<std::endl;
 }
 
