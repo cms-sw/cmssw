@@ -3,6 +3,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace 
 {
@@ -65,7 +66,7 @@ namespace stor
 
     for(;pi!=pe;++pi) {
       //pi->second.init();
-      std::string real_name = edm::getTheRealName(pi->second.fullClassName_);
+      std::string real_name = edm::wrappedClassName(pi->second.fullClassName_);
       //FDEBUG(6) << "declare: " << real_name << std::endl;
       edm::loadCap(real_name);
     }
@@ -79,7 +80,7 @@ namespace stor
 
     for(;pi!=pe;++pi) {
       //pi->second.init();
-      std::string real_name = edm::getTheRealName(pi->second.fullClassName_);
+      std::string real_name = edm::wrappedClassName(pi->second.fullClassName_);
       //FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
       edm::doBuildRealData(real_name);
     }

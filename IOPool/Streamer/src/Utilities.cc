@@ -3,6 +3,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include <typeinfo>
 #include <iostream>
@@ -133,29 +134,13 @@ namespace edm
     // fillStreamers(*pr_);
   }
 
-  // jbk - hopefully this function is not needed any more.
-  // I'm leaving it in for debugging - it prints out a lot of
-  // useful information about what classes have dictionaries and
-  // what ones do not.
-
-  string getTheRealName(const string& fullclassname)
-  {
-    static const string wrapBeg("edm::Wrapper<");
-    static const string wrapEnd1(">");
-    static const string wrapEnd2(" >");
-
-	string real_name(wrapBeg+fullclassname);
-	real_name += *(real_name.rbegin()) == '>' ? wrapEnd2:wrapEnd1;
-    return real_name;
-  }
-
   void declareStreamers(const SendDescs& descs)
   {
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     for(; i != e; ++i) {
 	//pi->init();
-	string real_name = getTheRealName(i->fullClassName_);
+	string real_name = wrappedClassName(i->fullClassName_);
 	FDEBUG(6) << "declare: " << real_name << endl;
 	edm::loadCap(real_name);
     }
@@ -167,7 +152,7 @@ namespace edm
 
     for(; i != e; ++i) {
 	//pi->init();
-	string real_name = getTheRealName(i->fullClassName_);
+	string real_name = wrappedClassName(i->fullClassName_);
 	FDEBUG(6) << "BuildReadData: " << real_name << endl;
 	edm::doBuildRealData(real_name);
     }

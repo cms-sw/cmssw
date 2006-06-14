@@ -27,7 +27,6 @@
 namespace edm
 {
   edm::ProductRegistry getRegFromFile(const std::string& filename);
-  std::string getTheRealName(const std::string& fullclassname);
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry& reg);
   void mergeWithRegistry(const SendDescs& descs, ProductRegistry& reg);

@@ -1,13 +1,14 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.16 2006/05/20 00:01:33 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.17 2006/05/23 02:30:02 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
@@ -162,13 +163,15 @@ namespace edm
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
       if (group.get() == 0) {
-	std::string const wrapperBegin("edm::Wrapper<");
-	std::string const wrapperEnd1(">");
-	std::string const wrapperEnd2(" >");
 	std::string const& name = desc.fullClassName_;
-	std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-	std::string const className = wrapperBegin + name + wrapperEnd;
+	std::string const className = wrappedClassName(name);
 	TClass *cp = gROOT->GetClass(className.c_str());
+	if (cp == 0) {
+          throw edm::Exception(errors::ProductNotFound,"NoMatch")
+            << "TypeID::className: No dictionary for class " << className << '\n'
+            << "Add an entry for this class\n"
+            << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
+	}
 	EDProduct *p = static_cast<EDProduct *>(cp->New());
 
 	Provenance prov(desc);
