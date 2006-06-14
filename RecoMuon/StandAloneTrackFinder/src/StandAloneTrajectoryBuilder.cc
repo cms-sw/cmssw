@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/05 14:54:35 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/12 13:39:44 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -35,6 +35,11 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
+// FIXME
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <DataFormats/MuonDetId/interface/DTChamberId.h>
+//
 
 using namespace edm;
 using namespace std;
@@ -112,6 +117,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // FIXME:check the prop direction!!
   Trajectory trajectoryFW(seed);
 
+  //<< FIXME Remove this print out
+//   range seedRHitsRange = seed.recHits();
+//   for(edm::OwnVector<TrackingRecHit> it = seedRHitsRange.first;
+//       edm::OwnVector<TrackingRecHit> it != seedRHitsRange.second;
+//       ++it)
+//     cout<<"RecHit Seed Position: "<<(*it).globalPosition()<<endl;
+  //>>
+
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
 
@@ -121,6 +134,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetId seedDetId(pTSOD.detId());
   const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+
+
+  // FIXME
+  if(seedDetId.subdetId() == MuonSubdetId::CSC){
+    CSCDetId cscId( seedDetId.rawId() );
+    std::cout<< "Seed id (CSC)"<< cscId << std::endl ;
+       }
+  else if (seedDetId.subdetId() == MuonSubdetId::DT){
+    DTChamberId dtId( seedDetId.rawId() );
+    std::cout<< "Seed id (DT) "<< dtId << std::endl ;
+  }
+  //
 
   // Get the layer from which start the trajectory building
   cout<<"Get the layer from which start the trajectory building"<<endl;
@@ -181,9 +206,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // FIXME!!
   cout << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
   debug.dumpTSOS(tsosAfterRefit);
-  cout<<"Layer size"<<refitter()->layers().size()<<endl;
-  debug.dumpLayer( refitter()->layers().front() );
-  debug.dumpLayer( refitter()->lastDetLayer() );
+  int layers_size = refitter()->layers().size();
+  cout<<"Layer size "<<layers_size<<endl;
+
+  if(layers_size) debug.dumpLayer( refitter()->lastDetLayer() );
+  else return trajectoryContainer; // FIXME!!!!
+
   cout << "Number of DT/CSC/RPC chamber used: " 
        << refitter()->getDTChamberUsed()
        << refitter()->getCSCChamberUsed() 
