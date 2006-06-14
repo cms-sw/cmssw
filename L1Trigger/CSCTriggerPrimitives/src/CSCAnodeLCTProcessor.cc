@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2005/05/31 18:52:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/06 15:51:21 $
+//   $Revision: 1.2 $
 //
 //   Modifications: 
 //
@@ -356,12 +356,15 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
 	  << " +++" << std::endl;
       }
       if (bx_time >= bxwin_min && bx_time < bxwin_max) {
+	if (infoV > 2) LogDebug("CSCAnodeLCTProcessor")
+	  << "Digi on layer " << i_layer << " wire " << i_wire
+	  << " at time " << bx_time;
 
 	// Shift all times of interest by TIME_OFFSET, so that they will
 	// be positive.
 	bx_time += CSCConstants::TIME_OFFSET;
 	if (bx_time <= bx_min || bx_time > bx_max) {
-	  edm::LogWarning("CSCAnodeLCTProcessor|OutOfTime")
+	  edm::LogWarning("CSCAnodeLCTProcessor")
 	    << "Mismatch in anode BX times " << bx_time << " +++ \n";
 	  continue;
 	}
@@ -374,7 +377,7 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
 	}
       }
       else {
-	edm::LogWarning("CSCAnodeLCTProcessor|OutOfTime")
+	edm::LogWarning("CSCAnodeLCTProcessor")
 	  << "Unexpected BX time of wire digi: wire = " << i_wire
 	  << " layer = " << i_layer << ", bx = " << bx_time << " +++ \n";
       }
@@ -697,7 +700,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
        plct != lct_list.end(); plct++){
 #ifdef TB
     // Do not report ALCTs found prior to L1Accept.
-    int early_tbins = fifo_pretrig - 10 + TIME_OFFSET;
+    int early_tbins = fifo_pretrig - 10 + CSCConstants::TIME_OFFSET;
     if (plct->getBX() < early_tbins) continue;
 #endif
     if (!bestALCT.isValid() || *plct > bestALCT) {
@@ -725,9 +728,13 @@ void CSCAnodeLCTProcessor::lctSearch() {
       LogDebug("CSCAnodeLCTProcessor")
 	<< bestALCT << " found in endcap " << theEndcap
 	<< " station " << theStation << " sector " << theSector
-	<< " subSector " << theSubsector << " chamber "
+	<< " (" << theSubsector
+	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						        theTrigChamber)
+	<< " chamber "
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                              theSubsector, theStation, theTrigChamber)<< "\n";
+                              theSubsector, theStation, theTrigChamber)
+	<< " (trig id. " << theTrigChamber << ")" << "\n";
       /* IMPROVE LATER
       #ifdef MC
       if (bestALCT.simInfo != 0) {
@@ -747,9 +754,13 @@ void CSCAnodeLCTProcessor::lctSearch() {
 	LogDebug("CSCAnodeLCTProcessor")
 	  << secondALCT << " found in endcap " << theEndcap
 	  << " station " << theStation << " sector " << theSector
-	  << " subSector " << theSubsector << " chamber "
+	  << " (" << theSubsector
+	  << ") ring "<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						       theTrigChamber)
+	  << " chamber "
 	  << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                             theSubsector, theStation, theTrigChamber) << "\n";
+                             theSubsector, theStation, theTrigChamber)
+	  << " (trig id. " << theTrigChamber << ")" << "\n";
 	/* IMPROVE LATER
         #ifdef MC
 	if (secondALCT.simInfo != 0) {
