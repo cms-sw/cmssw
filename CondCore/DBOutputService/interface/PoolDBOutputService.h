@@ -60,6 +60,7 @@ namespace cond{
 	std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.find(callbackToken);
 	if(it==m_callbacks.end()) throw cond::Exception(std::string("PoolDBOutputService::newValidityForNewPayload: unregistered callback token"));
 	cond::service::serviceCallbackRecord& myrecord=it->second;
+	if (!m_dbstarted) this->initDB();
 	if(!myrecord.m_payloadWriter){
 	  if( m_customMappingFile.empty() ){
 	    myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName);
@@ -101,8 +102,7 @@ namespace cond{
       //
       unsigned long long currentTime() const;
       virtual ~PoolDBOutputService();
-      size_t callbackToken(const std::string& tag,
-			   const std::string& container) const ;
+      size_t callbackToken(const std::string& containerName) const ;
     private:
       void connect();    
       void disconnect();

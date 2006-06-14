@@ -9,8 +9,7 @@ namespace cond{
       ~serviceCallbackToken(){}
     protected:
       serviceCallbackToken(){}
-      static size_t build(const std::string& str1,
-			  const std::string& str2 );
+      static size_t build(const std::string& str);
     };
   }//ns service
 }//ns cond

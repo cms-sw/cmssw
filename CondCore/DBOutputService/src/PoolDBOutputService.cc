@@ -44,7 +44,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     thisrecord.m_containerName = itToPut->getUntrackedParameter<std::string>("containerName");
     thisrecord.m_appendIOV = itToPut->getUntrackedParameter<bool>("appendIOV",false);
     thisrecord.m_tag = itToPut->getParameter<std::string>("tag");
-    m_callbacks.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_containerName,thisrecord.m_tag),thisrecord));
+    m_callbacks.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_containerName),thisrecord));
   }
   try{
     if( authenticationMethod==1 ){
@@ -91,11 +91,8 @@ void
 cond::service::PoolDBOutputService::initDB()
 {
   if(m_dbstarted) return;
-  //std::cout<<"PoolDBOutputService::postBeginJob"<<std::endl;
   try{
-    //std::cout<<"Pool connect "<<std::endl;
     this->connect();
-    //std::cout<<"start pool update transaction "<<std::endl;
     m_session->startUpdateTransaction();
     std::map<size_t, cond::service::serviceCallbackRecord>::iterator it;
     for(it=m_callbacks.begin();it!=m_callbacks.end(); ++it){
@@ -119,6 +116,7 @@ cond::service::PoolDBOutputService::initDB()
   }catch(...){
     throw cms::Exception( "Funny error" );
   }
+  m_dbstarted=true;
   //std::cout<<"PoolDBOutputService: connected "<<std::endl;
 }
 void 
@@ -162,9 +160,8 @@ cond::service::PoolDBOutputService::~PoolDBOutputService(){
   delete m_metadata;
   delete m_loader;  
 }
-size_t cond::service::PoolDBOutputService::callbackToken(const std::string& tag,
-							 const std::string& container) const {
-  return cond::service::serviceCallbackToken::build(tag, container);
+size_t cond::service::PoolDBOutputService::callbackToken(const std::string& containerName) const {
+  return cond::service::serviceCallbackToken::build(containerName);
 }
 void
 cond::service::PoolDBOutputService::connect()
@@ -187,7 +184,6 @@ cond::service::PoolDBOutputService::connect()
     throw cond::Exception(std::string("PoolDBOutputService::connect unknown error") );
   }
 }
-
 void
 cond::service::PoolDBOutputService::disconnect()
 {
