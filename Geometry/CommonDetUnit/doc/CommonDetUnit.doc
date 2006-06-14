@@ -20,14 +20,20 @@ Base classes modelling tracking detectors and the entry point to the geometry.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-Detector model:
+<b>Detector model:</b>
 - GeomDet
 - GeomDetUnit
 - GeomDetType
 
-Geometry of GeomDet and GeomDetUnit:
-- TrackingGeometry
-- GlobalTrackingGeometry
+<b>Geometry of GeomDet and GeomDetUnit:</b>
+
+- TrackingGeometry is the base class for all tracking geometries (TrackerGeometry,
+DTGeometry, CSCGeometry, RPCGeometry).
+- GlobalTrackingGeometry is a is a single entry point to the geometries of the 
+tracker and muon detectors. Its main purpose is to allow to get an element of the
+geometry given its DetId, regardless of wich subdetector it belongs. 
+A typical application is to transform to global coordinates the position of a list
+of simhits or rechits that belong to several different tracking detectors.
 
 Helper classes:
 - DetSorting
@@ -36,11 +42,22 @@ Helper classes:
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-None
+The GlobalTrackingGeometry can be created in two ways:
+- using globalTrackingGeometry.cfi, that also creates all slave geometries:
+<pre>
+include "Geometry/CommonDetUnit/data/globalTrackingGeometry.cfi"
+</pre>
+
+- using bareGlobalTrackingGeometry.cfi, which does not create any of the slave geometries and allows to specify only few of them.
+<pre>
+include "Geometry/CommonDetUnit/data/bareGlobalTrackingGeometry.cfi"
+</pre>
+
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 - testDetSort.cpp
+- testGlobalTrackingGeometry.cfg : a test and example of GlobalTrackingGeometry.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->

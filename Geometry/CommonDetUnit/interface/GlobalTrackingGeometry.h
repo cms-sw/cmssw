@@ -3,10 +3,15 @@
 
 /** \class GlobalTrackingGeometry
  *
- *  No description available.
+ *  Single entry point to the tracker and muon geometries.
+ *  The main purpose is to provide the methods idToDetUnit(DetId) and idToDet(DetId)
+ *  that allow to get an element of the geometry given its DetId, regardless of wich subdetector it belongs.
+ * 
+ *  The slave geometries (TrackerGeometry, DTGeometry, CSCGeometry, RPCGeometry) are accessible with the method
+ *  slaveGeometry(DetId).
  *
- *  $Date: 2006/05/10 18:02:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/12 09:51:12 $
+ *  $Revision: 1.5 $
  *  \author M. Sani
  */
 
