@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.6 2006/01/27 21:20:04 paterno Exp $
+$Id: SortedCollection.h,v 1.2 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -75,7 +75,7 @@ namespace edm {
   class SortedCollection {
   public:
     typedef T    value_type;    // the values we contain
-    typedef SORT sorter_type;   // function object for sorting
+    typedef SORT key_compare;   // function object for sorting
 
     typedef typename std::vector<T>::const_iterator  const_iterator;
     typedef typename std::vector<T>::iterator        iterator;
@@ -87,7 +87,7 @@ namespace edm {
     // This needs to be turned into a template parameter, perhaps with
     // a default --- if there is a way to slip in the default without
     // growing any dependence on the code supplying the key!
-    typedef typename sorter_type::key_type key_type;
+    typedef typename key_compare::key_type key_type;
 
     SortedCollection();
     explicit SortedCollection(size_type n);
@@ -248,7 +248,7 @@ namespace edm {
     // This fails if the SortedCollection has not been sorted. It is
     // up to the user (with the help of the Event) to make sure this
     // has been done.
-    sorter_type comp;
+    key_compare comp;
     inner_iterator last = obj.end();
     inner_iterator loc = std::lower_bound(obj.begin(),
 					  last,
@@ -265,7 +265,7 @@ namespace edm {
     // This fails if the SortedCollection has not been sorted. It is
     // up to the user (with the help of the Event) to make sure this
     // has been done.
-    sorter_type  comp;
+    key_compare  comp;
     const_inner_iterator last = obj.end();
     const_inner_iterator loc = std::lower_bound(obj.begin(),
 						last,
@@ -341,7 +341,7 @@ namespace edm {
   void
   SortedCollection<T,SORT>::sort()
   {
-    sorter_type  comp;
+    key_compare  comp;
     std::sort(obj.begin(), obj.end(), comp);
   }
 
