@@ -8,6 +8,6 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <vector>
 
-typedef  edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > SiStripRecHit2DMatchedLocalPosCollection;
+typedef  edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos> > SiStripRecHit2DMatchedLocalPosCollection;
 
 #endif

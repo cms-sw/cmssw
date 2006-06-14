@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-typedef edm::RangeMap <DetId, edm::OwnVector<SiStripRecHit2DLocalPos,edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> > SiStripRecHit2DLocalPosCollection;
+typedef edm::RangeMap <DetId, edm::OwnVector<SiStripRecHit2DLocalPos> > SiStripRecHit2DLocalPosCollection;
 
 
 #endif
