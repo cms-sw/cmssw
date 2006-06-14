@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/06/01 15:39:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/07 14:07:07 $
+ *  $Revision: 1.6 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -30,13 +30,10 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 class MuonDetLayerMeasurements {
 public:
 
-  MuonDetLayerMeasurements(std::string dtlabel = "DTRecSegment4DProducer", 
+  MuonDetLayerMeasurements(std::string dtlabel = "DTSegment4DProducer", 
 			   std::string csclabel = "CSCSegmentProducer");
 
    virtual ~MuonDetLayerMeasurements();
-
-   /// obtain TrackingRecHits from a DetLayer
-   RecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
 
    /// returns TMeasurements in a DetLayer compatible with the TSOS.
    MeasurementContainer
@@ -73,8 +70,16 @@ public:
  
   void setEvent(const edm::Event &);  
 
+  /// returns the rechits which are onto the layer
+  RecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
+
 private:
-   std::string  theDTRecHitLabel;
+
+   /// obtain TrackingRecHits from a DetLayer
+   RecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
+
+
+   std::string theDTRecHitLabel;
    std::string theCSCRecHitLabel;
    bool theEventFlag;
    const edm::Event* theEvent;   
