@@ -12,8 +12,6 @@ RunTypeDef::RunTypeDef()
   m_conn = NULL;
   m_ID = 0;
   m_runType = "";
-  m_configTag = "";
-  m_configVer = 0;
   m_desc = "";
 }
 
@@ -40,36 +38,6 @@ void RunTypeDef::setRunType(string runtype)
 
 
 
-string RunTypeDef::getConfigTag() const
-{
-  return m_configTag;
-}
-
-
-
-void RunTypeDef::setConfigTag(string tag)
-{
-  m_ID = 0;
-  m_configTag = tag;
-}
-
-
-
-int RunTypeDef::getConfigVersion() const
-{
-  return m_configVer;
-}
-
-
-
-void RunTypeDef::setConfigVersion(int ver)
-{
-  m_ID = 0;
-  m_configVer = ver;
-}
-
-
-
 string RunTypeDef::getDescription() const
 {
   return m_desc;
@@ -90,13 +58,9 @@ int RunTypeDef::fetchID()
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT def_id FROM run_type_def WHERE "
-		 "run_type   = :1 AND "
-		 "config_tag = :2 AND "
-		 "config_ver = :3"
+		 "run_type   = :1"
 		 );
     stmt->setString(1, m_runType);
-    stmt->setString(2, m_configTag);
-    stmt->setInt(3, m_configVer);
 
     ResultSet* rset = stmt->executeQuery();
     
@@ -123,15 +87,13 @@ void RunTypeDef::setByID(int id)
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT run_type, config_tag, config_ver, description FROM run_type_def WHERE def_id = :1");
+    stmt->setSQL("SELECT run_type, description FROM run_type_def WHERE def_id = :1");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
       m_runType = rset->getString(1);
-      m_configTag = rset->getString(2);
-      m_configVer = rset->getInt(3);
-      m_desc = rset->getString(4);
+      m_desc = rset->getString(2);
     } else {
       throw(runtime_error("RunTypeDef::setByID:  Given def_id is not in the database"));
     }

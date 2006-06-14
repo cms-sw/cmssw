@@ -53,8 +53,6 @@ public:
     locdef.setLocation(locations[3]);
 
     rundef.setRunType("TEST");
-    rundef.setConfigTag("TEST-TEST");
-    rundef.setConfigVersion(1);
     
     runtag.setLocationDef(locdef);
     runtag.setRunTypeDef(rundef);
@@ -239,6 +237,9 @@ public:
     RunDat table01;
     testTable(&table01, &runiov, &logicID);
 
+    RunConfigDat table01a;
+    testTable(&table01a, &runiov, &logicID);
+
     // MonRunIOV tables
     MonRunIOV moniov = this->makeMonRunIOV(&runiov);
 
@@ -386,8 +387,6 @@ private:
     cout << "GeneralTag:         " << tag->getGeneralTag() << endl;
     cout << "Location:           " << tag->getLocationDef().getLocation() << endl;
     cout << "Run Type:           " << tag->getRunTypeDef().getRunType() << endl;
-    cout << "Config Tag:         " << tag->getRunTypeDef().getConfigTag() << endl;
-    cout << "Config Ver:         " << tag->getRunTypeDef().getConfigVersion() << endl;
     cout << "====================" << endl;
   }
 

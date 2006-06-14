@@ -21,15 +21,13 @@ ALTER TABLE location_def ADD CONSTRAINT location_def_uk UNIQUE (location);
 CREATE TABLE run_type_def (
   def_id		NUMBER(10) NOT NULL,
   run_type		VARCHAR2(100) NOT NULL,
-  config_tag		VARCHAR2(100) NOT NULL,
-  config_ver		NUMBER(10) NOT NULL,
   description		VARCHAR2(1000) NOT NULL
 );
 
 CREATE SEQUENCE run_type_def_sq INCREMENT BY 1 START WITH 1;
 
 ALTER TABLE run_type_def ADD CONSTRAINT run_type_def_pk PRIMARY KEY (def_id);
-ALTER TABLE run_type_def ADD CONSTRAINT run_type_def_uk UNIQUE (run_type, config_tag, config_ver);
+ALTER TABLE run_type_def ADD CONSTRAINT run_type_def_uk UNIQUE (run_type);
 
 
 

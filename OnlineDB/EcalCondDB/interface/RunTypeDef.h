@@ -20,12 +20,6 @@ class RunTypeDef : public IDef {
   std::string getRunType() const;
   void setRunType(std::string runtype);
   
-  std::string getConfigTag() const;
-  void setConfigTag(std::string tag);
-
-  int getConfigVersion() const;
-  void setConfigVersion(int ver);
-
   std::string getDescription() const;
 
   // Methods from IUniqueDBObject
@@ -35,8 +29,6 @@ class RunTypeDef : public IDef {
  protected:
   // User data for this def
   std::string m_runType;
-  std::string m_configTag;
-  int m_configVer;
   std::string m_desc;
 
   void fetchAllDefs( std::vector<RunTypeDef>* fillVec) throw(std::runtime_error);

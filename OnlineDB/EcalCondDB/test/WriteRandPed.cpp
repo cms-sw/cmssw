@@ -88,8 +88,6 @@ public:
     // The objects necessary to identify a dataset
     locdef.setLocation("H4");
     rundef.setRunType("PEDESTAL");
-    rundef.setConfigTag("PEDESTAL-STD");
-    rundef.setConfigVersion(1);
     
     runtag.setLocationDef(locdef);
     runtag.setRunTypeDef(rundef);

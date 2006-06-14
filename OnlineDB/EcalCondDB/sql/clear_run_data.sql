@@ -5,3 +5,4 @@
 
 
 DROP TABLE run_dat;
+DROP TABLE run_config_dat;
