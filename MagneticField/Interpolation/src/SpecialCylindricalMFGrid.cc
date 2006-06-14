@@ -69,7 +69,7 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
 }
  
 
-MFGrid::LocalVector SpecialCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector SpecialCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(SpecialCylindricalMFGrid)"];
 //   TimeMe t(timer,false);

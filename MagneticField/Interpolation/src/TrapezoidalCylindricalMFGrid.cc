@@ -118,7 +118,7 @@ void TrapezoidalCylindricalMFGrid::dump() const
 {}
 
 MFGrid::LocalVector 
-TrapezoidalCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
+TrapezoidalCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(TrapezoidalCylindricalMFGrid)"];
 //   TimeMe t(timer,false);

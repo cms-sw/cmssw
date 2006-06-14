@@ -71,7 +71,8 @@ void RectangularCartesianMFGrid::dump() const
   // grid_.dump();
 }
 
-MFGrid::LocalVector RectangularCartesianMFGrid::valueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector 
+RectangularCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(RectangularCartesianMFGrid)"];
 //   TimeMe t(timer,false);

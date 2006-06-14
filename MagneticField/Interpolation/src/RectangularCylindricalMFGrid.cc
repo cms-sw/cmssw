@@ -53,7 +53,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   
   // Activate/deactivate timers
 //   static SimpleConfigurable<bool> timerOn(false,"MFGrid:timing");
-//   (*TimingReport::current()).switchOn("MagneticFieldProvider::valueInTesla(RectangularCylindricalMFGrid)",timerOn);
+//   (*TimingReport::current()).switchOn("MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)",timerOn);
 }
 
 void RectangularCylindricalMFGrid::dump() const
@@ -73,9 +73,9 @@ void RectangularCylindricalMFGrid::dump() const
   // grid_.dump();
 }
 
-MFGrid::LocalVector RectangularCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(RectangularCylindricalMFGrid)"];
+//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)"];
 //   TimeMe t(timer,false);
 
   LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
