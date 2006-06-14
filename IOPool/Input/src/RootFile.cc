@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.14 2006/06/06 01:21:31 wmtan Exp $
+$Id: RootFile.cc,v 1.15 2006/06/06 21:23:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -14,6 +14,7 @@ $Id: RootFile.cc,v 1.14 2006/06/06 01:21:31 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,10 +57,6 @@ namespace edm {
     auxBranch_ = eventTree_->GetBranch(poolNames::auxiliaryBranchName().c_str());
     provBranch_ = eventTree_->GetBranch(poolNames::provenanceBranchName().c_str());
 
-    std::string const wrapperBegin("edm::Wrapper<");
-    std::string const wrapperEnd1(">");
-    std::string const wrapperEnd2(" >");
-
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
@@ -67,8 +64,7 @@ namespace edm {
       prod.init();
       TBranch * branch = eventTree_->GetBranch(prod.branchName_.c_str());
       std::string const& name = prod.fullClassName_;
-      std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-      std::string const className = wrapperBegin + name + wrapperEnd;
+      std::string const className = wrappedClassName(name);
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
       branchNames_.push_back(prod.branchName_);

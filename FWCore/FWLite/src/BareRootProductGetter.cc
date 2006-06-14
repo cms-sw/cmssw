@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.1 2006/05/29 12:52:06 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.2 2006/06/13 03:45:41 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "IOPool/Common/interface/PoolNames.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 //
@@ -199,12 +200,8 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
     return 0;
   }
   //find the class type
-  static const std::string wrapperBegin("edm::Wrapper<");
-  static const std::string wrapperEnd1(">");
-  static const std::string wrapperEnd2(" >");
-  const std::string& fullName = itBD->second.className();
-  ROOT::Reflex::Type classType = ROOT::Reflex::Type::ByName( wrapperBegin + fullName
-                                                             + (fullName[fullName.size()-1]=='>' ? wrapperEnd2 : wrapperEnd1) );
+  const std::string fullName = edm::wrappedClassName(itBD->second.className());
+  ROOT::Reflex::Type classType = ROOT::Reflex::Type::ByName(fullName);
   if( classType == ROOT::Reflex::Type() ) {
     cms::Exception("MissingDictionary") 
        <<"could not find dictionary for type '"<<fullName<<"'"
