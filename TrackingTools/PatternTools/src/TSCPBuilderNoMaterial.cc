@@ -66,7 +66,7 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointCharged(
 
 //  double fac = 1./originalFTS.charge()/MagneticField::inInverseGeV(referencePoint).z();
   double fac = 1./originalFTS.charge()/
-    (originalFTS.parameters().magneticField().inTesla(referencePoint).z() * 2.99792458e-3);
+    (originalFTS.parameters().magneticField().inInverseGeV(referencePoint).z());
   GlobalVectorDouble xOrig2Centre = GlobalVectorDouble(fac * pyOrig, -fac * pxOrig, 0.);
   GlobalVectorDouble xOrigProj = GlobalVectorDouble(xOrig, yOrig, 0.);
   GlobalVectorDouble xRefProj = GlobalVectorDouble(referencePoint.x(), referencePoint.y(), 0.);
