@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="reco::perigee::Covariance"/>
   <class name="reco::perigee::Parameters"/>
+  <class name="reco::HitPattern"/>
   <class name="reco::TrackBase"/>
   <class name="reco::TrackExtraBase"/>
 

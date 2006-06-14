@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.12 2006/05/08 07:52:54 llista Exp $
+ * \version $Id: TrackBase.h,v 1.15 2006/06/14 06:33:20 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -16,6 +16,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/PerigeeParameters.h"
 #include "DataFormats/TrackReco/interface/PerigeeCovariance.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 
 namespace reco {
 
@@ -36,6 +37,10 @@ namespace reco {
     TrackBase( double chi2, double ndof, 
 	       int found, int invalid, int lost,
 	       const Parameters &, const Covariance & );
+    /// set hit pattern from vector of hit references
+    void setHitPattern(const TrackingRecHitRefVector & hitlist) {
+      hitPattern_.set( hitlist );
+    }
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
     /// number of degrees of freedom of the fit
@@ -112,7 +117,8 @@ namespace reco {
     double z() const { return vertex().Z(); }
     /// x-y distance of closest approach to the beamline
     double rho() const { return d0(); }
-
+    //  hit pattern
+    const HitPattern & hitPattern() const { return hitPattern_; }
   private:
     /// chi-squared
     Double32_t chi2_;
@@ -128,6 +134,8 @@ namespace reco {
     Parameters par_;
     /// perigee 5x5 covariance matrix
     Covariance cov_;
+    /// hit pattern
+    HitPattern hitPattern_;
   };
 
 }
