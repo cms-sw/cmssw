@@ -5,8 +5,8 @@
  *  
  *  Collection of DTRecSegment4D
  *
- *  $Date: 2006/04/19 17:42:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/02 07:08:42 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -21,9 +21,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 
-typedef edm::RangeMap<DTChamberId,
-		      edm::OwnVector<DTRecSegment4D, edm::ClonePolicy<DTRecSegment4D> >,
-		      edm::ClonePolicy<DTRecSegment4D> > DTRecSegment4DCollection;
+typedef edm::RangeMap<DTChamberId, edm::OwnVector<DTRecSegment4D> > DTRecSegment4DCollection;
 
 #endif
 

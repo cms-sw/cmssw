@@ -5,8 +5,8 @@
  *
  * Collection of DTRecSegment2D
  *  
- * $Date: 2006/03/20 12:42:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/02 07:08:42 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -26,8 +26,6 @@
 
 /* ====================================================================== */
 
-typedef edm::RangeMap<DTSuperLayerId,
-  edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,
-  edm::ClonePolicy<DTSLRecSegment2D> > DTRecSegment2DCollection;
+typedef edm::RangeMap<DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D> > DTRecSegment2DCollection;
 
 #endif // DTRecHit_DTRecSegment2DCollection_h
