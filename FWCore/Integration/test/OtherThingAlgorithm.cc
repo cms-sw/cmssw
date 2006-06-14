@@ -21,6 +21,7 @@ namespace edmtest {
       edm::RefVector<ThingCollection>::iterator ri = tc.refVec.begin();
       tc.refVec.erase(ri);
       otherThingCollection.push_back(tc);
+      tc.refVec.clear();
     }
   }
 }
