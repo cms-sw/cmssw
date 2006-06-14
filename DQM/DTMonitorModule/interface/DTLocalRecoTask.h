@@ -4,24 +4,31 @@
 /*
  * \file DTLocalRecoTask.h
  *
- * $Date: 2006/06/01 11:09:27 $
- * $Revision: 1.2 $
- * \author M. Zanetti & G. Cerminara - INFN Padova & Torino
+ * $Date: 2005/11/15 17:03:40 $
+ * $Revision: 1.1 $
+ * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
 
-#include <string>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// #include <fstream>
-// #include <vector>
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <iostream>
+#include <fstream>
+#include <vector>
 
-class DaqMonitorBEInterface;
-class DTSegmentAnalysis;
+using namespace cms;
+using namespace std;
+
 
 class DTLocalRecoTask: public edm::EDAnalyzer{
 
@@ -30,7 +37,8 @@ friend class DTMonitorModule;
 public:
 
 /// Constructor
-DTLocalRecoTask(const edm::ParameterSet& pset);
+DTLocalRecoTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
+		const edm::EventSetup& context);
 
 /// Destructor
 virtual ~DTLocalRecoTask();
@@ -38,29 +46,21 @@ virtual ~DTLocalRecoTask();
 protected:
 
 /// Analyze
-void analyze(const edm::Event& event, const edm::EventSetup& setup);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& setup);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
-void endJob();
+void endJob(void);
 
 private:
+
+  int nevents;
   
-  // Switch for verbosity
-  bool debug;
-  std::string theRootFileName;
-
-  // The BE interface
-  DaqMonitorBEInterface* dbe;
-
-  // Classes doing the analysis
-  DTSegmentAnalysis *theSegmentAnalysis;
-
   // My monitor elements
   
-  //  ofstream logFile;
+  ofstream logFile;
   
 };
 

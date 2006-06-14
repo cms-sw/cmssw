@@ -328,7 +328,7 @@ bool TBRUInputSource::produce(edm::Event& e) {
 
       if (id!=1023)
 	{
-	  const unsigned char* data=(const unsigned char*) &ibuf[1];
+	  const unsigned char* data=(const unsigned char*) &ibuf[1]
 	  FEDRawData& fed=bare_product->FEDData(id);
 	  int fulllen =(len%8)?len+8-len%8:len;
 	  fed.resize(fulllen);
@@ -337,19 +337,16 @@ bool TBRUInputSource::produce(edm::Event& e) {
       else
 	{
 	}
-
-      if (!m_quiet)
-	LogDebug("TBRU") << "Reading " << len << " bytes for FED " << id;
-    }
 #else
 	FEDRawData& fed=bare_product->FEDData(fed_id);
-	fed.resize(fed_len*sizeof(int));
-	memcpy(fed.data(),output,fed_len*sizeof(int));
-
-	if (!m_quiet)
-	  LogDebug("TBRU") << "Reading " << fed_len << " bytes for FED " << fed_id;
-    }
+	  fed.resize(fed_len*sizeof(int));
+	  memcpy(fed.data(),output,fed_len*sizeof(int));
 #endif
+      if (!m_quiet)
+	LogDebug("TBRU") << "Reading " << fed_len << " bytes for FED " << fed_id;
+    }
+
+
 
   e.put(bare_product);
 

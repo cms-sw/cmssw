@@ -59,7 +59,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
   }
 
   if (histo_collection->empty()) return false;
-
+  
   //combine TH1Fs into commissioning histogram
   for (edm::DetSetVector<Histo>::const_iterator idetset = histo_collection->begin(); idetset != histo_collection->end(); idetset++) {
     
@@ -69,7 +69,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
     //Change to relevent directory in output file for storage of "commissioning histogram"
     SiStripControlKey::ControlPath c_path = SiStripControlKey::path(idetset->id);
     string path = SiStripHistoNamingScheme::controlPath(c_path.fecCrate_, c_path.fecSlot_, c_path.fecRing_, c_path.ccuAddr_, c_path.ccuChan_);
-    stringstream ss; ss << m_outputFile->GetName() << ":" << sistrip::dir_ << "DQMData" << sistrip::dir_ << path;
+    stringstream ss; ss << m_outputFile->GetName() << ":/" << "DQMData/" << path;
     TDirectory* mother = m_outputFile->GetDirectory(ss.str().c_str());
     mother->cd();
 
@@ -290,11 +290,11 @@ void CommissioningInputSource::setRunAndEventInfo() {
   //Get the run number from each file in list and compare.
   std::string run;
   for (std::vector<std::string>::const_iterator file = fileNames().begin(); file != fileNames().end(); file++) {
-    unsigned int ipass = file->find("Source_");
+    unsigned int ipass = file->find("_");
     unsigned int ipath = file->find(".root");
     //check run numbers from multiple files are the same...
     if ((file != fileNames().begin()) && run.compare(file->substr(ipass+1,ipath-ipass-1))) {edm::LogWarning("Commissioning|TBMonitorIS") << "Warning: Differing run numbers retrieved from input files. Recording last in file list.";}
-    run = ((ipass != string::npos) && (ipath != string::npos)) ? file->substr((ipass+7),(ipath-ipass-7)) : string("0");
+    run = ((ipass != string::npos) && (ipath != string::npos)) ? file->substr((ipass+1),(ipath-ipass-1)) : string("0");
   }
 
     LogDebug("Commissioning|TBMonitorIS") << "Run number: " << run;

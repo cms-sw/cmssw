@@ -1,8 +1,7 @@
 #ifndef DQM_SiStripCommon_SiStripHistoNamingScheme_H
 #define DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingConstants.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -26,8 +25,7 @@ class SiStripHistoNamingScheme {
   };
   
   /** Simple struct to hold control path parameters. */
-  class ControlPath {
-  public:
+  struct ControlPath {
     uint16_t fecCrate_;
     uint16_t fecSlot_;
     uint16_t fecRing_;
@@ -52,24 +50,20 @@ class SiStripHistoNamingScheme {
   /** Returns control parameters in the form of a "ControlPath" struct,
       based on directory path string of the form
       ControlView/FecCrateA/FecSlotA/FecRingC/CcuAddrD/CcuChanE/. */
-  static const ControlPath& controlPath( const string& path );
+  static ControlPath controlPath( string path );
   
   /** Returns directory path in the form of a string, based on readout
       parameters (FED id and channel). */ 
   static string readoutPath( uint16_t fed_id = sistrip::all_, 
 			     uint16_t fed_channel = sistrip::all_ );
-  
+
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
       ReadoutView/FedIdX/FedChannelY/. */
-  static pair<uint16_t,uint16_t> readoutPath( const string& path ) { return pair<uint16_t,uint16_t>(0,0); } //@@ NO IMPLEMENTATION YET!
+  static pair<uint16_t,uint16_t> readoutPath( string path ) { return pair<uint16_t,uint16_t>(0,0); } //@@ NO IMPLEMENTATION YET!
   
   // ----- FORMULATION OF HISTOGRAM TITLES -----
 
-  /** Contructs histogram name based on a general histogram name,
-      histogram contents, a histogram key and a channel id. */
-  inline static string histoTitle( HistoTitle title );
-  
   /** Contructs histogram name based on a general histogram name,
       histogram contents, a histogram key and a channel id. */
   static string histoTitle( sistrip::Task        task,
@@ -94,12 +88,6 @@ class SiStripHistoNamingScheme {
   static sistrip::Granularity granularity( string granularity );
 
 };
-
-// inline method
-string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::HistoTitle title ) {
-  return histoTitle( title.task_, title.contents_, title.keyType_, title.keyValue_, 
-		     title.granularity_, title.channel_, title.extraInfo_ );
-}
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H
 

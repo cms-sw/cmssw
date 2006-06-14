@@ -3,12 +3,11 @@
 #include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include <boost/cstdint.hpp>
 
 
-/// Class holding data for an Alignment transformation
-/// It contains the raw detector id, its global position and global orientation.
-/// It is optimized for storage.
+// a Class holding data for an Allignment transformation
+/** it is optimized for storage
+ **/
 class  AlignTransform {
 public:
   typedef CLHEP::HepEulerAngles EulerAngles;
@@ -19,28 +18,22 @@ public:
 
   AlignTransform(){}
   AlignTransform( const Translation & itranslation, 
-		  const EulerAngles & ieulerAngles,
-                  const uint32_t & irawId ) :
+		  const EulerAngles & ieulerAngles) :
     m_translation(itranslation),
-    m_eulerAngles(ieulerAngles),
-    m_rawId(irawId) {}
+    m_eulerAngles(ieulerAngles){}
   AlignTransform( const Translation & itranslation, 
-		  const Rotation & irotation,
-                  const uint32_t & irawId ) :
+		  const Rotation & irotation) :
     m_translation(itranslation),
-    m_eulerAngles(irotation.eulerAngles()),
-    m_rawId(irawId) {}
+    m_eulerAngles(irotation.eulerAngles()){}
   
   const Translation & translation() const { return m_translation; }
   const EulerAngles & eulerAngles() const { return m_eulerAngles; }
-  const uint32_t & rawId() const { return m_rawId; }
   Rotation rotation() const { return Rotation(m_eulerAngles); }
 
 private:
 
   Translation m_translation;
   EulerAngles m_eulerAngles;
-  uint32_t m_rawId;
 
 
 };

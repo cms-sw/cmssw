@@ -27,7 +27,7 @@ void MultipleScatteringUpdator::compute(ParticlePropagator &Particle)
 {
 
   double p    = Particle.vect().mag();
-  double mass = Particle.mass();
+  double mass = Particle.PDGmass();
   double e    = sqrt(p*p+mass*mass);
 
   double beta = p/e;

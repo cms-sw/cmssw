@@ -75,7 +75,6 @@ class MaterialEffects
   EnergyLossUpdator* EnergyLoss;
 
   double pTmin;
-  GlobalVector theNormalVector;
 
   // debugging
   double myEta;

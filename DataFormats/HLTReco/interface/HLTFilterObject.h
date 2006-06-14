@@ -14,21 +14,18 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/05/22 22:05:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/27 16:43:30 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include <cassert>
-#include <vector>
 #include <map>
 
 namespace reco
@@ -37,41 +34,31 @@ namespace reco
 
   class HLTFilterObjectBase {
 
-  typedef edm::hlt::HLTScalar HLTScalar;
+    typedef edm::hlt::HLTScalar HLTScalar;
 
   private:
-    bool accept_;                     // filter decision
-    unsigned char module_;            // mdoule index of filter on path
-    unsigned short int path_;         // path index of path in trigger tabge (cfg file)
+    bool accept_;
+    unsigned char module_;
+    unsigned short int path_;
+    map<HLTScalar,float> scalars_;
 
   public:
 
-    HLTFilterObjectBase(): accept_(), module_(), path_() { }
+    HLTFilterObjectBase(): accept_(), module_(), path_(), scalars_() { }
 
-    bool getAccept() const { return accept_;}
     void setAccept(const bool accept) {accept_=accept;}
+    bool getAccept() const { return accept_;}
 
-    unsigned int getModule() const {return (unsigned int)(module_);}
     void setModule(const unsigned int i) {assert(i<  256); module_=i;}
+    unsigned int getModule() const {return (unsigned int)(module_);}
 
-    unsigned int getPath()   const {return (unsigned int)(path_  );}
     void setPath  (const unsigned int i) {assert(i<65536); path_  =i;}
-  };
+    unsigned int getPath()   const {return (unsigned int)(path_  );}
 
-  class HLTFilterObject : public HLTFilterObjectBase {
 
-  typedef edm::hlt::HLTScalar HLTScalar;
-
-  private:
-    map<HLTScalar,float>  scalars_;   // scalar quantities used in filter (HT, ...)
-    vector<HLTParticle>   particles_; // particles/MET (4-momentum vectors) used by filter
-
-  public:
-
-    HLTFilterObject(): HLTFilterObjectBase(), scalars_(), particles_() { }
-
-    unsigned int numberScalars  () const { return   scalars_.size();}
-    unsigned int numberParticles() const { return particles_.size();}
+    void putScalar(const HLTScalar scalar, const float value) {
+      scalars_[scalar] = value;
+    }
 
     bool getScalar(const HLTScalar scalar, float& value) const {
       if (scalars_.find(scalar)==scalars_.end()) {
@@ -81,51 +68,65 @@ namespace reco
         return true;
       }
     }
-    void putScalar(const HLTScalar scalar, const float value) {
-      scalars_[scalar] = value;
-    }
-
-    bool getParticle(const unsigned int i, HLTParticle& particle) const {
-      if (i<particles_.size()) {
-        particle = particles_[i];
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    void putParticle(const edm::RefToBase<Candidate>& ref) {
-      Particle::LorentzVector p4(ref->px(),ref->py(),ref->pz(),ref->energy());
-      HLTParticle             particle(0,p4);
-      particles_.push_back(particle);
-    }
 
   };
 
 
-  class HLTFilterObjectWithRefs : public HLTFilterObject {
+  class HLTFilterObject : public HLTFilterObjectBase {
+
+    typedef HLTParticleWithRef<CaloJetCollection> HLTCaloJetWithRef;
+    typedef HLTParticle                       HLTCaloJet;
+    typedef    edm::Ref<CaloJetCollection>    CaloJetRef;
 
   private:
-    std::vector<edm::RefToBase<Candidate> > refs_;
+    vector<HLTCaloJet> jets_;
+    // similar for electron/muon/gamma ...
+
+  public:
+ 
+    HLTFilterObject(): HLTFilterObjectBase(), jets_() { }
+
+    void putJet(const CaloJetRef& jetref) {
+      // Construct our jet from jetref and save it!
+      Particle::LorentzVector p4(jetref->px(),jetref->py(),jetref->pz(),jetref->energy());
+      HLTParticle             particle(0,p4);
+      HLTCaloJet              jet(particle);
+      jets_.push_back(jet);
+    }
+
+    void putJet(const HLTCaloJetWithRef& jetwithref) {
+      HLTCaloJet jet=jetwithref;
+      jets_.push_back(jet);
+    }
+
+    const vector<HLTCaloJet>& getJets() const {return jets_;}
+
+  };
+
+
+  class HLTFilterObjectWithRefs : public HLTFilterObjectBase {
+
+    typedef HLTParticleWithRef<CaloJetCollection> HLTCaloJetWithRef;
+    typedef           edm::Ref<CaloJetCollection>    CaloJetRef;
+
+  private:
+    vector<HLTCaloJetWithRef> jets_;
+    // similar for electron/muon/gamma ...
 
   public:
 
-    HLTFilterObjectWithRefs(): HLTFilterObject(), refs_() { }
+    HLTFilterObjectWithRefs(): HLTFilterObjectBase(), jets_() { }
 
-    void putParticle(const edm::RefToBase<Candidate>& ref) {
-      this->HLTFilterObject::putParticle(ref);
-      refs_.push_back(ref);
+    void putJet(const CaloJetRef& jetref) {
+      // Construct our jet from jetref and save it!
+      Particle::LorentzVector p4(jetref->px(),jetref->py(),jetref->pz(),jetref->energy());
+      HLTParticle             particle(0,p4);
+      HLTCaloJetWithRef       jet(particle,jetref);
+      jets_.push_back(jet);
     }
 
-    bool getParticleRef(const unsigned int i, const Candidate* & candidate) const {
-      if (i<refs_.size()) {
-        candidate = (refs_[i]).get();
-	return true;
-      } else {
-	return false;
-      }
-    }
- 
+    const vector<HLTCaloJetWithRef>& getJets() const {return jets_;}
+
   };
 }
 

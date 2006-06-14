@@ -220,7 +220,7 @@ void AlignableTrackerModifier::moveAlignable( Alignable* alignable, bool random,
   
   message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
 
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  edm::LogInfo("PrintArgs") << message; // Arguments
 
   edm::LogInfo("PrintMovement") << "applied displacement: " << moveV; // Actual movements
   alignable->move(moveV);
@@ -259,7 +259,7 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
   
   message << " global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
 
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  edm::LogInfo("PrintArgs") << message; // Arguments
 
   edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
   alignable->rotateAroundGlobalX( rotV.x() );
@@ -300,7 +300,7 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   
   message << " local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
 
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  edm::LogInfo("PrintArgs") << message; // Arguments
 
   edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
   alignable->rotateAroundLocalX( rotV.x() );
@@ -317,23 +317,6 @@ const GlobalVector
 AlignableTrackerModifier::gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const
 {
 
-  // Get absolute value if negative arguments
-  if ( sigmaX<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_x";
-	  sigmaX = fabs(sigmaX);
-	}
-  if ( sigmaY<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_y";
-	  sigmaY = fabs(sigmaY);
-	}
-  if ( sigmaZ<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_z";
-	  sigmaZ = fabs(sigmaZ);
-	}
-
   // Pass by reference, otherwise pointer is deleted!
   RandGauss aGaussObjX( *theDRand48Engine, 0., sigmaX );
   RandGauss aGaussObjY( *theDRand48Engine, 0., sigmaY );
@@ -346,25 +329,9 @@ AlignableTrackerModifier::gaussianRandomVector_( float sigmaX, float sigmaY, flo
 
 //__________________________________________________________________________________________________
 const GlobalVector 
-AlignableTrackerModifier::flatRandomVector_( float sigmaX,float sigmaY, float sigmaZ ) const
+AlignableTrackerModifier::flatRandomVector_( const float sigmaX, const float sigmaY, 
+											 const float sigmaZ ) const
 {
-
-  // Get absolute value if negative arguments
-  if ( sigmaX<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_x";
-	  sigmaX = fabs(sigmaX);
-	}
-  if ( sigmaY<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_y";
-	  sigmaY = fabs(sigmaY);
-	}
-  if ( sigmaZ<0 )
-	{
-	  edm::LogWarning("BadConfig") << " taking absolute value for gaussian sigma_z";
-	  sigmaZ = fabs(sigmaZ);
-	}
 
   RandFlat aFlatObjX( *theDRand48Engine, -sigmaX, sigmaX );
   RandFlat aFlatObjY( *theDRand48Engine, -sigmaY, sigmaY );

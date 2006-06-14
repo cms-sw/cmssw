@@ -1,21 +1,18 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/Common>
-<use name=DataFormats/Candidate>
+<use name=DataFormats/TrackReco>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/HepMCProduct>
 <use name=SimG4Core/Generators>
 <use name=geant4>
-<use name=clhep>
+<flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=SimDataFormatsTrackingAnalysis>
  <use name=DataFormats/Math>
+<use name=geant4>
  <use name=DataFormats/Common>
- <use name=DataFormats/Candidate>
+ <use name=DataFormats/TrackReco>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/HepMCProduct>
  <use name=SimG4Core/Generators>
- <use name=geant4>
- <use name=clhep>
 </export>

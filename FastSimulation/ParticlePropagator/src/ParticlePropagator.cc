@@ -11,8 +11,6 @@
 
 #include <iomanip>
 
-ParticlePropagator::ParticlePropagator() : BaseParticlePropagator() {;}
-
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double R, double Z, double B) :
   BaseParticlePropagator(myPart,R,Z,B)
@@ -51,10 +49,10 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack) :
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator(ParticlePropagator& myPropPart) :
+ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart) :
   BaseParticlePropagator(myPropPart)
 {  
-  //  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(x(),y(),z()));
 }
 
 bool
@@ -78,9 +76,7 @@ double
 ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
-  // Return a dummy value for neutral particles!
-  return charge() == 0 ? 
-    4. : MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
+  return MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
 bool
@@ -88,17 +84,14 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 
 
   fiducial = true;
-  BoundDisk* disk = layer.disk();
-  //  bool disk = layer.forward();
-  //  double innerradius=-999;
-  double innerradius = disk ? disk->innerRadius() : -999. ;
+  bool disk = layer.forward();
+  double innerradius=-999;
 
-  //  if( disk ) {
-    //    const Surface& surface = layer.surface();
-    //    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
-    //    innerradius=myDisk.innerRadius();	  
-  //    innerradius=myDisk->innerRadius();	  
-  //  }
+  if( disk ) {
+    const Surface& surface = layer.surface();
+    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
+    innerradius=myDisk.innerRadius();	  
+  }
 
   bool done = propagate();
 
@@ -116,25 +109,25 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
   setMagneticField(fieldMap(x(),y(),z()));
 
   // Set R and Z according to the Tracker Layer characteristics.
-  //  const Surface& surface = layer.surface();
+  const Surface& surface = layer.surface();
 
   if( layer.forward() ) {
 
-    //    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
+    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
     BaseParticlePropagator::setPropagationConditions(
-                                  layer.disk()->outerRadius(),
-				  fabs(layer.disk()->position().z()),
+                                  myDisk.outerRadius(),
+				  fabs(myDisk.position().z()),
 				  firstLoop);       
 
   // ... or if it is a cylinder barrel 
   } else {
 
-    //    const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
+    const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
     // ParticlePropagator works now in cm
     BaseParticlePropagator::setPropagationConditions(
-					 layer.cylinder()->radius(),
-					 layer.cylinder()->bounds().length()/2.,
+					 myCylinder.radius(),
+					 myCylinder.bounds().length()/2.,
 					 firstLoop);
   }
 

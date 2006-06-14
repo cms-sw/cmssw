@@ -2,8 +2,8 @@ TO USE:
  
 in .cfg file:
  
-	 VPSet Watchers = { 
-         {
-               string type = "KillSecondariesRunAction"
-         } }
+          PSet UtilityActions =
+          {
+               string type = "SimG4Core/UtilityAction/KillSecondariesRunAction"
+          }
  

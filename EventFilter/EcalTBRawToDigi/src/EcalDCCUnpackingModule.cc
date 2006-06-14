@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/03/20 22:28:31 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/02/17 15:44:11 $
+ *  $Revision: 1.23 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -26,7 +26,6 @@ using namespace std;
 
 
 #include <iostream>
-#include <iomanip>
 
 EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
@@ -129,20 +128,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     //     cout << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
     // cout << " Fed data size " << data.size() << endl;
-   
-    //cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << endl;
-//    const unsigned char * pData = data.data();
-//    int length = data.size();
-//    if(length >0 ){
-//      if(length >= 40){length = 40;}
-//    cout<<"##############################################################"<<endl;
-//    for( int i=0; i<length; i++ ) {
-//      std::cout << std::hex << std::setw(8) << int(pData[i]) << " ";
-//      if( (i+1)%8 == 0 ) std::cout << std::endl;
-//     }
-//    cout<<"##############################################################"<<endl;
-//    } 
-    if (data.size()>16){
+    
+    if (data.size()){
       
       // do the data unpacking and fill the collections
       formatter->interpretRawData(data,  *productEb, *productPN, 

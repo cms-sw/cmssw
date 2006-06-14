@@ -1,5 +1,0 @@
-<use name=boost>
-<export>
-  <lib name=DataFormatsSiStripCommon>
-  <use name=boost>
-</export>

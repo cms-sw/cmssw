@@ -1,6 +1,5 @@
 <lcgdict>
  <class name="PixelDigi"/>
- <class name="PixelDigiCollection"/>
  <class name="edm::DetSet<PixelDigi>"/>
  <class name="std::vector<PixelDigi>"/>
  <class name="edm::DetSetVector<PixelDigi>"/>
@@ -8,5 +7,5 @@
  <class name="edm::Wrapper< edm::DetSet<PixelDigi> >"/>
  <class name="edm::Wrapper< std::vector<edm::DetSet<PixelDigi> > >"/>
  <class name="edm::Wrapper< edm::DetSetVector<PixelDigi> >"/>
- <class name="edm::Wrapper<PixelDigiCollection>"/>
+
 </lcgdict>

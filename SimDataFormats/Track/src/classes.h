@@ -8,14 +8,11 @@
 #include <vector>
  
 namespace {
-  namespace {
+namespace {
     CLHEP::HepLorentzVector dummy1;
     CLHEP::Hep3Vector dummy2;
     EmbdSimTrack dummy22;
-    edm::EmbdSimTrackContainer dummy222;
+    std::vector<EmbdSimTrack> dummy222;
     edm::Wrapper<edm::EmbdSimTrackContainer> dummy22222;
-    EmbdSimTrackRef r1;
-    EmbdSimTrackRefVector rv1;
-    EmbdSimTrackRefProd rp1;
-  }
+}
 }

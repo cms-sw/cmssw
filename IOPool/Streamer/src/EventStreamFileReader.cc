@@ -5,7 +5,6 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
-
 #include <algorithm>
 #include <iterator>
 
@@ -36,7 +35,7 @@ namespace edmtestp
     // jbk - the next line should not be needed
     edm::declareStreamers(descs);
     edm::buildClassCache(descs);
-    edm::loadExtraClasses();
+    loadExtraClasses();
   }
 
   EventStreamFileReader::~EventStreamFileReader()

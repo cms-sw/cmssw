@@ -58,9 +58,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
 
 
 HcalDigiProducer::~HcalDigiProducer() {
-  delete theHBHEDigitizer;
-  delete theHODigitizer;
-  delete theHFDigitizer;
   delete theParameterMap;
   delete theHcalShape;
   delete theHFShape;

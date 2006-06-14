@@ -27,8 +27,6 @@ public:
 
   virtual VertexRecHit * clone() const {return (VertexRecHit*)this; }
 
-  virtual const TrackingRecHit* hit() const {return (const TrackingRecHit*)this;}
-
   virtual DetId geographicalId() const {return DetId(0);}
 
 

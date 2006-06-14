@@ -1,5 +1,0 @@
-<use name=DataFormats/Common>
-<export>
- <lib name=DataFormatsL1GlobalMuonTrigger>
- <use name=DataFormats/Common>
-</export>

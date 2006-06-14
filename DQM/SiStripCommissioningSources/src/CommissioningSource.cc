@@ -10,13 +10,6 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
-#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -27,6 +20,14 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
+// tasks
+#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // std, utilities
 #include <boost/cstdint.hpp>
 #include <memory>
@@ -113,13 +114,13 @@ void CommissioningSource::analyze( const edm::Event& event,
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   //edm::Handle< edm::DetSetVector<SiStripDigi> > zs;
   
-  if ( summary->fedReadoutMode() == sistrip::VIRGIN_RAW ) {
+  if ( summary->fedReadoutMode() == SiStripEventSummary::VIRGIN_RAW ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::PROC_RAW ) {
+  } else if ( summary->fedReadoutMode() == SiStripEventSummary::PROC_RAW ) {
     event.getByLabel( inputModuleLabel_, "ProcessedRaw", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::SCOPE_MODE ) {
+  } else if ( summary->fedReadoutMode() == SiStripEventSummary::SCOPE_MODE ) {
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
-  } else if ( summary->fedReadoutMode() == sistrip::ZERO_SUPPR ) {
+  } else if ( summary->fedReadoutMode() == SiStripEventSummary::ZERO_SUPPR ) {
     //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
   } else {
     edm::LogError("CommissioningSource") << "[CommissioningSource::analyze]"
@@ -130,7 +131,7 @@ void CommissioningSource::analyze( const edm::Event& event,
   uint32_t fec_key = 0;
   if ( cablingTask_ ) {
     uint32_t id = summary->deviceId();
-    fec_key = SiStripControlKey::key( 0,                 // FEC crate  //@@ what to do here???
+    fec_key = SiStripControlKey::key( 0,                 // FEC crate
 				      ((id>>27)&0x1F),   // FEC slot
 				      ((id>>23)&0x0F),   // FEC ring
 				      ((id>>16)&0x7F),   // CCU address
@@ -212,32 +213,30 @@ void CommissioningSource::createDirs() {
   // Check DQM service is available
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   if ( !dqm_ ) { 
-    edm::LogError("Commissioning") << "[CommissioningSource::createDirs] Null pointer to DQM interface!"; 
+    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Null pointer to DQM interface!"; 
     return; 
   }
   
   // Iterate through FEC cabling and create commissioning task objects
-  for ( vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
-    for ( vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
-      for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
-	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
-	  for ( vector<SiStripModule>::const_iterator imodule = iccu->modules().begin(); imodule != iccu->modules().end(); imodule++ ) {
-	    string dir = SiStripHistoNamingScheme::controlPath( icrate->fecCrate(), 
-								ifec->fecSlot(),
-								iring->fecRing(),
-								iccu->ccuAddr(),
-								imodule->ccuChan() );
-	    dqm_->setCurrentFolder( dir );
-	    SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
-	    edm::LogInfo("Commissioning") << "[CommissioningSource::createDirs]"
-					  << "  Created directory '" << dir 
-					  << "' using params crate/slot/ring/ccu/chan " 
-					  << icrate->fecCrate() << "/" 
-					  << ifec->fecSlot() << "/" 
-					  << iring->fecRing() << "/" 
-					  << iccu->ccuAddr() << "/" 
-					  << imodule->ccuChan();
-	  }
+  for ( vector<SiStripFec>::const_iterator ifec = fecCabling_->fecs().begin(); ifec != fecCabling_->fecs().end(); ifec++ ) {
+    for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
+      for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
+	for ( vector<SiStripModule>::const_iterator imodule = (*iccu).modules().begin(); imodule != (*iccu).modules().end(); imodule++ ) {
+	  string dir = SiStripHistoNamingScheme::controlPath( 0, // FEC crate 
+							      (*ifec).fecSlot(),
+							      (*iring).fecRing(),
+							      (*iccu).ccuAddr(),
+							      (*imodule).ccuChan() );
+	  dqm_->setCurrentFolder( dir );
+	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
+	  edm::LogInfo("Commissioning") << "[CommissioningSource::createDirs]"
+					<< "  Created directory '" << dir 
+					<< "' using params crate/slot/ring/ccu/chan " 
+					<< 0 << "/" 
+					<< (*ifec).fecSlot() << "/" 
+					<< (*iring).fecRing() << "/" 
+					<< (*iccu).ccuAddr() << "/"  
+					<< (*imodule).ccuChan(); 
 	}
       }
     }
@@ -247,7 +246,7 @@ void CommissioningSource::createDirs() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::createTask( sistrip::Task task ) {
+void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
   LogDebug("Commissioning") << "[CommissioningSource::createTask]";
   
   // Check DQM service is available
@@ -258,110 +257,99 @@ void CommissioningSource::createTask( sistrip::Task task ) {
   }
 
   // Check commissioning task is known
-  if ( task == sistrip::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
+  if ( task == SiStripEventSummary::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
     edm::LogError("Commissioning") << "[CommissioningSource::createTask] Unknown commissioning task!"; 
     return; 
   }
 
   // Check if commissioning task is FED cabling 
-  if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == sistrip::FED_CABLING ) ) { cablingTask_ = true; }
+  if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == SiStripEventSummary::FED_CABLING ) ) { cablingTask_ = true; }
   else { cablingTask_ = false; }
 
-  // Create ME (string) that identifies commissioning task
-  dqm_->setCurrentFolder( sistrip::root_ );
-  if ( task_ != "UNDEFINED" ) { 
-    dqm_->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_, task_ ); 
-  } else { 
-    string temp = SiStripHistoNamingScheme::task( task );
-    dqm_->bookString( sistrip::commissioningTask_ + sistrip::sep_ + temp, temp ); 
-  }
-  
   // Iterate through FEC cabling and create commissioning task objects
-  for ( vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
-    for ( vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
-      for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
-	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
-	  for ( vector<SiStripModule>::const_iterator imodule = iccu->modules().begin(); imodule != iccu->modules().end(); imodule++ ) {
-	    string dir = SiStripHistoNamingScheme::controlPath( icrate->fecCrate(), 
-								ifec->fecSlot(), 
-								iring->fecRing(), 
-								iccu->ccuAddr(), 
-								imodule->ccuChan() );
-	    dqm_->setCurrentFolder( dir );
-	    SiStripModule::FedCabling::const_iterator iconn;
-	    for ( iconn = imodule->fedChannels().begin(); iconn != imodule->fedChannels().end(); iconn++ ) {
-	      if ( !(iconn->second.first) ) { continue; } 
-	      // Retrieve FED channel connection object in order to create key for task map
-	      FedChannelConnection conn = fedCabling_->connection( iconn->second.first,
-								   iconn->second.second );
-	      uint32_t fed_key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
-	      uint32_t fec_key = SiStripControlKey::key( conn.fecCrate(),
-							 conn.fecSlot(),
-							 conn.fecRing(),
-							 conn.ccuAddr(),
-							 conn.ccuChan(),
-							 conn.lldChannel() );
-	      uint32_t key = cablingTask_ ? fec_key : fed_key;
-	      // Create commissioning task objects
-	      if ( tasks_.find( key ) == tasks_.end() ) {
-		if      ( task_ == "FED_CABLING" ) { tasks_[key] = new FedCablingTask( dqm_, conn ); }
-		else if ( task_ == "PEDESTALS" )   { tasks_[key] = new PedestalsTask( dqm_, conn ); }
-		else if ( task_ == "APV_TIMING" )  { tasks_[key] = new ApvTimingTask( dqm_, conn ); }
-		else if ( task_ == "OPTO_SCAN" )   { tasks_[key] = new OptoScanTask( dqm_, conn ); }
-		else if ( task_ == "VPSP_SCAN" )   { tasks_[key] = new VpspScanTask( dqm_, conn ); }
-		else if ( task_ == "FED_TIMING" )  { tasks_[key] = new FedTimingTask( dqm_, conn ); }
-		else if ( task_ == "UNDEFINED" )   {
-		  //  Use data stream to determine which task objects are created!
-		  if      ( task == sistrip::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm_, conn ); }
-		  else if ( task == sistrip::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm_, conn ); }
-		  else if ( task == sistrip::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); } 
-		  else if ( task == sistrip::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm_, conn ); }
-		  else if ( task == sistrip::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
-		  else if ( task == sistrip::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
-		  else if ( task == sistrip::UNKNOWN_TASK ) {
-		    edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
-						   << " Unknown commissioning task in data stream! " << task_;
-		  }
-		} else {
+  for ( vector<SiStripFec>::const_iterator ifec = fecCabling_->fecs().begin(); ifec != fecCabling_->fecs().end(); ifec++ ) {
+    for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
+      for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
+	for ( vector<SiStripModule>::const_iterator imodule = (*iccu).modules().begin(); imodule != (*iccu).modules().end(); imodule++ ) {
+	  string dir = SiStripHistoNamingScheme::controlPath( 0, // FEC crate 
+							      (*ifec).fecSlot(),
+							      (*iring).fecRing(),
+							      (*iccu).ccuAddr(),
+							      (*imodule).ccuChan() );
+	  dqm_->setCurrentFolder( dir );
+	  map< uint16_t, pair<uint16_t,uint16_t> >::const_iterator iconn;
+	  for ( iconn = imodule->fedChannels().begin(); iconn != imodule->fedChannels().end(); iconn++ ) {
+	    if ( !(iconn->second.first) ) { continue; } 
+	    // Retrieve FED channel connection object in order to create key for task map
+	    FedChannelConnection conn = fedCabling_->connection( iconn->second.first,
+								 iconn->second.second );
+	    uint32_t fed_key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
+	    uint32_t fec_key = SiStripControlKey::key( conn.fecCrate(),
+						       conn.fecSlot(),
+						       conn.fecRing(),
+						       conn.ccuAddr(),
+						       conn.ccuChan(),
+						       conn.lldChannel() );
+	    uint32_t key = cablingTask_ ? fec_key : fed_key;
+	    // Create commissioning task objects
+	    if ( tasks_.find( key ) == tasks_.end() ) {
+	      if      ( task_ == "FED_CABLING" ) { tasks_[key] = new FedCablingTask( dqm_, conn ); }
+	      else if ( task_ == "PEDESTALS" )   { tasks_[key] = new PedestalsTask( dqm_, conn ); }
+	      else if ( task_ == "APV_TIMING" )  { tasks_[key] = new ApvTimingTask( dqm_, conn ); }
+	      else if ( task_ == "OPTO_SCAN" )   { tasks_[key] = new OptoScanTask( dqm_, conn ); }
+	      else if ( task_ == "VPSP_SCAN" )   { tasks_[key] = new VpspScanTask( dqm_, conn ); }
+	      else if ( task_ == "FED_TIMING" )  { tasks_[key] = new FedTimingTask( dqm_, conn ); }
+	      else if ( task_ == "UNDEFINED" )   {
+		//  Use data stream to determine which task objects are created!
+		if      ( task == SiStripEventSummary::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); } 
+		else if ( task == SiStripEventSummary::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
 		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
-						 << " Unknown commissioning task in .cfg file! " << task_;
+						 << " Unknown commissioning task in data stream! " << task_;
 		}
-		
-		// Check if key is found and, if so, book histos and set update freq
-		if ( tasks_.find( key ) != tasks_.end() ) {
-		  stringstream ss;
-		  ss << "[CommissioningSource::createTask]"
-		     << " Created task '" << tasks_[key]->myName() << "' for key "
-		     << hex << setfill('0') << setw(8) << key << dec 
-		     << " in directory " << dir; 
-		  edm::LogInfo("Commissioning") << ss.str();
-		  tasks_[key]->bookHistograms(); 
-		  tasks_[key]->updateFreq( updateFreq_ ); 
-		} else {
-		  stringstream ss;
-		  ss << "[CommissioningSource::createTask]"
-		     << " Commissioning task with key " 
-		     << hex << setfill('0') << setw(8) << key << dec
-		     << " not found in list!"; 
-		  edm::LogError("Commissioning") << ss.str();
-		}
-		
+	      } else {
+		edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+					       << " Unknown commissioning task in .cfg file! " << task_;
+	      }
+
+	      // Check if key is found and, if so, book histos and set update freq
+	      if ( tasks_.find( key ) != tasks_.end() ) {
+		stringstream ss;
+		ss << "[CommissioningSource::createTask]"
+		   << " Created task '" << tasks_[key]->myName() << "' for key "
+		   << hex << setfill('0') << setw(8) << key << dec 
+		   << " in directory " << dir; 
+		edm::LogInfo("Commissioning") << ss.str();
+		tasks_[key]->bookHistograms(); 
+		tasks_[key]->updateFreq( updateFreq_ ); 
 	      } else {
 		stringstream ss;
 		ss << "[CommissioningSource::createTask]"
-		   << " Task '" << tasks_[key]->myName()
-		   << "' already exists for key "
-		   << hex << setfill('0') << setw(8) << key << dec; 
+		   << " Commissioning task with key " 
+		   << hex << setfill('0') << setw(8) << key << dec
+		   << " not found in list!"; 
 		edm::LogError("Commissioning") << ss.str();
 	      }
-	      
+
+	    } else {
+	      stringstream ss;
+	      ss << "[CommissioningSource::createTask]"
+		 << " Task '" << tasks_[key]->myName()
+		 << "' already exists for key "
+		 << hex << setfill('0') << setw(8) << key << dec; 
+	      edm::LogError("Commissioning") << ss.str();
 	    }
+	    
 	  }
 	}
       }
     }
   }
-
+  
   edm::LogInfo("Commissioning") << "[CommissioningSource]"
 				<< " Number of task objects created: " << tasks_.size();
   return;

@@ -15,6 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/PresenceFactory.h"
 #include "EventFilter/Utilities/interface/RunBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "EventFilter/Utilities/interface/ShutDownNotifier.h"
 
 namespace edm{
   class EventProcessor;
@@ -68,6 +70,7 @@ namespace evf
       xdata::String add_;
       xdata::Integer port_;
       xdata::Integer del_;
+      xdata::Integer rdel_;
       xdata::String nam_;
 
 
@@ -79,7 +82,9 @@ namespace evf
       Css css_;
       friend class EPStateMachine;
       boost::shared_ptr<edm::Presence> m_messageServicePresence;
-
+      edm::ServiceToken serviceToken_;
+      bool servicesDone_;
+      ShutDownNotifier sdn_;
     };
 }
 

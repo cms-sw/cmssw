@@ -8,7 +8,7 @@
 #include "G4VProcess.hh"
 
 PrintTrackNumberAction::PrintTrackNumberAction(edm::ParameterSet const & p)
-    : theNoTracks(0), theNoTracksThisEvent(0),
+    : UtilityAction(p), theNoTracks(0), theNoTracksThisEvent(0),
       theNoTracksNoUL(0), theNoTracksThisEventNoUL(0)
 {
     theNoTracksToPrint = p.getUntrackedParameter<int>("EachNTrack",-1); 

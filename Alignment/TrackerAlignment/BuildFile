@@ -1,9 +1,7 @@
 <export>
-   <lib name=AlignmentTrackerAlignment>
-   <use name=DetectorDescription/Core>
-   <use name=FWCore/Framework>
-   <use name=CondCore/DBCommon>
-   <use name=CondCore/DBOutputService>
+<lib name=AlignmentTrackerAlignment>
+<use name=DetectorDescription/Core>
+<use name=FWCore/Framework>
 </export>
 
 <use name=Alignment/CommonAlignment>
@@ -17,7 +15,5 @@
 <use name=Geometry/Records>
 <use name=DataFormats/SiPixelDigi>
 <use name=FWCore/Framework>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
 <flags SEAL_PLUGIN_NAME="AlignmentTrackerAlignment">
 

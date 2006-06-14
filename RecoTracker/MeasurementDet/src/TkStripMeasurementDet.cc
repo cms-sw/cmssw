@@ -42,7 +42,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   const_iterator rightCluster = 
     find_if( detSet_->begin(), detSet_->end(), StripClusterAboveU( utraj));
 
-  if ( rightCluster != detSet_->end()) {
+  if ( rightCluster != detSet_->begin()) {
     // there are hits on the left of the utraj
     const_iterator leftCluster = rightCluster;
     while ( --leftCluster >=  detSet_->begin()) {

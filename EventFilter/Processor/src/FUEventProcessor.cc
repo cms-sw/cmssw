@@ -7,13 +7,44 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/PresenceFactory.h"
 #include "xgi/include/xgi/Method.h"
+
+namespace evf{
+  namespace internal{
+    void addService(vector<edm::ParameterSet>& adjust,
+			  string const& service)
+    {
+      edm::ParameterSet newpset;
+      newpset.addParameter<string>("@service_type",service);
+      adjust.push_back(newpset);
+      // Record this new ParameterSet in the Registry!
+      // try not to
+      //      pset::Registry::instance()->insertParameterSet(newpset);
+    }
+
+  // Add a service to the services list if it is not already there
+    void addServiceMaybe(vector<edm::ParameterSet>& adjust,
+			 string const& service)
+    {
+      typedef std::vector<edm::ParameterSet>::const_iterator Iter;
+      for(Iter it = adjust.begin(); it != adjust.end(); ++it)
+	{
+	  string name = it->getParameter<std::string>("@service_type");
+	  if (name == service) return;
+	}
+      addService(adjust, service);
+    }
+  }
+}
+
+
+
 using namespace evf;
 
 #include <stdlib.h>
 
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
 outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
-proc_(0), group_(0), fsm_(0), ah_(0)
+							       proc_(0), group_(0), fsm_(0), ah_(0), serviceToken_(), servicesDone_(false)
 {
   string xmlClass = getApplicationDescriptor()->getClassName();
   unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -28,7 +59,8 @@ proc_(0), group_(0), fsm_(0), ah_(0)
 
   add_ = "localhost";
   port_ = 9090;
-  del_ = 5000000;
+  del_ = 5000;
+  rdel_ = 5;
   ostringstream ns;
   ns << "FU" << instance;
   nam_ = ns.str();
@@ -45,6 +77,7 @@ proc_(0), group_(0), fsm_(0), ah_(0)
   ispace->fireItemAvailable("collectorAddr",&add_);
   ispace->fireItemAvailable("collectorPort",&port_);
   ispace->fireItemAvailable("collSendUs",&del_);
+  ispace->fireItemAvailable("collReconnSec",&rdel_);
   ispace->fireItemAvailable("monSourceName",&nam_);
 
   // Add infospace listeners for exporting data values
@@ -76,10 +109,8 @@ FUEventProcessor::~FUEventProcessor()
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
@@ -135,18 +166,32 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 
   ParameterSetRetriever pr(offConfig_.value_);
   std::string configString = pr.getAsString();
+
+  //  boost::shared_ptr<ParameterSet>          params; // change this name!
+  //  makeParameterSets(configString, params, pServiceSets);
+  if(!servicesDone_)
+    {
+      vector<edm::ParameterSet> pServiceSets;
+      internal::addServiceMaybe(pServiceSets, "DaqMonitorROOTBackEnd");
+      internal::addServiceMaybe(pServiceSets, "MLlog4cplus");
+      internal::addServiceMaybe(pServiceSets, "MonitorDaemon");
+      serviceToken_ = edm::ServiceRegistry::createSet(pServiceSets);
+      edm::ServiceRegistry::Operate operate(serviceToken_);
+      edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
+      edm::Service<ML::MLlog4cplus>()->setAppl(this);
+      servicesDone_ = true;
+    }
   std::cout << "Using config string \n" << configString << std::endl;
   try{
-    proc_ = new edm::EventProcessor(configString);
+
+    proc_ = new edm::EventProcessor(configString, serviceToken_, edm::serviceregistry::kTokenOverrides);
     if(!outPut_) //proc_->toggleOutput();
       //  proc_->prescaleInput(inputPrescale_);
       //  proc_->prescaleOutput(outputPrescale_);
       proc_->enableEndPaths(outPut_);
     
     outprev_=outPut_;
-    edm::ServiceRegistry::Operate operate(proc_->getToken());
-    edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_);
-    edm::Service<ML::MLlog4cplus>()->setAppl(this);
+
     proc_->setRunNumber(runNumber_.value_);
   }
   catch(seal::Error& e)
@@ -240,11 +285,49 @@ void FUEventProcessor::nullAction(toolbox::Event::Reference e) throw (toolbox::f
 
 void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
+  int trycount = 0;
   try
     {
-      proc_->shutdownAsync();
-      //  proc_->kill();
-      //  group_->join();
+      sdn_.notify();
+      edm::event_processor::State procstate = proc_->getState();
+      while(proc_->getState() != edm::event_processor::sStopping && trycount < 10)
+	{
+	  trycount++;
+	  ::sleep(1);
+	}
+      trycount = 0;
+      if(proc_->getState() == edm::event_processor::sStopping)
+	{
+	  int retval = proc_->shutdownAsync();
+	  while(proc_->getState() != edm::event_processor::sDone && trycount < 10)
+	    {
+	      trycount++;
+	      ::sleep(1);
+	    }
+	}
+
+      if(proc_->getState() != edm::event_processor::sDone)
+	{
+	  LOG4CPLUS_WARN(this->getApplicationLogger(),
+			 "Halting with triggers still to be processed. EventProcessor state"
+			 << proc_->stateName(proc_->getState()) );  
+	  int retval = proc_->shutdownAsync();
+	  //  proc_->kill();
+	  //  group_->join();
+	  if(retval != 0)
+	    {
+	      LOG4CPLUS_WARN(this->getApplicationLogger(),
+			     "Failed to shut down EventProcessor. Return code " << retval);}	  
+	  else
+	    {
+	      LOG4CPLUS_INFO(this->getApplicationLogger(),
+			     "EventProcessor successfully shut down " << retval);
+	    }
+	}
+      else
+	LOG4CPLUS_INFO(this->getApplicationLogger(),
+		       "EventProcessor halted. State" 
+		       << proc_->stateName(proc_->getState()));  
       
       proc_->endJob();
       
@@ -272,7 +355,7 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   "Unknown Exception");
     }
-
+  sdn_.cleanup();
     proc_ = 0;
 }
 
