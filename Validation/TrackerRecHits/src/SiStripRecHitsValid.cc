@@ -131,9 +131,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
     sprintf(histo,"Posx_rphi_layer%dtid",i+1);
     mePosxRphiTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtid",i+1);
-    meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.1);  
     sprintf(histo,"Res_rphi_layer%dtid",i+1);
-    meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
   }
 
   //one histo per Ring stereo and matched hits
@@ -146,20 +146,20 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
     sprintf(histo,"Posx_sas_layer%dtid",i+1);
     mePosxSasTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_sas_layer%dtid",i+1);
-    meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.1);  
     sprintf(histo,"Res_sas_layer%dtid",i+1);
-    meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
 
     sprintf(histo,"Posx_matched_layer%dtid",i+1);
     mePosxMatchedTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
     sprintf(histo,"Posy_matched_layer%dtid",i+1);
     mePosyMatchedTID[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
     sprintf(histo,"Errx_matched_layer%dtid",i+1);
-    meErrxMatchedTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    meErrxMatchedTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.02);  
     sprintf(histo,"Erry_matched_layer%dtid",i+1);
-    meErryMatchedTID[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+    meErryMatchedTID[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
     sprintf(histo,"Resx_matched_layer%dtid",i+1);
-    meResxMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+    meResxMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.2, +0.2);  
     sprintf(histo,"Resy_matched_layer%dtid",i+1);
     meResyMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
   }
@@ -175,9 +175,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
     sprintf(histo,"Posx_rphi_layer%dtec",i+1);
     mePosxRphiTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtec",i+1);
-    meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.1);  
     sprintf(histo,"Res_rphi_layer%dtec",i+1);
-    meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
   }
 
   //one histo per Layer stereo and matched hits: rings 1,2,5 are double sided
@@ -193,18 +193,18 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
       sprintf(histo,"Errx_sas_layer%dtec",i+1);
       meErrxSasTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
       sprintf(histo,"Res_sas_layer%dtec",i+1);
-      meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+      meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
       
       sprintf(histo,"Posx_matched_layer%dtec",i+1);
       mePosxMatchedTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
       sprintf(histo,"Posy_matched_layer%dtec",i+1);
-      mePosyMatchedTEC[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
+      mePosyMatchedTEC[i] = dbe_->book1D(histo,"RecHit y coord.",100,-8.0, +8.0);  
       sprintf(histo,"Errx_matched_layer%dtec",i+1);
-      meErrxMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+      meErrxMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.02);  
       sprintf(histo,"Erry_matched_layer%dtec",i+1);
-      meErryMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+      meErryMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
       sprintf(histo,"Resx_matched_layer%dtec",i+1);
-      meResxMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+      meResxMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.2, +0.2);  
       sprintf(histo,"Resy_matched_layer%dtec",i+1);
       meResyMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
     }
