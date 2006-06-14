@@ -8,7 +8,7 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EcalSelectiveReadout;
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 
 
 class EcalSelectiveReadoutSuppressor 
@@ -17,11 +17,11 @@ public:
   /// default parameters
 
   
-  EcalSelectiveReadoutSuppressor();
+  //  EcalSelectiveReadoutSuppressor();
   EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
 
   enum {BARREL, ENDCAP};
-
+  
   /// the mapping of which cell goes with which trigger tower
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
@@ -36,8 +36,20 @@ public:
            const EEDigiCollection & endcapDigis,
            EBDigiCollection & selectedBarrelDigis,
            EEDigiCollection & selectedEndcapDigis);
- 
+
+  //for debugging
+  EcalSelectiveReadout* getEcalSelectiveReadout(){return ecalSelectiveReadout;}
+  
  private:
+
+  /** Returns true if a digi passes the zero suppression.
+   * @param frame, data frame (aka digi). Must be of type EEDataFrame or
+   * EBDataFrame.
+   * @para zero suppression threshold.
+   */
+  template<class T>
+  bool accept(const T& frame, float threshold);
+  
   /// helpers for constructors
   /** When a trigger tower (TT) is classified
    * as 'center', the TTs in the area (deltaEta+1)x(deltaPhi+1) 
@@ -47,7 +59,8 @@ public:
    * threshold for selective readout trigger tower classification
    */
   void initTowerThresholds(double lowThreshold, double highThreshold, int deltaEta, int deltaPhi);
-  void initCellThresholds(double barrelLowInterest, double endcapLowInterest);
+  void initCellThresholds(double barrelLowInterest, double endcapLowInterest,
+			  double barrelHighInterest, double endcapHighInterest);
 
 
   /// three methods I don't know how to implement
@@ -55,10 +68,30 @@ public:
   double energy(const EEDataFrame & endcapDigi) const;
   double Et(const EcalTriggerPrimitiveDigi & trigPrim) const;
 
+  /** Gets the integer weights used by the zero suppression
+   * FIR filter.
+   *<P><U>Weight definitions:</U>
+   *<UL>
+   *<LI>Uncalibrated normalized weights are defined as such that when applied
+   * to the average pulse with the highest sample normalized to 1, the
+   * result is 1.
+   *<LI>Calibrated weights are defined for each crystal, as uncalibrated
+   * normalized weights multiplied by an intercalibration constant which
+   * is expected to be between 0.6 and 1.4
+   *<LI>FIR weights are defined for each crystal as the closest signed integers
+   * to 2**10 times the calibrated weigths. The absolute value of these
+   * weights should not be greater than (2**12-1).
+   *</UL>
+   * If a FIR weights exceeds the (2**12-1) absolute value limit, its
+   * absolute value is replaced by (2**12-1).
+   */
+  std::vector<int> getFIRWeigths();
+  
   double threshold(const EBDetId & detId) const;
   double threshold(const EEDetId & detId) const;
 
-  void setTriggerTowers(const EcalTrigPrimDigiCollection & trigPrims);
+  void setTtFlags(const EcalTrigPrimDigiCollection & trigPrims);
+  
   /** Number of endcap, obviously two.
    */
   const static size_t nEndcaps = 2;
@@ -85,23 +118,43 @@ public:
   EcalSelectiveReadout* ecalSelectiveReadout;
 
   const EcalTrigTowerConstituentsMap * theTriggerMap;
+     
+  /** Trigger tower flags: see setTtFlags()
+   */
+  EcalSelectiveReadout::ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi];
+
+  /** Time position of the first sample to use in zero suppession FIR
+   * filter. Numbering starts at 0.
+   */
+  int firstFIRSample;
   
-  /** Switch for applying zero suppresion on channel Et instead of on channel
-   * E. Default is false.
+  /** Weights of zero suppression FIR filter
    */
-   bool zeroSuppressOnEt;
-   
-  /** Trigger tower Et's: see setTriggerTower()
+  std::vector<int> firWeights;
+
+  /** Energy->ADC factor used to interpret the zero suppression thresholds
+   * for EB
    */
-  float triggerEt[nTriggerTowersInEta][nTriggerTowersInPhi];
+  double ebMeV2ADC;
 
+  /** Energy->ADC factor used to interpret the zero suppression thresholds
+   * for EE.
+   */
+  double eeMeV2ADC;
+  
+  /** Deep of DCC zero suppression FIR filter (number of taps), in principal 6.
+   */
+  int nFIRTaps;
 
+  /** DCC zero suppression FIR filter uncalibrated normalized weigths
+   */
+  std::vector<double> weights;
+  
   /** Zero suppresion threshold for the ECAL.
    * First index: 0 for barrel, 1 for endcap
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t
    */
   double zsThreshold[2][4];
-  
 };
 
 #endif
