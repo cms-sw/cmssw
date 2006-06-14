@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/03/21 14:03:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/12 13:35:20 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -73,7 +73,7 @@ public:
 
   /// Return pointer to alignment errors. 
   /// Defaults to "null" if not reimplemented in the derived classes.
-  virtual AlignmentPositionError* alignmentPositionError() const { return 0;}
+  virtual AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
