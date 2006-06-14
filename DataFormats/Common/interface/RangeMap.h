@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.22 $
+ * \version $Revision: 1.23 $
  *
- * $Id: RangeMap.h,v 1.22 2006/03/30 08:05:03 llista Exp $
+ * $Id: RangeMap.h,v 1.23 2006/04/03 09:18:24 tboccali Exp $
  *
  */
 #include <map>
@@ -26,10 +26,11 @@
 #include <ext/functional>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/CloneTrait.h"
 
 namespace edm {
   
-  template<typename ID, typename C, typename P>
+  template<typename ID, typename C, typename P = clonehelper::CloneTrait<C> >
   class RangeMap {
   public:
     /// contained object type
