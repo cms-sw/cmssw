@@ -7,7 +7,8 @@
 <use name=FWCore/Utilities>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
-<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">
+<use name=TrackingTools/Records>
+
 <export>
   <lib name=TrackingToolsTransientTrack>
   <use name=FWCore/Framework>
@@ -19,4 +20,7 @@
   <use name=FWCore/Utilities>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Math>
+  <use name=TrackingTools/Records>
 </export>
+
+<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">
