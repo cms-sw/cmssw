@@ -64,6 +64,10 @@
 //	Check for placeholder before attaching a destination that may not be
 //	wanted.
 //
+//  12 - 6/14/06 mf  - in configure_external_dests()
+//	Clear the list of external dests needing configuration, if there
+//	is no configuration file available.
+//
 // ----------------------------------------------------------------------
 
 
@@ -614,7 +618,11 @@ void
 void
   MessageLoggerScribe::configure_external_dests()
 {
-  if( ! job_pset_p )  return;
+  if( ! job_pset_p )  
+  {
+    extern_dests.clear();					// change log 12
+    return;
+  }
 
   for( std::vector<NamedDestination*>::const_iterator it = extern_dests.begin()
      ; it != extern_dests.end()
