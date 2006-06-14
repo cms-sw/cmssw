@@ -6,10 +6,9 @@
 #include "Geometry/Vector/interface/Point2DBase.h"
 #include "Geometry/Vector/interface/Vector2DBase.h"
 #include "Geometry/Surface/interface/PlaneBuilder.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
-TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
-  thePropagator(new AnalyticalPropagator(TrackingTools::FakeField::Field::field(), anyDirection)) {}
+TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const MagneticField* field) :
+  thePropagator(new AnalyticalPropagator(field, anyDirection)) {}
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const Propagator& u) :
   thePropagator(u.clone()) 
