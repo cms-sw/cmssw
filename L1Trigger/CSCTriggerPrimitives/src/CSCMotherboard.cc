@@ -18,7 +18,7 @@
 //    with the best ALCT; perhaps a better algorithm will be determined in
 //    the future.  The MotherBoard then determines a few more numbers (such as
 //    quality and pattern) from the ALCT and CLCT information, and constructs
-//    two correlated LCTs.  The sync information has yet to be determined.
+//    two correlated LCTs.
 //
 //    correlateLCTs() may need to be modified to take into account a
 //    possibility of ALCTs and CLCTs arriving at different bx times.
@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2005/05/31 18:52:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/06 15:51:21 $
+//   $Revision: 1.2 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -161,7 +161,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 
   // TB only, or always????
 #ifdef TB
-  if (bestCLCT.isValid() == false && secondCLCT.isValid() == false) continue;
+  if (bestCLCT.isValid() == false && secondCLCT.isValid() == false) return;
 #endif
   firstLCT = constructLCTs(bestALCT, bestCLCT);
   firstLCT.setTrknmb(1);
@@ -176,13 +176,6 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
 						   const CSCCLCTDigi& cLCT) {
-  //@@ Obsolete?
-#ifdef TB2004
-  //unsigned int sync_error = 1; // syncronization error; not yet implemented
-#else
-  //unsigned int sync_error = 0; // syncronization error; not yet implemented
-#endif
-
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -197,7 +190,6 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
 			       cLCT.getStrip(), pattern, cLCT.getBend(),
 			       aLCT.getBX());
-
   return thisLCT;
 }
 
