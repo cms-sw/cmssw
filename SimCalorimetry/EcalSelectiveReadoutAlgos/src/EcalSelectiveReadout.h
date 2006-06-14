@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.3 2006/06/02 22:13:16 rpw Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.4 2006/06/04 22:02:28 rpw Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
@@ -45,7 +45,22 @@ public:
                 LOWINTEREST,
                 SINGLE,
                 NEIGHBOUR,
-                CENTER} towerInterest_t;
+                CENTER,
+                FORCED_RO} towerInterest_t;
+
+  typedef enum {
+    TTF_UNKNOWN=-1,
+    TTF_LOW_INTEREST = 0x0,
+    TTF_MID_INTEREST = 0x1,
+    /* 0x2 not used */
+    TTF_HIGH_INTEREST = 0X3,
+    TTF_FORCED_RO_LINK_SYNC_ERR = 0x4,
+    TTF_FORCED_RO_HAMMING_ERR = 0X5,
+    TTF_FORCED_RO_OTHER1 = 0X6,
+    TTF_FORCED_RO_OTHER2 = 0X7
+  } ttFlag_t;
+
+  static const int TTF_FORCED_RO_MASK = 0x4;
   
   //constants
 public:
@@ -146,18 +161,8 @@ public:
    * @param triggerTowerEt array of the transverse enrgy deposited in the
    * trigger tower. First index is for eta,2nd index for phi.
    */
-  void runSelectiveReadout0(const float
-                            towerEt[nTriggerTowersInEta][nTriggerTowersInPhi]);
-  
-  /** Classifies trigger tower in three classes:<UL>
-   * <LI> low interest: value 'lowInterest'
-   * <LI> middle interest: value 'single'
-   * <LI> high interest: value 'center'
-   * </UL>
-   */  
-  void
-  classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi]);
-
+  void runSelectiveReadout0(const ttFlag_t
+                            towerFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
   
   towerInterest_t getCrystalInterest(const EBDetId & ebDetId) const;
 
@@ -169,6 +174,9 @@ public:
    */
   towerInterest_t getTowerInterest(const EcalTrigTowerDetId & towerId) const;
 
+  /// print out header for the map: see print(std::ostream&)
+  void printHeader(std::ostream & os) const;
+  
   /// print out the map
   void print(std::ostream & os) const;
 
@@ -177,6 +185,15 @@ public:
 
 private:
 
+  /** Classifies trigger tower in three classes:<UL>
+   * <LI> low interest: value 'lowInterest'
+   * <LI> middle interest: value 'single'
+   * <LI> high interest: value 'center'
+   * </UL>
+   */  
+  void
+  classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
+  
   
   /** Sets all supercrystal interest flags to 'unknown'
    */

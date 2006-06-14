@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.5 2006/06/05 04:54:27 rpw Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.6 2006/06/05 16:54:13 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -8,7 +8,13 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+
+#include <iostream> //for debugging
+
 using std::vector;
+
+const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C', 'F'};
+
 
 EcalSelectiveReadout::EcalSelectiveReadout(const vector<double>& thr,
                                                        int dEta_,
@@ -36,11 +42,10 @@ void EcalSelectiveReadout::resetSupercrystalInterest(){
   }
 }
 
-
 void
-EcalSelectiveReadout::runSelectiveReadout0(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi]) {
+EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]) {
   //classifies the trigger towers (single,center,neighbor,low interest)
-  classifyTriggerTowers(towerEt);
+  classifyTriggerTowers(ttFlags);
 
   //count number of TT in each interest class for debugging display
   int nTriggerTowerE[] = {0, 0, 0, 0};
@@ -83,9 +88,9 @@ EcalSelectiveReadout::runSelectiveReadout0(const float towerEt[nTriggerTowersInE
     EcalTrigTowerDetId trigTower = theTriggerMap->towerOf(*eeDetIdItr);
     assert(trigTower.rawId() != 0); 
     EEDetId eeDetId(*eeDetIdItr);
-    int iz = (eeDetId.zside() == 1) ? 1 : 0;
-    int superCrystalX = eeDetId.ix() / 5;
-    int superCrystalY = eeDetId.iy() / 5;
+    int iz = (eeDetId.zside() > 0) ? 1 : 0;
+    int superCrystalX = (eeDetId.ix()-1) / 5;
+    int superCrystalY = (eeDetId.iy()-1) / 5;
     setHigher(supercrystalInterest[iz][superCrystalX][superCrystalY], 
               getTowerInterest(trigTower));
   }
@@ -122,12 +127,51 @@ EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const
 }
 
 
+// void
+// EcalSelectiveReadout::classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi])
+// {
+//   for(int iEta=0; iEta < (int)nTriggerTowersInEta; ++iEta){
+//     for(int iPhi=0; iPhi < (int)nTriggerTowersInPhi; ++iPhi){
+//       if(towerEt[iEta][iPhi] > threshold[1]){
+//         //flags this tower as a center tower
+//         towerInterest[iEta][iPhi] = CENTER;
+//         //flags the neighbours of this tower
+//         for(int iEtaNeigh = std::max<int>(0,iEta-dEta);
+//             iEtaNeigh <= std::min<int>(nTriggerTowersInEta-1, iEta+dEta);
+//             ++iEtaNeigh){
+//           for(int iPhiNeigh = iPhi-dPhi;
+//               iPhiNeigh <= iPhi+dPhi;
+//               ++iPhiNeigh){
+//             //beware, iPhiNeigh must be moved to [0,72] interval
+//             //=> %nTriggerTowersInPhi required
+//             int iPhiNeigh_ = iPhiNeigh%(int)nTriggerTowersInPhi;
+//             if(iPhiNeigh_<0) {
+//               iPhiNeigh_ += nTriggerTowersInPhi;
+//             }
+//             setHigher(towerInterest[iEtaNeigh][iPhiNeigh_],
+//                       NEIGHBOUR);
+//           }
+//         }
+//       } else if(towerEt[iEta][iPhi] > threshold[0]){
+// 	setHigher(towerInterest[iEta][iPhi], SINGLE);
+//       }
+//     }
+//   }
+// }
+
 void
-EcalSelectiveReadout::classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi])
+EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi])
 {
+  //starts with a all low interest map:
   for(int iEta=0; iEta < (int)nTriggerTowersInEta; ++iEta){
     for(int iPhi=0; iPhi < (int)nTriggerTowersInPhi; ++iPhi){
-      if(towerEt[iEta][iPhi] > threshold[1]){
+      towerInterest[iEta][iPhi] = LOWINTEREST;
+    }
+  }
+
+  for(int iEta=0; iEta < (int)nTriggerTowersInEta; ++iEta){
+    for(int iPhi=0; iPhi < (int)nTriggerTowersInPhi; ++iPhi){
+      if(ttFlags[iEta][iPhi] == TTF_HIGH_INTEREST){
         //flags this tower as a center tower
         towerInterest[iEta][iPhi] = CENTER;
         //flags the neighbours of this tower
@@ -147,13 +191,24 @@ EcalSelectiveReadout::classifyTriggerTowers(const float towerEt[nTriggerTowersIn
                       NEIGHBOUR);
           }
         }
-      } else if(towerEt[iEta][iPhi] > threshold[0]){
+      } else if(ttFlags[iEta][iPhi] == TTF_MID_INTEREST){
 	setHigher(towerInterest[iEta][iPhi], SINGLE);
+      } else if(ttFlags[iEta][iPhi] & TTF_FORCED_RO_MASK){
+        setHigher(towerInterest[iEta][iPhi], FORCED_RO);
       }
     }
   }
 }
 
+void EcalSelectiveReadout::printHeader(std::ostream & os) const{
+  os << "#SRP flag map\n#\n"
+    "# +-->Phi/Y " << srpFlagMarker[0] << ": low interest\n"
+    "# |         " << srpFlagMarker[1] << ": single\n"
+    "# |         " << srpFlagMarker[2] << ": neighbour\n"
+    "# V Eta/X   " << srpFlagMarker[3] << ": center\n"
+    "#           " << srpFlagMarker[4] << ": forced readout\n"
+    "#\n";
+}
 
 void EcalSelectiveReadout::print(std::ostream & os) const
 {
@@ -184,8 +239,6 @@ void EcalSelectiveReadout::printBarrel(std::ostream & os) const
 }
 
 
-const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C', ' '};
-
 void EcalSelectiveReadout::printEndcap(int endcap, std::ostream & os) const
 {
     for(size_t iX=0; iX<nSupercrystalXBins; ++iX){
@@ -205,4 +258,3 @@ std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & select
   selectiveReadout.print(os);
   return os;
 }
-
