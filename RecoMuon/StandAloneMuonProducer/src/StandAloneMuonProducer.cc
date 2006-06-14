@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/06/06 17:08:33 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/06/12 13:32:13 $
+ *   $Revision: 1.8 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -51,7 +51,8 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // FIXME: potential memory leak??
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
   
-  produces<reco::TrackCollection>();
+  //  produces<reco::TrackCollection>();
+  produces<double>();
 }
   
 /// destructor
@@ -63,6 +64,7 @@ StandAloneMuonProducer::~StandAloneMuonProducer(){
 
 /// reconstruct muons
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
+  cout<<endl<<endl<<endl;
   cout<<"StandAloneMuonProducer::produce"<<endl;
 
   // Take the seeds container
@@ -85,6 +87,8 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Load the RecMuon Container in the Event
   cout<<"Load the tracks in the event"<<endl;
-  event.put(recMuons);
+  //  event.put(recMuons);
+  auto_ptr<double> recDouble(new double(3.) );
+  event.put(recDouble);
 }
 

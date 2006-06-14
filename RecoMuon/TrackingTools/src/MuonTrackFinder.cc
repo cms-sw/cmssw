@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/05/23 15:07:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/12 13:44:29 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -71,7 +71,12 @@ auto_ptr<reco::TrackCollection> MuonTrackFinder::convert(TrajectoryContainer &co
   
   // FIXME??
   auto_ptr<reco::TrackCollection> muons;
-  
+
+  edm::Handle<reco::TrackExtraCollection> trackExtraCollection;
+  //reco::TrackExtraCollection trackExtraCollection;
+ 
+  int counter = 0;
+
   for(TrajectoryContainer::const_iterator it = cont.begin();
       it != cont.end(); ++it){
     // Get the last TrajectoryMeasurement
@@ -79,8 +84,14 @@ auto_ptr<reco::TrackCollection> MuonTrackFinder::convert(TrajectoryContainer &co
     // convert/build a track starting from a trajectory 
     reco::Track track = buildTrack(*it);
     
-     // set the track extra ref in the track
-    setTrackExtraRef( track, (*it) );
+    // build the track extra in the track
+    //    trackExtraCollection->push_back( buildTrackExtra( track, (*it) ) );
+
+    // build the track extra ref in the track
+    // reco::TrackExtraRef trackExtraRef(trackExtraCollection,counter);
+    
+    // set the track extra ref in the track
+    // track.setExtra(trackExtraRef);
 
     muons->push_back(track);
 
@@ -130,7 +141,7 @@ reco::Track MuonTrackFinder::buildTrack (const Trajectory& trajectory) const {
 }
 
 
-void MuonTrackFinder::setTrackExtraRef(reco::Track &track, const Trajectory& trajectory) const{
+reco::TrackExtra MuonTrackFinder::buildTrackExtra(reco::Track &track, const Trajectory& trajectory) const{
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -156,12 +167,13 @@ void MuonTrackFinder::setTrackExtraRef(reco::Track &track, const Trajectory& tra
   math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 
   reco::TrackExtra trackExtra(outpos, outmom, true);
- 
-   
+  
+  return trackExtra;
+  
 //   for(Trajectory::RecHitContainer::const_iterator recHit = transRecHits.begin();
 //       recHit != transHits.end(); ++recHit)
 //     trackExtra.add(TrackingRecHitRef( *recHit ) );
-    
+  
 //   //create a TrackExtraRef
 //   reco::TrackExtraRef  trackExtraRef( trackExtra);
   
@@ -169,6 +181,5 @@ void MuonTrackFinder::setTrackExtraRef(reco::Track &track, const Trajectory& tra
 //   track.setExtra(trackExtraRef);
   
 }
-
 
 

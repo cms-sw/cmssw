@@ -4,13 +4,13 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/05/23 15:07:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/12 13:42:57 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -52,7 +52,7 @@ class MuonTrackFinder{
 
   std::auto_ptr<reco::TrackCollection> convert(TrajectoryContainer&) const;
   reco::Track buildTrack (const Trajectory& trajectory) const;
-  void setTrackExtraRef(reco::Track &track,const Trajectory& trajectory) const;
+  reco::TrackExtra buildTrackExtra(reco::Track &track,const Trajectory& trajectory) const;
 
  protected:
   
