@@ -11,6 +11,7 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 using namespace edm;
 using namespace std; 
 
@@ -41,10 +42,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }
   const edm::HepMCProduct          *mcp =          hepMC.product();
   
+  
   edm::Handle<EmbdSimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::EmbdSimTrackContainer>  G4TrkContainer;
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
+  
+  const HepMC::GenEvent            &genEvent =     hepMC -> getHepMCData();
+  
 //  const edm::EmbdSimTrackContainer *etc = G4TrkContainer.product();
 
   if (mcp == 0) {
@@ -55,8 +60,37 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   // Find and loop over vertices from HepMC
 //  const HepMC::GenEvent *hme = mcp -> GetEvent();
 //  hme -> print();
+
+//Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
+  auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   
-  // Find and loop over EmbdSimVertex vertices
+  for (edm::EmbdSimTrackContainer::const_iterator itP = G4TrkContainer->begin();
+       itP !=  G4TrkContainer->end(); ++itP){
+       TrackingParticle::Charge q = 0;
+       CLHEP::HepLorentzVector p = itP -> momentum();
+       const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
+       double time =  0; 
+       int pdgId = 0; 
+       const HepMC::GenParticle * gp = 0;       
+       int genPart = itP -> genpartIndex();
+       if (genPart >= 0) {
+           gp = genEvent.barcode_to_particle(genPart);  //pointer to the generating part.
+	   pdgId = gp -> pdg_id();
+       }
+        math::XYZPoint theVertex;
+       // = Point(0, 0, 0);
+       int genVert = itP -> vertIndex();
+       if (genVert >= 0){
+           const EmbdSimVertex &gv = (*G4VtxContainer)[genVert];
+	   const CLHEP::HepLorentzVector &v = gv.position();
+	   theVertex = math::XYZPoint(v.x(), v.y(), v.z());
+	   time = v.t(); 
+       }
+       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId);
+       tPC -> push_back(tp);
+  }
+       
+// Find and loop over EmbdSimVertex vertices
     
   auto_ptr<TrackingVertexContainer> tVC( new TrackingVertexContainer );  
 
