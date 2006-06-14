@@ -5,7 +5,7 @@
  *
  * The collection of CSCSegment's.
  *
- *  $Date: 2006/05/09 08:38:42 $
+ *  $Date: 2006/05/17 14:52:59 $
  *  \author Matteo Sani
  */
 
@@ -16,9 +16,7 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 #include <DataFormats/Common/interface/OwnVector.h>
 
-typedef edm::RangeMap <CSCDetId,
-		       edm::OwnVector<CSCSegment, edm::ClonePolicy<CSCSegment> >,
-		       edm::ClonePolicy<CSCSegment> > CSCSegmentCollection;
+typedef edm::RangeMap <CSCDetId, edm::OwnVector<CSCSegment> > CSCSegmentCollection;
 
 //typedef std::vector<CSCSegment> CSCSegmentCollection; 
 	
