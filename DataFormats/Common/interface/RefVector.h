@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.4 2006/04/28 23:02:39 wmtan Exp $
+$Id: RefVector.h,v 1.5 2006/06/12 22:32:16 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,7 +32,7 @@ namespace edm {
     // T is the type of a member the collection
     
     // key_type is the type of the key into the collextion
-    typedef typename Ref<C, T, F>::index_type key_type;
+    typedef typename Ref<C, T, F>::key_type key_type;
     typedef RefItem<key_type> RefItemType;
 
     // size_type is the type of the index into the RefVector
@@ -92,6 +92,9 @@ namespace edm {
 
     /// Erase an element from the vector.
     iterator erase(iterator const& pos);
+
+    /// Clear the vector.
+    void clear() {refVector_.clear();}
 
   private:
     RefVectorBase<key_type> refVector_;
