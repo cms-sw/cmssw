@@ -4,6 +4,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TrackFitters>
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/Navigation>
 <use name=RecoMuon/TrackingTools>
@@ -23,6 +24,7 @@
    <use name=TrackingTools/GeomPropagators>
    <use name=TrackingTools/MaterialEffects>
    <use name=TrackingTools/KalmanUpdators>
+   <use name=TrackingTools/TrackFitters>
    <use name=RecoMuon/DetLayers>
    <use name=RecoMuon/Navigation>
    <use name=RecoMuon/TrackingTools>
