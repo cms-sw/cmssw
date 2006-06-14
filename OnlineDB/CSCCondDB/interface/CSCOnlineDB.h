@@ -1,6 +1,7 @@
 #ifndef GUARD_condbon_H
 #define GUARD_condbon_H
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <occi.h>

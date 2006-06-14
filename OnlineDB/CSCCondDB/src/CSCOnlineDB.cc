@@ -1,13 +1,19 @@
-#include "OnlineDB/CSCCondDB/interface/condbon.h"
+#include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 
   /**
    * Constructor for condbon
    */
   condbon::condbon () throw (oracle::occi::SQLException)
   {
+    std::string db_user;
+    std::string db_pass;
     env = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
-    con = env->createConnection ("db_account","passwd","db");
-    std::cout << "Connection to DB is done." << std::endl;
+    char* c_user = ::getenv("CONDBON_AUTH_USER");
+    char* c_pass = ::getenv("CONDBON_AUTH_PASSWORD");
+    db_user=std::string(c_user);
+    db_pass=std::string(c_pass);
+    con = env->createConnection (db_user,db_pass,"omds");
+    std::cout << "Connection to Online DB is done." << std::endl;
   }// end of constructor condbon ()
   /**
    * Destructor for condbon.
