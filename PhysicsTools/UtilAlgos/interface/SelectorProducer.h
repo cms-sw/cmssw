@@ -14,24 +14,25 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: SelectorProducer.h,v 1.2 2006/03/03 10:45:48 llista Exp $
+ * $Id: SelectorProducer.h,v 1.3 2006/03/03 13:11:15 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/CloneTrait.h"
 #include "boost/shared_ptr.hpp"
 #include <string>
 #include <memory>
 
-template<typename C, typename S, typename P>
+template<typename C, typename S, typename P = typename edm::clonehelper::CloneTrait<C>::type >
 class SelectorProducer : public edm::EDProducer {
 public:
-  /// constructor from values
-  explicit SelectorProducer( const std::string &,
-			     const boost::shared_ptr<S> & =
-			     boost::shared_ptr<S>() );
+  /// constructor 
+  explicit SelectorProducer( const edm::ParameterSet &,
+			     const boost::shared_ptr<S> & = boost::shared_ptr<S>() );
   /// destructor
   ~SelectorProducer();
   
@@ -47,9 +48,9 @@ private:
 };
 
 template<typename C, typename S, typename P>
-SelectorProducer<C, S, P>::SelectorProducer( const std::string & src, 
+SelectorProducer<C, S, P>::SelectorProducer( const edm::ParameterSet & cfg, 
 					     const boost::shared_ptr<S> & sel ) :
-  select_( sel ), src_( src ) {
+  select_( sel ), src_( cfg.template getParameter<std::string>( "src" ) ) {
   produces<C>();
 }
 
@@ -62,11 +63,9 @@ void SelectorProducer<C, S, P>::produce( edm::Event& evt, const edm::EventSetup&
   edm::Handle<C> coll;
   evt.getByLabel( src_, coll );
   std::auto_ptr<C> sel( new C );
-  for( typename C::const_iterator c = coll->begin(); c != coll->end(); ++c ) {
-    std::auto_ptr<typename C::value_type> o( P::clone( * c ) );
-    if( ( * select_ )( * o ) ) {
-      sel->push_back( o.release() );
-    }
+  for( typename C::const_iterator c = coll->begin(); c != coll->end(); ++ c ) {
+    if( ( * select_ )( * c ) ) 
+      sel->push_back( P::clone( * c ) );
   }
   evt.put( sel );
 }

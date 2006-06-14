@@ -1,6 +1,6 @@
 #ifndef PHYSICSTOOLS_PSETPTMINSELECTOR_H
 #define PHYSICSTOOLS_PSETPTMINSELECTOR_H
-// $Id: PSetSelectors.h,v 1.4 2005/10/25 09:08:31 llista Exp $#
+// $Id: PSetSelectors.h,v 1.5 2006/04/04 11:12:48 llista Exp $#
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
 #include "PhysicsTools/CandUtils/interface/PtMinSelector.h"
@@ -12,7 +12,7 @@ namespace cand {
     class PtMinCandSelector : public CandSelectorBase {
     public:
       explicit PtMinCandSelector( const edm::ParameterSet & cfg ) :
-	CandSelectorBase( cfg.getParameter<std::string>("src"),
+	CandSelectorBase( cfg,
 			  boost::shared_ptr<CandSelector> (
                             new PtMinSelector( cfg.getParameter<double>( "ptMin" ) ) ) ) {
       }
@@ -21,10 +21,10 @@ namespace cand {
     class MassWindowCandSelector : public CandSelectorBase {
     public:
       explicit MassWindowCandSelector( const edm::ParameterSet & cfg ) :
-	CandSelectorBase( cfg.getParameter<std::string>("src"),
+	CandSelectorBase( cfg,
 			  boost::shared_ptr<CandSelector> (
-			    new  MassWindowSelector( cfg.getParameter<double>( "massMin" ), 
-						     cfg.getParameter<double>( "massMax" ) ) ) ) {
+			    new MassWindowSelector( cfg.getParameter<double>( "massMin" ), 
+						    cfg.getParameter<double>( "massMax" ) ) ) ) {
       }
     };
     
