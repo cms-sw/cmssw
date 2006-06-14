@@ -52,7 +52,7 @@ namespace dqm
       fsm_.processFSMCommand(stateInput);
     }
     void bind(std::string);
-    xdata::String & stateName(){return fsm_.stateName_;}
+    xdata::String *stateName(){return &fsm_.stateName_;}
 
   private:
 
