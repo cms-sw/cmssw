@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2005/05/31 18:52:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 15:51:21 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -160,6 +160,10 @@ class CSCCathodeLCTProcessor
   void getPattern(int pattern_num, const int strip_value[NUM_PATTERN_STRIPS],
 		  int& quality, int& bend);
   //-------------------------------------------------------------------------
+
+  /** Dump digis on half-strips and di-strips. */
+  void dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+		 const int stripType, const int nStrips) const;
 
   /** Set times on all layers for distrips and halfstrips. */
   void saveAllHits(const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 

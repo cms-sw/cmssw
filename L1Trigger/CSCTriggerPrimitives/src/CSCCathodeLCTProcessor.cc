@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2005/05/31 18:52:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/06 15:51:21 $
+//   $Revision: 1.2 $
 //
 //   Modifications: 
 //
@@ -329,7 +329,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       int diStrip = thisStrip/2; // [0-39]
 
       // Get Bx of this Digi and check that it is within the bounds
-      int thisDigiBx = thisDigi.getTimeBin() - 9; // temp hack
+      int thisDigiBx = thisDigi.getTimeBin() - 9; // temp hack for MC
+      //int thisDigiBx = thisDigi.getTimeBin();
       //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
 #ifndef TB2004
       if (thisDigiBx >= CSCConstants::MIN_BUNCH &&
@@ -494,9 +495,13 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
       LogDebug("CSCCathodeLCTProcessor")
 	<< bestCLCT << " found in endcap " << theEndcap
 	<< " station " << theStation << " sector " << theSector
-	<< " subSector " << theSubsector << " chamber "
+	<< " (" << theSubsector
+	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						        theTrigChamber)
+	<< " chamber " 
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                              theSubsector, theStation, theTrigChamber)<< "\n";
+                              theSubsector, theStation, theTrigChamber)
+	<< " (trig id. " << theTrigChamber << ")" << "\n";
       /* IMPROVE LATER
       #ifdef MC
       if (bestCLCT.simInfo != 0) {
@@ -516,9 +521,13 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
       LogDebug("CSCCathodeLCTProcessor")
 	<< secondCLCT << " found in endcap " << theEndcap
 	<< " station " << theStation << " sector " << theSector
-	<< " subSector " << theSubsector << " chamber "
+	<< " (" << theSubsector
+	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						        theTrigChamber)
+	<< " chamber "
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                             theSubsector, theStation, theTrigChamber) << "\n";
+                              theSubsector, theStation, theTrigChamber)
+	<< " (trig id. " << theTrigChamber << ")" << "\n";
       /* IMPROVE LATER
       #ifdef MC
       if (secondCLCT.simInfo != 0) {
@@ -690,46 +699,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
 
   std::vector <CSCCLCTDigi> lctList;
 
-  if (infoV > 1) {
-    char str_digis[9*CSCConstants::MAX_NUM_STRIPS] = "", tmp[1];
-    int space = nStrips/NUM_CFEBS;
-    LogDebug("CSCCathodeLCTProcessor")
-      << "Endcap " << theEndcap << " station "<< theStation
-      << " chamber "
-      << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                                      theSubsector, theStation, theTrigChamber)
-      << " strip type " << stripType << " nStrips " << nStrips;
-
-    for (int i_strip = 0; i_strip < nStrips; i_strip++) {
-      if (i_strip%10 == 0) {
-	if (i_strip < 100) sprintf(tmp, "%d", i_strip/10);
-	else               sprintf(tmp, "%d", (i_strip-100)/10);
-	strcat(str_digis, tmp);
-      }
-      else                 strcat(str_digis, " ");
-      if ((i_strip+1)%space == 0) strcat(str_digis, " ");
-    }
-    strcat(str_digis, "\n");
-    for (int i_strip = 0; i_strip < nStrips; i_strip++) {
-      sprintf(tmp, "%d", i_strip%10);
-      strcat(str_digis, tmp);
-      if ((i_strip+1)%space == 0) strcat(str_digis, " ");
-    }
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      strcat(str_digis, "\n");
-      for (int i_strip = 0; i_strip < nStrips; i_strip++) {
-	if (strip[i_layer][i_strip] >= 0) {
-	  sprintf(tmp, "%x", strip[i_layer][i_strip]);
-	  strcat(str_digis, tmp);
-	}
-	else {
-	  strcat(str_digis, "-");
-	}
-	if ((i_strip+1)%space == 0) strcat(str_digis, " ");
-      }
-    }
-    LogDebug("CSCCathodeLCTProcessor") << str_digis;
-  }
+  if (infoV > 1) dumpDigis(strip, stripType, nStrips);
 
   // Send data to a pretrigger so that we don't excessively look at data
   // that won't give an LCT. If there is a pretrigger, then get all quality
@@ -1040,47 +1010,10 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
   std::vector <CSCCLCTDigi> lctList;
   int _bx[2] = {999, 999};
   int first_bx = 999;
-  int space;
 
   if (infoV > 1) {
-    // @@
-    int i,j;
-    for(int nStrips = CSCConstants::NUM_HALF_STRIPS;nStrips>=CSCConstants::NUM_DI_STRIPS;nStrips-=120) {
-      space = nStrips/NUM_CFEBS;
-      for(i = 0; i < nStrips; ++i) {
-	if(i%10==0) {
-	  if(i<100) std::cout<<i/10;
-	  else      std::cout<<(i-100)/10;
-	} 
-	else        std::cout<<" ";
-	if((i+1)%space==0) std::cout<<" ";
-      }
-      std::cout<<std::endl;
-      for (i = 0; i < nStrips; i++) {
-	std::cout<<i%10;
-	if((i+1)%space==0) std::cout<<" ";
-      }
-      std::cout<<std::endl;
-      for (i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-	for (j = 0; j < nStrips; j++) {
-	  if(nStrips == CSCConstants::NUM_HALF_STRIPS) {
-	    if (halfstrip[i][j] >= 0)
-	      std::cout<<std::hex<<halfstrip[i][j]<<std::dec;
-	    else
-	      std::cout<<"-";
-	  }
-	  else {
-	    if (distrip[i][j] >= 0)
-	      std::cout<<std::hex<<distrip[i][j]<<std::dec;
-	    else
-	      std::cout<<"-";
-	  }
-	  if((j+1)%space==0) std::cout<<" ";
-	}
-	std::cout<<std::endl;
-      }
-      std::cout<<std::endl<<std::endl;
-    }
+    dumpDigis(halfstrip, 1, CSCConstants::NUM_HALF_STRIPS);
+    dumpDigis(distrip,   0, CSCConstants::NUM_DI_STRIPS);
   }
 
   // Test beam version of TMB pretrigger and LCT sorting
@@ -1330,17 +1263,21 @@ void CSCCathodeLCTProcessor::priorityEncode(
     strip_type[icfeb] = -1;
   }
 
-  // @@
   if (infoV > 1) {
-    std::cout << ".....................PriorityEncode......................."<<std::endl;
-    std::cout << "hkeys:";
-    for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++)
-      std::cout << " " << h_keyStrip[icfeb];
-    std::cout << std::endl;
-    std::cout << "dkeys:";
-    for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++)
-      std::cout << " " << d_keyStrip[icfeb];
-    std::cout << std::endl;
+    LogDebug("CSCCathodeLCTProcessor")
+      << ".....................PriorityEncode.......................";
+    char str_out[80] = "", tmp[5] = "";
+    strcat(str_out, "hkeys:");
+    for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
+      sprintf(tmp, "%4d", h_keyStrip[icfeb]);
+      strcat(str_out, tmp);
+    }
+    strcat(str_out, "\ndkeys:");
+    for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
+      sprintf(tmp, "%4d", d_keyStrip[icfeb]);
+      strcat(str_out, tmp);
+    }
+    LogDebug("CSCCathodeLCTProcessor") << str_out;
   }
 
   // Loop over CFEBs and determine better of half- or di- strip pattern.
@@ -1436,14 +1373,14 @@ void CSCCathodeLCTProcessor::priorityEncode(
       ihits[0] = key_phits[icfeb];
       cfebs[0] = icfeb;
       if (infoV > 1) {
+	char str_out[30] = "", tmp[5] = "";
+	for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++) {
+	  sprintf(tmp, "%4d", strip_type[icfeb]);
+	  strcat(str_out, tmp);
+	}
 	LogDebug("CSCCathodeLCTProcessor")
 	  << "cfebs " << cfebs[0] << " " << cfebs[1] << "\n"
-	  << "strip_type";
-	for (int icfeb = 0; icfeb < NUM_CFEBS; icfeb++)
-	  LogDebug("CSCCathodeLCTProcessor")
-	    << " " << strip_type[icfeb];
-	LogDebug("CSCCathodeLCTProcessor")
-	  << " " << "\n"
+	  << "strip_type" << str_out << " " << "\n"
 	  << "top: ihits " << ihits[0] << " cfeb " << cfebs[0]
 	  <<" strip_type " << strip_type[cfebs[0]] << "\n"
 	  << "nxt: ihits " << ihits[1] << " cfeb " << cfebs[1]
@@ -1627,6 +1564,49 @@ void CSCCathodeLCTProcessor::getPattern(int pattern_num,
 } // getPattern -- test beam version
 
 // ---------------- End separation of test beam fcns -------------------------
+
+// Reasonably nice dump of digis on half-strips and di-strips.
+void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
+{
+  char str_digis[9*CSCConstants::NUM_HALF_STRIPS] = "", tmp[1];
+  int space = nStrips/NUM_CFEBS;
+  LogDebug("CSCCathodeLCTProcessor")
+    << "Endcap " << theEndcap << " station "<< theStation
+    << " chamber "
+    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                      theSubsector, theStation, theTrigChamber)
+    << " strip type " << stripType << " nStrips " << nStrips;
+
+  for (int i_strip = 0; i_strip < nStrips; i_strip++) {
+    if (i_strip%10 == 0) {
+      if (i_strip < 100) sprintf(tmp, "%d", i_strip/10);
+      else               sprintf(tmp, "%d", (i_strip-100)/10);
+      strcat(str_digis, tmp);
+    }
+    else                 strcat(str_digis, " ");
+    if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+  }
+  strcat(str_digis, "\n");
+  for (int i_strip = 0; i_strip < nStrips; i_strip++) {
+    sprintf(tmp, "%d", i_strip%10);
+    strcat(str_digis, tmp);
+    if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+  }
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    strcat(str_digis, "\n");
+    for (int i_strip = 0; i_strip < nStrips; i_strip++) {
+      if (strip[i_layer][i_strip] >= 0) {
+	sprintf(tmp, "%x", strip[i_layer][i_strip]);
+	strcat(str_digis, tmp);
+      }
+      else {
+	strcat(str_digis, "-");
+      }
+      if ((i_strip+1)%space == 0) strcat(str_digis, " ");
+    }
+  }
+  LogDebug("CSCCathodeLCTProcessor") << str_digis;
+}
 
 // Returns vector of found CLCTs, if any.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
