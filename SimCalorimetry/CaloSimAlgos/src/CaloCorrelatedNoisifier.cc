@@ -9,6 +9,14 @@ CaloCorrelatedNoisifier::CaloCorrelatedNoisifier(int nFrames)
 {
 }
 
+
+CaloCorrelatedNoisifier::CaloCorrelatedNoisifier(const HepSymMatrix & matrix)
+: theMatrix(matrix),
+  theRandomGaussian(*(HepRandom::getTheEngine())),
+  theSize(theMatrix.num_row())
+{
+}
+
 void CaloCorrelatedNoisifier::setDiagonal(double value) 
 {
   for(int i = 0; i < theSize; ++i) 

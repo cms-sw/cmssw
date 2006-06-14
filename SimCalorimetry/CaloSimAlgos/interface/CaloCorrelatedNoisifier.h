@@ -15,6 +15,8 @@ class CaloCorrelatedNoisifier
 {
 public:
   explicit CaloCorrelatedNoisifier(int nFrames);
+ 
+  explicit CaloCorrelatedNoisifier(const HepSymMatrix & matrix);
 
   virtual ~CaloCorrelatedNoisifier() {}
 
