@@ -7,9 +7,6 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
-
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -34,17 +31,7 @@ class TransientTrackBuilderTest : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){
         using namespace std;
 
-//     std::string cpeName = conf_.getParameter<std::string>("PixelCPE");   
-//     cout <<" Asking for the CPE with name "<<cpeName<<endl;
-
-//     edm::ESHandle<PixelClusterParameterEstimator> theEstimator;
-//     setup.get<TrackerCPERecord>().get(cpeName,theEstimator);
-
-
-
-    std::string cpeName("TransientTrackBuilder");   
-    cout <<" Asking for the TransientTrackBuilder with name "<<cpeName<<endl;
-
+    cout <<" Asking for the TransientTrackBuilder with name TransientTrackBuilder\n";
     edm::ESHandle<TransientTrackBuilder> theB;
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     
