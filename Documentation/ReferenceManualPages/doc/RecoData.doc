@@ -34,30 +34,7 @@ Reconstruction output.
   <th>Description</th>
   <th>Contact</th>
 </tr>
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
-</tr>
-<tr>
-  <td> \endhtmlonly PixelDigi \htmlonly </rd>
-  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
-  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
-  <td class="description">Pixel digitized hit</td>
-  <td>V.Chiochia</td>
-</tr>
-<tr>
-  <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
-  <td> \endhtmlonly SiPixelClusterCollection \htmlonly </td>
-  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "pixClust" \htmlonly </td>
-  <td class="description">Pixel cluster</td>
-  <td>V.Chiochia</td>
-</tr>
-<tr>
-  <td> \endhtmlonly SiPixelRecHit \htmlonly </rd>
-  <td> \endhtmlonly SiPixelRecHitCollection \htmlonly </td>
-  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "pixRecHitConverter" \htmlonly</td>
-  <td class="description">Pixel reconstructed hit</td>
-  <td>V.Chiochia</td>
-</tr>
+
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Track collections</td>
 </tr>
@@ -150,6 +127,31 @@ Reconstruction output.
 </tr>
 
 <tr class="colgroup">
+  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
+</tr>
+<tr>
+  <td> \endhtmlonly PixelDigi \htmlonly </rd>
+  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
+  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
+  <td class="description">Pixel digitized hit</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr>
+  <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
+  <td> \endhtmlonly SiPixelClusterCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "pixClust" \htmlonly </td>
+  <td class="description">Pixel cluster</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr>
+  <td> \endhtmlonly SiPixelRecHit \htmlonly </rd>
+  <td> \endhtmlonly SiPixelRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "pixRecHitConverter" \htmlonly</td>
+  <td class="description">Pixel reconstructed hit</td>
+  <td>V.Chiochia</td>
+</tr>
+
+<tr class="colgroup">
   <td class="colgroup" colspan=5>Ecal cluster collections</td>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
@@ -171,15 +173,6 @@ Reconstruction output.
   <td> \endhtmlonly superClusters \htmlonly </td>
   <td class="description">Super clusters</td>
   <td>&nbsp;</td>
-</tr>
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>CaloTower Candidates</td>
-<tr>
-  <td> \endhtmlonly reco::RecoCaloTowerCandidate \htmlonly </rd>
-  <td> \endhtmlonly reco::CandidateCollection \htmlonly </td>
-  <td> \endhtmlonly\ref RecoLocalCalo_CaloTowersCreator "calotowercandidate" \htmlonly </td>
-  <td class="description">Candidates collection derived from CaloTowers</td>
-  <td> F.Ratnikov </td>
 </tr>
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Jet collections: CaloTowers based</td>
@@ -211,6 +204,16 @@ Reconstruction output.
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>CaloTower Candidates</td>
+<tr>
+  <td> \endhtmlonly reco::RecoCaloTowerCandidate \htmlonly </rd>
+  <td> \endhtmlonly reco::CandidateCollection \htmlonly </td>
+  <td> \endhtmlonly\ref RecoLocalCalo_CaloTowersCreator "calotowercandidate" \htmlonly </td>
+  <td class="description">Candidates collection derived from CaloTowers</td>
+  <td> F.Ratnikov </td>
+</tr>
+
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Jet collections: HepMC particles based</td>
 <tr>
@@ -252,6 +255,6 @@ Reconstruction output.
 - Tommaso Boccali
 
 <hr>
-Last updated: @DATE@ L.Lista
+Last updated: 2006-06-14 L.Lista
 
 */
