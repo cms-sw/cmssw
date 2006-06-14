@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
+$Id: Ref.h,v 1.7 2006/06/02 01:58:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -32,10 +32,10 @@ $Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
      1) \b C: The type of the container which is holding the item
      2) \b T: The type of the item.  This defaults to C::value_type
      3) \b F: A helper class (a functor) which knows how to find a particular 'T' within the container
-          given an appropriate index. The type of the index is deduced from F::second_argument. 
+          given an appropriate key. The type of the key is deduced from F::second_argument. 
           The default for F is refhelper::FindTrait<C,T>::value.  If no specialization of FindTrait<> is
           available for the conbination (C,T) then it defaults to getting the iterator to be beginning of
-          the container and using std::advance() to move to the appropriate index in the container.
+          the container and using std::advance() to move to the appropriate key in the container.
  
      It is possible to customize the 'lookup' algorithm used.  The helper class should inherit from 
      std::binary_function<const C&, typename IndexT, const T*>
@@ -55,7 +55,7 @@ $Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
 //  T (default C::value_type)	is the type of an object inthe collection.
 //
 //  ProductID productID		is the product ID of the collection. (0 is invalid)
-//  size_type itemIndex		is the index of the object into the collection.
+//  key_type itemKey		is the key of the object in the collection.
 //  C::value_type *itemPtr	is a C++ pointer to the object in memory.
 //  Ref<C, T> const& ref	is another Ref<C, T>
 
@@ -63,8 +63,8 @@ $Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
     Ref(); // Default constructor
     Ref(Ref<C, T> const& ref);	// Copy constructor  (default, not explicitly specified)
 
-    Ref(Handle<C> const& handle, size_type itemIndex);
-    Ref(ProductID pid, size_type itemIndex, EDProductGetter const* prodGetter);
+    Ref(Handle<C> const& handle, key_type itemKey);
+    Ref(ProductID pid, key_type itemKey, EDProductGetter const* prodGetter);
 
 //  Destructor
     virtual ~Ref() {}
@@ -75,19 +75,37 @@ $Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
     T const* const operator->() const;		// member dereference
     bool operator==(Ref<C, T> const& ref) const; // equality
     bool operator!=(Ref<C, T> const& ref) const; // inequality
+    bool operator<(Ref<C, T> const& ref) const; // ordering
     bool isNonnull() const;			// true if an object is referenced
     bool isNull() const;			// equivalent to !isNonnull()
-    operator bool() const;			// equivalent to isNonnull()
     bool operator!() const;			// equivalent to !isNonnull()
 ----------------------------------------------------------------------*/ 
 
 #include "boost/functional.hpp"
 #include "boost/call_traits.hpp"
 #include "boost/type_traits.hpp"
-
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"
+
+#if 0
+// try if this works with gcc 3.4.3.
+#include "boost/mpl/has_xxx.hpp"
+#include "boost/utility/enable_if.hpp"
+BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare);
+
+template <typename C, typename K>
+typename boost::enable_if<has_key_compare<C>, bool>::type
+compare_key(K const& lhs, K const& rhs) {
+  return C::key_compare()(lhs, rhs);
+}
+
+template <typename C, typename K>
+typename boost::disable_if<has_key_compare<C>, bool>::type
+compare_key(K const& lhs, K const& rhs) {
+  return lhs < rhs;
+}
+#endif
 
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
@@ -123,11 +141,9 @@ namespace edm {
     typedef T const element_type; //used for generic programming
     typedef F finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
-    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type index_type;   
+    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type key_type;   
     /// C is the type of the collection
     /// T is the type of a member the collection
-
-    typedef typename RefItem<index_type>::index_type size_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : ref_() {}
@@ -138,23 +154,23 @@ namespace edm {
         id(), returning a ProductID,
         product(), returning a C*. */
     template <typename HandleC>
-      Ref(HandleC const& handle, size_type itemIndex, bool setNow=true) :
-      ref_(handle.id(), handle.product(), itemIndex) {
-        assert(ref_.item().index() == itemIndex);
+      Ref(HandleC const& handle, key_type itemKey, bool setNow=true) :
+      ref_(handle.id(), handle.product(), itemKey) {
+        assert(ref_.item().key() == itemKey);
         if(setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));}
     }
 
     /** Constructor for those users who do not have a product handle,
         but have a pointer to a product getter (such as the EventPrincipal).
         prodGetter will ususally be a pointer to the event principal. */
-    Ref(ProductID const& productID, size_type itemIndex, EDProductGetter const* prodGetter) :
-        ref_(productID, 0, itemIndex, 0, prodGetter) {
+    Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
+        ref_(productID, 0, itemKey, 0, prodGetter) {
     }
 
-    /// Constructor from RefProd<C> and index
-    Ref(RefProd<C> const& refProd, size_type itemIndex) :
-      ref_(refProd.id(), refProd.product().productPtr(), itemIndex, 0, refProd.product().productGetter()) {
-        assert(ref_.item().index() == itemIndex);
+    /// Constructor from RefProd<C> and key
+    Ref(RefProd<C> const& refProd, key_type itemKey) :
+      ref_(refProd.id(), refProd.product().productPtr(), itemKey, 0, refProd.product().productGetter()) {
+        assert(ref_.item().key() == itemKey);
         if(0!=refProd.product().productPtr()) {
           ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));
         }
@@ -187,9 +203,6 @@ namespace edm {
     /// Checks for null
     bool operator!() const {return isNull();}
 
-    /// Checks for non-null
-    operator bool() const {return !isNull();}
-
     /// Accessor for product ID.
     ProductID id() const {return ref_.product().id();}
 
@@ -199,20 +212,23 @@ namespace edm {
     /// Accessor for product collection
     C const* product() const {return static_cast<C const *>(ref_.product().productPtr());}
 
-    /// Accessor for product index.
-    size_type index() const {return ref_.item().index();}
+    /// Accessor for product key.
+    key_type key() const {return ref_.item().key();}
+
+    // This one just for backward compatibility.  Will be removed soon.
+    key_type index() const {return ref_.item().key();}
 
     /// Accessor for all data
-    RefBase<index_type> const& ref() const {return ref_;}
+    RefBase<key_type> const& ref() const {return ref_;}
 
   private:
     // Constructor from member of RefVector
-    Ref(RefCore const& product, RefItem<index_type> const& item) : 
+    Ref(RefCore const& product, RefItem<key_type> const& item) : 
       ref_(product, item) {
     }
 
   private:
-    RefBase<index_type> ref_;
+    RefBase<key_type> ref_;
   };
 
   template <typename C, typename T, typename F>
@@ -227,6 +243,18 @@ namespace edm {
   bool
   operator!=(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
     return !(lhs == rhs);
+  }
+
+  template <typename C, typename T, typename F>
+  inline
+  bool
+  operator<(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
+#if 0
+   // try if this works with gcc 3.4.3.
+    return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
+#else
+    return (lhs.id() == rhs.id() ? lhs.key() < rhs.key() : lhs.id() < rhs.id());
+#endif
   }
 
 }

@@ -5,7 +5,7 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.2 2006/03/03 17:00:22 chrjones Exp $
+$Id: RefItem.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
@@ -18,18 +18,18 @@ namespace edm {
   template<typename T>
   class RefItem {
   public:
-    typedef T index_type;
+    typedef T key_type;
     //typedef std::vector<int>::size_type size_type;
     //RefItem() : index_(0), ptr_(refhelper::DefaultHelper<T>::defaultValue()) {}
     RefItem() : index_(), ptr_(0) {}
-    RefItem(index_type inx, void const* p) : index_(inx), ptr_(p) {}
+    RefItem(key_type inx, void const* p) : index_(inx), ptr_(p) {}
     ~RefItem() {}
-    index_type index() const {return index_;}
+    key_type key() const {return index_;}
     void const *ptr() const {return ptr_;}
     void const *setPtr(void const* p) const {return(ptr_ = p);}
        
 private:
-    index_type index_;
+    key_type index_;
     mutable void const *ptr_; // transient
   };
 
@@ -37,7 +37,7 @@ private:
   inline
   bool
   operator==(RefItem<T> const& lhs, RefItem<T> const& rhs) {
-    return lhs.index() == rhs.index();
+    return lhs.key() == rhs.key();
   }
 
   template<typename T>
@@ -47,30 +47,37 @@ private:
     return !(lhs == rhs);
   }
 
+  template<typename T>
+  inline
+  bool
+  operator<(RefItem<T> const& lhs, RefItem<T> const& rhs) {
+    return lhs.key() < rhs.key();
+  }
+
   namespace refitem {
-    template< typename C, typename T, typename F, typename TIndex>
+    template< typename C, typename T, typename F, typename TKey>
     struct GetPtrImpl {
-      static T const* getPtr_(RefCore const& product, RefItem<TIndex> const& item) {
+      static T const* getPtr_(RefCore const& product, RefItem<TKey> const& item) {
         C const* prod = getProduct<C>(product);
         /*
         typename C::const_iterator it = prod->begin();
-         std::advance(it, item.index());
+         std::advance(it, item.key());
          T const* p = it.operator->();
         */
         F func;
-        T const* p = func(*prod, item.index());
+        T const* p = func(*prod, item.key());
         return p;
       }
     };
   }
-  template <typename C, typename T, typename F, typename TIndex>
-  T const* getPtr_(RefCore const& product, RefItem<TIndex> const& item) {
-     return refitem::GetPtrImpl<C, T, F, TIndex>::getPtr_(product, item);
+  template <typename C, typename T, typename F, typename TKey>
+  T const* getPtr_(RefCore const& product, RefItem<TKey> const& item) {
+     return refitem::GetPtrImpl<C, T, F, TKey>::getPtr_(product, item);
   }
 
-  template <typename C, typename T, typename F, typename TIndex>
+  template <typename C, typename T, typename F, typename TKey>
   inline
-  T const* getPtr(RefCore const& product, RefItem<TIndex> const& item) {
+  T const* getPtr(RefCore const& product, RefItem<TKey> const& item) {
     T const* p = static_cast<T const *>(item.ptr());
     return (p != 0 ? p : getPtr_<C, T, F>(product, item));
   }

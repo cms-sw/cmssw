@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: RefProd.h,v 1.2 2006/06/02 01:58:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,9 +31,9 @@ $Id: RefProd.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
     T const* operator->() const;		// member dereference
     bool operator==(RefProd<T> const& ref) const;	// equality
     bool operator!=(RefProd<T> const& ref) const;	// inequality
+    bool operator<(RefProd<T> const& ref) const;	// ordering
     bool isNonnull() const;			// true if an object is referenced
     bool isNull() const;			// equivalent to !isNonnull()
-    operator bool() const;			// equivalent to isNonnull()
     bool operator!() const;			// equivalent to !isNonnull()
 ----------------------------------------------------------------------*/ 
 
@@ -84,9 +84,6 @@ namespace edm {
     /// Checks for null
     bool operator!() const {return isNull();}
 
-    /// Checks for non-null
-    operator bool() const {return !isNull();}
-
     /// Accessor for product ID.
     ProductID id() const {return product_.id();}
 
@@ -112,6 +109,13 @@ namespace edm {
   bool
   operator!=(RefProd<T> const& lhs, RefProd<T> const& rhs) {
     return !(lhs == rhs);
+  }
+
+  template <class T>
+  inline
+  bool
+  operator<(RefProd<T> const& lhs, RefProd<T> const& rhs) {
+    return (lhs.product() < rhs.product());
   }
 }
   

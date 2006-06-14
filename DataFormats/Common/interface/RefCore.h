@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: RefCore.h,v 1.2 2006/06/02 05:24:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -53,6 +53,12 @@ namespace edm {
   bool
   operator!=(RefCore const& lhs, RefCore const& rhs) {
     return !(lhs == rhs);
+  }
+
+  inline
+  bool
+  operator<(RefCore const& lhs, RefCore const& rhs) {
+    return lhs.id() < rhs.id();
   }
 
   void wrongRefType(std::string const& found, std::string const& requested);

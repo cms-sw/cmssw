@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: RefBase.h,v 1.2 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,12 +29,12 @@ namespace edm {
     /// Accessor for index and pointer
     RefItem<T> const& item() const {return item_;}
 
-    typedef typename RefItem<T>::index_type index_type;
+    typedef typename RefItem<T>::key_type key_type;
 
     /// General purpose constructor. 
-    RefBase(ProductID const& productID, void const* prodPtr, index_type itemIndex,
+    RefBase(ProductID const& productID, void const* prodPtr, key_type itemKey,
             void const* itemPtr = 0, EDProductGetter const* prodGetter = 0):
-      product_(productID, prodPtr, prodGetter), item_(itemIndex, itemPtr) {}
+      product_(productID, prodPtr, prodGetter), item_(itemKey, itemPtr) {}
 
     /// Constructor from RefVector. 
     RefBase(RefCore const& product, RefItem<T> const& item) :
@@ -55,6 +55,12 @@ namespace edm {
   bool
   operator!=(RefBase<T> const& lhs, RefBase<T> const& rhs) {
     return !(lhs == rhs);
+  }
+
+  template <typename T>
+  bool
+  operator<(RefBase<T> const& lhs, RefBase<T> const& rhs) {
+    return (lhs.product() == rhs.product() ?  lhs.item() < rhs.item() : lhs.product() < rhs.product());
   }
 }
   
