@@ -20,7 +20,7 @@
  * with the best ALCT; perhaps a better algorithm will be determined in
  * the future.  The MotherBoard then determines a few more numbers (such as
  * quality and pattern) from the ALCT and CLCT information, and constructs
- * two correlated LCT "digis".  The sync information has yet to be determined.
+ * two correlated LCT "digis".
  *
  * \author Benn Tannenbaum 28 August 1999 benn@physics.ucla.edu
  *
@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2005/05/31 18:52:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 15:51:21 $
+ * $Revision: 1.2 $
  *
  */
 
