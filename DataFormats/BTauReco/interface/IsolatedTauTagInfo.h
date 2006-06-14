@@ -31,9 +31,9 @@ namespace reco {
 
 struct SortByDescendingTrackPt
 {
-  bool operator()(const TrackRef trStart, const TrackRef trEnd)
+  bool operator()(const TrackRef* trStart, const TrackRef* trEnd)
   {
-    return trStart->pt() > trEnd->pt();
+    return (*trStart)->pt() > (*trEnd)->pt();
   }
 };
 
@@ -55,9 +55,9 @@ struct SortByDescendingTrackPt
     
     virtual ~IsolatedTauTagInfo() {};
     
-     void setJetTag(const JetTagRef myRef) { 
+    void setJetTag(const JetTagRef myRef) { 
        m_jetTag = myRef;
-    }
+     }
     const Jet & jet() const { return m_jetTag->jet(); }
     
     const TrackRefVector & allTracks() const { return (*m_jetTag).tracks(); }
@@ -71,13 +71,15 @@ struct SortByDescendingTrackPt
      double discriminator() const { 
        double myDiscr = m_jetTag->discriminator();
        return myDiscr; }
-     double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk) const;
+     double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
+     double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
     // return all tracks in a cone of size "size" around a direction "direction" 
     edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min ) const;
  
     // matchingConeSize_  centred on the jet direction
     edm::Ref<TrackCollection> leadingSignalTrack(const float rm_cone, const float pt_min) const;
+    edm::Ref<TrackCollection> leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
     
     
   private:
@@ -87,11 +89,7 @@ struct SortByDescendingTrackPt
 
     JetTagRef m_jetTag;
     TrackRefVector selectedTracks_;
-    JetTracksAssociationRef m_jetTracksAssociation;
-
     TrackRef track;
-    //typedef edm::ExtCollection< IsolatedTauTagInfo,JetTagCollection> IsolatedTauExtCollection;
-    //typedef edm::OneToOneAssociation<JetTagCollection, IsolatedTauTagInfo> IsolatedTauExtCollection;
   };
 }
 
