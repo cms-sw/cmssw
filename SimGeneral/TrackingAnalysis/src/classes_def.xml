@@ -2,4 +2,6 @@
   <class pattern="edm::Wrapper<*>"/>
   <class name="std::vector<TrackingVertex>" />
   <class name="TrackingVertex" />
+  <class name="std::vector<TrackingParticle>" />
+  <class name="TrackingParticle" />
 </lcgdict>

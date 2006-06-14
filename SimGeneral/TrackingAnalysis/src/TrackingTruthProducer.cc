@@ -15,10 +15,14 @@
 using namespace edm;
 using namespace std; 
 
+typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
+typedef std::vector<TrackingParticle> TrackingParticleCollection;
+
 string MessageCategory = "TrackingTruth";
 
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexContainer>();
+  produces<TrackingParticleCollection>();
   conf_ = conf;
   distanceCut_ = conf_.getParameter<double>("distanceCut");
   dataLabels_  = conf_.getParameter<vector<string> >("dataLabels");
@@ -40,7 +44,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       
     }    
   }
-  const edm::HepMCProduct          *mcp =          hepMC.product();
+  const edm::HepMCProduct *mcp = hepMC.product();
   
   
   edm::Handle<EmbdSimVertexContainer>      G4VtxContainer;
@@ -149,11 +153,21 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     } 
      
 // Add data to closest vertex
-         
     (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
     // Add HepMC vertex
     // Add TrackingParticle (or maybe elsewhere)
 
+
+    
+// Add some tracking particles (junk for now)        
+//    int itrack = 0;
+//    for (TrackingParticleContainer::const_iterator t =
+//         tPC -> begin();
+//         t != tPC ->end(); ++t) {
+//      TrackingParticleRef tPR =    TrackingParticleRef(tPC, itrack);  
+//      (*nearestVertex).add(tPR);
+//      ++itrack;
+//    }
     ++index;     
   }
 
@@ -176,17 +190,20 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //    ++index;  
 //  }
 
-//   index = 0;
-//   for (TrackingVertexContainer::const_iterator v =
-//        tVC -> begin();
-//        v != tVC ->end(); ++v) {
-//     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " << (v -> g4Vertices()).size() << " G4 vertices";
-//     ++index;  
-//   }        
+   index = 0;
+   for (TrackingVertexContainer::const_iterator v =
+        tVC -> begin();
+        v != tVC ->end(); ++v) {
+     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
+       << (v -> g4Vertices()).size() << " G4 vertices and " 
+       << (v -> trackingParticles()).size() << " tracks";
+     ++index;  
+   }        
   
   // Put new info into event record  
   
   event.put(tVC);
+  event.put(tPC);
 }
 
 DEFINE_FWK_MODULE(TrackingTruthProducer)
