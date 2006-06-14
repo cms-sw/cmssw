@@ -95,23 +95,23 @@ void PerigeeLinearizedTrackState::computeJacobians() const
 //   cout << endl << allTimer.average().ticks() 
 //        << " All          time per event (in clock ticks)" << endl;
 
-  edm::LogInfo("RecoVertex/PerigeeLTS") 
-    << "about to build predstate" << "\n";
-  edm::LogInfo("RecoVertex/PerigeeLTS") 
-    << "initial state validity:" << theTSOS.isValid() << "\n";
+//   edm::LogInfo("RecoVertex/PerigeeLTS") 
+//     << "about to build predstate" << "\n";
+//   edm::LogInfo("RecoVertex/PerigeeLTS") 
+//     << "initial state validity:" << theTSOS.isValid() << "\n";
   thePredState = builder(theTSOS, paramPt); 
-  edm::LogInfo("RecoVertex/PerigeeLTS") 
-    << "predstate built" << "\n";
+//   edm::LogInfo("RecoVertex/PerigeeLTS") 
+//     << "predstate built" << "\n";
   if (std::abs(theCharge)<1e-5) {
     //neutral track
     computeNeutralJacobians();
   } else {
     //charged track
-    edm::LogInfo("RecoVertex/PerigeeLTS") 
-      << "about to compute charged jac" << "\n";
+//     edm::LogInfo("RecoVertex/PerigeeLTS") 
+//       << "about to compute charged jac" << "\n";
     computeChargedJacobians();
-    edm::LogInfo("RecoVertex/PerigeeLTS") 
-      << "charged jac computed" << "\n";
+//     edm::LogInfo("RecoVertex/PerigeeLTS") 
+//       << "charged jac computed" << "\n";
   }
 
 
@@ -209,7 +209,7 @@ PerigeeLinearizedTrackState::createRefittedTrackState(
   PerigeeConversions perigeeConversions;
   TrajectoryStateClosestToPoint refittedTSCP = 
         perigeeConversions.trajectoryStateClosestToPoint(
-	  vectorParameters, vertexPosition, charge(), covarianceMatrix);
+	  vectorParameters, vertexPosition, charge(), covarianceMatrix, theTrack.field());
   return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP));
 }
 
@@ -227,7 +227,7 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
 {
   GlobalPoint paramPt(theLinPoint);
   //tarjectory parameters
-  double field =  theTSOS.freeState()->parameters().magneticField().inTesla(thePredState.theState().position()).z() * 2.99792458e-3;
+  double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
 //   MagneticField::inInverseGeV(thePredState.theState().position()).z();
   double signTC = -theCharge;
     
