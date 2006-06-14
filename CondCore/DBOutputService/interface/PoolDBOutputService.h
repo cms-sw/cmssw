@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/DBWriter.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/IOVService/interface/IOV.h"
+#include "serviceCallbackRecord.h"
 #include <string>
 #include <map>
 namespace edm{
@@ -16,6 +17,7 @@ namespace cond{
   class ServiceLoader;
   class MetaData;
   namespace service {
+    class serviceCallbackToken;
     class PoolDBOutputService{
     public:
       //
@@ -28,7 +30,7 @@ namespace cond{
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
 			   edm::ActivityRegistry & iAR );
       //use these to control connections
-      void  postBeginJob();
+      //void  postBeginJob();
       void  postEndJob();
       //no use
       //void preSource();
@@ -37,9 +39,9 @@ namespace cond{
       //use these to control transaction interval
       //
       void preEventProcessing( const edm::EventID & evtID, 
-			       const edm::Timestamp & iTime );
-      void postEventProcessing( const edm::Event & evt, 
-				const edm::EventSetup & iEvtSetUp);
+      			       const edm::Timestamp & iTime );
+      //void postEventProcessing( const edm::Event & evt, 
+      //				const edm::EventSetup & iEvtSetUp);
       //
       // Service Callback method
       // assign validity to a new payload object
@@ -53,64 +55,72 @@ namespace cond{
       // 
       template<typename T>
 	void newValidityForNewPayload( T* payloadObj, 
-				       unsigned long long tillTime){
-	std::string payloadTok=m_payloadWriter->markWrite(payloadObj);
-	if( m_appendIOV ){
+				       unsigned long long tillTime,
+				       size_t callbackToken){
+	std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.find(callbackToken);
+	if(it==m_callbacks.end()) throw cond::Exception(std::string("PoolDBOutputService::newValidityForNewPayload: unregistered callback token"));
+	cond::service::serviceCallbackRecord& myrecord=it->second;
+	if(!myrecord.m_payloadWriter){
+	  if( m_customMappingFile.empty() ){
+	    myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName);
+	  }else{
+	    myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName,m_customMappingFile);
+	  }
+	}
+	std::string payloadTok=myrecord.m_payloadWriter->markWrite(payloadObj);
+	if( myrecord.m_appendIOV ){
 	  std::map<unsigned long long, std::string>::iterator 
-	    lastIOVit=m_iov->iov.lower_bound(m_endOfTime);
+	    lastIOVit=myrecord.m_iov->iov.lower_bound(m_endOfTime);
 	  unsigned long long closeIOVval=lastIOVit->first;
-	  m_iov->iov.insert( std::make_pair(tillTime,lastIOVit->second) );
+	  myrecord.m_iov->iov.insert( std::make_pair(tillTime,lastIOVit->second) );
 	  if( closeIOVval <= tillTime ){
 	    throw cond::Exception(std::string("PoolDBOutputService::newValidityForNewPayload cannot append beyond IOV boundary"));
-	  }else{
-	    m_iov->iov[m_endOfTime]=payloadTok;
 	  }
+	  myrecord.m_iov->iov[m_endOfTime]=payloadTok;
 	}else{
-	  m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
+	  myrecord.m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
 	}
       }
       //
       // Service callback method
-      // assign new validity to an existing payload object
+      // assign new validity to an existing payload object  
       //
       void newValidityForOldPayload( const std::string& payloadObjToken,
-				     unsigned long long tillTime );
+				     unsigned long long tillTime,
+				     size_t callbackToken);
       //
       // Service time utility callback method 
       // return the infinity value according to the given timetype
       // It is the IOV closing boundary
       //
-      unsigned long long endOfTime();
+      unsigned long long endOfTime() const;
       //
       // Service time utility callback method 
       // return the current conditions time value according to the 
       // given timetype
       //
-      unsigned long long currentTime();
+      unsigned long long currentTime() const;
       virtual ~PoolDBOutputService();
+      size_t callbackToken(const std::string& tag,
+			   const std::string& container) const ;
     private:
-      //
-      // establish db connection, set up initial conditions
-      //
       void connect();    
       void disconnect();
+      void initDB();
+    private:
       std::string m_connect;
-      std::string m_tag;
       std::string m_timetype;
       unsigned int m_connectMode;
-      std::string m_containerName;
       std::string m_customMappingFile;
-      bool m_appendIOV;
       std::string m_catalog;
-      cond::ServiceLoader* m_loader;
-      cond::MetaData* m_metadata;
-      cond::IOV* m_iov;
-      cond::DBSession* m_session;
-      cond::DBWriter* m_payloadWriter;
-      cond::DBWriter* m_iovWriter;
       unsigned long long m_endOfTime;
       unsigned long long m_currentTime;
-      std::string m_iovToken; //iov token cache
+      cond::ServiceLoader* m_loader;
+      cond::MetaData* m_metadata;
+      cond::DBSession* m_session;
+      cond::DBWriter* m_iovWriter;
+      std::map<size_t, cond::service::serviceCallbackRecord> m_callbacks;
+      bool m_dbstarted;
     };//PoolDBOutputService
   }//ns service
 }//ns cond
