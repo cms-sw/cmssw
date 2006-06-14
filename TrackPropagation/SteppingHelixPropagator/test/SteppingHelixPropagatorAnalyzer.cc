@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.2 2006/04/25 19:24:39 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.3 2006/05/03 06:42:03 slava77 Exp $
 //
 //
 
@@ -51,6 +51,8 @@ positions of a muon in the detector.
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -106,7 +108,6 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 
  private:
 // ----------member data ---------------------------
-  SteppingHelixPropagator* ivProp_;
   TFile* ntFile_;
   TTree* tr_;
 
@@ -146,7 +147,6 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
-  ivProp_ = 0;
 
   ntFile_ = new TFile(iConfig.getParameter<std::string>("NtFile").c_str(), "recreate");
   tr_ = new TTree("MuProp", "MuProp");
@@ -175,8 +175,6 @@ void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
 SteppingHelixPropagatorAnalyzer::~SteppingHelixPropagatorAnalyzer()
 {
  
-  if (ivProp_) delete ivProp_;
-
 }
 
 
@@ -191,6 +189,9 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   using namespace edm;
   ESHandle<MagneticField> bField;
   iSetup.get<IdealMagneticFieldRecord>().get(bField);
+
+  ESHandle<Propagator> shProp;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagator", shProp);
 
   ESHandle<DTGeometry> dtGeomESH;
   iSetup.get<MuonGeometryRecord>().get(dtGeomESH);
@@ -217,11 +218,6 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
 
-  if (! ivProp_ ) ivProp_ = new SteppingHelixPropagator(&*bField);
-  ivProp_->setDebug(debug_);
-
-  ivProp_->setMaterialMode(noMaterialMode_);
-  ivProp_->applyRadX0Correction(radX0CorrectionMode_);
   const double FPRP_MISMATCH = 150.;
   int pStatus = 0; //1 will be bad
 
@@ -343,7 +339,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       if (debug_){
 	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
-      tSOSDest = ivProp_->Propagator::propagate(ftsStart, surf);
+      tSOSDest = shProp->propagate(ftsStart, surf);
       ftsStart = *tSOSDest.freeState();
       getFromFTS(ftsStart, p3F, r3F, charge, covF);
 
@@ -406,7 +402,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       if (debug_){
 	std::cout<<"Will propagate to surface:"<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
-      tSOSDest = ivProp_->Propagator::propagate(ftsStart, surf);
+      tSOSDest = shProp->propagate(ftsStart, surf);
       ftsStart = *tSOSDest.freeState();
       getFromFTS(ftsStart, p3F, r3F, charge, covF);
 
@@ -461,7 +457,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       if (debug_){
 	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
-      tSOSDest = ivProp_->Propagator::propagate(ftsStart, surf);
+      tSOSDest = shProp->propagate(ftsStart, surf);
       ftsStart = *tSOSDest.freeState();
       getFromFTS(ftsStart, p3F, r3F, charge, covF);
 
