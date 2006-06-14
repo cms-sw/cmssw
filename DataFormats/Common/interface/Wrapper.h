@@ -5,12 +5,13 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.8 2005/11/02 06:45:55 wmtan Exp $
+$Id: Wrapper.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -33,6 +34,9 @@ namespace edm {
     bool present;
     T const obj;
   };
+
+  std::string
+  wrappedClassName(std::string const& className);
 }
 
 #endif
