@@ -48,13 +48,11 @@ namespace {
 void testRef::constructTest() {
    Ref<DummyCollection> nulled;
    CPPUNIT_ASSERT(!nulled);
-   CPPUNIT_ASSERT(!static_cast<bool>(nulled));
    CPPUNIT_ASSERT(nulled.isNull());
    CPPUNIT_ASSERT(!nulled.isNonnull());
    
    Ref<DummyCollection> nulledP;
    CPPUNIT_ASSERT(!nulledP);
-   CPPUNIT_ASSERT(!static_cast<bool>(nulledP));
    CPPUNIT_ASSERT(nulledP.isNull());
    CPPUNIT_ASSERT(!nulledP.isNonnull());
    
@@ -72,9 +70,9 @@ void testRef::constructTest() {
    
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
-   CPPUNIT_ASSERT(dummyRef.ref().item().index() == index);
+   CPPUNIT_ASSERT(dummyRef.ref().item().key() == index);
    CPPUNIT_ASSERT(dummyRef.ref().item().ptr() == &dummyCollection[index]);
-   CPPUNIT_ASSERT(dummyRef.index() == index);
+   CPPUNIT_ASSERT(dummyRef.key() == index);
    CPPUNIT_ASSERT(dummyRef.product() == &dummyCollection);
    CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[index]);
    CPPUNIT_ASSERT((dummyRef.operator->()) == &dummyCollection[index]);

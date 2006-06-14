@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.2 2006/03/03 17:10:39 chrjones Exp $
+$Id: DetSetRefVector.h,v 1.1 2006/03/30 20:46:58 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -79,10 +79,10 @@ namespace edm {
     struct CompareRefDetSet {
     typedef Ref<C, DetSet<T>, refhelper::FindDetSetForDetSetVector<T,C> > ref_type; 
       bool operator()(const ref_type& iRef, det_id_type iId) {
-        return iRef.index() < iId;
+        return iRef.key() < iId;
       }
       bool operator()(det_id_type iId, const ref_type& iRef ) {
-        return iId < iRef.index();
+        return iId < iRef.key();
       }
     };
 

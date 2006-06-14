@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.6 2006/05/18 19:02:06 paterno Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.7 2006/06/01 20:29:53 chrjones Exp $
  *  CMSSW
  *
  */
@@ -246,7 +246,7 @@ void refTest()
     assert(!(d3 <*refSet) && !(*refSet < d3));
   }
   {
-    RefDet refDet(edm::ProductID(1),RefDet::index_type(3,0),&theGetter);
+    RefDet refDet(edm::ProductID(1),RefDet::key_type(3,0),&theGetter);
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
    
