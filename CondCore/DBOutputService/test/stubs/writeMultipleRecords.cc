@@ -28,6 +28,10 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
   boost::uniform_real<> uni_dist(0,1);
   boost::variate_generator<base_generator_type&, boost::uniform_real<> > uni(rng, uni_dist);
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
+  if( !mydbservice.isAvailable() ){
+    std::cout<<"db service unavailable"<<std::endl;
+    return;
+  }
   try{
     //for run 4,8 12...I write new mySiStripNoises valid 4, 8, 12
     size_t NoiseCallbackToken=mydbservice->callbackToken("mySiStripNoises");
@@ -39,7 +43,6 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       unsigned int nAPV=2;
       for (uint32_t detid=detidseed;detid<(detidseed+bsize);detid++){
 	//Generate Noise for det detid
-	std::cout << "encoding data for detid " << detid << std::endl;
 	mySiStripNoises::SiStripNoiseVector theSiStripVector;
 	mySiStripNoises::SiStripData theSiStripData;
 	for(unsigned short j=0; j<nAPV; ++j){
@@ -66,14 +69,13 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
 	item.m_variance=1.12*ichannel;
 	myped->m_pedestals.push_back(item);
       }
-      if( mydbservice.isAvailable() ){
-	mydbservice->newValidityForNewPayload<Pedestals>(myped,mydbservice->currentTime(),PedCallbackToken);
-      }}
-    }catch(const std::exception& er){
-      std::cout<<"caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Funny error"<<std::endl;
+      mydbservice->newValidityForNewPayload<Pedestals>(myped,mydbservice->currentTime(),PedCallbackToken);
     }
+  }catch(const std::exception& er){
+    std::cout<<"caught std::exception "<<er.what()<<std::endl;
+  }catch(...){
+    std::cout<<"Funny error"<<std::endl;
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
