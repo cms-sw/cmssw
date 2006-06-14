@@ -68,8 +68,8 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
 
-  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //    << "linearization point is " << linP << "\n";
+  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //	 << "linearization point is " << linP << "\n";
 
   // Initial vertex state, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
@@ -77,13 +77,13 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   VertexState state(linP, error);
   
 
-  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //    << "Now linearizing tracks" << "\n";
+  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //	 << "Now linearizing tracks" << "\n";
 
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
 
-  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //    << "Now fitting vertex" << "\n";
+  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //	 << "Now fitting vertex" << "\n";
 
   return fit(vtContainer, state, false);
 }
@@ -154,6 +154,7 @@ SequentialVertexFitter::linearizeTracks(
 {
   GlobalPoint linP = state.position();
   vector<RefCountedVertexTrack> finalTracks;
+  finalTracks.reserve(tracks.size());
   for(vector<reco::TransientTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData 
@@ -174,8 +175,10 @@ SequentialVertexFitter::reLinearizeTracks(
   const vector<RefCountedVertexTrack> & tracks, 
   const VertexState state) const
 {
+
   GlobalPoint linP = state.position();
   vector<RefCountedVertexTrack> finalTracks;
+  finalTracks.reserve(tracks.size());
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
     //    RefCountedLinearizedTrackState lTrData = 
