@@ -6,7 +6,7 @@
 RefVectorIterator: An iterator for a RefVector
 
 
-$Id: RefVectorIterator.h,v 1.2 2006/03/23 23:58:33 wmtan Exp $
+$Id: RefVectorIterator.h,v 1.3 2006/04/30 18:55:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,24 +21,24 @@ namespace edm {
   class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, T> {
   public:
     typedef T value_type;
-    typedef typename Ref<C, T, F>::index_type size_type;
+    typedef typename Ref<C, T, F>::key_type key_type;
 
     typedef RefVectorIterator<C, T, F> iterator;
     typedef std::ptrdiff_t difference;
-    typedef typename std::vector<RefItem<size_type> >::const_iterator itemIter;
+    typedef typename std::vector<RefItem<key_type> >::const_iterator itemIter;
     RefVectorIterator() : product_(), iter_() {}
     explicit RefVectorIterator(RefCore const& product, itemIter const& it) :
       product_(product), iter_(it) {}
     Ref<C, T, F> operator*() const {
-      RefItem<size_type> const& item = *iter_;
+      RefItem<key_type> const& item = *iter_;
       return Ref<C, T, F>(product_, item);
     }
     Ref<C, T, F> operator[](difference n) const {
-      RefItem<size_type> const& item = iter_[n];
+      RefItem<key_type> const& item = iter_[n];
       return Ref<C, T, F>(product_, item);
     }
     std::auto_ptr<Ref<C, T, F> > operator->() const {
-      RefItem<size_type> const& item = *iter_;
+      RefItem<key_type> const& item = *iter_;
       return std::auto_ptr<Ref<C, T, F> >(new T(product_, item));
     }
     iterator & operator++() {++iter_; return *this;}
