@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.4 2006/05/11 10:45:55 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.6 2006/05/30 13:32:39 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -17,7 +17,7 @@ use File::Path;
 
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
-my $projectroot='cmssw';
+my $projectroot='CMSSW';
 my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 
 # Use CVSROOT to override:
