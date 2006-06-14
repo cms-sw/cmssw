@@ -66,8 +66,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
     const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[1]);
     match_range1=collmatched.get(acc.stripTIBLayer(1));
     rphi_range2=collrphi.get(acc.stripTIBLayer(2));
-    cout<<"ZOZZO "<<match_range1.second-match_range1.first<<" "
-	<<rphi_range2.second-rphi_range2.first<<endl;
+
     lh1=new  LayerWithHits(bl1,match_range1);
     lh2=new  LayerWithHits(bl2,rphi_range2);
   }
