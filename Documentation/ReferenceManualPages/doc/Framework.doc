@@ -9,7 +9,7 @@ For additional information please visit the <a href="https://twiki.cern.ch/twiki
 - <b>FWCore</b><br>
 Core framework packages
  - \ref FWCore_Framework "Framework"<br>
- - \ref PhysicsTools_FWLite "FWLite": automatic library loading for data types on file.<br>
+ - \ref FWCore_FWLite "FWLite": automatic library loading for data types on file.<br>
  - \ref FWCore_Integration "Integration"<br>
  - \ref FWCore_MessageLogger "MessageLogger"<br>
  - \ref FWCore_MessageService "MessageService"<br>
