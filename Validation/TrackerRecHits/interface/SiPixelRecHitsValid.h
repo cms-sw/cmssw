@@ -67,8 +67,8 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
 	edm::ParameterSet conf_;
 
-	void fillBarrel(SiPixelRecHitCollection::const_iterator, std::vector<PSimHit>::const_iterator, DetId, const PixelGeomDetUnit *);	
-	void fillForward(SiPixelRecHitCollection::const_iterator, std::vector<PSimHit>::const_iterator, DetId, const PixelGeomDetUnit *);
+	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *);	
+	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *);
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];
