@@ -96,31 +96,17 @@ Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) cons
   */
   
 
-  if(paras[4]< paras[9]){
-    if(paras[0]<5){
-      bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					  paras[9]/cm,
-					  paras[3]/cm,
-					  paras[0]/cm);
-    }else if(paras[0]>paras[3]){
-      bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
-					  paras[9]/cm,
-					  paras[0]/cm,
-					  paras[3]/cm);
-    }  
-  }else if(paras[4]>paras[9]){
-    if(paras[0]<5){
-      bounds = new TrapezoidalPlaneBounds(paras[9]/cm,
-					  paras[4]/cm,
-					  paras[3]/cm,
-					  paras[0]/cm);
-    }else if(paras[0]>paras[3]){
-      bounds = new TrapezoidalPlaneBounds(paras[9]/cm,
-					  paras[4]/cm,
-					  paras[0]/cm,
-					  paras[3]/cm);
-    }  
-  }
+  if(paras[0]<5){
+    bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
+					paras[9]/cm,
+					paras[3]/cm,
+					paras[0]/cm);
+  }else if(paras[0]>paras[3]){
+    bounds = new TrapezoidalPlaneBounds(paras[4]/cm,
+					paras[9]/cm,
+					paras[0]/cm,
+					paras[3]/cm);
+  }  
   return bounds;
 } 
 
