@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.13 2006/05/30 08:00:49 llista Exp $
+ * $Id: AssociationMap.h,v 1.14 2006/06/08 13:02:38 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -238,6 +238,12 @@ namespace edm {
       if ( ref_.key.id() != k.id() ) return end();
       return find( k.index() );
     }
+    /// erase the element whose key is k
+    size_type erase( const key_type& k ) {
+      index_type i = k.index();
+      transientMap_.erase( i );
+      return map_.erase( i );
+    }
     /// find element with specified reference key
     const value_type & operator[]( const key_type & k ) const {
       helpers::checkRef( ref_.key, k );
@@ -250,6 +256,8 @@ namespace edm {
       if ( f == map_.end() ) return 0;
       return Tag::size( f->second );
     }
+
+  private:
     /// find helper
     struct Find :
       public std::binary_function<const self&, size_type, const value_type *> {
@@ -259,7 +267,6 @@ namespace edm {
 	return & c[ i ];
       }
     };
-  private:
     /// reference set
     ref_type ref_;
     /// index map
@@ -290,6 +297,7 @@ namespace edm {
     } 
     friend struct const_iterator;
     friend struct Find;
+    friend struct refhelper::FindTrait<self,value_type>;
   };
  
   namespace refhelper {
