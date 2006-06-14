@@ -138,10 +138,11 @@ namespace edm {
             // double-check that no duplication
             NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
             if(moduleMapItr != modulesAndSources_.end()) {
-              //throw edm::Exception(errors::Configuration,"") 
-              // << "Duplicate definition of " << name << std::endl;
-              edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
-              << name << ". Only last one will be kept.";
+              throw edm::Exception(errors::Configuration,"") 
+               << "Duplicate definition of " << name
+               << "\nPlease edit the configuration so it is only defined once";
+              //edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
+              //<< name << ". Only last one will be kept.";
             }
             modulesAndSources_[name] = *nodeItr;
           }
