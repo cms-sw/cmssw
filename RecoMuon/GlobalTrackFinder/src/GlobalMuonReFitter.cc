@@ -6,11 +6,12 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/05/18 20:35:28 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/06/03 02:58:57 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
+ *    \porting author C. Liu            Purdue University
  **/
 
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonReFitter.h"
@@ -25,15 +26,20 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ///constructor
 GlobalMuonReFitter::GlobalMuonReFitter(const MagneticField * field) {
 
   theErrorRescaling = 100.0;
+  theMass = 0.1057; //FIXME
  
-  thePropagator1 = new SteppingHelixPropagator(field,alongMomentum);
-  thePropagator2 = new SteppingHelixPropagator(field,alongMomentum);
+  thePropagator1 = new SmartPropagator(PropagatorWithMaterial(alongMomentum, theMass, field), SteppingHelixPropagator(field), field,alongMomentum);
+
+  thePropagator2 = new SmartPropagator(PropagatorWithMaterial(oppositeToMomentum, theMass, field), SteppingHelixPropagator(field,oppositeToMomentum),field,oppositeToMomentum);
   
   theUpdator     = new KFUpdator;
   theEstimator   = new Chi2MeasurementEstimator(200.0);
@@ -42,7 +48,6 @@ GlobalMuonReFitter::GlobalMuonReFitter(const MagneticField * field) {
 
 ///destructor
 GlobalMuonReFitter::~GlobalMuonReFitter() {
-
   delete thePropagator2;
   delete thePropagator1;
   delete theUpdator;
@@ -52,10 +57,8 @@ GlobalMuonReFitter::~GlobalMuonReFitter() {
 
 
 vector<Trajectory> GlobalMuonReFitter::trajectories(const Trajectory& t) const {
-
   if ( !t.isValid() ) return vector<Trajectory>();
-
-  vector<Trajectory> fitted = fit(t);
+  const vector<Trajectory>& fitted = fit(t);
   return smooth(fitted);
 
 }
@@ -104,6 +107,7 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
     currTsos = theUpdator->update(predTsos, (*hits.begin()));
     myTraj.push(TM(predTsos, currTsos, &(*hits.begin()),
 		   theEstimator->estimate(predTsos, (*hits.begin())).second));
+
   } else {
     currTsos = predTsos;
     myTraj.push(TM(predTsos, &(*hits.begin())));
@@ -119,6 +123,7 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
     } else if ( (*ihit).isValid() ) {
       // update
       currTsos = theUpdator->update(predTsos, *ihit);
+
       myTraj.push(TM(predTsos, currTsos, &(*ihit),
 		     theEstimator->estimate(predTsos, *ihit).second));
     } else {
@@ -126,17 +131,17 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
       myTraj.push(TM(predTsos, &(*ihit)));
     }
   }
-  
-  return vector<Trajectory>(1, myTraj);
+  if ( !myTraj.isValid() ) return vector<Trajectory>();
 
+  return vector<Trajectory>(1, myTraj);
 }
 
 
-vector<Trajectory> GlobalMuonReFitter::smooth(vector<Trajectory>& tc) const {
+vector<Trajectory> GlobalMuonReFitter::smooth(const vector<Trajectory>& tc) const {
 
   vector<Trajectory> result; 
-  
-  for ( vector<Trajectory>::iterator it = tc.begin(); it != tc.end(); ++it ) {
+
+  for ( vector<Trajectory>::const_iterator it = tc.begin(); it != tc.end(); ++it ) {
     vector<Trajectory> smoothed = smooth(*it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
@@ -151,20 +156,19 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
   if ( t.empty() ) return vector<Trajectory>();
 
   Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
-
-  vector<TM> avtm = t.measurements();
+  const vector<TM>& avtm = t.measurements();
   if ( avtm.size() <= 2 ) return vector<Trajectory>(); 
 
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
-
   if ( !predTsos.isValid() ) return vector<Trajectory>();
-
   TSOS currTsos;
 
   // first smoothed TM is last fitted
   if ( avtm.back().recHit()->isValid() ) {
+
     currTsos = theUpdator->update(predTsos, (*avtm.back().recHit()));
+
     myTraj.push(TM(avtm.back().forwardPredictedState(), 
 		   predTsos,
 		   avtm.back().updatedState(), 
@@ -172,19 +176,22 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
 		   avtm.back().estimate(),
 		   avtm.back().layer()), 
 		avtm.back().estimate());
+
   } else {
+
     currTsos = predTsos;
+
     myTraj.push(TM(avtm.back().forwardPredictedState(),
 		   avtm.back().recHit(),
                    avtm.back().estimate(),
 		   avtm.back().layer()));
+
   }
-  
+
   TrajectoryStateCombiner combiner;
 
-  for ( vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
+  for ( vector<TM>::const_reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
-
     predTsos = thePropagator2->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
@@ -220,7 +227,7 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
 		     (*itm).layer()));
     }
   }
-  
+
   // last smoothed TM is last filtered
   predTsos = thePropagator2->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
