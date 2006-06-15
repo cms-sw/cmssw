@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/14 12:28:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/15 13:37:10 $
+ *  $Revision: 1.12 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -230,8 +230,9 @@ void DTTTrigCalibration::endJob() {
   // Write the ttrig object to DB
   edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
  if( dbOutputSvc.isAvailable() ){
+   size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
     try{
-      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime());
+      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
     }catch(const cond::Exception& er){
       cout << er.what() << endl;
     }catch(const std::exception& er){
