@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.25 2006/06/05 22:26:19 rpw Exp $
+ * $Id: pset_parse.y,v 1.26 2006/06/06 21:39:52 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -73,6 +73,7 @@ namespace edm
   {
     int lines=1;
     NodePtrList* global_gunk;
+    string currentFile = "";
   }
 }
 
@@ -161,14 +162,50 @@ main:            process
                    global_gunk = $<_NodePtrList>1;
                    DBMADE("main");
                  }
-               | nodes
+               | anylevelnodes
                  {
-                   DBPRINT("main: nodes");
+                   DBPRINT("main: anylevelnodes");
                    global_gunk = $<_NodePtrList>1;
                    DBMADE("main");
                  }
                ;
 
+/* Returns a NodePtrList pointer */
+anylevelnodes:   anylevelnodes anylevelnode
+                 {
+                   DBPRINT("anylevelnodes: anylevelnodes anylevelnode");
+                   NodePtrList* p = $<_NodePtrList>1;
+                   NodePtr node($<_Node>2);
+                   p->push_back(node);
+                   $<_NodePtrList>$ = p;
+                 }
+               |
+                 anylevelnode
+                 {
+                   DBPRINT("anylevelnodes: anylevelnode");
+                   NodePtr node($<_Node>1);
+                   NodePtrList* p(new NodePtrList);
+                   p->push_back(node);
+                   $<_NodePtrList>$ = p;
+                 }
+               ;
+
+anylevelnode:    toplevelnode
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
+               |
+                 lowlevelnode
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
+               |
+                 eitherlevelnode
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
+               ;
+ 
 /* Return a NodePtrList pointer */
 nodes:           nodes node
                  {
@@ -194,10 +231,10 @@ nodes:           nodes node
                  }
                ;
 
-/* Return a NodePtr pointer */
-node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
+/* Return a NodePtr pointer to something that can exist inside a module or pset */
+lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
-                   DBPRINT("node: TYPE");
+                   DBPRINT("lowlevelnode: TYPE");
                    bool tr = $<_bool>1;
                    string type(toString($<str>2));
                    string name(toString($<str>3));
@@ -206,9 +243,9 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    $<_Node>$ = en;
                  }
                | 
-                 untracked VTYPE_tok LETTERSTART_tok EQUAL_tok array
+                 untracked VTYPE_tok LETTERSTART_tok EQUAL_tok possiblyblankarray
                  {
-                   DBPRINT("node: VTYPE");
+                   DBPRINT("lowlevelnode: VTYPE");
                    bool tr = $<_bool>1;
                    string type(toString($<str>2));
                    string name(toString($<str>3));
@@ -219,7 +256,7 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                | 
                  untracked STRING_tok LETTERSTART_tok EQUAL_tok anyquote
                  {
-                   DBPRINT("node: STRING");
+                   DBPRINT("lowlevelnode: STRING");
                    bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    string value(toString($<str>5));
@@ -227,9 +264,9 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    $<_Node>$ = en;
                  }
                |
-                 untracked VSTRING_tok LETTERSTART_tok EQUAL_tok strarray
+                 untracked VSTRING_tok LETTERSTART_tok EQUAL_tok possiblyblankstrarray
                  {
-                   DBPRINT("node: VSTRING");
+                   DBPRINT("lowlevelnode: VSTRING");
                    string name(toString($<str>3));
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
@@ -239,7 +276,7 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                | 
                  untracked FILEINPATH_tok LETTERSTART_tok EQUAL_tok anyquote
                  {
-                   DBPRINT("node: FILEINPATH");
+                   DBPRINT("lowlevelnode: FILEINPATH");
                    bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    string value(toString($<str>5));
@@ -249,7 +286,7 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                |
                  untracked PRODUCTTAG_tok LETTERSTART_tok EQUAL_tok any
                  {
-                   DBPRINT("node: PRODUCTTAG");
+                   DBPRINT("lowlevelnode: PRODUCTTAG");
                    bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    string value(toString($<str>5));
@@ -259,18 +296,39 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                |
                  USING_tok LETTERSTART_tok
                  {
-                   DBPRINT("node: USING");
+                   DBPRINT("lowlevelnode: USING");
                    string name(toString($<str>2));
                    UsingNode* en(new UsingNode(name,lines));
                    $<_Node>$ = en;
                  }
+               ;
+
+node:            lowlevelnode
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
                |
-                 allpset
+                 eitherlevelnode
                  {
                    $<_Node>$ = $<_Node>1;
                  }
                ;
 
+/* Nodes that can exist either at process level, or inside other blocks */
+eitherlevelnode:    allpset
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
+               |
+                 INCLUDE_tok anyquote
+                 {
+                   DBPRINT("procnode: INCLUDE");
+                   string name(toString($<str>2));
+                   IncludeNode * wn(new IncludeNode("include", name, lines));
+                   $<_Node>$ = wn;
+                 }
+               ;
+ 
 /* Return a PSetNode pointer */
 allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
@@ -382,27 +440,39 @@ nodesarray:      nodesarray COMMA_tok scoped
 
 
 /* Return a StringList pointer */
+anyarray:        array
+               |
+                 strarray
+               |
+                 blankarray;
+
+possiblyblankstrarray: strarray
+               |
+                 blankarray
+               ;
+
+
 strarray:        SCOPE_START_tok  stranys SCOPE_END_tok
                  {
                    DBPRINT("strarray: not empty");
                    $<_StringList>$ = $<_StringList>2;
                  }
-               |
-                 SCOPE_START_tok SCOPE_END_tok
-                 {
-                   DBPRINT("strarray: empty");
-                   $<_StringList>$ = new StringList();
-                 }
                ;
 
 /* Return a StringList pointer */
+possiblyblankarray: array
+               |
+                 blankarray
+               ;
+
 array:           SCOPE_START_tok  anys SCOPE_END_tok
                  {
                    DBPRINT("array: not empty");
                    $<_StringList>$ = $<_StringList>2;
                  }
-               |
-                 SCOPE_START_tok SCOPE_END_tok
+               ;
+
+blankarray:      SCOPE_START_tok SCOPE_END_tok
                  {
                    DBPRINT("array: empty");
                    $<_StringList>$ = new StringList();
@@ -537,13 +607,19 @@ procnodes:       procnodes procnode
                ;
 
 /* Returns a Node pointer */
-procnode:        allpset
+procnode:        eitherlevelnode 
                  {
-                   DBPRINT("procnode: PSET");
+                   DBPRINT("procnode: any level");
                    $<_Node>$ = $<_Node>1;
                  }
                |
-                 SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
+                 toplevelnode
+                 {
+                   $<_Node>$ = $<_Node>1;
+                 }
+               ;
+
+toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: initSOURCE");
                    string type(toString($<str>3));
@@ -598,9 +674,9 @@ procnode:        allpset
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok array
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
                  {
-                   DBPRINT("node: REPLACEVTYPE");
+                   DBPRINT("node: REPLACEARRAY");
                    string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
@@ -620,19 +696,7 @@ procnode:        allpset
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok strarray
-                 {
-                   DBPRINT("procnode: REPLACEVSTRING");
-                   string name(toString($<str>2));
-                   StringListPtr value($<_StringList>4);
-                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
-                   NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok scoped
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok nonblankscoped
                  {
                    DBPRINT("procnode:REPLACESCOPE");
                    string name(toString($<str>2));
@@ -673,14 +737,6 @@ procnode:        allpset
                    $<_Node>$ = wn;
                  }
                | */
-                 INCLUDE_tok anyquote
-                 {
-                   DBPRINT("procnode: INCLUDE");
-                   string name(toString($<str>2));
-                   IncludeNode * wn(new IncludeNode("include", name, lines));
-                   $<_Node>$ = wn;
-                 }
-               | 
                  MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
@@ -768,13 +824,19 @@ procnode:        allpset
                ;
 
 /* Returns a NodePtrList pointer */
-scoped:          SCOPE_START_tok nodes SCOPE_END_tok
+scoped:          nonblankscoped
+               |
+                 blankscoped;
+               ;
+ 
+nonblankscoped:  SCOPE_START_tok nodes SCOPE_END_tok
                  {
                    DBPRINT("scope: nodes");
                    $<_NodePtrList>$ = $<_NodePtrList>2;
                  }
-               |
-                 SCOPE_START_tok SCOPE_END_tok
+               ;
+
+blankscoped:     SCOPE_START_tok SCOPE_END_tok
                  {
                    DBPRINT("scope: empty");
                    NodePtrList* nodelist(new NodePtrList);
@@ -866,7 +928,12 @@ extern char *pset_text;
 int yyerror(char const* msg)
 {
   std::stringstream err;
-  err << "Parse error on line: " << lines << " token: '" << pset_text << "'\n";
+  err << "Parse error ";
+   if(currentFile != "")
+  {
+    err << "in file " << currentFile << "\n";
+  }
+  err << "on line: " << lines << " token: '" << pset_text << "'\n";
   err << "message: " << msg << "\n";
   errorMessage() = err.str();
   return 0;
