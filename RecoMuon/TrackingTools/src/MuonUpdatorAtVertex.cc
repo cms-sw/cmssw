@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date:  $
- *   $Revision: $
+ *   $Date: 2006/06/10 19:52:04 $
+ *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -42,7 +42,7 @@
 
 MuonUpdatorAtVertex::MuonUpdatorAtVertex(const MagneticField* field) : 
          thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator()),
+         theExtrapolator(new TransverseImpactPointExtrapolator(field)),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
@@ -59,7 +59,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const GlobalPoint p, const GlobalError 
          theVertexPos(p),
          theVertexErr(e),
          thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator()),
+         theExtrapolator(new TransverseImpactPointExtrapolator(field)),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.))
 { }
@@ -102,7 +102,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
     
   // get state at outer tracker surface
   StateOnTrackerBound tracker(thePropagator);
-  TrajectoryStateOnSurface trackerState = tracker(tsosAtTracker);
+  TrajectoryStateOnSurface trackerState = tracker(*tsosAtTracker.freeState());
   
   // inside the tracker we can use Gtf propagator
   TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(tsosAtTracker,theVertexPos);
@@ -139,7 +139,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
     vertexState = theUpdator->update(ipState, *recHit);
 
     det.addRecHit(recHit);
-    std::vector<TrajectoryMeasurement> tm;// = det.measurements(vertexState,*theEstimator);
+    std::vector<TrajectoryMeasurement> tm;// = det.measurements(vertexState,*theEstimator); //FIXME
     if ( tm.empty() ) {
       vertexMeasurement = TrajectoryMeasurement();
     }
