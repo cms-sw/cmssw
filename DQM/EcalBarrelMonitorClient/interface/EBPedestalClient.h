@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.32 $
+ * $Date: 2006/06/13 20:05:55 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -105,10 +105,6 @@ TProfile2D* h01_[36];
 TProfile2D* h02_[36];
 TProfile2D* h03_[36];
 
-MEContentsProf2DWithinRangeROOT* qth01_[36];
-MEContentsProf2DWithinRangeROOT* qth02_[36];
-MEContentsProf2DWithinRangeROOT* qth03_[36];
-
 TProfile2D* j01_[36];
 TProfile2D* j02_[36];
 TProfile2D* j03_[36];
@@ -120,6 +116,10 @@ TProfile2D* k03_[36];
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 MonitorElement* meg03_[36];
+
+MEContentsProf2DWithinRangeROOT* qth01_[36];
+MEContentsProf2DWithinRangeROOT* qth02_[36];
+MEContentsProf2DWithinRangeROOT* qth03_[36];
 
 MonitorElement* mep01_[36];
 MonitorElement* mep02_[36];

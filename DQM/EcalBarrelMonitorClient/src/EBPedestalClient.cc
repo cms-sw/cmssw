@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/07 16:39:13 $
- * $Revision: 1.74 $
+ * $Date: 2006/06/13 21:25:06 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -423,15 +423,15 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
   }
 
-  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
   
   if ( ! badChannels.empty() ) {
   
     cout << endl;
     cout << " Channels that failed \""
-         << qth01_[ism-1]->getName() << "\" "
+         << qth03_[ism-1]->getName() << "\" "
          << "(Algorithm: "
-         << qth01_[ism-1]->getAlgoName()
+         << qth03_[ism-1]->getAlgoName()
          << ")" << endl;
   
     cout << endl;
