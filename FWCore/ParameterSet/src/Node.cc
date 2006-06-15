@@ -23,6 +23,17 @@ namespace edm {
     }
 
 
+    void Node::printTrace(std::ostream & out) const 
+    {
+      // default behavior is to pass the message up to the parent,
+      // in case the parent knows what to do.
+      if(parent_ != 0) 
+      {
+        parent_->printTrace(out);
+      }
+    }     
+
+
     void Node::insertInto(edm::ParameterSet & pset) const
     {
       pset.insert(false, name, makeEntry());
