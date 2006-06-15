@@ -13,9 +13,9 @@ public:
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
 private:
-  edm::ProductTag wireDigiTag_;
-  edm::ProductTag stripDigiTag_;
-  edm::ProductTag comparatorDigiTag_;
+  edm::InputTag wireDigiTag_;
+  edm::InputTag stripDigiTag_;
+  edm::InputTag comparatorDigiTag_;
 };
 
 #endif

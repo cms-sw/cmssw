@@ -10,9 +10,9 @@ using std::cout;
 using std::string;
 
 CSCDigiDump::CSCDigiDump(edm::ParameterSet const& conf) {
-  wireDigiTag_       = conf.getParameter<edm::ProductTag>("wireDigiTag");
-  stripDigiTag_      = conf.getParameter<edm::ProductTag>("stripDigiTag");
-  comparatorDigiTag_ = conf.getParameter<edm::ProductTag>("comparatorDigiTag");
+  wireDigiTag_       = conf.getParameter<edm::InputTag>("wireDigiTag");
+  stripDigiTag_      = conf.getParameter<edm::InputTag>("stripDigiTag");
+  comparatorDigiTag_ = conf.getParameter<edm::InputTag>("comparatorDigiTag");
 
 }
 
