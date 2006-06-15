@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: tboccali $
-// $Date: 2006/06/01 17:22:26 $
-// $Revision: 1.8 $
+// $Date: 2006/06/02 11:34:19 $
+// $Revision: 1.9 $
 //
 
 #include <vector>
@@ -137,7 +137,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       state = *(transformer.persistentState(firstState,recHits.begin()->geographicalId().rawId()));
     }
     else{
-      const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
+      //const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
       const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
       TrajectoryStateTransform transformer;
       TrajectoryStateOnSurface start(transformer.transientState(state,  &(detState->surface()), magField));
@@ -162,8 +162,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
       TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
 
-      //PropagatorWithMaterial thePropagator;
-      AnalyticalPropagator thePropagator(magField,anyDirection);
+      PropagatorWithMaterial thePropagator(alongMomentum,.1057,magField); 
+      //AnalyticalPropagator thePropagator(magField,anyDirection);
 
       const GeomDetUnit* det = geom->idToDetUnit(rhit->geographicalId());
 
@@ -179,8 +179,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (!predTsos.isValid()) continue;
       TrajectoryMeasurement tm;
 
-      GlobalPoint p = det->surface().toGlobal(ihit->localPosition());
       MeasurementEstimator::HitReturnType est = theEstimator.estimate(predTsos, *ihit);
+      //GlobalPoint p = det->surface().toGlobal(ihit->localPosition());
       //std::cout << "Hit "<<nhit<<" of "<<transHits.size()<<" chi2 = " << est.second 
       //	<<"\t at r:z = "<<p.perp()<<":"<<p.z()<<std::endl;
       //std::cout<<predTsos;
