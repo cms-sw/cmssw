@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.11 $
+ * $Date: 2006/06/13 10:08:35 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,10 +99,12 @@ MonitorElement* meh03_[36];
 
 TProfile2D* h03_[36];
 
+MonitorElement* meg03_[36];
+
 MEContentsProf2DWithinRangeROOT* qth03_[36];
 
-MonitorElement* meg03_[36];
 MonitorElement* mep03_[36];
+
 MonitorElement* mer03_[36];
 
 // Quality check on crystals, one per each gain
