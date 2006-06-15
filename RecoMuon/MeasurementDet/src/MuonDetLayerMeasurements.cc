@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/06/07 14:07:07 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/14 17:53:15 $
+ *  $Revision: 1.9 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -45,7 +45,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     
     // Create the ChamberId
     DTChamberId chamberId(geoId.rawId());
-    std::cout<<"RecHit Id (DT) "<<chamberId<<std::endl;
+    std::cout<<"GeomDet Id (DT) "<<chamberId<<std::endl;
     
     // Get the DT-Segment which relies on this chamber
     DTRecSegment4DCollection::range  range = dtRecHits->get(chamberId);
@@ -65,7 +65,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
 
     // Create the chamber Id
     CSCDetId chamberId(geoId.rawId());
-    std::cout<<"RecHit Id (CSC) "<<chamberId<<std::endl;    
+    std::cout<<"GeomDet Id (CSC) "<<chamberId<<std::endl;    
 
     // Get the CSC-Segment which relies on this chamber
     CSCSegmentCollection::range  range = cscSegments->get(chamberId);

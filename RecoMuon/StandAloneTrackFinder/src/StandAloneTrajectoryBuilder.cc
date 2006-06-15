@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/12 13:39:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/14 17:48:46 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -39,6 +39,8 @@
 // FIXME
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 //
 
 using namespace edm;
@@ -90,6 +92,11 @@ void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
 }
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
+  // FIXME
+  cout<< "StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder "
+      << "destructor called" << endl;
+  
+
   LogDebug("StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder") 
     << "destructor called" << endl;
   
@@ -131,22 +138,33 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Transform it in a TrajectoryStateOnSurface
   cout<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
   TrajectoryStateTransform tsTransform;
+
   DetId seedDetId(pTSOD.detId());
-  const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
-  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+
+  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
+  //   const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
+  //   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+  
+  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
+  Surface::PositionType pos(0., 0., 0.);
+  Surface::RotationType rot;
+  BoundCylinder *cyl=
+    new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
+
+  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, cyl, &*theMGField);
 
 
-  // FIXME
+  // FIXME remove this
   if(seedDetId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( seedDetId.rawId() );
     std::cout<< "Seed id (CSC)"<< cscId << std::endl ;
-       }
+  }
   else if (seedDetId.subdetId() == MuonSubdetId::DT){
-    DTChamberId dtId( seedDetId.rawId() );
-    std::cout<< "Seed id (DT) "<< dtId << std::endl ;
+       DTChamberId dtId( seedDetId.rawId() );
+       std::cout<< "Seed id (DT) "<< dtId << std::endl ;
   }
   //
-
+  
   // Get the layer from which start the trajectory building
   cout<<"Get the layer from which start the trajectory building"<<endl;
   const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
