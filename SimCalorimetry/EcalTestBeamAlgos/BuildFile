@@ -1,0 +1,12 @@
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalDigi>
+<use name=SimDataFormats/EcalTestBeam>
+<use name=Geometry/CaloEventSetup>
+
+<export>
+   <lib name=SimCalorimetryEcalTestBeamAlgos>
+   <use name=DataFormats/EcalDetId>
+   <use name=DataFormats/EcalDigi>
+   <use name=SimDataFormats/EcalTestBeam>
+   <use name=Geometry/CaloEventSetup>
+</export>
