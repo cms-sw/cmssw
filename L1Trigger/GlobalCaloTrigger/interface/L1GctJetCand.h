@@ -40,7 +40,10 @@ public:
   uint16_t eta()const { return m_eta; }
   uint16_t phi()const { return m_phi; }
   bool tauVeto()const { return m_tauVeto; }
-	
+
+  /// test whether this jet candidate has been filled	
+  bool isNullJet() const { return ((m_rank==0) && (m_eta==0) && (m_phi==0)); } 
+
   friend std::ostream& operator << (std::ostream& os, const L1GctJetCand& cand);
   
   ///Setup an existing jet all in one go

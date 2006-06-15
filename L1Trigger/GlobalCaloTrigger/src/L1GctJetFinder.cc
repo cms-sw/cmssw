@@ -8,8 +8,10 @@ using namespace std;
 //DEFINE STATICS
 const int L1GctJetFinder::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinder::MAX_SOURCE_CARDS = 9;
-const int L1GctJetFinder::MAX_REGIONS_IN = 48;
-const int L1GctJetFinder::COL_OFFSET = L1GctJetFinder::MAX_REGIONS_IN/4;
+const int L1GctJetFinder::COL_OFFSET = ((L1GctMap::N_RGN_ETA)/2)+1;
+const int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinder::COL_OFFSET*4;
+// const int L1GctJetFinder::MAX_REGIONS_IN = 48;
+// const int L1GctJetFinder::COL_OFFSET = L1GctJetFinder::MAX_REGIONS_IN/4;
 
 
 L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
@@ -93,6 +95,8 @@ void L1GctJetFinder::reset()
   m_inputRegions.resize(MAX_REGIONS_IN);
   m_outputJets.clear();
   m_outputJets.resize(MAX_JETS_OUT);
+  m_outputEtStrip0 = 0;
+  m_outputEtStrip1 = 0;
   m_outputHt = 0;
 }
 
@@ -388,7 +392,15 @@ L1GctScalarEtVal L1GctJetFinder::calcHt() const
   unsigned ht = 0;
   for(UShort i=0; i < MAX_JETS_OUT; ++i)
   {
-    ht += m_outputJets[i].rank();
+    // Only sum Ht for valid jets
+    if (!m_outputJets.at(i).isNullJet()) {
+      UShort eta = static_cast<UShort>(m_outputJets.at(i).eta());
+      UShort phi = static_cast<UShort>(m_outputJets.at(i).phi());
+
+      UShort centreIndex = ((phi+1)*COL_OFFSET) + (eta+1);
+      bool hfBoundary = (eta == (COL_OFFSET-2));
+      ht += m_jetEtCalLut->convertToTenBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), eta);
+    }
   }
   L1GctScalarEtVal temp(ht);
   return temp;

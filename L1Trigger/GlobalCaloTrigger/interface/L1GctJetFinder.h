@@ -2,6 +2,7 @@
 #define L1GCTJETFINDER_H_
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
@@ -94,6 +95,9 @@ public:
     
   /// Return input data   
   std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
+
+  /// Return pointer to calibration LUT
+  L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
 
   std::vector<L1GctJetCand> getJets() const { return m_outputJets; } ///< Get the located jets. 
   L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
