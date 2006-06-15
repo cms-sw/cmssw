@@ -47,6 +47,13 @@ namespace edm {
 
     edm::Entry ModuleNode::makeEntry() const
     {
+       if(type() != "secsource")
+       {
+        throw edm::Exception(errors::Configuration)
+          << "The only type of Module that can exist inside another"
+          << " ParameterSet is a secsource";
+       }
+          
        boost::shared_ptr<ParameterSet> pset(new ParameterSet);
        // do all the subnodes
        CompositeNode::insertInto(*pset);
