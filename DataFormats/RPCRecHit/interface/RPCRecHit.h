@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/04/12 20:49:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/18 16:30:50 $
+ *  $Revision: 1.2 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -20,6 +20,8 @@ class RPCRecHit : public RecHit1D {
   RPCRecHit(const RPCDetId& rpcId,
 	    int bx);
 
+  RPCRecHit(const RPCDetId& rpcId,
+	    int bx,int multiplicity);
   /// Default constructor
   RPCRecHit();
 
@@ -28,13 +30,13 @@ class RPCRecHit : public RecHit1D {
   /// resolution (the cell resolution) for the coordinate being measured
   /// and 0 for the two other coordinates
   RPCRecHit(const RPCDetId& rpcId,
-	    int bx,
+	    int bx,int multiplicity,
 	    const LocalPoint& pos);
   
 
   /// Constructor from a local position and error, rpcId and bx.
   RPCRecHit(const RPCDetId& rpcId,
-	    int bx,
+	    int bx,int multiplicity,
 	    const LocalPoint& pos,
 	    const LocalError& err);
   
@@ -99,12 +101,17 @@ class RPCRecHit : public RecHit1D {
     return theBx;
   }
 
+  int clusterSize() const {
+    return theClusterSize;
+  }
+
   /// Comparison operator, based on the rpcId and the digi time
   bool operator==(const RPCRecHit& hit) const;
 
  private:
   RPCDetId theRPCId;
   int theBx;
+  int theClusterSize;
   // Position and error in the Local Ref. Frame of the RPCLayer
   LocalPoint theLocalPosition;
   LocalError theLocalError;

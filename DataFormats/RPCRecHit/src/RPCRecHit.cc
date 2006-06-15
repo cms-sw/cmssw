@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/11 18:30:00 $
+ *  $Date: 2006/04/12 20:49:07 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
@@ -15,16 +15,21 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) :
 {
 }
 
-
-
-RPCRecHit::RPCRecHit() : 
-  theRPCId(), theBx(99), theLocalPosition(), theLocalError() 
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, int multiplicity) : 
+  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(), theLocalError() 
 {
 }
 
 
-RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) : 
-  theRPCId(rpcId), theBx(bx), theLocalPosition(pos) 
+
+RPCRecHit::RPCRecHit() : 
+  theRPCId(), theBx(99),theClusterSize(99), theLocalPosition(), theLocalError() 
+{
+}
+
+
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, int multiplicity, const LocalPoint& pos) : 
+  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(pos) 
 {
   float stripResolution = 3.0 ; //cm  this sould be taken from trimmed cluster size times strip size 
                                  //    taken out from geometry service i.e. topology
@@ -37,9 +42,10 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) :
 // Constructor from a local position and error, wireId and digi time.
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int bx,
+		     int multiplicity,
 		     const LocalPoint& pos,
 		     const LocalError& err) :
-  theRPCId(rpcId), theBx(bx), theLocalPosition(pos), theLocalError(err) 
+  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(pos), theLocalError(err) 
 {
 }
 
