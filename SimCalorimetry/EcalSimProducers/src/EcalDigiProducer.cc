@@ -142,10 +142,10 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
     edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
 
     std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
-    LogDebug("DigiDump") << "Top 10 EB digis";
+    LogDebug("EcalDigi") << "Top 10 EB digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
       {
-        LogDebug("DigiDump") << sortedDigisEB[i];
+        LogDebug("EcalDigi") << sortedDigisEB[i];
       }
   }
 
@@ -153,13 +153,13 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
     std::auto_ptr<MixCollection<PCaloHit> >  endcapHits( EEHits );
     theEndcapDigitizer->run(*endcapHits, *endcapResult);
-    edm::LogInfo("DigiInfo") << "EE Digis: " << endcapResult->size();
+    edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size();
 
     std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
-    LogDebug("DigiDump")  << "Top 10 EE digis";
+    LogDebug("EcalDigi")  << "Top 10 EE digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
       {
-        LogDebug("DigiDump") << sortedDigisEE[i];
+        LogDebug("EcalDigi") << sortedDigisEE[i];
       }
   }
 
@@ -167,7 +167,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
     std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits );
     theESDigitizer->run(*preshowerHits, *preshowerResult);
-    edm::LogInfo("DigiInfo") << "ES Digis: " << preshowerResult->size();
+    edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
     
 //   CaloDigiCollectionSorter sorter_es(7);
 //   std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*preshowerResult);
@@ -216,14 +216,14 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
   theGains[1] = defaultRatios->gain6Over1() ;
   theGains[2] = theGains[1]*(defaultRatios->gain12Over6()) ;
 
-  LogDebug("SetupInfo") << " Gains: " << "\n" << " g0 = " << theGains[0] << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2];
+  LogDebug("EcalDigi") << " Gains: " << "\n" << " g0 = " << theGains[0] << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2];
 
   delete defaultRatios;
 
   const double EBscale = (agc->getEBValue())*theGains[2]*(theCoder->MAXADC);
-  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
   const double EEscale = (agc->getEEValue())*theGains[2]*(theCoder->MAXADC);
-  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
   theCoder->setFullScaleEnergy( EBscale , EEscale );
 
 }
@@ -257,11 +257,11 @@ void EcalDigiProducer::updateGeometry() {
   theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
-  LogInfo("DigiInput") << "deb geometry: " << "\n" 
-                       << "\t barrel: " << theBarrelDets.size () << "\n"
-                       << "\t endcap: " << theEndcapDets.size () << "\n"
-                       << "\t preshower: " << theESDets.size();
-
+  LogInfo("EcalDigi") << "deb geometry: " << "\n" 
+                      << "\t barrel: " << theBarrelDets.size () << "\n"
+                      << "\t endcap: " << theEndcapDets.size () << "\n"
+                      << "\t preshower: " << theESDets.size();
+  
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
   theESDigitizer->setDetIds(theESDets);
