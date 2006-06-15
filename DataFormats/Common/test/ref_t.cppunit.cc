@@ -37,12 +37,12 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testRef);
 
 namespace {
-   struct Dummy { 
-      Dummy() {} bool 
-      operator==(Dummy const& iRHS) const {return this == &iRHS;} 
-      void const* address() const {return this;}
-   };
-   typedef std::vector<Dummy> DummyCollection;
+  struct Dummy { 
+    Dummy() {} bool 
+    operator==(Dummy const& iRHS) const {return this == &iRHS;} 
+    void const* address() const {return this;}
+  };
+  typedef std::vector<Dummy> DummyCollection;
 }
 
 void testRef::constructTest() {
@@ -58,59 +58,101 @@ void testRef::constructTest() {
    
    ProductID const pid(1);
    
-   unsigned int const index = 2;
+   unsigned int const key = 2;
    Dummy const dummy;
    DummyCollection dummyCollection;
    dummyCollection.push_back(dummy);
    dummyCollection.push_back(dummy);
    dummyCollection.push_back(dummy);
    TestHandle<DummyCollection> handle(&dummyCollection, pid);
-   Ref<DummyCollection> dummyRef(handle,index);
+   Ref<DummyCollection> dummyRef(handle,key);
    RefProd<DummyCollection> dummyRefProd(handle);
    
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
-   CPPUNIT_ASSERT(dummyRef.ref().item().key() == index);
-   CPPUNIT_ASSERT(dummyRef.ref().item().ptr() == &dummyCollection[index]);
-   CPPUNIT_ASSERT(dummyRef.key() == index);
+   CPPUNIT_ASSERT(dummyRef.ref().item().key() == key);
+   CPPUNIT_ASSERT(dummyRef.ref().item().ptr() == &dummyCollection[key]);
+   CPPUNIT_ASSERT(dummyRef.key() == key);
    CPPUNIT_ASSERT(dummyRef.product() == &dummyCollection);
-   CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[index]);
-   CPPUNIT_ASSERT((dummyRef.operator->()) == &dummyCollection[index]);
-   CPPUNIT_ASSERT(dummyRef->address() == dummyCollection[index].address());
+   CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[key]);
+   CPPUNIT_ASSERT((dummyRef.operator->()) == &dummyCollection[key]);
+   CPPUNIT_ASSERT(dummyRef->address() == dummyCollection[key].address());
    CPPUNIT_ASSERT(&(*dummyRefProd) == &dummyCollection);
    CPPUNIT_ASSERT((dummyRefProd.operator->()) == &dummyCollection);
 }
 
 void testRef::comparisonTest() {
    
+ {
    ProductID const pid(1);
    
-   unsigned int const index = 2;
+   unsigned int const key = 2;
    Dummy const dummy;
    DummyCollection dummyCollection;
    dummyCollection.push_back(dummy);
    TestHandle<DummyCollection> handle(&dummyCollection, pid);
    TestHandle<DummyCollection> handle2(&dummyCollection, pid);
-   Ref<DummyCollection> dummyRef1(handle,index);
-   Ref<DummyCollection> dummyRef2(handle2,index);
+   Ref<DummyCollection> dummyRef1(handle, key);
+   Ref<DummyCollection> dummyRef2(handle2, key);
    RefProd<DummyCollection> dummyRefProd1(handle);
    RefProd<DummyCollection> dummyRefProd2(handle2);
 
    CPPUNIT_ASSERT(dummyRef1 == dummyRef2);
    CPPUNIT_ASSERT(!(dummyRef1 != dummyRef2));
+   CPPUNIT_ASSERT(!(dummyRef1 < dummyRef2));
+   CPPUNIT_ASSERT(!(dummyRef2 < dummyRef1));
+   CPPUNIT_ASSERT(!(dummyRef1 < dummyRef1));
+   CPPUNIT_ASSERT(!(dummyRef2 < dummyRef2));
 
    CPPUNIT_ASSERT(dummyRefProd1 == dummyRefProd2);
    CPPUNIT_ASSERT(!(dummyRefProd1 != dummyRefProd2));
+   CPPUNIT_ASSERT(!(dummyRefProd1 < dummyRefProd2));
+   CPPUNIT_ASSERT(!(dummyRefProd2 < dummyRefProd1));
+   CPPUNIT_ASSERT(!(dummyRefProd1 < dummyRefProd1));
+   CPPUNIT_ASSERT(!(dummyRefProd2 < dummyRefProd2));
 
-   Ref<DummyCollection> dummyRefNewIndex(handle, index+1);
-   CPPUNIT_ASSERT(dummyRef1 != dummyRefNewIndex);
+   Ref<DummyCollection> dummyRefNewKey(handle, key+1);
+   CPPUNIT_ASSERT(!(dummyRef1 == dummyRefNewKey));
+   CPPUNIT_ASSERT(dummyRef1 != dummyRefNewKey);
+   CPPUNIT_ASSERT(dummyRef1 < dummyRefNewKey);
+   CPPUNIT_ASSERT(!(dummyRefNewKey < dummyRef1));
    
-   ProductID const pidOther(2);
+   ProductID const pidOther(4);
    TestHandle<DummyCollection> handleNewPID(&dummyCollection, pidOther);
-   Ref<DummyCollection> dummyRefNewPID(handleNewPID, index);
+   Ref<DummyCollection> dummyRefNewPID(handleNewPID, key);
    RefProd<DummyCollection> dummyRefProdNewPID(handleNewPID);
+   CPPUNIT_ASSERT(!(dummyRef1 == dummyRefNewPID));
    CPPUNIT_ASSERT(dummyRef1 != dummyRefNewPID);
+   CPPUNIT_ASSERT(!(dummyRefProd1 == dummyRefProdNewPID));
    CPPUNIT_ASSERT(dummyRefProd1 != dummyRefProdNewPID);
+   CPPUNIT_ASSERT(dummyRefProd1 < dummyRefProdNewPID);
+   CPPUNIT_ASSERT(!(dummyRefProdNewPID < dummyRefProd1));
+ }
+ {
+   typedef std::map<int, double> DummyCollection2;
+   ProductID const pid2(2);
+   DummyCollection2 dummyCollection2;
+   dummyCollection2.insert(std::make_pair(1, 1.0));
+   dummyCollection2.insert(std::make_pair(2, 2.0));
+   TestHandle<DummyCollection2> handle2(&dummyCollection2, pid2);
+   Ref<DummyCollection2> dummyRef21(handle2, 1);
+   Ref<DummyCollection2> dummyRef22(handle2, 2);
+   CPPUNIT_ASSERT(dummyRef21 != dummyRef22);
+   CPPUNIT_ASSERT(dummyRef21 < dummyRef22);
+   CPPUNIT_ASSERT(!(dummyRef22 < dummyRef21));
+   
+   typedef std::map<int, double, std::greater<int> > DummyCollection3;
+   ProductID const pid3(3);
+   DummyCollection3 dummyCollection3;
+   dummyCollection3.insert(std::make_pair(1, 1.0));
+   dummyCollection3.insert(std::make_pair(2, 2.0));
+   TestHandle<DummyCollection3> handle3(&dummyCollection3, pid3);
+   Ref<DummyCollection3> dummyRef31(handle3, 1);
+   Ref<DummyCollection3> dummyRef32(handle3, 2);
+   CPPUNIT_ASSERT(dummyRef31 != dummyRef32);
+   CPPUNIT_ASSERT(!(dummyRef31 < dummyRef32));
+   CPPUNIT_ASSERT(dummyRef32 < dummyRef31);
+ }
 }
 
 namespace {
