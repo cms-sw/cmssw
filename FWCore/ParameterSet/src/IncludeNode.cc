@@ -1,7 +1,10 @@
 #include "FWCore/ParameterSet/interface/IncludeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
-
+#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include <iostream>
+#include <iterator>
 using std::string;
 
 namespace edm {
@@ -9,7 +12,7 @@ namespace edm {
 
     //make an empty CompositeNode
     IncludeNode::IncludeNode(const string & type, const string & name, int line)
-    : CompositeNode(name, NodePtrListPtr(new NodePtrList), line),
+    : CompositeNode(withoutQuotes(name), NodePtrListPtr(new NodePtrList), line),
       type_(type)
     {
     }
@@ -21,27 +24,70 @@ namespace edm {
     }
 
 
+    void IncludeNode::print(std::ostream & ost) const
+    {
+      // we can't just take CompositeNode's print, since we don't want the 
+      // curly braces around everything
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (**i).print(ost);
+        ost << "\n";
+      }
+    }
+
+   
+    void IncludeNode::printTrace(std::ostream & ost) const
+    {
+      if(isResolved())
+      {
+        ost << "Line " << line << " includes " << fullPath_ << "\n";
+      }
+      // and pass it up
+      Node::printTrace(ost);
+    }
+
+
     void IncludeNode::resolve(std::list<string> & openFiles)
     {
       // we don't allow circular opening of already-open files,
-      // and we ignore second includes of files
-      checkCircularInclusion(openFiles);
+      if(std::find(openFiles.begin(), openFiles.end(), name)
+         != openFiles.end())
+      {
+        throw edm::Exception(errors::Configuration, "IncludeError")
+         << "Circular inclusion of file " << name;
+      }
       openFiles.push_back(name);
 
+      FileInPath fip(name);
+      fullPath_ = fip.fullPath();
+      isResolved_ = true;
+      string configuration;
+      read_whole_file(fip.fullPath(), configuration);
+
+      // save the name of the file
+      extern string currentFile;
+      string oldFile = currentFile;
+      currentFile = fullPath_;
+      nodes_ = parse(configuration.c_str());
+      // resolve the includes in any subnodes
+      CompositeNode::resolve(openFiles);
+      
+      currentFile = oldFile;
       // make sure the openFiles list isn't corrupted
       assert(openFiles.back() == name);
       openFiles.pop_back();
     }
 
 
-    void IncludeNode::checkCircularInclusion(const std::list<string> & openFiles) const
+    void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
     {
-      std::list<string>::const_iterator nameItr
-        = std::find(openFiles.begin(), openFiles.end(), name);
-      if(nameItr != openFiles.end())
+      // maybe refactor this down to CompositeNode, if another
+      // CompositeNode needs it
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
       {
-        throw edm::Exception(errors::Configuration, "IncludeError")
-         << "Circular inclusion of file " << name;
+        (**i).insertInto(procDesc);
       }
     }
 

@@ -19,16 +19,25 @@ namespace edm {
       virtual std::string type() const {return type_;}
       virtual Node * clone() const { return new IncludeNode(*this);}
       virtual void accept(Visitor& v) const;
+      virtual void print(std::ostream & ost) const;
 
+      /// prints file and line number, and passes up
+      virtual void printTrace(std::ostream & ost) const;
+      
       /// fills in the CompositeNode by parsing the included file
       /// the argument prevents circular includes
       void resolve(std::list<std::string> & openFiles);
 
-      /// makes sure that this is not a currently-open file 
-      void checkCircularInclusion(const std::list<std::string> & openFiles) const;
+      /// simply inserts all subnodes
+      virtual void insertInto(edm::ProcessDesc & procDesc) const;
+
+      std::string fullPath() const {return fullPath_;}
+      bool isResolved() const {return isResolved_;}
+
     private:
       std::string type_;
-
+      std::string fullPath_;
+      bool isResolved_;
     };
 
   }
