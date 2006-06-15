@@ -77,6 +77,8 @@ $Id: Event.h,v 1.33 2006/05/09 07:48:17 chrjones Exp $
 #include <memory>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/type_traits.hpp"
+
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -95,7 +97,6 @@ $Id: Event.h,v 1.33 2006/05/09 07:48:17 chrjones Exp $
 #include "FWCore/Framework/interface/TypeID.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ProductTag.h"
 
 namespace edm {
 
@@ -142,11 +143,6 @@ namespace edm {
     template <typename PROD>
     void 
     getByLabel(std::string const& label, const std::string& productInstanceName, Handle<PROD>& result) const;
-
-    /// same as above, but using the ProductTag class
-    template <typename PROD>
-    void
-    getByLabel(ProductTag const& tag, Handle<PROD>& result) const;
 
     template <typename PROD>
     void 
@@ -437,14 +433,6 @@ namespace edm {
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
   }
-
-  template <typename PROD>
-  void
-  Event::getByLabel(ProductTag const& tag, Handle<PROD>& result) const
-  {
-    getByLabel(tag.label(), tag.instance(), result);
-  }
-
 
   template <typename PROD>
   void 
