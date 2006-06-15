@@ -70,7 +70,7 @@ Getting a reference to an event product before that product is put into the even
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.33 2006/05/09 07:48:17 chrjones Exp $
+$Id: Event.h,v 1.35 2006/06/15 01:25:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -95,6 +95,7 @@ $Id: Event.h,v 1.33 2006/05/09 07:48:17 chrjones Exp $
 
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -143,6 +144,11 @@ namespace edm {
     template <typename PROD>
     void 
     getByLabel(std::string const& label, const std::string& productInstanceName, Handle<PROD>& result) const;
+
+    /// same as above, but using the InputTag class 	 
+    template <typename PROD> 	 
+    void 	 
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
 
     template <typename PROD>
     void 
@@ -423,6 +429,13 @@ namespace edm {
     getByLabel(label, std::string(), result);
   }
 
+  template <typename PROD>
+  void
+  Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const 	 
+  { 	 
+    getByLabel(tag.label(), tag.instance(), result); 	 
+  } 	 
+  	 
   template <typename PROD>
   void
   Event::getByLabel(std::string const& label,
