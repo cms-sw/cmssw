@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/08 11:21:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/11 05:29:24 $
+ *  $Revision: 1.2 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -70,6 +70,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
   RPCDigiCollection::DigiRangeIterator rpcdgIt;
   for (rpcdgIt = digis->begin(); rpcdgIt != digis->end();
        ++rpcdgIt){
+       
     // The layerId
     const RPCDetId& rpcId = (*rpcdgIt).first;
     // Get the GeomDet from the setup
