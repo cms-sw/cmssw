@@ -14,16 +14,24 @@
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
+#include <TTree.h>
 
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup)
-{
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup):valid_(false),valTree_(NULL)
+
+{this->init(setup);}
+
+//----------------------------------------------------------------------
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree):valid_(true),valTree_(tree)
+{this->init(setup);}
+
+//----------------------------------------------------------------------
+void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   edm::ESHandle<CaloGeometry> theGeometry;
   setup.get<IdealGeometryRecord>().get( theGeometry );
   ebTopology_ = new EcalBarrelTopology(theGeometry);
-  ebstrip_=new EcalBarrelFenixStrip(ebTopology_);
+  ebstrip_=new EcalBarrelFenixStrip(ebTopology_,valTree_);
   //UB FIXME: configurables
 //   static SimpleConfigurable<float> thresh(0.0,"EcalTrigPrim:Threshold");
 //   threshold=thresh.value();
@@ -34,7 +42,6 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & s
 //   else cTest_=NULL;
 
 }
-
 //----------------------------------------------------------------------
 
 EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() 

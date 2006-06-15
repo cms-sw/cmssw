@@ -21,6 +21,8 @@
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
+class TFile;
+class TTree;
 class EcalTrigPrimFunctionalAlgo;
  
 class EcalTrigPrimProducer : public edm::EDProducer
@@ -37,7 +39,9 @@ class EcalTrigPrimProducer : public edm::EDProducer
   
  private:
   EcalTrigPrimFunctionalAlgo *algo_;
- 
+  TFile *histfile_;
+  TTree *valTree_;
+  bool valid_;
 };
   
 #endif

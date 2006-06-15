@@ -3,10 +3,11 @@ using namespace std;
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
+#include <TTree.h>
 
 namespace tpg {
 
-  EcalBarrelFenixStrip::EcalBarrelFenixStrip(EcalBarrelTopology *top) { 
+  EcalBarrelFenixStrip::EcalBarrelFenixStrip(EcalBarrelTopology *top, const TTree *tree) { 
     for (int i=0;i<nCrystalsPerStrip_;i++) linearizer_[i] = new  EcalFenixLinearizer(top); 
     adder_ = new  EcalFenixEtStrip();
     amplitude_filter_ = new EcalFenixAmplitudeFilter();

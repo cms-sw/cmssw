@@ -8,6 +8,8 @@
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "TFile.h"
+#include "TTree.h"
 
   
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
@@ -15,12 +17,22 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
   //register your products
   produces <EcalTrigPrimDigiCollection >();
 
+  valid_= iConfig.getUntrackedParameter<bool>("Validation");
+  if (valid_) {
+    histfile_ = new TFile("valid.root","UPDATE");
+    valTree_ = new TTree("V","Validation Tree");
+  } else{
+    histfile_=NULL;
+    valTree_=NULL;
+  }
+  
   //FIXME: add configuration
 					      
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup);
+  //FIXME add config for validation
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_);
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -28,7 +40,11 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  delete algo_;
+delete algo_;
+if (valid_) {
+histfile_->Write();
+histfile_->Close();
+}
 
 }
 

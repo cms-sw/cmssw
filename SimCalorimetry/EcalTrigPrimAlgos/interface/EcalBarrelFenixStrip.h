@@ -12,6 +12,7 @@
 
 //class EcalTrigPrim;
 //class CaloDataFrame;
+class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
 
@@ -35,7 +36,7 @@ namespace tpg {
   public:
 
     // constructor, destructor
-    EcalBarrelFenixStrip(EcalBarrelTopology *top);
+    EcalBarrelFenixStrip(EcalBarrelTopology *top, const TTree *tree);
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods

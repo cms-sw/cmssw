@@ -5,8 +5,8 @@
 #include <map>
 #include <utility>
 
-//class CellID;
-//class CaloDataFrame;
+class TTree;
+
 class EBDataFrame;
 class EEDataFrame;
 class EcalTrigTowerDetId;
@@ -35,6 +35,7 @@ public:
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
   explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
@@ -43,7 +44,9 @@ public:
 
 private:
 
-    //  vector<string> theBaseNames;
+   void init(const edm::EventSetup & setup);
+
+ //  vector<string> theBaseNames;
 
 
   float threshold;
@@ -88,6 +91,10 @@ private:
 
    // for debugging
    ETPCoherenceTest *cTest_;
+
+   //for validation
+   bool valid_;
+   TTree * valTree_;
 };
 
 #endif
