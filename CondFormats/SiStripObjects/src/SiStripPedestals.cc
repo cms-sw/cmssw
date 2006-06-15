@@ -1,55 +1,79 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-SiStripPedestals::SiStripPedestals(){}
-SiStripPedestals::~SiStripPedestals(){}
+bool SiStripPedestals::put(const uint32_t& DetId, Range input) {
+  // put in SiStripPedestals of DetId
 
-const std::vector<SiStripPedestals::SiStripData> & SiStripPedestals::getSiStripPedestalsVector(const uint32_t & DetId) const {
-  SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
-  if (mapiter!=m_pedestals.end())
-    return mapiter->second;
-
-  throw cms::Exception("CorruptData")
-    << "[SiStripPedestals::getSiStripPedestalsVector] looking for SiStripPedestals for a detid not existing in the DB... detid = " << DetId;
-};
-
-
-uint32_t SiStripPedestals::EncodeStripData(float ped_, float noise_, float lowTh_, float highTh_, bool disable_)
-{
-  // Encoding Algorithm from Fed9UUtils/src/Fed9UDescriptionToXml.cc
+  Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripPedestals::StrictWeakOrdering());
+  if (p!=indexes.end() && p->detid==DetId)
+    return false;
   
-  uint32_t low   = (static_cast<uint32_t>(lowTh_*5.0 + 0.5)  ) & 0x3F; 
-  uint32_t high  = (static_cast<uint32_t>(highTh_*5.0 + 0.5) ) & 0x3F;
-  uint32_t noise =  static_cast<uint32_t>(noise_*10.0 + 0.5)   & 0x01FF;
-  uint32_t ped   =  static_cast<uint32_t>(ped_)                & 0x03FF;
+  size_t sd= input.second-input.first;
+  DetRegistry detregistry;
+  detregistry.detid=DetId;
+  detregistry.ibegin=v_pedestals.size();
+  detregistry.iend=v_pedestals.size()+sd;
+  indexes.insert(p,detregistry);
+
+  v_pedestals.insert(v_pedestals.end(),input.first,input.second);
+  return true;
+}
+
+const SiStripPedestals::Range SiStripPedestals::getRange(const uint32_t& DetId) const {
+  // get SiStripPedestals Range of DetId
   
-  uint32_t stripData = (ped << 22) | (noise << 13) | (high << 7) | (low << 1) | ( disable_ ? 0x1 : 0x0 );
-  
-  return stripData;
-};
+  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripPedestals::StrictWeakOrdering());
+  if (p==indexes.end()|| p->detid!=DetId) 
+    return SiStripPedestals::Range(v_pedestals.end(),v_pedestals.end()); 
+  else 
+    return SiStripPedestals::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend);
+}
+
+void SiStripPedestals::getDetIds(std::vector<uint32_t>& DetIds_) const {
+  // returns vector of DetIds in map
+  SiStripPedestals::RegistryIterator begin = indexes.begin();
+  SiStripPedestals::RegistryIterator end   = indexes.end();
+  for (SiStripPedestals::RegistryIterator p=begin; p != end; ++p) {
+    DetIds_.push_back(p->detid);
+  }
+}
 
 
-uint32_t SiStripPedestals::EncodeStripData(float ped_, float noise_, float lowTh_, float highTh_, bool disable_, bool debug)
-{
-  // Encoding Algorithm from Fed9UUtils/src/Fed9UDescriptionToXml.cc
+void SiStripPedestals::setData(float ped, float lth, float hth, std::vector<char>& vped){
   
-  uint32_t low   = (static_cast<uint32_t>(lowTh_*5.0 + 0.5)  ) & 0x3F; 
-  uint32_t high  = (static_cast<uint32_t>(highTh_*5.0 + 0.5) ) & 0x3F;
-  uint32_t noise =  static_cast<uint32_t>(noise_*10.0 + 0.5)   & 0x01FF;
-  uint32_t ped   =  static_cast<uint32_t>(ped_)                & 0x03FF;
-  
-  uint32_t stripData = (ped << 22) | (noise << 13) | (high << 7) | (low << 1) | ( disable_ ? 0x1 : 0x0 );
+  unsigned int ped_  = (static_cast<unsigned int>(ped)) & 0xFFF; 
+  unsigned int low_  = (static_cast<unsigned int>(lth*5.0+0.5)) & 0x3F; 
+  unsigned int hig_  = (static_cast<unsigned int>(hth*5.0+0.5)) & 0x3F; 
+  unsigned int data = (ped_ << 12) | (hig_ << 6) | low_ ;
+  vped.resize(vped.size()+3);
+  // insert in vector of char
+  ::memcpy((void*)(&vped[vped.size()-3]),(void*)(&data),3);
+}
 
+float SiStripPedestals::getPed(const int& strip, const Range& range) const {
+  if (strip>=range.second-range.first){
+    throw cms::Exception("CorruptedData")
+      << "[SiStripPedestals::getPed] looking for SiStripPedestals for a strip out of range: strip " << strip;
+  }
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+strip*3);
+  return (s.ped & 0x3FF);
+}
 
-  if (debug)
-    std::cout 
-      << std::fixed << ped_       << " \t" 
-      << std::fixed << noise_     << " \t" 
-      << lowTh_     << " \t" 
-      << highTh_    << " \t" 
-      << disable_  << " \t" 
-      << stripData << " \t" 
-      << std::endl;
-  
-  return stripData;
-};
+float SiStripPedestals::getLowTh(const int& strip, const Range& range) const {
+  if (strip>=range.second-range.first){
+    throw cms::Exception("CorruptedData")
+      << "[SiStripPedestals::getLowTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
+  }
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+strip*3);
+  return (s.lth & 0x3F)/5.0;
+}
+
+float SiStripPedestals::getHighTh(const int& strip, const Range& range) const {
+  if (strip>=range.second-range.first){
+    throw cms::Exception("CorruptedData")
+      << "[SiStripPedestals::getHighTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
+  }
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+strip*3);
+  return (s.hth & 0x3F)/5.0;
+}
+

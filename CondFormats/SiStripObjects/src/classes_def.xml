@@ -1,12 +1,13 @@
 <lcgdict>
 
-  <class name="SiStripPedestals" id="CE0311EF-7671-DA11-9F37-000E0C5CE043"/>
-  <class name="SiStripPedestals::SiStripData"/>
-  <class name="std::vector<SiStripPedestals::SiStripData>"/>
+  <class name="SiStripPedestals"/>
+  <class name="SiStripPedestals::DetRegistry"/>
+  <class name="std::vector<SiStripPedestals::DetRegistry>"/>
+
 
   <class name="SiStripNoises"/>
-  <class name="SiStripNoises::SiStripData"/>
-  <class name="std::vector<SiStripNoises::SiStripData>"/>
+  <class name="SiStripNoises::DetRegistry"/>
+  <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
   <class name="SiStripReadoutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
 

@@ -7,49 +7,41 @@
 #include<boost/cstdint.hpp>
 
 
-typedef float SiStripNoise;
-typedef bool  SiStripDisable;
-
 class SiStripNoises {
 
  public:
-  SiStripNoises();
-  ~SiStripNoises();
-  
-/*   struct Item { */
-/*     uint32_t StripData; */
-/*   }; */
-  
-  class SiStripData {
-  public:
 
-    SiStripNoise   getNoise()   const {return static_cast<SiStripNoise> (abs(Data)/10.0);}
-    SiStripDisable getDisable() const {return ( (Data>0) ? false : true );}
-    void setData(short data){Data=data;}
-    void setData(float noise_,bool disable_){
-      short noise =  static_cast<short>  (noise_*10.0 + 0.5) & 0x01FF;
-      Data = ( disable_ ? -1 : 1 ) * noise;
-/*       std::cout  */
-/* 	<< std::fixed << noise_ << " \t"  */
-/* 	<< disable_  << " \t"  */
-/* 	<< Data << " \t"  */
-/* 	<< std::endl; */
-    };
-    
-  private:
-    //FIXME 
-    //the short type is assured to be 16 bit in CMSSW???
-    short Data; // Data = sign(+/-1) * Noise(Adc count). if Data <=0 then strip is disable
+  struct DetRegistry{
+    uint32_t detid;
+    uint32_t ibegin;
+    uint32_t iend;
   };
+
+  class StrictWeakOrdering{
+  public:
+    bool operator() (const DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
+  };
+  
+
+  typedef std::vector<short>::const_iterator         ContainerIterator;  
+  typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
+  typedef std::vector<DetRegistry>                         Registry;
+  typedef Registry::const_iterator                         RegistryIterator;
+ 
+  SiStripNoises(){};
+  ~SiStripNoises(){};
     
-  const std::vector<SiStripData> &  getSiStripNoiseVector(const uint32_t & DetId) const;
+  bool put(const uint32_t& detID,Range input);
+  const Range getRange(const uint32_t& detID) const;
+  void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
-  std::map<uint32_t, std::vector<SiStripData> > m_noises;
+  inline  float   getNoise(short Data)   const { return static_cast<float> (abs(Data)/10.0); }
+  inline  bool    getDisable(short Data) const {   return ( (Data>0) ? false : true ); }
+  inline  short   setSiStripNoise(float noise_,bool disable_) {   return  ( disable_ ? -1 : 1 ) *  (static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF) ;}
+
+ private:
+  std::vector<short> v_noises; //@@@ blob streaming doesn't work with uint16_t and with SiStripNoises::Data
+  std::vector<DetRegistry> indexes;
 };
-
-typedef std::vector<SiStripNoises::SiStripData>                 SiStripNoiseVector;
-typedef std::vector<SiStripNoises::SiStripData>::const_iterator SiStripNoiseVectorIterator;
-typedef std::map<uint32_t, SiStripNoiseVector>                 SiStripNoiseMap;
-typedef std::map<uint32_t, SiStripNoiseVector>::const_iterator SiStripNoiseMapIterator;
 
 #endif
