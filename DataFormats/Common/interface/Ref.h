@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.7 2006/06/02 01:58:15 wmtan Exp $
+$Id: Ref.h,v 1.8 2006/06/14 23:40:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -84,26 +84,36 @@ $Id: Ref.h,v 1.7 2006/06/02 01:58:15 wmtan Exp $
 #include "boost/functional.hpp"
 #include "boost/call_traits.hpp"
 #include "boost/type_traits.hpp"
+#include "boost/mpl/has_xxx.hpp"
+#include "boost/utility/enable_if.hpp"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
-#if 0
-// try if this works with gcc 3.4.3.
-#include "boost/mpl/has_xxx.hpp"
-#include "boost/utility/enable_if.hpp"
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare);
 
-template <typename C, typename K>
-typename boost::enable_if<has_key_compare<C>, bool>::type
-compare_key(K const& lhs, K const& rhs) {
-  return C::key_compare()(lhs, rhs);
+#if 1
+// Workaround needed in gcc3.2.3 due to compiler bug
+namespace GCC_3_2_3_WORKAROUND_1 {
+#endif
+  template <typename C, typename K>
+  typename boost::enable_if<has_key_compare<C>, bool>::type
+  compare_key(K const& lhs, K const& rhs) {
+    typedef typename C::key_compare comparison_functor;
+    return comparison_functor()(lhs, rhs);
+  }
+#if 1
+// Workaround needed in gcc3.2.3 due to compiler bug
 }
-
-template <typename C, typename K>
-typename boost::disable_if<has_key_compare<C>, bool>::type
-compare_key(K const& lhs, K const& rhs) {
-  return lhs < rhs;
+namespace GCC_3_2_3_WORKAROUND_2 {
+#endif
+  template <typename C, typename K>
+  typename boost::disable_if<has_key_compare<C>, bool>::type
+  compare_key(K const& lhs, K const& rhs) {
+    return lhs < rhs;
+  }
+#if 1
+// Workaround needed in gcc3.2.3 due to compiler bug
 }
 #endif
 
@@ -249,12 +259,14 @@ namespace edm {
   inline
   bool
   operator<(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-#if 0
-   // try if this works with gcc 3.4.3.
-    return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
-#else
-    return (lhs.id() == rhs.id() ? lhs.key() < rhs.key() : lhs.id() < rhs.id());
+#if 1
+    // needed for gcc 3_2_3 compiler bug workaround
+    using GCC_3_2_3_WORKAROUND_1::compare_key;
+    using GCC_3_2_3_WORKAROUND_2::compare_key;
 #endif
+    /// the definition and use of compare_key<> guarantees that the ordering of Refs within
+    /// a collection will be identical to the ordering of the referenced objects in the collection.
+    return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
   }
 
 }
