@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.1 2006/05/30 16:51:53 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.2 2006/06/13 15:23:26 fabiocos Exp $
  *
 */
 
@@ -11,7 +11,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   
   produces<PEcalTBInfo>();
 
-  string CrystalMapFile = ps.getUntrackedParameter<string>("CrystalMapFile","BarrelSM1CrystalCenterElectron120GeV.dat");
+  edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
   GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","VtxSmeared");
   double fMinEta = ps.getUntrackedParameter<double>("MinEta");
   double fMaxEta = ps.getUntrackedParameter<double>("MaxEta");
@@ -23,7 +23,8 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   beamXoff = ps.getUntrackedParameter<double>("BeamMeanX");
   beamYoff = ps.getUntrackedParameter<double>("BeamMeanX");
    
-  theTestMap = new EcalTBCrystalMap(CrystalMapFile);
+  string fullMapName = CrystalMapFile.fullPath();
+  theTestMap = new EcalTBCrystalMap(fullMapName);
   crysNumber = theTestMap->CrystalIndex(beamEta, beamPhi);
 
   edm::LogInfo("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
