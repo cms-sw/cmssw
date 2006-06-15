@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/06/03 02:59:05 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/06/03 15:55:15 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -61,8 +61,9 @@ class GlobalMuonReFitter : public TrajectorySmoother {
      std::vector<Trajectory> fit(const TrajectorySeed& seed,
                             const edm::OwnVector<const TransientTrackingRecHit>& hits,
                             const TrajectoryStateOnSurface& firstPredTsos) const;
+     std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
+
      std::vector<Trajectory> smooth(const Trajectory&) const;
-     std::vector<Trajectory> smooth(std::vector<Trajectory>& ) const;
 
   private:
 
@@ -76,6 +77,7 @@ class GlobalMuonReFitter : public TrajectorySmoother {
     const KFUpdator* theUpdator;
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
+    float theMass;
   
 };
 
