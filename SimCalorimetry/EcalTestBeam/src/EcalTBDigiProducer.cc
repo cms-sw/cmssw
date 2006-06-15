@@ -12,6 +12,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CLHEP/Random/RandFlat.h"
+#include<string>
 
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params) 
 : theGeometry(0)
@@ -53,6 +54,16 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
 
+  /// Test Beam specific part
+
+  tdcMin = params.getParameter< std::vector<int> >("tdcMin");
+  tdcMax = params.getParameter< std::vector<int> >("tdcMax");
+
+  const std::string ecalTBInfoLabel = params.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object");
+  doReadout = params.getParameter<bool>("doReadout");
+
+  theTBReadout = new EcalTBReadout(ecalTBInfoLabel);
+
 }
 
 
@@ -64,6 +75,7 @@ EcalTBDigiProducer::~EcalTBDigiProducer()
   delete theCoder;
   delete theElectronicsSim;
   delete theBarrelDigitizer;
+  delete theTBReadout;
 }
 
 
@@ -108,17 +120,27 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
   edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
-  
-  std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
+
+  // perform the TB readout if required, 
+  // otherwise simply fill the proper object
+
+  std::auto_ptr<EBDigiCollection> barrelReadout(new EBDigiCollection());
+  if ( doReadout ) {
+    theTBReadout->performReadout(event, *theTTmap, *barrelResult, *barrelReadout);
+  }
+  else {
+    barrelResult->swap(*barrelReadout);
+  }
+
+  std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelReadout);
   LogDebug("EcalDigi") << "Top 10 EB digis";
   for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
     {
       LogDebug("EcalDigi") << sortedDigisEB[i];
     }
   
-  
   // Step D: Put outputs into event
-  event.put(barrelResult);
+  event.put(barrelReadout);
   event.put(TDCproduct);
   
 }
@@ -195,6 +217,8 @@ void EcalTBDigiProducer::updateGeometry() {
                        << "\t barrel: " << theBarrelDets.size ();
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
+
+  theTBReadout->setDetIds(theBarrelDets);
 }
 
 
@@ -220,14 +244,7 @@ void EcalTBDigiProducer::fillTBTDCRawInfo(EcalTBTDCRawInfo & theTBTDCRawInfo) {
 
   unsigned int thisChannel = 1;
   
-  // to be taken from ParameterSet, use hardcoded values 
-  // for the time being as in 
-  // RecTBCalo/EcalTBTDCReconstructor/data/EcalTBTDCReconstructor.cfi
-
-  unsigned int tdcMin = 430;
-  unsigned int tdcMax = 958;
-
-  unsigned int thisCount = (unsigned int)(thisPhaseShift*(tdcMax-tdcMin)) + tdcMin;
+  unsigned int thisCount = (unsigned int)(thisPhaseShift*(tdcMax[0]-tdcMin[0]) + tdcMin[0]);
 
   EcalTBTDCSample theTBTDCSample(thisChannel, thisCount);
 
@@ -237,3 +254,5 @@ void EcalTBDigiProducer::fillTBTDCRawInfo(EcalTBTDCRawInfo & theTBTDCRawInfo) {
   LogDebug("EcalDigi") << theTBTDCSample << "\n" << theTBTDCRawInfo;
 
 }
+
+

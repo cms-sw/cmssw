@@ -15,6 +15,9 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+
+#include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
@@ -60,8 +63,17 @@ private:
   const CaloGeometry * theGeometry;
   std::vector<DetId> theBarrelDets;
 
+  const EcalTrigTowerConstituentsMap * theTTmap;
+
+  EcalTBReadout * theTBReadout;
+
   bool doPhaseShift;
   double thisPhaseShift;
+
+  bool doReadout;
+
+  std::vector<int> tdcMin;
+  std::vector<int> tdcMax;
 
 };
 
