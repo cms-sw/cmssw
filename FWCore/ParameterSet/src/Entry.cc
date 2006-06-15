@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.10 2006/05/25 21:01:27 rpw Exp $
+// $Id: Entry.cc,v 1.11 2006/06/06 21:38:52 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -97,7 +97,7 @@ namespace edm {
       table_['P'] = "PSet";
       table_['T'] = "path";
       table_['F'] = "FileInPath";
-      table_['t'] = "ProductTag";
+      table_['t'] = "InputTag";
       
       for(CodeMap::const_iterator itCode = table_.begin();
            itCode != table_.end();
@@ -167,9 +167,9 @@ namespace edm {
         if(!decode(val, rep)) throwEntryError("FileInPath", rep);
         break;
       }
-      case 't':  {  // ProductTag
-        edm::ProductTag val;
-        if(!decode(val, rep)) throwEntryError("ProductTag", rep);
+      case 't':  {  // InputTag
+        edm::InputTag val;
+        if(!decode(val, rep)) throwEntryError("InputTag", rep);
         break;
       }
       case 'D':  {  // Double
@@ -307,12 +307,12 @@ namespace edm {
 							      
 
 // ----------------------------------------------------------------------
-// ProductTag
+// InputTag
 
-  Entry::Entry(edm::ProductTag const& val, bool is_tracked) :
+  Entry::Entry(edm::InputTag const& val, bool is_tracked) :
     rep(), type('t'), tracked(is_tracked ? '+' : '-')
   {
-    if (!encode(rep, val)) throwEncodeError(val, "ProductTag");
+    if (!encode(rep, val)) throwEncodeError(val, "InputTag");
     validate();
   }
 
@@ -610,14 +610,14 @@ namespace edm {
   }
 
 // ----------------------------------------------------------------------
-// ProductTag
+// InputTag
 
-  edm::ProductTag
-  Entry::getProductTag() const
+  edm::InputTag
+  Entry::getInputTag() const
   {
-    if(type != 't') throwValueError("ProductTag");
-    edm::ProductTag val;
-    if(!decode(val, rep)) throwEntryError("ProductTag", rep);
+    if(type != 't') throwValueError("InputTag");
+    edm::InputTag val;
+    if(!decode(val, rep)) throwEntryError("InputTag", rep);
     return val;
   }
 

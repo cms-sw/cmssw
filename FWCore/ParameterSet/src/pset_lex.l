@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.16 2006/06/05 22:18:47 rpw Exp $
+ * $Id: pset_lex.l,v 1.17 2006/06/06 21:39:55 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -82,7 +82,7 @@ comment2        "//".*[\n]?
 "rename"        { return RENAME_tok; }
 "copy"          { return COPY_tok; }
 "include"       { return INCLUDE_tok; }
-"ProductTag"    { return PRODUCTTAG_tok; }
+"InputTag"      { return INPUTTAG_tok; }
 "module"        { return MODULE_tok; }
 "service"       { return SERVICE_tok; }
 "es_module"     { return ES_MODULE_tok; }

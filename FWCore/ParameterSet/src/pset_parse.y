@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.26 2006/06/06 21:39:52 rpw Exp $
+ * $Id: pset_parse.y,v 1.27 2006/06/15 20:05:20 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -142,7 +142,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token RENAME_tok
 %token COPY_tok
 %token INCLUDE_tok
-%token PRODUCTTAG_tok
+%token INPUTTAG_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -284,13 +284,13 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    $<_Node>$ = en;
                  }
                |
-                 untracked PRODUCTTAG_tok LETTERSTART_tok EQUAL_tok any
+                 untracked INPUTTAG_tok LETTERSTART_tok EQUAL_tok any
                  {
-                   DBPRINT("lowlevelnode: PRODUCTTAG");
+                   DBPRINT("lowlevelnode: INPUTTAG");
                    bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    string value(toString($<str>5));
-                   EntryNode* en(new EntryNode("ProductTag",name,value,tr,lines));
+                   EntryNode* en(new EntryNode("InputTag",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |
