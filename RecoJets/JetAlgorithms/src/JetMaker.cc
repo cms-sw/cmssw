@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.8 2006/05/03 22:21:39 fedor Exp $
+/// $Id: JetMaker.cc,v 1.9 2006/05/24 00:40:44 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -140,7 +140,7 @@ namespace {
 	fJetSpecific->m_InvisibleEnergy += genParticle->momentum().e ();
 	break;
       default: 
-	std::cerr << "makeSpecific-> Unknown stable particle " << genParticle->pdg_id () << std::endl;
+        fJetSpecific->m_AuxiliaryEnergy += genParticle->momentum().e ();
       }
     }
     return true;
@@ -160,18 +160,22 @@ bool JetMaker::convertableToCaloJet (const ProtoJet& fProtojet) const {
 
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   // construct towerIds
-  std::vector<CaloTowerDetId> towerIds;
-  const CaloTowerCollection* towerCollection = 0;
   const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
+  std::vector<CaloTowerDetId> towerIds;
   towerIds.reserve (towers->size ());
+  const CaloTowerCollection* towerCollection = 0;
   ProtoJet::Candidates::const_iterator tower = towers->begin ();
   for (; tower != towers->end (); tower++) {
     edm::Ref<CaloTowerCollection> towerRef = component<CaloTowerRef>::get (**tower);
     if (towerRef.isNonnull ()) { // valid
       const CaloTowerCollection* newproduct = towerRef.product ();
+      if (!newproduct) {
+	cerr << "CaloJetMaker::makeCaloJet (const ProtoJet& fProtojet) ERROR-> "
+	     << "Can not find CaloTowerCollection for contributing CalTower: " <<  newproduct << endl;
+      }
       if (!towerCollection) towerCollection  = newproduct;
       else if (towerCollection != newproduct) {
-	cerr << "CaloJetMaker::makeCaloJet (const ProtoJet2& fProtojet) ERROR-> "
+	cerr << "CaloJetMaker::makeCaloJet (const ProtoJet& fProtojet) ERROR-> "
 	     << "CaloTower collection for tower is not the same. Previous: " <<  towerCollection 
 	     << ", new: " << newproduct << endl;
       }
@@ -182,7 +186,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
     }
   }
   CaloJet::Specific specific;
-  makeSpecific (*towerCollection, towerIds, &specific);
+  if (towerCollection) makeSpecific (*towerCollection, towerIds, &specific);
 
   return CaloJet (fProtojet.p4(), specific, towerIds);
 }
