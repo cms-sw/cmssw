@@ -1,10 +1,13 @@
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/parse.h"
 
 using std::string;
 using std::vector;
 using std::map;
+
 #include <iostream>
 #include<iterator>
 
@@ -24,6 +27,16 @@ namespace edm {
       if(processNode == 0) {
         edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
       } else {
+
+        // find any include nodes
+        // maybe someday list the current file as an open file,
+        // so it never gets circularly included
+        std::list<std::string> openFiles;
+        processNode->resolve(openFiles);
+
+        // make the backwards links
+        processNode->setAsChildrensParent();
+
         NodePtrListPtr contents = processNode->nodes();
         sortNodes(contents);
 
