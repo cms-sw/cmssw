@@ -1,4 +1,4 @@
-/*!
+cd /*!
 \page TrackerPackages Tracker Packages
 
 This page lists all packages related to the CMS tracker within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>. Links point to the package documentation.
@@ -153,10 +153,16 @@ A set of tools used in track reconstruction
  pixel stand-alone vertex reconstruction 
 
 - <b>RecoBTag</b><br>
- b-tagging algorithms  
+ b-tagging algorithms 
+ - \ref RecoBTag_BTagTools "BTagTools" <br> 
+ - \ref RecoBTag_CombinedBTag "CombinedBTag" <br>
+ - \ref RecoBTag_SoftLepton "SoftLepton" <br>
+ - \ref RecoBTag_TrackCounting "TrackCounting" <br>
+ - \ref RecoBTag_XMLCalibration "XMLCalibration" <br>
 
 - <b>RecoBTau</b><br>
  Common tools for b- and tau-tagging
+ - \ref RecoBTau_JetTracksAssociator "JetTracksAssociator" <br>
 
 
 - <b>SimG4CMS</b><br>
