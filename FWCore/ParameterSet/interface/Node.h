@@ -35,8 +35,14 @@ namespace edm {
 
       virtual std::string type() const = 0;
 
-      virtual void  setParent(Node* /* parent */) { }
-      virtual Node* getParent() { return 0; }
+      virtual void  setParent(Node*  parent) { parent_ = parent;}
+      virtual Node* getParent() { return parent_; }
+      /// leaf nodes won't do anything
+      virtual void setAsChildrensParent() {}
+      /// Shows where this was included from
+      /// default passes up to parent
+      virtual void printTrace(std::ostream& ost) const;
+
       virtual void print(std::ostream& ost) const = 0;
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
@@ -50,6 +56,7 @@ namespace edm {
 
       typedef std::map<std::string, Ptr> NodeMap;
       /// most subclasses won't do anything
+      virtual void resolve(std::list<std::string> & openFiles) {}
       virtual void resolveUsingNodes(const NodeMap & blocks) {}
 
       /// Nodes which can exist on the top level of the
@@ -66,6 +73,7 @@ namespace edm {
       int         line;
       // nodes can only be modified once, so the config files can be order-independent
       bool modified_;
+      Node * parent_;
     };
 
     typedef boost::shared_ptr<Node>        NodePtr;
