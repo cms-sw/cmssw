@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/14 12:15:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/14 12:28:12 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -150,31 +150,20 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       const DTWireId wireId(layerId, (*digi).wire());
 
       // Check for noisy channels and skip them
-//       if(checkNoisyChannels) {
-// 	bool isNoisy = false;
-// 	bool isFEMasked = false;
-// 	bool isTDCMasked = false;
-// 	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked);
-// 	if(isNoisy) {
-// 	  if(debug)
-// 	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-// 	  continue;
-// 	} 
-//       }
-      
-      bool isNoisy = false;
-      bool isFEMasked = false;
-      bool isTDCMasked = false;
-      bool isTrigMask = false;
-      bool isDead = false;
-      bool isNohv = false;
-      statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-      if(isNoisy) {
-	if(debug)
-	  cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	continue;
-      }      
-      
+      if(checkNoisyChannels) {
+	bool isNoisy = false;
+	bool isFEMasked = false;
+	bool isTDCMasked = false;
+	bool isTrigMask = false;
+	bool isDead = false;
+	bool isNohv = false;
+	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	if(isNoisy) {
+	  if(debug)
+	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	  continue;
+	}      
+      }
       theFile->cd();
       double offset = 0;
       if(doSubtractT0) {
