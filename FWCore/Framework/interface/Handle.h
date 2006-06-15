@@ -19,16 +19,13 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.15 2006/02/07 07:51:41 wmtan Exp $
+$Id: Handle.h,v 1.16 2006/03/03 04:29:32 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <stdexcept>
 #include <typeinfo>
-
-#include "boost/utility/enable_if.hpp"
-#include "boost/type_traits.hpp"
 
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"

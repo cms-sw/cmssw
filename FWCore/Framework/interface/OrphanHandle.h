@@ -19,16 +19,13 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.15 2006/02/07 07:51:41 wmtan Exp $
+$Id: OrphanHandle.h,v 1.1 2006/02/18 06:19:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <stdexcept>
 #include <typeinfo>
-
-#include "boost/utility/enable_if.hpp"
-#include "boost/type_traits.hpp"
 
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
