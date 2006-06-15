@@ -10,10 +10,6 @@ EventMsgView::EventMsgView(void* buf, uint32 size,
   event_start_ = hlt_bits_start_ + (hlt_bits_count_ / 4);
   event_len_ = convert32(event_start_);
   event_start_ += sizeof(char_uint32);
-
-  //cout << "l1 at offset=" << (l1_bits_start_-buf_) << "\n";
-  //cout << "hlt at offset=" << (hlt_bits_start_-buf_) << "\n";
-  //cout << "event at offset=" << (event_start_-buf_) << "\n";
 }
 
 uint32 EventMsgView::run() const

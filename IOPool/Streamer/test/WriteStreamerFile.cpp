@@ -1,11 +1,28 @@
+/** Example code shows you to write Streamer and Index files.
+    All values are dummy here, The Init message contains different 
+    values from what Event Header contains, this is only 
+    for the demonstration, obviously.
+
+    Change total number of written events using,
+
+     #define NO_OF_EVENTS 10
+
+    Crank it up to 10000 if you like to scrol your screen ;-).
+
+Disclaimer: Most of the code here is randomly written during
+               testing various parts, its not a supported testing code.
+               Changes can and will be made, when and if required.
+*/
+
 #include <iostream>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
+
+#define NO_OF_EVENTS 10
 
 
 using namespace std;
@@ -20,6 +37,7 @@ int main()
 
   char psetid[] = "1234567890123456";
   char test_value[] = "This is a test, This is a";
+  char test_value_event[] = "This is a test Event, This is a";
   Strings hlt_names;
   Strings l1_names;
 
@@ -39,7 +57,8 @@ int main()
   char reltag[]="CMSSW_0_6_0_pre45";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(2,(const uint8*)psetid),(const char*)reltag,
+                      Version(2,(const uint8*)psetid),
+                      (const char*)reltag,
                       hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
@@ -47,7 +66,6 @@ int main()
             init.dataAddress());
 
   //Do a dumpInit here if you need to see the event.    
-
 
   //Start the Streamer file
   cout<<"Trying to Write a Streamer file"<<endl; 
@@ -59,7 +77,8 @@ int main()
   string indexfilename = "testindexfile.ind";
   StreamerOutputIndexFile index_writer(indexfilename);
 
-  cout<< "Trying to Write Out The Init message into Streamer File: " << initfilename << endl;
+  cout<< "Trying to Write Out The Init message into Streamer File: " 
+      << initfilename << endl;
   stream_writer.write(init);
 
   cout<< "Trying to Write Out The Init message into Index File: "<<
@@ -82,36 +101,39 @@ int main()
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  //l1bit[15]=true;
   //l1bit[16]=false;  l1bit[17]=false;  l1bit[18]=true;  l1bit[19]=true;
 
-  //std::vector<EventMsgBuilder> myPreciousEvents;
-
-  //Lets Build 10 Events ad then Write them into Styreamer file.
-
-  //cout<<"ONLY Writting ONE Event"<<endl;
-  //for (uint32 eventId = 2000; eventId != 2001; ++eventId) {
-  for (uint32 eventId = 2000; eventId != 2010; ++eventId) {
+  //Lets Build 10 Events ad then Write them into Streamer/Index file.
+  
+  for (uint32 eventId = 2000; eventId != 2000+NO_OF_EVENTS; ++eventId) {
     EventMsgBuilder emb(&buf[0],buf.size(),45,eventId,2,
                       l1bit,hltbits,hltsize);            
     emb.setReserved(78);
-    emb.setEventLength(sizeof(test_value));
-    std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
+    emb.setEventLength(sizeof(test_value_event));
+    std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
              emb.eventAddr());
 
-    //myPreciousEvents.push_back(emb);
-  
-    //Also lets write this to our streamer file too.
+    //Lets write this to our streamer file .
     cout<<"Writting Event# : "<<eventId<<" To Streamer file"<<endl;
     uint64 offset = stream_writer.write(emb);
   
-    //Dummy Event Offset
-    //long long int offset = (long long int) eventId;
-    cout<<"Writting Event Index :"<<eventId<<" with offset# : "<<offset<<" To Index file"<<endl;
+    //Lets write the Index too
+    cout<<"Writting Event Index :" << eventId 
+        <<" with offset# : " << offset << " To Index file" 
+                             <<endl;
     index_writer.write(emb, (long long)offset);
   }
 
 
-  //Write the EOF
-  //EOFRecordBuilder eof = 
-  //stream_writer.writeEOF();
+  //Write the EOF Record Both at the end of Streamer file and Index file
+  uint32 dummyStatusCode = 1234;
+  std::vector<uint32> hltStats;
+
+  hltStats.push_back(32);
+  hltStats.push_back(33);
+  hltStats.push_back(34);
+
+  stream_writer.writeEOF(dummyStatusCode, hltStats);
+
+  index_writer.writeEOF(dummyStatusCode, hltStats);
 
  
   return 0;

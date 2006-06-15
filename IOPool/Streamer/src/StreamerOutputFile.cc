@@ -3,15 +3,11 @@
 
   StreamerOutputFile::~StreamerOutputFile() 
   {
-
     /** For the time being writeEOF is invoked for user here
         if its a "user operation, then we canb expose it to 
         user and call it explicitly 
-    */   
-    cout<<"dEVENTS::::::"<<events_<<endl;
-    cout<<"dfirst_event_offset_"<<first_event_offset_<<endl;
-    cout<<"dlast_event_offset_"<<last_event_offset_<<endl;
     writeEOF();
+    */   
 
     ost_->close();
     delete ost_;
@@ -30,7 +26,6 @@
   {
     uint64 offset_to_return = current_offset_; /** Offset where current event starts */
     last_event_offset_ = current_offset_; /** Offset of last written event */
-    cout<<"last_event_offset_"<<last_event_offset_<<endl;
 
     writeEventHeader(ineview);
     ost_->write((const char*) ineview.eventAddr(), ineview.size() - ineview.headerSize() );
@@ -39,7 +34,6 @@
     if ( ! (events_ % 100) )
         {
 	ost_->flush();
-        cout<<"Called Flush" << endl;
         }
     return offset_to_return;
   }
@@ -65,26 +59,24 @@
     run_ = inview.run();
   }
 
-  void StreamerOutputFile::writeEOF() 
+  void StreamerOutputFile::writeEOF(uint32 statusCode, 
+                                    std::vector<uint32>& hltStats) 
   {
-    uint32 dummyStatusCode = 1234;
+    /*uint32 dummyStatusCode = 1234;
     std::vector<uint32> hltStats;
 
-      hltStats.push_back(32);
-      hltStats.push_back(32);
-      hltStats.push_back(32);
+    hltStats.push_back(32);
+    hltStats.push_back(32);
+    hltStats.push_back(32);
 
-      cout<<"Ready for eof"<<endl; 
-      cout<<"Events"<<events_<<endl;
-      cout<<"first_event_offset_"<<first_event_offset_<<endl;
-      cout<<"last_event_offset_"<<last_event_offset_<<endl;
+    */
 
-      EOFRecordBuilder eof(run_, events_,
-                   dummyStatusCode,
-                   hltStats,
-                   first_event_offset_,
-                   last_event_offset_);
-      ost_->write((const char*) eof.recAddress(), eof.size() );  
+    EOFRecordBuilder eof(run_, events_,
+                 statusCode,
+                 hltStats,
+                 first_event_offset_,
+                 last_event_offset_);
+    ost_->write((const char*) eof.recAddress(), eof.size() );  
   }
 
 

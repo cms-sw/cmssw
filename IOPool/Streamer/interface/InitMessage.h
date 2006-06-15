@@ -23,7 +23,9 @@ struct InitHeader
 {
   InitHeader(const Header& h, uint32 run, const Version& v):
     header_(h),version_(v)
-  { cout<<"HEAD"<<endl;convert(run,run_); }
+  {
+   convert(run,run_); 
+  }
 
   Header header_;
   Version version_;

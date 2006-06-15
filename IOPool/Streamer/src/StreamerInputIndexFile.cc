@@ -2,37 +2,67 @@
 
 StreamerInputIndexFile::~StreamerInputIndexFile()
 {
-  ist_->close();
-  delete ist_;
+  //ist_->close();
+  //delete ist_;
   
   if (!startMsg_.init) {
     delete startMsg_.init;
+    delete startMsg_.magic;
+    delete startMsg_.reserved;
   }
-  
-  if (!currentEvMsg_.eview) {
-    delete  currentEvMsg_.eview;
-  }
-  
+
+  indexRecIter it;
+  for(it = this->begin(); it != this->end(); ++it) 
+     {
+          delete (*it).eview;
+          delete (*it).offset;
+     }   
 }
 
 StreamerInputIndexFile::StreamerInputIndexFile(const string& name):
-  filename_(name),
   ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
-  //ist_(makeInputFile(filename_)),
+  eof_(false),
+  eventBufPtr_(0),
   headerBuf_(1000*1000),
-  eventBuf_(1000*1000*7)
+  eventBuf_(1000*1000*10)
 {
   readStartMessage();
   set_hlt_l1_sizes();
+  while (readEventMessage()) {
+  ;
+  }
+  ist_->close();
+  delete ist_;
+}
+
+
+StreamerInputIndexFile::StreamerInputIndexFile(const vector<string>& names):
+  eof_(false),
+  eventBufPtr_(0),
+  headerBuf_(1000*1000),
+  eventBuf_(1000*1000*10)
+{
+   for (int i=0; i!=names.size(); ++i) 
+   {
+       ist_ = new ifstream(names.at(i).c_str(), ios_base::binary | ios_base::in);
+
+
+       readStartMessage();
+       set_hlt_l1_sizes();
+       while (readEventMessage()) {
+       ;
+       }
+       ist_->close();
+       delete ist_; 
+   }
 }
 
 void StreamerInputIndexFile::readStartMessage() {
-  if (!*ist_) { cout <<"Error"<<endl; }
-  
   ist_->clear();
   ist_->read((char*)&headerBuf_[0], headerBuf_.size());
-  startMsg_.magic = convert32((unsigned char*)&headerBuf_[0]);
-  startMsg_.reserved = convert64((unsigned char*)&headerBuf_[4]);
+  startMsg_.magic = new uint32 (convert32((unsigned char*)&headerBuf_[0]));
+  startMsg_.reserved = (uint64*)new long long 
+		(convert64((unsigned char*)&headerBuf_[4]));
   startMsg_.init = new InitMsgView(&headerBuf_[12], ist_->gcount() );
   uint32 headerSize = startMsg_.init->headerSize();
   //Bring the ist_ at end of Header
@@ -41,65 +71,82 @@ void StreamerInputIndexFile::readStartMessage() {
   headerBuf_.resize(headerSize);
 }
 
-bool StreamerInputIndexFile::next()  {
-  if ( this->readEventMessage() )
-    {
-      return true;
-    }
-  return false;
-  
-}
-
 int StreamerInputIndexFile::readEventMessage()  {
   int last_pos = ist_->tellg();
+
+
   ist_->clear();
-  ist_->read((char*)&eventBuf_[0], 5);
-  if (ist_->gcount() < 1) return 0;
-  
-  uint32 eventSize = convert32((unsigned char*)&eventBuf_[1]);
+  ist_->read((char*)&eventBuf_[eventBufPtr_+1], 5);
+
+  if (ist_->gcount() < 1) {
+	eof_ = true;
+	return 0;
+  }
+ 
+  HeaderView head_(&eventBuf_[eventBufPtr_+1], 5);
+  uint32 code = head_.code();
+  if (code != 1) /** Not an event message should return */
+     return 0;
+
+  uint32 eventSize =  head_.size();
   //Bring the pointer to end of Start Message
   ist_->clear();
   ist_->seekg(last_pos, ios::beg);
   
   // Read more than Header, Later we can have a 
   // HeaderSize Field in the Message
-  ist_->read((char*)&eventBuf_[0], eventSize);
-  if (ist_->gcount() < 1) return 0;
+  ist_->read((char*)&eventBuf_[eventBufPtr_+1], eventSize);
+  if (ist_->gcount() < 1) {
+     eof_= true;
+     return 0;
+  }
 
-  cout<<"hlt_bit_cnt_::::I:::::"<<hlt_bit_cnt_<<endl;
-  cout<<"l1_bit_cnt_:::::I::::::"<<l1_bit_cnt_<<endl; 
-  
-  currentEvMsg_.eview = new EventMsgView((void*)&eventBuf_[0], 
+  EventIndexRecord currentEvMsg_;
+  currentEvMsg_.eview = new EventMsgView((void*)&eventBuf_[eventBufPtr_+1], 
 					 (uint32)ist_->gcount(),
 					 hlt_bit_cnt_, l1_bit_cnt_);
-  currentEvMsg_.offset = convert64((unsigned char*)
-				   &eventBuf_[currentEvMsg_.eview->
-					      headerSize()]);
+  currentEvMsg_.offset = (uint64*) new long long (convert64((unsigned char*)
+				   &eventBuf_[eventBufPtr_+1+currentEvMsg_.eview->
+					      headerSize()]));
+
+  indexes_.push_back(currentEvMsg_);
+
   //This Brings the pointer to end of this Event Msg.
-  uint32 new_pos = currentEvMsg_.eview->headerSize() + sizeof(uint64);
-  eventBuf_.resize(new_pos);
+  uint32 new_len = currentEvMsg_.eview->headerSize() + sizeof(uint64);
+  //eventBuf_.resize(new_len);
   ist_->clear();
-  ist_->seekg(last_pos+new_pos, ios::beg);
+  ist_->seekg(last_pos+new_len, ios::beg);
+
+  eventBufPtr_ +=  new_len;
   return 1;
-  //}
-  return 0;
+}
+
+bool header_sorter(EventIndexRecord first, EventIndexRecord second) {
+    uint32 event_first = first.eview->event(); 
+    uint32 event_second = second.eview->event();
+     
+    if(event_first > event_second ) 
+	return true;
+    return false;
+}
+
+indexRecIter StreamerInputIndexFile::sort() {
+  std::sort( this->begin(), this->end(), header_sorter );
+  return this->begin();
 }
 
 void StreamerInputIndexFile::set_hlt_l1_sizes() {
-  
   Strings vhltnames,vl1names;
   startMsg_.init->hltTriggerNames(vhltnames);
   startMsg_.init->l1TriggerNames(vl1names);
   hlt_bit_cnt_ = vhltnames.size();
   l1_bit_cnt_ = vl1names.size();
-  
 }
 
 uint32 StreamerInputIndexFile::get_hlt_bit_cnt()
 {
  return hlt_bit_cnt_;
 }
-
 
 uint32 StreamerInputIndexFile::get_l1_bit_cnt()
 {

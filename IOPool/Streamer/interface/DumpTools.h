@@ -70,7 +70,6 @@ void dumpInit(uint8* buf, uint32 bufsize)
 
 void dumpEventHeader(EventMsgView* eview, uint32 hltsize,uint32 l1size)
 {
-  cout << "----------------------\n";
   cout << "code=" << eview->code() << "\n"
        << "size=" << eview->size() << "\n"
        << "run=" << eview->run() << "\n"

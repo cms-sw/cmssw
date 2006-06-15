@@ -2,7 +2,6 @@
 This file contains Class definitions for the Classes that Handles
 Streamer and Index file IO.
 
-StreamerFileIO: Base Class for managing IO Handlers
 StreamerOutputFile: Class for doing Streamer Write operations
 StreamerInputFile: Class for doing Streamer read operations.
 StreamerOutputIndexFile: Class for doing Index write operations.
@@ -23,57 +22,49 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
 #include <fstream>
 #include <iostream>
 
+//-------------------------------------------------------
+  
+  /** Struct Representing Start of File record in Index file
+      MaigicNumber(04Bytes)+Reserved(08Bytes)+InitHeader
+  */
+    
+  struct StartIndexRecord {
+       uint32* magic;
+       uint64* reserved;
+       InitMsgView* init;
+       
+  };
+
+  /** Struct represents a Event filed in Streamer file.
+   EventHeader + offset(64Bit)
+  */
+
+  struct EventIndexRecord {
+        EventMsgView* eview; 
+        uint64* offset;
+  };  
+
+
+/** Iterator for EventIndexRecord Vector */
+typedef std::vector<EventIndexRecord>::iterator indexRecIter;
+
+//---------------------------------------------------------
+
+  //These defs might come handy later
   //typedef boost::shared_ptr<ofstream> OutPtr;
   typedef std::auto_ptr<ofstream> OutPtr;
   typedef std::auto_ptr<ifstream> InPtr;
 
-  class StreamerFileIO {
-  /** 
-   Base Class for managing IO Handlers
-  */
-  public:
-     StreamerFileIO() {};
-     ~StreamerFileIO(){};
-
-     OutPtr makeOutputFile(const string name)
-     /**
-     Creates an output file ptr
-     */
-     {
-       OutPtr p (new ofstream(name.c_str(), ios_base::binary | ios_base::out));
-       //OutPtr p(new ofstream(name.c_str(), ios_base::binary | ios_base::out));
-       if(!(*p))
-         {
-           throw "cannot open output file";
-         }
-       return p;
-     }  
-
-     InPtr makeInputFile(const string name)
-     /**
-     Creates an input file ptr
-     */
- 
-     {
-       InPtr p (new ifstream(name.c_str(), ios_base::binary | ios_base::in));
-       if(!(*p))
-         {
-           throw "cannot open input file";
-         }
-       return p;
-     }
-
-  };
 
 //--------------------------------------------------------
 
-  class StreamerOutputFile : public StreamerFileIO
+  class StreamerOutputFile 
   /**
   Class for doing Streamer Write operations
   */
   {
   public:
-     StreamerOutputFile(const string& name);
+     explicit StreamerOutputFile(const string& name);
      /**
       CTOR, takes file path name as argument
      */
@@ -92,9 +83,8 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
               which Event was written.
      */
 
-
-
-      void writeEOF();
+      void writeEOF(uint32 statusCode, 
+                    std::vector<uint32>& hltStats);
 
   protected:
 
@@ -127,10 +117,25 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
 
 //--------------------------------------------------------------
 
-  class StreamerInputFile : public StreamerFileIO
+class StreamerInputIndexFile;
+
+  class StreamerInputFile
   {
   public:
-    StreamerInputFile(const string& name); 
+
+    /**Reads a Streamer file */
+    explicit StreamerInputFile(const string& name);  
+
+    /** Reads a Streamer file and browse it through an index file */
+    /** Index file name provided here */
+    StreamerInputFile(const string& name, const string& order); 
+ 
+    /** Index file reference is provided */
+    StreamerInputFile(const string& name, const StreamerInputIndexFile& order);
+
+    /** Multiple Index files for Single Streamer file */
+    //StreamerInputFile(const vector<string>& names);
+
     ~StreamerInputFile();
 
     bool next() ; /** Moves the handler to next Event Record */
@@ -142,6 +147,8 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
     uint32 get_hlt_bit_cnt(); /** HLT Bit Count */
     uint32 get_l1_bit_cnt(); /** L1 Bit Count */
 
+    StreamerInputIndexFile* index(); /** Return pointer to current index */
+
   private:
 
     void readStartMessage(); 
@@ -151,18 +158,22 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
     //InPtr ist_;
     ifstream* ist_;
 
-    //std::auto_ptr<InitMsgView> startMsg_;
-    //std::auto_ptr<EventMsgView> currentEvMsg_;
-
-    InitMsgView* startMsg_;
-    EventMsgView* currentEvMsg_;
-
-    string filename_; 
-    vector<char> headerBuf_; /** Buffer to store file Header */
-    vector<char> eventBuf_;  /** Buffer to store Event Data */
+    bool useIndex_;
+    StreamerInputIndexFile* index_;
+    indexRecIter indexIter_b;
+    indexRecIter indexIter_e;
 
     uint32 hlt_bit_cnt_;  /** Number of HLT Bits */
     uint32 l1_bit_cnt_;  /** Number of L1 Bits */
+    
+    //std::auto_ptr<InitMsgView> startMsg_;
+    //std::auto_ptr<EventMsgView> currentEvMsg_;
+    InitMsgView* startMsg_;
+    EventMsgView* currentEvMsg_;
+
+    vector<char> headerBuf_; /** Buffer to store file Header */
+    vector<char> eventBuf_;  /** Buffer to store Event Data */
+
   };
 
 
@@ -172,7 +183,7 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
   /** Class for doing Index write operations. */
   {
   public:
-     StreamerOutputIndexFile(const string& name);
+     explicit StreamerOutputIndexFile(const string& name);
 
      //Magic# and Reserved fileds 
      void writeIndexFileHeader(uint32 magicNumber, uint64 reserved);
@@ -182,70 +193,58 @@ StreamerInputIndexFile: Class for doing Index Read Operations.
 
   };
 
-//-------------------------------------------------------
-
-  /** Struct Representing Start of File record in Index file
-      MaigicNumber(04Bytes)+Reserved(08Bytes)+InitHeader 
-  */
-
-  struct StartIndexRecord {
-       uint32 magic;
-       uint64 reserved;
-       InitMsgView* init;
-       
-  };
-
-  /** Struct represents a Event filed in Streamer file.
-   EventHeader + offset(64Bit)
-  */
-
-  struct EventIndexRecord {
-	EventMsgView* eview;
-        long long offset;
-  };  
-
 //---------------------------------------------------------
 
-  class StreamerInputIndexFile : public StreamerFileIO
+  class StreamerInputIndexFile 
   {
   /** Class for doing Index Read Operations. */
   public:
-    StreamerInputIndexFile(const string& name);
+    explicit StreamerInputIndexFile(const string& name);
+    StreamerInputIndexFile(const vector<string>& names);
     ~StreamerInputIndexFile();
 
-    bool next(); /**Move the ptr to next avialable record or return false*/
-    void* currentRecord() const { return (void*) &currentEvMsg_; }
+    //void* currentRecord() const { return (void*) &currentEvMsg_; }
     void* startMessage() const { return (void*) &startMsg_; }
 
     uint32 get_hlt_bit_cnt(); /** HLT Bit Count */
     uint32 get_l1_bit_cnt(); /** L1 Bit Count */
+    
+    bool eof() {return eof_; }
+
+    std::vector<EventIndexRecord> indexes_;
+
+    indexRecIter begin() { return indexes_.begin(); }
+    indexRecIter end() { return indexes_.end(); }
+   
+    indexRecIter sort();
 
   private:
 
     void readStartMessage(); /** Reads in Start Message */
     int  readEventMessage(); /** Reads in next EventIndex Record */
-    void set_hlt_l1_sizes(); /**Sets the HLT and L1 bit sizes from Start Message */    
-    string filename_; 
-    //InPtr ist_;
+    void set_hlt_l1_sizes(); /**Sets the HLT/L1 bit sizes from Start Message */
+
     ifstream* ist_;
+    //InPtr ist_;
+
     //std::auto_ptr<InitMsgView> startMsg_;
     //std::auto_ptr<EventMsgView> currentEvMsg_;
-
-
     StartIndexRecord startMsg_;
-    EventIndexRecord currentEvMsg_;
+    //EventIndexRecord currentEvMsg_;
+
+    uint32 hlt_bit_cnt_;  /** Number of HLT Bits */
+    uint32 l1_bit_cnt_;  /** Number of L1 Bits */
+ 
+    bool eof_;
+
+    uint64 eventBufPtr_;
 
     vector<char> headerBuf_;
     vector<char> eventBuf_;
-     
-    uint32 hlt_bit_cnt_;  /** Number of HLT Bits */
-    uint32 l1_bit_cnt_;  /** Number of L1 Bits */
-
   };
 
 
 //-------------------------------------------
 
 #endif
-
 

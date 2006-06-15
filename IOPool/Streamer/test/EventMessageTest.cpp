@@ -1,3 +1,16 @@
+/** Test code that Creates Init and Event Messages, and 
+    Reads and comapres them.
+
+   The Init/EventMessage(s) are ONLY dumped if they are different 
+   (Shouldn't be in this original code).
+
+Disclaimer: Most of the code here is randomly written during
+               testing various parts, its not a supported testing code.
+               Changes can and will be made, when and if required.
+
+*/
+
+
 #include <iostream>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
