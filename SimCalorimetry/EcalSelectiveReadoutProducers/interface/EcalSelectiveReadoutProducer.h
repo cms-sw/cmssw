@@ -48,6 +48,10 @@ private:
   void checkGeometry(const edm::EventSetup & eventSetup);
   void checkTriggerMap(const edm::EventSetup & eventSetup);
 
+  void printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os);
+  
+  void printSRFHeader(std::ostream& os);
+  
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis

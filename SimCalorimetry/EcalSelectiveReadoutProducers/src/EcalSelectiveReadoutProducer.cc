@@ -5,23 +5,22 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <memory>
 
+#include <fstream> //used for debugging
+
+//#define DEBUG_SRP
+
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
 {
-  cout << "**********************************************************************" << endl;
-  cout << "in " << __PRETTY_FUNCTION__ << endl;
-  cout << "**********************************************************************" << endl;
   //sets up parameters:
-  digiProducer_ = params.getParameter<string>("digiProducer");
-  trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
-  
-  //instantiates the selective readout algorithm:
-  suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
-  
-  //declares the products made by this producer:
-  produces<EBDigiCollection>();
-  produces<EEDigiCollection>();
+   digiProducer_ = params.getParameter<string>("digiProducer");
+   trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+   //instantiates the selective readout algorithm:
+   suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
+   //declares the products made by this producer:
+   produces<EBDigiCollection>("ebDigis");
+   produces<EEDigiCollection>("eeDigis");
 }
 
 
@@ -40,6 +39,14 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   //gets the trigger primitives:
   const EcalTrigPrimDigiCollection* trigPrims = getTrigPrims(event);
 
+#ifdef DEBUG_SRP
+  static int iEvent = 0;
+  stringstream buffer;
+  buffer << "TTFMap_" << event.id(); //iEvent;
+  ofstream ttfFile(buffer.str().c_str());
+  printTTFlags(*trigPrims, ttfFile);
+#endif //DEBUG_SRP defined
+  
   //gets the digis from the events:
   const EBDigiCollection* ebDigis = getEBDigis(event);
   const EEDigiCollection* eeDigis = getEEDigis(event);
@@ -50,14 +57,20 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 
   suppressor_->run(*trigPrims, *ebDigis, *eeDigis,
 		   *selectedEBDigi, *selectedEEDigi);
-		  
+  
+#ifdef DEBUG_SRP
+  buffer.str("");
+  buffer << "SRFMap_" << event.id();//iEvent;
+  ofstream srfFile(buffer.str().c_str());
+  suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+  suppressor_->getEcalSelectiveReadout()->print(srfFile);
+  ++iEvent; //event counter
+#endif //DEBUG_SRP defined
+  
   //puts the selected digis into the event:
   event.put(selectedEBDigi, "ebDigis");
   event.put(selectedEEDigi, "eeDigis");
   
-  cout << "**********************************************************************" << endl;
-  cout << "in " << __PRETTY_FUNCTION__ << endl;
-  cout << "**********************************************************************" << endl;
 }
 
 const EBDigiCollection*
@@ -115,4 +128,40 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
   }
 }
 
+
+void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection& tp, ostream& os){
+  const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
+  const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
+  const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
+
+  //static bool firstCall=true;
+  //  if(firstCall){
+  //  firstCall=false;
+  os << "# TCC flag map\n#\n"
+    "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
+    "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
+    "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
+    "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
+    "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n"
+    "#\n";
+  //}
+  
+  vector<vector<int> > ttf(nEta, vector<int>(nPhi, -1));
+  for(EcalTrigPrimDigiCollection::const_iterator it = tp.begin();
+      it != tp.end(); ++it){
+    const EcalTriggerPrimitiveDigi& trigPrim = *it;
+    if(trigPrim.size()>0){
+      int iEta0 = trigPrim.id().ieta();
+      int iEta = iEta0<0?iEta0+nEta/2:iEta0+nEta/2-1;
+      int iPhi = trigPrim.id().iphi() - 1;
+      ttf[iEta][iPhi] = trigPrim[4].ttFlag();
+    }
+  }
+  for(int iEta=0; iEta<nEta; ++iEta){
+    for(int iPhi=0; iPhi<nPhi; ++iPhi){
+      os << tccFlagMarker[ttf[iEta][iPhi]+1];
+    }
+    os << "\n";
+  }
+}
 
