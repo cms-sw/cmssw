@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/13 20:08:37 $
- * $Revision: 1.133 $
+ * $Date: 2006/06/14 06:40:58 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -569,7 +569,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     Tm startRun;
 
     startRun.setToCurrentGMTime();
-    startRun.setToMicrosTime(startRun.microsTime());
 
     runiov_.setRunNumber(run_);
     runiov_.setRunStart(startRun);
@@ -588,8 +587,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   }
 
   // end - setup the RunIOV (on behalf of the DAQ)
-
-  location_ = runiov_.getRunTag().getLocationDef().getLocation();
 
   std::string st = runiov_.getRunTag().getRunTypeDef().getRunType();
   if( st == "UNKNOWN" ) runtype_ = -1; 
@@ -654,13 +651,18 @@ void EcalBarrelMonitorClient::writeDb(void) {
   Tm startSubRun;
 
   startSubRun.setToCurrentGMTime();
-  startSubRun.setToMicrosTime(startSubRun.microsTime());
 
   // setup the MonIOV
 
   moniov_.setRunIOV(runiov_);
   moniov_.setSubRunNumber(subrun_);
-  moniov_.setSubRunStart(startSubRun);
+
+  if ( enableMonitorDaemon_ ) {
+    moniov_.setSubRunStart(startSubRun);
+  } else {
+    moniov_.setSubRunStart(runiov_.getRunStart());
+  }
+
   moniov_.setMonRunTag(montag);
 
   cout << endl;
@@ -1057,26 +1059,30 @@ void EcalBarrelMonitorClient::analyze(void){
 	  }
 	}
 
-        // BEGIN: Quality Tests
+        if ( status_ == "end-of-run" || forced_update_ ) {
 
-        cout << endl;
-        switch ( mui_->getSystemStatus() ) {
-          case dqm::qstatus::ERROR:
-            cout << " Error(s)";
-            break;
-          case dqm::qstatus::WARNING:
-            cout << " Warning(s)";
-            break;
-          case dqm::qstatus::OTHER:
-            cout << " Some tests did not run;";
-            break;
-          default:
-            cout << " No problems";
+          // BEGIN: Quality Tests
+
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
+          }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+          // END: Quality Tests
+
         }
-        cout << " reported after running the quality tests" << endl;
-        cout << endl;
-
-        // END: Quality Tests
 
       }
       
