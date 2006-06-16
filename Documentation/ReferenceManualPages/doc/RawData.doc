@@ -34,30 +34,18 @@ Raw detector output.
   <th>Description</th>
   <th>Contact</th>
 </tr>
+
 <tr class="colgroup">
-  <td class="colgroup" colspan=5>XYZ collections</td>
+  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
 </tr>
 <tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz raw object ...</td>
-  <td>E.Meschi</td>
+  <td> \endhtmlonly PixelDigi \htmlonly </rd>
+  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
+  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
+  <td class="description">Pixel digitized hit</td>
+  <td>V.Chiochia</td>
 </tr>
-<tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz raw object ...</td>
-  <td>E.Meschi</td>
-</tr>
-<tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz raw object ...</td>
-  <td>E.Meschi</td>
-</tr>
+
 </table>
 
 \endhtmlonly
