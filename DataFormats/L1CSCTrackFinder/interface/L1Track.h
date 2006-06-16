@@ -42,15 +42,14 @@ namespace csc{
       unsigned localPhi() const { return m_lphi; }
       void setLocalPhi(const unsigned& lphi) { m_lphi = lphi; } 
       
-      const CSCCorrelatedLCTDigiCollection* getTrackStubs() const { return &track_stubs; }
       unsigned me1ID() const { return me1_id; }
       unsigned me2ID() const { return me2_id; }
       unsigned me3ID() const { return me3_id; }
       unsigned me4ID() const { return me4_id; }
       unsigned mb1ID() const { return mb1_id; }
 
-      unsigned endcap() const { return m_id.endcap(); }
-      unsigned sector() const { return m_id.sector(); }
+      unsigned endcap() const { return m_endcap; }
+      unsigned sector() const { return m_sector; }
       unsigned station() const { return 0; }
       // these next two are needed by the trigger container class
       unsigned subsector() const { return 0; }
@@ -88,8 +87,9 @@ namespace csc{
       L1MuTriggerScales* scale;
       
       std::string m_name;
-      L1TrackId m_id;
-      CSCCorrelatedLCTDigiCollection track_stubs;
+      //L1TrackId m_id; remove this nested class for now... POOL doesn't like it.
+      unsigned m_endcap, m_sector;
+      //CSCCorrelatedLCTDigiCollection track_stubs;  same as above
       unsigned m_lphi;
       unsigned m_ptAddress;
       unsigned me1_id, me2_id, me3_id, me4_id, mb1_id;
@@ -97,7 +97,6 @@ namespace csc{
       unsigned m_rank;
       bool m_empty;
 
-      void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
       void setStationIds(const unsigned& me1, const unsigned& me2, 
 			 const unsigned& me3, const unsigned& me4,
 			 const unsigned& mb1);

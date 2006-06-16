@@ -2,9 +2,11 @@
 
 namespace csc {
   
-  L1Track::L1Track(const csc::L1TrackId& id): m_name("csc::L1Track"), m_id(id)
+  L1Track::L1Track(const csc::L1TrackId& id): m_name("csc::L1Track")
   {
     scale = new L1MuTriggerScales();    
+    m_endcap = id.endcap();
+    m_sector = id.sector();
     m_lphi = 0;
     m_ptAddress = 0;
     m_empty = true;
@@ -15,6 +17,7 @@ namespace csc {
     me2_id = 0;
     me3_id = 0;
     me4_id = 0;
+    mb1_id = 0;
   }
   
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -26,27 +29,15 @@ namespace csc {
     scale = new L1MuTriggerScales();
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
-    m_id = rhs.m_id;
+    m_endcap = rhs.m_endcap;
+    m_sector = rhs.m_sector;
     m_ptAddress = rhs.m_ptAddress;
     m_rank = rhs.m_rank;
     me1_id = rhs.me1_id;
     me2_id = rhs.me2_id;
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
-
-    CSCCorrelatedLCTDigiCollection::DigiRangeIterator Riter;
-
-    for(Riter = rhs.track_stubs.begin(); Riter != rhs.track_stubs.end(); Riter++)
-      {
-	CSCCorrelatedLCTDigiCollection::const_iterator Diter = (*Riter).second.first;
-	CSCCorrelatedLCTDigiCollection::const_iterator Dend = (*Riter).second.second;
-	
-	for(; Diter != Dend; Diter++)
-	  {	    
-	    addTrackStub((*Riter).first, (*Diter));
-	  }
-      }
-
+    mb1_id = rhs.mb1_id;
   }
 
   L1Track::~L1Track()
@@ -73,26 +64,15 @@ namespace csc {
 	this->setChargeValidPacked(rhs.charge_valid_packed());
 	this->setFineHaloPacked(rhs.finehalo_packed());
 	this->setQualityPacked(rhs.quality_packed());
-	m_id      = rhs.m_id;
+	m_endcap = rhs.m_endcap;
+	m_sector = rhs.m_sector;
 	m_ptAddress = rhs.m_ptAddress;
 	m_rank = rhs.m_rank;
 	me1_id = rhs.me1_id;
 	me2_id = rhs.me2_id;
 	me3_id = rhs.me3_id;
 	me4_id = rhs.me4_id;
-
-	CSCCorrelatedLCTDigiCollection::DigiRangeIterator Riter;
-
-	for(Riter = rhs.track_stubs.begin(); Riter != rhs.track_stubs.end(); Riter++)
-	  {
-	    CSCCorrelatedLCTDigiCollection::const_iterator Diter = (*Riter).second.first;
-	    CSCCorrelatedLCTDigiCollection::const_iterator Dend = (*Riter).second.second;
-	    
-	    for(; Diter != Dend; Diter++)
-	      {
-		addTrackStub((*Riter).first, (*Diter));
-	      }
-	  }
+	mb1_id = rhs.mb1_id;
       }
     return *this;
   }
@@ -122,12 +102,7 @@ namespace csc {
   {
     return scale->getPhiScale()->getLowEdge(m_lphi);
   }
-  
-  void L1Track::addTrackStub(const CSCDetId& id, const CSCCorrelatedLCTDigi& digi)
-  {
-    track_stubs.insertDigi(id, digi);
-  }
-  
+    
   void L1Track::setStationIds(const unsigned& me1, const unsigned& me2, 
 			      const unsigned& me3, const unsigned& me4,
 			      const unsigned& mb1)
@@ -176,7 +151,7 @@ namespace csc {
 
   bool L1Track::operator>(const csc::L1Track &rhs) const
   {
-    return (m_id.rank() > rhs.m_id.rank()); 
+    return (rank() > rhs.rank()); 
   }
 
   bool L1Track::operator<(const csc::L1Track& rhs) const

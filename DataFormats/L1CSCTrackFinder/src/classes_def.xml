@@ -1,8 +1,8 @@
 <lcgdict>
    <class name="csc::L1Track">
      <field name="scale" transient="true"/>
-     <field name="track_stubs" transient="true"/>
    </class>
+
    <class name="csc::L1TrackId"/>
 
    <class name="std::vector<csc::L1Track>"/>
