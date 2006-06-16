@@ -187,19 +187,10 @@ Alignments* AlignableDetUnit::alignments() const
   Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
   HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 										rot.yx(), rot.yy(), rot.yz(),
-										rot.zx(), rot.zy(), rot.zz() )
-							 );
+										rot.zx(), rot.zy(), rot.zz() ) );
   uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
 
-  // TEMPORARILY also include alignment error
-  HepSymMatrix clhepSymMatrix(0);
-  if ( this->geomDetUnit()->alignmentPositionError() ) 
-	{
-	  // Might not be set
-	  clhepSymMatrix = this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
-	}
-  
-  AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
+  AlignTransform transform( clhepVector, clhepRotation, detId );
 
   // Add to alignments container
   m_alignments->m_align.push_back( transform );
@@ -217,7 +208,7 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
  
-  HepSymMatrix clhepSymMatrix(0);
+  HepSymMatrix clhepSymMatrix(3,0);
   if ( this->geomDetUnit()->alignmentPositionError() ) // Might not be set
 	clhepSymMatrix = 
 	  this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
