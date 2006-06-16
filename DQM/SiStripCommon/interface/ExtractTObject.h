@@ -12,11 +12,13 @@ class ExtractTObject {
  public:
   
   T* operator() ( MonitorElement* me ) { 
-    MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me );
-    if ( tnamed ) {
-      T* histo = dynamic_cast<T*>( tnamed->operator->() );
-      if( histo ) { return histo; }
-      else { return 0; }
+    if ( me ) {
+      MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me );
+      if ( tnamed ) {
+	T* histo = dynamic_cast<T*>( tnamed->operator->() );
+	if( histo ) { return histo; }
+	else { return 0; }
+      } else { return 0; }
     } else { return 0; }
   }
   
