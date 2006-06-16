@@ -53,8 +53,9 @@ private:
   // ----------member data ---------------------------
   TTree* theTree;
   TFile* theFile;
-  float x,y,z,phi,theta,length,thick,width;
-  TRotMatrix* rot;
+  float x_,y_,z_,phi_,theta_,length_,thick_,width_;
+  int Id_;
+  TRotMatrix* rot_;
 
 };
 
@@ -69,16 +70,17 @@ TestAnalyzer::TestAnalyzer( const edm::ParameterSet& iConfig )
   theFile = new TFile( fileName.c_str(), "RECREATE" );
   theTree = new TTree( "theTree", "Detector units positions" );
   
-  theTree->Branch("x",      &x,      "x/F"      );
-  theTree->Branch("y",      &y,      "y/F"      );
-  theTree->Branch("z",      &z,      "z/F"      );
-  theTree->Branch("phi",    &phi,    "phi/F"    );
-  theTree->Branch("theta",  &theta,  "theta/F"  );
-  theTree->Branch("length", &length, "length/F" );
-  theTree->Branch("width",  &width,  "width/F"  );
-  theTree->Branch("thick",  &thick,  "thick/F"  );
-  rot = 0;
-  theTree->Branch("rot",    "TRotMatrix", &rot  );
+  theTree->Branch("Id",     &Id_,     "Id/I"     );
+  theTree->Branch("x",      &x_,      "x/F"      );
+  theTree->Branch("y",      &y_,      "y/F"      );
+  theTree->Branch("z",      &z_,      "z/F"      );
+  theTree->Branch("phi",    &phi_,    "phi/F"    );
+  theTree->Branch("theta",  &theta_,  "theta/F"  );
+  theTree->Branch("length", &length_, "length/F" );
+  theTree->Branch("width",  &width_,  "width/F"  );
+  theTree->Branch("thick",  &thick_,  "thick/F"  );
+  rot_ = 0;
+  theTree->Branch("rot",    "TRotMatrix", &rot_  );
 
 }
 
@@ -109,14 +111,16 @@ TestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( std::vector<GeomDet*>::const_iterator iGeomDet = trackerGeometry->dets().begin();
 		iGeomDet != trackerGeometry->dets().end(); iGeomDet++ )
 	{
-	  x      = (*iGeomDet)->position().x();
-	  y      = (*iGeomDet)->position().y();
-	  z      = (*iGeomDet)->position().z();
-	  phi    = (*iGeomDet)->surface().normalVector().phi();
-	  theta  = (*iGeomDet)->surface().normalVector().theta();
-	  length = (*iGeomDet)->surface().bounds().length();
-	  width  = (*iGeomDet)->surface().bounds().width();
-	  thick  = (*iGeomDet)->surface().bounds().thickness();
+	  
+	  Id_     = (*iGeomDet)->geographicalId().rawId();
+	  x_      = (*iGeomDet)->position().x();
+	  y_      = (*iGeomDet)->position().y();
+	  z_      = (*iGeomDet)->position().z();
+	  phi_    = (*iGeomDet)->surface().normalVector().phi();
+	  theta_  = (*iGeomDet)->surface().normalVector().theta();
+	  length_ = (*iGeomDet)->surface().bounds().length();
+	  width_  = (*iGeomDet)->surface().bounds().width();
+	  thick_  = (*iGeomDet)->surface().bounds().thickness();
 
 	  double matrix[9] = { 
 		(*iGeomDet)->rotation().xx(),
@@ -129,7 +133,7 @@ TestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		(*iGeomDet)->rotation().zy(),
 		(*iGeomDet)->rotation().zz()
 	  };
-	  rot = new TRotMatrix( "rot", "rot", matrix );
+	  rot_ = new TRotMatrix( "rot", "rot", matrix );
 
 	  theTree->Fill();
 
