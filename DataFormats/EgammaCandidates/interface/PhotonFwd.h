@@ -8,7 +8,7 @@
 namespace reco {
   class Photon;
 
-  /// collection of Photon objects
+  /// collectin of Photon objects
   typedef std::vector<Photon> PhotonCollection;
 
   /// reference to an object in a collection of Photon objects
@@ -17,10 +17,10 @@ namespace reco {
   /// reference to a collection of Photon objects
   typedef edm::RefProd<PhotonCollection> PhotonRefProd;
 
-  /// vector of references to objects in the same collection of Photon objects
+  /// vector of objects in the same collection of Photon objects
   typedef edm::RefVector<PhotonCollection> PhotonRefVector;
 
-  /// iterator over a vector of references to Photon objects
+  /// iterator over a vector of reference to Photon objects
   typedef PhotonRefVector::iterator photon_iterator;
 }
 

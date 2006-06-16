@@ -1,101 +1,48 @@
-#ifndef EgammaReco_Electron_h
-#define EgammaReco_Electron_h
-/** \class reco::Electron
+#ifndef EgammaCandidates_Electron_h
+#define EgammaCandidates_Electron_h
+/** \class reco::Electron 
  *
- * Reconstructed Electron with references 
- * to a SuperCluster
- * and a Track
+ * Reco Candidates with an Electron component
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Electron.h,v 1.1 2006/04/09 15:39:24 rahatlou Exp $
+ * \version $Id: Electron.h,v 1.3 2006/05/19 09:24:40 llista Exp $
  *
  */
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
 namespace reco {
 
-  class SuperCluster;
-  class Track;
-
-  class Electron {
+  class Electron : public RecoCandidate {
   public:
-    /// spatial vector
-    typedef math::RhoEtaPhiVector Vector;
     /// default constructor
-    Electron() { }
+    Electron() : RecoCandidate() { }
     /// constructor from values
-    Electron( const Vector & calo, const Vector & track, short charge,
-	      double eHadOverEcal, short isolation, short pixelLines );
-    /// constructor from references to a SuperCluster and a Track
-    //    Electron( const SuperClusterRef & calo, TrackRef track,
-    //	      double eHadOverEcal, short isolation, short pixelLines );
-    /// momentum vector from calorimeter
-    const Vector & caloMomentum() const { return caloMomentum_; }
-    /// transverse energy from calorimeter
-    double caloEt() const { return caloMomentum_.Rho(); }
-    /// preudorapidity from calorimeter
-    double caloEta() const { return caloMomentum_.Eta(); }
-    /// azimuthal angle from calorimeter
-    double caloPhi() const { return caloMomentum_.Phi(); }
-    /// polar angle angle from calorimeter
-    double caloTheta() const { return caloMomentum_.Theta(); }
-    /// energy measured in the calorimeter
-    double caloEnergy() const { return caloMomentum_.R(); }
-    /// momentum vector from Track
-    const Vector & trackMomentum() const { return trackMomentum_; }
-    /// transverse momentum from Track
-    double trackPt() const { return trackMomentum_.Rho(); }
-    /// pseudorapidity momentum from Track
-    double trackEta() const { return trackMomentum_.Eta(); }
-    /// azimuthal angle momentum from Track
-    double trackPhi() const { return trackMomentum_.Phi(); }
-    /// polar angle momentum from Track
-    double trackTheta() const { return trackMomentum_.Theta(); }
-    /// magnitude of momentum vector from Track
-    double trackP() const { return trackMomentum_.R(); }
-    /// ratio of energy measured in the calorimeter and Track momentum
-    double eOverP() const { return caloEnergy() / trackP(); }
-    /// electron electric charge
-    short charge() const { return charge_; }
-    /// ratio of energy deposits in Hcal over Ecal
-    double eHadOverEcal() const { return eHadOverEcal_; }
-    /// difference of pseudorapidity in calorimeter and Track
-    double deltaEta() const { return  caloEta() - trackEta(); }
-    /// isolation (should be better documented!)
-    short isolation() const { return isolation_; }
-    /// number of pixel lines (should be better documented!)
-    short pixelLines() const { return pixelLines_; }
-    /// reference to SuperCluster
-    const SuperClusterRef & superCluster() const { return superCluster_; }
-    /// set reference to SuperCluster
-    void setSuperCluster( const SuperClusterRef & c ) { superCluster_ = c; }
-    /// reference to Track
-    const TrackRef & track() const { return track_; }
-    /// set reference to Track
-    void setTrack( const TrackRef & t ) { track_ = t; }
+    Electron( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      RecoCandidate( q, p4, vtx ) { }
+    /// destructor
+    virtual ~Electron();
+    /// returns a clone of the candidate
+    virtual Electron * clone() const;
+    /// refrence to a Track
+    virtual reco::TrackRef track() const;
+    /// reference to a SuperCluster
+    virtual reco::SuperClusterRef superCluster() const;
+    /// set refrence to Photon component
+    void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+    /// set refrence to Track component
+    void setTrack( const reco::TrackRef & r ) { track_ = r; }
 
   private:
-    /// momentum vector from calorimeter
-    Vector caloMomentum_;
-    /// momentum vector from Track
-    Vector trackMomentum_;
-    /// electric charge
-    short charge_;
-    /// ratio of energy deposits in Hcal over Ecal
-    Double32_t eHadOverEcal_;
-    /// isolation (should be better documented!)
-    short isolation_;
-     /// number of pixel lines (should be better documented!)
-    short pixelLines_;
-    /// reference to SuperCluster
-    SuperClusterRef superCluster_;
-    /// reference to Track
-    TrackRef track_;
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const;
+    /// reference to a SuperCluster
+    reco::SuperClusterRef superCluster_;
+    /// reference to a Track
+    reco::TrackRef track_;
   };
+  
 }
 
 #endif

@@ -1,9 +1,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhotonCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
@@ -21,25 +19,11 @@ namespace {
     edm::RefProd<reco::ElectronCollection> rp2;
     edm::RefVector<reco::ElectronCollection> rv2;
 
-    reco::PhotonCandidateCollection v3;
-    edm::Wrapper<reco::PhotonCandidateCollection> w3;
-    edm::Ref<reco::PhotonCandidateCollection> r3;
-    edm::RefProd<reco::PhotonCandidateCollection> rp3;
-    edm::RefVector<reco::PhotonCandidateCollection> rv3;
-
-
-    reco::ElectronCandidateCollection v4;
-    edm::Wrapper<reco::ElectronCandidateCollection> w4;
-    edm::Ref<reco::ElectronCandidateCollection> r4;
-    edm::RefProd<reco::ElectronCandidateCollection> rp4;
-    edm::RefVector<reco::ElectronCandidateCollection> rv4;
-
     reco::SiStripElectronCandidateCollection v5;
     edm::Wrapper<reco::SiStripElectronCandidateCollection> w5;
     edm::Ref<reco::SiStripElectronCandidateCollection> r5;
     edm::RefProd<reco::SiStripElectronCandidateCollection> rp5;
     edm::RefVector<reco::SiStripElectronCandidateCollection> rv5;
-
 
     reco::ConvertedPhotonCandidateCollection v6;
     edm::Wrapper<reco::ConvertedPhotonCandidateCollection> w6;
@@ -47,9 +31,8 @@ namespace {
     edm::RefProd<reco::ConvertedPhotonCandidateCollection> rp6;
     edm::RefVector<reco::ConvertedPhotonCandidateCollection> rv6;
 
-
-    edm::reftobase::Holder<reco::Candidate, reco::ElectronCandidateRef> rb1;
-    edm::reftobase::Holder<reco::Candidate, reco::PhotonCandidateRef> rb2;
+    edm::reftobase::Holder<reco::Candidate, reco::ElectronRef> rb1;
+    edm::reftobase::Holder<reco::Candidate, reco::PhotonRef> rb2;
     edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronCandidateRef> rb3;
     edm::reftobase::Holder<reco::Candidate, reco::ConvertedPhotonCandidateRef> rb4;
   }
