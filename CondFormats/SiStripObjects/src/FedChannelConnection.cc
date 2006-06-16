@@ -81,9 +81,9 @@ void FedChannelConnection::print( stringstream& ss ) const {
      << mux() << "/"
      << pll() << "/"
      << lld() 
-     << "  DcuId/DetId/nPairs: "
+     << "  DcuId/DetId/nPairs: 0x"
      << hex
-     << setfill('0') << setw(8) << dcuId() << "/"
+     << setfill('0') << setw(8) << dcuId() << "/0x"
      << setfill('0') << setw(8) << detId() << "/"
      << dec
      << nApvPairs() 
