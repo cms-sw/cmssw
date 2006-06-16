@@ -51,15 +51,15 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    for (int i=0; i<8; i++) {
 	//Cluster charge by module for Layer1
 	sprintf(histo, "Clust_charge_Layer1_Module%d", i+1);
-	clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 100, 0., 200000.);
+	clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 1000, 0., 200000.);
 
 	//Cluster charge by module for Layer2
 	sprintf(histo, "Clust_charge_Layer2_Module%d", i+1);
-	clustChargeLayer2Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 2 by Module", 100, 0., 200000.);
+	clustChargeLayer2Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 2 by Module", 1000, 0., 200000.);
 
 	//Cluster charge by module for Layer3
 	sprintf(histo, "Clust_charge_Layer3_Module%d", i+1);
-	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",100, 0., 200000.);	
+	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",1000, 0., 200000.);	
    } // end for
 
    dbe_->setCurrentFolder("clustFPIX");
@@ -83,11 +83,11 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
 
 	//Cluster charge for Disk1 by Plaquette
 	sprintf(histo, "Clust_charge_Disk1_Plaquette%d", i+1);
-	clustChargeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk1 by Plaquette", 100, 0., 200000.);
+	clustChargeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk1 by Plaquette", 1000, 0., 200000.);
 
 	//Cluster charge for Disk2 by Plaquette
 	sprintf(histo, "Clust_charge_Disk2_Plaquette%d", i+1);
-	clustChargeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk2 by Plaquette", 100, 0., 200000.);
+	clustChargeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk2 by Plaquette", 1000, 0., 200000.);
    } // end for
 
    dbe_->setCurrentFolder("recHitBPIX");
@@ -104,26 +104,26 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    for (int i=0; i<3; i++) {
 	//RecHit X resolution for flipped ladders by layer
 	sprintf(histo, "RecHit_XRes_FlippedLadder_Layer%d", i+1);
-	recHitXResFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes Flipped Ladders by Layer", 40, -20., 20.);
+	recHitXResFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes Flipped Ladders by Layer", 100, -200., 200.);
 
 	//RecHit X resolution for unflipped ladders by layer
 	sprintf(histo, "RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
-	recHitXResNonFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes NonFlipped Ladders by Layer", 40, -20., 20.);
+	recHitXResNonFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes NonFlipped Ladders by Layer", 100, -200., 200.);
    } // end for
 
    //RecHit Y resolutions for layers by module for barrel
    for (int i=0; i<8; i++) {
 	//Rec Hit Y resolution by module for Layer1
 	sprintf(histo, "RecHit_YRes_Layer1_Module%d", i+1);
-	recHitYResLayer1Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer1 by module", 40, -20., 20.);
+	recHitYResLayer1Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer1 by module", 100, -200., 200.);
 
 	//RecHit Y resolution by module for Layer2
 	sprintf(histo, "RecHit_YRes_Layer2_Module%d", i+1);
-	recHitYResLayer2Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer2 by module", 40, -20., 20.);
+	recHitYResLayer2Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer2 by module", 100, -200., 200.);
 
 	//RecHit Y resolution by module for Layer3
 	sprintf(histo, "RecHit_YRes_Layer3_Module%d", i+1);
-	recHitYResLayer3Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer3 by module", 40, -20., 20.); 
+	recHitYResLayer3Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer3 by module", 100, -200., 200.); 
    } // end for
 
    dbe_->setCurrentFolder("recHitFPIX");
@@ -149,17 +149,17 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    for (int i=0; i<7; i++) {
 	//X resolution for Disk1 by plaquette
 	sprintf(histo, "RecHit_XRes_Disk1_Plaquette%d", i+1);
-	recHitXResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk1 by plaquette", 40, -20., 20.); 
+	recHitXResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk1 by plaquette", 100, -200., 200.); 
 	//X resolution for Disk2 by plaquette
 	sprintf(histo, "RecHit_XRes_Disk2_Plaquette%d", i+1);
-	recHitXResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk2 by plaquette", 40, -20., 20.);  
+	recHitXResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk2 by plaquette", 100, -200., 200.);  
  
 	//Y resolution for Disk1 by plaquette
 	sprintf(histo, "RecHit_YRes_Disk1_Plaquette%d", i+1);
-	recHitYResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk1 by plaquette", 40, -20., 20.);
+	recHitYResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk1 by plaquette", 100, -200., 200.);
 	//Y resolution for Disk2 by plaquette
 	sprintf(histo, "RecHit_YRes_Disk2_Plaquette%d", i+1);
-	recHitYResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk2 by plaquette", 40, -20., 20.);
+	recHitYResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk2 by plaquette", 100, -200., 200.);
   
    }
 }
@@ -363,8 +363,11 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
    // get cluster
    edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
-   // fill module dependent info
+   // fill plaquette dependent info
    for (int i=0; i<7; i++) {
+      if (PXFDetId::PXFDetId(detId).module() > 4) {
+      	cout << PXFDetId::PXFDetId(detId).module();
+      }
       if (PXFDetId::PXFDetId(detId).module() == i+1) {
 	if (PXFDetId::PXFDetId(detId).disk() == 1) {
 
@@ -392,7 +395,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
 
 	   recHitXResDisk2Plaquettes[i]->Fill(res_x);
 	   recHitYResDisk2Plaquettes[i]->Fill(res_y);
-	}
-      }
-   }
+	} // end else
+      } // end if module
+   } // end for
 }
