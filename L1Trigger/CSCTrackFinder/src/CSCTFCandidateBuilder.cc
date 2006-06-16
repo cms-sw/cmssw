@@ -14,27 +14,7 @@ void CSCTFCandidateBuilder::buildCandidates(const L1CSCTrackCollection* trks,
   std::vector<csc::L1Track> stripped_tracks;
   
   L1CSCTrackCollection::const_iterator tmp_trk = trks->begin();
-
-  std::cout << "INPUT TRACKS\n";
   
-  L1CSCTrackCollection::const_iterator tt = trks->begin();
-
-  for(; tt != trks->end(); tt++)
-    {
-      tt->first.Print();
-      std::cout << "Track Stubs:\n";
-      CSCCorrelatedLCTDigiCollection::DigiRangeIterator dd = tt->second.begin();
-
-      for(; dd != tt->second.end(); dd++)
-	{
-	  CSCCorrelatedLCTDigiCollection::const_iterator lcts = (*dd).second.first;
-	  for(; lcts != (*dd).second.second; lcts++)
-	    {
-	      std::cout << (*lcts) << std::endl;
-	    }
-	}
-    }
-
   for(; tmp_trk != trks->end(); tmp_trk++)
     {
       stripped_tracks.push_back(tmp_trk->first);
