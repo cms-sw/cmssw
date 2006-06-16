@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/05 07:49:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/12 13:45:02 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -87,7 +87,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   bool updated=false;
   
   // FIXM put a warning
-  if(theMeas) return pair<bool,TrajectoryStateOnSurface>(updated,TrajectoryStateOnSurface() );
+  if(!theMeas) return pair<bool,TrajectoryStateOnSurface>(updated,TrajectoryStateOnSurface() );
 
   // measurement layer
   const DetLayer* detLayer=theMeas->layer();
@@ -202,7 +202,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
       if ( propagatedTSOS.isValid() ) {
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *recHit);
 	
+	// FIXME
 	LogDebug(metname) << "Kalman chi2 " << thisChi2.second;
+	cout << "Kalman chi2 " << thisChi2.second;
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
@@ -224,8 +226,27 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 			    << "  Fit position radius : " 
 			    << lastUpdatedTSOS.globalPosition().perp() << endl
 			    << endl << " Filter UPDATED" << endl;
+
+	  // FIXME
+          cout		    << endl 
+			    << "     Kalman Start" << endl << endl;
+          cout		    << "  Meas. Position : " << recHit->globalPosition() << endl
+			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
+			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
+
+          lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS,*recHit);
+
+          cout              << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
+			    << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection()
+			    << endl
+			    << "  Fit position radius : " 
+			    << lastUpdatedTSOS.globalPosition().perp() << endl
+			    << endl << " Filter UPDATED" << endl;
+
 	  
 	  muonDumper.dumpTSOS(lastUpdatedTSOS,metname);
+	  // FIXME
+	  cout << "     Kalman End" << endl << endl;	      
 	  LogDebug(metname) << "     Kalman End" << endl << endl;	      
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
