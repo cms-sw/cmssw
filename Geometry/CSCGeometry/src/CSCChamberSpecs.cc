@@ -154,6 +154,10 @@ CSCChamberSpecs* CSCChamberSpecs::build( int iChamberType,
   return aSpecs;
 }
 
+float CSCChamberSpecs::wireSpacing() const { 
+  return poszOddLayerGeometry->wirePitch(); 
+}
+
 float CSCChamberSpecs::stripNoise(float timeInterval) const {
   const float pF_cm = 0.75;
   return (constantNoise() + e_pF() * pF_cm * poszOddLayerGeometry->length() )

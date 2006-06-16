@@ -121,9 +121,11 @@ public:
   float stripPhiPitch() const {return 1.E-03 * stripDeltaPhi[theChamberType-1];}
 
   /**
-   * wire spacing, in cm.
+   * wire spacing, in cm. All layers in a chamber have the same spacing.
    */
-  float wireSpacing()         const {return specsValue(9);}
+  // specValue is superseded by LayerGeometry value(s)...
+  //  float wireSpacing()         const {return specsValue(9);}
+  float wireSpacing() const;
  
   /**
    * distance from anode to cathode, in cm.
