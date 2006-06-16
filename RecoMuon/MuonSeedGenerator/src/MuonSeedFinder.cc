@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/05 14:54:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/07 14:05:30 $
+ *  $Revision: 1.6 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -230,15 +230,22 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
 
     // Transform it in a TrajectoryStateOnSurface
     TrajectoryStateTransform tsTransform;
-    PTrajectoryStateOnDet *seedTSOS =
-      tsTransform.persistentState( trj ,me->geographicalId().rawId());
+
+    // FIXME FIXME TEST
+//     PTrajectoryStateOnDet *seedTSOS =
+//       tsTransform.persistentState( trj ,me->geographicalId().rawId());
     
+    // FIXME the tsos is defined on the "me" surface, this must be changed!!!
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( tsos ,me->geographicalId().rawId());
+
+
     //<< FIXME would be:
     
     // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
     // But is:
     edm::OwnVector<TrackingRecHit> container;
-    container.push_back(me->hit()->clone() ); 
+    // container.push_back(me->hit()->clone() ); 
 
     TrajectorySeed seed(*seedTSOS,container,oppositeToMomentum);
     //>> is it right??

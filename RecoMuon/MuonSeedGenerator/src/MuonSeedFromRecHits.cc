@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/05/25 12:29:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/30 13:50:23 $
+ *  $Revision: 1.4 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -16,8 +16,9 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-
+// FIXME
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -489,6 +490,25 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   mat[4][4] = last->parametersError()[0][0];
   mat[2][4] = last->parametersError()[1][0];
   
+//   if(last->dimension() == 4){
+//     mat[1][1] = last->parametersError()[0][0];
+//     mat[3][3] = last->parametersError()[2][2];
+//     mat[1][3] = last->parametersError()[1][0];
+//     mat[2][2] = last->parametersError()[1][1];
+//     mat[4][4] = last->parametersError()[3][3];
+
+//     // FIXME is it right?
+//     mat[1][2] = last->parametersError()[0][1];
+//     mat[1][3] = last->parametersError()[0][2];
+//     mat[1][4] = last->parametersError()[0][3];
+//     mat[2][3] = last->parametersError()[1][2];
+//     mat[2][4] = last->parametersError()[1][3];
+//     mat[3][4] = last->parametersError()[2][3];
+//   }
+//   //FIXME  else
+
+
+
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
 
@@ -502,13 +522,15 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     cout << " Before extr.: pos. :" << state.position() 
 	 <<" eta "<<state.position().eta()<<" phi "<<state.position().phi()<< endl;
 
+  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
   Surface::PositionType pos(0., 0., 0.);
   Surface::RotationType rot;
   ReferenceCountingPointer<BoundCylinder> cyl=
     new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
 
+  // FIXME
   SteppingHelixPropagator prop(&*field,oppositeToMomentum);
-
+  
   const TrajectoryStateOnSurface trj = prop.propagate( state, *cyl );
   if ( trj.isValid() ) {
     const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
@@ -518,15 +540,21 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     
     // Transform it in a TrajectoryStateOnSurface
     TrajectoryStateTransform tsTransform;
-    PTrajectoryStateOnDet *seedTSOS =
-      tsTransform.persistentState( trj ,last->geographicalId().rawId());
 
+    // FIXME FIXME TEST
+//     PTrajectoryStateOnDet *seedTSOS =
+//       tsTransform.persistentState( trj ,last->geographicalId().rawId());
+    
+    // FIXME the tsos is defined on the "me" surface, this must be changed!!!
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( tsos ,last->geographicalId().rawId());
+    
     //<< FIXME would be:
 
     // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
     // But is:
     edm::OwnVector<TrackingRecHit> container;
-    container.push_back(last->hit()->clone()); 
+    //    container.push_back(last->hit()->clone()); 
 
     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
     //>> is it right??

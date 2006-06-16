@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/14 17:48:46 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/15 14:03:17 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -78,7 +78,7 @@ void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){
   // FIXME: move the above lines in the fitters!
 
   MuonNavigationSchool school(&*theDetLayerGeometry);
-  NavigationSetter seeter(school);
+  NavigationSetter setter(school);
   
   theRefitter->setES(setup);
   theBWFilter->setES(setup);
@@ -122,7 +122,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   TrajectoryContainer trajectoryContainer;
   
   // FIXME:check the prop direction!!
-  Trajectory trajectoryFW(seed);
+  Trajectory trajectoryFW(seed,alongMomentum);
 
   //<< FIXME Remove this print out
 //   range seedRHitsRange = seed.recHits();
@@ -142,17 +142,16 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetId seedDetId(pTSOD.detId());
 
   // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
-  //   const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
-  //   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+  const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
+  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
   
   // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
-  Surface::PositionType pos(0., 0., 0.);
-  Surface::RotationType rot;
-  BoundCylinder *cyl=
-    new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
+//   Surface::PositionType pos(0., 0., 0.);
+//   Surface::RotationType rot;
+//   BoundCylinder *cyl=
+//     new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
 
-  TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, cyl, &*theMGField);
-
+//   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, cyl, &*theMGField);
 
   // FIXME remove this
   if(seedDetId.subdetId() == MuonSubdetId::CSC){
@@ -186,10 +185,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     return trajectoryContainer;
   }
 
-  // reset the refitter
-  cout<<"reset the refitter"<<endl;
-  refitter()->reset();
-  
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
@@ -231,16 +226,17 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   else return trajectoryContainer; // FIXME!!!!
 
   cout << "Number of DT/CSC/RPC chamber used: " 
-       << refitter()->getDTChamberUsed()
-       << refitter()->getCSCChamberUsed() 
-       << refitter()->getRPCChamberUsed();
+       << refitter()->getDTChamberUsed() << "/"
+       << refitter()->getCSCChamberUsed() << "/"
+       << refitter()->getRPCChamberUsed() <<endl;
+  cout << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   //
   
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
   debug.dumpTSOS(tsosAfterRefit,metname);
   LogDebug(metname) << "Number of DT/CSC/RPC chamber used: " 
-		    << refitter()->getDTChamberUsed()
-		    << refitter()->getCSCChamberUsed() 
+		    << refitter()->getDTChamberUsed() << "/"
+		    << refitter()->getCSCChamberUsed() << "/"
 		    << refitter()->getRPCChamberUsed();
   
 
@@ -252,7 +248,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   // BackwardFiltering
   // FIXME:check the prop direction!!
-  Trajectory trajectoryBW(seed);
+  Trajectory trajectoryBW(seed,oppositeToMomentum);
 
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);
@@ -269,21 +265,35 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogDebug(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << endl
     << "Number of DT/CSC/RPC chamber used: " 
-    << bwfilter()->getDTChamberUsed()
-    << bwfilter()->getCSCChamberUsed() 
+    << bwfilter()->getDTChamberUsed() << "/"
+    << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed();
-  
+
+  // FIXME
+  cout << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
+  debug.dumpTSOS(tsosAfterBWRefit);
+  cout 
+    << "Number of RecHits: " << trajectoryBW.foundHits() << endl
+    << "Number of DT/CSC/RPC chamber used: " 
+    << bwfilter()->getDTChamberUsed() << "/"
+    << bwfilter()->getCSCChamberUsed() << "/" 
+    << bwfilter()->getRPCChamberUsed() <<endl;
+    
   // The trajectory is good if there are at least 2 chamber used in total and at
   // least 1 "tracking" (DT or CSC)
   if (  bwfilter()->getTotalChamberUsed() >= 2 && 
 	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
     LogDebug(metname)<< "TRAJECTORY SAVED" << endl;
+    // FIXME
+    cout<< "TRAJECTORY SAVED" << endl;
     trajectoryContainer.push_back(trajectoryBW);
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
   //trajectory w/o the latest measurement and a looser chi2 cut
   else if ( refitter()->getTotalChamberUsed() >= 2 ) {
+    cout << "Trajectory NOT saved. SecondAttempt." << endl
+	 << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     LogDebug(metname)<< "Trajectory NOT saved. SecondAttempt." << endl
 		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     // FIXME:
@@ -296,8 +306,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     TimeMe timer2a(t2a,timing);
 
   }
-  
-  
+  cout<<"end"<<endl;  
   // smoother()->trajectories(trajectoryBW);
   return trajectoryContainer;
 }
