@@ -292,22 +292,29 @@ void CommissioningHistograms::updateHistoSet( HistoSet& histo_set ) {
 // -----------------------------------------------------------------------------
 /** */
 MonitorElement* CommissioningHistograms::bookMonitorElement( TH1F* histo ) {
+  if ( !histo ) { return 0; }
   DaqMonitorBEInterface* dqm = mui_->getBEInterface();
   string pwd = dqm->pwd();
   dqm->setCurrentFolder( sistrip::root_ );
   string name; name.assign( histo->GetName() );
   string title; title.assign( histo->GetTitle() );
-  return dqm->book1D( name, title, 
-		      histo->GetNbinsX(),
-		      histo->GetXaxis()->GetXmin(),
-		      histo->GetXaxis()->GetXmax() );
+  MonitorElement* me = dqm->book1D( name, title, 
+				    histo->GetNbinsX(),
+				    histo->GetXaxis()->GetXmin(),
+				    histo->GetXaxis()->GetXmax() );
   dqm->setCurrentFolder( pwd );
+  return me;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::updateMonitorElement( TH1F* histo, 
 						    MonitorElement* me ) {
+  if ( !histo || !me ) { return; }
+  TH1F* his = ExtractTObject<TH1F>()( me );
+  cout << " DEBUG " << histo << " " << me << " " << his << endl;
+  cout << " DEBUG " << histo->GetNbinsX() << endl;
+  cout << " DEBUG " << his->GetNbinsX() << endl;
   for ( uint16_t ibin = 0; ibin < histo->GetNbinsX(); ibin++ ) {
     me->setBinContent( ibin+1, histo->GetBinContent( ibin+1 ) );
     me->setBinError( ibin+1, histo->GetBinError( ibin+1 ) );

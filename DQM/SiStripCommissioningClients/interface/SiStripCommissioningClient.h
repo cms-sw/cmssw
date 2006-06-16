@@ -56,6 +56,9 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   SiStripCommissioningWebClient* web_;
   /** */
   mutable CommissioningHistograms* histos_;
+
+  /** */
+  mutable uint32_t initialNumOfUpdates_;
   
 };
 

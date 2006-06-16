@@ -20,7 +20,9 @@ using namespace std;
 SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* stub ) 
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
-    histos_(0) {
+    histos_(0),
+    initialNumOfUpdates_(0) 
+{
   web_ = new SiStripCommissioningWebClient( this,
 					    this->getContextURL(),
 					    this->getApplicationURL(), 
@@ -35,21 +37,9 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
   if ( histos_ ) { delete histos_; }
 }
 
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Configured" state. */
-void SiStripCommissioningClient::configure() {
-  MonitorElement* me = mui_->getBEInterface()->bookProfile( "temp", 
-							    "temp", 
-							    10, 0., 10., 
-							    10, 0., 10. ); 
-  cout << "[SiStripCommissioningClient::configure]"
-       << " DEBUG! me: " << me << endl;
-  TProfile* prof = ExtractTObject<TProfile>()( me );
-  cout << "[SiStripCommissioningClient::configure]"
-       << " DEBUG! prof: " << prof << endl;
-
-}
+void SiStripCommissioningClient::configure() {}
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Enabled" state. */
@@ -62,9 +52,9 @@ void SiStripCommissioningClient::newRun() {
 void SiStripCommissioningClient::endRun() {
   // Do histogram analysis and upload monitorables to database
   if ( histos_ ) { 
-    histos_->createProfileHistos(); 
-    histos_->histoAnalysis(); 
-    histos_->createSummaryHistos(); 
+    // histos_->createProfileHistos(); 
+    // histos_->histoAnalysis(); 
+    // histos_->createSummaryHistos(); 
     // histos_->uploadToConfigDb(); 
     // histos_->saveToFile(); 
   }
@@ -74,20 +64,22 @@ void SiStripCommissioningClient::endRun() {
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
+
+  // Number of updates received by collector
+  uint32_t num_of_updates = mui_->getNumUpdates();
+  if ( !initialNumOfUpdates_ ) { initialNumOfUpdates_ = num_of_updates; }
   cout << "[SiStripCommissioningClient::onUpdate]"
-       << " Number of updates: " << mui_->getNumUpdates() << endl;
-  
+       << " Number of updates: " << num_of_updates - initialNumOfUpdates_ << endl; 
+
   // Subscribe to new monitorables and retrieve updated contents
   ( this->mui_ )->subscribeNew( "*" ); //@@ temporary?
   vector<string> added_contents;
   ( this->mui_ )->getAddedContents( added_contents );
   if ( added_contents.empty() ) { 
-    cout << "[SiStripCommissioningClient::onUpdate]"
-	 << " No added contents!" << endl;
+    // cout << "[SiStripCommissioningClient::onUpdate] No added contents!" << endl;
     return; 
   }
-  cout << "[SiStripCommissioningClient::onUpdate]"
-       << " Number of added contents is: " << added_contents.size() << endl;
+  // cout << "[SiStripCommissioningClient::onUpdate] Number of added contents is: " << added_contents.size() << endl;
   
   // Create CommissioningHistogram object 
   createCommissioningHistos( added_contents );
@@ -96,10 +88,10 @@ void SiStripCommissioningClient::onUpdate() const {
   if ( histos_ ) { 
     histos_->createCollateMEs( added_contents ); 
     histos_->createProfileHistos(); 
-    histos_->histoAnalysis(); 
-    histos_->createSummaryHistos(); 
+    // histos_->histoAnalysis(); 
+    // histos_->createSummaryHistos(); 
   }
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -172,38 +164,4 @@ void SiStripCommissioningClient::createCommissioningHistos( const vector<string>
 	 << " No commissioning task string found!" << endl;
   }
   
-  // TEST TPROFILE HISTO
-  { 
-    string client_dir = sistrip::root_;
-    string cme_name = "Histo";
-    string cme_title = "Histo";
-    string cme_dir = client_dir;
-    string search_str = "*/" + client_dir + "/" + cme_name;
-    CollateMonitorElement* cme = mui_->collate1D( cme_name, cme_title, cme_dir );
-    mui_->add( cme, search_str );
-    cout << "[CommissioningHistograms::createCollateMEs]"
-	 << " Added 'Histo' CollateME"
-	 << " with name: " << cme_name
-	 << " title: " << cme_title
-	 << " in dir: " << cme_dir
-	 << " search string: " << search_str
-	 << endl;
-  }
-  {
-    string client_dir = sistrip::root_;
-    string cme_name = "Profile";
-    string cme_title = "Profile";
-    string cme_dir = client_dir;
-    string search_str = "*/" + client_dir + "/" + cme_name;
-    CollateMonitorElement* cme = mui_->collateProf( cme_name, cme_title, cme_dir );
-    mui_->add( cme, search_str );
-    cout << "[CommissioningHistograms::createCollateMEs]"
-	 << " Added 'Profile' CollateME"
-	 << " with name: " << cme_name
-	 << " title: " << cme_title
-	 << " in dir: " << cme_dir
-	 << " search string: " << search_str
-	 << endl;
-  }
-
 }

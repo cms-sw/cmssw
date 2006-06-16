@@ -65,11 +65,19 @@ void ApvTimingHistograms::update() {
 void ApvTimingHistograms::histoAnalysis() {
   cout << "[ApvTimingHistograms::histoAnalysis]" << endl;
   
+  uint32_t cntr = 0;
+  uint32_t nhis = timing_.size();
+
   // Iterate through profile histograms in order to to fill delay map
   delays_.clear();
   map< uint32_t, HistoSet >::iterator ihis = timing_.begin();
   for ( ; ihis != timing_.end(); ihis++ ) {
-    
+
+    cout << "[ApvTimingHistograms::histoAnalysis]"
+	 << " Analyzing " << cntr << " of " 
+	 << nhis << " histograms..." << endl;
+    cntr++;
+
     // Extract profile histo from map
     vector<const TProfile*> histos;
     TProfile* prof = ExtractTObject<TProfile>()( ihis->second.profile_ );
@@ -108,10 +116,17 @@ void ApvTimingHistograms::createSummaryHistos() {
     summary = new CommissioningSummary( title, timing_.begin()->second.title_.granularity_ ); 
   }
   if ( !summary ) { return; }
+
+  uint32_t cntr = 0;
+  uint32_t nhis = delays_.size();
   
   // Iterate through monitorables, retrieve key and update summary histo
   map< uint32_t, uint32_t >::iterator imon = delays_.begin();
   for ( ; imon != delays_.end(); imon++ ) {
+    cout << "[ApvTimingHistograms::createSummaryHistos]"
+	 << " Analyzing " << cntr << " of " 
+	 << nhis << " histograms..." << endl;
+    cntr++;
     const SiStripControlKey::ControlPath& path = SiStripControlKey::path( imon->first );
     CommissioningSummary::ReadoutId readout( imon->first, path.channel_ ); 
     if ( summary ) { summary->update( readout, imon->second ); }
@@ -123,7 +138,6 @@ void ApvTimingHistograms::createSummaryHistos() {
   if ( summary ) {
     profile_his = summary->controlSummary( sistrip::controlView_ );
     summary_his = summary->summary( sistrip::controlView_ );
-    delete summary;
   }
   
   // Create MonitorElement(s) (and/or update) using summary histogram(s)
@@ -133,8 +147,9 @@ void ApvTimingHistograms::createSummaryHistos() {
   if ( summary_ ) { updateMonitorElement( summary_his, summary_ ); }
   
   // Delete summary histos
-  if ( profile_his ) { delete profile_his; }
-  if ( summary_his ) { delete summary_his; }
+  //   if ( profile_his ) { delete profile_his; }
+  //   if ( summary_his ) { delete summary_his; }
+  if ( summary ) { delete summary; }
   
 }
 
