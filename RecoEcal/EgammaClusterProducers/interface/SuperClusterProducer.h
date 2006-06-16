@@ -33,6 +33,8 @@ class SuperClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
+      VerbosityLevel verbosity;
+
       std::string endcapClusterCollection_;
       std::string barrelClusterCollection_;
 
