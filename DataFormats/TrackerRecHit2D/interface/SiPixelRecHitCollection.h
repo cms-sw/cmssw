@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <vector>
 
-typedef  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > SiPixelRecHitCollection;
+typedef  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit> > SiPixelRecHitCollection;
 
 #endif
 
