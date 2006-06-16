@@ -36,9 +36,12 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
       ecalPart_string = "Barrel";
     }
 
-  std::cout << "-------------------------------------------------------------" << std::endl;
-  std::cout << "Island algorithm invoked for ECAL" << ecalPart_string << std::endl;
-  std::cout << "Looking for seeds, energy threshold used = " << threshold << " GeV" <<std::endl;
+  if (verbosity < INFO)
+    {
+      std::cout << "-------------------------------------------------------------" << std::endl;
+      std::cout << "Island algorithm invoked for ECAL" << ecalPart_string << std::endl;
+      std::cout << "Looking for seeds, energy threshold used = " << threshold << " GeV" <<std::endl;
+    }
 
   RecHitsMap::iterator it;
   for(it = rechitsMap_p->begin(); it != rechitsMap_p->end(); it++)
@@ -54,21 +57,30 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
     }
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
-  std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
-  
+  if (verbosity < INFO)
+    {
+      std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
+    }
+
   mainSearch(ecalPart, topology_p);
   sort(clusters_v.begin(), clusters_v.end());
 
-  std::cout << "-------------------------------------------------------------" << std::endl;
-
+  if (verbosity < INFO)
+    {
+      std::cout << "-------------------------------------------------------------" << std::endl;
+    }
+  
   return clusters_v; 
 }
 
 
 void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *topology_p)
 {
-  std::cout << "Building clusters............" << std::endl;
-  
+  if (verbosity < INFO)
+    {
+      std::cout << "Building clusters............" << std::endl;
+    }
+
   // Loop over seeds:
   std::vector<EcalRecHit>::iterator it;
   for (it = seeds.begin(); it != seeds.end(); it++)
@@ -78,9 +90,12 @@ void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *t
 	{
 	  if (it == seeds.begin())
 	    {
-	      std::cout << "##############################################################" << std::endl;
-	      std::cout << "DEBUG ALERT: Highest energy seed already belongs to a cluster!" << std::endl;
-	      std::cout << "##############################################################" << std::endl;
+	      if (verbosity < INFO)
+		{
+		  std::cout << "##############################################################" << std::endl;
+		  std::cout << "DEBUG ALERT: Highest energy seed already belongs to a cluster!" << std::endl;
+		  std::cout << "##############################################################" << std::endl;
+		}
 	    }
 	  continue;
 	}
@@ -119,12 +134,10 @@ void IslandClusterAlgo::searchNorth(CaloNavigator<DetId> &navigator)
   // if the crystal to the north belongs to another cluster return
   if (used_s.find(northern_it->first) != used_s.end()) return;
 
-  if ((northern_it != rechitsMap_p->end()) && 
-      (northern_it->second.energy() <= southern_it->second.energy()))
+  if (shouldBeAdded(northern_it, southern_it))
     {
       current_v.push_back(northern);
       used_s.insert(northern_it->first);
-
       searchNorth(navigator);
     }
 }
@@ -141,13 +154,11 @@ void IslandClusterAlgo::searchSouth(CaloNavigator<DetId> &navigator)
 
   if (used_s.find(southern_it->first) != used_s.end()) return;
 
-  if ((southern_it != rechitsMap_p->end()) && 
-      (southern_it->second.energy() <= northern_it->second.energy()))
+  if (shouldBeAdded(southern_it, northern_it))
     {
-      searchSouth(navigator);
-
       current_v.push_back(southern);
       used_s.insert(southern_it->first);
+      searchSouth(navigator);
     }
 }
 
@@ -161,19 +172,16 @@ void IslandClusterAlgo::searchWest(CaloNavigator<DetId> &navigator, CaloSubdetec
   if (western == DetId(0)) return; // This means that we went off the ECAL!
   RecHitsMap::iterator western_it = rechitsMap_p->find(western);
 
-  if (used_s.find(western_it->first) != used_s.end()) return;
-
-  if ((western_it != rechitsMap_p->end()) && 
-      (western_it->second.energy() <= eastern_it->second.energy()))
+  if (shouldBeAdded(western_it, eastern_it))
     {
       CaloNavigator<DetId> nsNavigator(western, &topology);
-
+      
       searchNorth(nsNavigator);
       nsNavigator.home();
       searchSouth(nsNavigator);
       nsNavigator.home();
       searchWest(navigator, topology);
-
+      
       current_v.push_back(western);
       used_s.insert(western_it->first);
     }
@@ -189,9 +197,7 @@ void IslandClusterAlgo::searchEast(CaloNavigator<DetId> &navigator, CaloSubdetec
   if (eastern == DetId(0)) return; // This means that we went off the ECAL!
   RecHitsMap::iterator eastern_it = rechitsMap_p->find(eastern);
 
-  if (used_s.find(eastern_it->first) != used_s.end()) return;
-
-  if ((eastern_it != rechitsMap_p->end()) && (eastern_it->second.energy() <= western_it->second.energy()))
+  if (shouldBeAdded(eastern_it, western_it))
     {
       CaloNavigator<DetId> nsNavigator(eastern, &topology);
 
@@ -205,6 +211,22 @@ void IslandClusterAlgo::searchEast(CaloNavigator<DetId> &navigator, CaloSubdetec
       used_s.insert(eastern_it->first);
     }
 }
+
+
+// returns true if the candidate crystal fulfills the requirements to be added to the cluster:
+bool IslandClusterAlgo::shouldBeAdded(RecHitsMap::iterator candidate_it, RecHitsMap::iterator previous_it)
+{
+  // crystal should not be included...
+  if ((used_s.find(candidate_it->first) != used_s.end()) || // ...if it already belongs to a cluster
+      (candidate_it == rechitsMap_p->end())              || // ...if it corresponds to a hit
+      (candidate_it->second.energy() <= 0)               || // ...if it has a negative or zero energy
+      (candidate_it->second.energy() < previous_it->second.energy())) // ...or if the previous crystal had lower E
+    {
+      return false;
+    }
+  return true;
+}
+
 
 void IslandClusterAlgo::makeCluster()
 {
@@ -229,13 +251,16 @@ void IslandClusterAlgo::makeCluster()
       chi2 += 0;
     }
   chi2 /= energy;
- 
-  std::cout << "******** NEW CLUSTER ********" << std::endl;
-  std::cout << "No. of crystals = " << current_v.size() << std::endl;
-  std::cout << "     Energy     = " << energy << std::endl;
-  std::cout << "     Phi        = " << position.phi() << std::endl;
-  std::cout << "     Eta        = " << position.eta() << std::endl;
-  std::cout << "*****************************" << std::endl;
+
+  if (verbosity < INFO)
+    { 
+      std::cout << "******** NEW CLUSTER ********" << std::endl;
+      std::cout << "No. of crystals = " << current_v.size() << std::endl;
+      std::cout << "     Energy     = " << energy << std::endl;
+      std::cout << "     Phi        = " << position.phi() << std::endl;
+      std::cout << "     Eta        = " << position.eta() << std::endl;
+      std::cout << "*****************************" << std::endl;
+    }
 
   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
 }

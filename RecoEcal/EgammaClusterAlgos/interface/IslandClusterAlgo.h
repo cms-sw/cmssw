@@ -22,8 +22,13 @@
 //
 
 enum EcalPart { barrel = 0, endcap = 1 };
-typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
+#ifndef VerbosityLevelEnum
+#define VerbosityLevelEnum
+enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
+#endif
+
+typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
 // Less than operator for sorting EcalRecHits according to energy.
 class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
@@ -44,13 +49,18 @@ class IslandClusterAlgo
     {
     }
 
-  IslandClusterAlgo(double ebst, double ecst) : 
-    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst)
+  IslandClusterAlgo(double ebst, double ecst, VerbosityLevel the_verbosity = ERROR) : 
+    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity)
     {
     }
   
   virtual ~IslandClusterAlgo()
     {
+    }
+
+  void setVerbosity(VerbosityLevel the_verbosity)
+    {
+      verbosity = the_verbosity;
     }
 
   // this is the method that will start the clusterisation
@@ -64,14 +74,7 @@ class IslandClusterAlgo
 
  private: 
   
-  struct ClusterVars
-  {
-    double energy;
-    double chi2;
-    std::vector<DetId> usedHits;
-  };
-
- // Energy required for a seed:
+  // Energy required for a seed:
   double ecalBarrelSeedThreshold;
   double ecalEndcapSeedThreshold;
   
@@ -90,15 +93,17 @@ class IslandClusterAlgo
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
 
+  // The verbosity level
+  VerbosityLevel verbosity;
+
   void mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *topology_p); 
  
   void searchNorth(CaloNavigator<DetId> &navigator);
-
   void searchSouth(CaloNavigator<DetId> &navigator);
-
   void searchWest (CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology);
-
   void searchEast (CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology);
+
+  bool shouldBeAdded(RecHitsMap::iterator candidate_it, RecHitsMap::iterator previous_it);
 
   void makeCluster();
 
