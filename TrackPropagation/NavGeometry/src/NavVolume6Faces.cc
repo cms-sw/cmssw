@@ -256,7 +256,7 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
 					  toLocal( startingState.globalMomentum()), -1,
 					  alongMomentum, &(startingState.surface()));
   int itry = 0;
-  VolumeCrossReturnType VolumeCrossResult;
+  VolumeCrossReturnType VolumeCrossResult( 0, startingState, 0.0);
 
   for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
 
