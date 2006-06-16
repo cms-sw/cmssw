@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/03/20 14:43:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/06 13:48:26 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -20,7 +20,8 @@
 
 ///Digi Cluster
 #include <DQM/RPCMonitorDigi/interface/RPCClusterHandle.h>
-
+///RPCRecHits
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 ///Log messages
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -142,9 +143,11 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  
  }/// loop on RPC Det Unit
 
-      
+ edm::Handle<RPCRecHitCollection> rpcHits;
+ iEvent.getByType(rpcHits);
+ int numberOfHits= 0;
   
- usleep(10000000);
+ //usleep(10000000);
 
 
 }
