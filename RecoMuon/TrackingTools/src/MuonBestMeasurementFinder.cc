@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/05/25 17:22:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/12 13:44:03 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -60,7 +60,7 @@ TrajectoryMeasurement* MuonBestMeasurementFinder::findBestMeasurement(TMContaine
 		      << " valid measurement ";
     // FIXME
     cout << "MuonBestMeasurement: just " << NumValidMeas 
-	 << " valid measurement "<< bestMeasurement<<endl;
+	 << " valid measurement"<<endl;
 
     return bestMeasurement;
   }
