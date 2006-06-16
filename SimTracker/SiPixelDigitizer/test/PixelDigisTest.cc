@@ -8,6 +8,7 @@
  Description: Test pixel digis. 
  Barrel & Forward digis. Uses root histos.
  Works with CMSSW_0_7_0 
+ Adopted for the new simLinks. 
 
  Implementation:
      <Notes on implementation>
@@ -15,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.5 2006/06/08 16:50:51 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.6 2006/06/13 07:41:02 dkotlins Exp $
 //
 //
 // system include files
@@ -51,7 +52,8 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 //#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
+
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
 // For the big pixel recongnition
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
@@ -214,15 +216,14 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
   
   // Get digis
-  //edm::Handle<PixelDigiCollection> pixelDigis;
-  //iEvent.getByLabel("pixdigi", pixelDigis);
-
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
   iEvent.getByLabel("pixdigi", pixelDigis);
 
   // Get simlink data
   //edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
   //iEvent.getByLabel("pixdigi", pixelSimLinks);
+  edm::Handle< edm::DetSetVector<PixelDigiSimLink> > pixelSimLinks;
+  iEvent.getByLabel("pixdigi",   pixelSimLinks);
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -352,21 +353,32 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       // Has to be changed 
 //      const PixelDigiSimLinkCollection::Range simLinkRange = 
 //        pixelSimLinks->get(detid);
-//      int numberOfSimLinks = 0;
-//      // Loop over DigisSimLink in this det unit
 //      for(PixelDigiSimLinkCollection::ContainerIterator 
 // 	   it = simLinkRange.first; it != simLinkRange.second; ++it) { 
-//        numberOfSimLinks++;
-//        // these methods should be declared const, fixed by M.P.
-//        // wait for next releasse and then uncomment
-//        //unsigned int chan = it->channel();
-//        //unsigned int simTrack = it->SimTrackId();
-//        //float frac = it->fraction();
-//        //cout<<" Sim link "<<numberOfSimLinks<<" "<<chan<<" "
-//        //  <<simTrack<<" "<<frac<<endl;
-//        // I should probably load it in a map so I can use it later
-//        // (below) with the digis.
 //      }
+
+    int numberOfSimLinks = 0;
+    edm::DetSetVector<PixelDigiSimLink>::const_iterator 
+      isearch = pixelSimLinks->find(detid);
+
+    if(isearch != pixelSimLinks->end()) {      //if it is not empty
+      edm::DetSet<PixelDigiSimLink> link_detset = (*pixelSimLinks)[detid];
+      edm::DetSet<PixelDigiSimLink>::const_iterator it;
+      // Loop over DigisSimLink in this det unit
+      for(it = link_detset.data.begin(); 
+	  it != link_detset.data.end(); it++) {
+	
+	numberOfSimLinks++;
+	// these methods should be declared const, fixed by M.P.
+	// wait for next releasse and then uncomment
+	unsigned int chan = it->channel();
+	unsigned int simTrack = it->SimTrackId();
+	float frac = it->fraction();
+	if(PRINT) cout<<" Sim link "<<numberOfSimLinks<<" "<<chan<<" "
+		      <<simTrack<<" "<<frac<<endl;
+      } // end simlink det loop
+
+    } // end simlink if
 
       unsigned int numberOfDigis = 0;
 
