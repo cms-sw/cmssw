@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.13 2006/05/06 00:33:28 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.14 2006/05/22 21:10:36 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -401,6 +401,34 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
-  std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap is not implemented" << std::endl;
-  return false;
+  std::vector <HcalElectronicsId> allEIds = fObject.allElectronicsId ();
+  char buf [1024];
+  sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s",
+	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber", "fibcha", "subdet", "ieta", "iphi", "depth");
+  fOutput << buf << std::endl;
+
+  for (unsigned i = 0; i < allEIds.size (); i++) {
+    HcalElectronicsId eid = allEIds [i];
+    DetId id = fObject.lookup (eid);
+    if (!id.null ()) {
+      HcalDetId hcalId (id);
+      if (!hcalId.null ()) {
+	char buf [1024];
+	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %6s %6d %6d %6d",
+		 i,
+		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		 hcalId.subdet()==HcalBarrel?"HB": hcalId.subdet()==HcalEndcap?"HE": hcalId.subdet()==HcalOuter?"HO": hcalId.subdet()==HcalForward?"HF":"NA",
+		 hcalId.ieta(), hcalId.iphi(), hcalId.depth()
+		 );
+	  fOutput << buf << std::endl;
+      }
+      else {
+	std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not convert Id into HcalDetId " << id.rawId() << std::endl;
+      }
+    }
+    else {
+      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find ID for EID " << eid << std::endl;
+    }
+  }
+  return true;
 }

@@ -125,7 +125,11 @@ void fillDefaults (HcalGainWidths*& fGains) {
 }
 
 void fillDefaults (HcalElectronicsMap*& fMap) {
-  std::cerr << "ERROR: fillDefaults (HcalElectronicsMap* fMap) is not implemented. Ignore." << std::endl;
+  if (!fMap) {
+    fMap = new HcalElectronicsMap;
+    fMap->sort ();
+  }
+  std::cerr << "Warning: fillDefaults (HcalElectronicsMap* fMap) is not implemented. Ignore." << std::endl;
 }
 
 void fillDefaults (HcalQIEData*& fObject) {
