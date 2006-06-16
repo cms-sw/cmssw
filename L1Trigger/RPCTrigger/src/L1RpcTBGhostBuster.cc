@@ -14,7 +14,7 @@ using namespace std;
 
 L1RpcTBMuonsVec L1RpcTBGhostBuster::Run(L1RpcTBMuonsVec2 &pacMuonsVec2) const {
   L1RpcTBMuonsVec2 gbPhiMuonsVec2;
-  for(int iTow = 0; iTow < pacMuonsVec2.size(); iTow++) {
+  for(unsigned int iTow = 0; iTow < pacMuonsVec2.size(); iTow++) {
     gbPhiMuonsVec2.push_back(GBPhi(pacMuonsVec2[iTow]) );
   }
 
@@ -125,12 +125,12 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
 
 L1RpcTBMuonsVec L1RpcTBGhostBuster::GBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) const {
 //-----  killing ghosts ---------------------------------------
-  for(int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size() -1; iMuVec++) {
-    for(int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++) {
+  for(unsigned int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size() -1; iMuVec++) {
+    for(unsigned int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++) {
       if(gbPhiMuonsVec2[iMuVec][iMu].GetCode() == 0)
         break; //because muons are sorted
 
-      for(int iMuNext = 0; iMuNext < gbPhiMuonsVec2[iMuVec+1].size(); iMuNext++)
+      for(unsigned int iMuNext = 0; iMuNext < gbPhiMuonsVec2[iMuVec+1].size(); iMuNext++)
         if(abs(gbPhiMuonsVec2[iMuVec][iMu].GetPhiAddr() - gbPhiMuonsVec2[iMuVec+1][iMuNext].GetPhiAddr()) <= 1)
           if(gbPhiMuonsVec2[iMuVec][iMu].GetCode() < gbPhiMuonsVec2[iMuVec+1][iMuNext].GetCode())  //comparing with next
             gbPhiMuonsVec2[iMuVec][iMu].Kill();
@@ -141,8 +141,8 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) cons
 
 //---------sorting-----------------------------------------
 /*  multiset<L1RpcTBMuon, L1RpcTBMuon::TMuonMore> liveMuonsSet;
-  for(int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size(); iMuVec++)
-    for(int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++)
+  for(unsigned int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size(); iMuVec++)
+  for(unsigned int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++)
       if(gbPhiMuonsVec2[iMuVec][iMu].IsLive() ) {
         gbPhiMuonsVec2[iMuVec][iMu].SetEtaAddr(iMuVec);
         liveMuonsSet.insert(gbPhiMuonsVec2[iMuVec][iMu]);
@@ -150,8 +150,8 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) cons
   L1RpcTBMuonsVec outputMuons(liveMuonsSet.begin(), liveMuonsSet.end() ); */
 
   L1RpcTBMuonsVec outputMuons;
-  for(int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size(); iMuVec++)
-    for(int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++)
+  for(unsigned int iMuVec = 0; iMuVec < gbPhiMuonsVec2.size(); iMuVec++)
+    for(unsigned int iMu = 0; iMu < gbPhiMuonsVec2[iMuVec].size(); iMu++)
       if(gbPhiMuonsVec2[iMuVec][iMu].IsLive() ) {
         gbPhiMuonsVec2[iMuVec][iMu].SetEtaAddr(iMuVec);
         outputMuons.push_back(gbPhiMuonsVec2[iMuVec][iMu]);

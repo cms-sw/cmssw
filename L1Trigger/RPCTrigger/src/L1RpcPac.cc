@@ -143,7 +143,7 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
 };
 
 void L1RpcPac::Init(const L1RpcPatternsParser& parser) {
-  for(int i = 0; i < parser.GetQualityVec().size(); i++) {    
+  for(unsigned int i = 0; i < parser.GetQualityVec().size(); i++) {    
     L1RpcPatternsParser::TQuality quality = parser.GetQualityVec()[i];
     bitset<RPCParam::LOGPLANES_COUNT> qualBits(quality.FiredPlanes );
     unsigned short firedPlanes = qualBits.to_ulong();
@@ -158,7 +158,7 @@ void L1RpcPac::Init(const L1RpcPatternsParser& parser) {
 L1RpcPacMuon L1RpcPac::RunTrackPatternsGroup(const L1RpcLogCone& cone) const {
   L1RpcPacMuon bestMuon;
 
-  for(int vecNum = 0; vecNum < TrackPatternsGroup.PatternsItVec.size(); vecNum++) {
+  for(unsigned int vecNum = 0; vecNum < TrackPatternsGroup.PatternsItVec.size(); vecNum++) {
     unsigned short firedPlanes = 0;
     int firedPlanesCount = 0;
     unsigned short one = 1;
@@ -228,7 +228,7 @@ L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) cons
       continue;
 
     L1RpcPacMuon bufMuon;
-    for(int vecNum = 0; vecNum < iEGroup->PatternsItVec.size(); vecNum++) {
+    for(unsigned int vecNum = 0; vecNum < iEGroup->PatternsItVec.size(); vecNum++) {
       const L1RpcPatternsVec::const_iterator patternIt = iEGroup->PatternsItVec[vecNum];      
       const L1RpcPattern& pattern = *patternIt;     
       bool wasHit = false;

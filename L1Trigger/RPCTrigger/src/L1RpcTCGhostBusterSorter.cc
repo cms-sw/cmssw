@@ -8,12 +8,12 @@ using namespace std;
 
 //---------------------------------------------------------------------------
 L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
-  for (int iTB = 0; iTB < tbMuonsVec2.size()-1; iTB++) {
-    for(int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++) {
+  for (unsigned int iTB = 0; iTB < tbMuonsVec2.size()-1; iTB++) {
+    for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++) {
       if(tbMuonsVec2[iTB][iMu].GetPtCode() == 0)
         break; //becouse muons are sorted
       if(tbMuonsVec2[iTB][iMu].GetEtaAddr() == (TriggerConfig->GetTowsCntOnTB(iTB)-1) ) {  //muon from this TB is on positive edge of TB (last tower of this tb)
-        for(int iMuN = 0; iMuN < tbMuonsVec2[iTB + 1].size(); iMuN++) {
+        for(unsigned int iMuN = 0; iMuN < tbMuonsVec2[iTB + 1].size(); iMuN++) {
           if(tbMuonsVec2[iTB + 1][iMuN].GetPtCode() == 0)
             break; //becouse muons are sorted
           if(tbMuonsVec2[iTB+1][iMuN].GetEtaAddr() == 0) {  //muon from next TB is on negative edge (first tower of this TB)
@@ -30,8 +30,8 @@ L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
 
 //---------sorting-----------------------------------------
 /*  multiset<L1RpcTBMuon, L1RpcTBMuon::TMuonMore> liveMuonsSet;
-  for(int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
-    for(int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
+  for(unsigned int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
+  for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
       if(tbMuonsVec2[iTB][iMu].IsLive() ) {
 
         int etaAddr = tbMuonsVec2[iTB][iMu].GetEtaAddr() | (iTB<<2); //tower number natural
@@ -44,8 +44,8 @@ L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
   L1RpcTBMuonsVec outputMuons(liveMuonsSet.begin(), liveMuonsSet.end() ); */
 
   L1RpcTBMuonsVec outputMuons;
-  for(int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
-    for(int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
+  for(unsigned int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
+    for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
       if(tbMuonsVec2[iTB][iMu].IsLive() ) {
         int etaAddr = tbMuonsVec2[iTB][iMu].GetEtaAddr() | (iTB<<2); //tower number natural <0...35>
         etaAddr = TriggerConfig->TowAddr2TowNum(etaAddr); //tower number: -16 : 16

@@ -51,9 +51,9 @@ private:
 
 public:
   ~L1RpcPacManager() {
-    for (int tower = 0; tower < PacTab.size(); tower++)
-      for (int logSector = 0; logSector < PacTab[tower].size(); logSector++) {
-        for (int logSegment = 0; logSegment < PacTab[tower][logSector].size(); logSegment++) {
+    for (unsigned int tower = 0; tower < PacTab.size(); tower++)
+      for (unsigned int logSector = 0; logSector < PacTab[tower].size(); logSector++) {
+        for (unsigned int logSegment = 0; logSegment < PacTab[tower][logSector].size(); logSegment++) {
           TPacType* pac = PacTab[tower][logSector][logSegment];
           delete pac;
         }
@@ -103,7 +103,7 @@ public:
     */
   //const
   TPacType* GetPac(int tower, int logSector, int logSegment) const {
-    if (PacTab.size() <= abs(tower) )
+    if (PacTab.size() <= (unsigned int) abs(tower) )
       //throw L1RpcException("L1RpcPacManager::GetPac: given towerNum to big");
       std::cout << "L1RpcPacManager::GetPac: given towerNum to big" << std::endl;
 

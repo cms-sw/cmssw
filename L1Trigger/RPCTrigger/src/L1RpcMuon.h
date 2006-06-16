@@ -18,119 +18,55 @@
 class L1RpcMuon {
 public:
   ///Default constructor. No muon.
-  L1RpcMuon() {
-    PtCode = 0;
-    Quality = 0;
-    Sign = 0;
-
-    PatternNum = -1;
-    RefStripNum = -1;
-  };
+  L1RpcMuon();
 
   ///Constructor. All parameters are set.
-  L1RpcMuon(const RPCParam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes) {
-    ConeCrdnts = coneCrdnts;
-
-    PtCode = ptCode;
-    Quality = quality;
-    Sign = sign;
-
-    PatternNum = patternNum;
-
-    FiredPlanes = firedPlanes;
-  };
+  L1RpcMuon(const RPCParam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
   
   ///Constructor.
-  L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes) {
-    ConeCrdnts = RPCParam::L1RpcConeCrdnts();
+  L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
 
-    PtCode = ptCode;
-    Quality = quality;
-    Sign = sign;
+  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const;
 
-    PatternNum = patternNum;
+  void SetConeCrdnts(const RPCParam::L1RpcConeCrdnts& coneCrdnts);
 
-    FiredPlanes = firedPlanes;
-  };
+  int GetTower() const;
 
-  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const {
-    return ConeCrdnts;
-  }
+  int GetLogSector() const;
 
-  void SetConeCrdnts(const RPCParam::L1RpcConeCrdnts& coneCrdnts) {
-    ConeCrdnts = coneCrdnts;
-  }
+  int GetLogSegment() const;
 
-  int GetTower() const {
-    return ConeCrdnts.Tower;
-  }
+  void SetPtCode(int ptCode);
 
-  int GetLogSector() const {
-    return ConeCrdnts.LogSector;
-  }
+  int GetPtCode() const;
 
-  int GetLogSegment() const {
-    return ConeCrdnts.LogSegment;
-  }
+  void SetQuality(int quality);
 
-  void SetPtCode(int ptCode) {
-    PtCode = ptCode;
-  };
+  int GetQuality() const;
 
-  int GetPtCode() const {
-    return PtCode;
-  };
+  void SetSign(int sign);
 
-  void SetQuality(int quality) {
-    Quality = quality;
-  };
+  int GetSign() const;
 
-  int GetQuality() const {
-    return Quality;
-  };
+  int GetPatternNum() const;
 
-  void SetSign(int sign) {
-    Sign = sign;
-  };
+  void SetPatternNum(int patternNum);
 
-  int GetSign() const {
-    return Sign;
-  };
-
-  int GetPatternNum() const {
-    return PatternNum;
-  }
-
-  void SetPatternNum(int patternNum) {
-    PatternNum = patternNum;
-  }
-
-  void SetLogConeIdx(int logConeIdx) {
-    LogConeIdx = logConeIdx;
-  }
+  void SetLogConeIdx(int logConeIdx);
 
   ///the index in LogConesVec stored in L1RpcTrigg (accessed by GetActiveCones)
-  int GetLogConeIdx() const {
-    return LogConeIdx;
-  }
+  int GetLogConeIdx() const;
 
   ///bits of this number denotes fired planes that conform to pattern pattern
-  unsigned short GetFiredPlanes() const {
-    return FiredPlanes;
-  }
+  unsigned short GetFiredPlanes() const;
 
-	void SetRefStripNum(int refStripNum) {
-		RefStripNum = refStripNum;
-	}
+  void SetRefStripNum(int refStripNum);
 
   /** continous number of strip in reference plane, set by	L1RpcPac::Run
     * int refStripNum = GetPattern(bestMuon.GetPatternNum()).GetStripFrom(REF_PLANE[abs(CurrConeCrdnts.Tower)]) + CurrConeCrdnts.LogSector * 96 + CurrConeCrdnts.LogSegment * 8; 
     */
-	int GetRefStripNum() const {
-		return RefStripNum;
-	}
-  std::string ToString() const;
-  
+  int GetRefStripNum() const;
+    
 protected:
   ///The coordinates of LogCone, in which the muon was found.
   RPCParam::L1RpcConeCrdnts ConeCrdnts;

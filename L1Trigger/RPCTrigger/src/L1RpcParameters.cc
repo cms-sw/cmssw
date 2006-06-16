@@ -10,7 +10,7 @@
 
 //inline
 int RPCParam::StringToInt(std::string str) {
-  for(int i = 0; i < str.size(); i++)
+  for(unsigned int i = 0; i < str.size(); i++)
     if(str[i] < '0' || str[i] > '9' )
       //throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
       std::cout<< "Error in StringToInt(): the string cannot be converted to a number" <<std::endl;

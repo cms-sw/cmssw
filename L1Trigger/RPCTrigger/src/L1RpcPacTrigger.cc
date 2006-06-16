@@ -21,13 +21,13 @@ L1RpcPacTrigger::L1RpcPacTrigger(L1RpcTriggerConfiguration* triggerConfig):
 
 L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) {
   GBFinalMuons.clear();
-  for(int iLC = 0; iLC < logConesVec.size(); iLC++) {
+  for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
     if(logConesVec[iLC].GetFiredPlanesCnt() >= 3)
       TriggerCratesVec[TrigCnfg->GetTCNum(logConesVec[iLC].GetConeCrdnts())].RunCone(logConesVec[iLC]);
   }
 
   L1RpcTBMuonsVec2 tcsMuonsVec2;
-  for(int iTC = 0; iTC < TriggerCratesVec.size(); iTC++) {
+  for(unsigned int iTC = 0; iTC < TriggerCratesVec.size(); iTC++) {
     tcsMuonsVec2.push_back(TriggerCratesVec[iTC].RunTCGBSorter() );
   }
 
@@ -48,11 +48,11 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
 
 L1RpcTBMuonsVec L1RpcPacTrigger::GetNotEmptyMuons()  {
   L1RpcTBMuonsVec notEmptyMuonsVec;
-  for(int iMu = 0; iMu < GBFinalMuons[0].size(); iMu++)
+  for(unsigned int iMu = 0; iMu < GBFinalMuons[0].size(); iMu++)
     if(GBFinalMuons[0][iMu].GetCode() != 0)
       notEmptyMuonsVec.push_back(GBFinalMuons[0][iMu]);
 
-  for(int iMu = 0; iMu < GBFinalMuons[1].size(); iMu++)
+  for(unsigned int iMu = 0; iMu < GBFinalMuons[1].size(); iMu++)
     if(GBFinalMuons[1][iMu].GetCode() != 0)
       notEmptyMuonsVec.push_back(GBFinalMuons[1][iMu]);
 

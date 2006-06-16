@@ -50,8 +50,7 @@ public:
     L1RpcPacBase(tower, logSector, logSegment)   { 
     std::string patFileName;
 
-    //if(patFilesDir.find("XML") != -1) { // Possible bug - should it be npos?
-    if(patFilesDir.find("pat") != -1) { // Possible bug - should it be npos?
+    if(patFilesDir.find("pat") != std::string::npos) { 
       patFileName = patFilesDir + "pacPat_t" + RPCParam::IntToString(ConeCrdnts.Tower) +
           "sc" + RPCParam::IntToString(ConeCrdnts.LogSector) + "sg" + RPCParam::IntToString(ConeCrdnts.LogSegment) + ".xml";
 
@@ -61,28 +60,13 @@ public:
     }
     else
       //throw L1RpcException("patFilesDir not contines XML");
-      std::cout << "patFilesDir not contines XML" << std::endl;
+      std::cout << "patFilesDir not containes XML" << std::endl;
 
     TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
     TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
   }
 
-  /** Constructor. Used in PatternsExplorer.
-  */
-  //L1RpcPac(std::string patFileName, int tower, int logSector, int logSegment):
-  //  L1RpcPacBase(tower, logSector, logSegment) {
-  // 
-  //  if( patFileName.substr(patFileName.size() - 4, 4) == ".xml") {
-  //    L1RpcPatternsParser parser;
-  //    parser.Parse(patFileName);
-  //    Init(parser);
-  //  }
-  //  else
-  //    throw L1RpcException("patFileName not contines .xml");
-
-  //  TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
-  //}
-
+  
   ///Destructor.
   ~L1RpcPac() {
   }

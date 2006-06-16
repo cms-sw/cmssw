@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/16 09:13:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/16 11:07:14 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
 
@@ -50,8 +50,6 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 RPCTrigger::~RPCTrigger(){ 
   delete m_pacTrigger;
   delete m_trigConfig;
-
-
 }
 
 
@@ -79,12 +77,12 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::cout << "-----------------------------" << std::endl;
 
-  for(int iMu = 0; iMu < finalMuons[0].size(); iMu++)
+  for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
   {
     std::cout << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode() << std::endl;
   }
 
-  for(int iMu = 0; iMu < finalMuons[1].size(); iMu++)
+  for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
   {
     std::cout << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode() << std::endl;
   }

@@ -11,23 +11,15 @@
 //---------------------------------------------------------------------------
 class L1RpcBasicTrigConfig: public L1RpcTriggerConfiguration {
 public:
-  L1RpcBasicTrigConfig(L1RpcPacManager<L1RpcPac>* pacManager) {
-    PacManager  = pacManager;
-  }
-
-  L1RpcBasicTrigConfig() {
-    PacManager  = NULL;
-  }
+  L1RpcBasicTrigConfig(L1RpcPacManager<L1RpcPac>* pacManager);
+  
+  L1RpcBasicTrigConfig();
 
   ///returns count of Trigger Crates in system.
-  int GetTCsCnt() {
-    return TRIGGER_CRATES_CNT;
-  }
+  int GetTCsCnt();
 
   ///returns number og Trigger Boards in one Trigger Crate.
-  int GetTBsInTC() {
-    return TB_IN_TC_CNT;
-  }
+  int GetTBsInTC();
 
   /** One TB covers 3 or 4 Towers. The function returns the index of tower
     * on TB. */
@@ -37,39 +29,22 @@ public:
   const L1RpcPac* GetPac(const RPCParam::L1RpcConeCrdnts& coneCrdnts) const;
 
   ///Returns the index of TC that should run given LogCone.
-  int GetTCNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts) {
-    return coneCrdnts.LogSector;
-  };
+  int GetTCNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the index of TB (in TC) that should run given LogCone.
   int GetTBNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the count of Towers (3 or 4), that are covered by given TB.
-  int GetTowsCntOnTB(int tbNum) {
-    return TOWERS_CNT_ON_TB[tbNum];
-  };
+  int GetTowsCntOnTB(int tbNum);
 
   /** Converts TC GB-Sorter input tower address <0...35> ("tower number natural")
     * to tower number <-16...0...16>
     * TC GB-Sorter input tower address is 8 bits: [7...2] TB num, [1...0] tower num on TB.*/
-  int TowAddr2TowNum(int towAddr) {
-    #ifdef _DEBUG
-    if (TOW_ADDR_2_TOW_NUM[towAddr] == -99 || towAddr < 0 || towAddr > 35){
-        //throw L1RpcException("L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr");
-      std::cout<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr" << std::endl;
-    }
-    #endif
-    return TOW_ADDR_2_TOW_NUM[towAddr];
-  };
+  int TowAddr2TowNum(int towAddr);
 
   /** Converts TC GB-Sorter output tower address <0...31> ("tower number continous")
     * to tower number 2'complement*/
-  int TowNum2TowNum2Comp(int towNum) {
-    if(towNum >= 0)
-      return towNum;
-    else
-      return 0x3F + towNum + 1;  
-  };
+  int TowNum2TowNum2Comp(int towNum);
 
 private:
   static const int TRIGGER_CRATES_CNT;

@@ -180,12 +180,12 @@ namespace RPCParam {
     };
     
     //hardware consts - fixed by board design
-    const int TOWERS_ON_TB_CNT = 4;      //!< Max number of towers covered by one Trugger Board.
-    const int SEGMENTS_IN_SECTOR_CNT = 12;   //!< Number of Logic Segments in one Logic Sector, defines also the number of Logic Cones for one Logic Sector of one Tower.
-    const int GBPHI_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's phi Ghost Buster
-    const int GBETA_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's eta Ghost Buster
-    const int TCGB_OUT_MUONS_CNT = 4;   //!< Number of muon candidates return by Trigger Crate's Ghost Buster
-    const int FINAL_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Final GhostBuster&Sorter
+    const unsigned int TOWERS_ON_TB_CNT = 4;      //!< Max number of towers covered by one Trugger Board.
+    const unsigned int SEGMENTS_IN_SECTOR_CNT = 12;   //!< Number of Logic Segments in one Logic Sector, defines also the number of Logic Cones for one Logic Sector of one Tower.
+    const unsigned int GBPHI_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's phi Ghost Buster
+    const unsigned int GBETA_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's eta Ghost Buster
+    const unsigned int TCGB_OUT_MUONS_CNT = 4;   //!< Number of muon candidates return by Trigger Crate's Ghost Buster
+    const unsigned int FINAL_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Final GhostBuster&Sorter
     //const that are dependent on trigger configuration (f.e. TBs cnt in TC)
     //are in L1RpcTriggerConfiguration
     

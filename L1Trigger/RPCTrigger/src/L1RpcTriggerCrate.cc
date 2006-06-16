@@ -20,7 +20,7 @@ L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
     return L1RpcTBMuonsVec();
 
   L1RpcTBMuonsVec2 tbMuonsVec2;
-  for(int iTB = 0; iTB < TBsVec.size(); iTB++) {
+  for(unsigned int iTB = 0; iTB < TBsVec.size(); iTB++) {
     tbMuonsVec2.push_back(TBsVec[iTB].RunTBGB() );
   }
 

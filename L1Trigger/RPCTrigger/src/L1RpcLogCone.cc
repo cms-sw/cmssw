@@ -6,9 +6,39 @@
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
 
-//using namespace std;
 
-L1RpcLogCone::L1RpcLogCone(const L1RpcLogHit &logHit) {
+/** 
+ *
+ * Default constructor. No hits, no muon.
+ *
+*/
+L1RpcLogCone::L1RpcLogCone(): 
+    ConeCrdnts() 
+{
+  LogPlanesVec.assign(RPCParam::LOGPLANES_COUNT, TLogPlane() );
+  MuonCode = 0;
+  MuonSign = 0;
+}
+/**
+ *
+ * Constructor. Cone coordinates are set.
+ *
+*/
+
+L1RpcLogCone::L1RpcLogCone(int tower, int logSector, int logSegment):
+    ConeCrdnts(tower, logSector, logSegment) 
+{
+  LogPlanesVec.assign(RPCParam::LOGPLANES_COUNT, TLogPlane() );
+  MuonCode = 0;
+  MuonSign = 0;
+}
+/**
+ *
+ * Copying Constructor
+ *
+*/
+L1RpcLogCone::L1RpcLogCone(const L1RpcLogHit &logHit) 
+{
   LogPlanesVec.assign(RPCParam::LOGPLANES_COUNT, TLogPlane() );
 
   ConeCrdnts = logHit.GetConeCrdnts();
@@ -18,22 +48,41 @@ L1RpcLogCone::L1RpcLogCone(const L1RpcLogHit &logHit) {
 
   SetLogStrip(logHit.getlogPlaneNumber() -1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
 }
+//#############################################################################################
+//
+//  Simple getters and setters
+//
+//#############################################################################################
+L1RpcLogCone::TLogPlane L1RpcLogCone::GetLogPlane(int logPlane) const { return LogPlanesVec[logPlane]; }
 
-bool L1RpcLogCone::AddLogHit(const L1RpcLogHit &logHit) {
-  if (ConeCrdnts.Tower == logHit.getTower() &&
-      ConeCrdnts.LogSector == logHit.getLogSector() &&
-      ConeCrdnts.LogSegment == logHit.getLogSegment()  ) {
-    SetLogStrip(logHit.getlogPlaneNumber()-1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
-    return true;
-  }
-  else
-    return false;
-}
+///Gets fired strips count in given logPlane.
+int L1RpcLogCone::GetHitsCnt(int logPlane) const { return LogPlanesVec[logPlane].size(); }
 
+/// sets pt code of muon that fired the strips */
+void L1RpcLogCone::SetMuonCode(int code) { MuonCode = code; }
 
+/** @return pt code of muon that fired the strips */
+int L1RpcLogCone::GetMuonCode() const { return MuonCode; }
+
+void L1RpcLogCone::SetMuonSign(int sign) { MuonSign = sign; }
+
+int L1RpcLogCone::GetMuonSign() const { return MuonSign; }
+
+int L1RpcLogCone::GetTower() const { return ConeCrdnts.Tower; }
+
+int L1RpcLogCone::GetLogSector() const { return ConeCrdnts.LogSector; }
+
+int L1RpcLogCone::GetLogSegment() const { return ConeCrdnts.LogSegment; }
+
+RPCParam::L1RpcConeCrdnts L1RpcLogCone::GetConeCrdnts() const { return ConeCrdnts; }
+
+void L1RpcLogCone::SetIdx(int index) { Index = index; }
+
+int L1RpcLogCone::GetIdx() const { return Index; }
+  
 void L1RpcLogCone::SetLogStrip(int logPlane, int logStripNum, int digiIdx) {
-  //LogPlanesVec[logPlane].insert(logStripNum);
-  //LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, vector<int>() ) );
+//LogPlanesVec[logPlane].insert(logStripNum);
+//LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, vector<int>() ) );
   LogPlanesVec[logPlane][logStripNum].push_back(digiIdx);
 }
 
@@ -45,6 +94,26 @@ void L1RpcLogCone::SetLogStrip(int logPlane, int logStripNum) {
 bool L1RpcLogCone::GetLogStripState(int logPlane, unsigned int logStripNum)  const {
   return LogPlanesVec[logPlane].count(logStripNum);
 }
+
+  
+/**
+ *
+ * Adds a loghit to a cone
+ * 
+*/
+bool L1RpcLogCone::AddLogHit(const L1RpcLogHit &logHit) {
+  
+  if (ConeCrdnts.Tower == logHit.getTower() &&
+      ConeCrdnts.LogSector == logHit.getLogSector() &&
+      ConeCrdnts.LogSegment == logHit.getLogSegment()  ) 
+  {
+    SetLogStrip(logHit.getlogPlaneNumber()-1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
+    return true;
+  }
+  else
+    return false;
+}
+
 
 vector<int> L1RpcLogCone::GetLogStripDigisIdxs(int logPlane, unsigned int logStripNum) const {
   TLogPlane::const_iterator it = LogPlanesVec[logPlane].find(logStripNum); 

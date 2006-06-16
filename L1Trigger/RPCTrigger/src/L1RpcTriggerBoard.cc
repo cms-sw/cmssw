@@ -19,7 +19,7 @@ L1RpcTBMuonsVec L1RpcTriggerBoard::RunTBGB() { //4 muons or empty vector
   #endif
 
   L1RpcTBMuonsVec2 gbMuons(RPCParam::TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
-  for(int iMu = 0; iMu < PacsMuonsVec.size(); iMu++) {
+  for(unsigned int iMu = 0; iMu < PacsMuonsVec.size(); iMu++) {
     int tbTower = TriggerConfig->GetTowerNumOnTb(PacsMuonsVec[iMu].GetConeCrdnts() );
 
     if(gbMuons[tbTower].size() == 0)

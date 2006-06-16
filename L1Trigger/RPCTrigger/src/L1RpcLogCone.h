@@ -12,7 +12,8 @@
  *
  * The input for PAC. State of strips in smalest unit of volum in RPC trigger
  * system (Logic Cone), defined by 8 strips of reference plane.
- * \author Karol Bunkowski (Warsaw)
+ * \author Karol Bunkowski (Warsaw),
+ * \author Porting to CMSSW - Tomasz Frueboes
  *
  */
 
@@ -56,34 +57,21 @@ private:
 public:
 
   /// Default constructor. No hits, no muon.
-  L1RpcLogCone(): ConeCrdnts() {
-    LogPlanesVec.assign(RPCParam::LOGPLANES_COUNT, TLogPlane() );
-    MuonCode = 0;
-    MuonSign = 0;
-  }
+  L1RpcLogCone();
 
   ///Constructor. Cone coordinates are set.
-  L1RpcLogCone(int tower, int logSector, int logSegment):
-    ConeCrdnts(tower, logSector, logSegment) {
-    LogPlanesVec.assign(RPCParam::LOGPLANES_COUNT, TLogPlane() );
-    MuonCode = 0;
-    MuonSign = 0;
-  }
-
+  L1RpcLogCone(int tower, int logSector, int logSegment);
+  
   ///Constructor. One hit is added, cone coordinates are set from logHit.
   L1RpcLogCone(const L1RpcLogHit &logHit);
 
   ///Adds next logHit .
   bool AddLogHit(const L1RpcLogHit &logHit);
 
-  TLogPlane GetLogPlane(int logPlane) const {
-    return LogPlanesVec[logPlane];
-  }
+  TLogPlane GetLogPlane(int logPlane) const;
 
   ///Gets fired strips count in given logPlane.
-  int GetHitsCnt(int logPlane) const {
-    return LogPlanesVec[logPlane].size();
-  }
+  int GetHitsCnt(int logPlane) const;
 
   ///Set logic strip as fired. digiIdx - index of digi in digis vector stored by L1RpcTrigg
   void SetLogStrip(int logPlane, int logStripNum, int digiIdx);
@@ -97,26 +85,14 @@ public:
   /** Get vector of didgis indexes (in digis vector stored by L1RpcTrigg) 
     * for given logic strip. If strip was not fired returns empty vector*/
   std::vector<int> GetLogStripDigisIdxs(int logPlane, unsigned int logStripNum) const;
+  
+  void SetMuonCode(int code);
 
-  //void SetLayer(int logPlane, std::string bitstr);
+  int GetMuonCode() const;
 
-  void SetMuonCode(int code) {
-    MuonCode = code;
-  };
+  void SetMuonSign(int sign);
 
-
-  /** @return pt code of muon that fired the strips */
-  int GetMuonCode() const {
-    return MuonCode;
-  };
-
-  void SetMuonSign(int sign) {
-    MuonSign = sign;
-  };
-
-  int GetMuonSign() const {
-    return MuonSign;
-  };     
+  int GetMuonSign() const;
 
   ///Changes fired LogStrips: from "stripNum" to "stripNum + pos"
   void Shift(int pos);
@@ -128,30 +104,19 @@ public:
   /** @return 0 - trigger not possible, 1 - 3 inner planes fired, 2 - 4 or more planes fired*/
   int PossibleTrigger() const;
 
-  int GetTower() const {
-    return ConeCrdnts.Tower;
-  }
+  int GetTower() const;
 
-  int GetLogSector() const {
-    return ConeCrdnts.LogSector;
-  }
+  int GetLogSector() const;
 
-  int GetLogSegment() const {
-    return ConeCrdnts.LogSegment;
-  }
+  int GetLogSegment() const;
 
-  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const {
-    return ConeCrdnts;
-  }
+  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const;
   
 
-  void SetIdx(int index) {
-    Index = index;
-  }
+  void SetIdx(int index);
 	
-  int GetIdx() const {
-    return Index;
-  }
+  int GetIdx() const;
+  
 };
 
 typedef std::vector<L1RpcLogCone> L1RpcLogConesVec;

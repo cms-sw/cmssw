@@ -2,13 +2,13 @@
 #define M_PI 3.14159265358979
 #endif
 
-#ifndef _STAND_ALONE
-//#include "Utilities/Configuration/interface/Architecture.h"
-#endif
 #include <cmath>
 #include <iostream> 
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 using namespace std;
+
+
+
 int L1RpcConst::iptFromPt(const double pt) {
   if(pt == 0.)return 0;
   if(pt<pts[0]) {
@@ -21,6 +21,7 @@ int L1RpcConst::iptFromPt(const double pt) {
 
 }
 
+
 double L1RpcConst::ptFromIpt(const int ipt) {
   if ( ipt<0 || ipt>L1RpcConst::IPT_MAX ) {
     cout <<"**L1RpcConst::ptFromIpt** problem with ipt: "<<ipt<<endl;
@@ -28,6 +29,7 @@ double L1RpcConst::ptFromIpt(const int ipt) {
   }
   else return pts[ipt];
 }
+
 
 double L1RpcConst::etaFromTowerNum(const int atower){
 
@@ -41,6 +43,7 @@ double L1RpcConst::etaFromTowerNum(const int atower){
   double eta = (etas[iabsitow]+etas[iabsitow+1])/2.;
   return (atower>= 0) ? eta : -eta;
 }
+
 
 int L1RpcConst::towerNumFromEta(const double eta){
   int tower=0;

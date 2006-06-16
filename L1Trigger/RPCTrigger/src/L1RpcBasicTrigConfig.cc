@@ -1,8 +1,73 @@
-//---------------------------------------------------------------------------
-
 #include "L1Trigger/RPCTrigger/src/L1RpcBasicTrigConfig.h"
 
-//---------------------------------------------------------------------------
+/// Ctor
+L1RpcBasicTrigConfig::L1RpcBasicTrigConfig(L1RpcPacManager<L1RpcPac>* pacManager) {
+  PacManager  = pacManager;
+}
+
+/// Ctor
+L1RpcBasicTrigConfig::L1RpcBasicTrigConfig() {
+  PacManager  = NULL;
+}
+
+/** Converts TC GB-Sorter output tower address <0...31> ("tower number continous")
+* to tower number 2'complement*/
+int L1RpcBasicTrigConfig::TowNum2TowNum2Comp(int towNum) {
+  if(towNum >= 0)
+    return towNum;
+  else
+    return 0x3F + towNum + 1;  
+};
+
+//#############################################################################################
+//
+//  Simple getters and setters
+//
+//#############################################################################################
+/**
+ *
+ *  returns count of Trigger Crates in system.
+ *
+*/
+int L1RpcBasicTrigConfig::GetTCsCnt() { return TRIGGER_CRATES_CNT; }
+
+/**
+ *
+ * returns number og Trigger Boards in one Trigger Crate.
+ *
+*/
+int L1RpcBasicTrigConfig::GetTBsInTC() { return TB_IN_TC_CNT; }
+
+/**
+ *
+ * Returns the index of TC that should run given LogCone.
+ *
+*/
+int L1RpcBasicTrigConfig::GetTCNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts) {
+  return coneCrdnts.LogSector;
+};
+/**
+ *
+ * Returns the count of Towers (3 or 4), that are covered by given TB.
+ *
+*/
+int L1RpcBasicTrigConfig::GetTowsCntOnTB(int tbNum) {
+  return TOWERS_CNT_ON_TB[tbNum];
+};
+/** Converts TC GB-Sorter input tower address <0...35> ("tower number natural")
+ * to tower number <-16...0...16>
+ * TC GB-Sorter input tower address is 8 bits: [7...2] TB num, [1...0] tower num on TB.*/
+int L1RpcBasicTrigConfig::TowAddr2TowNum(int towAddr) {
+  
+#ifdef LOCALDEBUG
+    if (TOW_ADDR_2_TOW_NUM[towAddr] == -99 || towAddr < 0 || towAddr > 35){
+        //throw L1RpcException("L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr");
+  std::cout<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr" << std::endl;
+    }
+#endif
+
+  return TOW_ADDR_2_TOW_NUM[towAddr];
+};
 
 int L1RpcBasicTrigConfig::GetTowerNumOnTb(const RPCParam::L1RpcConeCrdnts& coneCrdnts) {
   return TOWER_ON_TB[L1RpcConst::ITOW_MAX + coneCrdnts.Tower];
@@ -15,7 +80,11 @@ const L1RpcPac* L1RpcBasicTrigConfig::GetPac(const RPCParam::L1RpcConeCrdnts& co
 int L1RpcBasicTrigConfig::GetTBNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts) {
   return TB_NUM_FOR_TOWER[L1RpcConst::ITOW_MAX + coneCrdnts.Tower];
 }
-
+//#############################################################################################
+//
+//  Constants
+//
+//#############################################################################################
 const int L1RpcBasicTrigConfig::TRIGGER_CRATES_CNT = 12;
 
 const int L1RpcBasicTrigConfig::TOWER_ON_TB[2 * L1RpcConst::ITOW_MAX + 1 +1] = {
