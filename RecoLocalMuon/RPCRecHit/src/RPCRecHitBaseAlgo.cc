@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/01 22:27:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/16 08:29:23 $
+ *  $Revision: 1.3 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -47,9 +47,10 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
     bool OK = this->compute(roll, *cl, point, tmpErr);
     if (!OK) continue;
 
-    // Build a new pair of 1D rechit  
+    // Build a new pair of 1D rechit 
+    int firstClustStrip= cl->firstStrip();
     int clusterSize=cl->clusterSize(); 
-    RPCRecHit*  recHit = new RPCRecHit(rpcId,cl->bx(),clusterSize,point,tmpErr);
+    RPCRecHit*  recHit = new RPCRecHit(rpcId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
 
 
     result.push_back(recHit);
