@@ -16,5 +16,7 @@ namespace {
 
     edm::RefToBase<reco::Candidate> * rb1;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
   }
 }

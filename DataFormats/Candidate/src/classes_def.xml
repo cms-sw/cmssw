@@ -31,6 +31,7 @@
   <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
+  <class name="edm::reftobase::Holder<reco::Candidate,edm::Ref<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >" />
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">
