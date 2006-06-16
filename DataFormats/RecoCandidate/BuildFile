@@ -4,6 +4,7 @@
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Candidate>
+<use name=DataFormats/Common>
 <export>
  <lib name=DataFormatsRecoCandidate>
  <use name=DataFormats/EgammaReco>
@@ -12,4 +13,5 @@
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/JetReco>
  <use name=DataFormats/Candidate>
+ <use name=DataFormats/Common>
 </export>
