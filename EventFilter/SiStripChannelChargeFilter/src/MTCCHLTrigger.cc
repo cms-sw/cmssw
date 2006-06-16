@@ -12,7 +12,10 @@ MTCCHLTrigger::MTCCHLTrigger(const edm::ParameterSet& ps){
    selOnDigiCharge=ps.getParameter<bool>("SelOnDigiCharge");
    ChargeThreshold=ps.getParameter<int>("ChargeThreshold");
    clusterProducer = ps.getParameter<std::string>("ClusterProducer");
+   produces <int>();
+   produces <unsigned int >();
  
+
 }
 
 
@@ -29,16 +32,6 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
   //StripDigi from RawToDigi and ZeroSuppressor
   std::vector< edm::Handle< edm::DetSetVector<SiStripDigi> > > di;
   e.getManyByType(di);
-  //SiStripDigi from ZeroSuppressor
-  //   edm::Handle< edm::DetSetVector<SiStripDigi> > diZS;
-  //   e.getByLabel(zsdigiProducer,"zsdigi",diZS);
-
-
-  //  std::vector<unsigned int> DigiIds    = (*di).detIDs();
-  //  std::vector<unsigned int> ClusterIds = (*h).detIDs();
-
-  //  unsigned int ndigis=0;
-  //  unsigned int nclust=0;
 
 
   if (selOnDigiCharge) {
@@ -55,12 +48,7 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
 
     }
   
-    //     //ZS Digis from ZeroSuppressor
-//     for (edm::DetSetVector<SiStripDigi>::const_iterator it=diZS->begin();it!=diZS->end();it++) {
 
-//       for(std::vector<SiStripDigi>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++) digiadc += vit->adc();
-      
-//     }
   
 
     return (digiadc>ChargeThreshold) ? true : false;
@@ -79,8 +67,16 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
 	
       }
     }
- 
-    return (amplclus>ChargeThreshold) ? true : false;
+
+    bool decision= (amplclus>ChargeThreshold) ? true : false;
+
+    std::auto_ptr< unsigned int > 
+      output( new unsigned int(amplclus) );
+    std::auto_ptr< int > 
+      output_dec( new int(decision) );
+    e.put(output);
+    e.put(output_dec);
+    return decision;
 
   }
  
