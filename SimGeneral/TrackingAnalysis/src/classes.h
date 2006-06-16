@@ -6,6 +6,7 @@
 #include <vector>
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
+typedef edm::RefVector< std::vector<TrackingVertex> >   TrackingVertexContainer;
 
 namespace { namespace {
   //say which template classes should have dictionaries
