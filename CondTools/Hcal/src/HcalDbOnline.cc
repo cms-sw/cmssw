@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.6 2006/05/22 21:10:37 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.7 2006/06/16 17:48:52 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -105,6 +105,11 @@ bool HcalDbOnline::getObject (HcalGains* fObject, const std::string& fTag) {
 
 bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fTag) {
   if (!fObject) return false;
+  std::string tag = fTag;
+  if (tag.empty()) {
+    tag = "9";
+    std::cout << "HcalDbOnline::getObject (HcalElectronicsMap*..)-> Using default tag: " << tag << std::endl;
+  }
   std::string sql_query ("");
   sql_query += "SELECT\n";         
   sql_query += " DAT2.SIDE, DAT2.ETA, DAT2.PHI, DAT2.DEPTH, DAT2.SUBDETECTOR,\n" ;
@@ -118,7 +123,7 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
   sql_query += " AND KOC2.KIND_OF_CONDITION_ID=DS2.KIND_OF_CONDITION_ID \n";
   sql_query += " AND KOC2.IS_RECORD_DELETED='F' AND DS2.IS_RECORD_DELETED='F' \n";
   sql_query += " AND KOC2.EXTENSION_TABLE_NAME='HCAL_HARDWARE_LOGICAL_MAPS' \n";
-  sql_query += " AND DS2.VERSION='9'\n";
+  sql_query += " AND DS2.VERSION='" + tag + "'\n";
   try {
     std::cout << "executing query: \n" << sql_query << std::endl;
     //    oracle::occi::Statement* stmt = mConnect->createStatement ();
