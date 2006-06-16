@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/22 22:04:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/23 07:19:42 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -13,9 +13,8 @@
 
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

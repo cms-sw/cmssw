@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/19 19:34:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/20 15:33:35 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,7 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
 
 //
 // constructors and destructor
@@ -36,6 +37,7 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
    produces<reco::PhotonCandidateCollection>();
    produces<reco::ElectronCandidateCollection>();
    produces<reco::MuonCollection>();
+   produces<reco::RecoCaloJetCandidateCollection>();
 
 }
 
@@ -58,24 +60,28 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    cout << "HLTProdCand::produce start:" << endl;
 
-   // produce dummy collections of photons, electrons, muons
+   // produce dummy collections of photons, electrons, muons, and jets
 
-   auto_ptr<PhotonCandidateCollection>   phot (new PhotonCandidateCollection);
-   auto_ptr<ElectronCandidateCollection> elec (new ElectronCandidateCollection);
-   auto_ptr<MuonCollection>              muon (new MuonCollection);
+   auto_ptr<PhotonCandidateCollection>      phot (new PhotonCandidateCollection);
+   auto_ptr<ElectronCandidateCollection>    elec (new ElectronCandidateCollection);
+   auto_ptr<MuonCollection>                 muon (new MuonCollection);
+   auto_ptr<RecoCaloJetCandidateCollection> jets (new RecoCaloJetCandidateCollection);
 
    // fill collections with fake data
 
    math::XYZTLorentzVector p4;
    for (unsigned int i=0; i!=n_; i++) {
      p4=math::XYZTLorentzVector(+factor_*i,+2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
-     phot->push_back(  PhotonCandidate( 0,p4));
+     phot->push_back(     PhotonCandidate( 0,p4));
 
      p4=math::XYZTLorentzVector(-factor_*i,-2.0*factor_*i,-2.0*factor_*i,3.0*factor_*i);
-     elec->push_back(ElectronCandidate( 1,p4));
+     elec->push_back(   ElectronCandidate( 1,p4));
 
      p4=math::XYZTLorentzVector(+factor_*i,-2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
-     muon->push_back(             Muon(-1,p4));
+     muon->push_back(                Muon(-1,p4));
+
+     p4=math::XYZTLorentzVector(-factor_*i,+2.0*factor_*i,-2.0*factor_*i,3.0*factor_*i);
+     jets->push_back(RecoCaloJetCandidate( 0,p4));
    }
 
    // put them into the event
@@ -83,6 +89,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(phot);
    iEvent.put(elec);
    iEvent.put(muon);
+   iEvent.put(jets);
 
    cout << "HLTProdCand::produce stop:" << endl;
 }

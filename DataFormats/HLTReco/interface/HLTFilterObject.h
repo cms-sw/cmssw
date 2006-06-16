@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/05/22 22:05:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/25 16:52:20 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -95,9 +95,7 @@ namespace reco
     }
 
     void putParticle(const edm::RefToBase<Candidate>& ref) {
-      Particle::LorentzVector p4(ref->px(),ref->py(),ref->pz(),ref->energy());
-      HLTParticle             particle(0,p4);
-      particles_.push_back(particle);
+      particles_.push_back(HLTParticle(*ref));
     }
 
   };

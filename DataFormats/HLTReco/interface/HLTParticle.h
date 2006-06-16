@@ -9,8 +9,8 @@
  *  an HLT filter decision.
  *
  *
- *  $Date: 2006/04/26 09:27:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/18 17:00:05 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -19,8 +19,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Particle.h"
-#include <string>
-#include <map>
+#include <cassert>
 
 namespace reco
 {
@@ -30,9 +29,14 @@ namespace reco
     // Later, we may use our own (more compact) particle (base) class
 
   public:
-    HLTParticle(): Particle() { }
-    HLTParticle(char q, const LorentzVector& p4): Particle(q, p4) { }
+    HLTParticle(): Particle(), id_() { }
+    HLTParticle(const Particle& p, int i=0) : Particle(p), id_(i) {
+      assert ( (-128<=i) && (i<=127) ) ; }
 
+    int id() const { return (int) (id_); }
+
+  protected:
+    char id_; // id of particle (PDG scheme - fundamental particles only!)
   };
 
 }
