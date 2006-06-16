@@ -100,6 +100,7 @@ private:
   TH1F *hdetr, *hdetz, *hdetrF, *hdetzF;
   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
   TH1F *hcols1big, *hrows1big, *heloss1bigx, *heloss1bigy;
+  TH1F *hsimlinks, *hfract;
 
   TH2F *htest, *htest2;
 
@@ -203,6 +204,9 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hrowsB = new TH1F("hrowsB","rows per bar det",200,0.,200.);
     hcolsF = new TH1F("hcolsF","cols per for det",300,0.,300.);
     hrowsF = new TH1F("hrowsF","rows per for det",200,0.,200.);
+
+    hsimlinks = new TH1F("hsimlinks"," track ids",200,0.,200.);
+    hfract = new TH1F("hfract"," track rractions",100,0.,1.);
 
     htest = new TH2F("htest"," ",10,0.,10.,20,0.,20.);
     htest2 = new TH2F("htest2"," ",10,0.,10.,300,0.,300.);
@@ -374,6 +378,8 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	unsigned int chan = it->channel();
 	unsigned int simTrack = it->SimTrackId();
 	float frac = it->fraction();
+	hsimlinks->Fill(float(simTrack));
+	hfract->Fill(frac);
 	if(PRINT) cout<<" Sim link "<<numberOfSimLinks<<" "<<chan<<" "
 		      <<simTrack<<" "<<frac<<endl;
       } // end simlink det loop
