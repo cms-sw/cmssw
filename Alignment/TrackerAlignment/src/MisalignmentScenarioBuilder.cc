@@ -26,29 +26,29 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
   else
 	throw cms::Exception("BadConfig") << "No generator seed defined!";  
   
-  // TOB
-  std::vector<Alignable*> outerBarrels = theTracker->outerHalfBarrels();
-  this->decodeMovements_( theScenario, outerBarrels, "TOB" );
-
-  // TIB
-  std::vector<Alignable*> innerBarrels = theTracker->innerHalfBarrels();
-  this->decodeMovements_( theScenario, innerBarrels, "TIB" );
-
   // TPB
   std::vector<Alignable*> pixelBarrels = theTracker->pixelHalfBarrels();
   this->decodeMovements_( theScenario, pixelBarrels, "TPB" );
-
-  // TEC
-  std::vector<Alignable*> endcaps = theTracker->endCaps();
-  this->decodeMovements_( theScenario, endcaps, "TEC" );
 
   // TPE
   std::vector<Alignable*> pixelEndcaps = theTracker->pixelEndCaps();
   this->decodeMovements_( theScenario, pixelEndcaps, "TPE" );
 
+  // TIB
+  std::vector<Alignable*> innerBarrels = theTracker->innerHalfBarrels();
+  this->decodeMovements_( theScenario, innerBarrels, "TIB" );
+
   // TID
   std::vector<Alignable*> innerDisks   = theTracker->TIDs();
   this->decodeMovements_( theScenario, innerDisks, "TID" );
+
+  // TOB
+  std::vector<Alignable*> outerBarrels = theTracker->outerHalfBarrels();
+  this->decodeMovements_( theScenario, outerBarrels, "TOB" );
+
+  // TEC
+  std::vector<Alignable*> endcaps = theTracker->endCaps();
+  this->decodeMovements_( theScenario, endcaps, "TEC" );
 
 }
 
