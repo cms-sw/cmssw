@@ -20,7 +20,7 @@ public:
   NavPropagator( const MagneticField* field,
 		 PropagationDirection dir = alongMomentum);
 
-  ~NavPropagator() {}
+  ~NavPropagator();
   //
   // use base class methods where necessary:
   // - propagation from TrajectoryStateOnSurface 
