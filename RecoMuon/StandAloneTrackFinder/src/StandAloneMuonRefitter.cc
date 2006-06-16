@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/01 15:43:46 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/12 13:39:06 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -20,7 +20,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 
+// FIXME
 //#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -73,6 +75,11 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
+
+  // FIXME
+  cout<<"StandAloneMuonRefitter::StandAloneMuonRefitter destructor called"<<endl;
+
+  // FIXME
   //  delete thePropagator;
   delete theEstimator;
   delete theMuonUpdator;
@@ -95,6 +102,9 @@ void StandAloneMuonRefitter::setES(const EventSetup& setup){
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
   theMeasurementExtractor.setEvent(event);
+  // reset the refitter each event
+  cout<<"New event: resetting the refitter"<<endl;
+  reset();
 }
 
 void StandAloneMuonRefitter::init(const EventSetup& setup){
@@ -112,10 +122,9 @@ void StandAloneMuonRefitter::init(const EventSetup& setup){
   // the propagation direction must be set via parameter set
   
   // FIXME: take it from the event setup. This is very temp!!!!!
-  cout<<"StandAloneMuonRefitter::init 1"<<endl;
   SteppingHelixPropagator prop(&*mgField,thePropagationDirection);
+
   thePropagator = prop.clone();
-  cout<<"StandAloneMuonRefitter::init 2"<<endl;  
 
   // the muon updator (it doesn't inhert from an updator, but it has one!)
   // the updator is suitable both for FW and BW filtering. The difference between the two fitter are two:
@@ -126,7 +135,6 @@ void StandAloneMuonRefitter::init(const EventSetup& setup){
   // FIXME put it into the event setup and extract it from es. i.e.:
   // theSetup.get<TrackingComponentsRecord>().get(theMuonUpdatorName,theMuonUpdator);
   theMuonUpdator->setPropagator( propagator() ); // FIXME this function will disappear asap!!!
-  cout<<"StandAloneMuonRefitter::init 3"<<endl;
 }
 
 void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
@@ -219,7 +227,8 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   // increment/decrement the iterator according to the propagation direction 
   cout<<"loop over the compatible layers"<<endl;
   for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
-    
+    //    bool firstTime = true;
+
     // FIXME
     // debug.dumpLayer(*layer,metname);
     debug.dumpLayer(*layer);
@@ -236,7 +245,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 
     //    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
     // FIXME
-    cout << "Number of Trajectory Measurement:" << measL.size();
+    cout << "Number of Trajectory Measurement: " << measL.size()<<endl;;
     
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     
@@ -290,6 +299,9 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     }
     
+    // FIXME: uncomment this line!!
+    // if(!bestMeasurement && firstTime) break;
+
     // check if the there is a measurement
     if(bestMeasurement){
       cout<<"best measurement found"<<endl
