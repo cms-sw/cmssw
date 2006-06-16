@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HFFibre_h
+#define SimG4CMS_HFFibre_h 1
 ///////////////////////////////////////////////////////////////////////////////
 // File: HFFibre.h
 // Description: Calculates attenuation length
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HFFibre_h
-#define HFFibre_h 1
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

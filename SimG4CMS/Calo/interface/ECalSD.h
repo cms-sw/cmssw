@@ -1,3 +1,5 @@
+#ifndef SimG4CMS_ECalSD_h
+#define SimG4CMS_ECalSD_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: ECalSD.h
 // Description: Stores hits of Electromagnetic calorimeters in appropriate
@@ -5,8 +7,6 @@
 // Use in your sensitive detector builder:
 //    ECalSD* ecalSD = new ECalSD(SDname, new CaloNumberingScheme());
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef ECalSD_h
-#define ECalSD_h
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"

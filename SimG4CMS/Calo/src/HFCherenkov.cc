@@ -5,7 +5,7 @@
 
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
-#include "Randomize.hh"
+#include "G4Poisson.hh"
 #include "G4ParticleDefinition.hh"
 				 
 HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
@@ -274,7 +274,7 @@ double HFCherenkov::smearNPE(int npe) {
   double pe = 0.;
   if (npe > 0) {
     for (int i = 0; i < npe; ++i) {
-      double val =  RandPoisson::shoot(gain);
+      double val =  G4Poisson(gain);
       pe += (val/gain) + 0.001*G4UniformRand();
     }
   }

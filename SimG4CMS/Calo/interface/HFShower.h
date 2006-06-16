@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HFShower_h
+#define SimG4CMS_HFShower_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: HFShower.h
 // Description: Generates hits for HF with Cerenkov photon code
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HFShower_h
-#define HFShower_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +31,8 @@ private:
 
   double                     fibreLength(G4String);
   void                       clearHits();
+
+private:    
 
   HFCherenkov*               cherenkov;
   HFFibre*                   fibre;

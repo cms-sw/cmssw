@@ -13,9 +13,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-
+#include "Randomize.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Random/RandFlat.h"
 
 HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) : fibre(0),hf(0),
@@ -248,8 +247,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 			   << " Phi " << fi << " Section " << isect 
 			   << " R*Dfi " << dfir;
       zz           = (pos->z() >= 0 ? pos->z() : -pos->z());
-      double r1    = RandFlat::shoot(0.0,1.0);
-      double r2    = RandFlat::shoot(0.0,1.0);
+      double r1    = G4UniformRand();
+      double r2    = G4UniformRand();
       LogDebug("HFShower") << "                   rLimits " << rInside(r)
 			   << " attenuation " << r1 <<":" << exp(-p*zv) 
 			   << " r2 " << r2 << " rDfi " << gpar[5] << " zz " 
@@ -394,7 +393,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 		       << nevent << " entries/bin -- total " << nentry;
   int irc[2], j;
   double w = 0.;
-  double r = RandFlat::shoot(0.0,1.0);
+  double r = G4UniformRand();
 
   if (pin<pmom[0]) {
     w = pin/pmom[0];
@@ -410,7 +409,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 	  irc[1] = int(nevent*r);
 	}
 	irc[1] += (j+1)*nevent + 1;
-	r = RandFlat::shoot(0.0,1.0);
+	r = G4UniformRand();
 	irc[0] = int(nevent*r) + 1 + j*nevent;
 	if (irc[0]<0) {
 	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
@@ -452,7 +451,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
   npe = 0;
   if (irc[0]>0) {
     for (j=0; j<nPhoton; j++) {
-      r = RandFlat::shoot(0.0,1.0);
+      r = G4UniformRand();
       if (r > w) {
 	storePhoton (j);
 	npe++;
@@ -462,7 +461,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 
   getRecord (tree, irc[1]);
   for (j=0; j<nPhoton; j++) {
-    r = RandFlat::shoot(0.0,1.0);
+    r = G4UniformRand();
     if (r < w) {
       storePhoton (j);
       npe++;
@@ -500,7 +499,7 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   npe = 0;
   int npold = 0;
   for (ir=0; ir<nrec; ir++) {
-    r = RandFlat::shoot(0.0,1.0);
+    r = G4UniformRand();
     irc[ir] = int(nevent*0.5*r) +(nMomBin-1)*nevent + 1;
     if (irc[ir]<1) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
@@ -527,7 +526,7 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   for (ir=0; ir<nrec; ir++) {
     getRecord (tree, irc[ir]);
     for (j=0; j<nPhoton; j++) {
-      r = RandFlat::shoot(0.0,1.0);
+      r = G4UniformRand();
       if (ir != nrec-1 || r < w) {
 	storePhoton (j);
 	npe++;

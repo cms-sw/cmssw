@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HcalTestHistoClass_H
+#define SimG4CMS_HcalTestHistoClass_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestHistoClass.h
 // Histogram handling class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalTestHistoClass_H
-#define HcalTestHistoClass_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloHit.h"

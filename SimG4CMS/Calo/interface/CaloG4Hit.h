@@ -1,3 +1,5 @@
+#ifndef SimG4CMS_CaloG4Hit_h
+#define SimG4CMS_CaloG4Hit_h 1
 ///////////////////////////////////////////////////////////////////////////////
 // File: CaloG4Hit.h
 // Date: 10.02 Taken from CMSCaloHit
@@ -19,8 +21,6 @@
 // Modified: 
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef CaloG4Hit_h
-#define CaloG4Hit_h 1
 
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

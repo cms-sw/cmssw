@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HcalQie_H
+#define SimG4CMS_HcalQie_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalQie.h
 // Qie simulation for HCal hits
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalQie_H
-#define HcalQie_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

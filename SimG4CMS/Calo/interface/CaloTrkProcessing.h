@@ -1,5 +1,5 @@
-#ifndef CaloTrkProcessing_H
-#define CaloTrkProcessing_H
+#ifndef SimG4CMS_CaloTrkProcessing_H
+#define SimG4CMS_CaloTrkProcessing_H
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/Observer.h"

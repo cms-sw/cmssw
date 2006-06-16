@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HcalTestHistoManager_H
+#define SimG4CMS_HcalTestHistoManager_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestHistoManager.h
 // Histogram managing class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalTestHistoManager_H
-#define HcalTestHistoManager_H
 
 #include "DataSvc/Ref.h"
 #include "FileCatalog/IFileCatalog.h"

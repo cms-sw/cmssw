@@ -15,16 +15,12 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
-#ifdef G4v7
 #include "G4GFlashSpot.hh"
-#endif
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, p),
-#ifdef G4v7
   G4VGFlashSensitiveDetector(), 
-#endif
   theTrack(0), preStepPoint(0), m_trackManager(manager), hcID(-1), theHC(0), 
   currentHit(0) {
   //Add Hcal Sentitive Detector Names
@@ -99,7 +95,6 @@ bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   return true;
 } 
 
-#ifdef G4v7
 bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	
   if (aSpot != NULL) {
@@ -175,7 +170,6 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
   } 
   return false;
 }                                   
-#endif
 
 double CaloSD::getEnergyDeposit(G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();

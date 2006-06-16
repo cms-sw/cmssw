@@ -14,8 +14,8 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VSolid.hh"
+#include "Randomize.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandFlat.h"
 
 HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) : 
   cherenkov(0), fibre(0) {
@@ -58,6 +58,7 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
 
   cherenkov = new HFCherenkov(p);
   fibre     = new HFFibre(cpv);
+
   clearHits();
 }
 
@@ -121,8 +122,8 @@ int HFShower::getHits(G4Step * aStep) {
   
   for (int i = 0; i<npe; ++i) {
     double p   = fibre->attLength(wavelength[i]);
-    double r1  = RandFlat::shoot(0.0,1.0);
-    double r2  = RandFlat::shoot(0.0,1.0);
+    double r1  = G4UniformRand();
+    double r2  = G4UniformRand();
     LogDebug("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1
 			 <<":" << exp(-p*zFibre) << " r2 " << r2 << ":" 
 			 << probMax << " Survive: " 

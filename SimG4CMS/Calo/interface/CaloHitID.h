@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_CaloHitID_H
+#define SimG4CMS_CaloHitID_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: CaloHitID.h
 // HitID class for storing unique identifier of a Calorimetric Hit
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef CaloHitID_H
-#define CaloHitID_H
 
 #include <boost/cstdint.hpp>
 #include <iostream>

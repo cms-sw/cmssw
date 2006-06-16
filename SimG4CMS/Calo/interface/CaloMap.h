@@ -1,5 +1,5 @@
-#ifndef CaloMap_H
-#define CaloMap_H
+#ifndef SimG4CMS_CaloMap_H
+#define SimG4CMS_CaloMap_H
 
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

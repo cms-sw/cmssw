@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HcalTestAnalysis_H
+#define SimG4CMS_HcalTestAnalysis_H
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestAnalysis.h
 // Analysis of simhits inside the OSCAR framework
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalTestAnalysis_H
-#define HcalTestAnalysis_H
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"

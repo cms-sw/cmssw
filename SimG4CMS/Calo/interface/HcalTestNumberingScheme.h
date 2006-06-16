@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HcalTestNumberingScheme_h
+#define SimG4CMS_HcalTestNumberingScheme_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestNumberingScheme.h
 // Description: Numbering scheme for hadron calorimeter (detailed for TB)
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalTestNumberingScheme_h
-#define HcalTestNumberingScheme_h
 
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 

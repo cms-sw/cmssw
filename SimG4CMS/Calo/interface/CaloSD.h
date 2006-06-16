@@ -1,11 +1,11 @@
+#ifndef SimG4CMS_CaloSD_h
+#define SimG4CMS_CaloSD_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: CaloSD.h
 // Description: Stores hits of calorimetric type in appropriate container
 // Use in your sensitive detector builder:
 //    CaloSD* caloSD = new CaloSD(SDname, new CaloNumberingScheme());
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef CaloSD_h
-#define CaloSD_h
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
@@ -22,9 +22,7 @@
  
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
-#ifdef G4v7
 #include "G4VGFlashSensitiveDetector.hh"
-#endif
 
 #include <iostream>
 #include <fstream>
@@ -36,27 +34,20 @@ using namespace std;
 class G4Step;
 class G4HCofThisEvent;
 class CaloSlaveSD;
-#ifdef G4v7
 class G4GFlashSpot;
-#endif
 
-class CaloSD : 
-#ifdef G4v7
-public G4VGFlashSensitiveDetector,
-#endif
-public SensitiveCaloDetector, public Observer<const BeginOfEvent *>,
-public Observer<const EndOfEvent *> {
+class CaloSD : public SensitiveCaloDetector, 
+	       public G4VGFlashSensitiveDetector,
+	       public Observer<const BeginOfEvent *>,
+	       public Observer<const EndOfEvent *> {
 
 public:    
-  typedef map<vector<int>,CaloG4Hit*> MyMap;
   
   CaloSD(G4String aSDname, const DDCompactView & cpv,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloSD();
   virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-#ifdef G4v7
   virtual bool ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
-#endif
   virtual double getEnergyDeposit(G4Step* step); 
   virtual uint32_t setDetUnitId(G4Step* step)=0;
   
@@ -127,4 +118,4 @@ private:
 
 };
 
-#endif // CaloSD_h
+#endif // SimG4CMS_CaloSD_h

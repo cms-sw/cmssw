@@ -1,11 +1,11 @@
+#ifndef SimG4CMS_HCalSD_h
+#define SimG4CMS_HCalSD_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: HCalSD.h
 // Description: Stores hits of Hadron calorimeter in appropriate container
 // Use in your sensitive detector builder:
 //    HCalSD* hcalSD = new HCalSD(SDname, new CaloNumberingScheme());
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HCalSD_h
-#define HCalSD_h
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Calo/interface/HFShower.h"

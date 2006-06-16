@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HFCherenkov_h
+#define SimG4CMS_HFCherenkov_h 1
 ///////////////////////////////////////////////////////////////////////////////
 // File:  HFCherenkov.h
 // Description: Generate Cherenkov photons for HF
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HFCherenkov_h
-#define HFCherenkov_h 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,9 +1,9 @@
+#ifndef SimG4CMS_HFShowerLibrary_h
+#define SimG4CMS_HFShowerLibrary_h 1
 ///////////////////////////////////////////////////////////////////////////////
 // File: HFShowerLibrary.h
 // Description: Gets information from a shower library
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef HFShowerLibrary_h
-#define HFShowerLibrary_h 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
