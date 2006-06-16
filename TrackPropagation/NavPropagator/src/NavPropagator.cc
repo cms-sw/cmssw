@@ -14,6 +14,12 @@ NavPropagator::NavPropagator( const MagneticField* field,
   if (theField == 0) throw PropagationException("NavPropagator field is not VolumeBased");
 }
 
+  NavPropagator::~NavPropagator() {
+    for (MagVolumeMap::iterator i = theNavVolumeMap.begin(); i != theNavVolumeMap.end(); ++i) {
+      delete i->second;
+    }
+  }
+
 const MagneticField*  NavPropagator::magneticField() const {return theField;}
 
 std::pair<TrajectoryStateOnSurface,double> 
@@ -26,6 +32,7 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
 
   VolumeCrossReturnType exitState( 0, inputState, 0.0);
   TSOS startingState = inputState;
+  TSOS TempState = inputState;
   const NavVolume* currentVolume;
 
   int count = 0;
@@ -34,7 +41,7 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
 
     cout << "NavPropagator:: at beginning of while loop at iteration " << count << endl;
 
-    startingState = exitState.tsos();
+    startingState = TempState;
     if (exitState.volume() != 0) { // next volume connected
       currentVolume = exitState.volume();
     }
@@ -53,7 +60,9 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     exitState = currentVolume->crossToNextVolume( startingState, currentPropagator);
     cout << "NavPropagator: crossToNextVolume returned" << endl;
     cout << "Volume pointer: " << exitState.volume() << " and new state: " << endl;
-    cout << exitState.tsos() << endl;
+    //    cout << exitState.tsos() << endl;
+    cout << "With path length " << exitState.path() << endl;
+
 
     if ( !exitState.tsos().isValid()) {
       // return propagateInVolume( currentVolume, startingState, targetPlane);
@@ -72,9 +81,28 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
       else cout << " unknown" << endl;
     }
 
+    TempState = exitState.tsos();
+
+    if (fabs(exitState.path())<0.01) {
+      std::cout << "Ohoh, we may be stuck at pathlength !!" << exitState.path() << std::endl;
+      std::cout << "failed to move at all!! at position: " << exitState.tsos().globalPosition() << std::endl;
+
+      GlobalTrajectoryParameters gtp( exitState.tsos().globalPosition()+0.01*exitState.tsos().globalMomentum().unit(),
+				      exitState.tsos().globalMomentum(),
+				      exitState.tsos().globalParameters().charge(), theField );
+
+      FreeTrajectoryState fts(gtp);
+      TSOS ShiftedState( fts, exitState.tsos().surface());
+      //      exitState.tsos() = ShiftedState;
+      TempState = ShiftedState;
+
+      std::cout << "Shifted to new position " << TempState.globalPosition() <<std::endl;
+
+    }
+
     ++count;
     if (count > maxCount) {
-      cout << "NavPropagator in infinite loop, count = " << count << endl;
+      cout << "Ohoh, NavPropagator in infinite loop, count = " << count << endl;
       return TsosWP();
     }
   }
