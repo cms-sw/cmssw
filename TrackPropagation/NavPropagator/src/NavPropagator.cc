@@ -59,9 +59,9 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     cout << "NavPropagator: calling crossToNextVolume" << endl;
     exitState = currentVolume->crossToNextVolume( startingState, currentPropagator);
     cout << "NavPropagator: crossToNextVolume returned" << endl;
-    cout << "Volume pointer: " << exitState.volume() << " and new state: " << endl;
-    //    cout << exitState.tsos() << endl;
-    cout << "With path length " << exitState.path() << endl;
+    cout << "Volume pointer: " << exitState.volume() << " and new " << endl;
+    cout << exitState.tsos() << endl;
+    cout << "So that was a path length " << exitState.path() << endl;
 
 
     if ( !exitState.tsos().isValid()) {
@@ -84,7 +84,6 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     TempState = exitState.tsos();
 
     if (fabs(exitState.path())<0.01) {
-      std::cout << "Ohoh, we may be stuck at pathlength !!" << exitState.path() << std::endl;
       std::cout << "failed to move at all!! at position: " << exitState.tsos().globalPosition() << std::endl;
 
       GlobalTrajectoryParameters gtp( exitState.tsos().globalPosition()+0.01*exitState.tsos().globalMomentum().unit(),
