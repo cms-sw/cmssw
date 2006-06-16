@@ -180,6 +180,27 @@ CSCLayerGeometry::stripWireIntersection( int strip, float wire ) const
   float xs = xOfStrip(strip);
   float xi = ( ms * xs + yOfWire(wire) ) / ( ms - mw );
   float yi = ms * (xi - xs );
+
+  //@@ Magic numbers for ME11 geometry since we need approximate knowledge of
+  // ME1a when dealing with ME1b and vice-versa.
+
+  // ME1a height = 440 mm
+  const float lenOfme1a = 44.0;
+  // ME1b height = 1065 mm
+  const float lenOfme1b = 106.5;
+
+  // Restrict to active area of ME11
+  if ( chamberType == 1 ) {
+    // Dealing with ME1a, but allow y in ME1b 
+    yi = std::max( -apothem, yi );           // restrict at bottom edge ME1a
+    yi = std::min( apothem+lenOfme1b, yi );  // restrict at top edge ME1b
+  } 
+  else if (chamberType == 2 ) {
+    // Dealing with ME1b, but allow y in ME1a 
+    yi = std::max( -apothem-lenOfme1a, yi ); // restrict at bottom edge ME1a
+    yi = std::min( apothem, yi );            // restrict at top edge ME1b
+  }
+
   return LocalPoint(xi, yi);
 }
 
@@ -251,7 +272,12 @@ LocalPoint CSCLayerGeometry::intersection( float m1, float c1,
 }
 
 std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
-  // return x, y of mid-point of wire, and length as vector
+  // return x and y of mid-point of wire, and length of wire, as 3-dim vector.
+  // If wire does not intersect active area the returned vector if filled with 0's.
+  // ME11 is a special case so active area is effectively extended to be entire ME11
+  // for either ME1a or ME1b active areas.
+
+  std::vector<float> buf(3); // note all elem init to 0
 
   const float fprec = 1.E-06;
 
@@ -296,7 +322,7 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   // WIRES ARE NOT TILTED?
 
   if ( fabs(wangle) < fprec ) {
-    std::vector<float> buf(3);
+
     buf[0] = 0.;
     buf[1] = cw;
     buf[2] = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
@@ -308,15 +334,33 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   }
 
   // WIRES ARE TILTED
+
+  // ME1a, ME1b basic geometry...half-lengths of top, bottom edges when
+  // ME11 top width = 487.1 mm, bottom width = 201.3 mm, height = 1505 mm
+  // ME1a height = 440 mm
+  // ME1b height = 1065 mm
+  const float lenOfme1b = 106.5;
+  const float lenOfme1a = 44.0;
+  const float htOfme1b = 48.71/2.;
+  const float hbOfme1a = 20.13/2.;
+
+  // ht and hb will be used to check where wire intersects chamber face
+  float ht = hTopEdge;
+  float hb = hBottomEdge;
+  float mt = 0.; // slope of top edge
+  float mb = 0.; //slope of bottom edge
+  float ct = apothem;  // intercept top edge of chamber
+  float cb = -apothem; // intercept bottom edge of chamber
+
+  if (chamberType == 1 ) {
+    ht = htOfme1b; // Active area is ME1a, but use top edge of ME11 i.e. ME1b
+    ct += lenOfme1b; 
+  }
+  else if ( chamberType == 2 ) {
+    hb = hbOfme1a; // Active are is ME1b, but use bottom edge of ME11 i.e. ME1a
+    cb -= lenOfme1a;
+  }
   
-  // slope & intercept of top side of chamber
-  float mt = 0;
-  float ct = +apothem;
-
-  // slope & intercept of bottom side of chamber
-  float mb = 0;
-  float cb = -apothem;
-
   LogDebug("CSC") << ": slopes & intercepts " <<
     "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
     "\n  m1=" << m1 << " c1=" << c1 << " m2=" << m2 << " c2=" << c2 << 
@@ -341,55 +385,43 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
 
   float xWireEnd[4], yWireEnd[4];
 
-  /*
   int i = 0;
-  if ( fabs(x1) >= hBottomEdge && fabs(x1) <= hTopEdge ) {
+  if ( fabs(x1) >= hb && fabs(x1) <= ht ) {
     // wire does intersect side edge 1 of chamber
     xWireEnd[i] = x1;
     yWireEnd[i] = y1;
     i++;
   }
-  if ( fabs(xb) <= hBottomEdge ) {
+  if ( fabs(xb) <= hb ) {
     // wire does intersect bottom edge of chamber
     xWireEnd[i] = xb;
     yWireEnd[i] = yb;
     i++;
   }
-  if ( fabs(x2) >= hBottomEdge && fabs(x2) <= hTopEdge ) {
+  if ( fabs(x2) >= hb && fabs(x2) <= ht ) {
     // wire does intersect side edge 2 of chamber
     xWireEnd[i] = x2;
     yWireEnd[i] = y2;
     i++;
   }
-  if ( fabs(xt) <= hTopEdge ) {
+  if ( fabs(xt) <= ht ) {
     // wire does intersect top edge of chamber
     xWireEnd[i] = xt;
     yWireEnd[i] = yt;
     i++;
   }
-  */
-
-  //@@ Above logic fails for ME1/A when the wire geometry is the complete ME1/1 coverage
-  //@@ For now try the simplistic approach of always taking the intersection points of the
-  //@@ wire with the sides (or sides projected along their lengths)
-  //@@ This is strictly incorrect for the first and last tilted wires in ME1/1.
-
-  int i = 2;
-  xWireEnd[0] = x1;
-  xWireEnd[1] = x2;
-  yWireEnd[0] = y1;
-  yWireEnd[1] = y2;
-
-  std::vector<float> buf(3);
 
   if ( i != 2 ) {
-     
-     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
-       " ends!" << "\n";
-     //    return buf;
+    // the wire does not intersect the (extended) active area
+
+    LogDebug("CSC") << ": does not intersect active area \n";     
+    //     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
+    //       " ends!" << "\n";
+
+    return buf; // each elem is zero
   }
   
-  LogDebug("CSC") << ": wire ends " << "\n";
+  LogDebug("CSC") << ": ME11 wire ends " << "\n";
   for ( int j = 0; j<i; j++ ) {
     LogDebug("CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j] << "\n";
    }
