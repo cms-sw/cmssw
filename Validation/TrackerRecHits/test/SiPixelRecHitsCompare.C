@@ -375,11 +375,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitXResFlippedLadderLayers_[3];
 	TH1* newrecHitXResFlippedLadderLayers_[3];
+	Pixel = new TCanvas("Pixel", "Pixel", 400, 600);
+	Pixel->Divide(1,3);
 
 	for (Int_t i=0; i<3; i++) {
 	   //RecHit XRes Flipped ladders by layer
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 400, 600);
 
 	   sprintf(histo, "DQMData/recHitBPIX/RecHit_XRes_FlippedLadder_Layer%d;1", i+1);
 	   rfile->GetObject(histo, recHitXResFlippedLadderLayers_[i]);
@@ -401,11 +401,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitXResUnFlippedLadderLayers_[3];
 	TH1* newrecHitXResUnFlippedLadderLayers_[3];
+	Pixel = new TCanvas("Pixel", "Pixel", 400, 600);
+	Pixel->Divide(1,3);
 
 	for (Int_t i=0; i<3; i++) {
 	   //RecHit XRes unflipped ladders by layer
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 400, 600);
 
 	   sprintf(histo, "DQMData/recHitBPIX/RecHit_XRes_UnFlippedLadder_Layer%d;1", i+1);
 	   rfile->GetObject(histo, recHitXResUnFlippedLadderLayers_[i]);
@@ -427,11 +427,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitYResLayer1Modules_[8];
 	TH1* newrecHitYResLayer1Modules_[8];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<8; i++) {
 	   //RecHit Y resolution by module for layer 1
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer1_Module%d;1", i+1);
 	   rfile->GetObject(histo, recHitYResLayer1Modules_[i]);
@@ -453,11 +453,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitYResLayer2Modules_[8];
 	TH1* newrecHitYResLayer2Modules_[8];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<8; i++) {
 	   //RecHit Y resolution by module for layer 2
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer2_Module%d;1", i+1);
 	   rfile->GetObject(histo, recHitYResLayer2Modules_[i]);
@@ -479,11 +479,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitYResLayer3Modules_[8];
 	TH1* newrecHitYResLayer3Modules_[8];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<8; i++) {
 	   //RecHit Y resolution by module for layer 3
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer3_Module%d;1", i+1);
 	   rfile->GetObject(histo, recHitYResLayer3Modules_[i]);
@@ -518,7 +518,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitXPlaquetteXSize1_);
 	sfile->GetObject(histo, newrecHitXPlaquetteXSize1_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitXPlaquetteXSize1_->SetLineColor(2);
 	recHitXPlaquetteXSize1_->Draw();
@@ -540,7 +539,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitXPlaquetteXSize2_);
 	sfile->GetObject(histo, newrecHitXPlaquetteXSize2_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitXPlaquetteXSize2_->SetLineColor(2);
 	recHitXPlaquetteXSize2_->Draw();
@@ -562,7 +560,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitYPlaquetteYSize2_);
 	sfile->GetObject(histo, newrecHitYPlaquetteYSize2_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitYPlaquetteYSize2_->SetLineColor(2);
 	recHitYPlaquetteYSize2_->Draw();
@@ -584,7 +581,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitYPlaquetteYSize3_);
 	sfile->GetObject(histo, newrecHitYPlaquetteYSize3_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitYPlaquetteYSize3_->SetLineColor(2);
 	recHitYPlaquetteYSize3_->Draw();
@@ -606,7 +602,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitYPlaquetteYSize4_);
 	sfile->GetObject(histo, newrecHitYPlaquetteYSize4_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitYPlaquetteYSize4_->SetLineColor(2);
 	recHitYPlaquetteYSize4_->Draw();
@@ -628,7 +623,6 @@ void SiPixelRecHitsCompare()
 	rfile->GetObject(histo, recHitYPlaquetteYSize5_);
 	sfile->GetObject(histo, newrecHitYPlaquetteYSize5_);
 
-	Pixel->cd(i+1);
 	gPad->SetLogy();
 	recHitYPlaquetteYSize5_->SetLineColor(2);
 	recHitYPlaquetteYSize5_->Draw();
@@ -643,11 +637,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitXResDisk1Plaquettes_[7];
 	TH1* newrecHitXResDisk1Plaquettes_[7];
+        Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<7; i++) {
 	   //RecHit X resolution by plaquette for Disk1
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk1_Plaquette%d;1", i+1);
 	   rfile->GetObject(histo, recHitXResDisk1Plaquettes_[i]);
@@ -669,11 +663,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitXResDisk2Plaquettes_[7];
 	TH1* newrecHitXResDisk2Plaquettes_[7];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<7; i++) {
 	   //RecHit X resolution by plaquette for Disk2
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk2_Plaquette%d;1", i+1);
 	   rfile->GetObject(histo, recHitXResDisk2Plaquettes_[i]);
@@ -695,11 +689,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitYResDisk1Plaquettes_[7];
 	TH1* newrecHitYResDisk1Plaquettes_[7];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<7; i++) {
 	   //RecHit Y resolution by plaquette for Disk1
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk1_Plaquette%d;1", i+1);
 	   rfile->GetObject(histo, recHitYResDisk1Plaquettes_[i]);
@@ -721,11 +715,11 @@ void SiPixelRecHitsCompare()
    if (1) {
 	TH1* recHitYResDisk2Plaquettes_[7];
 	TH1* newrecHitYResDisk2Plaquettes_[7];
+	Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
+	Pixel->Divide(2,4);
 
 	for (Int_t i=0; i<7; i++) {
 	   //RecHit X resolution by plaquette for Disk2
-
-	   Pixel = new TCanvas("Pixel", "Pixel", 800, 1200);
 
 	   sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk2_Plaquette%d;1", i+1);
 	   rfile->GetObject(histo, recHitYResDisk2Plaquettes_[i]);
