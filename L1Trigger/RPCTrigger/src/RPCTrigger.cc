@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/05/30 18:48:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/06 16:25:00 $
+ *  $Revision: 1.4 $
  *  \author Tomasz Fruboes
  */
 
@@ -28,18 +28,22 @@
 // L1RpcTrigger specific includes
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
 #include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 {
-   // The data formats are not ready yet (V 2006), so we `produce` a fake data
-   // to be able to run
-  produces<int>("FakeTemp");
+  produces<std::vector<L1MuRegionalCand> >("RPCb");
+  produces<std::vector<L1MuRegionalCand> >("RPCf");
   
+  m_pacManager.Init("/afs/cern.ch/user/f/fruboes/public/patterns/", _12_PACS_PER_TOWER);
+    
+  m_trigConfig = new L1RpcBasicTrigConfig(&m_pacManager);
   
+  m_trigConfig->SetDebugLevel(0);
   
-  //
+  m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
   
-
 }
 
 
@@ -60,11 +64,27 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   } 
 
-  // Get RpcDigi`s
+  
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByType(rpcDigis);
-   
-  // Build cones from digis
+  
+  L1RpcLogConesVec ActiveCones = theLinksystem.getCones(rpcDigis);
+  
+  L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);
+
+  std::cout << "-----------------------------" << std::endl;
+
+  for(int iMu = 0; iMu < finalMuons[0].size(); iMu++)
+  {
+    std::cout << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode() << std::endl;
+  }
+
+  for(int iMu = 0; iMu < finalMuons[1].size(); iMu++)
+  {
+    std::cout << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode() << std::endl;
+  }
+
+
 
 }
 

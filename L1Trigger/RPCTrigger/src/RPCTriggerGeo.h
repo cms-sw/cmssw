@@ -11,12 +11,17 @@
  */
 
 #include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
+
+#include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
 
 class RPCTriggerGeo {
   public:
@@ -26,7 +31,8 @@ class RPCTriggerGeo {
     void buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom);
     bool isGeometryBuilt();
   
-
+    L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis);
+       
 
   private:
     void addDet(RPCRoll* roll);
@@ -40,6 +46,7 @@ class RPCTriggerGeo {
     RPCCurlMap m_refRPCCurlMap; ///< Stores refernce curls
     RPCCurlMap m_otherRPCCurlMap; ///< Stores other curls
     
+    //L1RpcLogConesVec 	m_activeCones;
     
     RPCCurl::RPCLinks m_links;
 };

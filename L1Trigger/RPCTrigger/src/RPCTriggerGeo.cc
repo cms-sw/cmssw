@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/09 12:35:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/12 15:45:39 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 
@@ -40,12 +40,7 @@ RPCTriggerGeo::RPCTriggerGeo(){
 *
 */
 //#############################################################################
-bool RPCTriggerGeo::isGeometryBuilt(){
-
-  return m_isGeometryBuilt;
-
-}
-
+bool RPCTriggerGeo::isGeometryBuilt(){ return m_isGeometryBuilt; }
 //#############################################################################
 /**
  * \brief Builds RpcGeometry
@@ -119,7 +114,7 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
     
     
   m_isGeometryBuilt=true;
-  printCurlMapInfo();
+  //printCurlMapInfo();
 }
 
 //#############################################################################
@@ -151,6 +146,88 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 
   }
 
+}
+//#############################################################################
+/**
+ *
+ * \brief Builds cones from digis
+ * \note Based on L1RpcConeBuilder from ORCA
+ *
+ */
+//#############################################################################
+L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis){
+
+  std::vector<L1RpcLogHit> logHits;
+    
+// Build cones from digis
+  RPCDigiCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt=rpcDigis->begin();
+       detUnitIt!=rpcDigis->end();
+       ++detUnitIt)
+  {
+    const RPCDetId& id = (*detUnitIt).first;
+    
+    int rawId = id.rawId();
+    
+    const RPCDigiCollection::Range& range = (*detUnitIt).second;
+    
+    for (RPCDigiCollection::const_iterator digiIt = range.first;
+         digiIt!=range.second;
+         ++digiIt)
+    {
+      RPCCurl::stripCords sc;
+      sc.detRawId=rawId;
+      sc.stripNo=digiIt->strip();
+      sc.isVirtual=false;
+      
+      // Find strip in map
+      if (m_links.find(sc)!=m_links.end()){
+      
+        RPCCurl::RPCConnectionsVec stripCons = m_links[sc];
+        //Build loghits
+        for (RPCCurl::RPCConnectionsVec::iterator it = stripCons.begin();
+             it != stripCons.end();
+             it++)
+        {
+          
+          logHits.push_back( L1RpcLogHit(it->tower, it->PAC, it->logplane, it->posInCone) );
+             
+             
+        }
+      
+      } 
+      // should throw exception
+      else {  // Strip not in map :/
+        std::cout<< "Strip " << sc.stripNo 
+            << " of det " << sc.detRawId
+            << " not present in map"
+            << std::endl;
+      }
+    } // for digiCollection
+  }// for detUnits
+
+  
+  // Build cones
+  L1RpcLogConesVec ActiveCones;
+  
+  vector<L1RpcLogHit>::iterator p_lhit;
+  for (p_lhit = logHits.begin(); p_lhit != logHits.end(); p_lhit++){
+    bool hitTaken = false;
+    L1RpcLogConesVec::iterator p_cone;
+    for (p_cone = ActiveCones.begin(); p_cone != ActiveCones.end(); p_cone++){
+      hitTaken = p_cone->AddLogHit(*p_lhit);
+      if(hitTaken)
+        break;
+    }
+
+    if(!hitTaken) {
+      L1RpcLogCone newcone(*p_lhit);
+      newcone.SetIdx(ActiveCones.size());
+      ActiveCones.push_back(newcone);
+    }
+  }// for loghits
+  
+  return ActiveCones;
 }
 //#############################################################################
 /**

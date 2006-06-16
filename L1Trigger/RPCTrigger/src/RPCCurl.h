@@ -124,9 +124,6 @@ class RPCCurl {
     static const int mrtow [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::NPOS];
     static const int mrlogp [RPCCurl::IROLL_MAX+1] [RPCCurl::NHPLANES] [RPCCurl::NPOS];
     static const unsigned int LOGPLANE_SIZE[17][6];
-    //static const unsigned short int stripsToAdd[RPCCurl::IROLL_MAX+1];
-
-
-
+    
 };
 #endif
