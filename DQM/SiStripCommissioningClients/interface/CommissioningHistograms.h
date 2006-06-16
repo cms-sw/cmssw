@@ -22,7 +22,11 @@ class CommissioningHistograms {
 
  public:
   
-  struct HistoSet {
+  class HistoSet {
+  public:
+    HistoSet() : title_(), combined_(0), sumOfSquares_(0), 
+      sumOfContents_(0), numOfEntries_(0), profile_(0) {;}
+  public: // public data members
     SiStripHistoNamingScheme::HistoTitle title_;
     MonitorElement* combined_;
     MonitorElement* sumOfSquares_;
@@ -39,9 +43,11 @@ class CommissioningHistograms {
   // ----- "Actions" -----
   
   /** */
-  void createCollateMEs();
+  void createCollateMEs( const std::vector<std::string>& );
   /** */
   void createProfileHistos();
+  /** */
+  void saveToFile();
   /** */
   virtual void histoAnalysis() {;}
   /** */
@@ -63,8 +69,9 @@ class CommissioningHistograms {
 		     MonitorElement* );
   void updateHistoSet( HistoSet& );
   
-/*   inline CommissioningSummary* summary();  */
-
+  MonitorElement* bookMonitorElement( TH1F* );
+  void updateMonitorElement( TH1F*, MonitorElement* );
+  
  private: // ----- private methods -----
   
   void getListOfDirs( std::vector<std::string>& dir_list );
@@ -84,8 +91,6 @@ class CommissioningHistograms {
   std::vector<std::string> cme_;
   /** */
   sistrip::Task task_;
-
-/*   CommissioningSummary* summary_; */
   
 };
 
@@ -93,7 +98,6 @@ class CommissioningHistograms {
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 void CommissioningHistograms::task( const sistrip::Task& task ) { task_ = task; }
 const sistrip::Task& CommissioningHistograms::task() const { return task_; }
-/* CommissioningSummary* CommissioningHistograms::summary() { return summary_; } */
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 

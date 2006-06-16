@@ -21,12 +21,8 @@ CommissioningHistograms::~CommissioningHistograms() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createCollateMEs() {
+void CommissioningHistograms::createCollateMEs( const vector<string>& added_contents ) {
   cout << "[CommissioningHistograms::createCollateMEs]" << endl;
-  
-  mui_->subscribeNew( "*" ); //@@ temporary?
-  vector<string> added_contents;
-  mui_->getAddedContents( added_contents );
   
   if ( added_contents.empty() ) { 
     cout << "[CommissioningHistograms::createCollateMEs]"
@@ -37,8 +33,8 @@ void CommissioningHistograms::createCollateMEs() {
 	 << " Found " << added_contents.size () 
 	 << " 'added contents' found!" << endl;
   }
-
-  vector<string>::iterator idir;
+  
+  vector<string>::const_iterator idir;
   for ( idir = added_contents.begin(); idir != added_contents.end(); idir++ ) {
     
     // Extract directory paths
@@ -49,14 +45,16 @@ void CommissioningHistograms::createCollateMEs() {
 							       path.fecRing_,
 							       path.ccuAddr_,
 							       path.ccuChan_ );
+
     cout << "[CommissioningHistograms::createCollateMEs]"
-	 << " FEC crate/ring/slot, CCU addr/chan: "
+	 << " Dir: " << collector_dir
+	 << " FecCrate/FecRing/FecSlot/CcuAddr/CcuChan: "
 	 << path.fecCrate_ << "/"
 	 << path.fecSlot_ << "/"
 	 << path.fecRing_ << ", "
 	 << path.ccuAddr_ << "/"
 	 << path.ccuChan_ << endl;
-
+    
     if ( path.fecCrate_ == sistrip::all_ ||
 	 path.fecSlot_ == sistrip::all_ ||
 	 path.fecRing_ == sistrip::all_ ||
@@ -72,6 +70,8 @@ void CommissioningHistograms::createCollateMEs() {
     uint16_t n_cme = 0;
     vector<string>::iterator ime = me.begin(); 
     for ( ; ime != me.end(); ime++ ) {
+      cout << "[CommissioningHistograms::createCollateMEs]"
+	   << " ME string: " << *ime << endl;
       string cme_name = *ime;
       string cme_title = *ime;
       string cme_dir = client_dir;
@@ -82,16 +82,16 @@ void CommissioningHistograms::createCollateMEs() {
 	cme_.push_back( cme_dir );
 	n_cme++;
 	cout << "[CommissioningHistograms::createCollateMEs]"
-	     << " CollateME number " << cme_.size() 
-	     << " CollateME name " << cme_name
-	     << " CollateME title " << cme_title
-	     << " CollateME dir " << cme_dir
-	     << " CollateME search string " << search_str
+	     << " Added CollateME number " << cme_.size() 
+	     << " with name: " << cme_name
+	     << " title: " << cme_title
+	     << " in dir: " << cme_dir
+	     << " search string: " << search_str
 	     << endl;
       }
     }
     cout << "[CommissioningHistograms::createCollateMEs]"
-	 << "  Created " << n_cme << " CollateMEs in " << client_dir << endl;
+	 << " Created " << n_cme << " CollateMEs in " << client_dir << endl;
   }
 
 }
@@ -103,10 +103,14 @@ void CommissioningHistograms::createProfileHistos() {
   if ( mui_ ) { 
     vector<string> dirs;
     getListOfDirs( dirs );
+//     cout << "[CommissioningHistograms::createProfileHistos]" 
+// 	 << " Number of directories found: " << dirs.size() << endl;
     vector<string>::const_iterator idir = dirs.begin();
     for ( ; idir != dirs.end(); idir++ ) {
       mui_->setCurrentFolder( *idir );
       vector<string> me = mui_->getMEs();
+//       cout << "[CommissioningHistograms::createProfileHistos]" 
+// 	   << " Number of MonitorElements found: " << me.size() << endl;
       book(me); 
       update();
     }
@@ -138,6 +142,14 @@ void CommissioningHistograms::cdIntoDir( const string& dir, vector<string>& dirs
 
 // -----------------------------------------------------------------------------
 /** */
+void CommissioningHistograms::saveToFile() {
+  if ( mui_ ) { mui_->save("client.root"); }
+  else { cerr << "[SiStripCommissioningClient::saveToFile]"
+	      << "Null pointer for MonitorUserInterface!" << endl; }
+}
+
+// -----------------------------------------------------------------------------
+/** */
 void CommissioningHistograms::book( const std::vector<std::string>& me_list ) {
   cout << "[CommissioningHistograms::book] Nothing done!" << endl;
 }
@@ -153,6 +165,7 @@ void CommissioningHistograms::update() {
 void CommissioningHistograms::initHistoSet( const SiStripHistoNamingScheme::HistoTitle& title, 
 					    HistoSet& histo_set, 
 					    MonitorElement* me ) {
+//   cout << "[CommissioningHistograms::initHistoSet]" << endl;
   // Set ME pointers for "sum2", "sum" and "num" histos
   if      ( title.contents_ == sistrip::COMBINED ) { histo_set.combined_ = me; }
   else if ( title.contents_ == sistrip::SUM2 )     { histo_set.sumOfSquares_ = me; }
@@ -163,16 +176,32 @@ void CommissioningHistograms::initHistoSet( const SiStripHistoNamingScheme::Hist
 	 << " Unexpected sistrip::Contents value!" << endl;
   }
   
-  if ( histo_set.profile_ ) { return; } // TProfile already exists
-
-  if ( !histo_set.sumOfSquares_ || //@@ what about combined histo?...
-       !histo_set.sumOfContents_ ||
-       !histo_set.numOfEntries_ ) { return; }
+  if ( histo_set.profile_ ) { 
+//     cout << "[CommissioningHistograms::initHistoSet]" 
+// 	 << " TProfile already exists!" << endl;
+    return; 
+  }
   
+  if ( !histo_set.sumOfSquares_ ||
+       !histo_set.sumOfContents_ ||
+       !histo_set.numOfEntries_ ) { 
+//     cout << "[CommissioningHistograms::initHistoSet]" 
+// 	 << " Null pointer to one of contents histos!" << endl;
+    return; 
+  }
+  
+  //   cout << "get here 1 " << histo_set.sumOfSquares_ << endl;
   TH1F* sum2 = ExtractTObject<TH1F>()( histo_set.sumOfSquares_ );
+  //   cout << "get here 2 " << histo_set.sumOfContents_ << endl;
   TH1F* sum  = ExtractTObject<TH1F>()( histo_set.sumOfContents_ );
+  //   cout << "get here 3 " << histo_set.numOfEntries_ << endl;
   TH1F* num  = ExtractTObject<TH1F>()( histo_set.numOfEntries_ );
-  if ( !num || !sum || !sum2 ) { return; }
+  //   cout << "get here 4 " << endl;
+  if ( !num || !sum || !sum2 ) { 
+    cout << "[CommissioningHistograms::initHistoSet]" 
+	 << " Failed to extract TH1F from MonitorElement!" << endl;
+    return; 
+  }
   
   if ( num->GetNbinsX() != sum->GetNbinsX() ||
        sum->GetNbinsX() != sum2->GetNbinsX() ) { 
@@ -191,11 +220,11 @@ void CommissioningHistograms::initHistoSet( const SiStripHistoNamingScheme::Hist
   histo_set.profile_ = mui_->getBEInterface()->bookProfile( name, name, // title
 							    bins, low, high, 
 							    1024, 0., 1024. );
-//   histo_set.profile_ = mui_->getBEInterface()->bookProfile( name, name, // title
-//   							    num->GetNbinsX(),
-//   							    num->GetXaxis()->GetXmin(),
-//   							    num->GetXaxis()->GetXmax(),
-//   							    1024, 0., 1024. );
+  //   histo_set.profile_ = mui_->getBEInterface()->bookProfile( name, name, // title
+  //   							    num->GetNbinsX(),
+  //   							    num->GetXaxis()->GetXmin(),
+  //   							    num->GetXaxis()->GetXmax(),
+  //   							    1024, 0., 1024. );
   cout << "[CommissioningHistograms::initHistoSet]"
        << " Created TProfile called " << name 
        << " in " << mui_->pwd() << endl;
@@ -205,20 +234,26 @@ void CommissioningHistograms::initHistoSet( const SiStripHistoNamingScheme::Hist
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::updateHistoSet( HistoSet& histo_set ) {
-
+//   cout << "[CommissioningHistograms::updateHistoSet]" << endl;
+  
   if ( !histo_set.sumOfSquares_ || 
        !histo_set.sumOfContents_ ||
        !histo_set.numOfEntries_ ||
-       !histo_set.profile_ ) { return; }
+       !histo_set.profile_ ) { 
 //     cerr << "[CommissioningHistograms::updateHistoSet]"
 // 	 << " NULL pointer to MonitorElement!" << endl;
-//     return;
-//   }
-  
+    return;
+  }
+
+  //   cout << "get here 1 " << histo_set.sumOfSquares_ << endl;
   TH1F*     sum2 = ExtractTObject<TH1F>()( histo_set.sumOfSquares_ );
+  //   cout << "get here 2 " << histo_set.sumOfContents_ << endl;
   TH1F*     sum  = ExtractTObject<TH1F>()( histo_set.sumOfContents_ );
+  //   cout << "get here 3 " << histo_set.numOfEntries_ << endl;
   TH1F*     num  = ExtractTObject<TH1F>()( histo_set.numOfEntries_ );
+  //   cout << "get here 4 " << histo_set.profile_ << endl;
   TProfile* prof = ExtractTObject<TProfile>()( histo_set.profile_ );
+  //   cout << "get here 5 " << endl;
   if ( !num || !sum || !sum2 || !prof ) {
     cerr << "[CommissioningHistograms::updateHistoSet]"
 	 << " NULL pointer to TObjects!" << endl;
@@ -233,9 +268,9 @@ void CommissioningHistograms::updateHistoSet( HistoSet& histo_set ) {
     return;
   }
   
-  cout << "[CommissioningHistograms::updateHistoSet]"
-       << " Updating TProfile called " << histo_set.profile_->getName() 
-       << " in " << mui_->pwd() << endl;
+//   cout << "[CommissioningHistograms::updateHistoSet]"
+//        << " Updating TProfile called " << histo_set.profile_->getName() 
+//        << " in " << mui_->pwd() << endl;
 
   for ( Int_t ibin = 1; ibin <= prof->GetNbinsX(); ibin++ ) {
     if ( num->GetBinContent(ibin) ) {
@@ -253,4 +288,31 @@ void CommissioningHistograms::updateHistoSet( HistoSet& histo_set ) {
   }
   
 }
+
+// -----------------------------------------------------------------------------
+/** */
+MonitorElement* CommissioningHistograms::bookMonitorElement( TH1F* histo ) {
+  DaqMonitorBEInterface* dqm = mui_->getBEInterface();
+  string pwd = dqm->pwd();
+  dqm->setCurrentFolder( sistrip::root_ );
+  string name; name.assign( histo->GetName() );
+  string title; title.assign( histo->GetTitle() );
+  return dqm->book1D( name, title, 
+		      histo->GetNbinsX(),
+		      histo->GetXaxis()->GetXmin(),
+		      histo->GetXaxis()->GetXmax() );
+  dqm->setCurrentFolder( pwd );
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::updateMonitorElement( TH1F* histo, 
+						    MonitorElement* me ) {
+  for ( uint16_t ibin = 0; ibin < histo->GetNbinsX(); ibin++ ) {
+    me->setBinContent( ibin+1, histo->GetBinContent( ibin+1 ) );
+    me->setBinError( ibin+1, histo->GetBinError( ibin+1 ) );
+  }
+  me->setEntries( histo->GetEntries() );
+}
+
 

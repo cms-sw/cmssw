@@ -21,7 +21,7 @@ class ApvTimingHistograms : public CommissioningHistograms {
   /** */
   virtual void createTrackerMap() {;}
   /** */
-  virtual void uploadToConfigDb() {;}
+  virtual void uploadToConfigDb();
   
  private: // ----- private methods -----
   
@@ -35,6 +35,9 @@ class ApvTimingHistograms : public CommissioningHistograms {
   
   // Key = control key, data = timing delay [ns]
   std::map< uint32_t, uint32_t > delays_;
+  
+  MonitorElement* profile_;
+  MonitorElement* summary_;
   
 };
 

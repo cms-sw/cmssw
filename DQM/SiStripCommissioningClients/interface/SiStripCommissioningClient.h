@@ -4,6 +4,7 @@
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
 #include "DQMServices/Components/interface/Updater.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include <string>
 #include <vector>
 
@@ -14,7 +15,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
  public:
   
-  // This line is necessary
+  // This line is necessary!
   XDAQ_INSTANTIATOR();
   
   /** Constructor. */
@@ -37,9 +38,13 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
   
-  /** Friend method to allow web interface access to
-      CommissioningHistograms object. */
-  inline friend CommissioningHistograms* histo( const SiStripCommissioningClient& );
+  /** Friend method to allow web interface access to histos. */
+  friend CommissioningHistograms* histos( const SiStripCommissioningClient& );
+
+  /** */
+  inline void lock() const;
+  /** */
+  inline void unlock() const;
   
  private:
 
@@ -50,15 +55,12 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** Web-based commissioning client. */
   SiStripCommissioningWebClient* web_;
   /** */
-  mutable CommissioningHistograms* histo_;
+  mutable CommissioningHistograms* histos_;
   
 };
 
-// ---------- inline methods ----------
-
-CommissioningHistograms* histo( const SiStripCommissioningClient& client ) {
-  return client.histo_;
-}
+void SiStripCommissioningClient::lock() const { if ( mui_ ) { mui_->getBEInterface()->lock(); } }
+void SiStripCommissioningClient::unlock() const { if ( mui_ ) { mui_->getBEInterface()->unlock(); } }
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
 

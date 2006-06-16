@@ -2,10 +2,9 @@
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningWebClient.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-//#include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
@@ -21,7 +20,7 @@ using namespace std;
 SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* stub ) 
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
-    histo_(0) {
+    histos_(0) {
   web_ = new SiStripCommissioningWebClient( this,
 					    this->getContextURL(),
 					    this->getApplicationURL(), 
@@ -33,72 +32,89 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
 /** */
 SiStripCommissioningClient::~SiStripCommissioningClient() {
   if ( web_ ) { delete web_; }
-  if ( histo_ ) { delete histo_; }
+  if ( histos_ ) { delete histos_; }
 }
 
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Configured" state. */
 void SiStripCommissioningClient::configure() {
-//   if ( mui_ ) { mui_->setVerbose(0); } 
-//   else { //edm::LogError("SiStrip|Commissioning|Client") 
-//     cerr << "[SiStripCommissioningClient::configure]"
-// 	 << "Null pointer for MonitorUserInterface!" << endl;
-//   }
+  MonitorElement* me = mui_->getBEInterface()->bookProfile( "temp", 
+							    "temp", 
+							    10, 0., 10., 
+							    10, 0., 10. ); 
+  cout << "[SiStripCommissioningClient::configure]"
+       << " DEBUG! me: " << me << endl;
+  TProfile* prof = ExtractTObject<TProfile>()( me );
+  cout << "[SiStripCommissioningClient::configure]"
+       << " DEBUG! prof: " << prof << endl;
+
 }
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Enabled" state. */
 void SiStripCommissioningClient::newRun() {
-  // Register this "UpdateObserver" with the Updater object
-  ( this->upd_ )->registerObserver( this );
+  ( this->upd_ )->registerObserver( this ); // Register with the Updater object
 }
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
   // Do histogram analysis and upload monitorables to database
-  if ( histo_ ) { 
-    histo_->createCollateMEs();
-    histo_->createProfileHistos();
-    histo_->createSummaryHistos();
-    histo_->uploadToConfigDb(); 
+  if ( histos_ ) { 
+    histos_->createProfileHistos(); 
+    histos_->histoAnalysis(); 
+    histos_->createSummaryHistos(); 
+    // histos_->uploadToConfigDb(); 
+    // histos_->saveToFile(); 
   }
-  if ( mui_ ) { mui_->save("SiStripCommissioningClient.root"); }
-  else { //edm::LogError("SiStrip|Commissioning|Client") 
-    cerr << "[SiStripCommissioningClient::endRun]"
-	 << "Null pointer for MonitorUserInterface!" << endl;
-  }
-  
+  if ( mui_ ) { mui_->save("client.root"); }
 }
 
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
   cout << "[SiStripCommissioningClient::onUpdate]"
-       << "Number of updates: " << mui_->getNumUpdates() << endl;
+       << " Number of updates: " << mui_->getNumUpdates() << endl;
   
   // Subscribe to new monitorables and retrieve updated contents
   ( this->mui_ )->subscribeNew( "*" ); //@@ temporary?
   vector<string> added_contents;
   ( this->mui_ )->getAddedContents( added_contents );
-  if ( added_contents.empty() ) { return; }
+  if ( added_contents.empty() ) { 
+    cout << "[SiStripCommissioningClient::onUpdate]"
+	 << " No added contents!" << endl;
+    return; 
+  }
+  cout << "[SiStripCommissioningClient::onUpdate]"
+       << " Number of added contents is: " << added_contents.size() << endl;
   
   // Create CommissioningHistogram object 
   createCommissioningHistos( added_contents );
   
-  //@@ anything here?
-  if ( histo_ ) { 
-    histo_->createCollateMEs();
-    histo_->createProfileHistos();
+  // Create Collation histos based on added contents
+  if ( histos_ ) { 
+    histos_->createCollateMEs( added_contents ); 
+    histos_->createProfileHistos(); 
+    histos_->histoAnalysis(); 
+    histos_->createSummaryHistos(); 
   }
-  
+
 }
 
 // -----------------------------------------------------------------------------
 /** General access to client info. */
 void SiStripCommissioningClient::general( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ) {
   if ( web_ ) { web_->Default( in, out ); }
-  else { //edm::LogError("SiStrip|Commissioning|Client") 
+  else { cerr << "[SiStripCommissioningClient::general]"
+	      << "Null pointer for web interface!" << endl; }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* out ) {
+  if ( web_ ) { web_->handleRequest(in, out); }
+  else {
     cerr << "[SiStripCommissioningClient::general]"
 	 << "Null pointer for web interface!" << endl;
   }
@@ -106,12 +122,12 @@ void SiStripCommissioningClient::general( xgi::Input* in, xgi::Output* out ) thr
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::handleWebRequest( xgi::Input* in, xgi::Output* out ) {
-  if ( web_ ) { web_->handleRequest(in, out); }
-  else { //edm::LogError("SiStrip|Commissioning|Client") 
-    cerr << "[SiStripCommissioningClient::general]"
-	 << "Null pointer for web interface!" << endl;
+CommissioningHistograms* histos( const SiStripCommissioningClient& client ) { 
+  if ( !client.histos_ ) {
+    cerr << "[SiStripCommissioningClient::histos]"
+	 << " Null pointer to CommissioningHistograms object!" << endl; 
   }
+  return client.histos_;
 }
 
 // -----------------------------------------------------------------------------
@@ -120,7 +136,7 @@ void SiStripCommissioningClient::createCommissioningHistos( const vector<string>
   cout << "[SiStripCommissioningClient::createCommissioningHistos]" << endl;
   
   if ( added_contents.empty() ) { return; }
-  if ( histo_ ) { return; }
+  if ( histos_ ) { return; }
   
   // Iterate through "added contents" and retrieve "commissioning task" 
   string task_str = "";
@@ -140,20 +156,54 @@ void SiStripCommissioningClient::createCommissioningHistos( const vector<string>
        << task_str << endl;
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING )  { histo_ = new ApvTimingHistograms( mui_ ); }
-  //@@ else if ( task == sistrip::FED_CABLING ) { histo_ = new FedCablingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_TIMING )  { histo_ = new FedTimingHistograms( mui_ ); }
-  else if ( task == sistrip::OPTO_SCAN )   { histo_ = new OptoScanHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS )   { histo_ = new PedestalsHistograms( mui_ ); }
-  else if ( task == sistrip::VPSP_SCAN )   { histo_ = new VpspScanHistograms( mui_ ); }
+  if      ( task == sistrip::APV_TIMING )  { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING )  { histos_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN )   { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS )   { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN )   { histos_ = new VpspScanHistograms( mui_ ); }
   else if ( task == sistrip::UNKNOWN_TASK ) {
-    histo_ = 0;
-    //edm::LogError("SiStrip|Commissioning|Client") 
+    histos_ = 0;
     cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
-	 << "Unknown commissioning task!" << endl;
+	 << " Unknown commissioning task!" << endl;
   } else if ( task == sistrip::NO_TASK ) { 
+    histos_ = 0;
     cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
-	 << "No commissioning task string found!" << endl;
+	 << " No commissioning task string found!" << endl;
+  }
+  
+  // TEST TPROFILE HISTO
+  { 
+    string client_dir = sistrip::root_;
+    string cme_name = "Histo";
+    string cme_title = "Histo";
+    string cme_dir = client_dir;
+    string search_str = "*/" + client_dir + "/" + cme_name;
+    CollateMonitorElement* cme = mui_->collate1D( cme_name, cme_title, cme_dir );
+    mui_->add( cme, search_str );
+    cout << "[CommissioningHistograms::createCollateMEs]"
+	 << " Added 'Histo' CollateME"
+	 << " with name: " << cme_name
+	 << " title: " << cme_title
+	 << " in dir: " << cme_dir
+	 << " search string: " << search_str
+	 << endl;
+  }
+  {
+    string client_dir = sistrip::root_;
+    string cme_name = "Profile";
+    string cme_title = "Profile";
+    string cme_dir = client_dir;
+    string search_str = "*/" + client_dir + "/" + cme_name;
+    CollateMonitorElement* cme = mui_->collateProf( cme_name, cme_title, cme_dir );
+    mui_->add( cme, search_str );
+    cout << "[CommissioningHistograms::createCollateMEs]"
+	 << " Added 'Profile' CollateME"
+	 << " with name: " << cme_name
+	 << " title: " << cme_title
+	 << " in dir: " << cme_dir
+	 << " search string: " << search_str
+	 << endl;
   }
 
 }

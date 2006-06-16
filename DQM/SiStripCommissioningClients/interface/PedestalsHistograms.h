@@ -15,13 +15,13 @@ class PedestalsHistograms : public CommissioningHistograms {
   virtual ~PedestalsHistograms();
 
   /** */
-  virtual void histoAnalysis() {;}
+  virtual void histoAnalysis();
   /** */
-  virtual void createSummaryHistos() {;}
+  virtual void createSummaryHistos();
   /** */
-  virtual void createTrackerMap() {;}
+  virtual void createTrackerMap();
   /** */
-  virtual void uploadToConfigDb() {;}
+  virtual void uploadToConfigDb();
   
 
  private: // ----- private methods -----

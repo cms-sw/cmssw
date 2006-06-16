@@ -9,7 +9,9 @@ using namespace std;
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
   : CommissioningHistograms(mui),
     timing_(),
-    delays_()
+    delays_(),
+    profile_(0),
+    summary_(0)
 {
   cout << "[ApvTimingHistograms::ApvTimingHistograms]"
        << " Created object for APV TIMING histograms" << endl;
@@ -115,16 +117,31 @@ void ApvTimingHistograms::createSummaryHistos() {
     if ( summary ) { summary->update( readout, imon->second ); }
   }
   
-  // Generate summary histograms (based on control view)
-  TH1F* control_his;
+  // Generate summary histograms
+  TH1F* profile_his;
   TH1F* summary_his;
   if ( summary ) {
-    control_his = summary->controlSummary( sistrip::controlView_ );
+    profile_his = summary->controlSummary( sistrip::controlView_ );
     summary_his = summary->summary( sistrip::controlView_ );
     delete summary;
   }
   
-  //@@ do something with summary histos?...
+  // Create MonitorElement(s) (and/or update) using summary histogram(s)
+  if ( !profile_ ) { profile_ = bookMonitorElement( profile_his ); }
+  if ( !summary_ ) { summary_ = bookMonitorElement( summary_his ); }
+  if ( profile_ ) { updateMonitorElement( profile_his, profile_ ); }
+  if ( summary_ ) { updateMonitorElement( summary_his, summary_ ); }
+  
+  // Delete summary histos
+  if ( profile_his ) { delete profile_his; }
+  if ( summary_his ) { delete summary_his; }
   
 }
+
+// -----------------------------------------------------------------------------
+/** */
+void ApvTimingHistograms::uploadToConfigDb() {
+  cout << "[ApvTimingHistograms::uploadToConfigDb]" << endl;
+}
+
 
