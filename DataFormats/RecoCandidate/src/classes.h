@@ -3,6 +3,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace {
   namespace {
@@ -11,5 +12,7 @@ namespace {
     reco::RecoCaloJetCandidateRef r1;
     reco::RecoCaloJetCandidateRefVector rv1;
     reco::RecoCaloJetCandidateRefProd rp1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::RecoCaloJetCandidateRef> rb1;
   }
 }
