@@ -7,7 +7,7 @@
 using namespace edm;
 using namespace reco;
 
-RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector myVector, const float size,  const float pt_min) const { 
+const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector myVector, const float size,  const float pt_min) const { 
   
   RefVector<TrackCollection> tmp;
  
@@ -25,12 +25,12 @@ RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVect
 }
 
 
-TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
+const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
 
   const Jet & myjet = m_jetTag->jet(); 
   math::XYZVector jet3Vec   (myjet.px(),myjet.py(),myjet.pz()) ;
 
-  RefVector<TrackCollection>  sTracks = tracksInCone(jet3Vec, rm_cone, pt_min);
+  const  RefVector<TrackCollection>  sTracks = tracksInCone(jet3Vec, rm_cone, pt_min);
   TrackRef leadTk;
   float pt_cut = pt_min;
   if (sTracks.size() >0) 
@@ -48,11 +48,11 @@ TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float
 }
 
 
-TrackRef IsolatedTauTagInfo::leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const {
+const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector myVector, const float rm_cone, const float pt_min) const {
 
 
-  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_min);
-  TrackRef leadTk;
+const  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_min);
+ TrackRef leadTk;
   float pt_cut = pt_min;
   if (sTracks.size() >0) 
     {
@@ -72,12 +72,14 @@ double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso
 {
   double myDiscriminator = 0;
 
-  TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
-  if(!leadTk) return myDiscriminator;
+const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
 
+  if(!leadTk) {
+    return myDiscriminator;
+  }
   math::XYZVector trackMomentum = leadTk->momentum() ;
-  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
-  RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
+const  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
+const RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
   
   if(signalTracks.size() > 0 && (isolationTracks.size() - signalTracks.size())<nTracksIsoRing+1 )
     myDiscriminator=1;
@@ -88,12 +90,12 @@ double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone,
 {
   double myDiscriminator = 0;
 
-  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
+const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   if(!leadTk) return myDiscriminator;
 
   math::XYZVector trackMomentum = leadTk->momentum() ;
-  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
-  RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
+const   RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
+const  RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
   
   if(signalTracks.size() > 0 && (isolationTracks.size() - signalTracks.size())<nTracksIsoRing+1 )
     myDiscriminator=1;

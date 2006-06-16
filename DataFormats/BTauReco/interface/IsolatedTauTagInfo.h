@@ -62,11 +62,10 @@ struct SortByDescendingTrackPt
     
     const TrackRefVector & allTracks() const { return (*m_jetTag).tracks(); }
 
-    const float pt() const { return track->pt(); }
 
-    const TrackRefVector selectedTracks() const {return selectedTracks_;}
+    const TrackRefVector & selectedTracks() const {return selectedTracks_;}
     
-    const JetTagRef jetRef() const { return m_jetTag; }
+    const JetTagRef & jetRef() const { return m_jetTag; }
   
      double discriminator() const { 
        double myDiscr = m_jetTag->discriminator();
@@ -75,11 +74,11 @@ struct SortByDescendingTrackPt
      double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
     // return all tracks in a cone of size "size" around a direction "direction" 
-    edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min ) const;
+    const edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min ) const;
  
     // matchingConeSize_  centred on the jet direction
-    edm::Ref<TrackCollection> leadingSignalTrack(const float rm_cone, const float pt_min) const;
-    edm::Ref<TrackCollection> leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
+    const TrackRef leadingSignalTrack(const float rm_cone, const float pt_min) const;
+    const TrackRef leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
     
     
   private:
