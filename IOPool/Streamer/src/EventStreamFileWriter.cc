@@ -6,14 +6,8 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/src/EventStreamFileWriter.h"
-
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
-
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "IOPool/Streamer/interface/Messages.h"
+    
 #include "boost/shared_ptr.hpp"
 
 //#include "PluginManager/PluginCapabilities.h"
@@ -122,7 +116,6 @@ namespace edm
 
 EventStreamFileWriter::EventStreamFileWriter(ParameterSet const& ps):
     OutputModule(ps),
-    selections_(&descVec_),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
                          ps.template getParameter<int>("max_queue_depth"))),
     worker_(new Worker(ps.template getParameter<string>("fileName"),
@@ -130,10 +123,10 @@ EventStreamFileWriter::EventStreamFileWriter(ParameterSet const& ps):
     tc_(),
     prod_reg_buf_(100 * 1000),
     prod_reg_len_()
-     
+ 
   {
     FDEBUG(6) << "StreamOutput constructor" << endl;
-    edm::loadExtraClasses();
+    loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
   }
 
@@ -160,19 +153,11 @@ void EventStreamFileWriter::stop()
   }
 
 
-std::vector<std::string> EventStreamFileWriter::getTriggerNames() {
-  edm::Service<edm::service::TriggerNamesService> tns;
-  std::vector<std::string> allTriggerNames = tns->getTrigPaths();
-  //for (unsigned int i=0; i!=allTriggerNames.size() ;++i) 
-        //cout<<"TriggerName: "<<allTriggerNames.at(i);
-  return allTriggerNames;
-  }
-
-
 void EventStreamFileWriter::beginJob(EventSetup const&)
   {
     serializeRegistry(descVec_);
     sendRegistry(registryBuffer(), registryBufferSize());
+
   }
 
 void EventStreamFileWriter::serializeRegistry(Selections const& prods)
@@ -191,26 +176,8 @@ void EventStreamFileWriter::serializeRegistry(Selections const& prods)
 		  << endl;
       }
 
-    /**********************************/
-
-    uint32 run = 1;
-    char psetid[] = "1234567890123456";
-    Version v(2,(const uint8*)psetid);
-    char release_tag[] = "CMSSW_DUMMY";
-    Strings hlt_names = getTriggerNames();    
-    Strings l1_names;
-   
-    InitMsgBuilder init_message(&prod_reg_buf_[0], prod_reg_buf_.size(),
-                 run, v,
-                 release_tag,
-                 hlt_names,
-                 l1_names);
-
-    TBuffer rootbuf(TBuffer::kWrite,(int)prod_reg_buf_.size(),
-                                    init_message.dataAddress(),kFALSE);
-
-    //cout<<"\nInitMsgBuilder is being used here"<<endl;
-
+    InitMsg im(&prod_reg_buf_[0],prod_reg_buf_.size(),true);
+    TBuffer rootbuf(TBuffer::kWrite,im.getDataSize(),im.data(),kFALSE);
     RootDebug tracer(10,10);
 
     int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
@@ -240,12 +207,8 @@ void EventStreamFileWriter::serializeRegistry(Selections const& prods)
 	  break;
 	}
       }	    
-
-    init_message.setDescLength(rootbuf.Length()); 
-    //prod_reg_len_ = im.msgSize();
-           //prod_reg_len_ = init_message.size();
-    //cout<<"Verify if this is correct"<<endl; 
-    prod_reg_len_ = prod_reg_buf_.size();
+    im.setDataSize(rootbuf.Length());
+    prod_reg_len_ = im.msgSize();
   }
 
 void EventStreamFileWriter::sendRegistry(void* buf, int len)
@@ -263,42 +226,39 @@ void EventStreamFileWriter::write(EventPrincipal const& e)
 
 void EventStreamFileWriter::serialize(EventPrincipal const& e)
   {
-    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
     // all provenance data needs to be transferred, including the
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
 
-    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
-    // Loop over EDProducts, fill the provenance, and write.
-    for(; i != ie; ++i) {
-      BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID_;
+    EventPrincipal::const_iterator i(e.begin()),ie(e.end());
+    for(;i!=ie; ++i)
+      {
+	const Group* group = (*i).get();
+	if (true) // selected(group->provenance().product))
+	  {
+	    // necessary for now - will need to be improved
+	    if (group->product()==0)
+	      e.get(group->provenance().product.productID_);
 
-      if (id == ProductID()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-          << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
-      }
-      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
-      if (group.get() == 0) {
-        std::string const wrapperBegin("edm::Wrapper<");
-        std::string const wrapperEnd1(">");
-        std::string const wrapperEnd2(" >");
-        std::string const& name = desc.fullClassName_;
-        std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-        std::string const className = wrapperBegin + name + wrapperEnd;
-        TClass *cp = gROOT->GetClass(className.c_str());
-        EDProduct *p = static_cast<EDProduct *>(cp->New());
+	    FDEBUG(11) << "Prov:"
+		 << " " << group->provenance().product.fullClassName_
+		 << " " << group->provenance().product.productID_
+		 << endl;
 
-        Provenance prov(desc);
-        prov.event.status = BranchEntryDescription::CreatorNotRun;
-        prov.event.productID_ = id;
-        provenances.push_back(prov);
-        Provenance & provenance = *provenances.rbegin();
-        se.prods_.push_back(ProdPair(p, &provenance));
-      } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
-      }
-    }
+	    if(group->product()==0)
+	      {
+		throw cms::Exception("Output")
+		  << "The product is null even though it is not supposed to be";
+	      }
+
+	    se.prods_.push_back(
+				ProdPair(group->product(),
+					 &group->provenance())
+				);
+
+
+	  }
+      }	
 
 #if 0
     FDEBUG(11) << "-----Dump start" << endl;
@@ -311,26 +271,8 @@ void EventStreamFileWriter::serialize(EventPrincipal const& e)
 #endif
 
     EventBuffer::ProducerBuffer b(*bufs_);
-
-
-    /*************************************/
-
-    uint32 lumi=2;  //Dummy
-    std::vector<bool> l1bits(16);
-    uint8 hltbits[] = "4567";
-    const int hltsize = (sizeof(hltbits)-1)*4;
-    uint32 reserved=78; //dummy
-    EventMsgBuilder msg(b.buffer(), b.size(),
-                          e.id().run(), e.id().event(), lumi,
-                          l1bits, hltbits, hltsize);
-    msg.setReserved(reserved);  
-
-    //cout<<"\nEventMsgBuilder is being used here"<<endl;
-
-    TBuffer rootbuf(TBuffer::kWrite,b.size(),msg.eventAddr(),kFALSE);
-
-    //EventMsg msg(b.buffer(),b.size(),e.id().event(),e.id().run(),1,1);
-    //TBuffer rootbuf(TBuffer::kWrite,msg.getDataSize(),msg.data(),kFALSE);
+    EventMsg msg(b.buffer(),b.size(),e.id().event(),e.id().run(),1,1);
+    TBuffer rootbuf(TBuffer::kWrite,msg.getDataSize(),msg.data(),kFALSE);
     RootDebug tracer(10,10);
 
     int bres = rootbuf.WriteObjectAny(&se,tc_);
@@ -364,11 +306,8 @@ void EventStreamFileWriter::serialize(EventPrincipal const& e)
 	}
       }
      
-    msg.setEventLength(rootbuf.Length());
-    b.commit(msg.size());
-
-    //msg.setDataSize(rootbuf.Length());
-    //b.commit(msg.msgSize());
+    msg.setDataSize(rootbuf.Length());
+    b.commit(msg.msgSize());
   }
 
 void EventStreamFileWriter::bufferReady()
@@ -380,7 +319,6 @@ void EventStreamFileWriter::bufferReady()
     int sz = cb.size();
     worker_->ost_->write((const char*)(&sz),sizeof(int));
     worker_->ost_->write((const char*)cb.buffer(),sz);
-    //cout<<"Size of Buffer Just written: "<<sz<<endl;
 
   }
 

@@ -58,6 +58,9 @@ class SiPixelCluster {
     int col_;
   };
   
+  
+
+
   typedef std::vector<PixelDigi>::const_iterator   PixelDigiIter;
   typedef std::pair<PixelDigiIter,PixelDigiIter>   PixelDigiRange;
   
@@ -124,6 +127,8 @@ class SiPixelCluster {
   
 };
 
+
+
 // Comparison operators
 inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
   if ( one.geographicalId() < other.geographicalId() ) {
@@ -141,14 +146,6 @@ inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
   }
 }
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/DetSetRefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
-typedef edm::DetSetVector<SiPixelCluster> SiPixelClusterCollection;
-typedef edm::Ref<SiPixelClusterCollection, SiPixelCluster> SiPixelClusterRef;
-typedef edm::DetSetRefVector<SiPixelCluster> SiPixelClusterRefVector;
-typedef edm::RefProd<SiPixelClusterCollection> SiPixelClusterRefProd;
 
 #endif // DATAFORMATS_SISTRIPCLUSTER_H

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/05/30 08:29:32 $
+ *  $Revision: 1.13 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -74,26 +74,23 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
       try {
 
-	// temporary for the mapping
-
 	// Check the ddu ID in the mapping been used
 	dduID = pset.getUntrackedParameter<int>("dduID",730);
 
 	// Map the RO channel to the DetId and wire
-	DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
-	int wire = detId.wire();
-
-//   	cout<<"ROS: "<<rosID<<" ROB: "<<robID<<" TDC: "<<tdcID<<" TDCChannel: "<<tdcChannel<<endl;
-//   	cout<<"Wheel: "<<detId.wheel()
-//   	    <<" Station: "<<detId.station()
-//   	    <<" Sector: "<<detId.sector()<<endl;
-
-	
-	// Produce the digi
-	DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
-
-	// Commit to the event
-	product->insertDigi(detId.layerId(),digi);
+	DTWireId detId; 
+	if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel,detId)) {
+	  if (pset.getUntrackedParameter<bool>("debugMode",false)) cout<<"[DTROS8Unpacker] "<<detId<<endl;
+	  int wire = detId.wire();
+	  
+	  // Produce the digi
+	  DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
+	  
+	  // Commit to the event
+	  product->insertDigi(detId.layerId(),digi);
+	}
+	else if (pset.getUntrackedParameter<bool>("debugMode",false)) 
+	  cout<<"[DTROS8Unpacker] Missing wire!"<<endl;
       }
 
       catch (cms::Exception & e1) {

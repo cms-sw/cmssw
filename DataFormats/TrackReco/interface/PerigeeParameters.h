@@ -26,13 +26,15 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include <cmath>
+#include <vector>
 
 namespace reco {
   namespace perigee {
     /// enumerator provided indices to the five parameters
     enum index { i_tcurv = 0 , i_theta, i_phi0, i_d0, i_dz}; 
     /// parameter vector
-    typedef math::Vector<5>::type ParameterVector;
+    //    typedef math::Vector<5>::type ParameterVector;
+    typedef std::vector<Double32_t> ParameterVector;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
@@ -41,23 +43,35 @@ namespace reco {
     class Parameters {
     public:
       /// default constructor
-      Parameters() { }
+      Parameters() { par_.resize(5); }
       /// constructor from five double parameters
-      Parameters( double p1, double p2, double p3, double p4, double p5 , double pt) : 
-	par_( p1, p2, p3, p4, p5 ), pt_(pt) { }
+      //      Parameters( double p1, double p2, double p3, double p4, double p5 , double pt) : 
+	//	par_( p1, p2, p3, p4, p5 ), pt_(pt) { }
+      Parameters( double p1, double p2, double p3, double p4, double p5 , double pt) : pt_(pt) {
+	par_.push_back(p1); par_.push_back(p2); par_.push_back(p3); 
+	par_.push_back(p4); par_.push_back(p5);
+      }
+
       /// constructor from vector
       Parameters( const ParameterVector p , double pt) : 
 	par_( p ), pt_(pt) { }
       /// constructor from double *
-      Parameters( const double * p , double pt) : 
-	par_( p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ], p[ 4 ] ), pt_(pt) { }
+      //      Parameters( const double * p , double pt) : 
+	//	par_( p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ], p[ 4 ] ), pt_(pt) { }
+      Parameters( const double * p , double pt) : pt_(pt) {
+	par_.push_back(p[0]); par_.push_back(p[1]); par_.push_back(p[2]); 
+	par_.push_back(p[3]); par_.push_back(p[4]);
+      }
+	
        /// index type
       typedef unsigned int index;
       /// accessing i-th parameter, i = 0, ..., 4 (read-only mode)
-      double operator()( index i ) const { return par_( i ); }
+      //      double operator()( index i ) const { return par_( i ); }
+      double operator()( index i ) const { return par_[i]; }
 
       /// accessing i-th parameter, i = 0, ..., 4
-      double & operator()( index i ) { return par_( i ); }
+      //      double & operator()( index i ) { return par_( i ); }
+      double & operator()( index i ) { return par_[i]; }
 
       /// The signed transverse curvature (read-only mode)
       double transverseCurvature() const {return par_[ i_tcurv ];}

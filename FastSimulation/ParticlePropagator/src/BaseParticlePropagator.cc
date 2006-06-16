@@ -11,10 +11,6 @@
 
 using namespace std;
 
-BaseParticlePropagator::BaseParticlePropagator() :
-  RawParticle(), rCyl(0.), zCyl(0.), bField(0)
-{;}
-
 BaseParticlePropagator::BaseParticlePropagator( 
          const RawParticle& myPart,double R, double Z, double B ) :
   RawParticle(myPart), rCyl(R), zCyl(Z), bField(B) 
@@ -49,14 +45,12 @@ BaseParticlePropagator::propagate() {
   //
   // Check that the particle is not already on the cylinder surface
   //
-  double rPos = position().perp();
-
-  if ( onBarrel(rPos) ) { 
+  if ( onBarrel() ) { 
     success = 1;
     return true;
   }
   //
-  if ( onEndcap(rPos) ) { 
+  if ( onEndcap() ) { 
     success = 2;
     return true;
   }
@@ -102,7 +96,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-z())*mass()/pz();
+    double delTime = propDir * (zProp-z())*PDGmass()/pz();
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -132,12 +126,8 @@ BaseParticlePropagator::propagate() {
     //
     // First check that the particle can cross the cylinder
     //
-    double pT = perp();
-    double radius = helixRadius(pT);
-    double phi0 = helixStartPhi();
-    double xC = helixCentreX(radius,phi0);
-    double yC = helixCentreY(radius,phi0);
-    double dist = helixCentreDistToAxis(xC,yC);
+    double dist = helixCentreDistToAxis();
+    double radius = helixRadius();
     //
     // The helix either is outside or includes the cylinder -> no intersection
     //
@@ -155,7 +145,8 @@ BaseParticlePropagator::propagate() {
     //
     // if ( vertex().perp() == rCyl ) return false;
     //
-    //    double pT = perp();
+    double phi0 = helixStartPhi();
+    double pT = perp();
     double pZ = pz();
     double phiProp, zProp;
     //
@@ -166,7 +157,7 @@ BaseParticlePropagator::propagate() {
     // Compute phi after propagation (two solutions, but the asin definition
     // (between -pi/2 and +pi/2) takes care of the wrong one.
     //
-    phiProp = helixCentrePhi(xC,yC) + ( inside(rPos) || onSurface(rPos) ? 
+    phiProp = helixCentrePhi() + ( inside() || onSurface() ? 
 	    asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) :
        M_PI-asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) );
     //
@@ -224,7 +215,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-z())*mass()/pz();
+    double delTime = propDir * (zProp-z())*PDGmass()/pz();
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -238,8 +229,8 @@ BaseParticlePropagator::propagate() {
 
     double sProp = sin(phiProp);
     double cProp = cos(phiProp);
-    double xProp = xC + radius * sProp;
-    double yProp = yC - radius * cProp;
+    double xProp = helixCentreX() + radius * sProp;
+    double yProp = helixCentreY() - radius * cProp;
     double tProp = t() + (zProp-z())*e()/pz();
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
@@ -408,7 +399,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(183.0 , 388.0, first);
+  setPropagationConditions(193.0 , 388.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
@@ -507,12 +498,6 @@ BaseParticlePropagator::helixRadius() const {
 }
 
 double 
-BaseParticlePropagator::helixRadius(double pT) const { 
-  // a faster version of helixRadius, once perp() has been computed
-  return charge() == 0 ? 0.0 : - pT / ( c_light * 1e-5 * bField * charge() );
-}
-
-double 
 BaseParticlePropagator::helixStartPhi() const { 
   // The azimuth of the momentum at the vertex
   return px() == 0.0 && py() == 0.0 ? 0.0 : atan2(py(),px());
@@ -531,18 +516,6 @@ BaseParticlePropagator::helixCentreY() const {
 }
 
 double 
-BaseParticlePropagator::helixCentreX(double radius, double phi) const { 
-  // Fast version of helixCentreX()
-  return x() - radius * sin (phi);
-}
-
-double 
-BaseParticlePropagator::helixCentreY(double radius, double phi) const { 
-  // Fast version of helixCentreX()
-  return y() + radius * cos (phi);
-}
-
-double 
 BaseParticlePropagator::helixCentreDistToAxis() const { 
   // The distance between the cylinder and the helix axes
   double xC = helixCentreX();
@@ -551,26 +524,10 @@ BaseParticlePropagator::helixCentreDistToAxis() const {
 }
 
 double 
-BaseParticlePropagator::helixCentreDistToAxis(double xC, double yC) const { 
-  // Faster version of helixCentreDistToAxis
-  //  double xC = helixCentreX();
-  //  double yC = helixCentreY();
-  return sqrt( xC*xC + yC*yC );
-}
-
-double 
 BaseParticlePropagator::helixCentrePhi() const { 
   // The azimuth if the vector joining the cylinder and the helix axes
   double xC = helixCentreX();
   double yC = helixCentreY();
-  return xC == 0.0 && yC == 0.0 ? 0.0 : atan2(yC,xC);
-}
-
-double 
-BaseParticlePropagator::helixCentrePhi(double xC, double yC) const { 
-  // Faster version of helixCentrePhi() 
-  //  double xC = helixCentreX();
-  //  double yC = helixCentreY();
   return xC == 0.0 && yC == 0.0 ? 0.0 : atan2(yC,xC);
 }
 
@@ -596,23 +553,6 @@ bool BaseParticlePropagator::onBarrel() const {
 
 bool BaseParticlePropagator::onEndcap() const {
   return ( fabs(fabs(z())-zCyl) < 0.00001 && position().perp() <= rCyl ); 
-}
-
-// Faster versions
-bool
-BaseParticlePropagator::inside(double rPos) const {
-  return (rPos<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
-
-bool BaseParticlePropagator::onSurface(double rPos) const {
-  return ( onBarrel(rPos) || onEndcap(rPos) ); 
-}
-
-bool BaseParticlePropagator::onBarrel(double rPos) const {
-  return ( fabs(rPos-rCyl) < 0.00001 && fabs(z()) <= zCyl );
-}
-
-bool BaseParticlePropagator::onEndcap(double rPos) const {
-  return ( fabs(fabs(z())-zCyl) < 0.00001 && rPos <= rCyl ); 
 }
 
 

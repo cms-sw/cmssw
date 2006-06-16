@@ -23,8 +23,7 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
 					      uint16_t ccu_addr,
 					      uint16_t ccu_chan ) { 
   
-  stringstream folder; 
-  //folder.reserve(65536); //@@ possible to reserve space???
+  stringstream folder;
   folder << sistrip::root_ << sistrip::dir_ << sistrip::controlView_ << sistrip::dir_;
   if ( fec_crate != sistrip::all_ ) {
     folder << sistrip::fecCrate_ << fec_crate << sistrip::dir_;
@@ -47,64 +46,44 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
 
 // -----------------------------------------------------------------------------
 //
-const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPath( const string& directory ) {
+SiStripHistoNamingScheme::ControlPath SiStripHistoNamingScheme::controlPath( string directory ) {
 
-  static ControlPath path;
+  ControlPath path;
   path.fecCrate_ = sistrip::all_;
   path.fecSlot_ = sistrip::all_;
   path.fecRing_ = sistrip::all_;
   path.ccuAddr_ = sistrip::all_;
   path.ccuChan_ = sistrip::all_;
 
-  uint32_t curr = 0; // current string position
-  uint32_t next = 0; // next string position
-  next = directory.find( sistrip::controlView_, curr );
+  uint16_t position = 0;
+
   // Extract view 
-  curr = next;
-  if ( curr != string::npos ) { 
-    next = directory.find( sistrip::fecCrate_, curr );
-    string control_view( directory, 
-			 curr+sistrip::controlView_.size(), 
-			 (next-sistrip::dir_.size())-curr );
+  if ( directory.find( sistrip::controlView_, position ) != string::npos ) { 
+    position = directory.find( sistrip::controlView_, position ) + sistrip::fecCrate_.size();
     // Extract FEC crate
-    curr = next;
-    if ( curr != string::npos ) { 
-      next = directory.find( sistrip::fecSlot_, curr );
-      string fec_crate( directory, 
-			curr+sistrip::fecCrate_.size(), 
-			(next-sistrip::dir_.size())-curr );
+    if ( directory.find( sistrip::fecCrate_, position ) != string::npos ) { 
+      position = directory.find( sistrip::fecCrate_, position ) + sistrip::fecCrate_.size();
+      string fec_crate( directory, position, directory.find( sistrip::dir_, position ) - position );
       path.fecCrate_ = atoi( fec_crate.c_str() );
       // Extract FEC slot
-      curr = next;
-      if ( curr != string::npos ) { 
-	next = directory.find( sistrip::fecRing_, curr );
-	string fec_slot( directory, 
-			 curr+sistrip::fecSlot_.size(), 
-			 (next-sistrip::dir_.size())-curr );
+      if ( directory.find( sistrip::fecSlot_, position ) != string::npos ) { 
+	position = directory.find( sistrip::fecSlot_, position ) + sistrip::fecSlot_.size();
+	string fec_slot( directory, position, directory.find( sistrip::dir_, position ) - position );
 	path.fecSlot_ = atoi( fec_slot.c_str() );
 	// Extract FEC ring
-	curr = next;
-	if ( curr != string::npos ) { 
-	  next = directory.find( sistrip::ccuAddr_, curr );
-	  string fec_ring( directory, 
-			   curr+sistrip::fecRing_.size(),
-			   (next-sistrip::dir_.size())-curr );
+	if ( directory.find( sistrip::fecRing_, position ) != string::npos ) { 
+	  position = directory.find( sistrip::fecRing_, position ) + sistrip::fecRing_.size();
+	  string fec_ring( directory, position, directory.find( sistrip::dir_, position ) - position );
 	  path.fecRing_ = atoi( fec_ring.c_str() );
 	  // Extract CCU address
-	  curr = next;
-	  if ( curr != string::npos ) { 
-	    next = directory.find( sistrip::ccuChan_, curr );
-	    string ccu_addr( directory, 
-			     curr+sistrip::ccuAddr_.size(), 
-			     (next-sistrip::dir_.size())-curr );
+	  if ( directory.find( sistrip::ccuAddr_, position ) != string::npos ) { 
+	    position = directory.find( sistrip::ccuAddr_, position ) + sistrip::ccuAddr_.size();
+	    string ccu_addr( directory, position, directory.find( sistrip::dir_, position ) - position );
 	    path.ccuAddr_ = atoi( ccu_addr.c_str() );
 	    // Extract CCU channel
-	    curr = next;
-	    if ( curr != string::npos ) { 
-	      next = string::npos;
-	      string ccu_chan( directory, 
-			       curr+sistrip::ccuChan_.size(), 
-			       next-curr );
+	    if ( directory.find( sistrip::ccuChan_, position ) != string::npos ) { 
+	      position = directory.find( sistrip::ccuChan_, position ) + sistrip::ccuChan_.size();
+	      string ccu_chan( directory, position, directory.find( sistrip::dir_, position ) - position );
 	      path.ccuChan_ = atoi( ccu_chan.c_str() );
 	    }
 	  }
@@ -115,7 +94,7 @@ const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPa
     edm::LogError("DQM") << "[SiStripHistoNamingScheme::controlPath]" 
 			 << " Unexpected view! Not " << sistrip::controlView_ << "!";
   }
-  
+ 
   LogDebug("DQM") << "[SiStripHistoNamingScheme::controlPath]" 
 		  << "  FecCrate: " << path.fecCrate_
 		  << "  FecSlot: " << path.fecSlot_

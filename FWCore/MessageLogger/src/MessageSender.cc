@@ -18,6 +18,13 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }
 
+MessageSender::MessageSender( ELseverityLevel const & sev, 
+			      ELstring const & id )
+: errorobj_p( new ErrorObj(sev,id,false) )
+{
+  //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
+}
+
 
 MessageSender::~MessageSender()
 {

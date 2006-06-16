@@ -7,29 +7,25 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 
 /**
  * \class AdaptiveVertexFitter
  * An iterative reweighted fitter.
  * Very robust, very adaptive.
- *
  * FIXME insert citation.
  * FIXME insert more description.
  *
- * configurables, FIXME wait for the ParameterSet
- * discussion to finish.
+ * .orcarc
  * AdaptiveVertexFitter:Debug = 0
  * AdaptiveVertexFitter:maximumDistance = 0.0001
  * AdaptiveVertexFitter:maximumLPDistance = 0.1
- * AdaptiveVertexFitter:maximumNumberOfIterations = 30
- * AdaptiveVertexFitter:WeightThreshold = .001
+ * AdaptiveVertexFitter:maximumNumberOfIterations = 100
+ * AdaptiveVertexFitter:WeightThreshold = .1
  *
  *
  * Exceptions
- * VertexException( "Supplied fewer than two tracks" )
- * VertexException( "fewer than 2 significant tracks (w>.1)" )
+ * DetLogicError( "Supplied fewer than two tracks" )
+ * LogicError ( "less than 2 significant tracks (w>.1)" )
  *
  */
 
@@ -46,9 +42,7 @@ public:
       const AnnealingSchedule & ann = GeometricAnnealing(),
       const LinearizationPointFinder & linP =
              DefaultLinearizationPointFinder(),
-      const VertexUpdator & updator = KalmanVertexUpdator(),
-      const VertexTrackCompatibilityEstimator & estor =
-             KalmanVertexTrackCompatibilityEstimator(),
+      const VertexUpdator  & updator = KalmanVertexUpdator(),
       const VertexSmoother & smoother = DummyVertexSmoother() );
 
   AdaptiveVertexFitter( const AdaptiveVertexFitter & original );
@@ -74,11 +68,11 @@ public:
   virtual CachingVertex vertex(const vector<RefCountedVertexTrack> & ) const;
 
 
-  /** Fit vertex out of a vector of reco::TransientTracks. Uses the specified
-   * linearization point.
+  /** Fit vertex out of a vector of reco::TransientTracks. Uses the specified linearization
+   *  point.
    */
-  virtual CachingVertex vertex( const vector<reco::TransientTrack> &,
-                                const GlobalPoint& linPoint ) const;
+  virtual CachingVertex  vertex( const vector<reco::TransientTrack> &,
+                                 const GlobalPoint& linPoint ) const;
 
   /** Fit vertex out of a set of reco::TransientTracks.
    *   Uses the position as both the linearization point AND as prior
@@ -98,7 +92,6 @@ public:
                                 const GlobalError & priorError ) const;
 
   AdaptiveVertexFitter * clone() const;
-
   /**
    *  Set the weight threshold
    *  should be used only to find (once)
@@ -114,51 +107,36 @@ private:
    * recTracks will be used.
    * \param tracks The original container of VertexTracks, from which the reco::TransientTracks
    *     will be extracted.
-   * \param vertex The seed to use for the VertexTracks. This position will
+   * \param seed The seed to use for the VertexTracks. This position will
    *    also be used as the new linearization point.
    * \return The container of VertexTracks which are to be used in the next fit.
    */
   vector<RefCountedVertexTrack> reLinearizeTracks(
                 const vector<RefCountedVertexTrack> & tracks,
-                const CachingVertex & vertex ) const;
+                const VertexState & seed) const;
 
 
   /**
-   * Construct a new container of VertexTracks with new weights 
+   * Construct new a container of VertexTrack with new weights 
    * accounting for vertex error, from an existing set of LinearizedTracks. 
    */
   vector<RefCountedVertexTrack> reWeightTracks(
                         const vector<RefCountedLinearizedTrackState> &,
-                        const CachingVertex & seed ) const;
+                        const VertexState & seed) const;
 
   /**
-   * Construct new a container of VertexTracks with new weights 
+   * Construct new a container of VertexTrack with new weights 
    * accounting for vertex error, from an existing set of VertexTracks. 
    * From these the LinearizedTracks will be reused.
    */
   vector<RefCountedVertexTrack> reWeightTracks(
                         const vector<RefCountedVertexTrack> &,
-                        const CachingVertex & seed) const;
+                        const VertexState & seed) const;
 
-
-  /**
-   *  Weight the tracks, for the first time, using
-   *  KalmanChiSquare.
-   */
-  
-  vector<RefCountedVertexTrack> weightTracks(
-                        const vector<RefCountedLinearizedTrackState> &,
-                        const VertexState & seed ) const;
-
-  /**
-   *  Linearize tracks, for the first time in the iteration.
-   */
   vector<RefCountedVertexTrack> linearizeTracks(
                         const vector<reco::TransientTrack> &,
                         const VertexState & ) const;
-  /**
-   *  perform the fit
-   */
+
   CachingVertex fit( const vector<RefCountedVertexTrack> & tracks,
                      const VertexState & priorSeed,
                      bool withPrior) const;
@@ -180,7 +158,6 @@ private:
   VertexUpdator * theUpdator;
   VertexSmoother * theSmoother;
   AnnealingSchedule * theAssProbComputer;
-  VertexTrackCompatibilityEstimator * theComp;
 };
 
 #endif

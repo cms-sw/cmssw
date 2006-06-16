@@ -23,6 +23,7 @@ using std::cout;
 using std::endl;
 
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) 
+    : UtilityAction(p)
 {
     fDEBUG = p.getUntrackedParameter<bool>("DEBUG",false);
     fHighEtPhotons = p.getUntrackedParameter<bool>("CheckForHighEtPhotons",false);

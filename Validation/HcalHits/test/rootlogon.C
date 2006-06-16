@@ -1,6 +1,6 @@
 {
 cout << "Loading FWLite..." << endl;
-gSystem->Load("libFWCoreFWLite");
+gSystem->Load("libPhysicsToolsFWLite");
 AutoLibraryLoader::enable();
 
 cout << "Redefining colors..." << endl;

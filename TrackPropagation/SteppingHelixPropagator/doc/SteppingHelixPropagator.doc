@@ -23,8 +23,11 @@ Place for SteppingHelixPropagator: a propagator using a simplified geometry/mate
 
 SteppingHelixPropagator
 
+
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
+src/SteppingHelixPropagatorESProducer .. with module.cc -- provide a preconfigured 
+S.H.Propagator through the event setup
 test/SteppingHelixPropagatorAnalyzer .. see below.
 
 \subsection tests Unit tests and examples

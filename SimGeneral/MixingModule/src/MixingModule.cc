@@ -12,7 +12,10 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
-
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 using namespace std;
 
 namespace edm
@@ -21,7 +24,10 @@ namespace edm
   // Constructor 
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps)
   {
+    produces<CrossingFrame> ();
+  }
 
+  void MixingModule::beginJob(edm::EventSetup const&iSetup) {
     // get subdetector names
     edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
@@ -36,27 +42,22 @@ namespace edm
       }
       else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
-	nonTrackerPids_[desc.productInstanceName_]=desc.productID_;
-        LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<",productID  "<<desc.productID_<<" for pileup treatment";
+	nonTrackerPids_.push_back(desc.productInstanceName_);
+        LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
       else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
-	// here we store the tracker subdetector name + ProductIDs for low and high part
+	// here we store the tracker subdetector name  for low and high part
 	int slow=(desc.productInstanceName_).find("LowTof");
 	int iend=(desc.productInstanceName_).size();
 	if (slow>0) {
-	  BranchKey keylow = it->first;
-	  const BranchKey keyhigh(keylow.friendlyClassName_,keylow.moduleLabel_,desc.productInstanceName_.substr(0,iend-6)+"HighTof",keylow.processName_);
-	  const std::pair<const edm::BranchKey, edm::BranchDescription> p=*((reg->productList()).find(keyhigh));
-	  ProductID pidhigh=p.second.productID_;
-	  trackerHighLowPids_.insert(map <string, pair<ProductID,ProductID> >::value_type(desc.productInstanceName_.substr(0,iend-6),pair<ProductID,ProductID> (desc.productID_,pidhigh)));
-	  LogInfo("Constructor") <<"Adding container "<<desc.productInstanceName_ <<",productID "<<desc.productID_<<" for pileup treatment";
+ 	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
+	  LogInfo("Constructor") <<"Adding container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
         }
       }
       //      else
       //        cout<<"Strange detector "<<desc.productInstanceName_ <<",productID "<<desc.productID_<<" for pileup treatment????????"<<endl;
     }
-    produces<CrossingFrame> ();
   }
 
   void MixingModule::createnewEDProduct() {
@@ -90,7 +91,7 @@ namespace edm
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
-      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<resultcalo[ii].product()->size()<<" Calohits added";
+      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addSignalCaloHits(desc.productInstanceName_,resultcalo[ii].product());
     }
   
@@ -124,47 +125,52 @@ namespace edm
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
     // (all this due to the fact that we need to use getmany to avoid exceptions)
-    std::map<const ProductID,const std::vector<PSimHit>* > simproducts;
+    std::map<const std::string,const std::vector<PSimHit>* > simproducts;
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
     e->getManyByType(resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      simproducts.insert(std::map<const ProductID,const std::vector<PSimHit>* >::value_type(desc.productID_, resultsim[ii].product()));
+      simproducts.insert(std::map<const std::string,const std::vector<PSimHit>* >::value_type(desc.productInstanceName_, resultsim[ii].product()));
     }
 
     // Non-tracker treatment
-    for(std::map <std::string, ProductID >::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
-	const std::vector<PSimHit> * simhits = simproducts[(*it).second];
-	simcf_->addPileupSimHits(bcr,(*it).first,simhits,trackoffset,false);
-	LogDebug("addPileups") <<"For "<<(*it).first<<", "<<simhits->size()<<" Simhits added";
+    for(std::vector <std::string>::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
+      //        const std::vector<PSimHit> * simhits = simproducts[(*it).second];
+        const std::vector<PSimHit> * simhits = simproducts[(*it)];
+	if (simhits) {
+	  simcf_->addPileupSimHits(bcr,(*it),simhits,trackoffset,false);
+	  LogDebug("addPileups") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
+	}
     }
 
     // Tracker treatment
     float tof = bcr*simcf_->getBunchSpace();
-    for(std::map <std::string, std::pair<ProductID,ProductID> >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
-
-      std::string subdethigh=(*itstr).first+"HighTof";
-      std::string subdetlow=(*itstr).first+"LowTof";
+    for(std::vector <std::string >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
+      std::string subdethigh=(*itstr)+"HighTof";
+      std::string subdetlow=(*itstr)+"LowTof";
       // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
       // add HighTof pileup to high and low signals
       if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
 
-	const std::vector<PSimHit> * simhitshigh = simproducts[(*itstr).second.first];
-	simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,trackoffset,checktof_);
-	simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,trackoffset,checktof_);
-	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
+	//	const std::vector<PSimHit> * simhitshigh = simproducts[(*itstr).second.first];
+	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
+	if (simhitshigh) {
+	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,trackoffset,checktof_);
+	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,trackoffset,checktof_);
+	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
+	}
       }
 
       // add LowTof pileup to high and low signals
       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
-	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
+	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
+	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,trackoffset,checktof_);
 	simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,trackoffset,checktof_);
 	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
       }
     }
-
 
     // calo hits for all subdetectors
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
@@ -172,7 +178,7 @@ namespace edm
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
-      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<resultcalo[ii].product()->size()<<" Calohits added";
+      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),trackoffset);
     }
  

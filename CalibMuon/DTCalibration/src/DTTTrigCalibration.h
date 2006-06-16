@@ -6,13 +6,14 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/05/22 12:24:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/07 16:02:38 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 #include <string>
 #include <map>
@@ -52,6 +53,8 @@ protected:
 private:
   // Generate the time box name
   std::string getTBoxName(const DTSuperLayerId& slId) const;
+  // Generate the time box name
+  std::string getOccupancyName(const DTLayerId& slId) const;
 
   // Print computed ttrig
   void dumpTTrigMap(const DTTtrig* tTrig) const;
@@ -67,6 +70,8 @@ private:
   
   // Map of the histograms by SL
   std::map<DTSuperLayerId, TH1F*> theHistoMap;
+  std::map<DTLayerId, TH1F*> theOccupancyMap;
+
   // Switch for t0 subtraction
   bool doSubtractT0;
   // Switch for checking of noisy channels

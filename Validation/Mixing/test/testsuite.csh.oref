@@ -1,0 +1,865 @@
+
+[oval run] =================================================
+[oval run] USER : uberthon
+[oval run] HOST : lxplus056.cern.ch
+[oval run] run tool: oval
+[oval run] final instruction: ./testsuite.csh
+[oval run] =================================================
+
+===================> Step1: executing EDProducer (MixingModule) for -5
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_-5.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for -5
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr -5 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:47:34 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:47:35 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_-5.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr -5, getTrig 1, tof 24.546568
+ filling signal with bcr -5, getTrig 1, tof 25.230806
+ filling signal with bcr -5, getTrig 1, tof 25.845490
+ filling signal with bcr -5, getTrig 1, tof 26.386505
+ filling signal with bcr -5, getTrig 1, tof 27.111359
+ Ende bcr -5
+===================> Step1: executing EDProducer (MixingModule) for -4
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_-4.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for -4
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr -4 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:48:29 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:48:30 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_-4.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr -4, getTrig 1, tof 24.546568
+ filling signal with bcr -4, getTrig 1, tof 25.230806
+ filling signal with bcr -4, getTrig 1, tof 25.845490
+ filling signal with bcr -4, getTrig 1, tof 26.386505
+ filling signal with bcr -4, getTrig 1, tof 27.111359
+ Ende bcr -4
+===================> Step1: executing EDProducer (MixingModule) for -3
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_-3.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for -3
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr -3 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:49:16 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:49:17 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_-3.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr -3, getTrig 1, tof 24.546568
+ filling signal with bcr -3, getTrig 1, tof 25.230806
+ filling signal with bcr -3, getTrig 1, tof 25.845490
+ filling signal with bcr -3, getTrig 1, tof 26.386505
+ filling signal with bcr -3, getTrig 1, tof 27.111359
+ Ende bcr -3
+===================> Step1: executing EDProducer (MixingModule) for -2
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_-2.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for -2
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr -2 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:50:10 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:50:12 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_-2.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr -2, getTrig 1, tof 24.546568
+ filling signal with bcr -2, getTrig 1, tof 25.230806
+ filling signal with bcr -2, getTrig 1, tof 25.845490
+ filling signal with bcr -2, getTrig 1, tof 26.386505
+ filling signal with bcr -2, getTrig 1, tof 27.111359
+ filling pileup with bcr -2, getTrig 0, tof -25.453432
+ filling pileup with bcr -2, getTrig 0, tof -24.769194
+ filling pileup with bcr -2, getTrig 0, tof -24.154510
+ filling pileup with bcr -2, getTrig 0, tof -23.613495
+ filling pileup with bcr -2, getTrig 0, tof -22.888641
+ Ende bcr -2
+===================> Step1: executing EDProducer (MixingModule) for -1
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_-1.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for -1
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr -1 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:50:53 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:50:55 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_-1.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr -1, getTrig 1, tof 24.546568
+ filling signal with bcr -1, getTrig 1, tof 25.230806
+ filling signal with bcr -1, getTrig 1, tof 25.845490
+ filling signal with bcr -1, getTrig 1, tof 26.386505
+ filling signal with bcr -1, getTrig 1, tof 27.111359
+ filling pileup with bcr -1, getTrig 0, tof -0.453432
+ filling pileup with bcr -1, getTrig 0, tof 0.230806
+ filling pileup with bcr -1, getTrig 0, tof 0.845490
+ filling pileup with bcr -1, getTrig 0, tof 1.386505
+ filling pileup with bcr -1, getTrig 0, tof 2.111359
+ Ende bcr -1
+===================> Step1: executing EDProducer (MixingModule) for 0
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_0.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for 0
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr 0 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:52:02 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:52:03 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_0.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr 0, getTrig 1, tof 24.546568
+ filling signal with bcr 0, getTrig 1, tof 25.230806
+ filling signal with bcr 0, getTrig 1, tof 25.845490
+ filling signal with bcr 0, getTrig 1, tof 26.386505
+ filling signal with bcr 0, getTrig 1, tof 27.111359
+ filling pileup with bcr 0, getTrig 0, tof 24.546568
+ filling pileup with bcr 0, getTrig 0, tof 25.230806
+ filling pileup with bcr 0, getTrig 0, tof 25.845490
+ filling pileup with bcr 0, getTrig 0, tof 26.386505
+ filling pileup with bcr 0, getTrig 0, tof 27.111359
+ Ende bcr 0
+===================> Step1: executing EDProducer (MixingModule) for 1
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_1.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for 1
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr 1 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:53:06 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:53:08 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_1.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr 1, getTrig 1, tof 24.546568
+ filling signal with bcr 1, getTrig 1, tof 25.230806
+ filling signal with bcr 1, getTrig 1, tof 25.845490
+ filling signal with bcr 1, getTrig 1, tof 26.386505
+ filling signal with bcr 1, getTrig 1, tof 27.111359
+ Ende bcr 1
+===================> Step1: executing EDProducer (MixingModule) for 2
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_2.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for 2
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr 2 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:54:17 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:54:20 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_2.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr 2, getTrig 1, tof 24.546568
+ filling signal with bcr 2, getTrig 1, tof 25.230806
+ filling signal with bcr 2, getTrig 1, tof 25.845490
+ filling signal with bcr 2, getTrig 1, tof 26.386505
+ filling signal with bcr 2, getTrig 1, tof 27.111359
+ Ende bcr 2
+===================> Step1: executing EDProducer (MixingModule) for 3
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+file:Cum_3.root: level[Always] Root file version:51102
+===================> Step2: executing EDAnalyser (TestSuite) to create histos for 3
+Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
+Constructed testSuite , bunchcr 3 filename: histos.root
+%MSG-i FwkReport:  14-Jun-2006 14:55:06 XYZ BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-i FwkJob:  BetweenModules 14-Jun-2006 14:55:08 XYZ BetweenEvents
+
+<InputFile>
+<State  Value="closed"/>
+<LFN></LFN>
+<PFN>file:Cum_3.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<Runs>
+  <Run>1</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>1</EventsRead>
+</InputFile>
+ filling signal with bcr 3, getTrig 1, tof 24.546568
+ filling signal with bcr 3, getTrig 1, tof 25.230806
+ filling signal with bcr 3, getTrig 1, tof 25.845490
+ filling signal with bcr 3, getTrig 1, tof 26.386505
+ filling signal with bcr 3, getTrig 1, tof 27.111359
+ Ende bcr 3
+===================> Step3: rereading histos with root
+  *******************************************
+  *                                         *
+  *        W E L C O M E  to  R O O T       *
+  *                                         *
+  *   Version   5.11/02     19 April 2006   *
+  *                                         *
+  *  You are welcome to visit our Web site  *
+  *          http://root.cern.ch            *
+  *                                         *
+  *******************************************
+
+Compiled on 19 April 2006 for linux with thread support.
+
+CINT/ROOT C/C++ Interpreter version 5.16.11, April 14, 2006
+Type ? for help. Commands must be C++ statements.
+Enclose multiple statements between { }.
+
+Processing testsuite.C...
+
+[OVAL] Mean of track pileup histo (bcrossings) -5 for bunchcrossing -5
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -5
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -5
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -5
+
+[OVAL] Mean of vertex pileup histo (bcrossings) -5 for bunchcrossing -5
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -5
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing -5
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing -5
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -5
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -5
+
+[OVAL] Mean of Ecal pileup histo (ToF) -104.252, sigma: 4.72706 for bunchcrossing -5
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -5
+
+[OVAL] Mean of Hcal pileup histo (ToF) -88.9734, sigma: 43.2686 for bunchcrossing -5
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -5
+
+[OVAL] Mean of track pileup histo (bcrossings) -4 for bunchcrossing -4
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -4
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -4
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -4
+
+[OVAL] Mean of vertex pileup histo (bcrossings) -4 for bunchcrossing -4
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -4
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing -4
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing -4
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -4
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -4
+
+[OVAL] Mean of Ecal pileup histo (ToF) -79.252, sigma: 4.72706 for bunchcrossing -4
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -4
+
+[OVAL] Mean of Hcal pileup histo (ToF) -63.9734, sigma: 43.2686 for bunchcrossing -4
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -4
+
+[OVAL] Mean of track pileup histo (bcrossings) -3 for bunchcrossing -3
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -3
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -3
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -3
+
+[OVAL] Mean of vertex pileup histo (bcrossings) -3 for bunchcrossing -3
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -3
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing -3
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing -3
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -3
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -3
+
+[OVAL] Mean of Ecal pileup histo (ToF) -54.252, sigma: 4.72706 for bunchcrossing -3
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -3
+
+[OVAL] Mean of Hcal pileup histo (ToF) -38.9734, sigma: 43.2686 for bunchcrossing -3
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -3
+
+[OVAL] Mean of track pileup histo (bcrossings) -2 for bunchcrossing -2
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -2
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -2
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -2
+
+[OVAL] Mean of vertex pileup histo (bcrossings) -2 for bunchcrossing -2
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -2
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing -2
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing -2
+
+[OVAL] Mean of tracker pileup histo (ToF) -24.1759 for bunchcrossing -2
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -2
+
+[OVAL] Mean of Ecal pileup histo (ToF) -29.252, sigma: 4.72706 for bunchcrossing -2
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -2
+
+[OVAL] Mean of Hcal pileup histo (ToF) -13.9734, sigma: 43.2686 for bunchcrossing -2
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -2
+
+[OVAL] Mean of track pileup histo (bcrossings) -1 for bunchcrossing -1
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -1
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -1
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -1
+
+[OVAL] Mean of vertex pileup histo (bcrossings) -1 for bunchcrossing -1
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -1
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing -1
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing -1
+
+[OVAL] Mean of tracker pileup histo (ToF) 0.824146 for bunchcrossing -1
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -1
+
+[OVAL] Mean of Ecal pileup histo (ToF) -4.25201, sigma: 4.72706 for bunchcrossing -1
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -1
+
+[OVAL] Mean of Hcal pileup histo (ToF) 11.0266, sigma: 43.2686 for bunchcrossing -1
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -1
+
+[OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing 0
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 0
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 0
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 0
+
+[OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing 0
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 0
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing 0
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing 0
+
+[OVAL] Mean of tracker pileup histo (ToF) 25.8241 for bunchcrossing 0
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 0
+
+[OVAL] Mean of Ecal pileup histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 0
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 0
+
+[OVAL] Mean of Hcal pileup histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 0
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 0
+
+[OVAL] Mean of track pileup histo (bcrossings) 1 for bunchcrossing 1
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 1
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 1
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 1
+
+[OVAL] Mean of vertex pileup histo (bcrossings) 1 for bunchcrossing 1
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 1
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing 1
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing 1
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 1
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 1
+
+[OVAL] Mean of Ecal pileup histo (ToF) 45.748, sigma: 4.72706 for bunchcrossing 1
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 1
+
+[OVAL] Mean of Hcal pileup histo (ToF) 47.6911, sigma: 22.4871 for bunchcrossing 1
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 1
+
+[OVAL] Mean of track pileup histo (bcrossings) 2 for bunchcrossing 2
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 2
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 2
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 2
+
+[OVAL] Mean of vertex pileup histo (bcrossings) 2 for bunchcrossing 2
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 2
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing 2
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing 2
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 2
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 2
+
+[OVAL] Mean of Ecal pileup histo (ToF) 70.748, sigma: 4.72706 for bunchcrossing 2
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 2
+
+[OVAL] Mean of Hcal pileup histo (ToF) 67.0277, sigma: 5.11798 for bunchcrossing 2
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 2
+
+[OVAL] Mean of track pileup histo (bcrossings) 3 for bunchcrossing 3
+[OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 3
+[OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 3
+[OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 3
+
+[OVAL] Mean of vertex pileup histo (bcrossings) 3 for bunchcrossing 3
+[OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 3
+[OVAL] Mean of vertex pileup histo (track indices) 0 for bunchcrossing 3
+[OVAL] Mean of vertex signal histo (track indices) 0 for bunchcrossing 3
+
+[OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 3
+[OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 3
+
+[OVAL] Mean of Ecal pileup histo (ToF) 95.748, sigma: 4.72706 for bunchcrossing 3
+[OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 3
+
+[OVAL] Mean of Hcal pileup histo (ToF) 92.0277, sigma: 5.11798 for bunchcrossing 3
+[OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 3
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] diff line: /^\[OVAL\](.*)$/
+[oval diff] ================================================
+
+=== olog #386 != oref #714
+olog: [OVAL] Mean of track pileup histo (bcrossings) -5 for bunchcrossing -5
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -5
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -5
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -5
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing -5
+oref: [OVAL] Mean of track signal histo (bcrossings) -5 for bunchcrossing -5
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing -5
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing -5
+=== olog #391 != oref #719
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) -5 for bunchcrossing -5
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -5
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing -5
+oref: [OVAL] Mean of vertex signal histo (bcrossings) -5 for bunchcrossing -5
+=== olog #396 != oref #724
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -5
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -5
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing -5
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -5
+=== olog #399 != oref #727
+olog: [OVAL] Mean of Ecal pileup histo (ToF) -104.252, sigma: 4.72706 for bunchcrossing -5
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -5
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -5
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -5
+=== olog #402 != oref #730
+olog: [OVAL] Mean of Hcal pileup histo (ToF) -88.9734, sigma: 43.2686 for bunchcrossing -5
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -5
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing -5
+oref: [OVAL] Mean of Hcal signal histo (ToF) -87.6744, sigma: 0.524735 for bunchcrossing -5
+=== olog #405 != oref #733
+olog: [OVAL] Mean of track pileup histo (bcrossings) -4 for bunchcrossing -4
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -4
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -4
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -4
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing -4
+oref: [OVAL] Mean of track signal histo (bcrossings) -4 for bunchcrossing -4
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing -4
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing -4
+=== olog #410 != oref #738
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) -4 for bunchcrossing -4
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -4
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing -4
+oref: [OVAL] Mean of vertex signal histo (bcrossings) -4 for bunchcrossing -4
+=== olog #415 != oref #743
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -4
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -4
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing -4
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -4
+=== olog #418 != oref #746
+olog: [OVAL] Mean of Ecal pileup histo (ToF) -79.252, sigma: 4.72706 for bunchcrossing -4
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -4
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -4
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -4
+=== olog #421 != oref #749
+olog: [OVAL] Mean of Hcal pileup histo (ToF) -63.9734, sigma: 43.2686 for bunchcrossing -4
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -4
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing -4
+oref: [OVAL] Mean of Hcal signal histo (ToF) -62.6744, sigma: 0.524735 for bunchcrossing -4
+=== olog #424 != oref #752
+olog: [OVAL] Mean of track pileup histo (bcrossings) -3 for bunchcrossing -3
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -3
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -3
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -3
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing -3
+oref: [OVAL] Mean of track signal histo (bcrossings) -3 for bunchcrossing -3
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing -3
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing -3
+=== olog #429 != oref #757
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) -3 for bunchcrossing -3
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -3
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing -3
+oref: [OVAL] Mean of vertex signal histo (bcrossings) -3 for bunchcrossing -3
+=== olog #434 != oref #762
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing -3
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -3
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing -3
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -3
+=== olog #437 != oref #765
+olog: [OVAL] Mean of Ecal pileup histo (ToF) -54.252, sigma: 4.72706 for bunchcrossing -3
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -3
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -3
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -3
+=== olog #440 != oref #768
+olog: [OVAL] Mean of Hcal pileup histo (ToF) -38.9734, sigma: 43.2686 for bunchcrossing -3
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -3
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing -3
+oref: [OVAL] Mean of Hcal signal histo (ToF) -37.6744, sigma: 0.524735 for bunchcrossing -3
+=== olog #443 != oref #771
+olog: [OVAL] Mean of track pileup histo (bcrossings) -2 for bunchcrossing -2
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -2
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -2
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -2
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing -2
+oref: [OVAL] Mean of track signal histo (bcrossings) -2 for bunchcrossing -2
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing -2
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing -2
+=== olog #448 != oref #776
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) -2 for bunchcrossing -2
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -2
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing -2
+oref: [OVAL] Mean of vertex signal histo (bcrossings) -2 for bunchcrossing -2
+=== olog #453 != oref #781
+olog: [OVAL] Mean of tracker pileup histo (ToF) -24.1759 for bunchcrossing -2
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -2
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing -2
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing -2
+=== olog #456 != oref #784
+olog: [OVAL] Mean of Ecal pileup histo (ToF) -29.252, sigma: 4.72706 for bunchcrossing -2
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -2
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -2
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -2
+=== olog #459 != oref #787
+olog: [OVAL] Mean of Hcal pileup histo (ToF) -13.9734, sigma: 43.2686 for bunchcrossing -2
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -2
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing -2
+oref: [OVAL] Mean of Hcal signal histo (ToF) -12.6744, sigma: 0.524735 for bunchcrossing -2
+=== olog #462 != oref #790
+olog: [OVAL] Mean of track pileup histo (bcrossings) -1 for bunchcrossing -1
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing -1
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing -1
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing -1
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing -1
+oref: [OVAL] Mean of track signal histo (bcrossings) -1 for bunchcrossing -1
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing -1
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing -1
+=== olog #467 != oref #795
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) -1 for bunchcrossing -1
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing -1
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing -1
+oref: [OVAL] Mean of vertex signal histo (bcrossings) -1 for bunchcrossing -1
+=== olog #472 != oref #800
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0.824146 for bunchcrossing -1
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing -1
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing -1
+oref: [OVAL] Mean of tracker signal histo (ToF) -13.9551 for bunchcrossing -1
+=== olog #475 != oref #803
+olog: [OVAL] Mean of Ecal pileup histo (ToF) -4.25201, sigma: 4.72706 for bunchcrossing -1
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing -1
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing -1
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing -1
+=== olog #478 != oref #806
+olog: [OVAL] Mean of Hcal pileup histo (ToF) 11.0266, sigma: 43.2686 for bunchcrossing -1
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing -1
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing -1
+oref: [OVAL] Mean of Hcal signal histo (ToF) 12.3256, sigma: 0.524735 for bunchcrossing -1
+=== olog #483 != oref #811
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 0
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 0
+---
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing 0
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing 0
+=== olog #491 != oref #819
+olog: [OVAL] Mean of tracker pileup histo (ToF) 25.8241 for bunchcrossing 0
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 0
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing 0
+oref: [OVAL] Mean of tracker signal histo (ToF) 11.0449 for bunchcrossing 0
+=== olog #494 != oref #822
+olog: [OVAL] Mean of Ecal pileup histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 0
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 0
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 0
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 0
+=== olog #497 != oref #825
+olog: [OVAL] Mean of Hcal pileup histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 0
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 0
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing 0
+oref: [OVAL] Mean of Hcal signal histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing 0
+=== olog #500 != oref #828
+olog: [OVAL] Mean of track pileup histo (bcrossings) 1 for bunchcrossing 1
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 1
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 1
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 1
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing 1
+oref: [OVAL] Mean of track signal histo (bcrossings) 1 for bunchcrossing 1
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing 1
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing 1
+=== olog #505 != oref #833
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) 1 for bunchcrossing 1
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 1
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing 1
+oref: [OVAL] Mean of vertex signal histo (bcrossings) 1 for bunchcrossing 1
+=== olog #510 != oref #838
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 1
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 1
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing 1
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 1
+=== olog #513 != oref #841
+olog: [OVAL] Mean of Ecal pileup histo (ToF) 45.748, sigma: 4.72706 for bunchcrossing 1
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 1
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 1
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 1
+=== olog #516 != oref #844
+olog: [OVAL] Mean of Hcal pileup histo (ToF) 47.6911, sigma: 22.4871 for bunchcrossing 1
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 1
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing 1
+oref: [OVAL] Mean of Hcal signal histo (ToF) 62.3256, sigma: 0.524735 for bunchcrossing 1
+=== olog #519 != oref #847
+olog: [OVAL] Mean of track pileup histo (bcrossings) 2 for bunchcrossing 2
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 2
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 2
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 2
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing 2
+oref: [OVAL] Mean of track signal histo (bcrossings) 2 for bunchcrossing 2
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing 2
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing 2
+=== olog #524 != oref #852
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) 2 for bunchcrossing 2
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 2
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing 2
+oref: [OVAL] Mean of vertex signal histo (bcrossings) 2 for bunchcrossing 2
+=== olog #529 != oref #857
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 2
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 2
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing 2
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 2
+=== olog #532 != oref #860
+olog: [OVAL] Mean of Ecal pileup histo (ToF) 70.748, sigma: 4.72706 for bunchcrossing 2
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 2
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 2
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 2
+=== olog #535 != oref #863
+olog: [OVAL] Mean of Hcal pileup histo (ToF) 67.0277, sigma: 5.11798 for bunchcrossing 2
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 2
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing 2
+oref: [OVAL] Mean of Hcal signal histo (ToF) 87.3256, sigma: 0.524735 for bunchcrossing 2
+=== olog #538 != oref #866
+olog: [OVAL] Mean of track pileup histo (bcrossings) 3 for bunchcrossing 3
+olog: [OVAL] Mean of track signal histo (bcrossings) 0 for bunchcrossing 3
+olog: [OVAL] Mean of track pileup histo (vtx indices) 0 for bunchcrossing 3
+olog: [OVAL] Mean of track signal histo (vtx indices) 0 for bunchcrossing 3
+---
+oref: [OVAL] Mean of track pileup histo (bcrossings) 0 for bunchcrossing 3
+oref: [OVAL] Mean of track signal histo (bcrossings) 3 for bunchcrossing 3
+oref: [OVAL] Mean of track pileup histo (vtx indices) 49.5 for bunchcrossing 3
+oref: [OVAL] Mean of track signal histo (vtx indices) 49.5 for bunchcrossing 3
+=== olog #543 != oref #871
+olog: [OVAL] Mean of vertex pileup histo (bcrossings) 3 for bunchcrossing 3
+olog: [OVAL] Mean of vertex signal histo (bcrossings) 0 for bunchcrossing 3
+---
+oref: [OVAL] Mean of vertex pileup histo (bcrossings) 0 for bunchcrossing 3
+oref: [OVAL] Mean of vertex signal histo (bcrossings) 3 for bunchcrossing 3
+=== olog #548 != oref #876
+olog: [OVAL] Mean of tracker pileup histo (ToF) 0 for bunchcrossing 3
+olog: [OVAL] Mean of tracker signal histo (ToF) 25.8241 for bunchcrossing 3
+---
+oref: [OVAL] Mean of tracker pileup histo (ToF) 11.0449 for bunchcrossing 3
+oref: [OVAL] Mean of tracker signal histo (ToF) 0 for bunchcrossing 3
+=== olog #551 != oref #879
+olog: [OVAL] Mean of Ecal pileup histo (ToF) 95.748, sigma: 4.72706 for bunchcrossing 3
+olog: [OVAL] Mean of Ecal signal histo (ToF) 20.748, sigma: 4.72706 for bunchcrossing 3
+---
+oref: [OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0 for bunchcrossing 3
+oref: [OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0 for bunchcrossing 3
+=== olog #554 != oref #882
+olog: [OVAL] Mean of Hcal pileup histo (ToF) 92.0277, sigma: 5.11798 for bunchcrossing 3
+olog: [OVAL] Mean of Hcal signal histo (ToF) 36.0266, sigma: 43.2686 for bunchcrossing 3
+---
+oref: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735 for bunchcrossing 3
+oref: [OVAL] Mean of Hcal signal histo (ToF) 112.326, sigma: 0.524735 for bunchcrossing 3
+
+[oval diff] =========================================
+[oval diff] result: DIFFS
+[oval diff] =========================================
+

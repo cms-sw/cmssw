@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/05/26 00:44:04 $
-  *   $Revision: 1.1 $
+  *   $Date: $
+  *   $Revision: $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -52,13 +52,13 @@ class MuonUpdatorAtVertex {
     
   private:
  
-    GlobalPoint theVertexPos;
-    GlobalError theVertexErr;
+    GlobalPoint vertexPoint;
+    GlobalError vertexError;
 
-    SteppingHelixPropagator* thePropagator;
-    TransverseImpactPointExtrapolator* theExtrapolator;
-    KFUpdator* theUpdator;
-    MeasurementEstimator* theEstimator;
+    SteppingHelixPropagator* m_Propagator;
+    TransverseImpactPointExtrapolator* m_Extrapolator;
+    KFUpdator* m_Updator;
+    MeasurementEstimator* m_Estimator;
 
 };
 

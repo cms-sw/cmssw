@@ -15,7 +15,9 @@ public:
   // ---  birth/death:
   MessageSender( ELseverityLevel const & sev, 
   		 ELstring const & id,
-		 bool verbatim = false );
+		 bool verbatim );
+  MessageSender( ELseverityLevel const & sev, 
+  		 ELstring const & id );
   ~MessageSender();
 
   // ---  stream out the next part of a message:

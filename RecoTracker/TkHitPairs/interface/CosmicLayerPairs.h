@@ -39,8 +39,6 @@ private:
   SiStripRecHit2DLocalPosCollection::range stereo_range2;
   SiStripRecHit2DLocalPosCollection::range stereo_range3;
 
-  SiStripRecHit2DMatchedLocalPosCollection::range match_range1;
-  SiStripRecHit2DMatchedLocalPosCollection::range match_range2;
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
@@ -55,12 +53,8 @@ private:
  
    void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi,
-	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-	     std::string geometry,
 	     const edm::EventSetup& iSetup);
 
- private:
- std::string _geometry;
 };
 
 

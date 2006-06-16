@@ -34,8 +34,6 @@ namespace edm
     explicit EventStreamFileWriter(edm::ParameterSet const& ps);
     virtual ~EventStreamFileWriter();
 
-  private:
-
     virtual void write(EventPrincipal const& e);
     virtual void beginJob(EventSetup const&);
 
@@ -43,16 +41,16 @@ namespace edm
     void stop();
     void sendRegistry(void* buf, int len);
 
+  private:
+
     void serialize(EventPrincipal const& e);
     void serializeRegistry(Selections const& prods);
 
     void* registryBuffer() const { return (void*)&prod_reg_buf_[0]; }
     int registryBufferSize() const { return prod_reg_len_; }
-    std::vector<std::string> getTriggerNames(); 
 
   private:
 
-    Selections const* selections_;
     EventBuffer* bufs_;
     Worker* worker_;
     TClass* tc_; // for SendEvent

@@ -6,9 +6,9 @@
 /**\class PixelSimHitsTest PixelSimHitsTest.cc 
 
  Description: Test pixel simhits. Barrel only. Uses root histos.
+ Works with CMSSW_0_4_0 
  Modifed for module() method in PXBDetId. 2/06
  Add global coordiantes. 21/2/06
- Works with CMSSW_0_7_0_pre
  
  Implementation:
      <Notes on implementation>
@@ -35,19 +35,17 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // my includes
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" //the get surf
 //#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" //
+//#include "Geometry/Surface/interface/Surface.h"
 
-
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-//#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
 #include <TROOT.h>
@@ -61,11 +59,14 @@
 using namespace std;
 using namespace edm;
 
-//#define CHECK_GEOM
+//
+// class decleration
+//
 
 class PixelSimHitsTest : public edm::EDAnalyzer {
 
 public:
+
   explicit PixelSimHitsTest(const edm::ParameterSet&);
   ~PixelSimHitsTest();
   virtual void beginJob(const edm::EventSetup& iSetup);
@@ -74,13 +75,13 @@ public:
 
 private:
   // ----------member data ---------------------------
-  const static bool PRINT = true;
+  const static bool PRINT = false;
 
   TFile* hFile;
   TH1F  *heloss1,*heloss2, *heloss3,*hdetunit,*hpabs,*hpid,*htof,*htid;
   TH1F* hpixid,*hpixsubid,*hlayerid,*hladder1id,*hladder2id,*hladder3id,
     *hz1id,*hz2id,*hz3id;
-  TH1F *hladder1idUp, *hladder2idUp, *hladder3idUp;
+  TH1F *hladder1idUp;
   TH1F* hthick1,*hthick2,*hthick3,*hlength1,*hlength2,*hlength3;
   TH1F *hwidth1,*hwidth2,*hwidth3;
   TH1F *hwidth1h,*hwidth2h,*hwidth3h;
@@ -90,24 +91,26 @@ private:
   TH1F *heloss1e, *heloss2e, *heloss3e;
   TH1F *heloss1mu, *heloss2mu, *heloss3mu;
   TH1F *htheta1, *htheta2, *htheta3;
-  TH1F *hphi1, *hphi1h, *hphi2, *hphi3;
-  TH1F *hdetr, *hdetz, *hdetphi1, *hdetphi2, *hdetphi3;
+  TH1F *hdetr, *hdetz, *hdetphi;
   TH1F *hglobr1,*hglobr2,*hglobr3,*hglobz1, *hglobz2, *hglobz3;
-  TH1F *hglobr1h;
   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
-  TH1F *hglox1;
 
-  TH2F *htest, *htest2, *htest3, *htest4, *htest5;
+  TH2F *htest, *htest2, *htest3;
 
   TProfile *hp1, *hp2, *hp3, *hp4, *hp5;
 
-#ifdef CHECK_GEOM
-  float modulePositionZ[3][44][8];
-  float modulePositionR[3][44][8];
-  float modulePositionPhi[3][44][8];
-#endif
-
 };
+
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
 //
 PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet& iConfig) {
   //We put this here for the moment since there is no better place 
@@ -117,6 +120,7 @@ PixelSimHitsTest::PixelSimHitsTest(const edm::ParameterSet& iConfig) {
   cout<<" Construct PixelSimHitsTest "<<endl;
 }
 
+
 PixelSimHitsTest::~PixelSimHitsTest() {
  
   // do anything here that needs to be done at desctruction time
@@ -125,6 +129,9 @@ PixelSimHitsTest::~PixelSimHitsTest() {
 
 }
 
+//
+// member functions
+//
 // ------------ method called at the begining   ------------
 void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
 
@@ -132,14 +139,12 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
    cout << "Initialize PixelSimHitsTest " <<endl;
 
    // put here whatever you want to do at the beginning of the job
-   hFile = new TFile ( "simhistos.root", "RECREATE" );
+    hFile = new TFile ( "simhistos.root", "RECREATE" );
 
-   const float max_charge = 200.; // in ke 
-   heloss1 = new TH1F( "heloss1", "Eloss l1", 100, 0., max_charge);
-   heloss2 = new TH1F( "heloss2", "Eloss l2", 100, 0., max_charge);
-   heloss3 = new TH1F( "heloss3", "Eloss l3", 100, 0., max_charge);
-
-   hdetunit = new TH1F( "hdetunit", "Det unit", 1000,
+    heloss1 = new TH1F( "heloss1", "Eloss l1", 100, 0., 0.001);
+    heloss2 = new TH1F( "heloss2", "Eloss l2", 100, 0., 0.001);
+    heloss3 = new TH1F( "heloss3", "Eloss l3", 100, 0., 0.001);
+    hdetunit = new TH1F( "hdetunit", "Det unit", 1000,
                               302000000.,302300000.);
     hpabs = new TH1F( "hpabs", "Pabs", 100, 0., 100.);
     htof = new TH1F( "htof", "TOF", 50, -25., 25.);
@@ -149,9 +154,10 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
     hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
     hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
     hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
-    hladder1id = new TH1F( "hladder1id", "Ladder L1 id", 100, -0.5, 49.5);
-    hladder2id = new TH1F( "hladder2id", "Ladder L2 id", 100, -0.5, 49.5);
-    hladder3id = new TH1F( "hladder3id", "Ladder L3 id", 100, -0.5, 49.5);
+    hladder1id = new TH1F( "hladder1id", "Ladder L1 id", 50, 0., 50.);
+    hladder1idUp = new TH1F( "hladder1idUp", "Ladder L1 id", 50, 0., 50.);
+    hladder2id = new TH1F( "hladder2id", "Ladder L2 id", 50, 0., 50.);
+    hladder3id = new TH1F( "hladder3id", "Ladder L3 id", 50, 0., 50.);
     hz1id = new TH1F( "hz1id", "Z-index id L1", 10, 0., 10.);
     hz2id = new TH1F( "hz2id", "Z-index id L2", 10, 0., 10.);
     hz3id = new TH1F( "hz3id", "Z-index id L3", 10, 0., 10.);
@@ -190,36 +196,26 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
 			      353, -0.5, 352.5);
     hdetsPerLay2 = new TH1F( "hdetsPerLay2", "Full dets per layer l2", 
 			      257, -0.5, 256.5);
-    heloss1e = new TH1F( "heloss1e", "Eloss e l1", 100, 0., max_charge);
-    heloss2e = new TH1F( "heloss2e", "Eloss e l2", 100, 0., max_charge);
-    heloss3e = new TH1F( "heloss3e", "Eloss e l3", 100, 0., max_charge);
+    heloss1e = new TH1F( "heloss1e", "Eloss e l1", 100, 0., 0.001);
+    heloss2e = new TH1F( "heloss2e", "Eloss e l2", 100, 0., 0.001);
+    heloss3e = new TH1F( "heloss3e", "Eloss e l3", 100, 0., 0.001);
 
-    heloss1mu = new TH1F( "heloss1mu", "Eloss mu l1", 100, 0., max_charge);
-    heloss2mu = new TH1F( "heloss2mu", "Eloss mu l2", 100, 0., max_charge);
-    heloss3mu = new TH1F( "heloss3mu", "Eloss mu l3", 100, 0., max_charge);
+    heloss1mu = new TH1F( "heloss1mu", "Eloss mu l1", 100, 0., 0.001);
+    heloss2mu = new TH1F( "heloss2mu", "Eloss mu l2", 100, 0., 0.001);
+    heloss3mu = new TH1F( "heloss3mu", "Eloss mu l3", 100, 0., 0.001);
 
     htheta1 = new TH1F( "htheta1", "Theta det1",350,0.0,3.5);
     htheta2 = new TH1F( "htheta2", "Theta det2",350,0.0,3.5);
     htheta3 = new TH1F( "htheta3", "Theta det3",350,0.0,3.5);
-    hphi1 = new TH1F("hphi1","phi l1",1400,-3.5,3.5);
-    hphi2 = new TH1F("hphi2","phi l2",1400,-3.5,3.5);
-    hphi3 = new TH1F("hphi3","phi l3",1400,-3.5,3.5);
-    hphi1h = new TH1F("hphi1h","phi l1",1400,-3.5,3.5);
  
-    hdetr = new TH1F("hdetr","det r",1500,0.,15.);
-    hdetz = new TH1F("hdetz","det z",5200,-26.,26.);
-    hdetphi1 = new TH1F("hdetphi1","det phi l1",700,-3.5,3.5);
-    hdetphi2 = new TH1F("hdetphi2","det phi l2",700,-3.5,3.5);
-    hdetphi3 = new TH1F("hdetphi3","det phi l3",700,-3.5,3.5);
+    hdetr = new TH1F("hdetr","det r",150,0.,15.);
+    hdetz = new TH1F("hdetz","det z",520,-26.,26.);
+    hdetphi = new TH1F("hdetphi","det phi",70,-3.5,3.5);
 
     hcolsB = new TH1F("hcolsB","cols per bar det",450,0.,450.);
     hrowsB = new TH1F("hrowsB","rows per bar det",200,0.,200.);
     hcolsF = new TH1F("hcolsF","cols per for det",300,0.,300.);
     hrowsF = new TH1F("hrowsF","rows per for det",200,0.,200.);
-
-    hladder1idUp = new TH1F( "hladder1idUp", "Ladder L1 id", 100, -0.5, 49.5);
-    hladder2idUp = new TH1F( "hladder2idUp", "Ladder L2 id", 100, -0.5, 49.5);
-    hladder3idUp = new TH1F( "hladder3idUp", "Ladder L3 id", 100, -0.5, 49.5);
 
     hglobr1 = new TH1F("hglobr1","global r1",150,0.,15.);
     hglobz1 = new TH1F("hglobz1","global z1",540,-27.,27.);
@@ -228,32 +224,19 @@ void PixelSimHitsTest::beginJob(const edm::EventSetup& iSetup) {
     hglobr3 = new TH1F("hglobr3","global r3",150,0.,15.);
     hglobz3 = new TH1F("hglobz3","global z3",540,-27.,27.);
 
-    hglox1 = new TH1F("hglox1","global x in l1",200,-1.,1.);
-    hglobr1h = new TH1F("hglobr1h","global r1",700,4.1,4.8);
 
     htest = new TH2F("htest"," ",108,-27.,27.,35,-3.5,3.5);
-    htest2 = new TH2F("htest2"," ",108,-27.,27.,60,0.,600.);
+    htest2 = new TH2F("htest2"," ",108,-27.,27.,60,0.,0.0006);
     htest3 = new TH2F("htest3"," ",240,-12.,12.,240,-12.,12.);
-    htest4 = new TH2F("htest4"," ",80,-4.,4.,100,-5.,5.);
 
-    hp1 = new TProfile("hp1"," ",50,0.,50.);    // default option
-    hp2 = new TProfile("hp2"," ",50,0.,50.," "); // option set to " "
-    hp3 = new TProfile("hp3"," ",50,0.,50.,-100.,100.); // with y limits
-    hp4 = new TProfile("hp4"," ",50,0.,50.);
-    hp5 = new TProfile("hp5"," ",50,0.,50.);
+    hp1 = new TProfile("hp1"," ",50,0.,50.,240,' ');
+    hp2 = new TProfile("hp2"," ",50,0.,50.,240,' ');
+    hp3 = new TProfile("hp3"," ",50,0.,50.,240,' ');
+    hp4 = new TProfile("hp4"," ",50,0.,50.,240,' ');
+    hp5 = new TProfile("hp5"," ",50,0.,50.,240,' ');
 
-#ifdef CHECK_GEOM
-    // To get the module position
-    for(int i=0;i<3;i++) {
-      for(int n=0;n<44;n++) {
-	for(int m=0;m<8;m++) {
- 	  modulePositionR[i][n][m]=-1;
- 	  modulePositionZ[i][n][m]=-1;
- 	  modulePositionPhi[i][n][m]=-1;
-	}
-      }
-    }
-#endif
+    
+
 }
 
 // ------------ method called to produce the data  ------------
@@ -264,16 +247,19 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelSimHitsTest "<<endl;
   
-  // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get( geom );
-  const TrackerGeometry& theTracker(*geom);
- 
   // Get input data
-  int totalNumOfSimHits = 0;
-  int totalNumOfSimHits1 = 0;
-  int totalNumOfSimHits2 = 0;
-  int totalNumOfSimHits3 = 0;
+
+  // Get event setup (to get global transformation)
+  edm::ESHandle<TrackingGeometry> geom;
+  //edm::ESHandle<TrackerGeometry> geom; // 060
+  iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+  const TrackingGeometry& theTracker(*geom);
+
+ 
+   int totalNumOfSimHits = 0;
+   int totalNumOfSimHits1 = 0;
+   int totalNumOfSimHits2 = 0;
+   int totalNumOfSimHits3 = 0;
 
    // To count simhits per det module 
    //typedef std::map<unsigned int, std::vector<PSimHit>,
@@ -306,8 +292,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      
      if(detid!=1 && subid!=1) cout<<" error in det id "<<detid<<" "
 				  <<subid<<endl;
-     //if(PRINT) cout<<(*isim).detUnitId()<<" "<<detId.rawId()<<" "
-     //	   <<detId.null()<<" "<<detid<<" "<<subid<<endl;
+     if(PRINT) cout<<(*isim).detUnitId()<<" "<<detId.rawId()<<" "
+		   <<detId.null()<<" "<<detid<<" "<<subid<<endl;
 
      //const GeomDetUnit * theGeomDet = theTracker.idToDet(detId);
      //const PixelGeomDetUnit * theGeomDet = theTracker.idToDet(detId);
@@ -318,6 +304,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      double detPhi = theGeomDet->surface().position().phi();
      hdetr->Fill(detR);
      hdetz->Fill(detZ);
+     hdetphi->Fill(detPhi);
 
      //const BoundPlane plane = theGeomDet->surface(); // does not work
 
@@ -330,7 +317,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 
      hcolsB->Fill(float(cols));
      hrowsB->Fill(float(rows));
-     if(PRINT) cout<<"det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
+     if(PRINT) cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
 		   <<detLength<<" "<<detWidth<<" "<<cols<<" "<<rows
 		   <<endl;
 
@@ -338,18 +325,11 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      unsigned int layer=pdetId.layer();
      unsigned int ladder=pdetId.ladder();
      unsigned int zindex=pdetId.module();
-     if(PRINT) cout<<"det id "<<detId.rawId()<<" "
-		   <<detid<<" "<<subid<<" "<<layer<<" "
+     if(PRINT) cout<<(*isim).detUnitId()<<" "<<detId.rawId()<<" "
+		   <<detId.null()<<" "<<detid<<" "<<subid<<" "<<layer<<" "
 		   <<ladder<<" "<<zindex<<endl;
-#ifdef CHECK_GEOM
-     // To get the module position
-     modulePositionR[layer-1][ladder-1][zindex-1] = detR;
-     modulePositionZ[layer-1][ladder-1][zindex-1] = detZ;
-     modulePositionPhi[layer-1][ladder-1][zindex-1] = detPhi;
-#endif
 
-     // SimHit information 
-     float eloss = (*isim).energyLoss() * 1000000/3.7;//convert GeV to ke 
+     float eloss = (*isim).energyLoss();
      float tof = (*isim).timeOfFlight();
      float p = (*isim).pabs();
      float theta = (*isim).thetaAtEntry();
@@ -373,9 +353,9 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      float ypos = (y+y2)/2.;
      float zpos = (z+z2)/2.;
 
-     if(PRINT) cout<<" simhit "<<pid<<" "<<tid<<" "<<procType<<" "<<tof<<" "
-		   <<eloss<<" "<<p<<" "<<x<<" "<<y<<" "<<z<<" "<<dz<<endl;
-     if(PRINT) cout<<"  pos "<<xpos<<" "<<ypos<<" "<<zpos;
+     if(PRINT) cout<<pid<<" "<<tid<<" "<<procType<<" "<<tof<<" "
+		   <<eloss<<" "<<p<<" "<<x<<" "<<y<<" "<<z<<" "<<dz<<" "
+		   <<xpos<<" "<<ypos<<" "<<zpos<<endl;
      
      LocalPoint loc(xpos,ypos,zpos);
      //GlobalPoint glo = theGeomDet->surface().toGlobal(loc); // does not work!
@@ -383,9 +363,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      double gloY = theGeomDet->surface().toGlobal(loc).y(); // 
      double gloR = theGeomDet->surface().toGlobal(loc).perp(); // 
      double gloZ = theGeomDet->surface().toGlobal(loc).z(); // 
-     if(PRINT) cout<<", global "<<gloX<<" "<<gloY<<" "<<gloR<<" "<<gloZ<<endl;
-
      htest3->Fill(gloX,gloY);
+
      hdetunit->Fill(float(detId.rawId()));
      hpabs->Fill(p);
      htof->Fill(tof);
@@ -396,8 +375,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      hlayerid->Fill(float(layer));
  
      // Transform the theta from local module coordinates to global
-     //if(theta<= PI/2.) theta = PI/2. - theta; // For +z global
-     //else theta = (PI/2. + PI) - theta;
+     if(theta<= PI/2.) theta = PI/2. - theta; // For +z local, +z global
+     else theta = (PI/2. + PI) - theta;
 
      if(layer==1) {
        //cout<<" layer "<<layer<<endl;
@@ -409,46 +388,22 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
        hz1id->Fill(float(zindex));
        hthick1->Fill(dz);
        hlength1->Fill(y);
-       if(ladder==5 || ladder==6 || ladder==15 || ladder==16 ) {
-	 // half-modules
+       if(ladder==5 || ladder==6 || ladder==15 || ladder==16 ) // half-modules
 	 hwidth1h->Fill(x);
-	 if(pid==13 && p>1.) {  // select primary muons
-	   hphi1h->Fill(phi);
-	   hglox1->Fill(gloX);
-	   hglobr1h->Fill(gloR);
-
-// 	   double gloX1 = 
-// 	     theGeomDet->surface().toGlobal(LocalPoint(0,0,0)).x(); // 
-// 	   double gloY1 = 
-// 	     theGeomDet->surface().toGlobal(LocalPoint(0,0,0)).y(); // 
-// 	   double gloR1 = 
-// 	     theGeomDet->surface().toGlobal(LocalPoint(0,0,0)).perp();
-// 	   cout<<" "<<ladder<<" "<<gloX1<<" "<<gloY1<<" "<<gloR1<<" "
-// 	       <<detR<<" "<<detPhi<<" "<<detZ<<" "<<gloX<<" "<<gloY<<" "
-// 	       <<xpos<<" "<<ypos<<" "<<zpos<<endl;
-
-
-	 }
-       } else {
+       else 
 	 hwidth1->Fill(x);
-	 if(pid==13 && p>1.) hphi1->Fill(phi);
-       }
        SimHitMap1[detId.rawId()].push_back((*isim));
        htheta1->Fill(theta);
        hglobr1->Fill(gloR);
        hglobz1->Fill(gloZ);
 
-       // Check the coordinate system and counting
        htest->Fill(gloZ,ypos);
        if(pid != 11) htest2->Fill(gloZ,eloss);
 
-       if(pid!=11 && moduleDirectionUp) 
-	 hladder1idUp->Fill(float(ladder));
+       if(moduleDirectionUp) hladder1idUp->Fill(float(ladder));
 
-       if(ladder==6) htest4->Fill(xpos,gloX);
-       hp1->Fill(float(ladder),detR,1);
+       hp1->Fill(float(ladder),detR);
        hp2->Fill(float(ladder),detPhi);
-       hdetphi1->Fill(detPhi);
 
      } else if(layer==2) {
        //cout<<" layer "<<layer<<endl;
@@ -460,40 +415,30 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
        hz2id->Fill(float(zindex));
        hthick2->Fill(dz);
        hlength2->Fill(y);
-       if(ladder==8 || ladder==9 || ladder==24 || ladder==25 ) {
+       if(ladder==8 || ladder==9 || ladder==24 || ladder==25 )
 	 hwidth2h->Fill(x);
-       } else {
+       else 
 	 hwidth2->Fill(x);
-	 if(pid==13 && p>1.) hphi2->Fill(phi);
-       }
        SimHitMap2[detId.rawId()].push_back((*isim));
        hglobr2->Fill(gloR);
        hglobz2->Fill(gloZ);
-       hdetphi2->Fill(detPhi);
-       if(pid!=11 && moduleDirectionUp) hladder2idUp->Fill(float(ladder));
-
      } else if(layer==3) {
        //cout<<" layer "<<layer<<endl;
        totalNumOfSimHits3++;
        heloss3->Fill(eloss);
        if(pid==11) heloss3e->Fill(eloss);
        else heloss3mu->Fill(eloss);	 
-
        hladder3id->Fill(float(ladder));
        hz3id->Fill(float(zindex));
        hthick3->Fill(dz);
        hlength3->Fill(y);
-       if(ladder==11 || ladder==12 || ladder==33 || ladder==34 ) {
+       if(ladder==11 || ladder==12 || ladder==33 || ladder==34 )
 	 hwidth3h->Fill(x);
-       } else {
+       else 
 	 hwidth3->Fill(x); 
-	 if(pid==13 && p>1.) hphi3->Fill(phi);
-       }
        SimHitMap3[detId.rawId()].push_back((*isim));
        hglobr3->Fill(gloR);
        hglobz3->Fill(gloZ);
-       hdetphi3->Fill(detPhi);
-       if(pid!=11 && moduleDirectionUp) hladder3idUp->Fill(float(ladder));
      }
    }
 
@@ -547,26 +492,6 @@ void PixelSimHitsTest::endJob(){
   cout << " End PixelSimHitsTest " << endl;
   hFile->Write();
   hFile->Close();
-
-#ifdef CHECK_GEOM
-  // To get module positions
-  cout<< " Module position"<<endl;
-  cout<<" Layer Ladder Zindex    R      Z      Phi "<<endl; 
-  for(int i=0;i<3;i++) {
-    int max_lad=0;
-    if(i==0) max_lad=20;
-    else if(i==1) max_lad=32;
-    else if(i==2) max_lad=44;
-    for(int n=0;n<max_lad;n++) {
-      for(int m=0;m<8;m++) {
-	cout<<"   "<<i+1<<"      "<<n+1<<"      "<<m+1<<"    "
-	    <<modulePositionR[i][n][m]<<" "
-	    <<modulePositionZ[i][n][m]<<" "<<modulePositionPhi[i][n][m]<<endl;
-      }
-    }
-  }
-#endif
-
 }
 
 //define this as a plug-in
