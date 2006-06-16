@@ -56,7 +56,7 @@ void useIndexPtr() {
   //
 
   std::vector<bool> l1bit(11);
-  uint8 hltbits[] = "4567";
+  //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
   const int hltsize = 9;
 
@@ -112,7 +112,7 @@ void getIndexPtr() {
   StreamerInputIndexFile* indexPtr = readViaIndex.index();
     
   std::vector<bool> l1bit(11);
-  uint8 hltbits[] = "4567";
+  //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
   const int hltsize = 9;
 
@@ -133,7 +133,7 @@ void viaIndex() {
       Loops over the events */
 
   std::vector<bool> l1bit(11);
-  uint8 hltbits[] = "4567";
+  //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
   const int hltsize = 9;
 
@@ -211,7 +211,7 @@ void separetly() {
   
   // ------- event
   std::vector<bool> l1bit(11);
-  uint8 hltbits[] = "4567";
+  //uint8 hltbits[] = "4567";
   //const int hltsize = (sizeof(hltbits)-1)*4;
   const int hltsize = 9;
 

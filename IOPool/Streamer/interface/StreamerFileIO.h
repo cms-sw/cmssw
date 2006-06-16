@@ -58,7 +58,37 @@ typedef std::vector<EventIndexRecord>::iterator indexRecIter;
 
 //--------------------------------------------------------
 
-  class StreamerOutputFile 
+  class OutputFile 
+  /**
+  Class representing Output (Streamer/Index) file.
+  */
+  {
+  public:
+     explicit OutputFile(const string& name);
+     /**
+      CTOR, takes file path name as argument
+     */
+     ~OutputFile();
+
+      ofstream* ost() {return ost_;}
+      string fileName() const {return filename_;}
+
+      uint64 current_offset_;  /** Location of current ioptr */
+      uint64 first_event_offset_;
+      uint64 last_event_offset_;
+      uint32 events_;
+      uint32 run_;
+
+   private:
+     ofstream* ost_;
+     string filename_; 
+  };
+
+
+
+//-------------------------------------------------------------
+
+  class StreamerOutputFile
   /**
   Class for doing Streamer Write operations
   */
@@ -71,49 +101,30 @@ typedef std::vector<EventIndexRecord>::iterator indexRecIter;
      ~StreamerOutputFile();
 
      void write(InitMsgBuilder&);
-     /** 
-      Performs write on InitMsgBuilder type, 
+     /**
+      Performs write on InitMsgBuilder type,
       Header + Blob, both are written out.
-     */  
+     */
      uint64 write(EventMsgBuilder&);
      /**
-      Performs write on EventMsgBuilder type, 
+      Performs write on EventMsgBuilder type,
       Header + Blob, both are written out.
-      RETURNS the Offset in Stream while at 
+      RETURNS the Offset in Stream while at
               which Event was written.
      */
 
-      void writeEOF(uint32 statusCode, 
+      void writeEOF(uint32 statusCode,
                     std::vector<uint32>& hltStats);
 
-  protected:
-
-     StreamerOutputFile(){};
-     void writeStart(InitMsgBuilder& inview); 
-     /**
-      Performs write on InitMsgBuilder type, 
-      Header is written out as Start Messsage.
-     */
-
-     void writeEventHeader(EventMsgBuilder& ineview);
-      /**
-      Performs write on InitMsgBuilder type, 
-      Event Header is written out.
-      */
-
-      //OutPtr ost_;
-      ofstream* ost_;
-
-      uint64 current_offset_;  /** Location of current ioptr */
-
-      uint64 first_event_offset_;
-      uint64 last_event_offset_;
-      uint32 events_;
-      uint32 run_;
   private:
+    void writeEventHeader(EventMsgBuilder& ineview);
+    void writeStart(InitMsgBuilder& inview);
 
-     string filename_;
-  };
+  private:
+    OutputFile streamerfile_;
+
+
+};
 
 //--------------------------------------------------------------
 
@@ -179,17 +190,23 @@ class StreamerInputIndexFile;
 
 //----------------------------------------------------
 
-  class StreamerOutputIndexFile : public StreamerOutputFile
+  class StreamerOutputIndexFile 
   /** Class for doing Index write operations. */
   {
   public:
      explicit StreamerOutputIndexFile(const string& name);
 
+     ~StreamerOutputIndexFile();
+
      //Magic# and Reserved fileds 
      void writeIndexFileHeader(uint32 magicNumber, uint64 reserved);
-
      void write(InitMsgBuilder&);
      void write(EventMsgBuilder&, long long);
+     void writeEOF(uint32 statusCode,
+                    std::vector<uint32>& hltStats);
+
+  private:
+    OutputFile indexfile_;
 
   };
 

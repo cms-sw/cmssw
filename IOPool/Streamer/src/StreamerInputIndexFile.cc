@@ -42,7 +42,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const vector<string>& names):
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*10)
 {
-   for (int i=0; i!=names.size(); ++i) 
+   for (unsigned int i=0; i!=names.size(); ++i) 
    {
        ist_ = new ifstream(names.at(i).c_str(), ios_base::binary | ios_base::in);
 

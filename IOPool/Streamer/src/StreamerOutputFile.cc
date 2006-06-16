@@ -1,62 +1,78 @@
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
-  StreamerOutputFile::~StreamerOutputFile() 
+  OutputFile::OutputFile(const string& name):
+  current_offset_(1), 
+  events_(0),
+  ost_(new ofstream(name.c_str(), ios_base::binary | ios_base::out)),
+  filename_(name)
   {
-    /** For the time being writeEOF is invoked for user here
-        if its a "user operation, then we canb expose it to 
-        user and call it explicitly 
-    writeEOF();
-    */   
+  }
 
-    ost_->close();
+  OutputFile::~OutputFile() 
+  {
     delete ost_;
   }
 
+  StreamerOutputFile::~StreamerOutputFile() 
+  {
+    streamerfile_.ost()->close();
+  }
+
   StreamerOutputFile::StreamerOutputFile(const string& name):
-  filename_(name),
-  ost_(new ofstream(name.c_str(), ios_base::binary | ios_base::out)),
-  //ost_(makeOutputFile(filename_)),
-  current_offset_(1),  //0 or 1 ???????
-  events_(0)
+  streamerfile_(name)
   {
   }
 
   uint64 StreamerOutputFile::write(EventMsgBuilder& ineview)
   {
-    uint64 offset_to_return = current_offset_; /** Offset where current event starts */
-    last_event_offset_ = current_offset_; /** Offset of last written event */
+    /** Offset where current event starts */
+    uint64 offset_to_return = streamerfile_.current_offset_; 
+
+    /** Offset of last written event */
+    streamerfile_.last_event_offset_ = streamerfile_.current_offset_; 
 
     writeEventHeader(ineview);
-    ost_->write((const char*) ineview.eventAddr(), ineview.size() - ineview.headerSize() );
-    current_offset_ += (uint64)(ineview.size() - ineview.headerSize()) ;
-    events_++;
-    if ( ! (events_ % 100) )
+    streamerfile_.ost()->write((const char*) ineview.eventAddr(), 
+                              ineview.size() - ineview.headerSize() );
+    streamerfile_.current_offset_ += (uint64)
+                                     (ineview.size() 
+                                      - ineview.headerSize()) ;
+    streamerfile_.events_++;
+    if ( ! (streamerfile_.events_ % 100) )
         {
-	ost_->flush();
+	streamerfile_.ost()->flush();
         }
     return offset_to_return;
   }
 
   void StreamerOutputFile::writeEventHeader(EventMsgBuilder& ineview)
   {
-    ost_->write((const char*) ineview.startAddress(), ineview.headerSize() ) ;
-    current_offset_ += (uint64) ineview.headerSize(); 
+    streamerfile_.ost()->write((const char*) 
+                                ineview.startAddress(), 
+                                ineview.headerSize() ) ;
+    streamerfile_.current_offset_ += (uint64) ineview.headerSize(); 
   }
 
   void StreamerOutputFile::write(InitMsgBuilder& inview)
   {
     writeStart(inview);
-    ost_->write((const char*) inview.dataAddress(), inview.size() - inview.headerSize() );
-    current_offset_ += (uint64)(inview.size() - inview.headerSize() );
-    first_event_offset_ = current_offset_; /** Offset of first event to be written */
+    streamerfile_.ost()->write((const char*) inview.dataAddress(), 
+                              inview.size() - inview.headerSize() );
+    streamerfile_.current_offset_ += (uint64)(inview.size() 
+                                              - inview.headerSize() );
+
+    /** Offset of first event to be written */
+    streamerfile_.first_event_offset_ = streamerfile_.current_offset_; 
   }
 
   void StreamerOutputFile::writeStart(InitMsgBuilder& inview)
   {
-    ost_->write((const char*) inview.startAddress(), inview.headerSize() ) ;
-    current_offset_ += (uint64) inview.headerSize();
-    run_ = inview.run();
+    streamerfile_.ost()->write((const char*) 
+                                inview.startAddress(), 
+                                inview.headerSize() ) ;
+    streamerfile_.current_offset_ += (uint64) inview.headerSize();
+    streamerfile_.run_ = inview.run();
   }
 
   void StreamerOutputFile::writeEOF(uint32 statusCode, 
@@ -71,12 +87,15 @@
 
     */
 
-    EOFRecordBuilder eof(run_, events_,
-                 statusCode,
-                 hltStats,
-                 first_event_offset_,
-                 last_event_offset_);
-    ost_->write((const char*) eof.recAddress(), eof.size() );  
+    EOFRecordBuilder eof(streamerfile_.run_, 
+                         streamerfile_.events_,
+                         statusCode,
+                         hltStats,
+                         streamerfile_.first_event_offset_,
+                         streamerfile_.last_event_offset_);
+    streamerfile_.ost()->write((const char*) 
+                               eof.recAddress(), 
+                               eof.size() );  
   }
 
 
