@@ -2,5 +2,7 @@
   <class name="HcalElectronicsId"/>
   <class name="HcalDetId"/>
   <class name="HcalTrigTowerDetId"/>
-  <class name="HcalCompositeDetId"/>
+  <class name="HcalCalibDetId"/>
+  <class name="HcalOtherDetId"/>
+  <class name="HcalZDCDetId"/>
 </lcgdict>
