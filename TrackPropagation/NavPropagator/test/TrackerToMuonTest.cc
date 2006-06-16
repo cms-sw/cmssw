@@ -63,7 +63,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
   NavPropagator prop(field);
 
   for (float phi = -0.05; phi<0.25*3.1419 ; phi+=0.1) {
-    for (float costh = 0.05; costh<0.8 ; costh+=0.01) {
+    for (float costh = 0.05; costh<0.8 ; costh+=0.05) {
       cout << "And now trying costh, phi = " << costh << ", " << phi << endl;
       
       PlaneBuilder pb;
