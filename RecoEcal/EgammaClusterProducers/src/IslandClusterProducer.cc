@@ -35,6 +35,13 @@
 
 IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
 {
+  // The verbosity level
+  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
+  if      (verbosityString == "DEBUG")   verbosity = DEBUG;
+  else if (verbosityString == "WARNING") verbosity = WARNING;
+  else if (verbosityString == "INFO")    verbosity = INFO;
+  else                                   verbosity = ERROR;
+
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
   endcapHitProducer_   = ps.getParameter<std::string>("endcapHitProducer");
@@ -58,7 +65,7 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
 
-  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold);
+  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, verbosity);
 
   nEvt_ = 0;
 }
