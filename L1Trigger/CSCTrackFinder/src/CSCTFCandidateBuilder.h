@@ -8,7 +8,7 @@
 #ifndef CSCTrackFinder_CSCTFCandidateBuilder_h
 #define CSCTrackFinder_CSCTFCandidateBuilder_h
 
-#include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -21,7 +21,7 @@ class CSCTFCandidateBuilder
   CSCTFCandidateBuilder(const edm::ParameterSet&);
   ~CSCTFCandidateBuilder() { delete m_muonsorter; m_muonsorter = NULL; }
 
-  void buildCandidates(const std::vector<csc::L1Track>*, std::vector<L1MuRegionalCand>*) const;
+  void buildCandidates(const L1CSCTrackCollection*, std::vector<L1MuRegionalCand>*) const;
 
  private:
   

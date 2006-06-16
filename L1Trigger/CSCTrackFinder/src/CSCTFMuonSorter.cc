@@ -23,6 +23,8 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
       std::vector<csc::L1Track>::const_iterator end = tks.end();
       for(; itr != end; itr++)
 	{
+	  
+	  
 	  unsigned gbl_phi = itr->localPhi() + ((itr->sector() - 1)*24) + 6; // for now, convert using this.. LUT in the future
 	  if(gbl_phi > 143) gbl_phi -= 143;	  
 	  itr->setPhiPacked(gbl_phi & 0xff);
@@ -45,7 +47,7 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
   unsigned ii = 1;
   for(; ittr != result.end(); ittr++)
     {
-      LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii << ": Eta: " << ittr->etaValue() 
+      LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii++ << ": Eta: " << ittr->etaValue() 
 					<< " Phi: " << ittr->phiValue() << " Pt: " << ittr->ptValue()
 					<< " Quality: " << ittr->quality();
     }

@@ -11,7 +11,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -29,7 +29,7 @@ class CSCTFSectorProcessor
 
   bool run(const CSCTriggerContainer<CSCTrackStub>&);
 
-  CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
+   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
 
   int minBX() const { return m_minBX; }
   int maxBX() const { return m_maxBX; }

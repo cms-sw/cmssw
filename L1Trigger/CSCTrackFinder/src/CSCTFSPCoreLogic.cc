@@ -104,7 +104,8 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			}
 		      break;
 		    default:
-		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() 
+								     << "NOT IN RANGE [1,3]\n";
 		    };
 		  break;
 		case 2:
@@ -132,7 +133,8 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 		      io_[relative_bx].me2cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 		      break;
 		    default:
-		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() 
+								     << "NOT IN RANGE [1,3]\n";
 		    };
 		  break;
 		case 3:
@@ -160,7 +162,8 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 		      io_[relative_bx].me3cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 		      break;
 		    default:
-		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() 
+								     << "NOT IN RANGE [1,3]\n";
 		    };
 		  break;
 		case 4:
@@ -188,11 +191,12 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 		      io_[relative_bx].me4cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 		      break;
 		    default:
-		      std::cout<< "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() << "NOT IN RANGE [1,3]\n";
+		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: MPC LINK" << stubi->getMPCLink() 
+								     << "NOT IN RANGE [1,3]\n";
 		    };
 		  break;
 		default:
-		  std::cout<< "SERIOUS ERROR: STATION" << st << "NOT IN RANGE [1,4]\n";
+		  edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: STATION" << st << "NOT IN RANGE [1,4]\n";
 		};
 	    }
 	}
@@ -394,7 +398,8 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setLocalPhi(io->phiHp);
 	  trkH.setEtaPacked(io->etaPTHp);
 	  trkH.setBx((int)(bx)+minBX);
-	  mytracks.push_back(trkH);
+	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
+	  mytracks.push_back(trkH);	  
 	}
       if(LUTAddressM.toint())
 	{
@@ -403,6 +408,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setLocalPhi(io->phiMp);
 	  trkM.setEtaPacked(io->etaPTMp);
 	  trkM.setBx((int)(bx)+minBX);
+	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
 	  mytracks.push_back(trkM);
 	}
       if(LUTAddressL.toint())
@@ -412,6 +418,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setLocalPhi(io->phiLp);
 	  trkL.setEtaPacked(io->etaPTLp);
 	  trkL.setBx((int)(bx)+minBX);
+	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
 	  mytracks.push_back(trkL);
 	}
       ++bx;

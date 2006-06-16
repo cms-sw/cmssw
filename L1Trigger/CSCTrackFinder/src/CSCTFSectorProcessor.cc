@@ -124,9 +124,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
    */
 
   std::vector<csc::L1Track>::iterator titr = tftks.begin();
-  std::vector<csc::L1Track>::const_iterator tend = tftks.end();
 
-  for(; titr != tend; titr++)
+  for(; titr != tftks.end(); titr++)
     {
       ptadd thePtAddress(titr->ptLUTAddress());
       ptdat thePtData = ptLUT_->Pt(thePtAddress);

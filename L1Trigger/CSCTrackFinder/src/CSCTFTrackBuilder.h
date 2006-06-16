@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -20,7 +21,7 @@ class CSCTFTrackBuilder
 
   ~CSCTFTrackBuilder();
 
-  void buildTracks(const CSCCorrelatedLCTDigiCollection*, std::vector<csc::L1Track>*);
+  void buildTracks(const CSCCorrelatedLCTDigiCollection*, L1CSCTrackCollection*);
   
  private:
 
