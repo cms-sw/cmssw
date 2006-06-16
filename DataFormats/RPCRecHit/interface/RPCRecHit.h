@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/06/16 07:54:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 08:08:21 $
+ *  $Revision: 1.5 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -39,9 +39,10 @@ class RPCRecHit : public RecHit1D {
 	    const LocalError& err);
   
 
-  /// Constructor from a local position and error, rpcId, bx and cluster size.
+  /// Constructor from a local position and error, rpcId, bx, frist strip of cluster and cluster size.
   RPCRecHit(const RPCDetId& rpcId,
 	    int bx,
+	    int firstStrip,
 	    int clustSize,
 	    const LocalPoint& pos,
 	    const LocalError& err);
@@ -106,6 +107,10 @@ class RPCRecHit : public RecHit1D {
     return theBx;
   }
 
+  int firstClusterStrip() const {
+    return theFirstStrip;
+  }
+
   int clusterSize() const {
     return theClusterSize;
   }
@@ -116,6 +121,7 @@ class RPCRecHit : public RecHit1D {
  private:
   RPCDetId theRPCId;
   int theBx;
+  int theFirstStrip;
   int theClusterSize;
   // Position and error in the Local Ref. Frame of the RPCLayer
   LocalPoint theLocalPosition;
