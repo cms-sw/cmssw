@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: MonitorXMLParser.h,v 1.1 2006/06/14 15:17:13 benigno Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2006/06/14 15:17:13 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -38,7 +38,7 @@ typedef struct { std::string type; std::string title; int xbins; double xfrom; d
 class TagNames {
 
 public:
-  XMLCh* TAG_EBDME;
+  XMLCh* TAG_DBE;
   XMLCh* TAG_ME;
   XMLCh* TAG_1D;
   XMLCh* TAG_2D;
@@ -57,7 +57,7 @@ public:
   
 
   TagNames() :
-    TAG_EBDME( xercesc::XMLString::transcode( "dbelements" ) ),
+    TAG_DBE( xercesc::XMLString::transcode( "dbelements" ) ),
     TAG_ME( xercesc::XMLString::transcode( "me" ) ),
     TAG_1D( xercesc::XMLString::transcode( "th1d" ) ),
     TAG_2D( xercesc::XMLString::transcode( "th2d" ) ),
@@ -82,7 +82,7 @@ public:
   ~TagNames() throw(){
     
     try{
-      xercesc::XMLString::release( &TAG_EBDME ) ;
+      xercesc::XMLString::release( &TAG_DBE ) ;
       xercesc::XMLString::release( &TAG_ME ) ;
       xercesc::XMLString::release( &TAG_1D ) ;
       xercesc::XMLString::release( &TAG_2D ) ;

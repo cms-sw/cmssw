@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: MonitorXMLParser.cc,v 1.1 2006/06/14 15:17:13 benigno Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2006/06/14 15:17:13 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -27,6 +27,7 @@
 #include <map>
 
 #include "DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h"
+//#include "MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 
@@ -274,32 +275,35 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     
     xercesc::DOMDocument* xmlDoc = parser_->getDocument();
     
-    xercesc::DOMElement* ebme = xmlDoc->getDocumentElement();
-    
-    if( NULL == ebme ){
+    xercesc::DOMElement* dbe = xmlDoc->getDocumentElement();
+
+    if( NULL == dbe ){
       throw( std::runtime_error( "empty XML document" ) ) ;
     }
-    
-    xercesc::DOMNodeList* children = ebme->getChildNodes();
-    const XMLSize_t nodeCount = children->getLength();
-    
-    for( XMLSize_t ix = 0 ; ix < nodeCount ; ++ix ){
-      xercesc::DOMNode* currentNode = children->item( ix );
-      if( NULL == currentNode ){
-	// null node...
-	continue;
+
+    if( xercesc::XMLString::equals( tags_->TAG_DBE, dbe->getTagName() ) ) {
+        
+      xercesc::DOMNodeList* children = dbe->getChildNodes();
+      const XMLSize_t nodeCount = children->getLength();
+      
+      for( XMLSize_t ix = 0 ; ix < nodeCount ; ++ix ){
+	xercesc::DOMNode* currentNode = children->item( ix );
+	if( NULL == currentNode ){
+	  // null node...
+	  continue;
+	}
+      
+	if( xercesc::DOMNode::ELEMENT_NODE != currentNode->getNodeType() ){
+	  continue;
+	}
+	
+	xercesc::DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
+	
+	handleElement( currentElement );
+	
       }
-      
-      if( xercesc::DOMNode::ELEMENT_NODE != currentNode->getNodeType() ){
-	continue;
-      }
-      
-      xercesc::DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
-      
-      handleElement( currentElement );
-      
-    }
-    
+    }    
+
   }catch( xercesc::XMLException& e ){
     
     char* message = xercesc::XMLString::transcode( e.getMessage() );
@@ -319,11 +323,11 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     buf << "Encountered DOM Exception: " << message << std::flush;
     
     xercesc::XMLString::release( &message );
-    
+      
     throw( std::runtime_error( buf.str() ) );
-    
+      
   }
-  
+
   return;
   
 } // load()
