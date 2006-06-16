@@ -19,7 +19,7 @@ namespace edm {
     static const T & get( const Ref<ExtCollection<CExt, Ext> > & ref, 
 			  const RefProd<C> & ( Ext:: * getRef )() const
 			  ) {
-      return get( ref, getRef, ref.index() );
+      return get( ref, getRef, ref.key() );
     }
   };
 
