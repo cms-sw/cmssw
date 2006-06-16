@@ -12,6 +12,7 @@
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+
 using namespace edm;
 using namespace std; 
 
@@ -21,7 +22,7 @@ typedef std::vector<TrackingParticle> TrackingParticleCollection;
 string MessageCategory = "TrackingTruth";
 
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
-  produces<TrackingVertexContainer>();
+  produces<TrackingVertexCollection>();
   produces<TrackingParticleCollection>();
   conf_ = conf;
   distanceCut_ = conf_.getParameter<double>("distanceCut");
@@ -96,7 +97,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        
 // Find and loop over EmbdSimVertex vertices
     
-  auto_ptr<TrackingVertexContainer> tVC( new TrackingVertexContainer );  
+  auto_ptr<TrackingVertexCollection> tVC( new TrackingVertexCollection );  
 
   int index = 0;
   for (edm::EmbdSimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
@@ -129,9 +130,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Find closest vertex to this one
 
     double closest = 9e99;
-    TrackingVertexContainer::iterator nearestVertex;
+    TrackingVertexCollection::iterator nearestVertex;
 
-    for (TrackingVertexContainer::iterator v =
+    for (TrackingVertexCollection::iterator v =
         tVC -> begin();
         v != tVC ->end(); ++v) {
       math::XYZPoint vPosition = v->position();   
@@ -191,7 +192,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //  }
 
    index = 0;
-   for (TrackingVertexContainer::const_iterator v =
+   for (TrackingVertexCollection::const_iterator v =
         tVC -> begin();
         v != tVC ->end(); ++v) {
      edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
