@@ -40,7 +40,7 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   
   for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
   {
-    if(m_sourceCards[i] == 0)
+    if(m_sourceCards.at(i) == 0)
     {
       throw cms::Exception("L1GctSetupError")
       << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
@@ -53,35 +53,35 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   vector<L1GctSourceCard*> srcCardsForJetFinderB(L1GctJetFinder::MAX_SOURCE_CARDS);
   vector<L1GctSourceCard*> srcCardsForJetFinderC(L1GctJetFinder::MAX_SOURCE_CARDS);
 
-  srcCardsForJetFinderA[0] = m_sourceCards[0];
-  srcCardsForJetFinderA[1] = m_sourceCards[1];
-  srcCardsForJetFinderA[2] = m_sourceCards[8];
-  srcCardsForJetFinderA[3] = m_sourceCards[9];
-  srcCardsForJetFinderA[4] = m_sourceCards[10];
-  srcCardsForJetFinderA[5] = m_sourceCards[11];
-  srcCardsForJetFinderA[6] = m_sourceCards[12];
-  srcCardsForJetFinderA[7] = m_sourceCards[2];
-  srcCardsForJetFinderA[8] = m_sourceCards[3];
+  srcCardsForJetFinderA.at(0) = m_sourceCards.at(0);
+  srcCardsForJetFinderA.at(1) = m_sourceCards.at(1);
+  srcCardsForJetFinderA.at(2) = m_sourceCards.at(8);
+  srcCardsForJetFinderA.at(3) = m_sourceCards.at(9);
+  srcCardsForJetFinderA.at(4) = m_sourceCards.at(10);
+  srcCardsForJetFinderA.at(5) = m_sourceCards.at(11);
+  srcCardsForJetFinderA.at(6) = m_sourceCards.at(12);
+  srcCardsForJetFinderA.at(7) = m_sourceCards.at(2);
+  srcCardsForJetFinderA.at(8) = m_sourceCards.at(3);
   
-  srcCardsForJetFinderB[0] = m_sourceCards[2];
-  srcCardsForJetFinderB[1] = m_sourceCards[3];
-  srcCardsForJetFinderB[2] = m_sourceCards[0];
-  srcCardsForJetFinderB[3] = m_sourceCards[1];
-  srcCardsForJetFinderB[4] = m_sourceCards[11];
-  srcCardsForJetFinderB[5] = m_sourceCards[12];
-  srcCardsForJetFinderB[6] = m_sourceCards[13];
-  srcCardsForJetFinderB[7] = m_sourceCards[4];
-  srcCardsForJetFinderB[8] = m_sourceCards[5];
+  srcCardsForJetFinderB.at(0) = m_sourceCards.at(2);
+  srcCardsForJetFinderB.at(1) = m_sourceCards.at(3);
+  srcCardsForJetFinderB.at(2) = m_sourceCards.at(0);
+  srcCardsForJetFinderB.at(3) = m_sourceCards.at(1);
+  srcCardsForJetFinderB.at(4) = m_sourceCards.at(11);
+  srcCardsForJetFinderB.at(5) = m_sourceCards.at(12);
+  srcCardsForJetFinderB.at(6) = m_sourceCards.at(13);
+  srcCardsForJetFinderB.at(7) = m_sourceCards.at(4);
+  srcCardsForJetFinderB.at(8) = m_sourceCards.at(5);
 
-  srcCardsForJetFinderC[0] = m_sourceCards[4];
-  srcCardsForJetFinderC[1] = m_sourceCards[5];
-  srcCardsForJetFinderC[2] = m_sourceCards[2];
-  srcCardsForJetFinderC[3] = m_sourceCards[3];
-  srcCardsForJetFinderC[4] = m_sourceCards[12];
-  srcCardsForJetFinderC[5] = m_sourceCards[13];
-  srcCardsForJetFinderC[6] = m_sourceCards[14];
-  srcCardsForJetFinderC[7] = m_sourceCards[6];
-  srcCardsForJetFinderC[8] = m_sourceCards[7];
+  srcCardsForJetFinderC.at(0) = m_sourceCards.at(4);
+  srcCardsForJetFinderC.at(1) = m_sourceCards.at(5);
+  srcCardsForJetFinderC.at(2) = m_sourceCards.at(2);
+  srcCardsForJetFinderC.at(3) = m_sourceCards.at(3);
+  srcCardsForJetFinderC.at(4) = m_sourceCards.at(12);
+  srcCardsForJetFinderC.at(5) = m_sourceCards.at(13);
+  srcCardsForJetFinderC.at(6) = m_sourceCards.at(14);
+  srcCardsForJetFinderC.at(7) = m_sourceCards.at(6);
+  srcCardsForJetFinderC.at(8) = m_sourceCards.at(7);
   
   m_jetFinderA = new L1GctJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
   m_jetFinderB = new L1GctJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
@@ -102,7 +102,7 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   s << "i_phi = " << card.phiPosition << endl;;
   s << "No of Source Cards = " << card.m_sourceCards.size() << endl;
   for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    s << "SourceCard* " << i << " = " << card.m_sourceCards[i]<< endl;
+    s << "SourceCard* " << i << " = " << card.m_sourceCards.at(i)<< endl;
   }
   s << "Ex " << card.m_exSum << endl;
   s << "Ey " << card.m_eySum << endl;
@@ -141,21 +141,21 @@ void L1GctJetLeafCard::process() {
 
   // Finish Et and Ht sums for the Leaf Card
   vector<L1GctScalarEtVal> etStripSum(6);
-  etStripSum[0] = m_jetFinderA->getEtStrip0();
-  etStripSum[1] = m_jetFinderA->getEtStrip1();
-  etStripSum[2] = m_jetFinderB->getEtStrip0();
-  etStripSum[3] = m_jetFinderB->getEtStrip1();
-  etStripSum[4] = m_jetFinderC->getEtStrip0();
-  etStripSum[5] = m_jetFinderC->getEtStrip1();
+  etStripSum.at(0) = m_jetFinderA->getEtStrip0();
+  etStripSum.at(1) = m_jetFinderA->getEtStrip1();
+  etStripSum.at(2) = m_jetFinderB->getEtStrip0();
+  etStripSum.at(3) = m_jetFinderB->getEtStrip1();
+  etStripSum.at(4) = m_jetFinderC->getEtStrip0();
+  etStripSum.at(5) = m_jetFinderC->getEtStrip1();
 
   m_etSum.reset();
   m_exSum.reset();
   m_eySum.reset();
 
   for (unsigned i=0; i<6; ++i) {
-    m_etSum = m_etSum + etStripSum[i];
-    m_exSum = m_exSum + exComponent(etStripSum[i], (phiPosition*6+i));
-    m_eySum = m_eySum + eyComponent(etStripSum[i], (phiPosition*6+i));
+    m_etSum = m_etSum + etStripSum.at(i);
+    m_exSum = m_exSum + exComponent(etStripSum.at(i), (phiPosition*6+i));
+    m_eySum = m_eySum + eyComponent(etStripSum.at(i), (phiPosition*6+i));
   }
 
   m_htSum =

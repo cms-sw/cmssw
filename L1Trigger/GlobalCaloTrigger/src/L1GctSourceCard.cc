@@ -44,19 +44,19 @@ ostream& operator << (ostream& os, const L1GctSourceCard& card)
   os << "No. of IsoElec " << card.m_isoElectrons.size() << endl;
   for(uint i=0; i < card.m_isoElectrons.size(); i++)
     {
-      os << card.m_isoElectrons[i];
+      os << card.m_isoElectrons.at(i);
     } 
   os << "No. of NonIsoElec " << card.m_nonIsoElectrons.size() << endl;
   for(uint i=0; i < card.m_nonIsoElectrons.size(); i++)
     {
-      os << card.m_nonIsoElectrons[i];
+      os << card.m_nonIsoElectrons.at(i);
     }
   os << "MIPS " << card.m_mipBits;
   os << " QUIET " << card.m_quietBits << endl;
   os << "No. of Regions " << card.m_regions.size() << endl;
   for(uint i=0; i < card.m_regions.size(); i++)
     {
-      os << card.m_regions[i];
+      os << card.m_regions.at(i);
     }
   return os;
 }
@@ -297,12 +297,12 @@ void L1GctSourceCard::getCables1And2()
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_isoElectrons[i] = makeEmCand(uLongBuffer, true);
+    m_isoElectrons.at(i) = makeEmCand(uLongBuffer, true);
   }
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_nonIsoElectrons[i] = makeEmCand(uLongBuffer, false);
+    m_nonIsoElectrons.at(i)= makeEmCand(uLongBuffer, false);
   }
 
   bool bitBuffer;        
@@ -363,14 +363,14 @@ void L1GctSourceCard::getCables3And4()
   for(i=0; i < 4; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i] = makeRegion(uLongBuffer);            
+    m_regions.at(i) = makeRegion(uLongBuffer);            
   }
 
   //get the 8 forward regions
   for(i=4; i < NUM_REG_TYPE2; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i] = makeRegion(uLongBuffer);
+    m_regions.at(i) = makeRegion(uLongBuffer);
   }
 
   return;
@@ -398,7 +398,7 @@ void L1GctSourceCard::getCables5And6()
   for(i=0; i < NUM_REG_TYPE3; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i] = makeRegion(uLongBuffer);            
+    m_regions.at(i) = makeRegion(uLongBuffer);            
   }
     
   //Skip some more data

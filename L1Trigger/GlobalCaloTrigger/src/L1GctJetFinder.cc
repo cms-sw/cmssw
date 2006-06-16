@@ -40,7 +40,7 @@ L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
   
   for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
   {
-    if(m_sourceCards[i] == 0)
+    if(m_sourceCards.at(i) == 0)
     {
       throw cms::Exception("L1GctSetupError")
       << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
@@ -66,19 +66,19 @@ ostream& operator << (ostream& os, const L1GctJetFinder& algo)
   os << "ID = " << algo.m_id << endl;
   os << "No of Source cards " << algo.m_sourceCards.size() << endl;
   for (unsigned i=0; i<algo.m_sourceCards.size(); i++) {
-    os << "SourceCard* " << i << " = " << algo.m_sourceCards[i]<< endl;
-    os << "No of regions from this sourceCard " << algo.m_sourceCards[i]->getRegions().size() << endl;
+    os << "SourceCard* " << i << " = " << algo.m_sourceCards.at(i)<< endl;
+    os << "No of regions from this sourceCard " << algo.m_sourceCards.at(i)->getRegions().size() << endl;
   }
   os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
   os << "No of input regions " << algo.m_inputRegions.size() << endl;
 //   for(unsigned i=0; i < algo.m_inputRegions.size(); ++i)
 //     {
-//       os << algo.m_inputRegions[i]; 
+//       os << algo.m_inputRegions.at(i); 
 //     }
   os << "No of output jets " << algo.m_outputJets.size() << endl;
 //   for(unsigned i=0; i < algo.m_outputJets.size(); ++i)
 //     {
-//       os << algo.m_outputJets[i]; 
+//       os << algo.m_outputJets.at(i); 
 //     }
   os << "Output Et strip 0 " << algo.m_outputEtStrip0 << endl;
   os << "Output Et strip 1 " << algo.m_outputEtStrip1 << endl;
@@ -105,80 +105,80 @@ void L1GctJetFinder::fetchInput()
 {
   vector<L1GctRegion> tempRegions;  //for temp local copy of region data
     
-  tempRegions = m_sourceCards[0]->getRegions();
+  tempRegions = m_sourceCards.at(0)->getRegions();
   assert(tempRegions.size() == 10);  //Pointer setup check...
-  m_inputRegions[13] = tempRegions[0];
-  m_inputRegions[14] = tempRegions[1];
-  m_inputRegions[15] = tempRegions[2];
-  m_inputRegions[16] = tempRegions[3];
-  m_inputRegions[17] = tempRegions[4];
-  m_inputRegions[18] = tempRegions[5];
-  m_inputRegions[25] = tempRegions[6];
-  m_inputRegions[26] = tempRegions[7];
-  m_inputRegions[27] = tempRegions[8];
-  m_inputRegions[28] = tempRegions[9];
+  m_inputRegions.at(13) = tempRegions.at(0);
+  m_inputRegions.at(14) = tempRegions.at(1);
+  m_inputRegions.at(15) = tempRegions.at(2);
+  m_inputRegions.at(16) = tempRegions.at(3);
+  m_inputRegions.at(17) = tempRegions.at(4);
+  m_inputRegions.at(18) = tempRegions.at(5);
+  m_inputRegions.at(25) = tempRegions.at(6);
+  m_inputRegions.at(26) = tempRegions.at(7);
+  m_inputRegions.at(27) = tempRegions.at(8);
+  m_inputRegions.at(28) = tempRegions.at(9);
     
-  tempRegions = m_sourceCards[1]->getRegions();
+  tempRegions = m_sourceCards.at(1)->getRegions();
   assert(tempRegions.size() == 12);
-  m_inputRegions[29] = tempRegions[0];
-  m_inputRegions[30] = tempRegions[1];
-  m_inputRegions[19] = tempRegions[2];
-  m_inputRegions[31] = tempRegions[3];
-  m_inputRegions[20] = tempRegions[4];
-  m_inputRegions[21] = tempRegions[5];
-  m_inputRegions[22] = tempRegions[6];
-  m_inputRegions[23] = tempRegions[7];
-  m_inputRegions[32] = tempRegions[8];
-  m_inputRegions[33] = tempRegions[9];
-  m_inputRegions[34] = tempRegions[10];
-  m_inputRegions[35] = tempRegions[11];
+  m_inputRegions.at(29) = tempRegions.at(0);
+  m_inputRegions.at(30) = tempRegions.at(1);
+  m_inputRegions.at(19) = tempRegions.at(2);
+  m_inputRegions.at(31) = tempRegions.at(3);
+  m_inputRegions.at(20) = tempRegions.at(4);
+  m_inputRegions.at(21) = tempRegions.at(5);
+  m_inputRegions.at(22) = tempRegions.at(6);
+  m_inputRegions.at(23) = tempRegions.at(7);
+  m_inputRegions.at(32) = tempRegions.at(8);
+  m_inputRegions.at(33) = tempRegions.at(9);
+  m_inputRegions.at(34) = tempRegions.at(10);
+  m_inputRegions.at(35) = tempRegions.at(11);
 
-  tempRegions = m_sourceCards[2]->getRegions();
+  tempRegions = m_sourceCards.at(2)->getRegions();
   assert(tempRegions.size() == 10);
-  m_inputRegions[1] = tempRegions[6];
-  m_inputRegions[2] = tempRegions[7];
-  m_inputRegions[3] = tempRegions[8];
-  m_inputRegions[4] = tempRegions[9];
+  m_inputRegions.at(1) = tempRegions.at(6);
+  m_inputRegions.at(2) = tempRegions.at(7);
+  m_inputRegions.at(3) = tempRegions.at(8);
+  m_inputRegions.at(4) = tempRegions.at(9);
     
-  tempRegions = m_sourceCards[3]->getRegions();
+  tempRegions = m_sourceCards.at(3)->getRegions();
   assert(tempRegions.size() == 12);
-  m_inputRegions[5] = tempRegions[0];
-  m_inputRegions[6] = tempRegions[1];
-  m_inputRegions[7] = tempRegions[3];
-  m_inputRegions[8] = tempRegions[8];
-  m_inputRegions[9] = tempRegions[9];
-  m_inputRegions[10] = tempRegions[10];
-  m_inputRegions[11] = tempRegions[11];
+  m_inputRegions.at(5) = tempRegions.at(0);
+  m_inputRegions.at(6) = tempRegions.at(1);
+  m_inputRegions.at(7) = tempRegions.at(3);
+  m_inputRegions.at(8) = tempRegions.at(8);
+  m_inputRegions.at(9) = tempRegions.at(9);
+  m_inputRegions.at(10) = tempRegions.at(10);
+  m_inputRegions.at(11) = tempRegions.at(11);
     
-  tempRegions = m_sourceCards[4]->getRegions();
+  tempRegions = m_sourceCards.at(4)->getRegions();
   assert(tempRegions.size() == 10);
-  m_inputRegions[0] = tempRegions[6];
+  m_inputRegions.at(0) = tempRegions.at(6);
     
-  tempRegions = m_sourceCards[5]->getRegions();
+  tempRegions = m_sourceCards.at(5)->getRegions();
   assert(tempRegions.size() == 10);
-  m_inputRegions[12] = tempRegions[0];
-  m_inputRegions[24] = tempRegions[6];
+  m_inputRegions.at(12) = tempRegions.at(0);
+  m_inputRegions.at(24) = tempRegions.at(6);
     
-  tempRegions = m_sourceCards[6]->getRegions();
+  tempRegions = m_sourceCards.at(6)->getRegions();
   assert(tempRegions.size() == 10);
-  m_inputRegions[36] = tempRegions[0];
+  m_inputRegions.at(36) = tempRegions.at(0);
     
-  tempRegions = m_sourceCards[7]->getRegions();
+  tempRegions = m_sourceCards.at(7)->getRegions();
   assert(tempRegions.size() == 10);
-  m_inputRegions[37] = tempRegions[0];
-  m_inputRegions[38] = tempRegions[1];
-  m_inputRegions[39] = tempRegions[2];
-  m_inputRegions[40] = tempRegions[3];
-  m_inputRegions[41] = tempRegions[4];
-  m_inputRegions[42] = tempRegions[5];
+  m_inputRegions.at(37) = tempRegions.at(0);
+  m_inputRegions.at(38) = tempRegions.at(1);
+  m_inputRegions.at(39) = tempRegions.at(2);
+  m_inputRegions.at(40) = tempRegions.at(3);
+  m_inputRegions.at(41) = tempRegions.at(4);
+  m_inputRegions.at(42) = tempRegions.at(5);
         
-  tempRegions = m_sourceCards[8]->getRegions();
+  tempRegions = m_sourceCards.at(8)->getRegions();
   assert(tempRegions.size() == 12);
-  m_inputRegions[43] = tempRegions[2];
-  m_inputRegions[44] = tempRegions[4];
-  m_inputRegions[45] = tempRegions[5];
-  m_inputRegions[46] = tempRegions[6];
-  m_inputRegions[47] = tempRegions[7];
+  m_inputRegions.at(43) = tempRegions.at(2);
+  m_inputRegions.at(44) = tempRegions.at(4);
+  m_inputRegions.at(45) = tempRegions.at(5);
+  m_inputRegions.at(46) = tempRegions.at(6);
+  m_inputRegions.at(47) = tempRegions.at(7);
 }
 
 
@@ -186,7 +186,7 @@ void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
 {
   if(i >= 0 && i < MAX_REGIONS_IN)
   {
-    m_inputRegions[i] = region;
+    m_inputRegions.at(i) = region;
   }
   else
   {
@@ -221,16 +221,16 @@ void L1GctJetFinder::process()
       {
         assert(jetNum < MAX_JETS_OUT);
                 
-        m_outputJets[jetNum].setRank(m_jetEtCalLut->convertToSixBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), (row-1)));
-        m_outputJets[jetNum].setEta(row-1);
-        m_outputJets[jetNum].setPhi(column-1);
+        m_outputJets.at(jetNum).setRank(m_jetEtCalLut->convertToSixBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), (row-1)));
+        m_outputJets.at(jetNum).setEta(row-1);
+        m_outputJets.at(jetNum).setPhi(column-1);
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
         {
-          m_outputJets[jetNum].setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
+          m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
         }
         else //can't be a tau jet because we are in the HF
         {
-          m_outputJets[jetNum].setTauVeto(true);
+          m_outputJets.at(jetNum).setTauVeto(true);
         }
         ++jetNum;
       }
@@ -255,41 +255,41 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
   if(!boundary)  //Not at boundary, so use 3*3 window of regions to determine if a jet
   {
     // Get the energy of the central region
-    ULong testEt = m_inputRegions[centreIndex].et();
+    ULong testEt = m_inputRegions.at(centreIndex).et();
         
     //Test if our region qualifies as a jet by comparing its energy with the energies of the
     //surrounding eight regions.  In the event of neighbouring regions with identical energy,
     //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
-    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].et() &&
-       testEt >  m_inputRegions[centreIndex - COL_OFFSET].et() &&
-       testEt >  m_inputRegions[centreIndex+1-COL_OFFSET].et() &&
+    if(testEt >  m_inputRegions.at(centreIndex-1-COL_OFFSET).et() &&
+       testEt >  m_inputRegions.at(centreIndex - COL_OFFSET).et() &&
+       testEt >  m_inputRegions.at(centreIndex+1-COL_OFFSET).et() &&
            
-       testEt >= m_inputRegions[centreIndex - 1].et() &&
-       testEt >  m_inputRegions[centreIndex + 1].et() &&
+       testEt >= m_inputRegions.at(centreIndex - 1).et() &&
+       testEt >  m_inputRegions.at(centreIndex + 1).et() &&
            
-       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].et() &&
-       testEt >= m_inputRegions[centreIndex + COL_OFFSET].et() &&
-       testEt >= m_inputRegions[centreIndex+1+COL_OFFSET].et())
+       testEt >= m_inputRegions.at(centreIndex-1+COL_OFFSET).et() &&
+       testEt >= m_inputRegions.at(centreIndex + COL_OFFSET).et() &&
+       testEt >= m_inputRegions.at(centreIndex+1+COL_OFFSET).et())
     {
       return true;
     }
 //USE THIS BLOCK INSTEAD IF YOU WANT OVERFLOW BIT FUNCTIONALITY        
 /*    // Get the energy of the central region & OR the overflow bit to become the MSB
-    ULong testEt = (m_inputRegions[centreIndex].et() | (m_inputRegions[centreIndex].getOverFlow() << L1GctRegion::ET_BITWIDTH));
+    ULong testEt = (m_inputRegions.at(centreIndex).et() | (m_inputRegions.at(centreIndex).getOverFlow() << L1GctRegion::ET_BITWIDTH));
         
     //Test if our region qualifies as a jet by comparing its energy with the energies of the
     //surrounding eight regions.  In the event of neighbouring regions with identical energy,
     //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
-    if(testEt >  (m_inputRegions[centreIndex-1-COL_OFFSET].et() | (m_inputRegions[centreIndex-1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex - COL_OFFSET].et() | (m_inputRegions[centreIndex - COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex+1-COL_OFFSET].et() | (m_inputRegions[centreIndex+1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+    if(testEt >  (m_inputRegions.at(centreIndex-1-COL_OFFSET).et() | (m_inputRegions.at(centreIndex-1-COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions.at(centreIndex - COL_OFFSET).et() | (m_inputRegions.at(centreIndex - COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions.at(centreIndex+1-COL_OFFSET).et() | (m_inputRegions.at(centreIndex+1-COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-       testEt >= (m_inputRegions[centreIndex - 1].et() | (m_inputRegions[centreIndex - 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex + 1].et() | (m_inputRegions[centreIndex + 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions.at(centreIndex - 1).et() | (m_inputRegions.at(centreIndex - 1).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions.at(centreIndex + 1).et() | (m_inputRegions.at(centreIndex + 1).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-       testEt >= (m_inputRegions[centreIndex-1+COL_OFFSET].et() | (m_inputRegions[centreIndex-1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >= (m_inputRegions[centreIndex + COL_OFFSET].et() | (m_inputRegions[centreIndex + COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >= (m_inputRegions[centreIndex+1+COL_OFFSET].et() | (m_inputRegions[centreIndex+1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)))
+       testEt >= (m_inputRegions.at(centreIndex-1+COL_OFFSET).et() | (m_inputRegions.at(centreIndex-1+COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions.at(centreIndex + COL_OFFSET).et() | (m_inputRegions.at(centreIndex + COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions.at(centreIndex+1+COL_OFFSET).et() | (m_inputRegions.at(centreIndex+1+COL_OFFSET).getOverFlow() << L1GctRegion::ET_BITWIDTH)))
     {
       return true;
     }
@@ -299,15 +299,15 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
   {    
     // Get the energy of the central region
     // Don't need all the overflow bit adjustments as above, since we are in the HF here
-    ULong testEt = m_inputRegions[centreIndex].et();        
+    ULong testEt = m_inputRegions.at(centreIndex).et();        
         
-    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].et() &&
-       testEt >  m_inputRegions[centreIndex - COL_OFFSET].et() &&
+    if(testEt >  m_inputRegions.at(centreIndex-1-COL_OFFSET).et() &&
+       testEt >  m_inputRegions.at(centreIndex - COL_OFFSET).et() &&
        
-       testEt >= m_inputRegions[centreIndex - 1].et() &&
+       testEt >= m_inputRegions.at(centreIndex - 1).et() &&
            
-       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].et() &&
-       testEt >= m_inputRegions[centreIndex + COL_OFFSET].et())
+       testEt >= m_inputRegions.at(centreIndex-1+COL_OFFSET).et() &&
+       testEt >= m_inputRegions.at(centreIndex + COL_OFFSET).et())
     {
       return true;
     }
@@ -324,17 +324,17 @@ ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundar
   {
     for(int column = -1; column <= +1; ++column)
     {
-      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].et() +
-                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].et() +
-                m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].et();
+      energy += m_inputRegions.at(centreIndex-1 + (column*COL_OFFSET)).et() +
+                m_inputRegions.at( centreIndex  + (column*COL_OFFSET)).et() +
+                m_inputRegions.at(centreIndex+1 + (column*COL_OFFSET)).et();
     }
   }
   else
   {
     for(int column = -1; column <= +1; ++column)
     {
-      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].et() +
-                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].et();
+      energy += m_inputRegions.at(centreIndex-1 + (column*COL_OFFSET)).et() +
+                m_inputRegions.at( centreIndex  + (column*COL_OFFSET)).et();
     }
   }
   return energy;                                   
@@ -349,17 +349,17 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
   {
     for(int column = -1; column <= +1; ++column)
     {
-      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].tauVeto() ||
-                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].tauVeto() ||
-                          m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].tauVeto();
+      partial[column+1] = m_inputRegions.at(centreIndex-1 + (column*COL_OFFSET)).tauVeto() ||
+                          m_inputRegions.at( centreIndex  + (column*COL_OFFSET)).tauVeto() ||
+                          m_inputRegions.at(centreIndex+1 + (column*COL_OFFSET)).tauVeto();
     }
   }
   else
   {
     for(int column = -1; column <= +1; ++column)
     {
-      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].tauVeto() ||
-                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].tauVeto();
+      partial[column+1] = m_inputRegions.at(centreIndex-1 + (column*COL_OFFSET)).tauVeto() ||
+                          m_inputRegions.at( centreIndex  + (column*COL_OFFSET)).tauVeto();
     }
   }
   return partial[0] || partial[1] || partial[2];
@@ -378,8 +378,8 @@ L1GctScalarEtVal L1GctJetFinder::calcEtStrip(const UShort strip) const
   unsigned et = 0;
   bool of = false;
   for (UShort i=1; i < COL_OFFSET; ++i) {
-    et += m_inputRegions[(COL_OFFSET*(strip+1)+i)].et();
-    of |= m_inputRegions[(COL_OFFSET*(strip+1)+i)].overFlow();
+    et += m_inputRegions.at((COL_OFFSET*(strip+1)+i)).et();
+    of |= m_inputRegions.at((COL_OFFSET*(strip+1)+i)).overFlow();
   }
   L1GctScalarEtVal temp(et);
   temp.setOverFlow(temp.overFlow() || of);
