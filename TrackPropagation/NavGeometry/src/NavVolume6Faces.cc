@@ -8,6 +8,8 @@
 #include "TrackPropagation/NavGeometry/interface/NavSurfaceBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
+
 #include <map>
 
 SurfaceOrientation::Side oppositeSide( SurfaceOrientation::Side side = SurfaceOrientation::onSurface) {
@@ -125,7 +127,7 @@ Bounds* NavVolume6Faces::computeBounds( int index,
       GlobalPoint corner( crossing.crossing( *plane, *crossed[i], *crossed[j]));
       corners.push_back(corner);
 
-#ifdef MDEBUG
+#ifdef DEBUG
       cout << "Crossing of planes is " << corner << endl;
       cout << "NormalVectors of the planes are " << plane->normalVector()
 	   << " " << crossed[i]->normalVector() << " " << crossed[j]->normalVector() << endl;
@@ -183,7 +185,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     Container       verycloseSurfaces; // reachable surface with dist < epsilon !!
     Container       unreachableSurfaces;
 
-    double epsilon = 0.1; // should epsilon be hard-coded or a variable in NavVolume?
+    double epsilon = 0.01; // should epsilon be hard-coded or a variable in NavVolume?
 
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
 	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
@@ -197,8 +199,8 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
 	result.push_back(i->second);
     }
-    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
+    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     return result;
 }
 
@@ -218,7 +220,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     Container       verycloseSurfaces; // reachable surface with dist < epsilon (if 6-surface check fails)
     Container       unreachableSurfaces;
 
-    double epsilon = 0.1; // should epsilon be hard-coded or a variable in NavVolume?
+    double epsilon = 0.01; // should epsilon be hard-coded or a variable in NavVolume?
     bool surfaceMatched = false;
 
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
@@ -239,8 +241,8 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
 	result.push_back(i->second);
     }
-    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
+    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     return result;
 }
 
@@ -257,26 +259,48 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
   VolumeCrossReturnType VolumeCrossResult;
 
   for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
-    TSOSwithPath state = isur->surface().propagateWithPath( prop, startingState);
+
+    std::cout <<  "crossToNextVolume: trying Surface no. " << itry << std::endl;
+    TSOSwithPath state;
+    
+    try {
+      state = isur->surface().propagateWithPath( prop, startingState);
+    }
+    catch (MagVolumeOutsideValidity& except) {
+      std::cout << "Ohoh... failed to stay inside magnetic field !! skip this surface " << std::endl;
+	++itry;
+      continue;
+    }
+    
     if (!state.first.isValid()) {
       ++itry;
       continue;
     }
+
+    std::cout <<  "crossToNextVolume: reached Valid State at Surface no. " << itry << std::endl;
+    std::cout << " --> local position of Valid state is " <<  state.first.localPosition()  << std::endl;
+    std::cout << " --> global position of Valid state is " <<  state.first.globalPosition()  << std::endl;
+
     if (isur->bounds().inside(state.first.localPosition())) {
       //std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
       // Found the exit surface !! Get pointer to next volume and save exit state:
       //VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
       //VolumeCrossResult.second = state;
       //      exitSurface = &( isur->surface().surface() );
+      //if(VolumeCrossResult.path() < 0.01) {
+      //	std::cout << " Stuck at  " << state.first.globalPosition() << std::endl;
+      //}
       return VolumeCrossReturnType ( isur->surface().nextVolume(state.first.localPosition(), oppositeSide(isur->side())),
 			    state.first, state.second );
       
       break;
     }
     else {
+      std::cout << "crossToNextVolume: BUT not inside the Bounds !! " << std::endl;
       ++itry;
     }
   }
+
   return VolumeCrossResult;
 }
 
@@ -308,7 +332,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 	std::pair<bool,StraightLinePlaneCrossing::PositionType> crossed = pc.position( plane);
 	if (crossed.first) {
 
-#ifdef MDEBUG
+#ifdef DEBUG
 	    cout << "Plane crossed at global point " << crossed.second
 		 << " local point " << plane.toLocal( Plane::GlobalPoint(crossed.second)) << endl;
 #endif
