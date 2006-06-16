@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.5 2006/06/02 13:18:01 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.6 2006/06/09 13:15:43 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -225,7 +225,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 	      stringstream ss;
 	      ss << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections]"
 		 << " Null DcuId found in FEC cabling!"
-		 << " Providing 'dummy' DcuId based on control key: " 
+		 << " Providing 'dummy' DcuId based on control key: 0x" 
 		 << hex << setw(8) << setfill('0') << module_key << dec;
 	      edm::LogWarning("FedCabling") << ss.str();
 	    }
@@ -233,8 +233,8 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 	    // Check for null DetId
 	    if ( !module.detId() ) { 
 	      stringstream ss;
-	      ss << " Null DetId found in FEC cabling! Attempting to map DcuId " 
-		 << hex << setw(8) << setfill('0') << module.dcuId() << dec << "to DetId...";
+	      ss << " Null DetId found in FEC cabling! Attempting to map DcuId 0x" 
+		 << hex << setw(8) << setfill('0') << module.dcuId() << dec << " to DetId...";
 	      edm::LogWarning("FedCabling") << ss.str();
 	      // Set number of APV pairs based on number found in module
 	      module.nApvPairs(0); 
@@ -454,23 +454,26 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 
 	    // Check for null DcuId. If zero, set equal to control key
 	    if ( !module.dcuId() ) { 
-	      edm::LogWarning("FedCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-					    << " Null DcuId found in FEC cabling!"
-					    << " Providing 'dummy' DcuId based on control key...";
 	      uint32_t module_key = SiStripControlKey::key( icrate->fecCrate(), 
 							    ifec->fecSlot(), 
 							    iring->fecRing(), 
 							    iccu->ccuAddr(), 
 							    imod->ccuChan() );
 	      module.dcuId( module_key );
+	      stringstream ss;
+	      ss << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
+		 << " Null DcuId found in FEC cabling!"
+		 << " Providing 'dummy' DcuId based on control key: 0x" 
+		 << hex << setw(8) << setfill('0') << module_key << dec;
+	      edm::LogWarning("FedCabling") << ss.str();
 	    }
 	  
 	    // Check for null DetId
 	    if ( !module.detId() ) { 
 	      stringstream ss;
 	      ss << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-		 << " Null DetId found in FEC cabling! Attempting to map DcuId " 
-		 << hex << setw(8) << setfill('0') << module.dcuId() << dec << "to DetId...";
+		 << " Null DetId found in FEC cabling! Attempting to map DcuId 0x" 
+		 << hex << setw(8) << setfill('0') << module.dcuId() << dec << " to DetId...";
 	      edm::LogWarning("FedCabling") << ss.str();
 	      // Set number of APV pairs based on number found in module
 	      module.nApvPairs(0); 
