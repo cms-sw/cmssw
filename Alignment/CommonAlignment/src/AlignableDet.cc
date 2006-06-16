@@ -83,28 +83,27 @@ Alignments* AlignableDet::alignments() const
 {
 
   Alignments* m_alignments = new Alignments();
+  RotationType rot( theGeomDet->rotation() );
 
-  // Add associated geomDet alignments
+  // Get associated geomDet's alignments (position, rotation, detId)
   Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-
-  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
-							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
-							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+										rot.yx(), rot.yy(), rot.yz(),
+										rot.zx(), rot.zy(), rot.zz() )
 							 );
-
   uint32_t detId = this->geomDet()->geographicalId().rawId();
   
   // TEMPORARILY also include alignment error
-  HepSymMatrix clhepSymMatrix;
+  HepSymMatrix clhepSymMatrix(0);
   if ( this->geomDet()->alignmentPositionError() ) // Might not be set
 	clhepSymMatrix= this->geomDet()->alignmentPositionError()->globalError().matrix();
   
   AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
   
+  // Add to alignments container
   m_alignments->m_align.push_back( transform );
 
-
-   // Add components recursively (if it is not already an alignable det unit)
+  // Add components recursively (if it is not already an alignable det unit)
   std::vector<Alignable*> comp = this->components();
   if ( comp.size() > 1 )
 	for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
@@ -129,7 +128,7 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
 
   // Add associated geomDet alignment position error
   uint32_t detId = this->geomDet()->geographicalId().rawId();
-  HepSymMatrix clhepSymMatrix;
+  HepSymMatrix clhepSymMatrix(0);
   if ( this->geomDet()->alignmentPositionError() ) // Might not be set
 	{
 	  clhepSymMatrix= 

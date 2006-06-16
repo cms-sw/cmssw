@@ -13,6 +13,7 @@ void AlignableDetUnit::move( const GlobalVector& displacement)
   
   if ( misalignmentActive() ) 
     {
+	  DetPositioner::moveGeomDet( *theGeomDetUnit, displacement );
       theDisplacement += displacement;
     }
   else 
@@ -180,28 +181,27 @@ Alignments* AlignableDetUnit::alignments() const
 {
 
   Alignments* m_alignments = new Alignments();
-
-  // Transform into CLHEP objects
+  RotationType rot( theGeomDetUnit->rotation() );
+  
+  // Get alignments (position, rotation, detId)
   Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-
-  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
-							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
-							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+										rot.yx(), rot.yy(), rot.yz(),
+										rot.zx(), rot.zy(), rot.zz() )
 							 );
-
   uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
 
   // TEMPORARILY also include alignment error
-  HepSymMatrix clhepSymMatrix;
+  HepSymMatrix clhepSymMatrix(0);
   if ( this->geomDetUnit()->alignmentPositionError() ) 
 	{
 	  // Might not be set
 	  clhepSymMatrix = this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
-	  std::cout << detId << " " <<  clhepSymMatrix << std::endl;
 	}
   
   AlignTransform transform( clhepVector, clhepRotation, clhepSymMatrix, detId );
 
+  // Add to alignments container
   m_alignments->m_align.push_back( transform );
 
   return m_alignments;
@@ -217,7 +217,7 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
  
-  HepSymMatrix clhepSymMatrix;
+  HepSymMatrix clhepSymMatrix(0);
   if ( this->geomDetUnit()->alignmentPositionError() ) // Might not be set
 	clhepSymMatrix = 
 	  this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
