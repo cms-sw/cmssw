@@ -15,6 +15,10 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
+class CSCTFSectorProcessor;
+class CSCTFUnpacker;
+class CSCTFSPCoreLogic;
+
 namespace csc{
 
   class L1Track : public L1MuRegionalCand
@@ -37,10 +41,15 @@ namespace csc{
       float localPhiValue() const;
       unsigned localPhi() const { return m_lphi; }
       void setLocalPhi(const unsigned& lphi) { m_lphi = lphi; } 
-
-      //void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
       
-      unsigned endcap() const { return m_id.side(); }
+      const CSCCorrelatedLCTDigiCollection* getTrackStubs() const { return &track_stubs; }
+      unsigned me1ID() const { return me1_id; }
+      unsigned me2ID() const { return me2_id; }
+      unsigned me3ID() const { return me3_id; }
+      unsigned me4ID() const { return me4_id; }
+      unsigned mb1ID() const { return mb1_id; }
+
+      unsigned endcap() const { return m_id.endcap(); }
       unsigned sector() const { return m_id.sector(); }
       unsigned station() const { return 0; }
       // these next two are needed by the trigger container class
@@ -48,8 +57,6 @@ namespace csc{
       unsigned cscid() const { return 0; } 
 
       int BX() const { return bx(); }
-
-      void setSector(const unsigned& sector) { m_sector = sector; }
       
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
@@ -68,6 +75,13 @@ namespace csc{
       //friend std::ostream& operator<<(std::ostream&, const csc::L1Track&);
       //friend std::ostream& operator<<(std::ostream&, csc::L1Track&);
 
+      /// Only the Unpacker and SectorProcessor should have access to addTrackStub()
+      /// This prevents people from adding too many track stubs.
+
+      friend class CSCTFSectorProcessor; // for track stubs
+      friend class CSCTFUnpacker; // for track id bits and track stubs
+      friend class CSCTFSPCoreLogic; // for track id bits
+
       void Print() const;
 
     private:
@@ -75,12 +89,18 @@ namespace csc{
       
       std::string m_name;
       L1TrackId m_id;
+      CSCCorrelatedLCTDigiCollection track_stubs;
       unsigned m_lphi;
       unsigned m_ptAddress;
-      unsigned m_sector;
+      unsigned me1_id, me2_id, me3_id, me4_id, mb1_id;
       int m_bx;
       unsigned m_rank;
       bool m_empty;
+
+      void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
+      void setStationIds(const unsigned& me1, const unsigned& me2, 
+			 const unsigned& me3, const unsigned& me4,
+			 const unsigned& mb1);
      };
 }
 

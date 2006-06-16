@@ -27,7 +27,7 @@ namespace csc
 
       const L1TrackId& operator=(const csc::L1TrackId&);
 
-      inline unsigned side() const { return id_.endcap(); }
+      inline unsigned endcap() const { return id_.endcap(); }
       inline unsigned sector() const { return CSCTriggerNumbering::triggerSectorFromLabels(id_); }
       inline unsigned station() const { return id_.station(); }
       
