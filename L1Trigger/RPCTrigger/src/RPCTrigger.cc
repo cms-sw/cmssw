@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/06 16:25:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 09:13:46 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 
@@ -47,7 +47,12 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 }
 
 
-RPCTrigger::~RPCTrigger(){ }
+RPCTrigger::~RPCTrigger(){ 
+  delete m_pacTrigger;
+  delete m_trigConfig;
+
+
+}
 
 
 

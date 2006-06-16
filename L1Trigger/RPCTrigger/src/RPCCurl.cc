@@ -1,7 +1,7 @@
 /** \file RPCCurl.cc
  *
- *  $Date: 2006/06/09 12:35:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/12 15:45:39 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
@@ -217,7 +217,7 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
   
   doVirtualStrips();
   
-  int curPacNo=0;
+  int curPacNo=-1;  // pacs are numbered from 0 to 143 (there is curPacNo++ in first iteration)
   int curStripNo=0;
   int curBegStripNo=0;
   
