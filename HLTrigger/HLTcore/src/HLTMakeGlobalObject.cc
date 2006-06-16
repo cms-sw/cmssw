@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/04/26 09:27:44 $
+ *  $Date: 2006/05/12 18:13:30 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -60,7 +60,8 @@ HLTMakeGlobalObject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    const unsigned int n(labels_.size());
    for (unsigned int i=0; i!=n; i++) {
-     iEvent.getByLabel(labels_[i],pathobject);
+     try { iEvent.getByLabel(labels_[i],pathobject); }
+     catch (...) { continue; }
      globalobject->put(indices_[i],RefProd<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >(pathobject));
    }
 

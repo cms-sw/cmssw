@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/20 15:33:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 18:55:56 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,9 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
+
+#include "CLHEP/HepMC/ReadHepMC.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //
 // constructors and destructor
@@ -58,8 +61,6 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   cout << "HLTProdCand::produce start:" << endl;
-
    // produce dummy collections of photons, electrons, muons, and jets
 
    auto_ptr<PhotonCandidateCollection>      phot (new PhotonCandidateCollection);
@@ -67,22 +68,43 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<MuonCollection>                 muon (new MuonCollection);
    auto_ptr<RecoCaloJetCandidateCollection> jets (new RecoCaloJetCandidateCollection);
 
-   // fill collections with fake data
+
+   vector<edm::Handle<edm::HepMCProduct> > hepmcs;
+   edm::Handle<edm::HepMCProduct> hepmc;
+   iEvent.getManyByType(hepmcs);
+
+   cout << "HLTProdCand::produce start: " << hepmcs.size() << endl;
 
    math::XYZTLorentzVector p4;
-   for (unsigned int i=0; i!=n_; i++) {
-     p4=math::XYZTLorentzVector(+factor_*i,+2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
-     phot->push_back(     PhotonCandidate( 0,p4));
-
-     p4=math::XYZTLorentzVector(-factor_*i,-2.0*factor_*i,-2.0*factor_*i,3.0*factor_*i);
-     elec->push_back(   ElectronCandidate( 1,p4));
-
-     p4=math::XYZTLorentzVector(+factor_*i,-2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
-     muon->push_back(                Muon(-1,p4));
-
-     p4=math::XYZTLorentzVector(-factor_*i,+2.0*factor_*i,-2.0*factor_*i,3.0*factor_*i);
-     jets->push_back(RecoCaloJetCandidate( 0,p4));
+   if (hepmcs.size()>0) {
+     hepmc=hepmcs[0];
+     const HepMC::GenEvent* evt = hepmc->GetEvent();
+     for (HepMC::GenEvent::vertex_const_iterator vitr=evt->vertices_begin(); vitr!= evt->vertices_end(); vitr++) {
+       for (HepMC::GenVertex::particle_iterator pitr=(*vitr)->particles_begin(HepMC::children);
+                                               pitr!=(*vitr)->particles_end(HepMC::children); pitr++) {
+	 if ( (*pitr)->status()==1) {
+	   HepLorentzVector p = (*pitr)->momentum() ;
+           p4=math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t());
+           int ipdg = (*pitr)->pdg_id();
+           if (abs(ipdg)==11) {
+             elec->push_back(ElectronCandidate(0,p4));
+	   } else if (abs(ipdg)==13) {
+             muon->push_back(Muon(0,p4));
+           } else if (abs(ipdg)==22) {
+             phot->push_back(PhotonCandidate(0,p4));
+	   } else { 
+             jets->push_back(RecoCaloJetCandidate(0,p4));
+	   }
+         }
+       }
+     }
    }
+
+   cout << "HLTProdCand::produce stop: gemj = " 
+        << phot->size() << " " 
+        << elec->size() << " " 
+        << muon->size() << " "
+        << jets->size() << endl;
 
    // put them into the event
 
@@ -91,5 +113,4 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(muon);
    iEvent.put(jets);
 
-   cout << "HLTProdCand::produce stop:" << endl;
 }

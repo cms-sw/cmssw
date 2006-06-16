@@ -1,3 +1,5 @@
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/RecoCandidate>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=FWCore/Framework>
