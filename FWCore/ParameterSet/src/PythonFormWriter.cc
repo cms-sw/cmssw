@@ -262,7 +262,9 @@ namespace edm
 	  ostringstream out;
 	  out << "'" 
 	      << n.name 
-	      << "': ('PSet', 'tracked', ";
+	      << "': ('PSet', ";
+          write_trackedness(out, n.tracked_);
+          out << ", ";
 
           bool atTopLevel = (moduleStack_.empty());
           if(atTopLevel) 
@@ -298,7 +300,9 @@ namespace edm
       ostringstream out;
       out << "'"
 	  << n.name
-	  << "': ('VPSet', 'tracked', [";
+	  << "': ('VPSet', ";
+      write_trackedness(out, n.tracked_);
+      out << ", [";
       moduleStack_.top() += out.str();
 
       
