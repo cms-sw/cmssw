@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/12 20:49:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/15 16:36:25 $
+ *  $Revision: 1.2 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -46,6 +46,17 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     const LocalPoint& pos,
 		     const LocalError& err) :
   theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(pos), theLocalError(err) 
+{
+}
+
+
+// Constructor from a local position and error, wireId, bx and cluster size.
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
+		     int bx,
+		     int clustSize,
+		     const LocalPoint& pos,
+		     const LocalError& err) :
+  theRPCId(rpcId), theBx(bx), theLocalPosition(pos), theLocalError(err) 
 {
 }
 

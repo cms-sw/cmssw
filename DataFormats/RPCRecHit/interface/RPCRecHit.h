@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/04/18 16:30:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/15 16:36:24 $
+ *  $Revision: 1.3 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -41,6 +41,13 @@ class RPCRecHit : public RecHit1D {
 	    const LocalError& err);
   
 
+  /// Constructor from a local position and error, rpcId, bx and cluster size.
+  RPCRecHit(const RPCDetId& rpcId,
+	    int bx,
+	    int clustSize,
+	    const LocalPoint& pos,
+	    const LocalError& err);
+  
   /// Destructor
   virtual ~RPCRecHit();
 
