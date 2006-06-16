@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.13 2006/06/05 12:50:32 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.14 2006/06/06 07:55:09 dkcira Exp $
 //
 //
 
@@ -216,5 +216,4 @@ void SiStripMonitorCluster::endJob(void){
    }
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(SiStripMonitorCluster)
+
