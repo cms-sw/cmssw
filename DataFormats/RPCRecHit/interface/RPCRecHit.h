@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/06/15 16:36:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/16 07:54:20 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -20,8 +20,6 @@ class RPCRecHit : public RecHit1D {
   RPCRecHit(const RPCDetId& rpcId,
 	    int bx);
 
-  RPCRecHit(const RPCDetId& rpcId,
-	    int bx,int multiplicity);
   /// Default constructor
   RPCRecHit();
 
@@ -30,13 +28,13 @@ class RPCRecHit : public RecHit1D {
   /// resolution (the cell resolution) for the coordinate being measured
   /// and 0 for the two other coordinates
   RPCRecHit(const RPCDetId& rpcId,
-	    int bx,int multiplicity,
+	    int bx,
 	    const LocalPoint& pos);
   
 
   /// Constructor from a local position and error, rpcId and bx.
   RPCRecHit(const RPCDetId& rpcId,
-	    int bx,int multiplicity,
+	    int bx,
 	    const LocalPoint& pos,
 	    const LocalError& err);
   

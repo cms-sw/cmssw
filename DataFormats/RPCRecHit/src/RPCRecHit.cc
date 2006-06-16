@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/15 16:36:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/16 07:54:20 $
+ *  $Revision: 1.3 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -11,16 +11,9 @@
 
 
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) : 
-  theRPCId(rpcId), theBx(bx), theLocalPosition(), theLocalError() 
+  theRPCId(rpcId), theBx(bx),theClusterSize(99), theLocalPosition(), theLocalError() 
 {
 }
-
-RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, int multiplicity) : 
-  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(), theLocalError() 
-{
-}
-
-
 
 RPCRecHit::RPCRecHit() : 
   theRPCId(), theBx(99),theClusterSize(99), theLocalPosition(), theLocalError() 
@@ -28,8 +21,8 @@ RPCRecHit::RPCRecHit() :
 }
 
 
-RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, int multiplicity, const LocalPoint& pos) : 
-  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(pos) 
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) : 
+  theRPCId(rpcId), theBx(bx), theClusterSize(99), theLocalPosition(pos) 
 {
   float stripResolution = 3.0 ; //cm  this sould be taken from trimmed cluster size times strip size 
                                  //    taken out from geometry service i.e. topology
@@ -42,10 +35,9 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, int multiplicity, const Loca
 // Constructor from a local position and error, wireId and digi time.
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int bx,
-		     int multiplicity,
 		     const LocalPoint& pos,
 		     const LocalError& err) :
-  theRPCId(rpcId), theBx(bx), theClusterSize(multiplicity), theLocalPosition(pos), theLocalError(err) 
+  theRPCId(rpcId), theBx(bx), theClusterSize(99), theLocalPosition(pos), theLocalError(err) 
 {
 }
 
@@ -56,7 +48,7 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int clustSize,
 		     const LocalPoint& pos,
 		     const LocalError& err) :
-  theRPCId(rpcId), theBx(bx), theLocalPosition(pos), theLocalError(err) 
+  theRPCId(rpcId), theBx(bx), theClusterSize(clustSize), theLocalPosition(pos), theLocalError(err) 
 {
 }
 
