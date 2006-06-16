@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.3 2006/05/12 15:15:14 futyand Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.4 2006/06/16 10:16:43 rahatlou Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
@@ -47,7 +47,7 @@ EgammaSimpleAnalyzer::EgammaSimpleAnalyzer( const edm::ParameterSet& ps )
   correctedHybridSuperClusterProducer_   = ps.getParameter<std::string>("correctedHybridSuperClusterProducer");
 
   outputFile_   = ps.getParameter<std::string>("outputFile");
-  rootFile_ = new TFileOpen(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
+  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
 
 }
 
