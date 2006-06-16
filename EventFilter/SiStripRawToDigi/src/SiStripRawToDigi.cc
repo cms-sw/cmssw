@@ -68,6 +68,10 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
 				    auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr,
 				    auto_ptr< SiStripEventSummary >& summary ) {
+
+
+  cout << "[SiStripRawToDigi::createDigis] Event number: " << event << endl;
+
   // Debug info
   anal_.addEvent();
  
@@ -129,12 +133,14 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
     uint32_t ev_type  = fedEvent_->getSpecialTrackerEventType();
     uint32_t daq_reg  = fedEvent_->getDaqRegister();
     if ( dumpFrequency_ && !(event%dumpFrequency_) ) {
-      LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis]"
-			    << "  Run Type: " << run_type 
-			    << "  Event Number: " << ev_num 
-			    << "  Bunch Crossing: " << bunchx 
-			    << "  FED Readout Mode: " << ev_type 
-			    << "  DAQ Register: " << daq_reg; 
+      stringstream ss;
+      ss << "[SiStripRawToDigi::createDigis]"
+	 << "  Run Type: " << run_type 
+	 << "  Event Number: " << ev_num 
+	 << "  Bunch Crossing: " << bunchx 
+	 << "  FED Readout Mode: " << ev_type 
+	 << "  DAQ Register: " << daq_reg; 
+      LogDebug("RawToDigi") << ss.str();
     }
 
     // Iterate through FED channels, extract payload and create Digis
@@ -323,13 +329,16 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
     if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
       TFHeaderDescription* header = (TFHeaderDescription*) data_u32;
-      LogDebug("RawToDigi") << "[SiStripRawToDigi::triggerFed]"
-			    << "  getBunchCrossing: " << header->getBunchCrossing()
-			    << "  getNumberOfChannels: " << header->getNumberOfChannels() 
-			    << "  getNumberOfSamples: " << header->getNumberOfSamples()
-			    << "  getFedType: " << header->getFedType()
-			    << "  getFedId: " << header->getFedId()
-			    << "  getFedEventNumber: " << header->getFedEventNumber();
+      stringstream ss;
+      ss << "[SiStripRawToDigi::triggerFed]"
+	 << "  getBunchCrossing: " << header->getBunchCrossing()
+	 << "  getNumberOfChannels: " << header->getNumberOfChannels() 
+	 << "  getNumberOfSamples: " << header->getNumberOfSamples()
+	 << "  getFedType: 0x" 
+	 << hex << setw(8) << setfill('0') << header->getFedType() << dec
+	 << "  getFedId: " << header->getFedId()
+	 << "  getFedEventNumber: " << header->getFedEventNumber();
+      LogDebug("RawToDigi") << ss.str();
 
       // Write event-specific data to event
       summary->event( static_cast<uint32_t>( header->getFedEventNumber()) );
