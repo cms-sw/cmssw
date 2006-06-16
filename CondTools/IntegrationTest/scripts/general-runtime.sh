@@ -1,9 +1,15 @@
 # Basic paths, files, and variables
 O2ODIR=$HOME/scratch0
-CMSSW_VER=CMSSW_0_6_0_pre4
+CMSSW_VER=CMSSW_0_7_0_pre5
 SCRAM_PATH=/afs/cern.ch/cms/utils
 SCRAM_ARCH=slc3_ia32_gcc323
 CMSSW_DIR=${O2ODIR}/${CMSSW_VER}
+if [ ! -d $CMSSW_DIR ] 
+then
+    echo "$CMSSW_DIR does not exist.  Please check O2O_DIR and CMSSW_VER in general-runtime.sh"
+    exit
+fi
+
 LOG=$O2ODIR/o2o-log.txt
 
 # General object setup
