@@ -5,13 +5,14 @@
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.1 2006/01/06 02:35:45 wmtan Exp $
+$Id: RootDelayedReader.h,v 1.1 2006/01/07 00:46:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <map>
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -28,7 +29,9 @@ namespace edm {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootDelayedReader(EntryNumber const& entry, BranchMap const& bMap) : entryNumber_(entry), branches_(&bMap) {}
+    RootDelayedReader(EntryNumber const& entry,
+	 boost::shared_ptr<const BranchMap> bMap,
+	 boost::shared_ptr<const TFile> filePtr);
     virtual ~RootDelayedReader();
   private:
     RootDelayedReader(RootDelayedReader const&); // disable copy construction
@@ -36,7 +39,8 @@ namespace edm {
     virtual std::auto_ptr<EDProduct> get(BranchKey const& k, EDProductGetter const* ep) const;
     BranchMap const& branches() const {return *branches_;}
     EntryNumber const entryNumber_;
-    BranchMap const* branches_;
+    boost::shared_ptr<const BranchMap> branches_;
+    boost::shared_ptr<const TFile> filePtr_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }
