@@ -2,25 +2,25 @@
 #define DATAFORMATS_HCALDETID_HCALCALIBDETID_H 1
 
 #include <ostream>
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 
 /** \class HcalCalibDetId
   *  
   *  Contents of the HcalCalibDetId :
-  *     [24:20] Calibration Category (1 => CalibUnit)
+  *     [19:17] Calibration Category (1 => CalibUnit)
   *
   *  For CalibUnit:
   *     [12:9] Channel number/type (see below)
   *     [8:5] Detector sector (HB+,HB-,HE+,HE-,HF+,HF-,HO2-,HO1-,HOO,HO1+,HO2+)
   *     [4:0] RBX number
   *
-  * $Date: 2006/02/16 17:01:57 $
-  * $Revision: 1.2 $
+  * $Date: 2006/02/21 22:11:16 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
-class HcalCalibDetId : public DetId {
+class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
   enum CalibDetType { CalibrationBox = 1 };
@@ -41,7 +41,7 @@ public:
   HcalCalibDetId(SectorId sector, int rbx, int channel);
 
   /// get the flavor of this calibration detid
-  CalibDetType calibFlavor() const { return (CalibDetType)((id_>>20)&0x1F); }
+  CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
 
   /// get the rbx number (if relevant)
   int rbx() const;
@@ -62,8 +62,6 @@ public:
   static const int cbox_RadDam1       = 5; // in HE only!
   static const int cbox_RadDam2       = 6; // in HE only!
   static const int cbox_RadDam3       = 7; // in HE only!
-
-  static const HcalCalibDetId Undefined;
 
 };
 

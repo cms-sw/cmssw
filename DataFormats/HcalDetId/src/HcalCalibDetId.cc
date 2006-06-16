@@ -1,31 +1,35 @@
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 
-const HcalCalibDetId HcalCalibDetId::Undefined(0x40000000u);
-
-HcalCalibDetId::HcalCalibDetId() {
+HcalCalibDetId::HcalCalibDetId() : HcalOtherDetId() {
 }
 
 
-HcalCalibDetId::HcalCalibDetId(uint32_t rawid) : DetId(rawid) {
+HcalCalibDetId::HcalCalibDetId(uint32_t rawid) : HcalOtherDetId(rawid) {
 }
 
-HcalCalibDetId::HcalCalibDetId(SectorId sector, int rbx, int channel) : DetId(Hcal,HcalCalibration) {
-  id_|=(CalibrationBox<<20);
+HcalCalibDetId::HcalCalibDetId(SectorId sector, int rbx, int channel) : HcalOtherDetId(HcalCalibration) {
+  id_|=(CalibrationBox<<17);
   id_|=(rbx&0x1F)|((sector&0xF)<<5)|((channel&0xF)<<9);
 }
 
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
-  if (gen.det()!=Hcal || gen.subdetId()!=HcalCalibration) {
+  if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
     throw new std::exception();
   }
   id_=gen.rawId();
+  if (subdet()!=HcalCalibration) {
+    throw new std::exception();
+  }
 }
 
 HcalCalibDetId& HcalCalibDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Hcal || gen.subdetId()!=HcalCalibration) {
+  if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
     throw new std::exception();
   }
   id_=gen.rawId();
+  if (subdet()!=HcalCalibration) {
+    throw new std::exception();
+  }
   return *this;
 }
 
