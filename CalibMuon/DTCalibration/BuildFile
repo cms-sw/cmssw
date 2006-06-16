@@ -1,9 +1,6 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/DTDigi>
 <use name=CondFormats/DTObjects>
-<use name=CondCore/DBCommon>
-<use name=CondCore/MetaDataService>
-<use name=CondCore/IOVService>
 <use name=RecoLocalMuon/DTRecHit>
 <use name=CondCore/DBOutputService>
 <use name=DataFormats/DTRecHit>
@@ -16,9 +13,6 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/DTDigi>
  <use name=CondFormats/DTObjects>
- <use name=CondCore/DBCommon>
- <use name=CondCore/MetaDataService>
- <use name=CondCore/IOVService>
  <use name=RecoLocalMuon/DTRecHit>
  <use name=CondCore/DBOutputService>
  <use name=DataFormats/DTRecHit>
