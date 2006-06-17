@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/26 09:27:44 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -19,42 +19,31 @@
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/HLTReco/interface/HLTPathObject.h"
-#include <map>
+#include <vector>
 
 namespace reco
 {
-  template <typename T>  // T is HLTPathObject type
   class HLTGlobalObject {
 
-  // Ref to EDProduct containing HLTPathObject
-  typedef edm::RefProd<T> HLTPathObjectRef;
-
-  // Path (trigger) index in trigger table,  ref to HLTPathObject
-  typedef     map<unsigned int,  HLTPathObjectRef>  HLTPathObjectRefMap;
-
   private:
-    HLTPathObjectRefMap pathobjectrefs_;
+    std::vector<edm::RefProd<HLTPathObject> > refs_;
 
   public:
 
     // constructors
 
-    HLTGlobalObject(): pathobjectrefs_() {}
+    HLTGlobalObject(): refs_() {}
 
     // accessors
 
-    unsigned int size() const { return pathobjectrefs_.size();}
+    unsigned int size() const { return refs_.size();}
 
-    void put (const unsigned int index, const HLTPathObjectRef& ref) {
-      pathobjectrefs_[index]=ref;
+    void put (const edm::RefProd<HLTPathObject>& ref) {
+      refs_.push_back(ref);
     }
 
-    const HLTPathObjectRef get (const unsigned int index) const {
-      if (pathobjectrefs_.find(index)!=pathobjectrefs_.end()) {
-        return pathobjectrefs_.find(index)->second;
-      } else {
-	return HLTPathObjectRef();
-      }
+    const edm::RefProd<HLTPathObject>& at (const unsigned int index) const {
+      return refs_.at(index);
     }
     
   };

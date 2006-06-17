@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/23 07:19:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/16 18:55:56 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -60,16 +60,15 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<HLTFilterObjectWithRefs> ref;
    iEvent.getByLabel(src_,ref);
 
-   bool b1,b2;
    HLTParticle particle;
    const Candidate* candidate;
 
    const unsigned int n(ref->numberParticles());
    std::cout << "HLTAnalCand: Size = " << n << std::endl;
    for (unsigned int i=0; i!=n; i++) {
-     b1 = ref->getParticle(i,particle);
-     b2 = ref->getParticleRef(i,candidate);
-     std::cout << "HLTAnalCand: " << i << " " << b1 << " " << b2 << " E: " 
+     particle=ref->getParticle(i);
+     candidate=(ref->getParticleRef(i)).get();
+     std::cout << "HLTAnalCand: " << i << " E: " 
                << particle.energy() << " " << candidate->energy() << " "  
                << typeid(*candidate).name() << std::endl;
    }

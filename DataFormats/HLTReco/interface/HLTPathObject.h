@@ -7,46 +7,46 @@
  *  This class contains the HLT path object, ie, combining the HLT
  *  filter objects of the filters on this path.  At the moment this is
  *  a very simple but generic solution, exploiting the fact that all
- *  HLT filter objects are of the same C++ type (HLTFilterObject).
- *  This also allows the same simple generic path collector module to
- *  work for all possible paths
+ *  HLT filter objects are derived from the same base class
+ *  HLTFilterObjectBase.
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/26 09:27:44 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include <map>
+#include "DataFormats/Common/interface/RefToBase.h"
+#include<vector>
 
 namespace reco
 {
-  template <typename T>
   class HLTPathObject {
 
   private:
-    // map of: filter position (=index on path), filter object
-    map <unsigned char, T>  filterobjects_;
+
+    unsigned int path_;
+    // vector of Refs to filter objects
+    std::vector<edm::RefToBase<HLTFilterObjectBase> > refs_;
 
   public:
-    HLTPathObject(): filterobjects_() { }
+    HLTPathObject(): path_(), refs_() { }
+    HLTPathObject(unsigned int p): path_(p), refs_() { }
+
+    unsigned int size() const { return refs_.size();}
 
     // accessors
 
-    unsigned int size() const { return filterobjects_.size();}
+    unsigned int path() const { return path_;}
 
-    void put (const unsigned int index, const T& filterobject) {
-      filterobjects_[index]=filterobject;
+    void put (const edm::RefToBase<HLTFilterObjectBase>& ref) {
+      refs_.push_back(ref);
     }
 
-    const T get (const unsigned int index) const {
-      if (filterobjects_.find(index)!=filterobjects_.end()) {
-        return filterobjects_.find(index)->second;
-      } else {
-	return T();
-      }
+    const edm::RefToBase<HLTFilterObjectBase>& at (const unsigned int index) const {
+      return refs_.at(index);
     }
     
   };

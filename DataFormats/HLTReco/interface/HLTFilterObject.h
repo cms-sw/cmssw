@@ -14,15 +14,14 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/16 18:55:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/17 00:18:35 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -80,13 +79,8 @@ namespace reco
       scalars_[scalar] = value;
     }
 
-    bool getParticle(const unsigned int i, HLTParticle& particle) const {
-      if (i<particles_.size()) {
-        particle = particles_[i];
-        return true;
-      } else {
-        return false;
-      }
+    const HLTParticle& getParticle(const unsigned int i) const {
+      return particles_.at(i);
     }
 
     void putParticle(const edm::RefToBase<Candidate>& ref) {
@@ -110,13 +104,8 @@ namespace reco
       refs_.push_back(ref);
     }
 
-    bool getParticleRef(const unsigned int i, const Candidate* & candidate) const {
-      if (i<refs_.size()) {
-        candidate = (refs_[i]).get();
-	return true;
-      } else {
-	return false;
-      }
+    const edm::RefToBase<Candidate>& getParticleRef(const unsigned int i) const {
+      return refs_.at(i);
     }
  
   };

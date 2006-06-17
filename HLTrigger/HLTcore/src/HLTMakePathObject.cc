@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/04/26 09:27:44 $
+ *  $Date: 2006/05/12 18:13:30 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -30,7 +30,7 @@ HLTMakePathObject::HLTMakePathObject(const edm::ParameterSet& iConfig)
    assert(labels_.size()==indices_.size());
 
    //register your products
-   produces<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >();
+   produces<reco::HLTPathObject>();
 }
 
 HLTMakePathObject::~HLTMakePathObject()
@@ -51,15 +51,16 @@ HLTMakePathObject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    cout << "HLTMakePathObject start:" << endl;
 
-   Handle<reco::HLTFilterObjectWithRefs> filterobject;
+   auto_ptr<reco::HLTPathObject> pathobject (new reco::HLTPathObject);
+   edm::RefToBase<reco::HLTFilterObjectBase> ref;
 
-   auto_ptr<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> > pathobject 
-       (new reco::HLTPathObject<reco::HLTFilterObjectWithRefs>);
+   Handle<reco::HLTFilterObjectWithRefs> filterobject;
 
    const unsigned int n(labels_.size());
    for (unsigned int i=0; i!=n; i++) {
      iEvent.getByLabel(labels_[i],filterobject);
-     pathobject->put(indices_[i],*filterobject);
+     ref=edm::RefToBase<reco::HLTFilterObjectBase>(edm::RefProd<reco::HLTFilterObjectWithRefs>(filterobject));
+     pathobject->put(ref);
    }
 
    iEvent.put(pathobject);
