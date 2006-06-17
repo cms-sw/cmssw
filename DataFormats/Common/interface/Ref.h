@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.8 2006/06/14 23:40:33 wmtan Exp $
+$Id: Ref.h,v 1.9 2006/06/15 20:17:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -201,9 +201,11 @@ namespace edm {
       return getPtr<C, T, F>(ref_.product(), ref_.item());
     }
 
+    /// Returns C++ pointer to the item
     T const* get() const {
       return this->operator->();
     }
+
     /// Checks for null
     bool isNull() const {return id() == ProductID();}
 
