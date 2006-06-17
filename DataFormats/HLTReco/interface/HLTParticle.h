@@ -9,8 +9,8 @@
  *  an HLT filter decision.
  *
  *
- *  $Date: 2006/06/17 04:02:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/17 21:24:54 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,8 @@ namespace reco
     HLTParticle(): Particle(), id_() { }
 
     HLTParticle(const Particle& p, int id=0) : Particle(p), id_() {
-      if (id<-100) {id_=-101;} else if (id>+100) {id_=+101;} else {id_=char(id);}
+      if (id<-110) {id_=-110;} else if (id>+110) {id_=+110;} else {id_=char(id);}
+      // hence up to |id|<110 free to use, subject to PDG assigned values!
     }
 
     int id() const { return (int) (id_); }
