@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/05/06 08:15:45 $
- * $Revision: 1.47 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -201,6 +201,138 @@ void EBLaserTask::setup(void){
 }
 
 void EBLaserTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapL1_[i] )  dbe->removeElement( meShapeMapL1_[i]->getName() );
+      meShapeMapL1_[i] = 0;
+      if ( meAmplMapL1_[i] ) dbe->removeElement( meAmplMapL1_[i]->getName() );
+      meAmplMapL1_[i] = 0;
+      if ( meTimeMapL1_[i] ) dbe->removeElement( meTimeMapL1_[i]->getName() );
+      meTimeMapL1_[i] = 0;
+      if ( meAmplPNMapL1_[i] ) dbe->removeElement( meAmplPNMapL1_[i]->getName() );
+      meAmplPNMapL1_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapL2_[i] )  dbe->removeElement( meShapeMapL2_[i]->getName() );
+      meShapeMapL2_[i] = 0;
+      if ( meAmplMapL2_[i] ) dbe->removeElement( meAmplMapL2_[i]->getName() );
+      meAmplMapL2_[i] = 0;
+      if ( meTimeMapL2_[i] ) dbe->removeElement( meTimeMapL2_[i]->getName() );
+      meTimeMapL2_[i] = 0;
+      if ( meAmplPNMapL2_[i] ) dbe->removeElement( meAmplPNMapL2_[i]->getName() );
+      meAmplPNMapL2_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapL3_[i] )  dbe->removeElement( meShapeMapL3_[i]->getName() );
+      meShapeMapL3_[i] = 0;
+      if ( meAmplMapL3_[i] ) dbe->removeElement( meAmplMapL3_[i]->getName() );
+      meAmplMapL3_[i] = 0;
+      if ( meTimeMapL3_[i] ) dbe->removeElement( meTimeMapL3_[i]->getName() );
+      meTimeMapL3_[i] = 0;
+      if ( meAmplPNMapL3_[i] ) dbe->removeElement( meAmplPNMapL3_[i]->getName() );
+      meAmplPNMapL3_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapL4_[i] )  dbe->removeElement( meShapeMapL4_[i]->getName() );
+      meShapeMapL4_[i] = 0;
+      if ( meAmplMapL4_[i] ) dbe->removeElement( meAmplMapL4_[i]->getName() );
+      meAmplMapL4_[i] = 0;
+      if ( meTimeMapL4_[i] ) dbe->removeElement( meTimeMapL4_[i]->getName() );
+      meTimeMapL4_[i] = 0;
+      if ( meAmplPNMapL4_[i] ) dbe->removeElement( meAmplPNMapL4_[i]->getName() );
+      meAmplPNMapL4_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01L1_[i] ) dbe->removeElement( mePnAmplMapG01L1_[i]->getName() );
+      mePnAmplMapG01L1_[i] = 0;
+      if ( mePnPedMapG01L1_[i] ) dbe->removeElement( mePnPedMapG01L1_[i]->getName() );
+      mePnPedMapG01L1_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16L1_[i] ) dbe->removeElement( mePnAmplMapG16L1_[i]->getName() );
+      mePnAmplMapG16L1_[i] = 0;
+      if ( mePnPedMapG16L1_[i] ) dbe->removeElement( mePnPedMapG16L1_[i]->getName() );
+      mePnPedMapG16L1_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01L2_[i] ) dbe->removeElement( mePnAmplMapG01L2_[i]->getName() );
+      mePnAmplMapG01L2_[i] = 0;
+      if ( mePnPedMapG01L2_[i] ) dbe->removeElement( mePnPedMapG01L2_[i]->getName() );
+      mePnPedMapG01L2_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16L2_[i] ) dbe->removeElement( mePnAmplMapG16L2_[i]->getName() );
+      mePnAmplMapG16L2_[i] = 0;
+      if ( mePnPedMapG16L2_[i] ) dbe->removeElement( mePnPedMapG16L2_[i]->getName() );
+      mePnPedMapG16L2_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01L3_[i] ) dbe->removeElement( mePnAmplMapG01L3_[i]->getName() );
+      mePnAmplMapG01L3_[i] = 0;
+      if ( mePnPedMapG01L3_[i] ) dbe->removeElement( mePnPedMapG01L3_[i]->getName() );
+      mePnPedMapG01L3_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16L3_[i] ) dbe->removeElement( mePnAmplMapG16L3_[i]->getName() );
+      mePnAmplMapG16L3_[i] = 0;
+      if ( mePnPedMapG16L3_[i] ) dbe->removeElement( mePnPedMapG16L3_[i]->getName() );
+      mePnPedMapG16L3_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01L4_[i] ) dbe->removeElement( mePnAmplMapG01L4_[i]->getName() );
+      mePnAmplMapG01L4_[i] = 0;
+      if ( mePnPedMapG01L4_[i] ) dbe->removeElement( mePnPedMapG01L4_[i]->getName() );
+      mePnPedMapG01L4_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16L4_[i] ) dbe->removeElement( mePnAmplMapG16L4_[i]->getName() );
+      mePnAmplMapG16L4_[i] = 0;
+      if ( mePnPedMapG16L4_[i] ) dbe->removeElement( mePnPedMapG16L4_[i]->getName() );
+      mePnPedMapG16L4_[i] = 0;
+    }
+
+  }
 
 }
 

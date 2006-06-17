@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/05/05 20:12:03 $
- * $Revision: 1.36 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -102,6 +102,59 @@ void EBPedestalTask::setup(void){
 }
 
 void EBPedestalTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePedMapG01_[i] ) dbe->removeElement( mePedMapG01_[i]->getName() );
+      mePedMapG01_[i] = 0;
+      if ( mePed3SumMapG01_[i] ) dbe->removeElement( mePed3SumMapG01_[i]->getName() );
+      mePed3SumMapG01_[i] = 0;
+      if ( mePed5SumMapG01_[i] ) dbe->removeElement( mePed5SumMapG01_[i]->getName() );
+      mePed5SumMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePedMapG06_[i] ) dbe->removeElement( mePedMapG06_[i]->getName() );
+      mePedMapG06_[i] = 0;
+      if ( mePed3SumMapG06_[i] ) dbe->removeElement( mePed3SumMapG06_[i]->getName() );
+      mePed3SumMapG06_[i] = 0;
+      if ( mePed5SumMapG06_[i] ) dbe->removeElement( mePed5SumMapG06_[i]->getName() );
+      mePed5SumMapG06_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
+      mePedMapG12_[i] = 0;
+      if ( mePed3SumMapG12_[i] ) dbe->removeElement( mePed3SumMapG12_[i]->getName() );
+      mePed3SumMapG12_[i] = 0;
+      if ( mePed5SumMapG12_[i] ) dbe->removeElement( mePed5SumMapG12_[i]->getName() );
+      mePed5SumMapG12_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePnPedMapG01_[i]) dbe->removeElement( mePnPedMapG01_[i]->getName() );
+      mePnPedMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePnPedMapG16_[i]) dbe->removeElement( mePnPedMapG16_[i]->getName() );
+      mePnPedMapG16_[i] = 0;
+    }
+
+  }
 
 }
 

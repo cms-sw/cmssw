@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/05/22 16:37:44 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,11 +15,10 @@ EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
   init_ = false;
   
   // to be filled all the time
-  for (int i=0; i<4; i++)
-    {
-      meHodoOcc_[i] =0;
-      meHodoRaw_[i] =0;
-    }
+  for (int i=0; i<4; i++) {
+    meHodoOcc_[i] =0;
+    meHodoRaw_[i] =0;
+  }
   meTDCRec_      =0;
 
   // filled only when: the table does not move
@@ -67,13 +66,12 @@ void EBBeamHodoTask::setup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
 
-    for (int i=0; i<4; i++)
-      {
-	sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
-	meHodoOcc_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
-	sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
-	meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
-      }
+    for (int i=0; i<4; i++) {
+      sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
+      meHodoOcc_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
+      sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
+      meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
+    }
     
     sprintf(histo, "EBBHT PosX rec SM%02d", smId);
     meHodoPosRecX_ = dbe->book1D(histo, histo, 100, -20, 20);
@@ -125,6 +123,54 @@ void EBBeamHodoTask::setup(void){
 }
 
 void EBBeamHodoTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
+
+    for (int i=0; i<4; i++) {
+      if ( meHodoOcc_[i] ) dbe->removeElement( meHodoOcc_[i]->getName() );
+      meHodoOcc_[i] = 0;
+      if ( meHodoRaw_[i] ) dbe->removeElement( meHodoRaw_[i]->getName() );
+      meHodoRaw_[i] = 0;    
+    }
+
+    if ( meHodoPosRecX_ ) dbe->removeElement( meHodoPosRecX_->getName() );
+    meHodoPosRecX_ = 0;
+    if ( meHodoPosRecY_ ) dbe->removeElement( meHodoPosRecY_->getName() );
+    meHodoPosRecY_ = 0;
+    if ( meHodoPosRecXY_ ) dbe->removeElement( meHodoPosRecXY_->getName() );
+    meHodoPosRecXY_ = 0;
+    if ( meHodoSloXRec_ ) dbe->removeElement( meHodoSloXRec_->getName() );
+    meHodoSloXRec_ = 0;
+    if ( meHodoSloYRec_ ) dbe->removeElement( meHodoSloYRec_->getName() );
+    meHodoSloYRec_ = 0;
+    if ( meHodoQuaXRec_ ) dbe->removeElement( meHodoQuaXRec_->getName() );
+    meHodoQuaXRec_ = 0;
+    if ( meHodoQuaYRec_ ) dbe->removeElement( meHodoQuaYRec_->getName() );
+    meHodoQuaYRec_ = 0;
+    if ( meTDCRec_ ) dbe->removeElement( meTDCRec_->getName() );
+    meTDCRec_ = 0;
+    if ( meEvsXRecProf_ ) dbe->removeElement( meEvsXRecProf_->getName() );
+    meEvsXRecProf_ = 0;
+    if ( meEvsYRecProf_ ) dbe->removeElement( meEvsYRecProf_->getName() );
+    meEvsYRecProf_ = 0;
+    if ( meEvsXRecHis_ ) dbe->removeElement( meEvsXRecHis_->getName() );
+    meEvsXRecHis_ = 0;
+    if ( meEvsYRecHis_ ) dbe->removeElement( meEvsYRecHis_->getName() );
+    meEvsYRecHis_ = 0;
+    if ( meCaloVsHodoXPos_ ) dbe->removeElement( meCaloVsHodoXPos_->getName() );
+    meCaloVsHodoXPos_ = 0;
+    if ( meCaloVsHodoYPos_ ) dbe->removeElement( meCaloVsHodoYPos_->getName() );
+    meCaloVsHodoYPos_ = 0;
+    if ( meCaloVsTDCTime_ ) dbe->removeElement( meCaloVsTDCTime_->getName() );
+    meCaloVsTDCTime_ = 0;
+
+  }
 
 }
 

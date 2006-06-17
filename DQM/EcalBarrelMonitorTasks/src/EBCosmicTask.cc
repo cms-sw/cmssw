@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/05/06 08:15:45 $
- * $Revision: 1.46 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -68,6 +68,34 @@ void EBCosmicTask::setup(void){
 }
 
 void EBCosmicTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+      meCutMap_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+      meSelMap_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+      meSpectrumMap_[i] = 0;
+    }
+
+  }
 
 }
 

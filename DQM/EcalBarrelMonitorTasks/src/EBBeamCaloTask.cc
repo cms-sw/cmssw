@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/13 14:00:13 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.7 $
  * \author A. Ghezzi
  *
  */
@@ -63,20 +63,25 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
 }
 
 void EBBeamCaloTask::setup(void){
+
   init_ = true;
 
   Char_t histo[200];
+
   PreviousTableStatus_[0]=0;//let's start with stable...
   PreviousTableStatus_[1]=0;//let's start with stable...
 
-  DaqMonitorBEInterface* dbe = 0;
   lastStableStatus_=0;
   for(int u=0;u<10;u++){cib_[u]=0;}
   changed_tb_status_= false;
   evt_after_change_ =0;
   wasFakeChange_= false;
+
+  DaqMonitorBEInterface* dbe = 0;
+
   // get hold of back-end interface
   dbe = Service<DaqMonitorBEInterface>().operator->();
+
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     
@@ -170,6 +175,65 @@ void EBBeamCaloTask::setup(void){
 }
 
 void EBBeamCaloTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+  
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    for (int i = 0; i < cryInArray_ ; i++) {
+      if ( meBBCaloPulseProf_[i] ) dbe->removeElement( meBBCaloPulseProf_[i]->getName() );
+      meBBCaloPulseProf_[i] = 0;
+      if ( meBBCaloPulseProfG12_[i] ) dbe->removeElement( meBBCaloPulseProfG12_[i]->getName() );
+      meBBCaloGains_[i] = 0;
+      if ( meBBCaloEne_[i] ) dbe->removeElement( meBBCaloEne_[i]->getName() );
+      meBBCaloEne_[i] = 0;
+
+      if ( meBBCaloPulseProfMoving_[i] ) dbe->removeElement( meBBCaloPulseProfMoving_[i]->getName() );
+      meBBCaloPulseProfMoving_[i] = 0;
+      if ( meBBCaloPulseProfG12Moving_[i] ) dbe->removeElement( meBBCaloPulseProfG12Moving_[i]->getName() );
+      meBBCaloPulseProfG12Moving_[i] = 0;
+      if ( meBBCaloGainsMoving_[i] ) dbe->removeElement( meBBCaloGainsMoving_[i]->getName() );
+      meBBCaloGainsMoving_[i] = 0;
+      if ( meBBCaloEneMoving_[i] ) dbe->removeElement( meBBCaloEneMoving_[i]->getName() );
+      meBBCaloEneMoving_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+    for(int u=0; u< 1701;u++){ 
+      if ( meBBCaloE3x3Cry_[u] ) dbe->removeElement( meBBCaloE3x3Cry_[u]->getName() );
+      meBBCaloE3x3Cry_[u] = 0;
+      if ( meBBCaloE1Cry_[u] ) dbe->removeElement( meBBCaloE1Cry_[u]->getName() );
+      meBBCaloE1Cry_[u] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    if ( meBBCaloCryRead_ ) dbe->removeElement( meBBCaloCryRead_->getName() );
+    meBBCaloCryRead_ = 0;
+    if ( meBBCaloCryReadMoving_ ) dbe->removeElement( meBBCaloCryReadMoving_->getName() );
+    meBBCaloCryReadMoving_ = 0;
+    if ( meBBCaloAllNeededCry_ ) dbe->removeElement( meBBCaloAllNeededCry_->getName() );
+    meBBCaloAllNeededCry_ = 0;
+    if ( meBBNumCaloCryRead_ ) dbe->removeElement( meBBNumCaloCryRead_->getName() );
+    meBBNumCaloCryRead_ = 0;
+    if ( meBBCaloE3x3_ ) dbe->removeElement( meBBCaloE3x3_->getName() );
+    meBBCaloE3x3_ = 0;
+    if ( meBBCaloE3x3Moving_ ) dbe->removeElement( meBBCaloE3x3Moving_->getName() );
+    meBBCaloE3x3Moving_ = 0;
+    if ( meBBCaloCryOnBeam_ ) dbe->removeElement( meBBCaloCryOnBeam_->getName() );
+    meBBCaloCryOnBeam_ = 0;
+    if ( meBBCaloMaxEneCry_ ) dbe->removeElement( meBBCaloMaxEneCry_->getName() );
+    meBBCaloMaxEneCry_ = 0;
+    if ( TableMoving_ ) dbe->removeElement( TableMoving_->getName() );
+    TableMoving_ = 0;
+    if ( CrystalsDone_ ) dbe->removeElement( CrystalsDone_->getName() );
+    CrystalsDone_ = 0;
+    if ( CrystalInBeam_vs_Event_ ) dbe->removeElement( CrystalInBeam_vs_Event_->getName() );
+    CrystalInBeam_vs_Event_ = 0;
+
+  }
 
 }
 

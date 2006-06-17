@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/05/06 08:15:45 $
- * $Revision: 1.45 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -111,6 +111,64 @@ void EBTestPulseTask::setup(void){
 }
 
 void EBTestPulseTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG01_[i] ) dbe->removeElement( meShapeMapG01_[i]->getName() );
+      meShapeMapG01_[i] = 0;
+      if ( meAmplMapG01_[i] ) dbe->removeElement( meAmplMapG01_[i]->getName() );
+      meAmplMapG01_[i] = 0;
+      if ( meAmplErrorMapG01_[i] ) dbe->removeElement( meAmplErrorMapG01_[i]->getName() );
+      meAmplErrorMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG06_[i] ) dbe->removeElement( meShapeMapG06_[i]->getName() );
+      meShapeMapG06_[i] = 0;
+      if ( meAmplMapG06_[i] ) dbe->removeElement( meAmplMapG06_[i]->getName() );
+      meAmplMapG06_[i] = 0;
+      if ( meAmplErrorMapG06_[i] ) dbe->removeElement( meAmplErrorMapG06_[i]->getName() );
+      meAmplErrorMapG06_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG12_[i] ) dbe->removeElement( meShapeMapG12_[i]->getName() );
+      meShapeMapG12_[i] = 0;
+      if ( meAmplMapG12_[i] ) dbe->removeElement( meAmplMapG12_[i]->getName() );
+      meAmplMapG12_[i] = 0;
+      if ( meAmplErrorMapG12_[i] ) dbe->removeElement( meAmplErrorMapG12_[i]->getName() );
+      meAmplErrorMapG12_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01_[i] ) dbe->removeElement( mePnAmplMapG01_[i]->getName() );
+      mePnAmplMapG01_[i] = 0;
+      if ( mePnPedMapG01_[i] ) dbe->removeElement( mePnPedMapG01_[i]->getName() );
+      mePnPedMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16_[i] ) dbe->removeElement( mePnAmplMapG16_[i]->getName() );
+      mePnAmplMapG16_[i] = 0;
+      if ( mePnPedMapG16_[i] ) dbe->removeElement( mePnPedMapG16_[i]->getName() );
+      mePnPedMapG16_[i] = 0;
+    }
+
+  }
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/04/07 09:34:02 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -54,6 +54,22 @@ void EBPedestalOnlineTask::setup(void){
 }
 
 void EBPedestalOnlineTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    for ( int i = 0; i < 36; i++ ) {
+      if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
+      mePedMapG12_[i] = 0;
+    }
+
+  }
 
 }
 

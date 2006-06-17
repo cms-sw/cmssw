@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/05/11 19:46:09 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -60,6 +60,24 @@ void EBOccupancyTask::setup(void){
 }
 
 void EBOccupancyTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel");
+
+    dbe->setCurrentFolder("EcalBarrel/EcalOccupancy");
+    for (int i = 0; i < 36; i++) {
+      if ( meOccupancy_[i] ) dbe->removeElement( meOccupancy_[i]->getName() );
+      meOccupancy_[i] = 0;
+      if ( meOccupancyMem_[i] ) dbe->removeElement( meOccupancyMem_[i]->getName() );
+      meOccupancyMem_[i] = 0;
+    }
+
+  }
 
 }
 
