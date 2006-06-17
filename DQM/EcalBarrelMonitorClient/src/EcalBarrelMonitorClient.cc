@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/16 18:10:34 $
- * $Revision: 1.136 $
+ * $Date: 2006/06/17 09:44:37 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -183,24 +183,26 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
-  if ( enableMonitorDaemon_ ) {
+  if ( ! enableStateMachine_ ) {
+    if ( enableMonitorDaemon_ ) {
 
-    // DQM default client name
+      // DQM default client name
 
-    clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+      clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
-    // DQM default collector host name
+      // DQM default collector host name
 
-    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+      hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-    // DQM default host port
+      // DQM default host port
 
-    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
+      hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
-    cout << " Client '" << clientName_ << "' " << endl
-         << " Collector on host '" << hostName_ << "'"
-         << " on port '" << hostPort_ << "'" << endl;
+      cout << " Client '" << clientName_ << "' " << endl
+           << " Collector on host '" << hostName_ << "'"
+           << " on port '" << hostPort_ << "'" << endl;
 
+    }
   }
 
   // vector of selected Super Modules (Defaults to all 36).
