@@ -12,8 +12,6 @@
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1TrackId.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
 class CSCTFSectorProcessor;
 class CSCTFUnpacker;
@@ -55,7 +53,8 @@ namespace csc{
       unsigned subsector() const { return 0; }
       unsigned cscid() const { return 0; } 
 
-      int BX() const { return bx(); }
+      void setBX(const int& bx) { m_bx = bx; }
+      int BX() const { return m_bx; }
       
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
@@ -103,66 +102,4 @@ namespace csc{
      };
 }
 
-/*
-ostream& operator << (ostream& output, csc::L1Track& rhs) {
-  if (!rhs.empty()) {
-    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << rhs.quality_packed()
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Pt(float): "  << " " << rhs.ptValue()
-           << " Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-  }
-  else {
-    output<<"\t  Empty track!\n";
-    output << "\t  Pt(int): "  << " " << "unassigned or zero"
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << "unassigned or zero"
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-    
-  }
-  return output;
-}
-
-std::ostream& operator << (ostream& output,  const csc::L1Track& rhs) {
-  if (!rhs.empty()) {
-    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << rhs.quality()
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Pt(float): "  << " " << rhs.ptValue()
-           << " Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-  }
-  else {
-    output<<"\t  Empty track!\n";
-    output << "\t  Pt(int): "  << " " << "unassigned or zero"
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << "unassigned or zero"
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-  }
-  return output;
-}
-*/
 #endif

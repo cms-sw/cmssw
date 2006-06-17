@@ -10,6 +10,7 @@ namespace csc {
     m_lphi = 0;
     m_ptAddress = 0;
     m_empty = true;
+    m_bx = 0;
     setType(2); 
     setPtPacked(0);
     m_rank = 0;
@@ -27,6 +28,7 @@ namespace csc {
 					      m_name(rhs.m_name)
   {
     scale = new L1MuTriggerScales();
+    m_bx = rhs.m_bx;
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
     m_endcap = rhs.m_endcap;
@@ -52,7 +54,7 @@ namespace csc {
       {
 	scale = new L1MuTriggerScales();
 	m_empty = rhs.m_empty;
-	this->setBx(rhs.bx());
+	m_bx = rhs.m_bx;
 	this->setDataWord(rhs.getDataWord());
 	m_name    = rhs.m_name;
 	m_lphi    = rhs.m_lphi;
@@ -189,7 +191,7 @@ namespace csc {
 		  << " Quality: "  << " " << quality_packed()
 		  << " charge: "   << " " << chargeValue()
 		  << " side: "   << " " << endcap()
-		  << " bx: "       << " " << bx()
+		  << " bx: "       << " " << BX()
 		  << endl;
 	std::cout << "\t  Pt(float): "  << " " << ptValue()
 		  << " Phi(float): " << " " << phiValueMid()
@@ -204,7 +206,7 @@ namespace csc {
 		  << " Quality: "  << " " << "unassigned or zero"
 		  << " charge: "   << " " << chargeValue()
 		  << " side: "   << " " << endcap()
-		  << " bx: "       << " " << bx()
+		  << " bx: "       << " " << BX()
 		  << endl;
 	std::cout << "\t  Phi(float): " << " " << phiValueMid()
 		  << " Eta(float): " << " " << etaValueLow();
