@@ -65,7 +65,7 @@ protected:
       
     public:
       virtual void process(){}
-      DummyConsumerServer(int p) : CollectorRoot("EvF",1,p), Task("Collector")
+      DummyConsumerServer(int port) : CollectorRoot("EvF",port), Task("Collector")
 	{
 	  inputAvail_=true;
 	}
