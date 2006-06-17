@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/02/21 20:32:48 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/07 09:34:02 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -53,9 +53,16 @@ void EBPedestalOnlineTask::setup(void){
 
 }
 
-void EBPedestalOnlineTask::endJob(){
+void EBPedestalOnlineTask::cleanup(void){
+
+}
+
+void EBPedestalOnlineTask::endJob(void){
 
   LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
+
+  this->cleanup();
+
 }
 
 void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){

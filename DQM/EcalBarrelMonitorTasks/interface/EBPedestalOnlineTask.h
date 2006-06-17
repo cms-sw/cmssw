@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.5 $
+ * $Date: 2006/02/21 20:32:47 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -63,6 +63,9 @@ void endJob(void);
 
 /// Setup
 void setup(void);
+
+/// Cleanup
+void cleanup(void);
 
 private:
 

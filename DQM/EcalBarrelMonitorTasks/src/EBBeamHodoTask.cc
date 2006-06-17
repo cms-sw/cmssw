@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/05/19 13:26:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/22 16:37:44 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -124,9 +124,15 @@ void EBBeamHodoTask::setup(void){
 
 }
 
-void EBBeamHodoTask::endJob(){
+void EBBeamHodoTask::cleanup(void){
+
+}
+
+void EBBeamHodoTask::endJob(void){
 
   LogInfo("EBBeamHodoTask") << "analyzed " << ievt_ << " events";
+
+  this->cleanup();
 
 }
 

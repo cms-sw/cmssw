@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2006/04/30 14:53:14 $
- * $Revision: 1.32 $
+ * $Date: 2006/05/01 09:00:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -63,6 +63,9 @@ void endJob(void);
 
 /// Setup
 void setup(void);
+
+/// Cleanup
+void cleanup(void);
 
 private:
 

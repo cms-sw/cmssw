@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/05/17 18:31:38 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/19 13:26:48 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -66,6 +66,9 @@ void endJob(void);
 
 /// Setup
 void setup(void);
+
+/// Cleanup
+void cleanup(void);
 
 private:
  

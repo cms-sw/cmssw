@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/08 13:16:43 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/13 14:00:13 $
+ * $Revision: 1.6 $
  * \author A. Ghezzi
  *
  */
@@ -169,9 +169,16 @@ void EBBeamCaloTask::setup(void){
   
 }
 
-void EBBeamCaloTask::endJob(){
+void EBBeamCaloTask::cleanup(void){
+
+}
+
+void EBBeamCaloTask::endJob(void){
 
   LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
+
+  this->cleanup();
+
 }
 
 void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){

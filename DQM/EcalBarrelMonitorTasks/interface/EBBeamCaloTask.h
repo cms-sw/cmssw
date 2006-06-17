@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/06/08 13:16:42 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/13 14:00:13 $
+ * $Revision: 1.5 $
  * \author A. Ghezzi
  *
 */
@@ -64,6 +64,9 @@ void endJob(void);
 
 /// Setup
 void setup(void);
+
+/// Cleanup
+void cleanup(void);
 
 private:
  const static int cryInArray_ = 9;

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/05/02 07:00:28 $
- * $Revision: 1.15 $
+ * $Date: 2006/05/02 09:56:28 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
  */
@@ -133,12 +133,17 @@ void EBIntegrityTask::setup(void){
 
   }
 
-}// end setup
+}
 
+void EBIntegrityTask::cleanup(void){
 
-void EBIntegrityTask::endJob(){
+}
+
+void EBIntegrityTask::endJob(void){
 
   LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
+
+  this->cleanup();
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/05/05 20:12:03 $
- * $Revision: 1.44 $
+ * $Date: 2006/05/06 08:15:45 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -110,9 +110,15 @@ void EBTestPulseTask::setup(void){
 
 }
 
-void EBTestPulseTask::endJob(){
+void EBTestPulseTask::cleanup(void){
+
+}
+
+void EBTestPulseTask::endJob(void){
 
   LogInfo("EBTestPulseTask") << "analyzed " << ievt_ << " events";
+
+  this->cleanup();
 
 }
 
