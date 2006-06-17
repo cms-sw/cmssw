@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/15 08:21:07 $
- * $Revision: 1.135 $
+ * $Date: 2006/06/16 18:10:34 $
+ * $Revision: 1.136 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -330,8 +330,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
     delete clients_[i];
   }
 
-  this->cleanup();
-
   mui_->disconnect();
 
   if ( mui_ ) delete mui_;
@@ -416,6 +414,8 @@ void EcalBarrelMonitorClient::endJob(void) {
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
 
   for( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->endJob();

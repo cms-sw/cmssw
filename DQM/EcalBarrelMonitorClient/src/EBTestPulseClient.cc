@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.70 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,8 +91,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
 EBTestPulseClient::~EBTestPulseClient(){
 
-  this->cleanup();
-
 }
 
 void EBTestPulseClient::beginJob(void){
@@ -119,6 +117,10 @@ void EBTestPulseClient::beginRun(void){
 void EBTestPulseClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 

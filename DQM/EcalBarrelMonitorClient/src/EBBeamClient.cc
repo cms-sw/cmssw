@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,6 +77,10 @@ void EBBeamClient::beginRun(void){
 void EBBeamClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBBeamClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 

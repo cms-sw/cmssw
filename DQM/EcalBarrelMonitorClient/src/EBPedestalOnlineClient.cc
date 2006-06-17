@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/13 20:08:58 $
- * $Revision: 1.27 $
+ * $Date: 2006/06/13 21:25:06 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -90,8 +90,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
 EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
-  this->cleanup();
-
 }
 
 void EBPedestalOnlineClient::beginJob(void){
@@ -118,6 +116,10 @@ void EBPedestalOnlineClient::beginRun(void){
 void EBPedestalOnlineClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 

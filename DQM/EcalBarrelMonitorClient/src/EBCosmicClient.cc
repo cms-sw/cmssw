@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.49 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -64,8 +64,6 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui
 
 EBCosmicClient::~EBCosmicClient(){
 
-  this->cleanup();
-
 }
 
 void EBCosmicClient::beginJob(void){
@@ -92,6 +90,10 @@ void EBCosmicClient::beginRun(void){
 void EBCosmicClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 

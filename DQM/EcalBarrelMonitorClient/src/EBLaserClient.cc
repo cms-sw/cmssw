@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.70 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -120,8 +120,6 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
 EBLaserClient::~EBLaserClient(){
 
-  this->cleanup();
-
 }
 
 void EBLaserClient::beginJob(void){
@@ -148,6 +146,10 @@ void EBLaserClient::beginRun(void){
 void EBLaserClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 

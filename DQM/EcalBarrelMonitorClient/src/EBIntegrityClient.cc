@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.91 $
+ * $Date: 2006/06/07 16:39:13 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -85,8 +85,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
 EBIntegrityClient::~EBIntegrityClient(){
 
-  this->cleanup();
-
 }
 
 void EBIntegrityClient::beginJob(void){
@@ -113,6 +111,10 @@ void EBIntegrityClient::beginRun(void){
 void EBIntegrityClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 
