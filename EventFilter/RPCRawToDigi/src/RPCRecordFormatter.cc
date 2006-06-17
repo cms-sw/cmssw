@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/05/29 08:38:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/07 09:51:24 $
+ *  $Revision: 1.11 $
  *
  * \author Ilaria Segoni
  */
@@ -80,9 +80,9 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 		int roll(2);
 		int strip(20);
 		// Not working yet
-		//rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
-		//		      region,ring,station,sector,layer,
-		//		      subsector,roll,strip);
+		rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
+				      region,ring,station,sector,layer,
+				      subsector,roll,strip);
 
 		RPCDetId detId(region,ring,station,sector,
 			       layer,subsector,roll);
