@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/06/13 10:08:35 $
- * $Revision: 1.12 $
+ * $Date: 2006/06/15 11:25:03 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,13 +95,13 @@ MonitorUserInterface* mui_;
 
 CollateMonitorElement* me_h03_[36];
 
+MEContentsProf2DWithinRangeROOT* qth03_[36];
+
 MonitorElement* meh03_[36];
 
 TProfile2D* h03_[36];
 
 MonitorElement* meg03_[36];
-
-MEContentsProf2DWithinRangeROOT* qth03_[36];
 
 MonitorElement* mep03_[36];
 

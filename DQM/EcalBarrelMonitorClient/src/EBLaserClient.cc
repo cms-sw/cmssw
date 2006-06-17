@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/07 16:39:13 $
- * $Revision: 1.71 $
+ * $Date: 2006/06/17 09:44:37 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -103,6 +103,34 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
   }
 
   percentVariation_ = 0.4;
+
+  Char_t qtname[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
+    qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L2", ism);
+    qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L3", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
+    qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+//    qth01_[ism-1]->setMinimumEntries(1000);
+//    qth02_[ism-1]->setMinimumEntries(1000);
+//    qth03_[ism-1]->setMinimumEntries(1000);
+//    qth04_[ism-1]->setMinimumEntries(1000);
+
+    qth01_[ism-1]->setErrorProb(1.00);
+    qth02_[ism-1]->setErrorProb(1.00);
+    qth03_[ism-1]->setErrorProb(1.00);
+    qth04_[ism-1]->setErrorProb(1.00);
+
+  }
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -383,6 +411,100 @@ void EBLaserClient::cleanup(void) {
 }
 
 void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  vector<dqm::me_util::Channel> badChannels;
+
+  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth01_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth01_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
+ 
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth02_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth02_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth03_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth03_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth04_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth04_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;

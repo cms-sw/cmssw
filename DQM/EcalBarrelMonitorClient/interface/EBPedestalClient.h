@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/06/13 20:05:55 $
- * $Revision: 1.33 $
+ * $Date: 2006/06/15 11:25:48 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -93,6 +93,10 @@ CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_h03_[36];
 
+MEContentsProf2DWithinRangeROOT* qth01_[36];
+MEContentsProf2DWithinRangeROOT* qth02_[36];
+MEContentsProf2DWithinRangeROOT* qth03_[36];
+
 CollateMonitorElement* me_j01_[36];
 CollateMonitorElement* me_j02_[36];
 CollateMonitorElement* me_j03_[36];
@@ -116,10 +120,6 @@ TProfile2D* k03_[36];
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 MonitorElement* meg03_[36];
-
-MEContentsProf2DWithinRangeROOT* qth01_[36];
-MEContentsProf2DWithinRangeROOT* qth02_[36];
-MEContentsProf2DWithinRangeROOT* qth03_[36];
 
 MonitorElement* mep01_[36];
 MonitorElement* mep02_[36];

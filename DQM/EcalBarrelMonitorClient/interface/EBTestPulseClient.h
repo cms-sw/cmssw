@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.28 $
+ * $Date: 2006/06/13 20:05:55 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -104,6 +104,10 @@ CollateMonitorElement* me_he03_[36];
 TProfile2D* ha01_[36];
 TProfile2D* ha02_[36];
 TProfile2D* ha03_[36];
+
+MEContentsProf2DWithinRangeROOT* qtha01_[36];
+MEContentsProf2DWithinRangeROOT* qtha02_[36];
+MEContentsProf2DWithinRangeROOT* qtha03_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];

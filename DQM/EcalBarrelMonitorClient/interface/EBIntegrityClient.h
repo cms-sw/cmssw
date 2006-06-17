@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.32 $
+ * $Date: 2006/06/13 20:05:55 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -114,6 +114,17 @@ TH2F* h07_[36];
 TH2F* h08_[36];
 TH2F* h09_[36];
 TH2F* h10_[36];
+
+MEContentsTH2FWithinRangeROOT* qth01_[36];
+MEContentsTH2FWithinRangeROOT* qth02_[36];
+MEContentsTH2FWithinRangeROOT* qth03_[36];
+MEContentsTH2FWithinRangeROOT* qth04_[36];
+MEContentsTH2FWithinRangeROOT* qth05_[36];
+MEContentsTH2FWithinRangeROOT* qth06_[36];
+MEContentsTH2FWithinRangeROOT* qth07_[36];
+MEContentsTH2FWithinRangeROOT* qth08_[36];
+MEContentsTH2FWithinRangeROOT* qth09_[36];
+MEContentsTH2FWithinRangeROOT* qth10_[36];
 
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];

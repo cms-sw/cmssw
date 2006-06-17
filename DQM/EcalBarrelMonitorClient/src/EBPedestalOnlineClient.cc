@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/13 21:25:06 $
- * $Revision: 1.28 $
+ * $Date: 2006/06/17 09:44:37 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -57,7 +57,7 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
   discrepancyMean_ = 20.0;
   RMSThreshold_ = 2.0;
 
-  Char_t qtname[20];
+  Char_t qtname[80];
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -194,13 +194,13 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( meg03_[ism-1] ) bei->removeElement(meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) bei->removeElement(mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) bei->removeElement(mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }

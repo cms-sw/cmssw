@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/15 11:25:48 $
- * $Revision: 1.76 $
+ * $Date: 2006/06/17 09:44:37 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,7 +92,7 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
 
-  Char_t qtname[20];
+  Char_t qtname[80];
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -191,7 +191,7 @@ void EBPedestalClient::setup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( meg01_[ism-1] ) bei->removeElement(  meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );

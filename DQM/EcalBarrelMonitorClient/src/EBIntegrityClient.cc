@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/07 16:39:13 $
- * $Revision: 1.92 $
+ * $Date: 2006/06/17 09:44:36 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -68,6 +68,75 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
   }
 
   threshCry_ = 0.;
+
+  Char_t qtname[80];
+    
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(qtname, "EBIT data integrity quality gain SM%02d", ism);
+    qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality ChId SM%02d", ism);
+    qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality gain switch SM%02d", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality gain switch stay SM%02d", ism);
+    qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality TTId SM%02d", ism);
+    qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality TTBlockSize SM%02d", ism);
+    qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality MemChId SM%02d", ism);
+    qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+  
+    sprintf(qtname, "EBIT data integrity quality MemGain SM%02d", ism);
+    qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality MemTTId SM%02d", ism);
+    qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBIT data integrity quality MemSize SM%02d", ism);
+    qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth02_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth03_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth04_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth05_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth06_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth07_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
+    qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
+  
+//    qth01_[ism-1]->setMinimumEntries(1000);
+//    qth02_[ism-1]->setMinimumEntries(1000);
+//    qth03_[ism-1]->setMinimumEntries(1000);
+//    qth04_[ism-1]->setMinimumEntries(1000);
+//    qth05_[ism-1]->setMinimumEntries(1000);
+//    qth06_[ism-1]->setMinimumEntries(1000);
+//    qth07_[ism-1]->setMinimumEntries(1000);
+//    qth08_[ism-1]->setMinimumEntries(1000);
+//    qth09_[ism-1]->setMinimumEntries(1000);
+//    qth10_[ism-1]->setMinimumEntries(1000);
+
+    qth01_[ism-1]->setErrorProb(1.00);
+    qth02_[ism-1]->setErrorProb(1.00);
+    qth03_[ism-1]->setErrorProb(1.00);
+    qth04_[ism-1]->setErrorProb(1.00);
+    qth05_[ism-1]->setErrorProb(1.00);
+    qth06_[ism-1]->setErrorProb(1.00);
+    qth07_[ism-1]->setErrorProb(1.00);
+    qth08_[ism-1]->setErrorProb(1.00);
+    qth09_[ism-1]->setErrorProb(1.00);
+    qth10_[ism-1]->setErrorProb(1.00);
+
+  }
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -220,10 +289,10 @@ void EBIntegrityClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( meg01_[ism-1] ) bei->removeElement(meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( meg02_[ism-1] ) bei->removeElement(meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
 
   }
@@ -231,6 +300,238 @@ void EBIntegrityClient::cleanup(void) {
 }
 
 void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+
+  vector<dqm::me_util::Channel> badChannels;
+
+  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth01_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth01_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth02_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth02_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth03_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth03_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth04_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth04_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth05_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth05_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth06_[ism-1] ) badChannels = qth06_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth06_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth06_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth07_[ism-1] ) badChannels = qth07_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth07_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth07_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth08_[ism-1] ) badChannels = qth08_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth08_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth08_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth09_[ism-1] ) badChannels = qth09_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth09_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth09_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
+  
+  if ( qth10_[ism-1] ) badChannels = qth10_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth10_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth10_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl; 
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << endl;
+    }
+    cout << endl;
+
+  }
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
@@ -680,6 +981,79 @@ void EBIntegrityClient::subscribe(void){
 
   }
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      mui_->useQTest(histo, qth04_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      mui_->useQTest(histo, qth05_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      mui_->useQTest(histo, qth06_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      mui_->useQTest(histo, qth07_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain SM%02d", ism);
+      mui_->useQTest(histo, qth08_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      mui_->useQTest(histo, qth09_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      mui_->useQTest(histo, qth10_[ism-1]->getName());
+    } else {
+      if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      mui_->useQTest(histo, qth04_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      mui_->useQTest(histo, qth05_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      mui_->useQTest(histo, qth06_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      mui_->useQTest(histo, qth07_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain SM%02d", ism);
+      mui_->useQTest(histo, qth08_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      mui_->useQTest(histo, qth09_[ism-1]->getName());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      mui_->useQTest(histo, qth10_[ism-1]->getName());
+      } else {
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      mui_->useQTest(histo, qth04_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      mui_->useQTest(histo, qth05_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      mui_->useQTest(histo, qth06_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      mui_->useQTest(histo, qth07_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain SM%02d", ism);
+      mui_->useQTest(histo, qth08_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      mui_->useQTest(histo, qth09_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      mui_->useQTest(histo, qth10_[ism-1]->getName());
+      }
+    }
+
+  }
+
 }
 
 void EBIntegrityClient::subscribeNew(void){
@@ -951,9 +1325,9 @@ void EBIntegrityClient::analyze(void){
         bool update_channel1 = false;
         bool update_channel2 = false;
 
-        float numTot    = -1.;
+        float numTot = -1.;
 
-        if ( h_[ism-1] )    numTot    = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
@@ -996,7 +1370,7 @@ void EBIntegrityClient::analyze(void){
           // numer of events on a channel
           if ( numTot > 0 ) {
             float errorRate1 =  num00 / numTot;
-           if ( errorRate1 > threshCry_ )
+            if ( errorRate1 > threshCry_ )
               val = 0.;
             errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
             if ( errorRate1 > threshCry_ )
@@ -1021,6 +1395,20 @@ void EBIntegrityClient::analyze(void){
 
       }
     }// end of loop on crystals to fill summary plot
+
+    vector<dqm::me_util::Channel> badChannels01;
+    vector<dqm::me_util::Channel> badChannels02;
+    vector<dqm::me_util::Channel> badChannels03;
+    vector<dqm::me_util::Channel> badChannels04;
+    vector<dqm::me_util::Channel> badChannels05;
+    vector<dqm::me_util::Channel> badChannels06;
+
+    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
+    if ( qth02_[ism-1] ) badChannels02 = qth01_[ism-1]->getBadChannels();
+    if ( qth03_[ism-1] ) badChannels03 = qth01_[ism-1]->getBadChannels();
+    if ( qth04_[ism-1] ) badChannels04 = qth01_[ism-1]->getBadChannels();
+    if ( qth05_[ism-1] ) badChannels05 = qth01_[ism-1]->getBadChannels();
+    if ( qth06_[ism-1] ) badChannels06 = qth01_[ism-1]->getBadChannels();
 
     // summaries for mem channels
     float num07, num08, num09, num10;
@@ -1092,6 +1480,16 @@ void EBIntegrityClient::analyze(void){
 
       }
     }  // end loop on mem channels
+
+    vector<dqm::me_util::Channel> badChannels07;
+    vector<dqm::me_util::Channel> badChannels08;
+    vector<dqm::me_util::Channel> badChannels09;
+    vector<dqm::me_util::Channel> badChannels10;
+
+    if ( qth07_[ism-1] ) badChannels01 = qth07_[ism-1]->getBadChannels();
+    if ( qth08_[ism-1] ) badChannels02 = qth08_[ism-1]->getBadChannels();
+    if ( qth09_[ism-1] ) badChannels03 = qth09_[ism-1]->getBadChannels();
+    if ( qth10_[ism-1] ) badChannels04 = qth10_[ism-1]->getBadChannels();
 
   }// end loop on supermodules
 
