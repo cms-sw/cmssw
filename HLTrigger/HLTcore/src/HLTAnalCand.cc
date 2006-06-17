@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/16 18:55:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/17 03:37:47 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -12,13 +12,12 @@
 #include "HLTrigger/HLTcore/interface/HLTAnalCand.h"
 
 #include "FWCore/Framework/interface/Handle.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<typeinfo>
 
 //
@@ -27,19 +26,11 @@
  
 HLTAnalCand::HLTAnalCand(const edm::ParameterSet& iConfig)
 {
-   using namespace reco;
-
    src_ = iConfig.getParameter< std::string > ("src");
-
-   // should use message logger instead of cout!
-   std::cout << "HLTAnalCand created: " << src_ << std::endl;
-
 }
 
 HLTAnalCand::~HLTAnalCand()
 {
-   // should use message logger instead of cout!
-   std::cout << "HLTAnalCand destroyed: " << src_ << std::endl;
 }
 
 //
@@ -53,7 +44,8 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   cout << "HLTAnalCand::filter start: " << src_ << endl;
+   edm::LogInfo("Analyze start") << "Input source: " << src_;
+
 
    // get hold of products from Event
 
@@ -64,13 +56,14 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    const Candidate* candidate;
 
    const unsigned int n(ref->numberParticles());
-   std::cout << "HLTAnalCand: Size = " << n << std::endl;
+   edm::LogVerbatim("Analyze") << "Size = " << n;
    for (unsigned int i=0; i!=n; i++) {
      particle=ref->getParticle(i);
      candidate=(ref->getParticleRef(i)).get();
-     std::cout << "HLTAnalCand: " << i << " E: " 
+     edm::LogVerbatim("Analyze") << i << " E: " 
                << particle.energy() << " " << candidate->energy() << " "  
-               << typeid(*candidate).name() << std::endl;
+               << typeid(*candidate).name();
    }
-   std::cout << "HLTAnalCand::filter stop: " << src_ << std::endl;
+
+   edm::LogInfo("Analyze stop ") << "Input source: " << src_;
 }

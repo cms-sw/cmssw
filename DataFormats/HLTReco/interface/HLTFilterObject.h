@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/17 03:37:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/17 20:17:01 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -44,10 +44,9 @@ namespace reco
     HLTFilterObjectBase(): path_(), module_() { }
     HLTFilterObjectBase(unsigned short int path, unsigned short int module)
       : path_(path), module_(module) { }
-    }
 
-    inline unsigned int path()   const { return path_;}
-    inline unsigned int module() const { return module_;}
+    unsigned short int path()   const { return path_  ;}
+    unsigned short int module() const { return module_;}
 
   };
 
