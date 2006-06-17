@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/05/02 09:56:28 $
- * $Revision: 1.16 $
+ * $Date: 2006/06/17 10:07:48 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
  */
@@ -136,6 +136,79 @@ void EBIntegrityTask::setup(void){
 }
 
 void EBIntegrityTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+  
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+  
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel");
+
+    if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
+    meIntegrityDCCSize = 0;
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGain[i] ) dbe->removeElement( meIntegrityGain[i]->getName() );
+      meIntegrityGain[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityChId[i] ) dbe->removeElement( meIntegrityChId[i]->getName() );
+      meIntegrityChId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGainSwitch[i] ) dbe->removeElement( meIntegrityGainSwitch[i]->getName() );
+      meIntegrityGainSwitch[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGainSwitchStay[i] ) dbe->removeElement( meIntegrityGainSwitchStay[i]->getName() );
+      meIntegrityGainSwitchStay[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityTTId[i] ) dbe->removeElement( meIntegrityTTId[i]->getName() );
+      meIntegrityTTId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityTTBlockSize[i] ) dbe->removeElement( meIntegrityTTBlockSize[i]->getName() );
+      meIntegrityTTBlockSize[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemChId[i] ) dbe->removeElement( meIntegrityMemChId[i]->getName() );
+      meIntegrityMemChId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemGain[i] ) dbe->removeElement( meIntegrityMemGain[i]->getName() );
+      meIntegrityMemGain[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemTTId[i] ) dbe->removeElement( meIntegrityMemTTId[i]->getName() );
+      meIntegrityMemTTId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemTTBlockSize[i] ) dbe->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
+      meIntegrityMemTTBlockSize[i] = 0;
+    }
+
+  }
 
 }
 
