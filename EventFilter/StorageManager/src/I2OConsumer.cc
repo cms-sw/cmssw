@@ -120,6 +120,25 @@ namespace edmtest
     i2o_max_size_(ps.getUntrackedParameter<int>("i2o_max_size",I2O_MAX_SIZE))
   {
     FDEBUG(10) << "I2OConsumer: Constructor" << std::endl;
+    // max i2o frame size must be less than 262140 or less we get
+    // a crash in the xdaq synchronous tcp transport layer
+    // (also needs to be a multiple of 64 bits)
+    if(i2o_max_size_ > I2O_ABSOLUTE_MAX_SIZE) {
+      int old_i2o_max_size = i2o_max_size_;
+      i2o_max_size_ = I2O_ABSOLUTE_MAX_SIZE;
+      LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+        "I2OConsumer: user defined i2o_max_size too large for xdaq tcp, changed from " 
+                     << old_i2o_max_size << " to " << i2o_max_size_);
+    }
+    // the total i20 frame size must be a multiple of 64 bits (8 bytes)
+    if((i2o_max_size_ & 0x7) != 0) {
+      int old_i2o_max_size = i2o_max_size_;
+      // round it DOWN as this is the maximum size
+      i2o_max_size_ = ((i2o_max_size_ >> 3) + 0) << 3;
+      LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+        "I2OConsumer: user defined i2o_max_size not multiple of 64 bits, changed from " 
+                     << old_i2o_max_size << " to " << i2o_max_size_);
+    }
     // now don't have to hardwire use sizeof(frame) now gives header
     //max_i2o_sm_datasize_ =  i2o_max_size_ - 28 - 136 ;
     //max_i2o_registry_datasize_ = i2o_max_size_ - 28 - 116; 
@@ -515,11 +534,9 @@ namespace edmtest
     unsigned int maxEvMsgDataFragSizeInBytes = maxSizeInBytes - headerNeededSize;
 //    unsigned int numFramesNeeded = size/maxSizeInBytes;
 //    unsigned int remainder = size%maxSizeInBytes;
-    int size4data = size - headerNeededSize; // this is not used 
-    // @@EM FIXED. the header size should not be subtracted from data size for this computation !!!
-
-    unsigned int numFramesNeeded = size/maxEvMsgDataFragSizeInBytes;
-    unsigned int remainder = size%maxEvMsgDataFragSizeInBytes;
+    int size4data = size - headerNeededSize;
+    unsigned int numFramesNeeded = size4data/maxEvMsgDataFragSizeInBytes;
+    unsigned int remainder = size4data%maxEvMsgDataFragSizeInBytes;
 
     if (remainder > 0) numFramesNeeded++;
     FDEBUG(10) << "I2OConsumer::writeI2OData: number of frames needed = " << numFramesNeeded 
@@ -555,7 +572,7 @@ namespace edmtest
       //size_t msgSizeInBytes = thisSize+headerNeededSize;
       size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME)+thisSize+headerNeededSize;
       // round up size to multiple of 8 bytes (i2o uses 32-bit words, but use 64 for future)
-      if(msgSizeInBytes & 0x7 != 0)
+      if((msgSizeInBytes & 0x7) != 0)
 	msgSizeInBytes = ((msgSizeInBytes >> 3) + 1) << 3;
       FDEBUG(10) << "I2OConsumer::writeI2OData: msgSizeInBytes data frame size = " 
                  << msgSizeInBytes << std::endl;
