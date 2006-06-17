@@ -9,15 +9,13 @@
  *  an HLT filter decision.
  *
  *
- *  $Date: 2006/05/18 17:00:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/16 18:55:55 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <cassert>
 
@@ -28,6 +26,9 @@ namespace reco
     // Currently, we re-use the Particle class from the Candidate Model
     // Later, we may use our own (more compact) particle (base) class
 
+  protected:
+    char id_; // id of particle (PDG scheme - fundamental particles only!)
+
   public:
     HLTParticle(): Particle(), id_() { }
     HLTParticle(const Particle& p, int i=0) : Particle(p), id_(i) {
@@ -35,8 +36,6 @@ namespace reco
 
     int id() const { return (int) (id_); }
 
-  protected:
-    char id_; // id of particle (PDG scheme - fundamental particles only!)
   };
 
 }
