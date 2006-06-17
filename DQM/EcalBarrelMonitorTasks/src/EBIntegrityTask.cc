@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.17 $
+ * $Date: 2006/06/17 17:17:11 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
  */
@@ -145,10 +145,11 @@ void EBIntegrityTask::cleanup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel");
 
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36 ; i++) {
       if ( meIntegrityGain[i] ) dbe->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
