@@ -137,7 +137,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
 	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
+	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
 	  output.push_back(*trSeed);
 	
 	}else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first update failed ";

@@ -19,7 +19,7 @@ namespace cms
 {
   class CosmicTrackFinder : public edm::EDProducer
   {
-    typedef std::pair<Trajectory, reco::Track> AlgoProduct; 
+
     typedef TrajectoryStateOnSurface     TSOS;
   public:
 

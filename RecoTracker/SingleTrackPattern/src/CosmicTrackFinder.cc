@@ -16,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 namespace cms
 {
 
@@ -63,37 +64,21 @@ namespace cms
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
 
-
   
     if((*seed).size()>0){
-      TrajectorySeed::range hRange= (*(*seed).begin()).recHits();
-      TrajectorySeed::const_iterator ihit;
-      float yy1=0;
-      float yy2=0;
-      uint iny=1;
-      for (ihit = hRange.first; 
-	   ihit != hRange.second; ihit++) {
 
-	unsigned int iraw=(*ihit).geographicalId().rawId();
-	LocalPoint lp=(*ihit).localPosition();
-	if (iny==1)yy1=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y());
-	else yy2=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y());
-	iny++;
-      }
-
-
-      bool seedplus=((yy1-yy2)>0);
-
+      bool seedplus=((*(*seed).begin()).direction()==alongMomentum);
+  
       if (seedplus)
-	LogDebug("CosmicTrackFinder")<<"Reconstruction in top-down direction";
+	LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
       else
-	LogDebug("CosmicTrackFinder")<<"Reconstruction in bottom-up direction";
+	LogDebug("CosmicTrackFinder")<<"Reconstruction opposite to momentum";
       cosmicTrajectoryBuilder_.init(es,seedplus);
       
-      vector<AlgoProduct> algooutput;
-      edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
       
-    
+      
+      std::vector<Trajectory> trajoutput;
+      
       cosmicTrajectoryBuilder_.run(*seed,
 				   *stereorecHits,
 				   *rphirecHits,
@@ -101,64 +86,71 @@ namespace cms
 				   *pixelHits,
 				   es,
 				   e,
-				   algooutput);
+				   trajoutput);
    
-     
-      if(algooutput.size()>0){
-	int cc = 0;	
-	vector<AlgoProduct>::iterator ialgo;
-	for(ialgo=algooutput.begin();ialgo!=algooutput.end();ialgo++){
-
+      
+      if(trajoutput.size()>0){
+	//Trajectory from the algorithm
+	const Trajectory  theTraj =(*trajoutput.begin());
 	
-	  Trajectory  theTraj = (*ialgo).first;
-	  //RecHitCollection	
-	  const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
-	  for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
-	      j!=transHits.end(); j++){
-	    outputRHColl->push_back( ( (j->hit() )->clone()) );
-	  }
-
-	  edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
-
-	  //TrackExtra????
-
-	  reco::TrackExtra * theTrackExtra;
-	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
-	  TSOS Fitsos = theTraj.firstMeasurement().updatedState();
-
-	  GlobalPoint v;
-	  GlobalVector p;
-	  if (seedplus){
-	    p=outertsos.globalMomentum();
-	    v=outertsos.globalPosition();
-	  }else{
-	    p=Fitsos.globalMomentum();
-	    v=Fitsos.globalPosition();
-	  }
-
-
-	  math::XYZVector outmom( p.x(), p.y(), p.z() );
-	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
-	  for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
-	      j!=transHits.end(); j++){
-	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-	    cc++;
-	  }
-	  outputTEColl->push_back(*theTrackExtra);
-	  ohTE = e.put(outputTEColl);
+	//RecHitCollection	
+	const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
+	for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	    j!=transHits.end(); j++){
+	  outputRHColl->push_back( ( (j->hit() )->clone()) );
 	}
-	cc = 0;
-	reco::Track  theTrack = (*ialgo).second;
-	reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
+
+	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
+
+
+	TSOS UpState;
+	if (seedplus)	  UpState=theTraj.lastMeasurement().updatedState();	
+	else      UpState=theTraj.firstMeasurement().updatedState();
+
+
+	//Track construction
+	int ndof =theTraj.foundHits()-5;
+	if (ndof<0) ndof=0;
+
+	TSCPBuilderNoMaterial tscpBuilder;
+	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(UpState.freeState()),
+						       UpState.globalPosition());
+	reco::perigee::Parameters param = tscp.perigeeParameters();
+  
+	reco::perigee::Covariance covar = tscp.perigeeError();
+  
+	
+	reco::Track theTrack(theTraj.chiSquared(),
+			     int(ndof),
+			     theTraj.foundHits(),
+			     0,
+			     theTraj.lostHits(),
+			     param,
+			     covar);
+
+
+	//Track Extra
+	GlobalPoint v=UpState.globalPosition();
+	GlobalVector p=UpState.globalMomentum();
+	math::XYZVector outmom( p.x(), p.y(), p.z() );
+	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+	for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	    j!=transHits.end(); j++){
+	  theTrackExtra->add(TrackingRecHitRef(ohRH,0));
+	}
+
+	outputTEColl->push_back(*theTrackExtra);
+	edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(outputTEColl);
+
+	reco::TrackExtraRef  theTrackExtraRef(ohTE,0);
 	theTrack.setExtra(theTrackExtraRef);
 	output->push_back(theTrack);
-    
-	cc++;
 	e.put(output);
+
       }
 
     }
-  }
   
+  }
 }

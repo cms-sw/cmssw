@@ -65,7 +65,7 @@
  };
 class CosmicTrajectoryBuilder 
 {
-  typedef std::pair<Trajectory, reco::Track> AlgoProduct; 
+
   typedef TrajectoryStateOnSurface     TSOS;
   typedef TrajectoryMeasurement        TM;
 
@@ -75,6 +75,7 @@ class CosmicTrajectoryBuilder
   ~CosmicTrajectoryBuilder();
 
   /// Runs the algorithm
+    
     void run(const TrajectorySeedCollection &collseed,
 	     const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi ,
@@ -82,7 +83,7 @@ class CosmicTrajectoryBuilder
 	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
 	     edm::Event& e,
-	     vector<AlgoProduct> &algooutput);
+	     vector<Trajectory> &trajoutput);
 
     void init(const edm::EventSetup& es,bool);
 
@@ -107,7 +108,7 @@ class CosmicTrajectoryBuilder
     bool qualityFilter(Trajectory traj);
 
 
-    AlgoProduct  makeTrack(const Trajectory &traj);
+ 
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
@@ -125,7 +126,6 @@ class CosmicTrajectoryBuilder
 
    int theMinHits;
    double chi2cut;
-   double finalchi2cut;
    std::vector<Trajectory> trajFit;
    edm::OwnVector<const TransientTrackingRecHit> hits;
    bool seed_plus;

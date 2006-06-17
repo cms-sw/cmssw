@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
@@ -24,8 +23,6 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) 
   theMinHits=conf_.getParameter<int>("MinHits");
   //cut on chi2
   chi2cut=conf_.getParameter<double>("Chi2Cut");
-  //cut on final chi2
-  finalchi2cut=conf_.getParameter<double>("FinalChi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
 }
 
@@ -85,7 +82,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
 				  edm::Event& e,
-				  vector<AlgoProduct> &algooutput)
+				  vector<Trajectory> &trajoutput)
 {
 
   hits.clear();
@@ -93,7 +90,8 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
   //order all the hits
   vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
-  //vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collseed);  
+
+
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
   
@@ -109,12 +107,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
     for (trajIter= trajSmooth.begin(); trajIter!=trajSmooth.end();trajIter++){
       if((*trajIter).isValid()){
-	if ((*trajIter).chiSquared()<500){
-	  AlgoProduct tk=makeTrack((*trajIter));
-	  algooutput.push_back(tk);
-	}else edm::LogError("CosmicTrackFinder")<<"Chi square of the track = "
-						<<(*trajIter).chiSquared()
-						<<" too high";
+	trajoutput.push_back((*trajIter));
       }
     }
   }
@@ -302,47 +295,11 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 bool 
 CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
+
   if ( traj.foundHits() >= theMinHits) {
     return true;
   }
   else {
     return false;
   }
-}
-
-std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
- 
-  TSOS outertsos = traj.lastMeasurement().updatedState();
-  TSOS Fitsos = traj.firstMeasurement().updatedState();
-
- 
-  int ndof =traj.foundHits()-5;
-  if (ndof<0) ndof=0;
-
-  TSCPBuilderNoMaterial tscpBuilder;
-  TrajectoryStateClosestToPoint tscp;
-
-  if (seed_plus) 	 
-    tscp= tscpBuilder(*(outertsos.freeState()), 	 
-		      outertsos.globalPosition());
-  else
-    tscp= tscpBuilder(*(Fitsos.freeState()),
-		      Fitsos.globalPosition());
-
-  reco::perigee::Parameters param = tscp.perigeeParameters();
-  
-  reco::perigee::Covariance covar = tscp.perigeeError();
-  
- 
-  reco::Track theTrack(traj.chiSquared(),
-		       int(ndof),
-		       traj.foundHits(),
-		       0,
-		       traj.lostHits(),
-		       param,
-		       covar);
-  
-  AlgoProduct aProduct(traj,theTrack);
-  return aProduct;
-
 }
