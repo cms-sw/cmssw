@@ -35,17 +35,20 @@
 //
 // Default size of i20 packet.
 //max data I2O frame is (2**16 - 1) * 4 = 65535 * 4 = 262140
-//#define I2O_MAX_SIZE 262140
+// ---this size should be a multiple of 64 bits (8 bytes)
+//#define I2O_MAX_SIZE 262136
+#define I2O_ABSOLUTE_MAX_SIZE 262136
 //use max data I2O frame as (2**13 - 1) * 4 = 32764 (32KB for MTCC)
-#define I2O_MAX_SIZE 32764
+// ---this size should be a multiple of 64 bits (8 bytes)
+#define I2O_MAX_SIZE 32760
 //max data I2O frame is (2**16 - 1) * 4 = 65535 * 4 = 262140
 //max data array size is then 262140 - 28 - 136 = 261976 bytes
 //#define MAX_I2O_SM_DATASIZE 261976
-#define MAX_I2O_SM_DATASIZE 32600
+#define MAX_I2O_SM_DATASIZE 32596
 // Not sure if Registry always fit in a single I2O frame??!
 // registry data array size is 262140 - 28 - 128 = 261984 bytes
 //#define MAX_I2O_REGISTRY_DATASIZE 261984
-#define MAX_I2O_REGISTRY_DATASIZE 32608
+#define MAX_I2O_REGISTRY_DATASIZE 32604
 // we want to define the maximum event data size?
 // max size is 20 x 262088 = about 5MB (used in testI2OReceiver only)
 //#define MAX_I2O_SM_DATAFRAMES 20
