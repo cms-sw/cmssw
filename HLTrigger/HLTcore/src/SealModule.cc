@@ -5,6 +5,7 @@
 #include "HLTrigger/HLTcore/interface/HLTAnalCand.h"
 #include "HLTrigger/HLTcore/interface/HLTProdCand.h"
 #include "HLTrigger/HLTcore/interface/HLTFiltCand.h"
+#include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
 #include "HLTrigger/HLTcore/interface/HLTMakePathObject.h"
 #include "HLTrigger/HLTcore/interface/HLTMakeGlobalObject.h"
 
@@ -13,5 +14,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLTPrescaler)
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTProdCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
+DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
 DEFINE_ANOTHER_FWK_MODULE(HLTMakePathObject)
 DEFINE_ANOTHER_FWK_MODULE(HLTMakeGlobalObject)
