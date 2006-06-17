@@ -1,10 +1,11 @@
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include <SimG4Core/Notification/interface/Singleton.h>
 
 namespace csc {
   
   L1Track::L1Track(const csc::L1TrackId& id): m_name("csc::L1Track")
   {
-    scale = new L1MuTriggerScales();    
+    scale = Singleton<L1MuTriggerScales>::instance();
     m_endcap = id.endcap();
     m_sector = id.sector();
     m_lphi = 0;
@@ -27,7 +28,7 @@ namespace csc {
 						      rhs.quality_packed(),rhs.bx()),
 					      m_name(rhs.m_name)
   {
-    scale = new L1MuTriggerScales();
+    scale = Singleton<L1MuTriggerScales>::instance();
     m_bx = rhs.m_bx;
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
@@ -44,15 +45,13 @@ namespace csc {
 
   L1Track::~L1Track()
   {
-    if(scale) delete scale;
-    scale = NULL;
   }
 
   const csc::L1Track& L1Track::operator=(const csc::L1Track& rhs)
   {
     if(this != &rhs)
       {
-	scale = new L1MuTriggerScales();
+	scale = Singleton<L1MuTriggerScales>::instance();
 	m_empty = rhs.m_empty;
 	m_bx = rhs.m_bx;
 	this->setDataWord(rhs.getDataWord());
