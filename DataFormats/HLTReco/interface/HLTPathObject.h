@@ -10,8 +10,8 @@
  *  HLT filter objects are derived from the same base class
  *  HLTFilterObjectBase.
  *
- *  $Date: 2006/04/26 09:27:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/17 03:37:46 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -27,8 +27,8 @@ namespace reco
 
   private:
 
-    unsigned int path_;
-    // vector of Refs to filter objects
+    unsigned int path_; // index of path on trigger table
+    // vector of Refs to filter objects:
     std::vector<edm::RefToBase<HLTFilterObjectBase> > refs_;
 
   public:

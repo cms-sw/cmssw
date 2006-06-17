@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/17 03:37:46 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -26,7 +26,6 @@
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include <cassert>
 #include <vector>
 #include <map>
 
@@ -37,18 +36,18 @@ namespace reco
   class HLTFilterObjectBase {
 
   private:
-    unsigned int index_; // packed path (24 bits) / module (8 bits) index
+    unsigned short int path_;    // index of path in trigger table
+    unsigned short int module_;  // index of module on trigger path
 
   public:
 
-    HLTFilterObjectBase(): index_() { }
-    HLTFilterObjectBase(unsigned int p, unsigned int m): index_(256*p+m) {
-      assert(p<256*65536); 
-      assert(m<256);
+    HLTFilterObjectBase(): path_(), module_() { }
+    HLTFilterObjectBase(unsigned short int path, unsigned short int module)
+      : path_(path), module_(module) { }
     }
 
-    inline unsigned int path()   const { return index_/256; }
-    inline unsigned int module() const { return index_%256; }
+    inline unsigned int path()   const { return path_;}
+    inline unsigned int module() const { return module_;}
 
   };
 
