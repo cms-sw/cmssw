@@ -38,6 +38,7 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
 
 	  itr->setQualityPacked(quality & 0x3);
 	  itr->setPtPacked(pt & 0x1f);
+	  itr->setBx(bx);
 
 	  if(!itr->empty()) result.push_back(*itr);
 	}

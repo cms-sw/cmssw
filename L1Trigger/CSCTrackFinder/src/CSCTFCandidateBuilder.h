@@ -8,8 +8,8 @@
 #ifndef CSCTrackFinder_CSCTFCandidateBuilder_h
 #define CSCTrackFinder_CSCTFCandidateBuilder_h
 
-#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
+#include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
