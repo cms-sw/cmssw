@@ -12,6 +12,7 @@
 <use name=EventFilter/RPCRawToDigi>
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/RPCDigi>
+<use name=DataFormats/RPCRecHit>
 
 <export>
 <lib name=DQMRPCMonitorDigi>
@@ -28,5 +29,6 @@
 <use name=EventFilter/RPCRawToDigi>
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/RPCDigi>
+<use name=DataFormats/RPCRecHit>
 </export>
 
