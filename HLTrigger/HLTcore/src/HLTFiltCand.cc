@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/25 16:49:34 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/16 18:55:56 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -72,6 +72,18 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    cout << "HLTFiltCand::filter start:" << endl;
 
+   // All filter must create and fill a filter object
+   // recording reconstructed physics objects making
+   // satisfying (logical subexpressions of) this trigger
+
+   // the filter object
+   auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
+   // ref to objects to be recorded
+   edm::RefToBase<Candidate> ref;
+
+
+   // Specific filter code
+
    // get hold of products from Event
 
    edm::Handle<PhotonCandidateCollection>      photons;
@@ -84,10 +96,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(srcmuon_,muons    );
    iEvent.getByLabel(srcjets_,jets     );
 
-   edm::RefToBase<Candidate> ref;
-
-   // create filter object
-   auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
 
    // look for at least one g,e,m,j above its pt cut
 
@@ -96,12 +104,11 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    PhotonCandidateCollection::const_iterator aphot(photons->begin());
    PhotonCandidateCollection::const_iterator ophot(photons->end());
    PhotonCandidateCollection::const_iterator iphot;
-   for (iphot=aphot; (iphot!=ophot)&&(!bphot); iphot++) {
+   for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= pt_phot_) {
        bphot=true;
        ref=edm::RefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(aphot,iphot)));
        filterproduct->putParticle(ref);
-       // at this point ref has released and is no longer valid!
      }
    }
 
@@ -110,12 +117,11 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ElectronCandidateCollection::const_iterator aelec(electrons->begin());
    ElectronCandidateCollection::const_iterator oelec(electrons->end());
    ElectronCandidateCollection::const_iterator ielec;
-   for (ielec=aelec; (ielec!=oelec)&&(!belec); ielec++) {
+   for (ielec=aelec; ielec!=oelec; ielec++) {
      if (ielec->pt() >= pt_elec_) {
        belec=true;
        ref=edm::RefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(aelec,ielec)));
        filterproduct->putParticle(ref);
-       // at this point ref has released and is no longer valid!
      }
    }
 
@@ -125,12 +131,11 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    MuonCollection::const_iterator amuon(muons->begin());
    MuonCollection::const_iterator omuon(muons->end());
    MuonCollection::const_iterator imuon;
-   for (imuon=amuon; (imuon!=omuon)&&(!bmuon); imuon++) {
+   for (imuon=amuon; imuon!=omuon; imuon++) {
      if (imuon->pt() >= pt_muon_) {
        bmuon=true;
        ref=edm::RefToBase<Candidate>(reco::MuonRef(muons,distance(amuon,imuon)));
        filterproduct->putParticle(ref);
-       // at this point ref has released and is no longer valid!
      }
    }
 
@@ -139,23 +144,23 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    RecoCaloJetCandidateCollection::const_iterator ajets(jets->begin());
    RecoCaloJetCandidateCollection::const_iterator ojets(jets->end());
    RecoCaloJetCandidateCollection::const_iterator ijets;
-   for (ijets=ajets; (ijets!=ojets)&&(!bjets); ijets++) {
+   for (ijets=ajets; ijets!=ojets; ijets++) {
      if (ijets->pt() >= pt_jets_) {
        bjets=true;
        ref=edm::RefToBase<Candidate>(reco::RecoCaloJetCandidateRef(jets,distance(ajets,ijets)));
        filterproduct->putParticle(ref);
-       // at this point ref has released and is no longer valid!
      }
    }
 
-   // final decision
-   bool accept (bphot && belec && bmuon && bjets);
-   filterproduct->setAccept(accept);
 
-   // put filter object into the Event
+   // final filter decision
+   bool accept (bphot && belec && bmuon && bjets);
+
+   // All filters: put filter object into the Event
    iEvent.put(filterproduct);
 
    std::cout << "HLTFiltCand::filter stop: " << std::endl;
 
+   // return with final filter decision
    return accept;
 }

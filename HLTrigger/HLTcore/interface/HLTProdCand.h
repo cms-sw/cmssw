@@ -7,8 +7,8 @@
  *  This class is a EDProducer producing some collections of
  *  reconstructed objetcs based on the Candidate model
  *
- *  $Date: 2006/05/18 16:57:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/20 15:33:35 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -33,9 +33,6 @@ class HLTProdCand : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
-   private:
-      unsigned int n_;  // how many objects in the collections
-      double  factor_;  // scale factor for faked 4-momentum
 };
 
 #endif //HLTProdCand_h

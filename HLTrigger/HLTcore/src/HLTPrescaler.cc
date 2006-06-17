@@ -26,7 +26,6 @@ bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
   // place filter object if requested
   if (b_) {
     auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
-    filterproduct->setAccept(accept);
     e.put(filterproduct);
   }
 

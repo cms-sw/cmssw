@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/05/25 16:52:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/16 18:55:55 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -37,25 +37,20 @@ namespace reco
 
   class HLTFilterObjectBase {
 
-  typedef edm::hlt::HLTScalar HLTScalar;
-
   private:
-    bool accept_;                     // filter decision
-    unsigned char module_;            // mdoule index of filter on path
-    unsigned short int path_;         // path index of path in trigger tabge (cfg file)
+    unsigned int index_; // packed path (24 bits) / module (8 bits) index
 
   public:
 
-    HLTFilterObjectBase(): accept_(), module_(), path_() { }
+    HLTFilterObjectBase(): index_() { }
+    HLTFilterObjectBase(unsigned int p, unsigned int m): index_(256*p+m) {
+      assert(p<256*65536); 
+      assert(m<256);
+    }
 
-    bool getAccept() const { return accept_;}
-    void setAccept(const bool accept) {accept_=accept;}
+    inline unsigned int path()   const { return index_/256; }
+    inline unsigned int module() const { return index_%256; }
 
-    unsigned int getModule() const {return (unsigned int)(module_);}
-    void setModule(const unsigned int i) {assert(i<  256); module_=i;}
-
-    unsigned int getPath()   const {return (unsigned int)(path_  );}
-    void setPath  (const unsigned int i) {assert(i<65536); path_  =i;}
   };
 
   class HLTFilterObject : public HLTFilterObjectBase {

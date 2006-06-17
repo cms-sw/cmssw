@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/16 18:55:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/16 22:07:09 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -29,11 +29,8 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 {
    using namespace reco;
 
-   n_      = iConfig.getParameter< unsigned int > ("n");
-   factor_ = iConfig.getParameter< double > ("scale");
-
    // should use message logger instead of cout!
-   std::cout << "HLTProdCand created: " << n_ << std::endl;
+   std::cout << "HLTProdCand created: " << std::endl;
 
    //register your products
 
