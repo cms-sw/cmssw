@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/16 22:07:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/17 00:18:35 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,8 @@
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // constructors and destructor
 //
@@ -28,9 +30,6 @@
 HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 {
    using namespace reco;
-
-   // should use message logger instead of cout!
-   std::cout << "HLTProdCand created: " << std::endl;
 
    //register your products
 
@@ -43,8 +42,6 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 
 HLTProdCand::~HLTProdCand()
 {
-   // should use message logger instead of cout!
-   std::cout << "HLTProdCand destroyed! " << std::endl;
 }
 
 //
@@ -70,7 +67,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::HepMCProduct> hepmc;
    iEvent.getManyByType(hepmcs);
 
-   cout << "HLTProdCand::produce start: " << hepmcs.size() << endl;
+   LogDebug("") << "Number of HepMC products found: " << hepmcs.size();
 
    math::XYZTLorentzVector p4;
    if (hepmcs.size()>0) {
@@ -97,11 +94,11 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   cout << "HLTProdCand::produce stop: gemj = " 
+   LogTrace("") << "Number of g/e/m/j objects reconstructed: " 
         << phot->size() << " " 
         << elec->size() << " " 
         << muon->size() << " "
-        << jets->size() << endl;
+        << jets->size() ;
 
    // put them into the event
 
@@ -110,4 +107,5 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(muon);
    iEvent.put(jets);
 
+   return;
 }

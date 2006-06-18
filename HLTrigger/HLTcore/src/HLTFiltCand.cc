@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/16 18:55:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/17 00:18:35 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -22,13 +22,14 @@
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // constructors and destructor
 //
  
 HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
 {
-   using namespace reco;
 
    srcphot_ = iConfig.getParameter< std::string > ("srcPhot");
    srcelec_ = iConfig.getParameter< std::string > ("srcElec");
@@ -40,23 +41,19 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
    pt_muon_ = iConfig.getParameter< double > ("ptMuon");
    pt_jets_ = iConfig.getParameter< double > ("ptJets");
 
-   // should use message logger instead of cout!
-   std::cout << "HLTFiltCand created:" <<
+   LogDebug("") << "created with:" <<
      " g: " << srcphot_ << " " << pt_phot_ << 
      " e: " << srcelec_ << " " << pt_elec_ << 
      " m: " << srcmuon_ << " " << pt_muon_ << 
-     " j: " << srcjets_ << " " << pt_jets_ << 
-     std::endl;
+     " j: " << srcjets_ << " " << pt_jets_  ;
 
    //register your products
-
    produces<reco::HLTFilterObjectWithRefs>();
+
 }
 
 HLTFiltCand::~HLTFiltCand()
 {
-   // should use message logger instead of cout!
-   std::cout << "HLTFiltCand destroyed! " << std::endl;
 }
 
 //
@@ -70,13 +67,11 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   cout << "HLTFiltCand::filter start:" << endl;
+   // All filters must create and fill a filter object
+   // recording any reconstructed physics objects 
+   // satisfying this filter
 
-   // All filter must create and fill a filter object
-   // recording reconstructed physics objects making
-   // satisfying (logical subexpressions of) this trigger
-
-   // the filter object
+   // The filter object
    auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
    // ref to objects to be recorded
    edm::RefToBase<Candidate> ref;
@@ -153,13 +148,12 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
-   // final filter decision
+   // final filter decision:
    bool accept (bphot && belec && bmuon && bjets);
+
 
    // All filters: put filter object into the Event
    iEvent.put(filterproduct);
-
-   std::cout << "HLTFiltCand::filter stop: " << std::endl;
 
    // return with final filter decision
    return accept;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 03:37:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/17 21:08:32 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -44,9 +44,6 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   edm::LogInfo("Analyze start") << "Input source: " << src_;
-
-
    // get hold of products from Event
 
    edm::Handle<HLTFilterObjectWithRefs> ref;
@@ -56,14 +53,14 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    const Candidate* candidate;
 
    const unsigned int n(ref->numberParticles());
-   edm::LogVerbatim("Analyze") << "Size = " << n;
+   LogDebug("") << src_ + " Size = " << n;
    for (unsigned int i=0; i!=n; i++) {
      particle=ref->getParticle(i);
      candidate=(ref->getParticleRef(i)).get();
-     edm::LogVerbatim("Analyze") << i << " E: " 
+     LogTrace("") << i << " E: " 
                << particle.energy() << " " << candidate->energy() << " "  
                << typeid(*candidate).name();
    }
 
-   edm::LogInfo("Analyze stop ") << "Input source: " << src_;
+   return;
 }

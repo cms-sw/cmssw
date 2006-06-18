@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/12 18:13:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/17 00:18:35 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -19,6 +19,8 @@
 
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // constructors and destructor
 //
@@ -28,10 +30,7 @@ HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
    ptcut_  = iConfig.getParameter<double> ("ptcut");
    njcut_  = iConfig.getParameter<int> ("njcut");
 
-   // should use message logger instead of cout!
-   std::cout << "HLTSimpleJet input: " << module_ << std::endl;
-   std::cout << "             PTcut: " << ptcut_  << std::endl;
-   std::cout << "    Number of jets: " << njcut_  << std::endl;
+   LogDebug("") << "Input/ptcut/njcut : " << module_ << " " << ptcut_ << " " << njcut_;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -39,8 +38,6 @@ HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
 
 HLTSimpleJet::~HLTSimpleJet()
 {
-   // should use message logger instead of cout!
-   std::cout << "HLTSimpleJet destroyed! " << std::endl;
 }
 
 //
@@ -55,8 +52,6 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   //   cout << "HLTSimpleJet::filter start:" << endl;
-
    // the filter object
    auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
    // ref to objects to be recorded
@@ -70,8 +65,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // look at all jets,  check cuts and add to filter object
    int n=0;
    RecoCaloJetCandidateCollection::const_iterator jet(jets->begin());
-   for (; jet!=jets->end()&&n<njcut_; jet++) {
-     //     cout << (*jet).pt() << endl;
+   for (; jet!=jets->end(); jet++) {
      if ( (jet->pt()) >= ptcut_) {
        n++;
        ref=edm::RefToBase<Candidate>(reco::RecoCaloJetCandidateRef(jets,distance(jets->begin(),jet)));
@@ -84,8 +78,6 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // put filter object into the Event
    iEvent.put(filterproduct);
-
-   //   std::cout << "HLTSimpleJet::filter stop: " << n << std::endl;
 
    return accept;
 }
