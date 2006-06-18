@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/17 09:44:37 $
- * $Revision: 1.72 $
+ * $Date: 2006/06/17 20:08:39 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -2105,6 +2105,11 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
+  htmlFile << "<table border=1><tr><td>L1 = blu laser</td>" << endl;
+  htmlFile << "<td>L2 = green laser</td>" << endl;
+  htmlFile << "<td>L3 = red laser</td>" << endl;
+  htmlFile << "<td>L4 = infrared laser</td></table>" << endl;
+  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -2143,6 +2148,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
     // Loop on wavelength
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       // Quality plots
 
@@ -2551,6 +2559,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
       if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
@@ -2562,6 +2573,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
     htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       if ( imgNameAmp[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
@@ -2581,6 +2595,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
       if ( imgNameTim[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
       else
@@ -2595,6 +2612,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
     htmlFile << "<br>" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
