@@ -41,12 +41,12 @@ public:
 
   void init()
   {
-    m_nbins[0] = m_nbins[1] = 10;
+    m_nbins[0] = m_nbins[1] = 100;
     m_mins[0] = m_mins[1] = FLT_MAX;
     m_maxs[0] = m_maxs[1] = FLT_MIN;
     m_data[0] = m_data[1] = m_data[2] = 0;
 
-    gStyle->SetOptStat(0);
+    gStyle->SetOptStat(1110);
     gStyle->SetOptFit();
     gStyle->SetPalette(1,0);
 
@@ -136,6 +136,25 @@ public:
 
   void drawTH1F()
   {
+    TCanvas c1("c1","rootplot",200,10,600,400);
+    c1.SetGrid();
+
+    TH1F* plot = new TH1F("rootplot", m_title.c_str(), m_nbins[0], m_mins[0], m_maxs[0]);
+    plot->GetXaxis()->SetTitle(m_xtitle.c_str());
+    plot->GetYaxis()->SetTitle(m_ytitle.c_str());
+    
+    if (m_xAxisType == TIME_AXIS) {
+      TAxis* axis = plot->GetXaxis();
+      setTimeAxis(axis);
+    }
+    
+    m_tree->Draw("x >> rootplot");
+
+    plot->Draw();
+    c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
+
+    plot->Write();
+
   };
 
   void drawTH2F()
