@@ -4,8 +4,8 @@
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/13 20:05:55 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -70,7 +70,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
+void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 

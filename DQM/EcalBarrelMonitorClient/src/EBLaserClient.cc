@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/17 20:08:39 $
- * $Revision: 1.73 $
+ * $Date: 2006/06/18 11:24:57 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,26 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
@@ -78,7 +97,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
@@ -106,7 +127,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   Char_t qtname[80];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
     qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
@@ -120,10 +143,10 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
     qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-//    qth01_[ism-1]->setMinimumEntries(1000);
-//    qth02_[ism-1]->setMinimumEntries(1000);
-//    qth03_[ism-1]->setMinimumEntries(1000);
-//    qth04_[ism-1]->setMinimumEntries(1000);
+    qth01_[ism-1]->setMinimumEntries(10*1700);
+    qth02_[ism-1]->setMinimumEntries(10*1700);
+    qth03_[ism-1]->setMinimumEntries(10*1700);
+    qth04_[ism-1]->setMinimumEntries(10*1700);
 
     qth01_[ism-1]->setErrorProb(1.00);
     qth02_[ism-1]->setErrorProb(1.00);
@@ -131,18 +154,6 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     qth04_[ism-1]->setErrorProb(1.00);
 
   }
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -193,13 +204,15 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  Char_t histo[50];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
   
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L1 SM%02d", ism);
@@ -255,7 +268,9 @@ void EBLaserClient::setup(void) {
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
@@ -294,7 +309,9 @@ void EBLaserClient::setup(void) {
 
 void EBLaserClient::cleanup(void) {
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -364,7 +381,9 @@ void EBLaserClient::cleanup(void) {
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -1161,7 +1180,9 @@ void EBLaserClient::subscribe(void){
 
     Char_t histo[80];
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+      int ism = superModules_[i];
 
       sprintf(histo, "EBLT amplitude SM%02d L1", ism);
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
@@ -1355,7 +1376,9 @@ void EBLaserClient::unsubscribe(void){
 
     if ( mui_ ) {
 
-      for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+        int ism = superModules_[i];
 
         mui_->removeCollate(me_h01_[ism-1]);
         mui_->removeCollate(me_h02_[ism-1]);
@@ -1440,9 +1463,10 @@ void EBLaserClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  //MonitorElementT<TNamed>* ob;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
@@ -2076,7 +2100,7 @@ void EBLaserClient::analyze(void){
 
 }
 
-void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
+void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBLaserClient html output ..." << endl;
 
@@ -2120,7 +2144,7 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
   int pCol3[3] = { 2, 3, 5 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for( int i = 0; i < 68; i++ ) {
+  for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy.Fill( a, b, i+1 );
@@ -2141,9 +2165,9 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
 
   // Loop on barrel supermodules
 
-  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
-    int ism = superModules[i];
+    int ism = superModules_[i];
 
     // Loop on wavelength
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/17 09:44:37 $
- * $Revision: 1.137 $
+ * $Date: 2006/06/17 14:56:47 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,14 +63,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   cout << endl;
 
   // Set runTypes
-  runTypes_.resize( 13 ); for( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
+
+  runTypes_.resize( 13 ); for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
   runTypes_[EcalDCCHeaderBlock::COSMIC]         = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]         = "BEAMH4";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]         = "BEAMH2";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]      = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]   = "PEDESTAL";
- 
 
   clients_.clear();
   clientNames_.clear();
@@ -328,7 +328,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   cout << "Exit ..." << endl;
 
-  for( unsigned int i=0; i<clients_.size(); i++ ) {
+  for ( unsigned int i=0; i<clients_.size(); i++ ) {
     delete clients_[i];
   }
 
@@ -347,7 +347,7 @@ void EcalBarrelMonitorClient::beginJob(void){
 
   this->subscribe();
 
-  for( unsigned int i=0; i<clients_.size(); i++ ) {
+  for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob();
   }
 
@@ -379,10 +379,10 @@ void EcalBarrelMonitorClient::beginRun(void){
 
   this->beginRunDb();
 
-  for( int i=0; i<int(clients_.size()); i++ ) {
+  for ( int i=0; i<int(clients_.size()); i++ ) {
     clients_[i]->cleanup();
     bool started; started = false;
-    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
       if( runtype_ != -1 && runtype_ == (*j).second && !started ) { started = true; clients_[i]->beginRun(); }
     }
   }
@@ -419,7 +419,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   this->cleanup();
 
-  for( unsigned int i=0; i<clients_.size(); i++ ) {
+  for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->endJob();
   }
 
@@ -443,9 +443,9 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   }
 
-  for( int i=0; i<int(clients_.size()); i++ ) {
+  for ( int i=0; i<int(clients_.size()); i++ ) {
     bool ended; ended = false;
-    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
       if( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRun(); }
     }
   }
@@ -592,9 +592,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   // end - setup the RunIOV (on behalf of the DAQ)
 
-  std::string st = runiov_.getRunTag().getRunTypeDef().getRunType();
+  string st = runiov_.getRunTag().getRunTypeDef().getRunType();
   if( st == "UNKNOWN" ) runtype_ = -1; 
-  else for( unsigned int i=0; i<runTypes_.size(); i++ ) if( st == runTypes_[i] ) runtype_ = i;
+  else for ( unsigned int i=0; i<runTypes_.size(); i++ ) if( st == runTypes_[i] ) runtype_ = i;
 
   cout << endl;
   cout << "=============RunIOV:" << endl;
@@ -685,13 +685,13 @@ void EcalBarrelMonitorClient::writeDb(void) {
   int taskl = 0x0;
   int tasko = 0x0;
 
-  for( unsigned int i=0; i<superModules_.size(); i ++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    for( int j = 0; j<int(clients_.size()); ++j ) {
+    for ( int j = 0; j<int(clients_.size()); ++j ) {
       bool written; written = false;
-      for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+      for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
 	if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
 	  written = true; 
 	  taskl |= 0x1 << j;
@@ -1001,10 +1001,10 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << "  ( " << flush;
-	for( int i=0; i<int(runTypes_.size()); ++i ) {
+	for ( int i=0; i<int(runTypes_.size()); ++i ) {
 	  if( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
 	    string s = runTypes_[i];
-	    std::transform( s.begin(), s.end(), s.begin(), (int(*)(int))std::tolower );
+	    transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
 	    cout << s;
 	  }
 	}
@@ -1021,9 +1021,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
-  for( int i=0; i<int(clients_.size()); i++ ) {
+  for ( int i=0; i<int(clients_.size()); i++ ) {
     bool subscribed; subscribed = false;
-    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
       if( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
     }
   }
@@ -1056,9 +1056,9 @@ void EcalBarrelMonitorClient::analyze(void){
           }
         }
 
-	for( int i=0; i<int(clients_.size()); i++ ) {
+	for ( int i=0; i<int(clients_.size()); i++ ) {
 	  bool analyzed; analyzed = false;
-	  for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+	  for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
 	    if( runtype_ != -1 && runtype_ == (*j).second && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
 	  }
 	}
@@ -1214,13 +1214,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   string htmlName;
 
-  for( int j = 0; j<int(clients_.size()); ++j ) {
+  for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
-    for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+    for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
       if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
 	written = true; 
 	htmlName = "EB" + clientNames_[j] + "Client.html";
-	clients_[j]->htmlOutput(run_, superModules_, htmlDir, htmlName);
+	clients_[j]->htmlOutput(run_, htmlDir, htmlName);
 	htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientNames_[j] << "</a></li>" << endl;
       }
     }

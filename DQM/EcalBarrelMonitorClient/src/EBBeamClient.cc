@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/06/07 16:39:13 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/17 09:44:36 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,6 +46,11 @@ EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
 }
 
@@ -164,7 +169,7 @@ void EBBeamClient::analyze(void){
 
 }
 
-void EBBeamClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
+void EBBeamClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBBeamClient html output ..." << endl;
 

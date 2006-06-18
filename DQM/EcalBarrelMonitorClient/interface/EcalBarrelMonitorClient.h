@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/05/29 07:44:14 $
- * $Revision: 1.46 $
+ * $Date: 2006/05/29 09:41:42 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,126 +41,126 @@ using namespace std;
 
 class EcalBarrelMonitorClient: public EDAnalyzer{
 
- public:
+public:
 
-  /// Constructor
-  EcalBarrelMonitorClient(const ParameterSet & ps);
-  EcalBarrelMonitorClient(const ParameterSet & ps, MonitorUserInterface* mui);
+/// Constructor
+EcalBarrelMonitorClient(const ParameterSet & ps);
+EcalBarrelMonitorClient(const ParameterSet & ps, MonitorUserInterface* mui);
   
-  /// Destructor
-  ~EcalBarrelMonitorClient();
+/// Destructor
+~EcalBarrelMonitorClient();
   
-  /// Subscribe/Unsubscribe to Monitoring Elements
-  void subscribe(void);
-  void subscribeNew(void);
-  void unsubscribe(void);
+/// Subscribe/Unsubscribe to Monitoring Elements
+void subscribe(void);
+void subscribeNew(void);
+void unsubscribe(void);
   
-  // Initialize
-  void initialize(const ParameterSet & ps);
+// Initialize
+void initialize(const ParameterSet & ps);
 
-  /// Analyze
-  void analyze(void);
-  void analyze(const Event & e, const EventSetup & c){ this->analyze(); }
+/// Analyze
+void analyze(void);
+void analyze(const Event & e, const EventSetup & c){ this->analyze(); }
   
-  /// BeginJob
-  void beginJob(void);
-  void beginJob(const EventSetup & c){ this->beginJob(); }
+/// BeginJob
+void beginJob(void);
+void beginJob(const EventSetup & c){ this->beginJob(); }
   
-  /// EndJob
-  void endJob(void);
+/// EndJob
+void endJob(void);
   
-  /// BeginRun
-  void beginRun(void);
+/// BeginRun
+void beginRun(void);
  
-  /// EndRun
-  void endRun(void);
+/// EndRun
+void endRun(void);
   
-  /// Setup
-  void setup(void);
+/// Setup
+void setup(void);
   
-  /// Cleanup
-  void cleanup(void);
+/// Cleanup
+void cleanup(void);
   
-  /// HtmlOutput
-  void htmlOutput(void);
+/// HtmlOutput
+void htmlOutput(void);
   
-  /// BeginRunDB
-  void beginRunDb(void);
+/// BeginRunDB
+void beginRunDb(void);
   
-  /// WriteDB
-  void writeDb(void);
+/// WriteDB
+void writeDb(void);
 
-  /// EndRunDB
-  void endRunDb(void);
+/// EndRunDB
+void endRunDb(void);
 
 private:
 
- int ievt_;
- int jevt_;
+int ievt_;
+int jevt_;
 
- bool collateSources_;
- bool cloneME_;
+bool collateSources_;
+bool cloneME_;
  
- bool verbose_;
+bool verbose_;
 
- bool enableMonitorDaemon_;
+bool enableMonitorDaemon_;
 
- string clientName_;
- string hostName_;
- int hostPort_;
+string clientName_;
+string hostName_;
+int hostPort_;
  
- string outputFile_;
+string outputFile_;
  
- string dbName_;
- string dbHostName_;
- string dbUserName_;
- string dbPassword_;
+string dbName_;
+string dbHostName_;
+string dbUserName_;
+string dbPassword_;
  
- RunIOV runiov_;
- MonRunIOV moniov_;
+RunIOV runiov_;
+MonRunIOV moniov_;
 
- bool enableSubRun_;
- int subrun_;
+bool enableSubRun_;
+int subrun_;
  
- time_t current_time_;
- time_t last_time_;
+time_t current_time_;
+time_t last_time_;
  
- string baseHtmlDir_;
+string baseHtmlDir_;
 
- MonitorUserInterface* mui_;
- 
- bool enableStateMachine_;
- 
- string location_;
- int    runtype_;
- string status_;
- int run_;
- int evt_;
- 
- bool begin_run_;
- bool end_run_;
- 
- bool forced_status_;
- 
- bool forced_update_;
+vector<int> superModules_;
 
- bool enableExit_;
- 
- int last_update_;
- 
- int last_jevt_;
- 
- int unknowns_;
- 
- std::vector<int> superModules_;
+typedef multimap<EBClient*,int> EBCIMMap; 
+EBCIMMap chb_;
+vector<string> runTypes_;
+vector<EBClient*> clients_; 
+vector<string> clientNames_; 
 
- typedef multimap<EBClient*,int> EBCIMMap; 
- EBCIMMap chb_;
- std::vector<std::string> runTypes_;
- std::vector<EBClient*> clients_; 
- std::vector<std::string> clientNames_; 
+MonitorUserInterface* mui_;
+ 
+bool enableStateMachine_;
+ 
+string location_;
+int    runtype_;
+string status_;
+int run_;
+int evt_;
+ 
+bool begin_run_;
+bool end_run_;
+ 
+bool forced_status_;
+ 
+bool forced_update_;
 
- CollateMonitorElement* me_h_;
+bool enableExit_;
+ 
+int last_update_;
+ 
+int last_jevt_;
+ 
+int unknowns_;
+ 
+CollateMonitorElement* me_h_;
 
 TH1F* h_;
 

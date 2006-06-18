@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/07 16:39:13 $
- * $Revision: 1.50 $
+ * $Date: 2006/06/17 09:44:36 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,18 +36,6 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui
 
   mui_ = mui;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
-    h03_[ism-1] = 0;
-
-    meh01_[ism-1] = 0;
-    meh02_[ism-1] = 0;
-    meh03_[ism-1] = 0;
-
-  }
-
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
@@ -59,6 +47,25 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
+
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+
+    meh01_[ism-1] = 0;
+    meh02_[ism-1] = 0;
+    meh03_[ism-1] = 0;
+
+  }
 
 }
 
@@ -113,7 +120,9 @@ void EBCosmicClient::setup(void) {
 
 void EBCosmicClient::cleanup(void) {
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -236,7 +245,9 @@ void EBCosmicClient::subscribe(void){
 
     Char_t histo[80];
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+      int ism = superModules_[i];
 
       sprintf(histo, "EBCT energy sel SM%02d", ism);
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
@@ -278,7 +289,9 @@ void EBCosmicClient::unsubscribe(void){
 
     if ( mui_ ) { 
 
-      for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+        int ism = superModules_[i];
 
         mui_->removeCollate(me_h01_[ism-1]);
         mui_->removeCollate(me_h02_[ism-1]);
@@ -308,9 +321,10 @@ void EBCosmicClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  //MonitorElementT<TNamed>* ob;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
@@ -355,7 +369,7 @@ void EBCosmicClient::analyze(void){
 
 }
 
-void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
+void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBCosmicClient html output ..." << endl;
 
@@ -395,7 +409,7 @@ void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, 
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for( int i = 0; i < 68; i++ ) {
+  for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy.Fill( a, b, i+1 );
@@ -412,9 +426,9 @@ void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, 
 
   // Loop on barrel supermodules
 
-  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
-    int ism = superModules[i];
+    int ism = superModules_[i];
 
     // Monitoring elements plots
 

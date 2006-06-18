@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/17 09:44:36 $
- * $Revision: 1.93 $
+ * $Date: 2006/06/17 20:08:39 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,9 +39,28 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   mui_ = mui;
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  
   h00_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     h_[ism-1] = 0;
     hmem_[ism-1] = 0;
@@ -59,7 +78,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     // integrity summary histograms
     meg01_[ism-1] = 0;
@@ -71,7 +92,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   Char_t qtname[80];
     
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     sprintf(qtname, "EBIT data integrity quality gain SM%02d", ism);
     qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
@@ -138,18 +161,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   }
 
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-
 }
 
 EBIntegrityClient::~EBIntegrityClient(){
@@ -199,12 +210,14 @@ void EBIntegrityClient::endRun(void) {
 
 void EBIntegrityClient::setup(void) {
 
-  Char_t histo[50];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality SM%02d", ism);
@@ -216,7 +229,9 @@ void EBIntegrityClient::setup(void) {
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
@@ -250,7 +265,9 @@ void EBIntegrityClient::cleanup(void) {
 
   h00_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     if ( cloneME_ ) {
       if ( h_[ism-1] )    delete h_[ism-1];
@@ -287,7 +304,9 @@ void EBIntegrityClient::cleanup(void) {
   mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
@@ -915,7 +934,9 @@ void EBIntegrityClient::subscribe(void){
     sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
     mui_->add(me_h00_, histo);
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+      int ism = superModules_[i];
 
       sprintf(histo, "EBMM occupancy SM%02d", ism);
       me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EcalOccupancy");
@@ -983,7 +1004,9 @@ void EBIntegrityClient::subscribe(void){
 
   Char_t histo[80];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
@@ -1087,7 +1110,9 @@ void EBIntegrityClient::unsubscribe(void){
 
       mui_->removeCollate(me_h00_);
 
-      for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+        int ism = superModules_[i];
 
         mui_->removeCollate(me_h_[ism-1]);
         mui_->removeCollate(me_hmem_[ism-1]);
@@ -1137,7 +1162,6 @@ void EBIntegrityClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  //MonitorElementT<TNamed>* ob;
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/EBIT DCC size error");
@@ -1151,7 +1175,9 @@ void EBIntegrityClient::analyze(void){
   me = mui_->get(histo);
   h00_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM occupancy SM%02d", ism);
@@ -1495,7 +1521,7 @@ void EBIntegrityClient::analyze(void){
 
 }
 
-void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
+void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBIntegrityClient html output ..." << endl;
 
@@ -1534,7 +1560,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
 
   TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
-  for( short i=0; i<68; i++ ) {
+  for ( short i=0; i<68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy1.Fill( a, b, i+1 );
@@ -1542,7 +1568,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
   dummy1.SetMarkerSize(2);
 
   TH2C dummy2( "dummy2", "dummy2 for sm", 17, 0, 17, 4, 0, 4 );
-  for( short i=0; i<68; i++ ) {
+  for ( short i=0; i<68; i++ ) {
     int a = ( i/4 );
     int b = ( i%4 );
     dummy2.Fill( a, b, i+1 );
@@ -1550,7 +1576,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
   dummy2.SetMarkerSize(2);
 
   TH2C dummy3( "dummy3", "dummy3 for sm mem", 10, 0, 10, 5, 0, 5 );
-  for( short i=0; i<2; i++ ) {
+  for ( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
     int b = 2;
     dummy3.Fill( a, b, i+1+68 );
@@ -1558,7 +1584,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
   dummy3.SetMarkerSize(2);
 
   TH2C dummy4 ("dummy4", "dummy4 for sm mem", 2, 0, 2, 1, 0, 1 );
-  for( short i=0; i<2; i++ ) {
+  for ( short i=0; i<2; i++ ) {
     int a =  i;
     int b = 0;
     dummy4.Fill( a, b, i+1+68 );
@@ -1619,9 +1645,9 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
 
   // Loop on barrel supermodules
 
-  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
-    int ism = superModules[i];
+    int ism = superModules_[i];
 
     // Quality plots
 

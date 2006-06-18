@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/17 09:44:37 $
- * $Revision: 1.72 $
+ * $Date: 2006/06/17 20:08:39 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,26 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
   mui_ = mui;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     ha01_[ism-1] = 0;
     ha02_[ism-1] = 0;
@@ -59,7 +78,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
@@ -77,7 +98,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
   Char_t qtname[80];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     sprintf(qtname, "EBTPT quality SM%02d G01", ism);
     qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
@@ -96,27 +119,15 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
     qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
     qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
 
-//    qtha01_[ism-1]->setMinimumEntries(1000);
-//    qtha02_[ism-1]->setMinimumEntries(1000);
-//    qtha03_[ism-1]->setMinimumEntries(1000);
+    qtha01_[ism-1]->setMinimumEntries(10*1700);
+    qtha02_[ism-1]->setMinimumEntries(10*1700);
+    qtha03_[ism-1]->setMinimumEntries(10*1700);
 
     qtha01_[ism-1]->setErrorProb(1.00);
     qtha02_[ism-1]->setErrorProb(1.00);
     qtha03_[ism-1]->setErrorProb(1.00);
 
   }
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -167,12 +178,14 @@ void EBTestPulseClient::endRun(void) {
 
 void EBTestPulseClient::setup(void) {
 
-  Char_t histo[50];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G01 SM%02d", ism);
@@ -196,7 +209,9 @@ void EBTestPulseClient::setup(void) {
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
@@ -222,7 +237,9 @@ void EBTestPulseClient::setup(void) {
 
 void EBTestPulseClient::cleanup(void) {
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( cloneME_ ) {
       if ( ha01_[ism-1] ) delete ha01_[ism-1];
@@ -262,7 +279,9 @@ void EBTestPulseClient::cleanup(void) {
 
   }
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     mui_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -657,7 +676,9 @@ void EBTestPulseClient::subscribe(void){
 
     Char_t histo[80];
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+      int ism = superModules_[i];
 
       sprintf(histo, "EBTPT amplitude SM%02d G01", ism);
       me_ha01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
@@ -730,7 +751,9 @@ void EBTestPulseClient::subscribe(void){
 
   Char_t histo[80];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
@@ -791,7 +814,9 @@ void EBTestPulseClient::unsubscribe(void){
 
     if ( mui_ ) {
 
-      for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+        int ism = superModules_[i];
 
         mui_->removeCollate(me_ha01_[ism-1]);
         mui_->removeCollate(me_ha02_[ism-1]);
@@ -845,9 +870,10 @@ void EBTestPulseClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  //MonitorElementT<TNamed>* ob;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
@@ -1155,7 +1181,7 @@ void EBTestPulseClient::analyze(void){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
+void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBTestPulseClient html output ..." << endl;
 
@@ -1194,7 +1220,7 @@ void EBTestPulseClient::htmlOutput(int run, const std::vector<int> & superModule
   int pCol3[3] = { 2, 3, 5 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for( int i = 0; i < 68; i++ ) {
+  for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy.Fill( a, b, i+1 );
@@ -1214,9 +1240,9 @@ void EBTestPulseClient::htmlOutput(int run, const std::vector<int> & superModule
 
   // Loop on barrel supermodules
 
-  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
-    int ism = superModules[i];
+    int ism = superModules_[i];
 
     // Loop on gains
 

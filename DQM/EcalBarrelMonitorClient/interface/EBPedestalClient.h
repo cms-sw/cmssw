@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/06/15 11:25:48 $
- * $Revision: 1.34 $
+ * $Date: 2006/06/17 20:08:38 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -70,7 +70,7 @@ void setup(void);
 void cleanup(void);
 
 // HtmlOutput
-void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
+void htmlOutput(int run, string htmlDir, string htmlName);
 
 // WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
