@@ -60,6 +60,7 @@ AlignableMuon::AlignableMuon( DTGeometry& theDTGeometry , CSCGeometry& theCSCGeo
   // Build the muon end caps
   buildCSCEndcap( &theCSCGeometry );
 
+
   edm::LogInfo("AlignableMuon") << "Constructing alignable muon objects DONE";
 
 
@@ -84,8 +85,10 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
   
  LogDebug("Position") << "Constructing AlignableDTBarrel"; 
 
-  // Temporary container for chambers in a given station
+  // Temporary container for chambers in a given station and stations in a given wheel
   std::vector<AlignableDTChamber*>   tmpDTChambersInStation;
+  std::vector<AlignableDTStation*>   tmpDTStationsInWheel;
+
 
   // Loop over wheels ( -2..2 )
   for( int iwh = -2 ; iwh < 3 ; iwh++ ){
@@ -108,6 +111,7 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
         // Select the chambers in a given wheel in a given station
         if ( iwh == wh && ist == st ){
 
+
           // Get the vector of super layers in this chamber. Here one needs const_cast
           std::vector<const GeomDet*> tmpSLs = (*det)->components();
           for ( std::vector<const GeomDet*>::const_iterator it = tmpSLs.begin(); 
@@ -119,7 +123,8 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
           // Create the alignable DT chamber 
           AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber( theSLs );
 
-          // Store the DT chambers in a given DT Station
+ 
+          // Store the DT chambers in a given DT Station and Wheel
 	  tmpDTChambersInStation.push_back( tmpDTChamber );
 	  
 	// End chamber selection
@@ -132,23 +137,32 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
       theDTChambers.insert( theDTChambers.end(), tmpDTChambersInStation.begin(),
                             tmpDTChambersInStation.end() );
 
-      // Create the alignable DT station with chambers in a given station 
+      // Create the alignable DT station with chambers in a given station and wheel 
       AlignableDTStation* tmpDTStation  = new AlignableDTStation( tmpDTChambersInStation );
      
       // Store the DT stations in a given wheel  
-      theDTStations.push_back( tmpDTStation );
+      tmpDTStationsInWheel.push_back( tmpDTStation );
 
-      // Clear the temporary vector of chambers
+      // Clear the temporary vector of chambers in a station
       tmpDTChambersInStation.clear();
 
     // End loop over stations
     }
 
-    // Create the alignable DT station 
-    AlignableDTWheel* tmpWheel  = new AlignableDTWheel( theDTStations );
+    // Store The DT stations
+      theDTStations.insert( theDTStations.end(), tmpDTStationsInWheel.begin(),
+                            tmpDTStationsInWheel.end() );
+
+    // Create the alignable DT wheel
+    AlignableDTWheel* tmpWheel  = new AlignableDTWheel( tmpDTStationsInWheel );
      
-    // Store the DT stations in a given wheel  
+
+    // Store the DT wheels  
     theDTWheels.push_back( tmpWheel );
+
+    // Clear temporary vector of stations in a wheel
+    tmpDTStationsInWheel.clear();
+
 
   // End loop over wheels   
   }    
@@ -244,7 +258,7 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
       // Store the CSC stations in a given endcap  
       theCSCStations.push_back( tmpCSCStation );
 
-      // Clear the temporary vector of chambers
+      // Clear the temporary vector of chambers in station
       tmpCSCChambersInStation.clear();
 
     // End loop over stations
