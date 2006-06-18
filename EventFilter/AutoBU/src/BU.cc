@@ -149,7 +149,7 @@ toolbox::mem::Reference *BU::createSuperFrag
 
       startOfPayload          = (unsigned char*)block + msgHeaderSize;
       frlh_t* frlh = (frlh_t*)startOfPayload;
-      frlh->trigno = /*htonl(*/eventHandle/*)*/;
+      frlh->trigno = /*htonl(*/(nbEventsSent_+1)%0x1000000/*)*/;
       frlh->segno  = /*htonl(*/segment    /*)*/;
       segment++;
       unsigned char *startOfFedBlocks = startOfPayload + frlhs;
@@ -242,7 +242,7 @@ toolbox::mem::Reference *BU::createSuperFrag
 		}
 	      // fill in header data
 	      fedh_t *fedh = (fedh_t*)startOfFedBlocks;
-	      fedh->eventid = eventHandle;
+	      fedh->eventid = (nbEventsSent_+1)%0x1000000;
 	      fedh->eventid |= 0x50000000;
 	      fedh->sourceid = ((fedind+currentFragment*16) << 8) & 
 		FED_SOID_MASK;
