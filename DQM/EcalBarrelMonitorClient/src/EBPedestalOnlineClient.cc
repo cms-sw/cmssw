@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/17 20:08:39 $
- * $Revision: 1.30 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -335,14 +335,20 @@ void EBPedestalOnlineClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBPedestalOnlineClient: collate" << endl;
-
-    Char_t histo[80];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -356,8 +362,6 @@ void EBPedestalOnlineClient::subscribe(void){
     }
 
   }
-
-  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -382,8 +386,16 @@ void EBPedestalOnlineClient::subscribe(void){
 
 void EBPedestalOnlineClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+
+  }
 
 }
 
@@ -409,8 +421,16 @@ void EBPedestalOnlineClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    mui_->unsubscribe(histo);
+
+  }
 
 }
 

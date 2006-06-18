@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/18 11:24:57 $
- * $Revision: 1.74 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -1142,43 +1142,76 @@ void EBLaserClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBLaserClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+  Char_t histo[80];
 
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBLaserClient: collate" << endl;
-
-    Char_t histo[80];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1332,37 +1365,72 @@ void EBLaserClient::subscribe(void){
 
 void EBLaserClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+  Char_t histo[80];
 
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    mui_->subscribeNew(histo);
+
+  }
 
 }
 
@@ -1418,37 +1486,72 @@ void EBLaserClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+  Char_t histo[80];
 
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    mui_->unsubscribe(histo);
+
+  }
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/17 20:08:39 $
- * $Revision: 1.78 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -657,27 +657,43 @@ void EBPedestalClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+  Char_t histo[80];
 
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
+    int ism = superModules_[i];
 
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBPedestalClient: collate" << endl;
-
-    Char_t histo[80];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -742,8 +758,6 @@ void EBPedestalClient::subscribe(void){
 
   }
 
-  Char_t histo[80];
-  
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -779,21 +793,39 @@ void EBPedestalClient::subscribe(void){
 
 void EBPedestalClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+  Char_t histo[80];
 
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
+    int ism = superModules_[i];
 
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->subscribeNew(histo);
+
+  }
 
 }
 
@@ -832,21 +864,39 @@ void EBPedestalClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+  Char_t histo[80];
 
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
+    int ism = superModules_[i];
 
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    mui_->unsubscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->unsubscribe(histo);
+
+  }
 
 }
 

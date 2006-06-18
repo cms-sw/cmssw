@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/17 20:08:39 $
- * $Revision: 1.73 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -654,27 +654,45 @@ void EBTestPulseClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
+  Char_t histo[80];
 
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBTestPulseClient: collate" << endl;
-
-    Char_t histo[80];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -749,8 +767,6 @@ void EBTestPulseClient::subscribe(void){
 
   }
 
-  Char_t histo[80];
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -786,21 +802,41 @@ void EBTestPulseClient::subscribe(void){
 
 void EBTestPulseClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
+  Char_t histo[80];
 
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) { 
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
+    mui_->subscribeNew(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->subscribeNew(histo);
+  
+  }
 
 }
 
@@ -841,21 +877,41 @@ void EBTestPulseClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
+  Char_t histo[80];
 
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
+    mui_->subscribe(histo);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    mui_->subscribe(histo);
+ 
+  }
 
 }
 

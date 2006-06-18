@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/17 14:56:47 $
- * $Revision: 1.138 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -838,7 +838,6 @@ void EcalBarrelMonitorClient::subscribe(void){
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
-  // subscribe to monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/STATUS");
   mui_->subscribe("*/EcalBarrel/RUN");
   mui_->subscribe("*/EcalBarrel/EVT");
@@ -862,7 +861,6 @@ void EcalBarrelMonitorClient::subscribe(void){
 
 void EcalBarrelMonitorClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/STATUS");
   mui_->subscribeNew("*/EcalBarrel/RUN");
   mui_->subscribeNew("*/EcalBarrel/EVT");
@@ -887,7 +885,6 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
 
   }
 
-  // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/STATUS");
   mui_->unsubscribe("*/EcalBarrel/RUN");
   mui_->unsubscribe("*/EcalBarrel/EVT");

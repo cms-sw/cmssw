@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/06/17 09:44:36 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -129,8 +129,6 @@ void EBBeamClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBBeamClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBBeamClient: collate" << endl;
@@ -140,8 +138,6 @@ void EBBeamClient::subscribe(void){
 }
 
 void EBBeamClient::subscribeNew(void){
-
-  // subscribe to new monitorable matching pattern
 
 }
 
@@ -154,8 +150,6 @@ void EBBeamClient::unsubscribe(void){
     if ( verbose_ ) cout << "EBBeamClient: uncollate" << endl;
 
   }
-
-  // unsubscribe to all monitorable matching pattern
 
 }
 

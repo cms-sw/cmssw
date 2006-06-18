@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/17 20:08:39 $
- * $Revision: 1.94 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -908,26 +908,44 @@ void EBIntegrityClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
-  mui_->subscribe("*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM*");
-  mui_->subscribe("*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBIntegrityClient: collate" << endl;
-
-    Char_t histo[80];
 
     sprintf(histo, "EBIT DCC size error");
     me_h00_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask");
@@ -1001,8 +1019,6 @@ void EBIntegrityClient::subscribe(void){
     }
 
   }
-
-  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
   
@@ -1081,20 +1097,40 @@ void EBIntegrityClient::subscribe(void){
 
 void EBIntegrityClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
-  mui_->subscribeNew("*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+    mui_->subscribeNew(histo);
+
+  }
 
 }
 
@@ -1134,20 +1170,40 @@ void EBIntegrityClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
-  mui_->unsubscribe("*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+    mui_->unsubscribe(histo);
+
+  }
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/17 09:44:36 $
- * $Revision: 1.51 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -234,16 +234,24 @@ void EBCosmicClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    mui_->subscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    mui_->subscribe(histo);
+
+  }
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBCosmicClient: collate" << endl;
-
-    Char_t histo[80];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -272,10 +280,20 @@ void EBCosmicClient::subscribe(void){
 
 void EBCosmicClient::subscribeNew(void){
 
-  // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    mui_->subscribeNew(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    mui_->subscribeNew(histo);
+
+  }
 
 }
 
@@ -303,10 +321,20 @@ void EBCosmicClient::unsubscribe(void){
 
   }
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
+  Char_t histo[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    mui_->unsubscribe(histo);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    mui_->unsubscribe(histo);
+
+  }
 
 }
 
