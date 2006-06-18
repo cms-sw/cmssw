@@ -4,15 +4,15 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/18 17:46:05 $
+ *  $Revision: 1.1 $
  *  \author C. Liu - Purdue University
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonReconstructionEnumerators.h"
 
-class TrajectoryBuilder;
+class CkfTrajectoryBuilder;
 class TrajectorySmoother;
 class TrajectoryCleaner;
 class BasicTrajectorySeed; 
@@ -25,34 +25,71 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
 public:
 
-  typedef std::vector<Muon*> MuonContainer;
+  typedef std::vector<Muon*> MuonCollection;
+  typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
+  typedef std::vector<Trajectory> TC;
+  typedef TC::const_iterator TI;
+
  
   /// constructor
-  GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par){} ;
+  GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par);
           
   /// destructor 
-  ~GlobalMuonTrajectoryBuilder(){};
+  ~GlobalMuonTrajectoryBuilder();
 
   /// reconstruct muon trajectories
-  MuonContainer muons();
+  MuonCollection muons();
 
   private:
 
     struct TrajForRecMuon {
-      TrajForRecMuon(const Trajectory& traj, MuonContainer::const_iterator muon, const Trajectory& tk) :
+      TrajForRecMuon(const Trajectory& traj, MuonCollection::const_iterator muon, const Trajectory& tk) :
          theTrajectory(traj), theMuonRecMuon(muon), theTkTrajectory(tk) {
       }
 
       Trajectory theTrajectory;
-      MuonContainer::const_iterator theMuonRecMuon;
+      MuonCollection::const_iterator theMuonRecMuon;
       Trajectory theTkTrajectory;
     };
 
+  private:
+
+    /// initialize algorithms
+    void init();
+ 
+    /// get silicon tracker tracks
+    std::vector<Trajectory> getTrackerTracks(const Muon&, int&, int&, int&, int&) const;
+
+    /// check muon RecHits
+    void checkMuonHits(const Muon&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
+
+    /// select muon RecHits
+    RecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
+
+    /// check candidates
+    void checkMuonCandidates(MuonCollection&) const;
+
+    /// choose final trajectory
+    const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
+
+    /// match two trajectories
+    TC::const_iterator matchTrajectories(const Trajectory&, TC&) const;
+
+    /// calculate chi2 probability (-ln(P))
+    double trackProbability(const Trajectory&) const;    
+
+    /// print all RecHits of a trajectory
+    void printHits(const RecHitContainer&) const;
+
+    /// convert trajectories to RecMuons
+    MuonCollection convertToRecMuons(std::vector<TrajForRecMuon>&) const;
+
+
  private:
   
-    MuonContainer* theMuons;
+    MuonCollection* theMuons;
 
-    TrajectoryBuilder*  theTrajectoryBuilder;
+    CkfTrajectoryBuilder*  theTrajectoryBuilder;
     TrajectorySmoother* theTrajectorySmoother;
     TrajectoryCleaner*  theTrajectoryCleaner;
     GlobalMuonReFitter* theRefitter;
