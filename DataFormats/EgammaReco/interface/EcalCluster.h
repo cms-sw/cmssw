@@ -6,7 +6,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: EcalCluster.h,v 1.3 2006/04/20 10:13:53 llista Exp $
+ * \version $Id: EcalCluster.h,v 1.4 2006/04/21 15:29:38 rahatlou Exp $
  *
  */
 #include <vector>
@@ -48,6 +48,16 @@ namespace reco {
     /// vector of used hits
     /// Myst be implemented in  all derived classes
     virtual std::vector<DetId> getHitsByDetId() const = 0;
+    /// x coordinate of cluster centroid
+    double x() const { return position_.x(); }
+    /// y coordinate of cluster centroid
+    double y() const { return position_.y(); }
+    /// z coordinate of cluster centroid
+    double z() const { return position_.z(); }
+    /// pseudorapidity of cluster centroid
+    double eta() const { return position_.eta(); }
+    /// azimuthal angle of cluster centroid
+    double phi() const { return position_.phi(); }
   private:
 
     /// cluster energy
