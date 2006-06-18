@@ -11,7 +11,7 @@ process TEST = {
      source = DAQEcalTBInputService{
                untracked vstring fileNames = { '/data/meridian/data/h4/H4-000006709-SM5-LASER-STD' }
 	       untracked int32 maxEvents = -1
-               untracked bool isBinary = false
+               untracked bool isBinary = true
     }
 
 }
