@@ -66,10 +66,7 @@ public:
   // Some typdefs to simplify notation
   typedef GlobalPoint           _PositionType;
   typedef TkRotation<float>     _RotationType;
-//  typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
 
-  /// Recursive printout of the muon structure
-  void dump( void ) const;
   
   /// Return all components
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
@@ -108,10 +105,10 @@ private:
   edm::ESHandle<CSCGeometry> pCSC;
 
    // Build muon barrel
-   void buildDTBarrel( edm::ESHandle<DTGeometry> pDD );
+   void buildDTBarrel( edm::ESHandle<DTGeometry>  );
 
    // Build muon end caps
-   void buildCSCEndcap( edm::ESHandle<CSCGeometry> pDD );
+   void buildCSCEndcap( edm::ESHandle<CSCGeometry>  );
 
 
 
@@ -125,11 +122,11 @@ private:
   std::vector<AlignableDTChamber*>   theDTChambers;
   std::vector<AlignableDTStation*>   theDTStations;
   std::vector<AlignableDTWheel*>     theDTWheels;
-  std::vector<AlignableDTBarrel*>      theDTBarrel;
+  std::vector<AlignableDTBarrel*>    theDTBarrel;
   
-  std::vector<AlignableCSCChamber*>   theCSCChambers;
-  std::vector<AlignableCSCStation*>   theCSCStations;
-  std::vector<AlignableCSCEndcap*>    theCSCEndcaps;
+  std::vector<AlignableCSCChamber*>  theCSCChambers;
+  std::vector<AlignableCSCStation*>  theCSCStations;
+  std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
 
   std::vector<Alignable*> theMuonComponents;
 
