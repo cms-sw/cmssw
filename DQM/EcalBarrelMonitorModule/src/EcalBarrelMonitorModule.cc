@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/05/21 14:09:12 $
- * $Revision: 1.94 $
+ * $Date: 2006/05/25 08:03:26 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -194,6 +194,10 @@ void EcalBarrelMonitorModule::endJob(void) {
   // and then hopefully the Client, and to allow the Client to complete
 
   if ( enableSleep_ ) sleep(60);
+
+  // we should always sleep at least a little ...
+
+  sleep(10);
 
 }
 
