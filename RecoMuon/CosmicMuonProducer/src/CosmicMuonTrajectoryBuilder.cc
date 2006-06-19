@@ -1,8 +1,8 @@
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonTrajectoryBuilder.h"
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/14 00:06:06 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -45,7 +45,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/CosmicMuonProducer/interface/CosmicNavigation.h"
+#include "RecoMuon/CosmicMuonProducer/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
@@ -91,7 +91,7 @@ std::vector<Trajectory> CosmicMuonTrajectoryBuilder::trajectories(const edm::Eve
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
   iSetup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry); 
     
-  CosmicNavigation navigation(&*theDetLayerGeometry);
+  DirectMuonNavigation navigation(&*theDetLayerGeometry);
  
   edm::Handle<TrajectorySeedCollection> seedsHandle; 
   event.getByLabel(theSeedCollectionLabel,seedsHandle);
