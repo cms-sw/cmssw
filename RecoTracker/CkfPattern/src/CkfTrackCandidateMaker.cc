@@ -4,23 +4,24 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 
+#include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
+#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-//#include "RecoTracker/CkfPattern/interface/FitTester.h"
+
+
 
 using namespace edm;
 using namespace std;
@@ -91,10 +92,10 @@ namespace cms{
       vector<Trajectory> rawResult;
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
-	theTmpTrajectories = theCkfTrajectoryBuilder->trajectories(*iseed,e);
+	theTmpTrajectories = theCkfTrajectoryBuilder->trajectories(*iseed);
 	
-	cout << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
-	     << " trajectories" << endl;
+	LogDebug("CkfPattern") << "CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
+			       << " trajectories for this seed";
 
 	theTrajectoryCleaner->clean(theTmpTrajectories);
       
@@ -104,7 +105,7 @@ namespace cms{
 	    rawResult.push_back(*it);
 	  }
 	}
-	cout << "rawResult size after cleaning " << rawResult.size() << endl;
+	LogDebug("CkfPattern") << "rawResult size after cleaning " << rawResult.size();
       }
       
       // Step E: Clean the result
@@ -151,10 +152,10 @@ namespace cms{
       
       
       
-      cout << " ========== DEBUG CkfTrackCandidateMaker: start  ========== " << endl;
+      edm::LogVerbatim("CkfPattern") << "========== CkfTrackCandidateMaker Info ==========";
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
-      cout << "number of Seed: " << theSeedColl.size() << endl;
+      edm::LogVerbatim("CkfPattern") << "number of Seed: " << theSeedColl.size();
       
       /*
 	for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
@@ -169,13 +170,13 @@ namespace cms{
 	}
       */
       
-      cout << "number of finalTrajectories: " << unsmoothedResult.size() << endl;
+      edm::LogVerbatim("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	cout << "n valid and invalid hit, chi2 : " 
-	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << endl;
+	edm::LogVerbatim("CkfPattern") << "n valid and invalid hit, chi2 : " 
+	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
       }
-      cout << " ========== DEBUG CkfTrackCandidateMaker: end ========== " << endl;
+      edm::LogVerbatim("CkfPattern") << "=================================================";
       
 
       
