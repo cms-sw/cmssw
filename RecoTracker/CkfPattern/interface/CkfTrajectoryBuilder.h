@@ -11,20 +11,22 @@ class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 class TransientTrackingRecHitBuilder;
@@ -47,7 +49,7 @@ public:
   ~CkfTrajectoryBuilder();
   
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed& seed,edm::Event& e);
+  TrajectoryContainer trajectories(const TrajectorySeed& seed);
 
 private:
   edm::ESHandle<TrajectoryStateUpdator>       theUpdator;

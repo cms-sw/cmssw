@@ -1,22 +1,27 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
-#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
-#include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
-#include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+
+#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
+#include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
+#include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
 
 using namespace std;
 
@@ -63,7 +68,7 @@ CkfTrajectoryBuilder::~CkfTrajectoryBuilder()
 
 
 CkfTrajectoryBuilder::TrajectoryContainer 
-CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed,edm::Event& e)
+CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
 {  
   TrajectoryContainer result;
 
@@ -182,8 +187,7 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       PTrajectoryStateOnDet pState( seed.startingState());
       const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId(pState.detId()));
       if (&gdet->surface() != &hitGeomDet->surface()) {
-	std::cout << "CkfTrajectoryBuilder error: the seed state is not on the surface of the detector of the last seed hit" 
-		  << std::endl;
+	edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: the seed state is not on the surface of the detector of the last seed hit";
 	return std::vector<TrajectoryMeasurement>(); // FIXME: should throw exception
       }
 
@@ -319,8 +323,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj){
        i!=result.end(); i++) {
     if ( ! i->recHit().isValid()) afterInvalid = true;
     if (afterInvalid && i->recHit().isValid()) {
-      cout << "CkfTrajectoryBuilder error: valid hit avter invalid!" 
-	   << endl;
+      edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: valid hit after invalid!" ;
     }
   }
 #endif
