@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.12 2006/05/05 08:49:12 meridian Exp $
-  *  $Date: 2006/05/05 08:49:12 $
-  *  $Revision: 1.12 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.13 2006/05/13 07:29:21 meridian Exp $
+  *  $Date: 2006/05/13 07:29:21 $
+  *  $Revision: 1.13 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -90,14 +90,15 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    }
 
     // fetch map of groups of xtals
+   LogDebug("EcalUncalibRecHitDebug") << "fetching gainRatios....";
     edm::ESHandle<EcalWeightXtalGroups> pGrp;
     es.get<EcalWeightXtalGroupsRcd>().get(pGrp);
     const EcalWeightXtalGroups* grp = pGrp.product();
 
    // Gain Ratios
-   //edm::ESHandle<EcalGainRatios> pRatio;
-   //es.get<EcalGainRatiosRcd>().get(pRatio);
-   //const EcalGainRatios* gr = pRatio.product();
+   edm::ESHandle<EcalGainRatios> pRatio;
+   es.get<EcalGainRatiosRcd>().get(pRatio);
+   const EcalGainRatios::EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
 
    // fetch TB weights
    LogDebug("EcalUncalibRecHitDebug") <<"Fetching EcalTBWeights from DB " ;
@@ -122,6 +123,9 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    EcalPedestalsMapIterator pedIter; // pedestal iterator
    EcalPedestals::Item aped; // pedestal object for a single xtal
 
+   EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
+   EcalMGPAGainRatio aGain; // gain object for a single xtal
+
    // loop over EB digis
    if (EBdigis)
      {
@@ -142,6 +146,20 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 }
 	 std::vector<double> pedVec;
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+
+	 // find gain ratios
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 gainIter = gainMap.find(itdg->id().rawId());
+	 if( gainIter != gainMap.end() ) {
+	   aGain = gainIter->second;
+	 } else {
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+						   << "\n  no uncalib rechit will be made for this digi!"
+	     ;
+	   continue;
+	 }
+	 std::vector<double> gainRatios;
+	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
 
 	 // lookup group ID for this channel
 	 EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
@@ -199,7 +217,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix after switch:\n" << clmat4 ;
 
 	 EcalUncalibratedRecHit aHit =
-	   EBalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+	   EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
 	 EBuncalibRechits->push_back( aHit );
 
 
@@ -233,6 +251,19 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 std::vector<double> pedVec;
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
 
+	 // find gain ratios
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 gainIter = gainMap.find(itdg->id().rawId());
+	 if( gainIter != gainMap.end() ) {
+	   aGain = gainIter->second;
+	 } else {
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+						   << "\n  no uncalib rechit will be made for this digi!"
+	     ;
+	   continue;
+	 }
+	 std::vector<double> gainRatios;
+	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
 	 // lookup group ID for this channel
 	 EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
 	 EcalXtalGroupId gid;
@@ -289,7 +320,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix after switch:\n" << clmat4 ;
 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+	   EEalgo_.makeRecHit(*itdg, gainRatios, pedVec, weights, chi2mat);
 	 EEuncalibRechits->push_back( aHit );
 
 

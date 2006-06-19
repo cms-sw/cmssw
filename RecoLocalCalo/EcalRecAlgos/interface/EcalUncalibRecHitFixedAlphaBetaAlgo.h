@@ -82,7 +82,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 
   virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-                                            const std::vector<HepMatrix>& weights,
+                                            const std::vector<double>& gainRatios,
+					    const std::vector<HepMatrix>& weights,
                                             const std::vector<HepSymMatrix>& chi2Matrix);
   void SetAlphaBeta( double alpha, double beta);
   
@@ -91,10 +92,10 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 
 
   /// Compute parameters
-template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,const std::vector<HepMatrix>& weights, const std::vector<HepSymMatrix>& chi2Matrix) {
+template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::makeRecHit(const C& dataFrame, const std::vector<double>& pedestals, const std::vector<double>& gainRatios, const std::vector<HepMatrix>& weights, const std::vector<HepSymMatrix>& chi2Matrix) {
   double chi2_(-1.);
   
-  double Gain12Equivalent[4]={0,1,2,12};
+  //  double Gain12Equivalent[4]={0,1,2,12};
   double frame[C::MAXSAMPLES];// will contain the ADC values
   double pedestal =0;
   
@@ -112,7 +113,8 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	//create frame in adc gain 12 equivalent
 	GainId = dataFrame.sample(iSample).gainId();
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
-	frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*Gain12Equivalent[GainId];
+	frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];
+	//Gain12Equivalent[GainId];
 	if (GainId > gainId0) iGainSwitch = 1;
 	if( frame[iSample]>maxsample ) {
           maxsample = frame[iSample];

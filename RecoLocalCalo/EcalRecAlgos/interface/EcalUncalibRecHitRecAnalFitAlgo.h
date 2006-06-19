@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.2 2005/12/05 16:41:39 rahatlou Exp $
-  *  $Date: 2005/12/05 16:41:39 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.3 2005/12/16 11:58:57 rahatlou Exp $
+  *  $Date: 2005/12/16 11:58:57 $
+  *  $Revision: 1.3 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 
@@ -52,6 +52,7 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
   /// Compute parameters
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
+					    const std::vector<double>& gainRatios,
                                             const std::vector<HepMatrix>& weights,
                                             const std::vector<HepSymMatrix>& chi2Matrix) {
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
@@ -65,14 +66,18 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     int imax(-1);
 
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
-      frame[iSample] = double(dataFrame.sample(iSample).adc());
-      if (dataFrame.sample(iSample).gainId() > gainId0) iGainSwitch = 1;
+      int gainId = dataFrame.sample(iSample).gainId(); 
+      if (gainId > gainId0) iGainSwitch++ ;
+      if (!iGainSwitch)
+	frame[iSample] = double(dataFrame.sample(iSample).adc());
+      else
+	frame[iSample] = double(((double)(dataFrame.sample(iSample).adc()) - pedestals[gainId-1]) * gainRatios[gainId-1]);
+
       if( frame[iSample]>maxsample ) {
           maxsample= frame[iSample];
           imax=iSample;
       }
     }
-
 
     // Compute parameters
     //std::cout << "EcalUncalibRecHitRecAnalFitAlgo::makeRecHit() not yey implemented. returning dummy rechit" << std::endl;
@@ -126,7 +131,11 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
       //TF1 *pedestal2=graph.GetFunction("pedestal");
       double pedestal_value=pedestal.GetParameter(0);
 
-      amplitude_ = amplitude_value - pedestal_value;
+      if (!iGainSwitch)
+	amplitude_ = amplitude_value - pedestal_value;
+      else
+	amplitude_ = amplitude_value;
+
       pedestal_  = pedestal_value;
       jitter_    = pulseShape.GetParameter(3);
       chi2_ = 1.; // successful fit

@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: $
-  *  $Date: $
-  *  $Revision: $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.1 2005/10/25 09:10:01 rahatlou Exp $
+  *  $Date: 2005/10/25 09:10:01 $
+  *  $Revision: 1.1 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -24,8 +24,9 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
 
   /// Compute parameters
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-	  	       const std::vector<HepMatrix>& weights,
-		       const std::vector<HepSymMatrix>& chi2Matrix) {
+					    const std::vector<double>& gainRatios,
+					    const std::vector<HepMatrix>& weights,
+					    const std::vector<HepSymMatrix>& chi2Matrix) {
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 
     // Get time samples
@@ -33,8 +34,12 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
     int gainId0 = dataFrame.sample(0).gainId();
     int iGainSwitch = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
-      frame[iSample][0] = double(dataFrame.sample(iSample).adc());
-      if (dataFrame.sample(iSample).gainId() > gainId0) iGainSwitch = 1;
+      int gainId = dataFrame.sample(iSample).gainId(); 
+      if (gainId > gainId0) iGainSwitch = 1;
+      if (!iGainSwitch)
+	frame[iSample][0] = double(dataFrame.sample(iSample).adc());
+      else
+	frame[iSample][0] = double(((double)(dataFrame.sample(iSample).adc()) - pedestals[gainId-1]) * gainRatios[gainId-1]);
     }
 
     // Compute parameters

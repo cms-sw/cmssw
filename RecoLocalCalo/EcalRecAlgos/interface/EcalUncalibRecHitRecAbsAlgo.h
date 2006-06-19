@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: $
-  *  $Date: $
-  *  $Revision: $
+  *  $Id: EcalUncalibRecHitRecAbsAlgo.h,v 1.1 2005/10/25 09:10:01 rahatlou Exp $
+  *  $Date: 2005/10/25 09:10:01 $
+  *  $Revision: 1.1 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -29,9 +29,11 @@ template<class C> class EcalUncalibRecHitRecAbsAlgo
 
   /// make rechits from dataframes
 
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-		       const std::vector<HepMatrix>& weights, 
-		       const std::vector<HepSymMatrix>& chi2Matrix) = 0;
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, 
+					    const std::vector<double>& pedestals,
+					    const std::vector<double>& gainRatios,
+					    const std::vector<HepMatrix>& weights, 
+					    const std::vector<HepSymMatrix>& chi2Matrix) = 0;
 
 };
 #endif

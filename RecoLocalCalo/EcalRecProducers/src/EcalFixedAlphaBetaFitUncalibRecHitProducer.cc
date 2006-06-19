@@ -27,6 +27,13 @@
 //#include "CLHEP/Matrix/SymMatrix.h"
 #include <vector>
 
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+
 EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitProducer(const edm::ParameterSet& ps) {
 
   EBdigiCollection_ = ps.getParameter<std::string>("EBdigiCollection");
@@ -108,19 +115,64 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EE: " << EEdigiCollection_.c_str() ;
    }
 
+   // Gain Ratios
+   LogDebug("EcalUncalibRecHitDebug") << "fetching gainRatios....";
+   edm::ESHandle<EcalGainRatios> pRatio;
+   es.get<EcalGainRatiosRcd>().get(pRatio);
+   const EcalGainRatios::EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
+
+
+   // fetch the pedestals from the cond DB via EventSetup
+   LogDebug("EcalUncalibRecHitDebug") << "fetching pedestals....";
+   edm::ESHandle<EcalPedestals> pedHandle;
+   es.get<EcalPedestalsRcd>().get( pedHandle );
+   const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
+   LogDebug("EcalUncalibRecHitDebug") << "done." ;
 
    // EE and EB collections of reco'ed ampltudes to put in the event
    std::auto_ptr< EBUncalibratedRecHitCollection > EBuncalibRechits( new EBUncalibratedRecHitCollection );
    std::auto_ptr< EEUncalibratedRecHitCollection > EEuncalibRechits( new EEUncalibratedRecHitCollection );
 
-   std::vector<double> pedVec;
    std::vector<HepMatrix> weights;
    std::vector<HepSymMatrix> chi2mat;
+
+   EcalPedestalsMapIterator pedIter; // pedestal iterator
+   EcalPedestals::Item aped; // pedestal object for a single xtal
+
+   EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
+   EcalMGPAGainRatio aGain; // gain object for a single xtal
 
    //loop over EB digis
    if( EBdigis ){
      for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
 
+       // find pedestals for this channel
+       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+       pedIter = pedMap.find(itdg->id().rawId());
+       if( pedIter != pedMap.end() ) {
+	 aped = pedIter->second;
+       } else {
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+						 << "\n  no uncalib rechit will be made for this digi!"
+	   ;
+	 continue;
+       }
+       std::vector<double> pedVec;
+       pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+       
+       // find gain ratios
+       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+       gainIter = gainMap.find(itdg->id().rawId());
+       if( gainIter != gainMap.end() ) {
+	 aGain = gainIter->second;
+       } else {
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+						 << "\n  no uncalib rechit will be made for this digi!"
+	   ;
+	 continue;
+       }
+       std::vector<double> gainRatios;
+       gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
        double a,b;
 
        // Define Alpha and Beta either by stored values or by default universal values
@@ -143,7 +195,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      
        algoEB_.SetAlphaBeta(a,b);
 
-       EcalUncalibratedRecHit aHit =  algoEB_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+       EcalUncalibratedRecHit aHit =  algoEB_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
        EBuncalibRechits->push_back( aHit );
        
        /*
@@ -162,7 +214,35 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
        //FIX ME load in a and b from a file
        algoEE_.SetAlphaBeta(alpha_,beta_);
-       EcalUncalibratedRecHit aHit =  algoEE_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+
+       // find pedestals for this channel
+       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+       pedIter = pedMap.find(itdg->id().rawId());
+       if( pedIter != pedMap.end() ) {
+	 aped = pedIter->second;
+       } else {
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+						 << "\n  no uncalib rechit will be made for this digi!"
+	   ;
+	 continue;
+       }
+       std::vector<double> pedVec;
+       pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+       
+       // find gain ratios
+       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+       gainIter = gainMap.find(itdg->id().rawId());
+       if( gainIter != gainMap.end() ) {
+	 aGain = gainIter->second;
+       } else {
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+						 << "\n  no uncalib rechit will be made for this digi!"
+	   ;
+	 continue;
+       }
+       std::vector<double> gainRatios;
+       gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+       EcalUncalibratedRecHit aHit =  algoEE_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
        EEuncalibRechits->push_back( aHit );
        
        /*
