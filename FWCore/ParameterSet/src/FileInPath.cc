@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.8 2005/12/09 17:18:28 paterno Exp $
+// $Id: FileInPath.cc,v 1.9 2006/06/06 21:42:55 rpw Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -42,19 +42,9 @@ namespace
 		 std::string& result)
   {
     const char* val = getenv(name.c_str());
-    if (val == 0)
-      {
-	// Temporary hackery to allow use of old names during
-	// transition period.
-	//
-	// TODO: Remove these two "if" tests, leaving only the return
-	// false, before the CMSSW_0_3_0 release
-	if ( name == "CMSSW_DATA_PATH" ) 
-	  return envstring("CMSDATA", result);
-	if ( name == "CMSSW_SEARCH_PATH" ) 
-	  return envstring("CMS_SEARCH_PATH", result);
+    if (val == 0) {
 	return false;
-      }
+    }
     result = val;
     return true;
   }
@@ -73,13 +63,13 @@ namespace
 
     if (!bf::exists(p)) return false;
 
-    if ( bf::is_directory(p) )
+    if (bf::is_directory(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
 	<< p.native_directory_string()
 	<< " is a directory, not a file\n";
 
-    if ( bf::symbolic_link_exists(p) )
+    if (bf::symbolic_link_exists(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
 	<< p.native_file_string()
@@ -108,7 +98,7 @@ namespace edm
   }
 
   FileInPath::FileInPath(const char* r) :
-    relativePath_( r ?
+    relativePath_(r ?
 		   r :
 		   ((throw edm::Exception(edm::errors::FileInPathError)
 		    << "Relative path may not be null\n"), r)),
@@ -118,11 +108,11 @@ namespace edm
     initialize_();    
   }
 
-  FileInPath::FileInPath( FileInPath const& other) :
+  FileInPath::FileInPath(FileInPath const& other) :
     relativePath_(other.relativePath_),
     canonicalFilename_(other.canonicalFilename_),
     isLocal_(other.isLocal_)
-  {  }
+  {}
 
   FileInPath&
   FileInPath::operator= (FileInPath const& other)
@@ -156,13 +146,20 @@ namespace edm
   std::string
   FileInPath::fullPath() const
   {
+#if 1
+    // This #if needed for backward compatibility
+    // for files written before CMSSW_0_8_0_pre2.
+    if (canonicalFilename_.empty()) {
+      abort();
+    }
+#endif
     return canonicalFilename_;
   }
 
   void
   FileInPath::write(std::ostream& os) const
   {
-    os << relativePath_ << ' ' << isLocal_;    
+    os << relativePath_ << ' ' << isLocal_ << ' ' << canonicalFilename_;    
   }
 
 
@@ -171,11 +168,24 @@ namespace edm
   {
     std::string relname;
     bool        local;
+    std::string canFilename;
+#if 1
+    // This #if needed for backward compatibility
+    // for files written before CMSSW_0_8_0_pre2.
     is >> relname >> local;
     if (!is) return;
+    is >> canFilename;
+    if (!is) {
+      canFilename = "";
+      is.clear();
+    }
+#else
+    is >> relname >> local >> canFilename;
+    if (!is) return;
+#endif
     relativePath_ = relname;
     isLocal_ = local;
-    initialize_();
+    canonicalFilename_ = canFilename;
   }
 
   //------------------------------------------------------------
@@ -199,8 +209,7 @@ namespace edm
     stringvec_t  pathElements = edm::pset::tokenize(searchPath, ":");
     stringvec_t::const_iterator it =  pathElements.begin();
     stringvec_t::const_iterator end = pathElements.end();
-    while (it != end)
-      {
+    while (it != end) {
 	bf::path pathPrefix;
 
 	// Set the boost::fs path to the current element of
@@ -209,15 +218,14 @@ namespace edm
 
 	// Does the a file exist? locateFile throws is it finds
 	// something goofy.
-	if ( locateFile(pathPrefix, relativePath_) )
-	  {
+	if (locateFile(pathPrefix, relativePath_)) {
 	  // Convert relative path to canonical form, and save it.
 	  relativePath_ = bf::path(relativePath_).normalize().string();
 	  
 	  // Save the absolute path.
 	  canonicalFilename_ = bf::complete(relativePath_, 
-					      pathPrefix ).string();
-	    if (canonicalFilename_.empty() )
+					      pathPrefix).string();
+	    if (canonicalFilename_.empty())
 	      throw edm::Exception(edm::errors::FileInPathError)
 		<< "fullPath is empty"
 		<< "\nrelativePath() is: " << relativePath_
@@ -241,10 +249,9 @@ namespace edm
 	    bf::path local_ = localtop_;
 	    
 	    // If the branch path matches the local path, the file was found locally:
-	    if (br == local_)
-	       {
-		   isLocal_ = true;
-	       }
+	    if (br == local_) {
+	      isLocal_ = true;
+	    }
 	    
 	    // We're done...indeed.
 	    
@@ -252,10 +259,10 @@ namespace edm
 	    // inside the while-loop should be changed so that
 	    // this break isn't needed.
 	    return;
-	  }
+	}
 	// Keep trying
 	++it;
-      }
+    }
     
     // If we got here, we ran out of path elements without finding
     // what we're looking found.
@@ -276,7 +283,6 @@ namespace edm
     
   
 }
-
 
 
 
