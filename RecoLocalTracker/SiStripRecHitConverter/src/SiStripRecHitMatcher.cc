@@ -79,7 +79,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
     LocalPoint lcenterofstrip=monoRH->localPosition();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-    trackdirection=(stripdet->surface()).toLocal(gtrackdirection);
+    trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
   }
   StripPosition projectedstripmono=project(stripdet,gluedDet,stripmono,trackdirection);
   const StripTopology& partnertopol=(const StripTopology&)partnerstripdet->topology();
@@ -135,24 +135,18 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
 
 SiStripRecHitMatcher::StripPosition SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection)
 {
-  //  std::cout<<"getting surface"<<std::endl;
-  GlobalPoint gdet=(det->surface()).toGlobal(LocalPoint(0,0,0));
-  //std::cout<<"got!"<<std::endl;
-  GlobalPoint gglueddet=(glueddet->surface()).toGlobal(LocalPoint(0,0,0));
-  GlobalVector gdist=gglueddet-gdet;
-  //    std::cout<<"gdist= "<<gdist.mag()<<std::endl;
-  LocalVector ldist=(det->surface()).toLocal(gdist);
-  //    std::cout<<"ldist= "<<ldist.x()<<" "<<ldist.y()<<" "<<ldist.z()<<std::endl;
-  //std::cout<<"phi= "<<trackdirection.phi()*180/3.14<<" theta= "<<trackdirection.theta()*180/3.14<<std::endl;
-  LocalVector shift=LocalVector(ldist.z()*tan(trackdirection.theta())*cos(trackdirection.phi()),ldist.z()*tan(trackdirection.theta())*sin(trackdirection.phi()),0);
-  //std::cout<<"xshift= "<<shift.x()<<std::endl;
-    //std::cout<<"yshift= "<<shift.y()<<std::endl;
-  GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first+=shift);
-  GlobalPoint globalpointend=(det->surface()).toGlobal(strip.second+=shift);
+
+  GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first);
+  GlobalPoint globalpointend=(det->surface()).toGlobal(strip.second);
+
   // position of the initial and final point of the strip in stereo local coordinates (RPHI cluster)
   LocalPoint positiononGluedini=(glueddet->surface()).toLocal(globalpointini);
   LocalPoint positiononGluedend=(glueddet->surface()).toLocal(globalpointend);
-  //std::cout<<"LocalPosition of hit on gluedet INI: "<<positiononGluedini.x()<<" "<<positiononGluedini.y()<<std::endl;
-  // std::cout<<"LocalPosition of hit on gluedet END: "<<positiononGluedend.x()<<" "<<positiononGluedend.y()<<std::endl;
-  return StripPosition(positiononGluedini,positiononGluedend);
+
+  float scale=-positiononGluedini.z()/trackdirection.z();
+
+  LocalPoint projpositiononGluedini= positiononGluedini + scale*trackdirection;
+  LocalPoint projpositiononGluedend= positiononGluedend + scale*trackdirection;
+
+  return StripPosition(projpositiononGluedini,projpositiononGluedend);
 }
