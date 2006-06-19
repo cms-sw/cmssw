@@ -353,6 +353,7 @@ void SiPixelRecHitsPlots()
    TH1* recHitXResDisk1Plaquettes_[7];
 
    for (Int_t i=0; i<7; i++) {
+	Pixel->cd(i+1);
 	sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk1_Plaquette%d;1", i+1);
 	rfile->GetObject(histo, recHitXResDisk1Plaquettes_[i]);
 	recHitXResDisk1Plaquettes_[i]->Draw();
@@ -366,6 +367,7 @@ void SiPixelRecHitsPlots()
    TH1* recHitXResDisk2Plaquettes_[7];
 
    for (Int_t i=0; i<7; i++) {
+	Pixel->cd(i+1);
 	sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk2_Plaquette%d;1", i+1);
 	rfile->GetObject(histo, recHitXResDisk2Plaquettes_[i]);
 	recHitXResDisk2Plaquettes_[i]->Draw();
@@ -379,6 +381,7 @@ void SiPixelRecHitsPlots()
    TH1* recHitYResDisk1Plaquettes_[7];
 
    for (Int_t i=0; i<7; i++) {
+	Pixel->cd(i+1);
 	sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk1_Plaquette%d;1", i+1);
 	rfile->GetObject(histo, recHitYResDisk1Plaquettes_[i]);
 	recHitYResDisk1Plaquettes_[i]->Draw();
@@ -392,6 +395,7 @@ void SiPixelRecHitsPlots()
    TH1* recHitYResDisk2Plaquettes_[7];
 
    for (Int_t i=0; i<7; i++) {
+	Pixel->cd(i+1);
 	sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk2_Plaquette%d;1", i+1);
 	rfile->GetObject(histo, recHitYResDisk2Plaquettes_[i]);
 	recHitYResDisk2Plaquettes_[i]->Draw();

@@ -35,6 +35,14 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
 
    Char_t histo[200];
 
+
+/////////////////////////////////////////////////////////////
+// All histograms that depend on plaquette number have 7 indexes.
+// The first 4 (0-3) correspond to Panel 1 plaquettes 1-4.
+// The last 3 (4-6) correspond to Panel 2 plaquettes 1-3.
+/////////////////////////////////////////////////////////////
+
+
    //Cluster y-size by module number for barrel
    for (int i=0; i<8; i++) {
 	sprintf(histo, "Clust_y_size_Module%d", i+1);
@@ -51,15 +59,15 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    for (int i=0; i<8; i++) {
 	//Cluster charge by module for Layer1
 	sprintf(histo, "Clust_charge_Layer1_Module%d", i+1);
-	clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 1000, 0., 200000.);
+	clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 50, 0., 200000.);
 
 	//Cluster charge by module for Layer2
 	sprintf(histo, "Clust_charge_Layer2_Module%d", i+1);
-	clustChargeLayer2Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 2 by Module", 1000, 0., 200000.);
+	clustChargeLayer2Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 2 by Module", 50, 0., 200000.);
 
 	//Cluster charge by module for Layer3
 	sprintf(histo, "Clust_charge_Layer3_Module%d", i+1);
-	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",1000, 0., 200000.);	
+	clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",50, 0., 200000.);	
    } // end for
 
    dbe_->setCurrentFolder("clustFPIX");
@@ -83,11 +91,11 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
 
 	//Cluster charge for Disk1 by Plaquette
 	sprintf(histo, "Clust_charge_Disk1_Plaquette%d", i+1);
-	clustChargeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk1 by Plaquette", 1000, 0., 200000.);
+	clustChargeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk1 by Plaquette", 50, 0., 200000.);
 
 	//Cluster charge for Disk2 by Plaquette
 	sprintf(histo, "Clust_charge_Disk2_Plaquette%d", i+1);
-	clustChargeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk2 by Plaquette", 1000, 0., 200000.);
+	clustChargeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk2 by Plaquette", 50, 0., 200000.);
    } // end for
 
    dbe_->setCurrentFolder("recHitBPIX");
@@ -365,10 +373,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
 
    // fill plaquette dependent info
    for (int i=0; i<7; i++) {
-      if (PXFDetId::PXFDetId(detId).module() > 4) {
-      	cout << PXFDetId::PXFDetId(detId).module();
-      }
-      if (PXFDetId::PXFDetId(detId).module() == i+1) {
+     if (PXFDetId::PXFDetId(detId).module() == i+1) {
 	if (PXFDetId::PXFDetId(detId).disk() == 1) {
 
 	   int sizeX = (*clust).sizeX();
@@ -397,5 +402,34 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
 	   recHitYResDisk2Plaquettes[i]->Fill(res_y);
 	} // end else
       } // end if module
+	else if (PXFDetId(detId).panel() == 2 && (PXFDetId(detId).module()+4) == i+1) {
+	if (PXFDetId::PXFDetId(detId).disk() == 1) {
+
+	   int sizeX = (*clust).sizeX();
+	   clustXSizeDisk1Plaquettes[i]->Fill(sizeX);
+
+	   int sizeY = (*clust).sizeY();
+	   clustYSizeDisk1Plaquettes[i]->Fill(sizeY);
+
+	   float charge = (*clust).charge();
+	   clustChargeDisk1Plaquettes[i]->Fill(charge);
+
+	   recHitXResDisk1Plaquettes[i]->Fill(res_x);
+	   recHitYResDisk1Plaquettes[i]->Fill(res_y);
+	}
+	else {
+	   int sizeX = (*clust).sizeX();
+	   clustXSizeDisk2Plaquettes[i]->Fill(sizeX);
+
+	   int sizeY = (*clust).sizeY();
+	   clustYSizeDisk2Plaquettes[i]->Fill(sizeY);
+
+	   float charge = (*clust).charge();
+	   clustChargeDisk2Plaquettes[i]->Fill(charge);
+
+	   recHitXResDisk2Plaquettes[i]->Fill(res_x);
+	   recHitYResDisk2Plaquettes[i]->Fill(res_y);
+	} // end else
+        } // end else
    } // end for
 }
