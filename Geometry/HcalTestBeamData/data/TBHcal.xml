@@ -3,11 +3,18 @@
 
 <ConstantsSection label="TBHcal.xml" eval="true">
  <Constant name="Zmin"         value="0*fm"/>
- <Constant name="Z0HBHE"       value="375.000*cm"/>
- <Constant name="z6HB"         value="5.541*m"/>
+ <Constant name="HcalEcalZ0"   value="3.750*m"/>
+ <Constant name="TrackBeamZ2"  value="2.935*m"/>
+ <Constant name="TrackBeamR1"  value="3.10*cm"/>
+ <Constant name="TrackBeamR2"  value="7.40*cm"/>
+ <Constant name="CalorBeamZ1"  value="3.180*m"/>
+ <Constant name="CalorBeamZ2"  value="5.541*m"/>
  <Constant name="CalorBeamR1"  value="8.00*cm"/>
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
+ <Constant name="TrackCalorR"  value="1.233*m"/>
  <Constant name="rMin1"        value="1.775*m"/>
+ <Constant name="CalorBeamR1"  value="8.00*cm"/>
+ <Constant name="CalorBeamR2"  value="8.93*cm"/>
  <Constant name="CalorMuonR"   value="2.950*m"/>
  <Constant name="Eta"          value="0.5655"/>
  <Constant name="Phi"          value="7.5*deg"/>
@@ -15,11 +22,16 @@
 
 <SolidSection label="TBHcal.xml">
  <Box name="TBHCal"   dx="4.5*m"   dy="3*m"   dz="7*m"/>
- <Polycone name="HCal" startPhi="350*deg" deltaPhi="40*deg" >
-  <ZSection z="[Zmin]"     rMin="[rMin1]"       rMax="[CalorMuonR]" />
-  <ZSection z="[Z0HBHE]"   rMin="[rMin1]"       rMax="[CalorMuonR]" />
-  <ZSection z="[Z0HBHE]"   rMin="[CalorBeamR1]" rMax="[CalorMuonR]" />
-  <ZSection z="[z6HB]"     rMin="[CalorBeamR2]" rMax="[CalorMuonR]" />
+ <Polycone name="Calo" startPhi="-45*deg" deltaPhi="90*deg" >
+  <ZSection z="[Zmin]"          rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
+  <ZSection z="[CalorBeamZ1]"   rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
+  <ZSection z="[CalorBeamZ2]"   rMin="[CalorBeamR2]"  rMax="[CalorMuonR]" />
+ </Polycone> 
+ <Polycone name="HCal" startPhi="-10*deg" deltaPhi="40*deg" >
+  <ZSection z="[Zmin]"          rMin="[rMin1]"        rMax="[CalorMuonR]" />
+  <ZSection z="[HcalEcalZ0]"    rMin="[rMin1]"        rMax="[CalorMuonR]" />
+  <ZSection z="[HcalEcalZ0]"    rMin="[CalorBeamR1]"  rMax="[CalorMuonR]" />
+  <ZSection z="[CalorBeamZ2]"   rMin="[CalorBeamR2]"  rMax="[CalorMuonR]" />
  </Polycone> 
 </SolidSection>
 
@@ -33,6 +45,10 @@
   <rSolid name="TBHCal"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
+ <LogicalPart name="Calo" category="unspecified">
+  <rSolid name="Calo"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
  <LogicalPart name="HCal" category="unspecified">
   <rSolid name="HCal"/>
   <rMaterial name="materials:Air"/>
@@ -42,6 +58,10 @@
 <PosPartSection label="TBHcal.xml">
  <PosPart copyNumber="1">
    <rParent name="TBHcal:TBHCal"/>
+   <rChild name="TBHcal:Calo"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="TBHcal:Calo"/>
    <rChild name="TBHcal:HCal"/>
   <rRotation name="TBHcal:R1"/>
  </PosPart>

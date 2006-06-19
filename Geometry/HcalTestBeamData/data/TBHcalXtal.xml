@@ -87,7 +87,7 @@
 </PosPartSection>
 
 <Algorithm name="hcal:DDHCalTestBeamAlgo">
-  <rParent name="TBHcal:TBHCal"/>
+  <rParent name="TBHcal:Calo"/>
   <String  name="ChildName" value="HcalTBXtal"/>
   <Numeric name="Eta"       value="[TBHcal:Eta]"/>
   <Numeric name="Phi"       value="[TBHcal:Phi]"/>
@@ -98,7 +98,7 @@
 </Algorithm>
 
 <Algorithm name="hcal:DDHCalTestBeamAlgo">
-  <rParent name="TBHcal:TBHCal"/>
+  <rParent name="TBHcal:Calo"/>
   <String  name="ChildName" value="HcalTBXtalAloutBlock"/>
   <Numeric name="Eta"       value="[TBHcal:Eta]"/>
   <Numeric name="Phi"       value="[TBHcal:Phi]"/>
