@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/18 15:59:36 $
- * $Revision: 1.141 $
+ * $Date: 2006/06/19 08:38:24 $
+ * $Revision: 1.142 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -212,7 +212,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   serverPort_   = ps.getUntrackedParameter<int>("serverPort_", 9900);
 
   if ( enableServer_ ) {
-    cout << "Server on port '" << serverPort_ << "' is enabled" << endl;
+    cout << " Server on port '" << serverPort_ << "' is enabled" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -240,14 +240,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
-  if ( enableServer_ ) {
-    mui_->actAsServer(serverPort_, clientName_);
-  }
-
   if ( verbose_ ) {
     mui_->setVerbose(1);
   } else {
     mui_->setVerbose(0);
+  }
+
+  if ( enableServer_ ) {
+    mui_->actAsServer(serverPort_, clientName_);
   }
 
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
