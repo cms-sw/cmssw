@@ -34,6 +34,9 @@ public:
   /// Max number of leaf card pointers
   static const unsigned int MAX_LEAF_CARDS;
 
+  /// Max number of jets input from each leaf card
+  static const unsigned int MAX_JETS_PER_LEAF;
+
   /// Number of jet counters
   static const unsigned int N_JET_COUNTERS;
 

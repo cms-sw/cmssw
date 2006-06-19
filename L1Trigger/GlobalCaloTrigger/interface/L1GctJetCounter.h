@@ -30,7 +30,7 @@ public:
   typedef std::vector<L1GctJet> JetVector;
 
   //Statics
-  static const unsigned int MAX_LEAF_CARDS;
+  static const unsigned int MAX_JETLEAF_CARDS;
   static const unsigned int MAX_JETS_PER_LEAF;
   static const unsigned int MAX_JETS_TO_COUNT;
     

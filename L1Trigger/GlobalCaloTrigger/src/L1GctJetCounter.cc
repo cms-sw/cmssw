@@ -8,10 +8,9 @@
 using namespace std;
 
 //DEFINE STATICS
-const unsigned int L1GctJetCounter::MAX_LEAF_CARDS = L1GctWheelJetFpga::MAX_LEAF_CARDS;
-const unsigned int L1GctJetCounter::MAX_JETS_PER_LEAF = L1GctJetLeafCard::MAX_JET_FINDERS*
-                                                        L1GctJetFinder::MAX_JETS_OUT;
-const unsigned int L1GctJetCounter::MAX_JETS_TO_COUNT = L1GctJetCounter::MAX_LEAF_CARDS*
+const unsigned int L1GctJetCounter::MAX_JETLEAF_CARDS = L1GctWheelJetFpga::MAX_LEAF_CARDS;
+const unsigned int L1GctJetCounter::MAX_JETS_PER_LEAF = L1GctWheelJetFpga::MAX_JETS_PER_LEAF;
+const unsigned int L1GctJetCounter::MAX_JETS_TO_COUNT = L1GctJetCounter::MAX_JETLEAF_CARDS*
                                                         L1GctJetCounter::MAX_JETS_PER_LEAF;
 
 
@@ -30,11 +29,11 @@ L1GctJetCounter::L1GctJetCounter(int id, vector<L1GctJetLeafCard*> leafCards,
     << "ID number should be between the range of 0 to 11, or 100 to 111\n";
   } 
   
-  if(m_jetLeafCards.size() != MAX_LEAF_CARDS)
+  if(m_jetLeafCards.size() != MAX_JETLEAF_CARDS)
   {
     throw cms::Exception("L1GctSetupError")
     << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_LEAF_CARDS << " leaf card pointers, yet only " << m_jetLeafCards.size()
+    << "This class needs " << MAX_JETLEAF_CARDS << " leaf card pointers, yet only " << m_jetLeafCards.size()
     << " leaf card pointers are present.\n";
   }
   
@@ -101,9 +100,10 @@ void L1GctJetCounter::fetchInput()
 {
   int jetnum=0;
   for (unsigned i=0; i<m_jetLeafCards.size(); i++) {
-    if (jetnum+MAX_JETS_PER_LEAF>=m_jets.size()) {
+    if (jetnum+MAX_JETS_PER_LEAF>m_jets.size()) {
       throw cms::Exception("L1GctProcessingError")
-	<< "L1GctJetCounter id= " << m_id << " trying to input too many jets for Leaf Card number " << i << endl;
+	<< "L1GctJetCounter id= " << m_id << " trying to input too many jets for Leaf Card number " << i << endl
+	<< "current jetnum is " << jetnum << " about to add " << MAX_JETS_PER_LEAF << endl;
     }
     L1GctJetLeafCard* jlc = m_jetLeafCards.at(i);
     for (int j=0; j<L1GctJetFinder::MAX_JETS_OUT; j++) {

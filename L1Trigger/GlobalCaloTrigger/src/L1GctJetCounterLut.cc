@@ -106,8 +106,8 @@ bool L1GctJetCounterLut::passesCut(const L1GctJet jet) const
   bool result = !jet.isNullJet();
   for (unsigned i=0; i<m_nCuts; i++) {
     if (!result) { break; } // for efficiency
-//     result &= jetPassesThisCut(jet, i);
-    result = result & jetPassesThisCut(jet, i);
+    result &= jetPassesThisCut(jet, i);
+//     result = result & jetPassesThisCut(jet, i);
   }
   return result;
 }
