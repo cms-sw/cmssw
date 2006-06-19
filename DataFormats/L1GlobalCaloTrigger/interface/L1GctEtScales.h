@@ -33,13 +33,7 @@ class L1GctEtScales {
   double et(L1GctEmCand cand);
 
   /// get jet Et
-  double et(L1GctCenJet cand);
-
-  /// get jet Et
-  double et(L1GctTauJet cand);
-
-  /// get jet Et
-  double et(L1GctForJet cand);
+  double et(L1GctJetCand cand);
 
 
  private:        // methods

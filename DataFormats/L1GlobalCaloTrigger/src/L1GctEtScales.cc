@@ -23,7 +23,7 @@ double L1GctEtScales::et(L1GctEmCand cand) {
 }
 
 
-double L1GctEtScales::et(L1GctCenJet cand) {
+double L1GctEtScales::et(L1GctJetCand cand) {
 
   // this depends on the GCT Jet Et LUT contents
 
@@ -31,17 +31,4 @@ double L1GctEtScales::et(L1GctCenJet cand) {
 
 }
 
-
-double L1GctEtScales::et(L1GctTauJet cand) {
-
-  return 0.;
-
-}
-
-
-double L1GctEtScales::et(L1GctForJet cand) {
-
-  return 0.;
-
-}
 

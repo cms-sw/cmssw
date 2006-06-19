@@ -29,31 +29,17 @@ L1GctEmCand::L1GctEmCand(int rank, int phi, int eta, bool iso, unsigned rctCrate
 L1GctEmCand::~L1GctEmCand() { } 
 
 
-L1GctCenJet::L1GctCenJet() { }
+L1GctJetCand::L1GctJetCand() { }
 
-L1GctCenJet::L1GctCenJet(uint16_t data) : L1GctCand(data) { }
+L1GctJetCand::L1GctJetCand(uint16_t data) : L1GctCand(data) { }
 
-L1GctCenJet::L1GctCenJet(int rank, int phi, int eta) : L1GctCand(rank, phi, eta) { }
+L1GctJetCand::L1GctJetCand(int rank, int phi, int eta, bool isTau, bool isFor) : 
+  L1GctCand(rank, phi, eta),
+  m_isTau(isTau),
+  m_isFor(isFor)
+{ }
 
-L1GctCenJet::~L1GctCenJet() { } 
-
-
-L1GctForJet::L1GctForJet() { }
-
-L1GctForJet::L1GctForJet(uint16_t data) : L1GctCand(data) { }
-
-L1GctForJet::L1GctForJet(int rank, int phi, int eta) : L1GctCand(rank, phi, eta) { }
-
-L1GctForJet::~L1GctForJet() { } 
-
-
-L1GctTauJet::L1GctTauJet() { }
-
-L1GctTauJet::L1GctTauJet(uint16_t data) : L1GctCand(data) { }
-
-L1GctTauJet::L1GctTauJet(int rank, int phi, int eta) : L1GctCand(rank, phi, eta) { }
-
-L1GctTauJet::~L1GctTauJet() { } 
+L1GctJetCand::~L1GctJetCand() { } 
 
 
 ostream& operator<<(ostream& s, const L1GctCand& cand) {
@@ -63,20 +49,13 @@ ostream& operator<<(ostream& s, const L1GctCand& cand) {
 
 ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  s << ", iso=" << cand.isolated() << ", RCT=" << cand.rctCrate();
   return s;
 }
 
-ostream& operator<<(ostream& s, const L1GctCenJet& cand) {
+ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  s << ", isTau=" << cand.isTau() << ", isFor=" << cand.isFor();
   return s;
 }
 
-ostream& operator<<(ostream& s, const L1GctForJet& cand) {
-  s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
-  return s;
-}
-
-ostream& operator<<(ostream& s, const L1GctTauJet& cand) {
-  s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
-  return s;
-}

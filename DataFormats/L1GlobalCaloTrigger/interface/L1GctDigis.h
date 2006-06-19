@@ -81,55 +81,33 @@ public:
  };
 
 
-/*! \class L1GctCenJet
- * \brief Level-1 Trigger central jet candidate
+/*! \class L1GctJetCand
+ * \brief Level-1 Trigger jet candidate
  *
  */
 
-class L1GctCenJet : public L1GctCand {
+class L1GctJetCand : public L1GctCand {
 public:
   /// default constructor (for vector initialisation etc.)
-  L1GctCenJet();
+  L1GctJetCand();
   /// construct from raw data
-  L1GctCenJet(uint16_t data);
+  L1GctJetCand(uint16_t data);
   /// construct from rank, eta, phi
-  L1GctCenJet(int rank, int phi, int eta);
+  L1GctJetCand(int rank, int phi, int eta, bool isTau, bool isFor);
   /// destructor
-  ~L1GctCenJet();
- };
+  ~L1GctJetCand();
 
-/*! \class L1GctForJet
- * \brief Level-1 Trigger forward jet candidate
- *
- */
+  /// check if this is a tau
+  bool isTau() const { return m_isTau; }
 
-class L1GctForJet : public L1GctCand {
-public:
-  /// default constructor (for vector initialisation etc.)
-  L1GctForJet();
-  /// construct from raw data
-  L1GctForJet(uint16_t data);
-  /// construct from rank, eta, phi
-  L1GctForJet(int rank, int phi, int eta);
-  /// destructor
-  ~L1GctForJet();
- };
+  /// check if this is a forward jet
+  bool isFor() const { return m_isFor; }
 
-/*! \class L1GctTauJet
- * \brief Level-1 Trigger tau jet candidate
- *
- */
+ private:
 
-class L1GctTauJet : public L1GctCand {
-public:
-  /// default constructor (for vector initialisation etc.)
-  L1GctTauJet();
-  /// construct from raw data
-  L1GctTauJet(uint16_t data);
-  /// construct from rank, eta, phi
-  L1GctTauJet(int rank, int phi, int eta);
-  /// destructor
-  ~L1GctTauJet();
+  bool m_isTau;
+  bool m_isFor;
+
  };
 
 
@@ -137,12 +115,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctCand& cand);
 
 std::ostream& operator<<(std::ostream& s, const L1GctEmCand& cand);
 
-std::ostream& operator<<(std::ostream& s, const L1GctCenJet& cand);
-
-std::ostream& operator<<(std::ostream& s, const L1GctForJet& cand);
-
-std::ostream& operator<<(std::ostream& s, const L1GctTauJet& cand);
-
+std::ostream& operator<<(std::ostream& s, const L1GctJetCand& cand);
 
 
 #endif 

@@ -6,10 +6,8 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
-typedef std::vector<L1GctEmCand> L1GctIsoEmCollection;
-typedef std::vector<L1GctEmCand> L1GctNonIsoEmCollection;
-typedef std::vector<L1GctForJet> L1GctForJetCollection;
-typedef std::vector<L1GctCenJet> L1GctCenJetCollection;
-typedef std::vector<L1GctTauJet> L1GctTauJetCollection;
+typedef std::vector<L1GctEmCand> L1GctEmCandCollection;
+typedef std::vector<L1GctJetCand> L1GctJetCandCollection;
+
 
 #endif
