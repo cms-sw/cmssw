@@ -71,7 +71,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  alignments = theAlignableTracker->alignments();
 	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
 			it != alignments->m_align.end(); it++ )
-		std::cout << (*it).rawId() << " " << (*it).translation() << std::endl;
+		edm::LogInfo("DumpPositions")  << std::endl
+									   << (*it).rawId() << " " << (*it).translation();
 	}
 
   // Create misalignment scenario
@@ -84,7 +85,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  alignments = theAlignableTracker->alignments();
 	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
 			it != alignments->m_align.end(); it++ )
-		std::cout << (*it).rawId() << " " << (*it).translation() << std::endl;
+		edm::LogInfo("DumpPositions")  << std::endl
+									   << (*it).rawId() << " " << (*it).translation();
 	}
 
 
