@@ -11,11 +11,15 @@ const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L
 const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
 const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
 const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
+const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = 12;
 
 
-L1GctWheelJetFpga::L1GctWheelJetFpga(int id, vector<L1GctJetLeafCard*> inputLeafCards):
+L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
+				     std::vector<L1GctJetLeafCard*> inputLeafCards,
+				     std::vector<L1GctJetCounterLut*> jetCounterLuts):
   m_id(id),
   m_inputLeafCards(inputLeafCards),
+  m_jetCounters(N_JET_COUNTERS),
   m_inputJets(MAX_JETS_IN),
   m_rawCentralJets(MAX_RAW_CJETS),
   m_rawForwardJets(MAX_RAW_FJETS),
@@ -23,7 +27,7 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id, vector<L1GctJetLeafCard*> inputLeaf
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT),
-  m_outputJc(12)
+  m_outputJc(N_JET_COUNTERS)
 {
   setupRawTauJetsVec();  //sets up tau jet vector, but with tau-veto bits set to false.
   
@@ -45,17 +49,29 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id, vector<L1GctJetLeafCard*> inputLeaf
   
   for(unsigned int i = 0; i < MAX_LEAF_CARDS; ++i)
   {
-    if(m_inputLeafCards[i] == 0)
+    if(m_inputLeafCards.at(i) == 0)
     {
       throw cms::Exception("L1GctSetupError")
       << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
       << "Leaf card pointer " << i << " has not been set!\n";
     }
   }
+  if (jetCounterLuts.size() != N_JET_COUNTERS) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
+      << "size of jetCounterLut vector should be " << N_JET_COUNTERS << ", but is in fact " << jetCounterLuts.size() << "!\n";
+  }
+
+  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
+    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards, jetCounterLuts.at(i));
+  }
 }
 
 L1GctWheelJetFpga::~L1GctWheelJetFpga()
 {
+  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
+    delete m_jetCounters.at(i);
+  }
 }
 
 ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
@@ -65,54 +81,58 @@ ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
   os << "No of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
   for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
     {
-      os << "InputLeafCard* " << i << " = " << fpga.m_inputLeafCards[i] << endl;
+      os << "InputLeafCard* " << i << " = " << fpga.m_inputLeafCards.at(i) << endl;
     } 
 //   os << "No. of Input Jets " << fpga.m_inputJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_inputJets.size(); i++)
 //     {
-//       os << fpga.m_inputJets[i];
+//       os << fpga.m_inputJets.at(i);
 //     } 
   os << "Input Ht " << endl;
   for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
     {
-      os << (fpga.m_inputHt[i]) << endl;
+      os << (fpga.m_inputHt.at(i)) << endl;
     } 
 //   os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
 //     {
-//       os << fpga.m_rawCentralJets[i];
+//       os << fpga.m_rawCentralJets.at(i);
 //     } 
 //   os << "No. of raw forward Jets " << fpga.m_rawForwardJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_rawForwardJets.size(); i++)
 //     {
-//       os << fpga.m_rawForwardJets[i];
+//       os << fpga.m_rawForwardJets.at(i);
 //     } 
 //   os << "No. of raw tau Jets " << fpga.m_rawTauJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_rawTauJets.size(); i++)
 //     {
-//       os << fpga.m_rawTauJets[i];
+//       os << fpga.m_rawTauJets.at(i);
 //     } 
   os << "Output Ht " << fpga.m_outputHt << endl;
   os << "Output Jet count " << endl;
   for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
     {
-      os << "Jet count " << i << ": " << fpga.m_outputJc[i] << endl;
+      os << "Jet count " << i << ": " << fpga.m_outputJc.at(i) << endl;
     } 
 //   os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
 //     {
-//       os << fpga.m_centralJets[i];
+//       os << fpga.m_centralJets.at(i);
 //     } 
 //   os << "No. of output forward Jets " << fpga.m_forwardJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_forwardJets.size(); i++)
 //     {
-//       os << fpga.m_forwardJets[i];
+//       os << fpga.m_forwardJets.at(i);
 //     } 
 //   os << "No. of output tau Jets " << fpga.m_tauJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_tauJets.size(); i++)
 //     {
-//       os << fpga.m_tauJets[i];
-//     } 
+//       os << fpga.m_tauJets.at(i);
+//     }
+  os << "Jet counters:" << endl; 
+  for (unsigned int i=0; i < L1GctWheelJetFpga::N_JET_COUNTERS; i++) {
+    os << *fpga.m_jetCounters.at(i) << endl;
+  }
   os << endl;
   return os;
 }	
@@ -138,12 +158,13 @@ void L1GctWheelJetFpga::reset()
 
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
-    m_inputHt[i].reset();
+    m_inputHt.at(i).reset();
   }
   m_outputHt.reset();
-  for (int i=0; i<12; ++i)
+  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
   {
-    m_outputJc[i].reset();
+    m_jetCounters.at(i)->reset();
+    m_outputJc.at(i).reset();
   }
 }
 
@@ -152,14 +173,19 @@ void L1GctWheelJetFpga::fetchInput()
   //Get Jets
   for(unsigned short iLeaf = 0; iLeaf < MAX_LEAF_CARDS; ++iLeaf)
   {
-    assert(m_inputLeafCards[iLeaf] != 0);  //check that the pointers have been set up!
+    assert(m_inputLeafCards.at(iLeaf) != 0);  //check that the pointers have been set up!
 
-    storeJets(m_inputLeafCards[iLeaf]->getOutputJetsA(), iLeaf, 0);
-    storeJets(m_inputLeafCards[iLeaf]->getOutputJetsB(), iLeaf, MAX_JETS_IN);
-    storeJets(m_inputLeafCards[iLeaf]->getOutputJetsC(), iLeaf, 2*MAX_JETS_IN);
+    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsA(), iLeaf, 0);
+    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, MAX_JETS_IN);
+    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*MAX_JETS_IN);
         
     // Deal with the Ht inputs
-    m_inputHt[iLeaf] = m_inputLeafCards[iLeaf]->getOutputHt();
+    m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
+
+  }
+  // Deal with the jet counters
+  for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
+    m_jetCounters.at(i)->fetchInput();
   }
 }
 
@@ -173,15 +199,19 @@ void L1GctWheelJetFpga::process()
 
   for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
   {
-    m_centralJets[iJet] = m_rawCentralJets[iJet];
-    m_forwardJets[iJet] = m_rawForwardJets[iJet];
-    m_tauJets[iJet] = m_rawTauJets[iJet];
+    m_centralJets.at(iJet) = m_rawCentralJets.at(iJet);
+    m_forwardJets.at(iJet) = m_rawForwardJets.at(iJet);
+    m_tauJets.at(iJet) = m_rawTauJets.at(iJet);
   }
 
   //Ht processing
-  m_outputHt = m_inputHt[0] + m_inputHt[1] + m_inputHt[2];
+  m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
 
-  //Jet count processing (to be added)
+  //Jet count processing
+  for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
+    m_jetCounters.at(i)->process();
+    m_outputJc.at(i) = m_jetCounters.at(i)->getValue();
+  }
     
 }
 
@@ -189,7 +219,7 @@ void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 {
   if(i >=0 && i < MAX_JETS_IN)
   {
-    m_inputJets[i] =  jet;
+    m_inputJets.at(i) =  jet;
   }
   else
   {
@@ -203,7 +233,7 @@ void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
 {   
   if(i >= 0 && i < static_cast<int>(MAX_LEAF_CARDS))
   {
-    m_inputHt[i].setValue(ht);
+    m_inputHt.at(i).setValue(ht);
   }
   else
   {
@@ -217,7 +247,7 @@ void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned
 {
   for(unsigned short iJet = 0; iJet < L1GctJetFinder::MAX_JETS_OUT; ++iJet)
   {
-    m_inputJets[iLeaf*MAX_JETS_IN/MAX_LEAF_CARDS + offset + iJet] = jets[iJet];
+    m_inputJets.at(iLeaf*MAX_JETS_IN/MAX_LEAF_CARDS + offset + iJet) = jets.at(iJet);
   }
 }
 
@@ -248,17 +278,17 @@ void L1GctWheelJetFpga::classifyJets()
   {
     if(currentJet->eta() >= L1GctJetCand::LOCAL_ETA_HF_START)  //forward jet
     {
-        m_rawForwardJets[numFJets++] = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+        m_rawForwardJets.at(numFJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
     }
     else
     {
       if(currentJet->tauVeto() == true)  //central non-tau jet.
       {
-        m_rawCentralJets[numCJets++] = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+        m_rawCentralJets.at(numCJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
       }
       else  //must be central tau-jet
       {
-        m_rawTauJets[numTJets++] = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+        m_rawTauJets.at(numTJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
       }
     }
     //move onto the next jet finder phi position every 6 jets

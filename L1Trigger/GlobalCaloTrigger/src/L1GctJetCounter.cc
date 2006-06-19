@@ -64,6 +64,9 @@ ostream& operator << (ostream& os, const L1GctJetCounter& algo)
 {
   os << "===L1GctJetCounter===" << endl;
   os << "ID = " << algo.m_id << endl;
+  if ((algo.m_id/100) == 0) { os << "Minus wheel, "; }
+  else { os << "Plus wheel, "; }
+  os << "jet counter no. " << algo.m_id%100 << endl;
   os << "JetCounterLut* = " <<  algo.m_jetCounterLut << endl;
   os << *algo.m_jetCounterLut << endl;
   os << "No of Leaf cards " << algo.m_jetLeafCards.size() << endl;

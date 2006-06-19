@@ -17,6 +17,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
@@ -32,8 +34,13 @@ public:
   /// Max number of leaf card pointers
   static const unsigned int MAX_LEAF_CARDS;
 
+  /// Number of jet counters
+  static const unsigned int N_JET_COUNTERS;
+
   /// id must be 0 / 1 for -ve/+ve eta halves of CMS
-  L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
+  L1GctWheelJetFpga(int id,
+		    std::vector<L1GctJetLeafCard*> inputLeafCards,
+		    std::vector<L1GctJetCounterLut*> jetCounterLuts);
 
   /// destructor
   ~L1GctWheelJetFpga();
@@ -87,6 +94,9 @@ private:
 
   /// the jet leaf cards
   std::vector<L1GctJetLeafCard*> m_inputLeafCards;
+
+  /// the jet counters
+  std::vector<L1GctJetCounter*> m_jetCounters;
     
   /// input data. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector m_inputJets;

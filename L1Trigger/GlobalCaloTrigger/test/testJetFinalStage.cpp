@@ -85,6 +85,12 @@ int main(int argc, char **argv)
     //create jet calibration lookup table
     L1GctJetEtCalibrationLut* myJetEtCalLut = new L1GctJetEtCalibrationLut();    
     
+    //create jet counter lookup table
+    vector<L1GctJetCounterLut*> myJetCounterLuts(L1GctWheelJetFpga::N_JET_COUNTERS);
+    for (unsigned i=0; i<myJetCounterLuts.size(); i++) { 
+      myJetCounterLuts.at(i) = new L1GctJetCounterLut();
+    }    
+    
     vector<L1GctJetLeafCard*> jetLeafCrds(L1GctWheelJetFpga::MAX_LEAF_CARDS);
     for(unsigned i=0; i < L1GctWheelJetFpga::MAX_LEAF_CARDS; ++i)
     {
@@ -94,7 +100,7 @@ int main(int argc, char **argv)
     vector<L1GctWheelJetFpga*> wheelJetFpgas(L1GctJetFinalStage::MAX_WHEEL_FPGAS);
     for(unsigned i=0; i < L1GctJetFinalStage::MAX_WHEEL_FPGAS; ++i)
     {
-      wheelJetFpgas[i] = new L1GctWheelJetFpga(0, jetLeafCrds);
+      wheelJetFpgas[i] = new L1GctWheelJetFpga(0, jetLeafCrds, myJetCounterLuts);
     }
     
     L1GctJetFinalStage * myJetFinalStage = new L1GctJetFinalStage(wheelJetFpgas); //TEST OBJECT on heap;    
@@ -111,6 +117,10 @@ int main(int argc, char **argv)
       delete *it;
     }
     delete myJetEtCalLut;     
+    for(vector<L1GctJetCounterLut*>::iterator it = myJetCounterLuts.begin(); it != myJetCounterLuts.end(); ++it)
+    {
+      delete *it;
+    }
     for(vector<L1GctSourceCard*>::iterator it = srcCrds.begin(); it != srcCrds.end(); ++it)
     {
       delete *it;

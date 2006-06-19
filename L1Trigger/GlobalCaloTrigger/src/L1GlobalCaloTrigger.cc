@@ -10,6 +10,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -27,6 +28,8 @@ const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
 const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
 
+const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJetFpga::N_JET_COUNTERS;
+
 
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
@@ -35,9 +38,11 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
   theWheelJetFpgas(N_WHEEL_CARDS),
-  theWheelEnergyFpgas(N_WHEEL_CARDS)
+  theWheelEnergyFpgas(N_WHEEL_CARDS),
+  m_minusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL),
+  m_plusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL)
 {
-  
+  setupLuts();
   build();
   
 }
@@ -364,7 +369,11 @@ void L1GlobalCaloTrigger::build() {
        wheelJetLeafCards[j]=theJetLeafCards[i*3+j];
        wheelEnergyLeafCards[j]=theJetLeafCards[i*3+j];
      }
-     theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards);
+     if (i==0) { 
+       theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_minusWheelJetCounterLuts);
+     } else { 
+       theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_plusWheelJetCounterLuts);
+     } 
      theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
    }
   
@@ -378,4 +387,32 @@ void L1GlobalCaloTrigger::build() {
   // Global Energy Algos
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
 
+}
+
+void L1GlobalCaloTrigger::setupLuts() {
+
+  setupJetEtCalibrationLut();
+  setupJetCounterLuts();
+
+}
+
+void L1GlobalCaloTrigger::setupJetEtCalibrationLut() {
+
+  // Jet Et LUT
+  // We may have some parameters here at some point
+  m_jetEtCalLut = new L1GctJetEtCalibrationLut();
+
+}
+
+void L1GlobalCaloTrigger::setupJetCounterLuts() {
+
+  // Initialise look-up tables for Minus and Plus wheels
+  unsigned j=0;
+  // Setup the first counters in the list for some arbitrary conditions
+
+  // Set the remainder to null counters
+  for (; j<N_JET_COUNTERS_PER_WHEEL; j++) {
+    m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
+    m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
+  }
 }

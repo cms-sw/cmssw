@@ -32,6 +32,7 @@ class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetEtCalibrationLut;
+class L1GctJetCounterLut;
 
 
 class L1GlobalCaloTrigger {
@@ -45,6 +46,9 @@ public:
   /// Number of Wheel Cards
   static const int N_WHEEL_CARDS;
   
+  /// Number of jet counter per wheel
+  static const unsigned int N_JET_COUNTERS_PER_WHEEL;
+
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false);
   
@@ -128,7 +132,12 @@ public:
   
   /// instantiate the hardware & algo objects and wire up the system
   void build();
-  
+
+  /// setup look-up tables
+  void setupLuts();
+  void setupJetEtCalibrationLut();
+  void setupJetCounterLuts();
+
  private:
   
   /// where are we getting data from?
@@ -164,6 +173,12 @@ public:
   /// Jet Et calibraion LUT
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
   
+  /// Jet Counter LUT (Minus Wheel)
+  std::vector<L1GctJetCounterLut*> m_minusWheelJetCounterLuts;
+
+  /// Jet Counter LUT (Plus Wheel)
+  std::vector<L1GctJetCounterLut*> m_plusWheelJetCounterLuts;
+
 };
 
 #endif /*L1GLOBALCALOTRIGGER_H_*/
