@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.cc,v 1.1 2006/06/14 15:17:13 benigno Exp $
+// $Id: MonitorXMLParser.cc,v 1.2 2006/06/16 15:41:13 benigno Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2006/06/14 15:17:13 $
+  \version $Revision: 1.2 $
+  \date $Date: 2006/06/16 15:41:13 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -119,6 +119,9 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       me.ybins = 0;
       me.yfrom = 0.0;
       me.yto = 0.0;
+      me.zbins = 0;
+      me.zfrom = 0.0;
+      me.zto = 0.0;
       
     }
     
@@ -173,6 +176,10 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       s.clear(); s.str( c );
       s >> me.yto;
       xercesc::XMLString::release( &c );
+
+      me.zbins = 0;
+      me.zfrom = 0.0;
+      me.zto = 0.0;
       
     }
     
@@ -227,6 +234,83 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       s.clear(); s.str( c );
       s >> me.yto;
       xercesc::XMLString::release( &c );
+
+      me.zbins = 0;
+      me.zfrom = 0.0;
+      me.zto = 0.0;
+      
+    }
+
+    xercesc::DOMNodeList* tp2dNodes = element->getElementsByTagName( tags_->TAG_TPROFILE2D );
+    const XMLSize_t tp2dCount = tp2dNodes->getLength();
+	
+    for( XMLSize_t tp2dIndex = 0; tp2dIndex < tp2dCount; ++tp2dIndex ){
+      
+      xercesc::DOMNode* tp2dNode = tp2dNodes->item( tp2dIndex ) ;
+      
+      xercesc::DOMElement* tp2dElement = dynamic_cast< xercesc::DOMElement* >( tp2dNode ) ;
+      
+      const XMLCh* tp2dtitleXMLCh = tp2dElement->getAttribute( tags_->ATTR_TITLE ) ;
+      c = xercesc::XMLString::transcode( tp2dtitleXMLCh ); 
+      me.type = "tprofile2d";
+      me.title = c;
+      meok = true;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dxbinsXMLCh = tp2dElement->getAttribute( tags_->ATTR_XBINS ) ;
+      c = xercesc::XMLString::transcode( tp2dxbinsXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.xbins;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dxfromXMLCh = tp2dElement->getAttribute( tags_->ATTR_XFROM ) ;
+      c = xercesc::XMLString::transcode( tp2dxfromXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.xfrom;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* tp2dxtoXMLCh = tp2dElement->getAttribute( tags_->ATTR_XTO ) ;
+      c = xercesc::XMLString::transcode( tp2dxtoXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.xto;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dybinsXMLCh = tp2dElement->getAttribute( tags_->ATTR_YBINS ) ;
+      c = xercesc::XMLString::transcode( tp2dybinsXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.ybins;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dyfromXMLCh = tp2dElement->getAttribute( tags_->ATTR_YFROM ) ;
+      c = xercesc::XMLString::transcode( tp2dyfromXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.yfrom;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dytoXMLCh = tp2dElement->getAttribute( tags_->ATTR_YTO ) ;
+      c = xercesc::XMLString::transcode( tp2dytoXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.yto;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* tp2dzbinsXMLCh = tp2dElement->getAttribute( tags_->ATTR_ZBINS ) ;
+      c = xercesc::XMLString::transcode( tp2dzbinsXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.zbins;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dzfromXMLCh = tp2dElement->getAttribute( tags_->ATTR_ZFROM ) ;
+      c = xercesc::XMLString::transcode( tp2dzfromXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.zfrom;
+      xercesc::XMLString::release( &c );
+      
+      const XMLCh* tp2dztoXMLCh = tp2dElement->getAttribute( tags_->ATTR_ZTO ) ;
+      c = xercesc::XMLString::transcode( tp2dztoXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.zto;
+      xercesc::XMLString::release( &c );
+
       
     }
       
