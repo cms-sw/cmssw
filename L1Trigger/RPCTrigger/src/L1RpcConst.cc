@@ -12,7 +12,7 @@ using namespace std;
 int L1RpcConst::iptFromPt(const double pt) {
   if(pt == 0.)return 0;
   if(pt<pts[0]) {
-    cout<<"** L1RpcConst ** iptFromPt called with illegal pt="<<pt<<endl;
+    edm::LogError("RPCTrigger")<<"** L1RpcConst ** iptFromPt called with illegal pt="<<pt;
     return 0;
   }
  int ipt=L1RpcConst::IPT_MAX;
@@ -24,7 +24,7 @@ int L1RpcConst::iptFromPt(const double pt) {
 
 double L1RpcConst::ptFromIpt(const int ipt) {
   if ( ipt<0 || ipt>L1RpcConst::IPT_MAX ) {
-    cout <<"**L1RpcConst::ptFromIpt** problem with ipt: "<<ipt<<endl;
+    edm::LogError("RPCTrigger") <<"**L1RpcConst::ptFromIpt** problem with ipt: "<<ipt;
     return 0.;
   }
   else return pts[ipt];
@@ -36,8 +36,8 @@ double L1RpcConst::etaFromTowerNum(const int atower){
   int iabsitow = (atower >= 0)? atower: -atower;
   if (0==iabsitow) return 0.;
   if( iabsitow>L1RpcConst::ITOW_MAX) {
-    cout << "**L1RpcConst::etaFromTowerNum** iabsitow>ITOW_MAX for tower:"
-         << atower <<endl;
+    edm::LogError("RPCTrigger") << "**L1RpcConst::etaFromTowerNum** iabsitow>ITOW_MAX for tower:"
+         << atower ;
     return 0.;
   }
   double eta = (etas[iabsitow]+etas[iabsitow+1])/2.;
@@ -109,7 +109,7 @@ double L1RpcConst::VxMuRate(int ptCode) {
   double ex = (ptlog10-mu)*(ptlog10-mu)/s2;
   double rate = (a * exp(-ex) * afactor); 
 
-  //cout<<ptCode<<" "<<rate<<endl;//<<<<<<<<<<<<<<<<<<<<<<<<
+  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
   return rate;
 }
 
@@ -122,7 +122,7 @@ double L1RpcConst::VxIntegMuRate(int ptCode, double etaFrom, double etaTo) {
 
   rate = rate * (etaTo - etaFrom);
 
-  //cout<<ptCode<<" "<<rate<<endl;//<<<<<<<<<<<<<<<<<<<<<<<<
+  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
   return rate;
 }
 
@@ -132,7 +132,7 @@ double L1RpcConst::VxIntegMuRate(int ptCode, int tower) {
   //calkowanie metoda trapezow - nie do konca dobre
   double rate = VxIntegMuRate(ptCode, L1RpcConst::etas[abs(tower)], L1RpcConst::etas[abs(tower)+1]);
 
-  //cout<<ptCode<<" "<<rate<<endl;//<<<<<<<<<<<<<<<<<<<<<<<<
+  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
   return rate;
 }
 

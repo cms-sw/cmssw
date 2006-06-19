@@ -59,12 +59,11 @@ int L1RpcBasicTrigConfig::GetTowsCntOnTB(int tbNum) {
  * TC GB-Sorter input tower address is 8 bits: [7...2] TB num, [1...0] tower num on TB.*/
 int L1RpcBasicTrigConfig::TowAddr2TowNum(int towAddr) {
   
-#ifdef LOCALDEBUG
     if (TOW_ADDR_2_TOW_NUM[towAddr] == -99 || towAddr < 0 || towAddr > 35){
         //throw L1RpcException("L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr");
-  std::cout<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr" << std::endl;
+        edm::LogError("RPC")<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr";
     }
-#endif
+
 
   return TOW_ADDR_2_TOW_NUM[towAddr];
 };

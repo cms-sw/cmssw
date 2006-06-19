@@ -2,6 +2,9 @@
 #ifndef L1RpcBasicTrigConfigH
 #define L1RpcBasicTrigConfigH
 
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "L1Trigger/RPCTrigger/src/L1RpcTriggerConfiguration.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcPacManager.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"

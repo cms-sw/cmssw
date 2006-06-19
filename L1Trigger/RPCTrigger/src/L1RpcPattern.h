@@ -64,82 +64,45 @@ public:
   ///Default Constructor. Empty pattern, no muon, all planes NOT_CONECTED
   L1RpcPattern();
 
-  void SetStripFrom(int logPlane, int stripFrom) {
-    Strips[logPlane].StripFrom = stripFrom;
-  }
-  void SetStripTo(int logPlane, int stripTo) {
-    Strips[logPlane].StripTo = stripTo;
-  }
+  void SetStripFrom(int logPlane, int stripFrom);
+  
+  void SetStripTo(int logPlane, int stripTo);
 
   ///First strip in range.
-  int GetStripFrom(int logPlane) const { //logic srtip
-    return Strips[logPlane].StripFrom;
-  }
+  int GetStripFrom(int logPlane) const;
 
   ///Next-to-last strip in range.
-  int GetStripTo(int logPlane) const {  //logic srtip
-    return Strips[logPlane].StripTo;
-  }
+  int GetStripTo(int logPlane) const;
 
   ///Returns the stripFrom position w.r.t the first strip in ref plane.
-  int GetBendingStripFrom(int logPlane, int tower) {
-    if (Strips[logPlane].StripFrom == RPCParam::NOT_CONECTED)
-      return  RPCParam::NOT_CONECTED;                                                   //expand
-    return Strips[logPlane].StripFrom - Strips[RPCParam::REF_PLANE[tower]].StripFrom - (RPCParam::LOGPLANE_SIZE[tower][logPlane] - RPCParam::LOGPLANE_SIZE[tower][RPCParam::REF_PLANE[tower]])/2;
-  }
+  int GetBendingStripFrom(int logPlane, int tower);
 
   ///Returns the stripTo position w.r.t the first strip in ref plane..
-  int GetBendingStripTo(int logPlane, int tower) {
-    if (Strips[logPlane].StripTo == RPCParam::NOT_CONECTED+1)
-      return  RPCParam::NOT_CONECTED;                                                   //expand
-    return Strips[logPlane].StripTo - Strips[RPCParam::REF_PLANE[tower]].StripFrom - (RPCParam::LOGPLANE_SIZE[tower][logPlane] - RPCParam::LOGPLANE_SIZE[tower][RPCParam::REF_PLANE[tower]])/2;
-  }
+  int GetBendingStripTo(int logPlane, int tower);
 
-  int GetCode() const{
-    return Code;
-  };
+  int GetCode() const;
 
-  int GetSign() const{
-    return Sign;
-  };
+  int GetSign() const;
 
-  int GetNumber() const{
-    return Number;
-  };
+  int GetNumber() const;
 
-  RPCParam::TPatternType GetPatternType() const {
-    return PatternType;
-  };
+  RPCParam::TPatternType GetPatternType() const;
 
-  int GetRefGroup() const {
-    return RefGroup;
-  }
+  int GetRefGroup() const;
 
-  int GetQualityTabNumber() const {
-    return QualityTabNumber;
-  };
+  int GetQualityTabNumber() const;
 
-  void SetCode(int a) {
-    Code = a;
-  };
-  void SetSign(int a) {
-    Sign = a;
-  };
-  void SetNumber(int a) {
-    Number = a;
-  };
+  void SetCode(int a);
+  
+  void SetSign(int a);
+  
+  void SetNumber(int a);
 
-  void SetPatternType(RPCParam::TPatternType patternType) {
-    PatternType = patternType;
-  };
+  void SetPatternType(RPCParam::TPatternType patternType);
 
-  void SetRefGroup(int refGroup) {
-    RefGroup = refGroup;
-  }
+  void SetRefGroup(int refGroup);
 
-  void SetQualityTabNumber(int qualityTabNumber ) {
-    QualityTabNumber = qualityTabNumber;
-  };
+  void SetQualityTabNumber(int qualityTabNumber );
 
 };
 

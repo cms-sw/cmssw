@@ -30,6 +30,8 @@
 //#include "Trigger/L1RpcTrigger/src/L1RpcException.h"
 #include <xercesc/util/PlatformUtils.hpp>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 ///Suported configurations
 enum L1RpcPACsCntEnum {
   ONE_PAC_PER_TOWER = 1,
@@ -105,7 +107,7 @@ public:
   TPacType* GetPac(int tower, int logSector, int logSegment) const {
     if (PacTab.size() <= (unsigned int) abs(tower) )
       //throw L1RpcException("L1RpcPacManager::GetPac: given towerNum to big");
-      std::cout << "L1RpcPacManager::GetPac: given towerNum to big" << std::endl;
+      edm::LogError("RPCTrigger") << "L1RpcPacManager::GetPac: given towerNum to big" << std::endl;
 
     int curLogSector = logSector;
     int curlogSegment = logSegment;

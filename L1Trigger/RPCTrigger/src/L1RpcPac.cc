@@ -12,6 +12,8 @@
 #include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
 #include <iostream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 /** 
  *
  * Constructor required by L1RpcPacManager.
@@ -40,7 +42,7 @@ L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSeg
   }
   else {
     //throw L1RpcException("patFilesDir not contines XML");
-    std::cout << "patFilesDir not containes XML" << std::endl;
+    edm::LogError("RPCTrigger")<< "patFilesDir not containes XML";
   }
   
   TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
@@ -67,14 +69,18 @@ int L1RpcPac::GetPatternsGroupCount () {
  *
  */
 L1RpcPattern L1RpcPac::GetPattern(int patNum) const {
-  if(PatternsVec.size() == 0)
+  if(PatternsVec.size() == 0) {
+  
     //throw L1RpcException("GetPattren(): Patterns vec is empty, mayby it was not filled!");
-    cout << "GetPattren(): Patterns vec is empty, mayby it was not filled!" << std::endl;
+    edm::LogError("RPCTrigger") << "GetPattren(): Patterns vec is empty, mayby it was not filled!";
+    
+  }
   return PatternsVec[patNum];
+  
 }
 /**
  * 
- *@return the cout of patterns stored in PatternsVec.
+ *@return the count of patterns stored in PatternsVec.
  *
  */
 int L1RpcPac::GetPatternsCount() {
@@ -103,7 +109,7 @@ bool L1RpcPac::GetEPatternsGroupShape(int groupNum, int logPlane, int bitNum) {
       return iEGroup->GroupShape.GetLogStripState(logPlane, bitNum);
   }
   //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
-  std::cout << "GetEPatternsGroupShape(): groupNum to big!" << std::endl;
+  edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
   return false; // XXX - TMF
 }
 
@@ -124,7 +130,7 @@ std::string L1RpcPac::GetPatternsGroupDescription(int patternGroupNum) {
   
   if (ret.empty()){
       //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
-    std::cout<< "GetEPatternsGroupShape(): groupNum to big!" << std::endl; 
+    edm::LogError("RPCTrigger")<< "GetEPatternsGroupShape(): groupNum to big!";
   }
 
   return ret;
@@ -145,7 +151,7 @@ void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
   }
   else
     //throw L1RpcException("InsertQualityRecord(): wrong qualityTabNumber");
-    std::cout << "InsertQualityRecord(): wrong qualityTabNumber" << std::endl;
+    edm::LogError("RPCTrigger") << "InsertQualityRecord(): wrong qualityTabNumber";
 };
 
 
@@ -174,7 +180,7 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
     }
     else
       //throw L1RpcException("InsertPattern(): unsupported pattern type");
-      std::cout << "InsertPattern(): unsupported pattern type" << std::endl;
+      edm::LogError("RPCTrigger") << "InsertPattern(): unsupported pattern type";
   }  
 
   if(EnergeticPatternsGroupList.size() != 0) {

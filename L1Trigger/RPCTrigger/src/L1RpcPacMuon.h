@@ -22,26 +22,14 @@
 
 class L1RpcPacMuon: public L1RpcMuon {
 public:
-  ///Default constructor. No muon.
-  L1RpcPacMuon(): L1RpcMuon() {
-  }
+  
+  L1RpcPacMuon();
+  
+  L1RpcPacMuon(const L1RpcPattern& pattern, int quality, unsigned short firedPlanes);
 
-  //Constructor.
-  L1RpcPacMuon(const L1RpcPattern& pattern, int quality, unsigned short firedPlanes):
-    L1RpcMuon(pattern.GetCode(), quality, pattern.GetSign(), pattern.GetNumber(), firedPlanes) {
-  }
+  void SetAll(const L1RpcPattern& pattern, int quality, unsigned short firedPlanes);
 
-  void SetAll(const L1RpcPattern& pattern, int quality, unsigned short firedPlanes) {
-    PatternNum = pattern.GetNumber();
-    PtCode = pattern.GetCode();
-    Sign = pattern.GetSign();
-    Quality = quality;
-    FiredPlanes = firedPlanes;
-  }
-
-  void SetPatternNum(int patternNum) {
-    PatternNum = patternNum;
-  };
+  void SetPatternNum(int patternNum);
 
   bool operator < (const L1RpcPacMuon& pacMuon) const;
 

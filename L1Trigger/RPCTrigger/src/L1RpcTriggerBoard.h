@@ -39,7 +39,7 @@ public:
     #ifndef _STAND_ALONE
     if(TriggerConfig->GetDebugLevel() > 6) {
       cone.Print();
-      cout<<"Pac "<<tbMuon.ToString();
+    edm::LogError("RPCTrigger")<<"Pac "<<tbMuon.ToString();
     }  
     #endif
     */

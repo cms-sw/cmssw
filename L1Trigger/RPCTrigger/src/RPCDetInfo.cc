@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/06/09 12:35:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/12 15:45:39 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 
@@ -162,8 +162,8 @@ int RPCDetInfo::getGlobRollNo(){
   if (m_region==-1)
     globRoll= -globRoll;
   
-  if (globRoll==20)
-    std::cout << "Trouble. " << std::endl;
+  if ( (globRoll==20) || (globRoll==-20))
+    edm::LogError("RPCTrigger") << "Problem with RPCDetInfo::getGlobRollNo function. GlobRoll=" << globRoll;
     
   return globRoll;
 }
@@ -286,25 +286,25 @@ const float RPCDetInfo::m_towerBounds[] = {0.07, 0.27, 0.44, 0.58, 0.72, 0.83, 0
 //#############################################################################
 /**
 *
-* \brief prints the contents of a RpcDetInfo. Commented out, as cout`s are forbidden
+* \brief prints the contents of a RpcDetInfo.
 *
 */
 //#############################################################################
 void RPCDetInfo::printContents() {
   
   //*
-  std::cout<<"####"<<std::endl;
-  std::cout<< "DetId "<< rawId() << " Centre Phi " << getPhi() << std::endl;
-  std::cout<< " Tower min" << m_towerMin << " tower max " << m_towerMax << std::endl;
+  LogDebug("RPCTrigger")<<"####"<<std::endl;
+  LogDebug("RPCTrigger")<< "DetId "<< rawId() << " Centre Phi " << getPhi();
+  LogDebug("RPCTrigger")<< " Tower min" << m_towerMin << " tower max " << m_towerMax;
     
   /*
   RPCStripPhiMap::const_iterator it;
   for (it = m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
         
-    std::cout
+  LogDebug("RPCTrigger")
         << "Strip: " << it->first << " "
         << "Phi: " << it->second << " "
-        << std::endl;
+        
     
   }
   //*/

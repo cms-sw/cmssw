@@ -17,6 +17,8 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h> // To have RPCRoll. check if needed
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h> // XXX
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>

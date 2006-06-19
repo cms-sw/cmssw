@@ -14,11 +14,14 @@
   * \author Karol Bunkowski (Warsaw)
   */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <vector>
 
 #include "L1Trigger/RPCTrigger/src/L1RpcTBMuon.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcTriggerBoard.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcTCGhostBusterSorter.h"
+
 //---------------------------------------------------------------------------
 class L1RpcTriggerCrate {
 public:
@@ -27,13 +30,13 @@ public:
   /** Runs L1RpcTriggerBoard::RunCone() for every TB. Cheks, if any non empty muons were found*/
   void RunCone(const L1RpcLogCone& cone) {
     
-#ifdef LOCALDEBUG
+
     RPCParam::L1RpcConeCrdnts ConeCrdnts = cone.GetConeCrdnts();
-    std::cout << " Tower: " << ConeCrdnts.Tower
+    LogDebug("RPCTrigger") << " Tower: " << ConeCrdnts.Tower
         << " LSector" << ConeCrdnts.LogSector
         << " LSegment" << ConeCrdnts.LogSegment
         << " TBNum:" << TriggerConfig->GetTBNum(cone.GetConeCrdnts())<< std::endl;
-#endif
+
     if(TBsVec[TriggerConfig->GetTBNum(cone.GetConeCrdnts())].RunCone(cone) )
       WasMuon = true;
   };

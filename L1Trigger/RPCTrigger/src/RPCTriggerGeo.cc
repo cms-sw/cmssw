@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/12 15:45:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/16 09:13:46 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 
@@ -99,8 +99,6 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
           m_links.insert(linksTemp.begin(),linksTemp.end() );
           
         }
-        
-  //std::cout<< "Connections for refs: " << m_links.size() << std::endl;
   
   for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); 
         it != m_otherRPCCurlMap.end();
@@ -198,10 +196,10 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
       } 
       // should throw exception
       else {  // Strip not in map :/
-        std::cout<< "Strip " << sc.stripNo 
+        edm::LogError("RPCTrigger")
+            << "Strip " << sc.stripNo 
             << " of det " << sc.detRawId
-            << " not present in map"
-            << std::endl;
+            << " not present in map";
       }
     } // for digiCollection
   }// for detUnits
@@ -240,19 +238,19 @@ void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
   
   //*
   for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); it != m_refRPCCurlMap.end(); it++){
-    std::cout << "------------------------------"<< std::endl;
-    std::cout << "CurlId " << (it->first) << " " << std::endl;
+    LogDebug("RPCTrigger") << "------------------------------";
+    LogDebug("RPCTrigger")  << "CurlId " << (it->first);
     (it->second).printContents();
   }
   for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); it != m_otherRPCCurlMap.end(); it++){
-    std::cout << "------------------------------"<< std::endl;
-    std::cout << "CurlId " << (it->first) << " " << std::endl;
+    LogDebug("RPCTrigger")<< "------------------------------";
+    LogDebug("RPCTrigger") << "CurlId " << (it->first);
     (it->second).printContents();
   }
   //*/
   
-  std::cout<< "No of refs: " << m_refRPCCurlMap.size() << std::endl;
-  std::cout<< "No of others: " << m_otherRPCCurlMap.size() << std::endl;
-  std::cout<< "Connections: " << m_links.size() << std::endl;
+  LogDebug("RPCTrigger") << "No of refs: " << m_refRPCCurlMap.size();
+  LogDebug("RPCTrigger")  << m_otherRPCCurlMap.size(); 
+  LogDebug("RPCTrigger")  << m_links.size();
 
 }

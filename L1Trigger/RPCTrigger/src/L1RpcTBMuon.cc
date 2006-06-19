@@ -1,6 +1,9 @@
 //---------------------------------------------------------------------------
 #include "L1Trigger/RPCTrigger/src/L1RpcTBMuon.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -17,7 +20,7 @@ unsigned int L1RpcTBMuon::ToBits(std::string where) const {
   }
   else {
   	//throw L1RpcException("unknown value of where: " + where);
-    std::cout<<"unknown value of where: " + where << std::endl;
+    edm::LogError("RPCTrigger")<<"unknown value of where: " + where;
   } 
   return 0;
 }
@@ -31,7 +34,7 @@ void L1RpcTBMuon::FromBits(std::string where, unsigned int value) {
   }
   else {
   	//throw L1RpcException("unknown value of where: " + where);
-    std::cout<< "unknown value of where: " + where << std::endl;
+    edm::LogError("RPCTrigger")<< "unknown value of where: " + where;
   }
 }
 

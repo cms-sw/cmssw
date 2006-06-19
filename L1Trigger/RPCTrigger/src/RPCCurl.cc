@@ -1,7 +1,7 @@
 /** \file RPCCurl.cc
  *
- *  $Date: 2006/06/12 15:45:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/16 11:07:14 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
@@ -118,9 +118,8 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
 int RPCCurl::makeOtherConnections(float phiCentre, int tower, int PAC){
   
   if (isRefPlane()){
-    std::cout << "Trouble. Curl " << m_curlId
-        << " is a reference curl. makeOtherConnections() is not good for reference curls"
-        << std::endl;
+    edm::LogError("RPCTrigger") << "Trouble. Curl " << m_curlId
+        << " is a reference curl. makeOtherConnections() is not good for reference curls";
     return -1;
   }
 
@@ -133,11 +132,12 @@ int RPCCurl::makeOtherConnections(float phiCentre, int tower, int PAC){
   newConnection.PAC = PAC;
   newConnection.tower = tower; 
   newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
-  
+    
   if (newConnection.logplane < 0){
-    std::cout << "Trouble. Curl "<< getCurlId()
-        << " wants to contribute to tower " << tower
-        << std::endl;
+    
+    LogDebug("RPCTrigger") << "Trouble. Curl "<< getCurlId()
+        << " wants to contribute to tower " << tower;
+       
     return -1;
   }
   
@@ -145,11 +145,11 @@ int RPCCurl::makeOtherConnections(float phiCentre, int tower, int PAC){
   //int logplaneSize = LOGPLANE_SIZE[std::abs(newConnection.tower)][m_hwPlane-1];
   
   if ((logplaneSize > 72)||(logplaneSize < 1)){
-    std::cout << "Trouble. Curl "<< getCurlId()
+    LogDebug("RPCTrigger") << "Trouble. Curl "<< getCurlId()
         << " wants to have wrong strips number (" << logplaneSize<< ")"
         << " in plane " << newConnection.logplane
-        << " in tower " << newConnection.tower
-        << std::endl;
+        << " in tower " << newConnection.tower;
+        
     return -1;
   }
   
@@ -162,10 +162,11 @@ int RPCCurl::makeOtherConnections(float phiCentre, int tower, int PAC){
       it == m_stripPhiMap.begin();
     }
     else{
-       std::cout << "Trouble. Phi to big " 
-          << "(" << phiCentre << ")"
-          << std::endl;
-       return -1;
+      
+      LogDebug("RPCTrigger") << "Trouble. Phi to big " 
+          << "(" << phiCentre << ")";
+      return -1;
+      
     }
   }
     
@@ -209,9 +210,10 @@ RPCCurl::RPCLinks RPCCurl::giveConnections(){
 int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
   
   if (!isRefPlane()){
-    std::cout << "Trouble. Curl " << m_curlId 
-        << " is not a reference curl. makeRefConnections() is good only for reference curls"
-        << std::endl;
+    
+    edm::LogError("RPCTrigger") << "Trouble. Curl " << m_curlId 
+        << " is not a reference curl. makeRefConnections() is good only for reference curls";
+        
     return -1;
   }
   
@@ -262,10 +264,11 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
     newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
   
     if (newConnection.logplane < 0){
-      std::cout << "Trouble. Strip " << it->second.stripNo
-      << " of det " << it->second.detRawId
-      << " has negative logplane"
-      << std::endl;
+      
+      edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.stripNo
+          << " of det " << it->second.detRawId
+          << " has negative logplane";
+      
     }
     
     if (m_links.find(it->second)==m_links.end() ){// new strip in map
@@ -279,10 +282,11 @@ int RPCCurl::makeRefConnections(RPCCurl *otherCurl){
             (existingConnection[0].logplane != newConnection.logplane ) ||
             (existingConnection[0].posInCone != newConnection.posInCone ) )
       {
-        std::cout << "Trouble. Strip " << it->second.stripNo
+        
+        edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.stripNo
             << " of reference det " << it->second.detRawId
-            << " has multiple connections"
-            << std::endl;
+            << " has multiple connections";
+            
       }
       
     } // end check if strip allready in map
@@ -442,9 +446,10 @@ void RPCCurl::doVirtualStrips(){
   
   
   if ( (isRefPlane()) && (m_virtStripsInCurl+m_physStripsInCurl!=1152)){
-    std::cout<<"Trouble. Reference curl " << getCurlId() 
-        << " has " << m_virtStripsInCurl+m_physStripsInCurl << " strips."
-        << std::endl;
+    
+    edm::LogError("RPCTrigger")<<"Trouble. Reference curl " << getCurlId() 
+        << " has " << m_virtStripsInCurl+m_physStripsInCurl << " strips.";
+        
   }
   
   m_stripPhiMap.insert(newVirtualStrips.begin(),newVirtualStrips.end() );
@@ -567,7 +572,7 @@ const unsigned int RPCCurl::LOGPLANE_SIZE[RPCCurl::TOWERMAX+1][RPCCurl::NHPLANES
 //#############################################################################
 /**
 *
-* \brief prints the contents of a RPCCurl. Commented out, as cout`s are forbidden
+* \brief prints the contents of a RPCCurl.
 *
 */
 //#############################################################################
@@ -578,19 +583,18 @@ void RPCCurl::printContents() {
 
     GlobalStripPhiMap::const_iterator it;
     for (it=m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
-      std::cout << "phi" << it->first
+      LogDebug("RPCTrigger") << "phi" << it->first
           << " stripNo=" << (it->second).stripNo
           << " isVirtual=" << (it->second).isVirtual
-          <<std::endl;
     }
   }//*/
 
   if (isRefPlane())
-    std::cout<<"+";
+    LogDebug("RPCTrigger") << " Reference plane:";
   else
-    std::cout<<" ";
+    LogDebug("RPCTrigger") << " Normal plane:";
   
-  std::cout << "No. of DetInfo's " << m_RPCDetInfoMap.size()
+  LogDebug("RPCTrigger") << "No. of DetInfo's " << m_RPCDetInfoMap.size()
       << "; towers: min= " << m_towerMin 
       << " max= " << m_towerMax 
       << "|globRoll= " << m_globRoll
@@ -599,17 +603,16 @@ void RPCCurl::printContents() {
       << " phys= " << m_physStripsInCurl
       << " virt= " << m_virtStripsInCurl
       << " all= " << m_virtStripsInCurl+m_physStripsInCurl
-      << "|strips conneced: " << m_links.size() // with or without virtual strips. Check it, it may have changed
-      << std::endl;
+      << "|strips conneced: " << m_links.size(); // with or without virtual strips. Check it, it may have changed
   
   
   /*
   RPCDetInfoPhiMap::const_iterator it;
   for (it = m_RPCDetPhiMap.begin(); it != m_RPCDetPhiMap.end(); it++){
   
-    //std::cout
+    //LogDebug("RPCTrigger")
     //    << "Phi: " << it->first << " "
-    //   << "detId: " << it->second  << std::endl;
+    //   << "detId: " << it->second  <<
   
     
     m_RPCDetInfoMap[it->second].printContents();
@@ -619,10 +622,10 @@ void RPCCurl::printContents() {
   /*
   GlobalStripPhiMap::const_iterator it;
   for (it = m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
-    std::cout
+  LogDebug("RPCTrigger")
         << "Phi: " << it->first 
         << " detId: " << it->second.detRawId 
-        << " stripNo: " << it->second.stripNo  << std::endl;
+        << " stripNo: " << it->second.stripNo  << 
   }//*/
 
 }

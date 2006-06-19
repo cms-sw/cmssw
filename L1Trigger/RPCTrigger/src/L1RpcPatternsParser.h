@@ -38,15 +38,7 @@ public:
 
   void Parse(std::string fileName);
 
-  const L1RpcPatternsVec& GetPatternsVec(const RPCParam::L1RpcConeCrdnts& coneCrds) const {
-    TPatternsVecsMap::const_iterator patVecIt  = PatternsVecsMap.find(coneCrds);
-    if(patVecIt != PatternsVecsMap.end())
-      return patVecIt->second;
-    else {
-      //throw L1RpcException( std::string("no such a cone in PatternsVecsMap"));
-      std::cout<< "no such a cone in PatternsVecsMap" << std::endl;
-    }
-  };
+  const L1RpcPatternsVec& GetPatternsVec(const RPCParam::L1RpcConeCrdnts& coneCrds) const;
 
   struct TQuality {
     int QualityTabNumber;
@@ -56,9 +48,10 @@ public:
 
   typedef std::vector<TQuality> TQualityVec;
 
-  const TQualityVec& GetQualityVec() const {
-    return QualityVec ;
+  const TQualityVec & GetQualityVec() const{ //XXX - clean me!
+    return QualityVec;
   };
+
 
 private:
   //virtual void startElement(const XMLCh* const name, xercesc::AttributeList& attributes);

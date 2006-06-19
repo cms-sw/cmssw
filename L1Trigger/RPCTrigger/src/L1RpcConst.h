@@ -1,6 +1,8 @@
 #ifndef L1RpcConstH
 #define L1RpcConstH
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 /** \class L1RpcConst
  * 
  * Class contains number of L1RpcTrigger specific

@@ -25,8 +25,6 @@ public:
     * Found muons are stored in TB and TC. */
   L1RpcPacTrigger(L1RpcTriggerConfiguration* triggerConfig);
 
-  ~L1RpcPacTrigger() { }
-
   /** For every logCone from logConesVec runs L1RpcTriggerCrate::RunCone().
     * Then for every TC runs L1RpcTriggerCrate::RunTCGBSorter().
     * Then runs and L1RpcFinalSorter::Run().

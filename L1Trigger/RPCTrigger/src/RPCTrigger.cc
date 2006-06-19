@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/16 11:07:14 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/16 14:56:17 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
@@ -43,7 +44,6 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   m_trigConfig->SetDebugLevel(0);
   
   m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
-  
 }
 
 
@@ -61,9 +61,11 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Build the trigger linksystem geometry;
   if (!theLinksystem.isGeometryBuilt()){
 
+    edm::LogInfo("RPC") << "Building RPC links map for a RPCTrigger";
     edm::ESHandle<RPCGeometry> rpcGeom;
     iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
     theLinksystem.buildGeometry(rpcGeom);
+    edm::LogInfo("RPC") << "RPC links map for a RPCTrigger built";
 
   } 
 
@@ -75,18 +77,54 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);
 
-  std::cout << "-----------------------------" << std::endl;
-
+  // Fill out the products
+  std::vector<L1MuRegionalCand> RPCb;
+  std::vector<L1MuRegionalCand> RPCf;
+  
+  // TODO: check which one is barell
   for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
   {
-    std::cout << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode() << std::endl;
+    L1MuRegionalCand l1Cand;
+    
+    //RPCParam::L1RpcConeCrdnts cone = finalMuons[0][iMu].GetConeCrdnts();
+    
+    l1Cand.setQualityPacked(finalMuons[0][iMu].GetQuality());
+    l1Cand.setPtPacked(finalMuons[0][iMu].GetPtCode());
+    
+    RPCb.push_back(l1Cand);
   }
 
   for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
   {
-    std::cout << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode() << std::endl;
+    L1MuRegionalCand l1Cand;
+    
+    //RPCParam::L1RpcConeCrdnts cone = finalMuons[0][iMu].GetConeCrdnts();
+    
+    l1Cand.setQualityPacked(finalMuons[0][iMu].GetQuality());
+    l1Cand.setPtPacked(finalMuons[0][iMu].GetPtCode());
+    
+    RPCf.push_back(l1Cand);
   }
 
+  std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
+  candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
+  
+  std::auto_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
+  candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
+  
+  iEvent.put(candBarell, "RPCb");
+  iEvent.put(candForward, "RPCf");
+  
+  LogDebug("RPCTrigger") << "-----------------------------" << std::endl;
+  for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
+  {
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode() << std::endl;
+  }
+
+  for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
+  {
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode() << std::endl;
+  }
 
 
 }
