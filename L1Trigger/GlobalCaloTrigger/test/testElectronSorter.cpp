@@ -50,7 +50,7 @@ int main()
 
   //Constructor with 15 non iso electron candidates
   L1GctElectronSorter* testSort = new L1GctElectronSorter(15,1);
-  LoadFileData("testElectronsRct_0");
+  LoadFileData("data/testElectronsRct_0");
   //dummyData.txt");
 
   for(unsigned int i=0;i<data.size();i++){
