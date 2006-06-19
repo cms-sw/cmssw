@@ -30,11 +30,8 @@ class MonitorUserInterface : public StringUtil
 /* Use the default constructor for running in standalone mode (ie. without
    sources or collectors); if flag=true, client will accept downstream connections
 */
-  MonitorUserInterface(bool actAsServer = false);
+  MonitorUserInterface();
  
-  inline bool isServer() const {return actAsServer_;}
-  // flag for accepting downstream connections
-  bool actAsServer_; 
  // when in "standalone mode", there are no upstream connections
   // (but there may be downstream clients...)
   bool needUpstreamConnections() const {return !standaloneMode_;}
@@ -71,6 +68,8 @@ class MonitorUserInterface : public StringUtil
   // allow downstream clients to connect to this client
   // (to be used only with no-arg ctor; use boolean switch for other ctors)
   virtual void actAsServer(int port_no, std::string client_name) = 0;
+  // true if client accepts downstream connections/requests
+  virtual bool isServer() const = 0;
 
   // return # of monitoring cycles received
   virtual int getNumUpdates(void) const = 0;

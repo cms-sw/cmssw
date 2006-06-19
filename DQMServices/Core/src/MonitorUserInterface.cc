@@ -11,9 +11,9 @@ using namespace dqm::qtests;
 /* Use the default constructor for running in standalone mode (ie. without
    sources or collectors); if flag=true, client will accept downstream connections
 */
-MonitorUserInterface::MonitorUserInterface(bool actAsServer)
+MonitorUserInterface::MonitorUserInterface()
 {
-  collate_mes.clear(); numUpdates_ = 0; bei = 0; actAsServer_ = actAsServer;
+  collate_mes.clear(); numUpdates_ = 0; bei = 0;
 }
 
 MonitorUserInterface::~MonitorUserInterface(void)
