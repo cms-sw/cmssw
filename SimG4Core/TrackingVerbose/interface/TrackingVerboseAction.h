@@ -23,14 +23,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
 class BeginOfTrack;
+class EndOfTrack;
 class BeginOfEvent;
 class BeginOfRun;
+class G4Track;
 class G4TrackingManager;
+class G4VSteppingVerbose;
 
 class TrackingVerboseAction :  public SimWatcher,
 			       public Observer<const BeginOfRun *>, 
 			       public Observer<const BeginOfEvent *>, 
-			       public Observer<const BeginOfTrack *>
+			       public Observer<const BeginOfTrack *>,
+			       public Observer<const EndOfTrack *>
 {
  public:
     TrackingVerboseAction(edm::ParameterSet const & p);
@@ -38,9 +42,13 @@ class TrackingVerboseAction :  public SimWatcher,
     void update(const BeginOfRun *);
     void update(const BeginOfEvent *);
     void update(const BeginOfTrack *);
+    void update(const EndOfTrack *);
 private:
-    void SetTrackingVerbose(int verblev);
+    void setTrackingVerbose(int verblev);
+    bool checkTrackingVerbose(const G4Track*);
+    void printTrackInfo(const G4Track*);
 private:
+    int  fLarge;
     bool fDEBUG;
     bool fHighEtPhotons;
     int fTVTrackMin;
@@ -53,6 +61,7 @@ private:
     bool fTrackingVerboseON;
     bool fTkVerbThisEventON;
     G4TrackingManager * theTrackingManager;
+    G4VSteppingVerbose* fVerbose;
 };
 
 #endif
