@@ -8,9 +8,13 @@ namespace {
     TrackingParticleCollection c1;
     std::vector<TrackingVertex> c2;
     edm::Wrapper<TrackingParticleCollection> w1; 
-    edm::Wrapper<TrackingVertexContainer> w2; 
+    edm::Wrapper<TrackingVertexCollection> w2; 
     TrackingParticleRef r1;
     TrackingParticleRefVector rv1;
     TrackingParticleRefProd rp1;
+    std::vector<HepMC::GenVertex> c3;
+    edm::RefVector< std::vector<HepMC::GenVertex> > rv2;
+    edm::Ref< std::vector<HepMC::GenVertex> > r2;
+    edm::RefProd<std::vector<HepMC::GenVertex> > rp2;
   }
 }
