@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.140 $
+ * $Date: 2006/06/18 15:59:36 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -186,15 +186,15 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   if ( ! enableStateMachine_ ) {
     if ( enableMonitorDaemon_ ) {
 
-      // DQM default client name
+      // DQM Client name
 
       clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
-      // DQM default collector host name
+      // DQM Collector hostname
 
       hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-      // DQM default host port
+      // DQM Collector port
 
       hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
@@ -203,6 +203,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
            << " on port '" << hostPort_ << "'" << endl;
 
     }
+  }
+
+
+  // Server switch
+
+  enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
+  serverPort_   = ps.getUntrackedParameter<int>("serverPort_", 9900);
+
+  if ( enableServer_ ) {
+    cout << "Server on port '" << serverPort_ << "' is enabled" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -228,6 +238,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     } else {
       mui_ = new MonitorUIRoot();
     }
+  }
+
+  if ( enableServer_ ) {
+    mui_->actAsServer(serverPort_, clientName_);
   }
 
   if ( verbose_ ) {
