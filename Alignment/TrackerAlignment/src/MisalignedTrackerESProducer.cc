@@ -1,4 +1,5 @@
 // Framework
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -76,8 +77,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   // Create misalignment scenario
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
-
-
+  
   // Dump alignments AFTER
   if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
 	{
@@ -87,16 +87,27 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 		std::cout << (*it).rawId() << " " << (*it).translation() << std::endl;
 	}
 
+
   // Write alignments to DB
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{
 	  edm::Service<cond::service::PoolDBOutputService> poolDbService;
-	  if( poolDbService.isAvailable() )
-		{
-		  alignments = theAlignableTracker->alignments();
-		  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
-															   poolDbService->endOfTime() );
-		}
+	  if( !poolDbService.isAvailable() ) // Die if not available
+		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+
+	  // Define callback tokens for the two records
+	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
+	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
+	  
+	  // Retrieve and store
+	  alignments = theAlignableTracker->alignments();
+	  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
+														   poolDbService->endOfTime(),
+														   alignmentsToken );
+	  poolDbService->newValidityForNewPayload<AlignmentErrors>( alignmentErrors, 
+																poolDbService->endOfTime(),
+																alignmentErrorsToken );
 	}
   
   edm::LogInfo("MisalignedTracker") << "Producer done";
