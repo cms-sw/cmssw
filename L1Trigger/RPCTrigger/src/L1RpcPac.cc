@@ -2,68 +2,99 @@
 *                                                                              *
 *  Karol Bunkowski                                                             *
 *  Warsaw University 2002                                                      *
+*  Porting to CMSSW - Tomasz Fruboes
 *                                                                              *
 *******************************************************************************/
-//#include "Utilities/Configuration/interface/Architecture.h"
 #include <math.h>
 #include <bitset>
 #include "L1Trigger/RPCTrigger/src/L1RpcPac.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
-#ifndef _STAND_ALONE
-//#include "L1Trigger/RPCTrigger/interface/L1Rpc.h"
-//#include "Utilities/Notification/interface/Singleton.h"
-#endif
 #include <iostream>
-using namespace std;
 
-void L1RpcPac::TPatternsGroup::UpdateShape(const L1RpcPatternsVec::const_iterator& pattern) { //colled by AddPattern
-  for(int logPlane = RPCParam::FIRST_PLANE; logPlane <= RPCParam::LAST_PLANE; logPlane++) {
-    if (pattern->GetStripFrom(logPlane) != RPCParam::NOT_CONECTED) {
-      int fromBit = pattern->GetStripFrom(logPlane);
-      int toBit = pattern->GetStripTo(logPlane);
-      for (int bitNumber = fromBit; bitNumber < toBit; bitNumber++)
-        GroupShape.SetLogStrip(logPlane, bitNumber);
-    }
+/** 
+ *
+ * Constructor required by L1RpcPacManager.
+ * @param patFilesDir -  the directory conataing PAC definition file.
+ * It should containe file for this PAC, defined by tower, logSector, logSegment,
+ * named pacPat_t<tower>sc<logSector>sg<logSegment>.vhd
+ * Containers: EnergeticPatternsGroupList and TrackPatternsGroup are
+ * filled with patterns from file (the method ParsePatternFile() is called).
+ * 
+ */
+L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSegment):
+  L1RpcPacBase(tower, logSector, logSegment) { 
+  
+  std::string patFileName;
+
+  if(patFilesDir.find("pat") != std::string::npos) {
+    patFileName = patFilesDir 
+        + "pacPat_t" + RPCParam::IntToString(ConeCrdnts.Tower) 
+        + "sc" + RPCParam::IntToString(ConeCrdnts.LogSector) 
+        + "sg" + RPCParam::IntToString(ConeCrdnts.LogSegment) 
+        + ".xml";
+
+    L1RpcPatternsParser parser;
+    parser.Parse(patFileName);
+    Init(parser);
   }
-}
-
-bool L1RpcPac::TEPatternsGroup::Check(const L1RpcPatternsVec::const_iterator& pattern) {
-  if(PatternsItVec[0]->GetRefGroup() == pattern->GetRefGroup() &&
-     PatternsItVec[0]->GetCode() == pattern->GetCode() &&
-     PatternsItVec[0]->GetSign() == pattern->GetSign() &&
-     PatternsItVec[0]->GetQualityTabNumber() == pattern->GetQualityTabNumber() )
-    return true;
-  return false;
-}
-
-
-bool L1RpcPac::TEPatternsGroup::operator < (const TEPatternsGroup& ePatternsGroup) const {
-  if( this->PatternsItVec[0]->GetCode() < ePatternsGroup.PatternsItVec[0]->GetCode() )
-    return true;
-  else if( this->PatternsItVec[0]->GetCode() > ePatternsGroup.PatternsItVec[0]->GetCode() )
-    return false;
-  else { //==
-    if(this->PatternsItVec[0]->GetQualityTabNumber() > ePatternsGroup.PatternsItVec[0]->GetQualityTabNumber())
-      return true;
-    else if(this->PatternsItVec[0]->GetQualityTabNumber() < ePatternsGroup.PatternsItVec[0]->GetQualityTabNumber())
-      return false;
-    else { //==
-      if( this->PatternsItVec[0]->GetSign() < ePatternsGroup.PatternsItVec[0]->GetSign() )
-        return true;
-      else if( this->PatternsItVec[0]->GetSign() > ePatternsGroup.PatternsItVec[0]->GetSign() )
-        return false;
-      else { //==
-        if(this->PatternsItVec[0]->GetRefGroup() < ePatternsGroup.PatternsItVec[0]->GetRefGroup())
-          return true;
-        else //if(this->RefGroup < ePatternsGroup.RefGroup)
-          return false;
-      }
-    }
+  else {
+    //throw L1RpcException("patFilesDir not contines XML");
+    std::cout << "patFilesDir not containes XML" << std::endl;
   }
+  
+  TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
+  TrackPatternsGroup.SetGroupDescription("Track PatternsGroup");
+  
 }
-//------------------------------------------------------------------------------
 
+
+
+
+
+/**
+ *
+ * @return the count af all patterns gropu, i.e. 1 + EnergeticPatternsGroupList.size(). 
+ *
+ */
+int L1RpcPac::GetPatternsGroupCount () {
+  return (1 + EnergeticPatternsGroupList.size() ); //1 = track pattrens group
+}
+/**
+ *
+ * @return pattern stored in PatternsVec.
+ * Needed for patterns explorer.
+ *
+ */
+L1RpcPattern L1RpcPac::GetPattern(int patNum) const {
+  if(PatternsVec.size() == 0)
+    //throw L1RpcException("GetPattren(): Patterns vec is empty, mayby it was not filled!");
+    cout << "GetPattren(): Patterns vec is empty, mayby it was not filled!" << std::endl;
+  return PatternsVec[patNum];
+}
+/**
+ * 
+ *@return the cout of patterns stored in PatternsVec.
+ *
+ */
+int L1RpcPac::GetPatternsCount() {
+  return PatternsVec.size();
+}
+/**
+ *
+ *@return true, if logStrip defined by logStripNum and logPlane  belongs to the
+ * TrackPatternsGroup. 
+ *
+*/
+bool L1RpcPac::GetTPatternsGroupShape(int logPlane, int logStripNum) {
+  return TrackPatternsGroup.GroupShape.GetLogStripState(logPlane, logStripNum);
+}
+/** 
+ *
+ * @return true, if logStrip defined by logStripNum and logPlane  belongs to the
+ * EPatternsGroup from EnergeticPatternsGroupList defined by groupNum. 
+ * 
+*/
 bool L1RpcPac::GetEPatternsGroupShape(int groupNum, int logPlane, int bitNum) {
   TEPatternsGroupList::const_iterator iEGroup = EnergeticPatternsGroupList.begin();
   int i = 0;
@@ -73,24 +104,33 @@ bool L1RpcPac::GetEPatternsGroupShape(int groupNum, int logPlane, int bitNum) {
   }
   //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
   std::cout << "GetEPatternsGroupShape(): groupNum to big!" << std::endl;
+  return false; // XXX - TMF
 }
 
 std::string L1RpcPac::GetPatternsGroupDescription(int patternGroupNum) {
+  
+  std::string ret;
   if(patternGroupNum == -1)
-    return  TrackPatternsGroup.GetGroupDescription();
+    ret =  TrackPatternsGroup.GetGroupDescription();
   else  {
     TEPatternsGroupList::iterator iEGroup = EnergeticPatternsGroupList.begin();
     int i = 0;
     for(; iEGroup != EnergeticPatternsGroupList.end(); iEGroup++, i++) {
       if(i == patternGroupNum)
-        return "EGroup #"+ RPCParam::IntToString(i)+iEGroup->GetGroupDescription();
+        ret = "EGroup #"+ RPCParam::IntToString(i)+iEGroup->GetGroupDescription();
     }
-    //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
+    
+  }
+  
+  if (ret.empty()){
+      //throw L1RpcException("GetEPatternsGroupShape(): groupNum to big!");
     std::cout<< "GetEPatternsGroupShape(): groupNum to big!" << std::endl; 
   }
+
+  return ret;
 }
 
-void L1RpcPac::InsertQualityRecord(int qualityTabNumber,
+void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
                               unsigned short firedPlanes, short quality) {
   if(quality > MaxQuality)
     MaxQuality = quality;
@@ -98,7 +138,8 @@ void L1RpcPac::InsertQualityRecord(int qualityTabNumber,
     QualityTabsVec[qualityTabNumber][firedPlanes] = quality;                   
   }
   else if(qualityTabNumber == QualityTabsVec.size() ) {
-    RPCParam::TQualityTab qualityTab(pow(2.0,RPCParam::LOGPLANES_COUNT), -1); //= new TQualityTab();
+    // XXX - added cast (int)
+    RPCParam::TQualityTab qualityTab((int)std::pow(2.0,RPCParam::LOGPLANES_COUNT), -1); //= new TQualityTab();
     QualityTabsVec.push_back(qualityTab);
     QualityTabsVec[qualityTabNumber][firedPlanes] = quality; 
   }
@@ -213,7 +254,7 @@ L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) cons
     firedPlanesCount = 0;
     unsigned short one = 1;
     for(int logPlane = RPCParam::FIRST_PLANE; logPlane < RPCParam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++) {  //or po paskach ze stozka
-      for(int bitNum = 0; bitNum < RPCParam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane] ; bitNum++) {       
+      for(unsigned int bitNum = 0; bitNum < RPCParam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane] ; bitNum++) {       
         if(iEGroup->GroupShape.GetLogStripState(logPlane, bitNum) && cone.GetLogStripState(logPlane, bitNum) ) {
           firedPlanes  = firedPlanes | one;
           firedPlanesCount++;
@@ -259,8 +300,14 @@ L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) cons
       return bestMuon;
   }//end of EGroup loop
   return bestMuon;
-};
-
+}
+/** 
+ *
+ * Performs Pattern Comparator algorithm for hits from the cone.
+ * Calls the RunTrackPatternsGroup() and RunEnergeticPatternsGroups().
+ * @return found track candidate (empty if hits does not fit to eny pattern)
+ *
+*/
 L1RpcPacMuon L1RpcPac::Run(const L1RpcLogCone& cone) const {  //symualcja
   //track
   L1RpcPacMuon bestMuon;
