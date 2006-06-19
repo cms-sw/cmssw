@@ -1,4 +1,4 @@
-// $Id: Tm.h,v 1.4 2005/12/30 22:54:27 egeland Exp $
+// $Id: Tm.h,v 1.1 2006/03/01 23:39:51 egeland Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -85,8 +85,21 @@ class Tm {
    */
   void setToString(const std::string s) throw(std::runtime_error);
 
-
   void dumpTm();
+
+  inline bool operator==(const Tm &t) const
+    {   return (m_tm.tm_hour  == t.m_tm.tm_hour &&
+		m_tm.tm_isdst == t.m_tm.tm_isdst &&
+		m_tm.tm_mday  == t.m_tm.tm_mday &&
+		m_tm.tm_min   == t.m_tm.tm_min &&
+		m_tm.tm_mon   == t.m_tm.tm_mon &&
+		m_tm.tm_sec   == t.m_tm.tm_sec &&
+		m_tm.tm_wday  == t.m_tm.tm_wday &&
+		m_tm.tm_yday  == t.m_tm.tm_yday &&
+		m_tm.tm_year  == t.m_tm.tm_year); 
+    }
+				    
+  inline bool operator!=(const Tm &t) const { return !(t == *this); }
 
  private:
   struct tm m_tm;

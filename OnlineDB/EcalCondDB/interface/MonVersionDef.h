@@ -26,6 +26,10 @@ class MonVersionDef : public IDef {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const MonVersionDef &d) const { return m_monVer == d.m_monVer; }
+  inline bool operator!=(const MonVersionDef &d) const { return m_monVer != d.m_monVer; }
+
  protected:
   // User data for this def
   std::string m_monVer;

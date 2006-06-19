@@ -30,6 +30,14 @@ class MonRunTag : public ITag {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const MonRunTag &t) const
+    {
+      return (m_genTag        == t.m_genTag &&
+	      m_monVersionDef == t.m_monVersionDef);
+    }
+
+  inline bool operator!=(const MonRunTag &t) const { return !(*this == t); }
 
  private:
   // User data for this tag

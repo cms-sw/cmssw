@@ -26,6 +26,10 @@ class LMFRunTag : public ITag {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const LMFRunTag &t) const { return m_genTag == t.m_genTag; }
+  inline bool operator!=(const LMFRunTag &t) const { return m_genTag != t.m_genTag; }
+
 
  private:
   // User data for this tag

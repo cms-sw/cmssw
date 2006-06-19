@@ -32,8 +32,10 @@ string MonVersionDef::getMonitoringVersion() const
 
 void MonVersionDef::setMonitoringVersion(string ver)
 {
-  m_ID = 0;
-  m_monVer = ver;
+  if (ver != m_monVer) {
+    m_ID = 0;
+    m_monVer = ver;
+  }
 }
 
 

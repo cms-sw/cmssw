@@ -27,8 +27,10 @@ DCUIOV::~DCUIOV()
 
 void DCUIOV::setSince(Tm since)
 {
-  m_ID = 0;
-  m_since = since;
+  if (since != m_since) {
+    m_ID = 0;
+    m_since = since;
+  }
 }
 
 
@@ -42,8 +44,10 @@ Tm DCUIOV::getSince() const
 
 void DCUIOV::setTill(Tm till)
 {
-  m_ID = 0;
-  m_till = till;
+  if (till != m_till) {
+    m_ID = 0;
+    m_till = till;
+  }
 }
 
 
@@ -57,8 +61,10 @@ Tm DCUIOV::getTill() const
 
 void DCUIOV::setDCUTag(DCUTag tag)
 {
-  m_ID = 0;
-  m_dcuTag = tag;
+  if (tag != m_dcuTag) {
+    m_ID = 0;
+    m_dcuTag = tag;
+  }
 }
 
 

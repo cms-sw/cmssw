@@ -34,8 +34,10 @@ string DCUTag::getGeneralTag() const
 
 void DCUTag::setGeneralTag(string genTag)
 {
-  m_ID = 0;
-  m_genTag = genTag;
+  if (genTag != m_genTag) {
+    m_ID = 0;
+    m_genTag = genTag;
+  }
 }
 
 
@@ -49,8 +51,10 @@ LocationDef DCUTag::getLocationDef() const
 
 void DCUTag::setLocationDef(const LocationDef locDef)
 {
-  m_ID = 0;
-  m_locDef = locDef;
+  if (locDef != m_locDef) {
+    m_ID = 0;
+    m_locDef = locDef;
+  }
 }
 
 

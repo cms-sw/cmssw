@@ -34,6 +34,18 @@ class MonRunIOV : public IIOV {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const MonRunIOV &m) const
+    {
+      return ( m_monRunTag   == m.m_monRunTag &&
+	       m_runIOV      == m.m_runIOV &&
+	       m_subRunNum   == m.m_subRunNum &&
+	       m_subRunStart == m.m_subRunStart &&
+	       m_subRunEnd   == m.m_subRunEnd );
+    }
+
+  inline bool operator!=(const MonRunIOV &m) const { return !(*this == m); }
+
  private:
   // User data for this IOV
   MonRunTag m_monRunTag;

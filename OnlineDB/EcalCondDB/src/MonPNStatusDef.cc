@@ -34,8 +34,10 @@ string MonPNStatusDef::getShortDesc() const
 
 void MonPNStatusDef::setShortDesc(string desc)
 {
-  m_ID = 0;
-  m_shortDesc = desc;
+  if (desc != m_shortDesc) {
+    m_ID = 0;
+    m_shortDesc = desc;
+  }
 }
 
 

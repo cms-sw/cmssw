@@ -26,6 +26,10 @@ class MonRunOutcomeDef : public IDef {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const MonRunOutcomeDef &d) const { return m_shortDesc == d.m_shortDesc; }
+  inline bool operator!=(const MonRunOutcomeDef &d) const { return m_shortDesc != d.m_shortDesc; }
+
  protected:
   // User data for this def
   std::string m_shortDesc;

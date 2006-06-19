@@ -31,9 +31,11 @@ string MonRunTag::getGeneralTag() const
 
 
 void MonRunTag::setGeneralTag(string genTag)
-{
-  m_ID = 0;
-  m_genTag = genTag;
+{ 
+  if (genTag != m_genTag) {
+    m_ID = 0;
+    m_genTag = genTag;
+  }
 }
 
 
@@ -46,8 +48,10 @@ MonVersionDef MonRunTag::getMonVersionDef() const
 
 void MonRunTag::setMonVersionDef(MonVersionDef ver)
 {
-  m_ID = 0;
-  m_monVersionDef = ver;
+  if (ver != m_monVersionDef) {
+    m_ID = 0;
+    m_monVersionDef = ver;
+  }
 }
 
 

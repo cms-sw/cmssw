@@ -35,8 +35,10 @@ string RunTag::getGeneralTag() const
 
 void RunTag::setGeneralTag(string genTag)
 {
-  m_ID = 0;
-  m_genTag = genTag;
+  if (genTag != m_genTag) {
+    m_ID = 0;
+    m_genTag = genTag;
+  }
 }
 
 
@@ -50,8 +52,10 @@ LocationDef RunTag::getLocationDef() const
 
 void RunTag::setLocationDef(const LocationDef locDef)
 {
-  m_ID = 0;
-  m_locDef = locDef;
+  if (locDef != m_locDef) {
+    m_ID = 0;
+    m_locDef = locDef;
+  }
 }
 
 
@@ -65,8 +69,10 @@ RunTypeDef RunTag::getRunTypeDef() const
 
 void RunTag::setRunTypeDef(const RunTypeDef runTypeDef)
 {
-  m_ID = 0;
-  m_runTypeDef = runTypeDef;
+  if (runTypeDef != m_runTypeDef) {
+    m_ID = 0;
+    m_runTypeDef = runTypeDef;
+  }
 }
 
 

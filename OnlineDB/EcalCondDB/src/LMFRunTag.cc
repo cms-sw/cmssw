@@ -31,8 +31,10 @@ string LMFRunTag::getGeneralTag() const
 
 void LMFRunTag::setGeneralTag(string genTag)
 {
-  m_ID = 0;
-  m_genTag = genTag;
+  if (genTag != m_genTag) {
+    m_ID = 0;
+    m_genTag = genTag;
+  }
 }
 
 

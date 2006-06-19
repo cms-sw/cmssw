@@ -28,8 +28,10 @@ RunIOV::~RunIOV()
 
 void RunIOV::setRunNumber(run_t run)
 {
-  m_ID = 0;
-  m_runNum = run;
+  if ( run != m_runNum) {
+    m_ID = 0;
+    m_runNum = run;
+  }
 }
 
 
@@ -43,8 +45,10 @@ run_t RunIOV::getRunNumber() const
 
 void RunIOV::setRunStart(Tm start)
 {
-  m_ID = 0;
-  m_runStart = start;
+  if (start != m_runStart) {
+    m_ID = 0;
+    m_runStart = start;
+  }
 }
 
 
@@ -58,8 +62,10 @@ Tm RunIOV::getRunStart() const
 
 void RunIOV::setRunEnd(Tm end)
 {
-  m_ID = 0;
-  m_runEnd = end;
+  if (end != m_runEnd) {
+    m_ID = 0;
+    m_runEnd = end;
+  }
 }
 
 
@@ -73,8 +79,10 @@ Tm RunIOV::getRunEnd() const
 
 void RunIOV::setRunTag(RunTag tag)
 {
-  m_ID = 0;
-  m_runTag = tag;
+  if (tag != m_runTag) {
+    m_ID = 0;
+    m_runTag = tag;
+  }
 }
 
 

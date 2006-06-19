@@ -31,8 +31,10 @@ LMFRunIOV::~LMFRunIOV()
 
 void LMFRunIOV::setLMFRunTag(LMFRunTag tag)
 {
-  m_ID = 0;
-  m_lmfRunTag = tag;
+  if (tag != m_lmfRunTag) {
+    m_ID = 0;
+    m_lmfRunTag = tag;
+  }
 }
 
 
@@ -46,16 +48,20 @@ LMFRunTag LMFRunIOV::getLMFRunTag() const
 
 void LMFRunIOV::setRunIOV(RunIOV iov)
 {
-  m_ID = 0;
-  m_runIOV = iov;
+  if (iov != m_runIOV) {
+    m_ID = 0;
+    m_runIOV = iov;
+  }
 }
 
 
 
 void LMFRunIOV::setSubRunNumber(subrun_t subrun)
 {
-  m_ID = 0;
-  m_subRunNum = subrun;
+  if (subrun != m_subRunNum) {
+    m_ID = 0;
+    m_subRunNum = subrun;
+  }
 }
 
 
@@ -69,8 +75,10 @@ run_t LMFRunIOV::getSubRunNumber() const
 
 void LMFRunIOV::setSubRunStart(Tm start)
 {
-  m_ID = 0;
-  m_subRunStart = start;
+  if (start != m_subRunStart) {
+    m_ID = 0;
+    m_subRunStart = start;
+  }
 }
 
 
@@ -84,8 +92,10 @@ Tm LMFRunIOV::getSubRunStart() const
 
 void LMFRunIOV::setSubRunEnd(Tm end)
 {
-  m_ID = 0;
-  m_subRunEnd = end;
+  if (end != m_subRunEnd) {
+    m_ID = 0;
+    m_subRunEnd = end;
+  }
 }
 
 

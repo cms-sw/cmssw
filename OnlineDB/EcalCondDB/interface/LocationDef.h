@@ -24,6 +24,9 @@ class LocationDef : public IDef {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  inline bool operator==(const LocationDef& l) const { return m_loc == l.m_loc; }
+  inline bool operator!=(const LocationDef& l) const { return m_loc != l.m_loc; }
+
  protected:
   // User data for this def
   std::string m_loc;

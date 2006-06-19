@@ -31,6 +31,17 @@ class RunIOV : public IIOV {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // operators
+  inline bool operator==(const RunIOV &r) const
+    {
+      return (m_runNum   == r.m_runNum &&
+	      m_runStart == r.m_runStart &&
+	      m_runEnd   == r.m_runEnd &&
+	      m_runTag   == r.m_runTag);
+    }
+
+  inline bool operator!=(const RunIOV &r) const { return !(*this == r); }
+
  private:
   // User data for this IOV
   run_t m_runNum;

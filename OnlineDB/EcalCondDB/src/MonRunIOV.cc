@@ -31,8 +31,10 @@ MonRunIOV::~MonRunIOV()
 
 void MonRunIOV::setMonRunTag(MonRunTag tag)
 {
-  m_ID = 0;
-  m_monRunTag = tag;
+  if (tag != m_monRunTag) {
+    m_ID = 0;
+    m_monRunTag = tag;
+  }
 }
 
 
@@ -46,16 +48,20 @@ MonRunTag MonRunIOV::getMonRunTag() const
 
 void MonRunIOV::setRunIOV(RunIOV iov)
 {
-  m_ID = 0;
-  m_runIOV = iov;
+  if (iov != m_runIOV) {
+    m_ID = 0;
+    m_runIOV = iov;
+  }
 }
 
 
 
 void MonRunIOV::setSubRunNumber(subrun_t subrun)
 {
-  m_ID = 0;
-  m_subRunNum = subrun;
+  if (subrun != m_subRunNum) {
+    m_ID = 0;
+    m_subRunNum = subrun;
+  }
 }
 
 
@@ -69,8 +75,10 @@ run_t MonRunIOV::getSubRunNumber() const
 
 void MonRunIOV::setSubRunStart(Tm start)
 {
-  m_ID = 0;
-  m_subRunStart = start;
+  if (start != m_subRunStart) {
+    m_ID = 0;
+    m_subRunStart = start;
+  }
 }
 
 
@@ -84,8 +92,10 @@ Tm MonRunIOV::getSubRunStart() const
 
 void MonRunIOV::setSubRunEnd(Tm end)
 {
-  m_ID = 0;
-  m_subRunEnd = end;
+  if (end != m_subRunEnd) {
+    m_ID = 0;
+    m_subRunEnd = end;
+  }
 }
 
 

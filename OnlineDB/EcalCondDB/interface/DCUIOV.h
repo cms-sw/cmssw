@@ -29,6 +29,17 @@ class DCUIOV : public IIOV {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const DCUIOV &m) const
+    {
+      return ( m_dcuTag   == m.m_dcuTag &&
+	       m_since == m.m_since &&
+	       m_till   == m.m_till );
+    }
+
+  inline bool operator!=(const DCUIOV &m) const { return !(*this == m); }
+
+
  private:
   // User data for this IOV
   Tm m_since;

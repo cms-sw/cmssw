@@ -32,6 +32,15 @@ class RunTag : public ITag {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // operators
+  inline bool operator==(const RunTag& t) const
+    {
+      return (m_genTag == t.m_genTag &&
+	      m_locDef == t.m_locDef &&
+	      m_runTypeDef == t.m_runTypeDef);
+    }
+  
+  inline bool operator!=(const RunTag& t) const { return !(*this == t); }
 
  private:
   // User data for this tag

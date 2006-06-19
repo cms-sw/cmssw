@@ -31,8 +31,10 @@ string LocationDef::getLocation() const
 
 void LocationDef::setLocation(string loc)
 {
-  m_ID = 0;
-  m_loc = loc;
+  if (loc != m_loc) {
+    m_ID = 0;
+    m_loc = loc;
+  }
 }
 
 

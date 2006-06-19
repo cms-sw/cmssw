@@ -29,6 +29,14 @@ class DCUTag : public ITag {
   int fetchID() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
 
+  // Operators
+  inline bool operator==(const DCUTag &t) const 
+    { 
+      return (m_genTag == t.m_genTag &&
+	      m_locDef == t.m_locDef);
+    }
+
+  inline bool operator!=(const DCUTag &t) const { return !(*this == t); }
 
  private:
   // User data for this tag
