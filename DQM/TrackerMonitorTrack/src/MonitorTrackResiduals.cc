@@ -192,13 +192,15 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	    }
 
 	  const LocalPoint & LocalHitPos = hit->localPosition();
+
+	  const LocalPoint& LocalTrajPos = innertsos.localPosition();
 	  const DetId & detId = hit->geographicalId();
 	  const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
-	  const LocalPoint& LocalTrajPos = innertsos.localPosition();
 	  const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
 	  const StripTopology& topology = stripDet->specificTopology();
-	  const float trackPositionInStrips = topology.strip(LocalTrajPos);
+
 	  const float hitPositionInStrips = topology.strip(LocalHitPos);
+	  const float trackPositionInStrips = topology.strip(LocalTrajPos);
 	  
 	  double residual = trackPositionInStrips - hitPositionInStrips;
 
