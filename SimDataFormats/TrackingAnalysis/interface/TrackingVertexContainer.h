@@ -5,7 +5,7 @@
 
 #include <vector>
  
-typedef std::vector<TrackingVertex> TrackingVertexContainer;
+typedef std::vector<TrackingVertex> TrackingVertexCollection;
  
 
 #endif
