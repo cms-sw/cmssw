@@ -149,24 +149,60 @@ Reconstruction output.
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td> \endhtmlonly basicClsters<i>:hybrid</i> \htmlonly </td>
-  <td class="description">Basic clusters reconstructed with hybrid algorithm</td>
-  <td>&nbsp;</td>
+  <td> \endhtmlonly islandBasicClusterProducer<i>:islandBarrelBasicClusterCollection</i> \htmlonly </td>
+  <td class="description">Basic clusters reconstructed with island algorithm in barrel</td>
+  <td>Sh. Rahatlou</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td> \endhtmlonly basicClusters<i>:island</i> \htmlonly </td>
-  <td class="description">Basic clusters reconstructed with island algorithm</td>
-  <td>&nbsp;</td>
+  <td> \endhtmlonly islandBasicClusterProducer<i>:islandEndcapBasicClusterCollection</i> \htmlonly </td>
+  <td class="description">Basic clusters reconstructed with island algorithm in endcap</td>
+  <td>Sh. Rahatlou</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
   <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
-  <td> \endhtmlonly superClusters \htmlonly </td>
-  <td class="description">Super clusters</td>
-  <td>&nbsp;</td>
+  <td> \endhtmlonly islandSuperClusterProducer<i>:islandBarrelSuperClusterCollection</i> \htmlonly </td>
+  <td class="description">Super clusters with island algo. in barrel</td>
+  <td>Sh. Rahatlou</td>
 </tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly correctedIslandBarrelSuperClusterProducer \htmlonly </td>
+  <td class="description">Super clusters with island algo in barrel after energy correction</td>
+  <td>Sh. Rahatlou</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly islandSuperClusterProducer<i>:islandEndcapSuperClusterCollection</i> \htmlonly </td>
+  <td class="description">Super clusters with island algo. in endcap</td>
+  <td>Sh. Rahatlou</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly correctedIslandEndcapSuperClusterProducer \htmlonly </td>
+  <td class="description">Super clusters with island algo in endcap after energy correction</td>
+  <td>Sh. Rahatlou</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly hybridSuperClusterProducer \htmlonly </td>
+  <td class="description">Super clusters with hybrid algo (barrel only)</td>
+  <td>Sh. Rahatlou</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly correctedHybridSuperClusterProducer \htmlonly </td>
+  <td class="description">Super clusters with hybrid algo after energy correction (barrel only)</td>
+  <td>Sh. Rahatlou</td>
+</tr>
+
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Jet collections: CaloTowers based</td>
 <tr>
