@@ -1,7 +1,7 @@
 #ifndef L1GCTJETCOUNTERLUT_H_
 #define L1GCTJETCOUNTERLUT_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include <vector>
 
@@ -42,7 +42,7 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctJetCounterLut& lut);
 
   /// Checks whether jet passes the cut
-  bool passesCut(const L1GctJetCand jet) const;
+  bool passesCut(const L1GctJet jet) const;
   
 private:
 
@@ -53,7 +53,7 @@ private:
 
   // PRIVATE MEMBER FUNCTIONS
   void checkCut (const validCutType cutType, const unsigned cutValue1, const unsigned cutValue2) const;
-  bool jetPassesThisCut (const L1GctJetCand jet, const unsigned i) const;
+  bool jetPassesThisCut (const L1GctJet jet, const unsigned i) const;
   
 };
 

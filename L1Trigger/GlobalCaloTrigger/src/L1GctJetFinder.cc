@@ -237,7 +237,7 @@ void L1GctJetFinder::process()
     }
   }
   //presort the jets into decending order of energy
-  sort(m_outputJets.begin(), m_outputJets.end(), L1GctJetCand::rankGreaterThan());
+  sort(m_outputJets.begin(), m_outputJets.end(), L1GctJet::rankGreaterThan());
    
   //calculate the raw Et strip sums
   m_outputEtStrip0 = calcEtStrip(0);

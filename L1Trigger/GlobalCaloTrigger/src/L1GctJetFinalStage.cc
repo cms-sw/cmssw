@@ -116,9 +116,9 @@ void L1GctJetFinalStage::fetchInput()
 void L1GctJetFinalStage::process()
 {
   //Process jets
-  sort(m_inputCentralJets.begin(), m_inputCentralJets.end(), L1GctJetCand::rankGreaterThan());
-  sort(m_inputForwardJets.begin(), m_inputForwardJets.end(), L1GctJetCand::rankGreaterThan());
-  sort(m_inputTauJets.begin(), m_inputTauJets.end(), L1GctJetCand::rankGreaterThan());
+  sort(m_inputCentralJets.begin(), m_inputCentralJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_inputForwardJets.begin(), m_inputForwardJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_inputTauJets.begin(), m_inputTauJets.end(), L1GctJet::rankGreaterThan());
 
   for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
   {
@@ -128,7 +128,7 @@ void L1GctJetFinalStage::process()
   }  
 }
 
-void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJet jet)
 {
   if(i >= 0 && i < MAX_JETS_IN)
   {
@@ -142,7 +142,7 @@ void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
   }
 }
 
-void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJet jet)
 {
   if(i >= 0 && i < MAX_JETS_IN)
   {
@@ -156,7 +156,7 @@ void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
   }
 }
 
-void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputTauJet(int i, L1GctJet jet)
 {
   if(i >= 0 && i < MAX_JETS_IN)
   {

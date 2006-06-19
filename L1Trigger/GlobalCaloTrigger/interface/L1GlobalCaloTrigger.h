@@ -4,7 +4,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
@@ -74,13 +74,13 @@ public:
   std::vector<L1GctEmCand> getNonIsoElectrons();
   
   /// central jet outputs to GT
-  std::vector<L1GctJetCand> getCentralJets();
+  std::vector<L1GctJet> getCentralJets();
   
   /// forward jet outputs to GT
-  std::vector<L1GctJetCand> getForwardJets();
+  std::vector<L1GctJet> getForwardJets();
   
   /// tau jet outputs to GT
-  std::vector<L1GctJetCand> getTauJets();
+  std::vector<L1GctJet> getTauJets();
   
   /// Total Et output to GT
   L1GctScalarEtVal getEtSum();

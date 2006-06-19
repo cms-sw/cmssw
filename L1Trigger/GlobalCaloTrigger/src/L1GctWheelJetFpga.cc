@@ -193,9 +193,9 @@ void L1GctWheelJetFpga::process()
 {
   classifyJets();
 
-  sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJetCand::rankGreaterThan());
-  sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), L1GctJetCand::rankGreaterThan());
-  sort(m_rawTauJets.begin(), m_rawTauJets.end(), L1GctJetCand::rankGreaterThan());
+  sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_rawTauJets.begin(), m_rawTauJets.end(), L1GctJet::rankGreaterThan());
 
   for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
   {
@@ -215,7 +215,7 @@ void L1GctWheelJetFpga::process()
     
 }
 
-void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
+void L1GctWheelJetFpga::setInputJet(int i, L1GctJet jet)
 {
   if(i >=0 && i < MAX_JETS_IN)
   {
@@ -276,7 +276,7 @@ void L1GctWheelJetFpga::classifyJets()
 
   for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
   {
-    if(currentJet->eta() >= L1GctJetCand::LOCAL_ETA_HF_START)  //forward jet
+    if(currentJet->eta() >= L1GctJet::LOCAL_ETA_HF_START)  //forward jet
     {
         m_rawForwardJets.at(numFJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
     }

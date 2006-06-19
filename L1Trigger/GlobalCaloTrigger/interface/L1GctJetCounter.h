@@ -1,7 +1,7 @@
 #ifndef L1GCTJETCOUNTER_H_
 #define L1GCTJETCOUNTER_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
@@ -27,7 +27,7 @@ class L1GctJetCounter : public L1GctProcessor
 {
 public:
   //Typedefs
-  typedef std::vector<L1GctJetCand> JetVector;
+  typedef std::vector<L1GctJet> JetVector;
 
   //Statics
   static const unsigned int MAX_LEAF_CARDS;

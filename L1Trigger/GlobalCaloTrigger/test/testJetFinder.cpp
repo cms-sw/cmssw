@@ -13,7 +13,7 @@
 
 //Custom headers needed for this test
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -30,7 +30,7 @@ using namespace std;
 
 //Typedefs for the vector templates and other types used
 typedef vector<L1GctRegion> RegionsVector;
-typedef vector<L1GctJetCand> JetsVector;
+typedef vector<L1GctJet> JetsVector;
 typedef unsigned long int ULong;
 
 
@@ -62,7 +62,7 @@ L1GctRegion readSingleRegion(ifstream &fin);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
-L1GctJetCand readSingleJet(ifstream &fin);
+L1GctJet readSingleJet(ifstream &fin);
 /// Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
@@ -188,7 +188,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   
   //an empty regions vector for reset comparison
   vector<L1GctRegion> blankRegionsVec(numInputRegions);
-  vector<L1GctJetCand> blankJetsVec(numOutputJets);
+  vector<L1GctJet> blankJetsVec(numOutputJets);
   
   //Test that all the vectors/values are empty/zero
   if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
@@ -330,7 +330,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 }
 
 //Gets the data of a single jet from the testDataFile (reasonably safely). 
-L1GctJetCand readSingleJet(ifstream &fin)
+L1GctJet readSingleJet(ifstream &fin)
 {
   //This reperesents how many numbers there are per line for a jet in the input file
   const int numJetComponents = 4; //4 since we have rank, eta, phi & tauVeto.
@@ -353,7 +353,7 @@ L1GctJetCand readSingleJet(ifstream &fin)
   }
  
   //return object
-  L1GctJetCand tempJet(jetComponents[0], jetComponents[1],
+  L1GctJet tempJet(jetComponents[0], jetComponents[1],
                        jetComponents[2], static_cast<bool>(jetComponents[3]));
 
   return tempJet;

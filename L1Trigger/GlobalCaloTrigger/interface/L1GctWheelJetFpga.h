@@ -14,7 +14,7 @@
 * \date May 2006
 */ 
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
@@ -26,7 +26,7 @@
 class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
-  typedef std::vector<L1GctJetCand> JetVector;
+  typedef std::vector<L1GctJet> JetVector;
 
   /// Max number of jets of each type we output.
   static const int MAX_JETS_OUT;
@@ -58,7 +58,7 @@ public:
   virtual void process();
 
   /// set input data      
-  void setInputJet(int i, L1GctJetCand jet); 
+  void setInputJet(int i, L1GctJet jet); 
   void setInputHt (int i, unsigned ht);
     
   /// get the input jets. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.

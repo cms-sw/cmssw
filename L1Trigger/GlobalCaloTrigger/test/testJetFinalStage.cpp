@@ -12,7 +12,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"  //The class to be tested
 
 //Custom headers needed for this test
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
@@ -29,7 +29,7 @@
 using namespace std;
 
 //Typedefs for the vector templates and other types used
-typedef vector<L1GctJetCand> JetsVector;
+typedef vector<L1GctJet> JetsVector;
 typedef unsigned long int ULong;
 
 
@@ -58,7 +58,7 @@ void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
-L1GctJetCand readSingleJet(ifstream &fin);
+L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
 /// Writes out the entire contents of a JetsVector to the given file output stream
@@ -317,7 +317,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 }
 
 //Gets the data of a single jet from the testDataFile (reasonably safely). 
-L1GctJetCand readSingleJet(ifstream &fin)
+L1GctJet readSingleJet(ifstream &fin)
 {
   //This reperesents how many numbers there are per line for a jet in the input file
   const int numJetComponents = 4; //4 since we have rank, eta, phi & tauVeto.
@@ -340,7 +340,7 @@ L1GctJetCand readSingleJet(ifstream &fin)
   }
  
   //return object
-  L1GctJetCand tempJet(jetComponents[0], jetComponents[1],
+  L1GctJet tempJet(jetComponents[0], jetComponents[1],
                        jetComponents[2], static_cast<bool>(jetComponents[3]));
 
   return tempJet;

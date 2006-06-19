@@ -29,11 +29,8 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 {
 
   // list of products
-  produces<L1GctIsoEmCollection>();
-  produces<L1GctNonIsoEmCollection>();
-  produces<L1GctCenJetCollection>();
-  produces<L1GctForJetCollection>();
-  produces<L1GctTauJetCollection>();
+  produces<L1GctEmCandCollection>();
+  produces<L1GctJetCandCollection>();
   produces<L1GctEtTotal>();
   produces<L1GctEtHad>();
   produces<L1GctEtMiss>();
@@ -64,19 +61,19 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   m_gct->process();
 
   // create the em and jet collections
-  std::auto_ptr<L1GctIsoEmCollection> isoEmResult(new L1GctIsoEmCollection);
-  std::auto_ptr<L1GctNonIsoEmCollection> nonIsoEmResult(new L1GctNonIsoEmCollection);
-  std::auto_ptr<L1GctCenJetCollection> cenJetResult(new L1GctCenJetCollection);
-  std::auto_ptr<L1GctForJetCollection> forJetResult(new L1GctForJetCollection);
-  std::auto_ptr<L1GctTauJetCollection> tauJetResult(new L1GctTauJetCollection);
+  std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection);
+  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection);
 
   // fill the em and jet collections with digis
   for (int i=0; i<4; i++) {
     isoEmResult->push_back(m_gct->getIsoElectrons()[i]);
     nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i]);
-    cenJetResult->push_back(m_gct->getCentralJets()[i].makeCenJet());
-    forJetResult->push_back(m_gct->getForwardJets()[i].makeForJet());
-    tauJetResult->push_back(m_gct->getTauJets()[i].makeTauJet());
+    cenJetResult->push_back(m_gct->getCentralJets()[i].makeJetCand());
+    forJetResult->push_back(m_gct->getForwardJets()[i].makeJetCand());
+    tauJetResult->push_back(m_gct->getTauJets()[i].makeJetCand());
   }
 
   // create the energy sum digis

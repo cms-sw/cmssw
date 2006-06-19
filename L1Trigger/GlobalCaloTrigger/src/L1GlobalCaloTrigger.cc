@@ -60,7 +60,7 @@ void L1GlobalCaloTrigger::openSourceCardFiles(string fileBase){
     ss << i;
     ss >> fileNo;
     string fileName = fileBase+fileNo;
-    theSourceCards[3*i]->openInputFile(fileName);
+    theSourceCards.at(3*i)->openInputFile(fileName);
     theSourceCards[3*i+1]->openInputFile(fileName);
     theSourceCards[3*i+2]->openInputFile(fileName);
   }
@@ -239,17 +239,17 @@ vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
 }
 
 // central jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
+vector<L1GctJet> L1GlobalCaloTrigger::getCentralJets() {
   return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
+vector<L1GctJet> L1GlobalCaloTrigger::getForwardJets() { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
+vector<L1GctJet> L1GlobalCaloTrigger::getTauJets() { 
   return theJetFinalStage->getTauJets(); 
 }
 

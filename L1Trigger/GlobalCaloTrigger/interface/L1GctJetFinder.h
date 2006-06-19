@@ -4,7 +4,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
@@ -99,7 +99,7 @@ public:
   /// Return pointer to calibration LUT
   L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
 
-  std::vector<L1GctJetCand> getJets() const { return m_outputJets; } ///< Get the located jets. 
+  std::vector<L1GctJet> getJets() const { return m_outputJets; } ///< Get the located jets. 
   L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
   L1GctScalarEtVal getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
   L1GctScalarEtVal getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
@@ -123,7 +123,7 @@ private:
   std::vector<L1GctRegion> m_inputRegions;
 
   /// output jets
-  std::vector<L1GctJetCand> m_outputJets;
+  std::vector<L1GctJet> m_outputJets;
 
   /// output Et strip sums and Ht
   L1GctScalarEtVal m_outputEtStrip0;

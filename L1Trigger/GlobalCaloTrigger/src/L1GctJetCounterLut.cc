@@ -101,7 +101,7 @@ ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)
   return os;
 }
 
-bool L1GctJetCounterLut::passesCut(const L1GctJetCand jet) const
+bool L1GctJetCounterLut::passesCut(const L1GctJet jet) const
 {
   bool result = !jet.isNullJet();
   for (unsigned i=0; i<m_nCuts; i++) {
@@ -171,7 +171,7 @@ void L1GctJetCounterLut::checkCut(const validCutType cutType, const unsigned cut
 
 }
   
-bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJetCand jet, const unsigned i) const
+bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJet jet, const unsigned i) const
 {
   switch (m_cutType.at(i))
     {

@@ -51,17 +51,17 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    // get some GCT digis
 
-   Handle<L1GctIsoEmCollection> isoEm;
-   Handle<L1GctNonIsoEmCollection> nonIsoEm;
-   Handle<L1GctCenJetCollection> cenJets;
-   Handle<L1GctForJetCollection> forJets;
-   Handle<L1GctTauJetCollection> tauJets;
+   Handle<L1GctEmCandCollection> isoEm;
+   Handle<L1GctEmCandCollection> nonIsoEm;
+   Handle<L1GctJetCandCollection> cenJets;
+   Handle<L1GctJetCandCollection> forJets;
+   Handle<L1GctJetCandCollection> tauJets;
 
-   L1GctIsoEmCollection::const_iterator ie;
-   L1GctNonIsoEmCollection::const_iterator ne;
-   L1GctCenJetCollection::const_iterator cj;
-   L1GctForJetCollection::const_iterator fj;
-   L1GctTauJetCollection::const_iterator tj;
+   L1GctEmCandCollection::const_iterator ie;
+   L1GctEmCandCollection::const_iterator ne;
+   L1GctJetCandCollection::const_iterator cj;
+   L1GctJetCandCollection::const_iterator fj;
+   L1GctJetCandCollection::const_iterator tj;
 
    iEvent.getByType(isoEm);
    iEvent.getByType(nonIsoEm);
