@@ -1,8 +1,8 @@
 
-#include "DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
 #include "ECALParserException.h"
-#include "DCCEventBlock.h"
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 
 DCCDataParser::DCCDataParser(bool parseInternalData,bool debug):
 buffer_(0),parseInternalData_(parseInternalData),debug_(debug) {
@@ -16,7 +16,7 @@ buffer_(0),parseInternalData_(parseInternalData),debug_(debug) {
 DCCDataParser::DCCDataParser(vector<ulong> parserParameters, bool parseInternalData,bool debug):
 buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 
-  LogDebug("EcalTBRawToDigi") << "@SUB=DCCDataParser";
+  LogDebug("EcalRawToDigi") << "@SUB=DCCDataParser";
 
 	 mapper_ = new DCCDataMapper(this);
 	 resetErrorCounters();
@@ -109,7 +109,7 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent ){
 
 void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEvent){
 	
-  LogDebug("EcalTBRawToDigi") << "@SUB=DCCDataParser::parseBuffer";
+  LogDebug("EcalRawToDigi") << "@SUB=DCCDataParser::parseBuffer";
 
 	resetErrorCounters();
 	
@@ -126,7 +126,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 
 	//////////////////////////////////////////////////////////////////
 
-	LogDebug("EcalTBRawToDigi") << "DCCDataParser:parseBuffer: Buffer Size :" << bufferSize;
+	LogDebug("EcalRawToDigi") << "DCCDataParser:parseBuffer: Buffer Size :" << bufferSize;
 
 	// Check if we have a coherent buffer size ///////////////////////////////////////////////////////////////////////////////
 	if( bufferSize%8  ){

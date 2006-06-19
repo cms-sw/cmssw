@@ -1,8 +1,8 @@
 
 
-#include "DCCBlockPrototype.h"
-#include "DCCDataParser.h"
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 #include "ECALParserBlockException.h"
 
 #include <stdio.h>

@@ -1,9 +1,9 @@
-#include "DCCTowerBlock.h"
-#include "DCCEventBlock.h"
-#include "DCCDataParser.h"
-#include "DCCXtalBlock.h"
-#include "DCCEventBlock.h"
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTowerBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCXtalBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 #include "ECALParserBlockException.h"
 #include <stdio.h>
 

@@ -1,6 +1,6 @@
-#include "DCCXtalBlock.h"
-#include "DCCDataParser.h"
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCXtalBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 
 
 DCCXtalBlock::DCCXtalBlock(

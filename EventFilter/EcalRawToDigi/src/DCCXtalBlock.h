@@ -4,7 +4,7 @@
 #ifndef DCCXTALBLOCK_HH
 #define DCCXTALBLOCK_HH
 
-#include "DCCBlockPrototype.h"
+#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
 class DCCDataParser;
 
 class DCCXtalBlock : public DCCBlockPrototype {

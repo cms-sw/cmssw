@@ -1,23 +1,21 @@
-
-#<flags SEAL_PLUGIN_NAME="EventFilterEcalRawToDigi">
+<flags SEAL_PLUGIN_NAME="EventFilterEcalRawToDigi">
 <use name=FWCore/Framework>
-#<use name=FWCore/MessageLogger>
-#<use name=DataFormats/FEDRawData>
-#<use name=DataFormats/EcalRawData>
-#<use name=DataFormats/EcalDetId>	
-#<use name=DataFormats/EcalDigi>	
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/EcalRawData>
+<use name=DataFormats/EcalDetId>	
+<use name=DataFormats/EcalDigi>	
 <use name=boost>
-#<use name=root>
+<use name=root>
 
 <export>
  <lib name=EventFilterEcalRawToDigi>
  <use name=FWCore/Framework>
-# <use name=DQM/EcalBarrelMonitorModule>
-# <use name=FWCore/MessageLogger>
-# <use name=DataFormats/FEDRawData>
-# <use name=DataFormats/EcalRawData>	
-# <use name=DataFormats/EcalDetId>	
-# <use name=DataFormats/EcalDigi>		
+ <use name=FWCore/MessageLogger>
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/EcalRawData>	
+ <use name=DataFormats/EcalDetId>	
+ <use name=DataFormats/EcalDigi>		
  <use name=boost>	
-# <use name=root>
+ <use name=root>
 </export>

@@ -15,12 +15,9 @@
 
 #include <iostream>                                  //C++
 
-#include "EventFilter/EcalRawToDigi/interface/DCCMapper.h"
-
-#include <EventFilter/EcalTBRawToDigi/interface/EcalDCCUnpackingModule.h>
-#include <EventFilter/EcalTBRawToDigi/src/EcalTBDaqFormatter.h>
-#include <EventFilter/EcalTBRawToDigi/src/ECALParserException.h>
-#include <EventFilter/EcalTBRawToDigi/src/ECALParserBlockException.h>
+#include <EventFilter/EcalRawToDigi/src/EcalDCCDaqFormatter.h>
+#include <EventFilter/EcalRawToDigi/src/ECALParserException.h>
+#include <EventFilter/EcalRawToDigi/src/ECALParserBlockException.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
@@ -30,8 +27,9 @@
 
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class DCCMapper;
 
@@ -40,28 +38,37 @@ using namespace edm;
 
 class EcalRawToDigi : public edm::EDProducer
 {
-public:
+ public:
   /**
    * Class constructor
    */
   explicit EcalRawToDigi(const edm::ParameterSet& ps);
-
+  
   /**
    * Functions that are called by framework at each event
    */
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
+  
   /**
    * Class destructor
    */
   virtual ~EcalRawToDigi();
+  
+ private:
 
-private:
   //list of FEDs to unpack
   std::vector<int> fedUnpackList_;
 
+  //first EcalFed
+  int firstFED_;
+
   //a dcc id mapper class 
-  DCCMapper *myMap;
+  DCCMapper *myMap_;
+
+  //DCC data formatter
+  EcalDCCDaqFormatter* formatter_;
 };
+
+
 
 #endif

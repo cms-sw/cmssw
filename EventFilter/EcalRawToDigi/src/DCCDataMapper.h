@@ -6,7 +6,7 @@
 #ifndef DCCDATAMAPPER_HH
 #define DCCDATAMAPPER_HH
 
-#include "DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
 #include <string>
 #include <set>
 

@@ -1,4 +1,4 @@
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 
 DCCDataMapper::DCCDataMapper( DCCDataParser * myParser)
 : parser_(myParser){

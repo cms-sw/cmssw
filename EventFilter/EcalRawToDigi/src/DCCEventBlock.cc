@@ -1,14 +1,14 @@
-#include "DCCEventBlock.h"
-#include "DCCBlockPrototype.h"
-#include "DCCDataParser.h"
-#include "DCCDataMapper.h"
-#include "DCCTowerBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTowerBlock.h"
 #include "ECALParserException.h"
 #include "ECALParserBlockException.h"
-#include "DCCSRPBlock.h"
-#include "DCCTCCBlock.h"
-#include "DCCXtalBlock.h"
-#include "DCCTrailerBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCSRPBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTCCBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCXtalBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTrailerBlock.h"
 
 
 

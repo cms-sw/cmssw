@@ -10,35 +10,20 @@
  *
  */
 
-#include "EventFilter/Interface/EcalRawToDigi.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalRawToDigi.h"
+#include "EventFilter/EcalRawToDigi/src/DCCMapper.h"
 
+          
 /*------------------------------------------------------------------*/
 /* EcalRawToDigi::EcalRawToDigi                                     */
 /* class constructor                                                */
 /*------------------------------------------------------------------*/
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
-  //unpacker
-  unpacker_(
-	    conf.getUntrackedParameter<int>("EcalFirstFED",FEDNumbering::getEcalFEDIds().first),
-	    conf.getParameter<int>("firstSample"),
-	    conf.getParameter<int>("lastSample")),
-
-  //
-  filter_(conf.getParameter<bool>("FilterDataQuality"),
-	  conf.getParameter<bool>("FilterDataQuality"),
-	  false,
-	  0, 
-	  0, 
-	  -1),
-
   //define the FED unpack list
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
-
   //get first FED
-  firstFED_(conf.getUntrackedParameter<int>("EcalFirstFED",FEDNumbering::getEcalFEDIds().first)),
-  
-  //unpack calibration
-  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)) {
+  firstFED_(conf.getUntrackedParameter<int>("EcalFirstFED",FEDNumbering::getEcalFEDIds().first))
+{
 
   //if there are FEDs to unpack fill the vector of the fedUnpackList_
   if (fedUnpackList_.empty()) 
@@ -76,7 +61,11 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 
   //allocate a new mapper and parse default map file
   myMap_ = new DCCMapper();
-  myMap_->readDCCMapFile("EventFilter/EcalRawToDigi/interface/DCCMap.txt");
+  myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
+
+  formatter_ = new EcalDCCDaqFormatter();
+  formatter_->setDCCMapper(myMap_);
+  formatter_->setEcalFirstFED(firstFED_);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -87,7 +76,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawdata;  
   e.getByType(rawdata);
-
+  
   // Step B: encapsulate vectors in actual collections
 
   // create the collection of Ecal Digis
@@ -135,29 +124,28 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Step C: unpack all requested FEDs
   try{
-    for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
+    for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) 
+      {
+	//get fed raw data and SM id
+	const FEDRawData &fedData = rawdata->FEDData(*i);
 
-      //get fed raw data and SM id
-      const FEDRawData &fedData_ = rawdata->FEDData(*i);
-      ulong smId_ myMap_->getSMId(*i);
-
-      //for debug purposes
-      cout << "Getting FED nb: " << *i << " data size is: " << fedData_.size() << endl;
-      cout << "Supermodule id is: " << smId_ << endl;
-
-      //if data size is no null interpret data
-      /*
-      if (data.size()){
 	
-      // do the data unpacking and fill the collections
-      formatter->interpretRawData(data,  *productEb, *productPN, 
-      *productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, 
-      *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
-      *productMemTtId,  *productMemBlockSize,*productMemGain,  *productMemChIdErrors);      
-      }
-      */
-    }
+	//if data size is no null interpret data
+	if (fedData.size())
+	  {
+	    ulong smId_ = myMap_->getSMId(*i);
+	    
+	    //for debug purposes
+ 	    cout << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;
 
+	    // do the data unpacking and fill the collections
+	    formatter_->interpretRawData(fedData,  *productEb, *productPN, 
+					*productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, 
+					*productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+					*productMemTtId,  *productMemBlockSize,*productMemGain,  *productMemChIdErrors);      
+	  }
+      }
+    
     // Step D: Put outputs into event 
     e.put(productPN);
     e.put(productEb);

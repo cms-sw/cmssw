@@ -5,7 +5,7 @@
 #define DCCTRAILERBLOCK_HH
 
 
-#include "DCCBlockPrototype.h"
+#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
 class DCCDataParser;
 
 class DCCTrailerBlock : public DCCBlockPrototype {

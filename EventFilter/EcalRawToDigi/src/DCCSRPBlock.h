@@ -12,7 +12,7 @@
 #include <utility>
 
 
-#include "DCCBlockPrototype.h"
+#include "EventFilter/EcalRawToDigi/src/DCCBlockPrototype.h"
 
 class DCCEventBlock;
 class DCCXtalBlock;

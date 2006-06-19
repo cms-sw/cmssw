@@ -1,6 +1,6 @@
-#include "DCCTrailerBlock.h"
-#include "DCCDataParser.h"
-#include "DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTrailerBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
 DCCTrailerBlock::DCCTrailerBlock(
 	DCCDataParser * parser, 
 	ulong * buffer, 

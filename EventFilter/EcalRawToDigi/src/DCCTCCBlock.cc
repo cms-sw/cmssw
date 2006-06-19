@@ -1,7 +1,7 @@
-#include "DCCTCCBlock.h"
-#include "DCCDataParser.h"
-#include "DCCDataMapper.h"
-#include "DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCTCCBlock.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataParser.h"
+#include "EventFilter/EcalRawToDigi/src/DCCDataMapper.h"
+#include "EventFilter/EcalRawToDigi/src/DCCEventBlock.h"
 
 DCCTCCBlock::DCCTCCBlock(
 	DCCEventBlock * dccBlock,
