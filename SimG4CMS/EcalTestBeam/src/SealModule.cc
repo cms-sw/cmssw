@@ -8,3 +8,6 @@ DEFINE_ANOTHER_FWK_MODULE (EcalTBMCInfoProducer) ;
 
 #include "SimG4CMS/EcalTestBeam/interface/FakeTBHodoscopeRawInfoProducer.h"
 DEFINE_ANOTHER_FWK_MODULE (FakeTBHodoscopeRawInfoProducer) ;
+
+#include "SimG4CMS/EcalTestBeam/interface/FakeTBEventHeaderProducer.h"
+DEFINE_ANOTHER_FWK_MODULE (FakeTBEventHeaderProducer) ;
