@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.7 2006/06/09 09:23:47 dkcira Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.8 2006/06/09 14:17:29 dkcira Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
 
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -59,7 +60,6 @@ MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
 
 MonitorTrackResiduals::~MonitorTrackResiduals()
 {
- 
 }
 
 void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
@@ -164,7 +164,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
-      DetId * detId = new DetId(state.detId());
+      DetId * detId = state.detId();
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(*detId)->surface()), theMF);
 
 //      OwnVector<TransientTrackingRecHit> hits;
@@ -174,25 +174,33 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	{
 	  hits.push_back(builder->build(&(*hit)));
 
-
 	  // do the fitting
 	  std::vector<Trajectory> trajVec = theFitter->fit(seed,  hits, theTSOS);
 
 	  TrajectoryStateOnSurface innertsos;  
 	  if (trajVec.size() != 0)
 	    {   
-	      Trajectory * theTraj = new Trajectory( trajVec.front() );
-	      if (theTraj->direction() == alongMomentum)
+	      const Trajectory& theTraj = trajVec.front();
+	      if (theTraj.direction() == alongMomentum)
 		{      
-		  innertsos = theTraj->firstMeasurement().updatedState();    
+		  innertsos = theTraj.firstMeasurement().updatedState();
 		}
-	      else 
+	      else
 		{
-		  innertsos = theTraj->lastMeasurement().updatedState();    
+		  innertsos = theTraj.lastMeasurement().updatedState();
 		}
 	    }
+
+	  const LocalPoint & LocalHitPos = hit->localPosition();
+	  const DetId & detId = hit->geographicalId();
+	  const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
+	  const LocalPoint& LocalTrajPos = innertsos.localPosition();
+	  const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
+	  const StripTopology& topology = stripDet->specificTopology();
+	  const float trackPositionInStrips = topology.strip(LocalTrajPos);
+	  const float hitPositionInStrips = topology.strip(LocalHitPos);
 	  
-	  double residual = innertsos.localPosition().x() - hit->localPosition().x();
+	  double residual = trackPositionInStrips - hitPositionInStrips;
 
 	  DetId hit_detId = hit->geographicalId();
 	  int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
