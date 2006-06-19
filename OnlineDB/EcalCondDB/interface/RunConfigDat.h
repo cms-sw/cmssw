@@ -1,4 +1,4 @@
-#ifndef RUNCONFGDAT_H
+#ifndef RUNCONFIGDAT_H
 #define RUNCONFIGDAT_H
 
 #include <vector>
@@ -15,11 +15,11 @@ class RunConfigDat : public IDataItem {
   ~RunConfigDat();
 
   // User data methods
-  std::string getConfigTag() const { return m_configTag; }
-  void setConfigTag(std::string tag) { m_configTag = tag; }
+  inline std::string getConfigTag() const { return m_configTag; }
+  inline void setConfigTag(std::string tag) { m_configTag = tag; }
 
-  int getConfigVersion() const { return m_configVer; }
-  void setConfigVersion(int ver) { m_configTag = ver; }
+  inline int getConfigVersion() const { return m_configVer; }
+  inline void setConfigVersion(int ver) { m_configVer = ver; }
 
  private:
   void prepareWrite() 
