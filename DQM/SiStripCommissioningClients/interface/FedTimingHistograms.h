@@ -13,16 +13,6 @@ class FedTimingHistograms : public CommissioningHistograms {
   FedTimingHistograms( MonitorUserInterface* );
   /** */
   virtual ~FedTimingHistograms();
-
- private: // ----- private methods -----
-  
-  virtual void book( const std::vector<std::string>& me_list );
-  virtual void update();
-  
- private: // ----- private data members -----
-  
-  // One map entry per LLD channel...
-  std::map< uint32_t, HistoSet > timing_;
   
 };
 

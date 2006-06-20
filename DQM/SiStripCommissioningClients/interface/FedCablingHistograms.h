@@ -13,15 +13,6 @@ class FedCablingHistograms : public CommissioningHistograms {
   FedCablingHistograms( MonitorUserInterface* );
   /** */
   virtual ~FedCablingHistograms();
-
- private: // ----- private methods -----
-  
-  virtual void book( const std::vector<std::string>& me_list );
-  virtual void update();
-  
- private: // ----- private data members -----
-  
-  std::map< uint32_t, HistoSet > cabling_;
   
 };
 

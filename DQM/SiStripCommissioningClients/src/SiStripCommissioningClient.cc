@@ -1,7 +1,5 @@
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningWebClient.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
@@ -9,6 +7,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 
 // This line is necessary
 XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient);
@@ -21,7 +20,7 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
     histos_(0),
-    initialNumOfUpdates_(0) 
+    collations_()
 {
   web_ = new SiStripCommissioningWebClient( this,
 					    this->getContextURL(),
@@ -39,59 +38,196 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Configured" state. */
-void SiStripCommissioningClient::configure() {}
+void SiStripCommissioningClient::configure() {
+  collations_.clear();
+}
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Enabled" state. */
 void SiStripCommissioningClient::newRun() {
-  ( this->upd_ )->registerObserver( this ); // Register with the Updater object
+  ( this->upd_ )->registerObserver( this ); 
 }
 
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Halted" state. */
 void SiStripCommissioningClient::endRun() {
-  // Do histogram analysis and upload monitorables to database
-  if ( histos_ ) { 
-    // histos_->createProfileHistos(); 
-    // histos_->histoAnalysis(); 
-    // histos_->createSummaryHistos(); 
-    // histos_->uploadToConfigDb(); 
-    // histos_->saveToFile(); 
-  }
   if ( mui_ ) { mui_->save("client.root"); }
+  if ( histos_ ) { delete histos_; histos_ = 0; }
 }
 
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
 
-  // Number of updates received by collector
-  uint32_t num_of_updates = mui_->getNumUpdates();
-  if ( !initialNumOfUpdates_ ) { initialNumOfUpdates_ = num_of_updates; }
-  cout << "[SiStripCommissioningClient::onUpdate]"
-       << " Number of updates: " << num_of_updates - initialNumOfUpdates_ << endl; 
-
   // Subscribe to new monitorables and retrieve updated contents
-  ( this->mui_ )->subscribeNew( "*" ); //@@ temporary?
+  ( this->mui_ )->subscribeNew( "*" );
   vector<string> added_contents;
   ( this->mui_ )->getAddedContents( added_contents );
+  if ( added_contents.empty() ) { return; }
+  
+  // Extract commissioning task from added contents
+  sistrip::Task task = extractTask( added_contents );
+
+  // Create histograms for given commissioning task
+  createTaskHistograms( task );
+
+  // Create collation histograms based on added contents
+  createCollations( added_contents );
+  
+}
+
+
+// -----------------------------------------------------------------------------
+/** Extract "commissioning task" string from "added contents". */
+sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& added_contents ) const {
+  sistrip::Task task = sistrip::NO_TASK;
+
+  // Iterate through added contents
+  vector<string>::const_iterator istr = added_contents.begin();
+  while ( istr != added_contents.end() && 
+	  task != sistrip::NO_TASK ) {
+    // Search for "commissioning task" string
+    string::size_type pos = istr->find( sistrip::commissioningTask_ );
+    if ( pos != string::npos ) { 
+      // Extract commissioning task from string 
+      string str = istr->substr( pos+sistrip::commissioningTask_.size()+1, string::npos ); 
+      if ( !str.empty() ) { 
+	task = SiStripHistoNamingScheme::task( str ); 
+	cout << "[SiStripCommissioningClient::onUpdate]"
+	     << " Found 'SiStripCommissioningTask' string with value " 
+	     << str << endl;
+      }
+    }
+    istr++;
+  }
+  return task;
+}
+
+// -----------------------------------------------------------------------------
+/** Create histograms for given commissioning task. */
+void SiStripCommissioningClient::createTaskHistograms( const sistrip::Task& task ) const {
+
+  // Check if object already exists
+  if ( histos_ ) { return; }
+
+  // Create corresponding "commissioning histograms" object 
+  if      ( task == sistrip::APV_TIMING )  { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING )  { histos_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN )   { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS )   { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN )   { histos_ = new VpspScanHistograms( mui_ ); }
+  else if ( task == sistrip::NO_TASK ) { histos_ = 0; }
+  else if ( task == sistrip::UNKNOWN_TASK ) {
+    histos_ = 0;
+    cerr << "[SiStripCommissioningClient::onUpdate]"
+	 << " Unknown commissioning task!" << endl;
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCommissioningClient::createCollations( const vector<string>& added_contents ) const {
+  cout << "[SiStripCommissioningClient::createCollations]" << endl;
+  
   if ( added_contents.empty() ) { 
-    // cout << "[SiStripCommissioningClient::onUpdate] No added contents!" << endl;
+    cout << "[SiStripCommissioningClient::createCollations]"
+	 << " No 'added contents' found!" << endl;
     return; 
-  }
-  // cout << "[SiStripCommissioningClient::onUpdate] Number of added contents is: " << added_contents.size() << endl;
-  
-  // Create CommissioningHistogram object 
-  createCommissioningHistos( added_contents );
-  
-  // Create Collation histos based on added contents
-  if ( histos_ ) { 
-    histos_->createCollateMEs( added_contents ); 
-    histos_->createProfileHistos(); 
-    // histos_->histoAnalysis(); 
-    // histos_->createSummaryHistos(); 
+  } else {  
+    cout << "[SiStripCommissioningClient::createCollations]"
+	 << " Found " << added_contents.size () 
+	 << " 'added contents' found!" << endl;
   }
   
+  vector<string>::const_iterator idir;
+  for ( idir = added_contents.begin(); idir != added_contents.end(); idir++ ) {
+    
+    // Extract directory paths
+    string collector_dir = idir->substr( 0, idir->find(":") );
+    const SiStripHistoNamingScheme::ControlPath& path = SiStripHistoNamingScheme::controlPath( collector_dir );
+    string client_dir = SiStripHistoNamingScheme::controlPath( path.fecCrate_,
+							       path.fecSlot_,
+							       path.fecRing_,
+							       path.ccuAddr_,
+							       path.ccuChan_ );
+
+    cout << "[SiStripCommissioningClient::createCollations]"
+	 << " Dir: " << collector_dir
+	 << " FecCrate/FecRing/FecSlot/CcuAddr/CcuChan: "
+	 << path.fecCrate_ << "/"
+	 << path.fecSlot_ << "/"
+	 << path.fecRing_ << ", "
+	 << path.ccuAddr_ << "/"
+	 << path.ccuChan_ << endl;
+    
+    if ( path.fecCrate_ == sistrip::all_ ||
+	 path.fecSlot_ == sistrip::all_ ||
+	 path.fecRing_ == sistrip::all_ ||
+	 path.ccuAddr_ == sistrip::all_ ||
+	 path.ccuChan_ == sistrip::all_ ) { continue; } 
+    
+    // Retrieve MonitorElements from pwd directory
+    mui_->setCurrentFolder( collector_dir );
+    vector<string> me_list = mui_->getMEs();
+    cout << "[SiStripCommissioningClient::createCollations]"
+	 << " Found " << me_list.size() << " MEs in " << collector_dir << endl;
+    
+    uint16_t n_cme = 0;
+    vector<string>::iterator ime = me_list.begin(); 
+    for ( ; ime != me_list.end(); ime++ ) {
+      cout << "[SiStripCommissioningClient::createCollations]"
+	   << " ME string: " << *ime << endl;
+      string cme_name = *ime;
+      string cme_title = *ime;
+      string cme_dir = client_dir;
+      string search_str = "*/" + client_dir + *ime;
+      if ( find( collations_.begin(), collations_.end(), search_str ) == collations_.end() ) {
+
+	// Retrieve pointer to monitor element
+	string path_and_title = this->mui_->pwd() + "/" + *ime;
+	MonitorElement* me = this->mui_->get( path_and_title );
+	
+	// Collate TProfile histos
+	TProfile* prof = ExtractTObject<TProfile>()( me );
+	if ( prof ) { 
+	  CollateMonitorElement* cme = mui_->collateProf( cme_name, cme_title, cme_dir );
+	  mui_->add( cme, search_str );
+	  prof->SetErrorOption("s"); //@@ how to guarantee this is always the case?
+	  collations_.push_back( search_str ); // cme_dir
+	  n_cme++;
+	  cout << "[SiStripCommissioningClient::createCollations]"
+	       << " Collating TProfile!"
+	       << " name: " << cme_name
+	       << " title: " << cme_title
+	       << " in dir: " << cme_dir
+	       << " search string: " << search_str
+	       << endl;
+	} 
+	
+	// Collate TH1F histos
+	TH1F* his = ExtractTObject<TH1F>()( me );
+	if ( his ) { 
+	  CollateMonitorElement* cme = mui_->collate1D( cme_name, cme_title, cme_dir );
+	  mui_->add( cme, search_str );
+	  collations_.push_back( cme_dir );
+	  n_cme++;
+	  cout << "[SiStripCommissioningClient::createCollations]"
+	       << " Collating TH1F!"
+	       << " name: " << cme_name
+	       << " title: " << cme_title
+	       << " in dir: " << cme_dir
+	       << " search string: " << search_str
+	       << endl;
+	} 
+	
+      }
+    }
+    cout << "[SiStripCommissioningClient::createCollations]"
+	 << " Created " << n_cme << " Collations in " << client_dir << endl;
+  }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -120,48 +256,4 @@ CommissioningHistograms* histos( const SiStripCommissioningClient& client ) {
 	 << " Null pointer to CommissioningHistograms object!" << endl; 
   }
   return client.histos_;
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void SiStripCommissioningClient::createCommissioningHistos( const vector<string>& added_contents ) const {
-  cout << "[SiStripCommissioningClient::createCommissioningHistos]" << endl;
-  
-  if ( added_contents.empty() ) { return; }
-  if ( histos_ ) { return; }
-  
-  // Iterate through "added contents" and retrieve "commissioning task" 
-  string task_str = "";
-  sistrip::Task task = sistrip::NO_TASK;
-  vector<string>::const_iterator istr;
-  for ( istr = added_contents.begin(); istr != added_contents.end(); istr++ ) { 
-    string pattern = sistrip::commissioningTask_;
-    string::size_type pos = istr->find( pattern );
-    if ( pos != string::npos ) { 
-      task_str = istr->substr( pos+pattern.size()+1, string::npos ); 
-      if ( !task_str.empty() ) { task = SiStripHistoNamingScheme::task( task_str ); }
-      continue; 
-    }
-  }
-  cout << "[SiStripCommissioningClient::createCommissioningHistos]"
-       << " Found 'SiStripCommissioningTask' string with value " 
-       << task_str << endl;
-  
-  // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING )  { histos_ = new ApvTimingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_TIMING )  { histos_ = new FedTimingHistograms( mui_ ); }
-  else if ( task == sistrip::OPTO_SCAN )   { histos_ = new OptoScanHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS )   { histos_ = new PedestalsHistograms( mui_ ); }
-  else if ( task == sistrip::VPSP_SCAN )   { histos_ = new VpspScanHistograms( mui_ ); }
-  else if ( task == sistrip::UNKNOWN_TASK ) {
-    histos_ = 0;
-    cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
-	 << " Unknown commissioning task!" << endl;
-  } else if ( task == sistrip::NO_TASK ) { 
-    histos_ = 0;
-    cerr << "[SiStripCommissioningClient::createCommissioningHistos]"
-	 << " No commissioning task string found!" << endl;
-  }
-  
 }

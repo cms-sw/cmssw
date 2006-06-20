@@ -19,10 +19,9 @@ class SiStripCommissioningWebClient : public WebInterface {
   
  private: // ----- private methods -----
   
-/*   void updateHistos( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); */
-/*   void createSummary( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );  */
-/*   void createTkMap( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); */
-/*   void saveToFile( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); */
+  void createSummaryHistos( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );  
+  void createTrackerMap( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
+  void uploadToConfigDb( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
   
  private: // ----- private data members -----
   
