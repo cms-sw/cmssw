@@ -3,18 +3,18 @@
 
 0. Set up an area for CMSSW (works currently in CMSSW_0_7_0_pre3) and check out:
     OnlineDB/CSCCondDB 
-    DataFormats/CSCDigi
-    EventFilter/CSCRawToDigi 
+    CondFormats/CSCObjects
 
 0.1 Source files are in /src and header files in /interface. 
 
 0.2 Copy .so files for ORACLE database transfer from:
       
-       http://cmsdoc.cern.ch/cms/CSC/CERN/dbc_library/   (copy: libcondbc.so and libcondbon.so)
-       http://cmsdoc.cern.ch/CSC/CERN/cscmap_library/    (copy: libcscmap.so)
+    http://cmsdoc.cern.ch/CSC/CERN/cscmap_library/    (copy: libcscmap.so)
 
-    to your /CMSSW_x_x_x/lib/slc3_ia32_gcc323/ area. Ask Igor Vorobiev, Oana Boeriu, Nikolai Terentiev 
-    for the username and password !
+    to your /CMSSW_x_x_x/lib/slc3_ia32_gcc323/ area. Have to set up environmental variables now:
+    setenv CONDBON_AUTH_USER ...
+    setenv CONDBON_AUTH_PASSWORD ...
+    Ask Igor Vorobiev, Oana Boeriu for the username and password !
 
 0.3 COMPILE & LINK under OnlineDB/CSCCondDB !!
 
@@ -24,11 +24,14 @@
 
 2.0 CSCCrossTalkAnalyzer.cc and .h, run: cmsRun CSCxtalk.cfg
 
-3.0 CSCAFEBdacAnalyzer.cc and .h, run: cmsRun CSCAFEBdac.cfg
+3.0 CSCNoiseMatrixAnalyzer.cc and .h, eun: cmsRun CSCmatrix.cfg
 
 4.0 CSCCompThreshAnalyzer.cc and .h, run: cmsRun CSCcomp.cfg
 
 5.0 CSCAFEBAnalyzer.cc and .h, run: cmsRun CSCAFEBThr.cfg
+
+In the .cfg file you can chose if you want to send constants to DB, default is set to false for not sending.
+
 
 List of calibration files in CASTOR:
 
@@ -49,5 +52,5 @@ RunNum1083Evs0to9999.bin for gains (ME1 chambers)
 
 	
 ****************************************
-*  This is the status 2006.06.09 !!!!! *
+*  This is the status 2006.06.20 !!!!! *
 ****************************************
