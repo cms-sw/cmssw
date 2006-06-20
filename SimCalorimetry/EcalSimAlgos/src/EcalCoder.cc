@@ -84,43 +84,51 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
   //....initialisation
 
   if ( caloSamples[5] > 0. ) 
-    LogDebug("DigiCoder") << "Input caloSample" << "\n" << caloSamples;
+    LogDebug("EcalCoder") << "Input caloSample" << "\n" << caloSamples;
 
-  double LSB[NGAINS];
-  double pedestals[NGAINS];
-  double widths[NGAINS];
-  double gains[NGAINS];
-  double threeSigmaADCNoise[NGAINS];
-  for(int igain = 0; igain < NGAINS; ++igain) {
+  double LSB[NGAINS+1];
+  double pedestals[NGAINS+1];
+  double widths[NGAINS+1];
+  double gains[NGAINS+1];
+  double threeSigmaADCNoise[NGAINS+1];
+  for(int igain = 0; igain <= NGAINS; ++igain) {
     // fill in the pedestal and width
     findPedestal(detId, igain, pedestals[igain], widths[igain]);
     // set nominal value first
     findGains(detId, gains);
-    LSB[igain]= Emax/(MAXADC*gains[igain]);
-    threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
+    LSB[igain] = 0.;
+    if ( igain > 0 ) LSB[igain]= Emax/(MAXADC*gains[igain]);
+    threeSigmaADCNoise[igain] = 0.;
+    if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
 
   int wait = 0 ;
-  int gainId = NGAINS - 1 ;
+  int gainId = 0 ;
   for (int i = 0 ; i < caloSamples.size() ; ++i)
   {    
      int adc = MAXADC;
-     if (wait == 0) gainId = NGAINS - 1;
+     if (wait == 0) gainId = 1;
 
      // see which gain bin it fits in
-     int igain = gainId + 1 ;
-     while (igain != 0) {
-       --igain;
+     int igain = gainId-1 ;
+     while (igain != 3) {
+       ++igain;
 
        double ped = pedestals[igain];
-       int tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
+       double signal = ped + caloSamples[i] / LSB[igain];
 
        // see if it's close enough to the boundary that we have to throw noise
-       if(addNoise_ && (tmpadc <= MAXADC+threeSigmaADCNoise[igain]) ) {
-          ped = RandGauss::shoot(ped, widths[igain]);
-          tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
+       if(addNoise_ && (signal <= MAXADC+threeSigmaADCNoise[igain]) ) {
+         // width is the actual final noise, subtract the additional one from the trivial quantization
+         double trueRMS = sqrt(widths[igain]*widths[igain]-1./12.);
+         ped = RandGauss::shoot(ped, trueRMS);
+         signal = ped + caloSamples[i] / LSB[igain];
        }
-       //std::cout << "DetId " << detId.rawId() << " gain " << igain << " " << caloSamples[i] << " " << pedestals[igain] << " " << widths[igain] << " " << LSB[igain] << " result = " << ped << " " << tmpadc <<std::endl;
+       int tmpadc = (signal-(int)signal <= 0.5 ? (int)signal : (int)signal + 1);
+       LogDebug("EcalCoder") << "DetId " << detId.rawId() << " gain " << igain << " caloSample " 
+                             << caloSamples[i] << " pededstal " << pedestals[igain] 
+                             << " noise " << widths[igain] << " conversion factor " << LSB[igain] 
+                             << " result (ped,tmpadc)= " << ped << " " << tmpadc;
          
        if(tmpadc <= MAXADC ) {
          adc = tmpadc;
@@ -128,7 +136,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
        }
      }
      
-     if (igain == NGAINS - 1) 
+     if (igain == 1) 
        {
          wait = 0 ;
          gainId = igain ;
@@ -143,6 +151,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
            }
        }
 
+     LogDebug("EcalCoder") << " Writing out frame " << i << " ADC = " << adc << " gainId = " << gainId; 
      results.push_back(EcalMGPASample(adc, gainId));
   }
   return results;
@@ -152,8 +161,8 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
 {
   double Emax = fullScaleEnergy(id); 
   int gainNumber  = sample.gainId();
-  assert( gainNumber >=0 && gainNumber <=2);
-  double gains[NGAINS];
+  assert( gainNumber >=1 && gainNumber <=3);
+  double gains[NGAINS+1];
   findGains(id, gains);
   double LSB = Emax/(MAXADC*gains[gainNumber]) ;
   double pedestal = 0.;
@@ -170,28 +179,31 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
     = thePedestals->m_pedestals.find(detId.rawId());
   // should I care if it doesn't get found?
   if(mapItr == thePedestals->m_pedestals.end()) {
-    edm::LogError("SetupInfo") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
+    edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
   } else {
     EcalPedestals::Item item = mapItr->second;
 
-      switch(gainId) {
+    switch(gainId) {
     case 0:
-      ped = item.mean_x1;
-      width = item.rms_x1;
-      break;
+      ped = 0.;
+      width = 0.;
     case 1:
-      ped = item.mean_x6;
-      width = item.rms_x6;
-      break;
-    case 2:
       ped = item.mean_x12;
       width = item.rms_x12;
       break;
+    case 2:
+      ped = item.mean_x6;
+      width = item.rms_x6;
+      break;
+    case 3:
+      ped = item.mean_x1;
+      width = item.rms_x1;
+      break;
     default:
-      edm::LogError("SetupInfo") << "Bad Pedestal " << gainId;
+      edm::LogError("EcalCoder") << "Bad Pedestal " << gainId;
       break;
     }
-    //LogDebug("SetupInfo") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped << " rms = " << width;
+    LogDebug("EcalCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped << " rms = " << width;
   }
 }
 
@@ -201,11 +213,12 @@ void EcalCoder::findGains(const DetId & detId, double Gains[]) const
   EcalMGPAGainRatio mgpa;
   if( grit!=theGainRatios->getMap().end() ){
     mgpa = grit->second;
-    Gains[0] = 1.;
-    Gains[1] = mgpa.gain6Over1() ;
-    Gains[2] = Gains[1]*(mgpa.gain12Over6()) ;
-    //LogDebug("SetupInfo") << "Gains for " << detId.rawId() << "\n" << " 0 = " << Gains[0] << "\n" << " 1 = " << Gains[1] << "\n" << " 2 = " << Gains[2];
+    Gains[0] = 0.;
+    Gains[3] = 1.;
+    Gains[2] = mgpa.gain6Over1() ;
+    Gains[1] = Gains[2]*(mgpa.gain12Over6()) ;
+    LogDebug("EcalCoder") << "Gains for " << detId.rawId() << "\n" << " 1 = " << Gains[1] << "\n" << " 2 = " << Gains[2] << "\n" << " 3 = " << Gains[3];
   } else {
-    edm::LogError("SetupInfo") << "Could not find gain ratios for " << detId.rawId() << " among the " << theGainRatios->getMap().size();
+    edm::LogError("EcalCoder") << "Could not find gain ratios for " << detId.rawId() << " among the " << theGainRatios->getMap().size();
   }
 }

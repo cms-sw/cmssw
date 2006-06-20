@@ -79,7 +79,7 @@ class EcalCoder
   void findPedestal(const DetId & detId, int gainId, 
                     double & pedestal, double & width) const;
 
-  double theGains[NGAINS];
+  double theGains[NGAINS+1];
    
   void findGains(const DetId & detId, double theGains[] ) const;
    
