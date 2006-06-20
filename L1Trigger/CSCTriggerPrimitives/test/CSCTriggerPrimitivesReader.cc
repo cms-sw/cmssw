@@ -7,7 +7,7 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2005/06/07 10:52:28 $
+//   $Date: 2006/06/08 16:02:21 $
 //   $Revision: 1.1 $
 //
 //   Modifications:
@@ -106,9 +106,18 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   edm::Handle<CSCALCTDigiCollection> alcts;
   edm::Handle<CSCCLCTDigiCollection> clcts;
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
-  ev.getByLabel(lctProducer_, alcts);
-  ev.getByLabel(lctProducer_, clcts);
-  ev.getByLabel(lctProducer_,  lcts);
+  if (lctProducer_ == "cscunpacker") {
+    // Data
+    ev.getByLabel(lctProducer_, "MuonCSCALCTDigi", alcts);
+    ev.getByLabel(lctProducer_, "MuonCSCCLCTDigi", clcts);
+    ev.getByLabel(lctProducer_, "MuonCSCCorrelatedLCTDigi", lcts);
+  }
+  else {
+    // Emulator
+    ev.getByLabel(lctProducer_, alcts);
+    ev.getByLabel(lctProducer_, clcts);
+    ev.getByLabel(lctProducer_,  lcts);
+  }
 
   // Fill histograms.
   fillALCTHistos(alcts.product());
@@ -123,6 +132,7 @@ void CSCTriggerPrimitivesReader::endJob() {
   if (bookedALCTHistos) drawALCTHistos();
   if (bookedCLCTHistos) drawCLCTHistos();
   if (bookedLCTHistos)  drawLCTHistos();
+  //drawHistosForTalks();
 
   //theFile->cd();
   //theFile->Write();
@@ -185,14 +195,16 @@ void CSCTriggerPrimitivesReader::bookALCTHistos() {
 
 void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   hClctPerEvent  = new TH1F("", "CLCTs per event",    11, -0.5, 10.5);
-  hClctPerCSC    = new TH1F("", "CLCTs per CSC type", 10, -0.5,   9.5);
+  hClctPerCSC    = new TH1F("", "CLCTs per CSC type", 10, -0.5,  9.5);
   hClctValid     = new TH1F("", "CLCT validity",       3, -0.5,  2.5);
-  hClctQuality   = new TH1F("", "CLCT quality",        5, -0.5,  4.5);
+  hClctQuality   = new TH1F("", "CLCT layers hit",     8, -0.5,  7.5);
   hClctStripType = new TH1F("", "CLCT strip type",     3, -0.5,  2.5);
   hClctSign      = new TH1F("", "CLCT sign (L/R)",     3, -0.5,  2.5);
+  hClctCFEB      = new TH1F("", "CLCT cfeb #",         6, -0.5,  5.5);
   hClctBXN       = new TH1F("", "CLCT bx",            20, -0.5, 19.5);
 
   hClctKeyStrip[0] = new TH1F("","CLCT keystrip, distrips",   40, -0.5,  39.5);
+  //hClctKeyStrip[0] = new TH1F("","CLCT keystrip, distrips",  160, -0.5, 159.5);
   hClctKeyStrip[1] = new TH1F("","CLCT keystrip, halfstrips",160, -0.5, 159.5);
   hClctPattern[0]  = new TH1F("","CLCT pattern, distrips",    10, -0.5,   9.5);
   hClctPattern[1]  = new TH1F("","CLCT pattern, halfstrips",  10, -0.5,   9.5);
@@ -213,13 +225,14 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
 void CSCTriggerPrimitivesReader::bookLCTHistos() {
   hLctPerEvent  = new TH1F("", "LCTs per event",    11, -0.5, 10.5);
   hLctPerCSC    = new TH1F("", "LCTs per CSC type", 10, -0.5,  9.5);
+  hCorrLctPerCSC= new TH1F("", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
   hLctEndcap    = new TH1F("", "Endcap",             4, -0.5,  3.5);
   hLctStation   = new TH1F("", "Station",            6, -0.5,  5.5);
   hLctSector    = new TH1F("", "Sector",             8, -0.5,  7.5);
   hLctRing      = new TH1F("", "Ring",               5, -0.5,  4.5);
 
   hLctValid     = new TH1F("", "LCT validity",        3, -0.5,   2.5);
-  hLctQuality   = new TH1F("", "LCT quality",        15, -0.5,  16.5);
+  hLctQuality   = new TH1F("", "LCT quality",        17, -0.5,  16.5);
   hLctKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
   hLctKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
   hLctStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
@@ -261,16 +274,18 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
 	hAlctPerCSC->Fill(getCSCType(id));
 
         nValidALCTs++;
+
+	if (debug) 
+	  cout << (*digiIt) << " found in endcap " <<  id.endcap()
+	       << " station " << id.station()
+	       << " sector " << id.triggerSector()
+	       << " ring " << id.ring() << " chamber " << id.chamber()
+	       << " (trig id. " << id.triggerCscId() << ")" << endl;
       }
-      if (debug) 
-	cout << (*digiIt) << " found in endcap " <<  id.endcap()
-	     << " station " << id.station() << " sector " << id.triggerSector()
-	     << " ring = " << id.ring() << " chamber " << id.chamber()
-	     << " (trig id. " << id.triggerCscId() << ")" << endl;
     }
   }
   hAlctPerEvent->Fill(nValidALCTs);
-  if (debug) cout << nValidALCTs << " ALCTs found in this event" << endl;
+  if (debug) cout << nValidALCTs << " valid ALCTs found in this event" << endl;
   numALCT += nValidALCTs;
 }
 
@@ -290,31 +305,35 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
       hClctValid->Fill(clct_valid);
       if (clct_valid) {
 	int striptype = (*digiIt).getStripType();
-        //if (stripType == 0) clctKeyStrip[ilct] /= 4; 
+	int keystrip  = (*digiIt).getKeyStrip(); // halfstrip #
+        if (striptype == 0) keystrip /= 4;       // distrip # for distrip ptns
         hClctQuality->Fill((*digiIt).getQuality());
         hClctStripType->Fill(striptype);
         hClctSign->Fill((*digiIt).getBend());
+        hClctCFEB->Fill((*digiIt).getCFEB());
         hClctBXN->Fill((*digiIt).getBX());
-        hClctKeyStrip[striptype]->Fill((*digiIt).getKeyStrip());
+        hClctKeyStrip[striptype]->Fill(keystrip);
         hClctPattern[striptype]->Fill((*digiIt).getPattern());
 
 	int csctype = getCSCType(id);
 	hClctPerCSC->Fill(csctype);
         hClctPatternCsc[csctype][striptype]->Fill(ptype[(*digiIt).getPattern()]);
 	if (striptype == 0) // distrips
-	  hClctKeyStripCsc[csctype]->Fill((*digiIt).getKeyStrip());
+	  hClctKeyStripCsc[csctype]->Fill(keystrip);
 
         nValidCLCTs++;
+
+	if (debug) 
+	  cout << (*digiIt) << " found in endcap " <<  id.endcap()
+	       << " station " << id.station()
+	       << " sector " << id.triggerSector()
+	       << " ring " << id.ring() << " chamber " << id.chamber()
+	       << " (trig id. " << id.triggerCscId() << ")" << endl;
       }
-      if (debug) 
-	cout << (*digiIt) << " found in endcap " <<  id.endcap()
-	     << " station " << id.station() << " sector " << id.triggerSector()
-	     << " ring = " << id.ring() << " chamber " << id.chamber()
-	     << " (trig id. " << id.triggerCscId() << ")" << endl;
     }
   }
   hClctPerEvent->Fill(nValidCLCTs);
-  if (debug) cout << nValidCLCTs << " CLCTs found in this event" << endl;
+  if (debug) cout << nValidCLCTs << " valid CLCTs found in this event" << endl;
   numCLCT += nValidCLCTs;
 }
 
@@ -339,27 +358,41 @@ void CSCTriggerPrimitivesReader::fillLCTHistos(const CSCCorrelatedLCTDigiCollect
 	hLctRing->Fill(id.ring());
 	hLctChamber[id.station()-1]->Fill(id.triggerCscId());
 
-        hLctQuality->Fill((*digiIt).getQuality());
-        hLctKeyGroup->Fill((*digiIt).getKeyWG());
-        hLctKeyStrip->Fill((*digiIt).getStrip());
-        hLctStripType->Fill((*digiIt).getStripType());
-        hLctPattern->Fill((*digiIt).getCLCTPattern());
-        hLctBend->Fill((*digiIt).getBend());
+	int quality = (*digiIt).getQuality();
+        hLctQuality->Fill(quality);
         hLctBXN->Fill((*digiIt).getBX());
 
-	hLctPerCSC->Fill(getCSCType(id));
+	bool alct_valid = (quality != 4 && quality != 5);
+	if (alct_valid) {
+	  hLctKeyGroup->Fill((*digiIt).getKeyWG());
+	}
+
+	bool clct_valid = (quality != 1 && quality != 3);
+	if (clct_valid) {
+	  hLctKeyStrip->Fill((*digiIt).getStrip());
+	  hLctStripType->Fill((*digiIt).getStripType());
+	  hLctPattern->Fill((*digiIt).getCLCTPattern());
+	  hLctBend->Fill((*digiIt).getBend());
+	}
+
+	int csctype = getCSCType(id);
+	hLctPerCSC->Fill(csctype);
+	// Truly correlated LCTs; for DAQ
+	if (alct_valid && clct_valid) hCorrLctPerCSC->Fill(csctype); 
 
         nValidLCTs++;
+
+	if (debug) 
+	  cout << (*digiIt) << " found in endcap " <<  id.endcap()
+	       << " station " << id.station()
+	       << " sector " << id.triggerSector()
+	       << " ring " << id.ring() << " chamber " << id.chamber()
+	       << " (trig id. " << id.triggerCscId() << ")" << endl;
       }
-      if (debug) 
-	cout << (*digiIt) << " found in endcap " <<  id.endcap()
-	     << " station " << id.station() << " sector " << id.triggerSector()
-	     << " ring = " << id.ring() << " chamber " << id.chamber()
-	     << " (trig id. " << id.triggerCscId() << ")" << endl;
     }
   }
   hLctPerEvent->Fill(nValidLCTs);
-  if (debug) cout << nValidLCTs << " LCTs found in this event" << endl;
+  if (debug) cout << nValidLCTs << " valid LCTs found in this event" << endl;
   numLCT += nValidLCTs;
 }
 
@@ -457,12 +490,13 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   pad[page]->cd(2);  hClctQuality->Draw();
   pad[page]->cd(3);  hClctSign->Draw();
   TH1F* hClctPatternTot = (TH1F*)hClctPattern[0]->Clone();
-  hClctPatternTot->SetTitle("CLCT pattern");
+  hClctPatternTot->SetTitle("CLCT pattern #");
   hClctPatternTot->Add(hClctPattern[0], hClctPattern[1], 1., 1.);
   pad[page]->cd(4);  hClctPatternTot->Draw();
   hClctPattern[0]->SetLineStyle(2);  hClctPattern[0]->Draw("same");
   hClctPattern[1]->SetLineStyle(3);  hClctPattern[1]->Draw("same");
-  pad[page]->cd(5);  hClctBXN->Draw();
+  pad[page]->cd(5);  hClctCFEB->Draw();
+  pad[page]->cd(6);  hClctBXN->Draw();
   page++;  c1->Update();
 
   ps->NewPage();
@@ -551,13 +585,15 @@ void CSCTriggerPrimitivesReader::drawLCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
-  pad[page]->Divide(1,2);
+  pad[page]->Divide(1,3);
   pad[page]->cd(1);  hLctPerEvent->Draw();
   for (int i = 0; i < CSC_TYPES; i++) {
     hLctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
+    hCorrLctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
   pad[page]->cd(2);  hLctPerCSC->Draw();
+  pad[page]->cd(3);  hCorrLctPerCSC->Draw();
   page++;  c1->Update();
 
   ps->NewPage();
@@ -592,6 +628,43 @@ void CSCTriggerPrimitivesReader::drawLCTHistos() {
   pad[page]->cd(6);  hLctPattern->Draw();
   pad[page]->cd(7);  hLctBend->Draw();
   pad[page]->cd(8);  hLctBXN->Draw();
+  page++;  c1->Update();
+
+  ps->Close();
+}
+
+void CSCTriggerPrimitivesReader::drawHistosForTalks() {
+  TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
+  TPostScript *ps = new TPostScript("clcts.eps", 113);
+
+  TPad *pad[MAXPAGES];
+  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  }
+
+  Int_t page = 1;
+  TPaveLabel *title;
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT quantities");
+  title->SetFillColor(10);  title->Draw();
+  pad[page]->Draw();
+  pad[page]->Divide(2,3);
+  pad[page]->cd(1);  hClctQuality->Draw();
+  pad[page]->cd(2);  hClctSign->Draw();
+  TH1F* hClctPatternTot = (TH1F*)hClctPattern[0]->Clone();
+  hClctPatternTot->SetTitle("CLCT pattern #");
+  hClctPatternTot->Add(hClctPattern[0], hClctPattern[1], 1., 1.);
+  pad[page]->cd(3);  hClctPatternTot->Draw();
+  hClctPattern[0]->SetLineStyle(2);  hClctPattern[0]->Draw("same");
+  hClctPattern[1]->SetLineStyle(3);  hClctPattern[1]->Draw("same");
+  pad[page]->cd(4);  hClctCFEB->Draw();
+  pad[page]->cd(5);  hClctStripType->Draw();
+  TH1F* hClctKeyStripTot = (TH1F*)hClctKeyStrip[0]->Clone();
+  hClctKeyStripTot->SetTitle("CLCT key strip #");
+  hClctKeyStripTot->Add(hClctKeyStrip[0], hClctKeyStrip[1], 1., 1.);
+  pad[page]->cd(6);  hClctKeyStripTot->Draw();
   page++;  c1->Update();
 
   ps->Close();

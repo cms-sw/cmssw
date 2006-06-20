@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/06/07 10:52:28 $
+ * $Date: 2006/06/08 16:02:21 $
  * $Revision: 1.1 $
  *
  */
@@ -54,7 +54,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // TFile *theFile;
 
   enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
-  enum {MAXPAGES = 20};     // max. number of pages in postscript file
+  enum {MAXPAGES = 20};     // max. number of pages in postscript files
 
   // Various useful constants
   static const std::string csc_type[CSC_TYPES];
@@ -81,6 +81,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void drawALCTHistos();
   void drawCLCTHistos();
   void drawLCTHistos();
+  void drawHistosForTalks();
 
   int getCSCType(const CSCDetId& id);
 
@@ -89,10 +90,11 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
   TH1F *hAlctBXN;
   TH1F *hClctPerEvent, *hClctPerCSC;
-  TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctBXN;
+  TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctCFEB;
+  TH1F *hClctBXN;
   TH1F *hClctKeyStrip[2], *hClctPattern[2];
   TH1F *hClctPatternCsc[CSC_TYPES][2], *hClctKeyStripCsc[CSC_TYPES];
-  TH1F *hLctPerEvent, *hLctPerCSC;
+  TH1F *hLctPerEvent, *hLctPerCSC, *hCorrLctPerCSC;
   TH1F *hLctEndcap, *hLctStation, *hLctSector, *hLctRing;
   TH1F *hLctChamber[MAX_STATIONS];
   TH1F *hLctValid, *hLctQuality, *hLctKeyGroup, *hLctKeyStrip, *hLctStripType;
