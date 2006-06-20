@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/06 15:51:21 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/14 09:33:41 $
+//   $Revision: 1.3 $
 //
 //   Modifications: 
 //
@@ -330,7 +330,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
       // Get Bx of this Digi and check that it is within the bounds
       int thisDigiBx = thisDigi.getTimeBin() - 9; // temp hack for MC
-      //int thisDigiBx = thisDigi.getTimeBin();
+      //int thisDigiBx = thisDigi.getTimeBin(); // for data
       //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
 #ifndef TB2004
       if (thisDigiBx >= CSCConstants::MIN_BUNCH &&
@@ -694,7 +694,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
   //const int ptrn_thrsh[2] = {3,3}; //previous -- default LHC? value
   int highest_quality = 0;
 
-  int keystrip_data[CSCConstants::NUM_HALF_STRIPS][6];
+  int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7];
   int final_lcts[max_lct_num];
 
   std::vector <CSCCLCTDigi> lctList;
@@ -730,30 +730,28 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
     }
 
     for (j = 0; j < max_lct_num; j++){
-      // only go into routine if quality is greater than 3.  So we only take
-      // LCTs that have 3 or more layers hit.  Then subtract 3 to make quality
-      // 0 equal to having 3 hits. We do this transformation because of the
-      // structure of the sort routine in L1MuCSCCathodeLCT.cc.
-      // -- Mohr: Change this to implement the variable valid pattern threshold
-      //          used at the test beam.  3 --> ptrn_thrsh
+      // Only report LCTs if the number of layers hit is greater than
+      // the (variable) valid pattern threshold ptrn_thrsh.
       int keystrip = final_lcts[j];
       if (keystrip >= 0 &&
 	  keystrip_data[keystrip][CLCT_QUALITY] > ptrn_thrsh[stripType]) {
-	keystrip_data[keystrip][CLCT_QUALITY]-=3;
      	// assign the stripType here. 1 = halfstrip, 0 = distrip.
      	keystrip_data[keystrip][CLCT_STRIP_TYPE] = stripType;
 	// Now make the LCT words for the 2 highest, and store them in a list
-	// IMPROVE LATER.
-	int theCFEB = 0;
-	int theStrip = (keystrip_data[keystrip][CLCT_STRIP_TYPE] ?
-			keystrip_data[keystrip][CLCT_STRIP] :
-			4*keystrip_data[keystrip][CLCT_STRIP]);
+	int theHalfStrip = (keystrip_data[keystrip][CLCT_STRIP_TYPE] ?
+			    keystrip_data[keystrip][CLCT_STRIP] :
+			    4*keystrip_data[keystrip][CLCT_STRIP]);
+	keystrip_data[keystrip][CLCT_CFEB] = theHalfStrip/32;
+	int halfstrip_in_cfeb =
+	  theHalfStrip - 32*keystrip_data[keystrip][CLCT_CFEB];
 
 	CSCCLCTDigi thisLCT(1, keystrip_data[keystrip][CLCT_QUALITY],
 			    keystrip_data[keystrip][CLCT_PATTERN],
 			    keystrip_data[keystrip][CLCT_STRIP_TYPE],
-			    keystrip_data[keystrip][CLCT_BEND], theStrip,
-			    theCFEB, keystrip_data[keystrip][CLCT_BX]);
+			    keystrip_data[keystrip][CLCT_BEND],
+			    halfstrip_in_cfeb,
+			    keystrip_data[keystrip][CLCT_CFEB],
+			    keystrip_data[keystrip][CLCT_BX]);
 	if (infoV > 2) {
 	  char stripType =
 	    (keystrip_data[keystrip][CLCT_STRIP_TYPE] == 0) ? 'D' : 'H';
@@ -863,7 +861,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   return false;
 }
 
-void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], int keystrip_data[CSCConstants::NUM_HALF_STRIPS][6], int nStrips, int first_bx, int& best_strip, int stripType){
+void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7], int nStrips, int first_bx, int& best_strip, int stripType){
   int lct_pattern[NUM_PATTERN_STRIPS];
   int key_strip, this_layer, this_strip;
   int quality, best_quality;
@@ -872,7 +870,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_L
   bool nullPattern;
 
   for (key_strip = 0; key_strip < nStrips; key_strip++)
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 7; i++)
       keystrip_data[key_strip][i] = 0;
 
   // Now we need to look at all the keystrips and take the best pattern
@@ -1021,13 +1019,15 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
   int h_nhits[NUM_CFEBS];     // number of hits in envelope for each key
   int d_keyStrip[NUM_CFEBS];  // one key per CFEB
   int d_nhits[NUM_CFEBS];     // number of hits in envelope for each key
-  int keystrip_data[2][6];    // 2 possible LCTs per CSC x 6 LCT quantities
+  int keystrip_data[2][7];    // 2 possible LCTs per CSC x 7 LCT quantities
   unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
   unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
   bool pre_trig[2] = {false, false};
 
-  pre_trig[0] = preTrigger(halfstrip, h_pulse, CSCConstants::NUM_HALF_STRIPS, _bx[0]);
-  pre_trig[1] = preTrigger(  distrip, d_pulse,   CSCConstants::NUM_DI_STRIPS, _bx[1]);
+  pre_trig[0] =
+    preTrigger(halfstrip, h_pulse, CSCConstants::NUM_HALF_STRIPS, _bx[0]);
+  pre_trig[1] =
+    preTrigger(  distrip, d_pulse,   CSCConstants::NUM_DI_STRIPS, _bx[1]);
 
   if (pre_trig[0] || pre_trig[1]) {
     first_bx = (_bx[0] < _bx[1]) ? _bx[0] : _bx[1];
@@ -1037,8 +1037,10 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	<< "\n .... waiting drift delay ..... ";
     }
     int latch_bx = first_bx + drift_delay;
-    latchLCTs(h_pulse, h_keyStrip, h_nhits, CSCConstants::NUM_HALF_STRIPS, latch_bx);
-    latchLCTs(d_pulse, d_keyStrip, d_nhits,   CSCConstants::NUM_DI_STRIPS, latch_bx);
+    latchLCTs(h_pulse, h_keyStrip, h_nhits, CSCConstants::NUM_HALF_STRIPS,
+	      latch_bx);
+    latchLCTs(d_pulse, d_keyStrip, d_nhits,   CSCConstants::NUM_DI_STRIPS,
+	      latch_bx);
 
     if (infoV > 1) {
       LogDebug("CSCCathodeLCTProcessor")
@@ -1066,13 +1068,20 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	  << "found lcts: ilct " << ilct
 	  << "  data " << keystrip_data[ilct][CLCT_STRIP];
       if (keystrip_data[ilct][CLCT_STRIP] != -1) {
-	// IMPROVE LATER.
-	int cfeb = 0;
+	int halfstrip_in_cfeb = 0;
+	if (keystrip_data[ilct][CLCT_STRIP_TYPE] == 0)
+	  halfstrip_in_cfeb = 4*keystrip_data[ilct][CLCT_STRIP] -
+                             32*keystrip_data[ilct][CLCT_CFEB];
+	else
+	  halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
+	                     32*keystrip_data[ilct][CLCT_CFEB];
+
 	CSCCLCTDigi thisLCT(1, keystrip_data[ilct][CLCT_QUALITY],
 			    keystrip_data[ilct][CLCT_PATTERN],
 			    keystrip_data[ilct][CLCT_STRIP_TYPE],
 			    keystrip_data[ilct][CLCT_BEND],
-			    keystrip_data[ilct][CLCT_STRIP], cfeb,
+			    halfstrip_in_cfeb,
+			    keystrip_data[ilct][CLCT_CFEB],
 			    keystrip_data[ilct][CLCT_BX]);
 	lctList.push_back(thisLCT);
       }
@@ -1242,7 +1251,7 @@ void CSCCathodeLCTProcessor::latchLCTs(
 void CSCCathodeLCTProcessor::priorityEncode(
         const int h_keyStrip[NUM_CFEBS], const int h_nhits[NUM_CFEBS],
 	const int d_keyStrip[NUM_CFEBS], const int d_nhits[NUM_CFEBS],
-	int keystrip_data[2][6]) {
+	int keystrip_data[2][7]) {
 
   //const int ptrig_thrsh[2] = {4, 4}; //distrip,halfstrip pattern threshold
   const int ptrig_thrsh[2] = {3, 3}; //distrip,halfstrip pattern threshold
@@ -1253,7 +1262,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
 
   // initialize arrays
   for (int ilct = 0; ilct < nlcts; ilct++) {
-    for (int j = 0; j < 6; j++) keystrip_data[ilct][j] = -1;
+    for (int j = 0; j < 7; j++) keystrip_data[ilct][j] = -1;
     ihits[ilct] = 0;
     cfebs[ilct] = 0;
   }
@@ -1400,6 +1409,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
   int jlct = 0;
   for (int ilct = 0; ilct < nlcts; ilct++) {
     if (key_strip[cfebs[ilct]] != -1) {
+      keystrip_data[jlct][CLCT_CFEB]       = cfebs[ilct];
       keystrip_data[jlct][CLCT_STRIP]      = key_strip[cfebs[ilct]];
       keystrip_data[jlct][CLCT_STRIP_TYPE] = strip_type[cfebs[ilct]];
       if (infoV > 1)
@@ -1415,7 +1425,7 @@ void CSCCathodeLCTProcessor::priorityEncode(
 void CSCCathodeLCTProcessor::getKeyStripData(
 		const unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		const unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		int keystrip_data[2][6],
+		int keystrip_data[2][7],
 		const int first_bx, const int drift_delay) {
 
   //const int ptrn_thrsh = 4;            // valid pattern threshold
@@ -1493,10 +1503,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(
 	keystrip_data[ilct][CLCT_BEND]       = bend;
 	keystrip_data[ilct][CLCT_BX]         = first_bx;
 	//keystrip_data[ilct][CLCT_STRIP_TYPE] = stripType;
-	if(quality > 2) //really no reason to reduce this data
-	  keystrip_data[ilct][CLCT_QUALITY]  = quality-3;
-	else
-	  keystrip_data[ilct][CLCT_QUALITY]  = 0;
+	keystrip_data[ilct][CLCT_QUALITY]    = quality;
 	best_quality = quality;
 	best_pattern = pattern_num;
       }
@@ -1784,48 +1791,42 @@ void CSCCathodeLCTProcessor::testDistripStagger() {
 }
 
 void CSCCathodeLCTProcessor::testLCTs() {
-// test to make sure what goes into an LCT is what comes out.
-  int data[6];
+  // test to make sure what goes into an LCT is what comes out.
   for (int ptn = 0; ptn < 8; ptn++) {
     for (int bend = 0; bend < 2; bend++) {
-      for (int key_strip = 0; key_strip < 159; key_strip++) {
-        for (int bx = 0; bx < 7; bx++) {
-	  for (int stripType = 0; stripType < 2; stripType++) {
-	    for (int quality = 0; quality < 4; quality++) {
-	      data[CLCT_PATTERN]    = ptn;
-	      data[CLCT_BEND]       = bend;
-	      data[CLCT_STRIP]      = key_strip;
-	      data[CLCT_BX]         = bx;
-	      data[CLCT_STRIP_TYPE] = stripType;
-	      data[CLCT_QUALITY]    = quality;
-	      // IMPROVE LATER.
-	      int cfeb = 0;
-	      CSCCLCTDigi thisLCT(1, data[CLCT_QUALITY],
-				  data[CLCT_PATTERN], data[CLCT_STRIP_TYPE],
-				  data[CLCT_BEND], data[CLCT_STRIP], cfeb,
-				  data[CLCT_BX]);
-	      if (ptn != thisLCT.getPattern()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "pattern mismatch: " << ptn << " "
-		  << thisLCT.getPattern();
-	      if (bend != thisLCT.getBend()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "bend mismatch: " << bend << " " << thisLCT.getBend();
-	      if (key_strip != thisLCT.getStrip()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "strip mismatch: " << key_strip << " "
-		  << thisLCT.getStrip();
-	      if (bx != thisLCT.getBX()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "bx mismatch: " << bx << " " << thisLCT.getBX();
-	      if (stripType != thisLCT.getStripType()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "Strip Type mismatch: " << stripType << " "
-		  << thisLCT.getStripType();
-	      if (quality != thisLCT.getQuality()) 
-		edm::LogWarning("CSCCathodeLCTProcessor")
-		  << "quality mismatch: " << quality << " "
-		  << thisLCT.getQuality();
+      for (int cfeb = 0; cfeb < 5; cfeb++) {
+	for (int key_strip = 0; key_strip < 32; key_strip++) {
+	  for (int bx = 0; bx < 7; bx++) {
+	    for (int stripType = 0; stripType < 2; stripType++) {
+	      for (int quality = 3; quality < 6; quality++) {
+		CSCCLCTDigi thisLCT(1, quality, ptn, stripType, bend,
+				    key_strip, cfeb, bx);
+		if (ptn != thisLCT.getPattern())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "pattern mismatch: " << ptn << " "
+		    << thisLCT.getPattern();
+		if (bend != thisLCT.getBend())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "bend mismatch: " << bend << " " << thisLCT.getBend();
+		if (cfeb != thisLCT.getCFEB()) 
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "cfeb mismatch: " << cfeb << " " << thisLCT.getCFEB();
+		if (key_strip != thisLCT.getKeyStrip())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "strip mismatch: " << key_strip << " "
+		    << thisLCT.getKeyStrip();
+		if (bx != thisLCT.getBX())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "bx mismatch: " << bx << " " << thisLCT.getBX();
+		if (stripType != thisLCT.getStripType())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "Strip Type mismatch: " << stripType << " "
+		    << thisLCT.getStripType();
+		if (quality != thisLCT.getQuality())
+		  edm::LogWarning("CSCCathodeLCTProcessor")
+		    << "quality mismatch: " << quality << " "
+		    << thisLCT.getQuality();
+	      }
 	    }
 	  }
 	}
@@ -1918,7 +1919,7 @@ void CSCCathodeLCTProcessor::testPatterns() {
 	  for (int strip = 9; strip < 12; strip++) {
 	    if (stripsHit[layer][strip] !=0) {
 	      if (results.size() > 0) {
-	        int thePatternStrip = strip - (results[0].getStrip() - 2) + 3*layer;
+	        int thePatternStrip = strip - (results[0].getKeyStrip() - 2) + 3*layer;
 		if (layer>=CSCConstants::KEY_LAYER) thePatternStrip -= 2;
 	        if (pattern[results[0].getPattern()][thePatternStrip] == layer)
 		{
