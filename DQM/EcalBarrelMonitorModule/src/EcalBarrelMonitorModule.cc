@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/18 15:59:37 $
- * $Revision: 1.96 $
+ * $Date: 2006/06/20 09:12:15 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -291,7 +291,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
   // pause the shipping of monitoring elements
-  if ( enableMonitorDaemon_ ) dbe_->lock();
+  dbe_->lock();
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -320,7 +320,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   }
 
   // resume the shipping of monitoring elements
-  if ( enableMonitorDaemon_ ) dbe_->unlock();
+  dbe_->unlock();
 
   Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
@@ -333,7 +333,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( enableEventDisplay_ ) {
 
     // pause the shipping of monitoring elements
-    if ( enableMonitorDaemon_ ) dbe_->lock();
+    dbe_->lock();
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -369,7 +369,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     }
 
     // resume the shipping of monitoring elements
-    if ( enableMonitorDaemon_ ) dbe_->unlock();
+    dbe_->unlock();
 
   }
 
