@@ -150,27 +150,6 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   // Set sum of contents and squares
   histo_set.vSumOfContents_[bin] += value;
   histo_set.vSumOfSquares_[bin] += value*value*1.;
-
-  
-//   uint32_t remaining = 0x7FFFFFFF - histo_set.vSumOfSquaresLSB_[bin];
-//   uint32_t squared_value = value * value;
-  
-//   // Set contents
-//   histo_set.vSumOfContents_[bin] += value;
-  
-//   // Set squared contents (and overflow if necessary)
-//   if ( remaining <= squared_value ) { 
-//     histo_set.vSumOfSquaresMSB_[bin] += 1;
-//     histo_set.vSumOfSquaresLSB_[bin] += (squared_value-remaining);
-//   } else { 
-//     histo_set.vSumOfSquaresLSB_[bin] += squared_value;
-//   }
-  
-  //   cout << bin << " " 
-  //        << histo_set.vSumOfSquaresMSB_[bin] << " " 
-  // 	 << histo_set.vSumOfSquaresLSB_[bin] << " " 
-  // 	 << histo_set.vSumOfContents_[bin] << " " 
-  // 	 << histo_set.vNumOfEntries_[bin] << endl;
   
 }
 
@@ -190,6 +169,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   
   // Extract TProfile object
   TProfile* prof = ExtractTObject<TProfile>()( histo_set.histo_ );
+  // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
   
   // Update TProfile histo
   for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
