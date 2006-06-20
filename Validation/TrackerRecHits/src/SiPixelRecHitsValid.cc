@@ -285,14 +285,14 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit 
    float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
  
    if (tmp2<tmp1) { // flipped
-	for (int i=0; i<3; i++) {
+	for (unsigned int i=0; i<3; i++) {
 	   if (PXBDetId::PXBDetId(detId).layer() == i+1) {
 		recHitXResFlippedLadderLayers[i]->Fill(res_x);
 	   }
 	}
    } 
    else {
-	for (int i=0; i<3; i++) {
+	for (unsigned int i=0; i<3; i++) {
 	   if (PXBDetId::PXBDetId(detId).layer() == i+1) {
 		recHitXResNonFlippedLadderLayers[i]->Fill(res_x);
 	   }
@@ -303,7 +303,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit 
    edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill module dependent info
-   for (int i=0; i<8; i++) {
+   for (unsigned int i=0; i<8; i++) {
       if (PXBDetId::PXBDetId(detId).module() == i+1) {
 	int sizeY = (*clust).sizeY();
 	clustYSizeModule[i]->Fill(sizeY);
@@ -372,7 +372,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
    edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill plaquette dependent info
-   for (int i=0; i<7; i++) {
+   for (unsigned int i=0; i<7; i++) {
      if (PXFDetId::PXFDetId(detId).module() == i+1) {
 	if (PXFDetId::PXFDetId(detId).disk() == 1) {
 
