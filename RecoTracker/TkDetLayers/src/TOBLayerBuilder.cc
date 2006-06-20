@@ -30,25 +30,65 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
   //LogDebug("TkDetLayers") << "positiveZrods[1]->positionBounds().perp(): " 
   //			  << positiveZrods[1]->positionBounds().perp() ;
 
-
-  double meanR = (positiveZrods[0]->positionBounds().perp()+positiveZrods[1]->positionBounds().perp())/2;
-
-  for(unsigned int index=0; index!=positiveZrods.size(); index++){
-    if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
-      edm::LogError("TkDetLayers") << "ERROR:rods don't have the same phi. exit!";
-      break;      
+  double positiveMeanR = 0;
+  if(positiveZrods.size()>0){
+    for(unsigned int index=0; index!=positiveZrods.size(); index++){
+      positiveMeanR += positiveZrods[index]->positionBounds().perp();
     }
-    
-    if(positiveZrods[index]->positionBounds().perp() < meanR)
-      theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						   positiveZrods[index],
-						   theGeomDetGeometry)    );       
-    if(positiveZrods[index]->positionBounds().perp() > meanR)
-      theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						   positiveZrods[index],
-						   theGeomDetGeometry)    );       
+    positiveMeanR = positiveMeanR/positiveZrods.size();
   }
 
+
+  double negativeMeanR = 0;
+  if(negativeZrods.size()>0){
+    for(unsigned int index=0; index!=negativeZrods.size(); index++){
+      negativeMeanR += negativeZrods[index]->positionBounds().perp();
+    }
+    negativeMeanR = negativeMeanR/negativeZrods.size();
+  }
+
+  if(positiveZrods.size()>0 && negativeZrods.size()>0){
+    for(unsigned int index=0; index!=positiveZrods.size(); index++){
+      if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
+	edm::LogError("TkDetLayers") << "ERROR:rods don't have the same phi. exit!";
+	break;      
+      }
+
+      if(positiveZrods[index]->positionBounds().perp() < positiveMeanR)
+	theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						     positiveZrods[index],
+						     theGeomDetGeometry)    );       
+      if(positiveZrods[index]->positionBounds().perp() > positiveMeanR)
+	theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						     positiveZrods[index],
+						     theGeomDetGeometry)    );
+    }
+  } else{
+    if(positiveZrods.size()>0){
+      for(unsigned int index=0; index!=positiveZrods.size(); index++){
+	if(positiveZrods[index]->positionBounds().perp() < positiveMeanR)
+	  theInnerRods.push_back(myTOBRodBuilder.build(0,
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+	if(positiveZrods[index]->positionBounds().perp() > positiveMeanR)
+	  theOuterRods.push_back(myTOBRodBuilder.build(0,
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+      }
+    }
+    if(negativeZrods.size()>0){
+      for(unsigned int index=0; index!=negativeZrods.size(); index++){
+	if(negativeZrods[index]->positionBounds().perp() < negativeMeanR)
+	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       0,
+						       theGeomDetGeometry)    );       
+	if(negativeZrods[index]->positionBounds().perp() > negativeMeanR)
+	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       0,
+						       theGeomDetGeometry)    );
+      }
+    }
+  }
   
   //LogDebug("TkDetLayers") << "theInnerRods.size(): " << theInnerRods.size() ;
   //LogDebug("TkDetLayers") << "theOuterRods.size(): " << theOuterRods.size() ;

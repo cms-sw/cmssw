@@ -8,8 +8,10 @@ TOBRod* TOBRodBuilder::build(const GeometricDet* negTOBRod,
 			     const GeometricDet* posTOBRod,
 			     const TrackerGeometry* theGeomDetGeometry)
 {  
-  vector<const GeometricDet*>  theNegativeGeometricDets = negTOBRod->components();
-  vector<const GeometricDet*>  thePositiveGeometricDets = posTOBRod->components();
+  vector<const GeometricDet*>  theNegativeGeometricDets;
+  if (negTOBRod != 0) theNegativeGeometricDets = negTOBRod->components();
+  vector<const GeometricDet*>  thePositiveGeometricDets;
+  if (posTOBRod != 0) thePositiveGeometricDets = posTOBRod->components();
 
   vector<const GeometricDet*> allGeometricDets = theNegativeGeometricDets;
   allGeometricDets.insert(allGeometricDets.end(),thePositiveGeometricDets.begin(),
