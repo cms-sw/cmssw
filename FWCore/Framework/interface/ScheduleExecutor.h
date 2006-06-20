@@ -1,3 +1,5 @@
+#error THIS FILE IS OBSOLETE
+
 #ifndef Framework_ScheduleExecutor_h
 #define Framework_ScheduleExecutor_h
 
@@ -6,7 +8,7 @@
    Declaration of class ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
+   \version $Id: ScheduleExecutor.h,v 1.6 2005/09/08 11:02:53 chrjones Exp $
    \date 18 May 2005
 */
 

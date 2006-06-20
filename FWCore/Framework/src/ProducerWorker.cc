@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.20 2006/04/19 01:48:06 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.21 2006/04/20 22:33:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -11,6 +11,8 @@ $Id: ProducerWorker.cc,v 1.20 2006/04/19 01:48:06 wmtan Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/src/CPCSentry.h"
 
 namespace edm
 {
@@ -25,11 +27,13 @@ namespace edm
   ProducerWorker::~ProducerWorker() {
   }
 
-  bool ProducerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c) {
+  bool ProducerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
+				  CurrentProcessingContext const* cpc) {
+
     bool rc = false;
 
     Event e(ep,description());
-    producer_->produce(e, c);
+    producer_->doProduce(e, c, cpc);
     e.commit_();
     rc = true;
     return rc;

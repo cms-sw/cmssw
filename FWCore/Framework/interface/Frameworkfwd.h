@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.22 2006/04/28 17:01:17 paterno Exp $
+$Id: Frameworkfwd.h,v 1.23 2006/05/26 15:58:12 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,6 +16,7 @@ namespace edm {
   class BranchDescription;
   class BranchKey;
   class ConfigurableInputSource;
+  class CurrentProcessingContext;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;

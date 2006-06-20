@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.12 2006/02/17 22:09:53 wmtan Exp $
+$Id: OutputModule.cc,v 1.14 2006/04/19 20:13:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -14,6 +14,8 @@ $Id: OutputModule.cc,v 1.12 2006/02/17 22:09:53 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/src/CPCSentry.h"
 
 namespace
 {
@@ -40,7 +42,7 @@ namespace
 
 namespace edm {
   OutputModule::OutputModule(ParameterSet const& pset) : 
-    nextID_(), 
+    nextID_(),
     descVec_(),
     process_name_(Service<service::TriggerNamesService>()->getProcessName()),
     groupSelector_(pset),
@@ -48,7 +50,8 @@ namespace edm {
 		   getAllTriggerNames()),
     // use this temporarily - can only apply event selection to current
     // process name
-    selectResult_(eventSelector_.getProcessName())
+    selectResult_(eventSelector_.getProcessName()),
+    current_context_(0)
   {
   }
 
@@ -79,11 +82,12 @@ namespace edm {
   void OutputModule::endJob() { }
 
   void OutputModule::writeEvent(EventPrincipal const& ep,
-				ModuleDescription const& md)
+				ModuleDescription const& md,
+				CurrentProcessingContext const* c)
   {
+    detail::CPCSentry sentry(current_context_, c);
     FDEBUG(2) << "writeEvent called\n";
-    if(eventSelector_.wantAll() || wantEvent(ep,md))
-      write(ep);
+    if(eventSelector_.wantAll() || wantEvent(ep,md)) write(ep);
   }
 
   bool OutputModule::wantEvent(EventPrincipal const& ep,
@@ -103,6 +107,12 @@ namespace edm {
 	FDEBUG(2) << "Accept event " << ep.id() << " " << rc << "\n";
 	FDEBUG(2) << "Mask: " << *prod << "\n";
 	return rc;
+  }
+
+  CurrentProcessingContext const*
+  OutputModule::currentContext() const
+  {
+    return current_context_;
   }
 
   bool OutputModule::selected(BranchDescription const& desc) const

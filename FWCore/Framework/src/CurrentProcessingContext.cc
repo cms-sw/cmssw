@@ -12,6 +12,14 @@ namespace edm
     moduleDescription_(0),
     pathName_(0)
   { }
+
+  CurrentProcessingContext::CurrentProcessingContext(string const* name,
+						     int bitpos) :
+    pathInSchedule_(bitpos),
+    slotInPath_(0),
+    moduleDescription_(0),
+    pathName_(name)
+  { }
   
   string const*
   CurrentProcessingContext::moduleLabel() const
@@ -28,17 +36,12 @@ namespace edm
   }
 
   void
-  CurrentProcessingContext::activate(ModuleDescription const* mod,
-				     string const*       pathName,
-				     size_t              pathInSchedule,
-				     size_t              slotInPath)
+  CurrentProcessingContext::activate(size_t slotInPath, 
+				     ModuleDescription const* mod)
   {
     assert( mod );
-    assert( pathName );
-    pathInSchedule_ = pathInSchedule;
     slotInPath_     = slotInPath;
     moduleDescription_ = mod;
-    pathName_          = pathName;
   }
 
   void

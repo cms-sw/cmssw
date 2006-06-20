@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.15 2005/12/28 00:21:58 wmtan Exp $
+$Id: OutputWorker.h,v 1.16 2006/04/24 22:36:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -17,12 +17,10 @@ $Id: OutputWorker.h,v 1.15 2005/12/28 00:21:58 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm
 {
-  class ModuleDescription;
-  class OutputModule;
-  class WorkerParams;
 
   class OutputWorker : public Worker
   {
@@ -37,7 +35,8 @@ namespace edm
     static std::auto_ptr<OutputModule> makeOne(const ModuleDescription& md,
 					const WorkerParams& wp);
   private:
-    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c);
+    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
 
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;

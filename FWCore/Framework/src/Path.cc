@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,18 +38,24 @@ namespace edm
     RunStopwatch stopwatch(stopwatch_);
     ++timesRun_;
     state_ = edm::hlt::Ready;
+
     // nwrue =  numWorkersRunWithoutUnhandledException
     int nwrwue = 0;
-
     bool should_continue = true;
+    CurrentProcessingContext cpc(&name_, bitPosition());
 
+    Workers::size_type idx = 0;
+    // It seems likely that 'nwrwue' and 'idx' can never differ ---
+    // if so, we should remove one of them!.
     for ( Workers::iterator i = workers_.begin(), e = workers_.end();
 	  i != e && should_continue;
-	  ++i )
+	  ++i, ++idx )
       {
+	assert ( idx == nwrwue );
 	try
 	  {
-	    should_continue = i->runWorker(ep,es);
+	    cpc.activate(idx, i->getWorker()->descPtr());
+	    should_continue = i->runWorker(ep, es, &cpc);
 	  }
 	catch(cms::Exception& e)
 	  {
@@ -60,9 +67,8 @@ namespace edm
 	    recordUnknownException(nwrwue);
 	    throw;
 	  }
-        ++nwrwue;
+	++nwrwue;
       }
-
     updateCounters(should_continue);
     recordStatus(nwrwue);
   }

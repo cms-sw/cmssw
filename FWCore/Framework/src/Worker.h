@@ -6,20 +6,20 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.11 2006/04/19 19:48:48 chrjones Exp $
+$Id: Worker.h,v 1.12 2006/04/28 17:01:18 paterno Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
 be Ready.  The Ready state can only be reestablished by doing a reset().
 
-Pre/post module signals are posted onyl in the ready state.
+Pre/post module signals are posted only in the Ready state.
 
 Execution statistics are kept here.
 
 If a module has thrown an exception during execution, that exception
-will be rethrown if the worked is entered again and the state is not Ready.
+will be rethrown if the worker is entered again and the state is not Ready.
 In other words, execution results (status) are cached and reused until
-the worker in reset().
+the worker is reset().
 
 ----------------------------------------------------------------------*/
 
@@ -31,11 +31,9 @@ the worker in reset().
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
-  class ActionTable;
-  class EventPrincipal;
-  class EventSetup;
 
   class Worker
   {
@@ -45,7 +43,8 @@ namespace edm {
     Worker(const ModuleDescription& iMD, const WorkerParams& iWP);
     virtual ~Worker();
 
-    bool doWork(EventPrincipal&, EventSetup const& c) ;
+    bool doWork(EventPrincipal&, EventSetup const& c,
+		CurrentProcessingContext const* cpc) ;
     void beginJob(EventSetup const&) ;
     void endJob();
     void reset() { state_ = Ready; }
@@ -75,7 +74,8 @@ namespace edm {
 
   protected:
     virtual std::string workerType() const = 0;
-    virtual bool implDoWork(EventPrincipal&, EventSetup const& c) = 0;
+    virtual bool implDoWork(EventPrincipal&, EventSetup const& c, 
+			    CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob(EventSetup const&) = 0;
     virtual void implEndJob() = 0;
 

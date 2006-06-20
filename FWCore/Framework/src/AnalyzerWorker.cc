@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.10 2005/12/28 00:21:58 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.11 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -11,6 +11,9 @@ $Id: AnalyzerWorker.cc,v 1.10 2005/12/28 00:21:58 wmtan Exp $
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/src/CPCSentry.h"
+
 
 #include <iostream>
 
@@ -30,23 +33,24 @@ namespace edm
   {
   }
 
-  bool AnalyzerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c)
+  bool AnalyzerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
+				  CurrentProcessingContext const* cpc)
   {
     bool rc = false;
     Event e(ep,description());
-    analyzer_->analyze(e,c);
+    analyzer_->doAnalyze(e,c,cpc);
     rc = true;
     return rc;
   }
 
   void AnalyzerWorker::implBeginJob(EventSetup const& es) 
   {
-    analyzer_->beginJob(es);
+    analyzer_->doBeginJob(es);
   }
 
   void AnalyzerWorker::implEndJob() 
   {
-    analyzer_->endJob();
+    analyzer_->doEndJob();
   }
   
   std::string AnalyzerWorker::workerType() const {

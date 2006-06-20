@@ -6,24 +6,22 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.20 2006/03/06 01:20:02 chrjones Exp $
+$Id: OutputModule.h,v 1.21 2006/04/15 04:45:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/GroupSelector.h"
-#include "FWCore/Framework/interface/EventSelector.h"
+#include <vector>
+
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Provenance.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventSelector.h"
+#include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/Selector.h"
 
-#include <vector>
-
 namespace edm {
-  class ParameterSet;
-  class EventPrincipal;
-  class EventSetup;
-  class BranchDescription;
 
   class OutputModule {
   public:
@@ -34,14 +32,14 @@ namespace edm {
     virtual ~OutputModule();
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
-    void writeEvent(EventPrincipal const& e, ModuleDescription const&);
+    void writeEvent(EventPrincipal const& e, ModuleDescription const& d,
+		    CurrentProcessingContext const* c);
     bool selected(BranchDescription const& desc) const;
 
     unsigned long nextID() const;
     void selectProducts();
   private:
-    unsigned long nextID_;
-
+    unsigned long             nextID_;
     // TODO: Make this data member private, and give OutputModule an
     // interface (protected?) that supplies client code with the
     // needed functionality *without* giving away implementation
@@ -80,6 +78,13 @@ namespace edm {
     GroupSelector groupSelector_;
     EventSelector eventSelector_;
     ResultsSelector selectResult_;
+
+    // We do not own the pointed-to CurrentProcessingContext.
+    CurrentProcessingContext const* current_context_;
+
+    // The returned pointer will be null unless the this is currently
+    // executing its event loop function ('write').
+    CurrentProcessingContext const* currentContext() const;
   };
 }
 

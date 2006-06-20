@@ -1,19 +1,23 @@
 
 #include <iostream>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
+
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -33,6 +37,10 @@ TestMod::TestMod(ParameterSet const&)
 
 void TestMod::produce(Event&, EventSetup const&)
 {
+  edm::CurrentProcessingContext const* p = currentContext();
+  CPPUNIT_ASSERT( p != 0 );
+  CPPUNIT_ASSERT( p->moduleDescription() != 0 );
+  CPPUNIT_ASSERT( p->moduleLabel() != 0 );
 }
 
 // ----------------------------------------------

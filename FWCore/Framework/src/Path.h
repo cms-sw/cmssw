@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.7 2006/05/26 15:58:12 paterno Exp $
+  $Id: Path.h,v 1.8 2006/06/07 21:28:21 paterno Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -28,13 +28,10 @@
 #include <vector>
 
 #include "FWCore/Framework/src/RunStopwatch.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm
 {
-  class EventPrincipal;
-  class EventSetup;
-  class ActionTable;
-  class ActivityRegistry;
 
   class Path
   {

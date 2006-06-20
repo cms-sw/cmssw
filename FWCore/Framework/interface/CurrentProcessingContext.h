@@ -28,6 +28,12 @@ namespace edm
     /// Default-constructed objects reflect the inactive state.
     CurrentProcessingContext();
 
+    /// Create a CurrentProcessingContext ready to handle the Path
+    /// with given name and bit position (slot in Schedule).
+
+    CurrentProcessingContext(std::string const* name,
+			     int bitpos);			     
+
     /// The compiler-generated copy c'tor and d'tor are correct,
     /// because all our resources are contained by value. We do not
     /// own the resources to which we point; we own only the pointers.
@@ -42,10 +48,8 @@ namespace edm
 
 
     /// Set the context to reflect the active state.
-    void activate(ModuleDescription const* mod,
-		  std::string const*       pathName,
-		  std::size_t              pathInSchedule,
-		  std::size_t              slotInPath);
+    void activate(std::size_t              slotInPath,
+		  ModuleDescription const* mod);
 
     /// Set all data to reflect inactive state.
     void deactivate();
@@ -53,7 +57,7 @@ namespace edm
   private:
 
     // N.B.: We own none of the pointed-to resources!
-    std::size_t              pathInSchedule_;
+    int                      pathInSchedule_;
     std::size_t              slotInPath_;
     ModuleDescription const* moduleDescription_;
     std::string const*       pathName_;

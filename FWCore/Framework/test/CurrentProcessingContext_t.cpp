@@ -32,7 +32,9 @@ namespace
   void setup_ctx(edm::CurrentProcessingContext& ctx)
   {
     assert( p_moduleA );
-    ctx.activate(p_moduleA, p_pathName, pathNumber, slotInPath);
+    edm::CurrentProcessingContext temp(p_pathName, pathNumber);
+    temp.activate(slotInPath, p_moduleA);
+    ctx = temp;
   }
 
 } // unnamed namespace
@@ -48,8 +50,8 @@ void test_default_ctor()
 
 void test_activate()
 {
-  edm::CurrentProcessingContext ctx;
-  ctx.activate(p_moduleA, p_pathName, pathNumber, slotInPath);
+  edm::CurrentProcessingContext ctx(p_pathName, pathNumber);
+  ctx.activate( slotInPath, p_moduleA);
   {
     edm::CurrentProcessingContext const& r_ctx = ctx;
     assert( r_ctx.moduleDescription() == p_moduleA );

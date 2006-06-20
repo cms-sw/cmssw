@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.10 2006/02/08 00:44:25 wmtan Exp $
+$Id: FilterWorker.cc,v 1.11 2006/04/20 22:33:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -34,11 +34,12 @@ namespace edm
   }
 
   bool 
-  FilterWorker::implDoWork(EventPrincipal& ep, EventSetup const& c)
+  FilterWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
+			   CurrentProcessingContext const* cpc)
   {
     bool rc = false;
     Event e(ep,description());
-    rc = filter_->filter(e, c);
+    rc = filter_->doFilter(e, c, cpc);
     e.commit_();
     return rc;
   }
@@ -46,13 +47,13 @@ namespace edm
   void 
   FilterWorker::implBeginJob(EventSetup const& es) 
   {
-    filter_->beginJob(es);
+    filter_->doBeginJob(es);
   }
 
   void 
   FilterWorker::implEndJob() 
   {
-   filter_->endJob();
+   filter_->doEndJob();
   }
 
   std::string FilterWorker::workerType() const {

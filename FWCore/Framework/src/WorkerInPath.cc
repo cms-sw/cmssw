@@ -26,7 +26,8 @@ namespace edm
   {
   }
 
-  bool WorkerInPath::runWorker(EventPrincipal& ep, EventSetup const & es)
+  bool WorkerInPath::runWorker(EventPrincipal& ep, EventSetup const & es,
+			       CurrentProcessingContext const* cpc)
   {
     RunStopwatch stopwatch(stopwatch_);
     ++timesVisited_;
@@ -43,7 +44,7 @@ namespace edm
 	// may want to change the return value from the worker to be 
 	// the Worker::State so conditions in the path will be easier to 
 	// identify
-	rc = worker_->doWork(ep,es);
+	rc = worker_->doWork(ep,es,cpc);
 
 	if(state_ == Veto) rc = !rc;
 

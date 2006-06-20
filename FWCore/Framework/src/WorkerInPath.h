@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.3 2006/04/04 16:55:37 lsexton Exp $
+	$Id: WorkerInPath.h,v 1.4 2006/04/19 19:48:48 chrjones Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -14,11 +14,10 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm
 {
-  class EventPrincipal;
-  class EventSetup;
 
   class WorkerInPath
   {
@@ -28,7 +27,8 @@ namespace edm
     explicit WorkerInPath(Worker*);
     WorkerInPath(Worker*, State state);
 
-    bool runWorker(EventPrincipal&, EventSetup const&);
+    bool runWorker(EventPrincipal&, EventSetup const&,
+		   CurrentProcessingContext const* cpc);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());

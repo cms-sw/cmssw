@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.14 2006/06/07 21:28:20 paterno Exp $
+  $Id: Schedule.h,v 1.15 2006/06/08 21:54:16 paterno Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -130,7 +130,6 @@ namespace edm
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg);
-    ~Schedule();
 
     enum State { Ready=0, Running, Latched };
 

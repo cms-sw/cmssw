@@ -163,10 +163,14 @@ namespace edm
 			       const EventSetup& eventSetup) {
       map<string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(prov.product.module.moduleLabel_);
-      if(itFound != labelToWorkers_.end()) {
-	itFound->second->doWork(event,eventSetup);
-	return true;
-      }
+      if(itFound != labelToWorkers_.end()) 
+	{
+	  // Unscheduled reconstruction has no accepted definition
+	  // (yet) of the "current path". We indicate this by passing
+	  // a null pointer as the CurrentProcessingContext.
+	  itFound->second->doWork(event,eventSetup, 0);
+	  return true;
+	}
       return false;
     }
     map<string, Worker*> labelToWorkers_;
@@ -177,8 +181,6 @@ namespace edm
   typedef vector<string> vstring;
 
   // -----------------------------
-
-  Schedule::~Schedule() { }
 
   Schedule::Schedule(ParameterSet const& proc_pset,
 		     edm::service::TriggerNamesService& tns,
@@ -462,7 +464,9 @@ namespace edm
 	if ( runTriggerPaths(ep, es) ) ++total_passed_;
 	state_ = Latched;
 	
-	if(results_inserter_.get()) results_inserter_->doWork(ep,es);
+	// The results_inserter_ is not on a path, so it gets no
+	// CurrentProcessingContext.
+	if(results_inserter_.get()) results_inserter_->doWork(ep,es,0);
 	
 	if (endpathsAreActive_) runEndPaths(ep,es);
       }

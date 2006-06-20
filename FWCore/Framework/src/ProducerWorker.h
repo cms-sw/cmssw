@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.16 2006/04/20 22:33:22 wmtan Exp $
+$Id: ProducerWorker.h,v 1.17 2006/04/24 22:36:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,14 +17,11 @@ $Id: ProducerWorker.h,v 1.16 2006/04/20 22:33:22 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
 
 namespace edm
 {
-  class EDProducer;
-  class EventPrincipal;
-  class ModuleDescription;
-  class WorkerParams;
 
   class ProducerWorker : public Worker
   {
@@ -39,7 +36,8 @@ namespace edm
     static std::auto_ptr<EDProducer> makeOne(const ModuleDescription& md,
 					     const WorkerParams& wp);
   private:
-    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c);
+    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
+			    CurrentProcessingContext const* cpc);
 
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
