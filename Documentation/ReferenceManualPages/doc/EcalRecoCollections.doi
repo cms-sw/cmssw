@@ -1,0 +1,23 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Ecal cluster collections</td>
+<tr>
+  <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
+  <td> \endhtmlonly basicClsters<i>:hybrid</i> \htmlonly </td>
+  <td class="description">Basic clusters reconstructed with hybrid algorithm</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
+  <td> \endhtmlonly basicClusters<i>:island</i> \htmlonly </td>
+  <td class="description">Basic clusters reconstructed with island algorithm</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td> \endhtmlonly superClusters \htmlonly </td>
+  <td class="description">Super clusters</td>
+  <td>&nbsp;</td>
+</tr>

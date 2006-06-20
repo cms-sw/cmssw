@@ -1,0 +1,11 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
+</tr>
+<tr>
+  <td> \endhtmlonly PixelDigi \htmlonly </rd>
+  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
+  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
+  <td class="description">Pixel digitized hit</td>
+  <td>V.Chiochia</td>
+</tr>
+

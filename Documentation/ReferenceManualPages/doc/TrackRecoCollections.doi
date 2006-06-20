@@ -1,0 +1,91 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Track collections</td>
+</tr>
+
+ <tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFAnalytical" \htmlonly </td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFAnalytical" \htmlonly </td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFAnalytical" \htmlonly </td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFWMaterial" \htmlonly </td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFWMaterial" \htmlonly </td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "CTFWMaterial" \htmlonly </td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSAnalytical" \htmlonly </td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSAnalytical" \htmlonly </td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSAnalytical" \htmlonly </td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>S.Magni</td>
+</tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSWMaterial" \htmlonly </td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSWMaterial" \htmlonly </td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoTracker_TrackProducer "RSWMaterial" \htmlonly </td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>S.Magni</td>
+</tr>

@@ -1,0 +1,18 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
+</tr>
+<tr>
+  <td> \endhtmlonly SiPixelCluster \htmlonly </rd>
+  <td> \endhtmlonly SiPixelClusterCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelClusterizer "pixClust" \htmlonly </td>
+  <td class="description">Pixel cluster</td>
+  <td>V.Chiochia</td>
+</tr>
+<tr>
+  <td> \endhtmlonly SiPixelRecHit \htmlonly </rd>
+  <td> \endhtmlonly SiPixelRecHitCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoLocalTracker_SiPixelRecHits "pixRecHitConverter" \htmlonly</td>
+  <td class="description">Pixel reconstructed hit</td>
+  <td>V.Chiochia</td>
+</tr>
+

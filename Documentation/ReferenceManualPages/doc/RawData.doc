@@ -4,51 +4,11 @@
 \section raw RAW Event content
 Raw detector output.
 
-\htmlonly
+\htmlinclude datatable_begin.doi
 
-<script type="text/javascript">
-<!--
-  function alternate() {
-    var i,t,row,table, tables;
-    tables = document.getElementsByTagName("table");
-    for( t = 0; t < tables.length; ++t ) {
-      table = tables[ t ];
-      if ( table.className == 'reftable' ) {
-        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) 
-          if ( row.className != 'colgroup' )
-            if(i % 2 == 1) { row.className='odd'; }
-            else { row.className='even'; }
-      }
-    }
-  }  window.onload = alternate;
--->
-</script>
+\htmlinclude PixelRawCollections.doi
 
-<table class="reftable">
-<caption>
-</caption>
-<tr valign=top>
-  <th>Object type</th>
-  <th>Container type</th>
-  <th>module<i>[:instance[:alias]]</i></th>
-  <th>Description</th>
-  <th>Contact</th>
-</tr>
-
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>Pixel local reconstruction</td>
-</tr>
-<tr>
-  <td> \endhtmlonly PixelDigi \htmlonly </rd>
-  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
-  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
-  <td class="description">Pixel digitized hit</td>
-  <td>V.Chiochia</td>
-</tr>
-
-</table>
-
-\endhtmlonly
+\htmlinclude datatable_end.doi
 
 \section contact Contact persons
 - Emilio Meschi
