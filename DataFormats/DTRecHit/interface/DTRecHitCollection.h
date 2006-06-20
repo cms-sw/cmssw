@@ -2,10 +2,10 @@
 #define DataFormats_DTRecHitCollection_H
 
 /** \class DTRecHitCollection
- *  Collection of 1DDTRecHitPair for storage in the event
+ *  Collection of 1DDTRecHitPair for storage in the eventD. See \ref DTRecHitCollection.h for details
  *
- *  $Date: 2006/03/20 12:42:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/07 15:41:11 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -3,14 +3,15 @@
 
 /** \class DTRecSegment2DCollection
  *
- * Collection of DTRecSegment2D
+ * Collection of DTRecSegment2D. See \ref DTRecSegment2DCollection.h for details
  *  
- * $Date: 2006/05/02 07:08:42 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/14 12:11:01 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
+
 
 /* Base Class Headers */
 #include <functional>
