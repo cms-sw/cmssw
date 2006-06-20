@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.5 2006/04/28 07:46:45 llista Exp $
+ * \version $Id: Candidate.h,v 1.6 2006/06/20 11:27:05 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -52,14 +52,22 @@ namespace reco {
     virtual Candidate & daughter( size_type i ) = 0;
     /// get a component
     template<typename T>
-    T get() const {
-      return component<T>::get( * this );
-    }
+    T get() const { return reco::get<T>( * this ); }
     /// get a component
     template<typename T, typename Tag>
-    T get() const {
-      return component<T, Tag>::get( * this );
-    }
+    T get() const { return reco::get<T, Tag>( * this ); }
+    /// get a component
+    template<typename T>
+    T get( size_t i ) const { return reco::get<T>( * this, i ); }
+    /// get a component
+    template<typename T, typename Tag>
+    T get( size_t i ) const { return reco::get<T, Tag>( * this, i ); }
+    /// number of component
+    template<typename T>
+    size_t numberOf() const { return reco::numberOf<T>( * this ); }
+    /// number of component
+    template<typename T, typename Tag>
+    size_t numberOf() const { return reco::numberOf<T, Tag>( * this ); }
   public:
     /// implementation of const_iterator. 
     /// should be private; declared public only 
