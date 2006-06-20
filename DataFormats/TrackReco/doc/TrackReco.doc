@@ -94,9 +94,9 @@ in the internal CMS note <a href="https://cmsdoc.cern.ch/documents/03/in/in03_00
 The five parameters are:
 \htmlonly
 <ul>
-<li> <b><i><font face="Symbol">r</font></i></b>: signed transverse curvature.
-<li> <b><i><font face="Symbol">j</font></i></b>: polar angle of the momentum vector.
-<li> <b><i><font face="Symbol">f</font><sub>0</sub></i></b>: azimuthal angle of the momentum vector at the PCA to the beam line.
+<li> <b><i>&rho;</i>: signed transverse curvature.
+<li> <b><i>&theta;</i></b>: polar angle of the momentum vector.
+<li> <b><i>&phi;<sub>0</sub></i></b>: azimuthal angle of the momentum vector at the PCA to the beam line.
 <li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: signed transverse distance of the PCA. By convention, the
 sign is positive if the reference point is at the left of the PCA.
 <li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: longitudinal distance of the PCA.
