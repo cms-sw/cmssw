@@ -14,9 +14,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: SelectorProducer.h,v 1.3 2006/03/03 13:11:15 llista Exp $
+ * $Id: SelectorProducer.h,v 1.4 2006/06/14 11:54:32 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -28,13 +28,12 @@
 #include <memory>
 
 template<typename C, typename S, typename P = typename edm::clonehelper::CloneTrait<C>::type >
-class SelectorProducer : public edm::EDProducer {
+class SelectorProducerBase : public edm::EDProducer {
 public:
   /// constructor 
-  explicit SelectorProducer( const edm::ParameterSet &,
-			     const boost::shared_ptr<S> & = boost::shared_ptr<S>() );
+  explicit SelectorProducerBase( const edm::ParameterSet &, const boost::shared_ptr<S> & = boost::shared_ptr<S>() );
   /// destructor
-  ~SelectorProducer();
+  virtual ~SelectorProducerBase();
   
 protected:
   /// selector object
@@ -48,18 +47,18 @@ private:
 };
 
 template<typename C, typename S, typename P>
-SelectorProducer<C, S, P>::SelectorProducer( const edm::ParameterSet & cfg, 
-					     const boost::shared_ptr<S> & sel ) :
+SelectorProducerBase<C, S, P>::SelectorProducerBase( const edm::ParameterSet & cfg, 
+						     const boost::shared_ptr<S> & sel ) :
   select_( sel ), src_( cfg.template getParameter<std::string>( "src" ) ) {
   produces<C>();
 }
 
 template<typename C, typename S, typename P>
-SelectorProducer<C, S, P>::~SelectorProducer() {
+SelectorProducerBase<C, S, P>::~SelectorProducerBase() {
 }
 
 template<typename C, typename S, typename P>
-void SelectorProducer<C, S, P>::produce( edm::Event& evt, const edm::EventSetup& ) {
+void SelectorProducerBase<C, S, P>::produce( edm::Event& evt, const edm::EventSetup& ) {
   edm::Handle<C> coll;
   evt.getByLabel( src_, coll );
   std::auto_ptr<C> sel( new C );
@@ -69,6 +68,13 @@ void SelectorProducer<C, S, P>::produce( edm::Event& evt, const edm::EventSetup&
   }
   evt.put( sel );
 }
+
+template<typename C, typename S, typename P = typename edm::clonehelper::CloneTrait<C>::type >
+class SelectorProducer : public SelectorProducerBase<C, S, P> {
+public:
+  explicit SelectorProducer( const edm::ParameterSet & cfg ) :
+    SelectorProducerBase<C, S, P>( cfg, boost::shared_ptr<S>( new S ) ) { }
+};
 
 
 #endif

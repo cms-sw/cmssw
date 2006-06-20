@@ -6,15 +6,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: CandSelectorBase.h,v 1.7 2006/03/03 10:48:20 llista Exp $
+ * $Id: CandSelectorBase.h,v 1.8 2006/06/14 11:54:29 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SelectorProducer.h"
 
-typedef SelectorProducer<reco::CandidateCollection, CandSelector> CandSelectorBase;
+typedef SelectorProducerBase<reco::CandidateCollection, CandSelector> CandSelectorBase;
 
 #endif

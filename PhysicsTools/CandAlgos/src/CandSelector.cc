@@ -1,4 +1,4 @@
-// $Id: CandSelector.cc,v 1.11 2006/04/04 11:12:48 llista Exp $
+// $Id: CandSelector.cc,v 1.12 2006/06/14 11:54:30 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,10 +23,6 @@ namespace cand {
 			 "failed to parse \"" + cut + "\"" );
       }
     }
-    
-    CandSelector::~CandSelector() {
-    }
-
   }
 }
 

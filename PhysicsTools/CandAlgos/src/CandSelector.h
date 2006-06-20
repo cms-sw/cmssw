@@ -8,9 +8,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: CandSelector.h,v 1.6 2006/04/04 11:12:48 llista Exp $
+ * $Id: CandSelector.h,v 1.7 2006/04/10 08:28:01 llista Exp $
  *
  */
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
@@ -22,8 +22,6 @@ namespace cand {
     public:
       /// constructor from parameter set
       explicit CandSelector( const edm::ParameterSet& );
-      /// destructor
-      ~CandSelector();
     };
 
   }
