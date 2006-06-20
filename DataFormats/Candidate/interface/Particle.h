@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.4 2006/06/05 13:40:07 llista Exp $
+ * \version $Id: Particle.h,v 1.5 2006/06/07 12:40:56 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/ParticleWithCharge.h"
@@ -22,21 +22,21 @@ namespace reco {
     /// default constructor
     Particle() { }
     /// constructor from values
-    Particle( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      ParticleWithCharge( q, p4 ), vtx_( vtx ) { }
+    Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ) ) : 
+      ParticleWithCharge( q, p4 ), vertex_( vertex ) { }
     /// destructor
     virtual ~Particle() { }
     /// vertex position
-    const Point & vertex() const { return vtx_; }
+    const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
-    double x() const { return vtx_.X(); }
+    double x() const { return vertex_.X(); }
     /// y coordinate of vertex position
-    double y() const { return vtx_.Y(); }
+    double y() const { return vertex_.Y(); }
     /// z coordinate of vertex position
-    double z() const { return vtx_.Z(); }
+    double z() const { return vertex_.Z(); }
   protected:
     /// vertex position
-    Point vtx_;
+    Point vertex_;
   };
 
 }

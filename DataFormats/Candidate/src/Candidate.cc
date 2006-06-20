@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.5 2006/02/21 10:37:32 llista Exp $
+// $Id: Candidate.cc,v 1.1 2006/02/28 10:43:30 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 using namespace reco;
@@ -14,3 +14,8 @@ void Candidate::setup::setP4( LorentzVector & p ) const {
 void Candidate::setup::setCharge( Charge & q ) const { 
   if ( modifyCharge ) q = charge; 
 }
+
+void Candidate::setup::setVertex( Point & v ) const { 
+  if ( modifyVertex ) v = vertex; 
+}
+

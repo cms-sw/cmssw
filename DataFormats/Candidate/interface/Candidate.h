@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.4 2006/04/03 09:05:31 llista Exp $
+ * \version $Id: Candidate.h,v 1.5 2006/04/28 07:46:45 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -193,19 +193,26 @@ namespace reco {
       struct setupP4 : public setupFlag {
 	setupP4( bool f = true ) : setupFlag( f ) { }
       };
+
+      /// helper class to setup Candidate vertex
+      struct setupVertex : public setupFlag {
+	setupVertex( bool f = true ) : setupFlag( f ) { }
+      };
       
     public:
-      setup( setupCharge q, setupP4 p ) : 
-	modifyP4( p.value ), modifyCharge( q.value ) { }
+      setup( setupCharge q, setupP4 p, setupVertex v ) : 
+	modifyP4( p.value ), modifyCharge( q.value ), modifyVertex( v.value ) { }
       virtual ~setup();
       virtual void set( Candidate & c ) = 0;
       void setP4( LorentzVector & p ) const;
       void setCharge( Charge & q ) const;
+      void setVertex( Point & p ) const;
       
     protected:
       LorentzVector p4;
       Charge charge;
-      bool modifyP4, modifyCharge;
+      Point vertex;
+      bool modifyP4, modifyCharge, modifyVertex;
     };
 
     /// set up Candidate from setup object
@@ -222,8 +229,7 @@ namespace reco {
     s.set( * this );
     s.setP4( p4_ );
     s.setCharge( q_ );
-    // .. vertex or other attributes should be updated 
-    // when implemented
+    s.setVertex( vertex_ );
   }
   
 }
