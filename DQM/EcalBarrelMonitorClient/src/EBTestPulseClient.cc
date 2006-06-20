@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.74 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1155,6 +1155,10 @@ void EBTestPulseClient::analyze(void){
           float val;
 
           val = 1.;
+          if ( mean01 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms01 > RMSThreshold_ )
+            val = 0.;
           if ( he01_[ism-1] && numEventsinCry[0] > 0 ) {
             float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[0];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
@@ -1171,6 +1175,10 @@ void EBTestPulseClient::analyze(void){
           float val;
 
           val = 1.;
+          if ( mean02 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms02 > RMSThreshold_ )
+            val = 0.;
           if ( he02_[ism-1] && numEventsinCry[1] > 0 ) {
             float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
@@ -1187,6 +1195,10 @@ void EBTestPulseClient::analyze(void){
           float val;
 
           val = 1.;
+          if ( mean03 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
           if ( he03_[ism-1] && numEventsinCry[2] > 0 ) {
             float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
@@ -1202,36 +1214,30 @@ void EBTestPulseClient::analyze(void){
     }
 
     vector<dqm::me_util::Channel> badChannels;
-    
+
     if ( qtha01_[ism-1] ) badChannels = qtha01_[ism-1]->getBadChannels();
-    
-    if ( ! badChannels.empty() ) {
-    
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-    
-    }
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
     if ( qtha02_[ism-1] ) badChannels = qtha02_[ism-1]->getBadChannels();
-    
-    if ( ! badChannels.empty() ) {
-    
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-    
-    }
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
     if ( qtha03_[ism-1] ) badChannels = qtha03_[ism-1]->getBadChannels();
-    
-    if ( ! badChannels.empty() ) {
-    
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-    
-    }
+ 
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
   }
 

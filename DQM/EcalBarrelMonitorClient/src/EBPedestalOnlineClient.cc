@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.31 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -496,7 +496,15 @@ void EBPedestalOnlineClient::analyze(void){
 
         if ( update_channel ) {
 
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 1.);
+          float val;
+
+          val = 1.;
+          if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, val);
+
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
           if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
 
@@ -509,13 +517,11 @@ void EBPedestalOnlineClient::analyze(void){
 
     if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
   
-    if ( ! badChannels.empty() ) {
-
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-  
-    }
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
   }
 

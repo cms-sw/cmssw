@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/19 08:38:24 $
- * $Revision: 1.142 $
+ * $Date: 2006/06/19 17:10:31 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -925,11 +925,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      mui_->doMonitoring();
-    }
-  }
+  if ( ! enableStateMachine_ ) mui_->doMonitoring();
 
   this->subscribeNew();
 

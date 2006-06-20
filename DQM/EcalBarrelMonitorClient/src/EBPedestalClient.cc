@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.79 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1117,17 +1117,34 @@ void EBPedestalClient::analyze(void){
 
         if ( update_channel ) {
 
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 1.);
+          float val;
+
+          val = 1.;
+          if ( abs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
+            val = 0.;
+          if ( rms01 > RMSThreshold_[0] )
+            val = 0.;
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, val);
 
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 1.);
+          val = 1.;
+          if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
+            val = 0.;
+          if ( rms02 > RMSThreshold_[1] )
+            val = 0.;
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, val);
 
           if ( mep02_[ism-1] ) mep02_[ism-1]->Fill(mean02);
           if ( mer02_[ism-1] ) mer02_[ism-1]->Fill(rms02);
 
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 1.);
+          val = 1.;
+          if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
+            val = 0.;
+          if ( rms03 > RMSThreshold_[2] )
+            val = 0.;
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, val);
 
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
           if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
@@ -1141,33 +1158,27 @@ void EBPedestalClient::analyze(void){
 
     if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
 
-    if ( ! badChannels.empty() ) {
-
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-
-    }
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
     if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
 
-    if ( ! badChannels.empty() ) {
-
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
-
-    }
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
     
     if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
 
-    if ( ! badChannels.empty() ) {
-
-      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
-      }
- 
-    }
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
