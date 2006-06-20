@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/06/01 07:51:29 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/06 16:01:20 $
+ * $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU
  */
@@ -61,10 +61,10 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
      5/6 halfstrip, 6/6 distrip, 4/6 halfstrip, 5/6 distrip, 4/6 distrip.  
      (see CSCCathodeLCTProcessor for further details.) -JM
   */
-  int quality       = getQuality();
-  int rhsQuality    = rhs.getQuality();
-  int stripType     = getStripType();
-  int rhsStripType  = rhs.getStripType();
+  int quality      = getQuality();
+  int rhsQuality   = rhs.getQuality();
+  int stripType    = getStripType();
+  int rhsStripType = rhs.getStripType();
 
 #ifdef TB
   // Test beams' implementation.
@@ -80,7 +80,7 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
       if (pattern > rhsPattern) {returnValue = true;}
       else if (pattern == rhsPattern) {
 	// In the case of identical pattern, select lower key strip number.
-	if (getStrip() < rhs.getStrip()) {returnValue = true;}
+	if (getKeyStrip() < rhs.getKeyStrip()) {returnValue = true;}
       }
     }
 #endif
@@ -91,13 +91,22 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
   }
 
 #else
+  // Hack to preserve old behaviour; needs to be clarified.
+  quality    =- 3;
+  rhsQuality =- 3;
+  if (quality < 0 || rhsQuality < 0) {
+    std::cout << " +++ CSCCLCTDigi, overloaded > : undefined qualities "
+	      << quality << " " << rhsQuality << " ... Do nothing +++"
+	      << std::endl;
+    return returnValue;
+  }
   // Default ORCA option.
   if (stripType == rhsStripType) { // both di-strip or half-strip
     if (quality > rhsQuality) {returnValue = true;}
     else if (quality == rhsQuality) {
       // In the case of cathode LCTs with identical quality, the lower
       // strip number is selected.
-      if (getStrip() < rhs.getStrip()) {returnValue = true;}
+      if (getKeyStrip() < rhs.getKeyStrip()) {returnValue = true;}
     }
   }
   else if (stripType > rhsStripType) { // halfstrip, distrip
@@ -119,9 +128,9 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
 bool CSCCLCTDigi::operator == (const CSCCLCTDigi& rhs) const {
   bool returnValue = false;
 
-  // Exact equality; CFEB check seems redundant.
+  // Exact equality.
   if (isValid()      == rhs.isValid()    && getQuality() == rhs.getQuality() &&
-      getPattern()   == rhs.getPattern() && getStrip()   == rhs.getStrip()   &&
+      getPattern()   == rhs.getPattern() && getKeyStrip()== rhs.getKeyStrip()&&
       getStripType() == rhs.getStripType() && getBend()  == getBend()        &&
       getBX()        == rhs.getBX()) {
     returnValue = true;
@@ -137,7 +146,7 @@ bool CSCCLCTDigi::operator == (const CSCCLCTDigi& rhs) const {
     // layers.  When the staggering is completely understood, this algorithm
     // should be re-checked for consistency. -JM
     if (stripType != rhsStripType) {
-      if (abs(getStrip() - rhs.getStrip()) < 5) {
+      if (abs(getKeyStrip() - rhs.getKeyStrip()) < 5) {
 	returnValue = true;
       }
     }
@@ -147,9 +156,9 @@ bool CSCCLCTDigi::operator == (const CSCCLCTDigi& rhs) const {
 
 bool CSCCLCTDigi::operator != (const CSCCLCTDigi& rhs) const {
   bool returnValue = false;
-  // Check exact equality; CFEB check seems redundant.
+  // Check exact equality.
   if (isValid()      != rhs.isValid()    || getQuality() != rhs.getQuality() ||
-      getPattern()   != rhs.getPattern() || getStrip()   != rhs.getStrip()   ||
+      getPattern()   != rhs.getPattern() || getKeyStrip()!= rhs.getKeyStrip()||
       getStripType() != rhs.getStripType() || getBend()  != getBend()        ||
       getBX()        != rhs.getBX()) {
     returnValue = true;
