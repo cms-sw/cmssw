@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/06/06 15:51:21 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/14 09:31:45 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -99,7 +99,7 @@ class CSCCathodeLCTProcessor
   // we use these next ones to address the various bits inside the array that's
   // used to make the cathode LCTs.
   enum CLCT_INDICES {CLCT_PATTERN, CLCT_BEND, CLCT_STRIP, CLCT_BX,
-		     CLCT_STRIP_TYPE, CLCT_QUALITY};
+		     CLCT_STRIP_TYPE, CLCT_QUALITY, CLCT_CFEB};
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -131,7 +131,7 @@ class CSCCathodeLCTProcessor
   bool preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		  int nStrips, int& first_bx);
   void getKeyStripData(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		       int keystrip_data[CSCConstants::NUM_HALF_STRIPS][6],
+		       int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7],
 		       int nStrips, int first_bx, int& best_strip,
 		       int stripType);
   void getPattern(int pattern_num, int strip_value[NUM_PATTERN_STRIPS],
@@ -152,10 +152,10 @@ class CSCCathodeLCTProcessor
   void priorityEncode(const int h_keyStrip[NUM_CFEBS],
 		      const int h_nhits[NUM_CFEBS],
 		      const int d_keyStrip[NUM_CFEBS],
-		      const int d_nhits[NUM_CFEBS], int keystrip_data[2][6]);
+		      const int d_nhits[NUM_CFEBS], int keystrip_data[2][7]);
   void getKeyStripData(const unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		       const unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		       int keystrip_data[2][6],
+		       int keystrip_data[2][7],
 		       const int latch_bx, const int drift_delay);
   void getPattern(int pattern_num, const int strip_value[NUM_PATTERN_STRIPS],
 		  int& quality, int& bend);
