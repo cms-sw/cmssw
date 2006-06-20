@@ -48,20 +48,23 @@ class DaqMonitorBEInterface: public StringUtil
 				  int nchX, double lowX, double highX, 
 				  int nchY, double lowY, double highY, 
 				  int nchZ, double lowZ, double highZ)=0;
-  // book profile
-  // in a profile plot the number of channels in Y is disregarded
+  // book profile; 
+  // option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
+  // (in a profile plot the number of channels in Y is disregarded)
   virtual MonitorElement * bookProfile(std::string name, 
 				       std::string title, 
 				       int nchX, double lowX, double highX, 
-				       int nchY, double lowY,double highY)=0;
-  // book 2-D profile
-  // in a 2-D profile plot the number of channels in Z is disregarded
+				       int nchY, double lowY,double highY,
+				       char * option = "s")=0;
+  // book 2-D profile;
+  // option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
+  // (in a 2-D profile plot the number of channels in Z is disregarded)
   virtual MonitorElement * bookProfile2D(std::string name, 
 					 std::string title, 
 					 int nchX, double lowX, double highX,
 					 int nchY, double lowY,double highY,
-					 int nchZ, double lowZ,double highZ)
-    =0;
+					 int nchZ, double lowZ,double highZ,
+					 char * option = "s") = 0;
   // book float
   virtual MonitorElement * bookFloat(std::string ) = 0;
   // book int
@@ -228,21 +231,25 @@ class DaqMonitorBEInterface: public StringUtil
 			  double lowY, double highY, int nchZ,
 			  double lowZ, double highZ, 
 			  MonitorElement * folder) = 0;
-  // book profile
-  // in a profile plot the number of channels in Y is disregarded
+  // book profile;
+  // option is one of: " ", "s" (default), "i", "G" (see TProfile::BuildOptions)
+  // (in a profile plot the number of channels in Y is disregarded)
   virtual MonitorElement * bookProfile(std::string name, 
 			       std::string title,int nchX, double lowX,
 			       double highX, int nchY, double lowY, 
-			       double highY, MonitorElement* folder) = 0;
+			       double highY, MonitorElement* folder,
+				char * option = "s") = 0;
 
-  // book 2-D profile
-  // in a 2-D profile plot the number of channels in Z is disregarded
+  // book 2-D profile;
+  // option is one of: " ", "s" (default), "i", "G" (see TProfile2D::BuildOptions)
+  // (in a 2-D profile plot the number of channels in Z is disregarded)
   virtual MonitorElement * bookProfile2D(std::string name, 
 				 std::string title, 
 				 int nchX, double lowX, double highX, 
 				 int nchY, double lowY,double highY,
 				 int nchZ, double lowZ,double highZ,
-				 MonitorElement * folder) = 0;
+				 MonitorElement * folder, 
+				 char * option = "s") = 0;
 
   // book float
   virtual MonitorElement * bookFloat(std::string s, MonitorElement * folder)=0;
