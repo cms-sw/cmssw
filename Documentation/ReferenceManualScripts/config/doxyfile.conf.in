@@ -495,7 +495,8 @@ EXAMPLE_PATH           =  "@CMSSW_BASE@/src"
 # blank all files are included.
 
 EXAMPLE_PATTERNS       = ./ \ 
-                         *.cfi
+                         *.cfi \
+                         *.doi
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be 
 # searched for input files to be used with the \include or \dontinclude 
