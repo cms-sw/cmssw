@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.14 2006/05/22 21:10:36 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.15 2006/06/16 17:48:51 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -339,16 +339,19 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
     HcalSubdetector subdet = HcalEmpty;
+    HcalOtherSubdetector osubdet = HcalOtherEmpty;
     if (items [8] == "HB") subdet = HcalBarrel;
     else if (items [8] == "HE") subdet = HcalEndcap;
     else if (items [8] == "HO") subdet = HcalOuter;
     else if (items [8] == "HF") subdet = HcalForward;
     else if (items [8] == "HT") subdet = HcalTriggerTower;
-    else if (items [8] == "CBOX") subdet = HcalCalibration;
-    else if (items [8] != "NA") {
+    else if (items [8] == "CBOX") {
+      subdet = HcalOther;
+      osubdet = HcalCalibration;
+    } else if (items [8] != "NA") {
       std::cerr << "HcalElectronicsMap-> Unknown subdetector: " << items [8]
 		<< " in line: " << buffer 
-		<< "\n subdetector may be HB, HE, HF, HO, HT, or NA if it is known that channel is not connected" << std::endl;
+		<< "\n subdetector may be HB, HE, HF, HO, HT, CBOX, or NA if it is known that channel is not connected" << std::endl;
       continue;
     }
     HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
@@ -366,8 +369,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 	fObject->mapEId2chId (elId, DetId (chId));
       }
     }
-    else if (subdet == HcalCalibration) {
-      HcalCalibDetId calibId = HcalCalibDetId::Undefined;
+    else if (subdet == HcalOther && osubdet==HcalCalibration) {
+      HcalCalibDetId calibId;
       HcalCalibDetId::SectorId sector (HcalCalibDetId::SectorId(0));
       if (items [9] == "HBP") sector = HcalCalibDetId::HBplus;
       else if (items [9] == "HBM") sector = HcalCalibDetId::HBminus;
