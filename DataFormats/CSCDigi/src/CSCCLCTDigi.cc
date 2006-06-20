@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/06/06 16:01:20 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/20 10:33:26 $
+ * $Revision: 1.8 $
  *
  * \author N. Terentiev, CMU
  */
@@ -92,8 +92,8 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
 
 #else
   // Hack to preserve old behaviour; needs to be clarified.
-  quality    =- 3;
-  rhsQuality =- 3;
+  quality    -= 3;
+  rhsQuality -= 3;
   if (quality < 0 || rhsQuality < 0) {
     std::cout << " +++ CSCCLCTDigi, overloaded > : undefined qualities "
 	      << quality << " " << rhsQuality << " ... Do nothing +++"
