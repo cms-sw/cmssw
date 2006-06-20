@@ -22,24 +22,31 @@ HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
   setupWC();
 }
 
-void HcalTBTDCUnpacker::unpack(const FEDRawData& raw,
+  void HcalTBTDCUnpacker::unpack(const FEDRawData& raw,
 			       HcalTBEventPosition& pos,
 			       HcalTBTiming& timing) const {
-  std::vector<Hit> hits;
+    std::vector<Hit> hits;
 
-  unpackHits(raw, hits);
+    unpackHits(raw, hits);
+    
+    reconstructWC(hits, pos);
+    reconstructTiming(hits, timing);
+    
+  }
 
-  reconstructWC(hits, pos);
-  reconstructTiming(hits, timing);
+  struct ClassicTDCDataFormat {
+    unsigned int cdfHeader0,cdfHeader1,cdfHeader2,cdfHeader3;
+    unsigned int n_max_hits; // maximum number of hits possible in the block
+    unsigned int n_hits;
+    unsigned int hits[2];
+  };
 
-}
-
-struct ClassicTDCDataFormat {
-  unsigned int cdfHeader0,cdfHeader1,cdfHeader2,cdfHeader3;
-  unsigned int n_max_hits; // maximum number of hits possible in the block
-  unsigned int n_hits;
-  unsigned int hits[2];
-};
+  struct CombinedTDCQDCDataFormat {
+    unsigned int cdfHeader0,cdfHeader1,cdfHeader2,cdfHeader3;
+    unsigned int n_qdc_hits; // Count of QDC channels
+    unsigned int n_tdc_hits; // upper/lower TDC counts    
+    unsigned short qdc_values[4];
+  };
 
 static const double CONVERSION_FACTOR=25.0/32.0;
 
@@ -47,10 +54,29 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
 				   std::vector<Hit>& hits) const {
   const ClassicTDCDataFormat* tdc=(const ClassicTDCDataFormat*)raw.data();
 
-  for (unsigned int i=0; i<tdc->n_hits; i++) {
+  const unsigned int* hitbase=0;
+  unsigned int totalhits=0;
+
+  if (tdc->n_max_hits!=192) {
+    const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
+    hitbase=(unsigned int*)(qdctdc);
+    hitbase+=6; // header
+    hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
+    totalhits=qdctdc->n_tdc_hits&0xFFFF; // mask off high bits
+
+    for (int i=0; i<qdctdc->n_qdc_hits; i++)
+      printf(" %02d %04x\n",i,qdctdc->qdc_values[i]);
+
+  } else {
+    hitbase=&(tdc->hits[0]);
+    totalhits=tdc->n_hits;
+  }
+
+  for (unsigned int i=0; i<totalhits; i++) {
     Hit h;
-    h.time=(tdc->hits[i]&0xFFFFF) * CONVERSION_FACTOR;
-    h.channel=(tdc->hits[i]&0x7FC00000)>>22;
+    
+    h.time=(hitbase[i]&0xFFFFF) * CONVERSION_FACTOR;
+    h.channel=(hitbase[i]&0x7FC00000)>>22;
     hits.push_back(h);
   }
 
