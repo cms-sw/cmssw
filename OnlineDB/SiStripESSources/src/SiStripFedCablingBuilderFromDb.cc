@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.6 2006/06/09 13:15:43 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.7 2006/06/16 08:12:30 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -188,17 +188,14 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
     stringstream ss;
     conn.print(ss);
     
-    cout << "before ********** ii " << ii << endl;
-    LogDebug("temp") << "before ********** ii " << ii;
-    
-    cout << ss.str() << endl;
-    LogDebug("FedCabling") << ss.str();
-    cout << ss.str() << endl;
-    
-    cout << "after  ********** ii " << ii << endl;
-    LogDebug("temp") << "after  ********** ii " << ii;
-    
-    ii++;
+//     cout << "before ********** ii " << ii << endl;
+//     LogDebug("temp") << "before ********** ii " << ii;
+//     cout << ss.str() << endl;
+//     LogDebug("FedCabling") << ss.str();
+//     cout << ss.str() << endl;
+//     cout << "after  ********** ii " << ii << endl;
+//     LogDebug("temp") << "after  ********** ii " << ii;
+//     ii++;
     
     // Add object to FEC cabling
     fec_cabling.addDevices( conn );

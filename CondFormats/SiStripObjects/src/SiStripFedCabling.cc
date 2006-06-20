@@ -83,10 +83,9 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     vector<FedChannelConnection>::const_iterator ichan = connections(*ifed).begin();
     for ( ; ichan != connections(*ifed).end(); ichan++ ) { 
       if ( ichan->fedId() ) { 
-	stringstream ss;
-	ichan->print(ss); 
-	cout << "[SiStripFedCabling::buildFedCabling]" << ss.str() << endl;
-	edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]" << ss.str();
+	// 	stringstream ss;
+	// 	ichan->print(ss); 
+	// 	edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]" << ss.str();
 	connected++; 
       }
     }
