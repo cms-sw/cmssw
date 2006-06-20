@@ -8,6 +8,7 @@ Reconstruction output.
 
 \htmlinclude TrackRecoCollections.doi
 \htmlinclude PixelRecoCollections.doi
+\htmlinclude VertexRecoCollections.doi
 \htmlinclude EcalRecoCollections.doi
 \htmlinclude CaloJetRecoCollections.doi
 \htmlinclude CaloTowerRecoCollections.doi

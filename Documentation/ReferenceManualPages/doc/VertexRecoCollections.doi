@@ -1,0 +1,11 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Vertex collections</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::Vertex \htmlonly </rd>
+  <td> \endhtmlonly reco::VertexCollection \htmlonly </td>
+  <td> \endhtmlonly \ref RecoVertex_PrimaryVertexProducer "OfflinePrimaryVertices" \htmlonly </td>
+  <td class="description">Offline primary vertex finder (using fully reconstructed tracks)</td>
+  <td>P.Vanlaer</td>
+</tr>
+
