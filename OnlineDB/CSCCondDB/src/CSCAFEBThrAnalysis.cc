@@ -1,6 +1,8 @@
 #include "OnlineDB/CSCCondDB/interface/CSCAFEBThrAnalysis.h"
 #include "OnlineDB/CSCCondDB/interface/CSCToAFEB.h"
 #include <OnlineDB/CSCCondDB/interface/CSCFitAFEBThr.h>
+#include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
+#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TMath.h"
 
 class CSCFitAFEBThr;
@@ -236,6 +238,10 @@ void CSCAFEBThrAnalysis::done() {
 
   float x,y;
 
+  //This is for DB transfer
+  CSCobject *cn = new CSCobject();
+  condbon *dbon = new condbon();
+  
   std::map<int, std::vector<std::vector<int> > >::iterator mwiredacIt;
   std::map<int, std::vector<std::vector<float> > >::iterator mresfordbIt;
   std::vector<int>::iterator vecIt;
@@ -370,20 +376,38 @@ fitAnodeThr->ThresholdNoise(inputx,inputy,npulses,vecDacOccup,mypar,ermypar,erco
       int idlayer=(*mresfordbIt).first;
       idchmb=idlayer/10;
       int layer=idlayer-idchmb*10;
-	std::cout<<"CSC "<<idchmb<<"  Layer "<<layer<<"  "
-                 <<(*mresfordbIt).second.size()<<std::endl;          
+      std::cout<<"CSC "<<idchmb<<"  Layer "<<layer<<"  "
+	       <<(*mresfordbIt).second.size()<<std::endl;          
   }
   
   for(mresfordbIt=m_res_for_db.begin(); mresfordbIt!=m_res_for_db.end(); 
       ++mresfordbIt) {
       int idlayer=(*mresfordbIt).first;
-      for (int i=0;i<(*mresfordbIt).second.size();i++) { 
+      
+      //This is for DB transfer
+      int size = (*mresfordbIt).second.size();
+      cn->obj[idlayer].resize(size);
+      
+      for (unsigned int i=0;i<(*mresfordbIt).second.size();i++) { 
 	std::cout<<idlayer<<" "<<i+1<<"    ";
+	
         for(int j=0;j<4;j++)
 	  std::cout<< (*mresfordbIt).second[i][j]<<" ";
 	std::cout<<std::endl;
+	
+	//This is for DB transfer
+	cn->obj[idlayer][i].resize(4);
+	cn->obj[idlayer][i][0] = (*mresfordbIt).second[i][0];
+	cn->obj[idlayer][i][1] = (*mresfordbIt).second[i][1];
+	cn->obj[idlayer][i][2] = (*mresfordbIt).second[i][2];
+	cn->obj[idlayer][i][3] = (*mresfordbIt).second[i][3];
       }
   }
+  
+  //send data to DB
+  //dbon->cdbon_last_run("afeb_thresholds",&run);
+  //std::cout<<"Last AFEB thresholds run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+  //if(debug) dbon->cdbon_write(cn,"afeb_thresholds",run+1,myTime);
   
   if(hist_file!=0) { // if there was a histogram file...
     hist_file->Write(); // write out the histrograms
