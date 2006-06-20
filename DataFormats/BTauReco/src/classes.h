@@ -4,15 +4,16 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 namespace {
   namespace {
-    reco::JetTagCollection v1;   
+    reco::JetTagCollection v1;
     edm::Wrapper<reco::JetTagCollection> w1;
     edm::Ref<reco::JetTagCollection> r1;
     edm::RefProd<reco::JetTagCollection> rp1;
     edm::RefVector<reco::JetTagCollection> rv1;
-    
+
     reco::TrackCountingTagInfoCollection v2;
     edm::Wrapper<reco::TrackCountingTagInfoCollection> w2;
     edm::Ref<reco::TrackCountingTagInfoCollection> r2;
@@ -37,6 +38,12 @@ namespace {
     edm::Ref<reco::IsolatedTauTagInfoCollection> r5;
     edm::RefProd<reco::IsolatedTauTagInfoCollection> rp5;
     edm::RefVector<reco::IsolatedTauTagInfoCollection> rv5;
+
+    reco::SoftLeptonTagInfoCollection v6;
+    edm::Wrapper<reco::SoftLeptonTagInfoCollection> w6;
+    edm::Ref<reco::SoftLeptonTagInfoCollection> r6;
+    edm::RefProd<reco::SoftLeptonTagInfoCollection> rp6;
+    edm::RefVector<reco::SoftLeptonTagInfoCollection> rv6;
 
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;

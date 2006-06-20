@@ -22,13 +22,12 @@
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
 
-<class name="reco::IsolatedTauTagInfo" />
+  <class name="reco::IsolatedTauTagInfo" />
   <class name="std::vector<reco::IsolatedTauTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::IsolatedTauTagInfo> >" />
   <class name="edm::Ref<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> > " />
   <class name="edm::RefProd<std::vector<reco::IsolatedTauTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
- 
  
   <Class name="reco::CombinedBTagInfo" />
   <class name="std::vector<reco::CombinedBTagInfo>" />
@@ -40,4 +39,12 @@
   <class name="std::pair<unsigned int, unsigned int>" />
   <class name="std::map<unsigned long, std::vector<unsigned long> >" />
   <class name="edm::RefProd<std::vector<CaloJet> > " />
+
+  <class name="reco::SoftLeptonTagInfo" />
+  <class name="std::vector<reco::SoftLeptonTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::SoftLeptonTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::SoftLeptonTagInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::SoftLeptonTagInfo>, reco::SoftLeptonTagInfo> >" />
+  
 </lcgdict>
