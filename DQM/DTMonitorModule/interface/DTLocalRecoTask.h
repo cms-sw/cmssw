@@ -4,8 +4,8 @@
 /*
  * \file DTLocalRecoTask.h
  *
- * $Date: 2006/06/01 11:09:27 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/01 14:34:12 $
+ * $Revision: 1.3 $
  * \author M. Zanetti & G. Cerminara - INFN Padova & Torino
  *
 */
@@ -22,6 +22,8 @@
 
 class DaqMonitorBEInterface;
 class DTSegmentAnalysis;
+class DTResolutionAnalysis;
+
 
 class DTLocalRecoTask: public edm::EDAnalyzer{
 
@@ -57,10 +59,7 @@ private:
 
   // Classes doing the analysis
   DTSegmentAnalysis *theSegmentAnalysis;
-
-  // My monitor elements
-  
-  //  ofstream logFile;
+  DTResolutionAnalysis *theResolutionAnalysis;
   
 };
 

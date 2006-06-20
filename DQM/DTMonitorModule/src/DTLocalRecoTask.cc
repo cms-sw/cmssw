@@ -1,14 +1,15 @@
 /*
  * \file DTLocalRecoTask.cc
  * 
- * $Date: 2006/06/01 11:09:27 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/01 14:34:11 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "DQM/DTMonitorModule/interface/DTLocalRecoTask.h"
 #include "DQM/DTMonitorModule/src/DTSegmentAnalysis.h"
+#include "DQM/DTMonitorModule/src/DTResolutionAnalysis.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -50,9 +51,11 @@ DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
 
   
   // Create the classes which really make the analysis
-  theSegmentAnalysis = new DTSegmentAnalysis(pset.getParameter<ParameterSet>("SegmentAnalysisConfig"), dbe);
+  theSegmentAnalysis =
+    new DTSegmentAnalysis(pset.getParameter<ParameterSet>("segmentAnalysisConfig"), dbe);
   
-  
+  theResolutionAnalysis =
+    new DTResolutionAnalysis(pset.getParameter<ParameterSet>("resolutionAnalysisConfig"), dbe);
 
 
 //   logFile.open("DTLocalRecoTask.log");
@@ -86,7 +89,7 @@ void DTLocalRecoTask::endJob(){
 void DTLocalRecoTask::analyze(const Event& event, const EventSetup& setup){
  
   theSegmentAnalysis->analyze(event, setup);
- 
+  theResolutionAnalysis->analyze(event, setup);
 
 }
 

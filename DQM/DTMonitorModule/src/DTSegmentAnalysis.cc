@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/01 11:09:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/01 14:35:08 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -52,7 +52,6 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
     int nsegm = distance(range.first, range.second);
     cout << "   Chamber: " << *chamberId << " has " << nsegm
 	 << " 4D segments" << endl;
-    //FIXME: fill histo about number of segments
     fillHistos(*chamberId, nsegm);
     // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
