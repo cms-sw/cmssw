@@ -39,7 +39,7 @@ L1GctJetCounter::L1GctJetCounter(int id, vector<L1GctJetLeafCard*> leafCards,
   
   for(unsigned int i = 0; i < m_jetLeafCards.size(); ++i)
   {
-    if(m_jetLeafCards[i] == 0)
+    if(m_jetLeafCards.at(i) == 0)
     {
       throw cms::Exception("L1GctSetupError")
       << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
@@ -70,7 +70,7 @@ ostream& operator << (ostream& os, const L1GctJetCounter& algo)
   os << *algo.m_jetCounterLut << endl;
   os << "No of Leaf cards " << algo.m_jetLeafCards.size() << endl;
   for (unsigned i=0; i<algo.m_jetLeafCards.size(); i++) {
-    os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards[i]<< endl;
+    os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards.at(i)<< endl;
     os << "No of jets from this leafCard, jetFinder A " << algo.m_jetLeafCards.at(i)->getOutputJetsA().size() << endl;
     os << "No of jets from this leafCard, jetFinder B " << algo.m_jetLeafCards.at(i)->getOutputJetsB().size() << endl;
     os << "No of jets from this leafCard, jetFinder C " << algo.m_jetLeafCards.at(i)->getOutputJetsC().size() << endl;
@@ -78,7 +78,7 @@ ostream& operator << (ostream& os, const L1GctJetCounter& algo)
   os << "No of input jets " << algo.m_jets.size() << endl;
 //   for(unsigned i=0; i < algo.m_jets.size(); ++i)
 //     {
-//       os << algo.m_jets[i]; 
+//       os << algo.m_jets.at(i); 
 //     }
   os << "Value of counter " << algo.m_value << endl;
   os << endl;

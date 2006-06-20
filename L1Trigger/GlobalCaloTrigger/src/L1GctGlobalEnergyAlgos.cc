@@ -12,13 +12,13 @@ using std::max;
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
 					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
-  m_plusWheelFpga(wheelFpga[1]),
-  m_minusWheelFpga(wheelFpga[0]),
-  m_plusWheelJetFpga(wheelJetFpga[1]),
-  m_minusWheelJetFpga(wheelJetFpga[0]),
-  m_jcValPlusWheel(12),
-  m_jcVlMinusWheel(12),
-  m_outputJetCounts(12)
+  m_plusWheelFpga(wheelFpga.at(1)),
+  m_minusWheelFpga(wheelFpga.at(0)),
+  m_plusWheelJetFpga(wheelJetFpga.at(1)),
+  m_minusWheelJetFpga(wheelJetFpga.at(0)),
+  m_jcValPlusWheel(L1GctWheelJetFpga::N_JET_COUNTERS),
+  m_jcVlMinusWheel(L1GctWheelJetFpga::N_JET_COUNTERS),
+  m_outputJetCounts(L1GctWheelJetFpga::N_JET_COUNTERS)
 {
   if(wheelFpga.size() != 2)
   {
@@ -82,8 +82,8 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
   os << "Input Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_jcValPlusWheel.size(); i++)
     {
-      os << "  Plus wheel  " << i << ": " << fpga.m_jcValPlusWheel[i];
-      os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel[i] << endl;
+      os << "  Plus wheel  " << i << ": " << fpga.m_jcValPlusWheel.at(i);
+      os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel.at(i) << endl;
     } 
   os << endl;
   os << "Output Etmiss " << fpga.m_outputEtMiss << endl;
@@ -93,7 +93,7 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
   os << "Output Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
     {
-      os << i << ": " << fpga.m_outputJetCounts[i] << endl;
+      os << i << ": " << fpga.m_outputJetCounts.at(i) << endl;
     } 
   os << endl;
 
@@ -112,8 +112,8 @@ void L1GctGlobalEnergyAlgos::reset()
   m_htValPlusWheel.reset();
   m_htVlMinusWheel.reset();
   for (int i=0; i<12; i++) {
-    m_jcValPlusWheel[i].reset();
-    m_jcVlMinusWheel[i].reset();
+    m_jcValPlusWheel.at(i).reset();
+    m_jcVlMinusWheel.at(i).reset();
   }
   //
   m_outputEtMiss.reset();
@@ -121,7 +121,7 @@ void L1GctGlobalEnergyAlgos::reset()
   m_outputEtSum.reset();
   m_outputEtHad.reset();
   for (int i=0; i<12; i++) {
-    m_outputJetCounts[i].reset();
+    m_outputJetCounts.at(i).reset();
   }
 }
 
@@ -139,8 +139,8 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
 
   //
   for (unsigned i=0; i<12; i++) {
-    m_jcValPlusWheel[i] = m_plusWheelJetFpga->getOutputJc(i);
-    m_jcVlMinusWheel[i] = m_minusWheelJetFpga->getOutputJc(i);
+    m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
+    m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
   }
 }
 
@@ -172,9 +172,9 @@ void L1GctGlobalEnergyAlgos::process()
   //-----------------------------------------------------------------------------
   // Add the jet counts.
   for (int i=0; i<12; i++) {
-    m_outputJetCounts[i] =
-      L1GctJcFinalType(m_jcValPlusWheel[i]) +
-      L1GctJcFinalType(m_jcVlMinusWheel[i]);
+    m_outputJetCounts.at(i) =
+      L1GctJcFinalType(m_jcValPlusWheel.at(i)) +
+      L1GctJcFinalType(m_jcVlMinusWheel.at(i));
   }
 }
 
@@ -241,9 +241,9 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
 void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count)
 {
   if (wheel==0) {
-    m_jcValPlusWheel[jcnum].setValue(count);
+    m_jcValPlusWheel.at(jcnum).setValue(count);
   } else if (wheel==1) {
-    m_jcVlMinusWheel[jcnum].setValue(count);
+    m_jcVlMinusWheel.at(jcnum).setValue(count);
   }
 
 }
@@ -297,13 +297,13 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctEtComponent ex, const L
   Mx = static_cast<unsigned>(abs(ex.value()));
   Mw = ((Mx+My)*root2fact)>>8;
 
-  s[0] = (ey.value()<0);
-  s[1] = (ex.value()<0);
-  s[2] = (My>Mx);
+  s.at(0) = (ey.value()<0);
+  s.at(1) = (ex.value()<0);
+  s.at(2) = (My>Mx);
 
   phibin = 0; b = 0;
   for (int i=0; i<3; i++) {
-    if (s[i]) { b=1-b;} phibin = 2*phibin + b;
+    if (s.at(i)) { b=1-b;} phibin = 2*phibin + b;
   }
 
   eneCoarse = max(max(Mx, My), Mw);

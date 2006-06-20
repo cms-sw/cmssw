@@ -61,8 +61,8 @@ void L1GlobalCaloTrigger::openSourceCardFiles(string fileBase){
     ss >> fileNo;
     string fileName = fileBase+fileNo;
     theSourceCards.at(3*i)->openInputFile(fileName);
-    theSourceCards[3*i+1]->openInputFile(fileName);
-    theSourceCards[3*i+2]->openInputFile(fileName);
+    theSourceCards.at(3*i+1)->openInputFile(fileName);
+    theSourceCards.at(3*i+2)->openInputFile(fileName);
   }
 }
 
@@ -70,26 +70,26 @@ void L1GlobalCaloTrigger::reset() {
 
   // Source cards
   for (int i=0; i<N_SOURCE_CARDS; i++) {
-    theSourceCards[i]->reset();
+    theSourceCards.at(i)->reset();
   }
 
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
-    theEmLeafCards[i]->reset();
+    theEmLeafCards.at(i)->reset();
   }
 
   // Jet Leaf cards
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards[i]->reset();
+    theJetLeafCards.at(i)->reset();
   }
 
   // Wheel Cards
   for (int i=0; i<N_WHEEL_CARDS; i++) {
-    theWheelJetFpgas[i]->reset();
+    theWheelJetFpgas.at(i)->reset();
   }
 
   for (int i=0; i<N_WHEEL_CARDS; i++) {
-    theWheelEnergyFpgas[i]->reset();
+    theWheelEnergyFpgas.at(i)->reset();
   }
 
   // Electron Final Stage
@@ -109,31 +109,31 @@ void L1GlobalCaloTrigger::process() {
   // Source cards
   for (int i=0; i<N_SOURCE_CARDS; i++) {
     if (readFromFile) {
-      theSourceCards[i]->readBX();
+      theSourceCards.at(i)->readBX();
     }
   }
 
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
-    theEmLeafCards[i]->fetchInput();
-    theEmLeafCards[i]->process();
+    theEmLeafCards.at(i)->fetchInput();
+    theEmLeafCards.at(i)->process();
   }
 
   // Jet Leaf cards
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards[i]->fetchInput();
-    theJetLeafCards[i]->process();
+    theJetLeafCards.at(i)->fetchInput();
+    theJetLeafCards.at(i)->process();
   }
 
   // Wheel Cards
   for (int i=0; i<N_WHEEL_CARDS; i++) {
-    theWheelJetFpgas[i]->fetchInput();
-    theWheelJetFpgas[i]->process();
+    theWheelJetFpgas.at(i)->fetchInput();
+    theWheelJetFpgas.at(i)->process();
   }
 
   for (int i=0; i<N_WHEEL_CARDS; i++) {
-    theWheelEnergyFpgas[i]->fetchInput();
-    theWheelEnergyFpgas[i]->process();
+    theWheelEnergyFpgas.at(i)->fetchInput();
+    theWheelEnergyFpgas.at(i)->process();
   }
 
   // Electron Final Stage
@@ -163,9 +163,9 @@ void L1GlobalCaloTrigger::setRegion(L1GctRegion region) {
   }
   unsigned scnum = L1GctMap::getMap()->sourceCard(region);
   unsigned input = L1GctMap::getMap()->sourceCardOutput(region);
-  L1GctSourceCard* sc = theSourceCards[scnum];
+  L1GctSourceCard* sc = theSourceCards.at(scnum);
   std::vector<L1GctRegion> tempRegions = sc->getRegions();
-  tempRegions[input] = region;
+  tempRegions.at(input) = region;
   sc->setRegions(tempRegions);
 }
 
@@ -183,26 +183,26 @@ void L1GlobalCaloTrigger::print() {
   cout << endl;
 
   for (unsigned i=0; i<theSourceCards.size(); i++) {
-    cout << "Source Card " << i << " : " << theSourceCards[i] << endl;
-    //cout << (*theSourceCards[i]); 
+    cout << "Source Card " << i << " : " << theSourceCards.at(i) << endl;
+    //cout << (*theSourceCards.at(i)); 
   }
   cout << endl;
 
   for (unsigned i=0; i<theJetLeafCards.size(); i++) {
-    cout << "Jet Leaf Card " << i << " : " << theJetLeafCards[i] << endl;
-    cout << (*theJetLeafCards[i]);
+    cout << "Jet Leaf Card " << i << " : " << theJetLeafCards.at(i) << endl;
+    cout << (*theJetLeafCards.at(i));
   }
   cout << endl;
 
   for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
-    cout << "Wheel Jet FPGA " << i << " : " << theWheelJetFpgas[i] << endl; 
-    cout << (*theWheelJetFpgas[i]);
+    cout << "Wheel Jet FPGA " << i << " : " << theWheelJetFpgas.at(i) << endl; 
+    cout << (*theWheelJetFpgas.at(i));
   }
   cout << endl;
 
   for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
-    cout << "Wheel Energy FPGA " << i <<" : " << theWheelEnergyFpgas[i] << endl; 
-    cout << (*theWheelEnergyFpgas[i]);
+    cout << "Wheel Energy FPGA " << i <<" : " << theWheelEnergyFpgas.at(i) << endl; 
+    cout << (*theWheelEnergyFpgas.at(i));
   }
   cout << endl;
 
@@ -213,8 +213,8 @@ void L1GlobalCaloTrigger::print() {
   cout << endl;
 
   for (unsigned i=0; i<theEmLeafCards.size(); i++) {
-    cout << "EM Leaf Card " << i << " : " << theEmLeafCards[i] << endl;
-    cout << (*theEmLeafCards[i]);
+    cout << "EM Leaf Card " << i << " : " << theEmLeafCards.at(i) << endl;
+    cout << (*theEmLeafCards.at(i));
   }
   cout << endl;
 
@@ -286,9 +286,9 @@ void L1GlobalCaloTrigger::build() {
 
   // Source cards
   for (int i=0; i<(N_SOURCE_CARDS/3); i++) {
-    theSourceCards[3*i]   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
-    theSourceCards[3*i+1] = new L1GctSourceCard(3*i+1, L1GctSourceCard::cardType2);
-    theSourceCards[3*i+2] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
+    theSourceCards.at(3*i)   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
+    theSourceCards.at(3*i+1) = new L1GctSourceCard(3*i+1, L1GctSourceCard::cardType2);
+    theSourceCards.at(3*i+2) = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
   }
 
   // Now we have the source cards prepare vectors of the relevent cards for the connections
@@ -307,7 +307,7 @@ void L1GlobalCaloTrigger::build() {
       // inputs are the barrel regions and the odd-numbered
       // regions the endcap and HF
       int k = 3*(j/2) - (j%2) + 2;
-      jetSourceCards[j]=theSourceCards[(i*9+k)];
+      jetSourceCards.at(j)=theSourceCards.at((i*9+k));
       // Neighbour connections
       int iup = (i*3+3) % 9;
       int idn = (i*3+8) % 9;
@@ -333,21 +333,21 @@ void L1GlobalCaloTrigger::build() {
       }
       // Leaf card inputs 6-9 are the neighbours in phi,
       // taking account of wraparound at phi=0
-      jetSourceCards[6] = theSourceCards[ii*3+2];
-      jetSourceCards[7] = theSourceCards[ii*3+1];
-      jetSourceCards[8] = theSourceCards[i0*3+2];
-      jetSourceCards[9] = theSourceCards[i0*3+1];
+      jetSourceCards.at(6) = theSourceCards.at(ii*3+2);
+      jetSourceCards.at(7) = theSourceCards.at(ii*3+1);
+      jetSourceCards.at(8) = theSourceCards.at(i0*3+2);
+      jetSourceCards.at(9) = theSourceCards.at(i0*3+1);
       // The remaining connections are those for the eta-0
       // regions from the other wheel and may change
-      jetSourceCards[10]= theSourceCards[i1*3+2];
-      jetSourceCards[11]= theSourceCards[i2*3+2];
-      jetSourceCards[12]= theSourceCards[i3*3+2];
-      jetSourceCards[13]= theSourceCards[i4*3+2];
-      jetSourceCards[14]= theSourceCards[i5*3+2];
+      jetSourceCards.at(10)= theSourceCards.at(i1*3+2);
+      jetSourceCards.at(11)= theSourceCards.at(i2*3+2);
+      jetSourceCards.at(12)= theSourceCards.at(i3*3+2);
+      jetSourceCards.at(13)= theSourceCards.at(i4*3+2);
+      jetSourceCards.at(14)= theSourceCards.at(i5*3+2);
       //
       
     }
-    theJetLeafCards[i] = new L1GctJetLeafCard(i,i % 3,jetSourceCards, m_jetEtCalLut);
+    theJetLeafCards.at(i) = new L1GctJetLeafCard(i,i % 3,jetSourceCards, m_jetEtCalLut);
   }
 
   // EM leaf cards  
@@ -355,9 +355,9 @@ void L1GlobalCaloTrigger::build() {
 
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     for (int j=0; j<9; j++) {
-      emSourceCards[j]=theSourceCards[(i*9+j)*3];
+      emSourceCards.at(j)=theSourceCards.at((i*9+j)*3);
     }
-    theEmLeafCards[i] = new L1GctEmLeafCard(i,emSourceCards);
+    theEmLeafCards.at(i) = new L1GctEmLeafCard(i,emSourceCards);
   }
 
    // Wheel Fpgas
@@ -366,23 +366,23 @@ void L1GlobalCaloTrigger::build() {
 
    for (int i=0; i<N_WHEEL_CARDS; i++) {
      for (int j=0; j<3; j++) {
-       wheelJetLeafCards[j]=theJetLeafCards[i*3+j];
-       wheelEnergyLeafCards[j]=theJetLeafCards[i*3+j];
+       wheelJetLeafCards.at(j)=theJetLeafCards.at(i*3+j);
+       wheelEnergyLeafCards.at(j)=theJetLeafCards.at(i*3+j);
      }
      if (i==0) { 
-       theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_minusWheelJetCounterLuts);
+       theWheelJetFpgas.at(i) = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_minusWheelJetCounterLuts);
      } else { 
-       theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_plusWheelJetCounterLuts);
+       theWheelJetFpgas.at(i) = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_plusWheelJetCounterLuts);
      } 
-     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
+     theWheelEnergyFpgas.at(i) = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
    }
   
    // Jet Final Stage  
    theJetFinalStage = new L1GctJetFinalStage(theWheelJetFpgas);
 
   // Electron Final Sort
-   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards[0], theEmLeafCards[1]);
-   theNonIsoEmFinalStage = new L1GctElectronFinalSort(false,theEmLeafCards[0], theEmLeafCards[1]);  
+   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards.at(0), theEmLeafCards.at(1));
+   theNonIsoEmFinalStage = new L1GctElectronFinalSort(false,theEmLeafCards.at(0), theEmLeafCards.at(1));  
 
   // Global Energy Algos
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);

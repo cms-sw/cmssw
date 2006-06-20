@@ -174,6 +174,6 @@ void L1GctJetFinalStage::storeJets(JetVector& storageVector, JetVector jets, uns
 {
   for(unsigned short iJet = 0; iJet < L1GctWheelJetFpga::MAX_JETS_OUT; ++iJet)
   {
-    storageVector.at((iWheel*L1GctWheelJetFpga::MAX_JETS_OUT) + iJet) = jets[iJet];
+    storageVector.at((iWheel*L1GctWheelJetFpga::MAX_JETS_OUT) + iJet) = jets.at(iJet);
   }
 }
