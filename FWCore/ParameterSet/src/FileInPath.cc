@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.9 2006/06/06 21:42:55 rpw Exp $
+// $Id: FileInPath.cc,v 1.10 2006/06/19 21:40:34 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -150,7 +150,19 @@ namespace edm
     // This #if needed for backward compatibility
     // for files written before CMSSW_0_8_0_pre2.
     if (canonicalFilename_.empty()) {
-      abort();
+      throw edm::Exception(edm::errors::FileInPathError)
+        << "Unable to find file "
+        << relativePath_
+        << " anywhere in the search path."
+        << "\nThe search path is defined by: "
+        << PathVariableName
+        << "\n${"
+        << PathVariableName
+        << "} is: "
+        << getenv(PathVariableName.c_str())
+        << "\nCurrent directory is: "
+        << bf::initial_path().string()
+        << "\n";    
     }
 #endif
     return canonicalFilename_;
