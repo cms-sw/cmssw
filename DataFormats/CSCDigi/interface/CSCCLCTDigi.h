@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/05/16 15:22:57 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/01 07:45:44 $
+ * $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU
  */
@@ -30,7 +30,7 @@ class CSCCLCTDigi {
   /// check CLCT validity (1 - valid CLCT)
   bool isValid()     const {return valid_ ;}
 
-  /// return quality of a pattern
+  /// return quality of a pattern (number of layers hit!)
   int getQuality()   const {return quality_ ;}
 
   /// return pattern
@@ -54,17 +54,17 @@ class CSCCLCTDigi {
   /// return track number (1,2)
   int getTrknmb()    const {return trknmb_ ;}
 
-  /// Convert strip and CFEB to keyStrip. Each CFEB has up to 16 strips
-  /// (32 halfstrips). There are 5 cfebs.  The "strip" variable is one
+  /// Convert strip_ and cfeb_ to keyStrip. Each CFEB has up to 16 strips
+  /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
   /// of 32 halfstrips on the keylayer of a single CFEB, so that
   /// Distrip   = (cfeb*32 + strip)/4.
   /// Halfstrip = (cfeb*32 + strip).
+  /// Always return halfstrip number since this is what is stored in
+  /// the correlated LCT digi.  For distrip patterns, the convention is
+  /// the same as for persistent strip numbers: low halfstrip of a distrip.
+  /// SV, June 15th, 2006.
   int getKeyStrip()  const {
-    int keyStrip = 0;
-    if (striptype_ == 1)
-      keyStrip = cfeb_ * 32 + strip_;
-    else
-      keyStrip = cfeb_ * 8  + strip_/4;
+    int keyStrip = cfeb_ * 32 + strip_;
     return keyStrip;
   }
 
