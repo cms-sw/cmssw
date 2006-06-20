@@ -1,13 +1,16 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayerBuilder.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
 
+using namespace edm;
 using namespace std;
 
 TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 				 const TrackerGeometry* theGeomDetGeometry){
 
   vector<const GeometricDet*>  theGeometricDetRods = aTOBLayer->components();
-  //cout << "theGeometricDetRods has size: " << theGeometricDetRods.size() << endl;  
   vector<const GeometricDet*> negativeZrods;
   vector<const GeometricDet*> positiveZrods;
 
@@ -22,54 +25,33 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
   vector<const TOBRod*> theInnerRods;
   vector<const TOBRod*> theOuterRods;
   
-  //cout << "positiveZrods[0]->positionBounds().perp(): " << positiveZrods[0]->positionBounds().perp() << endl;
-  //cout << "positiveZrods[1]->positionBounds().perp(): " << positiveZrods[1]->positionBounds().perp() << endl;
+  //LogDebug("TkDetLayers") << "positiveZrods[0]->positionBounds().perp(): " 
+  //			  << positiveZrods[0]->positionBounds().perp() ;
+  //LogDebug("TkDetLayers") << "positiveZrods[1]->positionBounds().perp(): " 
+  //			  << positiveZrods[1]->positionBounds().perp() ;
 
 
   double meanR = (positiveZrods[0]->positionBounds().perp()+positiveZrods[1]->positionBounds().perp())/2;
-  for(unsigned int index=0; index!=positiveZrods.size(); index++){
-    if ((negativeZrods.size()>0)&&(positiveZrods.size()>0)){
-      if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
-	cout << "ERROR:rods don't have the same phi. exit!" << endl;
-	break;      
-      }
-    }
 
-    if(positiveZrods.size()>0){
-      if(negativeZrods.size()>0){
-	if(positiveZrods[index]->positionBounds().perp() < meanR)
-	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       positiveZrods[index],
-						       theGeomDetGeometry)    );       
-	if(positiveZrods[index]->positionBounds().perp() > meanR)
-	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       positiveZrods[index],
-						       theGeomDetGeometry)    );       
-      } else{
-	if(positiveZrods[index]->positionBounds().perp() < meanR)
-	  theInnerRods.push_back(myTOBRodBuilder.build(0,
-						       positiveZrods[index],
-						       theGeomDetGeometry)    );       
-	if(positiveZrods[index]->positionBounds().perp() > meanR)
-	  theOuterRods.push_back(myTOBRodBuilder.build(0,
-						       positiveZrods[index],
-						       theGeomDetGeometry)    );       
-      }
-    }else{
-   	if(positiveZrods[index]->positionBounds().perp() < meanR)
-	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
-						       theGeomDetGeometry)    );       
-	if(positiveZrods[index]->positionBounds().perp() > meanR)
-	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
-						       theGeomDetGeometry)    );
-    }   
+  for(unsigned int index=0; index!=positiveZrods.size(); index++){
+    if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
+      edm::LogError("TkDetLayers") << "ERROR:rods don't have the same phi. exit!";
+      break;      
+    }
+    
+    if(positiveZrods[index]->positionBounds().perp() < meanR)
+      theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						   positiveZrods[index],
+						   theGeomDetGeometry)    );       
+    if(positiveZrods[index]->positionBounds().perp() > meanR)
+      theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						   positiveZrods[index],
+						   theGeomDetGeometry)    );       
   }
 
   
-  //cout << "theInnerRods.size(): " << theInnerRods.size() << endl;
-  //cout << "theOuterRods.size(): " << theOuterRods.size() << endl;
+  //LogDebug("TkDetLayers") << "theInnerRods.size(): " << theInnerRods.size() ;
+  //LogDebug("TkDetLayers") << "theOuterRods.size(): " << theOuterRods.size() ;
   
 
   return new TOBLayer(theInnerRods,theOuterRods);
