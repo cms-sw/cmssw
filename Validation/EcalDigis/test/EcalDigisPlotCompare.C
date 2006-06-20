@@ -513,11 +513,13 @@ void EcalDigisPlotCompare()
    }
    for ( Int_t  i=0 ; i<3; i++ ) {
      Ecal->cd(i+1);
+     gPad->SetLogy(0);
      if ( meESDigiADC_[i] && newmeESDigiADC_[i] ) { 
        meESDigiADC_[i]->Draw();
        newmeESDigiADC_[i]->Draw("same");
        myPV->PVCompute(meESDigiADC_[i] , newmeESDigiADC_[i] , te );
      }
+     gPad->SetLogy(1);
    }
    Ecal->Print("Preshower_ADC_counts_compare.eps");
  }

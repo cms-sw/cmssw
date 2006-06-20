@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/04/24 16:14:30 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/04 11:16:28 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -38,13 +38,6 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[-1] = 0.;
-  gainConv_[0] = 12.;
-  gainConv_[1] = 6.;
-  gainConv_[2] = 1.;
-  barrelADCtoGeV_ = 0.035;
-  endcapADCtoGeV_ = 0.06;
- 
   for (int i = 0; i < 3 ; i++ ) {
     meESDigiADC_[i] = 0;
   }

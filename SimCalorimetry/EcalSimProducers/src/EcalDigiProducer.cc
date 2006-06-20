@@ -211,18 +211,19 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
-  double theGains[theCoder->NGAINS];
-  theGains[0] = 1.;
-  theGains[1] = defaultRatios->gain6Over1() ;
-  theGains[2] = theGains[1]*(defaultRatios->gain12Over6()) ;
+  double theGains[theCoder->NGAINS+1];
+  theGains[0] = 0.;
+  theGains[3] = 1.;
+  theGains[2] = defaultRatios->gain6Over1() ;
+  theGains[1] = theGains[2]*(defaultRatios->gain12Over6()) ;
 
-  LogDebug("EcalDigi") << " Gains: " << "\n" << " g0 = " << theGains[0] << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2];
+  LogDebug("EcalDigi") << " Gains: " << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2] << "\n" << " g3 = " << theGains[3];
 
   delete defaultRatios;
 
-  const double EBscale = (agc->getEBValue())*theGains[2]*(theCoder->MAXADC);
+  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC);
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
-  const double EEscale = (agc->getEEValue())*theGains[2]*(theCoder->MAXADC);
+  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC);
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
   theCoder->setFullScaleEnergy( EBscale , EEscale );
 

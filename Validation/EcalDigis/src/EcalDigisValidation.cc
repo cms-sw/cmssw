@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/05/04 13:40:43 $
- * $Revision: 1.6 $
+ * $Date: 2006/05/16 16:10:14 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -53,10 +53,10 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[-1] = 0.;
-  gainConv_[0] = 12.;
-  gainConv_[1] = 6.;
-  gainConv_[2] = 1.;
+  gainConv_[0] = 0.;
+  gainConv_[1] = 12.;
+  gainConv_[2] = 6.;
+  gainConv_[3] = 1.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  

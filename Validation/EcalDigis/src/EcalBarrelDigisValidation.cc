@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/05/04 11:16:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/04 13:40:43 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -38,10 +38,10 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[-1] = 0.;
-  gainConv_[0] = 12.;
-  gainConv_[1] = 6.;
-  gainConv_[2] = 1.;
+  gainConv_[0] = 0.;
+  gainConv_[1] = 12.;
+  gainConv_[2] = 6.;
+  gainConv_[3] = 1.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -92,7 +92,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
       meEBDigiADCg12_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
 
       sprintf (histo, "EcalDigiTask Barrel gain pulse %02d", i+1) ;
-      meEBDigiGain_[i] = dbe_->book1D(histo, histo, 3, 0, 3);
+      meEBDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
 
     }
     
@@ -159,13 +159,13 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
       int countsAfterGainSwitch = -1;
-      double higherGain = 2.;
+      double higherGain = 1.;
       int higherGainSample = 0;
 
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         ebAnalogSignal[sample] = 0.;
         ebADCCounts[sample] = 0.;
-        ebADCGains[sample] = -1.;
+        ebADCGains[sample] = 0.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
@@ -181,12 +181,12 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
             pedestalPreSample += ebADCCounts[sample] ;
             pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
           }
-          if ( sample > 0 && ebADCGains[sample] < ebADCGains[sample-1] ) {
+          if ( sample > 0 && ebADCGains[sample] > ebADCGains[sample-1] ) {
             higherGain = ebADCGains[sample];
             higherGainSample = sample;
             countsAfterGainSwitch = 1;
           }
-          if ( higherGain < 2 && higherGainSample != sample && ebADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
+          if ( higherGain > 1 && higherGainSample != sample && ebADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
         }
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
@@ -201,13 +201,13 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       for ( int i = 0 ; i < 10 ; i++ ) {
         if (meEBDigiADCGlobal_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
         if (meEBDigiADCAnalog_[i]) meEBDigiADCAnalog_[i]->Fill( ebAnalogSignal[i]*100. ) ;
-        if ( ebADCGains[i] == 0 ) {
+        if ( ebADCGains[i] == 3 ) {
           if (meEBDigiADCg1_[i]) meEBDigiADCg1_[i]->Fill( ebADCCounts[i] ) ;
         }
-        else if ( ebADCGains[i] == 1 ) {
+        else if ( ebADCGains[i] == 2 ) {
           if (meEBDigiADCg6_[i]) meEBDigiADCg6_[i]->Fill( ebADCCounts[i] ) ;
         }
-        else if ( ebADCGains[i] == 2 ) {
+        else if ( ebADCGains[i] == 1 ) {
           if (meEBDigiADCg12_[i]) meEBDigiADCg12_[i]->Fill( ebADCCounts[i] ) ;
         }
         if (meEBDigiGain_[i]) meEBDigiGain_[i]->Fill( ebADCGains[i] ) ;

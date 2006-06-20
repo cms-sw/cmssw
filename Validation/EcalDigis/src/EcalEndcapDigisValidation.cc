@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/05/04 11:16:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/04 13:40:43 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -38,10 +38,10 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[-1] = 0.;
-  gainConv_[0] = 12.;
-  gainConv_[1] = 6.;
-  gainConv_[2] = 1.;
+  gainConv_[0] = 0.;
+  gainConv_[1] = 12.;
+  gainConv_[2] = 6.;
+  gainConv_[3] = 1.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -96,7 +96,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
       meEEDigiADCg12_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
 
       sprintf (histo, "EcalDigiTask Endcap gain pulse %02d", i+1) ;
-      meEEDigiGain_[i] = dbe_->book1D(histo, histo, 3, 0, 3);
+      meEEDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
     }
     
     sprintf (histo, "EcalDigiTask Endcap pedestal for pre-sample" ) ;
@@ -167,13 +167,13 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
       int countsAfterGainSwitch = -1;
-      double higherGain = 2.;
+      double higherGain = 1.;
       int higherGainSample = 0;
 
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         eeAnalogSignal[sample] = 0.;
         eeADCCounts[sample] = 0.;
-        eeADCGains[sample] = -1.;
+        eeADCGains[sample] = 0.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
@@ -189,12 +189,12 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
             pedestalPreSample += eeADCCounts[sample] ;
             pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
           }
-          if ( sample > 0 && eeADCGains[sample] < eeADCGains[sample-1] ) {
+          if ( sample > 0 && eeADCGains[sample] > eeADCGains[sample-1] ) {
             higherGain = eeADCGains[sample];
             higherGainSample = sample;
             countsAfterGainSwitch = 1;
           }
-          if ( higherGain < 2 && higherGainSample != sample && eeADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
+          if ( higherGain > 1 && higherGainSample != sample && eeADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
         }
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
@@ -209,13 +209,13 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       for ( int i = 0 ; i < 10 ; i++ ) {
         if (meEEDigiADCGlobal_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
         if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i]*100. ) ;
-        if ( eeADCGains[i] == 0 ) {
+        if ( eeADCGains[i] == 3 ) {
           if (meEEDigiADCg1_[i]) meEEDigiADCg1_[i]->Fill( eeADCCounts[i] ) ;
         }
-        else if ( eeADCGains[i] == 1 ) {
+        else if ( eeADCGains[i] == 2 ) {
           if (meEEDigiADCg6_[i]) meEEDigiADCg6_[i]->Fill( eeADCCounts[i] ) ;
         }
-        else if ( eeADCGains[i] == 2 ) {
+        else if ( eeADCGains[i] == 1 ) {
           if (meEEDigiADCg12_[i]) meEEDigiADCg12_[i]->Fill( eeADCCounts[i] ) ;
         }
         if (meEEDigiGain_[i]) meEEDigiGain_[i]->Fill( eeADCGains[i] ) ;

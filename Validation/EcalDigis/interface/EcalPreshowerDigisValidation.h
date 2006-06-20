@@ -4,7 +4,7 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2006/04/03 14:06:41 $
+ * $Date: 2006/04/10 08:50:50 $
  * $Revision: 1.1 $
  * \author F. Cossutti
  *
@@ -67,11 +67,6 @@ private:
  DaqMonitorBEInterface* dbe_;
  
  string outputFile_;
- 
- map<int, double, less<int> > gainConv_;
-
- double barrelADCtoGeV_;
- double endcapADCtoGeV_;
  
  MonitorElement* meESDigiADC_[3];
 
