@@ -1,6 +1,5 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFUnpacker.h"
 
-
 //Framework stuff
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,10 +12,12 @@
 
 //Digi stuff
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 //#include "DataFormats/CSCTFObjects/interface/CSCTFL1Track.h"
 
 //Include LCT digis later
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 //#include "DataFormats/CSCTFObjects/interface/CSCTFL1TrackCollection.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -36,7 +37,7 @@
 #include <iostream>
 
 
-CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
+CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset):ptlut(pset)
 {
   LogDebug("CSCTFUnpacker|ctor") << "starting CSCTFConstructor";
 
@@ -67,7 +68,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
   numOfEvents = 0;
 
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
-  //produces<CSCTFL1TrackCollection>();
+  produces<L1CSCTrackCollection>("MuonL1CSCTrackCollection");
 
   LogDebug("CSCTFUnpacker|ctor") << "... and finished";
 }
@@ -89,10 +90,11 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  e.getByLabel("DaqSource", rawdata);
 
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<L1CSCTrackCollection> trackProduct(new L1CSCTrackCollection);
   //std::auto_ptr<CSCTFL1TrackCollection> trackProduct(new CSCRPCDigiCollection);
 
   for(int fedid = FEDNumbering::getCSCFEDIds().first;
@@ -166,14 +168,14 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			std::vector<CSCSPEvent> SPs = tfEvent.SPs();
 			// Cycle over all of them
 			for(std::vector<CSCSPEvent>::const_iterator sp=SPs.begin(); sp!=SPs.end(); sp++){
-				for(unsigned int tbin=0; tbin<sp->header().nTBINs(); tbin++)
+				for(unsigned int tbin=0; tbin<sp->header().nTBINs(); tbin++){
 					for(unsigned int FPGA=0; FPGA<5; FPGA++)
 						for(unsigned int MPClink=0; MPClink<3; ++MPClink){
 							std::vector<CSCSP_MEblock> lct = sp->record(tbin).LCT(FPGA,MPClink);
 							if( lct.size()==0 ) continue;
 							int station = ( FPGA ? FPGA : 1 );
-							int endcap  = sp->header().endcap();
-							int sector  = sp->header().sector();
+							int endcap  = (sp->header().endcap()?1:2);
+							int sector  =  sp->header().sector();
 							int subsector = ( FPGA>1 ? 0 : FPGA+1 );
 							int cscid   = lct[0].csc() ;
 
@@ -187,8 +189,43 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 						}
 
+					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
+					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++){
+						csc::L1Track track;
+						track.m_endcap = (sp->header().endcap()?1:2);
+						track.m_sector =  sp->header().sector();
+						track.m_lphi      = iter->phi();
+						track.m_ptAddress = iter->ptLUTaddress();
+						track.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
+						track.m_bx        = iter->tbin();
+						pt_data pt = ptlut.Pt(iter->deltaPhi12(),iter->deltaPhi23(),iter->eta(),iter->mode(),iter->f_r(),iter->sign());
+						track.m_rank      = (iter->f_r()?pt.front_rank:pt.rear_rank);
+						//track.f_r         = iter->f_r();
+						track.setPhiPacked(iter->phi());
+						track.setEtaPacked(iter->eta());
+//						track.setPtPacked(pt);
+						track.setChargePacked(iter->charge());
+						track.setChargeValidPacked((iter->f_r()?pt.charge_valid_front:pt.charge_valid_rear));
+						track.setFineHaloPacked(iter->halo());
+//						track.setQualityPacked( quality );
+
+						CSCCorrelatedLCTDigiCollection trackLCTs;
+						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
+						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++){
+							int station   = ( lct->spInput()>6 ? (lct->spInput()-1)/3 : 1 );
+							int subsector = ( lct->spInput()>6 ? 0 : (lct->spInput()-1)/3 + 1 );
+							try{
+								CSCDetId id = TFmapping->detId(track.m_endcap,station,track.m_sector,subsector,lct->csc(),3);
+								trackLCTs.insertDigi(id,CSCCorrelatedLCTDigi(0,lct->vp(),lct->quality(),lct->wireGroup(),lct->strip(),lct->pattern(),lct->l_r(),lct->bx0()));
+							} catch(cms::Exception &e) {
+								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event"<<sp->header().L1A();
+							}
+						}
+						trackProduct->push_back( L1CSCTrack(track,trackLCTs) );
+					}
 				}
 			}
+		}
 	}
 	}
 
