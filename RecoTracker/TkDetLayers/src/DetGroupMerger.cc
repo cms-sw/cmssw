@@ -1,4 +1,5 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -56,8 +57,7 @@ DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& re
     for (vector<DetGroup>::iterator ires=result.begin(); ires!=result.end(); ires++) {
       int resSize = ires->indexSize();
       if (gSize != resSize) {
-	cout << "ERROR: DetGroupMerger::addSameLevel called with groups of different index sizes"
-	     << endl;
+	edm::LogWarning("TkDetLayers") << "Warning: DetGroupMerger::addSameLevel called with groups of different index sizes";
 	// throw something appropriate...or handle it properly (may happen in petals?)
       }
 

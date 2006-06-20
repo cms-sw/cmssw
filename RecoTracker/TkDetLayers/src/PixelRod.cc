@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelRod.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
@@ -12,18 +15,18 @@ PixelRod::PixelRod(vector<const GeomDet*>& theInputDets):
 {
   theBinFinder = BinFinderType(theDets.begin(),theDets.end());
 
-  /*
-  cout << "==== DEBUG PixelRod =====" << endl; 
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "==== DEBUG PixelRod ====="; 
   for (vector<const GeomDet*>::const_iterator i=theDets.begin();
        i != theDets.end(); i++){
-    cout << "PixelRod's Det pos z,perp,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+    LogDebug("TkDetLayers") << "PixelRod's Det pos z,perp,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
-  cout << "==== end DEBUG PixelRod =====" << endl; 
-  */
+  LogDebug("TkDetLayers") << "==== end DEBUG PixelRod ====="; 
+  //--------------------------------------
 
 
 }
@@ -41,7 +44,7 @@ PixelRod::components() const{
 pair<bool, TrajectoryStateOnSurface>
 PixelRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 		      const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of PixelRod::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of PixelRod::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -102,7 +105,7 @@ PixelRod::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est) const
 {
-  cout << "dummy implementation of PixelRod::groupedCompatibleDets()" << endl;
+  LogDebug("TkDetLayers") << "dummy implementation of PixelRod::groupedCompatibleDets()" ;
   return vector<DetGroup>();
 }
 

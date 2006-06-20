@@ -1,17 +1,20 @@
 #include "RecoTracker/TkDetLayers/interface/TIDRing.h"
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+
+#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
+#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
 using namespace std;
 
@@ -40,25 +43,24 @@ TIDRing::TIDRing(vector<const GeomDet*>& innerDets,
   theBackBinFinder  = BinFinderType( theBackDets.front()->surface().position().phi(),
 				     theBackDets.size());  
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for TIDRing" << endl;
 
+  
+  LogDebug("TkDetLayers") << "DEBUG INFO for TIDRing" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
-    cout << "frontDet phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
+			    << (*it)->surface().position().phi()  << " , "
+			    << (*it)->surface().position().z()    << " , "
+			    << (*it)->surface().position().perp() ;
   }
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
-    cout << "backDet phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z()   << " , "
+			    << (*it)->surface().position().perp() ;
   }
-  ----------------------------------- */
 
 
 }
@@ -77,7 +79,7 @@ TIDRing::components() const
 pair<bool, TrajectoryStateOnSurface>
 TIDRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TIDRing::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of TIDRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -116,8 +118,8 @@ TIDRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in TIDRing::groupedCompatibleDets:" 
-    // << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TIDRing::groupedCompatibleDets:" 
+    // << err.what() ;
     return closestResult;
   }
 
@@ -153,7 +155,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
   if (!frontPath.first) {
-    //cout << "ERROR in TIDRing: front disk not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TIDRing: front disk not crossed by track" ;
     throw DetLayerException("TIDRing: front disk not crossed by track");
   }
 
@@ -167,7 +169,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
   if (!backPath.first) {
-    //cout << "ERROR in TIDRing: back disk not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TIDRing: back disk not crossed by track" ;
     throw DetLayerException("TIDRing: back disk not crossed by track");
   }
 
@@ -313,11 +315,11 @@ TIDRing::computeDetPhiRange( const BoundPlane& plane) const
   if (myBounds == 0) {
     string errmsg="TkForwardRing: problems with dynamic cast to trapezoidal bounds for Det";
     throw DetLayerException(errmsg);
-    cout << errmsg << endl;
+    edm::LogError("TkDetLayers") << errmsg ;
   }
   vector<float> parameters = (*myBounds).parameters();
   if ( parameters[0] == 0 ) 
-    cout << "TkForwardRing: something weird going on with trapezoidal Plane Bounds!" << endl;
+    edm::LogError("TkDetLayers") << "TkForwardRing: something weird going on with trapezoidal Plane Bounds!" ;
   
   float hbotedge = parameters[0];
   float htopedge = parameters[1];

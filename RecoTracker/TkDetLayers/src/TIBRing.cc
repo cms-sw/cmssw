@@ -1,7 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/TIBRing.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
@@ -31,18 +32,18 @@ TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets):
 
   computeHelicity();
 
-  /*
-  cout << "==== DEBUG TIBRing =====" << endl; 
+  
+  LogDebug("TkDetLayers") << "==== DEBUG TIBRing =====" ; 
   for (vector<const GeomDet*>::const_iterator i=theDets.begin();
        i != theDets.end(); i++){
-    cout << "Ring's Det pos z,perp,eta,phi: " 
+    LogDebug("TkDetLayers") << "Ring's Det pos z,perp,eta,phi: " 
 	 << (**i).position().z() << " , " 
 	 << (**i).position().perp() << " , " 
 	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+	 << (**i).position().phi() ;
   }
-  cout << "==== end DEBUG TIBRing =====" << endl; 
-  */
+  LogDebug("TkDetLayers") << "==== end DEBUG TIBRing =====" ; 
+ 
   
 }
 
@@ -83,12 +84,11 @@ void TIBRing::checkPeriodicity(vector<const GeomDet*>::const_iterator first,
 
   if ( fabs(step-phi_step)/phi_step > 0.01) {
     int ndets = last-first;
-    cout << "TIBRing Warning: not periodic. ndets=" << ndets << endl;
+    edm::LogError("TkDetLayers") << "TIBRing Warning: not periodic. ndets=" << ndets ;
     for (int j=0; j<ndets; j++) {
-      cout << "Dets(r,phi): (" << theDets[j]->surface().position().perp() 
-	   << "," << theDets[j]->surface().position().phi() << ") " << endl;
+      edm::LogError("TkDetLayers") << "Dets(r,phi): (" << theDets[j]->surface().position().perp() 
+				 << "," << theDets[j]->surface().position().phi() << ") " ;
     }
-    cout << endl;
     throw DetLayerException( "Error: TIBRing is not periodic");
   }
 }
@@ -98,8 +98,8 @@ void TIBRing::computeHelicity() {
   const GeomDet& det = *theDets.front();
   GlobalVector radial = det.surface().position() - GlobalPoint(0,0,0);
   GlobalVector normal = det.surface().toGlobal( LocalVector(0,0,1));
-//   cout << "BarrelDetRing::computeHelicity: phi(normal) " << normal.phi()
-//        << " phi(radial) " << radial.phi() << endl;
+//   edm::LogInfo(TkDetLayers) << "BarrelDetRing::computeHelicity: phi(normal) " << normal.phi()
+//        << " phi(radial) " << radial.phi() ;
   if (PhiLess()( normal.phi(), radial.phi())) {
     theHelicity = 0;  // smaller phi angles mean "inner" group
   }
@@ -117,7 +117,7 @@ TIBRing::~TIBRing(){
 pair<bool, TrajectoryStateOnSurface>
 TIBRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TIBRing::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of TIBRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -157,8 +157,8 @@ TIBRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in TIBRing::groupedCompatibleDets:" 
-    // << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TIBRing::groupedCompatibleDets:" 
+    // << err.what() ;
     return closestResult;
   }
   CompatibleDetToGroupAdder adder;
@@ -252,7 +252,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
 					   propDir,specificSurface());
   if (!cylCrossing.hasSolution()) {
-    //cout << "ERROR in TIBRing: cylinder not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TIBRing: cylinder not crossed by track" ;
     throw DetLayerException("TIBRing: inner subRod not crossed by track");
   }
 

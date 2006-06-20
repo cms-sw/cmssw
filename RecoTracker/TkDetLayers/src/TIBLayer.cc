@@ -1,5 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
+
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
@@ -7,9 +11,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
-
 
 using namespace std;
 
@@ -39,26 +41,26 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theOuterCylinder = cylinder( theOuterComps);
   setSurface( cylinder(theComps) );
 
-  /*
-  cout << "==== DEBUG TIBLayer =====" << endl; 
-  for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
-       i != theInnerRings.end(); i++){
-    cout << "inner TIBRing pos z,radius,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).specificSurface().radius() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+  
+  LogDebug("TkDetLayers") << "==== DEBUG TIBLayer =====" ; 
+  for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
+       i != theInnerComps.end(); i++){
+    LogDebug("TkDetLayers") << "inner TIBRing pos z,radius,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
 
-  for (vector<const TIBRing*>::const_iterator i=theOuterRings.begin();
-       i != theOuterRings.end(); i++){
-    cout << "outer TIBRing pos z,radius,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).specificSurface().radius() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+  for (vector<const GeometricSearchDet*>::const_iterator i=theOuterComps.begin();
+       i != theOuterComps.end(); i++){
+    LogDebug("TkDetLayers") << "outer TIBRing pos z,radius,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
-  */
+  
 
 
   // initialise the bin finders
@@ -143,8 +145,8 @@ TIBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in TIBLayer::groupedCompatibleDets:" 
-    //	 << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TIBLayer::groupedCompatibleDets:" 
+    //	 << err.what() ;
     return closestResult;
   }
 
@@ -182,7 +184,7 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    //cout << "ERROR in TIBLayer: inner cylinder not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TIBLayer: inner cylinder not crossed by track" ;
     throw DetLayerException("TIBLayer: inner cylinder not crossed by track");
   }
 
@@ -195,7 +197,7 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
   if (!outerCrossing.hasSolution()) {
-    //cout << "ERROR in TIBLayer: outer cylinder not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TIBLayer: outer cylinder not crossed by track" ;
     throw DetLayerException("TIBLayer: inner cylinder not crossed by track");
   }
 
@@ -219,7 +221,7 @@ bool TIBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 				      const SubLayerCrossing& crossing,
 				      vector<DetGroup>& result) const
 {
-//   cout << "Entering TIBLayer::addClosest" << endl;
+//   edm::LogInfo(TkDetLayers) << "Entering TIBLayer::addClosest" ;
 
   const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const Det* det(sub[crossing.closestDetIndex()]);
@@ -270,13 +272,13 @@ bool TIBLayer::overlap( const GlobalPoint& crossPoint,
 {
   float halfLength = det.surface().bounds().length()/2.;
 
-//   cout << " TIBLayer: checking ring with z " << det.position().z();
+//   edm::LogInfo(TkDetLayers) << " TIBLayer: checking ring with z " << det.position().z();
 
   if ( fabs( crossPoint.z()-det.position().z()) < (halfLength + window)) {
-//     cout << "    PASSED" << endl;
+//     edm::LogInfo(TkDetLayers) << "    PASSED" ;
     return true;
   } else {
-//     cout << "    FAILED " << endl;
+//     edm::LogInfo(TkDetLayers) << "    FAILED " ;
     return false;
   }
 }
@@ -290,8 +292,8 @@ float TIBLayer::computeWindowSize( const GeomDet* det,
   // improve interface to avoid dynamic_cast?
   const BoundPlane& plane( dynamic_cast<const BoundPlane&>(tsos.surface()));
 
-//   cout << "TIBLayer::computeWindowSize: Y axis of tangent plane is"
-//        << plane.toGlobal( LocalVector(0,1,0)) << endl;
+//   edm::LogInfo(TkDetLayers) << "TIBLayer::computeWindowSize: Y axis of tangent plane is"
+//        << plane.toGlobal( LocalVector(0,1,0)) ;
 
   MeasurementEstimator::Local2DVector localError( est.maximalLocalDisplacement(tsos, plane));
   float yError = localError.y();

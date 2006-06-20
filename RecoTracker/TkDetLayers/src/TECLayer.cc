@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/TECLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
@@ -44,28 +47,28 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   theBackBinFinder  = BinFinderPhi(theBackComps.front()->position().phi(),
 				   theBackComps.size());  
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for TECLayer" << endl;
-  cout << "TECLayer z,perp: " 
-       << this->position().z()    << " , "
-       << this->position().perp() << endl;
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "DEBUG INFO for TECLayer" << "\n"
+			  << "TECLayer z,perp: " 
+			  << this->position().z()    << " , "
+			  << this->position().perp() ;
 
-  for(vector<const TECPetal*>::const_iterator it=theFrontPetals.begin(); 
-      it!=theFrontPetals.end(); it++){
-    cout << "frontPetal phi,z,r: " 
+  for(vector<const GeometricSearchDet*>::const_iterator it=theFrontComps.begin(); 
+      it!=theFrontComps.end(); it++){
+    LogDebug("TkDetLayers") << "frontPetal phi,z,r: " 
 	 << (*it)->surface().position().phi() << " , "
 	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+	 << (*it)->surface().position().perp() ;
   }
 
-  for(vector<const TECPetal*>::const_iterator it=theBackPetals.begin(); 
-      it!=theBackPetals.end(); it++){
-    cout << "backPetal phi,z,r: " 
+  for(vector<const GeometricSearchDet*>::const_iterator it=theBackComps.begin(); 
+      it!=theBackComps.end(); it++){
+    LogDebug("TkDetLayers") << "backPetal phi,z,r: " 
 	 << (*it)->surface().position().phi() << " , "
 	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+	 << (*it)->surface().position().perp() ;
   }
-  ----------------------------------- */
+  //----------------------------------- 
 
 
 }
@@ -114,8 +117,8 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in TECLayer::groupedCompatibleDets:" 
-    // << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TECLayer::groupedCompatibleDets:" 
+    // << err.what() ;
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
@@ -160,7 +163,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
   if (!frontPath.first) {
-    //cout << "ERROR in TECLayer: front disk not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TECLayer: front disk not crossed by track" ;
     throw DetLayerException("TECLayer: front disk not crossed by track");
   }
 
@@ -174,7 +177,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
   if (!backPath.first) {
-    //cout << "ERROR in TECLayer: back disk not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TECLayer: back disk not crossed by track" ;
     throw DetLayerException("TECLayer: back disk not crossed by track");
   }
 
@@ -273,10 +276,10 @@ bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 
 
   if ( rangesIntersect(phiRange, petalPhiRange, PhiLess())) {
-//     cout << " overlapInPhi:  Ranges intersect " << endl;
+//     edm::LogInfo(TkDetLayers) << " overlapInPhi:  Ranges intersect " ;
     return true;
   } else {
-//     cout << "  overlapInPhi: Ranges DO NOT intersect " << endl;
+//     edm::LogInfo(TkDetLayers) << "  overlapInPhi: Ranges DO NOT intersect " ;
     return false;
   }
 } 

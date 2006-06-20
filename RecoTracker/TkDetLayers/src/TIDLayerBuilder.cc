@@ -8,7 +8,7 @@ TIDLayer* TIDLayerBuilder::build(const GeometricDet* aTIDLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricRings = aTIDLayer->components();
-  //cout << "theGeometricRings.size(): " << theGeometricRings.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theGeometricRings.size(): " << theGeometricRings.size() ;
 
   TIDRingBuilder myBuilder;
   vector<const TIDRing*> theTIDRings;

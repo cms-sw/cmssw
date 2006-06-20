@@ -1,14 +1,16 @@
 #include "RecoTracker/TkDetLayers/interface/TOBRod.h"
-#include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
-#include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 
 using namespace std;
 
@@ -44,27 +46,27 @@ TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
 
-  /*
-  cout << "==== DEBUG TOBRod =====" << endl; 
+ 
+  LogDebug("TkDetLayers") << "==== DEBUG TOBRod =====" ; 
   for (vector<const GeomDet*>::const_iterator i=theInnerDets.begin();
        i != theInnerDets.end(); i++){
-    cout << "inner TOBRod's Det pos z,perp,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+    LogDebug("TkDetLayers") << "inner TOBRod's Det pos z,perp,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
   
   for (vector<const GeomDet*>::const_iterator i=theOuterDets.begin();
        i != theOuterDets.end(); i++){
-    cout << "outer TOBRod's Det pos z,perp,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+    LogDebug("TkDetLayers") << "outer TOBRod's Det pos z,perp,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
-  cout << "==== end DEBUG TOBRod =====" << endl; 
-  */
+  LogDebug("TkDetLayers") << "==== end DEBUG TOBRod =====" ; 
+  
 
 
 }
@@ -82,7 +84,7 @@ TOBRod::components() const{
 pair<bool, TrajectoryStateOnSurface>
 TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 		    const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TOBRod::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of TOBRod::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -266,15 +268,15 @@ bool TOBRod::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float w
 
   LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
   //   if (fabs(localCrossPoint.z()) > tolerance) {
-  //     cout << "TOBRod::overlap calculation assumes point on surface, but it is off by "
-  // 	 << localCrossPoint.z() << endl;
+  //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
+  // 	 << localCrossPoint.z() ;
   //   }
 
   float localY = localCrossPoint.y();
   float detHalfLength = det.surface().bounds().length()/2.;
 
-  //   cout << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
-  //        << " Window " << window << " halflength "  << detHalfLength << endl;
+  //   edm::LogInfo(TkDetLayers) << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
+  //        << " Window " << window << " halflength "  << detHalfLength ;
   
   if ( ( fabs(localY)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
     return true;

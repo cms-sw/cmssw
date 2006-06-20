@@ -1,4 +1,5 @@
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 
 
@@ -14,9 +15,6 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
   if (det.hasGroups()) {
     vector<DetGroup> tmp( det.groupedCompatibleDets( tsos, prop, est));
 
-//     cout << "CompatibleDetToGroupAdder: det hasGroups, returned group vector of size "
-// 	 << tmp.size() << endl; 
-
     if (!tmp.empty()) {
       if (result.empty()) result = tmp;
       else                DetGroupMerger().addSameLevel( tmp, result);
@@ -30,8 +28,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 	  result.push_back( DetGroup( 0, 1)); // empty group for insertion
 	}
 	if (result.size() != 1) {
-	  cout << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" 
-	       << endl;
+	  edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" ;
 	}
 	for (vector<GeometricSearchDet::DetWithState>::const_iterator i=compatDets.begin();
 	     i!=compatDets.end(); i++) {
@@ -41,7 +38,6 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
     }
   }
 
-  //   cout << "CompatibleDetToGroupAdder: returning false" << endl;
   return false;
 }
 
@@ -56,8 +52,6 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
   GeomDetCompatibilityChecker theCompatibilityChecker;
   pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible( &det,tsos, prop, est);
 
-  //       cout << "CompatibleDetToGroupAdder: det has no groups, is compatible? " << compat.first << endl;
-
   if (compat.first) {
     DetGroupElement ge( &det, compat.second);
     if (result.empty()) {
@@ -65,8 +59,7 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
     }
     else {
       if (result.size() != 1) {
-	cout << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" 
-	     << endl;
+	edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" ;
       }
     }
     result.front().push_back(ge); 

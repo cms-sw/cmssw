@@ -11,7 +11,7 @@ PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarre
   // common place.
 
   vector<const GeometricDet*>  theGeometricDetRods = aPixelBarrelLayer->components();
-  //cout << "theGeometricDetRods has size: " << theGeometricDetRods.size() << endl;  
+  //edm::LogInfo(TkDetLayers) << "theGeometricDetRods has size: " << theGeometricDetRods.size() ;  
   
 
   PixelRodBuilder myPixelRodBuilder;

@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
@@ -27,7 +30,7 @@ SimpleTECWedge::components() const{
 pair<bool, TrajectoryStateOnSurface>
 SimpleTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 			    const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of SimpleTECWedge::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of SimpleTECWedge::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 

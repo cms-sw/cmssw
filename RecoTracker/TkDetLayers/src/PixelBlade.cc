@@ -1,6 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBlade.h"
-#include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
@@ -25,25 +27,24 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
   theBackDiskSector  = BladeShapeBuilderFromDet()(theBackDets);   
 
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for PixelBlade" << endl;
-
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "DEBUG INFO for PixelBlade" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
-    cout << "frontDet phi,z,r: " 
-	 << (*it)->position().phi() << " , "
-	 << (*it)->position().z()   << " , "
-	 << (*it)->position().perp() << endl;
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
+			    << (*it)->position().phi() << " , "
+			    << (*it)->position().z()   << " , "
+			    << (*it)->position().perp() ;;
   }
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
-    cout << "backDet phi,z,r: " 
-	 << (*it)->position().phi() << " , "
-	 << (*it)->position().z()   << " , "
-	 << (*it)->position().perp() << endl;
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " 
+			    << (*it)->position().phi() << " , "
+			    << (*it)->position().z()   << " , "
+			    << (*it)->position().perp() ;
   }
-  -----------------------------------*/
+  //-----------------------------------
 
 }
 
@@ -56,7 +57,7 @@ PixelBlade::components() const{
 pair<bool, TrajectoryStateOnSurface>
 PixelBlade::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 			const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of PixelBlade::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of PixelBlade::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -96,8 +97,8 @@ PixelBlade::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   catch(DetLayerException& err){ //In ORCA, it was a DetLogicError exception
-    //cout << "Aie, got an exception in PixelBlade::groupedCompatibleDets:" 
-    //	 << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got an exception in PixelBlade::groupedCompatibleDets:" 
+    //	 << err.what() ;
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
@@ -144,7 +145,7 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> innerPath = crossing.pathLength( *theFrontDiskSector);
   if (!innerPath.first) {
-    //cout << "ERROR in PixelBlade: inner subBlade not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in PixelBlade: inner subBlade not crossed by track" ;
     throw DetLayerException("PixelBlade: inner subBlade not crossed by track");
   }
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
@@ -157,7 +158,7 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> outerPath = crossing.pathLength( *theBackDiskSector);
   if (!outerPath.first) {
-    //cout << "ERROR in PixelBlade: outer subBlade not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in PixelBlade: outer subBlade not crossed by track" ;
     throw DetLayerException("PixelBlade: outer subBlade not crossed by track");
   }
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
@@ -251,15 +252,15 @@ bool PixelBlade::overlap( const GlobalPoint& crossPoint, const GeomDet& det, flo
 
   LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
   //   if (fabs(localCrossPoint.z()) > tolerance) {
-  //     cout << "PixelBlade::overlap calculation assumes point on surface, but it is off by "
-  // 	 << localCrossPoint.z() << endl;
+  //     edm::LogInfo(TkDetLayers) << "PixelBlade::overlap calculation assumes point on surface, but it is off by "
+  // 	 << localCrossPoint.z() ;
   //   }
 
   float localX = localCrossPoint.x();
   float detHalfLength = det.surface().bounds().length()/2.;
 
-  //   cout << "PixelBlade::overlap: Det at " << det.position() << " hit at " << localY 
-  //        << " Window " << window << " halflength "  << detHalfLength << endl;
+  //   edm::LogInfo(TkDetLayers) << "PixelBlade::overlap: Det at " << det.position() << " hit at " << localY 
+  //        << " Window " << window << " halflength "  << detHalfLength ;
   
   if ( ( fabs(localX)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
     return true;

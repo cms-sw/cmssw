@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 using namespace std;
@@ -13,8 +16,9 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
   float wphimin, wphimax;
   for (vector<const TECWedge*>::const_iterator i = wedges.begin(); i != wedges.end(); i++){
     float zdiff = (**i).surface().position().z() - zStart;
-    if ( fabs( zdiff) > 5.) cout << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
-				 << "Petal from Wedges at different z ! Delta Z = " << zdiff << endl;
+    if ( fabs( zdiff) > 5.) 
+      edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
+				   << "Petal from Wedges at different z ! Delta Z = " << zdiff ;
     float wphi = (**i).surface().position().phi();
     if ( PhiLess()( phiStart, wphi)) {
       wphimin = phiStart;
@@ -25,9 +29,10 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
     }
     float phidiff = wphimax - wphimin;
     if ( phidiff < 0.) phidiff += 2.*Geom::pi();
-    if ( phidiff > 0.3 ) cout << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
-			      << "Petal from Wedges at different phi ! Delta phi = " 
-			      << phidiff << endl;
+    if ( phidiff > 0.3 ) 
+      edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
+				   << "Petal from Wedges at different phi ! Delta phi = " 
+				   << phidiff ;
   }
   
   pair<DiskSectorBounds,GlobalVector> bo = 
@@ -52,8 +57,8 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
 
   for (vector<const TECWedge*>::const_iterator iw=wedges.begin();
        iw != wedges.end(); iw++) {
-    // cout << "---------------------------------------------" << endl;
-    // cout <<   " Builder: Position of wedge     :" << (**iw).position() << endl; 
+    // edm::LogInfo(TkDetLayers) << "---------------------------------------------" ;
+    // edm::LogInfo(TkDetLayers) <<   " Builder: Position of wedge     :" << (**iw).position() ; 
     float ri = (**iw).specificSurface().innerRadius();
     float ro = (**iw).specificSurface().outerRadius();
     float zmi = (**iw).surface().position().z() - (**iw).specificSurface().bounds().thickness()/2.;
@@ -68,18 +73,19 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
     if ( PhiLess()( phimax, phi2)) phimax = phi2;
   }
 
-  if (!PhiLess()(phimin, phimax)) cout << " ForwardDiskSectorBuilderFromWedges : " 
-				       << "Something went wrong with Phi Sorting !" << endl;
+  if (!PhiLess()(phimin, phimax)) 
+    edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges : " 
+				 << "Something went wrong with Phi Sorting !";
   float zPos = (zmax+zmin)/2.;
   float phiWin = phimax - phimin;
   float phiPos = (phimax+phimin)/2.;
   float rmed = (rmin+rmax)/2.;
   if ( phiWin < 0. ) {
     if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
-      cout << " Debug: something strange going on, please check " << endl;
+      edm::LogError("TkDetLayers") << " Debug: something strange going on, please check " ;
     }
-    // cout << " Petal at pi: phi " << phimin << " " << phimax << " " << phiWin 
-    //	 << " " << 2.*Geom::pi()+phiWin << " " << endl;
+    // edm::LogInfo(TkDetLayers) << " Petal at pi: phi " << phimin << " " << phimax << " " << phiWin 
+    //	 << " " << 2.*Geom::pi()+phiWin << " " ;
     phiWin += 2.*Geom::pi();
     phiPos += Geom::pi(); 
   }

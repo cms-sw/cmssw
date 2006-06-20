@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 
@@ -25,7 +28,7 @@ BladeShapeBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const
   pair<DiskSectorBounds,GlobalVector> bo = 
     computeBounds( dets,tmpPlane );
   GlobalPoint pos = meanPos+bo.second;
-  //cout << "global pos in operator: " << pos << endl;
+  //edm::LogInfo(TkDetLayers) << "global pos in operator: " << pos ;
   return new BoundDiskSector( pos, rotation, bo.first);
 }
 
@@ -61,31 +64,32 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
     }
   }
 
-  if (!PhiLess()(phimin, phimax)) cout << " ForwardDiskSectorBuilderFromDet : " 
-				       << "Something went wrong with Phi Sorting !" << endl;
+  if (!PhiLess()(phimin, phimax)) 
+    edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet : " 
+				 << "Something went wrong with Phi Sorting !" ;
   float zPos = (zmax+zmin)/2.;
   float phiWin = phimax - phimin;
   float phiPos = (phimax+phimin)/2.;
   float rmed = (rmin+rmax)/2.;
   if ( phiWin < 0. ) {
     if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
-      cout << " Debug: something strange going on, please check " << endl;
+      edm::LogError("TkDetLayers") << " something strange going on, please check " ;
     }
-    //cout << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
-    //	 << " " << 2.*Geom::pi()+phiWin << " " << endl;
+    //edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
+    //	 << " " << 2.*Geom::pi()+phiWin << " " ;
     phiWin += 2.*Geom::pi();
     phiPos += Geom::pi(); 
   }
   
   LocalVector localPos( rmed*cos(phiPos), rmed*sin(phiPos), zPos);
-  /* ------- debug info --------------
-  cout << "localPos in computeBounds: " << localPos << endl;
-  cout << "rmin:   " << rmin << endl;
-  cout << "rmax:   " << rmax << endl;
-  cout << "zmin:   " << zmin << endl;
-  cout << "zmax:   " << zmax << endl;
-  cout << "phiWin: " << phiWin << endl;
-  ---------------------------------- */
+
+  LogDebug("TkDetLayers") << "localPos in computeBounds: " << localPos << "\n"
+			  << "rmin:   " << rmin << "\n"
+			  << "rmax:   " << rmax << "\n"
+			  << "zmin:   " << zmin << "\n"
+			  << "zmax:   " << zmax << "\n"
+			  << "phiWin: " << phiWin ;
+
   return make_pair(DiskSectorBounds(rmin,rmax,zmin,zmax,phiWin),
 		   plane.toGlobal(localPos) );
 
@@ -108,8 +112,8 @@ BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
     yAxis = planeXAxis;
   }
   else {
-    cout << "something weird in BladeShapeBuilderFromDet::computeRotation." 
-	 << "planeXAxis points inward.." << endl;
+    edm::LogInfo(TkDetLayers) << "something weird in BladeShapeBuilderFromDet::computeRotation." 
+	 << "planeXAxis points inward.." ;
     yAxis =  -planeXAxis;
   }
   */
@@ -124,8 +128,8 @@ BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
     xAxis = -planeYAxis;
   }
   
-  //   cout << "Creating rotation with x,y axis " 
-  //        << xAxis << ", " << yAxis << endl;
+  //   edm::LogInfo(TkDetLayers) << "Creating rotation with x,y axis " 
+  //        << xAxis << ", " << yAxis ;
   return Surface::RotationType( xAxis, yAxis);
 }
 

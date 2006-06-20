@@ -9,7 +9,7 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricWedges = aTECPetal->components();
-  //cout << "theGeometricWedges.size(): " << theGeometricWedges.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theGeometricWedges.size(): " << theGeometricWedges.size() ;
   
   vector<const TECWedge*> theInnerWedges;
   vector<const TECWedge*> theOuterWedges;
@@ -29,8 +29,8 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
       theOuterWedges.push_back(myWedgeBuilder.build(*it,theGeomDetGeometry));
   }
   
-  //cout << "theInnerWededges.size(): " << theInnerWedges.size() << endl;
-  //cout << "theOuterWededges.size(): " << theOuterWedges.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theInnerWededges.size(): " << theInnerWedges.size() ;
+  //edm::LogInfo(TkDetLayers) << "theOuterWededges.size(): " << theOuterWedges.size() ;
    
   return new CompositeTECPetal(theInnerWedges,theOuterWedges);
 }

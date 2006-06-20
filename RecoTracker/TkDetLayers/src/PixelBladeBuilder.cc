@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Surface/interface/TkRotation.h"
 
 using namespace edm;
@@ -26,8 +29,8 @@ PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel
     theBackGeomDets.push_back(theGeomDet);
   }
 
-  //cout << "FrontGeomDet.size(): " << theFrontGeomDets.size() << endl;
-  //cout << "BackGeomDet.size():  " << theBackGeomDets.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "FrontGeomDet.size(): " << theFrontGeomDets.size() ;
+  //edm::LogInfo(TkDetLayers) << "BackGeomDet.size():  " << theBackGeomDets.size() ;
 
   return new PixelBlade(theFrontGeomDets,theBackGeomDets);
 }

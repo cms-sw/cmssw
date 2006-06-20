@@ -9,7 +9,7 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricDets = aTECWedge->components();
-  //cout << "theGeometricDets.size(): " << theGeometricDets.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theGeometricDets.size(): " << theGeometricDets.size() ;
 
   if(theGeometricDets.size() == 1 ) {
     const GeomDet* theGeomDet = 
@@ -28,22 +28,14 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
   }
 
   meanZ = meanZ/theGeometricDets.size();
-  //cout << "meanZ: " << meanZ << endl;
+  //edm::LogInfo(TkDetLayers) << "meanZ: " << meanZ ;
   //----
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
       it!=theGeometricDets.end();it++){
-    double theGeometricDetRposition = (*it)->positionBounds().perp();
+    //double theGeometricDetRposition = (*it)->positionBounds().perp();
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
-    double theGeomDetRposition = theGeomDet->surface().position().perp();
-    
-    if( fabs(theGeomDetRposition -theGeometricDetRposition)> 10.0 ){
-      cout << "warning: problem with GeomDet position in TEC Wedge" << endl;
-      cout << "theGeometricDetRposition: " << theGeometricDetRposition << endl;
-      cout << "theGeomDetRposition: " << theGeomDetRposition << endl;
-      cout << endl;
-    }
-    
+    //double theGeomDetRposition = theGeomDet->surface().position().perp();    
 
     if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
       innerGeomDets.push_back(theGeomDet);
@@ -52,8 +44,8 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
       outerGeomDets.push_back(theGeomDet);      
   }
 
-  //cout << "innerGeomDets.size(): " << innerGeomDets.size() << endl;
-  //cout << "outerGeomDets.size(): " << outerGeomDets.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "innerGeomDets.size(): " << innerGeomDets.size() ;
+  //edm::LogInfo(TkDetLayers) << "outerGeomDets.size(): " << outerGeomDets.size() ;
 
   return new CompositeTECWedge(innerGeomDets,outerGeomDets);
 }

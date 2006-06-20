@@ -11,7 +11,7 @@ TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
   vector<const TECPetal*> theInnerPetals;
   vector<const TECPetal*> theOuterPetals;
 
-  //cout << "theGeometricDetPetals.size(): " << theGeometricDetPetals.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theGeometricDetPetals.size(): " << theGeometricDetPetals.size() ;
   
   double meanZ = ( theGeometricDetPetals.front()->positionBounds().z() + 
 		   theGeometricDetPetals.back()->positionBounds().z() )/2;

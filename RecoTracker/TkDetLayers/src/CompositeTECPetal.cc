@@ -1,7 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/CompositeTECPetal.h"
 
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
@@ -42,25 +43,25 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   theFrontSector = ForwardDiskSectorBuilderFromWedges()( innerWedges);
   theBackSector  = ForwardDiskSectorBuilderFromWedges()( outerWedges);
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for CompositeTECPetal" << endl;
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECPetal" ;
 
-  for(vector<const TECWedge*>::const_iterator it=theFrontWedges.begin(); 
-      it!=theFrontWedges.end(); it++){
-    cout << "frontWedge phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+  for(vector<const GeometricSearchDet*>::const_iterator it=theFrontComps.begin(); 
+      it!=theFrontComps.end(); it++){
+    LogDebug("TkDetLayers") << "frontWedge phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z() <<   " , "
+			    << (*it)->surface().position().perp() ;
   }
 
-  for(vector<const TECWedge*>::const_iterator it=theBackWedges.begin(); 
-      it!=theBackWedges.end(); it++){
-    cout << "backWedge phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+  for(vector<const GeometricSearchDet*>::const_iterator it=theBackComps.begin(); 
+      it!=theBackComps.end(); it++){
+    LogDebug("TkDetLayers") << "backWedge phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z() <<   " , "
+			    << (*it)->surface().position().perp() ;
   }
-  ----------------------------------- */
+  //----------------------------------- 
 
 
 }
@@ -77,7 +78,7 @@ CompositeTECPetal::~CompositeTECPetal(){
 pair<bool, TrajectoryStateOnSurface>
 CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of CompositeTECPetal::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of CompositeTECPetal::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -93,8 +94,8 @@ CompositeTECPetal::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in CompositeTECPetal::groupedCompatibleDets:" 
-    // << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in CompositeTECPetal::groupedCompatibleDets:" 
+    // << err.what() ;
     return closestResult;
   } 
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
@@ -142,7 +143,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
 
   if (!frontPath.first) {
-    //cout << "ERROR in TkPetal: frontSector not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TkPetal: frontSector not crossed by track" ;
     throw DetLayerException("TkPetal: frontSector not crossed by track");
   }
 
@@ -157,7 +158,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
 
   if (!backPath.first) {
-    //cout << "ERROR in TkPetal: backSector not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TkPetal: backSector not crossed by track" ;
     throw DetLayerException("TkPetal: backSector not crossed by track");
   }
   
@@ -223,14 +224,14 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   
   CompatibleDetToGroupAdder adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
-    //if(idet<0 || idet>= theSize) {cout << "===== error! gone out vector bounds.idet: " << idet << endl;exit;}
+    //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet* neighborWedge = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborWedge, window)) break;  // --- to check
     if (!adder.add( *neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet <theSize; idet++) {
-    //if(idet<0 || idet>= theSize) {cout << "===== error! gone out vector bounds.idet: " << idet << endl;exit;}
+    //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet* neighborWedge = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborWedge, window)) break;  // ---- to check
     if (!adder.add( *neighborWedge, tsos, prop, est, result)) break;

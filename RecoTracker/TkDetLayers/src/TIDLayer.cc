@@ -1,10 +1,16 @@
 #include "RecoTracker/TkDetLayers/interface/TIDLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+#include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
+
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 
 //#include "CommonDet/DetLayout/src/DetLessR.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
+
 
 using namespace std;
 
@@ -113,8 +119,8 @@ TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 {
   vector<int> ringIndices = ringIndicesByCrossingProximity(startingState,prop);
   if ( ringIndices.size()!=3 ) {
-    cout << "TkRingedForwardLayer::groupedCompatibleDets : ringIndices.size() = "
-	 << ringIndices.size() << " and not =3!!" << endl;
+    edm::LogError("TkDetLayers") << "TkRingedForwardLayer::groupedCompatibleDets : ringIndices.size() = "
+				 << ringIndices.size() << " and not =3!!" ;
     return vector<DetGroup>();
   }
 

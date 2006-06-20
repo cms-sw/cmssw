@@ -13,13 +13,13 @@ PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelFor
   for(vector<const GeometricDet*>::const_iterator it= theGeometricPanels.begin(); 
       it!=theGeometricPanels.end();it++){
     
-    cout << "panel.phi(): " << (*it)->positionBounds().phi() << " , " 
+    edm::LogInfo(TkDetLayers) << "panel.phi(): " << (*it)->positionBounds().phi() << " , " 
 	 << "panel.z():   " << (*it)->positionBounds().z()   << " , "
-	 << "comp.size(): " << (*it)->components().size()    << endl;    
+	 << "comp.size(): " << (*it)->components().size()    ;    
   }
   */
 
-  //cout << "pixelFwdLayer.panels().size(): " << panelsSize << endl;  
+  //edm::LogInfo(TkDetLayers) << "pixelFwdLayer.panels().size(): " << panelsSize ;  
 
   vector<const PixelBlade*> theBlades;
   PixelBladeBuilder myBladeBuilder;

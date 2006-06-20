@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
@@ -42,28 +45,26 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
   
   BarrelDetLayer::initialize();
 
-  /*
-  cout << "==== DEBUG TOBLayer =====" << endl; 
-  for (vector<const TOBRod*>::const_iterator i=theInnerRods.begin();
-       i != theInnerRods.end(); i++){
-    cout << "inner TOBRod pos z,perp,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+   //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "==== DEBUG TOBLayer =====" ; 
+  for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
+       i != theInnerComps.end(); i++){
+     LogDebug("TkDetLayers") << "inner TOBRod pos z,perp,eta,phi: " 
+			     << (**i).position().z() << " , " 
+			     << (**i).position().perp() << " , " 
+			     << (**i).position().eta() << " , " 
+			     << (**i).position().phi() ;
   }
   
-  for (vector<const TOBRod*>::const_iterator i=theOuterRods.begin();
-       i != theOuterRods.end(); i++){
-    cout << "outer TOBRod pos z,perp,eta,phi: " 
-	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
-	 << (**i).position().eta() << " , " 
-	 << (**i).position().phi() << endl;
+  for (vector<const GeometricSearchDet*>::const_iterator i=theOuterComps.begin();
+       i != theOuterComps.end(); i++){
+    LogDebug("TkDetLayers") << "outer TOBRod pos z,perp,eta,phi: " 
+			    << (**i).position().z() << " , " 
+			    << (**i).position().perp() << " , " 
+			    << (**i).position().eta() << " , " 
+			    << (**i).position().phi() ;
   }
-  cout << "==== end DEBUG TOBLayer =====" << endl; 
-  */
-
+  LogDebug("TkDetLayers") << "==== end DEBUG TOBLayer =====" ;   
 }
 
 
@@ -110,8 +111,8 @@ TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in TOBLayer::groupedCompatibleDets:" 
-    //	 << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TOBLayer::groupedCompatibleDets:" 
+    //	 << err.what() ;
     return closestResult;
   }
 
@@ -153,7 +154,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    //cout << "ERROR in TOBLayer: inner cylinder not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in TOBLayer: inner cylinder not crossed by track" ;
     throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
   }
 
@@ -286,12 +287,12 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
   //   // debug
-  //   cout << endl;
-  //   cout << " overlapInPhi: position, det phi range " 
+  //   edm::LogInfo(TkDetLayers) ;
+  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: position, det phi range " 
   //        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
-  //        << rodRange.phiRange().first << " " << rodRange.phiRange().second << endl;
-  //   cout << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin << endl;
-  //   cout << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin << endl;
+  //        << rodRange.phiRange().first << " " << rodRange.phiRange().second ;
+  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
+  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
 
   if ( rangesIntersect(phiRange, rodRange.phiRange(), PhiLess())) {
     return true;

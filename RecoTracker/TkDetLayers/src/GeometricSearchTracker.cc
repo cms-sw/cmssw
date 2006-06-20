@@ -1,4 +1,5 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -41,22 +42,21 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
 		      theForwardLayers.begin(),
 		      theForwardLayers.end());
 
-  cout << "------ GeometricSearchTracker constructed with: ------" << endl;
-  cout << "n pxlBarLayers: " << this->pixelBarrelLayers().size() << endl;
-  cout << "n tibLayers:    " << this->tibLayers().size() << endl;
-  cout << "n tobLayers:    " << this->tobLayers().size() << endl;
-  cout << "n negPxlFwdLayers: " << this->negPixelForwardLayers().size() << endl;
-  cout << "n negPxlFwdLayers: " << this->posPixelForwardLayers().size() << endl;
-  cout << "n negTidLayers: " << this->negTidLayers().size() << endl;
-  cout << "n posTidLayers: " << this->posTidLayers().size() << endl;
-  cout << "n negTecLayers: " << this->negTecLayers().size() << endl;
-  cout << "n posTecLayers: " << this->posTecLayers().size() << endl;
-
-  cout << "n barreLayers:  " << this->barrelLayers().size() << endl;
-  cout << "n negforwardLayers: " << this->negForwardLayers().size() << endl;
-  cout << "n posForwardLayers: " << this->posForwardLayers().size() << endl;
-
-
+  edm::LogInfo("TkDetLayers") 
+    << "------ GeometricSearchTracker constructed with: ------" << "\n"
+    << "n pxlBarLayers: " << this->pixelBarrelLayers().size() << "\n"
+    << "n tibLayers:    " << this->tibLayers().size() << "\n"
+    << "n tobLayers:    " << this->tobLayers().size() << "\n"
+    << "n negPxlFwdLayers: " << this->negPixelForwardLayers().size() << "\n"
+    << "n negPxlFwdLayers: " << this->posPixelForwardLayers().size() << "\n"
+    << "n negTidLayers: " << this->negTidLayers().size() << "\n"
+    << "n posTidLayers: " << this->posTidLayers().size() << "\n"
+    << "n negTecLayers: " << this->negTecLayers().size() << "\n"
+    << "n posTecLayers: " << this->posTecLayers().size() << "\n"
+    
+    << "n barreLayers:  " << this->barrelLayers().size() << "\n"
+    << "n negforwardLayers: " << this->negForwardLayers().size() << "\n"
+    << "n posForwardLayers: " << this->posForwardLayers().size() ;
 }
 
 
@@ -82,17 +82,17 @@ GeometricSearchTracker::detLayer( const DetId& id) const
 {
   switch(id.subdetId()) {
   case StripSubdetector::TIB:
-    //cout << "TIB layer n: " << TIBDetId(id).layer() << endl;
+    //edm::LogInfo(TkDetLayers) << "TIB layer n: " << TIBDetId(id).layer() ;
     return theTibLayers[TIBDetId(id).layer()-1];
     break;
 
   case StripSubdetector::TOB:
-    //cout << "TOB layer n: " << TOBDetId(id).layer() << endl;
+    //edm::LogInfo(TkDetLayers) << "TOB layer n: " << TOBDetId(id).layer() ;
     return theTobLayers[TOBDetId(id).layer()-1];
     break;
 
   case StripSubdetector::TID:
-    //cout << "TID wheel n: " << TIDDetId(id).wheel() << endl;
+    //edm::LogInfo(TkDetLayers) << "TID wheel n: " << TIDDetId(id).wheel() ;
     if(TIDDetId(id).side() ==1 ) {
       return theNegTidLayers[TIDDetId(id).wheel()-1];
     }else if( TIDDetId(id).side() == 2 ) {
@@ -101,7 +101,7 @@ GeometricSearchTracker::detLayer( const DetId& id) const
     break;
 
   case StripSubdetector::TEC:
-    //cout << "TEC wheel n: " << TECDetId(id).wheel() << endl;
+    //edm::LogInfo(TkDetLayers) << "TEC wheel n: " << TECDetId(id).wheel() ;
     if(TECDetId(id).side() ==1 ) {
       return theNegTecLayers[TECDetId(id).wheel()-1];
     }else if( TECDetId(id).side() == 2 ) {
@@ -110,12 +110,12 @@ GeometricSearchTracker::detLayer( const DetId& id) const
     break;
 
   case PixelSubdetector::PixelBarrel:
-    //cout << "PixelBarrel layer n: " << PXBDetId(id).layer() << endl;
+    //edm::LogInfo(TkDetLayers) << "PixelBarrel layer n: " << PXBDetId(id).layer() ;
     return thePixelBarrelLayers[PXBDetId(id).layer()-1];
     break;
 
   case PixelSubdetector::PixelEndcap:
-    //cout << "PixelEndcap disk n: " << PXFDetId(id).disk() << endl;
+    //edm::LogInfo(TkDetLayers) << "PixelEndcap disk n: " << PXFDetId(id).disk() ;
     if(PXFDetId(id).side() ==1 ) {
       return theNegPixelForwardLayers[PXFDetId(id).disk()-1];
     }else if( PXFDetId(id).side() == 2 ) {
@@ -124,7 +124,7 @@ GeometricSearchTracker::detLayer( const DetId& id) const
     break;
 
   default:    
-    cout << "ERROR:layer not found!" << endl;
+    edm::LogError("TkDetLayers") << "ERROR:layer not found!" ;
     // throw(something);
   }
   return 0; //just to avoid compile warnings

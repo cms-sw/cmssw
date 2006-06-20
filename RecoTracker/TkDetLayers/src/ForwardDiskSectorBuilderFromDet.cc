@@ -1,7 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
+#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 using namespace std;
@@ -16,12 +18,12 @@ ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets)
   for ( vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++){
     float rdiff = (**i).surface().position().perp()-rcheck;
     if ( fabs(rdiff) > 1.) 
-      std::cout << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
-		<< "Dets at different radii !! Delta_r = " << rdiff << endl;
+      edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
+				   << "Dets at different radii !! Delta_r = " << rdiff ;
     float zdiff = zcheck - (**i).surface().position().z();
     if ( fabs(zdiff) > 0.8) 
-      std::cout << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
-		<< "Dets at different z positions !! Delta_z = " << zdiff << endl;
+      edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
+				   << "Dets at different z positions !! Delta_z = " << zdiff ;
   }
 
   pair<DiskSectorBounds,GlobalVector> bo = 
@@ -44,12 +46,12 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   float phimax(phimin);
   for (vector<const GeomDet*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
-    // cout << "---------------------------------------------" << endl;
-    // cout <<   " Builder: Position of det     :" << (**idet).position() << endl;     
+    // edm::LogInfo(TkDetLayers) << "---------------------------------------------" ;
+    // edm::LogInfo(TkDetLayers) <<   " Builder: Position of det     :" << (**idet).position() ;     
     vector<const GeomDet*> detUnits = (**idet).components();
     for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
  	 detu!=detUnits.end(); detu++) {
-      // cout << " Builder: Position of detUnit :"<< (**detu).position() << endl;      
+      // edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;      
       vector<GlobalPoint> corners = computeTrapezoidalCorners(*detu) ;
       for (vector<GlobalPoint>::const_iterator i=corners.begin();
 	   i!=corners.end(); i++) {
@@ -74,18 +76,19 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   }
   
   
-  if (!PhiLess()(phimin, phimax)) cout << " ForwardDiskSectorBuilderFromDet : " 
-				       << "Something went wrong with Phi Sorting !" << endl;
+  if (!PhiLess()(phimin, phimax)) 
+    edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet : " 
+				 << "Something went wrong with Phi Sorting !" ;
   float zPos = (zmax+zmin)/2.;
   float phiWin = phimax - phimin;
   float phiPos = (phimax+phimin)/2.;
   float rmed = (rmin+rmax)/2.;
   if ( phiWin < 0. ) {
     if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
-      cout << " Debug: something strange going on, please check " << endl;
+      edm::LogError("TkDetLayers") << " Debug: something strange going on, please check " ;
     }
-    // cout << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
-    //	 << " " << 2.*Geom::pi()+phiWin << " " << endl;
+    // edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
+    //	 << " " << 2.*Geom::pi()+phiWin << " " ;
     phiWin += 2.*Geom::pi();
     phiPos += Geom::pi(); 
   }
@@ -117,15 +120,16 @@ ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) 
   if (myBounds == 0) {
     string errmsg="ForwardDiskSectorBuilderFromDet: problems with dynamic cast to trapezoidal bounds for DetUnits";
     throw DetLayerException(errmsg);
-    cout << errmsg << endl;
+    edm::LogError("TkDetLayers") << errmsg ;
   }
   vector<float> parameters = (*myBounds).parameters();
 
   if ( parameters[0] == 0 ) {
-    cout << "ForwardDiskSectorBuilder: something weird going on !" << endl;
-    cout << " Trapezoidal parameters of GeomDet (L2/L1/T/H): " ;
-    for (int i = 0; i < 4; i++ )     cout << "  " << 2.*parameters[i];  
-    cout << endl;
+    edm::LogError("TkDetLayers") << "ForwardDiskSectorBuilder: something weird going on !" ;
+    edm::LogError("TkDetLayers") << " Trapezoidal parameters of GeomDet (L2/L1/T/H): " ;
+    for (int i = 0; i < 4; i++ )     edm::LogError("TkDetLayers") << "  " 
+								  << 2.*parameters[i] 
+								  << "\n";  
   }
 
 

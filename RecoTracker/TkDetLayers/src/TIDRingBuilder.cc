@@ -7,7 +7,7 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
 			 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricDets = aTIDRing->components();
-  //cout << "theGeometricDets.size(): " << theGeometricDets.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "theGeometricDets.size(): " << theGeometricDets.size() ;
 
 
   vector<const GeomDet*> innerGeomDets;
@@ -34,8 +34,8 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
       outerGeomDets.push_back(theGeomDet);      
   }
 
-  //cout << "innerGeomDets.size(): " << innerGeomDets.size() << endl;
-  //cout << "outerGeomDets.size(): " << outerGeomDets.size() << endl;
+  //edm::LogInfo(TkDetLayers) << "innerGeomDets.size(): " << innerGeomDets.size() ;
+  //edm::LogInfo(TkDetLayers) << "outerGeomDets.size(): " << outerGeomDets.size() ;
 
   return new TIDRing(innerGeomDets,outerGeomDets);
 }

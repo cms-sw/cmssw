@@ -1,6 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/CompositeTECWedge.h"
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
@@ -46,25 +48,25 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
   theBackSector  = ForwardDiskSectorBuilderFromDet()( theBackDets );
   theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for CompositeTECWedge" << endl;
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECWedge" ;
 
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
-    cout << "frontDet phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+    LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z() <<   " , "
+			    << (*it)->surface().position().perp();
   }
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
-    cout << "backDet phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+    LogDebug("TkDetLayers") << "backDet phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z() <<   " , "
+			    << (*it)->surface().position().perp() ;
   }
-  ----------------------------------- */
+  //----------------------------------- 
 
 
 }
@@ -83,7 +85,7 @@ CompositeTECWedge::components() const{
 pair<bool, TrajectoryStateOnSurface>
 CompositeTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 			       const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of CompositeTECWedge::compatible()!!" << endl;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of CompositeTECWedge::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
@@ -100,8 +102,8 @@ CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   }
   //catch(DetLogicError& err){
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLogicError in CompositeTkPetalWedge::groupedCompatibleDets:" 
-    // << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLogicError in CompositeTkPetalWedge::groupedCompatibleDets:" 
+    // << err.what() ;
     return closestResult;
   }
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
@@ -141,7 +143,7 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
   if (!frontPath.first) {
-    //cout << "ERROR in CompositeTECWedge: front sector not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in CompositeTECWedge: front sector not crossed by track" ;
     throw DetLayerException("CompositeTECWedge: front sector not crossed by track");
   }
   GlobalPoint gFrontPoint( crossing.position(frontPath.second));
@@ -151,7 +153,7 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
   if (!backPath.first) {
-    //cout << "ERROR in CompositeTECWedge: back sector not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in CompositeTECWedge: back sector not crossed by track" ;
     throw DetLayerException("CompositeTECWedge: back sector not crossed by track");
   }
   GlobalPoint gBackPoint( crossing.position(backPath.second));
@@ -213,12 +215,12 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   CompatibleDetToGroupAdder adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
-    //if(idet <0 || idet>=sWedge.size()) {cout << "==== warning! gone out vector bounds.idet: " << idet << endl;break;}
+    //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
     if (!overlap( gCrossingPos, *sWedge[idet], window)) break;
     if (!adder.add( *sWedge[idet], tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sWedge.size()); idet++) {
-    //if(idet <0 || idet>=sWedge.size()) {cout << "==== warning! gone out vector bounds.idet: " << idet << endl;break;}
+    //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
     if (!overlap( gCrossingPos, *sWedge[idet], window)) break;
     if (!adder.add( *sWedge[idet], tsos, prop, est, result)) break;
   }
@@ -286,14 +288,14 @@ CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const
   if (myBounds == 0) {
     string errmsg="CompositeTkPetalWedge: problems with dynamic cast to trapezoidal bounds for Det";
     throw DetLayerException(errmsg);
-    cout << errmsg << endl;
+    edm::LogError("TkDetLayers") << errmsg ;
   }
   vector<float> parameters = (*myBounds).parameters();
   if ( parameters[0] == 0 ) 
-    cout << "CompositeTkPetalWedge: something weird going on with trapezoidal Plane Bounds!" << endl;
-  // cout << " Parameters of DetUnit (L2/L1/T/H): " ;
-  // for (int i = 0; i < 4; i++ ) { cout << "  " << 2.*parameters[i]; }
-  // cout << endl;
+    edm::LogError("TkDetLayers") << "CompositeTkPetalWedge: something weird going on with trapezoidal Plane Bounds!" ;
+  // edm::LogInfo(TkDetLayers) << " Parameters of DetUnit (L2/L1/T/H): " ;
+  // for (int i = 0; i < 4; i++ ) { edm::LogInfo(TkDetLayers) << "  " << 2.*parameters[i]; }
+  // edm::LogInfo(TkDetLayers) ;
 
   float hbotedge = parameters[0];
   float htopedge = parameters[1];

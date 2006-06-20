@@ -1,4 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 
@@ -36,26 +39,25 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
   theBinFinder = BinFinderType( theComps.front()->surface().position().phi(),
 				theComps.size());
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for PixelForwardLayer" << endl;
-  cout << "PixelForwardLayer.surfcace.phi(): " 
-       << this->surface().position().phi() << endl;
-  cout << "PixelForwardLayer.surfcace.z(): " 
-       << this->surface().position().z() << endl;
-  cout << "PixelForwardLayer.surfcace.innerR(): " 
-       << this->specificSurface().innerRadius() << endl;
-  cout << "PixelForwardLayer.surfcace.outerR(): " 
-       << this->specificSurface().outerRadius() << endl;
-  //cout << "PixelForwardLayer.surfcace.thickness(): " << specificSurface().thickness << end
+  //--------- DEBUG INFO --------------
+  LogDebug("TkDetLayers") << "DEBUG INFO for PixelForwardLayer" << "\n"
+			  << "PixelForwardLayer.surfcace.phi(): " 
+			  << this->surface().position().phi() << "\n"
+			  << "PixelForwardLayer.surfcace.z(): " 
+			  << this->surface().position().z() << "\n"
+			  << "PixelForwardLayer.surfcace.innerR(): " 
+			  << this->specificSurface().innerRadius() << "\n"
+			  << "PixelForwardLayer.surfcace.outerR(): " 
+			  << this->specificSurface().outerRadius() ;
 
-  for(vector<const PixelBlade*>::const_iterator it=theBlades.begin(); 
-      it!=theBlades.end(); it++){
-    cout << "blades phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() << endl;
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin(); 
+      it!=theComps.end(); it++){
+    LogDebug("TkDetLayers") << "blades phi,z,r: " 
+			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().position().z() <<   " , "
+			    << (*it)->surface().position().perp();
   }
-  ----------------------------------- */
+  //-----------------------------------
 
     
 }
@@ -104,8 +106,8 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
   catch(DetLayerException& err){
-    //cout << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
-    //	 << err.what() << endl;
+    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
+    //	 << err.what() ;
     return closestResult;
   }
   CompatibleDetToGroupAdder adder;
@@ -210,7 +212,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> thePath = turbineCrossing.pathLength( specificSurface() );
   
   if (!thePath.first) {
-    //cout << "ERROR in PixelForwardLayer: disk not crossed by track" << endl;
+    //edm::LogInfo(TkDetLayers) << "ERROR in PixelForwardLayer: disk not crossed by track" ;
     throw DetLayerException("PixelForwardLayer: disk not crossed by track");
   }
 
@@ -292,10 +294,8 @@ PixelForwardLayer::computeDisk(const vector<const PixelBlade*>& blades) const
     theRmax = max( theRmax, rdet+len/2.F);
   }
 
-#ifdef DEBUG_GEOM
-  cout << "creating SimpleDiskBounds with r range" << theRmin << " " 
-       << theRmax << " and z range " << theZmin << " " << theZmax << endl;
-#endif
+  LogDebug("TkDetLayers") << "creating SimpleDiskBounds with r range" << theRmin << " " 
+			  << theRmax << " and z range " << theZmin << " " << theZmax ;
   
   // By default the forward layers are positioned around the z axis of the
   // global frame, and the axes of their local frame coincide with 
