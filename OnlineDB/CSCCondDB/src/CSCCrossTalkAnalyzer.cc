@@ -32,9 +32,24 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   eventNumber=0,evt=0, Nddu=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
   i_chamber=0,i_layer=0,reportedChambers=0;
-  length=1,myevt=0;
+  length=1,myevt=0,flag=-9;
   aPeak=0.0,sumFive=0.0;
   pedMean=0.0,NChambers=0;
+
+  //definition of histograms
+  xtime = TH1F("time", "time", 50, 0, 500 );
+  pulse_shape_ch1 = TH2F("pulse shape_ch1","pulse shape_ch1", 100,-100,500,100,-100,1100);
+  pulse_shape_ch2 = TH2F("pulse shape_ch2","pulse shape_ch2", 100,-100,500,100,-100,1100);
+  pulse_shape_ch3 = TH2F("pulse shape_ch3","pulse shape_ch3", 100,-100,500,100,-100,1100);
+  pulse_shape_ch4 = TH2F("pulse shape_ch4","pulse shape_ch4", 100,-100,500,100,-100,1100);
+  pulse_shape_ch5 = TH2F("pulse shape_ch5","pulse shape_ch5", 100,-100,500,100,-100,1100);
+  pulse_shape_ch6 = TH2F("pulse shape_ch6","pulse shape_ch6", 100,-100,500,100,-100,1100);
+  pulse_shape_ch7 = TH2F("pulse shape_ch7","pulse shape_ch7", 100,-100,500,100,-100,1100);
+  pulse_shape_ch8 = TH2F("pulse shape_ch8","pulse shape_ch8", 100,-100,500,100,-100,1100);
+  pulse_shape_ch9 = TH2F("pulse shape_ch9","pulse shape_ch9", 100,-100,500,100,-100,1100);
+  ped_mean_all    = TH1F("pedMean","Mean baseline noise", 100,300,900);
+  maxADC          = TH1F("maxADC","Peak ADC", 100,800,1300);
+
 
   for (int i=0;i<480;i++){
     new_xtalk_intercept_right[i] = -999.;
@@ -52,25 +67,16 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     newSumFive[i]                = 0.0;
   }
   
-
- //  for (int iii=0;iii<DDU_xt;iii++){
-//     for (int i=0; i<CHAMBERS_xt; i++){
-//       for (int j=0; j<LAYERS_xt; j++){
-// 	for (int k=0; k<STRIPS_xt; k++){
   for (int l=0; l<TIMEBINS_xt; l++){
     myTime[l] = 0.0;
     myADC[l]  = 0.0;
     myTbin[l] = 0;
   }
-  // 	}
-//       }
-//     }
-// }
-
+  
   for (int i=0;i<CHAMBERS_xt;i++){
     size[i]                      = 0;
   }
-
+  
   for (int iii=0;iii<DDU_xt;iii++){
     for (int i=0; i<CHAMBERS_xt; i++){
       for (int j=0; j<LAYERS_xt; j++){
@@ -120,9 +126,8 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
   edm::Handle<CSCStripDigiCollection> strips;
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("DaqSource" , rawdata);
+  e.getByType(rawdata); //before 0_7_0_pre4 use getByLabel("DaqSource", rawdata)
   myevt=e.id().event();
-  //tid=e.id().time();
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -180,10 +185,19 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		  
                   for(unsigned int k=0;k<adc.size();k++){
                     time = (50. * k)-((evt%20)* 6.25)+116.5;
-		    calib_evt.time[k]=time;
-		    calib_evt.adc[k]=adc[k];
 		    pedMean =(adc[0]+adc[1])/2;
-
+		    ped_mean_all.Fill(pedMean);  
+		    xtime.Fill(time);
+		    if(chamber==0  && strip==1) pulse_shape_ch1.Fill(time,adc[k]-pedMean);
+		    if(chamber==1  && strip==1) pulse_shape_ch2.Fill(time,adc[k]-pedMean);
+		    if(chamber==2  && strip==1) pulse_shape_ch3.Fill(time,adc[k]-pedMean);
+		    if(chamber==3  && strip==1) pulse_shape_ch4.Fill(time,adc[k]-pedMean);
+		    if(chamber==4  && strip==1) pulse_shape_ch5.Fill(time,adc[k]-pedMean);
+		    if(chamber==5  && strip==1) pulse_shape_ch6.Fill(time,adc[k]-pedMean);
+		    if(chamber==6  && strip==1) pulse_shape_ch7.Fill(time,adc[k]-pedMean);
+		    if(chamber==7  && strip==1) pulse_shape_ch8.Fill(time,adc[k]-pedMean);
+		    if(chamber==8  && strip==1) pulse_shape_ch9.Fill(time,adc[k]-pedMean);
+		    
 		    myTime[k]=time;
 		    myADC[k]=adc[k];
 		    myTbin[k]=k;
@@ -198,6 +212,8 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		      max2=sumFive;
 		    }
 
+		    maxADC.Fill(max1-pedMean1);
+
                     int kk=8*k-evt%20+19;//19 to zero everything, for binning 120
 		    
                     thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
@@ -206,8 +222,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                     if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
                     if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
                     if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
-		    //calibtree->Fill();
-                  }//adc.size()
+		  }//adc.size()
 		}//end iuse!=99
 	
 		arrayPed[iDDU][chamber][layer-1][strip-1] = pedMean1;	

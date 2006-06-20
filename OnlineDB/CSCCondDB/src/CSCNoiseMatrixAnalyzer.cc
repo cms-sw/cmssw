@@ -73,7 +73,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("DaqSource" , rawdata);
+  e.getByType(rawdata);
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
