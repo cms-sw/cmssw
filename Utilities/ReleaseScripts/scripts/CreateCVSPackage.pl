@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.6 2006/05/30 13:32:39 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.7 2006/06/14 12:53:22 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -45,8 +45,10 @@ my $batchfile;
 my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
 $opts{DEBUG} = 0; # Debugging off by default;
 $opts{CLEAN} = 1; # Remove the checked out directories by default;
-$opts{BATCH} = 0; # Normal operation is commandline rather than file as
-                  # source of new packages/admin/developer info;
+$opts{BATCH} = $opts{USE_WGET} = 0; # Normal operation is commandline rather than file or
+                                    # wget from DB as source of new packages/admin/developer info;
+$opts{UPDATE_TC} = 0; # We require a second command to update the tag collector package list;
+
 my %options = (
 	       "packagename=s" => sub { $packagelist = [ split(" ",$_[1]) ]; },	       
 	       "developers=s"  => sub { $developeridlist=&proc_ilist($_[1]); },
@@ -54,6 +56,8 @@ my %options = (
 	       "verbose"       => sub { $opts{VERBOSE} = 1; },
 	       "debug"         => sub { $opts{DEBUG} = 1; },
 	       "noclean"       => sub { $opts{CLEAN} = 0; },
+	       "tcupdate"      => sub { $opts{UPDATE_TC} = 1; },
+	       "usewget"       => sub { $opts{USE_WGET} = 1; },
 	       "batch=s"       => sub { $opts{BATCH} = 1; $batchfile=$_[1]; },
 	       "help"          => sub { &usage(); exit(0) }
 	       );
@@ -73,6 +77,19 @@ else
       {
       print "Running in batch mode: reading instructions from $batchfile.\n";
       &set_admins_from_file();      
+      }
+   elsif ($opts{USE_WGET})
+      {
+      # We use a wget request to the database (via a CGI script):
+      print "Running in batch mode: getting approved packages from the TagCollector.\n";
+      &set_admins_from_wget_req();      
+      }
+   elsif ($opts{UPDATE_TC})
+      {
+      print "Updating approved package list in the TagCollector.\n";
+      # Reset the TC:
+      my $rv = &update_tc();
+      exit($rv);
       }
    else
       {
@@ -195,6 +212,58 @@ sub set_admins()
       }
    }
 
+sub set_admins_from_wget_req()
+   {
+   my ($adminstring,$developerstring);
+
+   open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
+      || die "Can't run wget request: $!","\n";
+   
+   while (<WGET>)
+      {
+      # Get rid of spaces at the end of the line:
+      $_ =~ s/(.*?)\s*?/$1/g;
+      # Format is <PACKAGE> admins:A,B,C,D developers:A,B,C,D
+      ($packagename,$adminstring,$developerstring) = ($_ =~ /^(.*?)\s*?adm.*?:(.*?)\s*?devel.*?:(.*?)$/);
+      $adminidlist=&proc_ilist($adminstring);
+      $developeridlist=&proc_ilist($developerstring);
+      $developers->{$packagename} = {};
+      # Set the principal admin:
+      $principaladmins->{$packagename} = $adminidlist->[0];
+
+      # Read through the lists of developers to get full info:
+      foreach my $loginid (@$developeridlist)
+	 {
+	 $loginid =~ s/\s*//g;
+	 # Store in the developers hash:
+	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 0 ];
+	 }
+      
+      # Do the same for admins:
+      foreach my $loginid (@$adminidlist)
+	 {
+	 $loginid =~ s/\s*//g;	        
+	 # Store in the developers hash:
+	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 1 ];
+	 }     
+      }
+   
+   close(WGET);
+   }
+
+sub update_tc()
+   {
+   print "\n";
+   print "Updating tag collector using wget (packages are assumed to have been created successfully)\n";
+   my $rv = system("wget","--no-check-certificate","-o","/dev/null","-nv","-O-",'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS');
+   if ($rv != 0)
+      {
+      print "There were ERRORS when updating the tag collector!","\n";
+      }
+   print "\n";
+   return $rv;
+   }
+
 sub set_admins_from_file()
    {
    my ($adminstring,$developerstring);
@@ -230,7 +299,6 @@ sub set_admins_from_file()
 	 }     
       }
    
-   # Set the principal admin for the package:
    close(BATCH);
    }
 
@@ -416,6 +484,7 @@ sub usage()
    my $name=basename($0);
    my $string="\nUsage: $name --package=<PACKAGE> --admin=<ADMIN> --developers=<DEVLIST>[-h] [-v]\n";
    $string.="\nor     $name --batch=<FILENAME> [-h] [-v]\n";
+   $string.="\nor     $name --usewget | --tcupdate [-h] [-v]\n";
    $string.="\n";
    $string.="--packagename=<PACKAGE>       Name of package to be created (in full,i.e. <sub>/<package>).\n";   
    $string.="\n";
@@ -429,6 +498,9 @@ sub usage()
    $string.="--batch=<FILENAME>            Read the package and admin/developer info from FILENAME.\n";
    $string.="                              The file format should be:\n";
    $string.="                              <PACKAGE> admins:A,B,C,D developers:A,B,C,D\n";
+   $string.="--usewget                     Use wget to run a CGI script on the server to check for and return\n";
+   $string.="                              the current list of approved packages, their developers/admins.\n";
+   $string.="--tcupdate                    Update the Tag Collector status for the created packages.\n";
    $string.="\n";
    $string.="--noclean                     Don't remove the checked out directories from the working area.\n";
    $string.="\n"; 
