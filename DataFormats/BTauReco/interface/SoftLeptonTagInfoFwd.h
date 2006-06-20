@@ -1,5 +1,5 @@
-#ifndef BTauReco_TraclCountingTagInfoFwd_h
-#define BTauReco_TraclCountingTagInfoFwd_h
+#ifndef BTauReco_SoftLeptonTagInfoFwd_h
+#define BTauReco_SoftLeptonTagInfoFwd_h
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
@@ -14,4 +14,4 @@ namespace reco {
   typedef edm::RefVector<SoftLeptonTagInfoCollection>   SoftLeptonTagInfoRefVector;
 }
 
-#endif // BTauReco_TraclCountingTagInfoFwd_h
+#endif // BTauReco_SoftLeptonTagInfoFwd_h
