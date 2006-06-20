@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.11 2006/02/17 03:05:11 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.12 2006/02/20 23:24:54 fedor Exp $
 //
 //
 
@@ -45,6 +45,7 @@
 
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 namespace {
@@ -57,8 +58,13 @@ namespace {
 	fOut << HcalDetId (id);
       else if (sub == HcalEmpty) fOut << "EMPTY";
       else if (sub == HcalTriggerTower) fOut << HcalTrigTowerDetId (id);
-      else if (sub == HcalCalibration) fOut << HcalCalibDetId (id);
-      else if (sub == HcalComposite) fOut << "HcalComposite - what is this?";
+      else if (sub == HcalOther) {
+	HcalOtherDetId osub (id);
+	HcalOtherSubdetector odetid = osub.subdet();
+	if (odetid == HcalCalibration)  fOut << HcalCalibDetId (id);
+	else if (odetid == HcalZDC)  fOut << HcalZDCDetId (id);
+	else fOut << "Unknown subtype";
+      }
       else fOut << "Unknown type";
     }
     return fOut;
