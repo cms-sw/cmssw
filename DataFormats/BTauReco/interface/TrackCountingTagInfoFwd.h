@@ -1,5 +1,5 @@
-#ifndef BTauReco_TraclCountingTagInfoFwd_h
-#define BTauReco_TraclCountingTagInfoFwd_h
+#ifndef BTauReco_TrackCountingTagInfoFwd_h
+#define BTauReco_TrackCountingTagInfoFwd_h
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -13,4 +13,4 @@ namespace reco {
   typedef edm::RefVector<TrackCountingTagInfoCollection> TrackCountingTagInfoRefVector;
 }
 
-#endif
+#endif // BTauReco_TrackCountingTagInfoFwd_h
