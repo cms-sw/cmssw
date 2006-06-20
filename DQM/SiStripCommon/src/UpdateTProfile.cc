@@ -77,14 +77,14 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
   // Check error option
   const char* spread_option = "s";
   const char* default_option = "";
-  const char* option = prof->GetErrorOption();
-  if ( option[0] != spread_option[0] ) {
-    cout << "[UpdateTProfile::setBinContents]"
-	 << " Setting error option for TProfile to 's'!" << endl;
-    prof->SetErrorOption( "s" );
-  }
+  //   const char* option = prof->GetErrorOption();
+  //   if ( option[0] != spread_option[0] ) {
+  //     cout << "[UpdateTProfile::setBinContents]"
+  // 	 << " Setting error option for TProfile to 's'!" << endl;
+  //     prof->SetErrorOption( "s" );
+  //   }
   const char* error_option = prof->GetErrorOption();
-  
+
   // Calculate "weight" used for SetBinError() method
   double weight;
   if ( error_option[0] == spread_option[0] ) {
