@@ -129,17 +129,8 @@ void SiStripCommissioningClient::createTaskHistograms( const sistrip::Task& task
 // -----------------------------------------------------------------------------
 /** */
 void SiStripCommissioningClient::createCollations( const vector<string>& added_contents ) const {
-  cout << "[SiStripCommissioningClient::createCollations]" << endl;
   
-  if ( added_contents.empty() ) { 
-    cout << "[SiStripCommissioningClient::createCollations]"
-	 << " No 'added contents' found!" << endl;
-    return; 
-  } else {  
-    cout << "[SiStripCommissioningClient::createCollations]"
-	 << " Found " << added_contents.size () 
-	 << " 'added contents' found!" << endl;
-  }
+  if ( added_contents.empty() ) { return; }
   
   vector<string>::const_iterator idir;
   for ( idir = added_contents.begin(); idir != added_contents.end(); idir++ ) {
@@ -152,15 +143,6 @@ void SiStripCommissioningClient::createCollations( const vector<string>& added_c
 							       path.fecRing_,
 							       path.ccuAddr_,
 							       path.ccuChan_ );
-
-    cout << "[SiStripCommissioningClient::createCollations]"
-	 << " Dir: " << collector_dir
-	 << " FecCrate/FecRing/FecSlot/CcuAddr/CcuChan: "
-	 << path.fecCrate_ << "/"
-	 << path.fecSlot_ << "/"
-	 << path.fecRing_ << ", "
-	 << path.ccuAddr_ << "/"
-	 << path.ccuChan_ << endl;
     
     if ( path.fecCrate_ == sistrip::all_ ||
 	 path.fecSlot_ == sistrip::all_ ||
@@ -171,61 +153,42 @@ void SiStripCommissioningClient::createCollations( const vector<string>& added_c
     // Retrieve MonitorElements from pwd directory
     mui_->setCurrentFolder( collector_dir );
     vector<string> me_list = mui_->getMEs();
-    cout << "[SiStripCommissioningClient::createCollations]"
-	 << " Found " << me_list.size() << " MEs in " << collector_dir << endl;
     
     uint16_t n_cme = 0;
     vector<string>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
-      cout << "[SiStripCommissioningClient::createCollations]"
-	   << " ME string: " << *ime << endl;
+
       string cme_name = *ime;
       string cme_title = *ime;
       string cme_dir = client_dir;
       string search_str = "*/" + client_dir + *ime;
-      if ( find( collations_.begin(), collations_.end(), search_str ) == collations_.end() ) {
 
-	// Retrieve pointer to monitor element
-	string path_and_title = this->mui_->pwd() + "/" + *ime;
-	MonitorElement* me = this->mui_->get( path_and_title );
-	
+      // Retrieve pointer to monitor element
+      string path_and_title = this->mui_->pwd() + "/" + *ime;
+      MonitorElement* me = this->mui_->get( path_and_title );
+      TProfile* prof = ExtractTObject<TProfile>()( me );
+      TH1F* his = ExtractTObject<TH1F>()( me );
+      if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary until bug fix applied to dqm...
+      
+      if ( find( collations_.begin(), collations_.end(), search_str ) == collations_.end() ) {
 	// Collate TProfile histos
-	TProfile* prof = ExtractTObject<TProfile>()( me );
 	if ( prof ) { 
 	  CollateMonitorElement* cme = mui_->collateProf( cme_name, cme_title, cme_dir );
 	  mui_->add( cme, search_str );
-	  prof->SetErrorOption("s"); //@@ how to guarantee this is always the case?
-	  collations_.push_back( search_str ); // cme_dir
+	  collations_.push_back( search_str );
 	  n_cme++;
-	  cout << "[SiStripCommissioningClient::createCollations]"
-	       << " Collating TProfile!"
-	       << " name: " << cme_name
-	       << " title: " << cme_title
-	       << " in dir: " << cme_dir
-	       << " search string: " << search_str
-	       << endl;
 	} 
-	
 	// Collate TH1F histos
-	TH1F* his = ExtractTObject<TH1F>()( me );
 	if ( his ) { 
 	  CollateMonitorElement* cme = mui_->collate1D( cme_name, cme_title, cme_dir );
 	  mui_->add( cme, search_str );
-	  collations_.push_back( cme_dir );
+	  collations_.push_back( search_str );
 	  n_cme++;
-	  cout << "[SiStripCommissioningClient::createCollations]"
-	       << " Collating TH1F!"
-	       << " name: " << cme_name
-	       << " title: " << cme_title
-	       << " in dir: " << cme_dir
-	       << " search string: " << search_str
-	       << endl;
 	} 
-	
       }
+
     }
-    cout << "[SiStripCommissioningClient::createCollations]"
-	 << " Created " << n_cme << " Collations in " << client_dir << endl;
+
   }
 
 }
