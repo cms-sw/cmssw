@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2006/06/06 15:51:21 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/14 09:27:57 $
+//   $Revision: 1.3 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -188,7 +188,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // construct correlated LCT; temporarily assign track number of 0.
   int trknmb = 0;
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
-			       cLCT.getStrip(), pattern, cLCT.getBend(),
+			       cLCT.getKeyStrip(), pattern, cLCT.getBend(),
 			       aLCT.getBX());
   return thisLCT;
 }
@@ -231,7 +231,9 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
   else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
     if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
     else {                                     // collision muon
-      int sumQual = aLCT.getQuality() + cLCT.getQuality();
+      // CLCT quality is, in fact, the number of layers hit, so subtract 3
+      // to get quality analogous to ALCT one.
+      int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
       if (sumQual < 1 || sumQual > 6) {
 	edm::LogWarning("CSCMotherboard")
 	  << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
@@ -250,12 +252,13 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	else if (sumQual == 5) {quality = 14;}
 	else if (sumQual == 6) {quality = 15;}
       }
-#ifdef TB
-      // Firmware bug.
-      if (isDistrip && (aLCT.getQuality() == 0 || cLCT.getQuality() == 0))
-	quality = 0;
-#endif
     }
+#ifdef TB
+    // Firmware bug.  For 2003 and 2004 test beam, this was true for
+    // non-accelerator muons only.
+    if (isDistrip && (aLCT.getQuality() == 0 || (cLCT.getQuality() <= 3)))
+      quality = 0;
+#endif
   }
   return quality;
 }
@@ -315,46 +318,49 @@ void CSCMotherboard::testLCT() {
   unsigned int lctPattern, lctQuality;
   for (int pattern = 0; pattern < 8; pattern++) {
     for (int bend = 0; bend < 2; bend++) {
-      for (int key_strip = 0; key_strip < 160; key_strip++) {
-        for (int bx = 0; bx < 7; bx++) {
-	  for (int stripType = 0; stripType < 2; stripType++) {
-	    for (int quality = 0; quality < 4; quality++) {
-	      int cfeb = 0; // @@
-	      CSCCLCTDigi cLCT(1, quality, pattern, stripType, bend,
-			       key_strip, cfeb, bx);
-	      lctPattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
-	      for (int aQuality = 0; aQuality < 4; aQuality++) {
-	        for (int wireGroup = 0; wireGroup < 120; wireGroup++) {
-		  for (int abx = 0; abx < 7; abx++) {
-		    CSCALCTDigi aLCT(1, aQuality, 0, 1, wireGroup, abx);
-		    lctQuality = findQuality(aLCT, cLCT);
-		    CSCCorrelatedLCTDigi thisLCT(0, 1, lctQuality,
-						 aLCT.getKeyWG(),
-						 cLCT.getStrip(), lctPattern,
-						 cLCT.getBend(), aLCT.getBX());
-		    if (lctPattern != static_cast<unsigned int>(thisLCT.getPattern()) )
-		      edm::LogWarning("CSCMotherboard")
-			<< "pattern mismatch: " << lctPattern
-			<< " " << thisLCT.getPattern();
-		    if (bend != thisLCT.getBend()) 
-		      edm::LogWarning("CSCMotherboard")
-			<< "bend mismatch: " << bend
-			<< " " << thisLCT.getBend();
-		    if (key_strip != thisLCT.getStrip()) 
-		      edm::LogWarning("CSCMotherboard")
-			<< "strip mismatch: " << key_strip
-			<< " " << thisLCT.getStrip();
-		    if (wireGroup != thisLCT.getKeyWG()) 
-		      edm::LogWarning("CSCMotherboard")
-			<< "wire group mismatch: " << wireGroup
-			<< " " << thisLCT.getKeyWG();
-		    if (abx != thisLCT.getBX()) 
-		      edm::LogWarning("CSCMotherboard")
-			<< "bx mismatch: " << abx << " " << thisLCT.getBX();
-		    if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
-		      edm::LogWarning("CSCMotherboard")
-			<< "quality mismatch: " << lctQuality
-			<< " " << thisLCT.getQuality();
+      for (int cfeb = 0; cfeb < 5; cfeb++) {
+	for (int strip = 0; strip < 32; strip++) {
+	  for (int bx = 0; bx < 7; bx++) {
+	    for (int stripType = 0; stripType < 2; stripType++) {
+	      for (int quality = 3; quality < 7; quality++) {
+		CSCCLCTDigi cLCT(1, quality, pattern, stripType, bend,
+				 strip, cfeb, bx);
+		lctPattern = encodePattern(cLCT.getPattern(),
+					   cLCT.getStripType());
+		for (int aQuality = 0; aQuality < 4; aQuality++) {
+		  for (int wireGroup = 0; wireGroup < 120; wireGroup++) {
+		    for (int abx = 0; abx < 7; abx++) {
+		      CSCALCTDigi aLCT(1, aQuality, 0, 1, wireGroup, abx);
+		      lctQuality = findQuality(aLCT, cLCT);
+		      CSCCorrelatedLCTDigi
+			thisLCT(0, 1, lctQuality, aLCT.getKeyWG(),
+				cLCT.getKeyStrip(), lctPattern, cLCT.getBend(),
+				aLCT.getBX());
+		      if (lctPattern != static_cast<unsigned int>(thisLCT.getPattern()) )
+			edm::LogWarning("CSCMotherboard")
+			  << "pattern mismatch: " << lctPattern
+			  << " " << thisLCT.getPattern();
+		      if (bend != thisLCT.getBend()) 
+			edm::LogWarning("CSCMotherboard")
+			  << "bend mismatch: " << bend
+			  << " " << thisLCT.getBend();
+		      int key_strip = 32*cfeb + strip;
+		      if (key_strip != thisLCT.getStrip()) 
+			edm::LogWarning("CSCMotherboard")
+			  << "strip mismatch: " << key_strip
+			  << " " << thisLCT.getStrip();
+		      if (wireGroup != thisLCT.getKeyWG()) 
+			edm::LogWarning("CSCMotherboard")
+			  << "wire group mismatch: " << wireGroup
+			  << " " << thisLCT.getKeyWG();
+		      if (abx != thisLCT.getBX()) 
+			edm::LogWarning("CSCMotherboard")
+			  << "bx mismatch: " << abx << " " << thisLCT.getBX();
+		      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
+			edm::LogWarning("CSCMotherboard")
+			  << "quality mismatch: " << lctQuality
+			  << " " << thisLCT.getQuality();
+		    }
 		  }
 		}
 	      }
