@@ -1,26 +1,34 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
-#include "RecoTracker/MeasurementDet/interface/TkPixelMeasurementDet.h"
-#include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
+
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"  
+
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
+#include "RecoTracker/MeasurementDet/interface/TkPixelMeasurementDet.h"
+#include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
 
 
 #include <iostream>
@@ -33,7 +41,7 @@ MeasurementTracker::MeasurementTracker( const edm::EventSetup& setup,
   using namespace std;
   this->initialize( setup, conf);
 
-  cout << "MeasurementTracker: initialize OK" << endl;
+  edm::LogInfo("MeasurementDet") << "MeasurementTracker: initialize OK" ;
 
 }
 
@@ -47,23 +55,23 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
     const TrackerGeometry& tracker(*pDD);
     theTrackerGeom = &tracker;
 
-    cout << "MeasurementTracker::initialize: TrackerGeometry accessed" << endl; 
+    LogDebug("MeasurementDet") << "MeasurementTracker::initialize: TrackerGeometry accessed" << endl; 
 
     const TrackerGeometry::DetContainer& dets = tracker.dets();
 
-    std::cout << "got from TrackerGeometry " << dets.size() << std::endl; 
+    LogDebug("MeasurementDet") << "got from TrackerGeometry " << dets.size() << "detector" ; 
 
     // get pixelCPE
     //  ---- TEMPORARY SOLUTION TO COMMIT CODE FOR 070pre2   ----
     /*
     std::string cpeName = conf.getParameter<std::string>("PixelCPE");   
-    cout <<" Asking for the CPE with name "<<cpeName<<endl;
+    edm::LogInfo("MeasurementDet") <<" Asking for the CPE with name "<< cpeName ;
 
     edm::ESHandle<PixelClusterParameterEstimator> pixelCPEHandle;
     setup.get<TrackerCPERecord>().get(cpeName,pixelCPEHandle);
     
-    std::cout << "Got a pixelCPE " << typeid(*pixelCPEHandle).name() 
-	      << std::endl;
+    LogDebug("MeasurementDet") << "Got a pixelCPE " << typeid(*pixelCPEHandle).name() ;
+
     pixelCPE = &(*pixelCPEHandle);
 
     edm::ESHandle<MagneticField> magfield;
@@ -82,8 +90,7 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
     edm::ESHandle<StripClusterParameterEstimator> stripCPEHandle;
     setup.get<TrackerCPERecord>().get("StripCPEfromTrackAngle",stripCPEHandle);
 
-    std::cout << "Got a stripCPE " << typeid(*stripCPEHandle).name() 
-	      << std::endl;
+    LogDebug("MeasurementDet") << "Got a stripCPE " << typeid(*stripCPEHandle).name() ;
     stripCPE = &(*stripCPEHandle);
 
    
@@ -144,14 +151,13 @@ void MeasurementTracker::addStripDet( const GeomDet* gd,
     theDetMap[gd->geographicalId()] = det;
   }
   catch(MeasurementDetException& err){
-    cout << "Oops, got a MeasurementDetException: " << err.what() << endl;
+    edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
   }
 }
 
 void MeasurementTracker::addPixelDet( const GeomDet* gd,
 				      const PixelClusterParameterEstimator* cpe)
 {
-  //cout << "pixelCPE in addPixelDet: " << cpe << endl; 
   TkPixelMeasurementDet* det = new TkPixelMeasurementDet( gd, cpe);
   thePixelDets.push_back(det);
   theDetMap[gd->geographicalId()] = det;
@@ -173,8 +179,7 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
   }
 
   if (monoDet == 0 || stereoDet == 0) {
-    std::cout << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets "
-	      << endl;
+    edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
 
@@ -192,11 +197,10 @@ void MeasurementTracker::update( const edm::Event& event) const
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   //std::string stripClusterProducer ("ClusterProducer"); // FIXME SiStripClusterizer
   std::string stripClusterProducer ("ThreeThresholdClusterizer");
-  edm::Handle<edm::DetSetVector<SiStripCluster>> clusterHandle;
+  edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
   event.getByLabel(stripClusterProducer, clusterHandle);
   const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
 
-  //cout << "--- siStripClusterColl got " << endl;
 
   // loop over all strip dets
   for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
@@ -216,12 +220,11 @@ void MeasurementTracker::update( const edm::Event& event) const
     // push cluster range in det
     //    (**i).update( range );
   }
-  //cout << "--- end of loop over dets" << endl;
 
   // Pixel Clusters
   std::string pixelClusterProducer ("pixClust"); 
 
-  edm::Handle<edm::DetSetVector<SiPixelCluster>> pixelClusters;
+  edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
   event.getByLabel(pixelClusterProducer, pixelClusters);
   const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
   //cout << "--- siPixelClusterColl got " << endl;
@@ -242,7 +245,6 @@ void MeasurementTracker::update( const edm::Event& event) const
        (**i).setEmpty();
     }
   }
-  //cout << "--- end of loop over dets" << endl;
 
   /// or maybe faster: loop over all strip dets and clear them
   /// loop over dets with clusters and set range

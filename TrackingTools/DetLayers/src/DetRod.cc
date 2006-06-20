@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/DetRod.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -9,7 +10,7 @@ DetRod::compatibleDets( const TrajectoryStateOnSurface& fts,
 			const Propagator& prop, 
 			const MeasurementEstimator& est) const
 {
-  cout << "At the moment not a real implementation" << endl;
+  edm::LogError("DetLayers") << "At the moment not a real implementation" ;
   return vector<DetWithState>();
 }
 

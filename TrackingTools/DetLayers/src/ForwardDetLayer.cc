@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
@@ -70,10 +71,10 @@ BoundDisk* ForwardDetLayer::computeSurface() {
     theRmax = max( theRmax, rdet+len/2.F);
   }
 
-#ifdef DEBUG_GEOM
-  cout << "creating SimpleDiskBounds with r range" << theRmin << " " 
-       << theRmax << " and z range " << theZmin << " " << theZmax << endl;
-#endif
+
+  LogDebug("DetLayers") << "creating SimpleDiskBounds with r range" << theRmin << " " 
+			<< theRmax << " and z range " << theZmin << " " << theZmax ;
+
 
   // By default the forward layers are positioned around the z axis of the
   // global frame, and the axes of their local frame coincide with 

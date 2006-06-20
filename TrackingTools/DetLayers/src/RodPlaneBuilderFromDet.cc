@@ -24,11 +24,11 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
   pair<RectangularPlaneBounds,GlobalVector> bo = 
     computeBounds( dets, tmpPlane);
 
-//   cout << "Creating plane at position " << meanPos 
-//        << " displaced by " << bo.second << endl;
-//   cout << "Bounds are (wid/len/thick) " << bo.first.width()
+//   LogDebug("DetLayers") << "Creating plane at position " << meanPos 
+//        << " displaced by " << bo.second ;
+//   LogDebug("DetLayers") << "Bounds are (wid/len/thick) " << bo.first.width()
 //        << " / " <<  bo.first.length() 
-//        << " / " <<  bo.first.thickness()  << endl;
+//        << " / " <<  bo.first.thickness() ;
 
   return new BoundPlane( meanPos+bo.second, rotation, bo.first);
 }
@@ -107,8 +107,8 @@ computeRotation( const vector<const Det*>& dets,
     xAxis = -planeXAxis;
   }
 
-//   cout << "Creating rotation with x,y axis " 
-//        << xAxis << ", " << yAxis << endl;
+//   LogDebug("DetLayers") << "Creating rotation with x,y axis " 
+//        << xAxis << ", " << yAxis ;
 
   return Surface::RotationType( xAxis, yAxis);
 }

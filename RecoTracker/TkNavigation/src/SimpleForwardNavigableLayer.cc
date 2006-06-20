@@ -1,10 +1,16 @@
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
+
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+
 
 using namespace std;
 
@@ -152,7 +158,7 @@ vector<const DetLayer*>
 SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
-    cout << "ERROR: compatibleLayers() method used without all reachableLayers are set" << endl;
+    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
     throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
   }
 
@@ -173,7 +179,7 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
 					       PropagationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
-    cout << "ERROR: compatibleLayers() method used without all reachableLayers are set" << endl;
+    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
     throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
   }
 

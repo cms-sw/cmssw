@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRing.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 //#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 
@@ -14,7 +15,7 @@ ForwardDetRing::compatibleDets( const TrajectoryStateOnSurface& fts,
 				const Propagator& prop, 
 				const MeasurementEstimator& est) const
 {
-  cout << "At the moment not a real implementation" << endl;
+  edm::LogError("DetLayers") << "At the moment not a real implementation" ;
   return vector<ForwardDetRing::DetWithState>();
 }
 

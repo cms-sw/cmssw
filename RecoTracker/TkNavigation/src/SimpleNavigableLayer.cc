@@ -1,4 +1,7 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 
@@ -81,7 +84,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     }
     else {
       const ForwardDetLayer* fl = dynamic_cast<const ForwardDetLayer*>(*i);
-      if ( fl == 0) cout << "dynamic_cast<const ForwardDetLayer*> failed" << endl;
+      if ( fl == 0) edm::LogError("TkNavigation") << "dynamic_cast<const ForwardDetLayer*> failed" ;
       if (wellInside( fts, dir, fl, result)) return true;
     }
   }

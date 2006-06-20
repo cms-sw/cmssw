@@ -1,18 +1,23 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
+#include "RecoTracker/TkNavigation/interface/DiskLessInnerRadius.h"
+#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
+
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/DetLayers/src/DetBelowZ.h"
+#include "TrackingTools/DetLayers/src/DetLessZ.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 
 #include "Utilities/General/interface/CMSexception.h"
-#include "TrackingTools/DetLayers/src/DetBelowZ.h"
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
-#include "RecoTracker/TkNavigation/interface/DiskLessInnerRadius.h"
-#include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <functional>
 #include <algorithm>
@@ -132,10 +137,10 @@ linkForwardLayers( SymmetricLayerFinder& symFinder)
   // handle right side first, groups are only on the right 
   vector<FDLC> groups = splitForwardLayers();
 
-  cout << " Forward groups size = " << groups.size() << endl;
+  LogDebug("TkNavigation") << "SimpleNavigationSchool, Forward groups size = " << groups.size() ;
   for (vector<FDLC>::iterator g = groups.begin(); g != groups.end(); g++) {
-    cout << "group " << g - groups.begin() << " has " 
-	 << g->size() << " layers " << endl;
+    LogDebug("TkNavigation") << "group " << g - groups.begin() << " has " 
+			     << g->size() << " layers " ;
   }
 
   for ( vector<FDLC>::iterator group = groups.begin();
@@ -294,16 +299,16 @@ SimpleNavigationSchool::splitForwardLayers()
   current.push_back( *begin);
   for ( FDLI i = begin+1; i != end; i++) {
 
-    cout << "(**i).specificSurface().innerRadius()      = "
-	 << (**i).specificSurface().innerRadius() << endl
-	 << "(**(i-1)).specificSurface().outerRadius()) = "
-	 << (**(i-1)).specificSurface().outerRadius() << endl;
+    LogDebug("TkNavigation") << "(**i).specificSurface().innerRadius()      = "
+			     << (**i).specificSurface().innerRadius() << endl
+			     << "(**(i-1)).specificSurface().outerRadius()) = "
+			     << (**(i-1)).specificSurface().outerRadius() ;
 
     // if inner radius of i is larger than outer radius of i-1 then split!
     if ( (**i).specificSurface().innerRadius() > 
 	 (**(i-1)).specificSurface().outerRadius()) {
 
-      cout << "found break between groups" << endl;
+      LogDebug("TkNavigation") << "found break between groups" ;
 
       // sort layers in group along Z
       sort ( current.begin(), current.end(), DetLessZ());
@@ -332,7 +337,7 @@ float SimpleNavigationSchool::barrelLength()
 			     (**i).surface().bounds().length() / 2.f);
     }
 
-    cout << "The barrel length is " << theBarrelLength << endl;
+    LogDebug("TkNavigation") << "The barrel length is " << theBarrelLength ;
   }
   return theBarrelLength;
 }

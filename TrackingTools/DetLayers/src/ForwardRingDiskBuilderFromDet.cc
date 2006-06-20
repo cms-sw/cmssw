@@ -11,20 +11,20 @@ ForwardRingDiskBuilderFromDet::operator()( const vector<const GeomDet*>& dets) c
   pair<SimpleDiskBounds,float> bo = 
     computeBounds( dets );
 
-//   cout << "Creating disk at Z: " << bo.second << endl
+//   LogDebug("DetLayers") << "Creating disk at Z: " << bo.second << "\n"
 //        << "Bounds are (rmin/rmax/thick) " << bo.first.innerRadius()
 //        << " / " <<  bo.first.outerRadius()
-//        << " / " <<  bo.first.thickness()  << endl;
+//        << " / " <<  bo.first.thickness()  ;
 
 //   typedef Det::PositionType::BasicVectorType Vector; 
 //   Vector posSum(0,0,0);
 //   for (vector<Det*>::const_iterator i=dets.begin(); i!=dets.end(); i++) {
 //     Vector pp = (**i).position().basicVector();
-//     //    cout << "  "<< (int) ( i-dets.begin()) << " at " << pp << endl;
+//     //    LogDebug("DetLayers") << "  "<< (int) ( i-dets.begin()) << " at " << pp ;
 //     posSum += pp;
 //   }
 //   Det::PositionType meanPos( posSum/float(dets.size()));
-//   cout << "  meanPos "<< meanPos <<endl;
+//   LogDebug("DetLayers") << "  meanPos "<< meanPos ;
 
   Surface::PositionType pos(0.,0.,bo.second);
   Surface::RotationType rot;

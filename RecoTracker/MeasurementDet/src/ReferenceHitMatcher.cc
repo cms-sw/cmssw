@@ -1,10 +1,16 @@
 #include "RecoTracker/MeasurementDet/interface/ReferenceHitMatcher.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
+#include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 
 using namespace std;
@@ -140,27 +146,26 @@ void ReferenceHitMatcher::dumpHit(const TransientTrackingRecHit& hit) const
   if (hit.isValid()) {
     GlobalPoint gp = hit.globalPosition();
     LocalError le = hit.localPositionError();
-    cout << "Hit position (r,phi,z) (" 
-	 << gp.perp() << ", "
-	 << gp.phi() << ", "
-	 << gp.z() << ") localPos "
-	 << hit.localPosition() << " localErr ("
-	 << sqrt(le.xx()) << ", "
-	 << le.xy() << ", "
-	 << sqrt(le.yy()) << ")" 
-	 << endl;
+    edm::LogInfo("MeasurementDet") << "Hit position (r,phi,z) (" 
+				   << gp.perp() << ", "
+				   << gp.phi() << ", "
+				   << gp.z() << ") localPos "
+				   << hit.localPosition() << " localErr ("
+				   << sqrt(le.xx()) << ", "
+				   << le.xy() << ", "
+				   << sqrt(le.yy()) << ")" ;
   }
   else {
     const GeomDet* det = hit.det();
     if (det != 0) {
       GlobalPoint gp = det->position();
-      cout << "Invalid hit in det at position (r,phi,z) ("
-	   << gp.perp() << ", "
-	   << gp.phi() << ", "
-	   << gp.z() << endl;
+      edm::LogInfo("MeasurementDet") << "Invalid hit in det at position (r,phi,z) ("
+				     << gp.perp() << ", "
+				     << gp.phi() << ", "
+				     << gp.z() ;
     }
     else {
-      cout << "Invalid hit on DetLayer" << endl;     
+       edm::LogInfo("MeasurementDet") << "Invalid hit on DetLayer" ;     
     }
   }
 }

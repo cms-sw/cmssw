@@ -4,12 +4,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -29,19 +28,9 @@ class TrackerRecoGeometryAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 TrackerRecoGeometryAnalyzer::TrackerRecoGeometryAnalyzer( const edm::ParameterSet& iConfig )
@@ -70,7 +59,6 @@ TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
 {
    using namespace edm;
 
-   std::cout << "Here I am " << std::endl;
    //
    // get the GeometricSearchDet
    //
@@ -79,14 +67,12 @@ TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    
    //---- testing access to barrelLayers ----
    vector<BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
-   cout << "number of BarrelLayers: " << theBarrelLayers.size() << endl;
+   edm::LogInfo("analyzer") << "number of BarrelLayers: " << theBarrelLayers.size() ;
 
    for(unsigned int i=0; i<3; i++){
      BarrelDetLayer* theLayer = theBarrelLayers[i];   
-     cout << "theLayer[" << i << "]->position().perp(): " 
-	  << theLayer->components().front()->surface().position().perp() << endl;     
-     //cout << "theLayer[" << i << "]->module(): " 
-     //<< theLayer->module() << endl;     
+     edm::LogInfo("analyzer") << "theLayer[" << i << "]->position().perp(): " 
+	  << theLayer->components().front()->surface().position().perp() ;     
    }   
    //--------------------------------------
 

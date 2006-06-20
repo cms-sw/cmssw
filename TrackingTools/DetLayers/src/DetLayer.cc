@@ -1,5 +1,5 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 using namespace std;
@@ -13,8 +13,8 @@ void DetLayer::setNavigableLayer( NavigableLayer* nlp) {
 
   if (nlp->detLayer() != this) {
     if (nlp->detLayer() != 0) {
-      cout << "DetLayer Warning: my navigable layer does not point to me. "
-	   << " Correcting..." << endl;
+      edm::LogWarning("DetLayers") << "DetLayer Warning: my navigable layer does not point to me. "
+				   << " Correcting..." ;
     }
     theNavigableLayer->setDetLayer( this);
   }
