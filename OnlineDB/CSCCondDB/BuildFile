@@ -7,31 +7,27 @@
 
 <use name=DataFormats/CSCDigi>
 <use name=EventFilter/CSCRawToDigi>
+<use name=CondFormats/CSCObjects>
+
 <use name=clhep>
 <use name=root>
 <use name=oracle>
 <lib name=occi>
-<lib name=condbon>
-<lib name=condbc>
 <lib name=cscmap>
-
 <lib name=Minuit2>
-<flags SEAL_PLUGIN_NAME="CalibMuonCSCCalibration">
-
+<flags SEAL_PLUGIN_NAME="OnlineDBCSCCondDB">
 <export>
-   <lib name=CalibMuonCSCCalibration>
-
+   <lib name=OnlineDBCSCCondDB>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/CSCDigi>
    <use name=EventFilter/CSCRawToDigi>
+   <use name=CondFormats/CSCObjects>
    <use name=clhep>
    <use name=root>
    <lib name=occi>
-   <lib name=condbon>
-   <lib name=condbc>
    <lib name=cscmap>
    <lib name=Minuit2>
 </export>
