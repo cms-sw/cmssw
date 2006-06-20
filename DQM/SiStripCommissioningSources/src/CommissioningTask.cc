@@ -2,6 +2,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 
 #include <iostream>
 #include <string> 
@@ -36,6 +38,25 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
 				    connection_.ccuAddr(),
 				    connection_.ccuChan(),
 				    connection_.lldChannel() );
+
+//   // DEBUG
+//   int32_t lsb = 0xFFFFFFFF;
+//   int32_t msb = 0x10000001;
+//   double temp = static_cast<double>( msb ) * static_cast<double>(0x80000000);
+//   temp += static_cast<double>( lsb );
+  
+//   double sq = static_cast<double>( abs(msb) ) * static_cast<double>(0x80000000);
+//   sq += static_cast<double>( abs(lsb) );
+//   if ( lsb < 0 || msb < 0 ) { sq *= -1.; }
+  
+//   cout << "SIZE: " << sizeof(int32_t) << " " << sizeof(double) << endl;
+//   cout << "DEC: lsb: " << lsb << " msb: " << msb << " temp: " << temp << endl;
+//   cout << hex << "HEX: lsb: " << lsb << " msb: " << msb << " temp: " << temp << dec << endl;
+  
+// 	float sign = histo_set.vSumOfSquaresOverflow_[ibin] < 0 ? -1. : 1.;
+// 	histo_set.meSumOfSquares_->Fill( ibin+1, sign*(float)0x7FFFFFFF ); 
+// 	histo_set.meSumOfSquares_->Fill( ibin+1, sign );
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -104,60 +125,85 @@ void CommissioningTask::updateHistograms() {
 void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
 					const uint32_t& bin,
 					const uint32_t& value ) {
-  
+   
+  // Check bin number
   if ( bin >= histo_set.vNumOfEntries_.size() ) { 
     edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
 				   << "  Unexpected bin! " << bin;
     return;
   }
   
-  uint32_t remaining = 0x7FFFFFFF - histo_set.vSumOfSquares_[bin];
-  uint32_t squared_value = value * value;
-
   // Set entries
   histo_set.vNumOfEntries_[bin]++;
-
-  // Set contents
-  histo_set.vSumOfContents_[bin] += value;
-
-  // Set squared contents (and overflow if necessary)
-  if ( remaining <= squared_value ) { 
-    histo_set.vSumOfSquaresOverflow_[bin] +=1;
-    histo_set.vSumOfSquares_[bin] += (squared_value-remaining);
-  } else { 
-    histo_set.vSumOfSquares_[bin] += squared_value;
+  
+  // Check if histo is TProfile or not
+  if ( !histo_set.isProfile_ ) { return; }
+  
+  // Check bin number
+  if ( bin >= histo_set.vSumOfContents_.size() || 
+       bin >= histo_set.vSumOfSquares_.size() ) { 
+    edm::LogError("Commissioning") << "[VpspScanTask::fill]" 
+				   << "  Unexpected bin! " << bin;
+    return;
   }
   
-//   cout << bin << " " 
-//        << histo_set.vSumOfSquaresOverflow_[bin] << " " 
-// 	 << histo_set.vSumOfSquares_[bin] << " " 
-// 	 << histo_set.vSumOfContents_[bin] << " " 
-// 	 << histo_set.vNumOfEntries_[bin] << endl;
+  // Set sum of contents and squares
+  histo_set.vSumOfContents_[bin] += value;
+  histo_set.vSumOfSquares_[bin] += value*value*1.;
+
+  
+//   uint32_t remaining = 0x7FFFFFFF - histo_set.vSumOfSquaresLSB_[bin];
+//   uint32_t squared_value = value * value;
+  
+//   // Set contents
+//   histo_set.vSumOfContents_[bin] += value;
+  
+//   // Set squared contents (and overflow if necessary)
+//   if ( remaining <= squared_value ) { 
+//     histo_set.vSumOfSquaresMSB_[bin] += 1;
+//     histo_set.vSumOfSquaresLSB_[bin] += (squared_value-remaining);
+//   } else { 
+//     histo_set.vSumOfSquaresLSB_[bin] += squared_value;
+//   }
+  
+  //   cout << bin << " " 
+  //        << histo_set.vSumOfSquaresMSB_[bin] << " " 
+  // 	 << histo_set.vSumOfSquaresLSB_[bin] << " " 
+  // 	 << histo_set.vSumOfContents_[bin] << " " 
+  // 	 << histo_set.vNumOfEntries_[bin] << endl;
   
 }
 
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
-  
-  if ( !histo_set.meSumOfSquares_ ||
-       !histo_set.meSumOfContents_ ||
-       !histo_set.meNumOfEntries_ ) {
+
+  // Check if histo exists
+  if ( !histo_set.histo_ ) {
     edm::LogError("Commissioning") << "[CommissioningTask::updateHistoSet]" 
 				   << " NULL pointer to ME!";
     return;
   }
+
+  // Utility class that allows to update bin contents of TProfile histo
+  static UpdateTProfile profile;
   
+  // Extract TProfile object
+  TProfile* prof = ExtractTObject<TProfile>()( histo_set.histo_ );
+  
+  // Update TProfile histo
   for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
-    histo_set.meNumOfEntries_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin]*1. );
-    histo_set.meSumOfContents_->setBinContent( ibin+1, histo_set.vSumOfContents_[ibin]*1. );
-    histo_set.meSumOfSquares_->setBinContent( ibin+1, histo_set.vSumOfSquares_[ibin]*1. );
-    for ( uint32_t ientries = 0; ientries < static_cast<uint32_t>(histo_set.vSumOfSquaresOverflow_[ibin]); ientries++ ) {
-      float sign = histo_set.vSumOfSquaresOverflow_[ibin] < 0 ? -1. : 1.;
-      histo_set.meSumOfSquares_->Fill( ibin+1, sign*(float)0x7FFFFFFF ); 
-      histo_set.meSumOfSquares_->Fill( ibin+1, sign );
+    if ( histo_set.isProfile_ ) {
+      profile.setBinContents( prof,
+			      ibin+1, 
+			      histo_set.vNumOfEntries_[ibin],
+			      histo_set.vSumOfContents_[ibin],
+			      histo_set.vSumOfSquares_[ibin] );
+    } else {
+      histo_set.histo_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin]*1. );
     }
   }
   
 }
+
 

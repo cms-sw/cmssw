@@ -23,16 +23,25 @@ class CommissioningTask {
 
  public: // ----- public interface -----
 
-  struct HistoSet {
-    MonitorElement* meSumOfSquares_;
-    MonitorElement* meSumOfContents_;
-    MonitorElement* meNumOfEntries_;
-    vector<int32_t> vSumOfSquares_;
-    vector<int32_t> vSumOfSquaresOverflow_;
-    vector<int32_t> vSumOfContents_;
+  /** Simple container class holding pointer to root histogram, and
+      vectors in which data are cached and used to update histo. */
+  class HistoSet {
+  public:
+    HistoSet() : 
+      vNumOfEntries_(), 
+      vSumOfContents_(), 
+      vSumOfSquares_(), 
+      histo_(0), 
+      isProfile_(true) {;}
+    // public data member
     vector<int32_t> vNumOfEntries_;
+    vector<int32_t> vSumOfContents_;
+    vector<double>  vSumOfSquares_;
+    MonitorElement* histo_;
+    bool isProfile_;
   };
   
+  /** Constructor. */ 
   CommissioningTask( DaqMonitorBEInterface*, 
 		     const FedChannelConnection&,
 		     const string& my_name );
@@ -59,7 +68,7 @@ class CommissioningTask {
   void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
-
+  
   /** Returns const pointer to DQM back-end interface object. */
   inline DaqMonitorBEInterface* const dqm() const;
 

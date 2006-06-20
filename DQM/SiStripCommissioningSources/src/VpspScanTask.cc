@@ -35,33 +35,18 @@ void VpspScanTask::book() {
     if ( connection().i2cAddr(iapv) ) { 
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
-						    sistrip::SUM2, 
+						    sistrip::COMBINED, 
 						    sistrip::FED, 
 						    fedKey(),
 						    sistrip::APV, 
 						    connection().i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+      vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
+					       nbins, -0.5, nbins*1.-0.5,
+					       1024, 0., 1024. );
       
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
-						    sistrip::SUM, 
-						    sistrip::FED, 
-						    fedKey(),
-						    sistrip::APV, 
-						    connection().i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-      
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
-						    sistrip::NUM, 
-						    sistrip::FED, 
-						    fedKey(),
-						    sistrip::APV, 
-						    connection().i2cAddr(iapv) );
-      vpsp_[iapv].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-      
-      vpsp_[iapv].vSumOfSquares_.resize(nbins,0);
-      vpsp_[iapv].vSumOfSquaresOverflow_.resize(nbins,0);
-      vpsp_[iapv].vSumOfContents_.resize(nbins,0);
       vpsp_[iapv].vNumOfEntries_.resize(nbins,0);
+      vpsp_[iapv].vSumOfContents_.resize(nbins,0);
+      vpsp_[iapv].vSumOfSquares_.resize(nbins,0);
       
     }
   }

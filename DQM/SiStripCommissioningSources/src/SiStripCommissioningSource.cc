@@ -1,4 +1,4 @@
-#include "DQM/SiStripCommissioningSources/interface/CommissioningSource.h"
+#include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
 // edm
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -36,7 +36,7 @@
 
 // -----------------------------------------------------------------------------
 //
-CommissioningSource::CommissioningSource( const edm::ParameterSet& pset ) :
+SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
   dqm_(0),
   task_( pset.getUntrackedParameter<string>("CommissioningTask","UNDEFINED") ),
@@ -48,21 +48,21 @@ CommissioningSource::CommissioningSource( const edm::ParameterSet& pset ) :
   fecCabling_(0),
   cablingTask_(false)
 {
-  edm::LogInfo("CommissioningSource") << "[CommissioningSource::CommissioningSource] Constructing object...";
+  edm::LogInfo("SiStripCommissioningSource") << "[SiStripCommissioningSource::SiStripCommissioningSource] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-CommissioningSource::~CommissioningSource() {
-  edm::LogInfo("CommissioningSource") << "[CommissioningSource::~CommissioningSource] Destructing object...";
+SiStripCommissioningSource::~SiStripCommissioningSource() {
+  edm::LogInfo("SiStripCommissioningSource") << "[SiStripCommissioningSource::~SiStripCommissioningSource] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 // Retrieve DQM interface, control cabling and "control view" utility
 // class, create histogram directory structure and generate "reverse"
 // control cabling.
-void CommissioningSource::beginJob( const edm::EventSetup& setup ) {
-  edm::LogInfo("Commissioning") << "[CommissioningSource::beginJob]";
+void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
+  edm::LogInfo("Commissioning") << "[SiStripCommissioningSource::beginJob]";
 
   // Retrieve and store FED cabling, create FEC cabling
   edm::ESHandle<SiStripFedCabling> fed_cabling;
@@ -77,8 +77,8 @@ void CommissioningSource::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::endJob() {
-  edm::LogInfo("Commissioning") << "[CommissioningSource::endJob]";
+void SiStripCommissioningSource::endJob() {
+  edm::LogInfo("Commissioning") << "[SiStripCommissioningSource::endJob]";
   for ( TaskMap::iterator itask = tasks_.begin(); itask != tasks_.end(); itask++ ) { 
     if ( itask->second ) { itask->second->updateHistograms(); }
   }
@@ -97,9 +97,9 @@ void CommissioningSource::endJob() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::analyze( const edm::Event& event, 
+void SiStripCommissioningSource::analyze( const edm::Event& event, 
 				   const edm::EventSetup& setup ) {
-  LogDebug("Commissioning") << "[CommissioningSource::analyze]";
+  LogDebug("Commissioning") << "[SiStripCommissioningSource::analyze]";
   
   edm::Handle<SiStripEventSummary> summary;
   event.getByLabel( inputModuleLabel_, summary );
@@ -122,7 +122,7 @@ void CommissioningSource::analyze( const edm::Event& event,
   } else if ( summary->fedReadoutMode() == sistrip::ZERO_SUPPR ) {
     //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
   } else {
-    edm::LogError("CommissioningSource") << "[CommissioningSource::analyze]"
+    edm::LogError("SiStripCommissioningSource") << "[SiStripCommissioningSource::analyze]"
 					 << " Unknown FED readout mode!";
   }
   
@@ -138,7 +138,7 @@ void CommissioningSource::analyze( const edm::Event& event,
 				      ((id>> 0)&0x03) ); // LLD channel
     SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
     stringstream ss;
-    ss << "[CommissioningSource::analyze]"
+    ss << "[SiStripCommissioningSource::analyze]"
        << " Device id: " << setfill('0') << setw(8) << hex << id << dec
        << " FEC key: " << setfill('0') << setw(8) << hex << fec_key << dec
        << " crate/fec/ring/ccu/module/lld params: " 
@@ -169,7 +169,7 @@ void CommissioningSource::analyze( const edm::Event& event,
 	    } else {
 	      SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
 	      stringstream ss;
-	      ss << "[CommissioningSource::analyze]"
+	      ss << "[SiStripCommissioningSource::analyze]"
 		 << " Commissioning task with FEC key " 
 		 << setfill('0') << setw(8) << hex << fec_key << dec
 		 << " and crate/fec/ring/ccu/module/lld " 
@@ -188,7 +188,7 @@ void CommissioningSource::analyze( const edm::Event& event,
 	    } else {
 	      SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fec_key );
 	      stringstream ss;
-	      ss << "[CommissioningSource::analyze]"
+	      ss << "[SiStripCommissioningSource::analyze]"
 		 << " Commissioning task with FED key " 
 		 << hex << setfill('0') << setw(8) << fed_key << dec
 		 << " and FED id/ch " 
@@ -207,12 +207,12 @@ void CommissioningSource::analyze( const edm::Event& event,
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::createDirs() { 
+void SiStripCommissioningSource::createDirs() { 
 
   // Check DQM service is available
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   if ( !dqm_ ) { 
-    edm::LogError("Commissioning") << "[CommissioningSource::createDirs] Null pointer to DQM interface!"; 
+    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createDirs] Null pointer to DQM interface!"; 
     return; 
   }
   
@@ -229,7 +229,7 @@ void CommissioningSource::createDirs() {
 								imodule->ccuChan() );
 	    dqm_->setCurrentFolder( dir );
 	    SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
-	    edm::LogInfo("Commissioning") << "[CommissioningSource::createDirs]"
+	    edm::LogInfo("Commissioning") << "[SiStripCommissioningSource::createDirs]"
 					  << "  Created directory '" << dir 
 					  << "' using params crate/slot/ring/ccu/chan " 
 					  << icrate->fecCrate() << "/" 
@@ -247,19 +247,19 @@ void CommissioningSource::createDirs() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::createTask( sistrip::Task task ) {
-  LogDebug("Commissioning") << "[CommissioningSource::createTask]";
+void SiStripCommissioningSource::createTask( sistrip::Task task ) {
+  LogDebug("Commissioning") << "[SiStripCommissioningSource::createTask]";
   
   // Check DQM service is available
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   if ( !dqm_ ) { 
-    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Null pointer to DQM interface!"; 
+    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask] Null pointer to DQM interface!"; 
     return; 
   }
 
   // Check commissioning task is known
   if ( task == sistrip::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
-    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Unknown commissioning task!"; 
+    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask] Unknown commissioning task!"; 
     return; 
   }
 
@@ -319,18 +319,18 @@ void CommissioningSource::createTask( sistrip::Task task ) {
 		  else if ( task == sistrip::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
 		  else if ( task == sistrip::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
 		  else if ( task == sistrip::UNKNOWN_TASK ) {
-		    edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+		    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask]"
 						   << " Unknown commissioning task in data stream! " << task_;
 		  }
 		} else {
-		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+		  edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask]"
 						 << " Unknown commissioning task in .cfg file! " << task_;
 		}
 		
 		// Check if key is found and, if so, book histos and set update freq
 		if ( tasks_.find( key ) != tasks_.end() ) {
 		  stringstream ss;
-		  ss << "[CommissioningSource::createTask]"
+		  ss << "[SiStripCommissioningSource::createTask]"
 		     << " Created task '" << tasks_[key]->myName() << "' for key "
 		     << hex << setfill('0') << setw(8) << key << dec 
 		     << " in directory " << dir; 
@@ -339,7 +339,7 @@ void CommissioningSource::createTask( sistrip::Task task ) {
 		  tasks_[key]->updateFreq( updateFreq_ ); 
 		} else {
 		  stringstream ss;
-		  ss << "[CommissioningSource::createTask]"
+		  ss << "[SiStripCommissioningSource::createTask]"
 		     << " Commissioning task with key " 
 		     << hex << setfill('0') << setw(8) << key << dec
 		     << " not found in list!"; 
@@ -348,7 +348,7 @@ void CommissioningSource::createTask( sistrip::Task task ) {
 		
 	      } else {
 		stringstream ss;
-		ss << "[CommissioningSource::createTask]"
+		ss << "[SiStripCommissioningSource::createTask]"
 		   << " Task '" << tasks_[key]->myName()
 		   << "' already exists for key "
 		   << hex << setfill('0') << setw(8) << key << dec; 
@@ -362,7 +362,7 @@ void CommissioningSource::createTask( sistrip::Task task ) {
     }
   }
 
-  edm::LogInfo("Commissioning") << "[CommissioningSource]"
+  edm::LogInfo("Commissioning") << "[SiStripCommissioningSource]"
 				<< " Number of task objects created: " << tasks_.size();
   return;
 

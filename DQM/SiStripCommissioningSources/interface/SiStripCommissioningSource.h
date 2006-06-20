@@ -1,5 +1,5 @@
-#ifndef DQM_SiStripCommissioningSources_CommissioningSource_H
-#define DQM_SiStripCommissioningSources_CommissioningSource_H
+#ifndef DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
+#define DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -16,17 +16,17 @@ class FedChannelConnection;
 using namespace std;
 
 /**
-   @class CommissioningSource
+   @class SiStripCommissioningSource
 */
-class CommissioningSource : public edm::EDAnalyzer {
+class SiStripCommissioningSource : public edm::EDAnalyzer {
 
  public: // ----- public interface -----
   
   /** Map of task objects, identified through FedChanelId */
   typedef map<unsigned int, CommissioningTask*> TaskMap;
   
-  CommissioningSource( const edm::ParameterSet& );
-  ~CommissioningSource();
+  SiStripCommissioningSource( const edm::ParameterSet& );
+  ~SiStripCommissioningSource();
   
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
@@ -35,7 +35,7 @@ class CommissioningSource : public edm::EDAnalyzer {
  private: // ----- private methods -----
 
   /** Private default constructor. */
-  CommissioningSource();
+  SiStripCommissioningSource();
 
   void createDirs();
   void createTask( sistrip::Task task );
@@ -66,5 +66,5 @@ class CommissioningSource : public edm::EDAnalyzer {
 
 };
 
-#endif // DQM_SiStripCommissioningSources_CommissioningSource_H
+#endif // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
 

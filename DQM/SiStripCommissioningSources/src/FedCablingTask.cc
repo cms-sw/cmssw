@@ -44,36 +44,19 @@ void FedCablingTask::book() {
     }
     
     title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_CABLING,
-						  sistrip::SUM2, 
+						  sistrip::COMBINED, 
 						  sistrip::FED, 
 						  fedKey(),
 						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
 						  info );
-    cabling_[iter].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+    cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
+						nbins, -0.5, nbins*1.-0.5,
+						1024, 0., 1024. ); //@@ correct range?
     
-    title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_CABLING,
-						  sistrip::SUM, 
-						  sistrip::FED, 
-						  fedKey(),
-						  sistrip::LLD_CHAN, 
-						  connection().lldChannel(),
-						  info );
-    cabling_[iter].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-    
-    title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_CABLING,
-						  sistrip::NUM, 
-						  sistrip::FED, 
-						  fedKey(),
-						  sistrip::LLD_CHAN, 
-						  connection().lldChannel(),
-						  info );
-    cabling_[iter].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-    
-    cabling_[iter].vSumOfSquares_.resize(nbins,0);
-    cabling_[iter].vSumOfSquaresOverflow_.resize(nbins,0);
-    cabling_[iter].vSumOfContents_.resize(nbins,0);
     cabling_[iter].vNumOfEntries_.resize(nbins,0);
+    cabling_[iter].vSumOfContents_.resize(nbins,0);
+    cabling_[iter].vSumOfSquares_.resize(nbins,0);
     
   }
   

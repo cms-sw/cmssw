@@ -39,44 +39,27 @@ void OptoScanTask::book() {
   // Book histos and resize vectors within "Histo sets"
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
-
+      
       stringstream ss; 
       ss << sistrip::gain_ << igain 
 	 << sistrip::digital_ << ilevel;
       
       title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
-						    sistrip::SUM2, 
+						    sistrip::COMBINED, 
 						    sistrip::FED, 
 						    fedKey(),
 						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
 						    ss.str() );
-      opto_[igain][ilevel].meSumOfSquares_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+      opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
+							 nbins, -0.5, nbins*1.-0.5,
+							 1024, 0., 1024. );
       
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
-						    sistrip::SUM, 
-						    sistrip::FED, 
-						    fedKey(),
-						    sistrip::LLD_CHAN, 
-						    connection().lldChannel(),
-						    ss.str() );
-      opto_[igain][ilevel].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-      
-      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
-						    sistrip::NUM, 
-						    sistrip::FED, 
-						    fedKey(),
-						    sistrip::LLD_CHAN, 
-						    connection().lldChannel(),
-						    ss.str() );
-      opto_[igain][ilevel].meNumOfEntries_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
-      
-      opto_[igain][ilevel].vSumOfSquares_.resize(nbins,0);
-      opto_[igain][ilevel].vSumOfSquaresOverflow_.resize(nbins,0);
-      opto_[igain][ilevel].vSumOfContents_.resize(nbins,0);
       opto_[igain][ilevel].vNumOfEntries_.resize(nbins,0);
-
-   }
+      opto_[igain][ilevel].vSumOfContents_.resize(nbins,0);
+      opto_[igain][ilevel].vSumOfSquares_.resize(nbins,0);
+      
+    }
   }
   
 }

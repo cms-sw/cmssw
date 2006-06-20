@@ -15,18 +15,14 @@ class PedestalsTask : public CommissioningTask {
   virtual ~PedestalsTask();
   
  private:
-
+  
   virtual void book();
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
   vector<HistoSet> peds_;
-
-  vector<uint32_t> vCommonMode0_;
-  vector<uint32_t> vCommonMode1_;
-  MonitorElement* meCommonMode0_;
-  MonitorElement* meCommonMode1_;
+  vector<HistoSet> cm_;
   
 };
 
