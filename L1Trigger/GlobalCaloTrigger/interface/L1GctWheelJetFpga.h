@@ -68,7 +68,7 @@ public:
   JetVector getInputJets() const { return m_inputJets; }
     
   /// get the input Ht
-  L1GctScalarEtVal inputHt(unsigned leafnum) const { return m_inputHt[leafnum]; }
+  L1GctScalarEtVal inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
     
   /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
@@ -83,7 +83,7 @@ public:
   L1GctScalarEtVal getOutputHt() const { return m_outputHt; }
 
   /// get the output jet counts
-  L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
+  L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
 
 private:
 

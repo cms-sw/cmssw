@@ -49,14 +49,14 @@ public:
 	void setInputEnergy(unsigned i, int ex, int ey, unsigned et);
 
 	/// provide access to input Leaf card pointer (0-2)
-	L1GctJetLeafCard* getinputLeafCard(unsigned leafnum) const { return m_inputLeafCards[leafnum]; }
+	L1GctJetLeafCard* getinputLeafCard(unsigned leafnum) const { return m_inputLeafCards.at(leafnum); }
 
 	/// get input Ex value from a Leaf card (0-2)
-	inline L1GctEtComponent getInputEx(unsigned leafnum) const { return m_inputEx[leafnum]; }
+	inline L1GctEtComponent getInputEx(unsigned leafnum) const { return m_inputEx.at(leafnum); }
 	/// get input Ey value from a Leaf card (0-2)
-	inline L1GctEtComponent getInputEy(unsigned leafnum) const { return m_inputEy[leafnum]; }
+	inline L1GctEtComponent getInputEy(unsigned leafnum) const { return m_inputEy.at(leafnum); }
 	/// get input Et value from a Leaf card (0-2)
-	inline L1GctScalarEtVal getInputEt(unsigned leafnum) const { return m_inputEt[leafnum]; }
+	inline L1GctScalarEtVal getInputEt(unsigned leafnum) const { return m_inputEt.at(leafnum); }
 
 	/// get output Ex value
 	inline L1GctEtComponent getOutputEx() const { return m_outputEx; }
