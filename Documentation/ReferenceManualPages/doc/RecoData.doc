@@ -11,6 +11,7 @@ The Data Format is defined in the following package sets:
 \htmlinclude datatable_begin.doi
 
 \htmlinclude TrackRecoCollections.doi
+\htmlinclude StripRecoCollections.doi
 \htmlinclude PixelRecoCollections.doi
 \htmlinclude VertexRecoCollections.doi
 \htmlinclude EcalRecoCollections.doi
