@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.76 $
+ * $Date: 2006/06/21 07:50:07 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -142,6 +142,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
     sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
     qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    qth01_[ism-1]->setMeanRange(100., 4096.);
+    qth02_[ism-1]->setMeanRange(100., 4096.);
+    qth02_[ism-1]->setMeanRange(100., 4096.);
+    qth03_[ism-1]->setMeanRange(100., 4096.);
 
     qth01_[ism-1]->setMinimumEntries(10*1700);
     qth02_[ism-1]->setMinimumEntries(10*1700);
@@ -1360,6 +1365,43 @@ void EBLaserClient::subscribe(void){
 
   }
 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+      mui_->useQTest(histo, qth04_[ism-1]->getName());
+    } else {
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+        mui_->useQTest(histo, qth04_[ism-1]->getName());
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+        mui_->useQTest(histo, qth04_[ism-1]->getName());
+      }
+    }
+
+  }
+
 }
 
 void EBLaserClient::subscribeNew(void){
@@ -2204,9 +2246,9 @@ void EBLaserClient::analyze(void){
     vector<dqm::me_util::Channel> badChannels04;
 
     if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth01_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth01_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth01_[ism-1]->getBadChannels();
+    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
+    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
+    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
 
   }
 

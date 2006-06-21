@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.96 $
+ * $Date: 2006/06/21 07:50:07 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -137,16 +137,16 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
     qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
     qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
   
-    qth01_[ism-1]->setMinimumEntries(10*1700);
-    qth02_[ism-1]->setMinimumEntries(10*1700);
-    qth03_[ism-1]->setMinimumEntries(10*1700);
-    qth04_[ism-1]->setMinimumEntries(10*1700);
-    qth05_[ism-1]->setMinimumEntries(10*1700);
-    qth06_[ism-1]->setMinimumEntries(10*1700);
-    qth07_[ism-1]->setMinimumEntries(10*1700);
-    qth08_[ism-1]->setMinimumEntries(10*1700);
-    qth09_[ism-1]->setMinimumEntries(10*1700);
-    qth10_[ism-1]->setMinimumEntries(10*1700);
+    qth01_[ism-1]->setMinimumEntries(0);
+    qth02_[ism-1]->setMinimumEntries(0);
+    qth03_[ism-1]->setMinimumEntries(0);
+    qth04_[ism-1]->setMinimumEntries(0);
+    qth05_[ism-1]->setMinimumEntries(0);
+    qth06_[ism-1]->setMinimumEntries(0);
+    qth07_[ism-1]->setMinimumEntries(0);
+    qth08_[ism-1]->setMinimumEntries(0);
+    qth09_[ism-1]->setMinimumEntries(0);
+    qth10_[ism-1]->setMinimumEntries(0);
 
     qth01_[ism-1]->setErrorProb(1.00);
     qth02_[ism-1]->setErrorProb(1.00);
