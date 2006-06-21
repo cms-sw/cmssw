@@ -54,9 +54,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
   
-  const HepMC::GenEvent            &genEvent =     hepMC -> getHepMCData();
-  
-//  const edm::EmbdSimTrackContainer *etc = G4TrkContainer.product();
+  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
+  // Is const HepMC::GenEvent *hme = mcp -> GetEvent(); // faster?
+
+  const edm::EmbdSimTrackContainer      *etc = G4TrkContainer.product();
 
   if (mcp == 0) {
     edm::LogWarning (MessageCategory) << "No HepMC source found";
@@ -113,25 +114,27 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
     math::XYZPoint mPosition = math::XYZPoint(position.x(),position.y(),position.z());
-//    int vtxParent = itVtx -> parentIndex(); // Get incoming track (EST)
-    
-//    int partHepMC = -1;
     
     if (position.perp() < 1200 && abs(position.z()) < 3000) { // In or out of Tracker
       InVolume = true;
     }
+
     
-//    if (vtxParent >= 0) {                     // If there is parent track, figure out HEPMC Vertex 
-//      EmbdSimTrack est = etc->at(vtxParent);  // Pull track out from vector
-//      partHepMC =     est.genpartIndex(); // Get HepMC particle barcode
-//      HepMC::GenParticle *hmp = hme -> barcode_to_particle(partHepMC); // Convert barcode
-//      if (hmp != 0) {
-//      HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
-//       if (hmpv != 0) {
-//         int  vb = hmpv  -> barcode();
-//       }  
-//      }  
-//    }  
+// Figure out the barcode of the HepMC Vertex if there is one
+    int vtxParent = itVtx -> parentIndex(); // Get incoming track (EST)
+    int partHepMC = -1;
+    int vb = 0;       
+    if (vtxParent >= 0) {                     // Is there a parent track 
+      EmbdSimTrack est = etc->at(vtxParent);  // Pull track out from vector
+      partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
+      HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
+      if (hmp != 0) {
+      HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
+       if (hmpv != 0) {
+         vb = hmpv  -> barcode();
+       }  
+      }  
+    }  
 
 // Find closest vertex to this one
 
@@ -161,21 +164,17 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
      
 // Add data to closest vertex
     (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
-    // Add HepMC vertex
-    // Add TrackingParticle (or maybe elsewhere)
+    if (vb) {
+      (*nearestVertex).addGenVertex(vb); // Add HepMC vertex
+    }
 
-
-  
-    
 // Identify and add child tracks       
     for (std::map<int,int>::iterator mapIndex = productionVertex.begin(); 
          mapIndex != productionVertex.end();
          ++mapIndex) {
       if (mapIndex -> second == index) {
-        edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex -> first <<
-            " to vertex "<<tVC->size()-1;
-//        TrackingParticle child = tPC-> at(mapIndex -> first);
-        // (*nearestVertex)add( const TrackingParticleRef & r );
+        edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex->first << " to vertex "<<tVC->size()-1;
+//        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
       }
     }
     ++index;     
