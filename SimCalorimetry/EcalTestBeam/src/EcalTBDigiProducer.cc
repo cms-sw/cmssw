@@ -64,6 +64,8 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
 
   theTBReadout = new EcalTBReadout(ecalTBInfoLabel);
 
+  tunePhaseShift =  params.getParameter<double>("tunePhaseShift");
+
 }
 
 
@@ -105,18 +107,20 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   // run the algorithm
 
   CaloDigiCollectionSorter sorter(5);
-
-  if (doPhaseShift) thisPhaseShift = RandFlat::shoot();
   
-   if (doPhaseShift) {
-     DetId detId(DetId::Ecal, 1);
-     setPhaseShift(detId);
-
-     // fill the TDC information in the event
-
-     fillTBTDCRawInfo(*TDCproduct);
-
-   }
+  
+  if (doPhaseShift) {
+    
+    thisPhaseShift = RandFlat::shoot();
+    
+    DetId detId(DetId::Ecal, 1);
+    setPhaseShift(detId);
+    
+    // fill the TDC information in the event
+    
+    fillTBTDCRawInfo(*TDCproduct);
+    
+  }
   
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
   edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
@@ -172,19 +176,20 @@ void  EcalTBDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
-  double theGains[theCoder->NGAINS];
-  theGains[0] = 1.;
-  theGains[1] = defaultRatios->gain6Over1() ;
-  theGains[2] = theGains[1]*(defaultRatios->gain12Over6()) ;
+  double theGains[theCoder->NGAINS+1];
+  theGains[0] = 0.;
+  theGains[3] = 1.;
+  theGains[2] = defaultRatios->gain6Over1() ;
+  theGains[1] = theGains[2]*(defaultRatios->gain12Over6()) ;
 
-  LogDebug("EcalDigi") << " Gains: " << "\n" << " g0 = " << theGains[0] << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2];
+  LogDebug("EcalDigi") << " Gains: " << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2] << "\n" << " g3 = " << theGains[3];
 
   delete defaultRatios;
 
-  const double EBscale = (agc->getEBValue())*theGains[2]*(theCoder->MAXADC);
-  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
-  const double EEscale = (agc->getEEValue())*theGains[2]*(theCoder->MAXADC);
-  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
+  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC);
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
+  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC);
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
   theCoder->setFullScaleEnergy( EBscale , EEscale );
 
 }
@@ -229,10 +234,11 @@ void EcalTBDigiProducer::setPhaseShift(const DetId & detId) {
 
     int myDet = detId.subdetId();
 
-    LogDebug("EcalDigi") << "Setting the phase shift " << thisPhaseShift << " for the subdetector " << myDet;
+    LogDebug("EcalDigi") << "Setting the phase shift " << thisPhaseShift << " and the offset " << tunePhaseShift << " for the subdetector " << myDet;
 
     if ( myDet == 1) {
-      theEcalResponse->setPhaseShift(thisPhaseShift);
+      double passPhaseShift = thisPhaseShift+tunePhaseShift;
+      theEcalResponse->setPhaseShift(passPhaseShift);
     }
     
   }

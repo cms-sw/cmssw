@@ -75,6 +75,8 @@ private:
   std::vector<int> tdcMin;
   std::vector<int> tdcMax;
 
+  double tunePhaseShift;
+  
 };
 
 #endif 
