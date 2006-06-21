@@ -23,13 +23,14 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.1 2006/04/04 01:54:51 chrjones Exp $
+// $Id: RefToBase.h,v 1.2 2006/05/22 19:09:06 chrjones Exp $
 //
 
 // system include files
 #include <algorithm>
 
 // user include files
+#include "DataFormats/Common/interface/ProductID.h"
 
 // forward declarations
 namespace edm {
@@ -41,6 +42,7 @@ namespace edm {
       virtual ~BaseHolder() {}
       virtual BaseHolder<T>* clone() const = 0;
       virtual const T* getPtr() const = 0;
+      virtual ProductID id() const = 0;
     };
     template <class T, class TRef>
       class Holder : public BaseHolder<T> {
@@ -50,6 +52,7 @@ namespace edm {
         virtual ~Holder() {}
         virtual BaseHolder<T>* clone() const { return new Holder<T,TRef>(*this);}
         virtual const T* getPtr() const { return ref_.operator->(); }
+        virtual ProductID id() const {return ref_.id();}
        private:
         TRef ref_;
       };
@@ -79,6 +82,23 @@ namespace edm {
       const T* operator->() const { return getPtrImpl(); }
       const T* get() const { return getPtrImpl();}
       
+      /// Accessor for product ID.
+      ProductID id() const { 
+        if(0 == holder_) { 
+          return ProductID();
+        }
+        return holder_->id();
+      }
+  
+      /// Checks for null
+      bool isNull() const {return id() == ProductID();}
+  
+      /// Checks for non-null
+      bool isNonnull() const {return !isNull();}
+  
+      /// Checks for null
+      bool operator!() const {return isNull();}
+  
       // ---------- member functions ---------------------------
       void swap( RefToBase<T>& iOther) {
         std::swap(holder_, iOther.holder_);
