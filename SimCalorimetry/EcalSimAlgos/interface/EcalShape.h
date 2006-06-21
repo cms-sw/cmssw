@@ -2,6 +2,7 @@
 #define EcalSimAlgos_EcalShape_h
 
 #include<vector>
+#include<stdexcept>
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
   
 /**
@@ -18,17 +19,24 @@ public:
   ~EcalShape(){}
   
   double operator () (double time_) const;
-  void display () const {}
+  void display () const;
   double derivative (double time_) const;
-  double getTpeak () const;
   
+  double computeTimeOfMaximum() const;
+  double computeT0() const;
+  double computeRisingTime() const;
+
  private:
-  
+
+  int nsamp;
   int tconv;
   int nbin;
-  std::vector<float> nt;
-  std::vector<float> ntd;
-    
+  std::vector<double> nt;
+  std::vector<double> ntd;
+
+  double threshold;
+  int binstart;
+
 };
   
 
