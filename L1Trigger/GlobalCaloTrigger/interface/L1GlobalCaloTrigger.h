@@ -68,62 +68,62 @@ public:
   void setRegion(L1GctRegion region);
 
   /// iso electron outputs to GT
-  std::vector<L1GctEmCand> getIsoElectrons();
+  std::vector<L1GctEmCand> getIsoElectrons() const;
   
   /// non-iso electron outputs to GT
-  std::vector<L1GctEmCand> getNonIsoElectrons();
+  std::vector<L1GctEmCand> getNonIsoElectrons() const;
   
   /// central jet outputs to GT
-  std::vector<L1GctJet> getCentralJets();
+  std::vector<L1GctJet> getCentralJets() const;
   
   /// forward jet outputs to GT
-  std::vector<L1GctJet> getForwardJets();
+  std::vector<L1GctJet> getForwardJets() const;
   
   /// tau jet outputs to GT
-  std::vector<L1GctJet> getTauJets();
+  std::vector<L1GctJet> getTauJets() const;
   
   /// Total Et output to GT
-  L1GctScalarEtVal getEtSum();
+  L1GctScalarEtVal getEtSum() const;
   
   /// Total hadronic Et output to GT
-  L1GctScalarEtVal getEtHad();
+  L1GctScalarEtVal getEtHad() const;
 
   /// Etmiss output to GT
-  L1GctScalarEtVal getEtMiss();
+  L1GctScalarEtVal getEtMiss() const;
   
   /// Etmiss phi output to GT
-  L1GctEtAngleBin getEtMissPhi();
+  L1GctEtAngleBin getEtMissPhi() const;
 
   // Jet Count output to GT
-  L1GctJcFinalType getJetCount(unsigned jcnum);
+  L1GctJcFinalType getJetCount(unsigned jcnum) const;
 
   /// get the Source cards
-  std::vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
+  std::vector<L1GctSourceCard*> getSourceCards() const { return theSourceCards; }
   
   /// get the Jet Leaf cards
-  std::vector<L1GctJetLeafCard*> getJetLeafCards() { return theJetLeafCards; }
+  std::vector<L1GctJetLeafCard*> getJetLeafCards() const { return theJetLeafCards; }
   
   /// get the Jet Leaf cards
-  std::vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
+  std::vector<L1GctEmLeafCard*> getEmLeafCards() const { return theEmLeafCards; }
   
   /// get the Wheel Jet FPGAs
-  std::vector<L1GctWheelJetFpga*> getWheelJetFpgas() { return theWheelJetFpgas; }
+  std::vector<L1GctWheelJetFpga*> getWheelJetFpgas() const { return theWheelJetFpgas; }
   
   /// get the Wheel Energy Fpgas
-  std::vector<L1GctWheelEnergyFpga*> getWheelEnergyFpgas() { return theWheelEnergyFpgas; }
+  std::vector<L1GctWheelEnergyFpga*> getWheelEnergyFpgas() const { return theWheelEnergyFpgas; }
   
   /// get the jet final stage
-  L1GctJetFinalStage* getJetFinalStage() { return theJetFinalStage; }
+  L1GctJetFinalStage* getJetFinalStage() const { return theJetFinalStage; }
   
   /// get the energy final stage
-  L1GctGlobalEnergyAlgos* getEnergyFinalStage() { return theEnergyFinalStage; }
+  L1GctGlobalEnergyAlgos* getEnergyFinalStage() const { return theEnergyFinalStage; }
   
   /// get the electron final stage sorters
-  L1GctElectronFinalSort* getIsoEmFinalStage() { return theIsoEmFinalStage; }
-  L1GctElectronFinalSort* getNonIsoEmFinalStage() { return theNonIsoEmFinalStage; }
+  L1GctElectronFinalSort* getIsoEmFinalStage() const { return theIsoEmFinalStage; }
+  L1GctElectronFinalSort* getNonIsoEmFinalStage() const { return theNonIsoEmFinalStage; }
 
   /// get the Jet Et calibration LUT
-  L1GctJetEtCalibrationLut* getJetEtCalibLut() { return m_jetEtCalLut; }
+  L1GctJetEtCalibrationLut* getJetEtCalibLut() const { return m_jetEtCalLut; }
 
   /// print setup info
   void print();
