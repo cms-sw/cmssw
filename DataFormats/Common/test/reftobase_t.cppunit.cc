@@ -1,4 +1,4 @@
-// $Id: reftobase_t.cppunit.cc,v 1.1 2006/04/04 01:54:48 chrjones Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.2 2006/05/22 19:10:22 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -56,14 +56,23 @@ testRefToBase::check()
   RefToBase<Base> b1( Ref<std::vector<Inherit1> >(h1, 1 ) );
   CPPUNIT_ASSERT( &(*b1) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT( b1.operator->() == b1.get() );
-  CPPUNIT_ASSERT( b1.get() == static_cast<Base*>(&(v1[1]))); 
+  CPPUNIT_ASSERT( b1.get() == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(b1.id() == ProductID(1));
   
   //copy constructor
   RefToBase<Base> b2( b1);
   CPPUNIT_ASSERT( &(*b2) == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(b2.id() == b1.id());
 
   //operator=
   RefToBase<Base> b3;
+  CPPUNIT_ASSERT( b3.isNull());
+  CPPUNIT_ASSERT(!(b3.isNonnull()));
+  CPPUNIT_ASSERT(!b3);
   b3 = b1;
   CPPUNIT_ASSERT( &(*b3) == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(b3.id() == b1.id());
+  CPPUNIT_ASSERT( !(b3.isNull()));
+  CPPUNIT_ASSERT(b3.isNonnull());
+  CPPUNIT_ASSERT(! (!b3) );
 }
