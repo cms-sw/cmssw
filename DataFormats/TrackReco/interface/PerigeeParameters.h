@@ -2,22 +2,21 @@
 #define TrackReco_PerigeeParameters_h
 /** \class reco::perigee::Parameters PerigeeParameters.h DataFormats/TrackReco/interface/PerigeeParameters.h
  *
- * Model of 5 perigee parameters for Track fit 
- * (q/R, theta, phi_0, d_0, z_0)
- * defined as: 
- *   q/R = charge unit divided by radius of curvature in transverse plane
- *   theta = polar angle at pca. to the beam line
- *   phi_0 = azimuth angle at pca. to the beam line
- *   d_0 = signed transverse dca. to the beam line 
- *         (positive if the beam is outside the circle)
- *   z_0 = z-coordinate of pca. to the beam line
+ * Model of 5 perigee parameters for Track fit <BR>
+ * <B> (q/R, theta, phi_0, d_0, z_0) </B><BR>
+ * defined as:  <BR>
+ *   <DT> q/R = charge unit divided by radius of curvature in transverse plane </DT> 
+ *   <DT> theta = polar angle at pca. to the beam line </DT>
+ *   <DT> phi_0 = azimuth angle at pca. to the beam line </DT>
+ *   <DT> d_0 = signed transverse dca. to the beam line (positive if the beam is outside the circle) </DT>
+ *   <DT> z_0 = z-coordinate of pca. to the beam line </DT>
  *
- * according to how described in the following documents:
- * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_001.pdf">A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001</a>
- * P. Billoir, S. Qian, "Fast vertex fitting...", NIM A311 (1992) 139.
- * <a href="http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000">Track parametrization in vertex fitting (Vertex reconstruction tutorial)</a>
+ * according to how described in the following documents: <BR>
+ * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_001.pdf">A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001</a> <BR>
+ * P. Billoir, S. Qian, "Fast vertex fitting...", NIM A311 (1992) 139. <BR>
+ * <a href="http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000">Track parametrization in vertex fitting (Vertex reconstruction tutorial)</a> <BR>
  * 
- * \author Thomas Speer,  Luca Lista
+ * \author Thomas Speer,  Luca Lista, Pascal Vanlaer
  *
  */
 
