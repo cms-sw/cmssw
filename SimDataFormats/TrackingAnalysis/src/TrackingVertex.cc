@@ -13,11 +13,9 @@ void TrackingVertex::addG4Vertex(const EmbdSimVertexRef &r) {
   g4Vertices_.push_back(r);
 }
 
-/*
-void TrackingVertex::addGenVertex(          GenVertexRef r ){ 
-  genVertices_.push_back(r);
+void TrackingVertex::addGenVertex(int gv){ 
+  genVertices_.push_back(gv);
 }
-*/
     
 /// first iterator over tracks
 TrackingVertex::track_iterator TrackingVertex::tracks_begin() const { return tracks_.begin(); }

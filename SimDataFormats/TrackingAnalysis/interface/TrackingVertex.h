@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.4 2006/06/13 15:44:07 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.5 2006/06/21 14:31:55 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -56,16 +56,16 @@ class TrackingVertex {
   track_iterator tracks_end() const ;
   
   /// references to G4 and generator vertices
-  const  EmbdSimVertexRef &g4Vertex()  const { return g4Vertex_; }
+//  const  EmbdSimVertexRef &g4Vertex()  const { return g4Vertex_; }
 //  GenVertexRef             genVertex() const { return genVertex_; }
 
   /// set references to G4 and generator vertices
-  void setG4Vertex( const EmbdSimVertexRef &r ) { g4Vertex_  = r; }
+//  void setG4Vertex( const EmbdSimVertexRef &r ) { g4Vertex_  = r; }
 //  void setGenVertex(          GenVertexRef r )  { genVertex_ = r; }
 
   /// position 
   void addG4Vertex(const EmbdSimVertexRef &r);
-//  void addGenVertex(          GenVertexRef r );
+  void addGenVertex(int);
   const Point & position() const ;
   const EmbdSimVertexRefVector g4Vertices() const;
   const TrackingParticleRefVector trackingParticles() const;
@@ -80,10 +80,10 @@ class TrackingVertex {
   TrackingParticleContainer tracks_;
 
   /// references to G4 and generator vertices
-  EmbdSimVertexRef g4Vertex_;
+//  EmbdSimVertexRef g4Vertex_;
   EmbdSimVertexRefVector g4Vertices_;
 //  GenVertexRef genVertex_;
-//  GenVertexRefVector genVertices_;
+  std::vector<int> genVertices_;
 };
 
 
