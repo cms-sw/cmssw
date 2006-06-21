@@ -4,8 +4,8 @@
 /** \class MuonBestMeasurementFinder
  *  Algorithmic class to get best measurement from a list of TM
  *
- *  $Date: 2006/05/23 17:46:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/25 17:22:24 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -15,9 +15,10 @@
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
+class MuonTransientTrackingRecHit;
 
 class MuonBestMeasurementFinder {
-  typedef std::vector<TrajectoryMeasurement>    TMContainer;
+  typedef std::vector<TrajectoryMeasurement*>    TMContainer;
   typedef TMContainer::iterator                 TMIterator;
 
 public:
@@ -31,11 +32,11 @@ public:
   // Operations
 
    /// return the Tm with the best chi2: no cut applied.
-  TrajectoryMeasurement* findBestMeasurement(TMContainer& measC);
+  TrajectoryMeasurement* findBestMeasurement(std::vector<TrajectoryMeasurement>& measC);
 
   /// OLD ORCA algo. Reported for timing comparison pourpose
   /// Will be removed after the comparison!
-  TrajectoryMeasurement* findBestMeasurement_OLD(TMContainer& measC);
+  TrajectoryMeasurement* findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC);
   
   const Propagator* propagator() const { return thePropagator;}
   const MeasurementEstimator* estimator() const { return theEstimator;}

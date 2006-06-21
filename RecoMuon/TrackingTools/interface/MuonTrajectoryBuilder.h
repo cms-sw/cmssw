@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/05/19 15:23:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/23 15:07:49 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -35,7 +35,7 @@ class MuonTrajectoryBuilder {
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup) = 0;
 
-  /// Pass the Event Setup to the algo at each event
+  /// Pass the Event to the algo at each event
   virtual void setEvent(const edm::Event& event) = 0;
   
  private:

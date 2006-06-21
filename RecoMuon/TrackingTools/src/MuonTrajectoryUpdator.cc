@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/12 13:45:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 08:35:00 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -25,6 +25,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -95,19 +96,26 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   // Must be an own vector.
   // The KFUpdator takes TransientTrackingRecHits as arg.
   OwnVector<const TransientTrackingRecHit> recHitsForFit;
+
+  // FIXME: is it right??
+  // this are the 4D segment for the CSC/DT and a point for the RPC
+  const MuonTransientTrackingRecHit *muonRecHit = 
+    dynamic_cast<const MuonTransientTrackingRecHit*> ( theMeas->recHit() ); 
+
+  
   
   switch(theGranularity){
   case 0:
     {
       // Asking for 4D segments for the CSC/DT and a point for the RPC
-      recHitsForFit.push_back( theMeas->recHit()->clone() );
+      recHitsForFit.push_back( muonRecHit->clone() );
       break;
     }
   case 1:
     {
       if (detLayer->module()==dt ) {
 	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
-	OwnVector<const TransientTrackingRecHit> segments2D = theMeas->recHit()->transientHits();
+	OwnVector<const TransientTrackingRecHit> segments2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), segments2D.begin(), segments2D.end());
 
@@ -117,11 +125,11 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	}
 
       else if(detLayer->module()==rpc )
-	recHitsForFit.push_back( theMeas->recHit()->clone() );
+	recHitsForFit.push_back( muonRecHit->clone() );
 
       else if(detLayer->module()==csc) {
 	// Asking for 2D points. theMeas->recHit() returns a 4D segment
-	OwnVector<const TransientTrackingRecHit> rechit2D = theMeas->recHit()->transientHits();
+	OwnVector<const TransientTrackingRecHit> rechit2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
 
@@ -137,7 +145,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
 	// I have to use OwnVector, since this container must be passed to the
 	// KFUpdator, which takes TransientTrackingRecHits...
-	OwnVector<const TransientTrackingRecHit> segments2D = theMeas->recHit()->transientHits();
+	OwnVector<const TransientTrackingRecHit> segments2D = muonRecHit->transientHits();
 	
 	// loop over segment
 	for (OwnVector<const TransientTrackingRecHit>::const_iterator segment = segments2D.begin(); 
@@ -146,17 +154,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	  OwnVector<const TransientTrackingRecHit> rechit1D = (*segment).transientHits();
 	  // FIXME: this function is not yet available!
 	  // recHitsForFit.insert(recHitsForFit.end(), rechit1D.begin(), rechit1D.end());
-
 	  // FIXME: remove this as insert will be available
 	  insert(recHitsForFit,rechit1D);
 	}
       }
       else if(detLayer->module()==rpc )
-	recHitsForFit.push_back( theMeas->recHit()->clone() );
+	recHitsForFit.push_back( muonRecHit->clone() );
       
       else if(detLayer->module()==csc) {
 	// Asking for 2D points. theMeas->recHit() returns a 4D segment
-	OwnVector<const TransientTrackingRecHit> rechit2D = theMeas->recHit()->transientHits();
+	OwnVector<const TransientTrackingRecHit> rechit2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
 	
@@ -185,14 +192,13 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   
   // Set the limits according to the propagation direction
   ownVectorLimits(recHitsForFit,recHitsForFit_begin,recHitsForFit_end);
+  LogDebug(metname)<<"Own vector size: "<<recHitsForFit.size()<<endl;
 
   // increment/decrement the iterator according to the propagation direction 
   for(recHit = recHitsForFit_begin; recHit != recHitsForFit_end; incrementIterator(recHit) ) {
-    
     if ((*recHit).isValid() ) {
       // propagate the TSOS onto the rechit plane
       TrajectoryStateOnSurface propagatedTSOS  = propagateState(lastUpdatedTSOS, theMeas, *recHit);
-      
       // // check if the segment have also the zed view (DT)
       // if ( ( newRhit == theMeas.recHit()) ) {
       //   int nptz = newRhit.stereoHit().channels().size();
@@ -201,10 +207,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
       
       if ( propagatedTSOS.isValid() ) {
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *recHit);
-	
-	// FIXME
+
 	LogDebug(metname) << "Kalman chi2 " << thisChi2.second;
-	cout << "Kalman chi2 " << thisChi2.second;
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
@@ -226,35 +230,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 			    << "  Fit position radius : " 
 			    << lastUpdatedTSOS.globalPosition().perp() << endl
 			    << endl << " Filter UPDATED" << endl;
-
-	  // FIXME
-          cout		    << endl 
-			    << "     Kalman Start" << endl << endl;
-          cout		    << "  Meas. Position : " << recHit->globalPosition() << endl
-			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
-			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
-
-          lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS,*recHit);
-
-          cout              << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
-			    << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection()
-			    << endl
-			    << "  Fit position radius : " 
-			    << lastUpdatedTSOS.globalPosition().perp() << endl
-			    << endl << " Filter UPDATED" << endl;
-
 	  
 	  muonDumper.dumpTSOS(lastUpdatedTSOS,metname);
-	  // FIXME
-	  cout << "     Kalman End" << endl << endl;	      
+	  
 	  LogDebug(metname) << "     Kalman End" << endl << endl;	      
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
 									*recHit,thisChi2.second,detLayer, 
 									theMeas);
-	  
-	  theTraj.push(updatedMeasurement, thisChi2.second);
-	  
+	  // FIXME: check!
+	  theTraj.push(updatedMeasurement, thisChi2.second);	  
 	}
       }
     }
@@ -276,13 +261,12 @@ MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
   // FIXME: check this == !! current and mother could be onto two different unit
   if( current.geographicalId() == mother->geographicalId() )
     return theMeas->predictedState();
-  
+
   string tname2 = "MuonTrajectoryUpdator::propagateState::Propagation";
 
   TimeMe timer2(tname2);
   const TrajectoryStateOnSurface  tsos =
     propagator()->propagate(state, current.det()->surface());
-  
   return tsos;
 
 }
@@ -326,9 +310,8 @@ TrajectoryMeasurement MuonTrajectoryUpdator::updateMeasurement(  const Trajector
 								 const TransientTrackingRecHit &recHit,
 								 const double &chi2, const DetLayer *detLayer, 
 								 const TrajectoryMeasurement *initialMeasurement){
-
-  return TrajectoryMeasurement(propagatedTSOS, lastUpdatedTSOS, 
-			       &recHit,chi2,detLayer);
+   return TrajectoryMeasurement(propagatedTSOS, lastUpdatedTSOS, 
+			       recHit.clone(),chi2,detLayer);
   //   // FIXME: put a better check! One could fit in first out-in and then in - out 
   //   if(propagator()->propagationDirection() == alongMomentum) 
   //     return TrajectoryMeasurement(propagatedTSOS, lastUpdatedTSOS, 

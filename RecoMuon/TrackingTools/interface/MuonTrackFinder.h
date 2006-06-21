@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/06/12 13:42:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/14 17:47:51 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -51,8 +51,6 @@ class MuonTrackFinder{
   MuonTrajectoryCleaner* theTrajCleaner;
 
   std::auto_ptr<reco::TrackCollection> convert(TrajectoryContainer&) const;
-  reco::Track buildTrack (const Trajectory& trajectory) const;
-  reco::TrackExtra buildTrackExtra(reco::Track &track,const Trajectory& trajectory) const;
 
  protected:
   
