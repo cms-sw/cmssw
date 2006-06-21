@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/19 17:10:31 $
- * $Revision: 1.143 $
+ * $Date: 2006/06/20 08:25:05 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -359,11 +359,11 @@ void EcalBarrelMonitorClient::beginJob(void){
   ievt_ = 0;
   jevt_ = 0;
 
-  this->subscribe();
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob();
   }
+
+  this->subscribe();
 
   // check first event
 
@@ -554,14 +554,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if( runtype_ == EcalDCCHeaderBlock::TESTPULSE_MGPA ) rundef.setConfigTag("TEST_PULSE-MGPA");
   if( runtype_ == EcalDCCHeaderBlock::PEDESTAL_STD )   rundef.setConfigTag("PEDESTAL-STD");
 
-  if ( location_ == "H4" ) rundef.setConfigVersion(1);
+  if ( location_ == "H4" )    rundef.setConfigVersion(1);
   if ( location_ == "867-1" ) rundef.setConfigVersion(2);
   if ( location_ == "867-2" ) rundef.setConfigVersion(3);
   if ( location_ == "867-3" ) rundef.setConfigVersion(4);
-  if ( location_ == "H4B" ) rundef.setConfigVersion(21);
-  if ( location_ == "H2" ) rundef.setConfigVersion(22);
+  if ( location_ == "H4B" )   rundef.setConfigVersion(21);
+  if ( location_ == "H2" )    rundef.setConfigVersion(22);
   if ( location_ == "P5_MT" ) rundef.setConfigVersion(23);
-  if ( location_ == "904" ) rundef.setConfigVersion(24);
+  if ( location_ == "904" )   rundef.setConfigVersion(24);
 
   RunTag runtag;
 
@@ -925,12 +925,15 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  if ( ! enableStateMachine_ ) mui_->doMonitoring();
-
-  this->subscribeNew();
-
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
+
+  if ( ! enableStateMachine_ ) {
+    mui_->runQTests();
+    mui_->doMonitoring();
+  }
+
+  this->subscribeNew();
 
   Char_t histo[150];
 
@@ -939,7 +942,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   bool update = false;
 
-  if ( updates != last_update_ || updates == -1 ) {
+  if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
     if ( enableMonitorDaemon_ ) {
       sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
@@ -1060,16 +1063,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( ( update && updates % 10 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
 
-        forced_update_ = false;
-	
-        if ( ! enableStateMachine_ ) {
-          if ( enableMonitorDaemon_ ) {
-            mui_->runQTests();
-          } else {
-            if ( status_ == "end-of-run" || forced_update_ ) mui_->runQTests();
-          }
-        }
-
 	for ( int i=0; i<int(clients_.size()); i++ ) {
 	  bool analyzed; analyzed = false;
 	  for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
@@ -1077,7 +1070,7 @@ void EcalBarrelMonitorClient::analyze(void){
 	  }
 	}
 
-        if ( status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
           // BEGIN: Quality Tests
 
@@ -1102,6 +1095,8 @@ void EcalBarrelMonitorClient::analyze(void){
 
         }
 
+        forced_update_ = false;
+	
       }
       
       if ( enableSubRun_ ) {
@@ -1193,7 +1188,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
-  cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
   char tmp[10];
