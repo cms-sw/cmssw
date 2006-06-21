@@ -1,20 +1,20 @@
 // -*- C++ -*-
 //
 // Package:     EgammaCandidates
-// Class  :     SiStripElectronCandidate
+// Class  :     SiStripElectron
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:48:28 EDT 2006
-// $Id$
+// $Id: SiStripElectron.cc,v 1.1 2006/05/27 04:25:17 pivarski Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 
 using namespace reco;
 
@@ -30,42 +30,38 @@ using namespace reco;
 // constructors and destructor
 //
 
-// SiStripElectronCandidate::SiStripElectronCandidate(const SiStripElectronCandidate& rhs)
+// SiStripElectron::SiStripElectron(const SiStripElectron& rhs)
 // {
 //    // do actual copying here;
 // }
 
-SiStripElectronCandidate::~SiStripElectronCandidate() { }
+SiStripElectron::~SiStripElectron() { }
 
 //
 // assignment operators
 //
-// const SiStripElectronCandidate& SiStripElectronCandidate::operator=(const SiStripElectronCandidate& rhs)
+// const SiStripElectron& SiStripElectron::operator=(const SiStripElectron& rhs)
 // {
 //   //An exception safe implementation is
-//   SiStripElectronCandidate temp(rhs);
+//   SiStripElectron temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
 // }
 
-SiStripElectronCandidate * SiStripElectronCandidate::clone() const { 
-  return new SiStripElectronCandidate( * this ); 
+SiStripElectron * SiStripElectron::clone() const { 
+  return new SiStripElectron( * this ); 
 }
 
 //
 // member functions
 //
 
-TrackRef SiStripElectronCandidate::track() const {
-  return track_;
-}
-
-SuperClusterRef SiStripElectronCandidate::superCluster() const {
+SuperClusterRef SiStripElectron::superCluster() const {
   return superCluster_;
 }
 
-bool SiStripElectronCandidate::overlap( const Candidate & c ) const {
+bool SiStripElectron::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
   return ( o != 0 && ! 
 	   ( checkOverlap( track(), o->track() ) ||
