@@ -67,7 +67,7 @@ class CommissioningInputSource : public edm::ExternalInputSource {
   void addOutputDir(TDirectory* mother, TDirectory* child);
 
   /** Opens file if it exists. Takes the filename as the argument. */
-  void openFile( const string&);
+  void openFile( const std::string& );
 
   /** Combines 3 "source" histograms into 1 "commissioning" histogram*/
   void combine(const TH1& sum, const TH1& sum2, const TH1& entries, TProfile& commHist);
@@ -82,7 +82,7 @@ class CommissioningInputSource : public edm::ExternalInputSource {
   TFile* m_outputFile;
 
   /** Output file name */
-  string m_outputFilename;
+  std::string m_outputFilename;
 
   /** Run number */
   unsigned int m_run;

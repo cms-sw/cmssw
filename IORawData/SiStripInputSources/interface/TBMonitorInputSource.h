@@ -60,13 +60,13 @@ class TBMonitorInputSource : public edm::ExternalInputSource {
   static std::string taskId(sistrip::Task);
 
   /** Unpacks TBMonitor histogram name into the module's control path */
-  SiStripHistoNamingScheme::HistoTitle histoTitle(const string&);
+  SiStripHistoNamingScheme::HistoTitle histoTitle(const std::string& );
 
   /** Set values for a TProfile bin*/
   void setBinStats(TProfile& prof, Int_t bin, Int_t entries, Double_t content, Double_t error);
 
  /** Splits Pedestals Profile on the module-level into 2 or 3 Profiles on the LLD-channel-level. Renames accordingly.*/
-  void lldPedestals(Profile& module, vector<Profile>& llds);
+  void lldPedestals(Profile& module, std::vector<Profile>& llds );
 
   /** Input file. */
   TFile* m_file;
@@ -75,7 +75,7 @@ class TBMonitorInputSource : public edm::ExternalInputSource {
   sistrip::Task m_task;
 
   /** Task id found in TBMonitor histogram title */
-  string m_taskId;
+  std::string m_taskId;
  
 };
 
