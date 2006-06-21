@@ -13,7 +13,6 @@ class MeasurementEstimator;
 
 class DetRodOneR : public DetRod {
  public: 
-  typedef GeometricSearchDet Det;
   typedef std::vector<GeometricSearchDet*> DetContainer;
 
   /// Dummy constructor
@@ -23,7 +22,7 @@ class DetRodOneR : public DetRod {
   DetRodOneR( std::vector<const GeomDet*>::const_iterator first,
 	      std::vector<const GeomDet*>::const_iterator last);
 
-  /// Construct from a std::vector of Det*
+  /// Construct from a std::vector of GeomDet*
   DetRodOneR( const std::vector<const GeomDet*>& dets);
 
   virtual ~DetRodOneR();
