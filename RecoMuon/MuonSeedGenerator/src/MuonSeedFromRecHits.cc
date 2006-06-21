@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/05/30 13:50:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 08:32:05 $
+ *  $Revision: 1.5 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -380,6 +380,12 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
       }
       if ( debug ) cout << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
         sptvtx << endl;
+      
+      // FIXME: temp hack
+      ptmean = ptvtx;
+      sptmean = sptvtx;
+      return;
+      //
     }
     // calculate pt w/o vertex
     float ptMB=0.0;
