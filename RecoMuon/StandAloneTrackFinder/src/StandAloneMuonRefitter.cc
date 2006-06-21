@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/12 13:39:06 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/16 08:34:34 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -76,9 +76,9 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
 
-  // FIXME
-  cout<<"StandAloneMuonRefitter::StandAloneMuonRefitter destructor called"<<endl;
-
+  LogDebug("StandAloneMuonRefitter::~StandAloneMuonRefitter")
+    <<"StandAloneMuonRefitter::StandAloneMuonRefitter destructor called"<<endl;
+  
   // FIXME
   //  delete thePropagator;
   delete theEstimator;
@@ -103,12 +103,10 @@ void StandAloneMuonRefitter::setES(const EventSetup& setup){
 void StandAloneMuonRefitter::setEvent(const Event& event){
   theMeasurementExtractor.setEvent(event);
   // reset the refitter each event
-  cout<<"New event: resetting the refitter"<<endl;
   reset();
 }
 
 void StandAloneMuonRefitter::init(const EventSetup& setup){
-  cout<<"StandAloneMuonRefitter::init"<<endl;
 
   // FIXME: it is temporary solution waiting for the es_producers...
 
@@ -186,17 +184,15 @@ StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterato
 
 
 void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
-  cout<<"StandAloneMuonRefitter::refit"<<endl;
-
+  
   std::string metname = "StandAloneMuonRefitter::refit";
   bool timing = true;
   
   MuonPatternRecoDumper debug;
-  // FIXME
-  // LogDebug(metname) << "Starting the refit"; 
-  cout << "Starting the refit"<<endl;; 
+  
+  LogDebug(metname) << "Starting the refit"; 
   TimeMe t(metname,timing);
-
+  
   // The best measurement finder: search for the best measurement among the TMs available
   MuonBestMeasurementFinder bestMeasurementFinder( propagator() );
   
@@ -211,42 +207,42 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   
   // FIXME: check the prop direction!
   // it must be alongMomentum for the in-out refit
-  cout<<"compatible layers searching"<<endl;
-  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
+    vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
 								     propagationDirection());  
 
-  cout<<"compatible layers found: "<<detLayers.size()<<endl;
+  // FIXME FIXME
+  // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
+  // In fact the first layer is not returned by initialLayer->compatibleLayers.
+  detLayers.insert(detLayers.begin(),initialLayer);
+
+  LogDebug(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
   
   vector<const DetLayer*>::const_iterator layer;
-  vector<const DetLayer*>::const_iterator detLayers_begin;
-  vector<const DetLayer*>::const_iterator detLayers_end;
-  
+  // vector<const DetLayer*>::const_iterator detLayers_begin;
+  // vector<const DetLayer*>::const_iterator detLayers_end;
+
+  // FIXME check the layer order!  
   // Set the limits according to the propagation direction
-  vectorLimits(detLayers,detLayers_begin,detLayers_end);
+  //  vectorLimits(detLayers,detLayers_begin,detLayers_end);
   
   // increment/decrement the iterator according to the propagation direction 
-  cout<<"loop over the compatible layers"<<endl;
-  for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
+  //  for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
+  for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
+
     //    bool firstTime = true;
 
-    // FIXME
-    // debug.dumpLayer(*layer,metname);
-    debug.dumpLayer(*layer);
-
-    // FIXME
-    //  LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
-    cout << "search Trajectory Measurement from: " << lastTSOS.globalPosition()<<endl;;
-
+    debug.dumpLayer(*layer,metname);
+    
+    LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
+    
     vector<TrajectoryMeasurement> measL = 
       theMeasurementExtractor.measurements(*layer,
       					   lastTSOS, 
       					   *propagator(), 
 					   *estimator());
 
-    //    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
-    // FIXME
-    cout << "Number of Trajectory Measurement: " << measL.size()<<endl;;
-    
+    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
+        
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     
     // RB: Different ways can be choosen if no bestMeasurement is available:
@@ -265,10 +261,6 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
 
-      // FIXME
-      cout << "No measurement and big eta variation wrt seed" << endl
-	   << "trying with lastButOneUpdatedTSOS"<<endl;
-      
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
       measL = theMeasurementExtractor.measurements(*layer,
@@ -285,10 +277,6 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
 
-      // FIXME
-      cout << "No measurement and big eta variation wrt seed" << endl
-	   << "tryng with seed TSOS"<<endl;
-      
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
 
@@ -304,16 +292,15 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 
     // check if the there is a measurement
     if(bestMeasurement){
-      cout<<"best measurement found"<<endl
-	  <<"updating the trajectory..."<<endl;
+      LogDebug(metname)<<"best measurement found"<<endl
+		       <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
-      cout<<"trajectory updated: "<<result.first<<endl;
+      LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;
       debug.dumpTSOS(result.second);
 
       if(result.first){ 
 	lastTSOS = result.second;
 	incrementChamberCounters(*layer);
-	cout<<"Load layer"<<endl;
 	theDetLayers.push_back(*layer);
 	
 	lastButOneUpdatedTSOS = lastUpdatedTSOS;
@@ -324,9 +311,9 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     //state for the following measurement serches. I take the first in the
     //container. FIXME!!! I want to carefully check this!!!!!
     else{
-      cout<<"No best measurement found"<<endl;
+      LogDebug(metname)<<"No best measurement found"<<endl;
       if (measL.size()>0){
-	cout<<"but the #of measurement is "<<measL.size()<<endl;
+	LogDebug(metname)<<"but the #of measurement is "<<measL.size()<<endl;
         lastTSOS = measL.front().predictedState();
       }
     }

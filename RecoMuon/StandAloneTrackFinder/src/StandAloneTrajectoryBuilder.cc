@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/15 14:03:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/06/16 08:36:47 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -92,10 +92,6 @@ void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
 }
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
-  // FIXME
-  cout<< "StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder "
-      << "destructor called" << endl;
-  
 
   LogDebug("StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder") 
     << "destructor called" << endl;
@@ -108,7 +104,6 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 
 MuonTrajectoryBuilder::TrajectoryContainer 
 StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){ 
-  cout<<"StandAloneMuonTrajectoryBuilder::trajectories"<<endl;
 
   std::string metname = "StandAloneMuonTrajectoryBuilder::trajectories";
   MuonPatternRecoDumper debug;
@@ -124,14 +119,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // FIXME:check the prop direction!!
   Trajectory trajectoryFW(seed,alongMomentum);
 
-  //<< FIXME Remove this print out
-//   range seedRHitsRange = seed.recHits();
-//   for(edm::OwnVector<TrackingRecHit> it = seedRHitsRange.first;
-//       edm::OwnVector<TrackingRecHit> it != seedRHitsRange.second;
-//       ++it)
-//     cout<<"RecHit Seed Position: "<<(*it).globalPosition()<<endl;
-  //>>
-
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
 
@@ -144,6 +131,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
   const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+  LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
   
   // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
 //   Surface::PositionType pos(0., 0., 0.);
@@ -165,11 +153,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   //
   
   // Get the layer from which start the trajectory building
-  cout<<"Get the layer from which start the trajectory building"<<endl;
   const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
-
-  // FreeTrajectoryState ftk = *tsos.freeTrajectoryState();
-  // FreeTrajectoryState ftl(ftk);
 
   LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
   debug.dumpTSOS(seedTSOS,metname);
@@ -188,10 +172,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
+
   // the trajectory is filled in the refitter::refit
-  cout<<"refit the tracks"<<endl;
   refitter()->refit(seedTSOS,seedDetLayer,trajectoryFW);
-  cout<<"tracks refitted"<<endl;  
 
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
@@ -199,47 +182,30 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   //@@SL 27-Jun-2002: sanity check for trajectory with very high eta, the true
   //problem is why we do reconstruct such problematics trajectories...
   if (fabs(tsosAfterRefit.globalMomentum().eta())>theMaxEta) {
-    // FIXME
-    // LogDebug(metname) << "############################################################" << endl
-    cout << "############################################################" << endl
-		      << "StandAloneMuonTrajectoryBuilder: WARNING!! " << endl
+    LogDebug(metname) << "############################################################" << endl
+      		      << "StandAloneMuonTrajectoryBuilder: WARNING!! " << endl
 		      << "At the end of TrajectoryRefitter the Trajectory is:" << endl;
-    // FIXME
-    // debug.dumpTSOS(tsosAfterRefit,metname);
-    debug.dumpTSOS(tsosAfterRefit);
-
-    // FIXME
-    // LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
-    cout << "Such an high eta is unphysical and may lead to infinite loop" << endl
-	 << "rejecting the Track." << endl
-	 << "############################################################" << endl;
+    
+    debug.dumpTSOS(tsosAfterRefit,metname);
+    
+    LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
+		      << "rejecting the Track." << endl
+		      << "############################################################" << endl;
     return trajectoryContainer;
   }
 
-  // FIXME!!
-  cout << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
-  debug.dumpTSOS(tsosAfterRefit);
-  int layers_size = refitter()->layers().size();
-  cout<<"Layer size "<<layers_size<<endl;
+  LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
+  debug.dumpTSOS(tsosAfterRefit,metname);
+  
 
-  if(layers_size) debug.dumpLayer( refitter()->lastDetLayer() );
+  if( refitter()->layers().size() ) debug.dumpLayer( refitter()->lastDetLayer(), metname);
   else return trajectoryContainer; // FIXME!!!!
-
-  cout << "Number of DT/CSC/RPC chamber used: " 
+  
+  LogDebug(metname) << "Number of DT/CSC/RPC chamber used: " 
        << refitter()->getDTChamberUsed() << "/"
        << refitter()->getCSCChamberUsed() << "/"
        << refitter()->getRPCChamberUsed() <<endl;
-  cout << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
-  //
-  
-  LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
-  debug.dumpTSOS(tsosAfterRefit,metname);
-  LogDebug(metname) << "Number of DT/CSC/RPC chamber used: " 
-		    << refitter()->getDTChamberUsed() << "/"
-		    << refitter()->getCSCChamberUsed() << "/"
-		    << refitter()->getRPCChamberUsed();
-  
-
+  LogDebug(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
   // FIXME put the possible choices: (factory???)
   // fw_low-granularity + bw_high-granularity
@@ -253,9 +219,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);
 
-  cout<<"refit the tracks in bw direction"<<endl;
   bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
-  cout<<"done!"<<endl;
 
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
@@ -268,32 +232,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     << bwfilter()->getDTChamberUsed() << "/"
     << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed();
-
-  // FIXME
-  cout << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
-  debug.dumpTSOS(tsosAfterBWRefit);
-  cout 
-    << "Number of RecHits: " << trajectoryBW.foundHits() << endl
-    << "Number of DT/CSC/RPC chamber used: " 
-    << bwfilter()->getDTChamberUsed() << "/"
-    << bwfilter()->getCSCChamberUsed() << "/" 
-    << bwfilter()->getRPCChamberUsed() <<endl;
-    
+  
   // The trajectory is good if there are at least 2 chamber used in total and at
   // least 1 "tracking" (DT or CSC)
   if (  bwfilter()->getTotalChamberUsed() >= 2 && 
 	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
     LogDebug(metname)<< "TRAJECTORY SAVED" << endl;
-    // FIXME
-    cout<< "TRAJECTORY SAVED" << endl;
     trajectoryContainer.push_back(trajectoryBW);
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
   //trajectory w/o the latest measurement and a looser chi2 cut
   else if ( refitter()->getTotalChamberUsed() >= 2 ) {
-    cout << "Trajectory NOT saved. SecondAttempt." << endl
-	 << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     LogDebug(metname)<< "Trajectory NOT saved. SecondAttempt." << endl
 		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     // FIXME:
@@ -301,12 +251,11 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     // the fw and bw filtering. Or maybe redo only the bw without the excluded
     // measure. As first step I will port the ORCA algo, then I will move to the
     // above pattern.
-
+    
     const string t2a="StandAloneMuonTrajectoryBuilder::backwardfilteringMuonTrackFinder:SecondAttempt";
     TimeMe timer2a(t2a,timing);
 
   }
-  cout<<"end"<<endl;  
   // smoother()->trajectories(trajectoryBW);
   return trajectoryContainer;
 }
