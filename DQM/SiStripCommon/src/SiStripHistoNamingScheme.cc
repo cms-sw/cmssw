@@ -4,15 +4,27 @@
 #include <sstream>
 #include <iomanip>
 
+using namespace std;
+
 // -----------------------------------------------------------------------------
 //
-sistrip::View SiStripHistoNamingScheme::view( string dir ) {
-
+sistrip::View SiStripHistoNamingScheme::view( const string& dir ) {
   if      ( dir.find( sistrip::readoutView_ ) != string::npos ) { return sistrip::READOUT; } 
   else if ( dir.find( sistrip::controlView_ ) != string::npos ) { return sistrip::CONTROL; } 
   else if ( dir.find( sistrip::detectorView_ ) != string::npos ) { return sistrip::DETECTOR; } 
   else { return sistrip::UNKNOWN_VIEW; }
+}
 
+
+// -----------------------------------------------------------------------------
+//
+const string& SiStripHistoNamingScheme::view( const sistrip::View& view ) {
+  static string view_str;
+  if      ( view == sistrip::READOUT )  { view_str = sistrip::readoutView_; }
+  else if ( view == sistrip::CONTROL )  { view_str = sistrip::controlView_; }
+  else if ( view == sistrip::DETECTOR ) { view_str = sistrip::detectorView_; }
+  else { view_str = sistrip::unknownView_; }
+  return view_str;
 }
 
 // -----------------------------------------------------------------------------
