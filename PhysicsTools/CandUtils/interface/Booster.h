@@ -6,9 +6,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.8 $
  *
- * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * $Id: Booster.h,v 1.8 2006/03/03 10:09:18 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -18,7 +18,7 @@ struct Booster : public reco::Candidate::setup {
   typedef reco::Candidate::Vector Vector;
   /// constructor from a boost vector
   Booster( const Vector & b ) : 
-    reco::Candidate::setup( setupCharge( false ), setupP4( true ) ), 
+    reco::Candidate::setup( setupCharge( false ), setupP4( true ), setupVertex( false ) ), 
     boost( b ) { }
   /// destructor
   virtual ~Booster();
