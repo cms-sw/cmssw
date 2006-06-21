@@ -7,6 +7,7 @@
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackPropagation/SteppingHelixPropagator>
+<use name=RecoMuon/TransientTrackingRecHit>
 <use name=Utilities/Timing>
 <use name=CLHEP>
 
@@ -22,6 +23,7 @@
    <use name=TrackingTools/KalmanUpdators>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=TrackPropagation/SteppingHelixPropagator>
+   <use name=RecoMuon/TransientTrackingRecHit>
    <use name=Utilities/Timing>
    <use name=CLHEP>
 </export>
