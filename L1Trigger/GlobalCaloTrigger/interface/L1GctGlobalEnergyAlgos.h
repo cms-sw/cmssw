@@ -84,9 +84,9 @@ public:
 	/// return input Ht value wheel 0
 	inline L1GctScalarEtVal getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
 	/// return input jet count (number 0-11) wheel 1
-        inline L1GctJcWheelType getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel[jcnum]; }
+        inline L1GctJcWheelType getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel.at(jcnum); }
 	/// return input jet count (number 0-11) wheel 0
-        inline L1GctJcWheelType getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel[jcnum]; }
+        inline L1GctJcWheelType getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel.at(jcnum); }
 
 	/// return output missing Et magnitude
 	inline L1GctScalarEtVal getEtMiss()    const { return m_outputEtMiss; }
@@ -97,7 +97,7 @@ public:
 	/// return output calibrated jet Et
 	inline L1GctScalarEtVal getEtHad()     const { return m_outputEtHad; }
 	/// return output jet count (number 0-11)
-	inline L1GctJcFinalType getJetCount(unsigned jcnum) const { return m_outputJetCounts[jcnum]; }
+	inline L1GctJcFinalType getJetCount(unsigned jcnum) const { return m_outputJetCounts.at(jcnum); }
 	
 private:
 	
