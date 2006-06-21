@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.9 2006/05/24 00:40:44 fedor Exp $
+/// $Id: JetMaker.cc,v 1.10 2006/06/15 17:30:55 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -151,7 +151,7 @@ bool JetMaker::convertableToCaloJet (const ProtoJet& fProtojet) const {
   const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
   ProtoJet::Candidates::const_iterator tower = towers->begin ();
   for (; tower != towers->end (); tower++) {
-    edm::Ref<CaloTowerCollection> towerRef = component<CaloTowerRef>::get (**tower);
+    edm::Ref<CaloTowerCollection> towerRef = (*tower)->get<CaloTowerRef>();
     if (towerRef.isNull ()) return false; 
     break; // do not check all constituents
   }
@@ -166,7 +166,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   const CaloTowerCollection* towerCollection = 0;
   ProtoJet::Candidates::const_iterator tower = towers->begin ();
   for (; tower != towers->end (); tower++) {
-    edm::Ref<CaloTowerCollection> towerRef = component<CaloTowerRef>::get (**tower);
+    edm::Ref<CaloTowerCollection> towerRef = (*tower)->get<CaloTowerRef>();
     if (towerRef.isNonnull ()) { // valid
       const CaloTowerCollection* newproduct = towerRef.product ();
       if (!newproduct) {
@@ -195,7 +195,7 @@ bool JetMaker::convertableToGenJet (const ProtoJet& fProtojet) const {
   const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
   ProtoJet::Candidates::const_iterator mcCandidate = towers->begin ();
   for (; mcCandidate != towers->end (); mcCandidate++) {
-    const HepMC::GenParticle* genParticle = component<HepMCCandidate::GenParticleRef>::get (**mcCandidate);
+    const HepMC::GenParticle* genParticle = (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();
     if (!genParticle) return false;
     break; // do not check all constituents
   }
@@ -212,7 +212,7 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   barcodes.reserve (towers->size ());
   ProtoJet::Candidates::const_iterator mcCandidate = towers->begin ();
   for (; mcCandidate != towers->end (); mcCandidate++) {
-    const HepMC::GenParticle* genParticle = component<HepMCCandidate::GenParticleRef>::get (**mcCandidate);
+    const HepMC::GenParticle* genParticle = (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();
     if (genParticle) {
       mcParticles.push_back (genParticle);
       barcodes.push_back (genParticle->barcode ());
