@@ -58,6 +58,10 @@ void
    std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;   
    std::cout << " I have "<<pDD->dets().size() << " detectors" << std::endl;
    std::cout << " I have "<<pDD->detTypes().size() << " types" << "\n" << std::endl;
+   std::cout << " I have "<<pDD->detUnits().size()    << " detUnits" << std::endl;
+   std::cout << " I have "<<pDD->dets().size()        << " dets" << std::endl;
+   std::cout << " I have "<<pDD->layers().size()      << " layers" << std::endl;
+   std::cout << " I have "<<pDD->chambers().size()    << " chambers" << std::endl;
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
 
@@ -82,7 +86,7 @@ void
 
 	// What's its DetId?
 
-        DetId detId = chamber->geographicalId();
+        CSCDetId detId = chamber->id();
         int id = detId(); // or detId.rawId()
 
 	//	std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << std::endl;
@@ -96,17 +100,17 @@ void
 	std::cout <<
            std::setw( 4 ) << icount << 
   	   std::setw(12) << id << std::hex << std::setw(12) << id << std::dec << std::setw( iw ) <<
-           "   E" << CSCDetId::endcap(id) << 
-           " S" << CSCDetId::station(id) << 
-           " R" << CSCDetId::ring(id) << 
-	  " C" << std::setw( 2 ) << CSCDetId::chamber(id) << std::setw( iw );
+           "   E" << detId.endcap() << 
+           " S" << detId.station() << 
+           " R" << detId.ring() << 
+	  " C" << std::setw( 2 ) << detId.chamber() << std::setw( iw );
 
 	// What's its surface?
 	// The surface knows how to transform local <-> global
 
 	const BoundSurface& bSurface = chamber->surface();
 
-	std::cout << "length=" << bSurface.bounds().length() << 
+	std::cout << " length=" << bSurface.bounds().length() << 
        	             ", width=" << bSurface.bounds().width() << 
                      ", thickness=" << bSurface.bounds().thickness() << std::endl;
 
