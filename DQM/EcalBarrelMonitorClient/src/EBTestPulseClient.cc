@@ -602,8 +602,8 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
         cout << "Preparing dataset for SM=" << ism << endl;
 
-        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << mean03 << " " << rms03 << endl;
-        cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << mean04 << " " << rms04 << endl;
+        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
+        cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
 
       }
 
