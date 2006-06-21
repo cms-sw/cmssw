@@ -32,6 +32,10 @@ const EmbdSimVertexRefVector TrackingVertex::g4Vertices() const {
   return  g4Vertices_;
 };
 
+const TrackingParticleRefVector TrackingVertex::trackingParticles() const {
+  return  tracks_;
+};
+
 /*
 const GenVertexRefVector TrackingVertex::genVertices() const {
   return genVertices_; 

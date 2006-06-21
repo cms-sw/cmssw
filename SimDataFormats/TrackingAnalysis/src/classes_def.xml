@@ -8,9 +8,6 @@
   <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />  
   <class pattern="edm::RefVector<std::vector<TrackingParticle>,*>" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
-  <class name="HepMC::GenVertex" />
-  <class name="std::vector<HepMC::GenVertex>" />
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
-  <class name="edm::RefProd<std::vector<HepMC::GenVertex> >" />
 </lcgdict>

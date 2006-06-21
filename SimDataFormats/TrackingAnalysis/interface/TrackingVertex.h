@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.3 2006/05/30 19:11:30 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.4 2006/06/13 15:44:07 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -68,6 +68,7 @@ class TrackingVertex {
 //  void addGenVertex(          GenVertexRef r );
   const Point & position() const ;
   const EmbdSimVertexRefVector g4Vertices() const;
+  const TrackingParticleRefVector trackingParticles() const;
 //  const GenVertexRefVector genVertices() const;
   
  private:
