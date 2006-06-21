@@ -170,13 +170,13 @@ void L1GctJetLeafCard::process() {
 
 L1GctEtComponent
 L1GctJetLeafCard::exComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+19) % 36;
+  unsigned fact = (2*jphi+10) % 36;
   return rotateEtValue(etStrip, fact);
 }
 
 L1GctEtComponent
 L1GctJetLeafCard::eyComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+10) % 36;
+  unsigned fact = (2*jphi+19) % 36;
   return rotateEtValue(etStrip, fact);
 }
 
