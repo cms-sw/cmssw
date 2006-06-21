@@ -1,8 +1,8 @@
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 
-// #include <Utilities/General/interface/precomputed_value_sort.h>
-// #include <Geometry/CommonDetUnit/interface/DetSorting.h>
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include <Geometry/CommonDetUnit/interface/DetSorting.h>
 
 #include <algorithm>
 #include <cmath>
@@ -27,8 +27,10 @@ DetRodOneR::DetRodOneR( const vector<const GeomDet*>& dets)
 
 void DetRodOneR::initialize()
 {
-  // assume the dets ARE in a rod AND Z ordered
-  // precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetZ());
+  // assume the dets ARE in a rod;
+  // sort them in Z
+
+  precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetZ());
   
   setPlane( RodPlaneBuilderFromDet()( theDets));
   
