@@ -1,0 +1,8 @@
+<use name=DataFormats/Common>
+<use name=boost>
+
+<export>
+   <lib name=DataFormatsL1CaloTrigger>
+   <use name=DataFormats/Common>
+   <use name=boost>
+</export>
