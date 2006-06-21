@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/01 15:43:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/12 13:38:07 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -14,8 +14,9 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-// FIXME tmp!!
+// FIXME tmp here!!
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 //class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
@@ -103,11 +104,15 @@ private:
   
   /// The propagator
   //Propagator *thePropagator;
+  // FIXME
   SteppingHelixPropagator *thePropagator;
+
   /// access at the propagator
   //  Propagator *propagator() const {return thePropagator;}
-  SteppingHelixPropagator *propagator() const {return thePropagator;}
 
+  // FIXME
+  SteppingHelixPropagator *propagator() const {return thePropagator;}
+  
   /// The Estimator
   MeasurementEstimator *theEstimator;
 
