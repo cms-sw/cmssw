@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.75 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -387,7 +387,6 @@ void EBLaserClient::cleanup(void) {
 
     mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
@@ -2198,6 +2197,16 @@ void EBLaserClient::analyze(void){
 
       }
     }
+
+    vector<dqm::me_util::Channel> badChannels01;
+    vector<dqm::me_util::Channel> badChannels02;
+    vector<dqm::me_util::Channel> badChannels03;
+    vector<dqm::me_util::Channel> badChannels04;
+
+    if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
+    if ( qth02_[ism-1] ) badChannels02 = qth01_[ism-1]->getBadChannels();
+    if ( qth03_[ism-1] ) badChannels03 = qth01_[ism-1]->getBadChannels();
+    if ( qth04_[ism-1] ) badChannels04 = qth01_[ism-1]->getBadChannels();
 
   }
 
