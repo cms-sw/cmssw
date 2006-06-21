@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.5 2006/06/09 13:15:43 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.6 2006/06/12 17:08:43 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -22,7 +22,8 @@ using namespace std;
 // 
 SiStripConfigDb::SiStripConfigDb( string user, 
 				  string passwd, 
-				  string path ) : 
+				  string path,
+				  string partition ) : 
   factory_(0), 
   user_( user ), passwd_( passwd ), path_( path ), partition_(),
   usingDb_(true), 
@@ -33,6 +34,9 @@ SiStripConfigDb::SiStripConfigDb( string user,
 {
   edm::LogInfo("ConfigDb") << "[SiStripConfigDb::SiStripConfigDb]"
 			   << " Using configuration database...";
+  partition_.name_ = partition;
+  partition_.major_ = -1;
+  partition_.minor_ = -1;
 }
 
 // -----------------------------------------------------------------------------

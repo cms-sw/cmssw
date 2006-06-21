@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.4 2006/06/02 13:17:56 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.5 2006/06/09 13:15:42 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -31,7 +31,8 @@ class SiStripConfigDb {
       as arguments the database connection parameters. */
   SiStripConfigDb( std::string db_user, 
 		   std::string db_passwd, 
-		   std::string db_path ); 
+		   std::string db_path,
+		   std::string db_partition ); 
 
   /** Constructor when using xml files, which takes as arguments the
       paths to the various input (and output) xml files. */

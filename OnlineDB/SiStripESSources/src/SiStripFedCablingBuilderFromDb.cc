@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.7 2006/06/16 08:12:30 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.8 2006/06/20 14:20:15 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -29,7 +29,8 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
     // Using database 
     db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("User",""),
 			       pset.getUntrackedParameter<string>("Passwd",""),
-			       pset.getUntrackedParameter<string>("Path","") );
+			       pset.getUntrackedParameter<string>("Path",""),
+			       pset.getUntrackedParameter<string>("Partition","") );
   } else {
     // Using xml files
     db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("InputModuleXml",""),
