@@ -51,7 +51,7 @@ namespace edm
 	  i != e && should_continue;
 	  ++i, ++idx )
       {
-	assert ( idx == nwrwue );
+	assert ( static_cast<int>(idx) == nwrwue );
 	try
 	  {
 	    cpc.activate(idx, i->getWorker()->descPtr());
