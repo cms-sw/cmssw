@@ -161,9 +161,14 @@ void Ecal2004TBSource::openFile(const std::string& filename) {
   n_pnIEs=0;
   
   m_eventHeader=0;
-  m_towers[n_towers]=0;
-  m_pns[n_pns]=0;       
-  m_pnIEs[n_pnIEs]=0;       
+
+  for (int i=0;i<maxTowers;i++)
+    m_towers[i]=0;
+  for (int i=0;i<maxPns;i++)
+    m_pns[i]=0;       
+  for (int i=0;i<maxPnIEs;i++)
+    m_pnIEs[i]=0;       
+
   m_hodo=0;
   m_tdcInfo=0;
   m_tpg=0;
@@ -310,60 +315,65 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
   // towers/crystals data
   for(int tnum=0; tnum < n_towers; tnum++)   
     {
-      for (int xnum = 0; xnum < maxXtals; xnum++) 
+      if (m_towers[tnum])
 	{
-	  int smXtal  = geom.getSMCrystalNumber(towerNumbers[tnum],xnum);
-
-	  TRawCrystal *myRawCrystal = m_towers[tnum]->GetCrystal(xnum); 	  
-	  int SamplesNum = myRawCrystal->GetNSamples();
-	  if (SamplesNum != 0)
-	    {	  
-	      EBDataFrame theFrame (EBDetId(1, smXtal,EBDetId::SMCRYSTALMODE));
-	      theFrame.setSize(SamplesNum);
-	      	      
-	      for (int sample=0; sample<SamplesNum; sample++)   
-		{
-		  int mySample = myRawCrystal->GetSample(sample); 
-		  int adcValue = (mySample & 0xFFF);       
-		  int gain = (mySample & 0x3000) >> 12;
-		  theFrame.setSample(sample, EcalMGPASample(adcValue,gain));		 
+	  for (int xnum = 0; xnum < maxXtals; xnum++) 
+	    {
+	      int smXtal  = geom.getSMCrystalNumber(towerNumbers[tnum],xnum);
+	      TRawCrystal *myRawCrystal = m_towers[tnum]->GetCrystal(xnum); 	  
+	      int SamplesNum = myRawCrystal->GetNSamples();
+	      if (SamplesNum != 0)
+		{	  
+		  EBDataFrame theFrame (EBDetId(1, smXtal,EBDetId::SMCRYSTALMODE));
+		  theFrame.setSize(SamplesNum);
+		  
+		  for (int sample=0; sample<SamplesNum; sample++)   
+		    {
+		      int mySample = myRawCrystal->GetSample(sample); 
+		      int adcValue = (mySample & 0xFFF);       
+		      int gain = (mySample & 0x3000) >> 12;
+		      theFrame.setSample(sample, EcalMGPASample(adcValue,gain));		 
+		    }
+		  
+		  productEb->push_back(theFrame);
 		}
-	      
-	      productEb->push_back(theFrame);
 	    }
 	} // loop over crystals in tower
     } // loop over towers
-
-
+  
+  
 
 
   // pn data
   if ( n_pns < 10 ){ edm::LogError("Ecal2004TBSourceError") << "WARNING, PNs number < 10" ; }
   for(int pnnum=0; pnnum < n_pns; pnnum++)   
     {
-      int PnSamplesNum = m_pns[pnnum]->GetNSamples();
-      if ((PnSamplesNum != 50) && (m_runInfo->GetRunType() != 1)){ edm::LogError("Ecal2004TBSourceError") << "WARNING, laser or pedestal run with PnSamples != 50" ; } 
-      
-      if (PnSamplesNum != 0)
+      if (m_pns[pnnum])
 	{
-	  EcalPnDiodeDetId PnId(1, 1, pnnum+1);      // 1st: subDetectorId: EB (1) ,EE (2)
-	                                             // 2nd: DCCId relative to SubDetector. In barrel it is the SupermoduleId from 1-36
-	                                             // 3rd: PnId, in barrel from 1-10
-	  EcalPnDiodeDigi thePnDigi(PnId);
-	  thePnDigi.setSize(PnSamplesNum);
-
-	  for (int pnsample=0; pnsample<PnSamplesNum; pnsample++)   
-	    {
-	      int myPnSample = m_pns[pnnum]->GetSample(pnsample); 
-	      thePnDigi.setSample(pnsample, EcalFEMSample((uint16_t)myPnSample));
-	    }
+	  int PnSamplesNum = m_pns[pnnum]->GetNSamples();
+	  if ((PnSamplesNum != 50) && (m_runInfo->GetRunType() != 1)){ edm::LogError("Ecal2004TBSourceError") << "WARNING, laser or pedestal run with PnSamples != 50" ; } 
 	  
-	  productEPn->push_back(thePnDigi);
+	  if (PnSamplesNum != 0)
+	    {
+	      EcalPnDiodeDetId PnId(1, 1, pnnum+1);      // 1st: subDetectorId: EB (1) ,EE (2)
+	      // 2nd: DCCId relative to SubDetector. In barrel it is the SupermoduleId from 1-36
+	      // 3rd: PnId, in barrel from 1-10
+	      EcalPnDiodeDigi thePnDigi(PnId);
+	      thePnDigi.setSize(PnSamplesNum);
+	      
+	      for (int pnsample=0; pnsample<PnSamplesNum; pnsample++)   
+		{
+		  int myPnSample = m_pns[pnnum]->GetSample(pnsample); 
+		  thePnDigi.setSample(pnsample, EcalFEMSample((uint16_t)myPnSample));
+		}
+	      
+	      productEPn->push_back(thePnDigi);
+	    }
 	}
     }
-
-
-
+      
+      
+  
   // hodoscopes information
   if ( (m_runInfo->GetRunType() == 1) && (m_hodo) )   
     {
@@ -374,13 +384,13 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
       
       if ( lenght > 0 && lenght == hodoRawLen*nHodoPlanes ) 
 	{ 
-	  // Decoding of raw data into integer array hits                                  
+	      // Decoding of raw data into integer array hits                                  
 	  for (int ipl=0; ipl<nHodoPlanes; ipl++) 
 	    {	      
 	      int detType = 1;       // new mapping for electronics channels  
 	      
 	      for (int fib=0; fib<nHodoFibres; fib++) { hodoHits[ipl][fib] = 0; }            
-                       
+	      
 	      int ch=0;
 	      for(int j=0; j<hodoRawLen; j++) 
 		{
