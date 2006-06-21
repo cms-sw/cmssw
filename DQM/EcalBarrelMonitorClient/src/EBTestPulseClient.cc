@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.75 $
+ * $Date: 2006/06/20 08:25:05 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -602,8 +602,8 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
 
         cout << "Preparing dataset for SM=" << ism << endl;
 
-        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-        cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02  << endl;
+        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << mean03 << " " << rms03 << endl;
+        cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << mean04 << " " << rms04 << endl;
 
       }
 
