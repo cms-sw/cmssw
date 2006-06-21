@@ -4,6 +4,10 @@
 \section event RECO Event content
 Reconstruction output.
 
+The Data Format is defined in the following package sets:
+ - \ref RecoData "RECO data format packages" 
+ - \ref CommonData "Common data format packagess" 
+
 \htmlinclude datatable_begin.doi
 
 \htmlinclude TrackRecoCollections.doi
