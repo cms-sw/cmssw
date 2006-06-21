@@ -2,9 +2,9 @@
   <td class="colgroup" colspan=5>Pixel local reconstruction</td>
 </tr>
 <tr>
-  <td> \endhtmlonly PixelDigi \htmlonly </rd>
-  <td> \endhtmlonly edm::DetSetVector<PixelDigi> \htmlonly </td>
-  <td> \endhtmlonly \ref EventFilter_SiPixelRawToDigi "RawToDigi" \htmlonly </td>
+  <td><a href="classPixelDigi.html">PixelDigi</a></rd>
+  <td><a href="DataFormats_SiStripDigi.html">edm::DetSetVector&lt;PixelDigi&gt;</a></td>
+  <td><a href="EventFilter_SiPixelRawToDigi.html">RawToDigi</a></td>
   <td class="description">Pixel digitized hit</td>
   <td>V.Chiochia</td>
 </tr>

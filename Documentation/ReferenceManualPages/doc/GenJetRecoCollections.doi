@@ -2,30 +2,30 @@
   <td class="colgroup" colspan=5>Jet collections: HepMC particles based</td>
 <tr>
 <tr>
-  <td> \endhtmlonly GenJet \htmlonly </rd>
-  <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td> \endhtmlonly GenJetMcone5 \htmlonly </td>
+  <td><a href="classGenJet.html">GenJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">GenJetCollection</a></td>
+  <td><a href="#">GenJetMcone5</a></td>
   <td class="description">MidpointCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
-  <td> \endhtmlonly GenJet \htmlonly </rd>
-  <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td> \endhtmlonly GenJetMcone7 \htmlonly </td>
+  <td><a href="classGenJet.html">GenJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">GenJetCollection</a></td>
+  <td><a href="#">GenJetMcone7</a></td>
   <td class="description">MidpointCone R=0.7 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
-  <td> \endhtmlonly GenJet \htmlonly </rd>
-  <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td> \endhtmlonly GenJetKt \htmlonly </td>
+  <td><a href="classGenJet.html">GenJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">GenJetCollection</a></td>
+  <td><a href="#">GenJetKt</a></td>
   <td class="description">Kt jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr>
-  <td> \endhtmlonly GenJet \htmlonly </rd>
-  <td> \endhtmlonly GenJetCollection \htmlonly </td>
-  <td> \endhtmlonly GenJetIcone5 \htmlonly </td>
+  <td><a href="classGenJet.html">GenJet</a></rd>
+  <td><a href="DataFormats_JetReco.html">GenJetCollection</a></td>
+  <td><a href="#">GenJetIcone5</a></td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
