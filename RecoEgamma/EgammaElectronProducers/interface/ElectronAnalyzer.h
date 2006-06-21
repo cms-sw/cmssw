@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id$
+// $Id: ElectronAnalyzer.h,v 1.1 2006/05/27 04:28:37 pivarski Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       std::string fileName_;
       TFile* file_;
-      TH1F* numHits_;
+      TH1F* numCand_;
 };
 
 #endif

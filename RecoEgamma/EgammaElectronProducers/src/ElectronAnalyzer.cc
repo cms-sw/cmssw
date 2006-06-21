@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id$
+// $Id: ElectronAnalyzer.cc,v 1.1 2006/05/27 04:29:29 pivarski Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
 
 // for Si hits
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
@@ -52,7 +52,7 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig)
    fileName_ = iConfig.getParameter<std::string>("fileName");
 
    file_ = new TFile(fileName_.c_str(), "RECREATE");
-   numHits_ = new TH1F("numHits", "Number of Si tracker hits associated with each electron", 20, -0.5, 19.5);
+   numCand_ = new TH1F("numCandidates", "Number of candidates found", 10, -0.5, 9.5);
 }
 
 // ElectronAnalyzer::ElectronAnalyzer(const ElectronAnalyzer& rhs)
@@ -123,16 +123,17 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       cout << "supercluster " << energy << " GeV, position " << position << " cm" << endl;
    }
 
-   // DataFormats/HLTReco/interface/HLTElectron.h
-   edm::Handle<reco::ElectronCandidateCollection> electronHandle;
-   iEvent.getByLabel("electronproducer", "SiStripElectronCandidateCollection", electronHandle);
+   // DataFormats/EgammaCandidates/src/SiStripElectronCandidate.cc
+   edm::Handle<reco::SiStripElectronCandidateCollection> electronHandle;
+   iEvent.getByLabel("electronProd", "SiStripElectronCandidate", electronHandle);
 
-   for (reco::ElectronCandidateCollection::const_iterator electronIter = electronHandle->begin();
+   int numberOfElectrons = 0;
+   for (reco::SiStripElectronCandidateCollection::const_iterator electronIter = electronHandle->begin();
 	electronIter != electronHandle->end();
 	++electronIter) {
-      cout << "electron charge " << electronIter->charge() << ", momentum " << electronIter->p4() << endl;
-      numHits_->Fill(5);
+      numberOfElectrons++;
    }
+   numCand_->Fill(numberOfElectrons);
 }
 
 //

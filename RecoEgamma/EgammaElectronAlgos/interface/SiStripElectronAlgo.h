@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.1 2006/05/27 04:31:25 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.2 2006/06/02 22:43:05 pivarski Exp $
 //
 
 // system include files
@@ -32,20 +32,31 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
+#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 class SiStripElectronAlgo
 {
 
    public:
       SiStripElectronAlgo(unsigned int maxHitsOnDetId,
-			  double wedgePhiWidth,
 			  double originUncertainty,
-			  double deltaPhi,
-			  unsigned int numHitsMin,
-			  unsigned int numHitsMax);
+			  double phiBandWidth,
+			  unsigned int minHits,
+			  double maxReducedChi2);
 
       virtual ~SiStripElectronAlgo();
 
@@ -60,17 +71,32 @@ class SiStripElectronAlgo
 			const SiStripRecHit2DLocalPosCollection* stereoHits,
 			const MagneticField* magneticField);
 
-      bool bandHitCounting(reco::SiStripElectronCandidateCollection& electronOut,
-			   const reco::SuperCluster& supercluster);
+      // returns number of electrons found (0, 1, or 2),
+      // inserts electrons and trajectories into electronOut and trajectoryOut
+      int findElectron(reco::SiStripElectronCandidateCollection& electronOut,
+		       TrackCandidateCollection& trackCandidateOut,
+		       const reco::SuperCluster& superclusterIn);
 
    private:
       SiStripElectronAlgo(const SiStripElectronAlgo&); // stop default
 
       const SiStripElectronAlgo& operator=(const SiStripElectronAlgo&); // stop default
 
-      void getPoints(std::vector<GlobalPoint>& rphiBarrelPoints,
-		     std::vector<GlobalPoint>& stereoBarrelPoints,
-		     std::vector<GlobalPoint>& endcapPoints);
+      // inserts pointers to good hits into hitPointersOut
+      // selects hits on DetIds that have no more than maxHitsOnDetId_
+      // selects from stereo if stereo == true, rphi otherwise
+      // selects from TID or TEC if endcap == true, TIB or TOB otherwise
+      void coarseHitSelection(std::vector<const SiStripRecHit2DLocalPos*>& hitPointersOut,
+			      bool stereo, bool endcap);
+
+     // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
+     // copies and inserts passing hits into a TrackCandidate, which it puts into trackCandidateOut if passes cuts
+     // returns true iff the electron/positron passes cuts
+      bool projectPhiBand(reco::SiStripElectronCandidateCollection& electronOut,
+			  TrackCandidateCollection& trackCandidateOut,
+			  float chargeHypothesis,
+			  const reco::SuperCluster& superclusterIn);
+
       double unwrapPhi(double phi) const {
 	 while (phi > M_PI) { phi -= 2.*M_PI; }
 	 while (phi < -M_PI) { phi += 2.*M_PI; }
@@ -81,11 +107,10 @@ class SiStripElectronAlgo
 
       // parameters
       unsigned int maxHitsOnDetId_;
-      double wedgePhiWidth_;
       double originUncertainty_;
-      double deltaPhi_;
-      unsigned int numHitsMin_;
-      unsigned int numHitsMax_;
+      double phiBandWidth_;
+      unsigned int minHits_;
+      double maxReducedChi2_;
 
       // changes with each event
       const TrackerGeometry* tracker_p;
