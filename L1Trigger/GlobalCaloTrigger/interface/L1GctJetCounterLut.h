@@ -30,10 +30,14 @@ public:
   enum validCutType { minRank, maxRank, centralEta, forwardEta, phiWindow, nullCutType};
   static const unsigned int MAX_CUT_TYPE;
 
-  /// Construct with a list of cuts
+  /// Construct with a list of cuts (most general case)
   L1GctJetCounterLut(std::vector<validCutType> cutType, std::vector<unsigned> cutValue1, std::vector<unsigned> cutValue2);
-  /// Construct with just one cut
+  /// Construct with just one cut (general case)
   L1GctJetCounterLut(validCutType cutType, unsigned cutValue1, unsigned cutValue2);
+  /// Construct with just one cut and one threshold value (useful)
+  L1GctJetCounterLut(validCutType cutType, unsigned cutValue1);
+  /// Construct with just one cut and no values (default threshold values, ie set to zero; less useful)
+  L1GctJetCounterLut(validCutType cutType);
   /// Construct null counter (reject all jets)
   L1GctJetCounterLut();
   ~L1GctJetCounterLut();

@@ -41,6 +41,24 @@ L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType, unsigned cutValue1,
   checkCut(cutType, cutValue1, cutValue2);
 }
 
+L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType, unsigned cutValue1) :
+  m_nCuts(1),
+  m_cutType(1, cutType),
+  m_cutValue1(1, cutValue1),
+  m_cutValue2(1, 0)
+{
+  checkCut(cutType, cutValue1, 0);
+}
+
+L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType) :
+  m_nCuts(1),
+  m_cutType(1, cutType),
+  m_cutValue1(1, 0),
+  m_cutValue2(1, 0)
+{
+  checkCut(cutType, 0, 0);
+}
+
 L1GctJetCounterLut::L1GctJetCounterLut() :
   m_nCuts(1),
   m_cutType(1, nullCutType),
@@ -56,7 +74,7 @@ L1GctJetCounterLut::~L1GctJetCounterLut()
 ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)
 {
   os << "===L1GctJetCounterLut===" << endl;
-  os << "Number of cuts for this Lut is " << lut.m_nCuts;
+  os << "Number of cuts for this Lut is " << lut.m_nCuts << endl;
   for (unsigned i=0; i<lut.m_nCuts; i++) {
     if (i==0) {
       os << "Jet passes ";
@@ -97,7 +115,6 @@ ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)
 	break;
       }
   }
-  os << endl;
   return os;
 }
 
@@ -107,7 +124,6 @@ bool L1GctJetCounterLut::passesCut(const L1GctJet jet) const
   for (unsigned i=0; i<m_nCuts; i++) {
     if (!result) { break; } // for efficiency
     result &= jetPassesThisCut(jet, i);
-//     result = result & jetPassesThisCut(jet, i);
   }
   return result;
 }

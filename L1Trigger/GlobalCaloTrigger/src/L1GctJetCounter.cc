@@ -61,27 +61,28 @@ L1GctJetCounter::~L1GctJetCounter()
 
 ostream& operator << (ostream& os, const L1GctJetCounter& algo)
 {
+  // Try to make this compact since it is probably
+  // sitting inside a loop over 12 JetCounter instances
   os << "===L1GctJetCounter===" << endl;
-  os << "ID = " << algo.m_id << endl;
   if ((algo.m_id/100) == 0) { os << "Minus wheel, "; }
   else { os << "Plus wheel, "; }
-  os << "jet counter no. " << algo.m_id%100 << endl;
+  os << "jet counter no. " << algo.m_id%100 <<  "; ID = " << algo.m_id << endl;
   os << "JetCounterLut* = " <<  algo.m_jetCounterLut << endl;
   os << *algo.m_jetCounterLut << endl;
-  os << "No of Leaf cards " << algo.m_jetLeafCards.size() << endl;
+  os << "No of Leaf cards " << algo.m_jetLeafCards.size();
+  os << ". Total input jets " << algo.m_jets.size() << endl;
   for (unsigned i=0; i<algo.m_jetLeafCards.size(); i++) {
-    os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards.at(i)<< endl;
-    os << "No of jets from this leafCard, jetFinder A " << algo.m_jetLeafCards.at(i)->getOutputJetsA().size() << endl;
-    os << "No of jets from this leafCard, jetFinder B " << algo.m_jetLeafCards.at(i)->getOutputJetsB().size() << endl;
-    os << "No of jets from this leafCard, jetFinder C " << algo.m_jetLeafCards.at(i)->getOutputJetsC().size() << endl;
+    // One line of printing per leaf card
+    os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards.at(i);
+    os << " No of jets " << algo.m_jetLeafCards.at(i)->getOutputJetsA().size() ;
+    os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsB().size();
+    os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsC().size() << endl;
   }
-  os << "No of input jets " << algo.m_jets.size() << endl;
 //   for(unsigned i=0; i < algo.m_jets.size(); ++i)
 //     {
 //       os << algo.m_jets.at(i); 
 //     }
-  os << "Value of counter " << algo.m_value << endl;
-  os << endl;
+  os << "Current value of counter " << algo.m_value << endl;
 
   return os;
 }
