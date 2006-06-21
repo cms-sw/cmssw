@@ -100,6 +100,12 @@ namespace edm {
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
          return Entry(d, !tracked_);
        }
+     else if(type()=="VInputTag")
+       {
+         vector<InputTag> d ;
+         for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
+         return Entry(d, !tracked_);
+       }
      else
        {
          throw edm::Exception(errors::Configuration)

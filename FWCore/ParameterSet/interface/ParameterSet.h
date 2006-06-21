@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.25 2006/06/06 21:42:23 rpw Exp $
+// $Id: ParameterSet.h,v 1.26 2006/06/15 22:07:41 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -272,6 +272,17 @@ private:
   edm::InputTag
   ParameterSet::getParameter<edm::InputTag>(std::string const& name) const {
     return retrieve(name).getInputTag();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // InputTag
+
+  template <>
+  inline
+  std::vector<edm::InputTag>
+  ParameterSet::getParameter<std::vector<edm::InputTag> >(std::string const& name) const {
+    return retrieve(name).getVInputTag();
   }
 
 

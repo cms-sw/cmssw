@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.11 2006/06/06 21:38:52 rpw Exp $
+// $Id: Entry.cc,v 1.12 2006/06/15 22:08:44 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -98,6 +98,7 @@ namespace edm {
       table_['T'] = "path";
       table_['F'] = "FileInPath";
       table_['t'] = "InputTag";
+      table_['v'] = "VInputTag";
       
       for(CodeMap::const_iterator itCode = table_.begin();
            itCode != table_.end();
@@ -170,6 +171,11 @@ namespace edm {
       case 't':  {  // InputTag
         edm::InputTag val;
         if(!decode(val, rep)) throwEntryError("InputTag", rep);
+        break;
+      }
+      case 'v':  {  // VInputTag
+        std::vector<edm::InputTag> val;
+        if(!decode(val, rep)) throwEntryError("VInputTag", rep);
         break;
       }
       case 'D':  {  // Double
@@ -313,6 +319,17 @@ namespace edm {
     rep(), type('t'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError(val, "InputTag");
+    validate();
+  }
+
+
+// ----------------------------------------------------------------------
+// VInputTag
+
+  Entry::Entry(std::vector<edm::InputTag> const& val, bool is_tracked) :
+    rep(), type('v'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError(val, "VInputTag");
     validate();
   }
 
@@ -620,6 +637,20 @@ namespace edm {
     if(!decode(val, rep)) throwEntryError("InputTag", rep);
     return val;
   }
+
+
+// ----------------------------------------------------------------------
+// VInputTag
+
+  std::vector<edm::InputTag>
+  Entry::getVInputTag() const
+  {
+    if(type != 'v') throwValueError("VInputTag");
+    std::vector<edm::InputTag> val;
+    if(!decode(val, rep)) throwEntryError("InputTag", rep);
+    return val;
+  }
+
 
 
 // ----------------------------------------------------------------------

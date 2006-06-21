@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.11 2006/06/06 21:38:44 rpw Exp $
+// $Id: Entry.h,v 1.12 2006/06/15 22:07:41 rpw Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -83,6 +83,10 @@ namespace edm {
     // InputTag
     Entry(edm::InputTag const & tag, bool is_tracked);
     edm::InputTag getInputTag() const;
+
+    // InputTag
+    Entry(std::vector<edm::InputTag> const & vtag, bool is_tracked);
+    std::vector<edm::InputTag> getVInputTag() const;
 
     // ParameterSet
     Entry(ParameterSet const& val, bool is_tracked);

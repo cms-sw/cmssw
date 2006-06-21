@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.5 2006/06/15 22:07:01 rpw Exp $
+// $Id: types.cc,v 1.6 2006/06/20 04:22:37 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -508,6 +508,41 @@ bool
   to = from.encode();
   return true;
 }
+
+
+// ----------------------------------------------------------------------
+// VInputTag
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(std::vector<InputTag>& to, std::string const& from)
+{
+  std::vector<std::string> strings;
+  decode(strings, from);
+
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin();
+      stringItr != strings.end(); ++stringItr)
+  {
+    to.push_back(InputTag(*stringItr));
+  }
+  return true;
+}  // decode to VInputTag
+
+
+
+bool
+  edm::encode(std::string& to, const std::vector<InputTag>& from)
+{
+  std::vector<std::string> strings;
+  for(std::vector<InputTag>::const_iterator tagItr = from.begin();
+       tagItr != from.end(); ++tagItr)
+  {
+    strings.push_back(tagItr->encode());
+  }
+  encode(to, strings);
+  return true;
+}
+
 
 
 

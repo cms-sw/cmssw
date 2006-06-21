@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.28 2006/06/15 22:07:07 rpw Exp $
+ * $Id: pset_parse.y,v 1.29 2006/06/15 23:13:01 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -144,6 +144,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token COPY_tok
 %token INCLUDE_tok
 %token INPUTTAG_tok
+%token VINPUTTAG_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -285,7 +286,7 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    $<_Node>$ = en;
                  }
                |
-                 untracked INPUTTAG_tok LETTERSTART_tok EQUAL_tok PRODUCTTAG_tok
+                 untracked INPUTTAG_tok LETTERSTART_tok EQUAL_tok anyproducttag
                  {
                    DBPRINT("lowlevelnode: INPUTTAG");
                    bool tr = $<_bool>1;
@@ -295,13 +296,13 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    $<_Node>$ = en;
                  }
                |
-                untracked INPUTTAG_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok
+                untracked VINPUTTAG_tok LETTERSTART_tok EQUAL_tok producttagarray
                  {
-                   DBPRINT("lowlevelnode: INPUTTAG");
-                   bool tr = $<_bool>1;
+                   DBPRINT("lowlevelnode: VINPUTTAG");
                    string name(toString($<str>3));
-                   string value(toString($<str>5));
-                   EntryNode* en(new EntryNode("InputTag",name,value,tr,lines));
+                   StringListPtr value($<_StringList>5);
+                   bool tr = $<_bool>1;
+                   VEntryNode* en(new VEntryNode("VInputTag",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |
@@ -541,6 +542,52 @@ any:             VALUE_tok
                  {
                    DBPRINT("any: LETTERSTART");
                    $<str>$ = $<str>1;
+                 }
+               ;
+
+/* with or without a colon */
+anyproducttag:   PRODUCTTAG_tok
+                 {
+                   DBPRINT("anyproducttag: PRODUCTTAG");
+                   $<str>$ = $<str>1;
+                 }
+               |
+                 LETTERSTART_tok
+                 {
+                   DBPRINT("anyproducttag: LETTERSTART");
+                   $<str>$ = $<str>1;
+                 }
+               ;
+
+producttags:     producttags COMMA_tok anyproducttag
+                 {
+                   DBPRINT("producttag: producttag COMMA_tok producttag");
+                   StringList* p = $<_StringList>1;
+                   string s(toString($<str>3));
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               |
+                 anyproducttag
+                 {
+                   DBPRINT("producttags: producttag");
+                   string s(toString($<str>1));
+                   StringList* p(new StringList);
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               ;
+
+producttagarray: SCOPE_START_tok  producttags SCOPE_END_tok
+                 {
+                   DBPRINT("producttagarray: not empty");
+                   $<_StringList>$ = $<_StringList>2;
+                 }
+               |
+                 SCOPE_START_tok SCOPE_END_tok
+                 {
+                   DBPRINT("producttagarray: empty");
+                   $<_StringList>$ = new StringList();
                  }
                ;
 
