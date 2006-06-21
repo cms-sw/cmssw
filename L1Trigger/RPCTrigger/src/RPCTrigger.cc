@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/16 14:56:17 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/19 15:28:49 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 
@@ -37,8 +37,13 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
   
-  m_pacManager.Init("/afs/cern.ch/user/f/fruboes/public/patterns/", _12_PACS_PER_TOWER);
+  
+  std::string patternsDirName = iConfig.getParameter<std::string>("RPCPatternsDir");
+  
+  //m_pacManager.Init("/afs/cern.ch/user/f/fruboes/public/patterns/", _12_PACS_PER_TOWER);
     
+  m_pacManager.Init(patternsDirName, _12_PACS_PER_TOWER);
+  
   m_trigConfig = new L1RpcBasicTrigConfig(&m_pacManager);
   
   m_trigConfig->SetDebugLevel(0);

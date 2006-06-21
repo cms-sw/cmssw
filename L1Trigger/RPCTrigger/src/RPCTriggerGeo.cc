@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/16 09:13:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/19 15:28:49 $
+ *  $Revision: 1.9 $
  *  \author Tomasz Fruboes
  */
 
@@ -126,8 +126,9 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 
   RPCDetInfo detInfo(roll);
 
-  // This two curls werent connected anywhere in ORCA. Filtered out for consitency with ORCA.
+  // This two curls werent connected anywhere in ORCA. They are filtered out for consitency with ORCA.
   if ( (detInfo.getCurlId() == 2108) ||(detInfo.getCurlId() == 2008) ){
+    m_detsToIngore.insert(detInfo.rawId());
     return;
   }
   
@@ -187,19 +188,21 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
              it != stripCons.end();
              it++)
         {
-          
           logHits.push_back( L1RpcLogHit(it->tower, it->PAC, it->logplane, it->posInCone) );
-             
-             
         }
       
       } 
+      // m_detsToIngore fixes problem with two unconnected curls (ORCA consistency)
+      else if ( m_detsToIngore.find(rawId)==m_detsToIngore.end() ) { 
       // should throw exception
-      else {  // Strip not in map :/
+        RPCDetId missing = RPCDetId(sc.detRawId);
         edm::LogError("RPCTrigger")
             << "Strip " << sc.stripNo 
             << " of det " << sc.detRawId
-            << " not present in map";
+            << " not present in map "
+            << missing;
+        
+        
       }
     } // for digiCollection
   }// for detUnits

@@ -22,6 +22,7 @@
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
 
 #include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
+#include "set"
 
 class RPCTriggerGeo {
   public:
@@ -48,6 +49,8 @@ class RPCTriggerGeo {
     
     //L1RpcLogConesVec 	m_activeCones;
     
-    RPCCurl::RPCLinks m_links;
+    RPCCurl::RPCLinks m_links; ///< Translates rpcdigi into loghits
+    
+    set<uint32_t> m_detsToIngore; ///< Temp. solution to the problem of not connected dets (in ORCA)
 };
 #endif
