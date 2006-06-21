@@ -11,8 +11,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -29,16 +29,13 @@ class L1MuGMTCand;
 class L1GctCand;
 class L1GctEmCand;
 
-class L1GctCenJet;
-class L1GctForJet;
-class L1GctTauJet;
+class L1GctJet;
 
 class L1GctEtTotal;
 class L1GctEtHad;
 class L1GctEtMiss;
 
-// TODO uncomment when class available in GCT
-//class L1GctJetCount;
+class L1GctJetCounts;
 
 
 class L1GlobalTriggerReadoutRecord
@@ -105,7 +102,7 @@ public:
 
     /// get candidate 
     ///     two arguments:   candidate index, bunch cross index
-    ///     one arguments:   candidate index, for bunch cross with L1Accept
+    ///     one argument:    candidate index, for bunch cross with L1Accept
 
     /// get all non-empty candidates
     ///     one argument:  bunch cross index
@@ -135,18 +132,18 @@ public:
     std::vector<L1GctEmCand> isolatedElectronCands() const;
 
     /// central jet
-    const L1GctCenJet centralJetCand(unsigned int indexCand, unsigned int bxInEvent) const;
-    const L1GctCenJet centralJetCand(unsigned int indexCand) const;
+    const L1GctJet centralJetCand(unsigned int indexCand, unsigned int bxInEvent) const;
+    const L1GctJet centralJetCand(unsigned int indexCand) const;
 
-    std::vector<L1GctCenJet> centralJetCands(unsigned int bxInEvent) const;
-    std::vector<L1GctCenJet> centralJetCands() const;
+    std::vector<L1GctJet> centralJetCands(unsigned int bxInEvent) const;
+    std::vector<L1GctJet> centralJetCands() const;
 
     /// forward jet
-    const L1GctForJet forwardJetCand(unsigned int indexCand, unsigned int bxInEvent) const;
-    const L1GctForJet forwardJetCand(unsigned int indexCand) const;
+    const L1GctJet forwardJetCand(unsigned int indexCand, unsigned int bxInEvent) const;
+    const L1GctJet forwardJetCand(unsigned int indexCand) const;
 
-    std::vector<L1GctForJet> forwardJetCands(unsigned int bxInEvent) const;
-    std::vector<L1GctForJet> forwardJetCands() const;
+    std::vector<L1GctJet> forwardJetCands(unsigned int bxInEvent) const;
+    std::vector<L1GctJet> forwardJetCands() const;
 
     /// tau jet
     const L1GctJet tauJetCand(unsigned int indexCand, unsigned int bxInEvent) const;
@@ -167,46 +164,55 @@ public:
     const L1GctEtHad totalHt(unsigned int bxInEvent) const;
     const L1GctEtHad totalHt() const;
 
-//    /// jet counts
-//    const L1GctJetCount jetCount(unsigned int bxInEvent) const;
-//    const L1GctJetCount jetCount() const;
+    /// jet counts
+    const L1GctJetCounts jetCounts(unsigned int bxInEvent) const;
+    const L1GctJetCounts jetCounts() const;
   
-// TODO  review the format
+// TODO  review the format?
 
-    //
-    // set candidate data words (all non-empty candidates)
-    //
+    /// set candidate data words (all non-empty candidates)
+    ///     two arguments:   candidate index, bunch cross index
+    ///     one argument:    candidate index, for bunch cross with L1Accept
   
     /// muon
     void setMuons(const std::vector<MuonDataWord>&, unsigned int bxInEvent);
+    void setMuons(const std::vector<MuonDataWord>&);
 
     /// electron
     void setElectrons(const std::vector<CaloDataWord>, unsigned int bxInEvent);
+    void setElectrons(const std::vector<CaloDataWord>);
   
     /// isolated electron
     void setIsolatedElectrons(const std::vector<CaloDataWord>&, unsigned int bxInEvent); 
+    void setIsolatedElectrons(const std::vector<CaloDataWord>&); 
   
     /// central jets
     void setCentralJets(const std::vector<CaloDataWord>&, unsigned int bxInEvent); 
+    void setCentralJets(const std::vector<CaloDataWord>&); 
   
     /// forward jets
     void setForwardJets(const std::vector<CaloDataWord>&, unsigned int bxInEvent);
+    void setForwardJets(const std::vector<CaloDataWord>&);
   
     /// tau jets
     void setTauJets(const std::vector<CaloDataWord>&, unsigned int bxInEvent);
+    void setTauJets(const std::vector<CaloDataWord>&);
   
     /// missing Et
     void setMissingEt(const CaloDataWord&, unsigned int bxInEvent);
+    void setMissingEt(const CaloDataWord&);
   
     /// total Et
     void setTotalEt(const CaloDataWord&, unsigned int bxInEvent);
+    void setTotalEt(const CaloDataWord&);
 
     /// total calibrated Et
     void setTotalHt(const CaloDataWord&, unsigned int bxInEvent);
+    void setTotalHt(const CaloDataWord&);
   
-// TODO un-comment when JetNr available
-//    /// jet count
-//    void setJetNr(const CaloDataWord&, unsigned int bxInEvent);
+    /// jet count
+    void setJetCounts(const CaloDataWord&, unsigned int bxInEvent);
+    void setJetCounts(const CaloDataWord&);
 
 
     /// print result
@@ -253,6 +259,8 @@ public:
 
 private:
 
+    // TODO update
+    
     int m_gtBxId;
     
     DecisionWord m_gtDecision;
