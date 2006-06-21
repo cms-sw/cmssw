@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.2 2006/06/02 22:43:09 pivarski Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.3 2006/06/21 17:01:03 pivarski Exp $
 //
 
 // system include files
@@ -80,9 +80,9 @@ void SiStripElectronAlgo::prepareEvent(const TrackerGeometry* tracker,
 
 // returns number of electrons found (0, 1, or 2),
 // inserts electrons and clouds into electronOut and cloudOut
-int SiStripElectronAlgo::findElectron(reco::SiStripElectronCandidateCollection& electronOut,
+int SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electronOut,
 				      TrackCandidateCollection& trackCandidateOut,
-				      const reco::SuperCluster& superclusterIn)
+				      const reco::SuperClusterRef& superclusterIn)
 {
    // Try each of the two charge hypotheses, possibly yielding two
    // clouds for the same supercluster.
@@ -152,10 +152,10 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2DLo
 // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
 // copies and inserts passing hits into a TrackCandidate, which it puts into trackCandidateOut if passes cuts
 // returns true iff the electron/positron passes cuts
-bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollection& electronOut,
+bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCollection& electronOut,
 					 TrackCandidateCollection& trackCandidateOut,
 					 float chargeHypothesis,
-					 const reco::SuperCluster& superclusterIn)
+					 const reco::SuperClusterRef& superclusterIn)
 {
    // This algorithm projects a phi band into the tracker three times:
    // (a) for all stereo hits, (b) for barrel rphi hits, and (c) for
@@ -183,17 +183,17 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
    coarseHitSelection(zphiEndcapHits, false,  true);
 
    // Determine how to project from the supercluster into the tracker
-   double energy = superclusterIn.energy();
-   double pT = energy * superclusterIn.rho()/sqrt(superclusterIn.x()*superclusterIn.x() +
-						  superclusterIn.y()*superclusterIn.y() +
-						  superclusterIn.z()*superclusterIn.z());
+   double energy = superclusterIn->energy();
+   double pT = energy * superclusterIn->rho()/sqrt(superclusterIn->x()*superclusterIn->x() +
+						   superclusterIn->y()*superclusterIn->y() +
+						   superclusterIn->z()*superclusterIn->z());
    // This comes from Jackson p. 581-2, a little geometry, and a FUDGE FACTOR of two in the denominator
    // Why is that factor of two correct?  (It's not confusion about radius vs. diameter in the definition of curvature.)
-   double phiVsRSlope = -3.00e-3 * chargeHypothesis * magneticField_p->inTesla(GlobalPoint(superclusterIn.x(), superclusterIn.y(), 0.)).z() / pT / 2.;
+   double phiVsRSlope = -3.00e-3 * chargeHypothesis * magneticField_p->inTesla(GlobalPoint(superclusterIn->x(), superclusterIn->y(), 0.)).z() / pT / 2.;
 
    // Shorthand for supercluster radius, z
-   const double scr = superclusterIn.rho();
-   const double scz = superclusterIn.position().z();
+   const double scr = superclusterIn->rho();
+   const double scz = superclusterIn->position().z();
 
    // Identify the innermost hit
    const SiStripRecHit2DLocalPos* innerhit = (SiStripRecHit2DLocalPos*)(0);
@@ -222,7 +222,7 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
       // Calculate the 3-D position of this hit
       GlobalPoint position = tracker_p->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
       double r = sqrt(position.x()*position.x() + position.y()*position.y());
-      double phi = unwrapPhi(position.phi() - superclusterIn.position().phi());  // phi is relative to supercluster
+      double phi = unwrapPhi(position.phi() - superclusterIn->position().phi());  // phi is relative to supercluster
       double z = position.z();
 
       // Cut a triangle in the z-r plane using the supercluster's eta/dip angle information
@@ -280,7 +280,7 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
       // Calculate the 2.5-D position of this hit
       GlobalPoint position = tracker_p->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
       double r = sqrt(position.x()*position.x() + position.y()*position.y());
-      double phi = unwrapPhi(position.phi() - superclusterIn.position().phi());  // phi is relative to supercluster
+      double phi = unwrapPhi(position.phi() - superclusterIn->position().phi());  // phi is relative to supercluster
 
       // This is the center of the strip
       double z = position.z();
@@ -329,7 +329,7 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
       // Calculate the 2.5-D position of this hit
       GlobalPoint position = tracker_p->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
       double z = position.z();
-      double phi = unwrapPhi(position.phi() - superclusterIn.position().phi());  // phi is relative to supercluster
+      double phi = unwrapPhi(position.phi() - superclusterIn->position().phi());  // phi is relative to supercluster
 
       // The expected r position of this hit, according to the z(r) fit
       double rFit = (z - scz)/zVsRSlope + scr;
@@ -402,7 +402,7 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
       double correct_pT = pT * phiVsRSlope / slope;
 
       // Our phi(r) linear fit returns phi relative to the supercluster phi for a given radius
-      double phi = intercept + slope*sqrt(position.x()*position.x() + position.y()*position.y()) + superclusterIn.position().phi();
+      double phi = intercept + slope*sqrt(position.x()*position.x() + position.y()*position.y()) + superclusterIn->position().phi();
 
       // Our z(r) linear fit gives us a better measurement of eta/dip angle
       double pZ = correct_pT * zVsRSlope;
@@ -430,10 +430,19 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCandidateCollectio
 //      trackCandidateOut.push_back(TrackCandidate(outputHits));
       trackCandidateOut.push_back(TrackCandidate(outputHits, trajectorySeed, *PTraj));
 
-      reco::SiStripElectronCandidate electronCandidate;
-
-      electronOut.push_back(electronCandidate);
-
+      electronOut.push_back(reco::SiStripElectron(superclusterIn,
+						  (chargeHypothesis > 0. ? 1 : -1),
+						  phiVsRSlope,
+						  slope,
+						  intercept,
+						  chi2,
+						  (xlist.size() - 2),
+						  correct_pT,
+						  pZ,
+						  zVsRSlope,
+						  numberOfStereoHits,
+						  numberOfBarrelRphiHits,
+						  numberOfEndcapZphiHits));
       return true;
 
    } // end if this is a good electron candidate

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: ElectronAnalyzer.h,v 1.1 2006/05/27 04:28:37 pivarski Exp $
+// $Id: ElectronAnalyzer.h,v 1.2 2006/06/21 17:02:13 pivarski Exp $
 //
 
 // system include files
@@ -47,6 +47,16 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
       std::string fileName_;
       TFile* file_;
       TH1F* numCand_;
+
+      std::string mctruthProducer_;
+      std::string mctruthCollection_;
+      std::string superClusterProducer_;
+      std::string superClusterCollection_;
+      std::string electronProducer_;
+      std::string electronCollection_;
+      std::string siHitProducer_;
+      std::string siRphiHitCollection_;
+      std::string siStereoHitCollection_;
 };
 
 #endif

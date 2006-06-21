@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.2 2006/06/02 22:43:05 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.3 2006/06/21 17:00:53 pivarski Exp $
 //
 
 // system include files
@@ -25,8 +25,9 @@
 
 // forward declarations
 
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
@@ -73,9 +74,9 @@ class SiStripElectronAlgo
 
       // returns number of electrons found (0, 1, or 2),
       // inserts electrons and trajectories into electronOut and trajectoryOut
-      int findElectron(reco::SiStripElectronCandidateCollection& electronOut,
+      int findElectron(reco::SiStripElectronCollection& electronOut,
 		       TrackCandidateCollection& trackCandidateOut,
-		       const reco::SuperCluster& superclusterIn);
+		       const reco::SuperClusterRef& superclusterIn);
 
    private:
       SiStripElectronAlgo(const SiStripElectronAlgo&); // stop default
@@ -92,10 +93,10 @@ class SiStripElectronAlgo
      // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
      // copies and inserts passing hits into a TrackCandidate, which it puts into trackCandidateOut if passes cuts
      // returns true iff the electron/positron passes cuts
-      bool projectPhiBand(reco::SiStripElectronCandidateCollection& electronOut,
+      bool projectPhiBand(reco::SiStripElectronCollection& electronOut,
 			  TrackCandidateCollection& trackCandidateOut,
 			  float chargeHypothesis,
-			  const reco::SuperCluster& superclusterIn);
+			  const reco::SuperClusterRef& superclusterIn);
 
       double unwrapPhi(double phi) const {
 	 while (phi > M_PI) { phi -= 2.*M_PI; }

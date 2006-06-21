@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:37 EDT 2006
-// $Id$
+// $Id: SiStripElectronProducer.h,v 1.1 2006/05/27 04:28:12 pivarski Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
 
 // forward declarations

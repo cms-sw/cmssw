@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.2 2006/06/02 22:43:13 pivarski Exp $
+// $Id: SiStripElectronProducer.cc,v 1.3 2006/06/21 17:01:20 pivarski Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@
 SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfig)
 {
    // register your products
-   produces<reco::SiStripElectronCandidateCollection>("SiStripElectronCandidate");
+   produces<reco::SiStripElectronCollection>("SiStripElectronCandidate");
    produces<TrackCandidateCollection>("");
 
    // get parameters
@@ -107,7 +107,7 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
 
    edm::Handle<SiStripRecHit2DLocalPosCollection> stereoHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, stereoHitsHandle);
+   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
@@ -119,16 +119,14 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    algo_p->prepareEvent(trackerHandle.product(), rphiHitsHandle.product(), stereoHitsHandle.product(), magneticFieldHandle.product());
 
    // Prepare the output electron candidates and clouds to be filled
-   std::auto_ptr<reco::SiStripElectronCandidateCollection> electronOut(new reco::SiStripElectronCandidateCollection);
+   std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
    std::auto_ptr<TrackCandidateCollection> trackCandidateOut(new TrackCandidateCollection);
 
    // Loop over clusters
    edm::LogInfo("SiStripElectronProducer") << "Starting loop over superclusters." << std::endl;
-   for (reco::SuperClusterCollection::const_iterator superClusterIter = superClusterHandle->begin();
-	superClusterIter != superClusterHandle->end();
-	++superClusterIter) {
+   for (unsigned int i = 0;  i < superClusterHandle.product()->size();  i++) {
 
-      int electronCandidates = algo_p->findElectron(*electronOut, *trackCandidateOut, *superClusterIter);
+      int electronCandidates = algo_p->findElectron(*electronOut, *trackCandidateOut, reco::SuperClusterRef(superClusterHandle, i));
 
       edm::LogInfo("SiStripElectronProducer") << "We found " << electronCandidates << " potential electrons associated with this supercluster." << std::endl;
    }
