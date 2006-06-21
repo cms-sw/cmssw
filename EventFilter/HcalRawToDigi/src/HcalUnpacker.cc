@@ -1,6 +1,7 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -148,10 +149,13 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  hfCont.push_back(HFDataFrame(HcalDetId(did)));
 	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, hfCont.back(), nps, eid, startSample_, endSample_);
 	} break;
-	case (HcalCalibration) : {
-	  calibCont.push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, calibCont.back(), nps, eid, startSample_, endSample_);
-	}
+	case (HcalOther) : {
+	  HcalOtherDetId odid(did);
+	  if (odid.subdet()==HcalCalibration) {
+	    calibCont.push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, calibCont.back(), nps, eid, startSample_, endSample_); 
+	  } 
+	} break;
 	case (HcalEmpty): 
 	default: {
 	  for (int fiberC=qie_work->fiberAndChan();
