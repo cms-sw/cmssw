@@ -229,48 +229,48 @@ void L1GlobalCaloTrigger::print() {
 }
 
 // isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
+vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() const { 
   return theIsoEmFinalStage->getOutputCands();
 }	
 
 // non isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
+vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() const {
   return theNonIsoEmFinalStage->getOutputCands(); 
 }
 
 // central jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getCentralJets() {
+vector<L1GctJet> L1GlobalCaloTrigger::getCentralJets() const {
   return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getForwardJets() { 
+vector<L1GctJet> L1GlobalCaloTrigger::getForwardJets() const { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getTauJets() { 
+vector<L1GctJet> L1GlobalCaloTrigger::getTauJets() const { 
   return theJetFinalStage->getTauJets(); 
 }
 
 // total Et output
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtSum() {
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtSum() const {
   return theEnergyFinalStage->getEtSum();
 }
 
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtHad() {
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtHad() const {
   return theEnergyFinalStage->getEtHad();
 }
 
-L1GctScalarEtVal L1GlobalCaloTrigger::getEtMiss() {
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtMiss() const {
   return theEnergyFinalStage->getEtMiss();
 }
 
-L1GctEtAngleBin L1GlobalCaloTrigger::getEtMissPhi() {
+L1GctEtAngleBin L1GlobalCaloTrigger::getEtMissPhi() const {
   return theEnergyFinalStage->getEtMissPhi();
 }
 
-L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) {
+L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
   return theEnergyFinalStage->getJetCount(jcnum);
 }
 
@@ -409,6 +409,25 @@ void L1GlobalCaloTrigger::setupJetCounterLuts() {
   // Initialise look-up tables for Minus and Plus wheels
   unsigned j=0;
   // Setup the first counters in the list for some arbitrary conditions
+  // Energy cut
+  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::minRank, 5);
+  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::minRank, 5);
+  j++;
+
+  // Eta cuts
+  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::centralEta, 5);
+  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::centralEta, 5);
+  j++;
+
+  // Some one-sided eta cuts
+  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::forwardEta, 6);
+  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
+  j++;
+
+  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
+  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::forwardEta, 6);
+  j++;
+
 
   // Set the remainder to null counters
   for (; j<N_JET_COUNTERS_PER_WHEEL; j++) {
