@@ -36,21 +36,20 @@ namespace sistrip {
   static const std::string sep_  = "_";
   static const std::string commissioningTask_ = "SiStripCommissioningTask";
   
-  // control view
-  static const std::string controlView_ = "ControlView";
+  // views
+  static const std::string controlView_  = "ControlView";
+  static const std::string readoutView_  = "ReadoutView";
+  static const std::string detectorView_ = "DetectorView";
+  static const std::string unknownView_  = "UnknownView";
+
+  // control and readout parameters
   static const std::string fecCrate_    = "FecCrate";
   static const std::string fecSlot_     = "FecSlot";
   static const std::string fecRing_     = "FecRing";
   static const std::string ccuAddr_     = "CcuAddr";
   static const std::string ccuChan_     = "CcuChan";
-
-  // readout view
-  static const std::string readoutView_ = "ReadoutView";
   static const std::string fedId_       = "FedId";
   static const std::string fedChannel_  = "FedChannel";
-
-  // geometrical view
-  static const std::string detectorView_ = "DetectorView"; //@@ necessary?
 
   // commissioning task
   static const std::string fedCabling_  = "FedCabling";
