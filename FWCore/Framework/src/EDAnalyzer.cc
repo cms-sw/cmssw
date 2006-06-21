@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.4 2005/09/01 04:30:51 wmtan Exp $
+$Id: EDAnalyzer.cc,v 1.5 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,5 +40,12 @@ namespace edm
   void 
   EDAnalyzer::endJob()
   { }
+
+  CurrentProcessingContext const*
+  EDAnalyzer::currentContext() const
+  {
+    return current_context_;
+  }
+
 }
   

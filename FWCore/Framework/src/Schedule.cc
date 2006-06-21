@@ -27,7 +27,7 @@
 
 #include <algorithm>
 #include <iomanip>
-#include <iostream>   // MFP: debugging
+#include <iostream>
 #include <list>
 #include <memory>
 #include <string>
@@ -454,7 +454,7 @@ namespace edm
     ++total_events_;
     RunStopwatch stopwatch(stopwatch_);
     this->resetAll();
-    //CurrentProcessingContext moduleContext;
+
     state_ = Running;
     setupOnDemandSystem(ep, es);
     try 
@@ -464,8 +464,6 @@ namespace edm
 	if ( runTriggerPaths(ep, es) ) ++total_passed_;
 	state_ = Latched;
 	
-	// The results_inserter_ is not on a path, so it gets no
-	// CurrentProcessingContext.
 	if(results_inserter_.get()) results_inserter_->doWork(ep,es,0);
 	
 	if (endpathsAreActive_) runEndPaths(ep,es);

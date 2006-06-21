@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.21 2006/04/15 04:45:42 wmtan Exp $
+$Id: OutputModule.h,v 1.22 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,12 @@ namespace edm {
 
     unsigned long nextID() const;
     void selectProducts();
+
+  protected:
+    // The returned pointer will be null unless the this is currently
+    // executing its event loop function ('write').
+    CurrentProcessingContext const* currentContext() const;
+
   private:
     unsigned long             nextID_;
     // TODO: Make this data member private, and give OutputModule an
@@ -81,10 +87,6 @@ namespace edm {
 
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
-
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('write').
-    CurrentProcessingContext const* currentContext() const;
   };
 }
 

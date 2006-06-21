@@ -42,6 +42,11 @@ namespace edm
     /// and null otherwise.
     std::string const* moduleLabel() const;
 
+
+    /// Return the name of the current path if the module is active,
+    /// and null otherwise.
+    std::string const* pathName() const;
+
     /// Return the address of the ModuleDescription describing this
     /// module if active, and null otherwise.
     ModuleDescription const* moduleDescription() const;

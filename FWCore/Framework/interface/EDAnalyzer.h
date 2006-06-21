@@ -10,6 +10,8 @@ namespace edm {
   class EDAnalyzer 
   {
   public:
+
+
     typedef EDAnalyzer ModuleType;
     
     void doAnalyze(Event const& e, EventSetup const& c,
@@ -17,7 +19,14 @@ namespace edm {
 
     void doBeginJob(EventSetup const&) ;
     void doEndJob() ;
+
     virtual ~EDAnalyzer();
+
+  protected:
+    // The returned pointer will be null unless the this is currently
+    // executing its event loop function ('analyze').
+    CurrentProcessingContext const* currentContext() const;
+
 
   private:
     virtual void analyze(Event const& e, EventSetup const& c) = 0;

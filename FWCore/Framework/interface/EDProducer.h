@@ -6,7 +6,7 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.13 2006/04/20 22:33:21 wmtan Exp $
+$Id: EDProducer.h,v 1.14 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,6 +28,8 @@ namespace edm {
     virtual void endJob();
 
   protected:
+    // The returned pointer will be null unless the this is currently
+    // executing its event loop function ('produce').
     CurrentProcessingContext const* currentContext() const;
 
   private:

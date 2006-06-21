@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 
 #include <string>
 #include <iostream>
@@ -33,11 +34,13 @@ namespace edmtest
     void endJob();
 
   private:
-    int passed_;
-    int failed_;
-    bool dump_;
+    int    passed_;
+    int    failed_;
+    bool   dump_;
     string name_;
-    int numbits_;
+    int    numbits_;
+    string expected_pathname_; // if empty, we don't know
+    string expected_modulelabel_; // if empty, we don't know
   };
 
   // -------
@@ -81,7 +84,9 @@ namespace edmtest
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
     name_(ps.getUntrackedParameter<string>("name","DEFAULT")),
-    numbits_(ps.getUntrackedParameter<int>("numbits",-1))
+    numbits_(ps.getUntrackedParameter<int>("numbits",-1)),
+    expected_pathname_(ps.getUntrackedParameter<string>("pathname", "")),
+    expected_modulelabel_(ps.getUntrackedParameter<string>("modlabel", ""))
   {
   }
     
@@ -94,6 +99,18 @@ namespace edmtest
     typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
+    
+    edm::CurrentProcessingContext const* cpc = currentContext();
+    assert( cpc != 0 );
+    assert( cpc->moduleDescription() != 0 );
+
+    if ( !expected_pathname_.empty() )
+      assert( expected_pathname_ == *(cpc->pathName()) );
+
+    if ( !expected_modulelabel_.empty() )
+      {
+	assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
+      }
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
@@ -135,6 +152,7 @@ namespace edmtest
   bool TestFilterModule::filter(edm::Event& e,edm::EventSetup const&)
   {
     ++count_;
+    assert( currentContext() != 0 );
     if(onlyOne_)
       return count_%accept_rate_ ==0 ? true : false;
     else
@@ -143,6 +161,7 @@ namespace edmtest
 
   void TestFilterModule::endJob()
   {
+    assert( currentContext() == 0 );
   }
 
   // ---------
@@ -162,10 +181,12 @@ namespace edmtest
   void SewerModule::write(edm::EventPrincipal const& e)
   {
     ++total_;
+    assert( currentContext() != 0 );
   }
 
   void SewerModule::endJob()
   {
+    assert( currentContext() == 0 );
     cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
 	 << ", did pass " << total_ << "\n";
 

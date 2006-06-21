@@ -20,13 +20,19 @@ namespace edm
     moduleDescription_(0),
     pathName_(name)
   { }
-  
+
   string const*
   CurrentProcessingContext::moduleLabel() const
   {
     return moduleDescription_
       ? &(moduleDescription_->moduleLabel_)
       : 0;
+  }
+
+  string const*
+  CurrentProcessingContext::pathName() const
+  {
+    return pathName_;
   }
 
   ModuleDescription const*

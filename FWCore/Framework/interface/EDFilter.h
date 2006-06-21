@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.8 2006/04/20 22:33:21 wmtan Exp $
+$Id: EDFilter.h,v 1.9 2006/06/20 23:13:27 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,6 +27,11 @@ namespace edm {
 		  CurrentProcessingContext const* cpc);
     void doBeginJob(EventSetup const&) ;
     void doEndJob() ;
+
+  protected:
+    // The returned pointer will be null unless the this is currently
+    // executing its event loop function ('filter').
+    CurrentProcessingContext const* currentContext() const;
 
   private:    
     virtual bool filter(Event& e, EventSetup const& c) = 0;
