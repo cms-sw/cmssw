@@ -8,6 +8,15 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 
+// Should move these into EmbdSimTrackContainer.h, no time before 8.0-pre2
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
+typedef edm::Ref<edm::EmbdSimTrackContainer> EmbdSimTrackRef;
+typedef edm::RefProd<edm::EmbdSimTrackContainer> EmbdSimTrackRefProd;
+typedef edm::RefVector<edm::EmbdSimTrackContainer> EmbdSimTrackRefVector;
+
 namespace HepMC {
   class GenParticle;
 }
