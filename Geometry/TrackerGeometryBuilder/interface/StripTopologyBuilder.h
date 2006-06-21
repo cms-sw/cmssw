@@ -22,7 +22,7 @@ private:
   double theAPVNumb;
 
   StripTopology* constructBarrel( float , float );
-  StripTopology* constructForward( float , float ,float);
+  StripTopology* constructForward( float , float ,float, int);
 
 };
 

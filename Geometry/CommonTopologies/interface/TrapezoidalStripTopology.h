@@ -31,6 +31,8 @@ public:
    */
   TrapezoidalStripTopology(int nstrip, float pitch, float detheight,float r0);
 
+  TrapezoidalStripTopology(int nstrip, float pitch, float detheight,float r0, int yAx);
+
   virtual LocalPoint localPosition(float strip) const;
 
   virtual LocalPoint localPosition(const MeasurementPoint&) const;
@@ -79,6 +81,7 @@ private:
   float theOffset;  
   float theDistToBeam; 
   float theDetHeight; 
+  int   theYAxOr;
 };
 
 
