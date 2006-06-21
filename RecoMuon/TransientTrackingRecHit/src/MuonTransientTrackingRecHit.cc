@@ -3,6 +3,7 @@
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include <map>
 
 LocalVector MuonTransientTrackingRecHit::localDirection() const
 {
@@ -54,4 +55,41 @@ bool MuonTransientTrackingRecHit::isCSC() const{
 
 bool MuonTransientTrackingRecHit::isRPC() const{
   return  (geographicalId().subdetId() == MuonSubdetId::RPC);
+}
+
+// FIXME, now it is "on-demand". I have to change it.
+// FIXME check on mono hit!
+edm::OwnVector<const TransientTrackingRecHit> MuonTransientTrackingRecHit::transientHits() const{
+  
+  edm::OwnVector<const TransientTrackingRecHit> theSubTransientRecHits;
+  
+  // the sub rec hit of this TransientRecHit
+  std::vector<const TrackingRecHit*> ownRecHits = recHits();
+
+  // the components of the geom det on which reside this rechit
+  std::vector<const GeomDet *> geomDets = det()->components();
+
+  // Fill the GeomDet map
+  std::map<DetId,const GeomDet*> gemDetMap;
+
+  for (std::vector<const GeomDet*>::const_iterator subDet = geomDets.begin(); 
+       subDet != geomDets.end(); ++subDet)
+    gemDetMap[ (*subDet)->geographicalId() ] = *subDet;
+
+  std::map<DetId,const GeomDet*>::iterator gemDetMap_iter;
+  
+  // Loop in order to check the ids
+  for (std::vector<const TrackingRecHit*>::const_iterator rechit = ownRecHits.begin(); 
+       rechit != ownRecHits.end(); ++rechit){
+    
+    gemDetMap_iter = gemDetMap.find( (*rechit)->geographicalId() );
+    
+    if(gemDetMap_iter != gemDetMap.end() )
+      theSubTransientRecHits.push_back(new MuonTransientTrackingRecHit(gemDetMap_iter->second, 
+								       *rechit) );
+    else if( (*rechit)->geographicalId() == det()->geographicalId() ) // Phi in DT is on Chamber
+      theSubTransientRecHits.push_back(new MuonTransientTrackingRecHit(det(), 
+								       *rechit) );
+  }
+  return theSubTransientRecHits;
 }

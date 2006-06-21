@@ -17,6 +17,10 @@ public:
   
   virtual ~MuonTransientTrackingRecHit(){}
 
+  virtual MuonTransientTrackingRecHit* clone() const {
+    return new MuonTransientTrackingRecHit(*this);
+  }
+
   virtual LocalVector localDirection() const;
 
   virtual GlobalVector globalDirection() const;
@@ -36,12 +40,14 @@ public:
 
   /// assert if this rec hit is a CSC rec hit 
   bool isCSC() const;
-
-  //   /// assert if this rec hit is a RPC rec hit
+ 
+  /// assert if this rec hit is a RPC rec hit
   bool isRPC() const;
-    
-private:
-   
+
+  /// return the sub components of this transient rechit
+  edm::OwnVector<const TransientTrackingRecHit> transientHits() const;
+  
+ private:
 };
 #endif
 
