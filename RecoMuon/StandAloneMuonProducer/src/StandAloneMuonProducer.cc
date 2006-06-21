@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/06/12 13:32:13 $
- *   $Revision: 1.8 $
+ *   $Date: 2006/06/14 17:50:09 $
+ *   $Revision: 1.9 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -90,5 +90,6 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   //  event.put(recMuons);
   auto_ptr<double> recDouble(new double(3.) );
   event.put(recDouble);
+  cout<<"Event loaded"<<endl;
 }
 
