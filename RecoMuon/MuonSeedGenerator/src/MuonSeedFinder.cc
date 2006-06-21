@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/07 14:05:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/16 08:31:27 $
+ *  $Revision: 1.7 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -149,8 +149,6 @@ bool
 MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
-
-  cout<<"MuonSeedFinder::createEndcapSeed"<<endl;
 
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
