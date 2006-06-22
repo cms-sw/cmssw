@@ -225,8 +225,8 @@ namespace edm
       // do something between children.
       //
       //n.acceptForChildren(*this);
-      NodePtrList::const_iterator i = n.nodes_->begin();
-      NodePtrList::const_iterator e = n.nodes_->end();
+      NodePtrList::const_iterator i = n.nodes()->begin();
+      NodePtrList::const_iterator e = n.nodes()->end();
       for ( bool first = true; i != e; first = false, ++i)
       {
         if (!first)
@@ -416,8 +416,8 @@ namespace edm
       // take action between children.
       //n.acceptForChildren(*this);
      
-      NodePtrList::const_iterator i(n.nodes_->begin());
-      NodePtrList::const_iterator e(n.nodes_->end());
+      NodePtrList::const_iterator i(n.nodes()->begin());
+      NodePtrList::const_iterator e(n.nodes()->end());
 
        for (  ; i!=e; ++i)
  	{
