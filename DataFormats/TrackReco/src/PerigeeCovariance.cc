@@ -3,16 +3,16 @@
 using namespace reco::perigee;
 
 Covariance::Covariance( const ParameterError & v ) : 
-  cov_( dimension ) { 
+  cov_( size ) { 
   index idx = 0;
-  for( index i = 0; i < ParameterError::kSize; ++ i ) 
+  for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       cov_[ idx ++ ] = v( i, j );
 }
 
 void Covariance::fill( ParameterError & v ) const {
   index idx = 0;
-  for( index i = 0; i < ParameterError::kSize; ++ i ) 
+  for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       v( i, j ) = cov_[ idx ++ ];
 }

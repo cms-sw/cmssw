@@ -20,12 +20,14 @@ namespace reco {
     typedef math::Error<6>::type PosMomError;
     class Covariance {
     public:
+      /// matrix size
+      enum { size = ParameterError::kSize };
       /// default constructor
-      Covariance() : cov_( 15 ) { }
+      Covariance() : cov_( size ) { }
       /// constructor from matrix
       Covariance( const ParameterError & e );
       /// constructor from double * (15 parameters)
-      Covariance( const double * cov ) : cov_( 15 ) { 
+      Covariance( const double * cov ) : cov_( size ) { 
 	std::copy( cov, cov + ParameterError::kSize, cov_.begin() );
       }
       /// index type
