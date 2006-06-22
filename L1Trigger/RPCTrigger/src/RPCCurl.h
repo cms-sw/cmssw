@@ -105,7 +105,7 @@ class RPCCurl {
       bool operator()(const float f1, const float f2) const /// put strips of phi from 0 to 5 degrees at the end
       {
         const float pi = 3.141592654;
-        const float offset = (5./360.)*2*pi;
+        const float offset = (5./360.)*2*pi; // redefinition! Defined also in RPCTrigger::giveFinallCandindates
         float ff1, ff2;
         ff1=f1;
         ff2=f2;

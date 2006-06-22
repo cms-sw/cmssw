@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/19 15:28:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/22 14:29:06 $
+ *  $Revision: 1.11 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -110,7 +110,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     
     int pac = cone.LogSector*12+cone.LogSegment;
     const float pi = 3.14159265;
-    const float offset = 5*(2*pi/360);
+    const float offset = 5*(2*pi/360); // redefinition! Defined also in RPCCurl::phiMapCompare
     float phi = 2*pi*pac/144-offset;
     if (phi<0)
       phi+=2*pi;
@@ -129,7 +129,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
         << " b/f " << l1Cand.type_idx()
         << " phi " << phi
         << " eta " << eta
-        << " eta l1 " << l1Cand.etaValue()
+        //<< " eta l1 " << l1Cand.etaValue() // will drop out soon 
         << " killed " << finalMuons[iMu].WasKilled();
         
     
