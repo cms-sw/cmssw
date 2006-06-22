@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/06/05 14:54:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/07 14:04:57 $
+ *  $Revision: 1.6 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -35,11 +35,6 @@
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
-// maybe not necessary
-// #include "Geometry/Records/interface/MuonGeometryRecord.h"
-// #include "Geometry/DTGeometry/interface/DTGeometry.h"
-// #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -55,7 +50,6 @@ using namespace std;
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
-  cout<<"MuonSeedGenerator constructor called"<<endl;
   
   // the name of the DT rec hits collection
   theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");
@@ -69,7 +63,6 @@ MuonSeedGenerator::~MuonSeedGenerator(){};
 
 // reconstruct muon's seeds
 void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup){
-  cout<<"MuonSeedGenerator::produce"<<endl;
   theSeeds.clear();
   
   // create the pointer to the Seed container
@@ -79,11 +72,9 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // RecHitContainer like it was in ORCA
   
   // Muon Geometry - DT, CSC and RPC 
-  cout<<"Getting the geometry"<<endl;
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
-  cout<<"extract the layers"<<endl;
   // get the DT layers
   vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
 
@@ -112,12 +103,10 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  cout<<"MuonSeedGenerator::produce, MuonDetLayerMeasurements instance"<<endl;
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   // ------------        EndCap disk z<0 + barrel
 
-  cout<<"MuonSeedGenerator::produce, MuonDetLayerMeasurements rechit"<<endl;
   RecHitContainer list24 = muonMeasurements.recHits(ME4Bwd,event);
   RecHitContainer list23 = muonMeasurements.recHits(ME3Bwd,event);
   
@@ -536,8 +525,6 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 void MuonSeedGenerator::complete(MuonSeedFinder& seed,
                                  RecHitContainer &recHits, bool* used) const {
 
-  cout<<"MuonSeedGenerator::complete begin"<<endl;
-
   RecHitContainer good_rhit;
 
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
@@ -692,8 +679,6 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
 
 void MuonSeedGenerator::checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup){
-
-  cout<<"MuonSeedGenerator::checkAndFill"<<endl;
 
   if (Theseed.nrhit()>1 ) {
     vector<TrajectorySeed> the_seeds =  Theseed.seeds(eSetup);
