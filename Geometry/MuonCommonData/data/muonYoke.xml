@@ -1608,7 +1608,7 @@
   <rChild name="YB1_w1N_b3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="4.294*deg"/> 
+  <ParE name="startAngle" value="94.294*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.67312*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -1674,7 +1674,7 @@
   <rChild name="YB1_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.66*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -1992,7 +1992,7 @@
   <rChild name="YB1_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="4.1649*deg"/> 
+  <ParE name="startAngle" value="94.1649*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.81772*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2064,7 +2064,7 @@
   <rChild name="YB1_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.805*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2114,7 +2114,7 @@
   <rChild name="YB1_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="355.8351*deg"/> 
+  <ParE name="startAngle" value="85.8351*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="4.81772*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2472,7 +2472,7 @@
   <ParE name="startCopyNo" value="4" />
   <rChild name="YB2_w1N_b3"/> 
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="3.7125*deg"/> 
+  <ParE name="startAngle" value="93.7125*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.40384*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2538,7 +2538,7 @@
   <rChild name="YB2_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.3925*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2582,7 +2582,7 @@
   <rChild name="YB2_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="356.2875*deg"/> 
+  <ParE name="startAngle" value="86.2875*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.40384*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2856,7 +2856,7 @@
   <rChild name="YB2_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="3.5375*deg"/> 
+  <ParE name="startAngle" value="93.5375*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.67081*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2928,7 +2928,7 @@
   <rChild name="YB2_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.66*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -2978,7 +2978,7 @@
   <rChild name="YB2_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="356.4625*deg"/> 
+  <ParE name="startAngle" value="86.4625*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.67081*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3252,7 +3252,7 @@
   <rChild name="YB2_w1N_t3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="3.3782*deg"/> 
+  <ParE name="startAngle" value="93.3782*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.93782*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3318,7 +3318,7 @@
   <rChild name="YB2_w1N_t4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.9275*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3362,7 +3362,7 @@
   <rChild name="YB2_w1N_t5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="356.6218*deg"/> 
+  <ParE name="startAngle" value="86.6218*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="5.93782*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3804,7 +3804,7 @@
   <rChild name="YB3_w1N_b3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="3.1208*deg"/> 
+  <ParE name="startAngle" value="93.1208*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.42703*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3870,7 +3870,7 @@
   <rChild name="YB3_w1N_b4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.4175*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -3914,7 +3914,7 @@
   <rChild name="YB3_w1N_b5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="356.8792*deg"/> 
+  <ParE name="startAngle" value="86.8792*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.42703*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4188,7 +4188,7 @@
   <rChild name="YB3_w1N_m2"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="2.9962*deg"/> 
+  <ParE name="startAngle" value="92.9962*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.69415*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4260,7 +4260,7 @@
   <rChild name="YB3_w1N_m3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.685*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4310,7 +4310,7 @@
   <rChild name="YB3_w1N_m4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="357.0038*deg"/> 
+  <ParE name="startAngle" value="87.0038*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.69415*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4584,7 +4584,7 @@
   <rChild name="YB3_w1N_t3"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="2.8811*deg"/> 
+  <ParE name="startAngle" value="92.8811*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.9613*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4650,7 +4650,7 @@
   <rChild name="YB3_w1N_t4"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="startAngle" value="90*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.9525*m"/> 
   <ParE name="rotateSolid" value="0"/> 
@@ -4694,7 +4694,7 @@
   <rChild name="YB3_w1N_t5"/> 
   <ParE name="startCopyNo" value="4" />
   <ParE name="n" value="9"/> 
-  <ParE name="startAngle" value="357.1189*deg"/> 
+  <ParE name="startAngle" value="87.1189*deg"/> 
   <ParE name="rangeAngle" value="240*deg"/> 
   <ParE name="radius" value="6.9613*m"/> 
   <ParE name="rotateSolid" value="0"/> 
