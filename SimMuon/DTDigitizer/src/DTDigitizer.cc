@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/06 14:18:57 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/06/22 13:06:41 $
+ *  $Revision: 1.20 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -109,9 +109,9 @@ DTDigitizer::~DTDigitizer(){}
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
-
-  cout << "--- Run: " << iEvent.id().run()
-       << " Event: " << iEvent.id().event() << endl;
+  if(debug)
+    cout << "--- Run: " << iEvent.id().run()
+	 << " Event: " << iEvent.id().event() << endl;
   
   //************ 1 ***************
    // create the container for the SimHits
