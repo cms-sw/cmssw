@@ -37,7 +37,7 @@ class CSCGeometryAsChambers : public edm::EDAnalyzer {
 };
 
 CSCGeometryAsChambers::CSCGeometryAsChambers( const edm::ParameterSet& iConfig )
- : dashedLineWidth_(97), dashedLine_( std::string(dashedLineWidth_, '-') ), 
+ : dashedLineWidth_( 132 ), dashedLine_( std::string(dashedLineWidth_, '-') ), 
   myName_( "CSCGeometryAsChambers" )
 {
 }
@@ -72,7 +72,7 @@ void
    std::vector<CSCChamber*> vc = pDD->chambers();
    std::cout << "No. of chambers stored = " << vc.size() << std::endl;
 
-   std::cout << "\n  #     id(hex)      id(dec)                "
+   std::cout << "\n  #     id(hex)      id(dec)    labels      length       width      thickness   "
      "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1) "
      "  phi(0)" << std::endl;
    std::cout << dashedLine_ << std::endl;
@@ -103,16 +103,20 @@ void
            "   E" << detId.endcap() << 
            " S" << detId.station() << 
            " R" << detId.ring() << 
-	  " C" << std::setw( 2 ) << detId.chamber() << std::setw( iw );
+	   " C" << std::setw( 2 ) << detId.chamber() << std::setw( iw );
 
 	// What's its surface?
 	// The surface knows how to transform local <-> global
 
 	const BoundSurface& bSurface = chamber->surface();
 
-	std::cout << " length=" << bSurface.bounds().length() << 
-       	             ", width=" << bSurface.bounds().width() << 
-                     ", thickness=" << bSurface.bounds().thickness() << std::endl;
+	//	std::cout << " length=" << bSurface.bounds().length() << 
+	//       	             ", width=" << bSurface.bounds().width() << 
+	//                     ", thickness=" << bSurface.bounds().thickness() << std::endl;
+
+	std::cout << std::setw( 12 ) << std::setprecision( 8 ) << bSurface.bounds().length() << 
+ 	             std::setw( 12 ) << std::setprecision( 8 ) << bSurface.bounds().width() << 
+	             std::setw( 12 ) << std::setprecision( 6 ) << bSurface.bounds().thickness() ;
 
 	// Check global coordinates of centre of CSCChamber, and how
 	// local z direction relates to global z direction
