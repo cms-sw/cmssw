@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/29 19:05:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/31 17:13:26 $
+ *  $Revision: 1.3 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -65,4 +65,8 @@ const DTSuperLayer* DTChamber::superLayer(int isl) const {
   return 0;
 }
 
+
+const DTLayer* DTChamber::layer(DTLayerId id) const {
+  return (superLayer(id.superlayer()))->layer(id.layer());
+}
 
