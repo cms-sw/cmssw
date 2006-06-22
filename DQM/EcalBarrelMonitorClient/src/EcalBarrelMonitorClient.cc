@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/20 08:25:05 $
- * $Revision: 1.144 $
+ * $Date: 2006/06/21 17:39:48 $
+ * $Revision: 1.145 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -183,12 +183,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
+  // DQM Client name
+
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+
   if ( ! enableStateMachine_ ) {
     if ( enableMonitorDaemon_ ) {
-
-      // DQM Client name
-
-      clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
       // DQM Collector hostname
 
