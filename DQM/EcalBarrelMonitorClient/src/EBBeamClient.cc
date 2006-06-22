@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,6 +46,9 @@ EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // prefix to ME paths
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);

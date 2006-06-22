@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.48 $
+ * $Date: 2006/06/19 08:38:24 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -106,6 +106,8 @@ bool verbose_;
 bool enableMonitorDaemon_;
 
 string clientName_;
+
+string prefixME_;
 
 string hostName_;
 int    hostPort_;

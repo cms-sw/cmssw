@@ -4,8 +4,8 @@
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/06/13 20:05:55 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+string prefixME_;
 
 vector<int> superModules_;
 

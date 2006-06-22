@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/21 07:50:07 $
- * $Revision: 1.77 $
+ * $Date: 2006/06/21 17:38:48 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -53,6 +53,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // prefix to ME paths
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -1615,11 +1618,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1").c_str(), ism);
     }
     me = mui_->get(histo);
     h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
@@ -1627,11 +1626,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1").c_str(), ism);
     }
     me = mui_->get(histo);
     h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
@@ -1639,11 +1634,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2").c_str(), ism);
     }
     me = mui_->get(histo);
     h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
@@ -1651,11 +1642,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2").c_str(), ism);
     }
     me = mui_->get(histo);
     h04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
@@ -1663,11 +1650,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3").c_str(), ism);
     }
     me = mui_->get(histo);
     h05_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
@@ -1675,11 +1658,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3").c_str(), ism);
     }
     me = mui_->get(histo);
     h06_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
@@ -1687,11 +1666,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4").c_str(), ism);
     }
     me = mui_->get(histo);
     h07_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
@@ -1699,11 +1674,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4").c_str(), ism);
     }
     me = mui_->get(histo);
     h08_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
@@ -1711,11 +1682,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1").c_str(), ism);
     }
     me = mui_->get(histo);
     h09_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
@@ -1723,11 +1690,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2").c_str(), ism);
     }
     me = mui_->get(histo);
     h10_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
@@ -1735,11 +1698,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3").c_str(), ism);
     }
     me = mui_->get(histo);
     h11_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
@@ -1747,11 +1706,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4").c_str(), ism);
     }
     me = mui_->get(histo);
     h12_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
@@ -1759,11 +1714,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1").c_str(), ism);
     }
     me = mui_->get(histo);
     i01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
@@ -1771,11 +1722,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2").c_str(), ism);
     }
     me = mui_->get(histo);
     i02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
@@ -1783,11 +1730,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3").c_str(), ism);
     }
     me = mui_->get(histo);
     i03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
@@ -1795,11 +1738,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4").c_str(), ism);
     }
     me = mui_->get(histo);
     i04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
@@ -1807,11 +1746,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1").c_str(), ism);
     }
     me = mui_->get(histo);
     i05_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
@@ -1819,11 +1754,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2").c_str(), ism);
     }
     me = mui_->get(histo);
     i06_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
@@ -1831,11 +1762,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3").c_str(), ism);
     }
     me = mui_->get(histo);
     i07_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
@@ -1843,11 +1770,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4").c_str(), ism);
     }
     me = mui_->get(histo);
     i08_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
@@ -1855,11 +1778,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1").c_str(), ism);
     }
     me = mui_->get(histo);
     j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
@@ -1867,11 +1786,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2").c_str(), ism);
     }
     me = mui_->get(histo);
     j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
@@ -1879,11 +1794,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3").c_str(), ism);
     }
     me = mui_->get(histo);
     j03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
@@ -1891,11 +1802,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4").c_str(), ism);
     }
     me = mui_->get(histo);
     j04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j04_[ism-1] );
@@ -1903,11 +1810,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1").c_str(), ism);
     }
     me = mui_->get(histo);
     j05_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j05_[ism-1] );
@@ -1915,11 +1818,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2").c_str(), ism);
     }
     me = mui_->get(histo);
     j06_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j06_[ism-1] );
@@ -1927,11 +1826,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3").c_str(), ism);
     }
     me = mui_->get(histo);
     j07_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j07_[ism-1] );
@@ -1939,11 +1834,7 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4").c_str(), ism);
     }
     me = mui_->get(histo);
     j08_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j08_[ism-1] );

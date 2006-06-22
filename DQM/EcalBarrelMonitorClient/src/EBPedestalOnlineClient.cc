@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.32 $
+ * $Date: 2006/06/20 08:25:05 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,6 +46,9 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // prefix to ME paths
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -453,11 +456,7 @@ void EBPedestalOnlineClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
     h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );

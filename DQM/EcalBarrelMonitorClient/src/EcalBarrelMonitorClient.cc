@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/21 17:39:48 $
- * $Revision: 1.145 $
+ * $Date: 2006/06/22 11:42:22 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -182,6 +182,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   } else {
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
+
+  // prefix to ME paths
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // DQM Client name
 
@@ -944,11 +948,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
-    } else {
-      sprintf(histo, "EcalBarrel/STATUS");
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/STATUS").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -959,11 +959,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
-    } else {
-      sprintf(histo, "EcalBarrel/RUN");
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -971,11 +967,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
-    } else {
-      sprintf(histo, "EcalBarrel/EVT");
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -986,20 +978,12 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
-      } else {
-        sprintf(histo, "EcalBarrel/EVTTYPE");
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
     h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
-    } else {
-      sprintf(histo, "EcalBarrel/RUNTYPE");
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/RUNTYPE").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();

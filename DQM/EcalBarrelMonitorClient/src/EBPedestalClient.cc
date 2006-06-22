@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.80 $
+ * $Date: 2006/06/20 08:25:05 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,6 +48,9 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  // prefix to ME paths
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -919,11 +922,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
     h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
@@ -931,11 +930,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
     h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
@@ -943,11 +938,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
     h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
@@ -955,11 +946,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
     j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
@@ -967,11 +954,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
     j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
@@ -979,11 +962,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
     j03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
@@ -991,11 +970,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
     k01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
@@ -1003,11 +978,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
     k02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
@@ -1015,11 +986,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
     k03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
@@ -1027,11 +994,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
     i01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
@@ -1039,11 +1002,7 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-      }
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16").c_str(), ism);
     }
     me = mui_->get(histo);
     i02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );

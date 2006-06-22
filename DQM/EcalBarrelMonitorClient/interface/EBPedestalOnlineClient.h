@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/06/17 20:08:38 $
- * $Revision: 1.14 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -90,6 +90,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+string prefixME_;
 
 vector<int> superModules_;
 

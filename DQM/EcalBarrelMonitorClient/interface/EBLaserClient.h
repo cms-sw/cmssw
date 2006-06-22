@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/06/17 20:08:38 $
- * $Revision: 1.32 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -85,6 +85,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+string prefixME_;
 
 vector<int> superModules_;
 

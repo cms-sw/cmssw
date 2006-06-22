@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/06/17 20:08:38 $
- * $Revision: 1.30 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,8 @@ bool cloneME_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
+
+string prefixME_;
 
 string baseHtmlDir_;
 
