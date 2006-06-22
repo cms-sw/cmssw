@@ -36,7 +36,7 @@ void testVertex::checkAll() {
   CPPUNIT_ASSERT( t.x() == x );
   CPPUNIT_ASSERT( t.y() == y );
   CPPUNIT_ASSERT( t.z() == z );
-  const reco::Vertex::Error & e = t.error();
+  const reco::Vertex::Error e = t.covariance();
   const double 
     e00 = e( 0, 0 ), e01 = e( 0, 1 ), e02 = e( 0, 2 ), 
     e10 = e( 1, 0 ), e11 = e( 1, 1 ), e12 = e( 1, 2 ), 

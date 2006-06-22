@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.12 2006/04/03 11:56:03 llista Exp $
+ * \version $Id: Vertex.h,v 1.13 2006/04/28 15:48:45 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -25,13 +25,18 @@ namespace reco {
   public:
     /// point in the space
     typedef math::XYZPoint Point;
+    /// error matrix dimension
+    enum { dimension = 3 };
     /// covariance error matrix (3x3)
-    typedef math::Error<3>::type Error;
+    typedef math::Error<dimension>::type Error;
+    /// matix size
+    enum { size = Error::kSize };
+    /// index type
+    typedef unsigned int index;
     /// default constructor
-    Vertex() { }
+    Vertex() : error_( size ) { }
     /// constructor from values
-    Vertex( const Point &, const Error &, 
-	    double chi2, double ndof, size_t size );
+    Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
     void add( const TrackRef & r ) { tracks_.push_back( r ); }
     /// first iterator over tracks
@@ -53,8 +58,6 @@ namespace reco {
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// position 
     const Point & position() const { return position_; }
-    /// covariance matrix (3x3)
-    const Error & error() const { return error_; }
     /// x coordinate 
     double x() const { return position_.X(); }
     /// y coordinate 
@@ -62,9 +65,13 @@ namespace reco {
     /// y coordinate 
     double z() const { return position_.Z(); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const { return error_( i, j ); }
-    /// FIXME do we need non-const method ?
-    double error( int i, int j ) { return error_( i, j ); }
+    double error( int i, int j ) const { return error_[ idx( i, j ) ]; }
+    /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    double & error( int i, int j ) { return error_[ idx( i, j ) ]; }
+    /// return SMatrix
+    Error covariance() const { Error m; fill( m ); return m; }
+    /// fill SMatrix
+    void fill( Error & v ) const;
 
   private:
     /// chi-sqared
@@ -73,10 +80,15 @@ namespace reco {
     Double32_t ndof_;
     /// position
     Point position_;
-    /// covariance matrix (3x3)
-    Error error_;
+    /// covariance matrix (3x3) as vector
+    std::vector<Double32_t> error_;
     /// reference to tracks
     TrackRefVector tracks_;
+    /// position index
+    index idx( index i, index j ) const {
+      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
+      return a * dimension + b - a * ( a + 1 ) / 2;
+    }
   };
   
 }
