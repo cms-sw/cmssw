@@ -30,10 +30,10 @@ namespace HcalUnpacker_impl {
 }
 
 
-void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, 
-			  std::vector<HBHEDataFrame>& hbheCont, std::vector<HODataFrame>& hoCont, 
-			  std::vector<HFDataFrame>& hfCont, std::vector<HcalCalibDataFrame>& calibCont, 
-			  std::vector<HcalTriggerPrimitiveDigi>& tpCont) {
+void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
+			  Collections& colls) {
+
+  if (raw.size()<16) return;
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -97,17 +97,17 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  continue;
 	}
 	HcalTrigTowerDetId id(did);
-	tpCont.push_back(HcalTriggerPrimitiveDigi(id));
+	colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	// set the various bits
-	tpCont.back().setPresamples(nps);
+	colls.tpCont->back().setPresamples(nps);
 	// no hits recorded for current
 	ncurr=0;
 	valid=true;
       }
       // add the word (if within settings) [ TODO: correct behavior when just one TP... ]
       if (valid && ncurr>=startSample_ && ncurr<=endSample_) {
-	tpCont.back().setSample(tpCont.back().size(),*tp_work);
-	tpCont.back().setSize(tpCont.back().size()+1);
+	colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
+	colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
       }
       ncurr++;
     }
@@ -138,23 +138,26 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	switch (((HcalSubdetector)did.subdetId())) {
 	case (HcalBarrel):
 	case (HcalEndcap): {
-	  hbheCont.push_back(HBHEDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, hbheCont.back(), nps, eid, startSample_, endSample_);
+	  colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalOuter): {
-	  hoCont.push_back(HODataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, hoCont.back(), nps, eid, startSample_, endSample_);
+	  colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, colls.hoCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalForward): {
-	  hfCont.push_back(HFDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, hfCont.back(), nps, eid, startSample_, endSample_);
+	  colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, colls.hfCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalOther) : {
 	  HcalOtherDetId odid(did);
 	  if (odid.subdet()==HcalCalibration) {
-	    calibCont.push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, calibCont.back(), nps, eid, startSample_, endSample_); 
-	  } 
+	    colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	  } else if (odid.subdet()==HcalZDC) {
+	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	  }
 	} break;
 	case (HcalEmpty): 
 	default: {
@@ -177,25 +180,34 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   }
 }
 
+HcalUnpacker::Collections::Collections() {
+  hbheCont=0;
+  hoCont=0;
+  hfCont=0;
+  tpCont=0;
+  zdcCont=0;
+  calibCont=0;
+}
+
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HBHEDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  std::vector<HODataFrame> ho_dummy;
-  std::vector<HFDataFrame> hf_dummy;
-  std::vector<HcalCalibDataFrame> hc_dummy;
-  unpack(raw,emap,container,ho_dummy,hf_dummy,hc_dummy,tp);
+  Collections c;
+  c.hbheCont=&container;
+  c.tpCont=&tp;
+  unpack(raw,emap,c);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HODataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  std::vector<HBHEDataFrame> hbhe_dummy;
-  std::vector<HFDataFrame> hf_dummy;
-  std::vector<HcalCalibDataFrame> hc_dummy;
-  unpack(raw,emap,hbhe_dummy,container,hf_dummy,hc_dummy,tp);
+  Collections c;
+  c.hoCont=&container;
+  c.tpCont=&tp;
+  unpack(raw,emap,c);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  std::vector<HBHEDataFrame> hbhe_dummy;
-  std::vector<HODataFrame> ho_dummy;
-  std::vector<HcalCalibDataFrame> hc_dummy;
-  unpack(raw,emap,hbhe_dummy,ho_dummy,container,hc_dummy,tp);
+  Collections c;
+  c.hfCont=&container;
+  c.tpCont=&tp;
+  unpack(raw,emap,c);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {

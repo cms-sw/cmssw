@@ -18,7 +18,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
 	  -1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
-  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false))
+  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
+  unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false))
 {
   if (fedUnpackList_.empty()) 
     for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
@@ -36,6 +37,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<HcalTrigPrimDigiCollection>();
   if (unpackCalib_)
     produces<HcalCalibDigiCollection>();
+  if (unpackZDC_)
+    produces<ZDCDigiCollection>();
 }
 
 // Virtual destructor needed.
@@ -59,12 +62,27 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HFDataFrame> hf;
   std::vector<HcalTriggerPrimitiveDigi> htp;
   std::vector<HcalCalibDataFrame> hc;
+  std::vector<ZDCDataFrame> zdc;
+
+  HcalUnpacker::Collections colls;
+  colls.hbheCont=&hbhe;
+  colls.hoCont=&ho;
+  colls.hfCont=&hf;
+  colls.tpCont=&htp;
+  colls.calibCont=&hc;
+  colls.zdcCont=&zdc;
  
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
+    if (fed.size()==0) {
+      throw cms::Exception("EmptyData") << "No data for fed " << *i;
+    }
+    if (fed.size()<8*3) {
+      throw cms::Exception("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
+    }      
     
-    unpacker_.unpack(fed,*readoutMap,hbhe,ho,hf,hc,htp);
+    unpacker_.unpack(fed,*readoutMap,colls);
   }
 
   // Step B: encapsulate vectors in actual collections
@@ -108,6 +126,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     hc_prod->swap_contents(hc);
     hc_prod->sort();
     e.put(hc_prod);
+  }
+
+  /// zdc
+  if (unpackZDC_) {
+    std::auto_ptr<ZDCDigiCollection> prod(new ZDCDigiCollection());
+    prod->swap_contents(zdc);
+    prod->sort();
+    e.put(prod);
   }
 
 }
