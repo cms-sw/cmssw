@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.15 2006/06/14 10:46:44 llista Exp $
+ * $Id: AssociationMap.h,v 1.16 2006/06/16 22:50:55 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -41,7 +41,7 @@ namespace edm {
     }
   }
 
-  template<typename CKey, typename CVal, typename index>
+  template<typename CKey, typename CVal, typename index = unsigned int>
   class OneToOne {
     /// reference to "key" collection
     typedef edm::RefProd<CKey> KeyRefProd;
@@ -84,7 +84,7 @@ namespace edm {
     static typename map_type::size_type size( const index_type & v ) { return 1; }
   };
 
-  template<typename CKey, typename CVal, typename index>
+  template<typename CKey, typename CVal, typename index = unsigned int>
   class OneToMany {
     /// reference to "key" collection
     typedef edm::RefProd<CKey> KeyRefProd;
@@ -130,7 +130,7 @@ namespace edm {
     static typename map_type::size_type size( const std::vector<index_type> & v ) { return v.size(); }
   };
 
-  template<typename CKey, typename Val, typename index>
+  template<typename CKey, typename Val, typename index = unsigned int>
   class OneToValue {
     /// reference to "key" collection
     typedef edm::RefProd<CKey> KeyRefProd;
