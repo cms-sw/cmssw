@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.7 2006/05/02 10:28:01 llista Exp $
+// $Id: RecoCandidate.cc,v 1.8 2006/06/05 14:12:04 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -23,8 +23,4 @@ SuperClusterRef RecoCandidate::superCluster() const {
 
 CaloTowerRef RecoCandidate::caloTower() const {
   return CaloTowerRef();
-}
-
-CaloJetRef RecoCandidate::caloJet() const {
-  return CaloJetRef();
 }
