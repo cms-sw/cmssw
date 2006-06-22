@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/16 08:20:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/17 09:09:52 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -134,8 +134,13 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	LocalPoint point=it->localPosition();	  //plot of coordinates/roll =>should be flat
 	int mult=it->clusterSize();		  //cluster size plot => should be within 3-4	
 	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
-
-
+	float xposition=point.x();
+	float yposition=point.y();
+	
+	
+	
+	std::cout<<"Position "<<xposition<<" "<<yposition <<std::endl;
+	
 	sprintf(detUnitLabel ,"%d",idRecHits);
 	sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detIdRecHits.layer(),detIdRecHits.subsector(),detIdRecHits.roll());
  
