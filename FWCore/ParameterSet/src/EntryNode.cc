@@ -23,7 +23,7 @@ namespace edm {
     string EntryNode::type() const { return type_; }
 
 
-    void EntryNode::print(std::ostream& ost) const
+    void EntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_? "" : "untracked ";
       ost << t << type_ << " " << name << " = " << value_;

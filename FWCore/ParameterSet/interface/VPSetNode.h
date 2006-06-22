@@ -20,7 +20,7 @@ namespace edm {
                 int line=-1);
       virtual Node * clone() const { return new VPSetNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
 

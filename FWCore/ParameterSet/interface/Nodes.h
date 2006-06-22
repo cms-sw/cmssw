@@ -38,7 +38,7 @@ namespace edm {
       explicit UsingNode(const std::string& name,int line=-1);
       virtual Node * clone() const { return new UsingNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
     };
 
@@ -58,7 +58,7 @@ namespace edm {
       virtual std::string type() const {return "rename";}
       virtual std::string from() const {return from_;}
       virtual std::string to() const {return to_;}
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
                                                                                                           
       std::string from_;
@@ -81,7 +81,7 @@ namespace edm {
       virtual std::string type() const {return "copy";}
       virtual std::string from() const {return from_;}
       virtual std::string to() const {return to_;}
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
                                                                                                     
       std::string from_;
@@ -100,7 +100,7 @@ namespace edm {
       explicit StringNode(const std::string& value, int line=-1);
       virtual Node * clone() const { return new StringNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
 
       std::string value_;
@@ -120,7 +120,7 @@ namespace edm {
 		  int line=-1);
       virtual Node * clone() const { return new PSetRefNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
 
@@ -163,7 +163,7 @@ namespace edm {
       /// doesn't deep-copy left & right
       virtual Node * clone() const { return new OperatorNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
 
@@ -182,7 +182,7 @@ namespace edm {
       OperandNode(const std::string& type, const std::string& name, int line=-1);
       virtual Node * clone() const { return new OperandNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
   
       virtual void accept(Visitor& v) const;
 

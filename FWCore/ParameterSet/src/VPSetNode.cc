@@ -26,7 +26,7 @@ namespace edm {
     string VPSetNode::type() const { return type_; }
 
 
-    void VPSetNode::print(ostream& ost) const
+    void VPSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
       assert(nodes()!=0);
 

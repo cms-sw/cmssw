@@ -43,7 +43,9 @@ namespace edm {
       /// default passes up to parent
       virtual void printTrace(std::ostream& ost) const;
 
-      virtual void print(std::ostream& ost) const = 0;
+      /// whether or not to expand the contents of included files
+      enum PrintOptions { COMPRESSED, EXPANDED };
+      virtual void print(std::ostream& ost, PrintOptions options) const = 0;
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
 
@@ -86,13 +88,13 @@ namespace edm {
 
     inline std::ostream& operator<<(std::ostream& ost, NodePtr p)
     {
-      p->print(ost);
+      p->print(ost, Node::COMPRESSED);
       return ost;
     }
 
     inline std::ostream& operator<<(std::ostream& ost, const Node& p)
     {
-      p.print(ost);
+      p.print(ost, Node::COMPRESSED);
       return ost;
     }
 

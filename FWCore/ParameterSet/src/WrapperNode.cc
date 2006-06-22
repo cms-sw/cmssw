@@ -17,7 +17,7 @@ namespace edm {
 
     string WrapperNode::type() const { return type_; }
 
-    void WrapperNode::print(std::ostream& ost) const
+    void WrapperNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << type_ << " " << name << " = {\n"
           << wrapped_

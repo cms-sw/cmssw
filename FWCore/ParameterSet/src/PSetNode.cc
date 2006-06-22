@@ -27,12 +27,11 @@ namespace edm {
 
     string PSetNode::type() const { return type_; }
 
-    void PSetNode::print(ostream& ost) const
+    void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      // if(!name.empty())
       ost << type_ << " " << name << " = ";
 
-      CompositeNode::print(ost);
+      CompositeNode::print(ost, options);
     }
 
     void PSetNode::accept(Visitor& v) const

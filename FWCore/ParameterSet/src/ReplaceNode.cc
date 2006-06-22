@@ -13,9 +13,9 @@ namespace edm {
     }
 
 
-    void ReplaceNode::print(std::ostream& ost) const
+    void ReplaceNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
-      value_->print(ost);
+      value_->print(ost, options);
     }
 
     void ReplaceNode::accept(Visitor& v) const

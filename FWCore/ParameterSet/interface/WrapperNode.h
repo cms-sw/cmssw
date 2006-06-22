@@ -19,7 +19,7 @@ namespace edm {
       virtual Node * clone() const { return new WrapperNode(*this);}
 
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
 

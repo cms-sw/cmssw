@@ -26,7 +26,7 @@ namespace edm {
     string UsingNode::type() const { return "using"; }
 
 
-    void UsingNode::print(ostream& ost) const
+    void UsingNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << "  using " << name;
     }
@@ -42,7 +42,7 @@ namespace edm {
     //--------------------------------------------------
                                                                                                           
                                                                                                           
-    void RenameNode::print(ostream& ost) const
+    void RenameNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << name << " " << from_ << " " << to_;
     }
@@ -58,7 +58,7 @@ namespace edm {
     //--------------------------------------------------
                                                                                                     
                                                                                                     
-    void CopyNode::print(ostream& ost) const
+    void CopyNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << name << " " << from_ << " " << to_;
     }
@@ -80,7 +80,7 @@ namespace edm {
 
     string StringNode::type() const { return "string"; }
 
-    void StringNode::print(ostream& ost) const
+    void StringNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost <<  value_;
     }
@@ -108,7 +108,7 @@ namespace edm {
     string PSetRefNode::type() const { return "PSetRef"; }
 
 
-    void PSetRefNode::print(ostream& ost) const
+    void PSetRefNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << "PSet " << name << " = " << value_;
     }
@@ -176,7 +176,7 @@ namespace edm {
     string OperatorNode::type() const { return type_; }
 
 
-    void OperatorNode::print(ostream& ost) const
+    void OperatorNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << "( " << left_ << " " << type_ << " " << right_ << " )";
     }
@@ -200,7 +200,7 @@ namespace edm {
 
     string OperandNode::type() const { return type_; }
 
-    void OperandNode::print(ostream& ost) const
+    void OperandNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << name;
     }

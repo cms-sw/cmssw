@@ -23,7 +23,7 @@ namespace edm {
       ReplaceNode(const ReplaceNode & n);
       virtual Node * clone() const { return new ReplaceNode(*this);}
       virtual std::string type() const {return type_;}
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
 
       std::string type_;

@@ -34,7 +34,7 @@ namespace edm {
     string VEntryNode::type() const { return type_; }
 
 
-    void VEntryNode::print(std::ostream& ost) const
+    void VEntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_ ? "" : "untracked ";
       ost << t << type_ << " " << name << " = {\n  ";

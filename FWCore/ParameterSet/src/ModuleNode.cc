@@ -22,11 +22,11 @@ namespace edm {
 
     string ModuleNode::type() const { return type_; }
 
-    void ModuleNode::print(std::ostream& ost) const
+    void ModuleNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       string output_name = ( name == "nameless" ? string() : name);
       ost << type_ << " " << output_name << " = " << class_ << "\n";
-      CompositeNode::print(ost);
+      CompositeNode::print(ost, options);
     }
 
     void ModuleNode::accept(Visitor& v) const

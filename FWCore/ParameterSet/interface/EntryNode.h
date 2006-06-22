@@ -19,7 +19,7 @@ namespace edm {
                 const std::string& values, bool tracked, int line=-1);
       virtual Node * clone() const { return new EntryNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
       // keeps the orignal type and tracked-ness

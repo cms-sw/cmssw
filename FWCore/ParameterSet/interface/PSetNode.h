@@ -15,7 +15,7 @@ namespace edm {
                int line=-1);
       virtual Node * clone() const { return new PSetNode(*this);}
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual bool isModified() const;
 
       virtual void accept(Visitor& v) const;
