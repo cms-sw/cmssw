@@ -30,7 +30,6 @@ namespace edm
 
     /// Create a CurrentProcessingContext ready to handle the Path
     /// with given name and bit position (slot in Schedule).
-
     CurrentProcessingContext(std::string const* name,
 			     int bitpos);			     
 
@@ -51,6 +50,14 @@ namespace edm
     /// module if active, and null otherwise.
     ModuleDescription const* moduleDescription() const;
 
+    /// Return the slot number of this path in the schedule (this is
+    /// the bit position of the path) if the path is active, and -1
+    /// otherwise.
+    int pathInSchedule() const;
+
+    /// Return the slot number of this module in the path if the path
+    /// is active, and -1 otherwise.
+    int slotInPath() const;
 
     /// Set the context to reflect the active state.
     void activate(std::size_t              slotInPath,
@@ -66,6 +73,8 @@ namespace edm
     std::size_t              slotInPath_;
     ModuleDescription const* moduleDescription_;
     std::string const*       pathName_;
+
+    bool is_active() const { return moduleDescription_ != 0; }
   };
 }
 

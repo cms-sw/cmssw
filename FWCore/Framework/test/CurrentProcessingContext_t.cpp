@@ -45,7 +45,8 @@ void test_default_ctor()
   edm::CurrentProcessingContext ctx;
   assert( ctx.moduleLabel() == 0 );
   assert( ctx.moduleDescription() == 0 );
-  
+  assert( ctx.slotInPath() == -1 );
+  assert( ctx.pathInSchedule() == -1 );  
 }
 
 void test_activate()
@@ -57,6 +58,8 @@ void test_activate()
     assert( r_ctx.moduleDescription() == p_moduleA );
     assert( r_ctx.moduleLabel() );
     assert( *r_ctx.moduleLabel() == "aaa" );
+    assert( r_ctx.slotInPath() == 13 );
+    assert( r_ctx.pathInSchedule() == 21 );
   }  
 }
 

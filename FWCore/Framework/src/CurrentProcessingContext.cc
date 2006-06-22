@@ -24,7 +24,7 @@ namespace edm
   string const*
   CurrentProcessingContext::moduleLabel() const
   {
-    return moduleDescription_
+    return is_active()
       ? &(moduleDescription_->moduleLabel_)
       : 0;
   }
@@ -39,6 +39,23 @@ namespace edm
   CurrentProcessingContext::moduleDescription() const
   {
     return moduleDescription_;
+  }
+
+  int
+  CurrentProcessingContext::pathInSchedule() const
+  {
+    return is_active()
+      ? pathInSchedule_
+      : -1;
+  }
+
+
+  int
+  CurrentProcessingContext::slotInPath() const
+  {
+    return is_active()
+      ? static_cast<int>(slotInPath_)
+      : -1;
   }
 
   void
