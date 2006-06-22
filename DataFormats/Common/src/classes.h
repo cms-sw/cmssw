@@ -71,5 +71,6 @@ namespace { namespace {
   edm::RefBase<std::pair<unsigned int, unsigned int> > dummRefBase2;
   edm::RefBase<int> dummyRefBase3;
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
+  edm::RefVectorBase<int> dummyRefVectorBase2;
 
 }}

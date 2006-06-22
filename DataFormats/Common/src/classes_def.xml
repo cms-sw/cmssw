@@ -22,6 +22,7 @@
  <class name="edm::RefBase<int>"/>
  <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >" />
  <class name="edm::RefVectorBase<unsigned int>"/>
+ <class name="edm::RefVectorBase<int>"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
