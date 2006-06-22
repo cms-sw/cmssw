@@ -6,7 +6,21 @@ namespace edm {
 
   namespace pset {
 
+    Node::Node(std::string const& n, int li) 
+    : name(n), 
+      line(li), 
+      modified_(false),
+      parent_(0)
+    { 
+    }
+
+
     Node::~Node() { }
+
+    void Node::setModified(bool value) 
+    {
+      modified_ = value;
+    }
 
     void Node::replaceWith(const ReplaceNode *) {
        throw edm::Exception(errors::Configuration)
