@@ -15,11 +15,11 @@
   <class name="edm::RefProd<std::vector<reco::Electron> >"/>
   <class name="edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
 
-  <class name="std::vector<reco::ConvertedPhotonCandidate>"/>
-  <class name="edm::Wrapper<std::vector<reco::ConvertedPhotonCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::ConvertedPhotonCandidate>,reco::ConvertedPhotonCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhotonCandidate>,reco::ConvertedPhotonCandidate> >"/>
-  <class name="edm::RefProd<std::vector<reco::ConvertedPhotonCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::ConvertedPhotonCandidate>,reco::ConvertedPhotonCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhotonCandidate>,reco::ConvertedPhotonCandidate> >"/>
+  <class name="std::vector<reco::ConvertedPhoton>"/>
+  <class name="edm::Wrapper<std::vector<reco::ConvertedPhoton> >"/>
+  <class name="edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
+  <class name="edm::RefProd<std::vector<reco::ConvertedPhoton> >"/>
+  <class name="edm::RefVector<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
 
   <class name="std::vector<reco::SiStripElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::SiStripElectron> >"/>
