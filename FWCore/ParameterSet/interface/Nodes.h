@@ -167,13 +167,9 @@ namespace edm {
 
       virtual void accept(Visitor& v) const;
 
-      virtual void  setParent(Node* parent);
-      virtual Node* getParent(); 
-
       std::string type_;
       NodePtr left_;
       NodePtr right_;
-      Node*   parent_;
     };
 
     /*
@@ -190,10 +186,6 @@ namespace edm {
   
       virtual void accept(Visitor& v) const;
 
-      virtual void    setParent(Node* parent); 
-      virtual Node*   getParent(); 
-
-      Node* parent_;
       std::string type_;
     };
 

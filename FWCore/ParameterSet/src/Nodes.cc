@@ -165,8 +165,7 @@ namespace edm {
       Node(makeOpName(), line),
       type_(type),
       left_(left),
-      right_(right),
-      parent_(0)
+      right_(right)
     {   
       assert( operator_or_operand(left) );
       assert( operator_or_operand(right) );
@@ -188,9 +187,6 @@ namespace edm {
       v.visitOperator(*this);
       //throw runtime_error("OperatorNodes cannot be visited");
     }
-    void OperatorNode::setParent(Node* parent){parent_=parent;}
-    Node* OperatorNode::getParent(){return parent_;}
-
     //--------------------------------------------------
     // OperandNode
     //--------------------------------------------------
@@ -199,7 +195,6 @@ namespace edm {
 			     const string& name, 
 			     int line):
       Node(name, line),
-      parent_(0), 
       type_(type)
     {  }
 
@@ -209,9 +204,6 @@ namespace edm {
     {
       ost << name;
     }
-
-    void  OperandNode::setParent(Node* parent){parent_=parent;}
-    Node* OperandNode::getParent(){return parent_;}
 
     void OperandNode::accept(Visitor& v) const
     {
