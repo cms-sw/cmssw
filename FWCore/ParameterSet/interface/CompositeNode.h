@@ -16,7 +16,7 @@ namespace edm {
       CompositeNode(const CompositeNode & n);
 
       virtual void acceptForChildren(Visitor& v) const;
-      virtual void print(std::ostream& ost) const;
+      virtual void print(std::ostream& ost, PrintOptions options) const;
       // if this is flagged as modified, all subnodes are
       virtual void setModified(bool value);
       /// if any subnodes are modified, this counts as modified

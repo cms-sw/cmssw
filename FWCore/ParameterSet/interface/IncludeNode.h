@@ -19,7 +19,7 @@ namespace edm {
       virtual std::string type() const {return type_;}
       virtual Node * clone() const { return new IncludeNode(*this);}
       virtual void accept(Visitor& v) const;
-      virtual void print(std::ostream & ost) const;
+      virtual void print(std::ostream & ost, PrintOptions options) const;
 
       /// prints file and line number, and passes up
       virtual void printTrace(std::ostream & ost) const;

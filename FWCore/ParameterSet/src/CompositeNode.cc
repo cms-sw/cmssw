@@ -36,13 +36,13 @@ namespace edm {
     }
 
 
-    void CompositeNode::print(ostream& ost) const
+    void CompositeNode::print(ostream& ost, Node::PrintOptions options) const
     {
       ost << "{\n";
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
         {
-          (**i).print(ost);
+          (**i).print(ost, options);
           ost << "\n";
         }
 
@@ -143,7 +143,10 @@ namespace edm {
       std::list<std::string> & thisLevelIncludes = (type() == "include")
                              ? sameLevelIncludes
                              : newList; 
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+
+      // make a copy, in case a node deletes itself
+      NodePtrList copyOfNodes = *nodes_;
+      NodePtrList::const_iterator i(copyOfNodes.begin()),e(copyOfNodes.end());
       for(;i!=e;++i)
       {
         (**i).resolve(openFiles, thisLevelIncludes);
