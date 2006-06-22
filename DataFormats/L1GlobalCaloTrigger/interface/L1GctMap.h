@@ -70,6 +70,12 @@ class L1GctMap {
   /// get ID from position in system
   unsigned id(unsigned rctCrate, unsigned scType, unsigned in); 
 
+  /// convert phi from rctCrate/jetFinder local to global coordinates
+  unsigned globalPhi(unsigned iphi, unsigned jfphi);
+
+  /// convert eta from rctCrate/jetFinder local to global coordinates
+  unsigned globalEta(unsigned ieta, unsigned wheel);
+
  private:        // methods
 
   L1GctMap();    // constructor, this is a singleton

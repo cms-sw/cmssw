@@ -22,8 +22,8 @@ L1GctMap::~L1GctMap() {
 /// get the RCT crate number
 unsigned L1GctMap::rctCrate(L1GctRegion r) {
   unsigned eta = this->eta(r);
-  unsigned phiSlice = (this->phi(r))/2;
-  return (eta<(N_RGN_ETA/2) ? phiSlice : phiSlice+N_RGN_PHI/2) ;
+  unsigned phiCrate = ((N_RGN_PHI+4-(this->phi(r)))%N_RGN_PHI)/2;
+  return (eta<(N_RGN_ETA/2) ? phiCrate : phiCrate+N_RGN_PHI/2) ;
 }
 
 /// get the SC number
@@ -127,7 +127,7 @@ unsigned L1GctMap::id(unsigned rctCrate, unsigned scType, unsigned in) {
   }
   if (rctCrate<N_RGN_PHI) {
     if (rctCrate>=(N_RGN_PHI/2)) { ieta = ((N_RGN_ETA-1) - ieta); }
-    iphi = iphi + (rctCrate%(N_RGN_PHI/2))*2;
+    iphi = this->globalPhi(iphi, rctCrate%(N_RGN_PHI/2));
   } else {validInput=false; }
 
   if (validInput) { 
@@ -140,3 +140,30 @@ unsigned L1GctMap::id(unsigned rctCrate, unsigned scType, unsigned in) {
       << " input " << in << std::endl;
   }
 }
+
+/// convert phi from rctCrate/jetFinder local to global coordinates
+unsigned L1GctMap::globalPhi(unsigned iphi, unsigned jfphi)
+{
+  if (iphi<2 && jfphi<(N_RGN_PHI)/2) {
+    return ((N_RGN_PHI+4-(2*jfphi + iphi))%N_RGN_PHI);
+  }
+  // Here if arguments are invalid
+  throw cms::Exception("L1GctProcessingError")
+    << " gctMap->globalPhi(iphi, jfphi) called with invalid inputs "
+    << " iphi " << iphi << ", should be 0 or 1"
+    << " jfphi " << jfphi << ", should be less than " << N_RGN_PHI/2 << std::endl;
+}
+
+/// convert eta from rctCrate/jetFinder local to global coordinates
+unsigned L1GctMap::globalEta(unsigned ieta, unsigned wheel)
+{
+  if (ieta<(N_RGN_ETA)/2 && wheel<2) {
+    return ( (wheel==0) ? (N_RGN_ETA/2) - 1 - ieta : (N_RGN_ETA/2+ieta) );
+  }
+  // Here if arguments are invalid
+  throw cms::Exception("L1GctProcessingError")
+    << " gctMap->globalEta(ieta, wheel) called with invalid inputs "
+    << " ieta " << ieta << ", should be less than " << N_RGN_ETA/2 
+    << " wheel " << wheel << ", should be 0 or 1" << std::endl;
+}
+
