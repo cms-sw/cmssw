@@ -26,11 +26,11 @@ namespace edm
 		    shared_ptr<vector<ParameterSet> >& serviceparams)
   {
     // Handle 'include' statements in a pre-processing step.
-    string finalConfigDoc;
-    edm::pset::ConfigurationPreprocessor preprocessor;
-    preprocessor.process(configtext, finalConfigDoc);
-    //edm::ProcessDesc processDesc(configtext);
-    edm::ProcessDesc processDesc( finalConfigDoc);
+    //string finalConfigDoc;
+    //edm::pset::ConfigurationPreprocessor preprocessor;
+    //preprocessor.process(configtext, finalConfigDoc);
+    edm::ProcessDesc processDesc(configtext);
+    //edm::ProcessDesc processDesc( finalConfigDoc);
 
     main = processDesc.getProcessPSet();
     serviceparams = processDesc.getServicesPSets();
