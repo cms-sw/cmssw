@@ -13,10 +13,13 @@
 // Author:      Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBSPBlock.h,v 1.1 2006/06/22 00:34:18 lgray Exp $
+// $Id: CSCTFTBSPBlock.h,v 1.2 2006/06/22 14:46:05 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBSPBlock.h,v $
+// Revision 1.2  2006/06/22 14:46:05  lgray
+// Forced commit of all code
+//
 // Revision 1.1  2006/06/22 00:34:18  lgray
 // Moved all data format classes here. Removed old Packages from nightly
 //
@@ -74,9 +77,9 @@
 
 // Package include files
 //class BitVector;
-#include "TBDataFormats/CSCTFTBRawData/interface/CSCTFTBSPHeader.h"
-#include "TBDataFormats/CSCTFTBRawData/interface/CSCTFTBSPData.h"
-#include "TBDataFormats/CSCTFTBRawData/interface/CSCTFTBDTData.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFTBSPHeader.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFTBSPData.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFTBDTData.h"
 
 // External package include files
 
