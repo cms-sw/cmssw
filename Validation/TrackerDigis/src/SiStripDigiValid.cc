@@ -366,7 +366,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
 
 
- LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+ //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
  ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 

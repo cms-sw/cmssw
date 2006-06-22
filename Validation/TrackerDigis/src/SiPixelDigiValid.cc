@@ -291,7 +291,7 @@ for ( int i =0 ; i< 24; i++) {
    ndigiZmDisk2PerPanel2[i] = 0;
 }
 
- LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+ //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
  edm::ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );     
@@ -313,7 +313,7 @@ for ( int i =0 ; i< 24; i++) {
              unsigned int layer  = bdetid.layer();   // Layer:1,2,3.
              unsigned int ladder = bdetid.ladder();  // Ladeer: 1-20, 32, 44. 
              unsigned int zindex = bdetid.module();  // Z-index: 1-8.
-             LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
+             //LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
              for ( iter = begin ; iter != end; iter++ ) {
                 if( layer == 1 ) {
                      ++ndigiperRingLayer1[zindex-1];
@@ -473,7 +473,7 @@ for ( int i =0 ; i< 24; i++) {
            unsigned int blade = fdetid.blade();
            unsigned int panel = fdetid.panel();
            unsigned int mod   = fdetid.module();
-           LogInfo("SiPixelDigiValid")<<"EndcaP="<<side<<" Disk="<<disk<<" Blade="<<blade<<" Panel="<<panel<<" Module="<<mod;
+           //LogInfo("SiPixelDigiValid")<<"EndcaP="<<side<<" Disk="<<disk<<" Blade="<<blade<<" Panel="<<panel<<" Module="<<mod;
            for ( iter = begin ; iter != end; iter++ ) {
              if(side == 1 && disk == 1 && panel ==1 ){
                      if ( mod == 1 ) {
