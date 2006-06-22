@@ -38,11 +38,13 @@ Persistent classes for b and tau tagging.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Porting from ORCA in progress. Not usable yet.
+Porting from ORCA of basic object is finished.
+Code has been tested and is usable.
+More improvements still to come.
 
 <hr>
 Last updated:
