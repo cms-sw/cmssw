@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/01 09:08:32 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/06/06 14:18:57 $
+ *  $Revision: 1.19 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -322,8 +322,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
     } else {
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
- 
-    if(IdealModel) return pair<float,bool>(x/theConstVDrift,true);
+
+    if(IdealModel) return make_pair(fabs(x)/theConstVDrift,true);
     else driftTime = driftTimeFromParametrization(x, theta, By, Bz);
 
   }
