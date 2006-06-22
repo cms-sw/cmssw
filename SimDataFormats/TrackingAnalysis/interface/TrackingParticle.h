@@ -7,15 +7,19 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 // Should move these into EmbdSimTrackContainer.h, no time before 8.0-pre2
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefVector.h"
-typedef edm::Ref<edm::EmbdSimTrackContainer> EmbdSimTrackRef;
-typedef edm::RefProd<edm::EmbdSimTrackContainer> EmbdSimTrackRefProd;
-typedef edm::RefVector<edm::EmbdSimTrackContainer> EmbdSimTrackRefVector;
+//#include "DataFormats/Common/interface/Ref.h"
+//#include "DataFormats/Common/interface/RefProd.h"
+//#include "DataFormats/Common/interface/RefVector.h"
+//typedef edm::Ref<edm::EmbdSimTrackContainer> EmbdSimTrackRef;
+//typedef edm::RefProd<edm::EmbdSimTrackContainer> EmbdSimTrackRefProd;
+//typedef edm::RefVector<edm::EmbdSimTrackContainer> EmbdSimTrackRefVector;
+using edm::EmbdSimTrackRef;
+using edm::EmbdSimTrackRefProd;
+using edm::EmbdSimTrackRefVector;
 
 namespace HepMC {
   class GenParticle;
@@ -24,7 +28,8 @@ namespace HepMC {
 class TrackingParticle : public reco::Particle {
 public:
   /// reference to HepMC::GenParticle
-  typedef const HepMC::GenParticle * GenParticleRef;
+  typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
+  typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   /// default constructor
   TrackingParticle() { }
   // destructor
@@ -35,23 +40,24 @@ public:
   /// PDG identifier  
   int pdgId() const { return pdgId_; }
   /// reference to G4 track
-  const  EmbdSimTrackRef & g4Track() const { return g4Track_; }
+//  const  EmbdSimTrackRef & g4Track() const { return g4Track_; }
   /// pointer to generator particle
-  GenParticleRef genParticle() const { return genParticle_; }
+//  int genParticle() const { return genParticle_; }
   /// set reference to G4 track
-  void setG4Track( const EmbdSimTrackRef & r ) { g4Track_ = r; }
+//  void setG4Track( const EmbdSimTrackRef & r ) { g4Track_ = r; }
+  void addG4Track(const EmbdSimTrackRef&);
   /// set pointer to generator particle
-  void setGenParticle( GenParticleRef r ) { genParticle_ = r; }
+//  void setGenParticle( int gp ) { genParticle_ = gp; }
+  void addGenParticle(const GenParticleRef&);
 
 private:
   /// production time
   double t_;
   /// PDG identifier
   int pdgId_;
-  /// reference to G4 track
-  EmbdSimTrackRef g4Track_;
-  /// pointer to generator particle
-  GenParticleRef genParticle_;
+  /// references to G4 and HepMC tracks
+  EmbdSimTrackRefVector g4Tracks_;
+  GenParticleRefVector  genParticles_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H

@@ -20,6 +20,8 @@ using namespace std;
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
 typedef std::vector<TrackingParticle> TrackingParticleCollection;
+typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
+typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
 string MessageCategory = "TrackingTruthProducer";
 
@@ -55,7 +57,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.getByType(G4TrkContainer);
   
   const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
-  // Is const HepMC::GenEvent *hme = mcp -> GetEvent(); // faster?
+  // Is const HepMC::GenEvent *hme = mcp -> GetEvent(); // faster?
 
   const edm::EmbdSimTrackContainer      *etc = G4TrkContainer.product();
 
@@ -71,7 +73,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   std::map<int,int> productionVertex;
-  
+  int iG4Track = 0;
   for (edm::EmbdSimTrackContainer::const_iterator itP = G4TrkContainer->begin();
        itP !=  G4TrkContainer->end(); ++itP){
        TrackingParticle::Charge q = 0;
@@ -87,7 +89,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        }
         math::XYZPoint theVertex;
        // = Point(0, 0, 0);
-       int genVert = itP -> vertIndex();
+       int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
        if (genVert >= 0){
            const EmbdSimVertex &gv = (*G4VtxContainer)[genVert];
 	   const CLHEP::HepLorentzVector &v = gv.position();
@@ -95,12 +97,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 	   time = v.t(); 
        }
        TrackingParticle tp(q, theMomentum, theVertex, time, pdgId);
+       tp.addG4Track(EmbdSimTrackRef(G4VtxContainer,iG4Track));
+       tp.addGenParticle(GenParticleRef(hepMC,genPart));
        productionVertex.insert(pair<int,int>(tPC->size(),genVert));
        tPC -> push_back(tp);
+       ++iG4Track;
   }
-//  edm::OrphanHandle<TrackingParticleCollection> tpcHandle = event.put(tPC);
-//  TrackingParticleCollection trackCollection = *tpcHandle;
-//  edm::LogInfo (MessageCategory) << "Put "<< trackCollection.size() << " tracks in event";
+  edm::OrphanHandle<TrackingParticleCollection> tpcHandle = event.put(tPC);
+  TrackingParticleCollection trackCollection = *tpcHandle;
+  edm::LogInfo (MessageCategory) << "Put "<< trackCollection.size() << " tracks in event";
        
 // Find and loop over EmbdSimVertex vertices
     
@@ -165,7 +170,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Add data to closest vertex
     (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
     if (vb) {
-      (*nearestVertex).addGenVertex(vb); // Add HepMC vertex
+      (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vb)); // Add HepMC vertex
     }
 
 // Identify and add child tracks       
@@ -174,7 +179,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          ++mapIndex) {
       if (mapIndex -> second == index) {
         edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex->first << " to vertex "<<tVC->size()-1;
-//        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
+        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
       }
     }
     ++index;     

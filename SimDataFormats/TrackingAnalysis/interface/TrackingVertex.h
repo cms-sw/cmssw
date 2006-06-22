@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.5 2006/06/21 14:31:55 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.6 2006/06/21 23:28:01 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -35,14 +35,14 @@ class TrackingVertex {
  public:
   
   /// point in the space
-  typedef math::XYZPoint Point;
+  typedef math::XYZPoint                                       Point;
+  typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
+  typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
   
   /// tracking particles
-  typedef edm::Ref< std::vector<TrackingParticle> > TrackingParticleRef;
-  typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
-  typedef TrackingParticleContainer::iterator track_iterator;
-  typedef const HepMC::GenVertex * GenVertexRef;
-  typedef edm::RefVector< std::vector<HepMC::GenVertex> > GenVertexRefVector;
+  typedef edm::Ref< std::vector<TrackingParticle> >            TrackingParticleRef;
+  typedef edm::RefVector< std::vector<TrackingParticle> >      TrackingParticleContainer;
+  typedef TrackingParticleContainer::iterator                  track_iterator;
   
   /// default constructor
   TrackingVertex();
@@ -65,7 +65,7 @@ class TrackingVertex {
 
   /// position 
   void addG4Vertex(const EmbdSimVertexRef &r);
-  void addGenVertex(int);
+  void addGenVertex(const GenVertexRef&);
   const Point & position() const ;
   const EmbdSimVertexRefVector g4Vertices() const;
   const TrackingParticleRefVector trackingParticles() const;
@@ -83,7 +83,7 @@ class TrackingVertex {
 //  EmbdSimVertexRef g4Vertex_;
   EmbdSimVertexRefVector g4Vertices_;
 //  GenVertexRef genVertex_;
-  std::vector<int> genVertices_;
+  GenVertexRefVector     genVertices_;
 };
 
 
