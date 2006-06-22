@@ -32,7 +32,7 @@ namespace hcaltb {
       (const struct xdaqSlowDataFormat *)(raw.data());
 
     map<string,double> sd_dblmap;
-    map<string,const char *> sd_strmap;
+    map<string,string> sd_strmap;
 
 #ifdef DEBUG
     cout << "#doubles = "   << sd->n_doubles << endl;;
@@ -71,8 +71,8 @@ namespace hcaltb {
     }
 
     // Now fill the input objects:
-    htbrd.setRunData(sd_strmap["RunType"],
-		     sd_strmap["Beam.Mode"],
+    htbrd.setRunData(sd_strmap["RunType"].c_str(),
+		     sd_strmap["Beam.Mode"].c_str(),
 		     sd_dblmap["Beam.Energy"]);
 
     htbep.setHFtableCoords(sd_dblmap["HFTable.X"],
