@@ -65,7 +65,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 							spWordCountExpected += 1;
 					// 3 SP data blocks
 					for(unsigned int sp_block=0; sp_block<3; sp_block++)
-						if( header.active()&0x40 && (!header.suppression() || spWord[shift+1]&(0xF<<sp_block)) )
+						if( header.active()&0x40 && (!header.suppression() || spWord[shift+1]&(0xF<<(sp_block*4))) )
 							spWordCountExpected += 1;
 
 					shift = spWordCountExpected*4;
