@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/19 15:28:49 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/21 13:17:32 $
+ *  $Revision: 1.10 $
  *  \author Tomasz Fruboes
  */
 
@@ -109,7 +109,10 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
   
   }
     
-    
+  // Free memory
+  m_RPCCurlMap.clear();
+  m_refRPCCurlMap.clear();
+  m_otherRPCCurlMap.clear();
     
   m_isGeometryBuilt=true;
   //printCurlMapInfo();

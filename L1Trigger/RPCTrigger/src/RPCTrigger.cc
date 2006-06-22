@@ -31,6 +31,7 @@
 #include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
+#define ML_DEBUG 
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 {
@@ -96,6 +97,19 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l1Cand.setQualityPacked(finalMuons[0][iMu].GetQuality());
     l1Cand.setPtPacked(finalMuons[0][iMu].GetPtCode());
     
+    l1Cand.setType(1); // Barell, should use constant!
+    
+    int charge=finalMuons[0][iMu].GetSign();
+    
+    if (charge == 0)  // negative
+      l1Cand.setChargePacked(1);
+    else  // positive
+      l1Cand.setChargePacked(0);
+    //---
+    l1Cand.setEtaPacked(finalMuons[0][iMu].GetEtaAddr());
+    l1Cand.setPhiPacked(finalMuons[0][iMu].GetPhiAddr());
+    //---
+    
     RPCb.push_back(l1Cand);
   }
 
@@ -105,9 +119,21 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //RPCParam::L1RpcConeCrdnts cone = finalMuons[0][iMu].GetConeCrdnts();
     
-    l1Cand.setQualityPacked(finalMuons[0][iMu].GetQuality());
-    l1Cand.setPtPacked(finalMuons[0][iMu].GetPtCode());
+    l1Cand.setQualityPacked(finalMuons[1][iMu].GetQuality());
+    l1Cand.setPtPacked(finalMuons[1][iMu].GetPtCode());
     
+    l1Cand.setType(3); // Endcap, should use constant!
+    
+    int charge=finalMuons[1][iMu].GetSign();
+    
+    if (charge == 0)  // negative
+      l1Cand.setChargePacked(1);
+    else  // positive
+      l1Cand.setChargePacked(0);
+     //---
+    l1Cand.setEtaPacked(finalMuons[1][iMu].GetEtaAddr());
+    l1Cand.setPhiPacked(finalMuons[1][iMu].GetPhiAddr());
+    //---
     RPCf.push_back(l1Cand);
   }
 
@@ -123,12 +149,14 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("RPCTrigger") << "-----------------------------" << std::endl;
   for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
   {
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode() << std::endl;
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode()
+        << " wasKilled " << finalMuons[0][iMu].WasKilled();
   }
 
   for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
   {
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode() << std::endl;
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode()
+        << " wasKilled " << finalMuons[1][iMu].WasKilled();;
   }
 
 

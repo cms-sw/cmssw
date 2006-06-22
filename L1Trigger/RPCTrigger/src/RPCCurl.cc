@@ -1,7 +1,7 @@
 /** \file RPCCurl.cc
  *
- *  $Date: 2006/06/16 11:07:14 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/19 15:28:49 $
+ *  $Revision: 1.9 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCCurl.h"
@@ -372,7 +372,7 @@ void RPCCurl::updatePhiStripsMap(RPCDetInfo detInfo){
  * \brief Fills strip map with virtual strips
  * \bug Curl 4102 has diffrent no. of virtuals than 4002.
  * \todo Improve this function. Some curls seem to have wrong number of virtuals
- * \todo Possible xcheck - check if virtual and physical strips sum to 1152 or more
+ * \todo Possible xcheck - check if virtual and physical strips sum to 1152 or more - only for ref curl
  * \todo Implement check if we have symetry (x1xx vs x0xx; whell +y vs -y)
  *
  */
