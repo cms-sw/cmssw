@@ -1,8 +1,8 @@
 #include <memory>
 /** \file MuonNavigationTest
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/02 20:47:14 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu
  */
 
@@ -24,8 +24,8 @@
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+//#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+//#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 class MuonNavigationTest : public edm::EDAnalyzer {
@@ -57,8 +57,8 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    using namespace edm;
 
    //choose ONE and ONLY one to be true
-   bool testMuon = false;
-   bool testMuonTk = true;
+   bool testMuon = true;
+//   bool testMuonTk = true;
    //
    // get Geometry
    //
@@ -72,7 +72,7 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
       MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm);
       delete printer;
    }
-
+/*
    if ( testMuonTk ) {
      edm::ESHandle<GeometricSearchTracker> tracker;
      iSetup.get<TrackerRecoGeometryRecord>().get(tracker);
@@ -88,6 +88,7 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
      MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, tt);
      delete printer;
   }
+*/
 }
 
 //define this as a plug-in
