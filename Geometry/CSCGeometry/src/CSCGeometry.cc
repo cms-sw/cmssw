@@ -23,6 +23,7 @@ void CSCGeometry::addChamber(CSCChamber* ch){
 
 void CSCGeometry::addLayer(CSCLayer* l) {
   theDetUnits.push_back(l);
+  theLayers.push_back(l);
   theDetTypes.push_back(const_cast<GeomDetType*>(&(l->type()))); //@@ FIXME drop const_cast asap!
   theDetUnitIds.push_back(l->geographicalId());
   addDet(l);
@@ -84,21 +85,20 @@ const GeomDet* CSCGeometry::idToDet(DetId id) const{
 }
 
 
-const CSCGeometry::ChamberContainer CSCGeometry::chambers() const
+const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const
 {
   return theChambers;
 }
 
 
-const CSCGeometry::LayerContainer CSCGeometry::layers() const
+const CSCGeometry::LayerContainer& CSCGeometry::layers() const
 {
-  LayerContainer lc;
-  for( DetUnitContainer::const_iterator it = theDetUnits.begin();
-       it != theDetUnits.end(); ++it ) {
-    CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
-    if ( layer ) lc.push_back( layer );
-  }
-  return lc;
+//   for( DetUnitContainer::const_iterator it = theDetUnits.begin();
+//        it != theDetUnits.end(); ++it ) {
+//     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
+//     if ( layer ) theLayers.push_back( layer );
+//   }
+  return theLayers;
 }
 
 

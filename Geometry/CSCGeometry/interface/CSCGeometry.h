@@ -66,10 +66,10 @@ class CSCGeometry : public TrackingGeometry {
   const CSCLayer* layer(CSCDetId id) const;
 
   /// Return a vector of all chambers
-  const ChamberContainer chambers() const;
+  const ChamberContainer& chambers() const;
 
   /// Return a vector of all layers
-  const LayerContainer layers() const;
+  const LayerContainer& layers() const;
 
  private:
   friend class CSCGeometryBuilderFromDDD;
@@ -102,6 +102,9 @@ class CSCGeometry : public TrackingGeometry {
   DetUnitContainer  theDetUnits;   // all layers
   DetIdContainer    theDetIds;
   DetIdContainer    theDetUnitIds;
+
+  // These are reduntant copies, to satisfy the interface.
+  LayerContainer    theLayers;
 };
 
 #endif
