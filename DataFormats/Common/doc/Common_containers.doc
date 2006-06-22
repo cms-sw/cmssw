@@ -23,6 +23,27 @@ Commonly used persistent containers.
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
   <tt>unsigned short</tt> for collections with less than 65535 objects
   or <tt>unsigned char</tt> for collections with less than 255 objects.<br><br>
+  One example of basic usage is presented below:
+\htmlonly
+<pre>
+  typedef edm::AssociationMap&lt;edm::OneToMany&lt;CaloJetCollection, TrackCollection&gt; &gt;
+    JetTracksMap;
+  JetTracksMap map;
+
+  CaloJetRef rj = ...; 
+  TrackRef rt = ...;
+  map->insert( rj, rt );
+
+  JetTracksMap::value_type keyval = map[ rj ];
+  const CaloJetRef & jet = keyval.key;
+  const TrackRefVector & tracks = keyval.val;
+
+  JetTracksMap::const_iterator i = map.find( rj );
+  assert( i != map.end() );
+  const CaloJetRef & jet1 = i-&gt;key;
+  const TrackRefVector & tracks1 = i-&gt;val;
+</pre>
+\endhtmlonly
   The attribute <tt>transientMap_</tt> has to be declared transient in the
   Reflex dictionary. Other used persistent 
   types have to be declared in the Reflex dictionary, depending case by case:
