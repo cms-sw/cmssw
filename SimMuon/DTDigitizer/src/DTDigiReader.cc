@@ -4,8 +4,8 @@
 /** \class DTDigiReader
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/02/07 19:12:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.3 $
  *  \authors: R. Bellan
  */
 
@@ -80,7 +80,7 @@ public:
       for (DTDigiCollection::const_iterator digiIt = range.first;
 	   digiIt!=range.second;
 	   ++digiIt){
-	if((*digiIt).time()<703 &&(*digiIt).time()>699){
+	//	if((*digiIt).time()<703 &&(*digiIt).time()>699) {
 	  cout<<" Wire: "<<(*digiIt).wire()<<endl
 	      <<" digi time (ns): "<<(*digiIt).time()<<endl;
 	  
@@ -94,7 +94,7 @@ public:
 	    }
 	  }
 
-	}
+	  //	}
 
 	if(id.layer()==3)
 	  DigiTimeBoxW0->Fill((*digiIt).time());
