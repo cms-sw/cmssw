@@ -49,7 +49,7 @@ namespace reco {
       /// error on dx
       double dzError() const { return sqrt( cov_[ idx( i_dz, i_dz ) ] ); }
       /// return SMatrix
-      ParameterError matrix() const { ParameterError m; fill( m ); return m; }
+      ParameterError covariance() const { ParameterError m; fill( m ); return m; }
       /// fill SMatrix
       void fill( ParameterError & v ) const;
 
