@@ -4,32 +4,8 @@
  *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
-
-
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-
-
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-// L1RpcTrigger specific includes
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+
 
 #define ML_DEBUG 
 
@@ -84,59 +60,12 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);
 
   // Fill out the products
-  std::vector<L1MuRegionalCand> RPCb;
-  std::vector<L1MuRegionalCand> RPCf;
+  // finalMuons[0]=barell, finalMuons[1]=endcap
+  LogDebug("RPCTrigger") << "---Filling candindates in new event---" << std::endl;
   
-  // TODO: check which one is barell
-  for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
-  {
-    L1MuRegionalCand l1Cand;
+  std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1);
+  std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3);;
     
-    //RPCParam::L1RpcConeCrdnts cone = finalMuons[0][iMu].GetConeCrdnts();
-    
-    l1Cand.setQualityPacked(finalMuons[0][iMu].GetQuality());
-    l1Cand.setPtPacked(finalMuons[0][iMu].GetPtCode());
-    
-    l1Cand.setType(1); // Barell, should use constant!
-    
-    int charge=finalMuons[0][iMu].GetSign();
-    
-    if (charge == 0)  // negative
-      l1Cand.setChargePacked(1);
-    else  // positive
-      l1Cand.setChargePacked(0);
-    //---
-    l1Cand.setEtaPacked(finalMuons[0][iMu].GetEtaAddr());
-    l1Cand.setPhiPacked(finalMuons[0][iMu].GetPhiAddr());
-    //---
-    
-    RPCb.push_back(l1Cand);
-  }
-
-  for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
-  {
-    L1MuRegionalCand l1Cand;
-    
-    //RPCParam::L1RpcConeCrdnts cone = finalMuons[0][iMu].GetConeCrdnts();
-    
-    l1Cand.setQualityPacked(finalMuons[1][iMu].GetQuality());
-    l1Cand.setPtPacked(finalMuons[1][iMu].GetPtCode());
-    
-    l1Cand.setType(3); // Endcap, should use constant!
-    
-    int charge=finalMuons[1][iMu].GetSign();
-    
-    if (charge == 0)  // negative
-      l1Cand.setChargePacked(1);
-    else  // positive
-      l1Cand.setChargePacked(0);
-     //---
-    l1Cand.setEtaPacked(finalMuons[1][iMu].GetEtaAddr());
-    l1Cand.setPhiPacked(finalMuons[1][iMu].GetPhiAddr());
-    //---
-    RPCf.push_back(l1Cand);
-  }
-
   std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
   candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
   
@@ -146,21 +75,69 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(candBarell, "RPCb");
   iEvent.put(candForward, "RPCf");
   
-  LogDebug("RPCTrigger") << "-----------------------------" << std::endl;
-  for(unsigned int iMu = 0; iMu < finalMuons[0].size(); iMu++)
-  {
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[0][iMu].GetPtCode()
-        << " wasKilled " << finalMuons[0][iMu].WasKilled();
-  }
-
-  for(unsigned int iMu = 0; iMu < finalMuons[1].size(); iMu++)
-  {
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[1][iMu].GetPtCode()
-        << " wasKilled " << finalMuons[1][iMu].WasKilled();;
-  }
-
-
 }
+///////////////////////////////////////////////////////////////////////////////
+/**
+ *
+ * \brief Returns vector of L1MuRegionalCand (input of L1GMT)
+ * \note - type is defined in L1MuRegionalCand 1 - barell, 3 - forward
+ * \todo - we use offset value of 5 deegres. It should be stored centrally.
+ *
+ */
+///////////////////////////////////////////////////////////////////////////////
+std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type){
+
+  std::vector<L1MuRegionalCand> RPCCand;
+  
+  for(unsigned int iMu = 0; iMu < finalMuons.size(); iMu++)
+  {
+    L1MuRegionalCand l1Cand;
+    
+    
+    l1Cand.setQualityPacked(finalMuons[iMu].GetQuality());
+    l1Cand.setPtPacked(finalMuons[iMu].GetPtCode());
+    
+    l1Cand.setType(type); 
+    
+    int charge=finalMuons[iMu].GetSign();
+    
+    if (charge == 0)  // negative
+      l1Cand.setChargePacked(1);
+    else  
+      l1Cand.setChargePacked(0);
+    
+    RPCParam::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
+    
+    int pac = cone.LogSector*12+cone.LogSegment;
+    const float pi = 3.14159265;
+    const float offset = 5*(2*pi/360);
+    float phi = 2*pi*pac/144-offset;
+    if (phi<0)
+      phi+=2*pi;
+    
+    l1Cand.setPhiValue(phi);
+    
+    float eta = L1RpcConst::etaFromTowerNum(cone.Tower);
+    
+    l1Cand.setEtaValue(eta);
+    
+    RPCCand.push_back(l1Cand);
+        
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].GetPtCode()
+        << " L1Charge " << l1Cand.charge_packed()
+        << " ql " << l1Cand.quality()
+        << " b/f " << l1Cand.type_idx()
+        << " phi " << phi
+        << " eta " << eta
+        << " eta l1 " << l1Cand.etaValue()
+        << " killed " << finalMuons[iMu].WasKilled();
+        
+    
+  }
+
+  return RPCCand;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCTrigger)
