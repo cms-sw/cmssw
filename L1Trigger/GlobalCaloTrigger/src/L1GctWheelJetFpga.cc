@@ -277,19 +277,28 @@ void L1GctWheelJetFpga::classifyJets()
   for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
   {
     if (!currentJet->isNullJet()) {
-      if(currentJet->eta() >= L1GctJet::LOCAL_ETA_HF_START)  //forward jet
+      if(currentJet->isForwardJet())  //forward jet
 	{
-	  m_rawForwardJets.at(numFJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+	  m_rawForwardJets.at(numFJets++) = *currentJet;
 	}
       else
 	{
-	  if(currentJet->tauVeto() == true)  //central non-tau jet.
+	  if(currentJet->isCentralJet())  //central non-tau jet.
 	    {
-	      m_rawCentralJets.at(numCJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+	      m_rawCentralJets.at(numCJets++) = *currentJet;
 	    }
 	  else  //must be central tau-jet
 	    {
-	      m_rawTauJets.at(numTJets++) = currentJet->convertToGlobalJet(jetFinderIndex, m_id);
+	    if(currentJet->isTauJet())
+	      {
+		m_rawTauJets.at(numTJets++) = *currentJet;
+	      }
+	    else
+	      { //shouldn't get here!
+		throw cms::Exception("L1GctProcessingError")
+		  << "Unclassified jet found by WheelJetFpga id " << m_id
+		  << ". Jet details follow." << endl << *currentJet << endl;
+	      }
 	    }
 	}
     }

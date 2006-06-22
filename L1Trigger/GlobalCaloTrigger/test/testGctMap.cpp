@@ -10,6 +10,8 @@ int main() {
 
   L1GctMap* map = L1GctMap::getMap();
 
+  bool testPass=true;
+
   cout << "Testing eta,phi to/from ID conversion" << endl << endl;
 
   for (unsigned ieta=0; ieta<22; ieta++) {   // loop over eta
@@ -18,11 +20,11 @@ int main() {
 
     for (unsigned iphi=0; iphi<18; iphi++) {   // loop over phi
 
-      if ( map->phi(map->id(ieta, iphi)) != iphi ) {
+      if ( map->phi(map->id(ieta, iphi)) != iphi ) { testPass = false;
 	cout << "Error : phi->id->phi conversion failed for phi=" << iphi << " id=" << map->id(ieta,iphi) << endl;
       }
 
-      if ( map->eta(map->id(ieta, iphi)) != ieta ) {
+      if ( map->eta(map->id(ieta, iphi)) != ieta ) { testPass = false;
 	cout << "Error : eta->id->eta conversion failed for eta=" << iphi << " id=" << map->id(ieta,iphi) << endl;
       }
 
@@ -46,7 +48,7 @@ int main() {
 		       false, false, false, false);
       if ((map->rctCrate(temp)!=crate) ||
 	  (map->sourceCardType(temp)!=2) ||
-	  (map->sourceCardOutput(temp)!=in)) {
+	  (map->sourceCardOutput(temp)!=in)) { testPass = false;
 	cout << "Error for crate " << crate
 	     << " source card 2, input " << in
 	     << " id is " << temp.id() << endl;
@@ -60,7 +62,7 @@ int main() {
 		       false, false, false, false);
       if ((map->rctCrate(temp)!=crate) ||
 	  (map->sourceCardType(temp)!=3) ||
-	  (map->sourceCardOutput(temp)!=in)) {
+	  (map->sourceCardOutput(temp)!=in)) { testPass = false;
 	cout << "Error for crate " << crate
 	     << " source card 3, input " << in
 	     << " id is " << temp.id() << endl;
@@ -69,6 +71,7 @@ int main() {
     cout << endl;
   }
 
+  cout << "\nTest of L1GctMap " << (testPass ? "passed!" : "failed!") << endl;
   return 0;
 
 }

@@ -10,6 +10,7 @@ const int L1GctJetFinder::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinder::MAX_SOURCE_CARDS = 9;
 const int L1GctJetFinder::COL_OFFSET = ((L1GctMap::N_RGN_ETA)/2)+1;
 const int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinder::COL_OFFSET*4;
+const unsigned int L1GctJetFinder::N_JF_PER_WHEEL = ((L1GctMap::N_RGN_PHI)/2);
 
 
 L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
@@ -20,6 +21,7 @@ L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
+  map = L1GctMap::getMap();
   //Check jetfinder setup
   if(m_id < 0 || m_id > 17)
   {
@@ -220,8 +222,9 @@ void L1GctJetFinder::process()
         assert(jetNum < MAX_JETS_OUT);
                 
         m_outputJets.at(jetNum).setRank(m_jetEtCalLut->convertToSixBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), (row-1)));
-        m_outputJets.at(jetNum).setEta(row-1);
-        m_outputJets.at(jetNum).setPhi(column-1);
+	// Use the jetFinder m_id to assign the eta and phi in global coordinates here
+        m_outputJets.at(jetNum).setEta(map->globalEta((row-1),   (m_id/N_JF_PER_WHEEL)));
+        m_outputJets.at(jetNum).setPhi(map->globalPhi((column-1),(m_id%N_JF_PER_WHEEL)));
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
         {
           m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
@@ -392,8 +395,8 @@ L1GctScalarEtVal L1GctJetFinder::calcHt() const
   {
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
-      UShort eta = static_cast<UShort>(m_outputJets.at(i).eta());
-      UShort phi = static_cast<UShort>(m_outputJets.at(i).phi());
+      UShort eta = static_cast<UShort>(m_outputJets.at(i).jfLocalEta());
+      UShort phi = static_cast<UShort>(m_outputJets.at(i).jfLocalPhi());
 
       UShort centreIndex = ((phi+1)*COL_OFFSET) + (eta+1);
       bool hfBoundary = (eta == (COL_OFFSET-2));

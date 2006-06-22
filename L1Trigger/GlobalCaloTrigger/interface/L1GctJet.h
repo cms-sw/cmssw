@@ -5,6 +5,7 @@
 #include <functional>
 #include <ostream>
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
 /*!
@@ -23,7 +24,9 @@ class L1GctJet
 
 public:
   //Statics
-  static const int LOCAL_ETA_HF_START; ///< start of the HF in 'local' jetfinder co-ordinates (11*2 in eta*phi)
+  static const unsigned LOCAL_ETA_HF_START; ///< start of the HF in 'local' jetfinder co-ordinates (11*2 in eta*phi)
+  static const unsigned N_RGN_ETA;
+  static const unsigned N_RGN_PHI;
   
   //Constructors/destructors
   L1GctJet(uint16_t rank=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true);
@@ -41,6 +44,15 @@ public:
   uint16_t phi()const { return m_phi; }
   bool tauVeto()const { return m_tauVeto; }
 
+  /// test whether this jet candidate is a valid tau jet	
+  bool isTauJet()     const { return (this->jfLocalEta()<LOCAL_ETA_HF_START && !m_tauVeto); } 
+
+  /// test whether this jet candidate is a (non-tau) central jet
+  bool isCentralJet() const { return (this->jfLocalEta()<LOCAL_ETA_HF_START && m_tauVeto); } 
+
+  /// test whether this jet candidate is a forward jet	
+  bool isForwardJet() const { return (this->jfLocalEta()>=LOCAL_ETA_HF_START); } 
+
   /// test whether this jet candidate has been filled	
   bool isNullJet() const { return ((m_rank==0) && (m_eta==0) && (m_phi==0)); } 
 
@@ -48,12 +60,6 @@ public:
   
   ///Setup an existing jet all in one go
   void setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto=true);
-  
-  //! Converts a jet with local jetfinder co-ordinates (11*2) to GCT output global format
-  /*! 'jetFinderPhiIndex' is the vector index of the jetfinder in the wheel card,
-   *  running from 0-8. 'wheelId' is the wheelJetFPGA id number (0 or 1),
-   *  to determine which eta half of CMS we are in.*/
-  L1GctJet convertToGlobalJet(int jetFinderPhiIndex, int wheelId);
   
   // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
   struct rankGreaterThan : public std::binary_function<L1GctJet, L1GctJet, bool> 
@@ -64,13 +70,46 @@ public:
   /// produce a GCT jet digi
   L1GctJetCand makeJetCand();
 
+/*   //! Converts a jet with local jetfinder co-ordinates (11*2) to GCT output global format */
+/*   /\*! 'jetFinderPhiIndex' is the vector index of the jetfinder in the wheel card, */
+/*    *  running from 0-8. 'wheelId' is the wheelJetFPGA id number (0 or 1), */
+/*    *  to determine which eta half of CMS we are in.*\/ */
+/*   L1GctJet convertToGlobalJet(int jetFinderPhiIndex, int wheelId); */
+  
+  /// eta value in global CMS coordinates
+  unsigned globalEta() const { return static_cast<unsigned>(m_eta); } 
+
+  /// phi value in global CMS coordinates
+  unsigned globalPhi() const { return static_cast<unsigned>(m_phi); } 
+
+  /// eta value in local jetFinder coordinates
+  unsigned jfLocalEta() const; 
+
+  /// phi value in local jetFinder coordinates
+  unsigned jfLocalPhi() const; 
+
+  /// eta value as encoded in hardware at the GCT output
+  unsigned hwEta() const; 
+
+  /// phi value as encoded in hardware at the GCT output
+  unsigned hwPhi() const; 
+
+  /// the jetFinder that produced this jet
+  unsigned jfIdNum() const;
+
+  /// the position of the jet finder in phi within the Wheel
+  unsigned jfPhiIndex()   const { return this->jfIdNum() % (N_RGN_PHI/2); }
+
+  /// the Wheel number for this jet finder (0=MinusWheel, 1=PlusWheel)
+  unsigned jfWheelIndex() const { return this->jfIdNum() / (N_RGN_PHI/2); }
+
 
  private:
 
   //Declare statics
-  static const int RANK_BITWIDTH;  
-  static const int ETA_BITWIDTH;
-  static const int PHI_BITWIDTH;
+  static const unsigned RANK_BITWIDTH;  
+  static const unsigned ETA_BITWIDTH;
+  static const unsigned PHI_BITWIDTH;
   
   uint16_t m_rank;
   uint16_t m_eta;

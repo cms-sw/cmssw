@@ -109,6 +109,7 @@ private:
   //Statics
   static const int MAX_REGIONS_IN; ///< 2*11 search area, so 4*12=48 regions needed to run search.
   static const int COL_OFFSET;  ///< The index offset between columns
+  static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
 
 	/// algo ID
 	int m_id;
@@ -130,7 +131,8 @@ private:
   L1GctScalarEtVal m_outputEtStrip1;
   L1GctScalarEtVal m_outputHt;
     
-
+  /// map for coordinate transformations
+  L1GctMap* map;
     
   //PRIVATE METHODS
   /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
