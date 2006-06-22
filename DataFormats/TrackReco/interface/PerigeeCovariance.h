@@ -14,8 +14,6 @@
 
 namespace reco {
   namespace perigee {
-    /// perigee parameter covariance matrix (5x5)
-    typedef std::vector<Double32_t> InnerParameterError;
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type ParameterError;
     /// position-momentum covariance matrix (6x6).
@@ -25,8 +23,7 @@ namespace reco {
       /// default constructor
       Covariance() : cov_( 15 ) { }
       /// constructor from matrix
-      Covariance( const InnerParameterError & e ) : 
-	cov_( e ) { }
+      Covariance( const ParameterError & e );
       /// constructor from double * (15 parameters)
       Covariance( const double * cov ) : cov_( 15 ) { 
 	std::copy( cov, cov + ParameterError::kSize, cov_.begin() );
@@ -55,8 +52,8 @@ namespace reco {
       void fill( ParameterError & v ) const;
 
     private:
-      /// 5x5 matrix
-      InnerParameterError cov_;
+      /// 5x5 matrix as array
+      std::vector<Double32_t> cov_;
       /// position index
       index idx( index i, index j ) const {
 	int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );

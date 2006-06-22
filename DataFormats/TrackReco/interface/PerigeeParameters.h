@@ -31,8 +31,6 @@ namespace reco {
   namespace perigee {
     /// enumerator provided indices to the five parameters
     enum index { i_tcurv = 0 , i_theta, i_phi0, i_d0, i_dz}; 
-    /// parameter vector internal storage
-    typedef std::vector<Double32_t> InnerParameterVector;
     /// parameter dimension
     enum { dimension = 5 };
     /// parameter vector<
@@ -54,7 +52,7 @@ namespace reco {
 	par_[ 0 ] = p0;	par_[ 1 ] = p1;	par_[ 2 ] = p2;	par_[ 3 ] = p3;	par_[ 4 ] = p4;
       }
       /// constructor from vector
-      Parameters( const InnerParameterVector & p , double pt ) : 
+      Parameters( const std::vector<double> & p , double pt ) : 
 	par_( p ), pt_( pt ) { }
       /// constructor from double *
       Parameters( const double * p, double pt ) : par_( dimension ), pt_( pt ) {
@@ -104,7 +102,7 @@ namespace reco {
       }
     private:
       /// five parameters
-      InnerParameterVector par_;
+      std::vector<Double32_t> par_;
       /// transverse momentum
       Double32_t pt_;
     };
