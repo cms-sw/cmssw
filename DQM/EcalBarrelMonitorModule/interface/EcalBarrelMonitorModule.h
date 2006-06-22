@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/05/11 19:46:07 $
- * $Revision: 1.34 $
+ * $Date: 2006/05/19 18:13:41 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -72,8 +72,6 @@ int irun_;
 bool verbose_;
 
 bool enableMonitorDaemon_;
-
-bool enableSleep_;
 
 bool enableEventDisplay_;
 

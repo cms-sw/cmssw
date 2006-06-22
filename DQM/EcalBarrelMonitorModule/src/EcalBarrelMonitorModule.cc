@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/20 09:12:15 $
- * $Revision: 1.97 $
+ * $Date: 2006/06/20 12:12:18 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -79,15 +79,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
   }
 
-  // Sleep switch
-  enableSleep_ = ps.getUntrackedParameter<bool>("enableSleep", false);
-
-  if ( enableSleep_ ) {
-    LogInfo("EcalBarrelMonitor") << " enableSleep switch is ON";
-  } else {
-    LogInfo("EcalBarrelMonitor") << " enableSleep switch is OFF";
-  }
-
   // EventDisplay switch
   enableEventDisplay_ = ps.getUntrackedParameter<bool>("enableEventDisplay", false);
 
@@ -118,7 +109,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should give enough time to the control MEs to reach the Collector,
   // and then hopefully the Client
 
-  if ( enableSleep_ ) sleep(10);
+  sleep(10);
 
   meEBDCC_ = 0;
 
@@ -172,8 +163,6 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  if ( enableSleep_ ) sleep(5);
-
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
@@ -193,8 +182,6 @@ void EcalBarrelMonitorModule::endJob(void) {
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the Client, and to allow the Client to complete
 
-  if ( enableSleep_ ) sleep(60);
-
   // we should always sleep at least a little ...
 
   sleep(10);
@@ -209,7 +196,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
 
-  if ( enableSleep_ && ievt_ == 0 ) sleep(120);
+  if ( ievt_ == 0 ) sleep(10);
 
   map<int, EcalDCCHeaderBlock> dccMap;
   Handle<EcalRawDataCollection> dcchs;
