@@ -53,6 +53,7 @@ testSimActivityRegistry::signalTest()
 {
    SimActivityRegistry registry;
 
+   for(int i=0; i<1000; i++) {
    TEST(beginOfRun,BeginOfRun);
    TEST(beginOfJob,BeginOfJob);
    TEST(beginOfEvent,BeginOfEvent);
@@ -63,6 +64,7 @@ testSimActivityRegistry::signalTest()
    TEST(endOfRun,EndOfRun);
    TEST(endOfEvent,EndOfEvent);
    TEST(endOfTrack,EndOfTrack);   
+   }
 }
 
 namespace {
