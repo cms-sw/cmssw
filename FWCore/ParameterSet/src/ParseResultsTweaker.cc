@@ -28,6 +28,10 @@ namespace edm {
         edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
       } else {
 
+
+        // make whatever backwards link you can now.  Include Nodes
+        // can add more as needed
+        processNode->setAsChildrensParent();
         // find any include nodes
         // maybe someday list the current file as an open file,
         // so it never gets circularly included
@@ -35,8 +39,8 @@ namespace edm {
         std::list<std::string> sameLevelIncludes;
         processNode->resolve(openFiles, sameLevelIncludes);
 
-        // make the backwards links
-        processNode->setAsChildrensParent();
+        // make the final backwards linksa.  Needed?
+        //processNode->setAsChildrensParent();
 
         NodePtrListPtr contents = processNode->nodes();
         sortNodes(contents);
