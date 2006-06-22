@@ -6,11 +6,10 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.8 2006/05/09 03:19:09 lsexton Exp $
+$Id: BranchDescription.h,v 1.9 2006/05/24 01:52:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
