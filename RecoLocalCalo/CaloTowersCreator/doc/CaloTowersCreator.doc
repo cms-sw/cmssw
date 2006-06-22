@@ -17,7 +17,9 @@
 This package provides a module to construct CaloTowers from
 HBHERecHits, HORecHits, HFRecHits, and EcalRecHits.  This module uses
 CaloTowerConstituentsMap to handle the assignment of %hit detids to
-towers.
+towers.  See DataFormats_CaloTowers and DataFormats_RecoCandidates for related classes.
+A candidate object is created from a CaloTower, and is used to encapsulate a vertex assumption 
+and to allow for generic algorithm definition.
 
 <!--
 \subsection interface Public interface
@@ -39,8 +41,7 @@ towers.
 
 \section status Status and planned development
 
-- CaloTowersCreator is complete, but some functionality may be missing from
-  CaloTowersConstituentMap (e.g. EE mapping)
+- CaloTowersCreator is complete, including support for EE.
 
 <hr>
 Last updated:
