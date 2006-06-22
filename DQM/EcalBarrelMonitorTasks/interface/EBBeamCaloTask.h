@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/06/13 14:00:13 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.6 $
  * \author A. Ghezzi
  *
 */
@@ -107,6 +107,14 @@ MonitorElement* CrystalsDone_;
 
 MonitorElement* CrystalInBeam_vs_Event_;
 
+MonitorElement* meEBBCaloReadCryErrors_;
+
+MonitorElement* meEBBCaloE1vsCry_;
+
+MonitorElement* meEBBCaloE3x3vsCry_;
+
+MonitorElement* meEBBCaloBeamCentered_;
+
 bool init_; 
 
 int PreviousTableStatus_[2];
@@ -117,6 +125,7 @@ bool changed_tb_status_;
 int evt_after_change_ ;
 bool  wasFakeChange_;
 int lastStableStatus_ ;
+ int table_step_, crystal_step_;
 //0=stable, 1=moving, 
 // PreviousTableStatus_[0]-> event=current -2
 // PreviousTableStatus_[1]-> event=current -1
