@@ -26,6 +26,7 @@ namespace {
     HcalCalibDigiCollection theHC_;
     HcalTrigPrimDigiCollection theHTP_;
     HcalHistogramDigiCollection theHH_;
+    ZDCDigiCollection theZDC_;
 
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
@@ -33,6 +34,7 @@ namespace {
     edm::Wrapper<edm::SortedCollection<HcalCalibDataFrame> > anotherHC_;
     edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi> > anotherHTP_;
     edm::Wrapper<edm::SortedCollection<HcalHistogramDigi> > anotherHH_;
+    edm::Wrapper<edm::SortedCollection<ZDCDataFrame> > anotherZDC_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
