@@ -44,8 +44,8 @@ namespace edm {
 
       void processReplaceNode(const NodePtr & n, NodePtrMap & targetMap);
 
-      /// parses the dot-delimited path string
-      std::vector<std::string> parsePath(const std::string & path);
+      /// once we're done with a rename/replace node, we throw it away
+      void removeNode(const NodePtr & victim);
 
       /// parameters are specified by dot-delimited names.
       /// this method walks the tree 
@@ -54,9 +54,6 @@ namespace edm {
       /// throws a ConfigurationError if not found
       NodePtr findPtr(const std::string & name, NodePtrMap & nodeMap);
   
-      /// puts the parts back together to return the ParseResults
-      void reassemble(NodePtrListPtr & parseResults);
-
       /// utilities to modify a block before it's inlined
 
       /// pulls any modifier commands (rename, copy, replace, etc.)
@@ -64,6 +61,10 @@ namespace edm {
       /// they're stored in blockModifiers and erased from the input.
       void findBlockModifiers(NodePtrList & modifierNodes, 
                               NodePtrList & blockModifiers);
+
+      /// lists all the top-level nodes, while treating the IncludeNodes
+      /// as transparent
+      void findTopLevelNodes(const NodePtrList & input, NodePtrList & output);
 
       /// Nodes which represent top-level PSet blocks
       NodePtrMap blocks_;
@@ -84,9 +85,6 @@ namespace edm {
 
       /// key is the name of the module or source
       NodePtrMap modulesAndSources_;
-
-      /// Everything but modules, sources, & modification nodes
-      NodePtrList everythingElse_;
     };
   }
 }

@@ -32,7 +32,8 @@ namespace edm {
         // maybe someday list the current file as an open file,
         // so it never gets circularly included
         std::list<std::string> openFiles;
-        processNode->resolve(openFiles);
+        std::list<std::string> sameLevelIncludes;
+        processNode->resolve(openFiles, sameLevelIncludes);
 
         // make the backwards links
         processNode->setAsChildrensParent();
@@ -99,7 +100,7 @@ namespace edm {
             processReplaceNode(*nodeItr, modulesAndSources_);
           }
 
-          reassemble(contents);
+          // reassemble(contents);
         }
       }
     }
@@ -116,31 +117,28 @@ namespace edm {
       blockRenameNodes_.clear();
       blockReplaceNodes_.clear();
       modulesAndSources_.clear();
-      everythingElse_.clear();
     }
 
 
     void ParseResultsTweaker::sortNodes(const NodePtrListPtr & nodes)
     {
 
-      for(NodePtrList::const_iterator nodeItr = nodes->begin();
-          nodeItr != nodes->end(); ++nodeItr)
+      NodePtrList topLevelNodes;
+      findTopLevelNodes(*nodes, topLevelNodes);
+
+      for(NodePtrList::const_iterator nodeItr = topLevelNodes.begin();
+          nodeItr != topLevelNodes.end(); ++nodeItr)
       {
         // see what the type is
         string type = (*nodeItr)->type();
         string name = (*nodeItr)->name;
-
         // see if it's ont of the many types of ModuleNode first
         ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
         if(moduleNode != 0) 
         {
           //@@TODO FIX HACK! unnamed es_prefers need to be unmodifiable for the
           // time being, since they can have the same class as a different es_source
-          if(type == "es_prefer") 
-          {
-            everythingElse_.push_back(*nodeItr);
-          }
-          else
+          if(type != "es_prefer") 
           {
             // unnamed modules are named after class
             if(name == "nameless" || name == "" || name=="main_es_input") 
@@ -177,9 +175,6 @@ namespace edm {
           renameNodes_.push_back(*nodeItr);
         }
 
-        else {
-          everythingElse_.push_back(*nodeItr);
-        }
       }
     }
 
@@ -200,6 +195,7 @@ namespace edm {
       }  // loop over modules & sources
     }
 
+
     void ParseResultsTweaker::processCopyNode(const NodePtr & n,
                                 ParseResultsTweaker::NodePtrMap  & targetMap)
     {
@@ -212,6 +208,7 @@ namespace edm {
 
       // and add it in the maps here
       targetMap[copyNode->to()] = toPtr;
+      removeNode(n);
     }
 
 
@@ -227,6 +224,8 @@ namespace edm {
       // and replace it in the maps here
       targetMap[renameNode->to()] = targetPtr;
       targetMap.erase(renameNode->from());
+      // get rid of the renameNode
+      removeNode(n);
     }
 
 
@@ -238,12 +237,15 @@ namespace edm {
       assert(replaceNode != 0);
       // we're here to replace it.  So replace it.
       targetPtr->replaceWith(replaceNode);
+      removeNode(n);
     }
 
 
-    std::vector<std::string> ParseResultsTweaker::parsePath(const std::string & path)
+    void ParseResultsTweaker::removeNode(const NodePtr & victim)
     {
-      return tokenize(path, ".");
+      CompositeNode * parent  = dynamic_cast<CompositeNode *>(victim->getParent());
+      assert(parent != 0);
+      parent->removeChild(victim->name);
     }
 
 
@@ -251,7 +253,7 @@ namespace edm {
                                             ParseResultsTweaker::NodePtrMap  & targetMap)
     {
       typedef vector<string> stringvec_t;
-      stringvec_t pathElements = parsePath(path);
+      stringvec_t pathElements = tokenize(path, ".");
       stringvec_t::const_iterator it =  pathElements.begin();
       stringvec_t::const_iterator end = pathElements.end();
 
@@ -268,7 +270,12 @@ namespace edm {
           throw edm::Exception(errors::Configuration,"No such element") 
              << "Not a composite node: " << currentNode->name << " in " << path;
         }
-        currentPtr = compositeNode->findChild(*it);
+        if(compositeNode->findChild(*it, currentPtr) == false)
+        {
+          throw edm::Exception(errors::Configuration,"No such element")
+             << "Could not find: " << *it << " in " << currentNode->name;
+        }
+
 
         ++it; 
       }
@@ -289,33 +296,6 @@ namespace edm {
     }
 
 
-    void ParseResultsTweaker::reassemble(NodePtrListPtr & contents)
-    {
-      contents->clear();
- 
-      // blocks go first
-      for(NodePtrMap::const_iterator blockItr = blocks_.begin();
-          blockItr != blocks_.end(); ++blockItr)
-      {
-        contents->push_back(blockItr->second);
-      }
-
-      // put on the (modified) modules
-      for(NodePtrMap::const_iterator moduleItr = modulesAndSources_.begin(); 
-          moduleItr != modulesAndSources_.end(); ++moduleItr)
-      {
-        contents->push_back(moduleItr->second);
-      }
-
-      // and everything else that was in the original.  Order shouldn't matter
-      for(NodePtrList::const_iterator nodeItr = everythingElse_.begin();
-          nodeItr != everythingElse_.end(); ++nodeItr)
-      {
-        contents->push_back(*nodeItr);
-      }
-    }
-
-
     void ParseResultsTweaker::findBlockModifiers(NodePtrList & modifierNodes,
                                                  NodePtrList & blockModifiers)
     {
@@ -327,13 +307,36 @@ namespace edm {
         ++next;
 
         // see if this name is a block name
-        string topLevel = parsePath( (**modifierItr).name )[0];
+        string topLevel = tokenize((**modifierItr).name, ".")[0];
         if(blocks_.find(topLevel) != blocks_.end())
         {
           blockModifiers.push_back(*modifierItr);
           modifierNodes.erase(modifierItr);
         }
         modifierItr = next;
+      }
+    }
+
+
+    void ParseResultsTweaker::findTopLevelNodes(const NodePtrList & input, NodePtrList & output)
+    {
+      for(NodePtrList::const_iterator inputNodeItr = input.begin();
+          inputNodeItr  != input.end(); ++inputNodeItr)
+      {
+        // make IncludeNodes transparent
+        if((**inputNodeItr).type() == "include")
+        {
+          const IncludeNode * includeNode = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
+          assert(includeNode != 0);
+          // recursive call!
+          findTopLevelNodes(*(includeNode->nodes()), output);
+          // just to make sure recursion didn't bite me
+          assert((**inputNodeItr).type() == "include");
+        }
+        else 
+        {
+          output.push_back(*inputNodeItr);
+        }
       }
     }
           

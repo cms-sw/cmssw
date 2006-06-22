@@ -85,31 +85,68 @@ namespace edm {
     }
 
 
-    NodePtr CompositeNode::findChild(const string & child)
+    bool CompositeNode::findChild(const string & child, NodePtr & result)
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
       {
          if((*i)->name == child) {
-           return *i;
+           result = *i;
+           return true;
+         }
+
+         // IncludeNodes are transparent to this
+         if((**i).type() == "include") 
+         {
+           if(findChild(child, result))
+           {
+             return true;
+           }
          }
       }
 
       // uh oh.  Didn't find it.
-      throw edm::Exception(errors::Configuration)
-        << "Cannot find child " << child
-        << " in composite node " << name;
+      return false;
     }
 
 
-    void CompositeNode::resolve(std::list<std::string> & openFiles)
+    void CompositeNode::removeChild(const std::string & child) 
     {
-      //TODO make sure that no siblings are IncludeNodes with the 
+      NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        if((**i).name == child)
+        {
+          nodes_->erase(i);
+          // only set this node's modified flag
+          modified_ = true;
+          return;
+        }
+      }
+ 
+      // if we didn't find it
+      throw edm::Exception(errors::Configuration,"")
+        << "Cannot find node " <<child << " to erase in " << name;
+
+    }
+    
+
+    void CompositeNode::resolve(std::list<std::string> & openFiles,
+                                std::list<std::string> & sameLevelIncludes)
+    {
+      // make sure that no siblings are IncludeNodes with the 
       // same name
+      // IncludeNodes are transparent, so they don't get a new branch on
+      // the family tree.  If it's another CompositeNode, it gets its
+      // own stack
+      std::list<std::string> newList;
+      std::list<std::string> & thisLevelIncludes = (type() == "include")
+                             ? sameLevelIncludes
+                             : newList; 
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
       {
-        (**i).resolve(openFiles);
+        (**i).resolve(openFiles, thisLevelIncludes);
       }
     }
 
