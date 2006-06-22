@@ -3,9 +3,7 @@
  <class name="AlignTransform"/>
  <class name="std::vector<AlignTransform>"/>
  <class name="uint32_t"/>
- <class name="CLHEP::HepEulerAngles"/>
  <class name="CLHEP::Hep3Vector"/>
- <class name="CLHEP::HepSymMatrix"/>
 
  <class name="AlignmentErrors"/>
  <class name="AlignTransformError"/>

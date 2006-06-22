@@ -24,7 +24,7 @@ public:
 				  const Translation & itranslationError,
                   const uint32_t & irawId ) :
 	m_translation(itranslation),
-	m_translationError(itranslationError)
+	m_translationError(itranslationError),
 	m_angles(0),m_angleErrors(0),
     m_rawId(irawId) {}
   
@@ -35,7 +35,7 @@ public:
 				  const Angles & iangleErrors,
                   const uint32_t & irawId ) :
 	m_translation(itranslation),
-	m_translationError(itranslationError)
+	m_translationError(itranslationError),
 	m_angles(iangles),
 	m_angleErrors(iangleErrors),
     m_rawId(irawId) {}
