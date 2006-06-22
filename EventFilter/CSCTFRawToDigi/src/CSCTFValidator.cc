@@ -19,7 +19,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "TBDataFormats/CSCTFTBRawData/interface/CSCTFTBEventData.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFTBEventData.h"
 #include "CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

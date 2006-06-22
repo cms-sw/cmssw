@@ -30,8 +30,8 @@
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 //CSC Track Finder Raw Data Formats // TB and DDU
-#include "TBDataFormats/CSCTFTBRawData/interface/CSCTFTBEventData.h"
-#include "DataFormats/CSCTFRawData/interface/CSCTFEvent.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFTBEventData.h"
+#include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
 // more to come later
 
 #include <iostream>
