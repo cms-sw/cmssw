@@ -26,7 +26,7 @@ namespace edm {
 
     struct Node
     {
-      Node(std::string const& n, int li) : name(n), line(li), modified_(false) { }
+      Node(std::string const& n, int li);
 
       /// needed for deep copies
       virtual Node * clone() const = 0;
@@ -47,7 +47,7 @@ namespace edm {
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
 
-      virtual void setModified(bool value) {modified_ = value;}
+      virtual void setModified(bool value);
       /// throw an exception if this node is flagged as modified
       void assertNotModified() const;
       virtual bool isModified() const {return modified_;}
@@ -56,7 +56,8 @@ namespace edm {
 
       typedef std::map<std::string, Ptr> NodeMap;
       /// most subclasses won't do anything
-      virtual void resolve(std::list<std::string> & openFiles) {}
+      virtual void resolve(std::list<std::string> & openFiles, 
+                           std::list<std::string> & sameLevelIncludes) {}
       virtual void resolveUsingNodes(const NodeMap & blocks) {}
 
       /// Nodes which can exist on the top level of the
