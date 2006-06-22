@@ -9,55 +9,61 @@
  */
 
 #include "DataFormats/TrackReco/interface/PerigeeParameters.h"
+#include "DataFormats/Math/interface/Error.h"
+#include <algorithm>
 
 namespace reco {
   namespace perigee {
     /// perigee parameter covariance matrix (5x5)
-    typedef math::Error<5>::type ParameterError;
+    typedef std::vector<Double32_t> InnerParameterError;
+    /// 5 parameter covariance matrix
+    typedef math::Error<dimension>::type ParameterError;
     /// position-momentum covariance matrix (6x6).
     typedef math::Error<6>::type PosMomError;
-
     class Covariance {
     public:
       /// default constructor
-      Covariance() {} 
+      Covariance() : cov_( 15 ) { }
       /// constructor from matrix
-      Covariance( const ParameterError & e ) : 
+      Covariance( const InnerParameterError & e ) : 
 	cov_( e ) { }
       /// constructor from double * (15 parameters)
-      Covariance( const double * cov ) : cov_() { 
-	int k = 0;
-	for( int i = 0; i < ParameterError::kRows; ++i )
-	  for( int j = i; j < ParameterError::kCols; ++j )
-	    cov_( i, j ) = cov[ k++ ];
+      Covariance( const double * cov ) : cov_( 15 ) { 
+	std::copy( cov, cov + ParameterError::kSize, cov_.begin() );
       }
       /// index type
       typedef unsigned int index;
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4 (read only mode)
-      double operator()( index i, index j ) const { return cov_( i, j ); }
+      double operator()( index i, index j ) const { return cov_[ idx( i, j ) ]; }
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4
-      double & operator()( index i, index j ) { return cov_ ( i, j ); }
-
+      double & operator()( index i, index j ) { return cov_[ idx ( i, j ) ]; }
       /// error on specified element
-      double error( index i ) const { return sqrt( cov_( i, i ) ); }
-
+      double error( index i ) const { return sqrt( cov_[ idx( i, i ) ] ); }
       /// error on the transverse curvature
-      double transverseCurvatureError() const { return sqrt( cov_( i_tcurv, i_tcurv ) ); }
+      double transverseCurvatureError() const { return sqrt( cov_[ idx( i_tcurv, i_tcurv ) ] ); }
       /// error on theta
-      double thetaError() const { return sqrt( cov_( i_theta, i_theta ) ); }
+      double thetaError() const { return sqrt( cov_[ idx( i_theta, i_theta ) ] ); }
       /// error on phi0
-      double phi0Error() const { return sqrt( cov_( i_phi0, i_phi0 ) ); }
+      double phi0Error() const { return sqrt( cov_[ idx ( i_phi0, i_phi0 ) ] ); }
       /// error on d0
-      double d0Error() const { return sqrt( cov_( i_d0, i_d0 ) ); }
+      double d0Error() const { return sqrt( cov_[ idx( i_d0, i_d0 ) ] ); }
       /// error on dx
-      double dzError() const { return sqrt( cov_( i_dz, i_dz ) ); }
+      double dzError() const { return sqrt( cov_[ idx( i_dz, i_dz ) ] ); }
+      /// return SMatrix
+      ParameterError matrix() const { ParameterError m; fill( m ); return m; }
+      /// fill SMatrix
+      void fill( ParameterError & v ) const;
 
     private:
       /// 5x5 matrix
-      ParameterError cov_;
+      InnerParameterError cov_;
+      /// position index
+      index idx( index i, index j ) const {
+	int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
+	return a * dimension + b - a * ( a + 1 ) / 2;
+      }
     };
   }
 }
-
 
 #endif
