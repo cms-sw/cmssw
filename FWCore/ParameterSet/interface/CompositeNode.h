@@ -8,6 +8,7 @@ namespace edm {
 
     /** CompositeNode is meant as a base class */
     struct CompositeNode : public Node {
+    public:
       CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
       : Node(name, line), nodes_(nodes) {}
 
@@ -25,13 +26,16 @@ namespace edm {
       virtual void setAsChildrensParent();
 
       /// finds a first-level subnode with this name
-      NodePtr findChild(const std::string & child);
+      bool findChild(const std::string & child, NodePtr & result);
+
+      void removeChild(const std::string & child);
 
       /// returns all sub-nodes
       NodePtrListPtr nodes() const {return nodes_;}
 
       /// resolve any includes in sub-nodes
-      virtual void resolve(std::list<std::string> & openFiles);
+      virtual void resolve(std::list<std::string> & openFiles,
+                           std::list<std::string> & sameLevelIncludes);
 
       /// if a direct descendant is a using block, inline it.
       /// otherwise, pass the call to the child nodes
@@ -40,6 +44,7 @@ namespace edm {
       /// inserts all subnodes
       virtual void insertInto(ParameterSet & pset) const;
 
+    protected:
       NodePtrListPtr nodes_;
     };
 
