@@ -13,10 +13,13 @@
 // Author:      Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBDTData.h,v 1.2 2006/02/27 01:19:23 lgray Exp $
+// $Id: CSCTFTBDTData.h,v 1.1 2006/06/22 00:34:18 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBDTData.h,v $
+// Revision 1.1  2006/06/22 00:34:18  lgray
+// Moved all data format classes here. Removed old Packages from nightly
+//
 // Revision 1.2  2006/02/27 01:19:23  lgray
 // Changes to print functions and test data file
 //

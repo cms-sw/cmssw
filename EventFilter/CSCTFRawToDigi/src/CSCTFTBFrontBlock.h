@@ -13,10 +13,13 @@
 // Author:      Lindsey Gray
 // Created:     13.5.2003
 //
-// $Id: CSCTFTBFrontBlock.h,v 1.2 2006/02/26 23:34:33 lgray Exp $
+// $Id: CSCTFTBFrontBlock.h,v 1.1 2006/06/22 00:34:18 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBFrontBlock.h,v $
+// Revision 1.1  2006/06/22 00:34:18  lgray
+// Moved all data format classes here. Removed old Packages from nightly
+//
 // Revision 1.2  2006/02/26 23:34:33  lgray
 // Adding tests for raw data.
 //

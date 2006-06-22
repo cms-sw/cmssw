@@ -11,10 +11,13 @@
 // Author:      Lindsey Gray
 // Created:     24.1.2005
 //
-// $Id: CSCTFTBFrontBlock.cc,v 1.6 2006/04/08 06:18:15 lgray Exp $
+// $Id: CSCTFTBFrontBlock.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBFrontBlock.cc,v $
+// Revision 1.1  2006/06/22 00:34:18  lgray
+// Moved all data format classes here. Removed old Packages from nightly
+//
 // Revision 1.6  2006/04/08 06:18:15  lgray
 // Conform to change in CSCDigi
 //
@@ -101,7 +104,7 @@
 // Constants, enums and typedefs
 
 // CVS-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: CSCTFTBFrontBlock.cc,v 1.6 2006/04/08 06:18:15 lgray Exp $";
+static const char* const kIdString  = "$Id: CSCTFTBFrontBlock.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $";
 static const char* const kTagString = "$Name:  $";
 
 // Static data member definitions

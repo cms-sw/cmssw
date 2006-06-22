@@ -13,10 +13,13 @@
 // Author:      Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBFrontData.h,v 1.2 2006/02/24 23:15:43 lgray Exp $
+// $Id: CSCTFTBFrontData.h,v 1.1 2006/06/22 00:34:18 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBFrontData.h,v $
+// Revision 1.1  2006/06/22 00:34:18  lgray
+// Moved all data format classes here. Removed old Packages from nightly
+//
 // Revision 1.2  2006/02/24 23:15:43  lgray
 // Fixed buildfile, added default ctor to FrontData
 //

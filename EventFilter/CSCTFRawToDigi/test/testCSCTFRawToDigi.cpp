@@ -1,7 +1,7 @@
 /* \file testCSCTFRawToDigi.cc
  *
- *  $Date: 2006/03/02 14:47:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/27 01:25:46 $
+ *  $Revision: 1.1 $
  *  \author L. Gray , ripped from testDaqSource
  */
 

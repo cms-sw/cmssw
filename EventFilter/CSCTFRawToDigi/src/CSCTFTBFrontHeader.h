@@ -13,7 +13,7 @@
 // Author:      Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBFrontHeader.h,v 1.1 2006/02/22 23:15:49 lgray Exp $
+// $Id: CSCTFTBFrontHeader.h,v 1.1 2006/06/22 00:34:18 lgray Exp $
 
 // System include files
 #include <iostream>

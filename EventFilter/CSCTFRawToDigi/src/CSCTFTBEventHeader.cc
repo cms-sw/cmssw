@@ -13,10 +13,13 @@
 // Author:      Darin Acosta / Holger Stoeck / Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBEventHeader.cc,v 1.1 2006/02/22 23:16:42 lgray Exp $
+// $Id: CSCTFTBEventHeader.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $
 //
 // Revision History
 // $Log: CSCTFTBEventHeader.cc,v $
+// Revision 1.1  2006/06/22 00:34:18  lgray
+// Moved all data format classes here. Removed old Packages from nightly
+//
 // Revision 1.1  2006/02/22 23:16:42  lgray
 // First commit of test beam data format from UF
 //
@@ -84,7 +87,7 @@
 // Constants, enums and typedefs
 
 // CVS-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: CSCTFTBEventHeader.cc,v 1.1 2006/02/22 23:16:42 lgray Exp $";
+static const char* const kIdString  = "$Id: CSCTFTBEventHeader.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $";
 static const char* const kTagString = "$Name:  $";
 
 // Static data member definitions

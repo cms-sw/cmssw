@@ -5,8 +5,8 @@
  *
  * Interface to the Data Quality Monitoring Module.
  *  
- *  $Date: 2005/12/12 09:11:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/24 23:13:58 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni (CERN)
  *
