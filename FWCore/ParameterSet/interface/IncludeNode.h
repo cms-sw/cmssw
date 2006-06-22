@@ -26,7 +26,8 @@ namespace edm {
       
       /// fills in the CompositeNode by parsing the included file
       /// the argument prevents circular includes
-      void resolve(std::list<std::string> & openFiles);
+      void resolve(std::list<std::string> & openFiles,
+                   std::list<std::string> & sameLevelIncludes);
 
       /// simply inserts all subnodes
       virtual void insertInto(edm::ProcessDesc & procDesc) const;

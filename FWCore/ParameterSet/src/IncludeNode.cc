@@ -48,7 +48,8 @@ namespace edm {
     }
 
 
-    void IncludeNode::resolve(std::list<string> & openFiles)
+    void IncludeNode::resolve(std::list<string> & openFiles,
+                              std::list<string> & sameLevelIncludes)
     {
       // we don't allow circular opening of already-open files,
       if(std::find(openFiles.begin(), openFiles.end(), name)
@@ -57,26 +58,33 @@ namespace edm {
         throw edm::Exception(errors::Configuration, "IncludeError")
          << "Circular inclusion of file " << name;
       }
-      openFiles.push_back(name);
 
-      FileInPath fip(name);
-      fullPath_ = fip.fullPath();
-      isResolved_ = true;
-      string configuration;
-      read_whole_file(fip.fullPath(), configuration);
+      // ignore second includes at the same level
+      std::list<std::string>::const_iterator twinSister
+        = find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name);
+      if(twinSister == sameLevelIncludes.end())
+      {
+        openFiles.push_back(name);
+        sameLevelIncludes.push_back(name);
+        FileInPath fip(name);
+        fullPath_ = fip.fullPath();
+        isResolved_ = true;
+        string configuration;
+        read_whole_file(fip.fullPath(), configuration);
 
-      // save the name of the file
-      extern string currentFile;
-      string oldFile = currentFile;
-      currentFile = fullPath_;
-      nodes_ = parse(configuration.c_str());
-      // resolve the includes in any subnodes
-      CompositeNode::resolve(openFiles);
+        // save the name of the file
+        extern string currentFile;
+        string oldFile = currentFile;
+        currentFile = fullPath_;
+        nodes_ = parse(configuration.c_str());
+        // resolve the includes in any subnodes
+        CompositeNode::resolve(openFiles, sameLevelIncludes);
       
-      currentFile = oldFile;
-      // make sure the openFiles list isn't corrupted
-      assert(openFiles.back() == name);
-      openFiles.pop_back();
+        currentFile = oldFile;
+        // make sure the openFiles list isn't corrupted
+        assert(openFiles.back() == name);
+        openFiles.pop_back();
+      }
     }
 
 
