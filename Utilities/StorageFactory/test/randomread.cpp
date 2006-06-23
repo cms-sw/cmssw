@@ -5,6 +5,8 @@
 #include "SealBase/DebugAids.h"
 #include "SealBase/Signal.h"
 #include <iostream>
+#include <math>
+#include <limits>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -31,18 +33,33 @@ int main (int argc, char **argv)
     IOOffset    size = -1;
     StorageFactory::get ()->enableAccounting(true);
     bool	exists = StorageFactory::get ()->check(argv [1], &size);
-    std::cerr << "exists = " << exists << ", size = " << size << "\n";
+    std::cerr << "exists = " << exists << ", size = " << size << std::endl;
     if (! exists) return EXIT_SUCCESS;
 
-    Storage	*s = StorageFactory::get ()->open (argv [1]);
-    char	buf [1024];
+    Storage	*s = StorageFactory::get ()->open (argv [1],seal::IOFlags::OpenRead|seal::IOFlags::OpenUnbuffered);
+    std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
+    char	buf [10000];
     IOSize	n;
-
-    while ((n = s->read (buf, sizeof (buf))))
-	std::cout.write (buf, n);
-
+	IOSize maxBufSize = sizeof(buf);
+	int n_iter=100000;
+    while (n_iter--) {
+    	IOSize bufSize = maxBufSize*(double(rand())/
+    		double(std::numeric_limits<unsigned int>::max()));
+    	IOOffset l_pos = (size-bufSize)*(double(rand())/
+    		double(std::numeric_limits<unsigned int>::max()));
+    	// std::cout << "read " << bufSize << " at " << l_pos << std::endl;
+	    s->position(l_pos);	
+    	n = s->read (buf, bufSize);
+		if (n!=bufSize) {
+			std::cerr << "error: try to read " << n 
+					<< " at " << l_pos << "; got " << n << std::endl;
+			break;	
+		}
+	}
     delete s;
 
+
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
+
     return EXIT_SUCCESS;
 }
