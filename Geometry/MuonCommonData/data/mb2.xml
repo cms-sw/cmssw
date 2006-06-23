@@ -1100,31 +1100,31 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <rParent name="mb2:MB2P32P"/>
    <rChild name="mb2:MB2SuperLayerZ"/>
   <Translation x="[mb2:MB2pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2P23P"/>
    <rChild name="mb2:MB2SuperLayerZ"/>
   <Translation x="[mb2:MB2pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N32P"/>
    <rChild name="mb2:MB2SuperLayerZ"/>
   <Translation x="[mb2:MB2nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N32N"/>
    <rChild name="mb2:MB2SuperLayerZ"/>
   <Translation x="[mb2:MB2nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N23N"/>
    <rChild name="mb2:MB2SuperLayerZ"/>
   <Translation x="[mb2:MB2nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
 
 <!-- #### MB2: DT Superlayer Z internal -->
@@ -1758,13 +1758,13 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <rParent name="mb2:MB2ChimP"/>
    <rChild name="mb2:MB2ChimSuperLayerZ"/>
   <Translation x="[mb2:MB2pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2ChimN"/>
    <rChild name="mb2:MB2ChimSuperLayerZ"/>
    <Translation x="[mb2:MB2pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
 <!-- #### MB2Chim: DT Superlayer Z internal -->
  <PosPart copyNumber="1">

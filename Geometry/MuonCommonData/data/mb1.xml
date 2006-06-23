@@ -1074,19 +1074,19 @@
    <rParent name="mb1:MB1P"/>
    <rChild name="mb1:MB1SuperLayerZ"/>
   <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb1:MB1N"/>
    <rChild name="mb1:MB1SuperLayerZ"/>
   <Translation x="[mb1:MB1nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb1:MB1N0P"/>
    <rChild name="mb1:MB1SuperLayerZ"/>
   <Translation x="[mb1:MB1nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
 <!-- #### MB1: DT Superlayer Z internal -->
  <PosPart copyNumber="1">
@@ -1652,13 +1652,13 @@
    <rParent name="mb1:MB1ChimP"/>
    <rChild name="mb1:MB1ChimSuperLayerZ"/>
   <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb1:MB1ChimN"/>
    <rChild name="mb1:MB1ChimSuperLayerZ"/>
    <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]" />
-  <rRotation name="rotations:R090"/>
+  <rRotation name="rotations:R270"/>
  </PosPart>
 <!-- #### MB1Chim: DT Superlayer Z internal -->
  <PosPart copyNumber="1">
