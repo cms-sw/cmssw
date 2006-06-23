@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.9 2006/06/21 13:30:15 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.10 2006/06/23 07:47:55 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -84,15 +84,15 @@ void SiStripFedCablingBuilderFromDb::buildFedCabling( SiStripConfigDb* const db,
 						      SiStripFedCabling& fed_cabling,
 						      SiStripConfigDb::DcuDetIdMap& new_map ) {
     
-  if ( !db->getFedConnections().empty() ) { // check if Dcu-DetId map is found in local cache
+  if ( !db->getFedConnections().empty() ) {
     
     buildFedCablingFromFedConnections( db, fed_cabling, new_map ); 
     
-  } else if ( !db->getDeviceDescriptions().empty() ) {     // check if Dcu-DetId map is found in local cache
+  } else if ( !db->getDeviceDescriptions().empty() ) {
     
     buildFedCablingFromDevices( db, fed_cabling, new_map ); 
     
-  } else if ( !db->getDcuDetIdMap().empty() ) { // check if Dcu-DetId map is found in local cache
+  } else if ( !db->getDcuDetIdMap().empty() ) {
     
     buildFedCablingFromDetIds( db, fed_cabling, new_map ); 
     
@@ -159,8 +159,6 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
   // Iterate through FedConnections and retrieve all connection info
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
 
-  //uint16_t ii = 0; // DEBUG 
-
   for ( ; ifed != conns.end(); ifed++ ) {
     
     // Retrieve hardware addresses
@@ -185,15 +183,6 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 
     stringstream ss;
     conn.print(ss);
-    
-    //     cout << "before ********** ii " << ii << endl;
-    //     LogDebug("temp") << "before ********** ii " << ii;
-    //     cout << ss.str() << endl;
-    //     LogDebug("SiStripCabling") << ss.str();
-    //     cout << ss.str() << endl;
-    //     cout << "after  ********** ii " << ii << endl;
-    //     LogDebug("temp") << "after  ********** ii " << ii;
-    //     ii++;
     
     // Add object to FEC cabling
     fec_cabling.addDevices( conn );
