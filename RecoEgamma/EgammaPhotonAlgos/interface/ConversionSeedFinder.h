@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: $ 
- **  $Date: $ 
- **  $Revision: $
+ **  $Id: ConversionSeedFinder.h,v 1.1 2006/06/09 15:50:14 nancy Exp $ 
+ **  $Date: 2006/06/09 15:50:14 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -48,7 +48,6 @@ class ConversionSeedFinder {
   
 
   ConversionSeedFinder();
-  ConversionSeedFinder( const MagneticField* field, const GeometricSearchTracker* theTracker );
   ConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
   
 
@@ -57,7 +56,7 @@ class ConversionSeedFinder {
 
   
   virtual void makeSeeds(const reco::BasicClusterCollection& allBc ) const  =0 ;
-  TrajectorySeedCollection seeds() {std::cout << " Returning Out In seeds " << std::endl; return theSeeds_;}
+  TrajectorySeedCollection seeds() {std::cout << " Returning  seeds " << std::endl; return theSeeds_;}
   virtual void setCandidate(reco::SuperCluster& sc ) const { theSC_=&sc; }			       
   vector<const DetLayer*> layerList() const { return theLayerList_;}
  

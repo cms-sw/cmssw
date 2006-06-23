@@ -4,25 +4,30 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: $ 
- **  $Date: $ 
- **  $Revision: $
+ **  $Id: InOutConversionSeedFinder.h,v 1.1 2006/06/09 15:50:34 nancy Exp $ 
+ **  $Date: 2006/06/09 15:50:34 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
+
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+
 #include <string>
 #include <vector>
 
@@ -55,12 +60,13 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual ~InOutConversionSeedFinder();
     
   virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const { ; }  
-  void setTracks(std::vector<const TrajectoryMeasurement*> in) {theOutInTracks_.clear(); theOutInTracks_ = in;}
+  //  void setTracks(std::vector<const TrajectoryMeasurement*> in) {theOutInTracks_.clear(); theOutInTracks_ = in;}
+  void setTracks(std::vector<const Trajectory*> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
 
 
   private :
 
-    std::vector<const TrajectoryMeasurement*> theOutInTracks_;
+    std::vector<const Trajectory*> theOutInTracks_;
     
     mutable vector<TrajectoryMeasurement> theFirstMeasurements_;
    
