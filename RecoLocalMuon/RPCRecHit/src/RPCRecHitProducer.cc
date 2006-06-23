@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/11 05:29:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/15 16:38:03 $
+ *  $Revision: 1.3 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -57,7 +57,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the digis from the event
   Handle<RPCDigiCollection> digis; 
-  event.getByType(digis);
+  event.getByLabel(theRPCDigiLabel,digis);
 
   // Pass the EventSetup to the algo
   theAlgo->setES(setup);
