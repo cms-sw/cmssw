@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.147 $
+ * $Date: 2006/06/23 07:04:29 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -296,8 +296,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // clients' constructors
 
-  clients_.reserve(7);
-  clientNames_.reserve(7);
+  clients_.reserve(8);
+  clientNames_.reserve(8);
 
   clients_.push_back( new EBIntegrityClient(ps, mui_) );
   clientNames_.push_back( "Integrity" );
@@ -336,8 +336,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clientNames_.push_back( "TestPulse" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
-  clients_.push_back(  new EBBeamClient(ps, mui_) );
-  clientNames_.push_back( "Beam" );
+  clients_.push_back(  new EBBeamCaloClient(ps, mui_) );
+  clientNames_.push_back( "BeamCalo" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  clients_.push_back(  new EBBeamHodoClient(ps, mui_) );
+  clientNames_.push_back( "BeamHodo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 

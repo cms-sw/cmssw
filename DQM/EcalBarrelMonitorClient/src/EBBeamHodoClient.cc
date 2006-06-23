@@ -1,8 +1,8 @@
 /*
- * \file EBBeamClient.cc
+ * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.10 $
+ * $Date: 2006/06/22 14:47:06 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,10 +28,10 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
+EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 
@@ -57,22 +57,22 @@ EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
 }
 
-EBBeamClient::~EBBeamClient(){
+EBBeamHodoClient::~EBBeamHodoClient(){
 
 }
 
-void EBBeamClient::beginJob(void){
+void EBBeamHodoClient::beginJob(void){
 
-  if ( verbose_ ) cout << "EBBeamClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBBeamHodoClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
 
 }
 
-void EBBeamClient::beginRun(void){
+void EBBeamHodoClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBBeamClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBBeamHodoClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -82,19 +82,9 @@ void EBBeamClient::beginRun(void){
 
 }
 
-void EBBeamClient::endJob(void) {
+void EBBeamHodoClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBBeamClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
-
-  this->cleanup();
-
-}
-
-void EBBeamClient::endRun(void) {
-
-  if ( verbose_ ) cout << "EBBeamClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBBeamHodoClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -102,15 +92,25 @@ void EBBeamClient::endRun(void) {
 
 }
 
-void EBBeamClient::setup(void) {
+void EBBeamHodoClient::endRun(void) {
+
+  if ( verbose_ ) cout << "EBBeamHodoClient: endRun, jevt = " << jevt_ << endl;
+
+  this->unsubscribe();
+
+  this->cleanup();
 
 }
 
-void EBBeamClient::cleanup(void) {
+void EBBeamHodoClient::setup(void) {
 
 }
 
-void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+void EBBeamHodoClient::cleanup(void) {
+
+}
+
+void EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   EcalLogicID ecid;
   MonOccupancyDat o;
@@ -119,7 +119,7 @@ void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int is
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ..." << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov );
+      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -128,47 +128,47 @@ void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int is
 
 }
 
-void EBBeamClient::subscribe(void){
+void EBBeamHodoClient::subscribe(void){
 
-  if ( verbose_ ) cout << "EBBeamClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBBeamHodoClient: subscribe" << endl;
 
   if ( collateSources_ ) {
 
-    if ( verbose_ ) cout << "EBBeamClient: collate" << endl;
+    if ( verbose_ ) cout << "EBBeamHodoClient: collate" << endl;
 
   }
 
 }
 
-void EBBeamClient::subscribeNew(void){
+void EBBeamHodoClient::subscribeNew(void){
 
 }
 
-void EBBeamClient::unsubscribe(void){
+void EBBeamHodoClient::unsubscribe(void){
 
-  if ( verbose_ ) cout << "EBBeamClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBBeamHodoClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
 
-    if ( verbose_ ) cout << "EBBeamClient: uncollate" << endl;
+    if ( verbose_ ) cout << "EBBeamHodoClient: uncollate" << endl;
 
   }
 
 }
 
-void EBBeamClient::analyze(void){
+void EBBeamHodoClient::analyze(void){
 
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBBeamClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( verbose_ ) cout << "EBBeamHodoClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
 }
 
-void EBBeamClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
-  cout << "Preparing EBBeamClient html output ..." << endl;
+  cout << "Preparing EBBeamHodoClient html output ..." << endl;
 
   ofstream htmlFile;
 

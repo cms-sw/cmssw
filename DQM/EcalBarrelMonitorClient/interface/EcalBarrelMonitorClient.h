@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/06/19 08:38:24 $
- * $Revision: 1.49 $
+ * $Date: 2006/06/22 14:47:05 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,7 +28,8 @@
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
