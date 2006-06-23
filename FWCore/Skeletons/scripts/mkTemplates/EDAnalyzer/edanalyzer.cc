@@ -29,7 +29,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+@example_track #include "FWCore/ParameterSet/interface/InputTag.h"
+@example_track #include "DataFormats/TrackReco/interface/Track.h"
 //
 // class decleration
 //
@@ -43,6 +44,7 @@ class anlzrname : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
+@example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 };
 
 //
@@ -56,7 +58,8 @@ class anlzrname : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-anlzrname::anlzrname(const edm::ParameterSet& iConfig)
+anlzrname::anlzrname(const edm::ParameterSet& iConfig):
+@example_track  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
 {
    //now do what ever initialization is needed
 
@@ -81,11 +84,20 @@ void
 anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+@example_track    using reco::TrackCollection;
+  
+@example_track    Handle<TrackCollection> tracks;
+@example_track    iEvent.getByLabel(trackTags_,tracks);
+@example_track    for(TrackCollection::const_iterator itTrack = tracks->begin();
+@example_track        itTrack != tracks->end();                      
+@example_track        ++itTrack) {
+@example_track       int charge = itTrack->charge();  
+@example_track    }
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 #endif
-
+   
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);

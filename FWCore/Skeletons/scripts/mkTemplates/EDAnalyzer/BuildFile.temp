@@ -2,9 +2,11 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <flags SEAL_PLUGIN_NAME="skelsubsysanlzrname">
+@example_track <use name=DataFormats/TrackReco>
 <export>
    <lib name=skelsubsysanlzrname>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+@example_track    <use name=DataFormats/TrackReco>
 </export>
