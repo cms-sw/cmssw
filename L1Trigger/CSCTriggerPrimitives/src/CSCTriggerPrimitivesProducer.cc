@@ -38,6 +38,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
+  produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
@@ -66,13 +67,15 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
 
   // Fill collections.
   lctBuilder_->build(wireDigis.product(), compDigis.product(),
-		     *oc_alct, *oc_clct, *oc_lct);
+		     *oc_alct, *oc_clct, *oc_lct, *oc_sorted_lct);
 
   // Put collections in event.
   ev.put(oc_alct);
   ev.put(oc_clct);
   ev.put(oc_lct);
+  ev.put(oc_sorted_lct,"MPCSORTED");
 }

@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2005/05/31 18:52:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/01 09:50:23 $
+//   $Revision: 1.2 $
 //
 //   Modifications:
 //
@@ -17,6 +17,7 @@
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
@@ -44,11 +45,20 @@ const int CSCTriggerPrimitivesBuilder::min_chamber =
 const int CSCTriggerPrimitivesBuilder::max_chamber =
                                   CSCTriggerNumbering::maxTriggerCscId();
 
+
+
 //-------------
 // Constructor
 //-------------
 CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf) {
   // Receives ParameterSet percolated down from EDProducer.
+
+  // get min and max BX to sort 
+  m_minBX = conf.getUntrackedParameter<int>("MinBX",-3);
+  m_maxBX = conf.getUntrackedParameter<int>("MaxBX",3);
+
+  //init MPC
+  m_muonportcard = new CSCMuonPortCard();
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
@@ -83,6 +93,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 // Destructor
 //------------
 CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
+
+  delete m_muonportcard;
+
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
@@ -107,10 +120,11 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
 // in each chamber during any bunch crossing.  The 2 projections are then
 // combined into three-dimensional "correlated" LCTs in the TMB.
 void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
-				     const CSCComparatorDigiCollection* compdc,
-		                     CSCALCTDigiCollection& oc_alct,
-		                     CSCCLCTDigiCollection& oc_clct,
-		                     CSCCorrelatedLCTDigiCollection& oc_lct) {
+					const CSCComparatorDigiCollection* compdc,
+					CSCALCTDigiCollection& oc_alct,
+					CSCCLCTDigiCollection& oc_clct,
+					CSCCorrelatedLCTDigiCollection& oc_lct,
+					CSCCorrelatedLCTDigiCollection& oc_sorted_lct) {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
 
@@ -168,4 +182,36 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
       }
     }
   }
+  
+  // run MPC simulation
+  m_muonportcard->loadDigis(oc_lct);
+
+  std::vector<CSCTrackStub> result;
+  for(int bx = m_minBX; bx <= m_maxBX; ++bx)
+    for(int e = min_endcap; e <= max_endcap; ++e)
+      for(int st = min_station; st <= max_station; ++st)
+        for(int se = min_sector; se <= max_sector; ++se)
+          {
+            if(st == 1)
+              {
+		std::vector<CSCTrackStub> subs1, subs2;
+                subs1 = m_muonportcard->sort(e, st, se, 1, bx);
+                subs2 = m_muonportcard->sort(e, st, se, 2, bx);
+                result.insert(result.end(), subs1.begin(), subs1.end());
+                result.insert(result.end(), subs2.begin(), subs2.end());
+              }
+            else
+              {
+		std::vector<CSCTrackStub> sector;
+                sector = m_muonportcard->sort(e, st, se, 0, bx);
+                result.insert(result.end(), sector.begin(), sector.end());
+              }
+          }
+
+  std::vector<CSCTrackStub>::const_iterator itr = result.begin();
+  for(; itr != result.end(); itr++)
+    {
+      oc_sorted_lct.insertDigi(itr->getDetId(), itr->getDigi());
+    }
+
 }

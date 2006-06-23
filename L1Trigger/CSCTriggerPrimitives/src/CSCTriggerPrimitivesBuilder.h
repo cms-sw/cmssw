@@ -21,6 +21,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCMotherboard;
+class CSCMuonPortCard;
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -39,7 +40,8 @@ class CSCTriggerPrimitivesBuilder
   void build(const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
-	     CSCCorrelatedLCTDigiCollection& oc_lct);
+	     CSCCorrelatedLCTDigiCollection& oc_lct, 
+	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */
@@ -60,9 +62,13 @@ class CSCTriggerPrimitivesBuilder
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
 
+  int m_minBX, m_maxBX; // min and max BX to sort.
+
   /** Pointers to TMB processors for all possible chambers. */
   CSCMotherboard*
     tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
+
+  CSCMuonPortCard* m_muonportcard;
 };
 
 #endif
