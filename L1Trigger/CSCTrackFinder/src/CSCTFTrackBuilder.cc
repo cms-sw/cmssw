@@ -48,7 +48,6 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       for(; Diter != Dend; Diter++)
 	{
 	  CSCTrackStub theStub((*Diter),(*Citer).first);
-	  std::cout << theStub.getDetId() << std::endl << theStub.getDigi() << std::endl;
 	  stub_list.push_back(theStub);	  
 	}     
     }   
