@@ -123,58 +123,53 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }
     
 // Figure out the barcode of the HepMC Vertex if there is one
-    int vtxParent = itVtx -> parentIndex(); // Get incoming track (EST)
-    int partHepMC = -1;
-    int vb = 0;       
+    int vertexBarcode = 0;       
+    int vtxParent = itVtx -> parentIndex(); // Get incoming EmbdSimTtrack
     if (vtxParent >= 0) {                     // Is there a parent track 
       EmbdSimTrack est = etc->at(vtxParent);  // Pull track out from vector
-      partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
+      int partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
       HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
       if (hmp != 0) {
         HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
         if (hmpv != 0) {
-          vb = hmpv  -> barcode();
+          vertexBarcode = hmpv  -> barcode();
         }  
       }  
     }  
 
-// Find closest vertex to this one
+// Find closest vertex to this one, save in nearestVertex
 
     double closest = 9e99;
     TrackingVertexCollection::iterator nearestVertex;
 
-    for (TrackingVertexCollection::iterator tV = tVC -> begin(); tV != tVC ->end(); ++tV) {
-//      CLHEP::HepLorentzVector tPosition = tV -> position();  // Get position of ESV
-//      double distance = sqrt(pow(tPosition.x()-position.x(),2) +  
-//                             pow(tPosition.y()-position.y(),2) + 
-//                             pow(tPosition.z()-position.z(),2)); 
-      double distance = HepLorentzVector(tV -> position() - position).v().r();
-      if (distance < closest) { // flag which one so we can associate them
+    for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
+      double distance = HepLorentzVector(iTrkVtx -> position() - position).v().mag();
+      if (distance <= closest) { // flag which one so we can associate them
         closest = distance;
-        nearestVertex = tV; 
+        nearestVertex = iTrkVtx; 
       }   
     }
 
-// If outside cutoff, create another TrackingVertex,
+// If outside cutoff, create another TrackingVertex, set nearest to it
     
     if (closest > distanceCut_) {
       tVC -> push_back(TrackingVertex(position));
-      nearestVertex = tVC -> end();
-      --nearestVertex;
+      nearestVertex = --(tVC -> end());  // Last entry of vector
     } 
      
 // Add data to closest vertex
+    
     (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
-    if (vb) {
-      (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vb)); // Add HepMC vertex
+    if (vertexBarcode != 0) {
+      (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
 
 // Identify and add child tracks       
+
     for (std::map<int,int>::iterator mapIndex = productionVertex.begin(); 
          mapIndex != productionVertex.end();
          ++mapIndex) {
       if (mapIndex -> second == index) {
-//        edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex->first << " to vertex "<<tVC->size()-1;
         (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
       }
     }
