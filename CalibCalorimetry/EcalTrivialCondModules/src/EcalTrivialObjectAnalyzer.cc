@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.3 2006/03/10 18:40:30 rahatlou Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.4 2006/05/13 06:40:14 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -161,16 +161,18 @@ using namespace std;
                 << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
 
 
-      HepMatrix clmat1(3,8,0);
-      HepMatrix clmat2(3,8,0);
+      HepMatrix clmat1(3,10,0);
+      HepMatrix clmat2(3,10,0);
       for(int irow=0; irow<3; irow++) {
-       for(int icol=0; icol<8; icol++) {
+       for(int icol=0; icol<10; icol++) {
          clmat1[irow][icol] = (mat1[irow])[icol]();
          clmat2[irow][icol] = (mat2[irow])[icol]();
        }
      }
      std::cout << "weight matrix before gain switch:" << std::endl;
      std::cout << clmat1 << std::endl;
+     std::cout << "weight matrix before gain switch:" << std::endl;
+     std::cout << clmat2 << std::endl;
 
    } else {
      std::cout << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid << std::endl;
