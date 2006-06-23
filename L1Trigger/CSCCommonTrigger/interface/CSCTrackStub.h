@@ -28,8 +28,8 @@ class CSCTrackStub : public CSCTransientDataType
   CSCTrackStub(const CSCTrackStub&);
 
   /// get/set MPC link number (sorting order)
-  void setMPCLink(const unsigned& link) { link_ = link; }
-  unsigned getMPCLink() const { return link_; }
+  void setMPCLink(const unsigned& link) { theDigi_.setMPCLink(link); }
+  unsigned getMPCLink() const { return theDigi_.getMPCLink(); }
 
   /// set Eta and Phi from integer values.
   void setEtaPacked(const unsigned& eta_) {theEta_ = eta_;}
