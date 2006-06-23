@@ -12,7 +12,8 @@
 //
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 //
 //#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 //
@@ -58,7 +59,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
 
   // Register the product
-  produces< reco::ConvertedPhotonCandidateCollection >(ConvertedPhotonCollection_);
+  produces< reco::ConvertedPhotonCollection >(ConvertedPhotonCollection_);
 
 
 
@@ -89,7 +90,6 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 
     // get the measurement tracker 
     //ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
-
     theMeasurementTracker_ = new MeasurementTracker(theEventSetup, conf_);
     theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
     theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
@@ -102,7 +102,7 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 
     // get the Out In Track Finder
     edm::LogInfo("ConvertedPhotonProducer") << "get the OutInTrackFinder" << "\n";
-    theOutInTrackFinder_ = new OutInConversionTrackFinder ( &(*theMF_)  );
+    theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
 
 
     // get the In Out Seed Finder  
@@ -111,8 +111,8 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 
 
     // get the In Out Track Finder
-    edm::LogInfo("ConvertedPhotonProducer") << "get theIn OutTrackFinder" << "\n";
-    theInOutTrackFinder_ = new InOutConversionTrackFinder ( &(*theMF_)  );
+    edm::LogInfo("ConvertedPhotonProducer") << "get the InOutTrackFinder" << "\n";
+    theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_, &(*theMF_),  theMeasurementTracker_  );
 
 
 
@@ -134,8 +134,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   //
   // create empty output collections
   //
-  std::auto_ptr< reco::ConvertedPhotonCandidateCollection > outputConvPhotonCollection(new reco::ConvertedPhotonCandidateCollection);
-  std::cout << " Created empty ConvertedPhotonCandidateCollection " << std::endl;
+  std::auto_ptr< reco::ConvertedPhotonCollection > outputConvPhotonCollection(new reco::ConvertedPhotonCollection);
+  std::cout << " Created empty ConvertedPhotonCollection size " <<   std::endl;
 
   
 
@@ -169,25 +169,30 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 
 
-  reco::ConvertedPhotonCandidateCollection myConvPhotons; 
+  reco::ConvertedPhotonCollection myConvPhotons; 
   const std::vector<TrajectorySeed> theOutInSeeds;
 
   //  Loop over SC and reconstruct converted photons
+  int myCands=0;
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
     theOutInSeedFinder_->setCandidate(*aClus);
 
     theOutInSeedFinder_->makeSeeds( *(bccHandle.product()) );
    
-    std::vector<const TrajectoryMeasurement*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+    //    std::vector<const TrajectoryMeasurement*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+    std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
     theInOutSeedFinder_->makeSeeds( *(bccHandle.product()) );
 
-    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
+    //    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
+    std::vector<const Trajectory*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
 
     // Define candidates with tracks
+
+    std::cout << "  ConvertedPhotonProducer theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() << std::endl;
 
     if ( theOutInTracks.size() ||  theOutInTracks.size() ) {
 
@@ -196,17 +201,19 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       // vertex finding
       // final candidate 
 
+      reco::ConvertedPhoton newCandidate;
+      outputConvPhotonCollection->push_back(newCandidate);
+      myCands++;      
+
+
     }
 
-    reco::ConvertedPhotonCandidate newCandidate;
-    outputConvPhotonCollection->push_back(newCandidate);
     
   }
 
 
-
   // put the product in the event
-  std::cout << " Put the ConvertedPhotonCollection of size " <<  ConvertedPhotonCollection_.size() << "  in the event " << std::endl;
+  std::cout << " Put the ConvertedPhotonCollection " << myCands << "  candidates " << std::endl;
   theEvent.put( outputConvPhotonCollection, ConvertedPhotonCollection_);
 
 
