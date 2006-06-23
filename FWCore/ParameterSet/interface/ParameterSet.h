@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.26 2006/06/15 22:07:41 rpw Exp $
+// $Id: ParameterSet.h,v 1.27 2006/06/21 17:55:47 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -276,7 +276,7 @@ private:
 
 
   // ----------------------------------------------------------------------
-  // InputTag
+  // VInputTag
 
   template <>
   inline
@@ -457,6 +457,62 @@ private:
   ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVString();
   }
+
+  // ----------------------------------------------------------------------
+  //  FileInPath
+
+  template<>
+  inline
+  edm::FileInPath
+  ParameterSet::getUntrackedParameter<edm::FileInPath>(std::string const& name, edm::FileInPath const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getFileInPath();
+  }
+
+  template<>
+  inline
+  edm::FileInPath
+  ParameterSet::getUntrackedParameter<edm::FileInPath>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getFileInPath();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // InputTag, VInputTag
+
+  template<>
+  inline
+  edm::InputTag
+  ParameterSet::getUntrackedParameter<edm::InputTag>(std::string const& name, edm::InputTag const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getInputTag();
+  }
+
+  template<>
+  inline
+  edm::InputTag
+  ParameterSet::getUntrackedParameter<edm::InputTag>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getInputTag();
+  }
+
+  template<>
+  inline
+  std::vector<edm::InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<edm::InputTag> >(std::string const& name, 
+                                      std::vector<edm::InputTag> const& defaultValue) const 
+  {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVInputTag();
+  }
+
+
+  template<>
+  inline
+  std::vector<edm::InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<edm::InputTag> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVInputTag();
+  }
+
 
   
   // ----------------------------------------------------------------------
