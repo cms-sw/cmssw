@@ -25,11 +25,7 @@ public:
   /// destructor
   ~L1CaloRegion();
   
-  /// get eta index (0-21) of the region
-  unsigned etaIndex() const;
-
-  /// get phi index (0-17) of the region
-  unsigned phiIndex() const;
+  // get/set methods for the data
 
   /// get Et
   unsigned et() const { return (m_data & 0x3ff); }
@@ -46,13 +42,44 @@ public:
   /// get quiet bit
   bool quiet() const { return ((m_data>>13) & 0x1)!=0; }
 
-
-  /// set MIP bit (required because MIP/quiet bits arrive at different source card from the rest of the region!)
+  /// set MIP bit (required for GCT emulator standalone operation)
   void setMip(bool mip);
 
-  /// set quiet bit (required because MIP/quiet bits arrive at different source card from the rest of the region!)
+  /// set quiet bit (required for GCT emulator standalone operation)
   void setQuiet(bool quiet);
 
+  
+  // get methods for the geographical information
+
+  /// get RCT crate ID
+  unsigned rctCrate() const ;
+
+  /// get RCT reciever card ID (valid output for HB/HE)
+  unsigned rctCard() const ;
+
+  /// get RCT region index
+  unsigned rctRegionIndex() const ;
+
+  /// get local eta index (within RCT crate)
+  unsigned rctEtaIndex() const ;
+
+  /// get local phi index (within RCT crate)
+  unsigned rctPhiIndex() const ; 
+
+  /// get GCT source card ID
+  unsigned gctCard() const ;
+
+  /// get GCT eta index (global)
+  unsigned gctEtaIndex() const ;
+
+  /// get GCT phi index (global)
+  unsigned gctPhiIndex() const ;
+
+  /// get pseudorapidity
+  float pseudorapidity() const ;
+
+  /// get phi in radians
+  float phi() const ;
 
 
   /// print to stream
