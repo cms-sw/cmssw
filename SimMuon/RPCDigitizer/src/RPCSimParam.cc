@@ -49,7 +49,9 @@ RPCSimParam::simulate(const RPCRoll* roll,
 
     // Effinciecy
     if (RandFlat::shoot() < aveEff) {
-      int centralStrip = topology.channel(entr);  
+      int centralStrip = topology.channel(entr)+1;  
+      int fstrip=centralStrip;
+      int lstrip=centralStrip;
       // Compute the cluster size
       double w = RandFlat::shoot();
       if (w < 1.e-10) w=1.e-10;
@@ -57,19 +59,17 @@ RPCSimParam::simulate(const RPCRoll* roll,
       std::vector<int> cls;
       cls.push_back(centralStrip);
       if (clsize > 1){
-	int fstrip = 0;
 	for (int cl = 0; cl < (clsize-1)/2; cl++)
-	  if (centralStrip - cl -1 > 1  ){
+	  if (centralStrip - cl -1 >= 1  ){
 	    fstrip = centralStrip-cl-1;
 	    cls.push_back(fstrip);
 	  }
-	int lstrip = 0;
 	for (int cl = 0; cl < (clsize-1)/2; cl++)
 	  if (centralStrip + cl + 1 <= roll->nstrips() ){
 	    lstrip = centralStrip+cl+1;
 	    cls.push_back(lstrip);
 	  }
-	if (clsize%2 == 1 ){
+	if (clsize%2 == 0 ){
 	  // insert the last strip according to the 
 	  // simhit position in the central strip 
 	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
@@ -86,9 +86,9 @@ RPCSimParam::simulate(const RPCRoll* roll,
 	  }
 	}
       }
-      for (unsigned int i=0; i<cls.size();i++){
+      for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	strips.insert(cls[i]);
+	strips.insert(*i);
       }
     }
   }
