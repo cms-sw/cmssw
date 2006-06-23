@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.4 2006/05/25 00:48:48 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.5 2006/06/06 16:58:56 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -25,12 +25,19 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
 
-  pedMeanX12_ = ps.getUntrackedParameter<double>("pedMeanX12", 198.80);
-  pedRMSX12_  = ps.getUntrackedParameter<double>("pedRMSX12",  1.10);
-  pedMeanX6_  = ps.getUntrackedParameter<double>("pedMeanX6",  199.40);
-  pedRMSX6_   = ps.getUntrackedParameter<double>("pedRMSX6",   0.90);
-  pedMeanX1_  = ps.getUntrackedParameter<double>("pedMeanX1",  201.00);
-  pedRMSX1_   = ps.getUntrackedParameter<double>("pedRMSX1",   0.62);
+  EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 198.80);
+  EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
+  EBpedMeanX6_  = ps.getUntrackedParameter<double>("EBpedMeanX6",  199.40);
+  EBpedRMSX6_   = ps.getUntrackedParameter<double>("EBpedRMSX6",   0.90);
+  EBpedMeanX1_  = ps.getUntrackedParameter<double>("EBpedMeanX1",  201.00);
+  EBpedRMSX1_   = ps.getUntrackedParameter<double>("EBpedRMSX1",   0.62);
+
+  EEpedMeanX12_ = ps.getUntrackedParameter<double>("EEpedMeanX12", 198.80);
+  EEpedRMSX12_  = ps.getUntrackedParameter<double>("EEpedRMSX12",  1.10);
+  EEpedMeanX6_  = ps.getUntrackedParameter<double>("EEpedMeanX6",  199.40);
+  EEpedRMSX6_   = ps.getUntrackedParameter<double>("EEpedRMSX6",   0.90);
+  EEpedMeanX1_  = ps.getUntrackedParameter<double>("EEpedMeanX1",  201.00);
+  EEpedRMSX1_   = ps.getUntrackedParameter<double>("EEpedRMSX1",   0.62);
 
   gainRatio12over6_ = ps.getUntrackedParameter<double>("gainRatio12over6", 2.0);
   gainRatio6over1_  = ps.getUntrackedParameter<double>("gainRatio6over1",  6.0);
@@ -52,6 +59,23 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   assert(amplwgtv.size() == 10);
   for(std::vector<double>::const_iterator it = amplwgtv.begin(); it != amplwgtv.end(); ++it) {
     amplWeights_.push_back( EcalWeight(*it) );
+  }
+
+  std::vector<double> vamplAftGain;
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  1. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  vamplAftGain.push_back(  0. );
+  std::vector<double> amplwgtvaft = ps.getUntrackedParameter< std::vector<double> >("amplWeightsAftGain", vamplAftGain);
+  assert(amplwgtvaft.size() == 10);
+  for(std::vector<double>::const_iterator it = amplwgtvaft.begin(); it != amplwgtvaft.end(); ++it) {
+    amplWeightsAft_.push_back( EcalWeight(*it) );
   }
 
   // default weights to reco amplitude w/o pedestal subtraction
@@ -90,24 +114,46 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     jittWeights_.push_back( EcalWeight(*it) );
   }
 
+
+  producedEcalPedestals_ = ps.getUntrackedParameter<bool>("producedEcalPedestals",true);
+  producedEcalWeights_ = ps.getUntrackedParameter<bool>("producedEcalWeights",true);
+  producedEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstants",true);
+  producedEcalGainRatios_ = ps.getUntrackedParameter<bool>("producedEcalGainRatios",true);
+  producedEcalADCToGeVConstant_ = ps.getUntrackedParameter<bool>("producedEcalADCToGeVConstant",true);
+
   verbose_  = ps.getUntrackedParameter<int>("verbose", 0);
 
   //Tell Producer what we produce
   //setWhatProduced(this);
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalPedestals );
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalWeightXtalGroups );
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants );
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalGainRatios );
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalADCToGeVConstant );
-  setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTBWeights );
+  if (producedEcalPedestals_)
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalPedestals );
+  if (producedEcalWeights_)
+    {
+      setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalWeightXtalGroups );
+      setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTBWeights );
+    }
+  if (producedEcalIntercalibConstants_)
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants );
+  if (producedEcalGainRatios_)
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalGainRatios );
+  if (producedEcalADCToGeVConstant_)
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalADCToGeVConstant );
 
   //Tell Finder what records we find
-  findingRecord<EcalPedestalsRcd>();
-  findingRecord<EcalWeightXtalGroupsRcd>();
-  findingRecord<EcalIntercalibConstantsRcd>();
-  findingRecord<EcalGainRatiosRcd>();
-  findingRecord<EcalADCToGeVConstantRcd>();
-  findingRecord<EcalTBWeightsRcd>();
+  if (producedEcalPedestals_)
+    findingRecord<EcalPedestalsRcd>();
+  if (producedEcalWeights_)
+    {
+      findingRecord<EcalWeightXtalGroupsRcd>();
+      findingRecord<EcalTBWeightsRcd>();
+    }
+  if (producedEcalIntercalibConstants_)
+    findingRecord<EcalIntercalibConstantsRcd>();
+  if (producedEcalGainRatios_)
+    findingRecord<EcalGainRatiosRcd>();
+  if (producedEcalADCToGeVConstant_)
+    findingRecord<EcalADCToGeVConstantRcd>();
+
 }
 
 EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever()
@@ -131,14 +177,22 @@ EcalTrivialConditionRetriever::setIntervalFor( const edm::eventsetup::EventSetup
 std::auto_ptr<EcalPedestals>
 EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
   std::auto_ptr<EcalPedestals>  peds = std::auto_ptr<EcalPedestals>( new EcalPedestals() );
-  EcalPedestals::Item item;
+  EcalPedestals::Item EBitem;
+  EcalPedestals::Item EEitem;
   
-  item.mean_x1  = pedMeanX1_;
-  item.rms_x1   = pedRMSX1_;
-  item.mean_x6  = pedMeanX6_;
-  item.rms_x6   = pedRMSX6_;
-  item.mean_x12 = pedMeanX12_;
-  item.rms_x12  = pedRMSX12_;
+  EBitem.mean_x1  = EBpedMeanX1_;
+  EBitem.rms_x1   = EBpedRMSX1_;
+  EBitem.mean_x6  = EBpedMeanX6_;
+  EBitem.rms_x6   = EBpedRMSX6_;
+  EBitem.mean_x12 = EBpedMeanX12_;
+  EBitem.rms_x12  = EBpedRMSX12_;
+
+  EEitem.mean_x1  = EEpedMeanX1_;
+  EEitem.rms_x1   = EEpedRMSX1_;
+  EEitem.mean_x6  = EEpedMeanX6_;
+  EEitem.rms_x6   = EEpedRMSX6_;
+  EEitem.mean_x12 = EEpedMeanX12_;
+  EEitem.rms_x12  = EEpedRMSX12_;
   
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
@@ -147,7 +201,7 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
       try 
 	{
 	  EBDetId ebdetid(iEta,iPhi);
-	  peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+	  peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),EBitem));
 	}
       catch (...)
 	{
@@ -161,9 +215,9 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
       try 
 	{
 	  EEDetId eedetidpos(iX,iY,1);
-	  peds->m_pedestals.insert(std::make_pair(eedetidpos.rawId(),item));
+	  peds->m_pedestals.insert(std::make_pair(eedetidpos.rawId(),EEitem));
 	  EEDetId eedetidneg(iX,iY,-1);
-	  peds->m_pedestals.insert(std::make_pair(eedetidneg.rawId(),item));
+	  peds->m_pedestals.insert(std::make_pair(eedetidneg.rawId(),EEitem));
 	}
       catch (...)
 	{
@@ -347,7 +401,7 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
     mat1.push_back(jittWeights_);
     
     // use same wights after gain switch for now
-    mat2.push_back(amplWeights_);
+    mat2.push_back(amplWeightsAft_);
     mat2.push_back(pedWeights_);
     mat2.push_back(jittWeights_);
     

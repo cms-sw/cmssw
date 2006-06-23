@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.2 2006/03/10 18:31:37 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.3 2006/05/13 06:39:29 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -81,24 +81,35 @@ private:
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
 
-  double pedMeanX12_;              // pedestal mean pedestal at gain 12
-  double pedRMSX12_;               // pedestal rms at gain 12
-  double pedMeanX6_;               // pedestal mean pedestal at gain 6
-  double pedRMSX6_;                // pedestal rms at gain 6
-  double pedMeanX1_;               // pedestal mean pedestal at gain 1
-  double pedRMSX1_;                // pedestal rms at gain 1
+  double EBpedMeanX12_;              // pedestal mean pedestal at gain 12
+  double EBpedRMSX12_;               // pedestal rms at gain 12
+  double EBpedMeanX6_;               // pedestal mean pedestal at gain 6
+  double EBpedRMSX6_;                // pedestal rms at gain 6
+  double EBpedMeanX1_;               // pedestal mean pedestal at gain 1
+  double EBpedRMSX1_;                // pedestal rms at gain 1
+
+  double EEpedMeanX12_;              // pedestal mean pedestal at gain 12
+  double EEpedRMSX12_;               // pedestal rms at gain 12
+  double EEpedMeanX6_;               // pedestal mean pedestal at gain 6
+  double EEpedRMSX6_;                // pedestal rms at gain 6
+  double EEpedMeanX1_;               // pedestal mean pedestal at gain 1
+  double EEpedRMSX1_;                // pedestal rms at gain 1
 
   double gainRatio12over6_;        // ratio of MGPA gain12 / gain6
   double gainRatio6over1_;         // ratio of MGPA gain6 / gain1
 
   std::vector<EcalWeight> amplWeights_;  // weights to compute amplitudes after ped subtraction
+  std::vector<EcalWeight> amplWeightsAft_;  // weights to compute amplitudes after ped subtraction
   std::vector<EcalWeight> pedWeights_;  // weights to compute amplitudes w/o ped subtraction
   std::vector<EcalWeight> jittWeights_;  // weights to compute jitter
 
+  bool producedEcalPedestals_;
+  bool producedEcalWeights_;
+  bool producedEcalIntercalibConstants_;
+  bool producedEcalGainRatios_;
+  bool producedEcalADCToGeVConstant_;
 
   int    verbose_; // verbosity
-
-
 
 };
 #endif
