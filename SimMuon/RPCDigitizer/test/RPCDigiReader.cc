@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/05/22 20:21:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/23 06:43:43 $
+ *  $Revision: 1.3 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -38,11 +38,9 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
    std:: cout << "--- Run: " << event.id().run()
 	      << " Event: " << event.id().event() << std::endl;
-   
+
    edm::Handle<RPCDigiCollection> rpcDigis;
-   //   event.getByLabel(label, rpcDigis);
-   //   event.getByLabel("MuonRPCDigi", rpcDigis);
-   event.getByType(rpcDigis);
+   event.getByLabel(label, rpcDigis);
    edm::Handle<edm::PSimHitContainer> simHits; 
    event.getByLabel("SimG4Object","MuonRPCHits",simHits);    
 
