@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.6 2006/06/12 17:08:43 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.7 2006/06/21 13:30:15 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -35,8 +35,8 @@ SiStripConfigDb::SiStripConfigDb( string user,
   edm::LogInfo("ConfigDb") << "[SiStripConfigDb::SiStripConfigDb]"
 			   << " Using configuration database...";
   partition_.name_ = partition;
-  partition_.major_ = -1;
-  partition_.minor_ = -1;
+  partition_.major_ = 0;
+  partition_.minor_ = 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -75,51 +75,49 @@ SiStripConfigDb::~SiStripConfigDb() {
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripConfigDb::openDbConnection() {
-  edm::LogInfo("FedCabling") << "[SiStripConfigDb::openDbConnection]";
-  cout << "[SiStripConfigDb::openDbConnection]" << endl;
+void SiStripConfigDb::openDbConnection() {
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::openDbConnection]";
 
-  try {
-
-    // Create device factory object
-    factory_ = new DeviceFactory(); 
-    if ( !deviceFactory("SiStripConfigDb::openDbConnection") ) { return false; }
-    deviceFactory()->setUsingDb( usingDb_ ); //@@ necessary?
-    
-    edm::LogInfo("ConfigDb") << "[SiStripConfigDb::openDbConnection]"
-			     << " DeviceFactory created at address " << deviceFactory();
-
-    // Initialise IO 
-    if ( usingDb_ ) { if ( usingDatabase() ) { return false; } }
-    else { if ( usingXmlFiles() ) { return false; } }
-
-    // Refresh local cache
-    //refreshLocalCache();
-    
-  } 
-  catch (...) { handleSqlException( "SiStripConfigDb::openDbConnection" ); }
-  
-  return true;
-}
-
-// -----------------------------------------------------------------------------
-//
-bool SiStripConfigDb::closeDbConnection() {
-  edm::LogInfo("FedCabling") << "[SiStripConfigDb::closeDbConnection]";
-  try { 
-    if ( factory_ ) { 
-      delete factory_; 
-      factory_ = 0; 
-    } 
+  // Establish database connection
+  if ( usingDb_ ) { 
+    usingDatabase(); 
+  } else { 
+    usingXmlFiles(); 
   }
-  catch (...) { handleSqlException( "SiStripConfigDb::closeDbConnection" ); }
-  return true;
+  
+  // Refresh local cache
+  refreshLocalCaches();
+
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripConfigDb::updateLocalCaches() {
-  LogDebug("FedCabling") << "[SiStripConfigDb::updateLocalCaches]";
+void SiStripConfigDb::closeDbConnection() {
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::closeDbConnection]";
+  try { 
+    if ( factory_ ) { delete factory_; }
+  } catch (...) { handleException( "SiStripConfigDb::closeDbConnection" ); }
+  factory_ = 0; 
+}
+
+// -----------------------------------------------------------------------------
+//
+DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const { 
+  if ( !factory_ ) { 
+    stringstream ss;
+    if ( method_name != "" ) { ss << "[" << method_name << "]"; }
+    else { ss << "[SiStripConfigDb::deviceFactory]"; }
+    ss << " Null pointer to DeviceFactory API! \n";
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
+    return 0;
+  } else { return factory_; }
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::refreshLocalCaches() {
+  LogDebug("SiStripConfigDb") << "[SiStripConfigDb::refreshLocalCaches]";
   // Reset all local caches
   resetDeviceDescriptions();
   resetFedDescriptions();
@@ -138,12 +136,22 @@ void SiStripConfigDb::updateLocalCaches() {
 
 // -----------------------------------------------------------------------------
 // 
-const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions( const enumDeviceType& device_type,
+const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions( const enumDeviceType& device_type,	
 										   bool all_devices_except ) {
+  stringstream ss;
+  ss << "[SiStripConfigDb::getDeviceDescriptions]";
+  if ( !all_devices_except ) { 
+    ss << " Retrieving " << deviceType( device_type ) << " descriptions..."; 
+  } else {
+    ss << " Retrieving descriptions for all devices except " 
+       << deviceType( device_type ) << "...";
+  }
+  edm::LogInfo("SiStripConfigDb") << ss.str();
+  
   // Use static object to hold device description of a particular type
   static SiStripConfigDb::DeviceDescriptions descriptions;
   descriptions.clear();
-
+  
   DeviceDescriptions::iterator idevice = devices_.begin();
   for ( ; idevice != devices_.end(); idevice++ ) {
     deviceDescription* desc = *idevice;
@@ -153,17 +161,33 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     if ( all_devices_except && desc->getDeviceType() != device_type ) { descriptions.push_back( desc ); }
   }
   
-  if ( descriptions.empty() ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::getDeviceDescriptions]"
-			      << " No descriptions found!";
+  stringstream sss; 
+  if ( descriptions.empty() ) { 
+    sss << "[SiStripConfigDb::getDeviceDescriptions]";
+    if ( !all_devices_except ) {
+      sss << " No " << deviceType( device_type ) << " descriptions found";
+    } else {
+      sss << " No descriptions found (for all devices except " 
+	  << deviceType( device_type ) << ")";
+    }
+    edm::LogError("SiStripConfigDb") << sss.str();
+    throw cms::Exception("SiStripConfigDb") << sss.str();
+  } else {
+    sss << "[SiStripConfigDb::getDeviceDescriptions]"
+	<< " Found " << descriptions.size() << " descriptions (for";
+    if ( !all_devices_except ) { sss << " " << deviceType( device_type ) << ")"; }
+    else { sss << " all devices except " << deviceType( device_type ) << ")"; }
+    edm::LogInfo("SiStripConfigDb") << sss.str();
   }
-  
+
   return descriptions;
 }
 
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions() {
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::getDeviceDescriptions]"
+				  << " Retrieving device descriptions...";
 
   if ( !deviceFactory("SiStripConfigDb::getDeviceDescriptions") ) { return devices_; }
 
@@ -186,11 +210,22 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     resetDevices_ = false;
     
   }
-  catch (...) { handleFecException( "SiStripConfigDb::getDeviceDescriptions" ); }
+  catch (...) { handleException( "SiStripConfigDb::getDeviceDescriptions" ); }
   
+  stringstream ss; 
   if ( devices_.empty() ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::getDeviceDescriptions]"
-			      << " No device descriptions found!";
+    ss << "[SiStripConfigDb::getDeviceDescriptions]"
+       << " No device descriptions found";
+    if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
+  } else {
+    ss << "[SiStripConfigDb::getDeviceDescriptions]"
+       << " Found " << devices_.size() << " device descriptions";
+    if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogInfo("SiStripConfigDb") << ss.str();
   }
 
   return devices_;
@@ -229,7 +264,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
 
   }
   catch (...) { 
-    handleFecException( "SiStripConfigDb::getDeviceDescriptions" ); 
+    handleException( "SiStripConfigDb::getDeviceDescriptions" ); 
   }
   
 }
@@ -251,7 +286,7 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
   // Retrieve FEC key
   keyType key;
   try { key = const_cast<deviceDescription&>(description).getKey(); }
-  catch (...) { handleFecException( "SiStripConfigDb::deviceAddress" ); }
+  catch (...) { handleException( "SiStripConfigDb::deviceAddress" ); }
   
   // Extract hardware addresses
   addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ getCrateKey(key) );
@@ -271,6 +306,8 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::getFedDescriptions]"
+				  << " Retrieving FED descriptions...";
 
   if ( !deviceFactory("SiStripConfigDb::uploadDeviceDescriptions") ) { return feds_; }
 
@@ -284,14 +321,25 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
     resetFeds_ = false;
   }
   catch (... ) {
-    handleFedException( "SiStripConfigDb::getFedDescriptions" );
+    handleException( "SiStripConfigDb::getFedDescriptions" );
   }
   
+  stringstream ss; 
   if ( feds_.empty() ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::getFedDescriptions]"
-			      << " No FED descriptions found!";
+    ss << "[SiStripConfigDb::getFedDescriptions]"
+       << " No FED descriptions found";
+    if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
+  } else {
+    ss << "[SiStripConfigDb::getFedDescriptions]"
+       << " Found " << feds_.size() << " FED descriptions";
+    if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogInfo("SiStripConfigDb") << ss.str();
   }
-
+  
   return feds_;
 }
 
@@ -323,7 +371,7 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
     }
   }
   catch (...) { 
-    handleFecException( "SiStripConfigDb::getDeviceDescriptions" ); 
+    handleException( "SiStripConfigDb::getDeviceDescriptions" ); 
   }
   
 }
@@ -354,31 +402,46 @@ const vector<uint16_t>& SiStripConfigDb::getFedIds() {
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
-
-  if ( !deviceFactory("SiStripConfigDb::getFedConnections") ) { return connections_; }
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::getFedConnections]"
+			     << " Retrieving FED-FEC connections...";
 
   if ( !resetConnections_ ) { return connections_; }
-
-  try {
-    if ( usingDb_ ) { 
+  
+  if ( usingDb_ ) { 
+    try {
       deviceFactory()->setInputDBVersion( partition_.name_,
 					  partition_.major_,
 					  partition_.minor_ );
     }
+    catch (...) { handleException( "SiStripConfigDb::getFedConnections",
+				   "Problems setting input DB version!" ); }
+  }
+  
+  try {
     for ( int iconn = 0; iconn < deviceFactory()->getNumberOfFedChannel(); iconn++ ) {
       connections_.push_back( deviceFactory()->getFedChannelConnection( iconn ) ); 
     }
     resetConnections_ = false;
   }
-  catch (...) { handleFecException( "SiStripConfigDb::getFedConnections" ); }
-
+  catch (...) { handleException( "SiStripConfigDb::getFedConnections",
+				 "Problems retrieving connection descriptions!" ); }
+  
+  stringstream ss; 
   if ( connections_.empty() ) {
-    stringstream ss; ss << "No FED connections found";
-    if ( !usingDb_ ) { ss << " in input xml file " << inputModuleXml_; }
-    else { ss << " in database partition " << partition_.name_; }
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::fedConnections]" << ss.str();
+    ss << "[SiStripConfigDb::getFedConnections]"
+       << " No FED connections found";
+    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
+  } else {
+    ss << "[SiStripConfigDb::getFedConnections]"
+       << " Found " << connections_.size() << " FED connections";
+    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogInfo("SiStripConfigDb") << ss.str();
   }
-
+  
   return connections_;
 }
 
@@ -413,7 +476,7 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
   }
   catch (...) {
-    handleFecException( "SiStripConfigDb::getFedConnections" );
+    handleException( "SiStripConfigDb::getFedConnections" );
   }
 
 }
@@ -425,21 +488,35 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
-
-  if ( !deviceFactory("SiStripConfigDb::getDcuDetIdMap") ) { return dcuDetIdMap_; }
+  edm::LogInfo("SiStripConfigDb") << "[SiStripConfigDb::getDcuDetIdMap]"
+				  << " Retrieving DetId-DCU mapping...";
+  
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
   
   try {
-    //     if ( !usingDb_ ) {
-    //       if ( inputDcuInfoXml_ != "" ) { 
     dcuDetIdMap_ = deviceFactory()->getInfos(); 
-    //       }
-    //     }
     resetDcuDetIdMap_ = false;
   }
   catch (... ) {
-    handleSqlException( "SiStripConfigDb::getDcuDetIdMap" );
+    handleException( "SiStripConfigDb::getDcuDetIdMap" );
   }
+
+  stringstream ss; 
+  if ( dcuDetIdMap_.empty() ) {
+    ss << "[SiStripConfigDb::getDcuDetIdMap]"
+       << " No DCU-DetId map found";
+    if ( !usingDb_ ) { ss << " in input 'dcuinfo.xml' file " << inputDcuInfoXml_; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
+  } else {
+    ss << "[SiStripConfigDb::getFedConnections]"
+       << " Found " << dcuDetIdMap_.size() << " entries in DCU-DetId map";
+    if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputDcuInfoXml_; }
+    else { ss << " in database partition '" << partition_.name_ << "'"; }
+    edm::LogInfo("SiStripConfigDb") << ss.str();
+  }
+
   return dcuDetIdMap_;
 }
 
@@ -461,7 +538,7 @@ void SiStripConfigDb::uploadDcuDetIdMap() {
   try {
   }
   catch (... ) {
-    handleSqlException( "SiStripConfigDb::uploadDcuDetIdMap" );
+    handleException( "SiStripConfigDb::uploadDcuDetIdMap" );
   }
 
 }
@@ -478,7 +555,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescrip
     deviceFactory()->getPiaResetDescriptions( partition_.name_, piaResets_ );
     resetPiaResets_ = false;
   }
-  catch (...) { handleFecException( "SiStripConfigDb::getPiaResetDescriptions" ); }
+  catch (...) { handleException( "SiStripConfigDb::getPiaResetDescriptions" ); }
   if ( piaResets_.empty() ) {
     edm::LogError("ConfigDb") << "[SiStripConfigDb::getPiaResetDescriptions]"
 			      << " No PIA reset descriptions found!";
@@ -505,7 +582,7 @@ void SiStripConfigDb::uploadPiaResetDescriptions() {
     deviceFactory()->setPiaResetDescriptions( piaResets_, 
 					      partition_.name_ );
   }
-  catch (... ) { handleSqlException( "SiStripConfigDb::uploadPiaResetDescriptions" ); }
+  catch (... ) { handleException( "SiStripConfigDb::uploadPiaResetDescriptions" ); }
   
 }
 
@@ -710,62 +787,95 @@ void SiStripConfigDb::createDescriptions( const SiStripFecCabling& fec_cabling,
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripConfigDb::usingDatabase() {
-  LogDebug("ConfigDb") << "[SiStripConfigDb::usingDatabase]";
-  
+void SiStripConfigDb::usingDatabase() {
+
   // Check on whether not using database
   if ( !usingDb_ ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::usingDatabase]"
-			      << " Using xml files, not database!";
-    return true;
+    stringstream ss;
+    ss << "[SiStripConfigDb::usingDatabase]"
+       << " Attempting to use xml files when configured to use database!";
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
   
   // Retrieve db connection parameters
   if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::usingDatabase]"
-			      << " Problem with DB connection parameters!"
-			      << " Attempting to use env. var. CONFDB...";
     DbAccess::getDbConfiguration( user_, passwd_, path_ );
     if ( user_ == "" || passwd_ == "" || path_ == "" ) {
-      edm::LogError("ConfigDb") << "[SiStripConfigDb::usingDatabase]"
-				<< " Env. var. CONFDB set incorrectly!";
-      return true;
+      string confdb = "";
+      if ( getenv(CONFDB) != NULL ) { confdb = getenv(CONFDB); } 
+      stringstream ss;
+      ss << "[SiStripConfigDb::usingDatabase]"
+	 << " NULL database connection parameter(s)!" 
+	 << " Extracted from .cfg file: " 
+	 << user_ << "/" << passwd_ << "@" << path_
+	 << " Extracted from CONFDB: " << confdb;
+      edm::LogError("SiStripConfigDb") << ss.str();
+      throw cms::Exception("SiStripConfigDb") << ss.str();
     }
   }
-
-  // Set connection parameters
+  
+  // Create device factory object
   try { 
-    deviceFactory()->setDatabaseAccess( user_, passwd_, path_ ); 
+    factory_ = new DeviceFactory( user_, passwd_, path_ ); 
+    deviceFactory()->setUsingDb( usingDb_ ); //@@ necessary?
   } catch (...) { 
-    handleFecException( "SiStripConfigDb::usingDatabase" ); 
+    stringstream ss; 
+    ss << "Attempting to use database connection parameters '" 
+       << user_ << "/" << passwd_ << "@" << path_ 
+       << "' and partition '" << partition_.name_ << "'";
+    handleException( "SiStripConfigDb::usingDatabase", ss.str() );
+  }
+
+  // Database access for FED-FEC connections
+  try { 
+    deviceFactory()->createInputDBAccess();
+  } catch (...) { 
+    stringstream ss; 
+    ss << "Attempting to use database for FED-FEC connections!";
+    handleException( "SiStripConfigDb::usingDatabase", ss.str() );
+  }
+
+  // DCU-DetId 
+  try { 
+    deviceFactory()->addAllDetId();
+  } catch (...) { 
+    stringstream ss; 
+    ss << "DCU-DetId map!"; 
+    handleException( "SiStripConfigDb::usingDatabase", ss.str() );
   }
   
-  edm::LogInfo("ConfigDb") << "[SiStripConfigDb::usingDatabase] "
-			   << " Using database connection parameters " 
-			   << user_ << "/" << passwd_ << "@" << path_;
-
-  return false;
+  stringstream ss;
+  ss << "[SiStripConfigDb::openDbConnection]"
+     << " DeviceFactory created at address 0x" 
+     << hex << setw(8) << setfill('0') << factory_ << dec
+     << " using database connection parameters '" 
+     << user_ << "/" << passwd_ << "@" << path_
+     << "' and partition '" << partition_.name_ << "'";
+  edm::LogInfo("SiStripConfigDb") << ss.str();
+  
 }  
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripConfigDb::usingXmlFiles() {
+void SiStripConfigDb::usingXmlFiles() {
   LogDebug("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]";
 
-  bool error = false;
-  
-  // Check on whether using database
+  // Check on whether not using database
   if ( usingDb_ ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
-			      << " Using database, not xml files!";
-    return true;
+    stringstream ss;
+    ss << "[SiStripConfigDb::usingDatabase]"
+       << " Attempting to use database when configured to use xml files! \n";
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
 
   // Input module.xml file
   if ( inputModuleXml_ == "" ) {
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
-			      << " Null path to input 'module.xml' file!";
-    error = true;
+    stringstream ss;
+    ss << "[SiStripConfigDb::usingXmlFiles]"
+       << " NULL path to input 'module.xml' file!";
+    edm::LogError("SiStripConfigDb") << ss.str();
   } else {
     if ( checkFileExists( inputModuleXml_ ) ) { 
       try { 
@@ -773,15 +883,19 @@ bool SiStripConfigDb::usingXmlFiles() {
 	//deviceFactory()->addFileName( inputModuleXml_ ); //@@ obsolete?
 	deviceFactory()->setFedFecConnectionInputFileName( inputModuleXml_ ); 
       } catch (...) { 
-	handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
+	handleException( "SiStripConfigDb::usingXmlFiles" ); 
       }
-      edm::LogInfo("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
-			       << " Added 'module.xml' file: " << inputModuleXml_;
+      edm::LogInfo("SiStripConfigDb") 
+	<< "[SiStripConfigDb::usingXmlFiles]"
+	<< " Added input 'module.xml' file found at " << inputModuleXml_;
     } else {
-      edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
-				<< " No 'module.xml' file found at " << inputModuleXml_;
+      stringstream ss; 
+      ss << "[SiStripConfigDb::usingXmlFiles]"
+	 << " Missing input file! No 'module.xml' file found at " 
+	 << inputModuleXml_;
+      edm::LogError("SiStripConfigDb") <<  ss.str();
       inputModuleXml_ = ""; 
-      error = true; 
+      throw cms::Exception("SiStripConfigDb") << ss.str();
     }
   }
   
@@ -789,13 +903,12 @@ bool SiStripConfigDb::usingXmlFiles() {
   if ( inputDcuInfoXml_ == "" ) {
     edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 			      << " Null path to input 'dcuinfo.xml' file!";
-    error = true;
   } else { 
     if ( checkFileExists( inputDcuInfoXml_ ) ) { 
       try { 
 	deviceFactory()->setTkDcuInfoInputFileName( inputDcuInfoXml_ ); 
       } catch (...) { 
-	handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
+	handleException( "SiStripConfigDb::usingXmlFiles" ); 
       }
       edm::LogInfo("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 			       << " Added 'dcuinfo.xml' file: " << inputDcuInfoXml_;
@@ -803,7 +916,6 @@ bool SiStripConfigDb::usingXmlFiles() {
       edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				<< " No 'dcuinfo.xml' file found at " << inputDcuInfoXml_;
       inputDcuInfoXml_ = ""; 
-      error = true; 
     } 
   }
 
@@ -811,14 +923,12 @@ bool SiStripConfigDb::usingXmlFiles() {
   if ( inputFecXml_.empty() ) {
     edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 			      << " No paths to input 'fec.xml' files!";
-    error = true;
   } else {
     vector<string>::iterator iter = inputFecXml_.begin();
     for ( ; iter != inputFecXml_.end(); iter++ ) {
       if ( *iter == "" ) {
 	edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				  << " Null path to input 'fec.xml' file!";
-	error = true;
       } else {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
@@ -828,7 +938,7 @@ bool SiStripConfigDb::usingXmlFiles() {
 	      deviceFactory()->addFecFileName( *iter ); 
 	    }
 	  } catch (...) { 
-	    handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
+	    handleException( "SiStripConfigDb::usingXmlFiles" ); 
 	  }
 	  edm::LogInfo("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				   << " Added 'fec.xml' file: " << *iter;
@@ -836,7 +946,6 @@ bool SiStripConfigDb::usingXmlFiles() {
 	  edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				    << " No 'fec.xml' file found at " << *iter;
 	  *iter = ""; 
-	  error = true; 
 	} 
       }
     }
@@ -846,14 +955,12 @@ bool SiStripConfigDb::usingXmlFiles() {
   if ( inputFedXml_.empty() ) {
     edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 			      << " No paths to input 'fec.xml' files!";
-    error = true;
   } else {
     vector<string>::iterator iter = inputFedXml_.begin();
     for ( ; iter != inputFedXml_.end(); iter++ ) {
       if ( *iter == "" ) {
 	edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				  << " Null path to input 'fed.xml' file!";
-	error = true;
       } else {
 	if ( checkFileExists( *iter ) ) { 
 	  try { 
@@ -863,7 +970,7 @@ bool SiStripConfigDb::usingXmlFiles() {
 	      deviceFactory()->addFedFileName( *iter ); 
 	    }
 	  } catch (...) { 
-	    handleFecException( "SiStripConfigDb::usingXmlFiles" ); 
+	    handleException( "SiStripConfigDb::usingXmlFiles" ); 
 	  }
 	  edm::LogInfo("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				   << " Added 'fed.xml' file: " << *iter;
@@ -871,7 +978,6 @@ bool SiStripConfigDb::usingXmlFiles() {
 	  edm::LogError("ConfigDb") << "[SiStripConfigDb::usingXmlFiles]"
 				    << " No 'fed.xml' file found at " << *iter;
 	  *iter = ""; 
-	  error = true; 
 	} 
       }
     }
@@ -953,65 +1059,61 @@ bool SiStripConfigDb::usingXmlFiles() {
     }
   }
 
-  return error;
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::handleFecException( const string& method_name ) {
-  try { throw; } // rethrow present exception
-  catch ( FecExceptionHandler e ) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" FecExceptionHandler exception thrown with message: " 
-			      << e.getMessage();
+void SiStripConfigDb::handleException( const string& method_name,
+				       const string& extra_info ) throw (cms::Exception) {
+  try {
+    throw; // rethrow caught exception to be dealt with below
+  } 
+  catch ( const cms::Exception& e ) { 
+    throw e; // rethrow cms::Exception to be caught by framework
   }
-  catch ( exception& e ) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" std::exception thrown with message: "
-			      << e.what();
+  catch ( const oracle::occi::SQLException& e ) { 
+    stringstream ss;
+    ss << "Caught oracle::occi::SQLException in ["
+       << method_name << "] with message: \n" 
+       << e.getMessage();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
-  catch (...) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" Caught unknown exception!";
+  catch ( const FecExceptionHandler& e ) {
+    stringstream ss;
+    ss << "Caught FecExceptionHandler exception in ["
+       << method_name << "] with message: \n" 
+       << const_cast<FecExceptionHandler&>(e).getMessage(); //@@ Fred?
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::handleFedException( const string& method_name ) {
-  try { throw; } // rethrow present exception
-  catch ( ICUtils::ICException& e ) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" ICUtils exception thrown with message: " 
-			      << e.what();
+  catch ( const ICUtils::ICException& e ) {
+    stringstream ss;
+    ss << "Caught ICUtils::ICException in ["
+       << method_name << "] with message: \n" 
+       << e.what();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
-  catch ( exception& e ) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" std::exception thrown with message: " 
-			      << e.what();
-  }
-  catch (...) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" Caught unknown exception!";
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::handleSqlException( const string& method_name ) {
-  try { throw; } // rethrow present exception
-  catch ( oracle::occi::SQLException e ) { 
-    edm::LogError("ConfigDb") << "[SiStripConfigDb::closeDbConnection]"
-			      << " oracle::occi::SQLException thrown with message: " 
-			      << e.getMessage();
-  }
-  catch ( exception& e ) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" std::exception thrown with message: " << e.what();
+  catch ( const exception& e ) {
+    stringstream ss;
+    ss << "Caught std::exception in ["
+       << method_name << "] with message: \n" 
+       << e.what();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
   catch (...) {
-    edm::LogError("ConfigDb") << "[" << method_name << "]"
-			      <<" Caught unknown exception!";
+    stringstream ss;
+    ss << "Caught unknown exception in ["
+       << method_name << "]";
+    if ( extra_info != "" ) { ss << "\n" << "Additional info: " << extra_info; }
+    edm::LogError("SiStripConfigDb") << ss.str();
+    throw cms::Exception("SiStripConfigDb") << ss.str();
   }
 }
 
@@ -1024,6 +1126,20 @@ bool SiStripConfigDb::checkFileExists( const std::string& path ) {
   fs.close();
   return true;
 }
+
+// -----------------------------------------------------------------------------
+//
+string SiStripConfigDb::deviceType( const enumDeviceType& device_type ) const {
+  if      ( device_type == PLL )         { return "PLL"; }
+  else if ( device_type == LASERDRIVER ) { return "LLD"; }
+  else if ( device_type == DOH )         { return "DOH"; }
+  else if ( device_type == APVMUX )      { return "MUX"; }
+  else if ( device_type == APV25 )       { return "APV"; }
+  else if ( device_type == PIARESET )    { return "PIA RESET"; }
+  else if ( device_type == GOH )         { return "GOH"; }
+  else { return "UNKNOWN DEVICE!"; }
+}
+
 
 
 

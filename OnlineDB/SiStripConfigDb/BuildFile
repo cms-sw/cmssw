@@ -1,3 +1,4 @@
+<use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/SiStripObjects>
@@ -10,6 +11,7 @@
 
 <export>
    <lib name=OnlineDBSiStripConfigDb>
+   <use name=FWCore/Utilities>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/SiStripDetId>
    <use name=CondFormats/SiStripObjects>

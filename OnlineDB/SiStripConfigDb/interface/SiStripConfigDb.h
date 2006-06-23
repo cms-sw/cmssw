@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.5 2006/06/09 13:15:42 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.6 2006/06/21 13:30:14 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -7,6 +7,7 @@
 
 #define DATABASE //@@ necessary?
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DeviceFactory.h"
 #include "boost/cstdint.hpp"
@@ -50,18 +51,12 @@ class SiStripConfigDb {
   
   // -------------------- Typedefs, structs and enums --------------------
 
-  /** */
-  typedef std::vector<deviceDescription*> DeviceDescriptions;
-  /** */
-  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
-  /** */
+  typedef std::vector<deviceDescription*>               DeviceDescriptions;
+  typedef std::vector<Fed9U::Fed9UDescription*>         FedDescriptions;
   typedef std::vector<FedChannelConnectionDescription*> FedConnections;
-  /** */
-  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
-  /** */
-  typedef std::vector<piaResetDescription*> PiaResetDescriptions;
-  /** */
-  typedef std::vector<TkDcuConversionFactors*> DcuConversions;
+  typedef Sgi::hash_map<unsigned long,TkDcuInfo*>       DcuDetIdMap;
+  typedef std::vector<piaResetDescription*>             PiaResetDescriptions;
+  typedef std::vector<TkDcuConversionFactors*>          DcuConversions;
   
   /** Struct containing partition name and version. */
   struct Partition { 
@@ -83,21 +78,21 @@ class SiStripConfigDb {
 
   // -------------------- Connection and local cache --------------------
   
-  /** Returns pointer to DeviceFactory API, with check if NULL. */
-  inline DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
-  
   /** Establishes connection to DeviceFactory API. */
-  bool openDbConnection();
+  void openDbConnection();
   
   /** Closes connection to DeviceFactory API. */
-  bool closeDbConnection();
+  void closeDbConnection();
   
   /** Returns whether using database or xml files. */
   inline const bool& usingDb() const;
-
+  
+  /** Returns pointer to DeviceFactory API, with check if NULL. */
+  DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
+  
   /** Resets and clears all local caches and synchronizes with
       descriptions retrieved from database or xml files. */
-  void updateLocalCaches();
+  void refreshLocalCaches();
   
   // -------------------- Partitioning and versioning --------------------
   
@@ -112,7 +107,9 @@ class SiStripConfigDb {
 					  const uint32_t& major_version,
 					  const uint32_t& minor_version );
 
-  // -------------------- FEC / Front-End devices -------------------- 
+  // ---------------------------------------------------------------------------
+  // ---------- "Get" methods (to retrieve descriptions) -----------------------
+  // ---------------------------------------------------------------------------
   
   /** Returns descriptions for a given device type (which can be one
       of the following: APV25, APVMUX, DCU, LASERDRIVER, PLL ). If
@@ -123,6 +120,18 @@ class SiStripConfigDb {
   
   /** Fills local cache with all device descriptions from DB/xml. */
   const DeviceDescriptions& getDeviceDescriptions(); 
+  
+  /** Fills local cache with FED descriptions from DB/xml. */
+  const FedDescriptions& getFedDescriptions();
+
+  /** Fills local cache with connection descriptions from DB/xml. */
+  const FedConnections& getFedConnections();
+
+  /** Fills local cache with PIA reset descriptions from DB/xml. */
+  const PiaResetDescriptions& getPiaResetDescriptions();
+
+  // -------------------- FEC / Front-End devices -------------------- 
+  
   
   /** Overwrites local cache of device descriptions. */
   void setDeviceDescriptions( const DeviceDescriptions& ) {;} 
@@ -138,8 +147,6 @@ class SiStripConfigDb {
   
   // -------------------- FED descriptions --------------------
 
-  /** Fills local cache with FED descriptions from DB/xml. */
-  const FedDescriptions& getFedDescriptions();
   
   /** Overwrites local cache of FED descriptions. */
   void setFedDescriptions( const FedDescriptions& );
@@ -164,9 +171,6 @@ class SiStripConfigDb {
   inline void usingStrips( bool );
   
   // -------------------- FED connections --------------------
-  
-  /** Fills local cache with connection descriptions from DB/xml. */
-  const FedConnections& getFedConnections();
   
   /** Overwrites local cache of FED-FEC connections. */
   void setFedConnections( const FedConnections& ) {;} //@@ to be implemented!
@@ -200,8 +204,6 @@ class SiStripConfigDb {
   
   // -------------------- PIA reset descriptions --------------------
 
-  /** Fills local cache with PIA reset descriptions from DB/xml. */
-  const PiaResetDescriptions& getPiaResetDescriptions();
   
   /** Overwrites local cache of PIA reset descriptions. */
   void setPiaResetDescriptions( const PiaResetDescriptions& ) {;}
@@ -235,23 +237,21 @@ class SiStripConfigDb {
   // -------------------- Misc private methods --------------------
   
   /** */
-  bool usingXmlFiles();
-
+  void usingDatabase();
+  
   /** */
-  bool usingDatabase();
-
-  /** Method for handling exceptions thrown by FEC software. */
-  void handleFecException( const std::string& method_name );
-
-  /** Method for handling exceptions thrown by FED software. */
-  void handleFedException( const std::string& method_name );
-
-  /** Method for handling exceptions thrown by Oracle. */
-  void handleSqlException( const std::string& method_name );
-
+  void usingXmlFiles();
+  
+  /** Handles exceptions thrown by FEC and FED software. */
+  void handleException( const std::string& method_name,
+			const std::string& extra_info = "" ) throw (cms::Exception);
+  
   /** Checks whether file at "path" exists or not. */
   bool checkFileExists( const std::string& path );
-
+  
+  /** Returns device identifier based on device type. */
+  std::string deviceType( const enumDeviceType& device_type ) const;
+  
   // ---------- Database connection, partitions and versions ----------
 
   /** Pointer to the DeviceFactory API. */
@@ -268,7 +268,7 @@ class SiStripConfigDb {
 
   /** Partition name and version. */
   Partition partition_;
-
+  
   // -------------------- Xml file input/output --------------------
   
   /** Switch to identify whether using configuration database or not
@@ -341,19 +341,6 @@ class SiStripConfigDb {
 };
 
 // -------------------- Inline methods --------------------
-
-DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) const { 
-  if ( !factory_ ) { 
-    if ( method_name == "" ) {
-      edm::LogError("ConfigDb") << "[SiStripConfigDb::deviceFactory]"
-				<< " Null pointer to DeviceFactory API!";
-    } else {
-      edm::LogError("ConfigDb") << "[" << method_name << "]"
-				<< " Null pointer to DeviceFactory API!";
-    }
-  }
-  return factory_; 
-}
 
 const bool& SiStripConfigDb::usingDb() const { return usingDb_; }
 
