@@ -7,9 +7,14 @@
 using std::ostream;
 using std::endl;
 
-// constructor by ID
-L1CaloRegion::L1CaloRegion(unsigned id, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
-  m_id(id)
+// default constructor
+L1CaloRegion::L1CaloRegion() :
+  m_data(0)
+{
+}
+
+// constructor for emulation
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn)
 {
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
@@ -18,6 +23,13 @@ L1CaloRegion::L1CaloRegion(unsigned id, unsigned et, bool overFlow, bool tauVeto
     ((tauVeto)  ? 0x800  : 0x0) |
     ((mip)      ? 0x1000 : 0x0) |
     ((quiet)    ? 0x2000 : 0x0);
+}
+
+//constructor for unpacking
+L1CaloRegion::L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn) :
+  m_data(data)
+{
+
 }
 
 // destructor

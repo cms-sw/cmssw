@@ -12,6 +12,11 @@
 /*!
  * \class L1CaloRegion
  * \brief A calorimeter trigger region (sum of 4x4 trigger towers)
+ *
+ *  Note that geographical information is not currently stored,
+ *  awaiting advice on implementation.
+ *
+ *
  */
 
 
@@ -19,12 +24,19 @@ class L1CaloRegion
 {
 public:
 
-  /// constructor
-  L1CaloRegion(unsigned id=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
+  /// default constructor
+  L1CaloRegion();
+
+  /// constructor for emulation
+  L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
+
+  // constructor for unpacking
+  L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn);
 
   /// destructor
   ~L1CaloRegion();
   
+
   // get/set methods for the data
 
   /// get Et
@@ -86,8 +98,6 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
 private:
-
-  uint16_t m_id;
 
   /// region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
