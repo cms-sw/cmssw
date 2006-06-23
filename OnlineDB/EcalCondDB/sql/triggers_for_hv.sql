@@ -5,7 +5,7 @@ TRIGGER cond_hv_imon_tg
   FOR EACH ROW
   
 begin
-  update_online_pvss_iov_micros('cond_hv_imon', :newiov.since, :newiov.till,:newiov.logic_id);
+  update_online_pvss_iov_number('cond_hv_imon', :newiov.since, :newiov.till,:newiov.logic_id);
 end;
 /
 
@@ -16,7 +16,7 @@ TRIGGER cond_hv_i0_tg
   FOR EACH ROW
   
 begin
-  update_online_pvss_iov_micros('cond_hv_i0', :newiov.since, :newiov.till,:newiov.logic_id);
+  update_online_pvss_iov_number('cond_hv_i0', :newiov.since, :newiov.till,:newiov.logic_id);
 end;
 /
 
@@ -27,7 +27,7 @@ TRIGGER cond_hv_vmon_tg
   FOR EACH ROW
   
 begin
-  update_online_pvss_iov_micros('cond_hv_vmon', :newiov.since, :newiov.till,:newiov.logic_id);
+  update_online_pvss_iov_number('cond_hv_vmon', :newiov.since, :newiov.till,:newiov.logic_id);
 end;
 /
 
@@ -38,7 +38,7 @@ TRIGGER cond_hv_v0_tg
   FOR EACH ROW
   
 begin
-  update_online_pvss_iov_micros('cond_hv_v0', :newiov.since, :newiov.till,:newiov.logic_id);
+  update_online_pvss_iov_number('cond_hv_v0', :newiov.since, :newiov.till,:newiov.logic_id);
 end;
 /
 
@@ -49,6 +49,6 @@ TRIGGER cond_hv_t_board_tg
   FOR EACH ROW
   
 begin
-  update_online_pvss_iov_micros('cond_hv_t_board', :newiov.since, :newiov.till,:newiov.logic_id);
+  update_online_pvss_iov_number('cond_hv_t_board', :newiov.since, :newiov.till,:newiov.logic_id);
 end;
 /
