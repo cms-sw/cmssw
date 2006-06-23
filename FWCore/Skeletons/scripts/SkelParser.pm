@@ -150,6 +150,11 @@ my $outfile = $_[1];
 
 my $substitutions = $_[2];
 
+my $magic_tokens;
+if (exists $_[3] ) {
+  $magic_tokens = $_[3];
+}
+
 if (-s "$outfile") {
     print "  W: $outfile FILE ALREADY EXISTS WILL NOT OVERWRITE!!\n";
     print "  W: *****************************************************\n";
@@ -227,6 +232,33 @@ if (-s "$outfile") {
 	    #print $result;
 	    s/\@perl(.*)@\\perl/$result/;
 	}
+#   Handle embedded examples
+# expect tags for the line of form example_A(_B_C, etc.)
+# print line if any of command line flags equals any of A(B,C etc.)
+# so example_track_mc lines get printed if either -track or
+# -mc is specified
+        if ( /^\@example_(\S+)/ )
+        {
+          $okprint = 0;
+          my @tokenlist = split '_', $1;
+          foreach $token ( @$magic_tokens )
+          {
+            foreach $othertoken ( @tokenlist )
+            {
+              if ( $token eq $othertoken )
+              {
+                $okprint = 1;
+                s/^\@example_(\S+) ?//;
+                  my $value = $magic_values{$token};
+                s/\@example=/$value/g;
+                
+              }
+            }
+          }
+          if(! $okprint) {
+            next
+          }
+        }
 	print OUT $_;
     }
     close(IN);   
