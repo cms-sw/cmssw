@@ -119,6 +119,10 @@ sub read_args
 	{
 	    &wrt_help; 
 	}
+        elsif ( $curr_arg eq "-list" )
+        {
+          $do_list = 1;
+        }
 	elsif ( $curr_arg eq "-skeldir" )
 	{
 	    $next_arg = shift @_;
@@ -173,7 +177,7 @@ sub wrt_help {
     print <<'ENDHELP';
 mkedanlzr  h: simple little script to make analyzer skeletons
 mkedanlzr  h:
-mkedanlzr  h: execution:  mkedanlzr analyzername
+mkedanlzr  h: execution:  mkedanlzr analyzername [options]
 mkedanlzr  h:
 mkedanlzr  h: output:  analyzername/
 mkedanlzr  h:                       BuildFile
@@ -188,7 +192,9 @@ mkedanlzr  h: analyzername = name of the analyzer
 mkedanlzr  h:
 mkedanlzr  h: optional input:
 mkedanlzr  h:
-mkedanlzr  h: none
+mkedanlzr  h:   -<example type> = generate example code for a specific type
+mkedanlzr  h:                     of data
+mkedanlzr  h:   -list = list the example types currently known
 mkedanlzr  h:
 mkedanlzr  h: example:
 mkedanlzr  h: mkedanlzr MyAnalyzer
@@ -200,8 +206,39 @@ mkedanlzr  h:                              doc/
 mkedanlzr  h:                              test/
 ENDHELP
 
-    print "mkedanlzr  Q: Please enter analyzer name: ";
-    $ARGV[0] = <STDIN>;
-    chop($ARGV[0]);
+    print "mkedanlzr  Q: Please enter analyzer name [<return> exits]: ";
+$_ = <STDIN>;
+chop;
+exit 0 unless $_;
+@ARGV = split;
+&read_args(@ARGV);
 
+}
+
+sub list_tokens
+{
+  print "known example types:\n";
+  foreach $skeleton_key ( keys(%skeletons) )
+  {
+# /Makefile.temp is a special case, since we use $C3_GMAKE/M.processor
+# as our skeleton
+    open( LISTFILE, $skeleton_key ) ||
+    die "Can't open $skeleton_key\n"
+    unless ($skeleton_key eq "/Makefile.temp");
+    while(<LISTFILE>)
+    {
+      if ( /^\@example_(\w+)\b/ )
+      {
+        my @tokenlist = split '_', $1;
+        foreach $token (@tokenlist)
+        {
+          $tokens{$token} = $token;
+        }
+      }
+    }
+  }
+  foreach $token (sort(keys(%tokens)))
+  {
+    print "\t$token\n";
+  }
 }
