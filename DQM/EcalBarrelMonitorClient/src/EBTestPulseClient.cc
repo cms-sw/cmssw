@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/21 12:31:30 $
- * $Revision: 1.78 $
+ * $Date: 2006/06/22 14:47:06 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -582,7 +582,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
     }
 
     if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-      num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
+      num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(1, i));
       if ( num03 >= m_min_bin ) {
         mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
         rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
