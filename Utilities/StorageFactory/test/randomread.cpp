@@ -5,8 +5,9 @@
 #include "SealBase/DebugAids.h"
 #include "SealBase/Signal.h"
 #include <iostream>
-#include <math>
+#include <cmath>
 #include <limits>
+#include <vector>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -30,33 +31,43 @@ int main (int argc, char **argv)
 	return EXIT_FAILURE;
     }
 
-    IOOffset    size = -1;
+	std::vector<Storage	*> storages;
+	std::vector<IOOffset> sizes;	
     StorageFactory::get ()->enableAccounting(true);
-    bool	exists = StorageFactory::get ()->check(argv [1], &size);
-    std::cerr << "exists = " << exists << ", size = " << size << std::endl;
-    if (! exists) return EXIT_SUCCESS;
+    for ( int i=1; i<argc; i++ ) {
+	    IOOffset    size = -1;
+    	bool	exists = StorageFactory::get ()->check(argv [i], &size);
+    	std::cerr << "exists = " << exists << ", size = " << size << std::endl;
+    	if (exists) {	
+    	 	storages.push_back(StorageFactory::get ()->open (argv [i],seal::IOFlags::OpenRead|	
+     						seal::IOFlags::OpenUnbuffered));
+     		sizes.push_back(size);   
+    	}
+    }
+    if (sizes.empty()) return EXIT_SUCCESS;
 
-    Storage	*s = StorageFactory::get ()->open (argv [1],seal::IOFlags::OpenRead|seal::IOFlags::OpenUnbuffered);
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
     char	buf [10000];
     IOSize	n;
 	IOSize maxBufSize = sizeof(buf);
 	int n_iter=100000;
-    while (n_iter--) {
+    while (n_iter--) 
+    for (int i=0;i<sizes.size();i++) {
     	IOSize bufSize = maxBufSize*(double(rand())/
     		double(std::numeric_limits<unsigned int>::max()));
-    	IOOffset l_pos = (size-bufSize)*(double(rand())/
+    	IOOffset l_pos = (sizes[i]-bufSize)*(double(rand())/
     		double(std::numeric_limits<unsigned int>::max()));
     	// std::cout << "read " << bufSize << " at " << l_pos << std::endl;
-	    s->position(l_pos);	
-    	n = s->read (buf, bufSize);
+	    storages[i]->position(l_pos);	
+    	n = storages[i]->read (buf, bufSize);
 		if (n!=bufSize) {
-			std::cerr << "error: try to read " << n 
+			std::cerr << "error for " << i << ": try to read " << n 
 					<< " at " << l_pos << "; got " << n << std::endl;
 			break;	
 		}
 	}
-    delete s;
+    for (int i=0;i<sizes.size();i++) 
+    	delete storages[i];
 
 
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
