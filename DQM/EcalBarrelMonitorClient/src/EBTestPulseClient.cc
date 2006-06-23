@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.79 $
+ * $Date: 2006/06/23 12:24:44 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -528,7 +528,6 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
       }
 
     }
-
   }
 
   if ( econn ) {
