@@ -511,18 +511,18 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           shape.setSamples(sample02,  6);
           shape.setSamples(sample03, 12);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+        }
 
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset1[ecid] = adc;
-              if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset1[ecid] = adc;
+            if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
           }
-
         }
 
       }
