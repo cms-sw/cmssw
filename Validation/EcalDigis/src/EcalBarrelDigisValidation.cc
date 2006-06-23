@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/05/04 13:40:43 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/20 16:26:00 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -39,9 +39,9 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
   }
 
   gainConv_[0] = 0.;
-  gainConv_[1] = 12.;
+  gainConv_[1] = 1.;
   gainConv_[2] = 6.;
-  gainConv_[3] = 1.;
+  gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  

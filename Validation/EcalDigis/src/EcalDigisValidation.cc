@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/05/16 16:10:14 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/20 16:26:00 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -54,9 +54,9 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   }
 
   gainConv_[0] = 0.;
-  gainConv_[1] = 12.;
+  gainConv_[1] = 1.;
   gainConv_[2] = 6.;
-  gainConv_[3] = 1.;
+  gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -267,6 +267,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
               pedestalPreSample += ebADCCounts[sample] ;
               pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
             }
+            LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
           }
         pedestalPreSample /= 3. ; 
         pedestalPreSampleAnalog /= 3. ; 
@@ -333,9 +334,6 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
         int Pmax = 0 ;
         double pedestalPreSample = 0.;
         double pedestalPreSampleAnalog = 0.;
-        int countsAfterGainSwitch = -1;
-        double higherGain = 2.;
-        int higherGainSample = 0;
         
         for (int sample = 0 ; sample < digis->size () ; ++sample) {
           eeAnalogSignal[sample] = 0.;
@@ -356,12 +354,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
               pedestalPreSample += eeADCCounts[sample] ;
               pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
             }
-            if ( sample > 0 && eeADCGains[sample] < eeADCGains[sample-1] ) {
-              higherGain = eeADCGains[sample];
-              higherGainSample = sample;
-              countsAfterGainSwitch = 1;
-            }
-            if ( higherGain < 2 && higherGainSample != sample && eeADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
+            LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
           }
         pedestalPreSample /= 3. ; 
         pedestalPreSampleAnalog /= 3. ; 
