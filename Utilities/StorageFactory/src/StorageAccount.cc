@@ -69,3 +69,5 @@ StorageAccount::Stamp::tick (double amount) const
     m_counter.amount += amount;
     m_counter.time += seal::TimeInfo::realNsecs () - m_start;
 }
+
+
