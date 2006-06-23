@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/05/18 19:59:33 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/01 07:52:28 $
+ * $Revision: 1.8 $
  *
  * \author L.Gray, UF
  */
@@ -17,7 +17,7 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,
 					   const int ikeywire,
 					   const int istrip,
 					   const int ipattern, const int ibend,
-					   const int ibx) {
+					   const int ibx, const int& impclink) {
   trknmb  = itrknmb;
   valid   = ivalid;
   quality = iquality;
@@ -26,6 +26,7 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,
   pattern = ipattern;
   bend    = ibend;
   bx      = ibx;
+  mpclink = impclink;
 }
 
 /// Default
@@ -43,6 +44,7 @@ void CSCCorrelatedLCTDigi::clear() {
   pattern = 0;
   bend    = 0;
   bx      = 0;
+  mpclink = 0;
 }
 
 /// Comparison
@@ -50,7 +52,7 @@ bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
   return ((trknmb == rhs.trknmb)   && (quality == rhs.quality) &&
 	  (keywire == rhs.keywire) && (strip == rhs.strip)     &&
 	  (pattern == rhs.pattern) && (bend == rhs.bend)       &&
-	  (bx == rhs.bx)           && (valid == rhs.valid)       );
+	  (bx == rhs.bx)           && (valid == rhs.valid) && (mpclink == rhs.mpclink) );
 }
 
 /// Debug
@@ -64,7 +66,8 @@ void CSCCorrelatedLCTDigi::print() const {
 	      << " CLCT Pattern = " << getCLCTPattern()
 	      << " Strip Type = "   << ( (getStripType() == 0) ? 'D' : 'H' )
 	      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
-	      << " BX = "           << getBX() << std::endl;
+	      << " BX = "           << getBX() 
+	      << " MPC Link = "     << getMPCLink() << std::endl;
   }
   else {
     std::cout << "Not a valid correlated LCT." << std::endl;

@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/04/06 11:18:44 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/26 20:30:52 $
+ * $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.6 2006/04/06 11:18:44 tumanov Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.7 2006/04/26 20:30:52 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -263,8 +263,9 @@ void testCSCDigis::fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collectio
 		  int keywire = 10;
 		  int bend = 1;
 		  int bx = 0;
+		  int mpclink = 1;
 
-		  CSCCorrelatedLCTDigi digi(trknmb,valid,quality,keywire,strip,pattern,bend,bx);
+		  CSCCorrelatedLCTDigi digi(trknmb,valid,quality,keywire,strip,pattern,bend,bx,mpclink);
 		  digivec.push_back(digi);
 		}
 	      collection.put(std::make_pair(digivec.begin(),digivec.end()),detid);
