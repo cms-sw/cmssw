@@ -1,11 +1,12 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/22 18:43:27 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/23 07:02:26 $
+ * $Revision: 1.10 $
  * \author A. Ghezzi
  *
  */
+
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
@@ -174,7 +175,7 @@ void EBBeamCaloTask::setup(void){
     // when table is constantely moving do not fill...
 
     sprintf(histo, "EBBCT errors in the number of readout crystals");
-    meEBBCaloReadCryErrors_= dbe->book1D(histo, histo, 340,1.,86.);
+    meEBBCaloReadCryErrors_= dbe->book1D(histo, histo, 425,1.,86.);
 
     sprintf(histo, "EBBCT average rec energy in the single cristal");
     meEBBCaloE1vsCry_= dbe->book1D(histo, histo, 85,1.,86.);
@@ -183,7 +184,7 @@ void EBBeamCaloTask::setup(void){
     meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
 
     sprintf(histo, "EBBCT energy deposition in the 3x3");
-    meEBBCaloBeamCentered_= dbe->book2D(histo, histo,3,-1.1,1.1,3,-1.1,1.1);
+    meEBBCaloBeamCentered_= dbe->book2D(histo, histo,3,-2,2,3,-2,2);
 
   }
   
@@ -265,7 +266,7 @@ void EBBeamCaloTask::endJob(void){
 
   LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
 
-  this->cleanup();
+  //this->cleanup();
 
 }
 
@@ -327,7 +328,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
   if(ievt_ == 6201){tb_moving=true; }
   if(ievt_ > 9000){tb_moving=true; }
-  //if(ievt_ == 11021){tb_moving=false; }
+  if(ievt_ == 11021){tb_moving=false; }
   if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
   if(ievt_ > 15320){tb_moving=true; }
   if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
@@ -507,7 +508,10 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     if(abs(deta_c) >3 || abs(dphi_c) >3){continue;}
     int i_toBeRead = deta_c -7*dphi_c + 24;
-    if( i_toBeRead > -1 &&  i_toBeRead <49){ cry_to_beRead[i_toBeRead]++;}
+    if( i_toBeRead > -1 &&  i_toBeRead <49){ 
+      cry_to_beRead[i_toBeRead]++;
+      //if( (ievt_ == 4000 || ievt_ == 13000 || ievt_ == 13002 ) &&   i_toBeRead == 5){ cry_to_beRead[i_toBeRead] -=1;}
+    }
 
     if(abs(deta_c) >1 || abs(dphi_c) >1){continue;}
     int i_in_array = deta_c -3*dphi_c + 4;
@@ -530,7 +534,11 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     for (int i = 0; i < 10; i++) {
       EcalMGPASample sample = dataframe.sample(i);
       int adc = sample.adc();
-      if ( sample.gainId() == 1 ){// gain 12
+      int gainid = sample.gainId();
+      //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 4 && i == 4){ gainid =2;}
+      //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 6 && i == 6){ gainid =3;}
+
+      if ( gainid == 1 ){// gain 12
 	if(! tb_moving){
 	  meBBCaloPulseProfG12_[i_in_array]->Fill(i,float(adc));
 	  meBBCaloPulseProf_[i_in_array]->Fill(i,float(adc));
@@ -542,7 +550,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 	  meBBCaloGainsMoving_[i_in_array]->Fill(12);
 	}
       }
-      else if ( sample.gainId() == 2 ){// gain 6 
+      else if ( gainid == 2 ){// gain 6 
 	float val = (float(adc)-defaultPede_)*2 + defaultPede_;
 	if(! tb_moving){
 	  meBBCaloPulseProf_[i_in_array]->Fill(i,val);
@@ -553,7 +561,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 	  meBBCaloGainsMoving_[i_in_array]->Fill(6);
 	}
       }
-      else if ( sample.gainId() == 3 ){// gain 1 
+      else if ( gainid == 3 ){// gain 1 
 	float val = (float(adc)-defaultPede_)*12 + defaultPede_;
 	if(! tb_moving){
 	meBBCaloPulseProf_[i_in_array]->Fill(i,val);
