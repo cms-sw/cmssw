@@ -1,5 +1,6 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
 // fwk, utilities
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 // data formats
@@ -102,22 +103,9 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
     fedEvent_ = new Fed9U::Fed9UEvent(); //@@ because of bug in fed sw?
     try {
       fedEvent_->Init( data_u32, fedDescription_, size_u32 ); 
-      //fedEvent_->checkEvent(); //@@ change checkEvent() so that it doesn't use getDaqMode()!
-    } 
-    catch( ICUtils::ICException& e ) {
-      stringstream ss;
-      ss << "[SiStripRawToDigi::createDigis]"
-	 << " Caught ICExeption: " << e.what();
-      throw string( ss.str() );
-      edm::LogError("RawToDigi") << ss.str();
-    } 
-    catch(...) {
-      stringstream ss;
-      ss << "[SiStripRawToDigi::createDigis]"
-	 << " Unknown exception thrown by Fed9UEvent!";
-      throw string( ss.str() );
-      edm::LogError("RawToDigi") << ss.str();
-    }
+      fedEvent_->checkEvent(); //@@ change checkEvent() so that it doesn't use getDaqMode()!
+    } catch(...) { handleException( "SiStripRawToDigi::createDigis",
+				    "Problem unpacking FED buffer" ); } 
     
     // Dump of FED buffer to stdout
     if ( dumpFrequency_ && !(event%dumpFrequency_) ) {
@@ -147,25 +135,21 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
     Fed9U::Fed9UAddress addr;
     for ( uint16_t channel = 0; channel < 96; channel++ ) {
       
+      uint16_t iunit = 0;
+      uint16_t ichan = 0;
+      uint16_t chan = 0;
       try {
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
-      } catch( ICUtils::ICException& e ) {
-	stringstream ss;
-	ss << "[SiStripRawToDigi::createDigis]"
-	   << " Caught ICExeption: " << e.what();
-	edm::LogError("RawToDigi") << ss.str(); 
+	iunit = addr.getFedFeUnit();
+	ichan = addr.getFeUnitChannel();
+	chan = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
+      } catch(...) { 
+	handleException( "SiStripRawToDigi::createDigis",
+			 "Problem unpacking FED payload" ); 
+	continue; //@@ is this ok?
       } 
-      catch(...) {
-	stringstream ss;
-	ss << "[SiStripRawToDigi::createDigis]"
-	   << " Unknown exception thrown by Fed9UEvent!";
-	edm::LogError("RawToDigi") << ss.str(); 
-      }
-      uint16_t iunit = addr.getFedFeUnit();
-      uint16_t ichan = addr.getFeUnitChannel();
       
       // Retrieve cabling map information and define "FED key" for Digis
-      uint16_t chan = (addr.getFedFeUnit())*12 + (addr.getFeUnitChannel()); //@@ needed due to bug in module.xml generation?
       const FedChannelConnection& conn = cabling->connection( *ifed, chan );
       
       // Determine whether DetId or FED key should be used to index digi containers
@@ -319,10 +303,13 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
     fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
     fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
     if ( fed_trailer->conscheck != 0xDEADFACE ) {
-      edm::LogError("RawToDigi") << "[SiStripRawToDigi::triggerFed]"
-				 << " Buffer does not appear to contain 'Trigger FED' information!"
-				 << " Trigger FED id: " << triggerFedId_
-				 << " Source id: " << fed_header->sourceid;
+      stringstream ss;
+      ss << "[SiStripRawToDigi::triggerFed]"
+	 << " Buffer does not appear to contain 'Trigger FED' information!"
+	 << " Trigger FED id: " << triggerFedId_
+	 << " Source id: " << fed_header->sourceid;
+      edm::LogError("SiStripRawToDigi") << ss.str();
+      throw cms::Exception("SiStripRawToDigi") << ss.str();
       return;
     } //@@ if not trigger FED, perform search?...
     
@@ -372,11 +359,13 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
     memcpy( output.data(), input.data(), input.size() );
     stringstream ss; 
     ss << "[SiStripRawToDigi::locateStartOfFedBuffer] "
-       << "Input FEDRawData with FED id " << fed_id << " has size " << input.size();
-    edm::LogError("RawToDigi") << ss.str();
+       << "Input FEDRawData with FED id " << fed_id 
+       << " has size " << input.size() << "\n";
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
     return;
   } 
-
+  
   // Iterator through buffer to find DAQ header 
   bool found = false;
   uint16_t ichar = 0;
@@ -456,15 +445,17 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 	 << ". Adjust 'AppendedHeaderBytes' configurable"
 	 << " to negative value to activate 'search mode'";
     }
-    edm::LogError("RawToDigi") << ss.str();
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
   } else if ( output.size() < 24 ) { // Found DAQ header after search, but too few words
     stringstream ss; 
     ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
        << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
        << " has size " << output.size();
     edm::LogError("RawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
   } 
- 
+  
 }
 
 //------------------------------------------------------------------------------
@@ -503,6 +494,43 @@ void SiStripRawToDigi::dumpRawData( uint16_t fed_id,
 			<< "End of FED buffer";
 }
 
+// -----------------------------------------------------------------------------
+// 
+void SiStripRawToDigi::handleException( const string& method_name,
+					const string& extra_info ) throw (cms::Exception) {
+  try {
+    throw; // rethrow caught exception to be dealt with below
+  } 
+  catch ( const cms::Exception& e ) { 
+    throw e; // rethrow cms::Exception to be caught by framework
+  }
+  catch ( const ICUtils::ICException& e ) {
+    stringstream ss;
+    ss << "Caught ICUtils::ICException in ["
+       << method_name << "] with message: \n" 
+       << e.what();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
+  }
+  catch ( const exception& e ) {
+    stringstream ss;
+    ss << "Caught std::exception in ["
+       << method_name << "] with message: \n" 
+       << e.what();
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
+  }
+  catch (...) {
+    stringstream ss;
+    ss << "Caught unknown exception in ["
+       << method_name << "]";
+    if ( extra_info != "" ) { ss << "\n" << "Additional info: " << extra_info; }
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    throw cms::Exception("SiStripRawToDigi") << ss.str();
+  }
+}
 
 
 

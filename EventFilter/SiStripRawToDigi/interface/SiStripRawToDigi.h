@@ -61,6 +61,11 @@ class SiStripRawToDigi {
 		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
 		 auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr );
   
+  /** Catches all possible exceptions and rethrows them as
+      cms::Exception's that are caught by the framework. */ 
+  void handleException( const string& method_name,
+			const string& extra_info = "" ) throw (cms::Exception);
+  
  private: // ----- private data members -----
   
   Fed9U::Fed9UEvent* fedEvent_;
