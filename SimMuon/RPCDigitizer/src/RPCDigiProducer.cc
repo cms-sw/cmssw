@@ -11,7 +11,7 @@
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   theDigitizer = new RPCDigitizer(ps);
-  produces<RPCDigiCollection>("MuonRPCDigi");
+  produces<RPCDigiCollection>();
 }
 
 
@@ -24,7 +24,6 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   edm::Handle<CrossingFrame> cf;
   e.getByType(cf);
-
   // test access to SimHits
   const std::string hitsName("MuonRPCHits");
 
@@ -52,6 +51,6 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
 
   // store them in the event
-  e.put(pDigis, "MuonRPCDigi");
+  e.put(pDigis);
 }
 
