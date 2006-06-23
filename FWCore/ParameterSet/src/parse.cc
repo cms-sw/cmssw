@@ -17,6 +17,7 @@ namespace edm {
       string preprocessedConfigString;
       ConfigurationPreprocessor preprocessor;
       preprocessor.process(input, preprocessedConfigString);
+      //preprocessedConfigString = input;
 
       boost::shared_ptr<edm::pset::NodePtrList> parsetree =
       edm::pset::parse(preprocessedConfigString.c_str());

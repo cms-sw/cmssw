@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.1 2006/01/07 00:46:23 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.2 2006/02/08 00:44:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootDelayedReader.h"
@@ -9,6 +9,12 @@ $Id: RootDelayedReader.cc,v 1.1 2006/01/07 00:46:23 wmtan Exp $
 #include "TClass.h"
 
 namespace edm {
+
+  RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
+ boost::shared_ptr<const BranchMap> bMap,
+ boost::shared_ptr<const TFile> filePtr)
+ : entryNumber_(entry), branches_(bMap), filePtr_(filePtr) {}
+
   RootDelayedReader::~RootDelayedReader() {}
 
   std::auto_ptr<EDProduct>

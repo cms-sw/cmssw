@@ -39,7 +39,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       myTrajectoryManager(new TrajectoryManager
 			      (mySimEvent,
 			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
-			       p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			       p.getParameter<bool>("ActivateDecays"))),
       myPileUpProducer(new PUProducer(
 			       mySimEvent,
@@ -104,7 +103,7 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // Fill the event from the original generated event
     mySimEvent->fill(*evt,id);
-    // mySimEvent->print();
+    //    mySimEvent->print();
 
     // Get the pileup events and add the particles to the main event
     myPileUpProducer->produce();

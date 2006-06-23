@@ -1,10 +1,13 @@
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/parse.h"
 
 using std::string;
 using std::vector;
 using std::map;
+
 #include <iostream>
 #include<iterator>
 
@@ -24,6 +27,16 @@ namespace edm {
       if(processNode == 0) {
         edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
       } else {
+
+        // find any include nodes
+        // maybe someday list the current file as an open file,
+        // so it never gets circularly included
+        std::list<std::string> openFiles;
+        processNode->resolve(openFiles);
+
+        // make the backwards links
+        processNode->setAsChildrensParent();
+
         NodePtrListPtr contents = processNode->nodes();
         sortNodes(contents);
 
@@ -138,10 +151,11 @@ namespace edm {
             // double-check that no duplication
             NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
             if(moduleMapItr != modulesAndSources_.end()) {
-              //throw edm::Exception(errors::Configuration,"") 
-              // << "Duplicate definition of " << name << std::endl;
-              edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
-              << name << ". Only last one will be kept.";
+              throw edm::Exception(errors::Configuration,"") 
+               << "Duplicate definition of " << name
+               << "\nPlease edit the configuration so it is only defined once";
+              //edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
+              //<< name << ". Only last one will be kept.";
             }
             modulesAndSources_[name] = *nodeItr;
           }

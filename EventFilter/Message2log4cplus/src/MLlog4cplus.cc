@@ -5,47 +5,22 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.5 2006/02/20 01:58:20 wmtan Exp $
+// $Id: MLlog4cplus.cc,v 1.1 2006/05/04 14:52:46 meschi Exp $
 //
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/Message2log4cplus/src/ELlog4cplus.h"
+#include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
 #include <iostream>
 
+
 using namespace edm;
 
-namespace ML {
-  
-  // class ELlog4cplus exists
-
-  class MLlog4cplus
-  {
-  public:
-    MLlog4cplus(const ParameterSet&,ActivityRegistry&);
-    ~MLlog4cplus();
-      
-    void postBeginJob();
-    void postEndJob();
-      
-    void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-    void postEventProcessing(const Event&, const EventSetup&);
-      
-    void preModule(const ModuleDescription&);
-    void postModule(const ModuleDescription&);
-  private:
-    edm::EventID curr_event_;
-  };
-}
 
 using namespace ML;
 
@@ -75,7 +50,7 @@ using namespace ML;
     // ensure that it is initialized before we are (JBK)
     // edm::Service<edm::MessageLogger> handle;
 
-    ELlog4cplus * dest_p = new ELlog4cplus;
+    dest_p = new ELlog4cplus;
     edm::service::NamedDestination * ndest = new edm::service::NamedDestination ( "log4cplus", dest_p ); 
     edm::MessageLoggerQ::EXT(ndest);
   }
@@ -109,8 +84,10 @@ using namespace ML;
   void MLlog4cplus::postModule(const ModuleDescription& desc)
   {
   }
-
-
+  void MLlog4cplus::setAppl(xdaq::Application *app)
+  {
+    if(dest_p!=0)dest_p->setAppl(app);
+  }
 
 using ML::MLlog4cplus;
 DEFINE_FWK_SERVICE(MLlog4cplus)

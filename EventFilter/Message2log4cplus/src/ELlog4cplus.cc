@@ -207,8 +207,11 @@ bool ELlog4cplus::log( const ErrorObj & msg )  {
   
   // get log4cplus logger and establish (log4cplus) context 
   bool mustPop = false;
+
   log4cplus::Logger loghere = appl_ ? appl_->getApplicationLogger() :
     log4cplus::Logger::getInstance(msg.xid().module.c_str());
+  LOG4CPLUS_DEBUG(loghere,  "Message2log4cplus will use logger from appl_ ? " 
+		 << (appl_ ? "yes" : "no"));
   if(appl_)
     {
       log4cplus::getNDC().push(msg.xid().module.c_str());
@@ -524,7 +527,11 @@ void ELlog4cplus::summarization(
 
 }  // summarization()
 
-
+void ELlog4cplus::setAppl(xdaq::Application *a)
+{
+  std::cout << "setting application pointer in ELlog4cplus" << std::endl;
+  appl_ = a;
+}
 
 // ----------------------------------------------------------------------
 

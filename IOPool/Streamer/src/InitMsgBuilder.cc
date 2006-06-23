@@ -1,6 +1,4 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "IOPool/Streamer/interface/MsgHeader.h"
-
 
 
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
@@ -51,20 +49,5 @@ void InitMsgBuilder::setDescLength(uint32 len)
   convert(len,desc_addr_-sizeof(char_uint32));
   InitHeader* h = (InitHeader*)buf_;
   new (&h->header_) Header(0,desc_addr_-buf_+len);
-}
-
-
-uint32 InitMsgBuilder::size() const
-{
-
-  HeaderView v(buf_,size_);
-  return v.size();
-}
-
-
-uint32 InitMsgBuilder::run() const
-{
-  InitHeader* h = (InitHeader*)buf_;
-  return convert32(h->run_);
 }
 

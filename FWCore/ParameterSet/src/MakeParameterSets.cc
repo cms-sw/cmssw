@@ -29,7 +29,8 @@ namespace edm
     string finalConfigDoc;
     edm::pset::ConfigurationPreprocessor preprocessor;
     preprocessor.process(configtext, finalConfigDoc);
-    edm::ProcessDesc processDesc(finalConfigDoc);
+    //edm::ProcessDesc processDesc(configtext);
+    edm::ProcessDesc processDesc( finalConfigDoc);
 
     main = processDesc.getProcessPSet();
     serviceparams = processDesc.getServicesPSets();

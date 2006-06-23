@@ -20,11 +20,18 @@ namespace edm {
       virtual void setModified(bool value);
       /// if any subnodes are modified, this counts as modified
       virtual bool isModified() const;
+
+      /// also makes all subnodes register their parents
+      virtual void setAsChildrensParent();
+
       /// finds a first-level subnode with this name
       NodePtr findChild(const std::string & child);
 
       /// returns all sub-nodes
       NodePtrListPtr nodes() const {return nodes_;}
+
+      /// resolve any includes in sub-nodes
+      virtual void resolve(std::list<std::string> & openFiles);
 
       /// if a direct descendant is a using block, inline it.
       /// otherwise, pass the call to the child nodes

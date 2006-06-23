@@ -48,13 +48,11 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theGenParticles = new vector<GenParticle*>(); 
   theSimTracks = new vector<FSimTrack>;
   theSimVertices = new vector<FSimVertex>;
-  theChargedTracks = new vector<unsigned>();
 
   // Reserve some size to avoid mutiple copies
   theSimTracks->reserve(20000);
   theSimVertices->reserve(20000);
   theGenParticles->reserve(20000);
-  theChargedTracks->reserve(20000);
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
@@ -79,7 +77,6 @@ FBaseSimEvent::~FBaseSimEvent(){
   delete theGenParticles;
   delete theSimTracks;
   delete theSimVertices;
-  delete theChargedTracks;
   delete myFilter;
 
   //Write the histograms
@@ -387,15 +384,10 @@ FBaseSimEvent::clear() {
 
   // Clear the vectors
   theGenParticles->clear();
+  
   theSimTracks->clear();
   theSimVertices->clear();
-  theChargedTracks->clear();
 
-}
-
-void 
-FBaseSimEvent::addChargedTrack(int id) { 
-  theChargedTracks->push_back(id);
 }
 
 static FSimTrack oTrack;
@@ -409,12 +401,6 @@ FSimVertex&
 FBaseSimEvent::vertex(int id) const { 
   return   id>=0 && id<(int)theSimVertices->size() ? 
     (*theSimVertices)[id] : oVertex; }
-
-int
-FBaseSimEvent::chargedTrack(int id) const {
-  if (id>=0 && id<(int)theChargedTracks->size()) return (*theChargedTracks)[id]; 
-  else return -1;
-}
 
 unsigned int 
 FBaseSimEvent::nTracks() const {
@@ -430,13 +416,6 @@ unsigned int
 FBaseSimEvent::nGenParts() const {
   return theGenParticles->size();
 }
-
-unsigned int 
-FBaseSimEvent::nChargedTracks() const {
-  return theChargedTracks->size();
-}
-
-
 static  const EmbdSimVertex zeroVertex;
 const EmbdSimVertex & 
 FBaseSimEvent::embdVertex(int i) const { 

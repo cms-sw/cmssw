@@ -9,7 +9,7 @@
 
   */
 
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/Node.h"
 #include <map>
 #include <string>
 

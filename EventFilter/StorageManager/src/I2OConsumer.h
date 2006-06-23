@@ -49,7 +49,7 @@ namespace edmtest
                       edm::RunNumber_t runid, edm::EventNumber_t eventid);
 
     // function used to block until memory pool is not full
-    int i2oyield(unsigned int seconds);  // should really yield to other threads instead of blocking
+    int i2oyield(unsigned int microseconds);  // should really yield to other threads instead of blocking
 
     unsigned long i2o_max_size_;
     unsigned long max_i2o_sm_datasize_;

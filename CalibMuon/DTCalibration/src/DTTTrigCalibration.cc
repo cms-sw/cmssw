@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/07 16:02:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/14 12:15:36 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -128,6 +128,17 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
 	cout << "  New Time Box: " << hTBox->GetName() << endl;
       theHistoMap[slId] = hTBox;
     }
+    TH1F *hO = theOccupancyMap[layerId];
+    if(hO == 0) {
+      // Book the histogram
+      theFile->cd();
+      hO = new TH1F(getOccupancyName(layerId).c_str(), "Occupancy", 100, 0, 100);
+      if(debug)
+	cout << "  New Time Box: " << hO->GetName() << endl;
+      theOccupancyMap[layerId] = hO;
+    }
+
+
 
     // Get the iterators over the digis associated with this LayerId
     const DTDigiCollection::Range& digiRange = (*dtLayerIt).second;
@@ -139,17 +150,30 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       const DTWireId wireId(layerId, (*digi).wire());
 
       // Check for noisy channels and skip them
-      if(checkNoisyChannels) {
-	bool isNoisy = false;
-	bool isFEMasked = false;
-	bool isTDCMasked = false;
-	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked);
-	if(isNoisy | isFEMasked | isTDCMasked) {
-	  if(debug)
-	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	  continue;
-	} 
-      }
+//       if(checkNoisyChannels) {
+// 	bool isNoisy = false;
+// 	bool isFEMasked = false;
+// 	bool isTDCMasked = false;
+// 	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked);
+// 	if(isNoisy) {
+// 	  if(debug)
+// 	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+// 	  continue;
+// 	} 
+//       }
+      
+      bool isNoisy = false;
+      bool isFEMasked = false;
+      bool isTDCMasked = false;
+      bool isTrigMask = false;
+      bool isDead = false;
+      bool isNohv = false;
+      statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+      if(isNoisy) {
+	if(debug)
+	  cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	continue;
+      }      
       
       theFile->cd();
       double offset = 0;
@@ -160,13 +184,13 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       }
       hTBox->Fill((*digi).time()-offset);
       if(debug) {
- 	cout << "   Filling Time Box:   " << hTBox->GetName() << endl;
+	cout << "   Filling Time Box:   " << hTBox->GetName() << endl;
 	cout << "           offset (ns): " << offset << endl;
- 	cout << "           time(ns):   " << (*digi).time()-offset<< endl;
+	cout << "           time(ns):   " << (*digi).time()-offset<< endl;
       }
+      hO->Fill((*digi).wire());
     }
   }
-
 }
 
 
@@ -181,6 +205,12 @@ void DTTTrigCalibration::endJob() {
       slHisto++) {
     (*slHisto).second->Write();
   }
+  for(map<DTLayerId, TH1F*>::const_iterator slHisto = theOccupancyMap.begin();
+      slHisto != theOccupancyMap.end();
+      slHisto++) {
+    (*slHisto).second->Write();
+  }
+
   
   // Create the object to be written to DB
   DTTtrig* tTrig = new DTTtrig(theTag);
@@ -236,6 +266,15 @@ string DTTTrigCalibration::getTBoxName(const DTSuperLayerId& slId) const {
   stringstream theStream;
   theStream << "Ch_" << slId.wheel() << "_" << slId.station() << "_" << slId.sector()
 	    << "_SL" << slId.superlayer() << "_hTimeBox";
+  theStream >> histoName;
+  return histoName;
+}
+
+string DTTTrigCalibration::getOccupancyName(const DTLayerId& slId) const {
+  string histoName;
+  stringstream theStream;
+  theStream << "Ch_" << slId.wheel() << "_" << slId.station() << "_" << slId.sector()
+	    << "_SL" << slId.superlayer() << "_L"<< slId.layer() <<"_Occupancy";
   theStream >> histoName;
   return histoName;
 }

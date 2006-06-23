@@ -37,7 +37,8 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
+//#include "DataFormats/SiPixelDigi/interface/PixelDigiCollectionfwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 
@@ -70,7 +71,7 @@ namespace cms
 
     //--- Execute the algorithm(s).
     void run(const edm::DetSetVector<PixelDigi> & input,
-	     SiPixelClusterCollection           & output,
+	     edm::DetSetVector<SiPixelCluster>  & output,
 	     edm::ESHandle<TrackerGeometry>     & geom);
 
   private:

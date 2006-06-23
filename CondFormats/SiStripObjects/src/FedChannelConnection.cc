@@ -1,8 +1,10 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 #include <iomanip>
+#include <sstream>
+#include <string>
 
-using namespace std;
 
 // -----------------------------------------------------------------------------
 //
@@ -57,7 +59,7 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 				 << " APV1: " << apv1_;
     }
   } else if ( nApvPairs_ == 0 ) {
-    // edm::LogError("Cabling") << "[FedChannelConnection::apvPairNumber] Zero APV pairs";
+    LogDebug("Cabling") << "[FedChannelConnection::apvPairNumber] Zero APV pairs";
   } else {
     edm::LogWarning("Cabling") << "[FedChannelConnection::apvPairNumber]"
 			       << " Unexpected number of APV pairs: " << nApvPairs_;
@@ -67,8 +69,10 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 
 // -----------------------------------------------------------------------------
 /** */
-void FedChannelConnection::print( stringstream& ss ) const {
-  ss << " FecCrate/FecSlot/CcuAddr/CcuChan/APV0/APV1: "
+void FedChannelConnection::print() const {
+  std::stringstream ss;
+  ss << "[FedChannelConnection::print]"
+     << "  FecCrate/FecSlot/CcuAddr/CcuChan/APV0/APV1: "
      << fecCrate() << "/"
      << fecSlot() << "/"
      << fecRing() << "/"
@@ -82,10 +86,10 @@ void FedChannelConnection::print( stringstream& ss ) const {
      << pll() << "/"
      << lld() 
      << "  DcuId/DetId/nPairs: "
-     << hex
-     << setfill('0') << setw(8) << dcuId() << "/"
-     << setfill('0') << setw(8) << detId() << "/"
-     << dec
+     << std::hex
+     << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << std::setfill('0') << std::setw(8) << detId() << "/"
+     << std::dec
      << nApvPairs() 
      << "  LldChan/PairNumber: "
      << lldChannel() << "/"
@@ -93,4 +97,5 @@ void FedChannelConnection::print( stringstream& ss ) const {
      << "  FedId/FedCh: "
      << fedId() << "/"
      << fedCh();
+  LogDebug("Cabling") << ss.str();
 }

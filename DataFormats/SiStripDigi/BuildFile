@@ -1,6 +1,5 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripCommon>
 <use name=boost>
 <use name=root>
 
@@ -8,8 +7,6 @@
    <lib name=DataFormatsSiStripDigi>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/Common>
-   <use name=DataFormats/SiStripCommon>
    <use name=boost>
    <use name=root>
 </export>
-

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.14 2006/06/06 01:21:31 wmtan Exp $
+$Id: RootFile.cc,v 1.16 2006/06/14 23:52:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -14,6 +14,7 @@ $Id: RootFile.cc,v 1.14 2006/06/06 01:21:31 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,11 +33,11 @@ namespace edm {
     entryNumber_(-1),
     entries_(0),
     productRegistry_(new ProductRegistry),
-    branches_(),
+    branches_(new BranchMap),
     eventTree_(0),
     auxBranch_(0),
     provBranch_(0),
-    filePtr_(0) {
+    filePtr_(TFile::Open(file_.c_str())) {
 
     open();
 
@@ -56,10 +57,6 @@ namespace edm {
     auxBranch_ = eventTree_->GetBranch(poolNames::auxiliaryBranchName().c_str());
     provBranch_ = eventTree_->GetBranch(poolNames::provenanceBranchName().c_str());
 
-    std::string const wrapperBegin("edm::Wrapper<");
-    std::string const wrapperEnd1(">");
-    std::string const wrapperEnd2(" >");
-
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
@@ -67,9 +64,8 @@ namespace edm {
       prod.init();
       TBranch * branch = eventTree_->GetBranch(prod.branchName_.c_str());
       std::string const& name = prod.fullClassName_;
-      std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-      std::string const className = wrapperBegin + name + wrapperEnd;
-      branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
+      std::string const className = wrappedClassName(name);
+      branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
       branchNames_.push_back(prod.branchName_);
     }
@@ -80,13 +76,12 @@ namespace edm {
 
   void
   RootFile::open() {
-    std::string const label = "source";
-    filePtr_ = TFile::Open(file_.c_str());
     if (filePtr_ == 0) {
       throw cms::Exception("FileNotFound","RootFile::RootFile()")
         << "File " << file_ << " was not found.\n";
     }
     // Report file opened.
+    std::string const label = "source";
     std::string moduleName = "PoolSource";
     std::string logicalFileName = "";
     Service<JobReport> reportSvc;
@@ -100,10 +95,10 @@ namespace edm {
 
   void
   RootFile::close() {
-    filePtr_->Close();
+    // Do not close the TFile explicitly because a delayed reader may still be using it.
+    // The shared pointers will take care of closing and deleting it.
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
-    filePtr_ = 0;
   }
 
   void
@@ -155,7 +150,7 @@ namespace edm {
     provBranch_->GetEntry(entryNumber());
     eventID_ = evAux.id_;
     // We're not done ... so prepare the EventPrincipal
-    boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_));
+    boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(evAux.id_, evAux.time_, pReg, evAux.process_history_, store_));
     // Loop over provenance
     std::vector<BranchEntryDescription>::iterator pit = evProv.data_.begin();
@@ -163,7 +158,7 @@ namespace edm {
     for (; pit != pitEnd; ++pit) {
       if (pit->status != BranchEntryDescription::Success) continue;
       // BEGIN These lines read all branches
-      // TBranch *br = branches_.find(poolNames::keyName(*pit))->second;
+      // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
       // br->SetAddress(p);
       // br->GetEntry(rootFile_->entryNumber());
       // std::auto_ptr<Provenance> prov(new Provenance(*pit));

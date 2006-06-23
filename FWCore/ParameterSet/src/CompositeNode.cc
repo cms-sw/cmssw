@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include <ostream>
 #include <iterator>
 
@@ -37,9 +38,14 @@ namespace edm {
 
     void CompositeNode::print(ostream& ost) const
     {
-      ost << "  {\n  ";
-      copy(nodes_->begin(),nodes_->end(),
-           ostream_iterator<NodePtr>(ost,"\n  "));
+      ost << "{\n";
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+        {
+          (**i).print(ost);
+          ost << "\n";
+        }
+
       ost << "}\n";
     }
 
@@ -67,6 +73,18 @@ namespace edm {
     }
 
 
+    void CompositeNode::setAsChildrensParent()
+    {
+      NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (**i).setParent(this);
+        // make child register with grandchildren
+        (**i).setAsChildrensParent();
+      }
+    }
+
+
     NodePtr CompositeNode::findChild(const string & child)
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
@@ -81,6 +99,18 @@ namespace edm {
       throw edm::Exception(errors::Configuration)
         << "Cannot find child " << child
         << " in composite node " << name;
+    }
+
+
+    void CompositeNode::resolve(std::list<std::string> & openFiles)
+    {
+      //TODO make sure that no siblings are IncludeNodes with the 
+      // same name
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (**i).resolve(openFiles);
+      }
     }
 
 

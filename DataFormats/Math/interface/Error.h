@@ -1,12 +1,14 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.6 2006/05/22 12:55:47 llista Exp $
+// $Id: Error.h,v 1.7 2006/05/24 12:49:07 llista Exp $
 //
 // very simple persistent error matrix with minumal functionalities
 //
 #include <Rtypes.h>
 #include <Math/SMatrix.h>
 #include <Math/BinaryOperators.h>
+
+#include <vector>
 
 namespace math {
 
@@ -15,15 +17,17 @@ namespace math {
     enum { dimension = N, size = N * ( N + 1 ) / 2 };
     enum { kRows = N, kCols = N, kSize = size };
     typedef unsigned int index;
-    ErrorMatrix() { }
+    ErrorMatrix() { err.resize(size);}
     ErrorMatrix( const ErrorMatrix<D, N> & o ) {
-      std::copy( o.err, o.err + size, err );
+      //      err.resize(size);
+      std::copy( o.err.begin(), o.err.end(), back_inserter(err) );
     }
     ErrorMatrix( const D * v ) {
-      std::copy( v, v + size, err );
+      //      err.resize(size);
+      for (unsigned int i=0; i<size; i++) err.push_back(v[i]);
     }
     ErrorMatrix<D, N> & operator=( const ErrorMatrix<D, N> & o ) {
-      std::copy( o.err, o.err + size, err );
+      std::copy( o.err.begin(), o.err.end(), back_inserter(err)  );
       return * this;
     }
     D & operator()( index i, index j ) {
@@ -50,7 +54,8 @@ namespace math {
       enum { a = ( i <= j ? i : j ), b = ( i <= j ? j : i ) };
       enum { value =  a * dimension + b - a * ( a + 1 ) / 2 };
     };
-    D err[ size ];
+//    D err[ size ];
+      std::vector<D> err;
   };
 
   /*

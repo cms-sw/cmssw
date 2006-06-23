@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.7 2006/05/03 18:28:26 wmtan Exp $
+$Id: RootFile.h,v 1.8 2006/06/06 21:23:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ namespace edm {
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
     typedef std::map<ProductID, BranchDescription> ProductMap;
-    BranchMap const& branches() const {return branches_;}
+    BranchMap const& branches() const {return *branches_;}
     explicit RootFile(std::string const& fileName, std::string const& catalogName);
     ~RootFile();
     void open();
@@ -60,7 +60,7 @@ namespace edm {
     EntryNumber entryNumber_;
     EntryNumber entries_;
     boost::shared_ptr<ProductRegistry> productRegistry_;
-    BranchMap branches_;
+    boost::shared_ptr<BranchMap> branches_;
     ProductMap productMap_;
 // We use bare pointers for pointers to ROOT entities.
 // Root owns them and uses bare pointers internally.
@@ -68,7 +68,7 @@ namespace edm {
     TTree *eventTree_;
     TBranch *auxBranch_;
     TBranch *provBranch_;
-    TFile *filePtr_;
+    boost::shared_ptr<TFile> filePtr_;
   }; // class RootFile
 
 

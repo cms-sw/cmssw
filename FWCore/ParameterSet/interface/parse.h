@@ -3,7 +3,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/Node.h"
 typedef boost::shared_ptr<edm::pset::NodePtrList> ParseResults;
 
 namespace edm {
@@ -26,3 +26,4 @@ namespace edm {
 }
 
 #endif
+

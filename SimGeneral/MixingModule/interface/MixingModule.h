@@ -37,6 +37,8 @@ namespace edm
       /**Default destructor*/
       virtual ~MixingModule();
 
+      virtual void beginJob(edm::EventSetup const&iSetup);
+
     private:
 
       virtual void put(edm::Event &e) ;
@@ -47,8 +49,8 @@ namespace edm
       // internally used information
       std::vector<std::string> simHitSubdetectors_;
       std::vector<std::string> caloSubdetectors_;
-      std::map <std::string, std::pair<ProductID,ProductID> > trackerHighLowPids_;
-      std::map <std::string, ProductID> nonTrackerPids_;
+      std::vector<std::string> trackerHighLowPids_;
+      std::vector<std::string> nonTrackerPids_;
       CrossingFrame *simcf_;
 
     };

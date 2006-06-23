@@ -12,7 +12,7 @@
 #include "G4ParticleTable.hh"
 
 CountProcessesAction::CountProcessesAction(edm::ParameterSet const & p)
-    : fDEBUG(p.getUntrackedParameter<bool>("DEBUG",false))
+    : UtilityAction(p), fDEBUG(p.getUntrackedParameter<bool>("DEBUG",false))
 {}
 
 CountProcessesAction::~CountProcessesAction() {}

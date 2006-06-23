@@ -2,9 +2,9 @@ TO USE:
 
 in .cfg file:
 
-      VPSet Watchers = {
-      {
-	       string type = "CountProcessesAction"
+	  PSet UtilityActions =
+	  {
+	       string type = "SimG4Core/UtilityAction/CountProcessesAction"
 	       untracked bool  DEBUG = false
-      }  }
+	  }
 
