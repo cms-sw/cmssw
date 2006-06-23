@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/04/04 19:26:04 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/04 20:05:32 $
+ * $Revision: 1.1 $
  * \author W. Fisher
  *
 */
@@ -18,14 +18,17 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
+
 
 #include <memory>
 #include <iostream>
@@ -74,6 +77,7 @@ private:
   HcalDataFormatMonitor*  m_dfMon;
   HcalRecHitMonitor*      m_rhMon;
   HcalPedestalMonitor*    m_pedMon;
+  HcalLEDMonitor*    m_ledMon;
   
   bool m_monitorDaemon;
 
