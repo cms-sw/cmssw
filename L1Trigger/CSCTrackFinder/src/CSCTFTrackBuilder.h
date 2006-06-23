@@ -24,7 +24,6 @@ class CSCTFTrackBuilder
   
  private:
 
-  CSCMuonPortCard* m_muonportcard;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
 };
 
