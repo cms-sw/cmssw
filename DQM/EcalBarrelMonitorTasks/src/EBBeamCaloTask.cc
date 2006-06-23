@@ -266,7 +266,7 @@ void EBBeamCaloTask::endJob(void){
 
   LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
 
-  //this->cleanup();
+  this->cleanup();
 
 }
 
@@ -374,8 +374,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
 
   if (! changed_tb_status_){
-    
-    //else if(tb_moving) {CrystalInBeam_vs_Event_->Fill(ievt_,-100.);}
+
     if( !tb_moving ) {CrystalInBeam_vs_Event_->Fill(ievt_,float(cry_in_beam));}
   }
   else{
@@ -385,12 +384,9 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     if(evt_after_change_ >= 9){
       evt_after_change_ =0;
       if(wasFakeChange_){
-	//cout<<"Fake event: "<<ievt_<<endl;
 	for(int u=0; u<10; u++){
-	  //cout<<ievt_-9+u<<"|"<<cib_[u]<<" ";
 	  CrystalInBeam_vs_Event_->Fill(ievt_-9+u , cib_[u]);
 	}
-	//cout<<endl;
       }
       changed_tb_status_=false;//for a real change just skip the first 10 events after change
     }
@@ -399,12 +395,10 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   
   if(skip_this_event){
     LogInfo("EBBeamCaloTask") << "event " << ievt_ << " : skipping this event!! ";
-    //cout<< "event " << ievt_ << " : skipping this event!! "<<endl;
     return;}
  
   if(reset_histos_moving){
     LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
-    //cout << "event " << ievt_ << " resetting moving histos!! ";
     
     table_step_++;
     
@@ -417,8 +411,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       EBMUtilsTasks::resetHisto( meBBCaloEneMoving_[u] );
     }
     EBMUtilsTasks::resetHisto( meBBCaloCryReadMoving_ );
-    // meBBCaloAllNeededCry_;
-    // ?? boh meBBNumCaloCryRead_;
     EBMUtilsTasks::resetHisto( meBBCaloE3x3Moving_ );
 
     
@@ -427,7 +419,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   
   if(reset_histos_stable){
     LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
-    //cout << "event " << ievt_ << " resetting stable histos!! ";
     meEBBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
     meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
     meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
@@ -450,17 +441,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
   
-
-  //   cryIn3x3_[0] = (phi_c -1) + 20*(eta_c -1) +1;
-  //   cryIn3x3_[1] = (phi_c -1) + 20*(eta_c)    +1;
-  //   cryIn3x3_[2] = (phi_c -1) + 20*(eta_c +1) +1;
-  //   cryIn3x3_[3] = (phi_c)    + 20*(eta_c -1) +1;
-  //   cryIn3x3_[4] = (phi_c)    + 20*(eta_c)    +1;
-  //   cryIn3x3_[5] = (phi_c)    + 20*(eta_c +1) +1;
-  //   cryIn3x3_[6] = (phi_c+1)  + 20*(eta_c -1) +1;
-  //   cryIn3x3_[7] = (phi_c+1)  + 20*(eta_c)    +1;
-  //   cryIn3x3_[8] = (phi_c+1)  + 20*(eta_c +1) +1;
-
   float xie = eta_c + 0.5;
   float xip = phi_c + 0.5;
   if (!tb_moving) {meBBCaloCryOnBeam_->Fill(xie,xip);}
@@ -480,11 +460,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   for(int de=-3; de<4; de++){
     for(int dp=-3; dp<4; dp++){
       int cry_num = (phi_c+dp) + 20*(eta_c+de) +1;
-      int u = de -7*dp + 24;// FIX ME to be check via a cout
-      //std::cout<<"de, dp, cry, u: "<<de <<" "<<	dp<<" "<<cry_num <<" "<< u;// <<std::endl;
-      //if(u<0 || u > 48) {std::cout<<"ERROR de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;}
+      int u = de -7*dp + 24;
       if(cry_num<1 || cry_num> 1701){cry_to_beRead[u]=-1;}
-      //std::cout<<"  to be read: "<<cry_to_beRead[u]<<endl;
     }
   }
   
@@ -521,16 +498,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //LogDebug("EBBeamCaloTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
     //LogDebug("EBBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
-    //cout << " det id = " << id<<endl;
-    //cout << " sm, eta, phi " << ism << " " << ie << " " << ip<<endl;
-    //cout << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead<<endl;
-
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
 
-    //cout << " det id = " << id<<endl;
-    //cout << " sm, eta, phi " << ism << " " << ie << " " << ip<<endl;
-    //cout << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead<<endl;
-    //cout<<"##########################################################"<<endl;
     for (int i = 0; i < 10; i++) {
       EcalMGPASample sample = dataframe.sample(i);
       int adc = sample.adc();
@@ -628,8 +597,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
     
     //LogDebug("EBBeamCaloTask") <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene;
-    //cout <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene<<endl;
-    //cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+
     if(i_in_array == 4){cryInBeamEne = R_ene;}
     if(! tb_moving){meBBCaloEne_[i_in_array]->Fill(R_ene);}
     else{meBBCaloEneMoving_[i_in_array]->Fill(R_ene);}
