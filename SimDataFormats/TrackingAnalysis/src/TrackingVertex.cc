@@ -1,8 +1,11 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
-TrackingVertex::TrackingVertex( const TrackingVertex::Point & p) : position_(p) {}
+typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
+typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
-TrackingVertex::TrackingVertex() : position_(Point(0,0,0)) {}
+TrackingVertex::TrackingVertex( const HepLorentzVector &p) : position_(p) {}
+
+TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)) {}
 
 /// add a reference to a Track
 void TrackingVertex::add( const TrackingParticleRef & r ) { tracks_.push_back( r ); }
@@ -24,10 +27,14 @@ TrackingVertex::track_iterator TrackingVertex::tracks_begin() const { return tra
 TrackingVertex::track_iterator TrackingVertex::tracks_end() const { return tracks_.end(); }
 
 /// position 
-const TrackingVertex::Point & TrackingVertex::position() const { return position_; }
+const HepLorentzVector & TrackingVertex::position() const { return position_; }
 
 const EmbdSimVertexRefVector TrackingVertex::g4Vertices() const {
   return  g4Vertices_;
+};
+
+const GenVertexRefVector TrackingVertex::genVertices() const {
+  return  genVertices_;
 };
 
 const TrackingParticleRefVector TrackingVertex::trackingParticles() const {

@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.6 2006/06/21 23:28:01 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.7 2006/06/22 19:12:35 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -47,7 +47,7 @@ class TrackingVertex {
   /// default constructor
   TrackingVertex();
   /// constructor from values
-  TrackingVertex( const Point & );
+  TrackingVertex( const HepLorentzVector & );
   /// add a reference to a Track
   void add( const TrackingParticleRef & r );
   /// first iterator over tracks
@@ -66,23 +66,22 @@ class TrackingVertex {
   /// position 
   void addG4Vertex(const EmbdSimVertexRef &r);
   void addGenVertex(const GenVertexRef&);
-  const Point & position() const ;
-  const EmbdSimVertexRefVector g4Vertices() const;
+  const HepLorentzVector & position() const ;
+  const EmbdSimVertexRefVector    g4Vertices() const;
+  const GenVertexRefVector        genVertices() const;
   const TrackingParticleRefVector trackingParticles() const;
 //  const GenVertexRefVector genVertices() const;
   
  private:
   
   /// position
-  Point position_;
+  HepLorentzVector position_;
   
   /// reference to tracks
   TrackingParticleContainer tracks_;
 
   /// references to G4 and generator vertices
-//  EmbdSimVertexRef g4Vertex_;
   EmbdSimVertexRefVector g4Vertices_;
-//  GenVertexRef genVertex_;
   GenVertexRefVector     genVertices_;
 };
 

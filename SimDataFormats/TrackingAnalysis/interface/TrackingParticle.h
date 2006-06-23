@@ -39,16 +39,11 @@ public:
 		    double t, int pdgId );
   /// PDG identifier  
   int pdgId() const { return pdgId_; }
-  /// reference to G4 track
-//  const  EmbdSimTrackRef & g4Track() const { return g4Track_; }
-  /// pointer to generator particle
-//  int genParticle() const { return genParticle_; }
-  /// set reference to G4 track
-//  void setG4Track( const EmbdSimTrackRef & r ) { g4Track_ = r; }
+
+// Setters for Embd and Sim Tracks
   void addG4Track(const EmbdSimTrackRef&);
-  /// set pointer to generator particle
-//  void setGenParticle( int gp ) { genParticle_ = gp; }
   void addGenParticle(const GenParticleRef&);
+// Need Getters for Embd and Sim Tracks
 
 private:
   /// production time
