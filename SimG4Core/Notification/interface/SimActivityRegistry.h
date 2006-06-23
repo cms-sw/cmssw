@@ -16,13 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id: SimActivityRegistry.h,v 1.3 2005/11/21 16:19:19 chrjones Exp $
+// $Id: SimActivityRegistry.h,v 1.4 2005/11/21 22:01:21 chrjones Exp $
 //
 
 // system include files
-#include "boost/signal.hpp"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
+
+#include "sigc++/signal.h"
+#include "sigc++/bind.h"
 
 // user include files
 #include "SimG4Core/Notification/interface/SimSlotAdapter.h"
@@ -48,64 +50,64 @@ class SimActivityRegistry
       SimActivityRegistry() {}
       //virtual ~SimActivityRegistry();
 
-      typedef boost::signal< void(const BeginOfJob*)> BeginOfJobSignal;
+      typedef sigc::signal< void, const BeginOfJob*> BeginOfJobSignal;
       BeginOfJobSignal beginOfJobSignal_;
       void watchBeginOfJob(const BeginOfJobSignal::slot_type& iSlot){
          beginOfJobSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(BeginOfJob)
 
-      typedef boost::signal< void(const DDDWorld*)> DDDWorldSignal;
+      typedef sigc::signal< void, const DDDWorld*> DDDWorldSignal;
       DDDWorldSignal dddWorldSignal_;
       void watchDDDWorld(const DDDWorldSignal::slot_type& iSlot){
          dddWorldSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(DDDWorld)
 
-      typedef boost::signal< void(const BeginOfRun*)> BeginOfRunSignal;
+      typedef sigc::signal< void, const BeginOfRun*> BeginOfRunSignal;
+      typedef sigc::signal< void, const EndOfRun*> EndOfRunSignal;
       BeginOfRunSignal beginOfRunSignal_;
       void watchBeginOfRun(const BeginOfRunSignal::slot_type& iSlot){
          beginOfRunSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(BeginOfRun)
 
-      typedef boost::signal< void(const BeginOfEvent*)> BeginOfEventSignal;
+      typedef sigc::signal< void, const BeginOfEvent*> BeginOfEventSignal;
       BeginOfEventSignal beginOfEventSignal_;
       void watchBeginOfEvent(const BeginOfEventSignal::slot_type& iSlot){
          beginOfEventSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(BeginOfEvent)
 
-      typedef boost::signal< void(const BeginOfTrack*)> BeginOfTrackSignal;
+      typedef sigc::signal< void, const BeginOfTrack*> BeginOfTrackSignal;
       BeginOfTrackSignal beginOfTrackSignal_;
       void watchBeginOfTrack(const BeginOfTrackSignal::slot_type& iSlot){
          beginOfTrackSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(BeginOfTrack)
       
-      typedef boost::signal< void(const G4Step*)> G4StepSignal;
+      typedef sigc::signal< void, const G4Step*> G4StepSignal;
       G4StepSignal g4StepSignal_;
       void watchG4Step(const G4StepSignal::slot_type& iSlot){
          g4StepSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(G4Step)
          
-
-      typedef boost::signal< void(const EndOfRun*)> EndOfRunSignal;
+      typedef sigc::signal< void, const EndOfRun*> EndOfRunSignal;
       EndOfRunSignal endOfRunSignal_;
       void watchEndOfRun(const EndOfRunSignal::slot_type& iSlot){
          endOfRunSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(EndOfRun)
          
-      typedef boost::signal< void(const EndOfEvent*)> EndOfEventSignal;
+      typedef sigc::signal< void, const EndOfEvent*> EndOfEventSignal;
       EndOfEventSignal endOfEventSignal_;
       void watchEndOfEvent(const EndOfEventSignal::slot_type& iSlot){
          endOfEventSignal_.connect(iSlot);
       }
       SAR_CONNECT_METHOD(EndOfEvent)
          
-      typedef boost::signal< void(const EndOfTrack*)> EndOfTrackSignal;
+      typedef sigc::signal< void, const EndOfTrack*> EndOfTrackSignal;
       EndOfTrackSignal endOfTrackSignal_;
       void watchEndOfTrack(const EndOfTrackSignal::slot_type& iSlot){
          endOfTrackSignal_.connect(iSlot);

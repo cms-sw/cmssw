@@ -5,3 +5,5 @@
 
 <use name=geant4>
 <use name=DetectorDescription/Core>
+<lib name=sigcpp>
+

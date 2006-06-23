@@ -21,18 +21,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Nov 19 18:57:13 EST 2005
-// $Id$
+// $Id: SimSlotAdapter.h,v 1.1 2005/11/21 16:16:25 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include <boost/signal.hpp>
+#include "sigc++/signal.h"
 
 // forward declarations
 
 template<class T, class TFunc>
-class SimSlotAdapter : public boost::signals::trackable
+class SimSlotAdapter : public sigc::trackable
 {
 
    public:

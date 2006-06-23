@@ -1,18 +1,17 @@
 #ifndef SimG4Core_Notification_Dispatcher_H
 #define SimG4Core_Notification_Dispatcher_H
 
-#include <boost/signal.hpp>
-#include <boost/bind.hpp>
-#include <boost/signals/connection.hpp>
+#include "sigc++/signal.h"
+#include "sigc++/bind.h"
 
 template<typename Event>
-class Dispatcher : public boost::signal<void(Event const *)> 
+class Dispatcher : public sigc::signal<void(Event const *)> 
 {
  public:
-    typedef  boost::signal<void(Event const *)> super;
+    typedef  sigc::signal<void(Event const *)> super;
     Dispatcher(Event const * ev) 
     { 
-	m_conn = this->connect(boost::bind(&super::operator(),this,_1)); 
+	m_conn = this->connect(sigc::bind(&super::operator(),this,_1)); 
 	std::cout << " Dispatcher constructed " << std::endl;
     }
     ~Dispatcher() 
@@ -20,7 +19,7 @@ class Dispatcher : public boost::signal<void(Event const *)>
 	m_conn.disconnect();
 	std::cout << " Dispatcher destructed " << std::endl;
     }
-    boost::signals::connection m_conn;
+    sigc::connection m_conn;
 };
    
 #endif
