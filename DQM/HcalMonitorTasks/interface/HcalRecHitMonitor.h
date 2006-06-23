@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2005/12/08 21:18:34 $
-  * $Revision: 1.3 $
+  * $Date: 2006/04/04 19:27:03 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -22,30 +22,22 @@ public:
 
 private:  ///Monitoring elements
 
-  bool m_doPerChannel;
-  float m_occThresh;
+  bool doPerChannel_;
+  float occThresh_;
+  int ievt_;
 
-  MonitorElement* m_meOCC_MAP_all_GEO;
-  MonitorElement* m_meOCC_MAP_hb_GEO;
-  MonitorElement* m_meOCC_MAP_hf_GEO;
-  MonitorElement* m_meOCC_MAP_ho_GEO;
+  struct{
+    MonitorElement* meOCC_MAP_GEO;
+    MonitorElement* meRECHIT_E_all;
+    MonitorElement* meRECHIT_E_tot;
+    MonitorElement* meRECHIT_T_tot;
+    std::map<HcalDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  // complicated per-channel histogram setup
+  }hbHists,hfHists,hoHists;
 
-  MonitorElement* m_meRECHIT_E_all;
-  MonitorElement* m_meRECHIT_E_hb_all;
-  MonitorElement* m_meRECHIT_E_hb_tot;
-  MonitorElement* m_meRECHIT_T_hb_tot;
+  MonitorElement* meOCC_MAP_all_GEO;
+  MonitorElement* meRECHIT_E_all;
+  MonitorElement* meEVT_;
 
-  MonitorElement* m_meRECHIT_E_hf_all;
-  MonitorElement* m_meRECHIT_E_hf_tot;
-  MonitorElement* m_meRECHIT_T_hf_tot;
-
-  MonitorElement* m_meRECHIT_E_ho_all;
-  MonitorElement* m_meRECHIT_E_ho_tot;
-  MonitorElement* m_meRECHIT_T_ho_tot;
-
-  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_hb, m_meRECHIT_T_hb;  // complicated per-channel histogram setup
-  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_hf, m_meRECHIT_T_hf;  // complicated per-channel histogram setup
-  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_ho, m_meRECHIT_T_ho;  // complicated per-channel histogram setup
 
 };
 

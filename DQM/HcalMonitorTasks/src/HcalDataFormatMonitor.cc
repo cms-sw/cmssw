@@ -7,31 +7,35 @@ HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
-    
+  ievt_=0;
+
   if ( m_dbe ) {
-    m_dbe->setCurrentFolder("Hcal/DataFormatMonitor");    
+    m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");    
+
+    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");    
+    meEVT_->Fill(ievt_);
 
     string type = "HBHE Data Format Error Words";
-    hbHists.m_DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    hbHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
     type = "HBHE Data Format Error Map";
-    hbHists.m_ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),59,-29.5,29.5,40,0,40);
+    hbHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
 
     type = "HF Data Format Error Words";
-    hfHists.m_DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    hfHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
     type = "HF Data Format Error Map";
-    hfHists.m_ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),59,-29.5,29.5,40,0,40);
+    hfHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
 
     type = "HO Data Format Error Words";
-    hoHists.m_DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    hoHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
     type = "HO Data Format Error Map";
-    hoHists.m_ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),59,-29.5,29.5,40,0,40);
+    hoHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
 
   }
-  m_fedUnpackList = ps.getParameter<vector<int> >("FEDs");
-  m_firstFED = ps.getParameter<int>("HcalFirstFED");
+  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
+  firstFED_ = ps.getParameter<int>("HcalFirstFED");
   cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
-  for (unsigned int i=0; i<m_fedUnpackList.size(); i++) 
-    cout << m_fedUnpackList[i] << " ";
+  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
+    cout << fedUnpackList_[i] << " ";
   cout << endl;
 
   return;
@@ -41,12 +45,15 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, con
 
   if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
   
-  for (vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
+  ievt_++;
+  meEVT_->Fill(ievt_);
+
+  for (vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
     //    cout << "Data format monitor: Processing FED " << *i << endl;
     // look only at the potential ones, to save time.
     unpack(fed,emap);
-   }
+  }
 }
 
 void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap){
@@ -55,7 +62,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
   // check the summary status
   if(!dccHeader) return;
-  int dccid=dccHeader->getSourceId()-m_firstFED;  
+  int dccid=dccHeader->getSourceId()-firstFED_;  
 
   // walk through the HTR data...
   HcalHTRData htr;
@@ -77,15 +84,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel):
 	  case (HcalEndcap): {
-	    tmpErr = hbHists.m_DCC_ERRWD; tmpMap = hbHists.m_ERR_MAP; 
+	    tmpErr = hbHists.DCC_ERRWD; tmpMap = hbHists.ERR_MAP; 
 	    valid = true;
 	  } break;
 	  case (HcalOuter): {
-	    tmpErr = hoHists.m_DCC_ERRWD; tmpMap = hoHists.m_ERR_MAP; 
+	    tmpErr = hoHists.DCC_ERRWD; tmpMap = hoHists.ERR_MAP; 
 	    valid = true;
 	  } break;
 	  case (HcalForward): {
-	    tmpErr = hfHists.m_DCC_ERRWD; tmpMap = hfHists.m_ERR_MAP; 
+	    tmpErr = hfHists.DCC_ERRWD; tmpMap = hfHists.ERR_MAP; 
 	    valid = true;
 	  } break;
 	  default: break;

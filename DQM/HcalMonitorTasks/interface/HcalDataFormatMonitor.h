@@ -16,8 +16,8 @@
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2006/04/04 19:27:03 $
-  * $Revision: 1.4 $
+  * $Date: 2006/04/18 19:25:00 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -30,14 +30,17 @@ public:
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
 
 private: /// Data accessors
-  vector<int> m_fedUnpackList;
-  int m_firstFED;
+  vector<int> fedUnpackList_;
+  int firstFED_;
+  int ievt_;
 
 private:  ///Monitoring elements
 
+  MonitorElement* meEVT_;
+
   struct{
-    MonitorElement* m_ERR_MAP;
-    MonitorElement* m_DCC_ERRWD;
+    MonitorElement* ERR_MAP;
+    MonitorElement* DCC_ERRWD;
   } hbHists, hfHists,hoHists;
 
 };

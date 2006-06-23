@@ -1,7 +1,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 
 HcalDigiMonitor::HcalDigiMonitor() {
-  m_occThresh = 10;
+  occThresh_ = 1;
+  ievt_=0;
 }
 
 HcalDigiMonitor::~HcalDigiMonitor() {}
@@ -55,44 +56,50 @@ namespace HcalDigiMap{
 void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
-  m_occThresh = ps.getUntrackedParameter<int>("DigiOccThresh", 10);
-  cout << "Digi occupancy threshold set to " << m_occThresh << endl;
-  
+  occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", 10);
+  cout << "Digi occupancy threshold set to " << occThresh_ << endl;
+  ievt_=0;
+
   if ( m_dbe ) {
-    m_dbe->setCurrentFolder("Hcal/DigiMonitor/HBHE");
+
+    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor");        
+    meEVT_ = m_dbe->bookInt("Digi Task Event Number");    
+    meEVT_->Fill(ievt_);
+
+    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HBHE");
     hbHists.DIGI_NUM =  m_dbe->book1D("HBHE # of Digis","HBHE # of Digis",100,0,200);
     hbHists.DIGI_SIZE =  m_dbe->book1D("HBHE Digi Size","HBHE Digi Size",50,0,50);
     hbHists.DIGI_PRESAMPLE =  m_dbe->book1D("HBHE Digi Presamples","HBHE Digi Presamples",50,0,50);
     hbHists.QIE_CAPID =  m_dbe->book1D("HBHE QIE Cap-ID","HBHE QIE Cap-ID",6,-0.5,5.5);
     hbHists.QIE_ADC = m_dbe->book1D("HBHE QIE ADC Value","HBHE QIE ADC Value",100,0,200);
     hbHists.QIE_DV = m_dbe->book1D("HBHE QIE Data Value","HBHE QIE Data Value",2,-0.5,1.5);
-    hbHists.ERR_MAP_GEO = m_dbe->book2D("HBHE Digi Geo Error Map","HBHE Digi Geo Error Map",59,-29.5,29.5,40,0,40);
+    hbHists.ERR_MAP_GEO = m_dbe->book2D("HBHE Digi Geo Error Map","HBHE Digi Geo Error Map",59,-29.5,29.5,74,0,73);
     hbHists.ERR_MAP_ELEC = m_dbe->book2D("HBHE Digi Elec Error Map","HBHE Digi Elec Error Map",20,0,20,20,0,20);
-    hbHists.OCC_MAP_GEO = m_dbe->book2D("HBHE Digi Geo Occupancy Map","HBHE Digi Geo Occupancy Map",59,-29.5,29.5,40,0,40);
+    hbHists.OCC_MAP_GEO = m_dbe->book2D("HBHE Digi Geo Occupancy Map","HBHE Digi Geo Occupancy Map",59,-29.5,29.5,74,0,73);
     hbHists.OCC_MAP_ELEC = m_dbe->book2D("HBHE Digi Elec Occupancy Map","HBHE Digi Elec Occupancy Map",20,0,20,20,0,20);
 
-    m_dbe->setCurrentFolder("Hcal/DigiMonitor/HF");
+    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",100,0,200);
     hfHists.DIGI_SIZE =  m_dbe->book1D("HF Digi Size","HF Digi Size",50,0,50);
     hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,0,50);
     hfHists.QIE_CAPID =  m_dbe->book1D("HF QIE Cap-ID","HF QIE Cap-ID",6,-0.5,5.5);
     hfHists.QIE_ADC = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,200);
     hfHists.QIE_DV = m_dbe->book1D("HF QIE Data Value","HF QIE Data Value",2,-0.5,1.5);
-    hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",59,-29.5,29.5,40,0,40);
+    hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",59,-29.5,29.5,74,0,73);
     hfHists.ERR_MAP_ELEC = m_dbe->book2D("HF Digi Elec Error Map","HF Digi Elec Error Map",20,0,20,20,0,20);
-    hfHists.OCC_MAP_GEO = m_dbe->book2D("HF Digi Geo Occupancy Map","HF Digi Geo Occupancy Map",59,-29.5,29.5,40,0,40);
+    hfHists.OCC_MAP_GEO = m_dbe->book2D("HF Digi Geo Occupancy Map","HF Digi Geo Occupancy Map",59,-29.5,29.5,74,0,73);
     hfHists.OCC_MAP_ELEC = m_dbe->book2D("HF Digi Elec Occupancy Map","HF Digi Elec Occupancy Map",20,0,20,20,0,20);
 
-    m_dbe->setCurrentFolder("Hcal/DigiMonitor/HO");
+    m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",100,0,200);
     hoHists.DIGI_SIZE =  m_dbe->book1D("HO Digi Size","HO Digi Size",50,0,50);
     hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,0,50);
     hoHists.QIE_CAPID =  m_dbe->book1D("HO QIE Cap-ID","HO QIE Cap-ID",6,-0.5,5.5);
     hoHists.QIE_ADC = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,200);
     hoHists.QIE_DV = m_dbe->book1D("HO QIE Data Value","HO QIE Data Value",2,-0.5,1.5);
-    hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",59,-29.5,29.5,40,0,40);
+    hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",59,-29.5,29.5,74,0,73);
     hoHists.ERR_MAP_ELEC = m_dbe->book2D("HO Digi Elec Error Map","HO Digi Elec Error Map",20,0,20,20,0,20);
-    hoHists.OCC_MAP_GEO = m_dbe->book2D("HO Digi Geo Occupancy Map","HO Digi Geo Occupancy Map",59,-29.5,29.5,40,0,40);
+    hoHists.OCC_MAP_GEO = m_dbe->book2D("HO Digi Geo Occupancy Map","HO Digi Geo Occupancy Map",59,-29.5,29.5,74,0,73);
     hoHists.OCC_MAP_ELEC = m_dbe->book2D("HO Digi Elec Occupancy Map","HO Digi Elec Occupancy Map",20,0,20,20,0,20);
     
 }
@@ -107,12 +114,15 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   if(!m_dbe) { printf("HcalDigiMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
 
+  ievt_++;
+  meEVT_->Fill(ievt_);
+
   try{
     hbHists.DIGI_NUM->Fill(hbhe.size());
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
       HcalDigiMap::fillErrors<HBHEDataFrame>(digi,hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_ELEC);	  
-      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,hbHists.OCC_MAP_GEO,hbHists.OCC_MAP_ELEC,m_occThresh);	  
+      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,hbHists.OCC_MAP_GEO,hbHists.OCC_MAP_ELEC,occThresh_);	  
       hbHists.DIGI_SIZE->Fill(digi.size());
       hbHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
@@ -136,7 +146,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::fillErrors<HODataFrame>(digi,hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_ELEC);  
-      HcalDigiMap::fillOccupancy<HODataFrame>(digi,hoHists.OCC_MAP_GEO,hoHists.OCC_MAP_ELEC,m_occThresh);	  
+      HcalDigiMap::fillOccupancy<HODataFrame>(digi,hoHists.OCC_MAP_GEO,hoHists.OCC_MAP_ELEC,occThresh_);	  
       hoHists.DIGI_SIZE->Fill(digi.size());
       hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       //     printf("ho digi crate: %d, %d\n",digi.elecId().readoutVMECrateId(),digi.elecId().htrSlot());
@@ -159,7 +169,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);	
       HcalDigiMap::fillErrors<HFDataFrame>(digi,hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_ELEC); 
-      HcalDigiMap::fillOccupancy<HFDataFrame>(digi,hfHists.OCC_MAP_GEO,hfHists.OCC_MAP_ELEC,m_occThresh);	  
+      HcalDigiMap::fillOccupancy<HFDataFrame>(digi,hfHists.OCC_MAP_GEO,hfHists.OCC_MAP_ELEC,occThresh_);	  
       hfHists.DIGI_SIZE->Fill(digi.size());
       hfHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       //    printf("hf digi crate: %d, %d\n",digi.elecId().readoutVMECrateId(),digi.elecId().htrSlot());
