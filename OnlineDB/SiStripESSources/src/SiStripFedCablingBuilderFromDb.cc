@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.10 2006/06/23 07:47:55 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.11 2006/06/23 11:54:57 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -155,10 +155,9 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
   
   // Retrieve cached Dcu-DetId map
   SiStripConfigDb::DcuDetIdMap cached_map = db->getDcuDetIdMap();
-
+  
   // Iterate through FedConnections and retrieve all connection info
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
-
   for ( ; ifed != conns.end(); ifed++ ) {
     
     // Retrieve hardware addresses
