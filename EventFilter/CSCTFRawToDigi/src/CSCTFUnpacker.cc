@@ -232,6 +232,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	} //end of if(fedData.size())
 
   e.put(LCTProduct,"MuonCSCTFCorrelatedLCTDigi"); // put processed lcts into the event.
+  e.put(trackProduct,"MuonL1CSCTrackCollection");
 
   if(tbdata) delete tbdata;
   tbdata = NULL;
