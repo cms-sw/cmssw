@@ -121,17 +121,29 @@ int StreamerInputIndexFile::readEventMessage()  {
   return 1;
 }
 
-bool header_sorter(EventIndexRecord first, EventIndexRecord second) {
-    uint32 event_first = first.eview->event(); 
-    uint32 event_second = second.eview->event();
+bool header_event_sorter(EventIndexRecord first, EventIndexRecord second) {
+    //uint32 event_first = first.eview->event(); 
+    //uint32 event_second = second.eview->event();
      
-    if(event_first > event_second ) 
+    if( first.eview->event() > second.eview->event() ) 
 	return true;
     return false;
 }
 
+bool header_run_sorter(EventIndexRecord first, EventIndexRecord second) {
+    //uint32 run_first = first.eview->run();
+    //uint32 run_second = second.eview->run();
+     
+    if( first.eview->run() > second.eview->run() )
+        return true;
+    return false;
+}
+
+
 indexRecIter StreamerInputIndexFile::sort() {
-  std::sort( this->begin(), this->end(), header_sorter );
+  //Run sorting is required ?? 
+  std::sort( this->begin(), this->end(), header_run_sorter);
+  std::sort( this->begin(), this->end(), header_event_sorter);
   return this->begin();
 }
 
