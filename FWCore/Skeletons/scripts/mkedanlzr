@@ -97,7 +97,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens );
     }
 }
 else
