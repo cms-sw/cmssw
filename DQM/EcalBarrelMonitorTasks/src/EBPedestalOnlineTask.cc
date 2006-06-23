@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -46,7 +46,7 @@ void EBPedestalOnlineTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
   }

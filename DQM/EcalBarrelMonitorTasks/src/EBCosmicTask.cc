@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.47 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -48,13 +48,13 @@ void EBCosmicTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/22 18:43:27 $
+ * $Revision: 1.9 $
  * \author A. Ghezzi
  *
  */
@@ -89,10 +89,10 @@ void EBBeamCaloTask::setup(void){
     for (int i = 0; i < cryInArray_ ; i++) {
       sprintf(histo, "EBBCT pulse profile cry: %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
-      meBBCaloPulseProf_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.);
+      meBBCaloPulseProf_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
       sprintf(histo, "EBBCT pulse profile in G12 cry: %01d", i+1);
-      meBBCaloPulseProfG12_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.);
+      meBBCaloPulseProfG12_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
       sprintf(histo, "EBBCT found gains cry: %01d", i+1);
       meBBCaloGains_[i] =  dbe->book1D(histo,histo,14,0.,14.);
@@ -106,10 +106,10 @@ void EBBeamCaloTask::setup(void){
 
       sprintf(histo, "EBBCT pulse profile moving table cry: %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
-      meBBCaloPulseProfMoving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.);
+      meBBCaloPulseProfMoving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
       sprintf(histo, "EBBCT pulse profile in G12 moving table cry: %01d", i+1);
-      meBBCaloPulseProfG12Moving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.);
+      meBBCaloPulseProfG12Moving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
       sprintf(histo, "EBBCT found gains moving table cry: %01d", i+1);
       meBBCaloGainsMoving_[i] =  dbe->book1D(histo,histo,14,0.,14.);
@@ -168,7 +168,7 @@ void EBBeamCaloTask::setup(void){
     CrystalsDone_= dbe->book1D(histo,histo,1700,0.,1700.);
     
     sprintf(histo, "EBBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.);
+    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.,"s");
     // 1 bin each 10 events
     // when table is moving for just one events fill with -100
     // when table is constantely moving do not fill...

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -98,10 +98,10 @@ void EBBeamHodoTask::setup(void){
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
     sprintf(histo, "EBBHT prof E1 vs X SM%02d", smId);
-    meEvsXRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
+    meEvsXRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
     sprintf(histo, "EBBHT prof E1 vs Y SM%02d", smId);
-    meEvsYRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
+    meEvsYRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
     
     sprintf(histo, "EBBHT his E1 vs X SM%02d", smId);
     meEvsXRecHis_    = dbe-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);

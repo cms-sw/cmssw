@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.37 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -56,31 +56,31 @@ void EBPedestalTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
-      mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 3sum SM%02d G01", i+1);
-      mePed3SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed3SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 5sum SM%02d G01", i+1);
-      mePed5SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed5SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
-      mePedMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePedMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 3sum SM%02d G06", i+1);
-      mePed3SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed3SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 5sum SM%02d G06", i+1);
-      mePed5SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed5SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 3sum SM%02d G12", i+1);
-      mePed3SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed3SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       sprintf(histo, "EBPT pedestal 5sum SM%02d G12", i+1);
-      mePed5SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePed5SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
@@ -88,13 +88,13 @@ void EBPedestalTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
-      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
     }
 
   }
