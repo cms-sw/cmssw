@@ -56,14 +56,68 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  meMap[meId] = dbe->book1D(meId, meTitle, 11, 0, 11);
  
  sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
- sprintf(meTitle,"NumberOfClusters_or_%s",layerLabel);
+ sprintf(meTitle,"NumberOfClusters_for_%s",layerLabel);
  meMap[meId] = dbe->book1D(meId, meTitle, 10, 0, 10);
  
  sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
- sprintf(meTitle,"NumberOfDigi_or_%s",layerLabel);
+ sprintf(meTitle,"NumberOfDigi_for_%s",layerLabel);
  meMap[meId] = dbe->book1D(meId, meTitle, 10000, 0, 10000);
  
+ 
+ 
+ /// RPCRecHits
+ sprintf(meId,"MissingHits_%s",detUnitLabel);
+ sprintf(meTitle,"MissingHits__for_%s",layerLabel);
+ meMap[meId] = dbe->book2D(meId, meTitle, 100, 0, 100, 2, 0.,2.);
+
+ sprintf(meId,"RecHitX_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_Xposition_for_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle, 30, -100, 100);
+ 
+ sprintf(meId,"RecHitY_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_Yposition_for_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle, 30, -100, 100);
+ 
+ sprintf(meId,"RecHitDX_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_DX_for_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
+ 
+ sprintf(meId,"RecHitDY_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_DY_for_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
+ 
+ sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_DXDY_for_%s",layerLabel);
+ meMap[meId] = dbe->book1D(meId, meTitle, 30, -10, 10);
+
+ sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_Xposition_vs_Error_%s",layerLabel);
+ meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,-10,10);
+ 
+	
 	return meMap;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

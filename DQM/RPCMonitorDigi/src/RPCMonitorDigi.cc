@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/22 09:15:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/22 10:23:14 $
+ *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni
  */
@@ -60,8 +60,7 @@ void RPCMonitorDigi::endJob(void)
 
 void RPCMonitorDigi::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup ){
- counter++;
- edm::LogInfo (nameInLog) <<"Beginning analyzing event = " << counter;
+ edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
 
  char detUnitLabel[128];
  char layerLabel[128];
@@ -93,8 +92,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  }
  std::map<std::string, MonitorElement*> meMap=meCollection[id];
  	
-
- int roll = detId.roll();
  
  int numberOfDigi= 0;
 	
@@ -118,11 +115,20 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
 	meMap[meId]->Fill(numberOfDigi);
 
-        
 	typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
 	rangeRecHits recHitCollection =  rpcHits->get(detId);
-	RPCRecHitCollection::const_iterator it;
-	int numberOfHits=0;
+	
+	
+	if(recHitCollection.first==recHitCollection.second){
+		sprintf(meId,"MissingHits_%s",detUnitLabel);
+		meMap[meId]->Fill((int)(counter), 1.0);
+	
+	}else{
+		sprintf(meId,"MissingHits_%s",detUnitLabel);
+		meMap[meId]->Fill((int)(counter), 0.0);
+		
+		RPCRecHitCollection::const_iterator it;
+		int numberOfHits=0;
 
 	for (it = recHitCollection.first; it != recHitCollection.second ; it++){
  
@@ -135,13 +141,31 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		float xposition=point.x();
 		float yposition=point.y();
 	
-	
 		sprintf(meId,"ClusterSize_%s",detUnitLabel);
 		if(mult<=10) meMap[meId]->Fill(mult);
 		if(mult>10)  meMap[meId]->Fill(11);
 			
+		sprintf(meId,"RecHitX_%s",detUnitLabel);
+		meMap[meId]->Fill(xposition);
+ 
+		sprintf(meId,"RecHitY_%s",detUnitLabel);
+		meMap[meId]->Fill(yposition);
+ 
+		sprintf(meId,"RecHitDX_%s",detUnitLabel);
+		meMap[meId]->Fill(error.xx());
+ 
+		sprintf(meId,"RecHitDY_%s",detUnitLabel);
+		meMap[meId]->Fill(error.yy());
+ 
+		sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
+		meMap[meId]->Fill(error.xy());
+
+		sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
+		meMap[meId]->Fill(xposition,error.xx());
+
 		numberOfHits++;
 	}/// loop on RPCRecHits
+	}
 	
 
  }/// loop on RPC Det Unit
@@ -159,6 +183,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   }
   
   
+  counter++;
   //dbe->showDirStructure();
   //usleep(10000000);
 
