@@ -17,6 +17,7 @@
 
 using namespace edm;
 using namespace std; 
+using CLHEP::HepLorentzVector;
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
 typedef std::vector<TrackingParticle> TrackingParticleCollection;
@@ -65,10 +66,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     edm::LogWarning (MessageCategory) << "No HepMC source found";
     return;
   }  
-  
-  // Find and loop over vertices from HepMC
-//  const HepMC::GenEvent *hme = mcp -> GetEvent();
-//  hme -> print();
+   
+//  genEvent.print();
 
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
@@ -118,12 +117,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     bool InVolume = false;
          
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
-    math::XYZPoint mPosition = math::XYZPoint(position.x(),position.y(),position.z());
-    
+
     if (position.perp() < 1200 && abs(position.z()) < 3000) { // In or out of Tracker
       InVolume = true;
     }
-
     
 // Figure out the barcode of the HepMC Vertex if there is one
     int vtxParent = itVtx -> parentIndex(); // Get incoming track (EST)
@@ -134,10 +131,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
       HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
       if (hmp != 0) {
-      HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
-       if (hmpv != 0) {
-         vb = hmpv  -> barcode();
-       }  
+        HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
+        if (hmpv != 0) {
+          vb = hmpv  -> barcode();
+        }  
       }  
     }  
 
@@ -146,23 +143,22 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     double closest = 9e99;
     TrackingVertexCollection::iterator nearestVertex;
 
-    for (TrackingVertexCollection::iterator v =
-        tVC -> begin();
-        v != tVC ->end(); ++v) {
-      math::XYZPoint vPosition = v->position();   
-      double distance = sqrt(pow(vPosition.X()-mPosition.X(),2) +  
-                             pow(vPosition.Y()-mPosition.Y(),2) + 
-                             pow(vPosition.Z()-mPosition.Z(),2)); 
+    for (TrackingVertexCollection::iterator tV = tVC -> begin(); tV != tVC ->end(); ++tV) {
+//      CLHEP::HepLorentzVector tPosition = tV -> position();  // Get position of ESV
+//      double distance = sqrt(pow(tPosition.x()-position.x(),2) +  
+//                             pow(tPosition.y()-position.y(),2) + 
+//                             pow(tPosition.z()-position.z(),2)); 
+      double distance = HepLorentzVector(tV -> position() - position).v().r();
       if (distance < closest) { // flag which one so we can associate them
         closest = distance;
-        nearestVertex = v; 
+        nearestVertex = tV; 
       }   
     }
 
 // If outside cutoff, create another TrackingVertex,
     
     if (closest > distanceCut_) {
-      tVC -> push_back(TrackingVertex(mPosition));
+      tVC -> push_back(TrackingVertex(position));
       nearestVertex = tVC -> end();
       --nearestVertex;
     } 
@@ -178,7 +174,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          mapIndex != productionVertex.end();
          ++mapIndex) {
       if (mapIndex -> second == index) {
-        edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex->first << " to vertex "<<tVC->size()-1;
+//        edm::LogInfo (MessageCategory) << "Adding track "<< mapIndex->first << " to vertex "<<tVC->size()-1;
         (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
       }
     }
@@ -187,37 +183,23 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
   edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
   
-//  index = 0;
-//  for (edm::EmbdSimTrackContainer::const_iterator p = G4TrkContainer->begin(); 
-//       p != G4TrkContainer->end(); 
-//       ++p) {
-//         
-//    int partHepMC =    p -> genpartIndex();  
-//    HepMC::GenParticle *hmp = hme -> barcode_to_particle(partHepMC);
-    
-//    if (hmp != 0) {
-//      HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
-//      if (hmpv != 0) {
-//        int vb = hmpv  -> barcode();
-//      }  
-//    }  
-//    ++index;  
-//  }
 
+// Dump out the results  
+  
   index = 0;
   for (TrackingVertexCollection::const_iterator v =
        tVC -> begin();
        v != tVC ->end(); ++v) {
     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
-      << (v -> g4Vertices()).size() << " G4 vertices and " 
+      << (v -> g4Vertices()).size()  << " G4 vertices, " 
+      << (v -> genVertices()).size() << " HepMC vertices and " 
       << (v -> trackingParticles()).size() << " tracks";
     ++index;  
   }        
   
-  // Put new info into event record  
+// Put new info into event record  
   
   event.put(tVC);
-  edm::LogInfo (MessageCategory) << "Exiting TrackingTruthProducer";
 }
   
 DEFINE_FWK_MODULE(TrackingTruthProducer)
