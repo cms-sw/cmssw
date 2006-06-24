@@ -1,0 +1,43 @@
+# -*-SH-*-
+<use name=clhep>
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/EgammaReco>
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+
+# <use name=Geometry/DTGeometry>
+# <use name=Geometry/RPCGeometry>
+# <use name=Geometry/CSCGeometry>
+
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/Surface>
+
+<use name=Geometry/Records>
+
+<use name=SimCalorimetry/EcalSimProducers>
+#
+# <use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/DetId>
+
+<use name=TrackingTools/GeomPropagators>
+
+<use name=MagneticField/Engine>
+<use name=MagneticField/VolumeBasedEngine>
+<use name=MagneticField/Records>
+
+<use name=TrackPropagation/SteppingHelixPropagator>
+
+<export>
+   <lib name=TrackingToolsTrackAssociator>
+</export>
+   
+# <lib name=MuonTest>
+# <flags SEAL_PLUGIN_NAME="MuonTestMuonTest">
+# </lib>
+# add debug symbols
+# <Flags CXXFLAGS=-g>
