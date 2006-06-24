@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -14,80 +16,30 @@
 
 LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
 {
-
   static int nRZ=5 ;
   static int nPhi=10;
   theNbinsRZ = nRZ;
   theNbinsPhi = nPhi;
-  //MP Does it mean to have an empty range?
-
-  if ((layerhits->isPixel())&& 
-      (layerhits->PixRange().first==layerhits->PixRange().second)) return; 
-  if ((layerhits->isStrip())&& 
-      (layerhits->StripRange().first==layerhits->StripRange().second)) return;
-  if ((layerhits->isStripMatched())&& 
-      (layerhits->StripMatchedRange().first==layerhits->StripMatchedRange().second)) return;
-  if ((!layerhits->isPixel())&& 
-      (!layerhits->isStrip())&&
-      (!layerhits->isStripMatched())) return;
- 
+  
   theLayerPhimin = -M_PI;
   theCellDeltaPhi = 2*M_PI/theNbinsPhi;
   if (layerhits->layer()->part() == barrel) {
-    float z0=layerhits->layer()->surface().position().z();
+      float z0=layerhits->layer()->surface().position().z();
     float length =layerhits->layer()->surface().bounds().length();
     theLayerRZmin = z0 - length/2.;
     theCellDeltaRZ = length/theNbinsRZ;
   }
   else {
-  
     const ForwardDetLayer* lf = dynamic_cast<const ForwardDetLayer*>(layerhits->layer());
     theLayerRZmin = lf->specificSurface().innerRadius();
     float  theLayerRZmax = lf->specificSurface().outerRadius();
     theCellDeltaRZ = (theLayerRZmax-theLayerRZmin)/theNbinsRZ;
   }
 
-  //fill the hit vector with pixels
-  if (layerhits->isPixel()){
-    SiPixelRecHitCollection::const_iterator ih;
-    SiPixelRecHitCollection::const_iterator
-      hitRangeIteratorBegin=layerhits->PixRange().first;
-    
-    SiPixelRecHitCollection::const_iterator
-      hitRangeIteratorEnd=layerhits->PixRange().second;
-
-
-    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
-      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
-    }
+  for (vector<const TrackingRecHit*>::const_iterator ih=layerhits->recHits().begin();
+       ih != layerhits->recHits().end(); ih++){
+    theHits.push_back( TkHitPairsCachedHit(*ih,iSetup));
   }
-  //fill the hit vector with strips
-  if (layerhits->isStrip()){
-    SiStripRecHit2DLocalPosCollection::const_iterator ih;
-    SiStripRecHit2DLocalPosCollection::const_iterator
-      hitRangeIteratorBegin=layerhits->StripRange().first;
-        SiStripRecHit2DLocalPosCollection::const_iterator
-      hitRangeIteratorEnd=layerhits->StripRange().second;
-
-    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
-      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
-    }
-  }
-
-  //fill the hit vector with matched strips
-  if (layerhits->isStripMatched()){
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator ih;
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator
-      hitRangeIteratorBegin=layerhits->StripMatchedRange().first;
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator
-      hitRangeIteratorEnd=layerhits->StripMatchedRange().second;
-
-    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
-      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
-    }
-  }
-
-
 }
   
 
@@ -102,7 +54,7 @@ LayerHitMap::LayerHitMap(const LayerHitMap & lhm,const edm::EventSetup&iSetup)
       theCellDeltaPhi(lhm.theCellDeltaPhi),
       theNbinsRZ(lhm.theNbinsRZ), theNbinsPhi(lhm.theNbinsPhi) 
 {
-    if(lhm.theCells) initCells(); }
+  if(lhm.theCells) initCells(); }
 
 LayerHitMapLoop LayerHitMap::loop() const
   { return LayerHitMapLoop(*this); }
@@ -119,7 +71,6 @@ void LayerHitMap::initCells() const
 //  static TimingReport::Item * theTimer =
 //    PixelRecoUtilities::initTiming("-- cache (9) sorting",1);
 //  TimeMe tm( *theTimer, false);
-
   vector<TkHitPairsCachedHit> hits(theHits);
   int size = hits.size();
 
@@ -130,6 +81,11 @@ void LayerHitMap::initCells() const
   vector<TkHitPairsCachedHit>::iterator ih;
   for (ih = hits.begin(); ih != hits.end(); ih++) {
     int irz = idxRz(ih->rOrZ());
+    // --- FIX MANDATORY (in ORCA) to make caching work also with SiStrip RecHit
+    // further investigation needed!!
+    //if(irz>=theNbinsRZ) irz = theNbinsRZ-1;
+    //if(irz<0)   irz = 0;
+    // ---
     cells[irz].push_back(&(*ih));
   }
 
