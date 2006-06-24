@@ -147,12 +147,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
 
        // find pedestals for this channel
-       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
        pedIter = pedMap.find(itdg->id().rawId());
        if( pedIter != pedMap.end() ) {
 	 aped = pedIter->second;
        } else {
-	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
 						 << "\n  no uncalib rechit will be made for this digi!"
 	   ;
 	 continue;
@@ -161,12 +161,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
        
        // find gain ratios
-       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
        gainIter = gainMap.find(itdg->id().rawId());
        if( gainIter != gainMap.end() ) {
 	 aGain = gainIter->second;
        } else {
-	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id())
 						 << "\n  no uncalib rechit will be made for this digi!"
 	   ;
 	 continue;
@@ -177,9 +177,9 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 
        // Define Alpha and Beta either by stored values or by default universal values
        if (useAlphaBetaArray_){
-	 if ( alphaBetaValues_[itdg->id().ism()-1].size()!=0){
-	   a=alphaBetaValues_[itdg->id().ism()-1][itdg->id().ic()-1].first;
-	   b=alphaBetaValues_[itdg->id().ism()-1][itdg->id().ic()-1].second;
+	 if ( alphaBetaValues_[EBDetId(itdg->id()).ism()-1].size()!=0){
+	   a=alphaBetaValues_[EBDetId(itdg->id()).ism()-1][EBDetId(itdg->id()).ic()-1].first;
+	   b=alphaBetaValues_[EBDetId(itdg->id()).ism()-1][EBDetId(itdg->id()).ic()-1].second;
 	   if ((a==-1)&&(b==-1)){
 	     a=alpha_;
 	     b=beta_;
@@ -216,12 +216,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        algoEE_.SetAlphaBeta(alpha_,beta_);
 
        // find pedestals for this channel
-       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
        pedIter = pedMap.find(itdg->id().rawId());
        if( pedIter != pedMap.end() ) {
 	 aped = pedIter->second;
        } else {
-	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EEDetId(itdg->id()) 
 						 << "\n  no uncalib rechit will be made for this digi!"
 	   ;
 	 continue;
@@ -230,12 +230,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
        
        // find gain ratios
-       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
        gainIter = gainMap.find(itdg->id().rawId());
        if( gainIter != gainMap.end() ) {
 	 aGain = gainIter->second;
        } else {
-	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	 edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EEDetId(itdg->id())
 						 << "\n  no uncalib rechit will be made for this digi!"
 	   ;
 	 continue;

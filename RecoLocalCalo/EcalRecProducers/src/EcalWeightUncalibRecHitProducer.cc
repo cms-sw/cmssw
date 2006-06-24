@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.13 2006/05/13 07:29:21 meridian Exp $
-  *  $Date: 2006/05/13 07:29:21 $
-  *  $Revision: 1.13 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.14 2006/06/19 18:50:06 meridian Exp $
+  *  $Date: 2006/06/19 18:50:06 $
+  *  $Revision: 1.14 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -134,12 +134,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 //     counter_++; // verbosity counter
 
 	 // find pedestals for this channel
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
 	 pedIter = pedMap.find(itdg->id().rawId());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -148,12 +148,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
 
 	 // find gain ratios
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
 	 gainIter = gainMap.find(itdg->id().rawId());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id()) 
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -168,7 +168,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   gid = git->second;
 	 } else {
 	   edm::LogError("EcalUncalibRecHitError") << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
-						   << "\n  no uncalib rechit will be made for digi with id: " << itdg->id()
+						   << "\n  no uncalib rechit will be made for digi with id: " << EBDetId(itdg->id())
 	     ;
 	   continue;
 	 }
@@ -180,7 +180,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
 	 if( wit == wgts->getMap().end() ) {  // no weights found for this group ID
 	   edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
-						   << "\n  skipping digi with id: " << itdg->id()
+						   << "\n  skipping digi with id: " << EBDetId(itdg->id())
 	     ;
 	   continue;
 	 }
@@ -223,7 +223,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 	 if(aHit.amplitude()>0.) {
 	   LogDebug("EcalUncalibRecHitDebug") << "processed EBDataFrame with id: "
-					      << itdg->id() << "\n"
+					      << EBDetId(itdg->id()) << "\n"
 					      << "uncalib rechit amplitude: " << aHit.amplitude()
 	     ;
 	 }
@@ -238,12 +238,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 //     counter_++; // verbosity counter
 
 	 // find pedestals for this channel
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
 	 pedIter = pedMap.find(itdg->id().rawId());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EEDetId(itdg->id())
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -252,12 +252,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
 
 	 // find gain ratios
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
 	 gainIter = gainMap.find(itdg->id().rawId());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EEDetId(itdg->id())
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -271,7 +271,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	   gid = git->second;
 	 } else {
 	   edm::LogError("EcalUncalibRecHitError") << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
-						   << "\n  no uncalib rechit will be made for digi with id: " << itdg->id()
+						   << "\n  no uncalib rechit will be made for digi with id: " << EEDetId(itdg->id())
 	     ;
 	   continue;
 	 }
@@ -283,7 +283,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 	 EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
 	 if( wit == wgts->getMap().end() ) {  // no weights found for this group ID
 	   edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
-						   << "\n  skipping digi with id: " << itdg->id()
+						   << "\n  skipping digi with id: " << EEDetId(itdg->id())
 	     ;
 	   continue;
 	 }
@@ -326,7 +326,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 	 if(aHit.amplitude()>0.) {
 	   LogDebug("EcalUncalibRecHitDebug") << "processed EEDataFrame with id: "
-					      << itdg->id() << "\n"
+					      << EEDetId(itdg->id()) << "\n"
 					      << "uncalib rechit amplitude: " << aHit.amplitude()
 	     ;
 	 }

@@ -63,6 +63,7 @@ void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest
 
 
 double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {
+  
   int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
    return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[0][interestLevel]:-numeric_limits<double>::max();
  }
@@ -150,15 +151,15 @@ EcalSelectiveReadoutSuppressor::run(const EcalTrigPrimDigiCollection & trigPrims
   // do barrel first
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr){
-    if(accept(*digiItr, threshold(digiItr->id()))){
+    if(accept(*digiItr, threshold(EBDetId(digiItr->id())))){
       selectedBarrelDigis.push_back(*digiItr);
     } 
   }
-
+  
   // and endcaps
   for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
       digiItr != endcapDigis.end(); ++digiItr){
-    if(accept(*digiItr, threshold(digiItr->id()))){
+    if(accept(*digiItr, threshold(EEDetId(digiItr->id())))){
       selectedEndcapDigis.push_back(*digiItr);
     }
   }

@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.6 2006/05/13 07:29:21 meridian Exp $
-  *  $Date: 2006/05/13 07:29:21 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.7 2006/06/19 18:50:06 meridian Exp $
+  *  $Date: 2006/06/19 18:50:06 $
+  *  $Revision: 1.7 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -124,12 +124,12 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
        for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
 
 	 // find pedestals for this channel
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
 	 pedIter = pedMap.find(itdg->id().rawId());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -138,12 +138,12 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
 
 	 // find gain ratios
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
 	 gainIter = gainMap.find(itdg->id().rawId());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id()) 
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -157,7 +157,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	 
 	 if(aHit.amplitude()>0.) {
 	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EBDataFrame with id: "
-					     << itdg->id() << "\n"
+					     << EBDetId(itdg->id()) << "\n"
 					     << "uncalib rechit amplitude: " << aHit.amplitude()
 	     ;
 	 }
@@ -170,12 +170,12 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
        for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
 
 	 // find pedestals for this channel
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
 	 pedIter = pedMap.find(itdg->id().rawId());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EEDetId(itdg->id())
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -184,12 +184,12 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
 
 	 // find gain ratios
-	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << itdg->id() ;
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
 	 gainIter = gainMap.find(itdg->id().rawId());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {
-	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << itdg->id() 
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EEDetId(itdg->id())
 						   << "\n  no uncalib rechit will be made for this digi!"
 	     ;
 	   continue;
@@ -203,7 +203,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	 
 	 if(aHit.amplitude()>0.) {
 	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EEDataFrame with id: "
-					     << itdg->id() << "\n"
+					     << EEDetId(itdg->id()) << "\n"
 					     << "uncalib rechit amplitude: " << aHit.amplitude()
 	     ;
 	 }
