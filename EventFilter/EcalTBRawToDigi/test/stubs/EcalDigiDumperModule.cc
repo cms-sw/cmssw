@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/01/19 20:02:37 $
- * $Revision: 1.5 $
+ * $Date: 2006/03/20 22:28:31 $
+ * $Revision: 1.6 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -94,8 +94,8 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	  
 	  {
 	    cout << "i-phi: " 
-		 << (*digiItr).id().iphi() << " j-eta: " 
-		 << (*digiItr).id().ieta()
+		 << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
+		 << EBDetId((*digiItr).id()).ieta()
 		 << "   ";
 	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
 	      if (i==5)	  cout << "\n\t";
