@@ -6,7 +6,7 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.9 2006/05/24 01:52:49 wmtan Exp $
+$Id: BranchDescription.h,v 1.10 2006/06/22 18:33:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -71,7 +71,7 @@ namespace edm {
     std::string const& moduleName() const {return module.moduleName_;}
     PassID passID() const {return module.pass;}
     std::string const& processName() const {return module.processName_;}
-    ProductID productID() const {return productID_;}
+    ProductID const& productID() const {return productID_;}
     std::string const& productInstanceName() const {return productInstanceName_;} 
     std::string const& productType() const {return friendlyClassName_;}
     ParameterSetID const& psetID() const {return module.pid;}
