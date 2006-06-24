@@ -13,10 +13,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/CombinatorialSeedGeneratorFromPixelLess.h"
 
 
@@ -32,9 +31,7 @@ class GlobalPixelLessSeedGenerator : public edm::EDProducer
 
  private:
   edm::ParameterSet conf_;
-  CombinatorialSeedGeneratorFromPixelLess  globalpixelless;
-
-
+  CombinatorialSeedGeneratorFromPixelLess  combinatorialSeedGenerator;
 };
 
 #endif

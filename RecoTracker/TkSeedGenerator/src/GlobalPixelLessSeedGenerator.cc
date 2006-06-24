@@ -20,7 +20,7 @@
 
 using namespace std;
 GlobalPixelLessSeedGenerator::GlobalPixelLessSeedGenerator(edm::ParameterSet const& conf) : 
-  conf_(conf) ,globalpixelless(conf)
+  conf_(conf) ,combinatorialSeedGenerator(conf)
  {
   edm::LogInfo ("GlobalPixelLessSeedGenerator")<<"Enter the GlobalPixelLessSeedGenerator";
   produces<TrajectorySeedCollection>();
@@ -32,28 +32,21 @@ GlobalPixelLessSeedGenerator::~GlobalPixelLessSeedGenerator() { }
 
 // Functions that gets called by framework every event
 void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
-{
-
-
-  
+{  
   // get Inputs
+  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
   edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
-  e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
+  e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
   edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
-  e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
+  e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
   edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
-  e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
-
-
- 
+  e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
 
-  globalpixelless.init(*matchedrecHits,*stereorecHits,*rphirecHits,es);
-
-  // invoke the seed finding algorithm
-  globalpixelless.run(*output,es);
+  combinatorialSeedGenerator.init(*matchedrecHits,*stereorecHits,*rphirecHits,es);
+  combinatorialSeedGenerator.run(*output,es);
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

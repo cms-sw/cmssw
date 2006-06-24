@@ -3,16 +3,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkHitPairs/interface/PixelLessSeedLayerPairs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 void 
 CombinatorialSeedGeneratorFromPixelLess::init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-					  const SiStripRecHit2DLocalPosCollection &collstereo ,
-					  const SiStripRecHit2DLocalPosCollection &collrphi ,
-					  const edm::EventSetup& iSetup)
+					      const SiStripRecHit2DLocalPosCollection &collstereo ,
+					      const SiStripRecHit2DLocalPosCollection &collrphi ,
+					      const edm::EventSetup& iSetup)
 {
-
-   PixelLessSeedLayerPairs pixellesslayers;
-   pixellesslayers.init(collmatch,collstereo,collrphi,iSetup);
-   initPairGenerator(&pixellesslayers,iSetup);
+  stripLayers->init(collmatch,collstereo,collrphi,iSetup);
+  initPairGenerator(stripLayers,iSetup);
 }
 
 CombinatorialSeedGeneratorFromPixelLess::CombinatorialSeedGeneratorFromPixelLess(edm::ParameterSet const& conf): SeedGeneratorFromLayerPairs(conf)
@@ -29,6 +28,7 @@ CombinatorialSeedGeneratorFromPixelLess::CombinatorialSeedGeneratorFromPixelLess
   edm::LogInfo("CombinatorialSeedGeneratorFromPixelLess")<<" PtMin of track is "<<ptmin<< 
     " The Radius of the cylinder for seeds is "<<originradius <<"cm" ;
 
+  stripLayers = new PixelLessSeedLayerPairs();
 }
 
 void CombinatorialSeedGeneratorFromPixelLess::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
