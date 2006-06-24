@@ -32,9 +32,7 @@ class GlobalPixelSeedGenerator : public edm::EDProducer
 
  private:
   edm::ParameterSet conf_;
-  CombinatorialSeedGeneratorFromPixel  globalseed;
-
-
+  CombinatorialSeedGeneratorFromPixel  combinatorialSeedGenerator;
 };
 
 #endif
