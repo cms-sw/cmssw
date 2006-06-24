@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.17 2006/05/23 02:30:02 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.18 2006/06/14 23:08:06 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -155,7 +155,7 @@ namespace edm
     // Loop over EDProducts, fill the provenance, and write.
     for(; i != ie; ++i) {
       BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID_;
+      ProductID const& id = desc.productID();
 
       if (id == ProductID()) {
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
@@ -163,7 +163,7 @@ namespace edm
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
       if (group.get() == 0) {
-	std::string const& name = desc.fullClassName_;
+	std::string const& name = desc.className();
 	std::string const className = wrappedClassName(name);
 	TClass *cp = gROOT->GetClass(className.c_str());
 	if (cp == 0) {
