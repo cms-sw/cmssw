@@ -7,10 +7,9 @@
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackContainer.h" 
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h" 
 
 #include "G4UserEventAction.hh"
-
-#include "boost/signal.hpp"
 
 #include <vector>
 #include <map>
@@ -45,8 +44,8 @@ public:
     }
     void addTrack(TrackWithHistory* iTrack);
 
-    boost::signal< void(const BeginOfEvent*)> m_beginOfEventSignal;
-    boost::signal< void(const EndOfEvent*)> m_endOfEventSignal;
+    SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
+    SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;
 
 private:
     //does not own the manager

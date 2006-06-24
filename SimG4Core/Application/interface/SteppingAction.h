@@ -2,9 +2,9 @@
 #define SimG4Core_SteppingAction_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4UserSteppingAction.hh"
-#include "boost/signal.hpp"
 
 class SteppingAction: public G4UserSteppingAction
 {
@@ -13,7 +13,7 @@ public:
     ~SteppingAction();
     void UserSteppingAction(const G4Step * aStep);
 
-    boost::signal< void(const G4Step*)> m_g4StepSignal;
+    SimActivityRegistry::G4StepSignal m_g4StepSignal;
 private:
     void catchLowEnergyInVacuumHere(const G4Step * aStep);
     void catchLowEnergyInVacuumNext(const G4Step * aStep);

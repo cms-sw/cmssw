@@ -2,9 +2,9 @@
 #define SimG4Core_TrackingAction_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4UserTrackingAction.hh"
-#include "boost/signal.hpp"
 
 class EventAction;
 class TrackWithHistory; 
@@ -20,8 +20,9 @@ public:
     virtual void PostUserTrackingAction(const G4Track * aTrack);
     TrackWithHistory * currentTrackWithHistory() { return currentTrack_; }
     G4TrackingManager * getTrackManager();
-    boost::signal< void(const BeginOfTrack*)> m_beginOfTrackSignal;
-    boost::signal< void(const EndOfTrack*)> m_endOfTrackSignal;
+
+    SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
+    SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
