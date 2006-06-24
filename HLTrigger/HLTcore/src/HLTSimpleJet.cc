@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -26,11 +26,11 @@
 //
 HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
 {
-   module_ = iConfig.getParameter< std::string > ("input");
+   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
    ptcut_  = iConfig.getParameter<double> ("ptcut");
    njcut_  = iConfig.getParameter<int> ("njcut");
 
-   LogDebug("") << "Input/ptcut/njcut : " << module_ << " " << ptcut_ << " " << njcut_;
+   LogDebug("") << "Input/ptcut/njcut : " << inputTag_.encode() << " " << ptcut_ << " " << njcut_;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -48,27 +48,28 @@ HLTSimpleJet::~HLTSimpleJet()
 bool
 HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
    using namespace std;
+   using namespace edm;
    using namespace reco;
 
-   // the filter object
-   auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
-   // ref to objects to be recorded
-   edm::RefToBase<Candidate> ref;
+   // The filter object
+   auto_ptr<HLTFilterObjectWithRefs>
+     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   // Ref to Candidate object to be recorded in filter object
+   RefToBase<Candidate> ref;
 
 
    // get hold of jets
-   Handle<RecoCaloJetCandidateCollection>  jets;
-   iEvent.getByLabel (module_,jets);
+   Handle<RecoCaloJetCandidateCollection> jets;
+   iEvent.getByLabel (inputTag_,jets);
 
    // look at all jets,  check cuts and add to filter object
-   int n=0;
+   int n(0);
    RecoCaloJetCandidateCollection::const_iterator jet(jets->begin());
    for (; jet!=jets->end(); jet++) {
      if ( (jet->pt()) >= ptcut_) {
        n++;
-       ref=edm::RefToBase<Candidate>(reco::RecoCaloJetCandidateRef(jets,distance(jets->begin(),jet)));
+       ref=RefToBase<Candidate>(RecoCaloJetCandidateRef(jets,distance(jets->begin(),jet)));
        filterproduct->putParticle(ref);
      }
    }

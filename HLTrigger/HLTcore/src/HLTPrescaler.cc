@@ -18,14 +18,18 @@ HLTPrescaler::~HLTPrescaler()
 
 bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
 {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
 
   // prescaler decision
   ++count_;
   bool accept(count_%n_ == 0);
 
-  // place filter object if requested
+  // construct and place filter object if requested
   if (b_) {
-    auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
+    auto_ptr<HLTFilterObjectWithRefs> 
+      filterproduct (new HLTFilterObjectWithRefs(path(),module()));
     e.put(filterproduct);
   }
 

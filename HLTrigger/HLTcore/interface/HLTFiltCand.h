@@ -7,17 +7,17 @@
  *  This class is an EDFilter implementing a very basic HLT trigger
  *  acting on candidates, requiring a g/e/m/j tuple above pt cuts
  *
- *  $Date: 2006/05/20 15:33:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/16 18:55:56 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<string>
@@ -27,6 +27,8 @@
 
 class HLTFiltCand : public edm::EDFilter {
 
+#include "HLTrigger/HLTcore/interface/HLTadd.h"
+
    public:
       explicit HLTFiltCand(const edm::ParameterSet&);
       ~HLTFiltCand();
@@ -34,14 +36,15 @@ class HLTFiltCand : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      std::string srcphot_;  // module label for getting photons from the event
-      std::string srcelec_;  // module label for getting electrons from the event
-      std::string srcmuon_;  // module label for getting muons from the event
-      std::string srcjets_;  // module label for getting jets from the event
-      double pt_phot_;       // pt cut for photon
-      double pt_elec_;       // pt cut for electron
-      double pt_muon_;       // pt cut for muons
-      double pt_jets_;       // pt cut for jets
+      edm::InputTag photTag_;  // input tag identifying product containing photons
+      edm::InputTag elecTag_;  // input tag identifying product containing electrons
+      edm::InputTag muonTag_;  // input tag identifying product containing muons
+      edm::InputTag jetsTag_;  // input tag identifying product containing jets
+
+      double phot_pt_;       // pt cut for photon
+      double elec_pt_;       // pt cut for electron
+      double muon_pt_;       // pt cut for muons
+      double jets_pt_;       // pt cut for jets
 };
 
 #endif //HLTFiltCand_h

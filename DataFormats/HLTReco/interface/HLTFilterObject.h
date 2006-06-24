@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/17 20:17:01 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/17 21:08:32 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -26,6 +26,7 @@
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include <cassert>
 #include <vector>
 #include <map>
 
@@ -41,9 +42,12 @@ namespace reco
 
   public:
 
-    HLTFilterObjectBase(): path_(), module_() { }
-    HLTFilterObjectBase(unsigned short int path, unsigned short int module)
-      : path_(path), module_(module) { }
+    HLTFilterObjectBase(int path=0, int module=0) {
+      assert( (0<=path  ) && (path  < 65536) );
+      assert( (0<=module) && (module< 65536) );
+      path_   = path;
+      module_ = module;
+    }
 
     unsigned short int path()   const { return path_  ;}
     unsigned short int module() const { return module_;}
@@ -60,7 +64,8 @@ namespace reco
 
   public:
 
-    HLTFilterObject(): HLTFilterObjectBase(), scalars_(), particles_() { }
+    HLTFilterObject(int path=0, int module=0)
+      : HLTFilterObjectBase(path,module), scalars_(), particles_() { }
 
     unsigned int numberScalars  () const { return   scalars_.size();}
     unsigned int numberParticles() const { return particles_.size();}
@@ -95,7 +100,8 @@ namespace reco
 
   public:
 
-    HLTFilterObjectWithRefs(): HLTFilterObject(), refs_() { }
+    HLTFilterObjectWithRefs(int path=0, int module=0)
+      : HLTFilterObject(path,module), refs_() { }
 
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       this->HLTFilterObject::putParticle(ref);

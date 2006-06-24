@@ -7,20 +7,17 @@
  *  This class is a EDProducer producing some collections of
  *  reconstructed objetcs based on the Candidate model
  *
- *  $Date: 2006/05/20 15:33:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/17 00:18:35 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include<string>
 //
 // class decleration
 //

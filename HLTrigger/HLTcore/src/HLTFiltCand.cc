@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -31,21 +31,21 @@
 HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
 {
 
-   srcphot_ = iConfig.getParameter< std::string > ("srcPhot");
-   srcelec_ = iConfig.getParameter< std::string > ("srcElec");
-   srcmuon_ = iConfig.getParameter< std::string > ("srcMuon");
-   srcjets_ = iConfig.getParameter< std::string > ("srcJets");
+   photTag_ = iConfig.getParameter< edm::InputTag > ("photTag");
+   elecTag_ = iConfig.getParameter< edm::InputTag > ("elecTag");
+   muonTag_ = iConfig.getParameter< edm::InputTag > ("muonTag");
+   jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
 
-   pt_phot_ = iConfig.getParameter< double > ("ptPhot");
-   pt_elec_ = iConfig.getParameter< double > ("ptElec");
-   pt_muon_ = iConfig.getParameter< double > ("ptMuon");
-   pt_jets_ = iConfig.getParameter< double > ("ptJets");
+   phot_pt_ = iConfig.getParameter< double > ("photPt");
+   elec_pt_ = iConfig.getParameter< double > ("elecPt");
+   muon_pt_ = iConfig.getParameter< double > ("muonPt");
+   jets_pt_ = iConfig.getParameter< double > ("jetsPt");
 
    LogDebug("") << "created with:" <<
-     " g: " << srcphot_ << " " << pt_phot_ << 
-     " e: " << srcelec_ << " " << pt_elec_ << 
-     " m: " << srcmuon_ << " " << pt_muon_ << 
-     " j: " << srcjets_ << " " << pt_jets_  ;
+     " g: " << photTag_.encode() << " " << phot_pt_ << 
+     " e: " << elecTag_.encode() << " " << elec_pt_ << 
+     " m: " << muonTag_.encode() << " " << muon_pt_ << 
+     " j: " << jetsTag_.encode() << " " << jets_pt_  ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -65,6 +65,7 @@ bool
 HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
+   using namespace edm;
    using namespace reco;
 
    // All filters must create and fill a filter object
@@ -72,24 +73,25 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // satisfying this filter
 
    // The filter object
-   auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
-   // ref to objects to be recorded
-   edm::RefToBase<Candidate> ref;
+   auto_ptr<HLTFilterObjectWithRefs> 
+     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+   // Ref to Candidate objects to be recorded in filter object
+   RefToBase<Candidate> ref;
 
 
    // Specific filter code
 
    // get hold of products from Event
 
-   edm::Handle<PhotonCandidateCollection>      photons;
-   edm::Handle<ElectronCandidateCollection>    electrons;
-   edm::Handle<MuonCollection>                 muons;
-   edm::Handle<RecoCaloJetCandidateCollection> jets;
+   Handle<PhotonCandidateCollection>      photons;
+   Handle<ElectronCandidateCollection>    electrons;
+   Handle<MuonCollection>                 muons;
+   Handle<RecoCaloJetCandidateCollection> jets;
 
-   iEvent.getByLabel(srcphot_,photons  );
-   iEvent.getByLabel(srcelec_,electrons);
-   iEvent.getByLabel(srcmuon_,muons    );
-   iEvent.getByLabel(srcjets_,jets     );
+   iEvent.getByLabel(photTag_,photons  );
+   iEvent.getByLabel(elecTag_,electrons);
+   iEvent.getByLabel(muonTag_,muons    );
+   iEvent.getByLabel(jetsTag_,jets     );
 
 
    // look for at least one g,e,m,j above its pt cut
@@ -100,9 +102,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    PhotonCandidateCollection::const_iterator ophot(photons->end());
    PhotonCandidateCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
-     if (iphot->pt() >= pt_phot_) {
+     if (iphot->pt() >= phot_pt_) {
        bphot=true;
-       ref=edm::RefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(aphot,iphot)));
+       ref=RefToBase<Candidate>(PhotonCandidateRef(photons,distance(aphot,iphot)));
        filterproduct->putParticle(ref);
      }
    }
@@ -113,9 +115,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ElectronCandidateCollection::const_iterator oelec(electrons->end());
    ElectronCandidateCollection::const_iterator ielec;
    for (ielec=aelec; ielec!=oelec; ielec++) {
-     if (ielec->pt() >= pt_elec_) {
+     if (ielec->pt() >= elec_pt_) {
        belec=true;
-       ref=edm::RefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(aelec,ielec)));
+       ref=RefToBase<Candidate>(ElectronCandidateRef(electrons,distance(aelec,ielec)));
        filterproduct->putParticle(ref);
      }
    }
@@ -127,9 +129,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    MuonCollection::const_iterator omuon(muons->end());
    MuonCollection::const_iterator imuon;
    for (imuon=amuon; imuon!=omuon; imuon++) {
-     if (imuon->pt() >= pt_muon_) {
+     if (imuon->pt() >= muon_pt_) {
        bmuon=true;
-       ref=edm::RefToBase<Candidate>(reco::MuonRef(muons,distance(amuon,imuon)));
+       ref=RefToBase<Candidate>(MuonRef(muons,distance(amuon,imuon)));
        filterproduct->putParticle(ref);
      }
    }
@@ -140,9 +142,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    RecoCaloJetCandidateCollection::const_iterator ojets(jets->end());
    RecoCaloJetCandidateCollection::const_iterator ijets;
    for (ijets=ajets; ijets!=ojets; ijets++) {
-     if (ijets->pt() >= pt_jets_) {
+     if (ijets->pt() >= jets_pt_) {
        bjets=true;
-       ref=edm::RefToBase<Candidate>(reco::RecoCaloJetCandidateRef(jets,distance(ajets,ijets)));
+       ref=RefToBase<Candidate>(RecoCaloJetCandidateRef(jets,distance(ajets,ijets)));
        filterproduct->putParticle(ref);
      }
    }

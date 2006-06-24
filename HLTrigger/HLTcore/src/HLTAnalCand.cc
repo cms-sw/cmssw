@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 21:08:32 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -26,7 +26,7 @@
  
 HLTAnalCand::HLTAnalCand(const edm::ParameterSet& iConfig)
 {
-   src_ = iConfig.getParameter< std::string > ("src");
+   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
 }
 
 HLTAnalCand::~HLTAnalCand()
@@ -47,13 +47,13 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of products from Event
 
    edm::Handle<HLTFilterObjectWithRefs> ref;
-   iEvent.getByLabel(src_,ref);
+   iEvent.getByLabel(inputTag_,ref);
 
    HLTParticle particle;
    const Candidate* candidate;
 
    const unsigned int n(ref->numberParticles());
-   LogDebug("") << src_ + " Size = " << n;
+   LogDebug("") << inputTag_.encode() + " Size = " << n;
    for (unsigned int i=0; i!=n; i++) {
      particle=ref->getParticle(i);
      candidate=(ref->getParticleRef(i)).get();
