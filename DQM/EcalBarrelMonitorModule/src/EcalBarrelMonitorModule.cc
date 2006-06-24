@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/22 17:24:32 $
- * $Revision: 1.99 $
+ * $Date: 2006/06/23 08:38:50 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -109,7 +109,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should give enough time to the control MEs to reach the Collector,
   // and then hopefully the Client
 
-  sleep(10);
+  sleep(1);
 
   meEBDCC_ = 0;
 
@@ -184,7 +184,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   // we should always sleep at least a little ...
 
-  sleep(10);
+  sleep(1);
 
 }
 
@@ -196,7 +196,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
 
-  if ( ievt_ == 0 ) sleep(10);
+  if ( ievt_ == 0 ) sleep(1);
 
   map<int, EcalDCCHeaderBlock> dccMap;
   Handle<EcalRawDataCollection> dcchs;
