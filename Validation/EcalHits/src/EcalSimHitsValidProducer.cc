@@ -255,8 +255,6 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
           }
 
           thePID = thePrim->GetPDGcode();
-          LogInfo("EcalSimHitsValidProducer") 
-          <<" Primary Particle:: Type="<<thePID << " Phi ="<<phiInit<< " Eta="<<etaInit;
       }else {
           LogWarning("EcalSimHitsValidProducer")
           <<" Could not find the primary particle!!";
