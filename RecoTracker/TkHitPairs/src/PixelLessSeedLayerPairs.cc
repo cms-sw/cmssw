@@ -1,137 +1,279 @@
 #include "RecoTracker/TkHitPairs/interface/PixelLessSeedLayerPairs.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-// PixelSeedLayerPairs::PixelSeedLayerPairs()
-// {
-//  //  TrackerLayerIdAccessor accessor;
-// //   theBarrelPixel = accessor.pixelBarrelLayers();
-// //   theNegPixel = accessor.pixelNegativeForwardLayers();
-// //   thePosPixel = accessor.pixelPositiveForwardLayers();
-// }
-#include "FWCore/Framework/interface/ESHandle.h"
-//#define DEBUG
 
-
-#ifdef DEBUG
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#endif
+PixelLessSeedLayerPairs::~PixelLessSeedLayerPairs(){
+  for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); it!=allLayersWithHits.end();it++){
+    delete *it;
+  }
+}
 
 vector<SeedLayerPairs::LayerPair> PixelLessSeedLayerPairs::operator()() 
 {
   vector<LayerPair> result;
+  
+  addBarrelBarrelLayers(0,1,result);
+  
+  addBarrelForwardLayers(0,0,result);
+  addBarrelForwardLayers(0,1,result);
+  addBarrelForwardLayers(0,2,result);
 
-  //seeds from the barrel
-  result.push_back( LayerPair(lh1,lh2));
-//   result.push_back( LayerPair(lh1,lh3));
-//   result.push_back( LayerPair(lh2,lh3));
-//   //seeds from the forward
-//   result.push_back( LayerPair(pos1,pos2));
-//   result.push_back( LayerPair(neg1,neg2));
-//   //seeds from the forward-barrel
-//   result.push_back( LayerPair(lh1,pos1));
-//   result.push_back( LayerPair(lh1,neg1));
-//   result.push_back( LayerPair(lh1,pos2));
-//   result.push_back( LayerPair(lh1,neg2));
-//   result.push_back( LayerPair(lh2,pos2));
-//   result.push_back( LayerPair(lh2,neg2));
+  addBarrelForwardLayers(1,0,result);
+  addBarrelForwardLayers(1,1,result);
+  addBarrelForwardLayers(1,2,result);
 
+
+  addForwardForwardLayers(0,1,result);
+  addForwardForwardLayers(0,2,result);
+  addForwardForwardLayers(0,3,result);
+  addForwardForwardLayers(0,4,result);
+
+  addForwardForwardLayers(1,2,result);
+  addForwardForwardLayers(1,3,result);
+  addForwardForwardLayers(1,4,result);
+
+  addForwardForwardLayers(2,3,result);
+  addForwardForwardLayers(2,4,result);
+
+  addForwardForwardLayers(3,4,result);
+  
+
+  edm::LogInfo("TkHitPairs") << "PixelLess layersPair.size: " << result.size() ;
   return result;
 }
 
-void PixelLessSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer, 
-						 vector<LayerPair>& result) const
-{
-
-  //MP
-  //  result.push_back( LayerPair(LayerWithHits(bl[mid],lay1) , LayerWithHits(bl[outer],lay2)));
-}
-
-// void PixelSeedLayerPairs::addBarrelForwardLayers( int mid, int outer, 
-// 						  vector<LayerPair>& result) const
-// {
-//   result.push_back( LayerPair( theBarrelPixel[mid], theNegPixel[outer]));
-//   result.push_back( LayerPair( theBarrelPixel[mid], thePosPixel[outer]));
-// }
-
-// void PixelSeedLayerPairs::addForwardForwardLayers( int mid, int outer, 
-// 						   vector<LayerPair>& result) const
-// {
-//   result.push_back( LayerPair( theNegPixel[mid], theNegPixel[outer]));
-//   result.push_back( LayerPair( thePosPixel[mid], thePosPixel[outer]));
-// }
 
 void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
 				   const SiStripRecHit2DLocalPosCollection &collstereo, 
 				   const SiStripRecHit2DLocalPosCollection &collrphi, 
-				   const edm::EventSetup& iSetup){
+				   const edm::EventSetup& iSetup)
+{
+  for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); it!=allLayersWithHits.end();it++){
+    delete *it;
+  }
+  allLayersWithHits.clear();
+  barrelLayers.clear();
+  fwdLayers.clear();
+  bkwLayers.clear();
 
-  edm::ESHandle<GeometricSearchTracker> track;
-  iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
-  bl=track->barrelLayers(); 
-  fpos=track->posForwardLayers(); 
-  fneg=track->negForwardLayers(); 
+  if(isFirstCall){
+    edm::ESHandle<GeometricSearchTracker> track;
+    iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
+    detLayersTIB.insert(   detLayersTIB.end(),    track->tibLayers().begin()   ,track->tibLayers().end()    ); 
+    detLayersPosTID.insert(detLayersPosTID.end(), track->posTidLayers().begin(),track->posTidLayers().end() );
+    detLayersNegTID.insert(detLayersNegTID.end(), track->negTidLayers().begin(),track->negTidLayers().end() );
+    detLayersPosTEC.insert(detLayersPosTEC.end(), track->posTecLayers().begin(),track->posTecLayers().end() );
+    detLayersNegTEC.insert(detLayersNegTEC.end(), track->negTecLayers().begin(),track->negTecLayers().end() );
+    isFirstCall=false;
+  }
   
-  map_range1=collmatch.get(acc.stripTIBLayer(1));
-  map_range2=collmatch.get(acc.stripTIBLayer(2));
+  
+  
+
+  barrelLayers.push_back(new LayerWithHits(detLayersTIB[0],selectHitTIB(collmatch,collstereo,collrphi,1)) );
+  barrelLayers.push_back(new LayerWithHits(detLayersTIB[1],selectHitTIB(collmatch,collstereo,collrphi,2)) );
+  
+  //TID 2=forward, 1,2,3=disk, 2,3=ring
+  fwdLayers.push_back(new LayerWithHits(detLayersPosTID[0],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									2,1,2      )));   
+
+  fwdLayers.push_back(new LayerWithHits(detLayersPosTID[1],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									2,2,3      )));   
+
+  fwdLayers.push_back(new LayerWithHits(detLayersPosTID[2],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									2,3,2      )));   
+
+  //TID 1=backward, 1,2,3=disk, 2,3=ring
+  bkwLayers.push_back(new LayerWithHits(detLayersNegTID[0],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									1,1,2      )));   
+
+  bkwLayers.push_back(new LayerWithHits(detLayersNegTID[1],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									1,2,3      )));   
+
+  bkwLayers.push_back(new LayerWithHits(detLayersNegTID[2],selectHitTID(collmatch,
+									collstereo,
+									collrphi,
+									1,3,2      )));   
+  
+
+  //TEC 2=forward, 2,3=disk, 2=ring
+  fwdLayers.push_back(new LayerWithHits(detLayersPosTEC[1],selectHitTEC(collmatch,
+									collstereo,
+									collrphi,
+									2,2,2      ))); 
+
+  fwdLayers.push_back(new LayerWithHits(detLayersPosTEC[2],selectHitTEC(collmatch,
+									collstereo,
+									collrphi,
+									2,3,2      )));   
+
+  //TEC 1=backward, 2,3=disk, 2=ring
+  bkwLayers.push_back(new LayerWithHits(detLayersNegTEC[1],selectHitTEC(collmatch,
+									collstereo,
+									collrphi,
+									1,2,2      ))); 
+
+  bkwLayers.push_back(new LayerWithHits(detLayersNegTEC[2],selectHitTEC(collmatch,
+									collstereo,
+									collrphi,
+									1,3,2      )));   
+  
+  allLayersWithHits.insert(allLayersWithHits.end(),barrelLayers.begin(),barrelLayers.end());
+  allLayersWithHits.insert(allLayersWithHits.end(),fwdLayers.begin(),fwdLayers.end());
+  allLayersWithHits.insert(allLayersWithHits.end(),bkwLayers.begin(),bkwLayers.end());
+}
+
+
+vector<const TrackingRecHit*> 
+PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
+				      const SiStripRecHit2DLocalPosCollection &collstereo, 
+				      const SiStripRecHit2DLocalPosCollection &collrphi,
+				      int tibNumber) {  
+  vector<const TrackingRecHit*> theChoosedHits;
 
   
-// #ifdef DEBUG
-
-//   for (SiPixelRecHitCollection::const_iterator it = coll.begin(); it != coll.end(); it++){
-//     unsigned int id((*it).geographicalId().rawId());
-//     DetId ii(id);
-//     if (ii.subdetId() == PixelSubdetector::PixelBarrel){
-//       PXBDetId iii(id);
-//       std::cout <<" Pixel Hit on barrel "<<iii.layer()<<std::endl;
-//     }else{
-//       PXFDetId iii(id);
-//       LogDebug("PixelLessSeedLayerPairs") <<" Pixel Hit on Disk "<<iii.disk()<<" " <<iii.side();
-//     }
-//   }
-//    unsigned int tot = coll.end()-coll.begin();
-//    unsigned int b1 = map_range1.second-map_range1.first;
-//    unsigned int b2 = map_range2.second-map_range2.first;
-//    unsigned int b3 = map_range3.second-map_range3.first;
-//    unsigned int fp1 = map_diskpos1.second-map_diskpos1.first;
-//    unsigned int fp2 = map_diskpos2.second-map_diskpos2.first;
-//    unsigned int fp3 = map_diskpos3.second-map_diskpos3.first;
-//    unsigned int fn1 = map_diskneg1.second-map_diskneg1.first;
-//    unsigned int fn2 = map_diskneg2.second-map_diskneg2.first;
-//    unsigned int fn3 = map_diskneg3.second-map_diskneg3.first;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Total Number of Pixel RecHits "<<tot;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits B1 "<<b1;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits B2 "<<b2;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits B3 "<<b3;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FP1 "<<fp1;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FP2 "<<fp2;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FP3 "<<fp3;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FN1 "<<fn1;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FN2 "<<fn2;
-//    LogDebug("PixelLessSeedLayerPairs")<<"Number of Pixel RecHits FN3 "<<fn3;
-//    int res = tot-b1-b2-b3-fp1-fp2-fp3-fn1-fn2-fn3;
-//    LogDebug("PixelLessSeedLayerPairs") <<" Total number of PixelRecHits "<<tot;
+  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+      it != range2D.second; it++){
+    theChoosedHits.push_back( &(*it) );
+  }
   
-// #endif
-
-//   //BarrelLayers
-   const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[4]);
-   const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[5]);
-
-
-//   //LayersWithHits
-
-  lh1=new  LayerWithHits(bl1,map_range1);
-  lh2=new  LayerWithHits(bl2,map_range2);
-//   lh3=new  LayerWithHits(bl3,map_range3);
   
-//   pos1=new  LayerWithHits(fpos1,map_diskpos1);
-//   pos2=new  LayerWithHits(fpos2,map_diskpos2);
-//   neg1=new  LayerWithHits(fneg1,map_diskneg1);
-//   neg2=new  LayerWithHits(fneg2,map_diskneg2);
+  /*
+  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+      it != rangeRphi.second; it++){
+    //add a filter to avoid double counting rphi hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }
 
+  
+  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+      it != rangeStereo.second; it++){
+    //add a filter to avoid double counting stereo hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }  
+  */
+
+  return theChoosedHits;
+}
+
+
+vector<const TrackingRecHit*> 
+PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
+				      const SiStripRecHit2DLocalPosCollection &collstereo, 
+				      const SiStripRecHit2DLocalPosCollection &collrphi,
+				      int side,
+				      int disk,
+				      int ring) 
+{
+  vector<const TrackingRecHit*> theChoosedHits;
+  
+  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTIDDisk(side,disk));
+  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+      it != range2D.second; it++){
+    theChoosedHits.push_back( &(*it) );
+  }
+  
+  /*
+  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIDDisk(side,disk));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+      it != rangeRphi.second; it++){
+    //add a filter to avoid double counting rphi hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }
+
+  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIDDisk(side,disk));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+      it != rangeStereo.second; it++){
+    //add a filter to avoid double counting stereo hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }
+  */
+
+  //TODO: fileter over rings is still missing
+  return theChoosedHits;
+}
+
+
+vector<const TrackingRecHit*> 
+PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
+				      const SiStripRecHit2DLocalPosCollection &collstereo, 
+				      const SiStripRecHit2DLocalPosCollection &collrphi,
+				      int side,
+				      int disk,
+				      int ring)  
+{  
+  vector<const TrackingRecHit*> theChoosedHits;
+  
+  
+  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTECDisk(side,disk));
+  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+      it != range2D.second; it++){
+    theChoosedHits.push_back( &(*it) );
+  }
+  
+  
+  
+  /*------------- if mono hits are addded there is crash. Investigation needed ---------------
+  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTECDisk(side,disk));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+      it != rangeRphi.second; it++){
+    //add a filter to avoid double counting rphi hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }
+  
+
+  
+  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTECDisk(side,disk));
+  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+      it != rangeStereo.second; it++){
+    //add a filter to avoid double counting stereo hit of matcherRecHit
+    theChoosedHits.push_back( &(*it) );
+  }
+  */
+
+  //TODO: fileter over rings is still missing
+  return theChoosedHits;
+}
+
+
+void PixelLessSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer, 
+						     vector<LayerPair>& result) const
+{
+  result.push_back( LayerPair( barrelLayers[mid], barrelLayers[outer]));
+}
+
+
+
+void PixelLessSeedLayerPairs::addBarrelForwardLayers( int mid, int outer, 
+						      vector<LayerPair>& result) const
+{
+  result.push_back( LayerPair( barrelLayers[mid], bkwLayers[outer]));
+  result.push_back( LayerPair( barrelLayers[mid], fwdLayers[outer]));
+}
+
+
+void PixelLessSeedLayerPairs::addForwardForwardLayers( int mid, int outer, 
+						       vector<LayerPair>& result) const
+{
+  result.push_back( LayerPair( bkwLayers[mid], bkwLayers[outer]));
+  result.push_back( LayerPair( fwdLayers[mid], fwdLayers[outer]));
 }
