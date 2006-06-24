@@ -16,19 +16,18 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"
 class PixelSeedLayerPairs : public SeedLayerPairs{
 public:
-  PixelSeedLayerPairs():SeedLayerPairs(){};
-  //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
-
+  PixelSeedLayerPairs():isFirstCall(true){}
+  ~PixelSeedLayerPairs();
 
   //  virtual vector<LayerPair> operator()() const;
   vector<LayerPair> operator()() ;
-
+  void init(const SiPixelRecHitCollection &coll,
+	    const edm::EventSetup& iSetup);
 
 private:
 
-  //definition of the map 
- 
+  //definition of the map  
   SiPixelRecHitCollection::range map_range1;
   SiPixelRecHitCollection::range map_range2;
   SiPixelRecHitCollection::range map_range3;
@@ -52,19 +51,12 @@ private:
   LayerWithHits *neg2;
 
 
-   vector<BarrelDetLayer*> bl;
-   vector<ForwardDetLayer*> fpos;
-   vector<ForwardDetLayer*> fneg;
- public:
- 
-   void init(const SiPixelRecHitCollection &coll,const edm::EventSetup& iSetup);
- private:
-  void addBarrelBarrelLayers( int mid, int outer, 
-       vector<LayerPair>& result) const;
-  void addBarrelForwardLayers( int mid, int outer, 
-       vector<LayerPair>& result) const ;
-  void addForwardForwardLayers( int mid, int outer, 
-       vector<LayerPair>& result) const;
+  vector<BarrelDetLayer*> bl;
+  vector<ForwardDetLayer*> fpos;
+  vector<ForwardDetLayer*> fneg;
+
+  vector<LayerWithHits*> allLayersWithHits;
+  bool isFirstCall;
 };
 
 
