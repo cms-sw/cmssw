@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.14 2006/02/08 00:44:27 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.15 2006/02/10 16:57:49 chrjones Exp $
 //
 //
 
@@ -291,13 +291,13 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(Provenances::iterator itProv  = provenances.begin();
                              itProv != provenances.end();
                            ++itProv) {
-      friendlyName = (*itProv)->product.friendlyClassName_;
+      friendlyName = (*itProv)->productType();
       //if(friendlyName.empty())  friendlyName = std::string("||");
 
-      modLabel = (*itProv)->product.module.moduleLabel_;
+      modLabel = (*itProv)->moduleLabel();
       //if(modLabel.empty())  modLabel = std::string("||");
 
-      instanceName = (*itProv)->product.productInstanceName_;
+      instanceName = (*itProv)->product.productInstanceName();
       //if(instanceName.empty())  instanceName = std::string("||");
       
       std::cout << indentation_ << friendlyName
@@ -309,9 +309,9 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             //indent one level before starting to print
             std::string startIndent = indentation_+verboseIndentation_;
             printObject(iEvent,
-                        (*itProv)->product.fullClassName_,
-                        (*itProv)->product.module.moduleLabel_,
-                        (*itProv)->product.productInstanceName_,
+                        (*itProv)->className(),
+                        (*itProv)->moduleLabel(),
+                        (*itProv)->productInstanceName(),
                         startIndent,
                         verboseIndentation_);
          }

@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.27 2006/05/30 20:09:21 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.28 2006/06/14 23:53:44 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -252,7 +252,7 @@ namespace edm {
 	BranchDescription const& pd = **it;
 	std::string const& full = pd.branchName_ + "obj";
 	std::string const& alias = (pd.branchAlias_.empty() ?
-        (pd.productInstanceName_.empty() ? pd.module.moduleLabel_ : pd.productInstanceName_)
+        (pd.productInstanceName_.empty() ? pd.moduleLabel() : pd.productInstanceName_)
         : pd.branchAlias_);
 	t->SetAlias(alias.c_str(), full.c_str());
       }

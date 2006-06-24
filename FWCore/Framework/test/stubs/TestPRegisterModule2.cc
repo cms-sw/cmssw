@@ -3,11 +3,11 @@
    Test Module for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule2.cc,v 1.3 2006/02/08 00:44:26 wmtan Exp $
+   \version $Id: TestPRegisterModule2.cc,v 1.4 2006/02/13 22:36:36 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.3 2006/02/08 00:44:26 wmtan Exp $";
+static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.4 2006/02/13 22:36:36 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -40,8 +40,8 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const& p){
      edmtest::StringProduct stringprod;
      edm::TypeID stringID(stringprod);
      CPPUNIT_ASSERT(stringID.friendlyClassName() == 
-                    (*pd)->product.friendlyClassName_);
-     CPPUNIT_ASSERT((*pd)->product.module.moduleLabel_=="m1");
+                    (*pd)->productType());
+     CPPUNIT_ASSERT((*pd)->moduleLabel()=="m1");
      
      ++pd;
      CPPUNIT_ASSERT(pd != plist.end());
@@ -49,8 +49,8 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const& p){
      edmtest::DoubleProduct dprod;
      edm::TypeID dID(dprod);
      CPPUNIT_ASSERT(dID.friendlyClassName() == 
-                    (*pd)->product.friendlyClassName_);
-     CPPUNIT_ASSERT((*pd)->product.module.moduleLabel_=="m2");
+                    (*pd)->productType());
+     CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");
      
     Handle<edmtest::StringProduct> stringp;
     e.getByLabel("m2",stringp);

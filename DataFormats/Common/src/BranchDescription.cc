@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.4 2006/05/09 03:19:10 lsexton Exp $
+$Id: BranchDescription.cc,v 1.5 2006/05/24 01:52:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,37 +38,37 @@ namespace edm {
     char const period('.');
     std::string const prod("PROD");
 
-    if (friendlyClassName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName_
+    if (productType().find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Class name '" << productType()
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
-    if (module.moduleLabel_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << module.moduleLabel_
+    if (moduleLabel().find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
-    if (productInstanceName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName_
+    if (productInstanceName().find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
-    if (module.processName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Process name '" << module.processName_
+    if (processName().find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Process name '" << processName()
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    if (module.processName_ == prod) {
+    if (processName() == prod) {
       if (productInstanceName_.empty()) {
-        branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + period;
+        branchName_ = productType() + underscore + moduleLabel() + period;
         return;
       }
-      branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
+      branchName_ = productType() + underscore + moduleLabel() + underscore +
         productInstanceName_ + period;
       return;
     }
-    branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
-      productInstanceName_ + underscore + module.processName_ + period;
+    branchName_ = productType() + underscore + moduleLabel() + underscore +
+      productInstanceName_ + underscore + processName() + period;
   }
 
   void
@@ -76,14 +76,14 @@ namespace edm {
     os << module << std::endl;
     os << "Product ID = " << productID_ << '\n';
     os << "Class Name = " << fullClassName_ << '\n';
-    os << "Friendly Class Name = " << friendlyClassName_ << '\n';
+    os << "Friendly Class Name = " << productType() << '\n';
     os << "Product Instance Name = " << productInstanceName_ << std::endl;
   }
 
   bool
   BranchDescription::operator<(BranchDescription const& rh) const {
-    if (friendlyClassName_ < rh.friendlyClassName_) return true;
-    if (rh.friendlyClassName_ < friendlyClassName_) return false;
+    if (productType() < rh.productType()) return true;
+    if (rh.productType() < productType()) return false;
     if (productInstanceName_ < rh.productInstanceName_) return true;
     if (rh.productInstanceName_ < productInstanceName_) return false;
     if (module < rh.module) return true;

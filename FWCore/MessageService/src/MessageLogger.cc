@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.4 2006/03/16 02:23:20 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.5 2006/05/12 20:49:20 fischler Exp $
 //
 // Change log
 //
@@ -158,7 +158,7 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 void
 MessageLogger::preModule(const ModuleDescription& desc)
 {
-  // LogInfo("preModule") << "Module:" << desc.moduleLabel_;
+  // LogInfo("preModule") << "Module:" << desc.moduleLabel();
   curr_module_ = desc.moduleName_;
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel_;

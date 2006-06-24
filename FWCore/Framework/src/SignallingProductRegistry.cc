@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:52:50 CEST 2005
-// $Id: SignallingProductRegistry.cc,v 1.1 2005/10/07 19:16:19 chrjones Exp $
+// $Id: SignallingProductRegistry.cc,v 1.2 2005/10/11 19:29:38 chrjones Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool i
       throw cms::Exception("CircularReference")
       <<"Attempted to register the production of "<<iProd.fullClassName_
       <<" from module "
-      <<iProd.module.moduleLabel_
+      <<iProd.moduleLabel()
       <<" with product instance \""
       <<iProd.productInstanceName_
       <<"\"\n"

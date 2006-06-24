@@ -162,7 +162,7 @@ namespace edm
 			       EventPrincipal& event,
 			       const EventSetup& eventSetup) {
       map<string, Worker*>::const_iterator itFound =
-        labelToWorkers_.find(prov.product.module.moduleLabel_);
+        labelToWorkers_.find(prov.moduleLabel());
       if(itFound != labelToWorkers_.end()) 
 	{
 	  // Unscheduled reconstruction has no accepted definition
@@ -330,7 +330,7 @@ namespace edm
         itProdInfo != prodsList.end();
         ++itProdInfo)
       {
-	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.module.moduleLabel_)) {
+	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
           auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
           boost::shared_ptr<Group> theGroup(new Group(prov));
           demandGroups_.push_back(theGroup);

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.22 2006/02/20 01:51:59 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.23 2006/03/29 21:51:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -219,7 +219,7 @@ void testeventprincipal::failgetProvenanceTest() {
     edm::ProductID id;
     edm::Provenance const& prov = ep.getProvenance(id);
     assert("Failed to throw required exception" == 0);
-    assert(prov.product.productID_ == id); // Avoids unused variable build warning 
+    assert(prov.productID() == id); // Avoids unused variable build warning 
   }
   catch (edm::Exception& x) {
     // nothing to do
@@ -317,7 +317,7 @@ void testeventprincipal::getbyLabelTest() {
 
     handle h = ep.getByLabel(tid, label, productInstanceName);
     assert(h.isValid());
-    assert(h.provenance()->product.module.moduleLabel_ == label);
+    assert(h.provenance()->moduleLabel() == label);
   }
   catch (edm::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
@@ -367,7 +367,7 @@ void testeventprincipal::getbySelectorTest() {
 
     handle h = ep.getBySelector(tid, pnsel);
     assert(h.isValid());
-    assert(h.provenance()->product.module.moduleLabel_ == label);
+    assert(h.provenance()->moduleLabel() == label);
   }
   catch (edm::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
@@ -419,7 +419,7 @@ void testeventprincipal::getbyTypeTest() {
 
     handle h = ep.getByType(tid);
     assert(h.isValid());
-    assert(h.provenance()->product.module.moduleLabel_ == label);
+    assert(h.provenance()->moduleLabel() == label);
   }
   catch (edm::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
@@ -465,7 +465,7 @@ void testeventprincipal::getProvenanceTest() {
   
   try {
     edm::Provenance const& prov = ep.getProvenance(id);
-    assert(prov.product.productID_ == id);
+    assert(prov.productID() == id);
   }
   catch (edm::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
@@ -514,7 +514,7 @@ void testeventprincipal::getAllProvenanceTest() {
     ep.getAllProvenance(provenances);
     std::cout << provenances.size() << std::endl;
     assert(provenances.size() == 1);
-    assert(provenances[0]->product.productID_ == id);
+    assert(provenances[0]->productID() == id);
   }
   catch (edm::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;

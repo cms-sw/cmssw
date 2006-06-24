@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.7 2006/05/01 16:59:10 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.8 2006/05/11 19:05:51 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -142,6 +142,6 @@ void testGenericHandle::getbyLabelTest() {
     CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
   }
   CPPUNIT_ASSERT(h.isValid());
-  CPPUNIT_ASSERT(h.provenance()->product.module.moduleLabel_ == label);
+  CPPUNIT_ASSERT(h.provenance()->moduleLabel() == label);
 }
 

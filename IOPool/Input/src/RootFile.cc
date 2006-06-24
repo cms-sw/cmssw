@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.16 2006/06/14 23:52:28 wmtan Exp $
+$Id: RootFile.cc,v 1.17 2006/06/16 20:26:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -63,11 +63,11 @@ namespace edm {
       BranchDescription const& prod = it->second;
       prod.init();
       TBranch * branch = eventTree_->GetBranch(prod.branchName_.c_str());
-      std::string const& name = prod.fullClassName_;
+      std::string const &name = prod.className();
       std::string const className = wrappedClassName(name);
       branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
-      branchNames_.push_back(prod.branchName_);
+      branchNames_.push_back(prod.branchName());
     }
   }
 

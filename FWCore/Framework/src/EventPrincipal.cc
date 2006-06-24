@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.38 2006/05/08 20:15:24 chrjones Exp $
+$Id: EventPrincipal.cc,v 1.39 2006/05/24 19:44:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -81,10 +81,10 @@ private:
    
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group) {
-    assert (!group->productDescription().fullClassName_.empty());
-    assert (!group->productDescription().friendlyClassName_.empty());
-    assert (!group->productDescription().module.moduleLabel_.empty());
-    assert (!group->productDescription().module.processName_.empty());
+    assert (!group->productDescription().className().empty());
+    assert (!group->productDescription().productType().empty());
+    assert (!group->productDescription().moduleLabel().empty());
+    assert (!group->productDescription().processName().empty());
     SharedGroupPtr g(group);
 
     BranchKey const bk = BranchKey(g->productDescription());
@@ -152,7 +152,7 @@ private:
 		      auto_ptr<Provenance> prov) {
     prov->product.init();
 
-    if (prov->product.productID_ == ProductID()) {
+    if (prov->productID() == ProductID()) {
       ProductRegistry::ProductList const& pl = preg_->productList();
       BranchKey const bk(prov->product);
       ProductRegistry::ProductList::const_iterator it = pl.find(bk);
@@ -168,7 +168,7 @@ private:
       }
       prov->product.productID_ = it->second.productID_;
     }
-    ProductID id = prov->product.productID_;
+    ProductID id = prov->productID();
 
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));

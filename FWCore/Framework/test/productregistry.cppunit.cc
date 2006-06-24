@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.12 2006/05/09 03:19:12 lsexton Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.13 2006/05/24 01:52:52 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -69,7 +69,7 @@ namespace {
          edm::ModuleDescription modDesc;
          modDesc.moduleLabel_ = name_;
          edm::BranchDescription prod(iDesc);
-         prod.productInstanceName_ = prod.productInstanceName_+"-"+prod.module.moduleLabel_;
+         prod.productInstanceName_ = prod.productInstanceName_+"-"+prod.moduleLabel();
          prod.module = modDesc;
          reg_->addProduct(prod);
       }

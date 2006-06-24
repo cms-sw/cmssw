@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.3 2006/04/26 16:06:00 wmtan Exp $
+$Id: Provenance.h,v 1.4 2006/04/26 19:48:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
@@ -35,21 +35,21 @@ namespace edm {
     BranchDescription product;
     BranchEntryDescription event;
 
-    std::string branchName() const {return product.branchName();}
-    std::string className() const {return product.className();}
-    std::string moduleLabel() const {return product.moduleLabel();}
-    std::string moduleName() const {return product.moduleName();}
+    std::string const& branchName() const {return product.branchName();}
+    std::string const& className() const {return product.className();}
+    std::string const& moduleLabel() const {return product.moduleLabel();}
+    std::string const& moduleName() const {return product.moduleName();}
     PassID passID() const {return product.passID();}
-    std::string processName() const {return product.processName();}
+    std::string const& processName() const {return product.processName();}
     ProductID productID() const {return product.productID();}
-    std::string productInstanceName() const {return product.productInstanceName();}
-    std::string productType() const {return product.productType();}
-    ParameterSetID psetID() const {return product.psetID();}
+    std::string const& productInstanceName() const {return product.productInstanceName();}
+    std::string const& productType() const {return product.productType();}
+    ParameterSetID const& psetID() const {return product.psetID();}
     VersionNumber versionNumber() const {return product.versionNumber();}
 
-    ConditionsID conditionsID() const {return event.cid;}
-    BranchEntryDescription::CreatorStatus creatorStatus() const {return event.status;}
-    std::vector<ProductID> parents() const {return event.parents;}
+    ConditionsID const& conditionsID() const {return event.cid;}
+    BranchEntryDescription::CreatorStatus const& creatorStatus() const {return event.status;}
+    std::vector<ProductID> const& parents() const {return event.parents;}
 
     void write(std::ostream& os) const;
   };

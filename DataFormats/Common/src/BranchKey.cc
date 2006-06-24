@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.6 2005/10/03 19:06:06 wmtan Exp $
+$Id: BranchKey.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -12,10 +12,10 @@ $Id: BranchKey.cc,v 1.6 2005/10/03 19:06:06 wmtan Exp $
 namespace edm
 {
   BranchKey::BranchKey(BranchDescription const& desc) :
-    friendlyClassName_(desc.friendlyClassName_),
-    moduleLabel_(desc.module.moduleLabel_),
-    productInstanceName_(desc.productInstanceName_),
-    processName_(desc.module.processName_) {}
+    friendlyClassName_(desc.productType()),
+    moduleLabel_(desc.moduleLabel()),
+    productInstanceName_(desc.productInstanceName()),
+    processName_(desc.processName()) {}
 
   std::ostream&
   operator<<(std::ostream& os, const BranchKey& bk) {

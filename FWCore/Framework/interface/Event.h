@@ -70,7 +70,7 @@ Getting a reference to an event product before that product is put into the even
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.35 2006/06/15 01:25:53 wmtan Exp $
+$Id: Event.h,v 1.36 2006/06/15 23:41:04 rpw Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -387,7 +387,7 @@ namespace edm {
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
 
-    return(OrphanHandle<PROD>(wp->product(), desc.productID_));
+    return(OrphanHandle<PROD>(wp->product(), desc.productID()));
   }
 
   template <typename PROD>
@@ -398,7 +398,7 @@ namespace edm {
     getBranchDescription(TypeID(*p).friendlyClassName(), iProductInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(desc.productID_,&ep_);
+    return RefProd<PROD>(desc.productID(),&ep_);
   }
   
   template <typename PROD>

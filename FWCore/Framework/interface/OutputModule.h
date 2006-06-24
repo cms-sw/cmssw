@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.22 2006/06/20 23:13:27 paterno Exp $
+$Id: OutputModule.h,v 1.23 2006/06/21 19:03:12 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -71,7 +71,7 @@ namespace edm {
 	name_(proc_name) {}
       
       virtual bool doMatch(const edm::ProvenanceAccess& p) const {
-	return p.product().module.processName_==name_;
+	return p.product().processName()==name_;
       }
     private:
       std::string name_;
