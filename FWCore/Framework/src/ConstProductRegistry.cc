@@ -2,13 +2,13 @@
    \file
    class impl
 
-   \version $Id: ProductRegistry.cc,v 1.13 2005/10/11 19:28:17 chrjones Exp $
+   \version $Id: ConstProductRegistry.cc,v 1.1 2006/01/11 00:21:31 paterno Exp $
    \date 19 Jul 2005
 */
 
 #include <FWCore/Framework/interface/ConstProductRegistry.h>
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.13 2005/10/11 19:28:17 chrjones Exp $";
+static const char CVSId[] = "$Id: ConstProductRegistry.cc,v 1.1 2006/01/11 00:21:31 paterno Exp $";
 
 
 namespace edm
@@ -23,7 +23,7 @@ namespace edm
     ProductList::const_iterator it  = productList().begin();
     ProductList::const_iterator end = productList().end();
 
-    for ( ; it != end; ++it ) result.push_back(it->second.branchName_);
+    for ( ; it != end; ++it ) result.push_back(it->second.branchName());
 
   return result;
   }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:52:50 CEST 2005
-// $Id: SignallingProductRegistry.cc,v 1.2 2005/10/11 19:29:38 chrjones Exp $
+// $Id: SignallingProductRegistry.cc,v 1.3 2006/06/24 01:46:34 wmtan Exp $
 //
 
 // system include files
@@ -42,14 +42,14 @@ namespace {
 
 void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool iFromListener)
 {
-   StackGuard guard(iProd.fullClassName_, typeAddedStack_, iFromListener);
+   StackGuard guard(iProd.className(), typeAddedStack_, iFromListener);
    if(guard.numType_ > 2) {
       throw cms::Exception("CircularReference")
-      <<"Attempted to register the production of "<<iProd.fullClassName_
+      <<"Attempted to register the production of "<<iProd.className()
       <<" from module "
       <<iProd.moduleLabel()
       <<" with product instance \""
-      <<iProd.productInstanceName_
+      <<iProd.productInstanceName()
       <<"\"\n"
       <<"However, this was in reaction to a registration of a production for the same type \n"
       <<"from another module who was also listening to product registrations.\n"

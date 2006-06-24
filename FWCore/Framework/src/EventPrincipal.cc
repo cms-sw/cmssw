@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.39 2006/05/24 19:44:09 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.40 2006/06/24 01:46:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -122,7 +122,7 @@ private:
 
     branchDict_[bk] = slotNumber;
 
-    productDict_[g->productDescription().productID_] = slotNumber;
+    productDict_[g->productDescription().productID()] = slotNumber;
 
     //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
 

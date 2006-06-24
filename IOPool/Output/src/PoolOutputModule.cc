@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.28 2006/06/14 23:53:44 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.29 2006/06/24 01:45:44 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -102,9 +102,9 @@ namespace edm {
       it != om->descVec_.end(); ++it) {
       pReg.copyProduct(**it);
       pool::Placement placement;
-      makePlacement(poolNames::eventTreeName(), (*it)->branchName_, placement);
+      makePlacement(poolNames::eventTreeName(), (*it)->branchName(), placement);
       outputItemList_.push_back(std::make_pair(*it, placement));
-      branchNames_.push_back((*it)->branchName_);
+      branchNames_.push_back((*it)->branchName());
     }
     std::vector<boost::shared_ptr<ParameterSetBlob> > psets;
     startTransaction();
@@ -145,10 +145,10 @@ namespace edm {
     context()->transaction().commit();
   }
 
-  void PoolOutputModule::PoolFile::makePlacement(std::string const& treeName_, std::string const& branchName_, pool::Placement& placement) {
+  void PoolOutputModule::PoolFile::makePlacement(std::string const& treeName_, std::string const& branchName, pool::Placement& placement) {
     placement.setTechnology(pool::ROOTTREE_StorageType.type());
     placement.setDatabase(file_, pool::DatabaseSpecification::PFN);
-    placement.setContainerName(poolNames::containerName(treeName_, branchName_));
+    placement.setContainerName(poolNames::containerName(treeName_, branchName));
   }
 
   bool PoolOutputModule::PoolFile::writeOne(EventPrincipal const& e) {
@@ -181,7 +181,7 @@ namespace edm {
 	event.productID_ = id;
 	eventProvenance.data_.push_back(event);
 
-	std::string const& name = i->first->fullClassName_;
+	std::string const& name = i->first->className();
 	std::string const className = wrappedClassName(name);
 	TClass *cp = gROOT->GetClass(className.c_str());
 	if (cp == 0) {
@@ -250,10 +250,10 @@ namespace edm {
       for (Selections::const_iterator it = om_->descVec_.begin();
 	it != om_->descVec_.end(); ++it) {
 	BranchDescription const& pd = **it;
-	std::string const& full = pd.branchName_ + "obj";
-	std::string const& alias = (pd.branchAlias_.empty() ?
-        (pd.productInstanceName_.empty() ? pd.moduleLabel() : pd.productInstanceName_)
-        : pd.branchAlias_);
+	std::string const& full = pd.branchName() + "obj";
+	std::string const& alias = (pd.branchAlias().empty() ?
+        (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName())
+        : pd.branchAlias());
 	t->SetAlias(alias.c_str(), full.c_str());
       }
       t->Write(t->GetName(), TObject::kWriteDelete);

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.9 2005/10/11 21:32:54 wmtan Exp $
+$Id: Group.cc,v 1.10 2006/03/05 21:45:07 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Group.h"
@@ -29,7 +29,7 @@ namespace edm
   Group::isAccessible() const { 
       return 
 	accessible_ and
-	(provenance_->event.status == BranchEntryDescription::Success);
+	(provenance_->creatorStatus() == BranchEntryDescription::Success);
   }
 
   void 
@@ -58,7 +58,7 @@ namespace edm
   Group::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << "Group for product with ID: " << provenance_->event.cid;
+    os << "Group for product with ID: " << provenance_->conditionsID();
   }
 
 }

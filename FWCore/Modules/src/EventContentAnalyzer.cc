@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.15 2006/02/10 16:57:49 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.16 2006/06/24 01:46:37 wmtan Exp $
 //
 //
 
@@ -297,7 +297,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       modLabel = (*itProv)->moduleLabel();
       //if(modLabel.empty())  modLabel = std::string("||");
 
-      instanceName = (*itProv)->product.productInstanceName();
+      instanceName = (*itProv)->productInstanceName();
       //if(instanceName.empty())  instanceName = std::string("||");
       
       std::cout << indentation_ << friendlyName

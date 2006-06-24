@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.14 2006/02/08 00:44:25 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.15 2006/04/15 04:45:43 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -216,7 +216,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     // have been told to write.
     return std::binary_search(groupsToWrite_.begin(), 
 			       groupsToWrite_.end(),
-			       desc.branchName_);
+			       desc.branchName());
   }
 
   void
@@ -264,7 +264,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       vector<GroupSelector::BranchWriteState>::const_iterator end = branchstates.end();
       for (; it != end; ++it)
 	{
-	  if (it->writeMe) groupsToWrite_.push_back(it->desc->branchName_);
+	  if (it->writeMe) groupsToWrite_.push_back(it->desc->branchName());
 	}
       std::sort(groupsToWrite_.begin(), groupsToWrite_.end());
     }
