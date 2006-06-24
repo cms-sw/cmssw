@@ -2,6 +2,7 @@
    <class name="EcalMGPASample"/>
    <class name="EcalFEMSample"/>
    <class name="ESSample"/>
+   <class name="EcalDataFrame"/>
    <class name="EBDataFrame"/>
    <class name="EEDataFrame"/>
    <class name="ESDataFrame"/>

@@ -2,40 +2,29 @@
 #define DIGIECAL_EEDATAFRAME_H
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include <vector>
-#include <ostream>
 
-/** \class EBDataFrame
+/** \class EEDataFrame
       
 $Id : $
 */
 
-class EEDataFrame {
+class EEDataFrame : public EcalDataFrame
+{
  public:
   typedef EEDetId key_type; ///< For the sorted collection
 
   EEDataFrame(); // for persistence
   explicit EEDataFrame(const EEDetId& id);
     
-  const EEDetId& id() const { return id_; }
+  virtual ~EEDataFrame() {};
+
+  virtual const DetId& id() const { return id_; }
     
-  int size() const { return size_; }
-
-  const EcalMGPASample& operator[](int i) const { return data_[i]; }
-  const EcalMGPASample& sample(int i) const { return data_[i]; }
-    
-  void setSize(int size);
-  //    void setPresamples(int ps);
-  void setSample(int i, const EcalMGPASample& sam) { data_[i]=sam; }
-
-  static const int MAXSAMPLES = 10;
-
  private:
   EEDetId id_;
-  int size_;
-  //    int ecalPresamples_;
-  std::vector<EcalMGPASample> data_;    
+
 };
   
 
