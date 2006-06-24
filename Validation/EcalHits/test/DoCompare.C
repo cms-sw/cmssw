@@ -60,8 +60,7 @@ void DoCompare( char* Energy ){
    TCanvas c1;
    htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label[i]));
    htemp2[i]  = dynamic_cast<TH1F*>(curfile->Get(label[i]));
-   assert(htemp1[i] != 0);
-   assert(htemp2[i] != 0);
+   if( htemp1[i] == 0 || htemp2[i] == 0) continue;
    htemp1[i]->SetLineColor(2);
    htemp2[i]->SetLineColor(4);
    htemp1[i]->SetLineStyle(3);
@@ -92,8 +91,7 @@ void DoCompare( char* Energy ){
 
    h2temp1[i]  = dynamic_cast<TH2F*>(reffile->Get(label2[i]));
    h2temp2[i]  = dynamic_cast<TH2F*>(curfile->Get(label2[i]));
-   assert(h2temp1[i] != 0);
-   assert(h2temp2[i] != 0);
+   if( h2temp1[i] == 0 || h2temp2[i] == 0) continue; 
    c1.cd(1);
    h2temp1[i]->Draw();
    c1.cd(2);
@@ -121,8 +119,7 @@ void DoCompare( char* Energy ){
 
    hpro1[i]  = dynamic_cast<TProfile*>(reffile->Get(label3[i]));
    hpro2[i]  = dynamic_cast<TProfile*>(curfile->Get(label3[i]));
-   assert(hpro1[i] != 0);
-   assert(hpro2[i] != 0);
+   if (hpro1[i] != 0 || hpro2[i] == 0) continue ;
    c1.cd(1);
    hpro1[i]->Draw();
    c1.cd(2);
