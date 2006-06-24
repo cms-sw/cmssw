@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.5 2006/05/24 01:52:50 wmtan Exp $
+$Id: BranchDescription.cc,v 1.6 2006/06/24 01:47:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -59,38 +59,38 @@ namespace edm {
     }
 
     if (processName() == prod) {
-      if (productInstanceName_.empty()) {
+      if (productInstanceName().empty()) {
         branchName_ = productType() + underscore + moduleLabel() + period;
         return;
       }
       branchName_ = productType() + underscore + moduleLabel() + underscore +
-        productInstanceName_ + period;
+        productInstanceName() + period;
       return;
     }
     branchName_ = productType() + underscore + moduleLabel() + underscore +
-      productInstanceName_ + underscore + processName() + period;
+      productInstanceName() + underscore + processName() + period;
   }
 
   void
   BranchDescription::write(std::ostream& os) const {
     os << module << std::endl;
-    os << "Product ID = " << productID_ << '\n';
-    os << "Class Name = " << fullClassName_ << '\n';
+    os << "Product ID = " << productID() << '\n';
+    os << "Class Name = " << className() << '\n';
     os << "Friendly Class Name = " << productType() << '\n';
-    os << "Product Instance Name = " << productInstanceName_ << std::endl;
+    os << "Product Instance Name = " << productInstanceName() << std::endl;
   }
 
   bool
   BranchDescription::operator<(BranchDescription const& rh) const {
     if (productType() < rh.productType()) return true;
     if (rh.productType() < productType()) return false;
-    if (productInstanceName_ < rh.productInstanceName_) return true;
-    if (rh.productInstanceName_ < productInstanceName_) return false;
+    if (productInstanceName() < rh.productInstanceName()) return true;
+    if (rh.productInstanceName() < productInstanceName()) return false;
     if (module < rh.module) return true;
     if (rh.module < module) return false;
-    if (fullClassName_ < rh.fullClassName_) return true;
-    if (rh.fullClassName_ < fullClassName_) return false;
-    if (productID_ < rh.productID_) return true;
+    if (className() < rh.className()) return true;
+    if (rh.className() < className()) return false;
+    if (productID() < rh.productID()) return true;
     return false;
   }
 
