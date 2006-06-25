@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/21 19:42:07 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/05/29 17:12:24 $
+ *  $Revision: 1.9 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -92,31 +92,6 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
       }
     }
   }
-
-  /*  // browse through monitorable; check if MEs exist
-  std::vector<std::string> subdirs = mui->getSubdirs();
-  std::vector<std::string> contents = mui->getMEs();
-  
-  for (std::vector<std::string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-    
-    for (SiStripQualityTester::MEAssotiateMapType::const_iterator ic = theMeAssociateMap.begin(); ic != theMeAssociateMap.end(); ic++) {
-      string me_name = ic->first;
-      if ((*it).find(me_name) == 0) {
-	std::string fullpathname = currDir + "/" + (*it); 
-        for (vector<string>::const_iterator im = ic->second.begin();
-             im !=  ic->second.end(); im++) {
-	  mui->useQTest(fullpathname, (*im));
-        }
-      }
-    }
-  }
-  for (std::vector<std::string>::const_iterator ip = subdirs.begin();
-	 ip != subdirs.end(); ip++) {
-    mui->cd(*ip);
-    attachTests(mui);
-    mui->goUp();
-    }*/   
 }
 //
 // -- Set up ContentsXRange test with it's parameters

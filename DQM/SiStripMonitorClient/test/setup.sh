@@ -1,6 +1,10 @@
 #!/bin/bash
 
+
 eval `scramv1 ru -sh`
+
+COLLECTOR_NODE=$1
+echo $COLLECTOR_NODE
 
 HOSTNAME=$(echo `/bin/hostname` | sed 's/\//\\\//g')
 echo "The hostname is = $HOSTNAME"
@@ -31,7 +35,7 @@ if [ -e startMonitorClient ]; then
 fi
 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .profile.xml > profile.xml
-sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .SiStripClient.xml > SiStripClient.xml 
+sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g"  -e "s/.collector/${COLLECTOR_NODE}/g" .SiStripClient.xml > SiStripClient.xml 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .startMonitorClient > startMonitorClient
 
 chmod 751 profile.xml

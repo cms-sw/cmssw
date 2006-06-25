@@ -14,8 +14,8 @@
 SiStripActionExecutor::SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
-  configParser_ = new SiStripConfigParser();
-  configParser_->getDocument("sistrip_monitorelement_config.xml");
+  configParser_ = 0;
+  
 }
 //
 // --  Destructor
@@ -23,6 +23,25 @@ SiStripActionExecutor::SiStripActionExecutor() {
 SiStripActionExecutor::~SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Deleting SiStripActionExecutor " << "\n" ;
+  if (configParser_) delete configParser_;
+}
+//
+// -- Read Configurationn File
+//
+bool SiStripActionExecutor::readConfiguration(int& tkmap_freq, int& sum_freq) {
+  if (configParser_ == 0) {
+    configParser_ = new SiStripConfigParser();
+    configParser_->getDocument("sistrip_monitorelement_config.xml");
+  }
+  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
+    cout << "SiStripActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
+    return false;
+  }
+  if (!configParser_->getFrequencyForSummary(sum_freq)){
+    cout << "SiStripActionExecutor::readConfiguration: Failed to read Summary configuration parameters!! ";
+    return false;
+  }
+  return true;
 }
 //
 // -- Create Tracker Map
@@ -30,13 +49,19 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
   string tkmap_name;
   vector<string> me_names;
-  if (!configParser_->getMENamesForTrackerMap(tkmap_name, me_names)) return;
+  if (!configParser_->getMENamesForTrackerMap(tkmap_name, me_names)){
+    cout << "SiStripActionExecutor::createTkMap: Failed to read TrackerMap configuration parameters!! ";
+    return;
+  }
   cout << " # of MEs in Tk Map " << me_names.size() << endl;
   TrackerMap trackerMap(tkmap_name);
   // Get the values for the Tracker Map
   mui->cd();
   SiStripActionExecutor::DetMapType valueMap;
+  //  DaqMonitorBEInterface * bei = mui->getBEInterface();
+  //  bei->lock();
   getValuesForTkMap(mui, me_names, valueMap);  
+  //  bei->unlock();
   int rval = 0;
   int gval = 0;
   int bval = 0;
@@ -112,7 +137,10 @@ void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
 void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
   string structure_name;
   vector<string> me_names;
-  if (!configParser_->getMENamesForSummary(structure_name, me_names)) return;
+  if (!configParser_->getMENamesForSummary(structure_name, me_names)) {
+    cout << "SiStripActionExecutor::createSummary: Failed to read Summary configuration parameters!! ";
+    return;
+  }
   mui->cd();
   fillSummary(mui, structure_name, me_names);
 }

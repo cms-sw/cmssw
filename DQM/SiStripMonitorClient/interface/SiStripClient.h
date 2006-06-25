@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 
+class SiStripActionExecutor;
 
 class SiStripClient : public DQMBaseClient, 
 			 public dqm::UpdateObserver
@@ -44,11 +45,20 @@ public:
   // this obligatory method is called by the Updater component, whenever there is an update 
   void onUpdate() const;
 
-
 public:
 
   // this client has a web interface:  
   SiStripWebInterface * webInterface_p;
+
+ private:
+
+  void checkCustomRequests() const;
+  void setupQTest() const;
+
+  SiStripActionExecutor* actionExecutor_;
+
+  int updateFrequencyForTrackerMap_;
+  int updateFrequencyForSummary_;
 };
 
 // You always need to have this line! Do not remove:

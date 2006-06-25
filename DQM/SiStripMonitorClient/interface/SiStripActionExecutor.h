@@ -17,12 +17,13 @@ class SiStripActionExecutor {
   SiStripActionExecutor();
  ~SiStripActionExecutor();
 
- void createTkMap(MonitorUserInterface* mui);
  void createSummary(MonitorUserInterface* mui);
 
  void setupQTests(MonitorUserInterface * mui);
  void checkQTestResults(MonitorUserInterface * mui);
  void createCollation(MonitorUserInterface * mui);
+ void createTkMap(MonitorUserInterface* mui);
+ bool readConfiguration(int& tkmap_freq, int& sum_freq);
 
  private:
   MonitorElement* getSummaryME(MonitorUserInterface* mui, string me_name);
@@ -32,5 +33,6 @@ class SiStripActionExecutor {
   void drawMEs(int idet, vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values);
 
   SiStripConfigParser* configParser_;
+
 };
 #endif

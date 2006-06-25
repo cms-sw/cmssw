@@ -6,30 +6,27 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class SiStripActionExecutor;
-
 class SiStripWebInterface : public WebInterface
 {
  public:
  
+  enum SiStripActionType{NoAction=0, Summary=1, Collate=2, QTestResult=3, PersistantTkMap=4, 
+                         TemporaryTkMap=5, SaveData=6};
+
   SiStripWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
  ~SiStripWebInterface();
 
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
 
   void subscribeAll(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  void setupQTest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  void createTkMap(xgi::Input * in, xgi::Output *out, int iflg) throw (xgi::exception::Exception);
-  void createSummary(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  void saveToFile(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  void collateME(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  int getUpdates();
-  void checkQTestResults();
 
- private:
+  SiStripActionType getActionFlag() {return theActionFlag;}
+  void setActionFlag(SiStripActionType flag) {theActionFlag = flag;}
+  
+   
+  private:
 
-  // the SiStripActionActionExecutor
-  SiStripActionExecutor* theActionExecutor;
+  SiStripActionType theActionFlag;
 
  protected:
 

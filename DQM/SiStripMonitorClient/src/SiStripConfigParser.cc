@@ -7,7 +7,7 @@
 //
 // -- Constructor
 // 
-SiStripConfigParser::SiStripConfigParser() {
+SiStripConfigParser::SiStripConfigParser() : DQMParserBase() {
   edm::LogInfo("SiStripConfigParser") << 
     " Creating SiStripConfigParser " << "\n" ;
 }
@@ -21,8 +21,13 @@ SiStripConfigParser::~SiStripConfigParser() {
 //
 // -- Read ME list for the TrackerMap
 //
-bool SiStripConfigParser::getMENamesForTrackerMap(string& tkmap_name,
+bool SiStripConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
 						 vector<string>& me_names){
+  if (!doc) {
+    cout << " SiStripConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
   me_names.clear();
   unsigned int tkMapNodes = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
   if (tkMapNodes != 1) return false;
@@ -33,7 +38,7 @@ bool SiStripConfigParser::getMENamesForTrackerMap(string& tkmap_name,
   DOMElement* tkMapElement = static_cast<DOMElement *>(tkMapNode);          
   if (! tkMapElement) return false;		 
 		
-  tkmap_name = qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("name"))); 
+  tkmap_name = qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("name")));
 	
   DOMNodeList * meList 
 		  = tkMapElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
@@ -50,10 +55,36 @@ bool SiStripConfigParser::getMENamesForTrackerMap(string& tkmap_name,
   
 }
 //
+// -- Read Update Frequency for the TrackerMap
+//
+bool SiStripConfigParser::getFrequencyForTrackerMap(int& u_freq){
+  if (!doc) {
+    cout << " SiStripConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
+  unsigned int tkMapNodes = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
+  if (tkMapNodes != 1) return false;
+  /// Get Node
+  DOMNode* tkMapNode = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
+ //Get Node name
+  if (! tkMapNode) return false;
+  DOMElement* tkMapElement = static_cast<DOMElement *>(tkMapNode);          
+  if (! tkMapElement) return false;		 
+		
+  u_freq = atoi(qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
+  return true;
+}
+//
 // -- Get List of MEs for the summary plot and the
 //
 bool SiStripConfigParser::getMENamesForSummary(string& structure_name,
 						vector<string>& me_names) {
+  if (!doc) {
+    cout << " SiStripConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
   me_names.clear();
   unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
   if (structureNodes == 0) return false;
@@ -65,6 +96,7 @@ bool SiStripConfigParser::getMENamesForSummary(string& structure_name,
   if (! structureElement) return false;		 
 		
   structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
+
   DOMNodeList * meList 
 		  = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
   for (unsigned int k = 0; k < meList->getLength(); k++) {
@@ -78,4 +110,25 @@ bool SiStripConfigParser::getMENamesForSummary(string& structure_name,
   if (me_names.size() == 0) return false;
   else return true;
   
+}
+//
+// -- Get List of MEs for the summary plot and the
+//
+bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) {
+  if (!doc) {
+    cout << " SiStripConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
+ //Get Node name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;		 
+		
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  return true;
 }

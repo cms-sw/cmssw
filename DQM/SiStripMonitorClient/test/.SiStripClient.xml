@@ -22,7 +22,7 @@
 	    
                 <xc:Application class="SiStripClient" id="15" instance="0" network="local">
                   <properties xmlns="urn:xdaq-application:SiStripClient" xsi:type="soapenc:Struct">
-                    <serverHost xsi:type="xsd:string">.host</serverHost>
+                    <serverHost xsi:type="xsd:string">.collector</serverHost>
                     <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
                   </properties>
                 </xc:Application>
