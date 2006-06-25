@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 
 
@@ -34,11 +35,13 @@ int main (int argc, char **argv)
     std::cerr << "write to file " << outputURL
 	      << " dataset " << datasetN << std::endl;
     std::vector<Storage	*> indexFiles;
+    std::vector<IOOffset> indexSizes;
     for ( int i=3; i<argc; i++ ) {
       IOOffset    size = -1;
       if (StorageFactory::get ()->check(argv [i], &size)) {	
 	indexFiles.push_back(StorageFactory::get ()->
 			     open (argv [i],seal::IOFlags::OpenRead));
+	indexSizes.push_back(size);
       }
       else {
 	std::cerr << "index file " << argv [i] << " does not exists" << std::endl;
@@ -63,12 +66,30 @@ int main (int argc, char **argv)
     // select and copy to output file
     IOSize totSize=0;
     for (unsigned int i=0; i<indexFiles.size();i++) {
-      StorageStreamBuf	bufio (indexFiles[i]);
+      std::cerr << "reading from index file " <<  argv[i+3] << std::endl;
+      //StorageStreamBuf	bufio (indexFiles[i]);
       // std::istream in (&bufio);
-      std::ifstream in(argv [i+3]);
-      std::string line1; std::getline(in, line1);
-      std::cerr << "first line is:\n" << line1 << std::endl;
-      std::string::size_type pos = line1.find('=');
+      // std::ifstream in(argv [i+3]);
+      // get the whole file in memory
+      std::istringstream in;
+      try {
+	std::vector<char> lbuf(indexSizes[i]+1,'\0');
+	IOSize nn = indexFiles[i]->read(&lbuf[0],indexSizes[i]);
+	if (nn!=indexSizes[i]) {
+	      std::cerr << "error in reading from  index file " <<  argv[i+3] << std::endl;
+	      std::cerr << "asked for " <<  indexSizes[i] <<". got " << nn << std::endl;
+	      return EXIT_FAILURE;
+	}
+	in.str(&lbuf[0]);
+      } catch (...) {
+	std::cerr << "error in reading from index file " << argv [i+3] << std::endl;
+	return EXIT_FAILURE;
+      
+      }
+
+	std::string line1; std::getline(in, line1);
+	std::cerr << "first line is:\n" << line1 << std::endl;
+	std::string::size_type pos = line1.find('=');
       if (pos!=std::string::npos) pos = line1.find_first_not_of(' ',pos+1);
       if (pos==std::string::npos) {
 	std::cerr << "badly formed index file " << argv [i+3] << std::endl;
