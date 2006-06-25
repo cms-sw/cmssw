@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 03:37:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -20,18 +20,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <cassert>
-
 //
 // constructors and destructor
 //
 HLTMakeGlobalObject::HLTMakeGlobalObject(const edm::ParameterSet& iConfig)
 {
-   labels_ = iConfig.getParameter<std::vector<std::string> >("labels");
-   indices_= iConfig.getParameter<std::vector<unsigned int> >("indices");
+   inputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputTags");
 
-   LogDebug("") << "found labels: " << labels_.size() << " " << indices_.size();
-   assert(labels_.size()==indices_.size());
+   LogDebug("") << "found labels: " << inputTags_.size();
 
    //register your products
    produces<reco::HLTGlobalObject>();
@@ -57,9 +53,9 @@ HLTMakeGlobalObject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<reco::HLTPathObject> pathobject;
 
    unsigned int m(0);
-   const unsigned int n(labels_.size());
+   const unsigned int n(inputTags_.size());
    for (unsigned int i=0; i!=n; i++) {
-     try { iEvent.getByLabel(labels_[i],pathobject); }
+     try { iEvent.getByLabel(inputTags_[i],pathobject); }
      catch (...) { continue; }
      m++;
      globalobject->put(RefProd<reco::HLTPathObject>(pathobject));

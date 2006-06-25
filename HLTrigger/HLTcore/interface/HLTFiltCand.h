@@ -7,8 +7,8 @@
  *  This class is an EDFilter implementing a very basic HLT trigger
  *  acting on candidates, requiring a g/e/m/j tuple above pt cuts
  *
- *  $Date: 2006/06/16 18:55:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/24 21:04:46 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include<string>
 //
 // class decleration
 //

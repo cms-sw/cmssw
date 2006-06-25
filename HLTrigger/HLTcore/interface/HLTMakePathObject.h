@@ -6,21 +6,19 @@
  *  
  *  This class is an EDProducer making the HLT path object.
  *
- *  $Date: 2006/04/26 09:27:44 $
+ *  $Date: 2006/05/12 18:13:11 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<vector>
-#include<string>
 
 //
 // class decleration
@@ -35,8 +33,7 @@ class HLTMakePathObject : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-     std::vector<std::string > labels_;  // module labels
-     std::vector<unsigned int> indices_; // module indices
+     std::vector<edm::InputTag> inputTags_; // tags of products
 };
 
 #endif //HLTMakePathObject_h

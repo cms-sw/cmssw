@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 03:37:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -18,19 +18,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <cassert>
-
 //
 // constructors and destructor
 //
 HLTMakePathObject::HLTMakePathObject(const edm::ParameterSet& iConfig)
 {
-   labels_ = iConfig.getParameter<std::vector<std::string> >("labels");
-   indices_= iConfig.getParameter<std::vector<unsigned int> >("indices");
+   inputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputTags");
 
-   LogDebug("") << "found labels: " << labels_.size() << " " << indices_.size();
-
-   assert(labels_.size()==indices_.size());
+   LogDebug("") << "found labels: " << inputTags_.size();
 
    //register your products
    produces<reco::HLTPathObject>();
@@ -48,19 +43,21 @@ HLTMakePathObject::~HLTMakePathObject()
 void
 HLTMakePathObject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
    using namespace std;
+   using namespace edm;
+   using namespace reco;
 
-   auto_ptr<reco::HLTPathObject> pathobject (new reco::HLTPathObject);
-   edm::RefToBase<reco::HLTFilterObjectBase> ref;
+   auto_ptr<HLTPathObject> pathobject (new HLTPathObject);
+   RefToBase<HLTFilterObjectBase> ref;
 
-   Handle<reco::HLTFilterObjectWithRefs> filterobject;
+   Handle<HLTFilterObjectWithRefs> filterobject;
 
    unsigned int m(0);
-   const unsigned int n(labels_.size());
+   const unsigned int n(inputTags_.size());
    for (unsigned int i=0; i!=n; i++) {
-     iEvent.getByLabel(labels_[i],filterobject);
-     ref=edm::RefToBase<reco::HLTFilterObjectBase>(edm::RefProd<reco::HLTFilterObjectWithRefs>(filterobject));
+     try { iEvent.getByLabel(inputTags_[i],filterobject); }
+     catch (...) { continue; }
+     ref=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectWithRefs>(filterobject));
      pathobject->put(ref);
      m++;
    }
