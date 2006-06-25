@@ -44,7 +44,7 @@ vector<SeedLayerPairs::LayerPair> PixelLessSeedLayerPairs::operator()()
   addForwardForwardLayers(3,4,result);
   
 
-  edm::LogInfo("TkHitPairs") << "PixelLess layersPair.size: " << result.size() ;
+  LogDebug("TkHitPairs") << "PixelLess layersPair.size: " << result.size() ;
   return result;
 }
 
@@ -65,11 +65,11 @@ void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollectio
   if(isFirstCall){
     edm::ESHandle<GeometricSearchTracker> track;
     iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
-    detLayersTIB.insert(   detLayersTIB.end(),    track->tibLayers().begin()   ,track->tibLayers().end()    ); 
-    detLayersPosTID.insert(detLayersPosTID.end(), track->posTidLayers().begin(),track->posTidLayers().end() );
-    detLayersNegTID.insert(detLayersNegTID.end(), track->negTidLayers().begin(),track->negTidLayers().end() );
-    detLayersPosTEC.insert(detLayersPosTEC.end(), track->posTecLayers().begin(),track->posTecLayers().end() );
-    detLayersNegTEC.insert(detLayersNegTEC.end(), track->negTecLayers().begin(),track->negTecLayers().end() );
+    detLayersTIB    = track->tibLayers();
+    detLayersPosTID = track->posTidLayers();
+    detLayersNegTID = track->negTidLayers();
+    detLayersPosTEC = track->posTecLayers();
+    detLayersNegTEC = track->negTecLayers();
     isFirstCall=false;
   }
   
@@ -155,7 +155,7 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollec
   }
   
   
-  /*
+  /*  
   SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
@@ -163,7 +163,7 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollec
     theChoosedHits.push_back( &(*it) );
   }
 
-  
+
   SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
@@ -171,7 +171,8 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollec
     theChoosedHits.push_back( &(*it) );
   }  
   */
-
+  
+  LogDebug("TkHitPairs") << "size choosed hits for TIB layer: " << theChoosedHits.size() ;
   return theChoosedHits;
 }
 
@@ -192,7 +193,7 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
     theChoosedHits.push_back( &(*it) );
   }
   
-  /*
+  
   SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIDDisk(side,disk));
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
@@ -200,6 +201,7 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
     theChoosedHits.push_back( &(*it) );
   }
 
+  /*
   SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIDDisk(side,disk));
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
@@ -209,6 +211,7 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
   */
 
   //TODO: fileter over rings is still missing
+  LogDebug("TkHitPairs") << "size choosed hits for TID layer: " << theChoosedHits.size() ;
   return theChoosedHits;
 }
 
@@ -232,7 +235,7 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   
   
   
-  /*------------- if mono hits are addded there is crash. Investigation needed ---------------
+  /*
   SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTECDisk(side,disk));
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
