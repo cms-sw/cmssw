@@ -1,9 +1,10 @@
 <export>
  <lib name=SimG4CoreNotification>
  <use name=DetectorDescription/Core>
+ <use name=sigcpp>
 </export>
 
 <use name=geant4>
 <use name=DetectorDescription/Core>
-<lib name=sigcpp>
+<use name=sigcpp>
 
