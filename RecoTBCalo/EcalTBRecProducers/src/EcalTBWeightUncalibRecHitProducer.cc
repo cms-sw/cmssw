@@ -1,9 +1,9 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.10 2006/04/07 12:47:07 meridian Exp $
-  *  $Date: 2006/04/07 12:47:07 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.1 2006/04/21 09:56:52 meridian Exp $
+  *  $Date: 2006/04/21 09:56:52 $
+  *  $Revision: 1.1 $
   *
   */
 #include "RecoTBCalo/EcalTBRecProducers/interface/EcalTBWeightUncalibRecHitProducer.h"
@@ -101,9 +101,10 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      return;
 
    // Gain Ratios
-   //edm::ESHandle<EcalGainRatios> pRatio;
-   //es.get<EcalGainRatiosRcd>().get(pRatio);
-   //const EcalGainRatios* gr = pRatio.product();
+   edm::ESHandle<EcalGainRatios> pRatio;
+   es.get<EcalGainRatiosRcd>().get(pRatio);
+   const EcalGainRatios::EcalGainRatioMap& gainMap = pRatio.product()->getMap(); // map of gain ratios
+
 
    // fetch TB weights
    LogDebug("EcalUncalibRecHitDebug") <<"Fetching EcalTBWeights from DB " ;
@@ -131,6 +132,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    EcalPedestalsMapIterator pedIter; // pedestal iterator
    EcalPedestals::Item aped; // pedestal object for a single xtal
 
+   EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
+   EcalMGPAGainRatio aGain; // gain object for a single xtal
    // loop over EB digis
 
    for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
@@ -138,12 +141,12 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      //     counter_++; // verbosity counter
      
      // find pedestals for this channel
-     LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << itdg->id() ;
+     LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
      pedIter = pedMap.find(itdg->id().rawId());
      if( pedIter != pedMap.end() ) {
        aped = pedIter->second;
      } else {
-       edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << itdg->id() 
+       edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
 					       << "\n  no uncalib rechit will be made for this digi!"
 	 ;
        continue;
@@ -159,10 +162,25 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
        gid = git->second;
      } else {
        edm::LogError("EcalUncalibRecHitError") << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
-					       << "\n  no uncalib rechit will be made for digi with id: " << itdg->id()
+					       << "\n  no uncalib rechit will be made for digi with id: " << EBDetId(itdg->id())
 	 ;
        continue;
      }
+
+     // find gain ratios
+     LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
+     gainIter = gainMap.find(itdg->id().rawId());
+     if( gainIter != gainMap.end() ) {
+       aGain = gainIter->second;
+     } else {
+       edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id()) 
+					       << "\n  no uncalib rechit will be made for this digi!"
+	 ;
+       continue;
+     }
+     
+     std::vector<double> gainRatios;
+     gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
 
      //Getting the TDC bin
      EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
@@ -189,7 +207,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
      if( wit == wgts->getMap().end() ) {  // no weights found for this group ID
        edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
-					       << "\n  skipping digi with id: " << itdg->id()
+					       << "\n  skipping digi with id: " << EBDetId(itdg->id())
 	 ;
        continue;
      }
@@ -227,13 +245,13 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix after switch:\n" << clmat4 ;
 
      EcalUncalibratedRecHit aHit =
-       EBalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+       EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
      EBuncalibRechits->push_back( aHit );
 
 
      if(aHit.amplitude()>0.) {
        LogDebug("EcalUncalibRecHitDebug") << "processed EBDataFrame with id: "
-					  << itdg->id() << "\n"
+					  << EBDetId(itdg->id()) << "\n"
 					  << "uncalib rechit amplitude: " << aHit.amplitude()
 	 ;
      }
