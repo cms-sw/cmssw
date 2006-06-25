@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/04/10 12:30:06 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/29 15:42:51 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -89,6 +89,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "ROSTrailerBits";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSTrailerBits";
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,128,0,128);
+ 
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
@@ -125,7 +126,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "TimeBox";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
 
-    // used only if they have been set (controlled by the switch during fillin)
+    // used only if they have been set (controlled by the switch during filling)
     stringstream tdcID_s; tdcID_s << code.getTDC();
     stringstream chID_s; chID_s << code.getChannel();
 
@@ -160,6 +161,35 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     
   }
   
+
+  if ( folder == "TDCError") {
+    
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+
+    histoType = "TDCError";
+    histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
+    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoName,3000,0,3000,4,0,4);
+
+  }
+
+
+  // SC Histograms
+  if ( folder == "SC" ) {
+    // Same numbering for SC as for ROS
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+
+    // the SC histos belong to the ROS map (pay attention) since the data come from the corresponding ROS
+
+    histoType = "SCTriggerBX";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerBX";
+    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,128,0,128,5,0,5);
+
+    histoType = "SCTriggerQuality";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerQuality";
+    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,5,0,5,7,0,7);
+
+  }
+
 }
 
 
@@ -167,7 +197,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   
   nevents++;
-  if (nevents%1000 == 0) 
+  if (nevents%5 == 0) 
     cout<<"[DTDataIntegrityTask]: "<<nevents<<" events analyzed"<<endl;
   
   DTROChainCoding code;
@@ -283,6 +313,87 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     }
   }
 
+
+  /// TDC Error  
+  for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
+       tdc_it != data.getTDCError().end(); tdc_it++) {
+
+    code.setROB((*tdc_it).first);
+
+    histoType = "TDCError";
+    if (robHistos[histoType].find(code.getROBID()) != robHistos[histoType].end()) {
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
+									      ((*tdc_it).second).tdcID());
+    }
+    else {
+      bookHistos( string("TDCError"), code);
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
+									      ((*tdc_it).second).tdcID());
+    }
+
+  }
+
+  /// SC Data
+  for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
+       sc_it != data.getSCData().end(); sc_it++) {
+
+    // MB1 and MB2 stay in even numbered 32 bit words; MB3 and MB4 in odd
+    int stationGroup = ((*sc_it).second)%2;
+    
+    // SC Data words are devided into 2 parts each of 8 bits:
+    //  LSB refers to MB1 and MB3
+    //  MSB refers to MB2 and MB4
+
+    // fill only the information regarding SC words with trigger
+    bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
+    bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
+
+    // the quality
+    int quality_LSB = ((*sc_it).first).trackQuality(0);
+    int quality_MSB = ((*sc_it).first).trackQuality(1);
+
+    
+    if (hasTrigger_LSB) {
+
+      histoType = "SCTriggerBX";
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+      else {									       
+	bookHistos( string("SC"), code);
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+      }										       
+
+      histoType = "SCTriggerQuality";						       
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+      else {									       
+	bookHistos( string("SC"), code);						       
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+      }
+    }
+    
+    if (hasTrigger_MSB) {
+
+      histoType = "SCTriggerBX";
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+      else {									       
+	bookHistos( string("SC"), code);	
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+      }										       
+      
+      histoType = "SCTriggerQuality";						       
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+      else {									       
+	bookHistos( string("SC"), code);						       
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+      }
+    }
+ 
+  }
+  
+  
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
