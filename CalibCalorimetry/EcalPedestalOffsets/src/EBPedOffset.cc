@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/04/26 13:11:21 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/15 09:25:51 $
+ * $Revision: 1.5 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -120,9 +120,9 @@ void EBPedOffset::analyze (Event const& event,
         ++itdigi) 
     {    
        int gainId = itdigi->sample (0).gainId () ;
-       int crystalId = itdigi->id ().ic () ;
+       int crystalId = EBDetId(itdigi->id ()).ic () ;
 //       int crystalId = itdigi->id().iphi () + 20 * (itdigi->id().ieta () -1) ;
-       int smId = itdigi->id ().ism () ;
+       int smId = EBDetId(itdigi->id ()).ism () ;
        if (!m_pedValues.count (smId)) m_pedValues[smId] = new TPedValues (m_RMSmax,m_bestPed) ;
 
        // loop over the samples

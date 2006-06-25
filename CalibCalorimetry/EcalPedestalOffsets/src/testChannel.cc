@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2006/04/18 13:54:05 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/15 09:25:51 $
+ * $Revision: 1.2 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -105,8 +105,8 @@ void testChannel::analyze (Event const& event,
         ++itdigi) 
     {    
        int gainId = itdigi->sample (0).gainId () ;
-       int crystalId = itdigi->id ().ic () ;
-       int smId = itdigi->id ().ism () ;
+       int crystalId = EBDetId(itdigi->id ()).ic () ;
+       int smId = EBDetId(itdigi->id ()).ism () ;
 
        std::cout << "[testChannel] " << event.id ()  
                  << "\tcry: " << crystalId 
