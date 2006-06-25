@@ -1,27 +1,45 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "CommonDet/BasicDet/interface/RecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include <TrackingTools/Records/interface/TransientRecHitRecord.h>
 
-#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-//#include "RecoTracker/TkHitPairs/interface/LayerHitsCache.h"
-#include "RecoTracker/TkHitPairs/interface/InnerDeltaPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
+#include "RecoTracker/TkHitPairs/interface/InnerDeltaPhi.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
-
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 typedef PixelRecoRange<float> Range;
+
+
+HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
+							     const LayerWithHits* outer, 
+							     LayerCacheType* layerCache, 
+							     const edm::EventSetup& iSetup)
+  : TTRHbuilder(0),theLayerCache(*layerCache), 
+    theOuterLayer(outer), theInnerLayer(inner)
+{
+  //a builder is added to trasform TRHs in TTRHs;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
+  iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilderHandle);
+  TTRHbuilder = theBuilderHandle.product();
+}
 
 void HitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
   const edm::EventSetup& iSetup)
 {
-//  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
+  if (theInnerLayer->layer()->module() != pixel &&
+      theInnerLayer->layer()->part() == barrel ){
+    hitPairsWithErrors(region,result,iSetup);
+    return;
+  }
+  //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
 
   typedef OrderedHitPair::InnerHit InnerHit;
   typedef OrderedHitPair::OuterHit OuterHit;
@@ -39,7 +57,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   
   float outerHitErrorRPhi = (outerlay->part() == barrel) ?
       TrackingRegionBase::hitErrRPhi(
-          dynamic_cast<const BarrelDetLayer*>(outerlay) )
+	  dynamic_cast<const BarrelDetLayer*>(outerlay) )
     : TrackingRegionBase::hitErrRPhi(
           dynamic_cast<const ForwardDetLayer*>(outerlay) ) ;
 
@@ -145,5 +163,60 @@ void HitPairGeneratorFromLayerPair::hitPairs(
          <<endl;
   }
 */
+}
+
+void HitPairGeneratorFromLayerPair::
+   hitPairsWithErrors( const TrackingRegion& region,
+		       OrderedHitPairs & result,
+		       const edm::EventSetup& iSetup)
+{
+  typedef OrderedHitPair::InnerHit InnerHit;
+  typedef OrderedHitPair::OuterHit OuterHit;
+
+  //BM vector<RecHit>     outerHits(region.hits(theOuterLayer));
+  vector<const TrackingRecHit*> outerHits(theOuterLayer->recHits());
+  //BM  RecHitsSortedInPhi innerSortedHits(region.hits(theInnerLayer));
+  RecHitsSortedInPhi innerSortedHits(theInnerLayer->recHits(),TTRHbuilder);
+				   
+  float zMinOrigin = region.origin().z() - region.originZBound();
+  float zMaxOrigin = region.origin().z() + region.originZBound();
+  InnerDeltaPhi deltaPhi(
+      *(theInnerLayer->layer()), region.ptMin(), region.originRBound(),
+      zMinOrigin, zMaxOrigin,iSetup);
+
+  typedef vector<const TrackingRecHit*>::const_iterator  HI;
+  float nSigmaRZ = sqrt(12.);
+  float nSigmaPhi = 3.;
+  for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
+    TransientTrackingRecHit* recHit = TTRHbuilder->build(*oh);
+    GlobalPoint hitPos = recHit->globalPosition();
+    float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
+    float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
+     
+    float phiHit = hitPos.phi();
+    vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer->layer(), *oh,iSetup);
+    if(!checkRZ) continue;
+
+    for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
+      TransientTrackingRecHit* recHit = TTRHbuilder->build(&(**ih));
+      GlobalPoint innPos = recHit->globalPosition();
+      Range allowed = checkRZ->range(innPos.perp());
+      Range hitRZ;
+      if (theInnerLayer->layer()->part() == barrel) {
+        float zErr = nSigmaRZ * sqrt(recHit->globalPositionError().czz());
+        hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
+      } else {
+        float rErr = nSigmaRZ * sqrt(recHit->globalPositionError().rerr(innPos));
+        hitRZ = Range(innPos.perp()-rErr, innPos.perp()+rErr);
+      }
+      Range crossRange = allowed.intersection(hitRZ);
+      if (! crossRange.empty() ) {
+        result.push_back( OrderedHitPair( *ih, *oh ) );
+      }
+    
+    } 
+    delete checkRZ;
+  }
 }
 
