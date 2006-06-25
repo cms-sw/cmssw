@@ -76,6 +76,19 @@ class L1GctMap {
   /// convert eta from rctCrate/jetFinder local to global coordinates
   unsigned globalEta(unsigned ieta, unsigned wheel);
 
+  /// Conversion routines
+  /// local eta from source card type and output
+  unsigned rctEta(unsigned scType, unsigned in);
+
+  /// local phi from source card type and output
+  unsigned rctPhi(unsigned scType, unsigned in);
+
+  /// source card type from local eta and phi
+  unsigned sourceCardType(unsigned localEta, unsigned localPhi);
+
+  /// source card number from local eta and phi
+  unsigned sourceCardOutput(unsigned localEta, unsigned localPhi);
+
  private:        // methods
 
   L1GctMap();    // constructor, this is a singleton
