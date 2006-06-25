@@ -1,12 +1,12 @@
-#ifndef L1GCTJETFINDER_H_
-#define L1GCTJETFINDER_H_
+#ifndef L1GCTSIMPLEJETFINDER_H_
+#define L1GCTSIMPLEJETFINDER_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
-/*! \class L1GctJetFinder
+/*! \class L1GctSimpleJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
  *
  *  Locates the jets from 48 inputted L1GctRegions.
@@ -39,10 +39,12 @@
  *  will locate the jet in the region furthest from eta=0 that has the
  *  lowest value of phi.
  * 
- *  The jet finder now stores jets with (eta, phi) in a global coordinate
- *  system. Eta runs from 0 at the Minus end HF to 21 at the Plus end.
- *  Phi is defined in 20-degree bins with bin centre in CMS coordinate
- *  system at (bin number)*20 degrees.
+ *  The jet finder outputs jets with a local eta/phi co-ordinate system 
+ *  for the jets it finds in the 2*11 search area it is looking in.
+ *  Eta runs from 0 to 10, with 0 being the region closest to the central
+ *  eta=0 line, and 10 being the edge of which ever half of the detector
+ *  the jet finder is operating in at eta= +/-5.  Phi data is set to either 
+ *  0 or 1, to indicate increasing real-world phi co-ordinate.
  *  
  */
 /*
@@ -52,18 +54,18 @@
 
 
 
-class L1GctJetFinder : public L1GctJetFinderBase
+class L1GctSimpleJetFinder : public L1GctJetFinderBase
 {
  public:
 
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
+  L1GctSimpleJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
                  L1GctJetEtCalibrationLut* jetEtCalLut);
                  
-  ~L1GctJetFinder();
+  ~L1GctSimpleJetFinder();
    
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+  friend std::ostream& operator << (std::ostream& os, const L1GctSimpleJetFinder& algo);
 
   /// get input data from sources
   virtual void fetchInput();
@@ -86,20 +88,10 @@ private:
   static const int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
-  void fetchEdgeStripsInput();
   void findJets();  
 
-  /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
-  bool detectJet(const UShort centreIndex, const bool boundary = false) const;
-
-  /// Returns energy sum of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
-  ULong calcJetEnergy(const UShort centreIndex, const bool boundary = false) const;
-
-  /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
-  bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
-    
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+std::ostream& operator << (std::ostream& os, const L1GctSimpleJetFinder& algo);
 
-#endif /*L1GCTJETFINDER_H_*/
+#endif /*L1GCTSIMPLEJETFINDER_H_*/

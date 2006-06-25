@@ -52,6 +52,9 @@ int main() {
 	cout << "Error for crate " << crate
 	     << " source card 2, input " << in
 	     << " id is " << temp.id() << endl;
+	cout << "rctCrate " << map->rctCrate(temp)
+	     << " scType " << map->sourceCardType(temp)
+	     << " scOutput " << map->sourceCardOutput(temp) << endl;
       } else { cout << "  " << temp.id(); }
     }
     cout << endl;
@@ -66,6 +69,9 @@ int main() {
 	cout << "Error for crate " << crate
 	     << " source card 3, input " << in
 	     << " id is " << temp.id() << endl;
+	cout << "rctCrate " << map->rctCrate(temp)
+	     << " scType " << map->sourceCardType(temp)
+	     << " scOutput " << map->sourceCardOutput(temp) << endl;
       } else { cout << "  " << temp.id(); }
     }
     cout << endl;

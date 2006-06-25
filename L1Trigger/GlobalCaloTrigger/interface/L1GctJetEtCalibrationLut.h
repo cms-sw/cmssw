@@ -22,6 +22,8 @@
 class L1GctJetEtCalibrationLut
 {
 public:
+  static const int JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
+  
   L1GctJetEtCalibrationLut();
   ~L1GctJetEtCalibrationLut();
   
@@ -35,8 +37,6 @@ public:
   
 private:
 
-  static const int JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
-  
   
 //  float m_quadraticCoeff;
 //  float m_linearCoeff;

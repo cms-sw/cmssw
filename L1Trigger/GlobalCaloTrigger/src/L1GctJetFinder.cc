@@ -6,54 +6,17 @@
 using namespace std;
 
 //DEFINE STATICS
-const int L1GctJetFinder::MAX_JETS_OUT = 6;
-const unsigned int L1GctJetFinder::MAX_SOURCE_CARDS = 9;
-const int L1GctJetFinder::COL_OFFSET = ((L1GctMap::N_RGN_ETA)/2)+1;
-const int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinder::COL_OFFSET*4;
-const unsigned int L1GctJetFinder::N_JF_PER_WHEEL = ((L1GctMap::N_RGN_PHI)/2);
+// const unsigned int L1GctJetFinder::MAX_REGIONS_IN = 12*L1GctJetFinder::N_COLS;
+const unsigned int L1GctJetFinder::MAX_REGIONS_IN = (((L1GctMap::N_RGN_ETA)/2)+1)*L1GctJetFinder::N_COLS;
 
+const int L1GctJetFinder::N_COLS = 4;
+const unsigned int L1GctJetFinder::CENTRAL_COL0 = 1;
 
 L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
                                L1GctJetEtCalibrationLut* jetEtCalLut):
-  m_id(id),
-  m_sourceCards(sourceCards),
-  m_jetEtCalLut(jetEtCalLut),
-  m_inputRegions(MAX_REGIONS_IN),
-  m_outputJets(MAX_JETS_OUT)
+  L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
 {
-  map = L1GctMap::getMap();
-  //Check jetfinder setup
-  if(m_id < 0 || m_id > 17)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 17\n";
-  } 
-  
-  if(m_sourceCards.size() != MAX_SOURCE_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_SOURCE_CARDS << " source card pointers, yet only " << m_sourceCards.size()
-    << " source card pointers are present.\n";
-  }
-  
-  for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
-  {
-    if(m_sourceCards.at(i) == 0)
-    {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-      << "Source card pointer " << i << " has not been set!\n";
-    }
-  }
-  
-  if(m_jetEtCalLut == 0)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "The jet Et calibration LUT pointer has not been set!\n";  
-  }
+  m_inputRegions.resize(maxRegionsIn());
 }
 
 L1GctJetFinder::~L1GctJetFinder()
@@ -62,141 +25,34 @@ L1GctJetFinder::~L1GctJetFinder()
 
 ostream& operator << (ostream& os, const L1GctJetFinder& algo)
 {
-  os << "===L1GctJetFinder===" << endl;
-  os << "ID = " << algo.m_id << endl;
-  os << "No of Source cards " << algo.m_sourceCards.size() << endl;
-  for (unsigned i=0; i<algo.m_sourceCards.size(); i++) {
-    os << "SourceCard* " << i << " = " << algo.m_sourceCards.at(i)<< endl;
-    os << "No of regions from this sourceCard " << algo.m_sourceCards.at(i)->getRegions().size() << endl;
-  }
-  os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
-  os << "No of input regions " << algo.m_inputRegions.size() << endl;
-//   for(unsigned i=0; i < algo.m_inputRegions.size(); ++i)
-//     {
-//       os << algo.m_inputRegions.at(i); 
-//     }
-  os << "No of output jets " << algo.m_outputJets.size() << endl;
-//   for(unsigned i=0; i < algo.m_outputJets.size(); ++i)
-//     {
-//       os << algo.m_outputJets.at(i); 
-//     }
-  os << "Output Et strip 0 " << algo.m_outputEtStrip0 << endl;
-  os << "Output Et strip 1 " << algo.m_outputEtStrip1 << endl;
-  os << "Output Ht " << algo.m_outputHt << endl;
-  os << endl;
-
+  const L1GctJetFinderBase* temp = &algo;
+  os << *temp;
   return os;
 }
 
-
-void L1GctJetFinder::reset()
-{
-  m_inputRegions.clear();
-  m_inputRegions.resize(MAX_REGIONS_IN);
-  m_outputJets.clear();
-  m_outputJets.resize(MAX_JETS_OUT);
-  m_outputEtStrip0 = 0;
-  m_outputEtStrip1 = 0;
-  m_outputHt = 0;
-}
-
-// Can't see a better way of doing this mapping...
 void L1GctJetFinder::fetchInput()
 {
-  vector<L1GctRegion> tempRegions;  //for temp local copy of region data
-    
-  tempRegions = m_sourceCards.at(0)->getRegions();
-  assert(tempRegions.size() == 10);  //Pointer setup check...
-  m_inputRegions.at(13) = tempRegions.at(0);
-  m_inputRegions.at(14) = tempRegions.at(1);
-  m_inputRegions.at(15) = tempRegions.at(2);
-  m_inputRegions.at(16) = tempRegions.at(3);
-  m_inputRegions.at(17) = tempRegions.at(4);
-  m_inputRegions.at(18) = tempRegions.at(5);
-  m_inputRegions.at(25) = tempRegions.at(6);
-  m_inputRegions.at(26) = tempRegions.at(7);
-  m_inputRegions.at(27) = tempRegions.at(8);
-  m_inputRegions.at(28) = tempRegions.at(9);
-    
-  tempRegions = m_sourceCards.at(1)->getRegions();
-  assert(tempRegions.size() == 12);
-  m_inputRegions.at(29) = tempRegions.at(0);
-  m_inputRegions.at(30) = tempRegions.at(1);
-  m_inputRegions.at(19) = tempRegions.at(2);
-  m_inputRegions.at(31) = tempRegions.at(3);
-  m_inputRegions.at(20) = tempRegions.at(4);
-  m_inputRegions.at(21) = tempRegions.at(5);
-  m_inputRegions.at(22) = tempRegions.at(6);
-  m_inputRegions.at(23) = tempRegions.at(7);
-  m_inputRegions.at(32) = tempRegions.at(8);
-  m_inputRegions.at(33) = tempRegions.at(9);
-  m_inputRegions.at(34) = tempRegions.at(10);
-  m_inputRegions.at(35) = tempRegions.at(11);
-
-  tempRegions = m_sourceCards.at(2)->getRegions();
-  assert(tempRegions.size() == 10);
-  m_inputRegions.at(1) = tempRegions.at(6);
-  m_inputRegions.at(2) = tempRegions.at(7);
-  m_inputRegions.at(3) = tempRegions.at(8);
-  m_inputRegions.at(4) = tempRegions.at(9);
-    
-  tempRegions = m_sourceCards.at(3)->getRegions();
-  assert(tempRegions.size() == 12);
-  m_inputRegions.at(5) = tempRegions.at(0);
-  m_inputRegions.at(6) = tempRegions.at(1);
-  m_inputRegions.at(7) = tempRegions.at(3);
-  m_inputRegions.at(8) = tempRegions.at(8);
-  m_inputRegions.at(9) = tempRegions.at(9);
-  m_inputRegions.at(10) = tempRegions.at(10);
-  m_inputRegions.at(11) = tempRegions.at(11);
-    
-  tempRegions = m_sourceCards.at(4)->getRegions();
-  assert(tempRegions.size() == 10);
-  m_inputRegions.at(0) = tempRegions.at(6);
-    
-  tempRegions = m_sourceCards.at(5)->getRegions();
-  assert(tempRegions.size() == 10);
-  m_inputRegions.at(12) = tempRegions.at(0);
-  m_inputRegions.at(24) = tempRegions.at(6);
-    
-  tempRegions = m_sourceCards.at(6)->getRegions();
-  assert(tempRegions.size() == 10);
-  m_inputRegions.at(36) = tempRegions.at(0);
-    
-  tempRegions = m_sourceCards.at(7)->getRegions();
-  assert(tempRegions.size() == 10);
-  m_inputRegions.at(37) = tempRegions.at(0);
-  m_inputRegions.at(38) = tempRegions.at(1);
-  m_inputRegions.at(39) = tempRegions.at(2);
-  m_inputRegions.at(40) = tempRegions.at(3);
-  m_inputRegions.at(41) = tempRegions.at(4);
-  m_inputRegions.at(42) = tempRegions.at(5);
-        
-  tempRegions = m_sourceCards.at(8)->getRegions();
-  assert(tempRegions.size() == 12);
-  m_inputRegions.at(43) = tempRegions.at(2);
-  m_inputRegions.at(44) = tempRegions.at(4);
-  m_inputRegions.at(45) = tempRegions.at(5);
-  m_inputRegions.at(46) = tempRegions.at(6);
-  m_inputRegions.at(47) = tempRegions.at(7);
+  fetchCentreStripsInput();
+  fetchEdgeStripsInput();
 }
 
-
-void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
-{
-  if(i >= 0 && i < MAX_REGIONS_IN)
-  {
-    m_inputRegions.at(i) = region;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "L1GctJetFinder::setInputRegion() : In Jet Finder ID " << m_id << ", inputted region " 
-    << i << " is outside input index range of 0 to " << (MAX_REGIONS_IN-1) << "\n";
-  }
+void L1GctJetFinder::fetchEdgeStripsInput() {
+  fetchScInput(m_sourceCards.at(3), 2, -1);
+  fetchScInput(m_sourceCards.at(2), 3, -1);
+  fetchNeighbourScInput(m_sourceCards.at(4), -1);
+  fetchScInput(m_sourceCards.at(8), 2, this->nCols());
+  fetchScInput(m_sourceCards.at(7), 3, this->nCols());
+  fetchNeighbourScInput(m_sourceCards.at(6), this->nCols());
 }
 
 void L1GctJetFinder::process() 
+{
+  findJets();
+  sortJets();
+  doEnergySums();
+}
+
+void L1GctJetFinder::findJets() 
 {
   UShort jetNum = 0; //holds the number of jets currently found
   for(UShort column = 1; column <=2; ++column)  //Find jets in the central search region
@@ -221,7 +77,7 @@ void L1GctJetFinder::process()
       {
         assert(jetNum < MAX_JETS_OUT);
                 
-        m_outputJets.at(jetNum).setRank(m_jetEtCalLut->convertToSixBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), (row-1)));
+        m_outputJets.at(jetNum).setRawsum(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)));
 	// Use the jetFinder m_id to assign the eta and phi in global coordinates here
         m_outputJets.at(jetNum).setEta(map->globalEta((row-1),   (m_id/N_JF_PER_WHEEL)));
         m_outputJets.at(jetNum).setPhi(map->globalPhi((column-1),(m_id%N_JF_PER_WHEEL)));
@@ -237,17 +93,6 @@ void L1GctJetFinder::process()
       }
     }
   }
-  //presort the jets into decending order of energy
-  sort(m_outputJets.begin(), m_outputJets.end(), L1GctJet::rankGreaterThan());
-   
-  //calculate the raw Et strip sums
-  m_outputEtStrip0 = calcEtStrip(0);
-  m_outputEtStrip1 = calcEtStrip(1);
-
-  //calculate the Ht
-  m_outputHt = calcHt();
-    
-  return;
 }
 
 // Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
@@ -366,43 +211,3 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
   return partial[0] || partial[1] || partial[2];
 }
 
-// Calculates total (raw) energy in a phi strip
-L1GctScalarEtVal L1GctJetFinder::calcEtStrip(const UShort strip) const
-{
-  if (strip !=0 && strip != 1) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJetFinder::calcEtStrip() has been called with strip number "
-      << strip << "; should be 0 or 1 \n";
-  } 
-  // Add the Et values from regions 13 to 23 for strip 0,
-  //     the Et values from regions 25 to 35 for strip 1.
-  unsigned et = 0;
-  bool of = false;
-  for (UShort i=1; i < COL_OFFSET; ++i) {
-    et += m_inputRegions.at((COL_OFFSET*(strip+1)+i)).et();
-    of |= m_inputRegions.at((COL_OFFSET*(strip+1)+i)).overFlow();
-  }
-  L1GctScalarEtVal temp(et);
-  temp.setOverFlow(temp.overFlow() || of);
-  return temp;
-}
-
-// Calculates total calibrated energy in jets (Ht) sum
-L1GctScalarEtVal L1GctJetFinder::calcHt() const
-{    
-  unsigned ht = 0;
-  for(UShort i=0; i < MAX_JETS_OUT; ++i)
-  {
-    // Only sum Ht for valid jets
-    if (!m_outputJets.at(i).isNullJet()) {
-      UShort eta = static_cast<UShort>(m_outputJets.at(i).jfLocalEta());
-      UShort phi = static_cast<UShort>(m_outputJets.at(i).jfLocalPhi());
-
-      UShort centreIndex = ((phi+1)*COL_OFFSET) + (eta+1);
-      bool hfBoundary = (eta == (COL_OFFSET-2));
-      ht += m_jetEtCalLut->convertToTenBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), eta);
-    }
-  }
-  L1GctScalarEtVal temp(ht);
-  return temp;
-}

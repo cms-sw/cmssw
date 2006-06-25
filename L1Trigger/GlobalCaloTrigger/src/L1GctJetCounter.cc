@@ -107,7 +107,7 @@ void L1GctJetCounter::fetchInput()
 	<< "current jetnum is " << jetnum << " about to add " << MAX_JETS_PER_LEAF << endl;
     }
     L1GctJetLeafCard* jlc = m_jetLeafCards.at(i);
-    for (int j=0; j<L1GctJetFinder::MAX_JETS_OUT; j++) {
+    for (unsigned j=0; j<L1GctJetFinder::MAX_JETS_OUT; j++) {
       m_jets.at(jetnum++) = jlc->getOutputJetsA().at(j);
       m_jets.at(jetnum++) = jlc->getOutputJetsB().at(j);
       m_jets.at(jetnum++) = jlc->getOutputJetsC().at(j);
