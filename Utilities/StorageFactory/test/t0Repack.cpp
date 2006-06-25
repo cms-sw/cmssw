@@ -10,9 +10,113 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <queue>
 #include <fstream>
 #include <sstream>
+#include <memory>
+# include <boost/shared_ptr.hpp>
+# include "SealBase/IOError.h"
 
+namespace T0Repack {
+
+  class
+  Error : public seal::IOError
+  {
+  public:
+    Error (const char *context);
+    
+    virtual std::string	explainSelf (void) const;
+    virtual seal::Error *clone (void) const;
+    virtual void	rethrow (void);
+    
+  private:
+    
+  };
+
+  /* read full file from seal:storage and save it in a string
+   */
+  class InputStream : public  std::istringstream {
+  public:
+    InputStream(const std::string & fURL);
+
+  private:
+    std::string m_fileURL;		
+
+  };
+
+  struct Buffer {
+    const char * buffer;
+    seal::IOSize bufferSize;
+
+  };
+
+  class OutputEventFile {
+  public:
+    // construct and open (throws on error, clean before throwing ...)
+    OutputEventFile(const std::string & fURL);
+    // close and clean
+    ~OutputEventFile();
+    // sequential write
+    void put(const Buffer & event);
+    // total amount of byte written
+    inline seal::IOSize size() const { return m_size;}
+    //
+    inline const std::string & fileURL() const { return  m_fileURL;}
+  private:
+    std::string m_fileURL;		
+    std::auto_ptr<seal::Storage> storage;
+    seal::IOSize m_size;
+  };
+
+  /* owns last event */
+  class InputEventFile {
+  public:
+    // construct and open (throws on error, clean before throwing ...)
+    InputEventFile(const std::string & fURL);
+    // close and clean
+    ~InputEventFile();
+    // random read
+    Buffer get(seal::IOOffset location, seal::IOSize bufferSize);
+    // total amount of byte read
+    inline seal::IOSize size() const { return m_size;}
+    //
+    inline const std::string & fileURL() const { return  m_fileURL;}
+
+  private:
+    std::string m_fileURL;		
+    std::auto_ptr<seal::Storage> storage;
+    seal::IOSize m_size;
+    std::vector<char> vbuf;
+  };
+
+  class Sequencer {
+  public:
+    Sequencer(std::string& configFileName);
+
+    void parse();
+
+  private:
+    enum {N_Actions=4};
+    enum Actions {OPEN, CLOSE, INDEX, SELECT}; 
+    static std::string ActionName[N_Actions];
+
+    void oneStep();
+    void parseIndex(const std::string & indexFileName);
+    
+    struct Step {
+      Actions action;
+      std::string value;
+    };
+
+
+  private:
+    int m_selectedStream;
+    std::queue<Step> m_steps;
+    std::vector<boost::shared_ptr<OutputEventFile> > m_output;
+  };
+
+
+}
 
 
 using namespace seal;
