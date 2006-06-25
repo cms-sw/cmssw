@@ -11,6 +11,7 @@
    <use name=RecoTracker/TkDetLayers>
    <use name=DataFormats/SiStripDetId>
    <use name=RecoTracker/GeometryESProducer>
+   <use name=TrackingTools/TransientTrackingRecHit>
  </export>
  <use name=clhep>
  <use name=boost>
@@ -23,3 +24,4 @@
  <use name=FWCore/Framework> 
  <use name=DataFormats/SiStripDetId>
  <use name=RecoTracker/GeometryESProducer>
+ <use name=TrackingTools/TransientTrackingRecHit>
