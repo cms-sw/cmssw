@@ -140,9 +140,9 @@ namespace edmtestp
           throw cms::Exception("NoData","EmptyDesc");
 
         FDEBUG(5) << "Prov:"
-             << " " << spi->desc()->fullClassName_
-             << " " << spi->desc()->productInstanceName_
-             << " " << spi->desc()->productID_
+             << " " << spi->desc()->className()
+             << " " << spi->desc()->productInstanceName()
+             << " " << spi->desc()->productID()
              << " " << spi->prov()->productID_
              << endl;
 
@@ -163,7 +163,7 @@ namespace edmtestp
         auto_ptr<Provenance> aprov(new Provenance);
         aprov->event   = *(aedesc.get());
         aprov->product = *(adesc.get());
-        if(aprov->creatorStatus() == BranchEntryDescription::Success) {
+        if(aprov->event.status == BranchEntryDescription::Success) {
           FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
           FDEBUG(10) << "addgroup next " << aprov->event.productID_ << endl;
           ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));
@@ -188,7 +188,7 @@ namespace edmtestp
     FDEBUG(6) << "mergeWithRegistry: Product List: " << endl;
     for(; i != e; ++i) {
         reg.copyProduct(*i);
-        FDEBUG(6) << "StreamInput prod = " << i->fullClassName_ << endl;
+        FDEBUG(6) << "StreamInput prod = " << i->className() << endl;
     }
 
     // not needed any more
@@ -201,7 +201,7 @@ namespace edmtestp
 
     for(; i != e; ++i) {
         //pi->init();
-        string real_name = edm::wrappedClassName(i->fullClassName_);
+        string real_name = edm::wrappedClassName(i->className());
         FDEBUG(6) << "declare: " << real_name << endl;
         edm::loadCap(real_name);
     }
@@ -213,7 +213,7 @@ namespace edmtestp
 
     for(; i != e; ++i) {
         //pi->init();
-        string real_name = edm::wrappedClassName(i->fullClassName_);
+        string real_name = edm::wrappedClassName(i->className());
         FDEBUG(6) << "BuildReadData: " << real_name << endl;
         edm::doBuildRealData(real_name);
     }

@@ -66,7 +66,7 @@ namespace stor
 
     for(;pi!=pe;++pi) {
       //pi->second.init();
-      std::string real_name = edm::wrappedClassName(pi->second.fullClassName_);
+      std::string real_name = edm::wrappedClassName(pi->second.className());
       //FDEBUG(6) << "declare: " << real_name << std::endl;
       edm::loadCap(real_name);
     }
@@ -80,7 +80,7 @@ namespace stor
 
     for(;pi!=pe;++pi) {
       //pi->second.init();
-      std::string real_name = edm::wrappedClassName(pi->second.fullClassName_);
+      std::string real_name = edm::wrappedClassName(pi->second.className());
       //FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
       edm::doBuildRealData(real_name);
     }

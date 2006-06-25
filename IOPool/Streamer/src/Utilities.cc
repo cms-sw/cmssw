@@ -106,10 +106,10 @@ namespace edm
 	    << "A new product registry was received during the "
 	    << "running state with entries that were not present "
 	    << "in the original registry.\n"
-	    << "The new type is " << i->fullClassName_ << "\n";
+	    << "The new type is " << i->className() << "\n";
 #endif
 	  FDEBUG(6) << "Inconsistent Registry: new type is "
-		    << i->fullClassName_ << "\n";
+		    << i->className() << "\n";
 	}
     }
 
@@ -127,7 +127,7 @@ namespace edm
     FDEBUG(6) << "mergeWithRegistry: Product List: " << endl;
     for(; i != e; ++i) {
 	reg.copyProduct(*i);
-	FDEBUG(6) << "StreamInput prod = " << i->fullClassName_ << endl;
+	FDEBUG(6) << "StreamInput prod = " << i->className() << endl;
     }
 
     // not needed any more
@@ -140,7 +140,7 @@ namespace edm
 
     for(; i != e; ++i) {
 	//pi->init();
-	string real_name = wrappedClassName(i->fullClassName_);
+	string real_name = wrappedClassName(i->className());
 	FDEBUG(6) << "declare: " << real_name << endl;
 	edm::loadCap(real_name);
     }
@@ -152,7 +152,7 @@ namespace edm
 
     for(; i != e; ++i) {
 	//pi->init();
-	string real_name = wrappedClassName(i->fullClassName_);
+	string real_name = wrappedClassName(i->className());
 	FDEBUG(6) << "BuildReadData: " << real_name << endl;
 	edm::doBuildRealData(real_name);
     }
@@ -212,10 +212,10 @@ namespace edm
 	  throw cms::Exception("NoData","EmptyDesc");
 
 	FDEBUG(5) << "Prov:"
-	     << " " << spi->desc()->fullClassName_
-             << " " << spi->desc()->productInstanceName_
+	     << " " << spi->desc()->className()
+             << " " << spi->desc()->productInstanceName()
 	  // << " " << spi->prod()->id()
-	     << " " << spi->desc()->productID_
+	     << " " << spi->desc()->productID()
 	     << " " << spi->prov()->productID_
 	     << endl;
 
@@ -236,7 +236,7 @@ namespace edm
 	auto_ptr<Provenance> aprov(new Provenance);
 	aprov->event   = *(aedesc.get());
 	aprov->product = *(adesc.get());
-        if(aprov->creatorStatus() == BranchEntryDescription::Success) {	
+        if(aprov->event.status == BranchEntryDescription::Success) {	
 	  FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
 	  FDEBUG(10) << "addgroup next " << aprov->event.productID_ << endl;
 	  ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));

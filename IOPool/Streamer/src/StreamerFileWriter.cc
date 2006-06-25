@@ -128,7 +128,7 @@ void StreamerFileWriter::serializeRegistry(Selections const& prods)
     for(;i!=e;++i) 
       {
 	sd.descs_.push_back(**i);
-	FDEBUG(9) << "StreamOutput got product = " << (*i)->fullClassName_
+	FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
 		  << endl;
       }
 
@@ -229,7 +229,7 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
 
     for(; i != ie; ++i) {
       BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID_;
+      ProductID const& id = desc.productID();
 
       if (id == ProductID()) {
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
@@ -237,7 +237,7 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
       if (group.get() == 0) {
-        std::string const& name = desc.fullClassName_;
+        std::string const& name = desc.className();
         std::string const className = wrappedClassName(name);
         TClass *cp = gROOT->GetClass(className.c_str());
 	if (cp == 0) {
@@ -263,7 +263,7 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
     FDEBUG(11) << "-----Dump start" << endl;
     for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
       std::cout << "Prov:"
-	   << " " << pii->desc()->fullClassName_
+	   << " " << pii->desc()->className()
 	   << " " << pii->desc()->productID_
 	   << endl;      
     FDEBUG(11) << "-----Dump end" << endl;
