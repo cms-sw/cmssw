@@ -4,34 +4,28 @@
 /** \class HLTFiltCand
  *
  *  
- *  This class is an EDFilter implementing a very basic HLT trigger
- *  acting on candidates, requiring a g/e/m/j tuple above pt cuts
+ *  This class is an HLTFilter (-> EDFilter) implementing a very basic
+ *  HLT trigger acting on candidates, requiring a g/e/m/j tuple above
+ *  pt cuts
  *
- *  $Date: 2006/06/24 21:04:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/25 19:03:02 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
 
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 //
 // class decleration
 //
 
-class HLTFiltCand : public edm::EDFilter {
-
-#include "HLTrigger/HLTcore/interface/HLTadd.h"
+class HLTFiltCand : public HLTFilter {
 
    public:
       explicit HLTFiltCand(const edm::ParameterSet&);
       ~HLTFiltCand();
-
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

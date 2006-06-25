@@ -8,6 +8,7 @@
 #include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
 #include "HLTrigger/HLTcore/interface/HLTMakePathObject.h"
 #include "HLTrigger/HLTcore/interface/HLTMakeGlobalObject.h"
+#include "HLTrigger/HLTcore/interface/HLTMakeSummaryObjects.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTPrescaler)
@@ -17,3 +18,4 @@ DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
 DEFINE_ANOTHER_FWK_MODULE(HLTMakePathObject)
 DEFINE_ANOTHER_FWK_MODULE(HLTMakeGlobalObject)
+DEFINE_ANOTHER_FWK_MODULE(HLTMakeSummaryObjects)

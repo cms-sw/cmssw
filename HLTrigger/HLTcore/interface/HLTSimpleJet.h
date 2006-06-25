@@ -4,33 +4,28 @@
 /** \class HLTSimpleJet
  *
  *  
- *  This class is an EDFilter implementing a very basic HLT trigger
- *  for jets, cutting on the number of jets above a pt threshold
+ *  This class is an HLTFilter (-> EDFilter) implementing a very basic
+ *  HLT trigger for jets, cutting on the number of jets above a pt
+ *  threshold
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/24 21:04:46 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 //
 // class decleration
 //
 
-class HLTSimpleJet : public edm::EDFilter {
-
-#include "HLTrigger/HLTcore/interface/HLTadd.h"
+class HLTSimpleJet : public HLTFilter {
 
    public:
       explicit HLTSimpleJet(const edm::ParameterSet&);
       ~HLTSimpleJet();
-
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

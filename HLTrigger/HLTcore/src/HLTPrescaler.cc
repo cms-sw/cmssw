@@ -9,6 +9,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps):
   n_(ps.getParameter<unsigned int>("prescaleFactor")),
   count_()
 {
+  if (n_==0) n_=1; // accept all!
   if (b_) produces<reco::HLTFilterObjectWithRefs>();
 }
     
@@ -24,7 +25,7 @@ bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
 
   // prescaler decision
   ++count_;
-  bool accept(count_%n_ == 0);
+  const bool accept(count_%n_ == 0);
 
   // construct and place filter object if requested
   if (b_) {
