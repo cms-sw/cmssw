@@ -1,6 +1,4 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-//#include "CommonReco/Propagators/interface/GtfPropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 //#include "RecoTracker/TkSeedGenerator/interface/TrivialVertex.h"
@@ -11,6 +9,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace std;
@@ -65,20 +64,17 @@ construct( const TrackingRecHit* outerHit,
 			     initialError( outerHit, innerHit, 
 					   vertexPos, vertexErr));
 
+    
+    edm::ESHandle<Propagator>  thePropagatorHandle;
+    iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
+    const Propagator*  thePropagator = &(*thePropagatorHandle);
 
-
-//MP
-//    GtfPropagator thePropagator( alongMomentum);
-//    const MagneticField  *ppl;
-    edm::ESHandle<MagneticField> pSetup;
-    iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-    AnalyticalPropagator  thePropagator(&(*pSetup), alongMomentum);
 
 
     KFUpdator     theUpdator;
 
     //   TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit.geographicalId())->surface());
-    const TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
+    const TSOS innerState = thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
     if ( !innerState.isValid()) 
       edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
 
@@ -107,11 +103,11 @@ construct( const TrackingRecHit* outerHit,
     const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
 
     TSOS outerState = 
-      thePropagator.propagate( innerUpdated,
-			       tracker->idToDet(outerHit->geographicalId())->surface());
+      thePropagator->propagate( innerUpdated,
+				tracker->idToDet(outerHit->geographicalId())->surface());
  
     if ( !outerState.isValid()) 
-     edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
+     edm::LogError("Propagation") << " SeedFromConsecutiveHits second propagation failed ";
   
     outrhit=theBuilder.product()->build(outerHit);
 
@@ -128,6 +124,7 @@ construct( const TrackingRecHit* outerHit,
     _hits.push_back(innerHit->clone());
     _hits.push_back(outerHit->clone());
      PTraj=  transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId());
+
 }
 
 
