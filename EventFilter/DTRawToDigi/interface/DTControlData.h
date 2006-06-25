@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/13 17:14:28 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -19,6 +19,8 @@
 using namespace std;
 
 typedef pair<int, DTTDCMeasurementWord> DTTDCData;
+typedef pair<int, DTTDCErrorWord> DTTDCError;
+typedef pair<DTLocalTriggerDataWord, int> DTSectorCollectorData;
 
 class DTROS25Data {
 
@@ -40,7 +42,8 @@ public:
   inline void addROBTrailer( const DTROBTrailerWord & word)  { theROBTrailers.push_back(word); }
   inline void addTDCMeasurement( const DTTDCMeasurementWord & word)  { theTDCMeasurements.push_back(word); }
   inline void addTDCData( const DTTDCData & tdcData)  { theTDCData.push_back(tdcData); }
-
+  inline void addTDCError( const DTTDCError & tdcError)  { theTDCError.push_back(tdcError); }
+  inline void addSCData ( const DTSectorCollectorData & scData) { theSCData.push_back(scData); }
 
   /// Getters ////////////////////////
   inline int getROSID() const { return theROSId; } 
@@ -51,6 +54,8 @@ public:
   inline const vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
   inline const vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
   inline const vector<DTTDCData>& getTDCData() const {return theTDCData;}
+  inline const vector<DTTDCError>& getTDCError() const {return theTDCError;}
+  inline const vector<DTSectorCollectorData>& getSCData() const {return theSCData;}
 
 private:
 
@@ -62,6 +67,8 @@ private:
   vector<DTROBTrailerWord> theROBTrailers;
   vector<DTTDCMeasurementWord> theTDCMeasurements;
   vector<DTTDCData> theTDCData;
+  vector<DTTDCError> theTDCError;
+  vector<DTSectorCollectorData> theSCData;
 
 };
 

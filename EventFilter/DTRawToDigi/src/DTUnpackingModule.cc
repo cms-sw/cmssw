@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/24 17:05:25 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/06/06 15:22:30 $
+ *  $Revision: 1.18 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -34,14 +34,16 @@ using namespace std;
 #include <iostream>
 
 
-#define SLINK_WORD_SIZE 8
+#define SLINK_WORD_SIZE 8 
 
 
 DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
   unpacker(0), numOfEvents(0)
 {
-  const string &  dataType = ps.getParameter<string>("dataType");
 
+  eventScanning = ps.getUntrackedParameter<int>("eventScanning",1000);
+
+  const string &  dataType = ps.getParameter<string>("dataType");
   if (dataType == "DDU") {
     unpacker = new DTDDUUnpacker(ps);
   } else if (dataType == "ROS8") {
@@ -92,7 +94,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
  				 feddata.size(), id, mapping, product);
       
       numOfEvents++;      
-      if (numOfEvents%1000 == 0) 
+      if (numOfEvents%eventScanning == 0) 
 	cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
       
     }

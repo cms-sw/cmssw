@@ -4,8 +4,8 @@
 /** \class DTROChainCoding
  *  A class for handling the DT Read-out chain.
  *
- *  $Date: 2006/04/13 17:13:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/30 08:29:06 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -98,6 +98,11 @@ public:
   inline int getChannel() const { return (code >> CHANNEL_SHIFT) & CHANNEL_MASK; }
   inline int getChannelID() const { return (code >> CHANNEL_SHIFT) ; }
 
+  /// SC getters: same as ROS getters (SC data goes in the corresponding ROS)
+  inline int getSC() const { return (code >> ROS_SHIFT) & ROS_MASK; }
+  inline int getSCID() const { return (code >> ROS_SHIFT) ; }
+
+
 private:
 
   uint32_t code;
@@ -106,7 +111,7 @@ private:
 
   // ddu bit are the last ones. I DONT CARE if the ID is > than 730 (I always get the lsb)
   static const int  DDU_SHIFT = 16;
-  static const int  DDU_MASK = 0x8;
+  static const int  DDU_MASK = 0x3FF;
 
   static const int  ROS_SHIFT = 12;
   static const int  ROS_MASK = 0xF;

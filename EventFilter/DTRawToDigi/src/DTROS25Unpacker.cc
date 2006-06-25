@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/12 13:39:45 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/06/14 09:22:55 $
+ *  $Revision: 1.18 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -136,9 +136,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
             // Eventual TDC Error 
             if ( DTROSWordType(word).type() == DTROSWordType::TDCError) {
               DTTDCErrorWord dtTDCErrorWord(word);
+              DTTDCError tdcError(robID,dtTDCErrorWord);
+              controlData.addTDCError(tdcError);
+
               DTTDCErrorNotifier dtTDCError(dtTDCErrorWord);
               dtTDCError.print();
             }           
+
             // Eventual TDC Debug
             else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
               cout<<"TDC Debugging"<<endl;
@@ -149,7 +153,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 
               DTTDCMeasurementWord tdcMeasurementWord(word);
-              controlData.addTDCMeasurement(tdcMeasurementWord);
               DTTDCData tdcData(robID,tdcMeasurementWord);
               controlData.addTDCData(tdcData);
               
@@ -212,6 +215,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
             wordCounter++; word = index[wordCounter];
   	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
 	      DTLocalTriggerDataWord scDataWord(word);
+
+	      DTSectorCollectorData scData(scDataWord, bx_counter);
+	      controlData.addSCData(scData);
+
 	      if (debug) {
 		//cout<<"[DTROS25Unpacker]: SCData bits "<<scDataWord.SCData()<<endl;
 		if (scDataWord.hasTrigger(0)) 

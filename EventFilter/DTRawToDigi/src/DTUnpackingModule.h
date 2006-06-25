@@ -4,8 +4,8 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.5 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
@@ -32,6 +32,8 @@ class DTUnpackingModule: public edm::EDProducer {
   DTUnpacker * unpacker;
   
   int numOfEvents;
+
+  int eventScanning;
 
 };
 
