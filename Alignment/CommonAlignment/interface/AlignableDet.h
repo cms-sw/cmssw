@@ -32,17 +32,6 @@ public:
   /// Alignable object identifier
   virtual int alignableObjectId () const { return AlignableObjectId::AlignableDet; }
 
-  /// Movement with respect to the global reference frame. 
-  /// The corresponding Det is not moved (done via the components = DetUnits) 
-  virtual void move( const GlobalVector& displacement ) { moveAlignableOnly(displacement); }
-
-  /// Rotation with respect to the global reference frame. 
-  /// The corresponding Det is not rotated (done via the components = DetUnits)
-  virtual void rotateInGlobalFrame( const RotationType& rotation ) 
-  { 
-	rotateAlignableOnly(rotation); 
-  }
-
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
 

@@ -31,7 +31,8 @@ void AlignableComposite::move( const GlobalVector& displacement )
   moveAlignableOnly( displacement );
 
   // Movement is done through the DetPositioner interface
-  if ( this->geomDet() ) this->moveGeomDet( *theGeomDet, displacement );
+  // If only one component, this is a detunit and the geomdet has been moved in components
+  if ( this->geomDet() && this->size()>1 ) this->moveGeomDet( *theGeomDet, displacement );
 
 }
 
@@ -68,8 +69,9 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
   rotateAlignableOnly( rotation );
 
-  // Rotation is performed through the DetPostion interface
-  if ( this->geomDet() )  this->rotateGeomDet( *theGeomDet, rotation );
+  // Rotation is performed through the DetPositioner interface
+  // If only one component, this is a detunit and the geomdet has been rotated in components
+  if ( this->geomDet() && this->size()>1 )  this->rotateGeomDet( *theGeomDet, rotation );
 
 }
 
