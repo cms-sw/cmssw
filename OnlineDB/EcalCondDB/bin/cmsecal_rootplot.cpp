@@ -119,6 +119,29 @@ public:
   
   void draw()
   {
+    for (int i=0; i<m_nfields; i++) {
+      if (m_mins[i] == m_maxs[i]) {
+	m_mins[i] -= m_mins[i]*(0.05);
+	m_maxs[i] += m_mins[i]*(0.05);
+      }
+    }
+
+    if (m_debug) {
+      cout << "[draw()]:" << endl;
+      cout << "  m_type:          " << m_type << endl;
+      cout << "  m_outputFormat:  " <<  m_outputFormat << endl;
+      cout << "  m_outputFile:    " <<  m_outputFile << endl;
+      cout << "  m_outputRoot:    " <<  m_outputRoot << endl;
+      cout << "  m_title:         " <<  m_title << endl;
+      cout << "  m_xtitle:        " <<  m_xtitle << endl;
+      cout << "  m_ytitle:        " << m_ytitle << endl;
+      cout << "  m_xAxisType:     " <<  m_xAxisType << endl;
+      cout << "  m_nfields:       " <<  m_nfields << endl;
+      cout << "  m_nbins[]:       " <<  m_nbins[0] << " " << m_nbins[1] << endl;
+      cout << "  m_mins[]:        " << m_mins[0] << " " << m_mins[1] << endl;
+      cout << "  m_maxs[]:        " << m_maxs[0] << " " << m_maxs[1] << endl;
+    }
+
     m_tree->Write();
 
     if (m_type == "TH1F") {
