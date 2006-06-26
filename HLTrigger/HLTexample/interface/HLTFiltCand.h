@@ -8,8 +8,8 @@
  *  HLT trigger acting on candidates, requiring a g/e/m/j tuple above
  *  pt cuts
  *
- *  $Date: 2006/06/25 19:03:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/25 22:25:38 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *

@@ -2,14 +2,14 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/18 17:44:04 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/24 21:04:47 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFiltCand.h"
+#include "HLTrigger/HLTexample/interface/HLTFiltCand.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -19,7 +19,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,7 +44,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
      " g: " << photTag_.encode() << " " << phot_pt_ << 
      " e: " << elecTag_.encode() << " " << elec_pt_ << 
      " m: " << muonTag_.encode() << " " << muon_pt_ << 
-     " j: " << jetsTag_.encode() << " " << jets_pt_  ;
+     " j: " << jetsTag_.encode() << " " << jets_pt_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -68,9 +67,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-   // All filters must create and fill a filter object
-   // recording any reconstructed physics objects 
-   // satisfying this filter
+   // All HLT filters must create and fill an HLT filter object,
+   // recording any reconstructed physics objects satisfying (or not)
+   // this HLT filter, and place it in the Event.
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs> 

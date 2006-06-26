@@ -2,21 +2,19 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/18 17:44:04 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/24 21:04:47 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
+#include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
 
 #include "FWCore/Framework/interface/Handle.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,6 +49,10 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
+
+   // All HLT filters must create and fill an HLT filter object,
+   // recording any reconstructed physics objects satisfying (or not)
+   // this HLT filter, and place it in the Event.
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>

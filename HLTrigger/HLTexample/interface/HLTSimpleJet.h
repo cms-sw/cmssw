@@ -8,8 +8,8 @@
  *  HLT trigger for jets, cutting on the number of jets above a pt
  *  threshold
  *
- *  $Date: 2006/06/24 21:04:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/25 22:25:38 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
