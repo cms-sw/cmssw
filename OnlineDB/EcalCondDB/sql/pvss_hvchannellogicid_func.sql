@@ -1,10 +1,12 @@
 CREATE OR REPLACE
 function HVCHANNELLOGICID (DPEName in varchar2) return varchar2 is
-	alias varchar2(1000);
-	superModuleNumber number;
-	moduleNumber number;
-	channelNumber number;
-	invalid_channel_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
+
+alias varchar2(1000);
+superModuleNumber number;
+moduleNumber number;
+channelNumber number;
+invalid_channel_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
+
 begin
 /*
 For the HV channels the logic_ids are
@@ -16,17 +18,20 @@ CC = channel number 1-34
 
  source string will by something like ECAL_HV/SM11/M1/channel04
 */
-	alias:=getAliasForDevice(DPEName);
-	superModuleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+'));
-	moduleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,2));
-	channelNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,3));
-	if superModuleNumber is null 
-           or channelNumber is null 
-           or superModuleNumber>36 
-           or channelNumber>34 then
-		raise invalid_channel_name;
-	end if;
-	return 1051000000+10000*superModuleNumber+channelNumber;
+  alias:=getAliasForDevice(DPEName);
+
+  superModuleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+'));
+  moduleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,2));
+  channelNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,3));
+
+  if superModuleNumber is null 
+  or channelNumber is null 
+  or superModuleNumber>36 
+  or channelNumber>34 then
+    raise invalid_channel_name;
+  end if;
+
+  return 1051000000+10000*superModuleNumber+channelNumber;
 end;
 /
 show errors;
