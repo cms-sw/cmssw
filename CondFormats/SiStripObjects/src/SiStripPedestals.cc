@@ -50,8 +50,8 @@ void SiStripPedestals::setData(float ped, float lth, float hth, std::vector<char
   ::memcpy((void*)(&vped[vped.size()-3]),(void*)(&data),3);
 }
 
-float SiStripPedestals::getPed(const int& strip, const Range& range) const {
-  if (strip>=range.second-range.first){
+float SiStripPedestals::getPed(const uint16_t& strip, const Range& range) const {
+  if (strip>=(range.second-range.first)/3){
     throw cms::Exception("CorruptedData")
       << "[SiStripPedestals::getPed] looking for SiStripPedestals for a strip out of range: strip " << strip;
   }
@@ -59,8 +59,8 @@ float SiStripPedestals::getPed(const int& strip, const Range& range) const {
   return (s.ped & 0x3FF);
 }
 
-float SiStripPedestals::getLowTh(const int& strip, const Range& range) const {
-  if (strip>=range.second-range.first){
+float SiStripPedestals::getLowTh(const uint16_t& strip, const Range& range) const {
+  if (strip>=(range.second-range.first)/3){
     throw cms::Exception("CorruptedData")
       << "[SiStripPedestals::getLowTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
   }
@@ -68,8 +68,8 @@ float SiStripPedestals::getLowTh(const int& strip, const Range& range) const {
   return (s.lth & 0x3F)/5.0;
 }
 
-float SiStripPedestals::getHighTh(const int& strip, const Range& range) const {
-  if (strip>=range.second-range.first){
+float SiStripPedestals::getHighTh(const uint16_t& strip, const Range& range) const {
+  if (strip>=(range.second-range.first)/3){
     throw cms::Exception("CorruptedData")
       << "[SiStripPedestals::getHighTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
   }

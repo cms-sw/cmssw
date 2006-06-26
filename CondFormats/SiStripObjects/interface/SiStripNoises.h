@@ -35,10 +35,10 @@ class SiStripNoises {
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
-  inline  float   getNoise(short Data)   const { return static_cast<float> (abs(Data)/10.0); }
-  inline  bool    getDisable(short Data) const {   return ( (Data>0) ? false : true ); }
-  inline  short   setSiStripNoise(float noise_,bool disable_) {   return  ( disable_ ? -1 : 1 ) *  (static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF) ;}
-
+  float   getNoise  (const uint16_t& strip, const Range& range) const;
+  bool    getDisable(const uint16_t& strip, const Range& range) const;
+  void    setData(float noise_, bool disable_, std::vector<short>& vped);
+ 
  private:
   std::vector<short> v_noises; //@@@ blob streaming doesn't work with uint16_t and with SiStripNoises::Data
   std::vector<DetRegistry> indexes;

@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 bool SiStripNoises::put(const uint32_t& DetId, Range input) {
   // put in SiStripNoises of DetId
@@ -37,5 +38,24 @@ void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
+float SiStripNoises::getNoise(const uint16_t& strip, const Range& range) const {
+  if (strip>=range.second-range.first){
+    throw cms::Exception("CorruptedData")
+      << "[SiStripNoises::getNoise] looking for SiStripNoises for a strip out of range: strip " << strip;
+  }
+
+  return static_cast<float> (abs(*(range.first+strip))/10.0);
+}
+
+bool SiStripNoises::getDisable(const uint16_t& strip, const Range& range) const {
+  if (strip>=range.second-range.first){
+    throw cms::Exception("CorruptedData")
+      << "[SiStripNoises::getDisable] looking for SiStripNoises for a strip out of range: strip " << strip;
+  }
+  return *(range.first+strip) > 0 ? false : true ;
+}
 
 
+void SiStripNoises::setData(float noise_, bool disable_, std::vector<short>& vped){
+  vped.push_back(( disable_ ? -1 : 1 ) *  (static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF)) ;
+}

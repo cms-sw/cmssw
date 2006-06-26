@@ -41,9 +41,9 @@ class SiStripPedestals {
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
 
   void  setData(float ped, float lth, float hth, std::vector<char>& vped);
-  float getPed   (const int& strip, const Range& range) const;
-  float getLowTh (const int& strip, const Range& range) const;
-  float getHighTh(const int& strip, const Range& range) const;
+  float getPed   (const uint16_t& strip, const Range& range) const;
+  float getLowTh (const uint16_t& strip, const Range& range) const;
+  float getHighTh(const uint16_t& strip, const Range& range) const;
 
  private:
   std::vector<char> v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
