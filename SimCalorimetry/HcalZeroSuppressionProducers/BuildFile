@@ -1,0 +1,14 @@
+<flags SEAL_PLUGIN_NAME="SimCalorimetryHcalZeroSuppressionProducers">
+<use name=SimCalorimetry/HcalZeroSuppressionAlgos>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=boost>
+
+<export>
+  <lib name=SimCalorimetryHcalZeroSuppressionAlgos>
+  <use name=SimCalorimetry/HcalZeroSuppressionAlgos>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=boost>
+</export>
+
