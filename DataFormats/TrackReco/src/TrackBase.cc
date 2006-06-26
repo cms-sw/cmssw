@@ -13,13 +13,15 @@ TrackBase::TrackBase( double chi2, double ndof,
       covariance_[ idx ++ ] = cov( i, j );
 }
 
-void TrackBase::fill( ParameterVector & v ) const {
+TrackBase::ParameterVector & TrackBase::fill( ParameterVector & v ) const {
   std::copy( parameters_.begin(), parameters_.end(), v.begin() );
+  return v;
 }
 
-void TrackBase::fill( CovarianceMatrix & v ) const {
+TrackBase::CovarianceMatrix & TrackBase::fill( CovarianceMatrix & v ) const {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       v( i, j ) = covariance_[ idx ++ ];
+  return v;
 }

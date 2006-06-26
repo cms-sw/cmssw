@@ -84,7 +84,7 @@ namespace reco {
     /// return a SVector
     ParameterVector parameters() const { ParameterVector v; fill( v ); return v; }
     /// fill a SVector
-    void fill( ParameterVector & v ) const;
+    ParameterVector & fill( ParameterVector & v ) const;
     
     /// (i,j)-th element of covarianve matrix ( i, j = 0, ... 4 )
     double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
@@ -106,7 +106,7 @@ namespace reco {
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
-    void fill( CovarianceMatrix & v ) const;
+   CovarianceMatrix & fill( CovarianceMatrix & v ) const;
     
     /// momentum vector magnitude
     double p() const { return momentum().R(); }
