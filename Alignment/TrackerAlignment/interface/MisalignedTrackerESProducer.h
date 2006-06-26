@@ -35,6 +35,11 @@ private:
   
   boost::shared_ptr<TrackerGeometry> theTracker;
 
+  struct lessDetId : public std::binary_function<AlignTransform,AlignTransform,bool>
+  {
+	bool operator()( AlignTransform a, AlignTransform b ) { return a.rawId() < b.rawId(); }
+  };
+
 };
 
 

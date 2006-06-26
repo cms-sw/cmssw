@@ -90,8 +90,9 @@ private:
   // All parameters (see AlignableTrackerModifier::init() for definitions)
   std::string distribution_;
   bool   random_, gaussian_, setError_;
+  bool   setRotations_,setTranslations_;
   long   seed_;
-  double scaleError_;
+  double scaleError_,scale_;
   double phiX_, phiY_, phiZ_;
   double localX_, localY_, localZ_;
   double dX_, dY_, dZ_;

@@ -30,7 +30,7 @@
 /// Misalignment scenarios.
 
 #include <memory>
-
+#include <algorithm>
 
 //__________________________________________________________________________________________________
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
@@ -89,10 +89,11 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 									   << (*it).rawId() << " " << (*it).translation();
 	}
 
-
   // Write alignments to DB
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{
+
+	  // Call service
 	  edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	  if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
@@ -101,8 +102,9 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
 	  
-	  // Retrieve and store
+	  // Retrieve, sort and store
 	  alignments = theAlignableTracker->alignments();
+	  std::sort( alignments->m_align.begin(), alignments->m_align.end(), lessDetId() );
 	  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
 														   poolDbService->endOfTime(),

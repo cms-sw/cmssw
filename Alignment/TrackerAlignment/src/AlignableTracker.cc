@@ -199,7 +199,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
   theInnerHalfBarrels.push_back( backwardHalf );
 
   theTrackerComponents.insert( theTrackerComponents.end(), 
-							   theInnerHalfBarrels.begin(), theInnerHalfBarrels.end() );
+			       theInnerHalfBarrels.begin(), theInnerHalfBarrels.end() );
 
 }
 

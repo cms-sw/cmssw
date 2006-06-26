@@ -25,6 +25,9 @@ void AlignableTrackerModifier::init_( void )
   // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)
   distribution_ = "";        // Switch for distributions ("fixed","flat","gaussian")
   setError_     = false;     // Apply alignment errors
+  setRotations_ = true;      // Apply rotations
+  setTranslations_ = true;   // Apply translations
+  scale_        = 1.;        // Scale to apply to all movements
   scaleError_   = 1.;        // Scale to apply to alignment errors
   phiX_         = 0.;        // Rotation angle around X [rad]
   phiY_         = 0.;        // Rotation angle around Y [rad]
@@ -49,9 +52,13 @@ void AlignableTrackerModifier::init_( void )
 const bool AlignableTrackerModifier::isPropagated( const std::string parameterName ) const
 {
 
-  if ( parameterName == "distribution" || 
-	   parameterName == "setError"     ||
-	   parameterName == "scaleError"   ) return true;
+  if ( parameterName == "distribution"    || 
+	   parameterName == "setError"        ||
+	   parameterName == "scaleError"      ||
+	   parameterName == "setRotations"    ||
+	   parameterName == "setTranslations" ||
+	   parameterName == "scale" 
+	   ) return true;
   
   return false;
 
@@ -77,6 +84,9 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	{
 	  if  ( (*iParam) == "distribution" ) distribution_ = pSet.getParameter<std::string>( *iParam );
 	  else if ( (*iParam) == "setError" ) setError_ = pSet.getParameter<bool>( *iParam );
+	  else if ( (*iParam) == "setRotations") setRotations_ = pSet.getParameter<bool>( *iParam );
+	  else if ( (*iParam) == "setTranslations") setTranslations_ = pSet.getParameter<bool>( *iParam );
+	  else if ( (*iParam) == "scale" )    scale_ = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "scaleError" ) scaleError_ = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "phiX" )     phiX_     = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "phiY" )     phiY_     = pSet.getParameter<double>( *iParam );
@@ -104,16 +114,17 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
   this->setDistribution( distribution_ );
 
   // Apply displacements
-  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 )
-	this->moveAlignable( alignable, random_, gaussian_, dX_, dY_, dZ_ );
+  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
+	this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
 
   // Apply rotations
-  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 )
-	this->rotateAlignable( alignable, random_, gaussian_, phiX_, phiY_, phiZ_ );
+  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
+	this->rotateAlignable( alignable, random_, gaussian_, scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
 
   // Apply local rotations
-  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 )
-	this->rotateAlignableLocal( alignable, random_, gaussian_, localX_, localY_, localZ_ );
+  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 && setRotations_ )
+	this->rotateAlignableLocal( alignable, random_, gaussian_, 
+								scale_*localX_, scale_*localY_, scale_*localZ_ );
 
   // Apply twist
   if ( fabs(twist_) > 0 )
@@ -129,19 +140,22 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 	  // Alignment Position Error for flat distribution: 1 sigma
 	  if ( !gaussian_ ) scaleError_ *= 0.68;
 
+	  // Add scale to error
+	  scaleError_ *= scale_;
+
 	  // Error on displacement
-	  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 )
+	  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 && setTranslations_ )
 		this->addAlignmentPositionError( alignable, 
 										 scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
 
 	  // Error on rotations
-	  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 )
+	  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 && setRotations_ )
 		this->addAlignmentPositionErrorFromRotation( alignable, 
 													 scaleError_*phiX_, scaleError_*phiY_, 
 													 scaleError_*phiZ_ );
 
 	  // Error on local rotations
-	  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 )
+	  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 && setRotations_ )
 		this->addAlignmentPositionErrorFromLocalRotation( alignable, 
 														  scaleError_*localX_, scaleError_*localY_, 
 														  scaleError_*localZ_ );
@@ -257,7 +271,7 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
 		}
 	}
   
-  message << " global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
+  message << "global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
 
   edm::LogInfo("PrintArgs") << message.str(); // Arguments
 
@@ -298,7 +312,7 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
 		}
 	}
   
-  message << " local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
+  message << "local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
 
   edm::LogInfo("PrintArgs") << message.str(); // Arguments
 
