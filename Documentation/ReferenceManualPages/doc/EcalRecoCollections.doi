@@ -3,21 +3,21 @@
 <tr>
   <td><a href="classreco_1_1BasicCluster.html">reco::BasicCluster</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::BasicClusterCollection</a></td>
-  <td><a href="#">islandBasicClusterProducer<i>:islandBarrelBasicClusterCollection</i></a></td>
+  <td><a href="#">islandBasicClusterProducer<i> : islandBarrelBasicClusterCollection</i></a></td>
   <td class="description">Basic clusters reconstructed with island algorithm in barrel</td>
   <td>Sh. Rahatlou</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1BasicCluster.html">reco::BasicCluster</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::BasicClusterCollection</a></td>
-  <td><a href="#">islandBasicClusterProducer<i>:islandEndcapBasicClusterCollection</i></a></td>
+  <td><a href="#">islandBasicClusterProducer<i> : islandEndcapBasicClusterCollection</i></a></td>
   <td class="description">Basic clusters reconstructed with island algorithm in endcap</td>
   <td>Sh. Rahatlou</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
-  <td><a href="#">islandSuperClusterProducer<i>:islandBarrelSuperClusterCollection</i></a></td>
+  <td><a href="#">islandSuperClusterProducer<i> : islandBarrelSuperClusterCollection</i></a></td>
   <td class="description">Super clusters with island algo. in barrel</td>
   <td>Sh. Rahatlou</td>
 </tr>
@@ -31,7 +31,7 @@
 <tr>
   <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
-  <td><a href="#">islandSuperClusterProducer<i>:islandEndcapSuperClusterCollection</i></a></td>
+  <td><a href="#">islandSuperClusterProducer<i> : islandEndcapSuperClusterCollection</i></a></td>
   <td class="description">Super clusters with island algo. in endcap</td>
   <td>Sh. Rahatlou</td>
 </tr>
