@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/23 07:02:26 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,7 @@
 EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
 
   init_ = false;
+  tableIsMoving_ = false;
   
   // to be filled all the time
   for (int i=0; i<4; i++) {
@@ -46,7 +47,10 @@ EBBeamHodoTask::~EBBeamHodoTask(){
 
 void EBBeamHodoTask::beginJob(const EventSetup& c){
 
-  ievt_ = 0;
+  ievt_  = 0;
+  LV1_ = 0;
+  cryInBeamCounter_ =0;
+  resetNow_                =false;
 
 }
 
@@ -65,6 +69,10 @@ void EBBeamHodoTask::setup(void){
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
+
+    // following ME (type I):
+    //  *** do not need to be ever reset
+    //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
       sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
@@ -97,6 +105,14 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
+    // gio: add 'bus stop' stuff here.
+
+
+
+    // following ME (type II):
+    //  *** can be filled only when table is **not**Moving
+    //  *** need to be reset once table goes from 'moving'->notMoving
+
     sprintf(histo, "EBBHT prof E1 vs X SM%02d", smId);
     meEvsXRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
@@ -221,7 +237,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   if ( ! enable ) return;
   if ( ! init_ ) this->setup();
   ievt_++;
-  
+
+  //  LV1_ = (* dcchs->begin()) .getLV1();
+  // temporarily, identify LV1 and #monitoredEvents
+  LV1_ = ievt_;
   
   Handle<EcalUncalibratedRecHitCollection> pUncalRH;
   const EcalUncalibratedRecHitCollection* uncalRecH =0;
@@ -278,6 +297,48 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
 
 
+
+  // in temporary absence of table status in DCCheader, here mimic:
+  //  **   changes from 'table-is-still' to 'table-is-moving', and viceversa
+  //  **   new value for cry-in-beam
+  if (ievt_%1000 ==0)
+    {
+      // change status every 3000 events
+      tableIsMoving_ = (! tableIsMoving_); 
+
+      // if table has come to a stop:
+      //   - increase counter of crystals that have been on beam
+      //   - set flag for resetting
+      if (! tableIsMoving_) {
+	cryInBeamCounter_++;
+	resetNow_ = true;
+	LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ << " switching table status by hand: from still to moving. " << endl;
+      }
+      else
+	{
+	  LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " switching table status by hand: from moving to still. " << endl;
+	}
+    }
+
+
+
+  // if table has come to rest from movement, reset concerned ME's
+  if (resetNow_)
+    {
+      EBMUtilsTasks::resetHisto(    meEvsXRecProf_ );
+      EBMUtilsTasks::resetHisto(   meEvsYRecProf_);
+      EBMUtilsTasks::resetHisto(    meEvsXRecHis_ );
+      EBMUtilsTasks::resetHisto(    meEvsYRecHis_ );
+      EBMUtilsTasks::resetHisto(    meCaloVsHodoXPos_  );
+      EBMUtilsTasks::resetHisto(    meCaloVsHodoYPos_  );
+      EBMUtilsTasks::resetHisto(    meCaloVsTDCTime_  );
+      
+      resetNow_ = false;
+    }
+
+  
+  // handling histos (type I):
+
   for (unsigned int planeId=0; planeId <4; planeId++){
     
     const EcalTBHodoscopePlaneRawHits& planeRaw = rawHodo->getPlaneRawHits(planeId);
@@ -297,13 +358,6 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   }
   
   meTDCRec_        ->Fill( recTDC->offset());
-
-  
-
-
-  // to be added shortly:
-  // if table is moving, return
-
 
 
 
@@ -330,13 +384,22 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   meHodoPosRecXY_    ->Fill( recHodo->posX(), recHodo->posY() );
   meHodoPosRecX_       ->Fill( recHodo->posX());
   meHodoPosRecY_       ->Fill( recHodo->posY() );
-  meHodoSloXRec_  ->Fill( recHodo->slopeX());
-  meHodoSloYRec_  ->Fill( recHodo->slopeY());
-  meHodoQuaXRec_ ->Fill( recHodo->qualX());
-  meHodoQuaYRec_ ->Fill( recHodo->qualY());
+  meHodoSloXRec_        ->Fill( recHodo->slopeX());
+  meHodoSloYRec_        ->Fill( recHodo->slopeY());
+  meHodoQuaXRec_       ->Fill( recHodo->qualX());
+  meHodoQuaYRec_       ->Fill( recHodo->qualY());
+
 
   
-  
+  if (tableIsMoving_)
+    {
+      LogDebug("EcalBeamTask")<< "At event LV1:" << LV1_ << " table is moving. Not filling concerned monigoring elements. ";
+      return;
+    }
+
+
+  // handling histos (type II)
+
   float maxE =0;
   EBDetId maxHitId(0);
   for (  EBUncalibratedRecHitCollection::const_iterator uncalHitItr = pUncalRH->begin();  uncalHitItr!= pUncalRH->end(); uncalHitItr++ ) {
@@ -354,8 +417,8 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   
   meEvsXRecProf_ -> Fill(recHodo->posX(), maxE);
   meEvsYRecProf_ -> Fill(recHodo->posY(), maxE);
-  meEvsXRecHis_ -> Fill(recHodo->posX(), maxE);
-  meEvsYRecHis_ -> Fill(recHodo->posY(), maxE);
+  meEvsXRecHis_   -> Fill(recHodo->posX(), maxE);
+  meEvsYRecHis_   -> Fill(recHodo->posY(), maxE);
 
   LogInfo("EcalBeamTask")<< " channel with max is " << maxHitId;
   

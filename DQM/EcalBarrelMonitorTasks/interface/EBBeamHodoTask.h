@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/05/19 13:26:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -22,6 +22,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -74,8 +76,14 @@ private:
  
 string outputFile_;
  
-int ievt_;
+ int ievt_;
+ int LV1_;
+ bool tableIsMoving_;
+ bool resetNow_;
+ int    cryInBeam_;
+ int    cryInBeamCounter_;
  
+ //  ME type I
 MonitorElement* meHodoOcc_[4];
 MonitorElement* meHodoRaw_[4];
 MonitorElement* meHodoPosRecXY_;
@@ -86,6 +94,10 @@ MonitorElement* meHodoSloYRec_;
 MonitorElement* meHodoQuaXRec_;
 MonitorElement* meHodoQuaYRec_;
 MonitorElement* meTDCRec_;
+
+
+
+ //  ME type II
 MonitorElement* meEvsXRecProf_;
 MonitorElement* meEvsYRecProf_;
 MonitorElement* meEvsXRecHis_;
