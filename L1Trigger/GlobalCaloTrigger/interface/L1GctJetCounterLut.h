@@ -32,14 +32,8 @@ public:
 
   /// Construct with a list of cuts (most general case)
   L1GctJetCounterLut(std::vector<validCutType> cutType, std::vector<unsigned> cutValue1, std::vector<unsigned> cutValue2);
-  /// Construct with just one cut (general case)
-  L1GctJetCounterLut(validCutType cutType, unsigned cutValue1, unsigned cutValue2);
-  /// Construct with just one cut and one threshold value (useful)
-  L1GctJetCounterLut(validCutType cutType, unsigned cutValue1);
-  /// Construct with just one cut and no values (default threshold values, ie set to zero; less useful)
-  L1GctJetCounterLut(validCutType cutType);
-  /// Construct null counter (reject all jets)
-  L1GctJetCounterLut();
+  /// Construct with just one cut (includes default constructor)
+  L1GctJetCounterLut(validCutType cutType=nullCutType, unsigned cutValue1=0, unsigned cutValue2=0);
   ~L1GctJetCounterLut();
   
   /// Overload << operator

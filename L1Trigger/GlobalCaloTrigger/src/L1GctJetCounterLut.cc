@@ -41,32 +41,6 @@ L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType, unsigned cutValue1,
   checkCut(cutType, cutValue1, cutValue2);
 }
 
-L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType, unsigned cutValue1) :
-  m_nCuts(1),
-  m_cutType(1, cutType),
-  m_cutValue1(1, cutValue1),
-  m_cutValue2(1, 0)
-{
-  checkCut(cutType, cutValue1, 0);
-}
-
-L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType) :
-  m_nCuts(1),
-  m_cutType(1, cutType),
-  m_cutValue1(1, 0),
-  m_cutValue2(1, 0)
-{
-  checkCut(cutType, 0, 0);
-}
-
-L1GctJetCounterLut::L1GctJetCounterLut() :
-  m_nCuts(1),
-  m_cutType(1, nullCutType),
-  m_cutValue1(1, 0),
-  m_cutValue2(1, 0)
-{
-}
-
 L1GctJetCounterLut::~L1GctJetCounterLut()
 {
 }
