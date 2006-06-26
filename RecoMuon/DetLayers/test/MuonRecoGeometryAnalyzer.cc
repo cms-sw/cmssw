@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2006/04/25 17:03:24 $
+ *  $Date: 2006/06/13 08:46:03 $
  *  $Revision: 1.1 $
  */
 
@@ -23,6 +23,8 @@
 
 #include "RecoMuon/DetLayers/interface/MuRodBarrelLayer.h"
 #include "RecoMuon/DetLayers/interface/MuDetRod.h"
+
+#include <DataFormats/MuonDetId/interface/DTWireId.h>
 
 //#include "Geometry/Vector/interface/CoordinateSets.h"
 
@@ -71,49 +73,57 @@ void MuonRecoGeometryAnalyzer::analyze( const Event& ev,
 void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,const MagneticField* field) {
 
   const vector<DetLayer*>& layers = geo->allDTLayers();
+
+  for (vector<DetLayer*>::const_iterator ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
+    const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) (*ilay);
   
-  // Get a layer
-  const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) layers.front();
+    const BoundCylinder& cyl = layer->specificSurface();  
 
+    double halfZ = cyl.bounds().length()/2.;
+
+    // Generate a random point on the cylinder
+    double aPhi = RandFlat::shoot(-Geom::pi(),Geom::pi());
+    double aZ = RandFlat::shoot(-halfZ, halfZ);
+    GlobalPoint gp(GlobalPoint::Cylindrical(cyl.radius(), aPhi, aZ));  
+
+    // Momentum: 10 GeV, straight from the origin
+    GlobalVector gv(GlobalVector::Spherical(gp.theta(), aPhi, 10.));
+
+    //FIXME: only negative charge
+    int charge = -1;
+
+    GlobalTrajectoryParameters gtp(gp,gv,charge,field);
+    TrajectoryStateOnSurface tsos(gtp, cyl);
+    cout << "testDTLayers: at " << tsos.globalPosition()
+	 << " R=" << tsos.globalPosition().perp()
+	 << " Z=" << tsos.globalPosition().z()
+	 << " p = " << tsos.globalMomentum()
+	 << endl;
+
+
+    SteppingHelixPropagator prop(field,alongMomentum);
+
+    pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
+    cout << "is compatible: " << comp.first
+	 << " at: R=" << comp.second.globalPosition().perp()
+	 << " Z=" <<  comp.second.globalPosition().z()
+	 << endl;
   
-  const BoundCylinder& cyl = layer->specificSurface();  
+    vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,prop,*theEstimator);
+    if (compDets.size()) {
+      cout << "compatibleDets: " << compDets.size() << endl
 
-  double halfZ = cyl.bounds().length()/2.;
+	   << "  final state pos: " << compDets.front().second.globalPosition() << endl 
+	   << "  det         pos: " << compDets.front().first->position()
+	   << " id: " << DTWireId(compDets.front().first->geographicalId().rawId()) << endl 
+	   << "  distance " << (tsos.globalPosition()-compDets.front().first->position()).mag()
 
-  // Generate a random point on the cylinder
-  double aPhi = RandFlat::shoot(-Geom::pi(),Geom::pi());
-  double aZ = RandFlat::shoot(-halfZ, halfZ);
-  GlobalPoint gp(GlobalPoint::Cylindrical(cyl.radius(), aPhi, aZ));  
-
-  // Momentum: 10 GeV, straight from the origin
-  GlobalVector gv(GlobalVector::Spherical(gp.theta(), aPhi, 10.));
-
-  //FIXME: only negative charge
-  int charge = -1;
-  cout << "A" <<endl;
-
-  GlobalTrajectoryParameters gtp(gp,gv,charge,field);
-  cout << "B" <<endl;
-  TrajectoryStateOnSurface tsos(gtp, cyl);
-  cout << "testDTLayers: at " << tsos.globalPosition()
-       << " R=" << tsos.globalPosition().perp()
-       << " Z=" << tsos.globalPosition().z()
-       << " p = " << tsos.globalMomentum()
-       << endl;
-
-
-  SteppingHelixPropagator prop(field,alongMomentum);
-
-  pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos,prop,*theEstimator);
-  cout << "is compatible: " << comp.first
-       << " at: R=" << comp.second.globalPosition().perp()
-       << " Z=" <<  comp.second.globalPosition().z()
-       << endl;
-  
-  vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,prop,*theEstimator);
-  cout << "compatibleDets: " << compDets.size()
-       << endl;    
-
+	   << endl
+	   << endl;
+    } else {
+      cout << " ERROR : no compatible det found" << endl;
+    }    
+  }
 }
 
 
