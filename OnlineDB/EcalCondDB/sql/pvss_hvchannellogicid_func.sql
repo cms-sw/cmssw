@@ -20,6 +20,12 @@ CC = channel number 1-34
 	superModuleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+'));
 	moduleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,2));
 	channelNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,3));
+	if superModuleNumber is null 
+           or channelNumber is null 
+           or superModuleNumber>36 
+           or channelNumber>34 then
+		raise invalid_channel_name;
+	end if;
 	return 1051000000+10000*superModuleNumber+channelNumber;
 end;
 /
