@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/06/22 14:47:05 $
- * $Revision: 1.11 $
+ * $Date: 2006/06/23 09:20:41 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -76,6 +76,7 @@ void htmlOutput(int run, string htmlDir, string htmlName);
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
 private:
+ const static int cryInArray_ = 9;
 
 int ievt_;
 int jevt_;
@@ -93,6 +94,33 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
+//specific task me
+
+TH1D* meBBCaloGains_[cryInArray_];
+TH1D* meBBCaloEne1_;
+
+TH1D* meBBCaloGainsMoving_[cryInArray_];
+TH1D* meBBCaloEne1Moving_;
+
+
+TH1D* meBBCaloAllNeededCry_;
+
+TH1D* meBBCaloE3x3_;
+
+TH1D* meBBCaloE3x3Moving_;
+
+TH2D* meBBCaloCryOnBeam_;
+
+TH2D* meBBCaloMaxEneCry_;
+
+
+TH1D* meEBBCaloReadCryErrors_;
+
+TH1D* meEBBCaloE1vsCry_;
+
+TH1D* meEBBCaloE3x3vsCry_;
+
+MonitorElement* meEBBCaloRedGreen_;
 };
 
 #endif
