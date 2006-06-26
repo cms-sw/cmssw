@@ -3,8 +3,8 @@
 
 // CMSSW Headers
 #include "DataFormats/Common/interface/EventID.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 // FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
@@ -53,8 +53,8 @@ public:
   virtual unsigned int nGenParts() const;
 
   /// Load containers of tracks and vertices for the edm::Event
-  void load(edm::EmbdSimTrackContainer & c) const;
-  void load(edm::EmbdSimVertexContainer & c) const;
+  void load(edm::SimTrackContainer & c) const;
+  void load(edm::SimVertexContainer & c) const;
 
 private:
 

@@ -42,19 +42,19 @@ FSimEvent::nGenParts() const {
 }
 
 void 
-FSimEvent::load(edm::EmbdSimTrackContainer & c) const
+FSimEvent::load(edm::SimTrackContainer & c) const
 {
   for (unsigned int i=0; i<nTracks(); ++i) {
-    //    EmbdSimTrack t = EmbdSimTrack(ip,p,iv,ig);
+    //    SimTrack t = SimTrack(ip,p,iv,ig);
     c.push_back(embdTrack(i));
   }
 }
 
 void 
-FSimEvent::load(edm::EmbdSimVertexContainer & c) const
+FSimEvent::load(edm::SimVertexContainer & c) const
 {
   for (unsigned int i=0; i<nVertices(); ++i) {
-    //    EmbdSimTrack t = EmbdSimTrack(ip,p,iv,ig);
+    //    SimTrack t = SimTrack(ip,p,iv,ig);
     c.push_back(embdVertex(i));
   }
 }

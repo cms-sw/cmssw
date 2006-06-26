@@ -5,7 +5,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 
 // CMSSW Headers
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 // FAMOS headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
@@ -21,12 +21,12 @@ namespace HepMC {
 }
 
 /** A class that mimics SimTrack, with enhanced features.
- *  Essentially an interface to EmbdSimTrack.
+ *  Essentially an interface to SimTrack.
  * \author Patrick Janot, CERN 
  * $Date: 9-Dec-2003
  */
 
-class FSimTrack : public EmbdSimTrack {
+class FSimTrack : public SimTrack {
 
  public:
   /// Default constructor
@@ -86,8 +86,8 @@ class FSimTrack : public EmbdSimTrack {
   /// The original GenParticle
   const HepMC::GenParticle* genParticle() const;
    
-  /// The attached EmbdSimTrack
-  //const EmbdSimTrack& me() const;
+  /// The attached SimTrack
+  //const SimTrack& me() const;
 
   /// The original GenParticle in the original event
   //inline int genpartIndex() const { return me().genpartIndex(); }
@@ -99,7 +99,7 @@ class FSimTrack : public EmbdSimTrack {
   //  bool  noGenpart() const { return me().noGenpart();}
 
   /// the embedded Simulated Track
-  //  const FEmbdSimTrack & me() const { return mom->embdTrack(id()); }
+  //  const FSimTrack & me() const { return mom->embdTrack(id()); }
 
   /// the index in FBaseSimEvent and other vectors
   inline int id() const { return id_; }
@@ -200,7 +200,7 @@ class FSimTrack : public EmbdSimTrack {
   //  HepMC::GenParticle* me_;
 
   FBaseSimEvent* mom_;
-  //  int embd_;   // The index in the EmbdSimTrack vector
+  //  int embd_;   // The index in the SimTrack vector
   int id_; // The index in the FSimTrackVector
   
   int endv_; // The index of the end vertex in FSimVertex

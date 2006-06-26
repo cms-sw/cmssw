@@ -17,7 +17,7 @@
 using namespace std;
 
 FSimTrack:: FSimTrack() : 
-  EmbdSimTrack(), mom_(0), id_(-1), endv_(-1),
+  SimTrack(), mom_(0), id_(-1), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
   
 //FSimTrack::FSimTrack(int embd, FBaseSimEvent* mom) : 
@@ -25,7 +25,7 @@ FSimTrack:: FSimTrack() :
 //  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
   
 FSimTrack::FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom) :
-  EmbdSimTrack(p->pid(),*p,iv,ig), mom_(mom), id_(id), endv_(-1),
+  SimTrack(p->pid(),*p,iv,ig), mom_(mom), id_(id), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
 
 FSimTrack::~FSimTrack() {
@@ -92,7 +92,7 @@ FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
 const HepMC::GenParticle* 
 FSimTrack::genParticle() const { return mom_->embdGenpart(genpartIndex()); }
    
-//const EmbdSimTrack& 
+//const SimTrack& 
 //FSimTrack::me() const { return mom_->embdTrack(embd_); } 
 
 /*

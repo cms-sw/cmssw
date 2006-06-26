@@ -23,8 +23,8 @@ class RawParticle;
 class HepPDTable;
 class KineParticleFilter;
 
-class EmbdSimTrack;
-class EmbdSimVertex;
+class SimTrack;
+class SimVertex;
 class BaseEventVertexGenerator;
 //class Histos;
 
@@ -81,9 +81,9 @@ public:
   int chargedTrack(int id) const;
 
   /// return embedded track with given id
-  const EmbdSimTrack & embdTrack(int i) const;
+  const SimTrack & embdTrack(int i) const;
   /// return embedded vertex with given id
-  const EmbdSimVertex & embdVertex(int i) const;
+  const SimVertex & embdVertex(int i) const;
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 

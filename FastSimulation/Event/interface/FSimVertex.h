@@ -5,19 +5,19 @@
 #include "CLHEP/Vector/LorentzVector.h"
 
 // CMSSW Headers
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 
 class FBaseSimEvent;
 class FSimTrack;
 
 /** A class that mimics SimVertex, with enhanced features.
- *  Essentially an interface to EmbdSimVertex.
+ *  Essentially an interface to SimVertex.
  * \author Patrick Janot, CERN 
  * $Date: 9-Dec-2003
  */
 
-class FSimVertex : public EmbdSimVertex {
+class FSimVertex : public SimVertex {
 
 public:
   /// Default constructor
@@ -50,8 +50,8 @@ public:
   /// no Daughters
   inline bool  noDaughter() const { return !nDaughters(); }
 
-  /// The attached EmbdSimTrack
-  //const EmbdSimVertex& me() const;
+  /// The attached SimTrack
+  //const SimVertex& me() const;
 
   /// the index in FBaseSimEvent
   inline int id() const { return id_; }
@@ -62,7 +62,7 @@ public:
 
   //  HepMC::GenVertex* me_;
   const FBaseSimEvent* mom_;
-  //  int embd_; // The index in the EmbdSimVertex vector
+  //  int embd_; // The index in the SimVertex vector
   int id_;    // The index in the FSimVertex vector
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 

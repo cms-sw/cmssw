@@ -7,8 +7,8 @@
 // CMSSW Sim headers
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 // CMSSW IOMC Headers
 #include "IOMC/GaussianEventVertexGenerator/interface/GaussianEventVertexGenerator.h"
@@ -254,7 +254,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   // add_vertex(originVertex);
   
   // Some persistent information for the users
-  //  mySimTracks->push_back(EmbdSimTrack(p->pid(),*p,iv,ig)); 
+  //  mySimTracks->push_back(SimTrack(p->pid(),*p,iv,ig)); 
 
   // Some transient information for FAMOS internal use
   //  theSimTracks->push_back(FSimTrack(mySimTracks->size()-1,this));
@@ -287,7 +287,7 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   if ( im != -1 ) track(im).setEndVertex(vertexId);
 
   // Some persistent information for the users
-  //  mySimVertices->push_back(EmbdSimVertex(v.vect(),v.e(),im));
+  //  mySimVertices->push_back(SimVertex(v.vect(),v.e(),im));
 
   // Some transient information for FAMOS internal use
   theSimVertices->push_back(FSimVertex(v,im,vertexId,this));
@@ -437,8 +437,8 @@ FBaseSimEvent::nChargedTracks() const {
 }
 
 
-static  const EmbdSimVertex zeroVertex;
-const EmbdSimVertex & 
+static  const SimVertex zeroVertex;
+const SimVertex & 
 FBaseSimEvent::embdVertex(int i) const { 
   if (i>=0 && i<(int)theSimVertices->size()) 
     return (*theSimVertices)[i]; 
@@ -446,8 +446,8 @@ FBaseSimEvent::embdVertex(int i) const {
     return zeroVertex;
 }
 
-static  const EmbdSimTrack zeroTrack;
-const EmbdSimTrack & 
+static  const SimTrack zeroTrack;
+const SimTrack & 
 FBaseSimEvent::embdTrack(int i) const { 
   if (i>=0 && i<(int)theSimTracks->size()) 
     return (*theSimTracks)[i]; 
