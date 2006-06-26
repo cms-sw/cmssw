@@ -28,7 +28,7 @@ namespace cms
   void SiStripClusterizer::beginJob( const edm::EventSetup& es ) {
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::beginJob]";
     
-    SiStripNoiseService_.configure(es);
+    //SiStripNoiseService_.configure(es); @not needed anymore, REMOVE
     SiStripClusterizerAlgorithm_.configure(&SiStripNoiseService_);
   }
 

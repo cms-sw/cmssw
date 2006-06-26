@@ -11,7 +11,8 @@ namespace cms
   SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf): 
     conf_(conf),
     SiStripZeroSuppressionAlgorithm_(conf),
-    SiStripPedestalsService_(conf){
+    SiStripPedestalsService_(conf),
+    SiStripNoiseService_(conf){
 
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::SiStripZeroSuppression] Constructing object...";
 
@@ -29,8 +30,8 @@ namespace cms
   void SiStripZeroSuppression::beginJob( const edm::EventSetup& es ) {
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::beginJob]";
     
-    SiStripPedestalsService_.configure(es);
-    SiStripZeroSuppressionAlgorithm_.configure(&SiStripPedestalsService_);
+    //SiStripPedestalsService_.configure(es);
+    SiStripZeroSuppressionAlgorithm_.configure(&SiStripPedestalsService_,&SiStripNoiseService_);
   }
 
   // Functions that gets called by framework every event
@@ -57,6 +58,7 @@ namespace cms
     
     // Step C: Invoke the strip clusterizer algorithm
     SiStripPedestalsService_.setESObjects(es);
+    SiStripNoiseService_.setESObjects(es);
     if ( ScopeMode->size() )
       SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,*smDigis);
     if ( VirginRaw->size() )

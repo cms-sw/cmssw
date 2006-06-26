@@ -49,9 +49,10 @@ SiStripZeroSuppressionAlgorithm::~SiStripZeroSuppressionAlgorithm() {
     delete SiStripPedestalsSubtractor_;
 }
 
-void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in ) {
-    SiStripPedestalsSubtractor_->setSiStripPedestalsService(in);
-    SiStripZeroSuppressor_->setSiStripPedestalsService(in);
+void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in_a , SiStripNoiseService* in_b ) {
+    SiStripPedestalsSubtractor_->setSiStripPedestalsService(in_a);
+    SiStripZeroSuppressor_->setSiStripPedestalsService(in_a);
+    SiStripZeroSuppressor_->setSiStripNoiseService(in_b);
 } 
 
 void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType, 

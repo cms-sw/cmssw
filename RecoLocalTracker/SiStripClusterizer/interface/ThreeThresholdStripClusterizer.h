@@ -33,29 +33,28 @@ public:
   float clusterThresholdInNoiseSigma() const { return theClusterThreshold;}
 
 private:
-  const SiStripNoiseService* SiStripNoiseService_; 
+  SiStripNoiseService* SiStripNoiseService_; 
 
   float theChannelThreshold;
   float theSeedThreshold;
   float theClusterThreshold;
   int max_holes_;
 
-  bool badChannel( int channel, const std::vector<short>& badChannels) const;
-
 };
 
 class AboveSeed {
  public:
-  AboveSeed(float aseed,const SiStripNoiseService* noise,const uint32_t& detID) : seed(aseed), noise_(noise),detID_(detID) {};
-
-  // FIXME: uses boundary checking with at(), should be replaced with faster operator[]
-  // when everything debugged
-  
-  // DA CORREGGERE 
-  bool operator()(const SiStripDigi& digi) { return ( !noise_->getDisable(detID_,digi.strip()) && digi.adc() >= seed * noise_->getNoise(detID_,digi.strip()));}
+  AboveSeed(float aseed,SiStripNoiseService* noise,const uint32_t& detID) : seed(aseed), noise_(noise),detID_(detID) {};
+  inline bool operator()(const SiStripDigi& digi) { 
+    return ( 
+	    !noise_->getDisable(detID_,digi.strip()) 
+	    && 
+	    digi.adc() >= seed * noise_->getNoise(detID_,digi.strip())
+	    );
+  }
 private:
   float seed;
-  const SiStripNoiseService* noise_;
+  SiStripNoiseService* noise_;
   const uint32_t& detID_;
 };
 

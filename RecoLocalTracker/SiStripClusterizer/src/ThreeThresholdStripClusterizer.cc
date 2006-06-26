@@ -1,18 +1,5 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-
-bool ThreeThresholdStripClusterizer::badChannel( int channel, 
-						 const std::vector<short>& badChannels) const
-{
-  const std::vector<short>::size_type linearCutoff = 10;
-  if (badChannels.size() < linearCutoff) {
-    return (std::find( badChannels.begin(), badChannels.end(), channel) != badChannels.end());
-  }
-  else return std::binary_search( badChannels.begin(), badChannels.end(), channel);
-}
-
-
-
 void ThreeThresholdStripClusterizer::clusterizeDetUnit( const edm::DetSet<SiStripDigi>& input,edm::DetSet<SiStripCluster>& output)
 {
   const uint32_t& detID = input.id;

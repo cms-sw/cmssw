@@ -22,18 +22,23 @@ SiStripPedestalsService::SiStripPedestalsService(const edm::ParameterSet& conf):
   
   ::putenv( const_cast<char*>( userEnv_.c_str() ) );
   ::putenv( const_cast<char*>( passwdEnv_.c_str() ) );
+
+  old_detID = 0;
+  old_range = SiStripPedestals::Range((SiStripPedestals::ContainerIterator)0,(SiStripPedestals::ContainerIterator)0);
+  old_noise = -1.;
+
 };
 
-void SiStripPedestalsService::configure( const edm::EventSetup& es ) {
-  edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure]";
-  setESObjects(es);
+// void SiStripPedestalsService::configure( const edm::EventSetup& es ) {
+//   edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure]";
+//   setESObjects(es);
   
-  if (UseCalibDataFromDB_==false) {
-    edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<<tkgeom->dets().size() <<" detectors instantiated in the geometry";  
-  } else {
-    edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<< ped->m_pedestals.size() <<" detector Pedestal descriptions";  
-  }
-}
+//   if (UseCalibDataFromDB_==false) {
+//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<<tkgeom->dets().size() <<" detectors instantiated in the geometry";  
+//   } else {
+//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<< ped->m_pedestals.size() <<" detector Pedestal descriptions";  
+//   }
+// }
 
 void SiStripPedestalsService::setESObjects( const edm::EventSetup& es ) {
   if (UseCalibDataFromDB_==false) {
@@ -44,65 +49,52 @@ void SiStripPedestalsService::setESObjects( const edm::EventSetup& es ) {
     //Getting Cond Data
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&    
 #ifdef DEBUG
-    SiStripPedestalsMapIterator mapit = ped->m_pedestals.begin();
-    for (;mapit!=ped->m_pedestals.end();mapit++)
+    std::vector<uint32_t> detid;
+    ped->getDetIds(detid);
+    
+    for (size_t id=0;id<detid.size();id++)
       {
-	unsigned int detid = (*mapit).first;
-	const SiStripPedestalsVector& theSiStripVector =  ped->getSiStripPedestalsVector(detid);
-	std::cout << "[SiStripPedestalsService::setESObjects] detid " <<  detid << " # Strip " << theSiStripVector.size() << std::endl;
+	SiStripPedestals::Range range=ped->getRange(detid[id]);
+	
 	int strip=0;
-	for(SiStripPedestalsVectorIterator iter=theSiStripVector.begin(); iter!=theSiStripVector.end(); iter++){
-	  std::cout << "[SiStripPedestalsService::setESObjects] strip " << strip++ << " =\t"
-		    << iter->getPed()       << " \t" 
-		    << iter->getNoise()     << " \t" 
-		    << iter->getLowTh()     << " \t" 
-		    << iter->getHighTh()    << " \t" 
-		    << iter->getDisable()   << " \t" 
-		    << std::endl; 	    
+	for(int it=0;it<range.second-range.first;it++){
+	  edm::LogInfo("SiStripPedestalservice") << "[SiStripPedestalservice::setESObjects]"  
+						 << "detid " << detid[id] << " \t"
+						 << " strip " << strip++ << " \t"
+						 << ped->getPed   (it,range)   << " \t" 
+						 << ped->getLowTh (it,range)   << " \t" 
+						 << ped->getHighTh(it,range)   << " \t" 
+						 << std::endl; 	    
 	} 
-      }   
+      }
 #endif
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
   }
 };
 
-int16_t SiStripPedestalsService::getPedestal(const uint32_t& detID,const uint32_t& strip) const
+int16_t SiStripPedestalsService::getPedestal(const uint32_t& detID,const uint16_t& strip)
 {
   if (UseCalibDataFromDB_==false){	  
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Case of SingleValue of Pedestals for all strips of a Detector
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     return (int16_t) PedestalValue_;
   } 
   else
     {
+      //&&&&&&&&&&&&&&&&&&&&
       //Access from DB
-      return (ped->getSiStripPedestalsVector(detID))[strip].getPed();
+      //&&&&&&&&&&&&&&&&&&&&
+      if (detID!=old_detID){
+	old_detID=detID;
+	old_range=ped->getRange(detID);
+      }
+      return (int16_t) ped->getPed(strip,old_range);
     }
 }
 
-float SiStripPedestalsService::getNoise(const uint32_t& detID,const uint32_t& strip) const
-{
-  if (UseCalibDataFromDB_==false){	  
-    //Case of SingleValue of Pedestals for all strips of a Detector
-    float noise = 0;
-    //Access to geometry needs to know module Thickness
-    const GeomDetUnit* it = tkgeom->idToDetUnit(DetId(detID));
-    //FIXME throw exception
-    if (dynamic_cast<const StripGeomDetUnit*>(it)==0) {
-      edm::LogWarning("SiStripZeroSuppression") << "[SiStripPedestalsService::getNoise] the detID " << detID << " doesn't seem to belong to Tracker" << std::endl; 
-    }else{
-      double moduleThickness = it->surface().bounds().thickness(); //thickness
-      noise = ENC_*moduleThickness/(0.03)/ElectronsPerADC_;
-    }
-    return noise;
-  } 
-  else
-    {
-    //Access from DB
-      return (ped->getSiStripPedestalsVector(detID))[strip].getNoise();
-    }
-}
 
-float SiStripPedestalsService::getLowTh(const uint32_t& detID,const uint32_t& strip) const
+float SiStripPedestalsService::getLowTh(const uint32_t& detID,const uint16_t& strip)
 {
   if (UseCalibDataFromDB_==false){	  
     //Case of SingleValue of Pedestals for all strips of a Detector
@@ -110,12 +102,18 @@ float SiStripPedestalsService::getLowTh(const uint32_t& detID,const uint32_t& st
   } 
   else
     {
-    //Access from DB
-      return (ped->getSiStripPedestalsVector(detID))[strip].getLowTh();
+      //&&&&&&&&&&&&&&&&&&&&
+      //Access from DB
+      //&&&&&&&&&&&&&&&&&&&&
+      if (detID!=old_detID){
+	old_detID=detID;
+	old_range=ped->getRange(detID);
+      }
+      return ped->getLowTh(strip,old_range);
     }
 }
 
-float SiStripPedestalsService::getHighTh(const uint32_t& detID,const uint32_t& strip) const
+float SiStripPedestalsService::getHighTh(const uint32_t& detID,const uint16_t& strip)
 {
   if (UseCalibDataFromDB_==false){	  
     //Case of SingleValue of Pedestals for all strips of a Detector
@@ -123,7 +121,13 @@ float SiStripPedestalsService::getHighTh(const uint32_t& detID,const uint32_t& s
   } 
   else
     {
-    //Case of Noise and BadStrip flags access from DB
-      return (ped->getSiStripPedestalsVector(detID))[strip].getHighTh();
+      //&&&&&&&&&&&&&&&&&&&&
+      //Access from DB
+      //&&&&&&&&&&&&&&&&&&&&
+      if (detID!=old_detID){
+	old_detID=detID;
+	old_range=ped->getRange(detID);
+      }
+      return ped->getHighTh(strip,old_range);
     }
 }

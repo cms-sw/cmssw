@@ -39,8 +39,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressionAlgorithm.h"
 //SiStripPedestalsService
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-
-
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>
@@ -63,7 +62,8 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     SiStripZeroSuppressionAlgorithm SiStripZeroSuppressionAlgorithm_;
-    SiStripPedestalsService SiStripPedestalsService_;  
+    SiStripPedestalsService         SiStripPedestalsService_;  
+    SiStripNoiseService             SiStripNoiseService_;  
   };
 }
 #endif

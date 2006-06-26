@@ -9,6 +9,8 @@
 
 //SiStripPedestalsService
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+//SiStripNoiseService
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
 
 #include <vector>
 
@@ -19,6 +21,7 @@ public:
   ~SiStripZeroSuppressor(){};
   
   void setSiStripPedestalsService( SiStripPedestalsService* in ){ SiStripPedestalsService_=in;}
+  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
   void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
   void suppress(const std::vector<int16_t>&,edm::DetSet<SiStripDigi>&);
 
@@ -26,7 +29,8 @@ public:
 
 private:
   uint16_t theFEDalgorithm;
-  const SiStripPedestalsService* SiStripPedestalsService_; 
+  SiStripPedestalsService* SiStripPedestalsService_; 
+  SiStripNoiseService*     SiStripNoiseService_; 
 
   int16_t adc;
   int16_t adcPrev;

@@ -15,8 +15,8 @@ void SiStripZeroSuppressor::suppress(const edm::DetSet<SiStripRawDigi>& in, edm:
     LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppressor::suppress] strip = " <<  strip << "  adc = " << in_iter->adc();
     
     adc   = in_iter->adc();
-    theFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip)  * SiStripPedestalsService_->getNoise(detID,strip);
-    theFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip) * SiStripPedestalsService_->getNoise(detID,strip);
+    theFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip)  * SiStripNoiseService_->getNoise(detID,strip);
+    theFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip) * SiStripNoiseService_->getNoise(detID,strip);
 
     //Find adc values for neighbouring strips
 
@@ -32,8 +32,8 @@ void SiStripZeroSuppressor::suppress(const edm::DetSet<SiStripRawDigi>& in, edm:
     }
     else {
       adcNext = (in_iter+1)->adc();
-      theNextFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+1)  * SiStripPedestalsService_->getNoise(detID,strip+1);
-      theNextFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip+1) * SiStripPedestalsService_->getNoise(detID,strip+1);
+      theNextFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+1)  * SiStripNoiseService_->getNoise(detID,strip+1);
+      theNextFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip+1) * SiStripNoiseService_->getNoise(detID,strip+1);
     }
     if ( in_iter == in.data.begin() ) {
       adcPrev = 9999;
@@ -42,8 +42,8 @@ void SiStripZeroSuppressor::suppress(const edm::DetSet<SiStripRawDigi>& in, edm:
     }
     else {
       adcPrev = (in_iter-1)->adc();
-      thePrevFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-1)  * SiStripPedestalsService_->getNoise(detID,strip-1);
-      thePrevFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip-1) * SiStripPedestalsService_->getNoise(detID,strip-1); 
+      thePrevFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-1)  * SiStripNoiseService_->getNoise(detID,strip-1);
+      thePrevFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip-1) * SiStripNoiseService_->getNoise(detID,strip-1); 
     }
     if ( adcNext < adcPrev){
       adcMaxNeigh = adcPrev;
@@ -66,7 +66,7 @@ void SiStripZeroSuppressor::suppress(const edm::DetSet<SiStripRawDigi>& in, edm:
     }
     else if ( in_iter < in.data.end() -2 ) {
       adcNext2 = (in_iter+2)->adc();
-      theNext2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+2) * SiStripPedestalsService_->getNoise(detID,strip+2);
+      theNext2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+2) * SiStripNoiseService_->getNoise(detID,strip+2);
     }
     if ( in_iter - in.data.begin() == 1 ) {
       adcPrev2 = 9999; 
@@ -74,7 +74,7 @@ void SiStripZeroSuppressor::suppress(const edm::DetSet<SiStripRawDigi>& in, edm:
     }
     else if ( in_iter - in.data.begin() > 1 ) {
       adcPrev2 = (in_iter-2)->adc();
-      thePrev2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-2) * SiStripPedestalsService_->getNoise(detID,strip-2);
+      thePrev2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-2) * SiStripNoiseService_->getNoise(detID,strip-2);
     }
     
     if (IsAValidDigi())
@@ -94,8 +94,8 @@ void SiStripZeroSuppressor::suppress(const std::vector<int16_t>& in, edm::DetSet
     LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppressor::suppress]  strip = " <<  strip << "  adc = " << *in_iter;
     
     adc   = *in_iter;
-    theFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip)  * SiStripPedestalsService_->getNoise(detID,strip);
-    theFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip) * SiStripPedestalsService_->getNoise(detID,strip);
+    theFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip)  * SiStripNoiseService_->getNoise(detID,strip);
+    theFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip) * SiStripNoiseService_->getNoise(detID,strip);
 
     //Find adc values for neighbouring strips
 
@@ -111,8 +111,8 @@ void SiStripZeroSuppressor::suppress(const std::vector<int16_t>& in, edm::DetSet
     }
     else {
       adcNext = *(in_iter+1);
-      theNextFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+1)  * SiStripPedestalsService_->getNoise(detID,strip+1);
-      theNextFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip+1) * SiStripPedestalsService_->getNoise(detID,strip+1);
+      theNextFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+1)  * SiStripNoiseService_->getNoise(detID,strip+1);
+      theNextFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip+1) * SiStripNoiseService_->getNoise(detID,strip+1);
     }
     if ( in_iter == in.begin() ) {
       adcPrev = 9999;
@@ -121,8 +121,8 @@ void SiStripZeroSuppressor::suppress(const std::vector<int16_t>& in, edm::DetSet
     }
     else {
       adcPrev = *(in_iter-1);
-      thePrevFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-1)  * SiStripPedestalsService_->getNoise(detID,strip-1);
-      thePrevFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip-1) * SiStripPedestalsService_->getNoise(detID,strip-1); 
+      thePrevFEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-1)  * SiStripNoiseService_->getNoise(detID,strip-1);
+      thePrevFEDhighThresh = SiStripPedestalsService_->getHighTh(detID,strip-1) * SiStripNoiseService_->getNoise(detID,strip-1); 
     }
     if ( adcNext < adcPrev){
       adcMaxNeigh = adcPrev;
@@ -145,7 +145,7 @@ void SiStripZeroSuppressor::suppress(const std::vector<int16_t>& in, edm::DetSet
     }
     else if ( in_iter < in.end() -2 ) {
       adcNext2 = *(in_iter+2);
-      theNext2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+2) * SiStripPedestalsService_->getNoise(detID,strip+2);
+      theNext2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip+2) * SiStripNoiseService_->getNoise(detID,strip+2);
     }
     if ( in_iter - in.begin() == 1 ) {
       adcPrev2 = 9999; 
@@ -153,7 +153,7 @@ void SiStripZeroSuppressor::suppress(const std::vector<int16_t>& in, edm::DetSet
     }
     else if ( in_iter - in.begin() > 1 ) {
       adcPrev2 = *(in_iter-2);
-      thePrev2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-2) * SiStripPedestalsService_->getNoise(detID,strip-2);
+      thePrev2FEDlowThresh  = SiStripPedestalsService_->getLowTh(detID,strip-2) * SiStripNoiseService_->getNoise(detID,strip-2);
     }
     
     if (IsAValidDigi())

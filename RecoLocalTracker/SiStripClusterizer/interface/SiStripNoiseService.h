@@ -24,10 +24,10 @@ class SiStripNoiseService {
   SiStripNoiseService(const edm::ParameterSet& conf);
   ~SiStripNoiseService(){};
   
-  void configure( const edm::EventSetup& es );
+  //  void configure( const edm::EventSetup& es );
   void setESObjects( const edm::EventSetup& es );
-  float getNoise   (const uint32_t& detID,const uint32_t& strip) const;
-  bool  getDisable (const uint32_t& detID,const uint32_t& strip) const;
+  float getNoise   (const uint32_t& detID,const uint16_t& strip) ;
+  bool  getDisable (const uint32_t& detID,const uint16_t& strip) ;
 
  private:
   edm::ParameterSet conf_;
@@ -41,6 +41,10 @@ class SiStripNoiseService {
 
   edm::ESHandle<SiStripNoises> noise;
   edm::ESHandle<TrackerGeometry> tkgeom;
+
+  SiStripNoises::Range old_range;
+  uint32_t old_detID;
+  float    old_noise;
 };
 
 #endif
