@@ -4,13 +4,13 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id$
+ * $Id: common.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
  */
 
 function get_conn_params() {
-  return array('user' => "__CHANGE_ME__";
-	       'pass' => "__CHANGE_ME__";
-	       'sid'  => "__CHANGE_ME__";
+  return array('user' => "__CHANGE_ME__",
+	       'pass' => "__CHANGE_ME__",
+	       'sid'  => "__CHANGE_ME__");
 }
 
 function get_dqm_url($run) {
