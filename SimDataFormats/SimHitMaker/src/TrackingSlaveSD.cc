@@ -1,5 +1,5 @@
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+//#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -24,7 +24,7 @@ void TrackingSlaveSD::Initialize(){
 
   hits_.clear(); 
 }
-
+/*
 void TrackingSlaveSD::renumbering(const SimTrackManager* tkManager){
   //
   // Now renumber the Hits
@@ -45,6 +45,7 @@ void TrackingSlaveSD::renumbering(const SimTrackManager* tkManager){
   }
 
 }
+*/
 bool TrackingSlaveSD::format()
 {
 
