@@ -1,6 +1,8 @@
 #ifndef TRACKINGOBJECTS_PIXELDIGI_H
 #define TRACKINGOBJECTS_PIXELDIGI_H
 
+// 25/06/06 - get rid of time(), change adc() from int to undigned short. d.k.
+
 #include <utility>
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 
@@ -32,8 +34,8 @@ public:
   // Access to digi information
   int row() const     {return (theData >> PixelChannelIdentifier::thePacking.row_shift) & PixelChannelIdentifier::thePacking.row_mask;}
   int column() const  {return (theData >> PixelChannelIdentifier::thePacking.column_shift) & PixelChannelIdentifier::thePacking.column_mask;}
-  int time() const    {return (theData >> PixelChannelIdentifier::thePacking.time_shift) & PixelChannelIdentifier::thePacking.time_mask;}
-  int adc() const     {return (theData >> PixelChannelIdentifier::thePacking.adc_shift) & PixelChannelIdentifier::thePacking.adc_mask;}
+  //int time() const    {return (theData >> PixelChannelIdentifier::thePacking.time_shift) & PixelChannelIdentifier::thePacking.time_mask;}
+  unsigned short adc() const  {return (theData >> PixelChannelIdentifier::thePacking.adc_shift) & PixelChannelIdentifier::thePacking.adc_mask;}
   PackedDigiType packedData() const {return theData;}
 
   static std::pair<int,int> channelToPixel( int ch) {
