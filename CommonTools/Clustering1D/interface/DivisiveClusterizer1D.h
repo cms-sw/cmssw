@@ -53,7 +53,7 @@ private:
     Cluster1DCleaner<T>* theCleaner;
     float theZOffSet;
     float theZSeparation;
-    int theNTkMin;
+    unsigned theNTkMin;
     bool theWei;
     bool theUseError;
 };
@@ -68,8 +68,8 @@ DivisiveClusterizer1D<T>::DivisiveClusterizer1D(float zoffset,
         int ntkmin,
         bool useError,
         float zsep, bool wei)
-        :theZOffSet(zoffset),theNTkMin(ntkmin),
-        theUseError(useError),theZSeparation(zsep), theWei(wei)
+        :theZOffSet(zoffset), theZSeparation(zsep), theNTkMin(ntkmin),
+        theWei(wei), theUseError(useError)
 {
     //  theDiscardedTracks.clear();
     // theTotalDiscardedTracks.clear();
@@ -202,8 +202,8 @@ DivisiveClusterizer1D<T>::makeCluster1Ds( std::vector < Cluster1D<T> >& clusters
                 pvClu0 = pvCluNew;
             }
         } // while nDiscardedAtIteration
-        int ntkclus = pvCluNew.size();
-        int ndiscard = discardedTracks.size();
+        unsigned ntkclus = pvCluNew.size();
+        unsigned ndiscard = discardedTracks.size();
 
         if ( ntkclus >=  theNTkMin )
         {
