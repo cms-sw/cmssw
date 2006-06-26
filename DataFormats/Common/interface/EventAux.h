@@ -15,6 +15,11 @@ namespace edm
     explicit EventAux(EventID const& id) : process_history_(), id_(id) {}
     EventAux(EventID id, Timestamp const& time) : process_history_(), id_(id), time_(time) {}
     ~EventAux() {}
+
+    ProcessNameList const& processHistory() const {return process_history_;}
+    EventID const& id() const {return id_;}
+    Timestamp const& time() const {return time_;}
+
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     ProcessNameList process_history_;

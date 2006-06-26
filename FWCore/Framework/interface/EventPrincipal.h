@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.29 2006/04/16 00:26:21 wmtan Exp $
+$Id: EventPrincipal.h,v 1.30 2006/05/03 23:36:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -111,11 +111,11 @@ namespace edm {
     const_iterator end() const { return groups_.end(); }
 
     ProcessNameConstIterator beginProcess() const {
-      return aux_.process_history_.begin();
+      return aux_.processHistory().begin();
     }
 
     ProcessNameConstIterator endProcess() const {
-      return aux_.process_history_.end();
+      return aux_.processHistory().end();
     }
 
     ProcessNameList const& processHistory() const;    

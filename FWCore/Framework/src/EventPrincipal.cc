@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.40 2006/06/24 01:46:34 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.41 2006/06/24 05:44:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -66,12 +66,12 @@ private:
 
   EventID
   EventPrincipal::id() const {
-    return aux_.id_;
+    return aux_.id();
   }
 
   Timestamp
   EventPrincipal::time() const {
-    return aux_.time_;
+    return aux_.time();
   }
 
   unsigned long
@@ -144,7 +144,7 @@ private:
 
   ProcessNameList const&
   EventPrincipal::processHistory() const {
-    return aux_.process_history_;
+    return aux_.processHistory();
   }
 
   void 
@@ -293,8 +293,8 @@ private:
     // correct policy of making the assumed label be ... whatever we
     // set the policy to be. I don't know the answer right now...
 
-    ProcessNameList::const_reverse_iterator iproc = aux_.process_history_.rbegin();
-    ProcessNameList::const_reverse_iterator eproc = aux_.process_history_.rend();
+    ProcessNameList::const_reverse_iterator iproc = aux_.processHistory().rbegin();
+    ProcessNameList::const_reverse_iterator eproc = aux_.processHistory().rend();
     while (iproc != eproc) {
 	string const& processName_ = *iproc;
 	BranchKey bk(id.friendlyClassName(), label, productInstanceName, processName_);
