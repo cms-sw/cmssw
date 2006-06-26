@@ -1,8 +1,8 @@
 #include "RecoMuon/CosmicMuonProducer/interface/DirectMuonNavigation.h"
 /** \file DirectMuonNavigation
  *
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2006/06/19 19:37:13 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -47,46 +47,134 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
                                         PropagationDirection dir ) const {
 
   float z0 = fts.position().z();
+  float zm = fts.momentum().z();
+  bool inOut = outward(fts);
 
   vector<const DetLayer*> output;
-  vector<const ForwardDetLayer*>::const_iterator iter_E;
-  vector<const BarrelDetLayer*>::const_iterator iter_B;
-  bool cont = false;
-  // add barrel first 
-  for (iter_B = theBarrelLayers.begin(); iter_B != theBarrelLayers.end() ;
-       iter_B++){
-      if( cont ) output.push_back((*iter_B));
-      else if ( checkCompatible(fts,(*iter_B))) {
-      output.push_back((*iter_B));
-      cont = true;
-    }
-  }
 
-  cont = false;
+  // check direction and position of FTS to get a correct order of DetLayers
 
-  if ( z0 > 0. ) {
-    for (iter_E = theForwardLayers.begin(); iter_E != theForwardLayers.end() ; 
-	 iter_E++){
-      if( cont ) output.push_back((*iter_E));
-      else if ( checkCompatible(fts,(*iter_E))) {
-	output.push_back((*iter_E));
-	cont = true;
-      }
-    }
-  } else {
-    for (iter_E = theBackwardLayers.begin(); iter_E != theBackwardLayers.end() ; 
-	 iter_E++){
-      if( cont ) output.push_back((*iter_E));
-      else if ( checkCompatible(fts,(*iter_E))) {
-	output.push_back((*iter_E));
-	cont = true;
-      }
-    }
-  }
+  if (inOut) { 
+     if ((zm * z0) >= 0) {
+        inOutBarrel(fts,output);
+        if ( z0 >= 0 ) inOutForward(fts,output);
+        else inOutBackward(fts,output);
+      } else {
+        if ( z0 >= 0 ) outInForward(fts,output);
+        else outInBackward(fts,output);
+        inOutBarrel(fts,output);
+      } 
+   } else {
+     if ((zm * z0) >= 0) {
+        outInBarrel(fts,output);
+        if ( z0 >= 0 ) inOutForward(fts,output);
+        else inOutBackward(fts,output);
+      } else {
+        if ( z0 >= 0 ) outInForward(fts,output);
+        else outInBackward(fts,output);
+        outInBarrel(fts,output);
+      } 
+   }
 
   return output;
 }
 
+
+void DirectMuonNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+
+  bool cont = false;
+  for (vector<const BarrelDetLayer*>::const_iterator iter_B = theBarrelLayers.begin(); iter_B != theBarrelLayers.end(); iter_B++){
+
+      if( cont ) output.push_back((*iter_B));
+      else if ( checkCompatible(fts,(*iter_B))) {
+      output.push_back((*iter_B));
+      cont = true;
+      }
+  }
+}
+
+
+void DirectMuonNavigation::outInBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+
+// default barrel layers are in out, reverse order 
+
+  bool cont = false;
+  vector<const BarrelDetLayer*>::const_iterator rbegin = theBarrelLayers.end(); 
+  rbegin--;
+  vector<const BarrelDetLayer*>::const_iterator rend = theBarrelLayers.begin();
+  rend--;
+
+  for (vector<const BarrelDetLayer*>::const_iterator iter_B = rbegin; iter_B != rend; iter_B--){
+      if( cont ) output.push_back((*iter_B));
+      else if ( checkCompatible(fts,(*iter_B))) {
+      output.push_back((*iter_B));
+      cont = true;
+      }
+  }
+}
+
+void DirectMuonNavigation::inOutForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+
+  bool cont = false;
+  for (vector<const ForwardDetLayer*>::const_iterator iter_E = theForwardLayers.begin(); iter_E != theForwardLayers.end(); 
+	 iter_E++){
+      if( cont ) output.push_back((*iter_E));
+      else if ( checkCompatible(fts,(*iter_E))) {
+	output.push_back((*iter_E));
+	cont = true;
+      }
+    }
+}
+
+void DirectMuonNavigation::outInForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+// default forward layers are in out, reverse order
+
+  bool cont = false;
+  vector<const ForwardDetLayer*>::const_iterator rbegin = theForwardLayers.end();
+  rbegin--;
+  vector<const ForwardDetLayer*>::const_iterator rend = theForwardLayers.begin();
+  rend--;
+  for (vector<const ForwardDetLayer*>::const_iterator iter_E = rbegin; iter_E != rend;
+         iter_E--){
+      if( cont ) output.push_back((*iter_E));
+      else if ( checkCompatible(fts,(*iter_E))) {
+        output.push_back((*iter_E));
+        cont = true;
+      }
+    }
+
+}
+
+void DirectMuonNavigation::inOutBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+  bool cont = false;
+
+  for (vector<const ForwardDetLayer*>::const_iterator iter_E = theBackwardLayers.begin(); iter_E != theBackwardLayers.end(); 
+       iter_E++){
+      if( cont ) output.push_back((*iter_E));
+      else if ( checkCompatible(fts,(*iter_E))) {
+	output.push_back((*iter_E));
+	cont = true;
+      }
+   }
+}
+
+void DirectMuonNavigation::outInBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+
+  bool cont = false;
+  vector<const ForwardDetLayer*>::const_iterator rbegin = theBackwardLayers.end();
+  rbegin--;
+  vector<const ForwardDetLayer*>::const_iterator rend = theBackwardLayers.begin();
+  rend--;
+  for (vector<const ForwardDetLayer*>::const_iterator iter_E = rbegin; iter_E != rend;
+       iter_E--){
+      if( cont ) output.push_back((*iter_E));
+      else if ( checkCompatible(fts,(*iter_E))) {
+        output.push_back((*iter_E));
+        cont = true;
+      }
+   }
+
+}
 
 void DirectMuonNavigation::addBarrelLayer(BarrelDetLayer* mbp) {
 

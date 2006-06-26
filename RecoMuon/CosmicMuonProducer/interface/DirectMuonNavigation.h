@@ -2,7 +2,7 @@
 #define CosmicMuonProducer_DirectMuonNavigation_H
 /** \file DirectMuonNavigation
  *
- *  $Date: 2006/06/14 00:04:49 $
+ *  $Date: 2006/06/19 19:37:25 $
  *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
@@ -37,6 +37,15 @@ class DirectMuonNavigation{
   private:
     void addBarrelLayer(BarrelDetLayer* dl);
     void addEndcapLayer(ForwardDetLayer* dl);
+
+    void inOutBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+    void outInBarrel(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+
+    void inOutForward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+    void outInForward(const FreeTrajectoryState&, vector<const DetLayer*>&) const; 
+
+    void inOutBackward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
+    void outInBackward(const FreeTrajectoryState&, vector<const DetLayer*>&) const;
 
     bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
     bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
