@@ -84,7 +84,7 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
 
 // subscription request; format: (a) exact pathname (e.g. A/B/C/histo)
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-void MonitorUserInterface::subscribe(const string & subsc_request)
+void MonitorUserInterface::subscribe(string subsc_request)
 {
   if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;
@@ -93,7 +93,7 @@ void MonitorUserInterface::subscribe(const string & subsc_request)
 
 // unsubscription request; format: (a) exact pathname (e.g. A/B/C/histo)
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-void MonitorUserInterface::unsubscribe(const string & subsc_request)
+void MonitorUserInterface::unsubscribe(string subsc_request)
 {
   if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;
@@ -101,7 +101,7 @@ void MonitorUserInterface::unsubscribe(const string & subsc_request)
 }
 
 // similar to method subscribe; use only additions to monitorable in last cycle
-void MonitorUserInterface::subscribeNew(const string & subsc_request)
+void MonitorUserInterface::subscribeNew(string subsc_request)
 {
   if(!needUpstreamConnections()) return;
   if(subsc_request.empty())return;

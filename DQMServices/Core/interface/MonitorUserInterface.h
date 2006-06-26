@@ -8,6 +8,8 @@ class CollateMonitorElement;
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/QCriterion.h"
 
+#include <SealBase/Callback.h>
+
 #include <list>
 #include <map>
 
@@ -38,10 +40,14 @@ class MonitorUserInterface : public StringUtil
   // 
   bool standaloneMode_;
 
+
  public:
 
   virtual ~MonitorUserInterface();
   
+
+  // add call back; to be used for thread-unsafe operations
+  virtual void addCallback(seal::Callback & action) = 0;
 
   // ---------------- Getters -----------------------------
   // get ME from full pathname (e.g. "my/long/dir/my_histo")
@@ -146,12 +152,12 @@ class MonitorUserInterface : public StringUtil
   
   // subscription request; format: (a) exact pathname (e.g. A/B/C/histo)
   // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-  void subscribe(const std::string & subsc_request);
+  void subscribe(std::string subsc_request);
   // unsubscription request; format: (a) exact pathname (e.g. A/B/C/histo)
   // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-  void unsubscribe(const std::string & subsc_request);
+  void unsubscribe(std::string subsc_request);
   // similar to method subscribe; use only additions to monitorable in last cycle
-  void subscribeNew(const std::string & subsc_request);
+  void subscribeNew(std::string subsc_request);
 
   // ---------------- Miscellaneous -----------------------------
   
