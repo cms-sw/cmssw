@@ -1,8 +1,8 @@
 
 /*
- * Format plots of resolutions, etc. produced by MBHitQualityPlots.cpp.
+ * Format plots of resolutions, etc. produced by DTRecHits validation.
  * The root tree containing the histograms must be already open when 
- * executing this macro
+ * executing this macro.
  * 
  * G. Cerminara 2004
  */
@@ -27,7 +27,7 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
 // void plot4DAngles(hRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
-void setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
+bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
 // 
 
 
