@@ -6,7 +6,7 @@
 // \description  Base class for pixel CPE's, with all the common code.
 // Perform the position and error evaluation of pixel hits using 
 // the Det angle to estimate the track impact angle.
-// 
+// Move geomCorrection to the concrete class. d.k. 06/06.
 //-----------------------------------------------------------------------------
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
@@ -25,8 +25,6 @@
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-// &&& Let's hope for the best... //#include "CommonDet/BasicDet/interface/Enumerators.h"
 
 #include <utility>
 #include <vector>
@@ -139,7 +137,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //---------------------------------------------------------------------------
 
   //--- Estimation of alpha_ and beta_
-  float estimatedAlphaForBarrel(float centerx) const;
+  //float estimatedAlphaForBarrel(float centerx) const;
   void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
 				    const GeomDetUnit    & det ) const;
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
@@ -170,7 +168,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //---------------------------------------------------------------------------
   //  Various position corrections.
   //---------------------------------------------------------------------------
-  float geomCorrection()const;
+  //float geomCorrection()const;
 
   //--- The Lorentz shift correction
   virtual float lorentzShift() const;

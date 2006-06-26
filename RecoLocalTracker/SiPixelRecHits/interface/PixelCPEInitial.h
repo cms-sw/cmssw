@@ -1,6 +1,9 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEInitial_H
 #define RecoLocalTracker_SiPixelRecHits_PixelCPEInitial_H 1
 
+// Move geomCorrection from the base class, modify it. 
+// comment out etaCorrection. d.k. 06/06
+
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 
@@ -16,9 +19,6 @@
 
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
-// &&& Let's hope for the best... //#include "CommonDet/BasicDet/interface/Enumerators.h"
 
 #include <utility>
 #include <vector>
@@ -60,7 +60,11 @@ class PixelCPEInitial : public PixelCPEBase
   // Quantities needed to calculate xpos() and ypos()
   float chargeWidthX()const;
   float chargeWidthY()const;
-  float chaWidth2X(const float&) const;  // &&& NOT USED.  Remove?
+  //float chaWidth2X(const float&) const;  // &&& NOT USED.  Remove?
+
+  float geomCorrectionX(float xpos)const;  // 2nd order correction to the 
+  float geomCorrectionY(float ypos)const;  // track angle from detector position
+
 };
 
 #endif

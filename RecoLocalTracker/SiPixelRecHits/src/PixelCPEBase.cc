@@ -1,4 +1,5 @@
-//#include "Utilities/Configuration/interface/Architecture.h"
+// Move geomCorrection to the concrete class. d.k. 06/06.
+// Change drift direction. d.k. 06/06
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 //#include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -133,8 +134,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det )const
 
 //-----------------------------------------------------------------------------
 //  Compute alpha_ and beta_ from the position of this DetUnit.
-//  &&& Needs to be consolidated with estimatedAlphaForBarrel() below.
-//  &&& Does not work for Forward!
+//  &&& DOES NOT WORK FOR NOW. d.k. 6/06
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
 computeAnglesFromDetPosition(const SiPixelCluster & cl, 
@@ -145,7 +145,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float xmax = float(cl.maxPixelRow()) + 0.5;
   float xcenter = 0.5*( xmin + xmax );
   
-  alpha_ = estimatedAlphaForBarrel(xcenter);
+  alpha_ = 0.0; // estimatedAlphaForBarrel(xcenter);
   beta_  = 0.0;                             // &&& ????
 }
 
@@ -182,15 +182,12 @@ computeAnglesFromTrajectory(const SiPixelCluster & cl,
 //  Estimate theAlpha for barrel, based on the det position.
 //  &&& Needs to be consolidated from the above.
 //-----------------------------------------------------------------------------
-float 
-PixelCPEBase::estimatedAlphaForBarrel(float centerx) const
-{
-  float tanalpha = theSign * (centerx-theOffsetX) * thePitchX / theDetR;
-  return PI/2.0 - atan(tanalpha);
-}
-
-
-
+//float 
+//PixelCPEBase::estimatedAlphaForBarrel(float centerx) const
+//{
+//  float tanalpha = theSign * (centerx-theOffsetX) * thePitchX / theDetR;
+//  return PI/2.0 - atan(tanalpha);
+//}
 
 
 //-----------------------------------------------------------------------------
@@ -206,9 +203,6 @@ PixelCPEBase::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & d
   return lp;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 //  Once we have the position, feed it to the topology to give us
 //  the error.  
@@ -221,8 +215,6 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
   LocalError le( localError(   cluster, det) );
   return theTopol->measurementError( lp, le );
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -244,12 +236,6 @@ PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, const GeomDetU
 }
 
 
-
-
-
-
-
-
 //-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.
 // In the barrel for every 2nd ladder the E field direction is in the
@@ -261,17 +247,9 @@ PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, const GeomDetU
 // The isFliped does it by looking and the relation of the local (z always
 // in the E direction) to global coordinates. There is probably a much 
 // better way.
-//
-// Plan: ignore it for the moment
 //-----------------------------------------------------------------------------
-bool 
-PixelCPEBase::isFlipped() const
-{
-// &&& Not sure what the need is -- ask Danek.
-  //  float tmp1 = theDet->toGlobal( Local3DPoint(0.,0.,0.) ).perp();
-  //   float tmp2 = theDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
-  //   if ( tmp2<tmp1 ) return true;
-  // else return false;
+bool PixelCPEBase::isFlipped() const {
+  // Check the relative position of the local +/- z in global coordinates.
   float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
   float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
   //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
@@ -280,35 +258,26 @@ PixelCPEBase::isFlipped() const
 }
 
 
-
-
 //-----------------------------------------------------------------------------
 // From Danek: "geomCorrection() is sort of second order effect, ignore it for 
 // the moment. I have to to derive it again and understand better what it means."
 //-----------------------------------------------------------------------------
-float 
-PixelCPEBase::geomCorrection() const
-{ 
-  //@@ the geometrical correction are calculated only
-  //@@ for the barrel part (am I right?)  &&& ??????????????????
-  if (thePart == GeomDetType::PixelEndcap) return 0;
-  else return theThickness / theDetR;
-}
-
+//float 
+//PixelCPEBase::geomCorrection() const
+//{ 
+//  //@@ the geometrical correction are calculated only
+//  //@@ for the barrel part (am I right?)  &&& ??????????????????
+//  if (thePart == GeomDetType::PixelEndcap) return 0;
+//  else return theThickness / theDetR;
+//}
 
 
 //-----------------------------------------------------------------------------
-//  Lorentz shift, but valid only for the barrel.
+// Lorentz shift. For the moment only in X direction (barrel & endcaps)
+// For the forward the y componenet might have to be added.
 //-----------------------------------------------------------------------------
-float 
-PixelCPEBase::lorentzShift() const
-{
-  // Implement only the x direction shift for now (OK for barrel)
-  // &&& TEMPORARY 
-  //LocalVector dir = theDet->driftDirection( LocalPoint(0,0));
-  //LocalVector dir(0,0,1);  // &&& TEMPORARY HACK
+float PixelCPEBase::lorentzShift() const {
   LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
-
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
   // express the shift in units of pitch, 
@@ -321,11 +290,6 @@ PixelCPEBase::lorentzShift() const
  
   return lshift;  
 }
-
-
-
-
-
 
 //-----------------------------------------------------------------------------
 //  Sum the pixels in the first and the last row, and the total.  Returns
@@ -353,8 +317,6 @@ PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   charge.push_back(qm);
   return charge;
 } 
-
-
 
 //-----------------------------------------------------------------------------
 //  Sum the pixels in the first and the last column, and the total.  Returns
@@ -385,12 +347,11 @@ PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   return charge;
 } 
 
-
-
-
 //-----------------------------------------------------------------------------
 //  Drift direction.
-//  NB: it's correct only for the barrel!  &&& Need to fix it for the forward.
+//  Works OK for barrel and forward.
+//  The formulas used for dir_x,y,z have to be exactly the same as the ones
+//  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
 //  Assumption: setTheDet() has been called already.
 //-----------------------------------------------------------------------------
 LocalVector 
@@ -398,12 +359,9 @@ PixelCPEBase::driftDirection( GlobalVector bfield )const
 {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
-
-
-  //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
   float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
   float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
-  float dir_z = 1.; // E field always in z direction
+  float dir_z = -1.; // E field always in z direction, so electrons go to -z.
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
   if (theVerboseLevel > 0) {
@@ -412,7 +370,6 @@ PixelCPEBase::driftDirection( GlobalVector bfield )const
   }
 
   return theDriftDirection;
-  //  }
 }
 
 

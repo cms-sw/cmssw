@@ -1,4 +1,5 @@
-//#include "Utilities/Configuration/interface/Architecture.h"
+// Move geomCorrection from the base class, modify it. 
+// comment out etaCorrection. d.k. 06/06
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 //#include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -187,11 +188,8 @@ PixelCPEInitial::err2Y(bool& edgey, int& sizey) const
   return yerr*yerr;
 }
 
-
-
 //-----------------------------------------------------------------------------
-//  Calculates the *corrected* position of the cluster.
-//  &&& Probably generic enough for the base class.
+// Position estimate in X-direction
 //-----------------------------------------------------------------------------
 float 
 PixelCPEInitial::xpos(const SiPixelCluster& cluster) const
@@ -204,6 +202,7 @@ PixelCPEInitial::xpos(const SiPixelCluster& cluster) const
   if (size == 1) {
     // the middle of only one pixel is equivalent to the baryc.
     xcluster = baryc;
+
   } else {
 
     //calculate center
@@ -214,31 +213,34 @@ PixelCPEInitial::xpos(const SiPixelCluster& cluster) const
     vector<float> xChargeVec = xCharge(pixelsVec, xmin, xmax); 
     float q1 = xChargeVec[0];
     float q2 = xChargeVec[1];
-    float chargeWX = chargeWidthX() + theSign * geomCorrection() * xcenter;
-    float effchargeWX = fabs(chargeWX) - (float(size)-2);
 
+   // Estimate the charge width. main contribution + 2nd order geom corr.
+    float chargeWX = chargeWidthX() + geomCorrectionX(xcenter);
+
+    // Check the valid chargewidth
+    float effchargeWX = fabs(chargeWX) - (float(size)-2);
     // truncated charge width only if it greather than the cluster size
-    if ( fabs(effchargeWX) > 2 ) effchargeWX = 1;
+    if ( (effchargeWX< 0.) || (effchargeWX>2.) ) effchargeWX = 1.;
 
     xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.;
 
-
+    // Parametrized Eta-correction.
+    // Skip it, it does not bring anything and makes forward hits worse. d.k. 6/06
     //float alpha = estimatedAlphaForBarrel(xcenter); // done by base class now
-    if (alpha_ < 1.53) {
-      float etashift=0;
-      float charatio = q1/(q1+q2);
-      etashift = theEtaFunc.xEtaShift(size, thePitchX, 
-				      charatio, alpha_);
-      xcluster = xcluster - etashift;
-    }
+//     if (alpha_ < 1.53) {
+//       float etashift=0;
+//       float charatio = q1/(q1+q2);
+//       etashift = theEtaFunc.xEtaShift(size, thePitchX, 
+// 				      charatio, alpha_);
+//       xcluster = xcluster - etashift;
+//     }
+
   }    
   return xcluster;
 }
 
-
 //-----------------------------------------------------------------------------
-//  Calculates the *corrected* position of the cluster.
-//  &&& Probably generic enough for the base class.
+// Position estimate in the local y-direction
 //-----------------------------------------------------------------------------
 float 
 PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
@@ -247,11 +249,10 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   int size = cluster.sizeY();
   float baryc = cluster.y();
-  // &&& Testing...
-  //if (baryc > 0) return baryc;
 
   if (size == 1) {
     ycluster = baryc;
+
   } else if (size < 4) {
 
     // Calculate center
@@ -259,8 +260,9 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
     float ymax = float(cluster.maxPixelCol()) + 0.5;
     float ycenter = ( ymin + ymax ) / 2;
 
-    //calculate charge width
-    float chargeWY = chargeWidthY() + geomCorrection() * ycenter;
+    //calculate charge width with/without the 2nd order geom-correction
+    //float chargeWY = chargeWidthY() + geomCorrectionY(ycenter); //+correction
+    float chargeWY = chargeWidthY();  // no 2nd order correction
     float effchargeWY = fabs(chargeWY) - (float(size)-2);
 
     // truncate charge width when it is > 2
@@ -294,37 +296,30 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
   return ycluster;
 }
 
-
-
 //-----------------------------------------------------------------------------
-//
+// This is the main contribution to the charge width in the X direction
+// Lorentz shift for the barrel and lorentz+geometry for the forward.
 //-----------------------------------------------------------------------------
-float 
-PixelCPEInitial::chargeWidthX() const
-{ 
+float PixelCPEInitial::chargeWidthX() const { 
   float chargeW = 0;
   float lorentzWidth = 2 * theLShift;
   if (thePart == GeomDetType::PixelBarrel) {
-    // Redefine the charge width to include the offset
-    chargeW = lorentzWidth - theSign * geomCorrection() * theOffsetX;
+    chargeW = lorentzWidth; //  width from Lorentz shift
   } else { // forward
-    chargeW = fabs(lorentzWidth) + 
-      theThickness * fabs(theDetR/theDetZ) / thePitchX;
+    chargeW = fabs(lorentzWidth) +                      // Lorentz shift
+      theThickness * fabs(theDetR/theDetZ) / thePitchX; // + geometry
   }
   return chargeW;
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// This is the main contribution to the charge width in the Y direction
 //-----------------------------------------------------------------------------
-float 
-PixelCPEInitial::chargeWidthY() const
-{
+float PixelCPEInitial::chargeWidthY() const {
   float chargeW = 0;  
   if (thePart == GeomDetType::PixelBarrel) {
+   // Charge width comes from the geometry (inclined angles)
     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
-    chargeW -= (geomCorrection() * theOffsetY);
   } else { //forward
     // Width comes from geometry only, fixed by the tilt angle
    chargeW = theThickness * tan(20./degsPerRad) / thePitchY; 
@@ -332,20 +327,31 @@ PixelCPEInitial::chargeWidthY() const
   return chargeW;
 }
 
-
-
-
-
-
 //-----------------------------------------------------------------------------
-// &&& NOT USED.  Remove?
+// This takes into account that the charge width is not the same across a
+// single detector module (sort of a 2nd order effect).
+// It makes more sense for the barrel since the barrel module are larger
+// and they are placed closer top the IP.
 //-----------------------------------------------------------------------------
-float 
-PixelCPEInitial::chaWidth2X(const float& centerx) const
-{
-  float chargeWX = chargeWidthX() + theSign * geomCorrection() * centerx;
-  if ( chargeWX > 1. || chargeWX <= 0. ) chargeWX=1.;
-  return chargeWX;
+// Correction for the X-direction
+// This is better defined as the IP is well localized in the x-y plane.
+float PixelCPEInitial::geomCorrectionX(float xcenter) const {
+  if (thePart == GeomDetType::PixelEndcap) return 0;
+  else {
+    float tmp = theSign * (theThickness / theDetR) * (xcenter-theOffsetX);
+    return tmp;
+  }
 }
+// Correction for the Y-direction
+// This is poorly defined becouse the IP is very smeared along the z direction.
+float PixelCPEInitial::geomCorrectionY(float ycenter) const {
+  if (thePart == GeomDetType::PixelEndcap) return 0;
+  else {
+    float tmp = (ycenter - theOffsetY) * theThickness / theDetR;
+    if(theDetZ>0.) tmp = -tmp; // it is the opposite for Z>0 and Z<0
+    return tmp;
+  }
+}
+ 
 
 
