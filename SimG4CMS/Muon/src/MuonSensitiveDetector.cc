@@ -123,7 +123,7 @@ void MuonSensitiveDetector::update(const BeginOfEvent * i){
 
 void MuonSensitiveDetector::update(const  ::EndOfEvent * ev)
 {
-  slaveMuon->renumbering(theManager);
+  //slaveMuon->renumbering(theManager);
 }
 
 
