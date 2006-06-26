@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/04/27 21:56:57 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/06/19 16:08:44 $
+ *  $Revision: 1.1 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -689,7 +689,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int DCCid, DCCTowerBlock *  towerblock,  Ec
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
     // fixme giof: second argumenti is DCCId, to be determined
-    std::cout << DCCid << " " << ecalFirstFED_ << std::endl;
+    //    std::cout << DCCid << " " << ecalFirstFED_ << std::endl;
     EcalPnDiodeDetId PnId(EcalBarrel, DCCid, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 

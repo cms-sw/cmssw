@@ -13,6 +13,7 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalRawToDigi.h"
 #include "EventFilter/EcalRawToDigi/src/DCCMapper.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
           
 /*------------------------------------------------------------------*/
 /* EcalRawToDigi::EcalRawToDigi                                     */
@@ -136,7 +137,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 	    ulong smId_ = myMap_->getSMId(*i);
 	    
 	    //for debug purposes
- 	    cout << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;
+ 	    edm::LogInfo("EcalRawToDigi") << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;
 
 	    // do the data unpacking and fill the collections
 	    formatter_->interpretRawData(fedData,  *productEb, *productPN, 
