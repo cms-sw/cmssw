@@ -1,0 +1,6 @@
+<export>
+ <lib name=DataFormatsDTTFData>
+ <use name=FWCore/EDProduct>
+</export>
+
+<use name=FWCore/EDProduct>
