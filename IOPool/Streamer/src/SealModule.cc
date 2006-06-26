@@ -22,13 +22,13 @@ typedef edm::EventStreamingModule<edmtest::TestConsumer> StreamTestConsumer;
 using edmtestp::StreamerFileReader;
 using edm::StreamerFileWriter;
 using stor::FragmentInput;
-//using edmtestp::EventStreamFileReader;
+using edmtestp::EventStreamFileReader;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(StreamTestConsumer);
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(FragmentInput);
 
-//DEFINE_ANOTHER_FWK_INPUT_SOURCE(EventStreamFileReader);
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(EventStreamFileReader);
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(StreamerFileReader);
 
 //DEFINE_ANOTHER_FWK_MODULE(EventStreamFileWriter);
