@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/06/23 07:02:26 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/26 20:59:39 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,6 +30,10 @@ EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
   meHodoSloYRec_  =0;
   meHodoQuaXRec_ =0;
   meHodoQuaYRec_ =0;
+  meHodoPosXMinusCaloPosXVsCry_   =0;
+  meHodoPosYMinusCaloPosYVsCry_   =0;
+  meTDCTimeMinusCaloTimeVsCry_ =0;
+
   meEvsXRecProf_     =0;
   meEvsYRecProf_     =0;
   meEvsXRecHis_     =0;
@@ -49,7 +53,7 @@ void EBBeamHodoTask::beginJob(const EventSetup& c){
 
   ievt_  = 0;
   LV1_ = 0;
-  cryInBeamCounter_ =0;
+  cryInBeamCounter_ =1;
   resetNow_                =false;
 
 }
@@ -105,7 +109,15 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    // gio: add 'bus stop' stuff here.
+    sprintf(histo, "EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
+    meHodoPosXMinusCaloPosXVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
+    
+    sprintf(histo, "EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
+    meHodoPosYMinusCaloPosYVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
+    
+    sprintf(histo, "EBBHT (TDC-Calo)VsCry SM%02d", smId);
+    meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
+
 
 
 
@@ -185,6 +197,12 @@ void EBBeamHodoTask::cleanup(void){
     meCaloVsHodoYPos_ = 0;
     if ( meCaloVsTDCTime_ ) dbe->removeElement( meCaloVsTDCTime_->getName() );
     meCaloVsTDCTime_ = 0;
+    if ( meHodoPosXMinusCaloPosXVsCry_  ) dbe->removeElement( meHodoPosXMinusCaloPosXVsCry_ ->getName() );
+    meHodoPosXMinusCaloPosXVsCry_  = 0;
+    if ( meHodoPosYMinusCaloPosYVsCry_  ) dbe->removeElement( meHodoPosYMinusCaloPosYVsCry_ ->getName() );
+    meHodoPosYMinusCaloPosYVsCry_  = 0;
+    if ( meTDCTimeMinusCaloTimeVsCry_  ) dbe->removeElement( meTDCTimeMinusCaloTimeVsCry_  ->getName() );
+    meTDCTimeMinusCaloTimeVsCry_  = 0;
 
   }
 
@@ -301,7 +319,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // in temporary absence of table status in DCCheader, here mimic:
   //  **   changes from 'table-is-still' to 'table-is-moving', and viceversa
   //  **   new value for cry-in-beam
-  if (ievt_%1000 ==0)
+  if (ievt_%300 ==0)
     {
       // change status every 3000 events
       tableIsMoving_ = (! tableIsMoving_); 
@@ -315,8 +333,39 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ << " switching table status by hand: from still to moving. " << endl;
       }
       else
-	{
+	{// if table has started moving
 	  LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " switching table status by hand: from moving to still. " << endl;
+	  // fill here plots which keep history of beamed crystals
+
+	  float HodoPosXMinusCaloPosXVsCry_mean=0;
+	  float HodoPosXMinusCaloPosXVsCry_rms   =0;
+	  float HodoPosYMinusCaloPosYVsCry_mean=0;
+	  float HodoPosYMinusCaloPosYVsCry_rms   =0;
+	  float TDCTimeMinusCaloTimeVsCry_mean    =0;
+	  float TDCTimeMinusCaloTimeVsCry_rms       =0;
+	  
+	  if (meCaloVsHodoXPos_ -> getEntries()  > 30){
+	    HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
+	    HodoPosXMinusCaloPosXVsCry_rms    = meCaloVsHodoXPos_ -> getRMS(1);
+	  }
+	  if (meCaloVsHodoYPos_ -> getEntries()  > 30){
+	    HodoPosYMinusCaloPosYVsCry_mean = meCaloVsHodoYPos_ -> getMean(1);
+	    HodoPosYMinusCaloPosYVsCry_rms    = meCaloVsHodoYPos_ -> getRMS(1);
+	  }
+	  if (meCaloVsTDCTime_ -> getEntries()  > 30){
+	    TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_    -> getMean(1);
+	    TDCTimeMinusCaloTimeVsCry_rms        = meCaloVsTDCTime_    -> getRMS(1);
+	  }
+	  meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
+	  meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
+	  meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
+	  meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
+	  meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
+	  meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
+
+	  LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_=" 
+				    << cryInBeamCounter_ << ")"<< endl;
+
 	}
     }
 
@@ -390,15 +439,14 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   meHodoQuaYRec_       ->Fill( recHodo->qualY());
 
 
+
+  // handling histos (type II)
   
   if (tableIsMoving_)
     {
       LogDebug("EcalBeamTask")<< "At event LV1:" << LV1_ << " table is moving. Not filling concerned monigoring elements. ";
       return;
     }
-
-
-  // handling histos (type II)
 
   float maxE =0;
   EBDetId maxHitId(0);
