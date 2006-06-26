@@ -1,7 +1,6 @@
 <export>
  <lib name=SimDataFormatsSimHitMaker>
  <use name=SimDataFormats/TrackingHit>
- <use name=SimG4Core/Application>
  <use name=SimDataFormats/CaloHit>
 </export>
 
