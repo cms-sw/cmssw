@@ -1,11 +1,11 @@
 <lcgdict>
   <class name="CLHEP::HepLorentzVector"/>
   <class name="CLHEP::Hep3Vector"/>
-  <class name="std::vector<EmbdSimTrack>"/>
+  <class name="std::vector<SimTrack>"/>
   <class name="CoreSimTrack"/>
-  <class name="EmbdSimTrack"/>
-  <class name="edm::Wrapper<std::vector<EmbdSimTrack> >" />
-  <class name="edm::RefProd<std::vector<EmbdSimTrack> >"/>
-  <class name="edm::Ref<std::vector<EmbdSimTrack>,EmbdSimTrack,edm::refhelper::FindUsingAdvance<std::vector<EmbdSimTrack>,EmbdSimTrack> >"/>
-  <class name="edm::RefVector<std::vector<EmbdSimTrack>,EmbdSimTrack,edm::refhelper::FindUsingAdvance<std::vector<EmbdSimTrack>,EmbdSimTrack> >"/>
+  <class name="SimTrack"/>
+  <class name="edm::Wrapper<std::vector<SimTrack> >" />
+  <class name="edm::RefProd<std::vector<SimTrack> >"/>
+  <class name="edm::Ref<std::vector<SimTrack>,SimTrack,edm::refhelper::FindUsingAdvance<std::vector<SimTrack>,SimTrack> >"/>
+  <class name="edm::RefVector<std::vector<SimTrack>,SimTrack,edm::refhelper::FindUsingAdvance<std::vector<SimTrack>,SimTrack> >"/>
 </lcgdict>

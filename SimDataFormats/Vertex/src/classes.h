@@ -1,6 +1,6 @@
 #include "SimDataFormats/Vertex/interface/CoreSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
@@ -11,11 +11,11 @@ namespace {
 namespace {
     CLHEP::HepLorentzVector dummy1;
     CLHEP::Hep3Vector dummy2;
-    EmbdSimVertex dummy33;
-    std::vector<EmbdSimVertex> dummy333;
-    edm::Wrapper<edm::EmbdSimVertexContainer> dummy33333;
-    edm::EmbdSimVertexRef r1;
-    edm::EmbdSimVertexRefVector rv1;
-    edm::EmbdSimVertexRefProd rp1; 
+    SimVertex dummy33;
+    std::vector<SimVertex> dummy333;
+    edm::Wrapper<edm::SimVertexContainer> dummy33333;
+    edm::SimVertexRef r1;
+    edm::SimVertexRefVector rv1;
+    edm::SimVertexRefProd rp1; 
 }
 }

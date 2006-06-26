@@ -1,6 +1,6 @@
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
@@ -11,11 +11,11 @@ namespace {
   namespace {
     CLHEP::HepLorentzVector dummy1;
     CLHEP::Hep3Vector dummy2;
-    EmbdSimTrack dummy22;
-    edm::EmbdSimTrackContainer dummy222;
-    edm::Wrapper<edm::EmbdSimTrackContainer> dummy22222;
-    EmbdSimTrackRef r1;
-    EmbdSimTrackRefVector rv1;
-    EmbdSimTrackRefProd rp1;
+    SimTrack dummy22;
+    edm::SimTrackContainer dummy222;
+    edm::Wrapper<edm::SimTrackContainer> dummy22222;
+    SimTrackRef r1;
+    SimTrackRefVector rv1;
+    SimTrackRefProd rp1;
   }
 }
