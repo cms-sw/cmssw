@@ -14,8 +14,8 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 using namespace std;
 
 namespace edm
@@ -97,7 +97,7 @@ namespace edm
   
 
 //     //tracks and vertices
-    std::vector<edm::Handle<std::vector<EmbdSimTrack> > > result_t;
+    std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e.getManyByType(result_t);
     int str=result_t.size();
     for (int ii=0;ii<str;ii++) {
@@ -107,7 +107,7 @@ namespace edm
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
 
-    std::vector<edm::Handle<std::vector<EmbdSimVertex> > > result_v;
+    std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getManyByType(result_v);
     int sv=result_v.size();
     for (int ii=0;ii<sv;ii++) {
@@ -183,7 +183,7 @@ namespace edm
     }
  
 //     //tracks and vertices
-    std::vector<edm::Handle<std::vector<EmbdSimTrack> > > result_t;
+    std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e->getManyByType(result_t);
     int str=result_t.size();
     if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
@@ -195,7 +195,7 @@ namespace edm
     }
   
 
-    std::vector<edm::Handle<std::vector<EmbdSimVertex> > > result_v;
+    std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e->getManyByType(result_v);
     int sv=result_v.size();
     if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";

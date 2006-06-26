@@ -14,8 +14,8 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/Common/interface/EventID.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -43,12 +43,12 @@ using namespace edm;
       // methods
       void addSignalSimHits(const std::string subdet, const edm::PSimHitContainer *);
       void addSignalCaloHits(const std::string subdet, const edm::PCaloHitContainer *);
-      void addSignalTracks(const edm::EmbdSimTrackContainer *);
-      void addSignalVertices(const edm::EmbdSimVertexContainer *);
+      void addSignalTracks(const edm::SimTrackContainer *);
+      void addSignalVertices(const edm::SimVertexContainer *);
       void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int trackoffset, bool checkTof);
       void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int trackoffset=0);
-      void addPileupTracks(const int bcr, const edm::EmbdSimTrackContainer *, int vertexoffset=0);
-      void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
+      void addPileupTracks(const int bcr, const edm::SimTrackContainer *, int vertexoffset=0);
+      void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
 
@@ -66,13 +66,13 @@ using namespace edm;
       template <class T> void getSignal(const std::string subdet,std::vector<T> *&);
       void getSignal(const std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
       void getSignal(const std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}
-      void getSignal(const std::string subdet, std::vector<EmbdSimTrack>* &v) { v=&signalTracks_;}
-      void getSignal(const std::string subdet, std::vector<EmbdSimVertex>* &v) { v=&signalVertices_;}
+      void getSignal(const std::string subdet, std::vector<SimTrack>* &v) { v=&signalTracks_;}
+      void getSignal(const std::string subdet, std::vector<SimVertex>* &v) { v=&signalVertices_;}
       template <class T>  void getPileups(const std::string subdet,std::vector<std::vector<T> >*&);
       void getPileups(const std::string subdet, std::vector<std::vector<PSimHit> >*& v) { v=&(pileupSimHits_[subdet]);}
       void getPileups(const std::string subdet, std::vector<std::vector<PCaloHit> > * &v) { v=&pileupCaloHits_[subdet];} 
-      void getPileups(const std::string subdet, std::vector<std::vector<EmbdSimTrack> > * &v) { v=&pileupTracks_;}
-      void getPileups(const std::string subdet, std::vector<std::vector<EmbdSimVertex> > * &v) { v=&pileupVertices_;}
+      void getPileups(const std::string subdet, std::vector<std::vector<SimTrack> > * &v) { v=&pileupTracks_;}
+      void getPileups(const std::string subdet, std::vector<std::vector<SimVertex> > * &v) { v=&pileupVertices_;}
 
       // limits for tof to be considered for trackers
       static const int lowTrackTof; //nsec
@@ -91,14 +91,14 @@ using namespace edm;
       // signal
       std::map <std::string, edm::PSimHitContainer> signalSimHits_;
       std::map <std::string, edm::PCaloHitContainer> signalCaloHits_;
-      edm::EmbdSimTrackContainer signalTracks_;
-      edm::EmbdSimVertexContainer signalVertices_;
+      edm::SimTrackContainer signalTracks_;
+      edm::SimVertexContainer signalVertices_;
 
       //pileup
       std::map <std::string, std::vector<edm::PSimHitContainer> > pileupSimHits_;
       std::map <std::string, std::vector<edm::PCaloHitContainer> > pileupCaloHits_;
-      std::vector<edm::EmbdSimTrackContainer>  pileupTracks_;
-      std::vector<edm::EmbdSimVertexContainer> pileupVertices_;
+      std::vector<edm::SimTrackContainer>  pileupTracks_;
+      std::vector<edm::SimVertexContainer> pileupVertices_;
 
     };
 

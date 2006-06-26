@@ -3,8 +3,8 @@
   <class name="std::vector<std::vector<PCaloHit> >"/>
   <class name="std::map<std::string,std::vector<PCaloHit> >"/>
   <class name="std::map<std::string,std::vector<PSimHit> >"/>
-  <class name="std::vector<std::vector<EmbdSimTrack> > "/>
-  <class name="std::vector<std::vector<EmbdSimVertex> > "/>
+  <class name="std::vector<std::vector<SimTrack> > "/>
+  <class name="std::vector<std::vector<SimVertex> > "/>
   <class name="std::map<std::string,std::vector<std::vector<PCaloHit> > >"/>
   <class name="std::map<std::string,std::vector<std::vector<PSimHit> > >"/>
   <class name="CrossingFrame"/>

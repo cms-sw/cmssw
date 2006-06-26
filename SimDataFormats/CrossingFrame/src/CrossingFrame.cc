@@ -65,11 +65,11 @@ void CrossingFrame::addSignalCaloHits(const std::string subdet, const PCaloHitCo
   signalCaloHits_.insert(map <string, PCaloHitContainer>::value_type(subdet,*calohits));
 }
 
-void CrossingFrame::addSignalTracks(const EmbdSimTrackContainer *simtracks) { 
+void CrossingFrame::addSignalTracks(const SimTrackContainer *simtracks) { 
   signalTracks_=*simtracks;
 }
 
-void CrossingFrame::addSignalVertices(const EmbdSimVertexContainer *simvertices) { 
+void CrossingFrame::addSignalVertices(const SimVertexContainer *simvertices) { 
   signalVertices_=*simvertices;
 }
 
@@ -105,25 +105,25 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
   }
 }
 
-void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *simtracks, int vertexoffset) { 
+void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simtracks, int vertexoffset) { 
   for (unsigned int i=0;i<simtracks->size();++i) 
     if ((*simtracks)[i].noVertex()) 
       //      pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
       pileupTracks_[bcr-firstCrossing_].push_back((*simtracks)[i]);
     else {
-      EmbdSimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
+      SimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
       //      pileupTracks_[bcr-firstCrossing_].insertTrack(track);
       pileupTracks_[bcr-firstCrossing_].push_back(track);
     }
 }
 
-void CrossingFrame::addPileupVertices(const int bcr, const EmbdSimVertexContainer *simvertices, int trackoffset) { 
+void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int trackoffset) { 
   for (unsigned int i=0;i<simvertices->size();++i) 
     if ((*simvertices)[i].noParent()) 
       //      pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
       pileupVertices_[bcr-firstCrossing_].push_back((*simvertices)[i]);
     else {
-      EmbdSimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
+      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
       //      pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
       pileupVertices_[bcr-firstCrossing_].push_back(vertex);
     }

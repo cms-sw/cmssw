@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.7 2005/12/07 16:59:10 uberthon Exp $
+// $Id: TestMix.cc,v 1.8 2006/03/24 10:00:28 uberthon Exp $
 //
 //
 
@@ -87,13 +87,13 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       count++;
      }
 
-    // test access to EmbdSimTracks
-    std::cout<<"\n=================== Starting EmbdSimTrack access ==================="<<std::endl;
-    std::auto_ptr<MixCollection<EmbdSimTrack> > col2(new MixCollection<EmbdSimTrack>(cf.product()));
-    MixCollection<EmbdSimTrack>::iterator cfi2;
+    // test access to SimTracks
+    std::cout<<"\n=================== Starting SimTrack access ==================="<<std::endl;
+    std::auto_ptr<MixCollection<SimTrack> > col2(new MixCollection<SimTrack>(cf.product()));
+    MixCollection<SimTrack>::iterator cfi2;
     int count2=0;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
-      std::cout<<" EmbdSimTrack "<<count2<<" has genpart index  "<<cfi2->genpartIndex()<<" vertex Index "<<cfi2->vertIndex() <<" bunchcr "<<cfi2.bunch()<<" trigger "<<cfi2.getTrigger()<<std::endl;
+      std::cout<<" SimTrack "<<count2<<" has genpart index  "<<cfi2->genpartIndex()<<" vertex Index "<<cfi2->vertIndex() <<" bunchcr "<<cfi2.bunch()<<" trigger "<<cfi2.getTrigger()<<std::endl;
       count2++; 
     }
 }
