@@ -1,6 +1,6 @@
 #ifndef Math_Vector3D_h
 #define Math_Vector3D_h
-// $Id: Vector3D.h,v 1.6 2006/04/10 08:19:34 llista Exp $
+// $Id: Vector3D.h,v 1.7 2006/06/12 10:40:31 llista Exp $
 #include <Rtypes.h>
 #include <Math/Cartesian3D.h>
 #include <Math/Polar3D.h>
@@ -8,12 +8,6 @@
 #include <Math/Vector3D.h>
 
 namespace math {
-  /// spatial vector with cartesian internal representation
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> > XYZVector;
-  /// spatial vector with cylindrical internal representation using pseudorapidity
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > RhoEtaPhiVector;
-  /// spatial vector with polar internal representation
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<Double32_t> > RThetaPhiVector;
 
   /// spatial vector with cartesian internal representation
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > XYZVectorD;
@@ -34,6 +28,12 @@ namespace math {
   /// vector in glovbal coordinate system
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>, ROOT::Math::GlobalCoordinateSystemTag> GlobalVector;
 
+  /// spatial vector with cartesian internal representation
+  typedef XYZVectorD XYZVector;
+  /// spatial vector with cylindrical internal representation using pseudorapidity
+  typedef RhoEtaPhiVectorD RhoEtaPhiVector;
+  /// spatial vector with polar internal representation
+  typedef RThetaPhiVectorD  RThetaPhiVector;
 
 }
 
