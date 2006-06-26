@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/23 09:18:35 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/26 20:15:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -132,6 +132,62 @@ void EBBeamHodoClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBBeamHodoClient: subscribe" << endl;
 
+  int smId = 1;
+
+  Char_t histo[80];
+
+  for (int i=0; i<4; i++) {
+
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
+    mui_->subscribe(histo);
+
+  }
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  mui_->subscribe(histo);
+
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBBeamHodoClient: collate" << endl;
@@ -142,11 +198,123 @@ void EBBeamHodoClient::subscribe(void){
 
 void EBBeamHodoClient::subscribeNew(void){
 
+  Char_t histo[80];
+  
+  int smId = 1;
+  
+  for (int i=0; i<4; i++) {
+
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
+    mui_->subscribeNew(histo);
+  
+  }
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX SM%02d", smId);
+  mui_->subscribeNew(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX SM%02d", smId);
+  mui_->subscribeNew(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y SM%02d", smId);
+  mui_->subscribeNew(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  mui_->subscribeNew(histo);
+
 }
 
 void EBBeamHodoClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBBeamHodoClient: unsubscribe" << endl;
+
+  Char_t histo[80];
+
+  int smId = 1;
+
+  for (int i=0; i<4; i++) {
+
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
+    mui_->unsubscribe(histo);
+
+  }
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d", smId);
+  mui_->unsubscribe(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX SM%02d", smId);
+  mui_->unsubscribe(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
+  mui_->unsubscribe(histo);
+    
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y SM%02d", smId);
+  mui_->unsubscribe(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
+  mui_->unsubscribe(histo);
+  
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  mui_->unsubscribe(histo);
 
   if ( collateSources_ ) {
 
