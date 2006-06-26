@@ -329,11 +329,11 @@ void CSCGeometryBuilderFromDDD::buildLayer (
     theGeometry->addChamber( aChamber ); 
     chamber = aChamber;
 
-    LogDebug("CSC") << ": E" << jend << " S" << jstat 
-	            << " R" << jring << " C" << jch << " L" << jlay 
-                    << " gtran[2]=" << gtran[2]
-		    << " offset=" << offset << " par[2]=" << fpar[2]
-		    << " chamber adr=" << chamber << "\n";
+    LogDebug("CSC") << myName << ": Create chamber E" << jend << " S" << jstat 
+	            << " R" << jring << " C" << jch 
+                    << " z=" << gtran[2]+offset
+		    << " hThick=" << hChamberThickness
+		    << " adr=" << chamber << "\n";
   }
    
   const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
@@ -365,6 +365,13 @@ void CSCGeometryBuilderFromDDD::buildLayer (
     delete bounds;
 
     CSCLayer* aLayer = new CSCLayer( aPlane, layerId, chamber, aGeom );
+
+    LogDebug("CSC") << myName << ": Create layer E" << jend << " S" << jstat 
+	            << " R" << jring << " C" << jch << " L" << jlay 
+                    << " z=" << gtran[2]
+		    << " hThick=" << fpar[2]
+		    << " adr=" << aLayer << " layerGeom adr=" << aGeom << "\n";
+
     chamber->addComponent(jlay, aLayer); 
     theGeometry->addLayer( aLayer );
   }
