@@ -14,7 +14,6 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
   
   xgi::bind(this, &SiStripClient::handleWebRequest, "Request");
   actionExecutor_ = 0;
-
 }
 
 /*
@@ -76,10 +75,9 @@ void SiStripClient::onUpdate() const
   check and perform custom actions
 */
 void SiStripClient::checkCustomRequests() const {
-  static int nCount;
-  nCount++;
-  //  int nUpdate = mui_->getNumUpdates();
-  if  (nCount == 5) actionExecutor_->setupQTests(mui_);
+
+  int nUpdate = mui_->getNumUpdates();
+  if  (nUpdate == 5) actionExecutor_->setupQTests(mui_);
  
   // Check the customised action requests from the WebInterface
   SiStripWebInterface::SiStripActionType action_flg = webInterface_p->getActionFlag();
@@ -133,7 +131,7 @@ void SiStripClient::checkCustomRequests() const {
     }
   case SiStripWebInterface::NoAction :
     {
-      if (nCount > 5 && (nCount%updateFrequencyForTrackerMap_ == 0)) {
+      if (nUpdate > 5 && (nUpdate%updateFrequencyForTrackerMap_ == 0)) {
 	system("mkdir -p tkmap_files");
 	system("rm -rf tkmap_files/*.jpg; rm -rf tkmap_files/*.svg");
 	actionExecutor_->createTkMap(mui_);
