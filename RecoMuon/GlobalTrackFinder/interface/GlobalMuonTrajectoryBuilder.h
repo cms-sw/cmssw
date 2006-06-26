@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/05/18 17:46:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/18 19:14:51 $
+ *  $Revision: 1.2 $
  *  \author C. Liu - Purdue University
  */
 
@@ -21,7 +21,7 @@ class Muon;
 
 namespace edm {class ParameterSet;}
 
-class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
+class GlobalMuonTrajectoryBuilder{
 
 public:
 
