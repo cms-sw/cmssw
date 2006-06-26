@@ -177,6 +177,26 @@ void SiPixelRecHitsPlots()
    // RecHit Barrel
    ///////////////////////////
 
+   // RecHit xres all
+   Pixel = new TCanvas("Pixel", "Pixel", 200, 300);
+   TH1* recHitXResAll_;
+
+   sprintf(histo, "DQMData/recHitBPIX/RecHit_xres_b_All;1");
+   rfile->GetObject(histo, recHitXResAll_);
+   recHitXResAll_->Draw();
+
+   Pixel->Print("RecHit_XRes_b_All.eps");
+
+   // RecHit yres all
+   Pixel = new TCanvas("Pixel", "Pixel", 200, 300);
+   TH1* recHitYResAll_;
+
+   sprintf(histo, "DQMData/recHitBPIX/RecHit_yres_b_All;1");
+   rfile->GetObject(histo, recHitYResAll_);
+   recHitYResAll_->Draw();
+
+   Pixel->Print("RecHit_YRes_b_All.eps");
+
    // RecHit x distribution for full modules
    Pixel = new TCanvas("Pixel", "Pixel", 200, 300);
    TH1* recHitXFullModules_;
@@ -280,6 +300,26 @@ void SiPixelRecHitsPlots()
    /////////////////////
    // RecHit forward
    /////////////////////
+
+   //RecHit xres forward
+   Pixel = new TCanvas("Pixel", "Pixel", 200, 300);
+   TH1* recHitXResAll_;
+
+   sprintf(histo, "DQMData/recHitFPIX/RecHit_xres_f_All;1");
+   rfile->GetObject(histo, recHitXResAll_);
+   recHitXResAll_->Draw();
+
+   Pixel->Print("RecHit_XRes_f_All.eps");
+
+   //RecHit yres forward
+   Pixel = new TCanvas("Pixel", "Pixel", 200, 300);
+   TH1* recHitYResAll_;
+
+   sprintf(histo, "DQMData/recHitFPIX/RecHit_yres_f_All;1");
+   rfile->GetObject(histo, recHitYResAll_);
+   recHitYResAll_->Draw();
+
+   Pixel->Print("RecHit_YRes_f_All.eps");
 
    // RecHit x distribution for plaquettes x-size 1
    Pixel = new TCanvas("Pixel", "Pixel", 200, 300);

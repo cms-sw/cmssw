@@ -86,6 +86,8 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* clustChargeDisk2Plaquettes[7];
 
 	//RecHits BPIX
+	MonitorElement* recHitXResAllB;
+	MonitorElement* recHitYResAllB;
 	MonitorElement* recHitXFullModules;
 	MonitorElement* recHitXHalfModules;
 	MonitorElement* recHitYAllModules;
@@ -96,6 +98,8 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* recHitYResLayer3Modules[8];
 
 	//RecHits FPIX
+	MonitorElement* recHitXResAllF;
+	MonitorElement* recHitYResAllF;
 	MonitorElement* recHitXPlaquetteSize1;
 	MonitorElement* recHitXPlaquetteSize2;
 	MonitorElement* recHitYPlaquetteSize2;
