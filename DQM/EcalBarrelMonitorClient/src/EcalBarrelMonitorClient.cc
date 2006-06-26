@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/23 07:04:29 $
- * $Revision: 1.148 $
+ * $Date: 2006/06/23 09:18:35 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -105,6 +105,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
   dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
+  dbHostPort_ = ps.getUntrackedParameter<int>("dbHostPort", 1521);
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
@@ -112,6 +113,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " DB output will go to"
          << " dbName = '" << dbName_ << "'"
          << " dbHostName = '" << dbHostName_ << "'"
+         << " dbHostPort = '" << dbHostPort_ << "'"
          << " dbUserName = '" << dbUserName_ << "'" << endl;
   } else {
     cout << " DB output is disabled" << endl;
@@ -543,7 +545,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( dbName_.size() != 0 ) {
     try {
       cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -670,7 +672,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   if ( dbName_.size() != 0 ) {
     try {
       cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -797,7 +799,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
   if ( dbName_.size() != 0 ) {
     try {
       cout << "Opening DB connection ..." << endl;
-      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
