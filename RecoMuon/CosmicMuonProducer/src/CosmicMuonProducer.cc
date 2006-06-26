@@ -1,15 +1,13 @@
 #include "RecoMuon/CosmicMuonProducer/src/CosmicMuonProducer.h"
-// Package:    CosmicMuonProducer
-// Class:      CosmicMuonProducer
-// 
+
 /**\class CosmicMuonProducer
  *
- * Description: <one line class summary>
+ * Description: CosmicMuonProducer
  *
  * Implementation:
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/06/14 00:14:31 $
+ * $Revision: 1.3 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -73,13 +71,12 @@ CosmicMuonProducer::~CosmicMuonProducer()
 void
 CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   edm::LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
   const MagneticField * field(&(*theMF));
   CosmicMuonTrajectoryBuilder theBuilder(field);
-  std::vector<Trajectory> theTrajs = theBuilder.trajectories(iEvent,iSetup);
+  const std::vector<Trajectory>& theTrajs = theBuilder.trajectories(iEvent,iSetup);
 
   edm::LogInfo("CosmicMuonProducer") << "No. of Trajectories: "<<theTrajs.size();
 
@@ -91,16 +88,11 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     TrajectoryStateOnSurface innertsos;
 
     if (theT->direction() == alongMomentum) {
-      TrajectoryMeasurement firstM = theT->firstMeasurement();
-
       innertsos = theT->firstMeasurement().updatedState();
-
     } else {
       innertsos = theT->lastMeasurement().updatedState();
-
     }
-    reco::Track* theTrack;
-
+    if (!innertsos.isValid()) continue;
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(innertsos,
                                                    GlobalPoint(0,0,0) );
@@ -119,15 +111,15 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("CosmicMuonProducer") << "ndof "<<ndof;
     edm::LogInfo("CosmicMuonProducer") << "chi2 "<<theT->chiSquared();
 
-    theTrack = new reco::Track(theT->chiSquared(),
+    outputTColl->push_back(reco::Track(theT->chiSquared(),
                                ndof,
                                theT->foundHits(),// number of rechit
                                0,
                                theT->lostHits(),
                                param,
-                               covar);
+                               covar));
 
-    outputTColl->push_back(*theTrack);
+
   }
 
   iEvent.put(outputTColl);
