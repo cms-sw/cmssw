@@ -1,5 +1,11 @@
 CREATE OR REPLACE
-function HVBOARDLOGICID(DPName in varchar2) return varchar2 is
+function HVBOARDLOGICID(DPEName in varchar2) return varchar2 is
+
+alias varchar2(1000);
+superModuleNumber number;
+boardNumber number;
+invalid_board_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
+
 /*
  For the HV boards the logic_ids are
 
@@ -9,19 +15,21 @@ function HVBOARDLOGICID(DPName in varchar2) return varchar2 is
  CC = board number 0, 2, 4 or 6
  source string will be soemthing like ECAL_HV/SM11/board11  
 */
- DPNameWithoutSystem varchar2(1000);
- superModuleNumber number;
- boardNumber number;
- invalid_board_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
 
 begin
-        DPNameWithoutSystem:=substr(DPName,instr(DPName,':')+1);
+  alias:=getAliasForDevice(DPEName);
 
-superModuleNumber:=to_number(regexp_substr(DPNameWithoutSystem,'[[:digit:]]+'));
+  superModuleNumber:=to_number(regexp_substr(alias,'[[:digit:]]+'));
+  boardNumber:=to_number(regexp_substr(alias,'[[:digit:]]+',1,2));
 
-boardNumber:=to_number(regexp_substr(DPNameWithoutSystem,'[[:digit:]]+',1,2));
-        if superModuleNumber is null or boardNumber is null then
-                raise invalid_board_name;
-        end if;
-        return 1061000000+10000*superModuleNumber+boardNumber;
-end HVBOARDLOGICID;
+  if superModuleNumber is null 
+  or boardNumber is null
+  or superModuleNumber>36 
+  or boardNumber>6 then
+    raise invalid_board_name;
+  end if;
+
+  return 1061000000+10000*superModuleNumber+boardNumber;
+end;
+/
+show errors;
