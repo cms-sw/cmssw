@@ -53,3 +53,4 @@ PROCEDURE update_online_pvss_iov_date
     END IF;
   END;
 /
+show errors;

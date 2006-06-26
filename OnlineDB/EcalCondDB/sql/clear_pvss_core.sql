@@ -1,0 +1,3 @@
+drop procedure update_online_pvss_iov_date;
+drop procedure update_online_pvss_iov_number;
+drop function getaliasfordevice;

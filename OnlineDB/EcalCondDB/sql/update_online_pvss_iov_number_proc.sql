@@ -54,3 +54,4 @@ PROCEDURE update_online_pvss_iov_number
     END IF;
   END;
 /
+show errors;

@@ -60,3 +60,4 @@ CREATE OR REPLACE PROCEDURE update_subrun_iov_dates
     END IF;
   END;
 /
+show errors;

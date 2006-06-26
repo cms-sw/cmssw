@@ -26,3 +26,4 @@ CC = channel number 1-34
 	return 1051000000+10000*moduleNumber+channelNumber;
 end;
 /
+show errors;

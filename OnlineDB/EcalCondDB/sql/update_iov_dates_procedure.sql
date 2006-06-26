@@ -58,3 +58,4 @@ CREATE OR REPLACE PROCEDURE update_iov_dates
     END IF;
   END;
 /
+show errors;

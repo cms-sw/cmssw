@@ -14,3 +14,4 @@ begin
 	return alias;
 end;
 /
+show errors;
