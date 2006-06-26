@@ -3,9 +3,9 @@
 
 /** \class CSCSegmentCollection
  *
- * The collection of CSCSegment's.
+ * The collection of CSCSegment's. See \ref CSCSegmentCollection.h for details.
  *
- *  $Date: 2006/05/17 14:52:59 $
+ *  $Date: 2006/06/14 12:08:04 $
  *  \author Matteo Sani
  */
 
