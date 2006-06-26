@@ -1,0 +1,86 @@
+//-------------------------------------------------
+//
+/**  \class L1MuDTQualPatternLut
+ *
+ *   Look-up tables for eta matching unit (EMU)
+ *   stores lists of qualified patterns and
+ *   coarse eta values 
+ *
+ *
+ *   $Date: 2006/06/01 00:00:00 $
+ *   $Revision: 1.1 $
+ *
+ *   N. Neumeister            CERN EP
+ */
+//
+//--------------------------------------------------
+#ifndef L1MUDT_QUALPATTERN_LUT_H
+#define L1MUDT_QUALPATTERN_LUT_H
+
+//---------------
+// C++ Headers --
+//---------------
+
+#include <vector>
+#include <map>
+
+//----------------------
+// Base Class Headers --
+//----------------------
+
+
+//------------------------------------
+// Collaborating Class Declarations --
+//------------------------------------
+
+
+//              ---------------------
+//              -- Class Interface --
+//              ---------------------
+
+class L1MuDTQualPatternLut {
+
+  public:
+
+    typedef pair< int, int > LUTID;
+    typedef pair< int, vector<int> > LUTCONT;
+    typedef map< LUTID, LUTCONT > LUT;
+    typedef LUT::iterator EMULut_iter;
+    
+    /// constructor
+    L1MuDTQualPatternLut();
+
+    /// destructor
+    virtual ~L1MuDTQualPatternLut();
+
+    /// reset look-up tables
+    void reset();
+    
+    /// load look-up tables
+    int load();
+
+    /// print look-up tables
+    void print() const;
+
+    /// get coarse eta value for a given sector processor [1-6] and address [1-22]
+    int getCoarseEta(int sp, int adr) const;
+ 
+    /// get list of qualified patterns for a given sector processor [1-6] and address [1-22]
+    const vector<int>& getQualifiedPatterns(int sp, int adr) const;
+
+    /// return number of entries in the LUT
+    inline int size() const { return m_lut.size(); }
+
+    /// return iterator which points to the first entry of the LUT
+    inline EMULut_iter begin() { return m_lut.begin(); }
+
+    /// return iterator which points to the one-past-last entry of the LUT
+    inline EMULut_iter end() { return m_lut.end(); }
+    
+  private:
+
+    LUT m_lut;        // coarse eta values and list of qualified patterns
+    
+};
+
+#endif

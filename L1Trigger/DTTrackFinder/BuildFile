@@ -1,0 +1,10 @@
+<export>
+ <lib name=L1TriggerDTTrackFinder>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/L1DTTrackFinder>
+</export>
+
+<use name=FWCore/Framework>
+<use name=DataFormats/L1DTTrackFinder>
+
+<flags SEAL_PLUGIN_NAME="L1TriggerDTTrackFinder">
