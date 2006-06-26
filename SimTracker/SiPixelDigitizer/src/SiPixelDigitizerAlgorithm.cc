@@ -5,6 +5,11 @@
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
 // Add tof, change AddNoise to tracked. 4/06
 // Change drift direction. 6/06 d.k.
+// Add the statuis (non-rate dependent) inefficiency.
+//     -1 - no ineffciency
+//      0 - static inefficency only
+//    1,2 - low-lumi rate dependent inefficency added
+//     10 - high-lumi inefficiency added
 
 #include <vector>
 #include <iostream>
@@ -67,7 +72,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax = 0.030; // In MeV.  
   tMax =conf_.getUntrackedParameter<double>("DeltaProductionCut",0.030);  
  
+  // Control the pixel inefficiency
   thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
+
   // Get the constants for the miss-calibration studies
   doMissCalibrate=conf_.getParameter<bool>("MissCalibrate"); // Enable miss-calibration
   theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
@@ -75,19 +82,32 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
 
   //pixel inefficiency
-  
-  if (thePixelLuminosity==0) {
+  // the first 3 settings [0],[1],[2] are for the barrel pixels
+  // the 2nd 3 setting [3],[4],[5] are for the endcaps (undecided how)  
+  if (thePixelLuminosity==-1) {  // No indefficiency, all 100% efficient
     pixelInefficiency=false;
     for (int i=0; i<6;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
-      // For columns make 1% default.
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
-      // A flat 0.25% inefficiency due to lost data packets from TBM
       thePixelChipEfficiency[i] = 1.; // chips = 100%
     }
-  }
-  
-  if (thePixelLuminosity>0) {
+
+  // include only the static (non rate depedent) efficiency 
+  } else if (thePixelLuminosity==0) { // static effciency
+    pixelInefficiency=true;
+    // Default efficiencies 
+    for (int i=0; i<6;i++) {
+      // Assume 1% inefficiency for single pixels, 
+      // this is given by faulty bump-bonding and seus.  
+      thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+      // For columns make 0.1% default.
+      thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
+      // A flat 0.1% inefficiency due to lost rocs
+      thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+    }
+
+  // Include also luminosity ratre dependent inefficieny
+  } else if (thePixelLuminosity>0) { // Include effciency
     pixelInefficiency=true;
     // Default efficiencies 
     for (int i=0; i<6;i++) {
@@ -99,22 +119,22 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       // A flat 0.25% inefficiency due to lost data packets from TBM
       thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
     }
-    
-    // Special cases 
+   
+    // Special cases ( High-lumi for 4cm layer)
     if(thePixelLuminosity==10) { // For high luminosity, bar layer 1
       thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
       thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
     }
+    
+  } // end the pixel inefficinecy part
 
-  }
-
-  
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
 			       <<"Configuration parameters:" 
 			       << "Threshold/Gain = "  
 			       << thePixelThreshold <<" "<<  theElectronPerADC 
 			       << " " << theAdcFullScale 
-			       << " The delta cut-off is set to " << tMax;
+			       << " The delta cut-off is set to " << tMax
+			      << " pix-inefficiency "<<thePixelLuminosity;
   if(doMissCalibrate) LogDebug ("PixelDigitizer ") 
     << " miss-calibrate the pixel amplitude " 
     << theGainSmearing << " " << theOffsetSmearing ;
@@ -123,16 +143,18 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //   particleTable =  &HepPDT::theTable();
 
 }
-SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
+//=========================================================================
+SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
 
    LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
 
 }
-
-edm::DetSet<PixelDigi>::collection_type SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-								       PixelGeomDetUnit *pixdet,
-								       GlobalVector bfield)
-{
+//=========================================================================
+edm::DetSet<PixelDigi>::collection_type 
+SiPixelDigitizerAlgorithm::run(
+			       const std::vector<PSimHit> &input,
+			       PixelGeomDetUnit *pixdet,
+			       GlobalVector bfield) {
 
   _detp = pixdet; //cache the PixGeomDetUnit
   _PixelHits=input; //cache the SimHit
@@ -149,18 +171,17 @@ edm::DetSet<PixelDigi>::collection_type SiPixelDigitizerAlgorithm::run(const std
   // initalization  of pixeldigisimlinks
   link_coll.clear();
 
- //Digitization of the SimHits of a given pixdet
+  //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
+
   // edm::DetSet<PixelDigi> collector;
   LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
 
-   return collector;
+  return collector;
 }
-/**********************************************************************/
-
+//============================================================================
 vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
-  
-
+ 
   if( _PixelHits.size() > 0 || addNoisyPixels) {
  
     topol=&det->specificTopology(); // cache topology
