@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/05/08 17:45:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/01 08:44:02 $
+ *  $Revision: 1.3 $
  *  \author M. Sani
  */
 
@@ -152,8 +152,8 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
     }
 }
 
-void CSCSegmentReader::simInfo(const edm::Handle<EmbdSimTrackContainer> simTracks) {
-    for(EmbdSimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
+void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
+    for(SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
         
         if (abs((*it).type()) == 13) {
             hpt->Fill((*it).momentum().perp());
@@ -261,7 +261,7 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
     eventSetup.get<MuonGeometryRecord>().get(h);
     const CSCGeometry* geom = &*h;
     
-    Handle<EmbdSimTrackContainer> simTracks;
+    Handle<SimTrackContainer> simTracks;
     event.getByLabel("SimG4Object",simTracks);
     
     Handle<PSimHitContainer> simHits; 

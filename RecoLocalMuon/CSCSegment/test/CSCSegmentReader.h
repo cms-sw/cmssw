@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2006/05/08 17:45:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/01 08:44:02 $
+ *  $Revision: 1.3 $
  *  \author M. Sani
  */
 
@@ -19,7 +19,7 @@
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
-#include <SimDataFormats/Track/interface/EmbdSimTrackContainer.h>
+#include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
@@ -50,7 +50,7 @@ public:
             const edm::Handle<CSCSegmentCollection> seg, const CSCGeometry* geom);
   
   /// Simulation info
-  void simInfo(const edm::Handle<edm::EmbdSimTrackContainer> simTracks);
+  void simInfo(const edm::Handle<edm::SimTrackContainer> simTracks);
   
   /// Segment building info
   void recInfo(const edm::Handle<edm::PSimHitContainer> sH, 
