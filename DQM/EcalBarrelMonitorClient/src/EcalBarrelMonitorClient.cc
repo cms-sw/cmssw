@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/23 09:18:35 $
- * $Revision: 1.149 $
+ * $Date: 2006/06/26 12:30:29 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -561,22 +561,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   rundef.setRunType( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_]  );
  
-  if ( runtype_ == EcalDCCHeaderBlock::COSMIC )         rundef.setConfigTag("COSMIC-STD");
-  if ( runtype_ == EcalDCCHeaderBlock::BEAMH4 )         rundef.setConfigTag("BEAM-STD");
-  if ( runtype_ == EcalDCCHeaderBlock::BEAMH2 )         rundef.setConfigTag("BEAM-STD");
-  if ( runtype_ == EcalDCCHeaderBlock::LASER_STD )      rundef.setConfigTag("LASER-STD");
-  if ( runtype_ == EcalDCCHeaderBlock::TESTPULSE_MGPA ) rundef.setConfigTag("TEST_PULSE-MGPA");
-  if ( runtype_ == EcalDCCHeaderBlock::PEDESTAL_STD )   rundef.setConfigTag("PEDESTAL-STD");
-
-  if ( location_ == "H4" )    rundef.setConfigVersion(1);
-  if ( location_ == "867-1" ) rundef.setConfigVersion(2);
-  if ( location_ == "867-2" ) rundef.setConfigVersion(3);
-  if ( location_ == "867-3" ) rundef.setConfigVersion(4);
-  if ( location_ == "H4B" )   rundef.setConfigVersion(21);
-  if ( location_ == "H2" )    rundef.setConfigVersion(22);
-  if ( location_ == "P5_MT" ) rundef.setConfigVersion(23);
-  if ( location_ == "904" )   rundef.setConfigVersion(24);
-
   RunTag runtag;
 
   runtag.setLocationDef(locdef);
@@ -642,8 +626,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
   cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
   cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
-  cout << "Config Tag:         " << runiov_.getRunTag().getRunTypeDef().getConfigTag() << endl;
-  cout << "Config Ver:         " << runiov_.getRunTag().getRunTypeDef().getConfigVersion() << endl;
   cout << "====================" << endl;
   cout << endl;
 
