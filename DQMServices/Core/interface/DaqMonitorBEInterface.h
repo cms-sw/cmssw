@@ -337,7 +337,7 @@ class DaqMonitorBEInterface: public StringUtil
     std::list<std::string> toAdd; 
     std::list<std::string> toRemove; 
   };
-  typedef SubcRequests_ SubcRequests;
+  typedef struct SubcRequests_ SubcRequests;
 
   SubcRequests requests;
 
