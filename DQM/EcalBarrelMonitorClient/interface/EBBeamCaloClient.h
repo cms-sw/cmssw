@@ -4,10 +4,10 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/06/23 09:20:41 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/26 18:12:45 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
- * \author F. Cossutti
+ * \author A. Ghezzi
  *
 */
 

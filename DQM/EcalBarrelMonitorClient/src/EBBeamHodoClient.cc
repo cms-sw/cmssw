@@ -1,10 +1,10 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.11 $
+ * $Date: 2006/06/23 09:18:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
- * \author F. Cossutti
+ * \author G. Franzoni
  *
 */
 
