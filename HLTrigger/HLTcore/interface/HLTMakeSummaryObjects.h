@@ -7,8 +7,8 @@
  *  This class is an EDProducer making the HLT summary objects (path
  *  objects and global object).
  *
- *  $Date: 2006/06/25 19:03:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/25 22:25:38 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include<string>
+#include<vector>
 
 //
 // class decleration
@@ -32,9 +35,8 @@ class HLTMakeSummaryObjects : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-     unsigned int nTrig_; // number of trigger paths in schedule
-     // more precisely, highest index,+1, when counting from 0!
-     // attention: should be taken from TriggerResults Object!
+   std::vector<std::string> names_; // the (path) names (used as product instance names for path objects)
+                                    // attention: should rather be taken from TriggerResults Object!
 
 };
 

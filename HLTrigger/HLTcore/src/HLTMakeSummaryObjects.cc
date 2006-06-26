@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/25 19:03:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/25 22:25:39 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -12,6 +12,7 @@
 #include "HLTrigger/HLTcore/interface/HLTMakeSummaryObjects.h"
 
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/OrphanHandle.h"
 
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -24,10 +25,15 @@
 //
 HLTMakeSummaryObjects::HLTMakeSummaryObjects(const edm::ParameterSet& iConfig)
 {
-   nTrig_ = iConfig.getParameter< unsigned int > ("nTrig");
+   names_ = iConfig.getParameter< std::vector<std::string> > ("names");
+
+   const unsigned int n(names_.size());
+   LogDebug("") << "Number of paths expected: " << n;
 
    //register your products
-   produces<reco::HLTPathObject  >();
+   for (unsigned int i=0; i!=n; i++) {
+     produces<reco::HLTPathObject>(names_[i]);
+   }
    produces<reco::HLTGlobalObject>();
 }
 
@@ -88,7 +94,9 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    // currently we construct and insert "empty" path objects for paths
    // for which there is not filter object found!
 
-   for (unsigned int p=0; p!=nTrig_; p++) {
+   vector<OrphanHandle<HLTPathObject> > pobs(names_.size());
+
+   for (unsigned int p=0; p!=names_.size(); p++) {
 
      // order within path according to module index
      map<unsigned int, unsigned int> xref;
@@ -102,33 +110,21 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      auto_ptr<HLTPathObject>   pathobject   (new HLTPathObject(p));
      map<unsigned int, unsigned int>::const_iterator iter;
      for (iter=xref.begin(); iter!=xref.end(); iter++) {
-       LogDebug("") << "Path " << p << " " << iter->first << " " << iter->second;
+       LogDebug("") << "Path " << names_[p] << " Map: " << iter->first << " " << iter->second;
        pathobject->put(fobs[iter->second]);
      }
 
-     iEvent.put(pathobject);
-     LogDebug("") << "Path " << p << " Number of filter objects: " << xref.size();
+     pobs[p]=iEvent.put(pathobject,names_[p]);
+     LogDebug("") << "Path " << names_[p] << " Number of filter objects: " << xref.size();
    }
 
 
-   // get all path objects just inserted, and make and insert the single global object 
+   // make and insert the single global object 
    // currently we insert an "empty" global object even if no path objects are found!
 
-   vector<Handle<HLTPathObject> > pobs;
-   iEvent.getManyByType(pobs);
-
-   // order according to path number
-   map<unsigned int, unsigned int> xref;
-   for (unsigned int i=0; i!=pobs.size(); i++) {
-     xref[pobs[i]->path()]=i;
-   }
-
-   // global object
    auto_ptr<HLTGlobalObject> globalobject (new HLTGlobalObject);
-   map<unsigned int, unsigned int>::const_iterator iter;
-   for (iter=xref.begin(); iter!=xref.end(); iter++) {
-     LogDebug("") << "Global " << iter->first << " " << iter->second;
-     globalobject->put(RefProd<HLTPathObject>(pobs[iter->second]));
+   for (unsigned int p=0; p!=names_.size(); p++) {
+     globalobject->put(RefProd<HLTPathObject>(pobs[p]));
    }
 
    iEvent.put(globalobject);
