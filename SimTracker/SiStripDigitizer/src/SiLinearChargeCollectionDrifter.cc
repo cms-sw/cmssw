@@ -22,7 +22,8 @@ SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double mt,
 }
 
 
-SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type ion, const LocalVector& driftDir){
+SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type ion, 
+										  const LocalVector& driftDir){
   collection_type _temp;
   _temp.resize(ion.size());
   
@@ -62,6 +63,6 @@ SignalPoint SiLinearChargeCollectionDrifter::drift
   double positionY = segY + yDriftDueToMagField;
   
   return SignalPoint(positionX,positionY,sigma,
-		       (edu).energy());  
+		     (edu).energy());  
 }
 			

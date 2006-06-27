@@ -28,7 +28,6 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDet
   if (noDiffusion) diffusionConstant *= 1.0e-3;
   chargeDistributionRMS=conf_.getParameter<double>("ChargeDistributionRMS");
   double moduleThickness = det->specificSurface().bounds().thickness(); // full detector thicness
-  //  double moduleThickness = type.bounds().thickness();
   // If no diffusion requested, don't set it quite to zero to avoid
   // divide by zero errors.
   double timeNormalisation = pow(moduleThickness,2)/(2.*depletionVoltage*chargeMobility);
@@ -69,17 +68,11 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   
   LocalVector driftDir = DriftDirection(&det,bfield);
  
-  //  if(driftDir.z() ==0.) {
-  //    cout << " pxlx: drift in z is zero " << endl; 
-  //  }  else  
-  return theSiInduceChargeOnStrips->induce(	
-					   theSiChargeCollectionDrifter->drift(ion,driftDir),
-					   det);
+  return theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir),det);
 }
 
 LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield){
   //good Drift direction estimation only for tracker barrel
-
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
 
@@ -91,8 +84,7 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
   float dir_z = 1.; // E field always in z direction
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    edm::LogInfo("StripDigiInfo")<< " The drift direction in local coordinate is " 
-		  <<theDriftDirection;
+    edm::LogInfo("StripDigiInfo")<< " The drift direction in local coordinate is "<<theDriftDirection;
   }
   return theDriftDirection;
 

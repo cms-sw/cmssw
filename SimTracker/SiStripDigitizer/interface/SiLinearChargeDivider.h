@@ -8,6 +8,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 //#include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 /**
  * Concrete implementation of SiChargeDivider. 
@@ -30,9 +31,9 @@ class SiLinearChargeDivider : public SiChargeDivider{
  private:
   edm::ParameterSet conf_;
   
-  float PeakShape(const PSimHit&);
-  float DeconvolutionShape( const PSimHit&);
-  float TimeResponse( const PSimHit&) ; 
+  float PeakShape(const PSimHit&, const StripGeomDetUnit& det);
+  float DeconvolutionShape( const PSimHit&, const StripGeomDetUnit& det);
+  float TimeResponse( const PSimHit&, const StripGeomDetUnit& det); 
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);   
   bool peakMode;
   bool fluctuateCharge;

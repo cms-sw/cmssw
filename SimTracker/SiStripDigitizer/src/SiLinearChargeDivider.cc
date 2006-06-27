@@ -24,24 +24,20 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf
 }
 
 SiChargeDivider::ionization_type 
-SiLinearChargeDivider::divide(
-			      const PSimHit& hit, const StripGeomDetUnit& det) {
+SiLinearChargeDivider::divide(const PSimHit& hit, const StripGeomDetUnit& det) {
  
   LocalVector direction = hit.exitPoint() - hit.entryPoint();  
-  double pitch=100; // temporary!
   int NumberOfSegmentation =  
-  //    (int)(1+chargeDivisionsPerStrip*fabs(direction.x())/det.specificTopology().pitch()); 
-    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/pitch); 
+    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/(det.specificTopology()).pitch()); 
  
   float eLoss = hit.energyLoss();  // Eloss in GeV
  
-  float decSignal = TimeResponse(hit);
+  float decSignal = TimeResponse(hit, det);
  
   ionization_type _ionization_points;
 
   _ionization_points.resize(NumberOfSegmentation);
 
-  //  cout<<"Modified SiStripDigitizer"<<endl;
   float energy;
 
   // Fluctuate charge in track subsegments
@@ -96,7 +92,7 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
     // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
     // track segment length in mm, segment eloss in MeV 
     // Returns fluctuated eloss in MeV
-    //    double deltaCutoff = deltaCut.value(); // the cutoff is sometimes redefined inside, so fix it.
+    // the cutoff is sometimes redefined inside, so fix it.
     double deltaCutoff = deltaCut;
     de = fluctuate.SampleFluctuations(double(particleMomentum*1000.),
 				      particleMass, deltaCutoff, 
@@ -117,17 +113,16 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   return;
 }
 
-float SiLinearChargeDivider::TimeResponse( const PSimHit& hit ) {
+float SiLinearChargeDivider::TimeResponse( const PSimHit& hit, const StripGeomDetUnit& det ) {
   if (peakMode) {
-    return this->PeakShape( hit );
+    return this->PeakShape( hit, det );
   } else {
-    return this->DeconvolutionShape( hit );
+    return this->DeconvolutionShape( hit, det );
   }
 }
 
-float SiLinearChargeDivider::PeakShape(const PSimHit& hit){
-  //  float dist = hit.det().position().mag();
-  float dist = hit.localPosition().mag();
+float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUnit& det){
+  float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
   float SigmaShape = 52.17; // From fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
   float tofNorm = (hit.tof() - t0)/SigmaShape;
@@ -141,9 +136,8 @@ float SiLinearChargeDivider::PeakShape(const PSimHit& hit){
   }
 }
 
-float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit){
-  //  float dist = hit.det().position().mag();
-  float dist = hit.localPosition().mag();
+float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripGeomDetUnit& det){
+  float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
   float SigmaShape = 12.06; // From fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
   float tofNorm = (hit.tof() - t0)/SigmaShape;
