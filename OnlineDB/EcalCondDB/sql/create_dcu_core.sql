@@ -32,6 +32,7 @@ CREATE TABLE dcu_iov (
 CREATE SEQUENCE dcu_iov_sq INCREMENT BY 1 START WITH 1;
 
 ALTER TABLE dcu_iov ADD CONSTRAINT dcu_iov_pk PRIMARY KEY (iov_id);
+CREATE INDEX dcu_iov_ix ON dcu_iov (since, till);
 ALTER TABLE dcu_iov ADD CONSTRAINT dcu_iov_fk FOREIGN KEY (tag_id) REFERENCES dcu_tag (tag_id);
 
 

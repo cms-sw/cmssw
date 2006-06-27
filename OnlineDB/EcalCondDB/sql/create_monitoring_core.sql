@@ -47,6 +47,7 @@ CREATE SEQUENCE mon_run_iov_sq INCREMENT BY 1 START WITH 1;
 
 ALTER TABLE mon_run_iov ADD CONSTRAINT mon_run_iov_pk PRIMARY KEY (iov_id);
 ALTER TABLE mon_run_iov ADD CONSTRAINT mon_run_iov_uk UNIQUE (tag_id, run_iov_id, subrun_num);
+CREATE INDEX mon_run_iov_ix ON mon_run_iov (subrun_start, subrun_end);
 ALTER TABLE mon_run_iov ADD CONSTRAINT mon_run_iov_fk1 FOREIGN KEY (tag_id) REFERENCES mon_run_tag (tag_id);
 ALTER TABLE mon_run_iov ADD CONSTRAINT mon_run_iov_fk2 FOREIGN KEY (run_iov_id) REFERENCES run_iov (iov_id);
 
