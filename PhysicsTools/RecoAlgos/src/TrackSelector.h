@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SelectorProducer.h,v 1.5 2006/06/20 09:58:02 llista Exp $
+ * $Id: TrackSelector.h,v 1.1 2006/06/27 08:37:19 llista Exp $
  *
  */
 
@@ -19,12 +19,12 @@ namespace reco {
   class Track;
 }
 
-class TrackSelector : public edm::EDProducer {
+class TrackSelectorBase : public edm::EDProducer {
 public:
   /// constructor 
-  explicit TrackSelector( const edm::ParameterSet & );
+  explicit TrackSelectorBase( const edm::ParameterSet & );
   /// destructor
-  virtual ~TrackSelector();
+  virtual ~TrackSelectorBase();
   
 private:
   /// process one event
@@ -33,6 +33,26 @@ private:
   virtual bool select( const reco::Track& ) const;
   /// source collection label
   std::string src_;
+  /// output branch label
+  std::string alias_;
+};
+
+template<typename S>
+class TrackSelector : public TrackSelectorBase {
+public:
+  /// constructor 
+  explicit TrackSelector( const edm::ParameterSet & cfg ) :
+    TrackSelectorBase( cfg ), select_() { }
+  /// destructor
+  virtual ~TrackSelector() { }
+  
+private:
+  /// select one track
+  virtual bool select( const reco::Track& t ) const {
+    return select_( t );
+  }
+  /// actual selector object
+  S select_;
 };
 
 #endif

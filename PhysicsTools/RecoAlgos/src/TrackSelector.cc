@@ -10,21 +10,22 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-TrackSelector::TrackSelector( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<std::string>( "src" ) ) {
-  produces<TrackCollection>().setBranchAlias( src_ + "Tracks" );
-  produces<TrackExtraCollection>().setBranchAlias( src_ + "TrackExtras" );
-  produces<TrackingRecHitCollection>().setBranchAlias( src_ + "RecHits" );
+TrackSelectorBase::TrackSelectorBase( const ParameterSet & cfg ) :
+  src_( cfg.getParameter<std::string>( "src" ) ),
+  alias_( cfg.getParameter<std::string>( "alias" ) ) {
+  produces<TrackCollection>().setBranchAlias( alias_ + "Tracks" );
+  produces<TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
 }
  
-TrackSelector::~TrackSelector() {
+TrackSelectorBase::~TrackSelectorBase() {
 }
 
-bool TrackSelector::select( const Track & ) const {
+bool TrackSelectorBase::select( const Track & ) const {
   return true;
 }
 
-void TrackSelector::produce( Event& evt, const EventSetup& ) {
+void TrackSelectorBase::produce( Event& evt, const EventSetup& ) {
   Handle<TrackCollection> tracks;
   Handle<TrackExtraCollection> trackExtras;
   evt.getByLabel( src_, tracks );
@@ -47,10 +48,11 @@ void TrackSelector::produce( Event& evt, const EventSetup& ) {
   auto_ptr<TrackExtraCollection> selTrackExtras( new TrackExtraCollection );
   idx = 0;
   for( vector<pair<size_t, size_t> >::const_iterator t = ti.begin(); t != ti.end(); ++t  ) {
-    TrackExtra te( (*trackExtras)[ t->first ] );
+    const TrackExtra & x = (*trackExtras)[ t->first ];
+    selTrackExtras->push_back( TrackExtra ( x.outerPosition(), x.outerMomentum(), x.outerOk() ) );
+    TrackExtra & tx = selTrackExtras->back();
     for( size_t i = 0; i < t->second; ++i )
-      te.add( TrackingRecHitRef( hHits, idx++ ) );
-    selTrackExtras->push_back( te );
+      tx.add( TrackingRecHitRef( hHits, idx++ ) );
   }
   edm::OrphanHandle<TrackExtraCollection> hTrackExtras = evt.put( selTrackExtras );
 

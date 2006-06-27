@@ -4,7 +4,7 @@
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE( TrackSelector );
+DEFINE_ANOTHER_FWK_MODULE( TrackSelectorBase );
 namespace reco {
   namespace modules {
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
