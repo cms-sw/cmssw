@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.7 2006/06/27 16:24:54 fischler Exp $
+// $Id: MessageLogger.cc,v 1.8 2006/06/27 20:07:56 fischler Exp $
 //
 // Change log
 //
@@ -93,11 +93,11 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
 
-  iRegistry.watchPreModuleConstruction(this,&MessageLogger::preModuleConstruction);
-  iRegistry.watchPostModuleConstruction(this,&MessageLogger::postModuleConstruction);
+//  iRegistry.watchPreModuleConstruction(this,&MessageLogger::preModuleConstruction);
+//  iRegistry.watchPostModuleConstruction(this,&MessageLogger::postModuleConstruction);
 
-   iRegistry.watchPreSourceConstruction(this,&MessageLogger::preSourceConstruction);
-   iRegistry.watchPostSourceConstruction(this,&MessageLogger::postSourceConstruction);
+//  iRegistry.watchPreSourceConstruction(this,&MessageLogger::preSourceConstruction);
+//  iRegistry.watchPostSourceConstruction(this,&MessageLogger::postSourceConstruction);
 
   iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
   iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
@@ -165,6 +165,26 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
   MessageDrop::instance()->runEvent = "BetweenEvents";  
 }
 
+#ifdef NOTYET
+void
+MessageLogger::preModuleConstructor(const ModuleDescription& desc)
+{
+  // LogInfo("preModule") << "Module:" << desc.moduleLabel();
+  curr_module_ = desc.moduleName_;
+  curr_module_ += ":";
+  curr_module_ += desc.moduleLabel_;
+  MessageDrop::instance()->moduleName = curr_module_;  
+  if (!anyDebugEnabled_) {
+    MessageDrop::instance()->debugEnabled = false;
+  } else if (everyDebugEnabled_) {
+    MessageDrop::instance()->debugEnabled = true;
+  } else {
+    MessageDrop::instance()->debugEnabled = 
+    			debugEnabledModules_.count(desc.moduleLabel_);
+  }
+}
+#endif
+
 void
 MessageLogger::preModule(const ModuleDescription& desc)
 {
@@ -182,6 +202,7 @@ MessageLogger::preModule(const ModuleDescription& desc)
     			debugEnabledModules_.count(desc.moduleLabel_);
   }
 }
+
 
 void
 MessageLogger::postModule(const ModuleDescription& iDescription)
