@@ -3,15 +3,15 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
 
-EcalCoder::EcalCoder(bool addNoise)
+EcalCoder::EcalCoder(bool addNoise, CaloCorrelatedNoisifier * theCorrNoise)
 :  thePedestals(0),
-   addNoise_(addNoise)
+   addNoise_(addNoise),
+   theCorrNoise_(theCorrNoise)
 
 {
 
@@ -102,6 +102,12 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
     if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
 
+  CaloSamples noiseframe(detId, caloSamples.size());
+  if (addNoise_) { 
+    theCorrNoise_->noisify(noiseframe);
+    LogDebug("EcalCoder") << "Normalized correlated noise calo frame = " << noiseframe;
+  }
+
   int wait = 0 ;
   int gainId = 0 ;
   for (int i = 0 ; i < caloSamples.size() ; ++i)
@@ -121,7 +127,8 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
        if(addNoise_ && (signal <= MAXADC+threeSigmaADCNoise[igain]) ) {
          // width is the actual final noise, subtract the additional one from the trivial quantization
          double trueRMS = sqrt(widths[igain]*widths[igain]-1./12.);
-         ped = RandGauss::shoot(ped, trueRMS);
+         ///ped = RandGauss::shoot(ped, trueRMS);
+         ped = ped + trueRMS*noiseframe[i];
          signal = ped + caloSamples[i] / LSB[igain];
        }
        int tmpadc = (signal-(int)signal <= 0.5 ? (int)signal : (int)signal + 1);
@@ -222,3 +229,4 @@ void EcalCoder::findGains(const DetId & detId, double Gains[]) const
     edm::LogError("EcalCoder") << "Could not find gain ratios for " << detId.rawId() << " among the " << theGainRatios->getMap().size();
   }
 }
+

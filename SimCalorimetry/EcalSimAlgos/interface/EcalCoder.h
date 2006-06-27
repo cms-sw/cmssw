@@ -10,7 +10,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
- 
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloCorrelatedNoisifier.h"
+
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 
@@ -18,7 +20,6 @@ class EcalMGPASample;
 class EcalPedestals;
 class EBDataFrame;
 class EEDataFrame;
-class CaloSamples;
 class DetId;
 #include<vector>
 
@@ -38,7 +39,7 @@ class EcalCoder
   enum {NGAINS = 3};
 
   /// ctor
-  EcalCoder(bool addNoise) ;
+  EcalCoder(bool addNoise, CaloCorrelatedNoisifier * theCorrNoise) ;
   /// dtor
   virtual ~EcalCoder() {}
 
@@ -93,6 +94,9 @@ class EcalCoder
   double m_maxEneEE ;
   /// whether add noise to the pedestals and the gains
   bool addNoise_;
+  /// Correlated noisifier
+  CaloCorrelatedNoisifier * theCorrNoise_;
+
 };
 
 
