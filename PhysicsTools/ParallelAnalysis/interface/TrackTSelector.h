@@ -1,30 +1,27 @@
-#ifndef JetTSelector_h
-#define JetTSelector_h
-/** \class JetTSelector
+#ifndef TrackTSelector_h
+#define TrackTSelector_h
+/** \class TrackTSelector
  *
  * Simple interactive analysis example based on TSelector
  * accessing EDM data
  *
  * \author Luca Lista, INFN
  *
- * $Id$
+ * $Id: TrackTSelector.h,v 1.2 2006/03/20 11:09:21 llista Exp $
  */
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TSelector.h>
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-typedef reco::CandidateCollection JetCollection;
-
-class JetTSelector : public TSelector {
+class TrackTSelector : public TSelector {
 public :
   /// constructor
-  JetTSelector( TTree *tree = 0 ) { }
+  TrackTSelector( TTree *tree = 0 ) { }
   /// destructor
-  virtual ~JetTSelector() { }
+  virtual ~TrackTSelector() { }
   /// return version number
   virtual Int_t Version() const { return 1; }
   /// begin of processing: book histograms
@@ -53,15 +50,15 @@ public :
 private:
   /// root file chain 
   TTree * chain;
-  /// jet collection
-  JetCollection jets;
-  /// jet branch
-  TBranch * jetsBranch;
+  /// track collection
+  reco::TrackCollection tracks;
+  /// track branch
+  TBranch * tracksBranch;
   /// histograms
-  TH1F * h_et, * h_eta;
+  TH1F * h_pt, * h_eta;
 
-  JetTSelector(JetTSelector const&);
-  JetTSelector operator=(JetTSelector const&);
+  TrackTSelector(TrackTSelector const&);
+  TrackTSelector operator=(TrackTSelector const&);
 };
 
 #endif
