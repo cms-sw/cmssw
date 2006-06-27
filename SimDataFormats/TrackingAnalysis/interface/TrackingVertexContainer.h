@@ -5,7 +5,8 @@
 
 #include <vector>
  
-typedef std::vector<TrackingVertex> TrackingVertexCollection;
+typedef std::vector<TrackingVertex>                TrackingVertexCollection;
+typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexContainer;
  
 
 #endif

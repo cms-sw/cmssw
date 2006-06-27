@@ -6,20 +6,8 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-// Should move these into EmbdSimTrackContainer.h, no time before 8.0-pre2
-
-//#include "DataFormats/Common/interface/Ref.h"
-//#include "DataFormats/Common/interface/RefProd.h"
-//#include "DataFormats/Common/interface/RefVector.h"
-//typedef edm::Ref<edm::EmbdSimTrackContainer> EmbdSimTrackRef;
-//typedef edm::RefProd<edm::EmbdSimTrackContainer> EmbdSimTrackRefProd;
-//typedef edm::RefVector<edm::EmbdSimTrackContainer> EmbdSimTrackRefVector;
-using edm::EmbdSimTrackRef;
-using edm::EmbdSimTrackRefProd;
-using edm::EmbdSimTrackRefVector;
 
 namespace HepMC {
   class GenParticle;
@@ -41,7 +29,7 @@ public:
   int pdgId() const { return pdgId_; }
 
 // Setters for Embd and Sim Tracks
-  void addG4Track(const EmbdSimTrackRef&);
+  void addG4Track(const SimTrackRef&);
   void addGenParticle(const GenParticleRef&);
 // Need Getters for Embd and Sim Tracks
 
@@ -51,7 +39,7 @@ private:
   /// PDG identifier
   int pdgId_;
   /// references to G4 and HepMC tracks
-  EmbdSimTrackRefVector g4Tracks_;
+  SimTrackRefVector g4Tracks_;
   GenParticleRefVector  genParticles_;
 };
 

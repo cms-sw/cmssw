@@ -13,7 +13,7 @@ void TrackingParticle::addGenParticle( const edm::Ref<edm::HepMCProduct, HepMC::
   genParticles_.push_back(ref);
 }
 
-void TrackingParticle::addG4Track( const EmbdSimTrackRef &ref) { 
+void TrackingParticle::addG4Track( const SimTrackRef &ref) { 
   g4Tracks_.push_back(ref);
 }
 

@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.7 2006/06/22 19:12:35 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.8 2006/06/23 21:35:54 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -16,13 +16,13 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <vector>
 
-using edm::EmbdSimVertexRef;
-using edm::EmbdSimVertexRefVector;
+using edm::SimVertexRef;
+using edm::SimVertexRefVector;
 
 namespace HepMC {
   class GenVertex;
@@ -64,10 +64,10 @@ class TrackingVertex {
 //  void setGenVertex(          GenVertexRef r )  { genVertex_ = r; }
 
   /// position 
-  void addG4Vertex(const EmbdSimVertexRef &r);
+  void addG4Vertex(const SimVertexRef &r);
   void addGenVertex(const GenVertexRef&);
   const HepLorentzVector & position() const ;
-  const EmbdSimVertexRefVector    g4Vertices() const;
+  const SimVertexRefVector    g4Vertices() const;
   const GenVertexRefVector        genVertices() const;
   const TrackingParticleRefVector trackingParticles() const;
 //  const GenVertexRefVector genVertices() const;
@@ -81,7 +81,7 @@ class TrackingVertex {
   TrackingParticleContainer tracks_;
 
   /// references to G4 and generator vertices
-  EmbdSimVertexRefVector g4Vertices_;
+  SimVertexRefVector g4Vertices_;
   GenVertexRefVector     genVertices_;
 };
 
