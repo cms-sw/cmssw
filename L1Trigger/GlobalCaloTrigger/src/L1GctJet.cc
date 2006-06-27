@@ -34,7 +34,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
   os << " Phi " << cand.m_phi;
   os << " Tau " << cand.m_tauVeto;
   if (cand.m_jetEtCalibrationLut == 0) {
-    os << " no lut setup!" << std::endl;
+    os << " using default lut!" << std::endl;
   } else {
     os << " rank " << cand.rank();
     os << " lut address " << cand.m_jetEtCalibrationLut << std::endl;
@@ -54,20 +54,26 @@ void L1GctJet::setupJet(uint16_t rawsum, uint16_t eta, uint16_t phi, bool tauVet
 /// Methods to return the jet rank
 uint16_t L1GctJet::rank()      const
 {
+  uint16_t result;
+  // If no lut setup, just return the MSB of the rawsum as the rank
   if (m_jetEtCalibrationLut==0) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJet : cannot return jet rank since LUT address has not been set\n";
+    result = std::min(63, m_rawsum >> (RAWSUM_BITWIDTH - 6));
+  } else {
+    result = m_jetEtCalibrationLut->convertToSixBitRank(m_rawsum, m_eta);
   }
-  return m_jetEtCalibrationLut->convertToSixBitRank(m_rawsum, m_eta);
+  return result;
 }
 
 uint16_t L1GctJet::rankForHt() const
 {
+  uint16_t result;
+  // If no lut setup, just return the MSB of the rawsum as the rank
   if (m_jetEtCalibrationLut==0) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJet : cannot return jet rank for Ht since LUT address has not been set\n";
+    result = std::min(1023, m_rawsum >> (RAWSUM_BITWIDTH - 10));
+  } else {
+    result = m_jetEtCalibrationLut->convertToTenBitRank(m_rawsum, m_eta);
   }
-  return m_jetEtCalibrationLut->convertToTenBitRank(m_rawsum, m_eta);
+  return result;
 }
 
 /// convert to central jet digi
