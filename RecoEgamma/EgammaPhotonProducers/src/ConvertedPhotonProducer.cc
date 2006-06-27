@@ -51,6 +51,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   // use onfiguration file to setup input/output collection names
  
 
+  bcProducer_       = conf_.getParameter<std::string>("bcProducer");
+  bcCollection_     = conf_.getParameter<std::string>("bcCollection");
+
   scProducer_       = conf_.getParameter<std::string>("scProducer");
   scCollection_     = conf_.getParameter<std::string>("scCollection");
  
@@ -144,7 +147,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the basic cluster collection
   edm::Handle<reco::BasicClusterCollection> bccHandle;
   try {
-  theEvent.getByType(bccHandle);
+  theEvent.getByLabel(bcProducer_, bcCollection_, bccHandle);
   } catch ( cms::Exception& ex ) {
     LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection " << std::endl ;
   } 
