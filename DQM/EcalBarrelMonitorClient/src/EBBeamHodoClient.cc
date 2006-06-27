@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/27 14:03:04 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/27 16:31:23 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -681,6 +681,10 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1F* obj1f;
   TProfile2D* objp;
 
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
   for (int i=0; i<4; i++) {
 
     imgNameP = "";
@@ -743,26 +747,27 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-    htmlFile << "<tr align=\"center\">" << endl;
-
     if ( imgNameP.size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameP << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
     else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     if ( imgNameR.size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameR << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << imgNameR << "\"></td>" << endl;
     else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "</table>" << endl;
-    htmlFile << "<br>" << endl;
+    if ( i == 1 ) {
+      htmlFile << "</tr>" << endl;
+      htmlFile << "<tr align=\"center\">" << endl;
+    }
 
   }
+
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
 
   htmlFile.close();
 
