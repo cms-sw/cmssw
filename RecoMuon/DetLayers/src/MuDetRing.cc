@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/01 16:47:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/02 12:21:39 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -55,6 +55,22 @@ MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop
 		      const MeasurementEstimator& est) const {
 
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
+  if ( MDEBUG ) {
+    cout << "MuDetRing::compatible, Surface at Z: " 
+	 << specificSurface().position().z()
+	 << " R1: " << specificSurface().innerRadius()
+	 << " R2: " << specificSurface().outerRadius()
+	 << " TS   at Z,R: " << ts.globalPosition().z() << ","
+	 << ts.globalPosition().perp() << endl;
+    if (ms.isValid()) {
+      cout << " DEST at Z,R: " << ms.globalPosition().z() << ","
+	   << ms.globalPosition().perp()
+	   << " local Z: "   << ms.localPosition().z()  << endl;
+    }
+    else
+      cout << " DEST: not valid" <<endl;
+  }
+
   if (ms.isValid()) return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
   else return make_pair(false, ms);
 }
@@ -66,20 +82,21 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			   const MeasurementEstimator& est) const {
 
   if ( MDEBUG ) cout << "MuDetRing::compatibleDets, Surface at Z: " 
-		    << surface().position().z()  << " R1: "
-		    << specificSurface().innerRadius()
-//FIXME		    << " TS at Z,R: " << startingState.position().z() << ","
-//		    << startingState.position().perp()
-		    << endl
-		    << "     DetRing pos." << position() 
-		    << endl;
+		     << surface().position().z()
+		     << " R1: " << specificSurface().innerRadius()
+		     << " R2: " << specificSurface().outerRadius()
+		     << " TS at Z,R: " << startingState.globalPosition().z() << ","
+		     << startingState.globalPosition().perp()
+		     << endl
+		     << "     DetRing pos." << position() 
+		     << endl;
 
   vector<DetWithState> result;
 
   // Propagate and check that the result is within bounds
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
-  if (compat.first) {
+  if (!compat.first) {
     if ( MDEBUG ) cout << "    MuDetRing::compatibleDets: not compatible"
 		      << "    (should not have been selected!)" <<endl;
     return result;
@@ -105,9 +122,11 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   float dphi=0;
   if (!result.empty()) { // If closest is not compatible the next cannot be either
     float nSigmas = 3.;
-    dphi = nSigmas*      
-      atan(sqrt(result.back().second.localError().positionError().xx())/
-	   result.back().second.globalPosition().perp());
+    if (result.back().second.hasError()) {
+      dphi = nSigmas*      
+	atan(sqrt(result.back().second.localError().positionError().xx())/
+	     result.back().second.globalPosition().perp());
+    }  
   } else {
     if ( MDEBUG ) 
       cout << "     MuDetRing::compatibleDets, closest not compatible!" <<endl;
