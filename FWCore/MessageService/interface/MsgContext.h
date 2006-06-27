@@ -13,14 +13,20 @@ namespace service {
   public:
     MsgContext* clone() const { return new MsgContext(*this); }
     ELstring context() const { return context_; }
-    ELstring summaryContext() const { return context(); }
+    ELstring summaryContext() const { return summary_context_; }
     ELstring fullContext() const { return context(); }
 
-    void setContext(const std::string& c) { context_ = c; }
-    void clearContext() { context_.clear(); }
+    void setContext(const std::string& c) 
+    { 
+      context_ = c; 
+      summary_context_ = compress(c);
+    }
+    void clearContext() { context_.clear(); summary_context_.clear(); }
 
   private:
     std::string context_;
+    std::string summary_context_;    
+    std::string compress (const std::string& c) const;
   };
 
 }        // end of namespace service

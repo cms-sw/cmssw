@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.5 2006/05/12 20:49:20 fischler Exp $
+// $Id: MessageLogger.cc,v 1.6 2006/06/24 01:46:36 wmtan Exp $
 //
 // Change log
 //
@@ -17,6 +17,9 @@
 //			are entered.  If any modules enable debugs, such
 //			LogDebug messages are not immediately discarded
 //			(though they might be filtered at the server side).
+//
+// 2  mf  5/27/06	In preEventProcessing, change the syntax for 
+//			runEvent from 1/23 to Run: 1 Event: 23
 
 // system include files
 
@@ -146,7 +149,8 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
 {
   std::ostringstream ost;
   curr_event_ = iID;
-  ost << curr_event_.run() << "/" << curr_event_.event();
+  ost << "Run: " << curr_event_.run() 
+      << " Event: " << curr_event_.event();    			// change log 2
   edm::MessageDrop::instance()->runEvent = ost.str();  
 }
 void
