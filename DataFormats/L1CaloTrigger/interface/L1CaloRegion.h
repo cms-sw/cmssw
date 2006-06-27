@@ -66,6 +66,9 @@ public:
   
   // get methods for the geographical information
 
+  /// get global region ID
+  unsigned id() const { return m_id; }
+
   /// get RCT crate ID
   unsigned rctCrate() const ;
 
