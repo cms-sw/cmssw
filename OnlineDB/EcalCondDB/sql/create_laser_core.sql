@@ -33,7 +33,7 @@ CREATE SEQUENCE lmf_run_iov_sq INCREMENT BY 1 START WITH 1;
 
 ALTER TABLE lmf_run_iov ADD CONSTRAINT lmf_run_iov_pk PRIMARY KEY (iov_id);
 ALTER TABLE lmf_run_iov ADD CONSTRAINT lmf_run_iov_uk UNIQUE (run_iov_id, subrun_num);
-CREATE INDEX lmf_run_iov_ix ON lmv_run_iov (subrun_start, subrun_end);
+CREATE INDEX lmf_run_iov_ix ON lmf_run_iov (subrun_start, subrun_end);
 ALTER TABLE lmf_run_iov ADD CONSTRAINT lmf_run_iov_fk1 FOREIGN KEY (tag_id) REFERENCES lmf_run_tag (tag_id);
 ALTER TABLE lmf_run_iov ADD CONSTRAINT lmf_run_iov_fk2 FOREIGN KEY (run_iov_id) REFERENCES run_iov (iov_id);
 
