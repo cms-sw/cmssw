@@ -1,21 +1,20 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/04/26 06:54:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/05 07:49:59 $
+ *  $Revision: 1.2 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-
-//#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std; 
 
 void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
+  std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
-  LogDebug("MuonTrajectoryCleaner") << "****** Muon Trajectory Cleaner ******" << endl;
+  LogDebug(metname) << "Muon Trajectory Cleaner called" << endl;
 
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
@@ -45,7 +44,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
         }
       }
       
-      LogDebug("MuonTrajectoryCleaner") 
+      LogDebug(metname) 
 	<< " MuonTrajSelector: trajC " << i << "chi2/nRH=" 
 	<< (*iter).chiSquared() << "/" << (*iter).foundHits() <<
 	"vs trajC" << j << "chi2/nRH=" << (*jter).chiSquared() <<
