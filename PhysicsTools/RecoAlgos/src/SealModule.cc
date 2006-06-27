@@ -1,6 +1,6 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/RecoAlgos/src/TrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
 
 DEFINE_SEAL_MODULE();

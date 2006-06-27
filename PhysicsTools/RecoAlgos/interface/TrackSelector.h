@@ -42,7 +42,7 @@ class TrackSelector : public TrackSelectorBase {
 public:
   /// constructor 
   explicit TrackSelector( const edm::ParameterSet & cfg ) :
-    TrackSelectorBase( cfg ), select_() { }
+    TrackSelectorBase( cfg ), select_( cfg ) { }
   /// destructor
   virtual ~TrackSelector() { }
   

@@ -1,4 +1,4 @@
-#include "PhysicsTools/RecoAlgos/src/TrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
