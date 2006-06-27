@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/13 08:46:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/27 12:33:29 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,7 +22,7 @@
 
 using namespace std;
 
-#define MDEBUG true //FIXME!
+#define MDEBUG false //FIXME!
 
 MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
