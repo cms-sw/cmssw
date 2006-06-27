@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2006/06/14 09:27:57 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/20 10:57:41 $
+//   $Revision: 1.4 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -185,11 +185,14 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // bunch crossing match; obsolete as of April 2002.
   // int bxnMatch = findBxnMatch(aLCT.getBX(), cLCT.getBX());
 
+  // Bunch crossing: get it from cathode LCT if anode LCT is not there.
+  int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
+
   // construct correlated LCT; temporarily assign track number of 0.
   int trknmb = 0;
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
 			       cLCT.getKeyStrip(), pattern, cLCT.getBend(),
-			       aLCT.getBX());
+			       bx);
   return thisLCT;
 }
 
