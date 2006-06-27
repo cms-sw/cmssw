@@ -7,6 +7,7 @@
 #include "DQMServices/WebComponents/interface/Navigator.h"
 #include "DQMServices/WebComponents/interface/ContentViewer.h"
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
+#include "DQMServices/WebComponents/interface/Select.h"
 
 
 /*
@@ -32,6 +33,13 @@ ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string 
   GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","350px", "200px", "300px", "MyGifDisplay");
   GifDisplay * dis2 = new GifDisplay(getApplicationURL(), "50px", "700px", "200px", "300px", "MyOtherGifDisplay");
   
+  // the select-menu widget
+  Select *sel = new Select(getApplicationURL(), "350px", "10px", "AnotherCustomRequest", "My Select Button");
+  std::vector<std::string> options_v;
+  options_v.push_back("Kitharistas");
+  options_v.push_back("Drummer");
+  sel->setOptionsVector(options_v);
+
   // every web interface needs to instantiate a WebPage...
   page_p = new WebPage(getApplicationURL());
   // ...and add its widgets to it:
@@ -40,6 +48,7 @@ ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string 
   page_p->add("button", but);
   page_p->add("gifDisplay", dis);
   page_p->add("otherGifDisplay", dis2);
+  page_p->add("selectButton", sel);
 }
 
 /*
@@ -57,6 +66,7 @@ void ExampleWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out
 
   // if you have more than one custom requests, add 'if' statements accordingly:
   if (requestID == "MyCustomRequest") CustomRequestResponse(in, out);
+  if (requestID == "AnotherCustomRequest") AnotherCustomRequestResponse(in, out);
 }
 
 /*
@@ -65,4 +75,13 @@ void ExampleWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out
 void ExampleWebInterface::CustomRequestResponse(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
   std::cout << "A custom request has arrived" << std::endl;
+}
+
+void ExampleWebInterface::AnotherCustomRequestResponse(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception)
+{
+  std::multimap<std::string, std::string> request_multimap;
+  CgiReader reader(in);
+  reader.read_form(request_multimap);
+  std::string choice = get_from_multimap(request_multimap, "Argument");
+  std::cout << "The user selected : " << choice << std::endl;
 }

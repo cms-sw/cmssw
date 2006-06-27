@@ -23,9 +23,14 @@ public:
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
 
   /*
-    An example custom-made method that we want to bind to a widget
+    An example custom-made method that we want to bind to a button
   */
   void CustomRequestResponse(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+
+  /*
+    Another example custom-made method that we want to bind to a select menu
+  */
+  void AnotherCustomRequestResponse(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
 
 private:
 
