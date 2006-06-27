@@ -63,7 +63,7 @@ const reco::Track* PixelFitterByHelixProjections::run(
   float valTip = charge * (center.mag()-1/curvature);
   float errTip = sqrt(errTip2(valPt, points[3].eta()));
 
-  float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y());
+  float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
   float errPhi = 0.002;
 
   float valZip = zip(valTip, curvature, points[0],points[1]);
@@ -102,16 +102,12 @@ float PixelFitterByHelixProjections::cotTheta(const vector<GlobalPoint> & points
    return (fabs(dr) > 1.e-3) ? dz/dr : 0;
 }
 
-float PixelFitterByHelixProjections::phi(float xC, float yC) const{
+float PixelFitterByHelixProjections::phi(float xC, float yC, int charge) const{
   float phiC = 0.;
-  if (xC != 0 || yC != 0 ) phiC= acos( xC / sqrt( xC*xC + yC*yC) );
-  if ( yC >= 0 ) {
-    if ( xC < 0) phiC = phiC - M_PI/2.;
-    else phiC = phiC + M_PI/2.;
-  } else {
-    if ( xC >= 0 ) phiC = M_PI/2.-phiC;
-    else phiC = 3./2.*M_PI - phiC;
-  }
+
+  if (charge>0) phiC = atan2(xC,-yC);
+  else phiC = atan2(-xC,yC);
+
   return phiC;
 }
 

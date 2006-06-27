@@ -20,7 +20,7 @@ public:
 private:
   int charge(const vector<GlobalPoint> & points) const;
   float cotTheta(const vector<GlobalPoint> & points) const;
-  float phi(float xC, float yC) const;
+  float phi(float xC, float yC, int charge) const;
   float pt(float curvature) const;
   float zip(float d0, float curv, 
     const GlobalPoint& pinner, const GlobalPoint& pouter) const;
