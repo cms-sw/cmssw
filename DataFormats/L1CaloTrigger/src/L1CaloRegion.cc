@@ -13,7 +13,7 @@ L1CaloRegion::L1CaloRegion() :
 {
 }
 
-// constructor for emulation
+// constructor for emulation : HB/HE regions
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn)
 {
   bool checkOvF = overFlow || (et>=0x400);
@@ -24,6 +24,17 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
     ((mip)      ? 0x1000 : 0x0) |
     ((quiet)    ? 0x2000 : 0x0);
 }
+
+// constructor for emulation : HF regions
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, unsigned crate, unsigned rgn)
+{
+  bool checkOvF = overFlow || (et>=0x400);
+  m_data = 
+    (et & 0x3ff) | 
+    ((checkOvF) ? 0x400  : 0x0);
+}
+
+
 
 //constructor for unpacking
 L1CaloRegion::L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn) :

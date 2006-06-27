@@ -27,8 +27,11 @@ public:
   /// default constructor
   L1CaloRegion();
 
-  /// constructor for emulation
+  /// constructor for emulation : HB/HE regions
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
+
+  /// constructor for emulation : HF regions
+  L1CaloRegion(unsigned et, bool overFlow, unsigned crate, unsigned rgn);
 
   // constructor for unpacking
   L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn);
@@ -98,6 +101,9 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
 private:
+
+  /// unique ID
+  unsigned m_id;
 
   /// region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
