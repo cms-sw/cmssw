@@ -47,7 +47,25 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
 
   bool addNoise = params.getParameter<bool>("doNoise"); 
-  theCoder = new EcalCoder(addNoise);
+
+  //theNoiseMatrix = new EcalCorrelatedNoiseMatrix(readoutFrameSize);
+  HepSymMatrix thisMatrix(readoutFrameSize,1);
+  //theNoiseMatrix->getMatrix(thisMatrix);
+
+  std::vector<double> corrNoiseMatrix = params.getParameter< std::vector<double> >("CorrelatedNoiseMatrix");
+  if ( corrNoiseMatrix.size() == (unsigned int)(readoutFrameSize*readoutFrameSize) ) {
+    for ( int row = 0 ; row < readoutFrameSize; ++row ) {
+      for ( int column = 0 ; column < readoutFrameSize; ++column ) {
+        int index = column + readoutFrameSize*row;
+        thisMatrix[row][column] = corrNoiseMatrix[index];
+      }
+    }
+  }
+  theNoiseMatrix = new EcalCorrelatedNoiseMatrix(thisMatrix);
+
+  theCorrNoise = new CaloCorrelatedNoisifier(thisMatrix);
+
+  theCoder = new EcalCoder(addNoise, theCorrNoise);
   bool applyConstantTerm = params.getParameter<bool>("applyConstantTerm");
   double rmsConstantTerm = params.getParameter<double> ("ConstantTerm");
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
@@ -74,6 +92,8 @@ EcalTBDigiProducer::~EcalTBDigiProducer()
   delete theParameterMap;
   delete theEcalShape;
   delete theEcalResponse;
+  delete theCorrNoise;
+  delete theNoiseMatrix;
   delete theCoder;
   delete theElectronicsSim;
   delete theBarrelDigitizer;
