@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/06/20 16:26:00 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/23 17:29:58 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
@@ -14,8 +14,8 @@
 
 EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   HepMCLabel(ps.getUntrackedParameter("moduleLabelMC",string("PythiaSource"))),
-  SimTkLabel(ps.getUntrackedParameter("moduleLabelTk",string("EmbdSimTrack"))),
-  SimVtxLabel(ps.getUntrackedParameter("moduleLabelVtx",string("EmbdSimVertex"))){
+  SimTkLabel(ps.getUntrackedParameter("moduleLabelTk",string("SimTrack"))),
+  SimVtxLabel(ps.getUntrackedParameter("moduleLabelVtx",string("SimVertex"))){
 
  
   // DQM ROOT output
@@ -128,12 +128,12 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
-  vector<EmbdSimTrack> theSimTracks;
-  vector<EmbdSimVertex> theSimVertexes;
+  vector<SimTrack> theSimTracks;
+  vector<SimVertex> theSimVertexes;
 
   Handle<HepMCProduct> MCEvt;
-  Handle<EmbdSimTrackContainer> SimTk;
-  Handle<EmbdSimVertexContainer> SimVtx;
+  Handle<SimTrackContainer> SimTk;
+  Handle<SimVertexContainer> SimVtx;
   Handle<CrossingFrame> crossingFrame;
   Handle<EBDigiCollection> EcalDigiEB;
   Handle<EEDigiCollection> EcalDigiEE;
@@ -190,7 +190,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  for (vector<EmbdSimVertex>::iterator isimvtx = theSimVertexes.begin();
+  for (vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();
        isimvtx != theSimVertexes.end(); ++isimvtx){
     if (verbose_ ) {
       LogDebug("EventInfo") <<" Vertex position  x = "<<isimvtx->position().x() <<" y = "<<isimvtx->position().y() <<" z = "<< isimvtx->position().z();
