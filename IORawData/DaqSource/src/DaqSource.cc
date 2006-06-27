@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2006/03/15 23:40:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/31 14:12:25 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -57,7 +57,8 @@ DaqSource::readOneEvent() {
   if (!reader_->fillRawData(eventId, tstamp, *bare_product)) {
     return std::auto_ptr<Event>(0);
   }
- 
+  //  std::cout << " making run " << eventId.run() << " event " << eventId.event()
+  //	    << std::endl;
   std::auto_ptr<Event> e = makeEvent(eventId, tstamp);
 
   e->put(bare_product);

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/18 13:26:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/03/15 23:40:05 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -24,7 +24,8 @@ using namespace edm;
 
 
 DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) : 
-  runNum(1), eventNum(0) {
+  runNum(1), eventNum(0), empty_events(pset.getUntrackedParameter<bool>("emptyEvents", false)) 
+{
   // mean = pset.getParameter<float>("mean");
 }
 
@@ -35,26 +36,28 @@ DaqFakeReader::~DaqFakeReader(){}
 bool DaqFakeReader::fillRawData(EventID& eID,
 				Timestamp& tstamp, 
 				FEDRawDataCollection& data){
-
-  // FIXME
-  float meansize = 1024;
-  float width = 1024;
-
-  // Fill the EventID
-  eID = EventID(runNum,eventNum);
-  eventNum++;
-  // FIXME:
-
-  fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, data, meansize, width);
-
-  fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, data, meansize, width);
-
-  fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, data, meansize, width);
-
+  
+  if(!empty_events)
+    {
+      // FIXME
+      float meansize = 1024;
+      float width = 1024;
+      
+      // Fill the EventID
+      eID = EventID(runNum,eventNum);
+      eventNum++;
+      // FIXME:
+      
+      fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, data, meansize, width);
+      
+      fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, data, meansize, width);
+      
+      fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, data, meansize, width);
+      fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, data, meansize, width);
+    }
   return true;
 }
 
