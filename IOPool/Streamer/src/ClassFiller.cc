@@ -29,8 +29,15 @@ namespace {
   pool::IClassLoader* getClassLoader() {
     pool::IOODatabaseFactory* dbf = pool::IOODatabaseFactory::get();
 
+
+    //This is an outrageous HACK (AA)
+    // New interface needs a second parameter as void* 
+    int dummy=0;
+    pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName(), 
+                                        (void*) &dummy); 
+    // Old interface require only one parameter (AA)
     // does 'db' in the next line need to be cleaned up? (JBK)
-    pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName());
+    // pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName());
 
     if(db == 0) {
 
