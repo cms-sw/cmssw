@@ -13,12 +13,14 @@ namespace {
     std::vector<HORecHit> vHO_;
     std::vector<HFRecHit> vHF_;
     std::vector<ZDCRecHit> vZDC_;
+    std::vector<HcalCalibRecHit> vcal_;
     std::vector<HcalTriggerPrimitiveRecHit> vHTP_;
 
     HBHERecHitCollection theHBHE_;
     HORecHitCollection theHO_;
     HFRecHitCollection theHF_;
     ZDCRecHitCollection theZDC_;
+    HcalCalibRecHitCollection thecalib_;
     HcalTrigPrimRecHitCollection theHTP_;
     HcalSourcePositionData theSPD_;
 
@@ -26,6 +28,7 @@ namespace {
     edm::Wrapper<HORecHitCollection> theHOw_;
     edm::Wrapper<HFRecHitCollection> theHFw_;
     edm::Wrapper<ZDCRecHitCollection> theZDCw_;
+    edm::Wrapper<HcalCalibRecHitCollection> theCalibw_;
     edm::Wrapper<HcalTrigPrimRecHitCollection> theHTPw_;
     edm::Wrapper<HcalSourcePositionData> theSPDw_;
  }
