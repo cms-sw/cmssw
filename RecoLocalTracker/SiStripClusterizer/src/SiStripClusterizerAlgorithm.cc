@@ -38,7 +38,7 @@ void SiStripClusterizerAlgorithm::configure( SiStripNoiseService* in) {
 } 
 
 
-void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& input,edm::DetSetVector<SiStripCluster>& output)
+void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& input,std::vector<edm::DetSet<SiStripCluster> > & output)
 {
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
@@ -55,7 +55,7 @@ void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& inpu
       number_localstriprechits += ssc.data.size();
       
       if (ssc.data.size())
-	output.insert(ssc);  // insert the DetSet<SiStripCluster> in the  DetSetVec<SiStripCluster> only if there is at least a digi
+	output.push_back(ssc);  // insert the DetSet<SiStripCluster> in the  DetSetVec<SiStripCluster> only if there is at least a digi
     }
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits.";
   }

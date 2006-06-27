@@ -23,6 +23,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 //Clusterizer

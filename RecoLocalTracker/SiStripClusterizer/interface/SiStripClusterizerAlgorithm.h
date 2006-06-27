@@ -17,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Data Formats
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 //Algorithm
@@ -37,7 +37,7 @@ class SiStripClusterizerAlgorithm
   ~SiStripClusterizerAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::DetSetVector<SiStripDigi>& input,edm::DetSetVector<SiStripCluster>& output);
+  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripCluster> >& output);
 
   void configure( SiStripNoiseService* );
 

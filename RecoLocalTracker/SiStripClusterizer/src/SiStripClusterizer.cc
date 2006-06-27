@@ -38,15 +38,16 @@ namespace cms
     // retrieve producer name of input StripDigiCollection
     //    std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
 
-    // Step A: create empty output collection
-    std::auto_ptr< edm::DetSetVector<SiStripCluster> > output(new edm::DetSetVector<SiStripCluster> );
 
-    // Step B: Get ESObject 
+    // Step A: Get ESObject 
     SiStripNoiseService_.setESObjects(es);
 
-    // Step C: Get Inputs 
+    // Step B: Get Inputs 
     edm::Handle< edm::DetSetVector<SiStripDigi> >  input;
 
+    // Step C: produce output product
+    std::vector< edm::DetSet<SiStripCluster> > vSiStripCluster;
+    vSiStripCluster.reserve(10000);
     typedef std::vector<edm::ParameterSet> Parameters;
     Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
     Parameters::iterator itDigiProducersList = DigiProducersList.begin();
@@ -55,9 +56,11 @@ namespace cms
       std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
       e.getByLabel(digiProducer,digiLabel,input);  //FIXME: fix this label	
       if (input->size())
-	SiStripClusterizerAlgorithm_.run(*input,*output);
+	SiStripClusterizerAlgorithm_.run(*input,vSiStripCluster);
     }
     
+    // Step D: create and fill output collection
+    std::auto_ptr< edm::DetSetVector<SiStripCluster> > output(new edm::DetSetVector<SiStripCluster>(vSiStripCluster) );
 
     // Step D: write output to file
     e.put(output);
