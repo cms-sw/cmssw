@@ -1,10 +1,15 @@
+<use name=DataFormats/RecoCandidate>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTcore">
+<use name=HLTrigger/HLTcore>
+<flags SEAL_PLUGIN_NAME="HLTriggerHLTfilters">
 <export>
-   <lib name=HLTriggerHLTcore>
+   <lib name=HLTriggerHLTfilters>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=HLTrigger/HLTcore>
 </export>
