@@ -44,7 +44,8 @@ tracker parameters defined in the configuration file :
         double ThresholdInNoiseUnits = 5.     - pixel threshold in noise   
         double TanLorentzAnglePerTesla =0.106 - Lorentz angle per unit B field
         int32 AddPixelInefficiency = 0        - pixel inefficiency 
-                                                0 - none
+                                               -1 - none
+                                                0 - static loss only, v.low lumi
                                                 2 - low lumi
                                                10 - high lumi    
         bool AddNoise = true                  - add noise to the pixel signal 
