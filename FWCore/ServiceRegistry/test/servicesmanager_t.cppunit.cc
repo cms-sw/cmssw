@@ -19,6 +19,7 @@
 
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 #include "FWCore/ServiceRegistry/test/stubs/DependsOnDummyService.h"
+#include <iostream>
 
 class testServicesManager: public CppUnit::TestFixture
 {
