@@ -40,13 +40,11 @@ public:
 
   void setSurface( BoundDisk* cp);
   
-  bool contains( const Local3DPoint& p) const;
-
-  virtual float initialPosition() const { return theInitialPosition;}
-  
-  virtual void initialize();
+  bool contains( const Local3DPoint& p) const;  
   
  protected:
+
+  virtual void initialize();
 
   float rmin() const { return theRmin;}
   float rmax() const { return theRmax;}
@@ -55,7 +53,6 @@ public:
  private:
   
   ReferenceCountingPointer<BoundDisk> theDisk;
-  float theInitialPosition;
 
   float theRmin, theRmax, theZmin, theZmax;
 };

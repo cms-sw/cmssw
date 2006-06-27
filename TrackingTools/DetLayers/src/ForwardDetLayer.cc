@@ -8,12 +8,12 @@
 using namespace std;
 
 ForwardDetLayer::ForwardDetLayer() : 
-  theDisk(0), theInitialPosition(0),
+  theDisk(0),
   theRmin(0), theRmax(0), theZmin(0), theZmax(0)
 {}
 
 ForwardDetLayer::ForwardDetLayer( float initPos) : 
-  theDisk(0), theInitialPosition(initPos),
+  theDisk(0),
   theRmin(0), theRmax(0), theZmin(0), theZmax(0)
 {}
 
@@ -39,6 +39,7 @@ void ForwardDetLayer::initialize() {
 
 BoundDisk* ForwardDetLayer::computeSurface() {
 
+  // FIXME: it could work (faster) with components() instead of basicComponents()
   vector<const GeomDet*> comps= basicComponents();
 
   vector<const GeomDet*>::const_iterator ifirst = comps.begin();
@@ -46,8 +47,10 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 
   // Find extension in R
   // float tolerance = 1.; // cm
-  float theRmin = basicComponents().front()->position().perp(); float theRmax = theRmin;
-  float theZmin = basicComponents().back()->position().z(); float theZmax = theZmin;
+  theRmin = basicComponents().front()->position().perp(); 
+  theRmax = theRmin;
+  theZmin = basicComponents().back()->position().z();
+  theZmax = theZmin;
   for ( vector<const GeomDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 
