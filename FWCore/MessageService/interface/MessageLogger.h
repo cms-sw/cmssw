@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: $
+// $Id: MessageLogger.h,v 1.1 2006/02/15 00:30:31 fischler Exp $
 //
 
 // system include files
@@ -53,6 +53,15 @@ public:
 
   void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
   void  postEventProcessing( Event const &, EventSetup const & );
+
+  void  preModuleConstruction ( ModuleDescription const & );
+  void  postModuleConstruction( ModuleDescription const & );
+
+  void  preSourceConstruction ( ModuleDescription const & );
+  void  postSourceConstruction( ModuleDescription const & );
+
+  void  preSource  ( ModuleDescription const & );
+  void  postSource ( ModuleDescription const & );
 
   void  preModule ( ModuleDescription const & );
   void  postModule( ModuleDescription const & );
