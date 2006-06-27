@@ -5,16 +5,20 @@
  *
  * Implementation of the local Level-1 Cathode Strip Chamber trigger.
  * Simulates functionalities of the anode and cathode Local Charged Tracks
- * (LCT) processors and of the Trigger Motherboard.
+ * (LCT) processors, of the Trigger Mother Board (TMB), and of the Muon Port
+ * Card (MPC).
  *
  * Input to the simulation are collections of the CSC wire and comparator
  * digis.
  *
- * Produces three collections of the Level-1 CSC Trigger Primitives (track
- * stubs, or LCTs): anode LCTs (ALCTs), cathode LCTs (CLCTs), and correlated
- * LCTs.
+ * Produces four collections of the Level-1 CSC Trigger Primitives (track
+ * stubs, or LCTs): anode LCTs (ALCTs), cathode LCTs (CLCTs), correlated
+ * LCTs at TMB, and correlated LCTs at MPC.
  *
- * \author Slava Valuev  May 2006
+ * \author Slava Valuev, UCLA.
+ *
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
  *
  */
 

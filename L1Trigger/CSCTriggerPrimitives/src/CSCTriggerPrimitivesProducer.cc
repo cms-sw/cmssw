@@ -5,7 +5,10 @@
 //   Description: Steering routine of the local Level-1 Cathode Strip Chamber
 //                trigger.
 //
-//   Author List: S. Valuev (May 2006)
+//   Author List: S. Valuev, UCLA.
+//
+//   $Date: 2005/05/31 18:52:28 $
+//   $Revision: 1.1 $
 //
 //   Modifications:
 //
@@ -63,7 +66,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.getByLabel(compDigiProducer_, "MuonCSCComparatorDigi", compDigis);
   ev.getByLabel(wireDigiProducer_, "MuonCSCWireDigi",       wireDigis);
 
-  // Create empty collections of ALCTs, CLCTs, and correlated LCTs.
+  // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
+  // and downstream of MPC.
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
   std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);

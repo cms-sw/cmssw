@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/01 09:50:23 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/23 14:55:45 $
+//   $Revision: 1.3 $
 //
 //   Modifications:
 //
@@ -19,7 +19,7 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
@@ -45,20 +45,11 @@ const int CSCTriggerPrimitivesBuilder::min_chamber =
 const int CSCTriggerPrimitivesBuilder::max_chamber =
                                   CSCTriggerNumbering::maxTriggerCscId();
 
-
-
 //-------------
 // Constructor
 //-------------
 CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf) {
   // Receives ParameterSet percolated down from EDProducer.
-
-  // get min and max BX to sort 
-  m_minBX = conf.getUntrackedParameter<int>("MinBX",-3);
-  m_maxBX = conf.getUntrackedParameter<int>("MaxBX",3);
-
-  //init MPC
-  m_muonportcard = new CSCMuonPortCard();
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
@@ -87,15 +78,19 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
       }
     }
   }
+
+  // Get min and max BX to sort LCTs in MPC.
+  m_minBX = conf.getUntrackedParameter<int>("MinBX",-3);
+  m_maxBX = conf.getUntrackedParameter<int>("MaxBX", 3);
+
+  // Init MPC
+  m_muonportcard = new CSCMuonPortCard();
 }
 
 //------------
 // Destructor
 //------------
 CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
-
-  delete m_muonportcard;
-
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
@@ -108,6 +103,7 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
       }
     }
   }
+  delete m_muonportcard;
 }
 
 //------------
@@ -118,7 +114,10 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
 // to Trigger MotherBoard (TMB) processors, which, in turn, pass them to
 // ALCT and CLCT processors.  Up to 2 anode and 2 cathode LCTs can be found
 // in each chamber during any bunch crossing.  The 2 projections are then
-// combined into three-dimensional "correlated" LCTs in the TMB.
+// combined into three-dimensional "correlated" LCTs in the TMB.  Finally,
+// MPC processor sorts up to 18 LCTs from 9 TMBs and writes collections of
+// up to 3 best LCTs per (sub)sector into Event (to be used by the Sector
+// Receiver).
 void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 					const CSCComparatorDigiCollection* compdc,
 					CSCALCTDigiCollection& oc_alct,
@@ -182,7 +181,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
       }
     }
   }
-  
+
   // run MPC simulation
   m_muonportcard->loadDigis(oc_lct);
 
@@ -209,9 +208,15 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
           }
 
   std::vector<CSCTrackStub>::const_iterator itr = result.begin();
-  for(; itr != result.end(); itr++)
-    {
-      oc_sorted_lct.insertDigi(itr->getDetId(), itr->getDigi());
-    }
-
+  for (; itr != result.end(); itr++) {
+    oc_sorted_lct.insertDigi(itr->getDetId(), itr->getDigi());
+    LogDebug("L1CSCTrigger")
+      << "MPC " << itr->getDigi() << " found in"
+      << " endcap "    << itr->getDetId().endcap()
+      << " station "   << itr->getDetId().station()
+      << " sector "    << itr->getDetId().triggerSector()
+      << " ring "      << itr->getDetId().ring()
+      << " chamber "   << itr->getDetId().chamber()
+      << " (trig id. " << itr->getDetId().triggerCscId() << "):" << "\n";
+  }
 }

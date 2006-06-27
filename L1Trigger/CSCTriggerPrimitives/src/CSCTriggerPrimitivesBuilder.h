@@ -9,7 +9,10 @@
  *
  * Configured via the Producer's ParameterSet.
  *
- * \author Slava Valuev  May 2006
+ * \author Slava Valuev, UCLA.
+ *
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -36,11 +39,12 @@ class CSCTriggerPrimitivesBuilder
   ~CSCTriggerPrimitivesBuilder();
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
-   *  them into output collections. */
+   *  them into output collections.  Select up to three best correlated LCTs
+   *  in each (sub)sector and put them into an output collection as well. */
   void build(const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
-	     CSCCorrelatedLCTDigiCollection& oc_lct, 
+	     CSCCorrelatedLCTDigiCollection& oc_lct,
 	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
@@ -68,6 +72,7 @@ class CSCTriggerPrimitivesBuilder
   CSCMotherboard*
     tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
 
+  /** Pointer to MPC processor. */
   CSCMuonPortCard* m_muonportcard;
 };
 
