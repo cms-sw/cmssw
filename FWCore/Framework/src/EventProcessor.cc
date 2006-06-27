@@ -34,7 +34,6 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
