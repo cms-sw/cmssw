@@ -213,10 +213,24 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
 CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt) {
     GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
     double pf=1.0/cosh(p.eta());
-    CaloTower::Vector v(mt.E*pf,p.eta(),p.phi());
-    CaloTower retval(id,v,mt.E_em*pf,mt.E_had*pf,mt.E_outer*pf,
+    double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
+    double E=mt.E;
+    double E_em=mt.E_em;
+    std::vector<DetId> contains=mt.constituents;
+
+    if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
+      E-=E_em;
+      E_em=0;
+      std::vector<DetId> contains_noecal;
+      for (std::vector<DetId>::iterator i=contains.begin(); i!=contains.end(); i++) 
+	if (i->det()!=DetId::Ecal) contains_noecal.push_back(*i);
+      contains.swap(contains_noecal);
+    }
+
+    CaloTower::Vector v(E*pf,p.eta(),p.phi());
+    CaloTower retval(id,v,E_em*pf,mt.E_had*pf,mt.E_outer*pf,
 		     -1,-1);
-    retval.addConstituents(mt.constituents);
+    retval.addConstituents(contains);
     return retval;
 } 
   
