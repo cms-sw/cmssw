@@ -91,17 +91,19 @@ void TestHistoMgr::openSecondFile( const std::string& name )
 void TestHistoMgr::printComparisonResult( int ih )
 {
 
-  TH1F* histo1 = getHisto1(ih);
-/*  std::cout << ih << " Histo1 " << histo1;
-  std::cout << histo1->GetName();
-  std::cout << histo1->title();
-  std::cout << histo1->entries();
-  std::cout << histo1->axis().bins() << std::endl;
-*/
- 
+  /*
+    TH1F* histo1 = getHisto1(ih);
+  */
+  /*  std::cout << ih << " Histo1 " << histo1;
+      std::cout << histo1->GetName();
+      std::cout << histo1->title();
+      std::cout << histo1->entries();
+      std::cout << histo1->axis().bins() << std::endl;
+  */
+  
 #ifdef StatTesting
   TH1F* histo2 = getHisto1FromSecondFile(histo1->GetName());
-
+  
   StatisticsTesting::StatisticsComparator< StatisticsTesting::Chi2ComparisonAlgorithm > comparator;
 
 //  std::cout << " PrintComparisonResult " << histo1 << " " << histo2 << std::endl;
