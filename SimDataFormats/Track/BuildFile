@@ -5,4 +5,5 @@
 </export>
 
 <use name=clhep>
+<use name=heppdt>
 <use name=DataFormats/Common>

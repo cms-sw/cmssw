@@ -2,7 +2,8 @@
 #define CoreSimTrack_H
  
 #include <CLHEP/Vector/LorentzVector.h>
- 
+#include "HepPDT/ParticleDataTable.hh"
+  
 #include <cmath>
  
 //class HepParticleData;
@@ -19,14 +20,14 @@ public:
     { theMomentum[0] = ip.x(); theMomentum[1] = ip.y(); 
       theMomentum[2] = ip.z(); theMomentum[3] = ie; }
     /// particle info...
-    //const HepParticleData * particleInfo() const;
+    const HepPDT::ParticleData * particleInfo() const;
     /// four momentum
     const HepLorentzVector & momentum() const 
     { return theMomentum; }
     /// particle type (HEP PDT convension)
     int type() const { return thePID;}
     /// charge
-    //float charge() const;
+    float charge() const;
 private:
     int thePID;
     HepLorentzVector theMomentum;

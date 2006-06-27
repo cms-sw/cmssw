@@ -1,12 +1,26 @@
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
  
-// #include "GeneratorInterface/HepPDT/interface/HepPDTable.h"
-// #include "GeneratorInterface/HepPDT/interface/HepParticleData.h"
+#include "HepPDT/defs.h"
+#include "HepPDT/TableBuilder.hh"
+
+#include <fstream>
+
+const HepPDT::ParticleData * CoreSimTrack::particleInfo() const 
+{ 
+    const char * in1 = "data/pdt.table";
+    std::ifstream pdf1(in1);
+    if (!pdf1) 
+    { std::cout << " input file not found " << std::endl; return 0; }
+    HepPDT::ParticleDataTable pdt("PDT table");
+    HepPDT::TableBuilder tb(pdt);
+    if (!HepPDT::addPDGParticles(pdf1, tb)) 
+    { std::cout << "error reading PDG file " << std::endl; return 0; }
+    HepPDT::ParticleData * pd = pdt.particle(HepPDT::ParticleID(type()));
+    return pd; 
+}
  
-// const HepParticleData * CoreSimTrack::particleInfo() const 
-// { return HepPDT::theTable().getParticleData(type()); }
- 
-//float CoreSimTrack::charge() const { return particleInfo()->charge(); }
+float CoreSimTrack::charge() const 
+{ return particleInfo()->charge(); }
  
 std::ostream & operator <<(std::ostream & o , const CoreSimTrack& t) 
 {
