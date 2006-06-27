@@ -20,59 +20,59 @@ L1GctMap::~L1GctMap() {
 }
 
 /// get the RCT crate number
-unsigned L1GctMap::rctCrate(L1GctRegion r) {
+unsigned L1GctMap::rctCrate(L1CaloRegion r) {
   unsigned eta = this->eta(r);
   unsigned phiCrate = ((N_RGN_PHI+4-(this->phi(r)))%N_RGN_PHI)/2;
   return (eta<(N_RGN_ETA/2) ? phiCrate : phiCrate+N_RGN_PHI/2) ;
 }
 
 /// get the SC number
-unsigned L1GctMap::sourceCard(L1GctRegion r) {
+unsigned L1GctMap::sourceCard(L1CaloRegion r) {
   return 3*(this->rctCrate(r)) + (this->sourceCardType(r)==2 ? 1 : 2) ;
 }
 
 /// get the SC type
-unsigned L1GctMap::sourceCardType(L1GctRegion r) {
+unsigned L1GctMap::sourceCardType(L1CaloRegion r) {
   return this->sourceCardType(this->rctEta(r), this->rctPhi(r));
 }
 
 // get the SC input number
-unsigned L1GctMap::sourceCardOutput(L1GctRegion r) {
+unsigned L1GctMap::sourceCardOutput(L1CaloRegion r) {
   return this->sourceCardOutput(this->rctEta(r), this->rctPhi(r));
 }
 
 /// get the eta index within an RCT crate
 /// counting from 0 at the Wheel boundary eta=0
-unsigned L1GctMap::rctEta(L1GctRegion r) {
+unsigned L1GctMap::rctEta(L1CaloRegion r) {
   unsigned eta = this->eta(r);
   return (eta<(N_RGN_ETA/2) ? ((N_RGN_ETA/2-1)-eta) : (eta - (N_RGN_ETA/2))) ;
 }
 
 /// get the phi index within an RCT crate
-unsigned L1GctMap::rctPhi(L1GctRegion r) {
+unsigned L1GctMap::rctPhi(L1CaloRegion r) {
   // even or odd?
   return ((this->phi(r))%2);
 }
 
 /// get global eta index
-unsigned L1GctMap::eta(L1GctRegion r) {
+unsigned L1GctMap::eta(L1CaloRegion r) {
   // id = phi + 18eta
   return (r.id() / N_RGN_PHI);
 }
 
 /// get global phi index 
-unsigned L1GctMap::phi(L1GctRegion r) {
+unsigned L1GctMap::phi(L1CaloRegion r) {
   // id = phi + 18eta
   return (r.id() % N_RGN_PHI);
 }
 
 /// get physical eta 
-//double L1GctMap::eta(L1GctRegion r) {
+//double L1GctMap::eta(L1CaloRegion r) {
 //
 //}
 
 /// get physical phi
-//double L1GctMap::phi(L1GctRegion r) {
+//double L1GctMap::phi(L1CaloRegion r) {
 //
 //}
 

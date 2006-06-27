@@ -14,11 +14,13 @@ namespace {
     L1GctEtTotal etTot;
     L1GctEtHad etHad;
     L1GctEtMiss etMiss;
+    L1GctJetCounts jetCounts;
 
     edm::Wrapper<L1GctEmCandCollection> w_emCand;
     edm::Wrapper<L1GctJetCandCollection> w_jetCand;
     edm::Wrapper<L1GctEtTotal> w_etTot;
     edm::Wrapper<L1GctEtHad> w_etHad;
     edm::Wrapper<L1GctEtMiss> w_etMiss;
+    edm::Wrapper<L1GctJetCounts> w_jetCounts;
   }
 }

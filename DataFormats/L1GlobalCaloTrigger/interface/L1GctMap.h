@@ -1,7 +1,7 @@
 #ifndef L1GCTMAP_H
 #define L1GCTMAP_H
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 /*!
  * \author Jim Brooke
@@ -35,34 +35,34 @@ class L1GctMap {
   }
  
   /// get the RCT crate number
-  unsigned rctCrate(L1GctRegion r);
+  unsigned rctCrate(L1CaloRegion r);
 
   /// get the SC number
-  unsigned sourceCard(L1GctRegion r);
+  unsigned sourceCard(L1CaloRegion r);
 
   /// get the SC type
-  unsigned sourceCardType(L1GctRegion r);
+  unsigned sourceCardType(L1CaloRegion r);
 
   /// get the SC input
-  unsigned sourceCardOutput(L1GctRegion r);
+  unsigned sourceCardOutput(L1CaloRegion r);
 
   /// get the eta index within an RCT crate
-  unsigned rctEta(L1GctRegion r);
+  unsigned rctEta(L1CaloRegion r);
 
   /// get the phi index within an RCT crate
-  unsigned rctPhi(L1GctRegion r);
+  unsigned rctPhi(L1CaloRegion r);
 
   /// get the global eta index
-  unsigned eta(L1GctRegion r);
+  unsigned eta(L1CaloRegion r);
 
   /// get the global phi index
-  unsigned phi(L1GctRegion r);
+  unsigned phi(L1CaloRegion r);
 
   // get physical eta 
-  // double eta(L1GctRegion r);
+  // double eta(L1CaloRegion r);
 
   // get physical eta 
-  //  double phi(L1GctRegion r);
+  //  double phi(L1CaloRegion r);
 
   /// get ID from eta, phi indices
   unsigned id(unsigned ieta, unsigned iphi);

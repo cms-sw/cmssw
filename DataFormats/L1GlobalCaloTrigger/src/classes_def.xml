@@ -4,6 +4,7 @@
   <class name="L1GctEtTotal"/>
   <class name="L1GctEtHad"/>
   <class name="L1GctEtMiss"/>
+  <class name="L1GctJetCounts"/>
   <class name="std::vector<L1GctEmCand>"/>
   <class name="std::vector<L1GctJetCand>"/>
   <class name="edm::Wrapper<std::vector<L1GctEmCand>>"/>
@@ -11,4 +12,5 @@
   <class name="edm::Wrapper<L1GctEtTotal>"/>
   <class name="edm::Wrapper<L1GctEtHad>"/>
   <class name="edm::Wrapper<L1GctEtMiss>"/>
+  <class name="edm::Wrapper<L1GctJetCounts>"/>
 </lcgdict>
