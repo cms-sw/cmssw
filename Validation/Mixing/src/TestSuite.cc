@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.4 2006/03/27 08:14:43 uberthon Exp $
+// $Id: TestSuite.cc,v 1.5 2006/06/14 13:19:42 uberthon Exp $
 //
 //
 
@@ -85,8 +85,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     TH1I * trhistsig = new TH1I(sighistotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
     TH1I * trindhist = new TH1I(histotracksind,"Track to Vertex indices",100,0,500);
     TH1I * trindhistsig = new TH1I(histotracksindsig,"Signal Track to Vertex indices",100,0,500);
-    std::auto_ptr<MixCollection<EmbdSimTrack> > col1(new MixCollection<EmbdSimTrack>(cf.product()));
-    MixCollection<EmbdSimTrack>::iterator cfi1;
+    std::auto_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf.product()));
+    MixCollection<SimTrack>::iterator cfi1;
     for (cfi1=col1->begin(); cfi1!=col1->end();cfi1++) {
        if (cfi1.getTrigger()==0) {
 	 trhist->Fill(cfi1.bunch());
@@ -108,8 +108,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     TH1I * vtxhistsig = new TH1I(sighistovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
     TH1I * vtxindhist = new TH1I(histovertexindices,"Vertex to Track Indices",100,0,300);
     TH1I * vtxindhistsig = new TH1I(histovertexindicessig,"Signal Vertex to Track Indices",100,0,300);
-    std::auto_ptr<MixCollection<EmbdSimVertex> > col2(new MixCollection<EmbdSimVertex>(cf.product()));
-    MixCollection<EmbdSimVertex>::iterator cfi2;
+    std::auto_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf.product()));
+    MixCollection<SimVertex>::iterator cfi2;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
 	if (cfi2.getTrigger()==0) {
 	  vtxhist->Fill(cfi2.bunch());
