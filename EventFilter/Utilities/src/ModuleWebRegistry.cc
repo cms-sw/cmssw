@@ -28,6 +28,16 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
     }
 }
 
+void ModuleWebRegistry::publish(xdata::InfoSpace *is)
+{
+    idct i = clm_.begin();
+    while (i != clm_.end())
+      {
+	(*i).second->publish(is);
+	i++;
+      }
+
+}
 void ModuleWebRegistry::clear(){clm_.clear();}
 
 

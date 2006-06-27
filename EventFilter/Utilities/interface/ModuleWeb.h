@@ -2,6 +2,7 @@
 #define EVF_MODULEWEB_H
 
 #include "toolbox/include/toolbox/lang/Class.h"
+#include "xdata/include/xdata/InfoSpace.h"
 #include <string>
 
 namespace xgi{
@@ -18,6 +19,7 @@ namespace evf
       ModuleWeb(const std::string &);
       virtual ~ModuleWeb(){}
       virtual void defaultWebPage(xgi::Input *in, xgi::Output *out); 
+      virtual void publish(xdata::InfoSpace *) = 0;
     private:
       std::string moduleName_;
     };

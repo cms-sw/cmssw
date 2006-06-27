@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include "xgi/include/xgi/Method.h"
+#include "xdata/include/xdata/InfoSpace.h"
 
 namespace edm{
   class ParameterSet;
@@ -34,6 +35,7 @@ namespace evf
 	  //	  xgi::bind(cl, func, name);  
 	} 
       void invoke(xgi::Input *, xgi::Output *, const std::string &);
+      void publish(xdata::InfoSpace *);
       bool checkWeb(const std::string &);
 
     private:
