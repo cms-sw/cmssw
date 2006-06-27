@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/05/29 17:22:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/12 13:43:28 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -35,7 +35,7 @@ public:
   //<< very temp
   
   // FIXME: this c'tor is temp!!
-  // It will dis as the Updator will be loaded in the es
+  // It will that as the Updator will be loaded in the es
   /// Constructor with Parameter set
   MuonTrajectoryUpdator(const edm::ParameterSet& par);
   // FIXME: this function is temp!!
@@ -44,10 +44,13 @@ public:
 
   //>> end tmp
 
-
-  /// Constructor with Propagator and Parameter set
+  /// Constructor from Propagator and Parameter set
   MuonTrajectoryUpdator(Propagator *propagator,
 			const edm::ParameterSet& par);
+
+  /// Constructor from Propagator, chi2 and the granularity flag
+  MuonTrajectoryUpdator(Propagator *propagator,
+			double chi2, int granularity);
 
   /// Destructor
   virtual ~MuonTrajectoryUpdator();

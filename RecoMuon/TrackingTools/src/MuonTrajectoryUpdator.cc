@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/16 08:35:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/21 17:36:51 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -35,7 +35,7 @@
 using namespace edm;
 using namespace std;;
 
-/// Constructor with Propagator and Parameter set
+/// Constructor from Propagator and Parameter set
 MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
 					     const edm::ParameterSet& par):thePropagator(propagator){
   
@@ -49,6 +49,18 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
   // The granularity
   theGranularity = par.getParameter<int>("Granularity");
 }
+
+MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
+					     double chi2, int granularity):theMaxChi2(chi2),
+									   theGranularity(granularity),
+									   thePropagator(propagator){
+  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  
+  // The KF updator
+  theUpdator= new KFUpdator();
+}
+
+
 
 // FIXME: this c'tor is TMP since it could be dangerous
 /// Constructor with Propagator and Parameter set
@@ -80,7 +92,7 @@ pair<bool,TrajectoryStateOnSurface>
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas, 
 			      Trajectory& theTraj){
   
-  std::string metname = "MuonTrajectoryUpdator::update";
+  std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
   TimeMe t(metname);
   MuonPatternRecoDumper muonDumper;
 
