@@ -50,22 +50,29 @@ namespace cms
     e.getByLabel(rawDigiProducer,"VirginRaw"     , VirginRaw);
     e.getByLabel(rawDigiProducer,"ProcessedRaw"  , ProcessedRaw);
     
-    // Step B: create empty output collection
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    smDigis( new edm::DetSetVector<SiStripDigi> );
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    vrDigis( new edm::DetSetVector<SiStripDigi> );
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    prDigis( new edm::DetSetVector<SiStripDigi> );
-    
-    
-    // Step C: Invoke the strip clusterizer algorithm
+    std::vector< edm::DetSet<SiStripDigi> >    v_smDigis;
+    std::vector< edm::DetSet<SiStripDigi> >    v_vrDigis;
+    std::vector< edm::DetSet<SiStripDigi> >    v_prDigis;
+
+    v_smDigis.reserve(10000);
+    v_vrDigis.reserve(10000);
+    v_prDigis.reserve(10000);
+
+    // Step B: Invoke the strip clusterizer algorithm and fill output collection
     SiStripPedestalsService_.setESObjects(es);
     SiStripNoiseService_.setESObjects(es);
     if ( ScopeMode->size() )
-      SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,*smDigis);
+      SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,v_smDigis);
     if ( VirginRaw->size() )
-      SiStripZeroSuppressionAlgorithm_.run("VirginRaw"   ,*VirginRaw   ,*vrDigis);
+      SiStripZeroSuppressionAlgorithm_.run("VirginRaw"   ,*VirginRaw   ,v_vrDigis);
     if ( ProcessedRaw->size() )
-      SiStripZeroSuppressionAlgorithm_.run("ProcessedRaw",*ProcessedRaw,*prDigis);
+      SiStripZeroSuppressionAlgorithm_.run("ProcessedRaw",*ProcessedRaw,v_prDigis);
    
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    smDigis( new edm::DetSetVector<SiStripDigi>(v_smDigis) );
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    vrDigis( new edm::DetSetVector<SiStripDigi>(v_vrDigis) );
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> >    prDigis( new edm::DetSetVector<SiStripDigi>(v_prDigis) );
+
+
     // Step D: write output to file
     e.put(smDigis, "fromScopeMode");
     e.put(vrDigis, "fromVirginRaw");

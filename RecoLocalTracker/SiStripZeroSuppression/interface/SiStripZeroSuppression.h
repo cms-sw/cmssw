@@ -27,6 +27,7 @@
 //#include "FWCore/Framework/interface/MakerMacros.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 //Data Formats
+#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"

@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Data Formats
+#include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -53,7 +54,7 @@ class SiStripZeroSuppressionAlgorithm
 
   /// Runs the algorithm
   void run(std::string RawDigiType, const edm::DetSetVector<SiStripRawDigi>& input,
-	   edm::DetSetVector<SiStripDigi>& output);
+	   std::vector< edm::DetSet<SiStripDigi> >& output);
 
   void configure( SiStripPedestalsService* , SiStripNoiseService* );
 

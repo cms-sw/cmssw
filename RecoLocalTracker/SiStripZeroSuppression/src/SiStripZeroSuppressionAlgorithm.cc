@@ -57,7 +57,7 @@ void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in_a ,
 
 void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType, 
 					  const edm::DetSetVector<SiStripRawDigi>& input,
-					  edm::DetSetVector<SiStripDigi>& output){
+					  std::vector< edm::DetSet<SiStripDigi> >& output){
 
   
   if ( validZeroSuppression_ && validCMNSubtraction_) {
@@ -92,7 +92,7 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
       number_localstripdigis += ssd.data.size();         
       
       if (ssd.data.size())
-	output.insert(ssd);  // insert the DetSet<SiStripDigi> in the  DetSetVec<SiStripDigi> only if there is at least a digi
+	output.push_back(ssd);  // insert the DetSet<SiStripDigi> in the  DetSetVec<SiStripDigi> only if there is at least a digi
     }
 
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::run] execution in mode " << ZeroSuppressionMode_ << " generating " << number_localstripdigis << " StripDigi in " << number_detunits << " DetUnits." << endl; 
