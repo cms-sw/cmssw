@@ -6,8 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
 
@@ -52,15 +52,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   const edm::HepMCProduct *mcp = hepMC.product();
   
   
-  edm::Handle<EmbdSimVertexContainer>      G4VtxContainer;
-  edm::Handle<edm::EmbdSimTrackContainer>  G4TrkContainer;
+  edm::Handle<SimVertexContainer>      G4VtxContainer;
+  edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
   
   const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
   // Is const HepMC::GenEvent *hme = mcp -> GetEvent(); // faster?
 
-  const edm::EmbdSimTrackContainer      *etc = G4TrkContainer.product();
+  const edm::SimTrackContainer      *etc = G4TrkContainer.product();
 
   if (mcp == 0) {
     edm::LogWarning (MessageCategory) << "No HepMC source found";
@@ -73,7 +73,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   std::map<int,int> productionVertex;
   int iG4Track = 0;
-  for (edm::EmbdSimTrackContainer::const_iterator itP = G4TrkContainer->begin();
+  for (edm::SimTrackContainer::const_iterator itP = G4TrkContainer->begin();
        itP !=  G4TrkContainer->end(); ++itP){
        TrackingParticle::Charge q = 0;
        CLHEP::HepLorentzVector p = itP -> momentum();
@@ -90,13 +90,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        // = Point(0, 0, 0);
        int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
        if (genVert >= 0){
-           const EmbdSimVertex &gv = (*G4VtxContainer)[genVert];
+           const SimVertex &gv = (*G4VtxContainer)[genVert];
 	   const CLHEP::HepLorentzVector &v = gv.position();
 	   theVertex = math::XYZPoint(v.x(), v.y(), v.z());
 	   time = v.t(); 
        }
        TrackingParticle tp(q, theMomentum, theVertex, time, pdgId);
-       tp.addG4Track(EmbdSimTrackRef(G4VtxContainer,iG4Track));
+       tp.addG4Track(SimTrackRef(G4VtxContainer,iG4Track));
        tp.addGenParticle(GenParticleRef(hepMC,genPart));
        productionVertex.insert(pair<int,int>(tPC->size(),genVert));
        tPC -> push_back(tp);
@@ -111,7 +111,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   auto_ptr<TrackingVertexCollection> tVC( new TrackingVertexCollection );  
 
   int index = 0;
-  for (edm::EmbdSimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
+  for (edm::SimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
        itVtx != G4VtxContainer->end(); 
        ++itVtx) {
     bool InVolume = false;
@@ -126,7 +126,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int vertexBarcode = 0;       
     int vtxParent = itVtx -> parentIndex(); // Get incoming EmbdSimTtrack
     if (vtxParent >= 0) {                     // Is there a parent track 
-      EmbdSimTrack est = etc->at(vtxParent);  // Pull track out from vector
+      SimTrack est = etc->at(vtxParent);  // Pull track out from vector
       int partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
       HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
       if (hmp != 0) {
@@ -159,7 +159,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
      
 // Add data to closest vertex
     
-    (*nearestVertex).addG4Vertex(EmbdSimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
+    (*nearestVertex).addG4Vertex(SimVertexRef(G4VtxContainer, index) ); // Add G4 vertex
     if (vertexBarcode != 0) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
