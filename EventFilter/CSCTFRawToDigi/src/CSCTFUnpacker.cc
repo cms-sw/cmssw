@@ -200,7 +200,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
-						track.first.m_bx        = iter->tbin();
+						track.first.setBx(iter->tbin());
 						pt_data pt = ptlut.Pt(iter->deltaPhi12(),iter->deltaPhi23(),iter->eta(),iter->mode(),iter->f_r(),iter->sign());
 						track.first.m_rank      = (iter->f_r()?pt.front_rank:pt.rear_rank);
 						//track.f_r         = iter->f_r();
