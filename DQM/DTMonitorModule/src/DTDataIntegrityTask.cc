@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/05/29 15:42:51 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/25 15:34:09 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,7 +33,8 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
   cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
 
-  nevents = 0;
+  neventsDDU = 0;
+  neventsROS25 = 0;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -50,7 +51,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
  
-  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< nevents <<" events"<<endl;
+  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsROS25 <<" events"<<endl;
   sleep(10);
   
   if ( outputFile.size() != 0 ) dbe->save(outputFile);
@@ -79,6 +80,11 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // DDU Histograms
   if ( folder == "DDU" ) {
     dbe->setCurrentFolder("DT/FED" + dduID_s.str());
+
+    histoType = "DDUChannelStatus";
+    histoName = "FED" + dduID_s.str() + "_DDUChannel" + rosID_s.str() + "_DDUChannelStatus";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,8,0,8);
+
   }
 
   // ROS Histograms
@@ -196,9 +202,9 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   
-  nevents++;
-  if (nevents%5 == 0) 
-    cout<<"[DTDataIntegrityTask]: "<<nevents<<" events analyzed"<<endl;
+  neventsROS25++;
+  if (neventsROS25%1000 == 0) 
+    cout<<"[DTDataIntegrityTask]: "<<neventsROS25<<" events analyzed by processROS25"<<endl;
   
   DTROChainCoding code;
   code.setDDU(ddu);
@@ -208,18 +214,30 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   /// ROS Data
   histoType = "ROSTrailerBits";
+
+  // relic
   int datum = 
     data.getROSTrailer().TFF() << (23-16) | 
     data.getROSTrailer().TPX() << (22-16) |
     data.getROSTrailer().ECHO() << (20-16) |
     data.getROSTrailer().ECLO() << (18-16) |
     data.getROSTrailer().BCO()<< (16-16);
+
+  /// FIXME: EC* data are not correctly treated. One histo each is needed
   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,data.getROSTrailer().TFF());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,data.getROSTrailer().TPX());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECHO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECLO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().BCO());
   }
   else {
     bookHistos( string("ROS"), code);
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,data.getROSTrailer().TFF());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,data.getROSTrailer().TPX());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECHO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().ECLO());
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().BCO());
   }
   
   histoType = "ROSError";
@@ -397,5 +415,47 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
+
+  neventsDDU++;
+  if (neventsDDU%1000 == 0) 
+    cout<<"[DTDataIntegrityTask]: "<<neventsDDU<<" events analyzed by processFED"<<endl;
+
+  DTROChainCoding code;
+  code.setDDU(ddu);
+
+  string histoType;
+
+  int dduChannel=0;
+  for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
+       fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
+    
+    // assuming association one-to-one between DDU channel and ROS
+    dduChannel++;
+    code.setROS(dduChannel);
+
+    histoType = "DDUChannelStatus";    
+    if (dduHistos[histoType].find(code.getROSID()) != dduHistos[histoType].end()) {
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,(*fsw_it).eventTrailerLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(4,(*fsw_it).opticalFiberSignalLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(5,(*fsw_it).tlkPropagationError());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(6,(*fsw_it).tlkPatternError());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*fsw_it).tlkSignalLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,(*fsw_it).errorFromROS());
+    }
+    else {
+      bookHistos( string("DDU"), code);
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,(*fsw_it).eventTrailerLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(4,(*fsw_it).opticalFiberSignalLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(5,(*fsw_it).tlkPropagationError());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(6,(*fsw_it).tlkPatternError());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*fsw_it).tlkSignalLost());
+      (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,(*fsw_it).errorFromROS());
+    }
+    
+  }
 
 }
