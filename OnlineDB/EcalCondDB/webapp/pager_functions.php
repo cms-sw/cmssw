@@ -6,7 +6,7 @@
  * Credit:  Inspired by Harry Fuecks article
  * http://www.oracle.com/technology/pub/articles/oracle_php_cookbook/fuecks_paged.html
  *
- * $Id$
+ * $Id: pager_functions.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
  */
 
 include('Net/URL.php');
@@ -15,7 +15,7 @@ include('Net/URL.php');
 function page_a($url, $page, $text) {
   $url_obj = new Net_URL($url);
   $url_obj->addQueryString('page', $page);
-  $newurl = htmlentities($url_obj->getURL());
+  $newurl = $url_obj->getURL();
   return "<a href='$newurl'>$text</a>";
 }
 
