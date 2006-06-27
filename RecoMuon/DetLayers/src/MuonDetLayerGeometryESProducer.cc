@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/06 16:28:46 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -49,7 +49,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     }
   } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
     // No DT geo available: trap the exception.
-    LogInfo("RecoMuonDetLayers") << "No DT geometry is available." << e.what();
+    LogInfo("RecoMuonDetLayers") << "No DT geometry is available."; // << e.what();
   }
 
   // Build CSC layers
