@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.6 2006/04/06 17:17:22 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.7 2006/06/04 14:12:53 fambrogl Exp $
 //
 //
 
@@ -42,10 +42,10 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
@@ -109,12 +109,12 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    using namespace edm;
 
    std::vector<PSimHit> theTrackerHits;
-   std::vector<EmbdSimTrack> theSimTracks;
-   std::vector<EmbdSimVertex> theSimVertexes;
+   std::vector<SimTrack> theSimTracks;
+   std::vector<SimVertex> theSimVertexes;
 
    //   Handle<HepMCProduct> MCEvt;
-   Handle<EmbdSimTrackContainer> SimTk;
-   Handle<EmbdSimVertexContainer> SimVtx;
+   Handle<SimTrackContainer> SimTk;
+   Handle<SimVertexContainer> SimVtx;
    Handle<PSimHitContainer> PixelBarrelHitsLowTof;
    Handle<PSimHitContainer> PixelBarrelHitsHighTof;
    Handle<PSimHitContainer> PixelEndcapHitsLowTof;
@@ -172,13 +172,13 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    }
    */
 
-   for (std::vector<EmbdSimTrack>::iterator isimtk = theSimTracks.begin();
+   for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin();
 	isimtk != theSimTracks.end(); ++isimtk){
      edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z();
      edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<isimtk->momentum().perp() ;
    }
 
-   for (std::vector<EmbdSimVertex>::iterator isimvtx = theSimVertexes.begin();
+   for (std::vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();
 	isimvtx != theSimVertexes.end(); ++isimvtx){
      edm::LogInfo("TrackerSimInfoAnalyzer")<<" Vertex position  x = "<<isimvtx->position().x() <<" y = "<<isimvtx->position().y() <<" z = "<< isimvtx->position().z();
    }
