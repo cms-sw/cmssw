@@ -241,8 +241,13 @@ void DDTIDModuleAlgo::execute() {
     name    = DDName(DDSplit(waferName[k]).first,DDSplit(waferName[k]).second);
     matname = DDName(DDSplit(waferMat).first, DDSplit(waferMat).second);
     matter  = DDMaterial(matname);
-    bl1     = 0.5 * dlBottom;
-    bl2     = 0.5 * dlTop;
+    if (k == 0 && dlHybrid < dlTop) {
+      bl1     = 0.5 * dlTop;
+      bl2     = 0.5 * dlBottom;
+    } else {
+      bl1     = 0.5 * dlBottom;
+      bl2     = 0.5 * dlTop;
+    }
     h1      = 0.5 * activeThick[k];
     dz      = 0.5 * fullHeight;
     solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2,
@@ -263,13 +268,13 @@ void DDTIDModuleAlgo::execute() {
     bl2    -= sideWidth;
     dz      = 0.5 * activeThick[k];
     h1      = 0.5 * activeHeight;
-    solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1, bl2, 0, h1, bl1, bl2,
+    solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1,
 				 0);
     LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			<< " Trap made of " << matname << " of dimensions "
-			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
-			<< bl2 << ", 0, " << h1 << ", " << bl1 << ", "
-			<< bl2 << ", 0";
+			<< dz << ", 0, 0, " << h1 << ", " << bl2 << ", " 
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+			<< bl1 << ", 0";
     DDLogicalPart active(solid.ddname(), matter, solid);
     std::string rotstr = DDSplit(activeRot).first;
     DDRotation rot;
