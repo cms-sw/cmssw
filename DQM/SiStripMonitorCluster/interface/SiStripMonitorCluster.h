@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.3 2006/03/29 15:16:19 dkcira Exp $
+// $Id: SiStripMonitorCluster.h,v 1.4 2006/03/30 17:50:52 dkcira Exp $
 //
 
 // system include files
@@ -33,6 +33,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+
 class SiStripMonitorCluster : public edm::EDAnalyzer {
    public:
       explicit SiStripMonitorCluster(const edm::ParameterSet&);
@@ -44,15 +46,18 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
    private:
        struct ModMEs{
-        MonitorElement* NrClusters;
+        MonitorElement* NumberOfClusters;
         MonitorElement* ClusterPosition;
         MonitorElement* ClusterWidth;
         MonitorElement* ClusterCharge;
+        MonitorElement* ClusterSignal;
+        MonitorElement* ClusterSignalOverNoise;
 	MonitorElement* ModuleLocalOccupancy;
 	MonitorElement* NrOfClusterizedStrips; // can be used at client level for occupancy calculations
        };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
+       SiStripNoiseService SiStripNoiseService_;  
        std::map<uint32_t, ModMEs> ClusterMEs;
 };
 

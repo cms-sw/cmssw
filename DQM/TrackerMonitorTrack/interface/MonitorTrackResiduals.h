@@ -16,7 +16,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.1 2006/05/26 14:22:28 goitom Exp $
+// $Id: MonitorTrackResiduals.h,v 1.2 2006/06/09 09:23:47 dkcira Exp $
 //
 //
 
@@ -48,8 +48,6 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
       ~MonitorTrackResiduals();
       virtual void beginJob(edm::EventSetup const& iSetup);
       virtual void endJob(void);
-
-
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:

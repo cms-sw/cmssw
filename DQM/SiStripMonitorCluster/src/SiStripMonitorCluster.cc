@@ -13,14 +13,14 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.14 2006/06/06 07:55:09 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.15 2006/06/16 12:44:53 pioppi Exp $
 //
 //
 
 #include <vector>
 //#include <algorithm>
 #include <numeric>
-#include <iostream>
+//#include <iostream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,10 +41,13 @@
 using namespace std;
 using namespace edm;
 
-SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
+SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig):
+dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+conf_(iConfig),
+SiStripNoiseService_(iConfig)
 {
-   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
-   conf_ = iConfig;
+//   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+//   conf_ = iConfig;
 }
 
 
@@ -105,17 +108,23 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
       //nr. of clusters per module
-      hid = hidmanager.createHistoId("ClustersPerDetector","det",*detid_iterator);
-      local_modmes.NrClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5);
+      hid = hidmanager.createHistoId("NumberOfClusters","det",*detid_iterator);
+      local_modmes.NumberOfClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5);
       //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 20,0.,900.);
+      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 24,-0.5,767.5); // 6 APVs -> 768 strips
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
       local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5);
-      //ClusterWidth
+      //ClusterCharge
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
       local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5);
+      //ClusterSignal
+      hid = hidmanager.createHistoId("ClusterSignal","det",*detid_iterator);
+      local_modmes.ClusterSignal = dbe_->book1D(hid, hid, 20,0.,50.);
+      //ClusterSignalOverNoise
+      hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",*detid_iterator);
+      local_modmes.ClusterSignalOverNoise = dbe_->book1D(hid, hid, 20,0.,200.);
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
       local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
@@ -152,7 +161,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edm::DetSetVector<SiStripCluster> > cluster_detsetvektor;
   iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
-//  std::cout<<"cluster_detsetvektor.size()="<<cluster_detsetvektor->size()<<endl;
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
   for (map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs local_modmes = iterMEs->second;
@@ -162,13 +170,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
     edm::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 
-    if(local_modmes.NrClusters != NULL){ // nr. of clusters per module
-      (local_modmes.NrClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
-//      std::cout<<"detid="<<detid<<" cluster_detset.data.size()="<<cluster_detset.data.size()<<endl;
+    if(local_modmes.NumberOfClusters != NULL){ // nr. of clusters per module
+      (local_modmes.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
     }
     if(local_modmes.ClusterPosition != NULL){ // position of cluster
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
-//            std::cout<<"                  cluster_Iter->barycenter()"<<clusterIter->barycenter()<<endl;
             (local_modmes.ClusterPosition)->Fill(clusterIter->barycenter(),1.);
       }
     }
@@ -179,20 +185,37 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         short local_size = ampls.size(); // width defined as nr. of strips that belong to cluster
         total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
         (local_modmes.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
-//        std::cout<<"                  cluster_width"<<local_size<<endl;
       }
     }
+    //
+    float clusterSignal = 0;
+    float clusterNoise2 = 0;
+    int nrnonzeroamplitudes = 0;
+    if(local_modmes.ClusterSignalOverNoise || local_modmes.ClusterSignal){
+      for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
+        const std::vector<short>& ampls = clusterIter->amplitudes();
+//        for(std::vector<short>::iterator iamp=ampls.begin(); iamp!=iampls.end();iamp++) - dropped this because getNoise needs integer nr. of strip
+        for(int iamp=0; iamp<ampls.size(); iamp++){
+          if(ampls[iamp]>0){ // nonzero amplitude
+            clusterSignal += ampls[iamp];
+            float clusterNoise; // = SiStripNoiseService_.getNoise(detid,clusterIter->firstStrip()+iamp);
+            clusterNoise2 += clusterNoise*clusterNoise;
+            nrnonzeroamplitudes++;
+          }
+        }
+        if(local_modmes.ClusterSignal) (local_modmes.ClusterSignal)->Fill(clusterSignal,1.);
+        if(local_modmes.ClusterSignalOverNoise) (local_modmes.ClusterSignalOverNoise)->Fill(clusterSignal/sqrt(clusterNoise2/nrnonzeroamplitudes),1.);
+      }
+    }
+    //
     if(local_modmes.ClusterCharge != NULL){ // charge of cluster
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
         const std::vector<short>& ampls = clusterIter->amplitudes();
         short local_charge = 0;
-//        std::cout<<"testcharge1----- "<<detid<<" "<<ampls.size()<<std::endl;
         for(std::vector<short>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
-//        std::cout<<"testcharge2      "<<*iampls<<std::endl;
           local_charge += *iampls;
         }
         (local_modmes.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
-//        std::cout<<"                  cluster_charge"<<local_charge<<endl;
       }
     }
     if(local_modmes.NrOfClusterizedStrips != NULL){ // nr of clusterized strips

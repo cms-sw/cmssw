@@ -15,7 +15,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.3 2006/05/31 16:02:17 goitom Exp $
+// $Id: MonitorTrackGlobal.h,v 1.4 2006/06/04 17:52:23 goitom Exp $
 //
 //
 
@@ -56,34 +56,36 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
 
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet conf_;
+  bool MTCCData;
 
-  MonitorElement * trackSize;
-  MonitorElement * recHitSize;
+  MonitorElement * NumberOfTracks;
+  MonitorElement * NumberOfRecHitsPerTrack;
+  MonitorElement * NumberOfRecHitsPerTrackVsPhi;
+  MonitorElement * NumberOfRecHitsPerTrackVsPseudorapidity;
 
-  MonitorElement * trackPX;
-  MonitorElement * trackPY;
-  MonitorElement * trackPZ;
-  MonitorElement * trackPt;
+  MonitorElement * TrackPx;
+  MonitorElement * TrackPy;
+  MonitorElement * TrackPz;
+  MonitorElement * TrackPt;
 
-  MonitorElement * trackPhi;
-  MonitorElement * trackEta;
-  MonitorElement * trackTheta;
+  MonitorElement * TrackPhi;
+  MonitorElement * TrackEta;
+  MonitorElement * TrackTheta;
 
-  MonitorElement * trackVertexX;
-  MonitorElement * trackVertexY;
-  MonitorElement * trackVertexZ;
+  MonitorElement * DistanceOfClosestApproach;
+  MonitorElement * DistanceOfClosestApproachVsTheta;
+  MonitorElement * DistanceOfClosestApproachVsPhi;
+  MonitorElement * DistanceOfClosestApproachVsEta;
 
-  MonitorElement * d0VsTheta;
-  MonitorElement * d0VsPhi;
-  MonitorElement * d0VsEta;
-  MonitorElement * z0VsTheta;
-  MonitorElement * z0VsPhi;
-  MonitorElement * z0VsEta;
+  MonitorElement * xPointOfClosestApproach;
+  MonitorElement * yPointOfClosestApproach;
+  MonitorElement * zPointOfClosestApproach;
 
-  MonitorElement * chiSqrd;
-  MonitorElement * chiSqrdVsTheta;
-  MonitorElement * chiSqrdVsPhi;
-  MonitorElement * chiSqrdVsEta;
+  MonitorElement * Chi2;
+  MonitorElement * Chi2overDoF;
+  MonitorElement * Chi2overDoFVsTheta;
+  MonitorElement * Chi2overDoFVsPhi;
+  MonitorElement * Chi2overDoFVsEta;
 
 };
 #endif

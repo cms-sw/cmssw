@@ -35,15 +35,14 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 }
 
 
-
-
 void SiStripMonitorHLT::beginJob(const edm::EventSetup& es){
   using namespace edm;
 
-  dbe_->setCurrentFolder("Tracker/HLT Results");
-  HLT_results = dbe_->book1D("HLT selection", "HLT selection", 2, 0, 2);
+  dbe_->setCurrentFolder("HLTResults");
+  HLTDecision = dbe_->book1D("HLTDecision", "HLTDecision", 2, -0.5, 1.5);
+//  HLTDecision->GetXaxis()->SetBinLabel(1,"Rejected");
+//  HLTDecision->GetXaxis()->SetBinLabel(2,"Accepted");
   ClusterCharge = dbe_->book1D("Cluster Charge", "Cluster Charge", 50, 0, 1500);
-  
 }
 
 
@@ -60,8 +59,8 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
    ClusterCharge->Fill(*clustch);
-   HLT_results->Fill(*hltres);
-
+   std::cout<<"ClusterCharge :"<<*clustch<<std::endl;
+   HLTDecision->Fill(*hltres);
 }
 
 

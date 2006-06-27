@@ -31,10 +31,9 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
-
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-       MonitorElement * HLT_results;
+       MonitorElement * HLTDecision;
        MonitorElement * ClusterCharge;
 };
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.1 2006/02/09 19:08:42 gbruno Exp $
+// $Id: SiStripMonitorDigi.h,v 1.2 2006/03/08 13:00:30 dkcira Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
    private:
        struct ModMEs{
-            MonitorElement* DigisPerModule;
+            MonitorElement* NumberOfDigis;
             MonitorElement* ADCsHottestStrip;
             MonitorElement* ADCsCoolestStrip;
        };

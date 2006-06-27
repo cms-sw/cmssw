@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.8 2006/06/09 14:17:29 dkcira Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.10 2006/06/19 13:21:38 goitom Exp $
 //
 //
 
@@ -96,28 +96,28 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   vector<uint32_t>::const_iterator detid_end = TIBDetIds.end() -1;
   int detBegin=(*detid_begin)&0x1ffffff;
   int detEnd=(*detid_end)&0x1ffffff;
-  HitResidual["TIB"] = dbe->bookProfile("TIBHitRes", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 1, -4, 4);
+  HitResidual["TIB"] = dbe->bookProfile("TIBHitResiduals", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TOB histo
   detid_begin = TOBDetIds.begin();
   detid_end = TOBDetIds.end()-1;
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
-  HitResidual["TOB"] = dbe->bookProfile("TOBHitRes", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 1, -4, 4);
+  HitResidual["TOB"] = dbe->bookProfile("TOBHitResiduals", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TID histo
   detid_begin = TIDDetIds.begin();
   detid_end = TIDDetIds.end()-1;
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
-  HitResidual["TID"] = dbe->bookProfile("TIDHitRes", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 1, -4, 4);
+  HitResidual["TID"] = dbe->bookProfile("TIDHitResiduals", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   // book TEC histo
   detid_begin = TECDetIds.begin();
   detid_end = TECDetIds.end()-1;
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
-  HitResidual["TEC"] = dbe->bookProfile("TECHitRes", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 1, -4, 4);
+  HitResidual["TEC"] = dbe->bookProfile("TECHitResiduals", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 1, -4, 4);
 }
 
 void MonitorTrackResiduals::endJob(void)

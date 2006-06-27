@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.11 2006/05/31 19:03:49 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.12 2006/06/04 13:48:58 dkcira Exp $
 //
 //
 
@@ -107,8 +107,8 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
 //      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
 //
       // create Digis per detector - not too useful - maybe can remove later
-      hid = hidmanager.createHistoId("DigisPerDetector","det",*detid_iterator);
-      local_modmes.DigisPerModule = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
+      hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
+      local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
       // create ADCs per "hottest" strip
       hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
       local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
@@ -163,8 +163,8 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //digi_detset is a structure, digi_detset.data is a std::vector<SiStripDigi>, digi_detset.id is uint32_t
       edm::DetSet<SiStripDigi> digi_detset = (*digi_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
       //
-      if(local_modmes.DigisPerModule != NULL){ // nr. of digis per detector
-        (local_modmes.DigisPerModule)->Fill(static_cast<float>(digi_detset.data.size()),1.);
+      if(local_modmes.NumberOfDigis != NULL){ // nr. of digis per detector
+        (local_modmes.NumberOfDigis)->Fill(static_cast<float>(digi_detset.data.size()),1.);
       }
       if(digi_detset.data.size()==0) continue; // continue with next ME if 0 digis in this detset
       if(local_modmes.ADCsHottestStrip != NULL){ // nr. of adcs for hottest strip
