@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/06/16 08:35:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/21 17:36:51 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -38,7 +38,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
   typedef edm::OwnVector<const TransientTrackingRecHit> MuonRecHitContainer;
     
-  std::string metname = "MuonBestMeasurementFinder::findBestMeasurement";
+  std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   TimeMe time(metname);
 
@@ -118,7 +118,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
     }
     
   }
-  cout<<"Final best chi2: "<<minChi2PerNDoF<<endl;
+  LogDebug(metname)<<"Final best chi2: "<<minChi2PerNDoF<<endl;
   return bestMeasurement;
 }
 
@@ -128,7 +128,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 TrajectoryMeasurement* 
 MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC){
 
-  std::string metname = "MuonBestMeasurementFinder::findBestMeasurement_OLD";
+  std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   TimeMe time(metname);
 
