@@ -5,5 +5,4 @@
 </export>
 
 <use name=SimDataFormats/TrackingHit>
-<use name=SimG4Core/Application>
 <use name=SimDataFormats/CaloHit>
