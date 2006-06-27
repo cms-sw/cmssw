@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.5 2006/06/06 16:58:56 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.6 2006/06/23 14:36:42 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -25,19 +25,19 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
 
-  EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 198.80);
+  EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 200.);
   EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
-  EBpedMeanX6_  = ps.getUntrackedParameter<double>("EBpedMeanX6",  199.40);
+  EBpedMeanX6_  = ps.getUntrackedParameter<double>("EBpedMeanX6",  200.);
   EBpedRMSX6_   = ps.getUntrackedParameter<double>("EBpedRMSX6",   0.90);
-  EBpedMeanX1_  = ps.getUntrackedParameter<double>("EBpedMeanX1",  201.00);
+  EBpedMeanX1_  = ps.getUntrackedParameter<double>("EBpedMeanX1",  200.);
   EBpedRMSX1_   = ps.getUntrackedParameter<double>("EBpedRMSX1",   0.62);
 
-  EEpedMeanX12_ = ps.getUntrackedParameter<double>("EEpedMeanX12", 198.80);
-  EEpedRMSX12_  = ps.getUntrackedParameter<double>("EEpedRMSX12",  1.10);
-  EEpedMeanX6_  = ps.getUntrackedParameter<double>("EEpedMeanX6",  199.40);
-  EEpedRMSX6_   = ps.getUntrackedParameter<double>("EEpedRMSX6",   0.90);
-  EEpedMeanX1_  = ps.getUntrackedParameter<double>("EEpedMeanX1",  201.00);
-  EEpedRMSX1_   = ps.getUntrackedParameter<double>("EEpedRMSX1",   0.62);
+  EEpedMeanX12_ = ps.getUntrackedParameter<double>("EEpedMeanX12", 200.);
+  EEpedRMSX12_  = ps.getUntrackedParameter<double>("EEpedRMSX12",  2.50);
+  EEpedMeanX6_  = ps.getUntrackedParameter<double>("EEpedMeanX6",  200.);
+  EEpedRMSX6_   = ps.getUntrackedParameter<double>("EEpedRMSX6",   2.00);
+  EEpedMeanX1_  = ps.getUntrackedParameter<double>("EEpedMeanX1",  200.);
+  EEpedRMSX1_   = ps.getUntrackedParameter<double>("EEpedRMSX1",   1.40);
 
   gainRatio12over6_ = ps.getUntrackedParameter<double>("gainRatio12over6", 2.0);
   gainRatio6over1_  = ps.getUntrackedParameter<double>("gainRatio6over1",  6.0);
