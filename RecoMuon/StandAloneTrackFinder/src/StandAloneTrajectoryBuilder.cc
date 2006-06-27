@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/16 08:36:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/06/21 18:23:57 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -47,7 +47,7 @@ using namespace edm;
 using namespace std;
 
 StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par){
-  LogDebug("StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder") 
+  LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "constructor called" << endl;
 
   // The max allowed eta (physical limit). Since it is the same both for the three filter, 
@@ -93,8 +93,8 @@ void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 
-  LogDebug("StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder") 
-    << "destructor called" << endl;
+  LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
+    << "StandAloneMuonTrajectoryBuilder destructor called" << endl;
   
   delete theRefitter;
   delete theBWFilter;
@@ -105,7 +105,7 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 MuonTrajectoryBuilder::TrajectoryContainer 
 StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){ 
 
-  std::string metname = "StandAloneMuonTrajectoryBuilder::trajectories";
+  std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;
 
   // FIXME put a flag
@@ -123,7 +123,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   PTrajectoryStateOnDet pTSOD = seed.startingState();
 
   // Transform it in a TrajectoryStateOnSurface
-  cout<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
+  LogDebug(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
   TrajectoryStateTransform tsTransform;
 
   DetId seedDetId(pTSOD.detId());
@@ -144,11 +144,11 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // FIXME remove this
   if(seedDetId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( seedDetId.rawId() );
-    std::cout<< "Seed id (CSC)"<< cscId << std::endl ;
+    LogDebug(metname)<< "Seed id (CSC)"<< cscId << endl ;
   }
   else if (seedDetId.subdetId() == MuonSubdetId::DT){
        DTChamberId dtId( seedDetId.rawId() );
-       std::cout<< "Seed id (DT) "<< dtId << std::endl ;
+       LogDebug(metname)<< "Seed id (DT) "<< dtId << endl ;
   }
   //
   

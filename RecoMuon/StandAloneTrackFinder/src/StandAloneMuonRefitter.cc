@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/16 08:34:34 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/21 18:23:57 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -76,11 +76,11 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
 
-  LogDebug("StandAloneMuonRefitter::~StandAloneMuonRefitter")
-    <<"StandAloneMuonRefitter::StandAloneMuonRefitter destructor called"<<endl;
+  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter")
+    <<"StandAloneMuonRefitter destructor called"<<endl;
   
   // FIXME
-  //  delete thePropagator;
+  //delete thePropagator;
   delete theEstimator;
   delete theMuonUpdator;
 }
@@ -107,6 +107,7 @@ void StandAloneMuonRefitter::setEvent(const Event& event){
 }
 
 void StandAloneMuonRefitter::init(const EventSetup& setup){
+  cout<<"StandAloneMuonRefitter::init"<<endl;
 
   // FIXME: it is temporary solution waiting for the es_producers...
 
@@ -141,8 +142,8 @@ void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
   else if(layer->module()==csc) cscChambers++; 
   else if(layer->module()==rpc) rpcChambers++; 
   else 
-    LogError("StandAloneMuonRefitter::incrementChamberCounters")
-      << "Unrecognized module type ";
+    LogError("Muon|RecoMuon|StandAloneMuonRefitter")
+      << "Unrecognized module type in incrementChamberCounters";
   // FIXME:
   //   << layer->module() << " " <<layer->Part() << endl;
   
@@ -163,7 +164,7 @@ StandAloneMuonRefitter::vectorLimits(vector<const DetLayer*> &vect,
     vector_end = vect.begin()-1;
   }
   else{
-    LogError("StandAloneMuonRefitter::vectorLimits") <<"Wrong propagation direction!!";
+    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in vectorLimits!!";
   }
 }
 
@@ -177,7 +178,7 @@ StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterato
     --iter;
   
   else{
-    LogError("MuonTrajectoryUpdator::incrementIterator") <<"Wrong propagation direction!!";
+    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in incrementIterator!!";
   }
 }
 
@@ -185,7 +186,7 @@ StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterato
 
 void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
   
-  std::string metname = "StandAloneMuonRefitter::refit";
+  std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
   bool timing = true;
   
   MuonPatternRecoDumper debug;
@@ -241,7 +242,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       					   *propagator(), 
 					   *estimator());
 
-    LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
+    LogDebug(metname) << "Number of Trajectory Measurement: " << measL.size();
         
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder.findBestMeasurement(measL);
     
