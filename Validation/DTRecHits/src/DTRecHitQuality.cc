@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/22 16:15:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/06 15:58:29 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -441,6 +441,11 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 
     // Find the distance of the simhit from the wire
     float simHitWireDist = simHitDistFromWire(layer, wireId, *muSimHit);
+    // Skip simhits out of the cell
+    if(simHitWireDist>2.1) {
+      cout << "  [DTRecHitQuality]###Warning: The mu SimHit in out of the cell, skipping!" << endl;
+      continue; // Skip this cell
+    }
     GlobalPoint simHitGlobalPos = layer->toGlobal(muSimHit->localPosition());
       
     bool recHitReconstructed = false;
