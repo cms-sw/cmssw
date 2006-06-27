@@ -6,3 +6,4 @@ INSERT INTO location_def (def_id, location) VALUES (location_def_sq.NextVal, 'H4
 INSERT INTO location_def (def_id, location) VALUES (location_def_sq.NextVal, 'H2');
 INSERT INTO location_def (def_id, location) VALUES (location_def_sq.NextVal, 'P5_MT');
 INSERT INTO location_def (def_id, location) VALUES (location_def_sq.NextVal, '904');
+INSERT INTO location_def (def_id, location) VALUES (location_def_sq.NextVal, 'LAB');
