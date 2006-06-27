@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/06 15:51:21 $
-//   $Revision: 1.2 $
+//   $Date: 2006/06/14 09:31:05 $
+//   $Revision: 1.3 $
 //
 //   Modifications: 
 //
@@ -437,7 +437,23 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
   if (infoV > 1 && !chamber_empty) {
     // str_digis contains 7 lines of wires (header plus 6 layers) and
     // newline characters.
-    char str_digis[8*CSCConstants::MAX_NUM_WIRES] = "", tmp[1];
+    char str_digis[9*CSCConstants::MAX_NUM_WIRES] = "", tmp[1];
+    LogDebug("CSCAnodeLCTProcessor")
+    << "Endcap " << theEndcap << " station "<< theStation
+    << " chamber "
+    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                      theSubsector, theStation, theTrigChamber)
+    << " nWiregroups " << numWireGroups;
+
+    for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
+      if (i_wire%10 == 0) {
+	if (i_wire < 100) sprintf(tmp, "%d", i_wire/10);
+	else              sprintf(tmp, "%d", (i_wire-100)/10);
+	strcat(str_digis, tmp);
+      }
+      else                strcat(str_digis, " ");
+    }
+    strcat(str_digis, "\n");
     for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
       sprintf(tmp, "%d", i_wire%10);
       strcat(str_digis, tmp);
