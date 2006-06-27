@@ -4,8 +4,8 @@
 #include "SimG4Core/Application/interface/G4SimTrack.h"
 #include "SimG4Core/Application/interface/G4SimVertex.h"
 
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "CLHEP/HepMC/GenEvent.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -17,8 +17,8 @@ class G4SimEvent
 public:
     G4SimEvent();
     virtual ~G4SimEvent();
-    void load(edm::EmbdSimTrackContainer & c) const;
-    void load(edm::EmbdSimVertexContainer & c)  const;
+    void load(edm::SimTrackContainer & c) const;
+    void load(edm::SimVertexContainer & c)  const;
     unsigned int nTracks() const { return g4tracks.size(); }
     unsigned int nVertices() const { return g4vertices.size(); }
     unsigned int nGenParts() const { return hepMCEvent->particles_size(); }

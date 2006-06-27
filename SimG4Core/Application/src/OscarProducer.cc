@@ -6,8 +6,8 @@
 #include "SimG4Core/Application/interface/OscarProducer.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
@@ -20,8 +20,8 @@
 
 OscarProducer::OscarProducer(edm::ParameterSet const & p) 
 {    
-    produces<edm::EmbdSimTrackContainer>();
-    produces<edm::EmbdSimVertexContainer>();
+    produces<edm::SimTrackContainer>();
+    produces<edm::SimVertexContainer>();
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelHighTof");
     produces<edm::PSimHitContainer>("TrackerHitsTIBLowTof");
@@ -91,8 +91,8 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     {
     m_runManager->produce(e,es);
 
-    std::auto_ptr<edm::EmbdSimTrackContainer> p1(new edm::EmbdSimTrackContainer);
-    std::auto_ptr<edm::EmbdSimVertexContainer> p2(new edm::EmbdSimVertexContainer);
+    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
+    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
     G4SimEvent * evt = m_runManager->simEvent();
     evt->load(*p1);
     evt->load(*p2);
