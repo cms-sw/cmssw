@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/04/25 10:31:16 $
+ *  $Revision: 1.10 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -96,8 +96,8 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   }
 
   // Perform dqm if requested
-//   if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
-//     dataMonitor->processFED(controlData, ddu);  
+  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
+    dataMonitor->processFED(controlData, dduID);  
 
 
   //////////////////////
