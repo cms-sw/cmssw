@@ -53,8 +53,7 @@ namespace csc{
       unsigned subsector() const { return 0; }
       unsigned cscid() const { return 0; } 
 
-      void setBX(const int& bx) { m_bx = bx; }
-      int BX() const { return m_bx; }
+      int BX() const { return bx(); }
       
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
@@ -92,8 +91,8 @@ namespace csc{
       unsigned m_lphi;
       unsigned m_ptAddress;
       unsigned me1_id, me2_id, me3_id, me4_id, mb1_id;
-      int m_bx;
       unsigned m_rank;
+      unsigned m_output_link;
       bool m_empty;
 
       void setStationIds(const unsigned& me1, const unsigned& me2, 

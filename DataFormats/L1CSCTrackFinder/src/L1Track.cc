@@ -11,7 +11,6 @@ namespace csc {
     m_lphi = 0;
     m_ptAddress = 0;
     m_empty = true;
-    m_bx = 0;
     setType(2); 
     setPtPacked(0);
     m_rank = 0;
@@ -20,6 +19,7 @@ namespace csc {
     me3_id = 0;
     me4_id = 0;
     mb1_id = 0;
+    m_output_link = 0;
   }
   
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -29,7 +29,6 @@ namespace csc {
 					      m_name(rhs.m_name)
   {
     scale = Singleton<L1MuTriggerScales>::instance();
-    m_bx = rhs.m_bx;
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
     m_endcap = rhs.m_endcap;
@@ -41,6 +40,7 @@ namespace csc {
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
+    m_output_link = rhs.m_output_link;
   }
 
   L1Track::~L1Track()
@@ -53,7 +53,7 @@ namespace csc {
       {
 	scale = Singleton<L1MuTriggerScales>::instance();
 	m_empty = rhs.m_empty;
-	m_bx = rhs.m_bx;
+	this->setBx(rhs.bx());
 	this->setDataWord(rhs.getDataWord());
 	m_name    = rhs.m_name;
 	m_lphi    = rhs.m_lphi;
@@ -74,6 +74,7 @@ namespace csc {
 	me3_id = rhs.me3_id;
 	me4_id = rhs.me4_id;
 	mb1_id = rhs.mb1_id;
+	m_output_link = rhs.m_output_link;
       }
     return *this;
   }
