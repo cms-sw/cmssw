@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2006/03/09 10:15:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/06 13:48:26 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -17,7 +17,6 @@
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
