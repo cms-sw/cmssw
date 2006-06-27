@@ -9,7 +9,7 @@ namespace edm {
     {
       boost::shared_ptr<edm::ParameterSet> result(new ParameterSet);
 
-      NodePtrListPtr nodeList = edm::pset::fullParse(s);
+      NodePtrListPtr nodeList = edm::pset::parse(s.c_str());
       for(NodePtrList::const_iterator listItr = nodeList->begin();
           listItr != nodeList->end(); ++listItr)
       { 
