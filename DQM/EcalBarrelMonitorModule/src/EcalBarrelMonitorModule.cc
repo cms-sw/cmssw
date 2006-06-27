@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/23 08:38:50 $
- * $Revision: 1.100 $
+ * $Date: 2006/06/24 08:36:04 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -11,6 +11,8 @@
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
+
+  init_ = false;
 
   runType_ = -1;
 
@@ -88,8 +90,46 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   meEvtType_ = 0;
   meRunType_ = 0;
 
+  meEBDCC_ = 0;
+
+  meEBdigi_ = 0;
+  meEBhits_ = 0;
+
+  for (int i = 0; i < 36; i++) {
+    meEvent_[i] = 0;
+  }
+
+  if ( dbe_ ) {
+    if ( verbose_ ) dbe_->showDirStructure();
+  }
+
+}
+
+EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
+
+}
+
+void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
+
+  ievt_ = 0;
+
+  // begin-of-run
+  if ( meStatus_ ) meStatus_->Fill(0);
+
+//  if ( meRun_ ) meRun_->Fill(irun_);
+//  if ( meEvt_ ) meEvt_->Fill(ievt_);
+
+//  if ( meRunType_ ) meRunType_->Fill(runType_);
+
+}
+
+void EcalBarrelMonitorModule::setup(void){
+
+  init_ = true;
+
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel");
+
     meStatus_ = dbe_->bookInt("STATUS");
 
     meRun_ = dbe_->bookInt("RUN");
@@ -106,19 +146,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  // this should give enough time to the control MEs to reach the Collector,
+  // this should give enough time to our control MEs to reach the Collector,
   // and then hopefully the Client
 
   sleep(1);
-
-  meEBDCC_ = 0;
-
-  meEBdigi_ = 0;
-  meEBhits_ = 0;
-
-  for (int i = 0; i < 36; i++) {
-    meEvent_[i] = 0;
-  }
 
   Char_t histo[20];
 
@@ -141,27 +172,51 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   }
 
+}
+
+void EcalBarrelMonitorModule::cleanup(void){
+
   if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
+
+    dbe_->setCurrentFolder("EcalBarrel");
+
+    if ( meStatus_ ) dbe_->removeElement( meStatus_->getName() );
+    meStatus_ = 0;
+
+    if ( meRun_ ) dbe_->removeElement( meRun_->getName() );
+    meRun_ = 0;
+
+    if ( meEvt_ ) dbe_->removeElement( meEvt_->getName() );
+    meEvt_ = 0;
+
+    if ( meEvtType_ ) dbe_->removeElement( meEvtType_->getName() );
+    meEvtType_ = 0;
+
+    if ( meRunType_ ) dbe_->removeElement( meRunType_->getName() );
+    meRunType_ = 0;
+
+    if ( meEBDCC_ ) dbe_->removeElement( meEBDCC_->getName() );
+    meEBDCC_ = 0;
+
+    if ( meEBdigi_ ) dbe_->removeElement( meEBdigi_->getName() );
+    meEBdigi_ = 0;
+
+    if ( meEBhits_ ) dbe_->removeElement( meEBhits_->getName() );
+    meEBhits_ = 0;
+
+    if ( enableEventDisplay_ ) {
+
+      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+      for (int i = 0; i < 36; i++) {
+
+        if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
+        meEvent_[i] = 0;
+
+      }
+
+    }
+
   }
-
-}
-
-EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
-
-}
-
-void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
-
-  ievt_ = 0;
-
-  // begin-of-run
-  if ( meStatus_ ) meStatus_->Fill(0);
-
-  if ( meRun_ ) meRun_->Fill(irun_);
-  if ( meEvt_ ) meEvt_->Fill(ievt_);
-
-  if ( meRunType_ ) meRunType_->Fill(runType_);
 
 }
 
@@ -186,17 +241,17 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   sleep(1);
 
+  this->cleanup();
+
 }
 
 void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
-
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, especially when using CollateMEs,
-  // even for short runs
-
-  if ( ievt_ == 0 ) sleep(1);
 
   map<int, EcalDCCHeaderBlock> dccMap;
   Handle<EcalRawDataCollection> dcchs;
@@ -257,16 +312,25 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  ievt_++;
-
-  // running
-  if ( meStatus_ ) meStatus_->Fill(1);
+  if ( ievt_ == 1 ) {
+    // begin-of-run
+    if ( meStatus_ ) meStatus_->Fill(0);
+  } else {
+    // running
+    if ( meStatus_ ) meStatus_->Fill(1);
+  }
 
   if ( meRun_ ) meRun_->Fill(irun_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
 
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   if ( meRunType_ ) meRunType_->Fill(runType_);
+
+  // this should give enough time to all the MEs to reach the Collector,
+  // and then hopefully the Client, especially when using CollateMEs,
+  // even for short runs
+
+  if ( ievt_ == 1 ) sleep(1);
 
   Handle<EBDigiCollection> digis;
   //  e.getByLabel("ecalEBunpacker", digis);

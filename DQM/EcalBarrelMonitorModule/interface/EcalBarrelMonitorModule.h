@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/05/19 18:13:41 $
- * $Revision: 1.35 $
+ * $Date: 2006/06/22 17:24:31 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -61,6 +61,12 @@ void beginJob(const EventSetup& c);
 // EndJob
 void endJob(void);
 
+/// Setup
+void setup(void);
+
+/// Cleanup
+void cleanup(void);
+
 private:
 
 int evtType_;
@@ -91,6 +97,8 @@ MonitorElement* meEBdigi_;
 MonitorElement* meEBhits_;
 
 MonitorElement* meEvent_[36];
+
+bool init_;
 
 string outputFile_;
 
