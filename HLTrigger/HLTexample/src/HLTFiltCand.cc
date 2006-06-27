@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/24 21:04:47 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/26 23:39:25 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -16,7 +16,7 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
+#include "DataFormats/RecoCandidate/interface/CaloJet.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -85,7 +85,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<PhotonCandidateCollection>      photons;
    Handle<ElectronCandidateCollection>    electrons;
    Handle<MuonCollection>                 muons;
-   Handle<RecoCaloJetCandidateCollection> jets;
+   Handle<CaloJetCollection>              jets;
 
    iEvent.getByLabel(photTag_,photons  );
    iEvent.getByLabel(elecTag_,electrons);
@@ -137,13 +137,13 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // jets
    bool         bjets(false);
-   RecoCaloJetCandidateCollection::const_iterator ajets(jets->begin());
-   RecoCaloJetCandidateCollection::const_iterator ojets(jets->end());
-   RecoCaloJetCandidateCollection::const_iterator ijets;
+   CaloJetCollection::const_iterator ajets(jets->begin());
+   CaloJetCollection::const_iterator ojets(jets->end());
+   CaloJetCollection::const_iterator ijets;
    for (ijets=ajets; ijets!=ojets; ijets++) {
      if (ijets->pt() >= jets_pt_) {
        bjets=true;
-       ref=RefToBase<Candidate>(RecoCaloJetCandidateRef(jets,distance(ajets,ijets)));
+       ref=RefToBase<Candidate>(CaloJetRef(jets,distance(ajets,ijets)));
        filterproduct->putParticle(ref);
      }
    }

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/18 17:44:04 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -16,7 +16,7 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -36,7 +36,7 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
    produces<reco::PhotonCandidateCollection>();
    produces<reco::ElectronCandidateCollection>();
    produces<reco::MuonCollection>();
-   produces<reco::RecoCaloJetCandidateCollection>();
+   produces<reco::CaloJetCollection>();
 
 }
 
@@ -60,7 +60,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<PhotonCandidateCollection>      phot (new PhotonCandidateCollection);
    auto_ptr<ElectronCandidateCollection>    elec (new ElectronCandidateCollection);
    auto_ptr<MuonCollection>                 muon (new MuonCollection);
-   auto_ptr<RecoCaloJetCandidateCollection> jets (new RecoCaloJetCandidateCollection);
+   auto_ptr<CaloJetCollection>              jets (new CaloJetCollection);
 
 
    vector<edm::Handle<edm::HepMCProduct> > hepmcs;
@@ -87,7 +87,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            } else if (abs(ipdg)==22) {
              phot->push_back(PhotonCandidate(0,p4));
 	   } else { 
-             jets->push_back(RecoCaloJetCandidate(0,p4));
+             jets->push_back(CaloJet(0,p4));
 	   }
          }
        }
