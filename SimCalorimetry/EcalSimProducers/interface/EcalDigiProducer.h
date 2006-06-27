@@ -8,8 +8,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloCorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
@@ -54,6 +56,9 @@ private:
 
   CaloHitResponse * theEcalResponse;
   CaloHitResponse * theESResponse;
+
+  CaloCorrelatedNoisifier * theCorrNoise;
+  EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
   EcalElectronicsSim * theElectronicsSim;
   ESElectronicsSim * theESElectronicsSim;
