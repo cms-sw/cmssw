@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/07 14:17:03 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/13 08:46:03 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,7 +22,7 @@
 
 using namespace std;
 
-#define MDEBUG false //FIXME!
+#define MDEBUG true //FIXME!
 
 MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
@@ -91,15 +91,18 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   const ForwardDetRing* closestRing = theRings[closest];
 
   // Check the closest ring
-  if ( MDEBUG ) 
+  if ( MDEBUG ) {
     cout << "     MuRingForwardLayer::fastCompatibleDets, closestRing: "
  	 << closest
  	 << " R1 " << closestRing->specificSurface().innerRadius()
 	 << " R2: " << closestRing->specificSurface().outerRadius()
- 	 << " FTS R: " << tsos.globalPosition().perp() 
-	 << " sR: " << sqrt(tsos.localError().positionError().yy())
-	 << " sX: " << sqrt(tsos.localError().positionError().xx())
-	 << endl;
+ 	 << " FTS R: " << tsos.globalPosition().perp();
+    if (tsos.hasError()) {
+      cout << " sR: " << sqrt(tsos.localError().positionError().yy())
+	   << " sX: " << sqrt(tsos.localError().positionError().xx());
+    }
+    cout << endl;
+  }
 
   result = closestRing->compatibleDets(tsos, prop, est);
 
@@ -118,8 +121,13 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   LocalPoint nextPos(surface().toLocal(startPos));
   
   for (unsigned int idet=closest+1; idet < theRings.size(); idet++) {
-    if (theRings[idet]->specificSurface().bounds().inside(
-           nextPos,tsos.localError().positionError())){
+    bool inside = false;
+    if (tsos.hasError()) {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
+    } else {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
+    }
+    if (inside){
       if ( MDEBUG ) 
 	cout << "     MuRingForwardLayer::fastCompatibleDets:NextRing" << idet
 	     << " R1 " << theRings[idet]->specificSurface().innerRadius()
@@ -139,8 +147,13 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   }
 
   for (int idet=closest-1; idet >= 0; idet--) {
-    if (theRings[idet]->specificSurface().bounds().inside(
-           nextPos,tsos.localError().positionError())){
+    bool inside = false;
+    if (tsos.hasError()) {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos,tsos.localError().positionError());
+    } else {
+      inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
+    }
+    if (inside){
       if ( MDEBUG ) 
 	cout << "     MuRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
 	     << " R1 " << theRings[idet]->specificSurface().innerRadius()
