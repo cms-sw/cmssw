@@ -4,11 +4,11 @@
 /*
  * \file TrivialAmplitudeAlgo.h
  *
- * $Date: 2006/04/10 08:50:50 $
+ * $Date: 2006/05/15 09:11:00 $
  * $Revision: 1.1 $
  * \author F. Cossutti
  *
- * simple weights algorithm for energy and pedesta reconstruction
+ * simple weights algorithm for energy and pedestal reconstruction
  *
 */
 
