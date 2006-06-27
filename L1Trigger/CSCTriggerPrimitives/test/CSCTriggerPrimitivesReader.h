@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/06/08 16:02:21 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/20 14:55:46 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -64,41 +64,61 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // LCT counters
   static int numALCT;
   static int numCLCT;
-  static int numLCT;
+  static int numLCTTMB;
+  static int numLCTMPC;
 
   static bool bookedALCTHistos;
   static bool bookedCLCTHistos;
-  static bool bookedLCTHistos;
+  static bool bookedLCTTMBHistos;
+  static bool bookedLCTMPCHistos;
 
   void setRootStyle();
 
   void bookALCTHistos();
   void bookCLCTHistos();
-  void bookLCTHistos();
+  void bookLCTTMBHistos();
+  void bookLCTMPCHistos();
   void fillALCTHistos(const CSCALCTDigiCollection* alcts);
   void fillCLCTHistos(const CSCCLCTDigiCollection* clcts);
-  void fillLCTHistos(const CSCCorrelatedLCTDigiCollection* lcts);
+  void fillLCTTMBHistos(const CSCCorrelatedLCTDigiCollection* lcts);
+  void fillLCTMPCHistos(const CSCCorrelatedLCTDigiCollection* lcts);
   void drawALCTHistos();
   void drawCLCTHistos();
-  void drawLCTHistos();
+  void drawLCTTMBHistos();
+  void drawLCTMPCHistos();
   void drawHistosForTalks();
 
   int getCSCType(const CSCDetId& id);
 
+  void compare(const edm::Event& ev);
+  void compareALCTs(const CSCALCTDigiCollection* alcts_data,
+		    const CSCALCTDigiCollection* alcts_emul);
+
   // Histograms
+  // ALCTs
   TH1F *hAlctPerEvent, *hAlctPerCSC;
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
   TH1F *hAlctBXN;
+  // CLCTs
   TH1F *hClctPerEvent, *hClctPerCSC;
   TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctCFEB;
   TH1F *hClctBXN;
   TH1F *hClctKeyStrip[2], *hClctPattern[2];
   TH1F *hClctPatternCsc[CSC_TYPES][2], *hClctKeyStripCsc[CSC_TYPES];
-  TH1F *hLctPerEvent, *hLctPerCSC, *hCorrLctPerCSC;
-  TH1F *hLctEndcap, *hLctStation, *hLctSector, *hLctRing;
-  TH1F *hLctChamber[MAX_STATIONS];
-  TH1F *hLctValid, *hLctQuality, *hLctKeyGroup, *hLctKeyStrip, *hLctStripType;
-  TH1F *hLctPattern, *hLctBend, *hLctBXN;
+  // Correlated LCTs in TMB
+  TH1F *hLctTMBPerEvent, *hLctTMBPerCSC, *hCorrLctTMBPerCSC;
+  TH1F *hLctTMBEndcap, *hLctTMBStation, *hLctTMBSector, *hLctTMBRing;
+  TH1F *hLctTMBChamber[MAX_STATIONS];
+  TH1F *hLctTMBValid, *hLctTMBQuality, *hLctTMBKeyGroup;
+  TH1F *hLctTMBKeyStrip, *hLctTMBStripType;
+  TH1F *hLctTMBPattern, *hLctTMBBend, *hLctTMBBXN;
+  // Correlated LCTs in MPC
+  TH1F *hLctMPCPerEvent, *hLctMPCPerCSC, *hCorrLctMPCPerCSC;
+  TH1F *hLctMPCEndcap, *hLctMPCStation, *hLctMPCSector, *hLctMPCRing;
+  TH1F *hLctMPCChamber[MAX_STATIONS];
+  TH1F *hLctMPCValid, *hLctMPCQuality, *hLctMPCKeyGroup;
+  TH1F *hLctMPCKeyStrip, *hLctMPCStripType;
+  TH1F *hLctMPCPattern, *hLctMPCBend, *hLctMPCBXN;
 };
 
 #endif

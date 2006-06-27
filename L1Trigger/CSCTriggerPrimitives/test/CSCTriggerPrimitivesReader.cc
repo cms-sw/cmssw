@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/08 16:02:21 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/20 14:55:46 $
+//   $Revision: 1.2 $
 //
 //   Modifications:
 //
@@ -53,13 +53,15 @@ const int CSCTriggerPrimitivesReader::ptype[CSCConstants::NUM_CLCT_PATTERNS]= {
   -999,  3, -3,  2,  -2,  1, -1,  0};  // "signed" pattern (== phiBend)
 
 // LCT counters
-int  CSCTriggerPrimitivesReader::numALCT = 0;
-int  CSCTriggerPrimitivesReader::numCLCT = 0;
-int  CSCTriggerPrimitivesReader::numLCT  = 0;
+int  CSCTriggerPrimitivesReader::numALCT    = 0;
+int  CSCTriggerPrimitivesReader::numCLCT    = 0;
+int  CSCTriggerPrimitivesReader::numLCTTMB  = 0;
+int  CSCTriggerPrimitivesReader::numLCTMPC  = 0;
 
-bool CSCTriggerPrimitivesReader::bookedALCTHistos = false;
-bool CSCTriggerPrimitivesReader::bookedCLCTHistos = false;
-bool CSCTriggerPrimitivesReader::bookedLCTHistos  = false;
+bool CSCTriggerPrimitivesReader::bookedALCTHistos    = false;
+bool CSCTriggerPrimitivesReader::bookedCLCTHistos    = false;
+bool CSCTriggerPrimitivesReader::bookedLCTTMBHistos  = false;
+bool CSCTriggerPrimitivesReader::bookedLCTMPCHistos  = false;
 
 //----------------
 // Constructor  --
@@ -105,33 +107,40 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
   edm::Handle<CSCALCTDigiCollection> alcts;
   edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_tmb;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_mpc;
   if (lctProducer_ == "cscunpacker") {
     // Data
     ev.getByLabel(lctProducer_, "MuonCSCALCTDigi", alcts);
     ev.getByLabel(lctProducer_, "MuonCSCCLCTDigi", clcts);
-    ev.getByLabel(lctProducer_, "MuonCSCCorrelatedLCTDigi", lcts);
+    ev.getByLabel(lctProducer_, "MuonCSCCorrelatedLCTDigi", lcts_tmb);
   }
   else {
     // Emulator
-    ev.getByLabel(lctProducer_, alcts);
-    ev.getByLabel(lctProducer_, clcts);
-    ev.getByLabel(lctProducer_,  lcts);
+    ev.getByLabel(lctProducer_,              alcts);
+    ev.getByLabel(lctProducer_,              clcts);
+    ev.getByLabel(lctProducer_,              lcts_tmb);
+    ev.getByLabel(lctProducer_, "MPCSORTED", lcts_mpc);
   }
 
   // Fill histograms.
   fillALCTHistos(alcts.product());
   fillCLCTHistos(clcts.product());
-  fillLCTHistos(lcts.product());
+  fillLCTTMBHistos(lcts_tmb.product());
+  if (lctProducer_ != "cscunpacker") fillLCTMPCHistos(lcts_mpc.product());
+
+  // Compare LCTs in the data with the ones produced by the emulator.
+  //compare(ev);
 }
 
 void CSCTriggerPrimitivesReader::endJob() {
   // Note: all operations involving ROOT should be placed here and not in the
   // destructor.
   // Plot histos if they were booked/filled.
-  if (bookedALCTHistos) drawALCTHistos();
-  if (bookedCLCTHistos) drawCLCTHistos();
-  if (bookedLCTHistos)  drawLCTHistos();
+  if (bookedALCTHistos)    drawALCTHistos();
+  if (bookedCLCTHistos)    drawCLCTHistos();
+  if (bookedLCTTMBHistos)  drawLCTTMBHistos();
+  if (bookedLCTMPCHistos)  drawLCTMPCHistos();
   //drawHistosForTalks();
 
   //theFile->cd();
@@ -143,8 +152,10 @@ void CSCTriggerPrimitivesReader::endJob() {
        << static_cast<float>(numALCT)/eventsAnalyzed << endl;
   cout << "  Average number of CLCTs/event = "
        << static_cast<float>(numCLCT)/eventsAnalyzed << endl;
-  cout << "  Average number of correlated LCTs/event = "
-       << static_cast<float>(numLCT)/eventsAnalyzed  << endl;
+  cout << "  Average number of TMB LCTs/event = "
+       << static_cast<float>(numLCTTMB)/eventsAnalyzed << endl;
+  cout << "  Average number of MPC LCTs/event = "
+       << static_cast<float>(numLCTMPC)/eventsAnalyzed << endl;
 }
 
 //---------------
@@ -222,32 +233,60 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   bookedCLCTHistos = true;
 }
 
-void CSCTriggerPrimitivesReader::bookLCTHistos() {
-  hLctPerEvent  = new TH1F("", "LCTs per event",    11, -0.5, 10.5);
-  hLctPerCSC    = new TH1F("", "LCTs per CSC type", 10, -0.5,  9.5);
-  hCorrLctPerCSC= new TH1F("", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
-  hLctEndcap    = new TH1F("", "Endcap",             4, -0.5,  3.5);
-  hLctStation   = new TH1F("", "Station",            6, -0.5,  5.5);
-  hLctSector    = new TH1F("", "Sector",             8, -0.5,  7.5);
-  hLctRing      = new TH1F("", "Ring",               5, -0.5,  4.5);
+void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
+  hLctTMBPerEvent  = new TH1F("", "LCTs per event",    11, -0.5, 10.5);
+  hLctTMBPerCSC    = new TH1F("", "LCTs per CSC type", 10, -0.5,  9.5);
+  hCorrLctTMBPerCSC= new TH1F("", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
+  hLctTMBEndcap    = new TH1F("", "Endcap",             4, -0.5,  3.5);
+  hLctTMBStation   = new TH1F("", "Station",            6, -0.5,  5.5);
+  hLctTMBSector    = new TH1F("", "Sector",             8, -0.5,  7.5);
+  hLctTMBRing      = new TH1F("", "Ring",               5, -0.5,  4.5);
 
-  hLctValid     = new TH1F("", "LCT validity",        3, -0.5,   2.5);
-  hLctQuality   = new TH1F("", "LCT quality",        17, -0.5,  16.5);
-  hLctKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
-  hLctKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
-  hLctStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
-  hLctPattern   = new TH1F("", "LCT pattern",        10, -0.5,   9.5);
-  hLctBend      = new TH1F("", "LCT L/R bend",        3, -0.5,   2.5);
-  hLctBXN       = new TH1F("", "LCT bx",             20, -0.5,  19.5);
+  hLctTMBValid     = new TH1F("", "LCT validity",        3, -0.5,   2.5);
+  hLctTMBQuality   = new TH1F("", "LCT quality",        17, -0.5,  16.5);
+  hLctTMBKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
+  hLctTMBKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
+  hLctTMBStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
+  hLctTMBPattern   = new TH1F("", "LCT pattern",        10, -0.5,   9.5);
+  hLctTMBBend      = new TH1F("", "LCT L/R bend",        3, -0.5,   2.5);
+  hLctTMBBXN       = new TH1F("", "LCT bx",             20, -0.5,  19.5);
 
   // LCT quantities per station
   char histname[60];
   for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
     sprintf(histname, "CSCId, station %d", istat+1);
-    hLctChamber[istat] = new TH1F("", histname,  10, -0.5, 9.5);
+    hLctTMBChamber[istat] = new TH1F("", histname,  10, -0.5, 9.5);
   }
 
-  bookedLCTHistos = true;
+  bookedLCTTMBHistos = true;
+}
+
+void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
+  hLctMPCPerEvent  = new TH1F("", "LCTs per event",    11, -0.5, 10.5);
+  hLctMPCPerCSC    = new TH1F("", "LCTs per CSC type", 10, -0.5,  9.5);
+  hCorrLctMPCPerCSC= new TH1F("", "Corr. LCTs per CSC type", 10, -0.5,9.5);
+  hLctMPCEndcap    = new TH1F("", "Endcap",             4, -0.5,  3.5);
+  hLctMPCStation   = new TH1F("", "Station",            6, -0.5,  5.5);
+  hLctMPCSector    = new TH1F("", "Sector",             8, -0.5,  7.5);
+  hLctMPCRing      = new TH1F("", "Ring",               5, -0.5,  4.5);
+
+  hLctMPCValid     = new TH1F("", "LCT validity",        3, -0.5,   2.5);
+  hLctMPCQuality   = new TH1F("", "LCT quality",        17, -0.5,  16.5);
+  hLctMPCKeyGroup  = new TH1F("", "LCT key wiregroup", 120, -0.5, 119.5);
+  hLctMPCKeyStrip  = new TH1F("", "LCT key strip",     160, -0.5, 159.5);
+  hLctMPCStripType = new TH1F("", "LCT strip type",      3, -0.5,   2.5);
+  hLctMPCPattern   = new TH1F("", "LCT pattern",        10, -0.5,   9.5);
+  hLctMPCBend      = new TH1F("", "LCT L/R bend",        3, -0.5,   2.5);
+  hLctMPCBXN       = new TH1F("", "LCT bx",             20, -0.5,  19.5);
+
+  // LCT quantities per station
+  char histname[60];
+  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+    sprintf(histname, "CSCId, station %d", istat+1);
+    hLctMPCChamber[istat] = new TH1F("", histname,  10, -0.5, 9.5);
+  }
+
+  bookedLCTMPCHistos = true;
 }
 
 void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alcts) {
@@ -337,9 +376,9 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   numCLCT += nValidCLCTs;
 }
 
-void CSCTriggerPrimitivesReader::fillLCTHistos(const CSCCorrelatedLCTDigiCollection* lcts) {
+void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiCollection* lcts) {
   // Book histos when called for the first time.
-  if (!bookedLCTHistos) bookLCTHistos();
+  if (!bookedLCTTMBHistos) bookLCTTMBHistos();
 
   int nValidLCTs = 0;
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
@@ -350,35 +389,35 @@ void CSCTriggerPrimitivesReader::fillLCTHistos(const CSCCorrelatedLCTDigiCollect
 	 digiIt != range.second; digiIt++) {
 
       bool lct_valid = (*digiIt).isValid();
-      hLctValid->Fill(lct_valid);
+      hLctTMBValid->Fill(lct_valid);
       if (lct_valid) {
-        hLctEndcap->Fill(id.endcap());
-        hLctStation->Fill(id.station());
-	hLctSector->Fill(id.triggerSector());
-	hLctRing->Fill(id.ring());
-	hLctChamber[id.station()-1]->Fill(id.triggerCscId());
+        hLctTMBEndcap->Fill(id.endcap());
+        hLctTMBStation->Fill(id.station());
+	hLctTMBSector->Fill(id.triggerSector());
+	hLctTMBRing->Fill(id.ring());
+	hLctTMBChamber[id.station()-1]->Fill(id.triggerCscId());
 
 	int quality = (*digiIt).getQuality();
-        hLctQuality->Fill(quality);
-        hLctBXN->Fill((*digiIt).getBX());
+        hLctTMBQuality->Fill(quality);
+        hLctTMBBXN->Fill((*digiIt).getBX());
 
 	bool alct_valid = (quality != 4 && quality != 5);
 	if (alct_valid) {
-	  hLctKeyGroup->Fill((*digiIt).getKeyWG());
+	  hLctTMBKeyGroup->Fill((*digiIt).getKeyWG());
 	}
 
 	bool clct_valid = (quality != 1 && quality != 3);
 	if (clct_valid) {
-	  hLctKeyStrip->Fill((*digiIt).getStrip());
-	  hLctStripType->Fill((*digiIt).getStripType());
-	  hLctPattern->Fill((*digiIt).getCLCTPattern());
-	  hLctBend->Fill((*digiIt).getBend());
+	  hLctTMBKeyStrip->Fill((*digiIt).getStrip());
+	  hLctTMBStripType->Fill((*digiIt).getStripType());
+	  hLctTMBPattern->Fill((*digiIt).getCLCTPattern());
+	  hLctTMBBend->Fill((*digiIt).getBend());
 	}
 
 	int csctype = getCSCType(id);
-	hLctPerCSC->Fill(csctype);
+	hLctTMBPerCSC->Fill(csctype);
 	// Truly correlated LCTs; for DAQ
-	if (alct_valid && clct_valid) hCorrLctPerCSC->Fill(csctype); 
+	if (alct_valid && clct_valid) hCorrLctTMBPerCSC->Fill(csctype); 
 
         nValidLCTs++;
 
@@ -391,9 +430,180 @@ void CSCTriggerPrimitivesReader::fillLCTHistos(const CSCCorrelatedLCTDigiCollect
       }
     }
   }
-  hLctPerEvent->Fill(nValidLCTs);
+  hLctTMBPerEvent->Fill(nValidLCTs);
   if (debug) cout << nValidLCTs << " valid LCTs found in this event" << endl;
-  numLCT += nValidLCTs;
+  numLCTTMB += nValidLCTs;
+}
+
+void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiCollection* lcts) {
+  // Book histos when called for the first time.
+  if (!bookedLCTMPCHistos) bookLCTMPCHistos();
+
+  int nValidLCTs = 0;
+  CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
+    const CSCDetId& id = (*detUnitIt).first;
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
+	 digiIt != range.second; digiIt++) {
+
+      bool lct_valid = (*digiIt).isValid();
+      hLctMPCValid->Fill(lct_valid);
+      if (lct_valid) {
+        hLctMPCEndcap->Fill(id.endcap());
+        hLctMPCStation->Fill(id.station());
+	hLctMPCSector->Fill(id.triggerSector());
+	hLctMPCRing->Fill(id.ring());
+	hLctMPCChamber[id.station()-1]->Fill(id.triggerCscId());
+
+	int quality = (*digiIt).getQuality();
+        hLctMPCQuality->Fill(quality);
+        hLctMPCBXN->Fill((*digiIt).getBX());
+
+	bool alct_valid = (quality != 4 && quality != 5);
+	if (alct_valid) {
+	  hLctMPCKeyGroup->Fill((*digiIt).getKeyWG());
+	}
+
+	bool clct_valid = (quality != 1 && quality != 3);
+	if (clct_valid) {
+	  hLctMPCKeyStrip->Fill((*digiIt).getStrip());
+	  hLctMPCStripType->Fill((*digiIt).getStripType());
+	  hLctMPCPattern->Fill((*digiIt).getCLCTPattern());
+	  hLctMPCBend->Fill((*digiIt).getBend());
+	}
+
+	int csctype = getCSCType(id);
+	hLctMPCPerCSC->Fill(csctype);
+	// Truly correlated LCTs; for DAQ
+	if (alct_valid && clct_valid) hCorrLctMPCPerCSC->Fill(csctype); 
+
+        nValidLCTs++;
+
+	if (debug) 
+	  cout << "MPC " << (*digiIt) << " found in endcap " <<  id.endcap()
+	       << " station " << id.station()
+	       << " sector " << id.triggerSector()
+	       << " ring " << id.ring() << " chamber " << id.chamber()
+	       << " (trig id. " << id.triggerCscId() << ")" << endl;
+      }
+    }
+  }
+  hLctMPCPerEvent->Fill(nValidLCTs);
+  if (debug) cout << nValidLCTs << " MPC LCTs found in this event" << endl;
+  numLCTMPC += nValidLCTs;
+}
+
+void CSCTriggerPrimitivesReader::compare(const edm::Event& ev) {
+
+  // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
+  edm::Handle<CSCALCTDigiCollection> alcts_data;
+  edm::Handle<CSCCLCTDigiCollection> clcts_data;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_data;
+  edm::Handle<CSCALCTDigiCollection> alcts_emul;
+  edm::Handle<CSCCLCTDigiCollection> clcts_emul;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_emul;
+
+  // Data
+  ev.getByLabel("cscunpacker", "MuonCSCALCTDigi", alcts_data);
+  ev.getByLabel("cscunpacker", "MuonCSCCLCTDigi", clcts_data);
+  ev.getByLabel("cscunpacker", "MuonCSCCorrelatedLCTDigi", lcts_data);
+
+  // Emulator
+  ev.getByLabel("lctproducer", alcts_emul);
+  ev.getByLabel("lctproducer", clcts_emul);
+  ev.getByLabel("lctproducer",  lcts_emul);
+
+  // Comparisons
+  compareALCTs(alcts_data.product(), alcts_emul.product());
+  //compareCLCTs(clcts_data.product(), clcts_emul.product());
+  //compareLCTs(lcts_data.product(), clcts_emul.product());
+}
+
+void CSCTriggerPrimitivesReader::compareALCTs(
+                                 const CSCALCTDigiCollection* alcts_data,
+				 const CSCALCTDigiCollection* alcts_emul) {
+  CSCALCTDigiCollection::DigiRangeIterator detUnitIt;
+  for (int endc = 1; endc <= 2; endc++) {
+    for (int stat = 1; stat <= 4; stat++) {
+      for (int ring = 1; ring <= 3; ring++) {
+        for (int cham = 1; cham <= 36; cham++) {
+	  // Calculate DetId.  0th layer means whole chamber.
+	  CSCDetId detid(endc, stat, ring, cham, 0);
+
+	  std::vector<CSCALCTDigi> alctV_data, alctV_emul;
+	  std::vector<CSCALCTDigi>::iterator pd, pe;
+	  for (detUnitIt = alcts_data->begin();
+	       detUnitIt != alcts_data->end(); detUnitIt++) {
+	    if ((*detUnitIt).first == detid) {
+	      const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
+	      for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+		   digiIt != range.second; digiIt++) {
+		alctV_data.push_back(*digiIt);
+	      }
+	    }
+	  }
+
+	  for (detUnitIt = alcts_emul->begin();
+	       detUnitIt != alcts_emul->end(); detUnitIt++) {
+	    if ((*detUnitIt).first == detid) {
+	      const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
+	      for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
+		   digiIt != range.second; digiIt++) {
+		alctV_emul.push_back(*digiIt);
+	      }
+	    }
+	  }
+
+	  int ndata = alctV_data.size();
+	  int nemul = alctV_emul.size();
+	  if (ndata == 0 && nemul == 0) continue;
+
+	  if (debug) {
+	    cout << "\n --- Endcap "  << detid.endcap()
+		 << " station " << detid.station()
+		 << " sector "  << detid.triggerSector()
+		 << " ring "    << detid.ring()
+		 << " chamber " << detid.chamber()
+		 << " (trig id. " << detid.triggerCscId() << "):" << endl;
+	    cout << "  * " << ndata << " data ALCTs found: \n";
+	    for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
+	      cout << "     " << (*pd) << endl;
+	    }
+	    cout << "  * " << nemul << " emul ALCTs found: \n";
+	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
+	      cout << "     " << (*pe) << endl;
+	    }
+	  }
+
+	  if (ndata != nemul) {
+	    cout << "    +++ Different numbers of ALCTs found: data = "
+		 << ndata << " emulator = " << nemul << " +++" << endl;
+	  }
+
+	  for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
+	    int wire_data = (*pd).getKeyWG();
+	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
+	      if ((*pe).getKeyWG() == wire_data) {
+		if ((*pd).isValid()        == (*pe).isValid() &&
+		    (*pd).getQuality()     == (*pe).getQuality() &&
+		    (*pd).getAccelerator() == (*pe).getAccelerator() &&
+		    (*pd).getCollisionB()  == (*pe).getCollisionB()  &&
+		    (*pd).getBX()          == (*pe).getBX()) {
+		  cout << "        Identical ALCTs on key wire = " << wire_data
+		       << endl;
+		}
+		else {
+		  cout << "        Different ALCTs on key wire = " << wire_data
+		       << endl;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
 
 void CSCTriggerPrimitivesReader::drawALCTHistos() {
@@ -562,9 +772,9 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   ps->Close();
 }
 
-void CSCTriggerPrimitivesReader::drawLCTHistos() {
+void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("lcts.ps", 111);
+  TPostScript *ps = new TPostScript("lcts_tmb.ps", 111);
 
   TPad *pad[MAXPAGES];
   for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -586,14 +796,14 @@ void CSCTriggerPrimitivesReader::drawLCTHistos() {
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(1,3);
-  pad[page]->cd(1);  hLctPerEvent->Draw();
+  pad[page]->cd(1);  hLctTMBPerEvent->Draw();
   for (int i = 0; i < CSC_TYPES; i++) {
-    hLctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
-    hCorrLctPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
+    hLctTMBPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
+    hCorrLctTMBPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
   }
   // Should be multiplied by 40/nevents to convert to MHz
-  pad[page]->cd(2);  hLctPerCSC->Draw();
-  pad[page]->cd(3);  hCorrLctPerCSC->Draw();
+  pad[page]->cd(2);  hLctTMBPerCSC->Draw();
+  pad[page]->cd(3);  hCorrLctTMBPerCSC->Draw();
   page++;  c1->Update();
 
   ps->NewPage();
@@ -604,12 +814,12 @@ void CSCTriggerPrimitivesReader::drawLCTHistos() {
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
-  pad[page]->cd(1);  hLctEndcap->Draw();
-  pad[page]->cd(2);  hLctStation->Draw();
-  pad[page]->cd(3);  hLctSector->Draw();
-  pad[page]->cd(4);  hLctRing->Draw();
+  pad[page]->cd(1);  hLctTMBEndcap->Draw();
+  pad[page]->cd(2);  hLctTMBStation->Draw();
+  pad[page]->cd(3);  hLctTMBSector->Draw();
+  pad[page]->cd(4);  hLctTMBRing->Draw();
   for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
-    pad[page]->cd(istat+5);  hLctChamber[istat]->Draw();
+    pad[page]->cd(istat+5);  hLctTMBChamber[istat]->Draw();
   }
   page++;  c1->Update();
 
@@ -620,14 +830,85 @@ void CSCTriggerPrimitivesReader::drawLCTHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
-  pad[page]->cd(1);  hLctValid->Draw();
-  pad[page]->cd(2);  hLctQuality->Draw();
-  pad[page]->cd(3);  hLctKeyGroup->Draw();
-  pad[page]->cd(4);  hLctKeyStrip->Draw();
-  pad[page]->cd(5);  hLctStripType->Draw();
-  pad[page]->cd(6);  hLctPattern->Draw();
-  pad[page]->cd(7);  hLctBend->Draw();
-  pad[page]->cd(8);  hLctBXN->Draw();
+  pad[page]->cd(1);  hLctTMBValid->Draw();
+  pad[page]->cd(2);  hLctTMBQuality->Draw();
+  pad[page]->cd(3);  hLctTMBKeyGroup->Draw();
+  pad[page]->cd(4);  hLctTMBKeyStrip->Draw();
+  pad[page]->cd(5);  hLctTMBStripType->Draw();
+  pad[page]->cd(6);  hLctTMBPattern->Draw();
+  pad[page]->cd(7);  hLctTMBBend->Draw();
+  pad[page]->cd(8);  hLctTMBBXN->Draw();
+  page++;  c1->Update();
+
+  ps->Close();
+}
+
+void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
+  TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
+  TPostScript *ps = new TPostScript("lcts_mpc.ps", 111);
+
+  TPad *pad[MAXPAGES];
+  for (Int_t i_page = 0; i_page < MAXPAGES; i_page++) {
+    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  }
+
+  Int_t page = 1;
+  TText t;
+  t.SetTextFont(32);
+  t.SetTextSize(0.025);
+  Char_t pagenum[6];
+  TPaveLabel *title;
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of LCTs");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(111110);
+  pad[page]->Draw();
+  pad[page]->Divide(1,3);
+  pad[page]->cd(1);  hLctMPCPerEvent->Draw();
+  for (int i = 0; i < CSC_TYPES; i++) {
+    hLctMPCPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
+    hCorrLctMPCPerCSC->GetXaxis()->SetBinLabel(i+1, csc_type[i].c_str());
+  }
+  // Should be multiplied by 40/nevents to convert to MHz
+  pad[page]->cd(2);  hLctMPCPerCSC->Draw();
+  pad[page]->cd(3);  hCorrLctMPCPerCSC->Draw();
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT geometry");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  gStyle->SetOptStat(110110);
+  pad[page]->Draw();
+  pad[page]->Divide(2,4);
+  pad[page]->cd(1);  hLctMPCEndcap->Draw();
+  pad[page]->cd(2);  hLctMPCStation->Draw();
+  pad[page]->cd(3);  hLctMPCSector->Draw();
+  pad[page]->cd(4);  hLctMPCRing->Draw();
+  for (Int_t istat = 0; istat < MAX_STATIONS; istat++) {
+    pad[page]->cd(istat+5);  hLctMPCChamber[istat]->Draw();
+  }
+  page++;  c1->Update();
+
+  ps->NewPage();
+  c1->Clear();  c1->cd(0);
+  title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT quantities");
+  title->SetFillColor(10);  title->Draw();
+  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  pad[page]->Draw();
+  pad[page]->Divide(2,4);
+  pad[page]->cd(1);  hLctMPCValid->Draw();
+  pad[page]->cd(2);  hLctMPCQuality->Draw();
+  pad[page]->cd(3);  hLctMPCKeyGroup->Draw();
+  pad[page]->cd(4);  hLctMPCKeyStrip->Draw();
+  pad[page]->cd(5);  hLctMPCStripType->Draw();
+  pad[page]->cd(6);  hLctMPCPattern->Draw();
+  pad[page]->cd(7);  hLctMPCBend->Draw();
+  pad[page]->cd(8);  hLctMPCBXN->Draw();
   page++;  c1->Update();
 
   ps->Close();
