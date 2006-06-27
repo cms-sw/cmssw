@@ -26,11 +26,11 @@ class TrackerHitAssociator;
     event.getByType(trackCollection);
     
     //get simtrack info
-   std::vector<EmbdSimTrack> theSimTracks;
-   std::vector<EmbdSimVertex> theSimVertexes;
+   std::vector<SimTrack> theSimTracks;
+   std::vector<SimVertex> theSimVertexes;
 
-   Handle<EmbdSimTrackContainer> SimTk;
-   Handle<EmbdSimVertexContainer> SimVtx;
+   Handle<SimTrackContainer> SimTk;
+   Handle<SimVertexContainer> SimVtx;
    event.getByLabel("SimG4Object",SimTk);
    event.getByLabel("SimG4Object",SimVtx);
    theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
