@@ -25,7 +25,8 @@ namespace edm {
 
       // if it's not a simple config file, with one process node, bail out
       if(processNode == 0) {
-        edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
+       throw edm::Exception(errors::Configuration,"")
+        << " Cannot find a process node";
       } else {
 
 
