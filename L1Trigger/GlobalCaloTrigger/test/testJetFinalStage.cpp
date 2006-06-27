@@ -362,10 +362,10 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       //compare the vectors
       for(ULong i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rank() != vector2[i].rank()) { testPass = false; break; }
-        if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
-        if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) { testPass = false; break; }
+        if(vector1[i].rank() != vector2[i].rank()) { cout << "rank fail " << endl; testPass = false; break; }
+        if(vector1[i].eta() != vector2[i].eta()) { cout << "eta fail " << endl; testPass = false; break; }
+        if(vector1[i].phi() != vector2[i].phi()) { cout << "phi fail " << endl; testPass = false; break; }
+        if(vector1[i].tauVeto() != vector2[i].tauVeto()) { cout << "tau fail " << endl; testPass = false; break; }
       }
     }
   }

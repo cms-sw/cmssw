@@ -48,6 +48,8 @@ public:
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
   static const unsigned int MAX_SOURCE_CARDS; ///< Need data from 9 separate source cards to find jets in the 2*11 search region.
+  static const unsigned int COL_OFFSET;  ///< The index offset between columns
+  static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctJetFinderBase(int id, std::vector<L1GctSourceCard*> sourceCards,
@@ -55,6 +57,12 @@ public:
                  
   ~L1GctJetFinderBase();
    
+  /// Set pointers to neighbours - needed to complete the setup
+  void setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours);
+
+  /// Check setup is Ok
+  bool gotNeighbourPointers() const { return m_gotNeighbourPointers; }
+
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
 
@@ -83,16 +91,18 @@ public:
 
  protected:
 
-  //Statics
-  static const unsigned int COL_OFFSET;  ///< The index offset between columns
-  static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
-
   /// algo ID
   int m_id;
 	
   /// Store source card pointers
   std::vector<L1GctSourceCard*> m_sourceCards;
   
+  /// Store neighbour pointers
+  std::vector<L1GctJetFinderBase*> m_neighbourJetFinders;
+  
+  /// Remember whether the neighbour pointers have been stored
+  bool m_gotNeighbourPointers;
+
   /// Jet Et Converstion LUT pointer
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
     
@@ -121,6 +131,8 @@ public:
   /// Helper functions for the fetchInput() and process() methods
   /// Get the input regions for the 2x11 search window plus eta=0 neighbours
   void fetchCentreStripsInput();
+  /// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
+  void fetchEdgeStripsInput();
   /// Sort the found jets. All jetFinders should call this in process().
   void sortJets();
   /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().

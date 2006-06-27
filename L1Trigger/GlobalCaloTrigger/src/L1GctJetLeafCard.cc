@@ -55,37 +55,38 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
 
   srcCardsForJetFinderA.at(0) = m_sourceCards.at(0);
   srcCardsForJetFinderA.at(1) = m_sourceCards.at(1);
-  srcCardsForJetFinderA.at(2) = m_sourceCards.at(8);
-  srcCardsForJetFinderA.at(3) = m_sourceCards.at(9);
-  srcCardsForJetFinderA.at(4) = m_sourceCards.at(10);
-  srcCardsForJetFinderA.at(5) = m_sourceCards.at(11);
+  srcCardsForJetFinderA.at(2) = m_sourceCards.at(2);
+  srcCardsForJetFinderA.at(3) = m_sourceCards.at(3);
+  srcCardsForJetFinderA.at(4) = m_sourceCards.at(4);
+  srcCardsForJetFinderA.at(5) = m_sourceCards.at(5);
   srcCardsForJetFinderA.at(6) = m_sourceCards.at(12);
-  srcCardsForJetFinderA.at(7) = m_sourceCards.at(2);
-  srcCardsForJetFinderA.at(8) = m_sourceCards.at(3);
+  srcCardsForJetFinderA.at(7) = m_sourceCards.at(13);
+  srcCardsForJetFinderA.at(8) = m_sourceCards.at(14);
   
-  srcCardsForJetFinderB.at(0) = m_sourceCards.at(2);
-  srcCardsForJetFinderB.at(1) = m_sourceCards.at(3);
-  srcCardsForJetFinderB.at(2) = m_sourceCards.at(0);
-  srcCardsForJetFinderB.at(3) = m_sourceCards.at(1);
-  srcCardsForJetFinderB.at(4) = m_sourceCards.at(11);
-  srcCardsForJetFinderB.at(5) = m_sourceCards.at(12);
-  srcCardsForJetFinderB.at(6) = m_sourceCards.at(13);
-  srcCardsForJetFinderB.at(7) = m_sourceCards.at(4);
-  srcCardsForJetFinderB.at(8) = m_sourceCards.at(5);
+  srcCardsForJetFinderB.at(0) = m_sourceCards.at(3);
+  srcCardsForJetFinderB.at(1) = m_sourceCards.at(4);
+  srcCardsForJetFinderB.at(2) = m_sourceCards.at(5);
+  srcCardsForJetFinderB.at(3) = m_sourceCards.at(6);
+  srcCardsForJetFinderB.at(4) = m_sourceCards.at(7);
+  srcCardsForJetFinderB.at(5) = m_sourceCards.at(8);
+  srcCardsForJetFinderB.at(6) = m_sourceCards.at(0);
+  srcCardsForJetFinderB.at(7) = m_sourceCards.at(1);
+  srcCardsForJetFinderB.at(8) = m_sourceCards.at(2);
 
-  srcCardsForJetFinderC.at(0) = m_sourceCards.at(4);
-  srcCardsForJetFinderC.at(1) = m_sourceCards.at(5);
-  srcCardsForJetFinderC.at(2) = m_sourceCards.at(2);
-  srcCardsForJetFinderC.at(3) = m_sourceCards.at(3);
-  srcCardsForJetFinderC.at(4) = m_sourceCards.at(12);
-  srcCardsForJetFinderC.at(5) = m_sourceCards.at(13);
-  srcCardsForJetFinderC.at(6) = m_sourceCards.at(14);
-  srcCardsForJetFinderC.at(7) = m_sourceCards.at(6);
-  srcCardsForJetFinderC.at(8) = m_sourceCards.at(7);
+  srcCardsForJetFinderC.at(0) = m_sourceCards.at(6);
+  srcCardsForJetFinderC.at(1) = m_sourceCards.at(7);
+  srcCardsForJetFinderC.at(2) = m_sourceCards.at(8);
+  srcCardsForJetFinderC.at(3) = m_sourceCards.at(9);
+  srcCardsForJetFinderC.at(4) = m_sourceCards.at(10);
+  srcCardsForJetFinderC.at(5) = m_sourceCards.at(11);
+  srcCardsForJetFinderC.at(6) = m_sourceCards.at(3);
+  srcCardsForJetFinderC.at(7) = m_sourceCards.at(4);
+  srcCardsForJetFinderC.at(8) = m_sourceCards.at(5);
   
   m_jetFinderA = new L1GctJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
   m_jetFinderB = new L1GctJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
   m_jetFinderC = new L1GctJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+
 }
 
 L1GctJetLeafCard::~L1GctJetLeafCard()
@@ -93,6 +94,32 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
   delete m_jetFinderA;
   delete m_jetFinderB;
   delete m_jetFinderC;
+}
+
+/// set pointers to neighbours
+void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours)
+{
+  vector<L1GctJetFinderBase*> jfNeighbours(2);
+
+  if (neighbours.size()==2) {
+
+    jfNeighbours.at(0) = neighbours.at(0)->getJetFinderC();
+    jfNeighbours.at(1) = m_jetFinderB;
+    m_jetFinderA->setNeighbourJetFinders(jfNeighbours);
+
+    jfNeighbours.at(0) = m_jetFinderA;
+    jfNeighbours.at(1) = m_jetFinderC;
+    m_jetFinderB->setNeighbourJetFinders(jfNeighbours);
+
+    jfNeighbours.at(0) = m_jetFinderB;
+    jfNeighbours.at(1) = neighbours.at(1)->getJetFinderA();
+    m_jetFinderC->setNeighbourJetFinders(jfNeighbours);
+
+  } else {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctJetLeafCard::setNeighbourLeafCards() : In Jet Leaf Card ID " << m_id 
+      << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+  }
 }
 
 std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)

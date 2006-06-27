@@ -72,7 +72,7 @@ public:
   struct rankGreaterThan : public std::binary_function<L1GctJet, L1GctJet, bool> 
   {
     bool operator()(const L1GctJet& x, const L1GctJet& y) {
-      return ( ((x.lut()==0) || (y.lut()==0)) ? false : (x.rank() > y.rank()) ) ;
+      return ( x.rank() > y.rank() ) ;
     }
   };
   

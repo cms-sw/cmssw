@@ -139,7 +139,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   //Fill the L1GctJetFinder with regions.
   for(int i = 0; i < numInputRegions; ++i)
   {
-    myJetFinder->setInputRegion(i, inputRegions[i]);
+    myJetFinder->setInputRegion(i, inputRegions.at(i));
   }
 
   // Test the getInputRegion method
@@ -158,6 +158,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   //Test the outputted Ht against known result
   if(outputHt != trueHt)
   {
+    cout << "output Ht " << outputHt << " true Ht " << trueHt << endl;
     cout << "\nTest class has FAILED Ht comparison!" << endl;
     testPass = false;
   }
@@ -416,8 +417,8 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       for(unsigned int i = 0; i < vector1.size(); ++i)
       {
         if(vector1[i].rank() != vector2[i].rank()) { testPass = false; break; }
-        if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
-        if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
+        if(vector1[i].jfLocalEta() != vector2[i].jfLocalEta()) { testPass = false; break; }
+        if(vector1[i].jfLocalPhi() != vector2[i].jfLocalPhi()) { testPass = false; break; }
         if(vector1[i].tauVeto() != vector2[i].tauVeto()) { testPass = false; break; }
       }
     }

@@ -12,10 +12,10 @@ const int L1GctSimpleJetFinder::N_COLS = 2;
 const unsigned int L1GctSimpleJetFinder::CENTRAL_COL0 = 0;
 
 L1GctSimpleJetFinder::L1GctSimpleJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-                               L1GctJetEtCalibrationLut* jetEtCalLut):
+					   L1GctJetEtCalibrationLut* jetEtCalLut):
   L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
 {
-  m_inputRegions.resize(maxRegionsIn());
+  this->reset();
 }
 
 L1GctSimpleJetFinder::~L1GctSimpleJetFinder()
@@ -24,6 +24,7 @@ L1GctSimpleJetFinder::~L1GctSimpleJetFinder()
 
 ostream& operator << (ostream& os, const L1GctSimpleJetFinder& algo)
 {
+  os << "===L1GctSimpleJetFinder===" << endl;
   const L1GctJetFinderBase* temp = &algo;
   os << *temp;
   return os;

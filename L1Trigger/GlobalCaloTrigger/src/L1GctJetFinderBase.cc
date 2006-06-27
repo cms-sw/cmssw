@@ -17,14 +17,18 @@ const unsigned int L1GctJetFinderBase::CENTRAL_COL0 = 0;
 
 
 L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCards,
-                               L1GctJetEtCalibrationLut* jetEtCalLut):
+				       L1GctJetEtCalibrationLut* jetEtCalLut):
   m_id(id),
   m_sourceCards(sourceCards),
+  m_neighbourJetFinders(2),
+  m_gotNeighbourPointers(false),
   m_jetEtCalLut(jetEtCalLut),
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
   map = L1GctMap::getMap();
+  // Call reset to initialise vectors for input and output
+  this->reset();
   //Check jetfinder setup
   if(m_id < 0 || m_id > 17)
   {
@@ -63,9 +67,31 @@ L1GctJetFinderBase::~L1GctJetFinderBase()
 {
 }
 
+/// Set pointers to neighbours
+void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours)
+{
+  if (neighbours.size()==2) {
+    m_neighbourJetFinders = neighbours;
+  } else {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+      << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+  }
+  if (m_neighbourJetFinders.at(0) == 0) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+      << " first neighbour pointer is set to zero\n";
+  }
+  if (m_neighbourJetFinders.at(1) == 0) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+      << " second neighbour pointer is set to zero\n";
+  }
+  m_gotNeighbourPointers = true;
+}
+
 ostream& operator << (ostream& os, const L1GctJetFinderBase& algo)
 {
-  os << "===L1GctJetFinderBase===" << endl;
   os << "ID = " << algo.m_id << endl;
   os << "No of Source cards " << algo.m_sourceCards.size() << endl;
   for (unsigned i=0; i<algo.m_sourceCards.size(); i++) {
@@ -112,12 +138,36 @@ void L1GctJetFinderBase::reset()
   m_outputHt = 0;
 }
 
+void L1GctJetFinderBase::setInputRegion(unsigned i, L1GctRegion region)
+{
+  if(i >= 0 && i < this->maxRegionsIn())
+  {
+    m_inputRegions.at(i) = region;
+  }
+  else
+  {
+    throw cms::Exception("L1GctInputError")
+    << "L1GctJetFinderBase::setInputRegion() : In Jet Finder ID " << m_id << ", inputted region " 
+    << i << " is outside input index range of 0 to " << (this->maxRegionsIn()-1) << "\n";
+  }
+}
 
+// PROTECTED METHODS BELOW
 /// Get the input regions for the 2x11 search window plus eta=0 neighbours
 void L1GctJetFinderBase::fetchCentreStripsInput() {
-  fetchScInput(m_sourceCards.at(1), 2, this->centralCol0());
-  fetchScInput(m_sourceCards.at(0), 3, this->centralCol0());
-  fetchNeighbourScInput(m_sourceCards.at(5), this->centralCol0());
+  fetchScInput(m_sourceCards.at(0), 2, this->centralCol0());
+  fetchScInput(m_sourceCards.at(1), 3, this->centralCol0());
+  fetchNeighbourScInput(m_sourceCards.at(2), this->centralCol0());
+}
+
+/// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
+void L1GctJetFinderBase::fetchEdgeStripsInput() {
+  fetchScInput(m_sourceCards.at(3), 2, (this->centralCol0()+2));
+  fetchScInput(m_sourceCards.at(4), 3, (this->centralCol0()+2));
+  fetchNeighbourScInput(m_sourceCards.at(5), (this->centralCol0()+2));
+  fetchScInput(m_sourceCards.at(6), 2, (this->centralCol0()-2));
+  fetchScInput(m_sourceCards.at(7), 3, (this->centralCol0()-2));
+  fetchNeighbourScInput(m_sourceCards.at(8), (this->centralCol0()-2));
 }
 
 /// Copy the input regions from one source card into the m_inputRegions vector
@@ -144,20 +194,6 @@ void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int 
       unsigned offset = col*COL_OFFSET;
       m_inputRegions.at(offset) = sourceCard->getRegions().at(scOutput);
     }
-  }
-}
-
-void L1GctJetFinderBase::setInputRegion(unsigned i, L1GctRegion region)
-{
-  if(i >= 0 && i < this->maxRegionsIn())
-  {
-    m_inputRegions.at(i) = region;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "L1GctJetFinderBase::setInputRegion() : In Jet Finder ID " << m_id << ", inputted region " 
-    << i << " is outside input index range of 0 to " << (this->maxRegionsIn()-1) << "\n";
   }
 }
 

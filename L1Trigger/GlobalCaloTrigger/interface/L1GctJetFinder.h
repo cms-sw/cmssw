@@ -43,6 +43,8 @@
  *  system. Eta runs from 0 at the Minus end HF to 21 at the Plus end.
  *  Phi is defined in 20-degree bins with bin centre in CMS coordinate
  *  system at (bin number)*20 degrees.
+ *
+ *  Modified to use L1GctJetFinderBase class by Greg Heath, June 2006.
  *  
  */
 /*
@@ -86,7 +88,7 @@ private:
   static const int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
-  void fetchEdgeStripsInput();
+  /// Here is the TDR 3x3 sliding window jet finder algorithm
   void findJets();  
 
   /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.

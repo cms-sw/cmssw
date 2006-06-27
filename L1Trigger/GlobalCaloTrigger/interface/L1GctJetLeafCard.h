@@ -30,6 +30,14 @@ public:
                    
   ~L1GctJetLeafCard();
 
+  /// set pointers to neighbours - needed to complete the setup
+  void setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours);
+
+  /// Check setup is Ok
+  bool gotNeighbourPointers() const { return (m_jetFinderA->gotNeighbourPointers() &&
+					      m_jetFinderB->gotNeighbourPointers() &&
+					      m_jetFinderC->gotNeighbourPointers()); }
+
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
 
@@ -77,9 +85,13 @@ private:
   L1GctJetFinder* m_jetFinderA;  ///< lowest jetFinder in phi
   L1GctJetFinder* m_jetFinderB;  ///< middle jetFinder in phi
   L1GctJetFinder* m_jetFinderC;  ///< highest jetFinder in phi
+  
+  /// Remember whether the neighbour pointers have been stored
+  bool m_gotNeighbourPointers;
 
   // pointers to data source
   std::vector<L1GctSourceCard*> m_sourceCards;
+  
   // internal data (other than jets)
 
   int phiPosition;

@@ -6,7 +6,7 @@
 using namespace std;
 
 //DEFINE STATICS
-// const unsigned int L1GctJetFinder::MAX_REGIONS_IN = 12*L1GctJetFinder::N_COLS;
+// const unsigned int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinder::N_COLS;
 const unsigned int L1GctJetFinder::MAX_REGIONS_IN = (((L1GctMap::N_RGN_ETA)/2)+1)*L1GctJetFinder::N_COLS;
 
 const int L1GctJetFinder::N_COLS = 4;
@@ -16,7 +16,7 @@ L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
                                L1GctJetEtCalibrationLut* jetEtCalLut):
   L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
 {
-  m_inputRegions.resize(maxRegionsIn());
+  this->reset();
 }
 
 L1GctJetFinder::~L1GctJetFinder()
@@ -25,6 +25,7 @@ L1GctJetFinder::~L1GctJetFinder()
 
 ostream& operator << (ostream& os, const L1GctJetFinder& algo)
 {
+  os << "===L1GctTdrJetFinder===" << endl;
   const L1GctJetFinderBase* temp = &algo;
   os << *temp;
   return os;
@@ -34,15 +35,6 @@ void L1GctJetFinder::fetchInput()
 {
   fetchCentreStripsInput();
   fetchEdgeStripsInput();
-}
-
-void L1GctJetFinder::fetchEdgeStripsInput() {
-  fetchScInput(m_sourceCards.at(3), 2, -1);
-  fetchScInput(m_sourceCards.at(2), 3, -1);
-  fetchNeighbourScInput(m_sourceCards.at(4), -1);
-  fetchScInput(m_sourceCards.at(8), 2, this->nCols());
-  fetchScInput(m_sourceCards.at(7), 3, this->nCols());
-  fetchNeighbourScInput(m_sourceCards.at(6), this->nCols());
 }
 
 void L1GctJetFinder::process() 

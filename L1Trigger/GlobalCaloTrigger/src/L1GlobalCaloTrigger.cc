@@ -296,58 +296,57 @@ void L1GlobalCaloTrigger::build() {
   // Jet leaf cards
   vector<L1GctSourceCard*> jetSourceCards(15);
 
-   // Jet Leaf cards
-  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    for (int j=0; j<6; j++) {
+  // Jet Leaf cards
+  for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
+    // Define local constant for ease of typing
+    static const int NL = N_JET_LEAF_CARDS/2;
+    // neighbour leaf cards
+    int nlc = (jlc+NL) % N_JET_LEAF_CARDS;         // The neighbour across the eta=0 boundary
+    int jup = (NL*(jlc/NL)) + ((jlc+1)%NL);        // The adjacent leaf in increasing phi direction
+    int jdn = (NL*(jlc/NL)) + ((jlc+(NL-1))%NL);   // The adjacent leaf in decreasing phi direction
+    int nup = (jup+NL) % N_JET_LEAF_CARDS;         // The leaf across eta=0 and increasing phi
+    int ndn = (jdn+NL) % N_JET_LEAF_CARDS;         // The leaf across eta=0 and decreasing phi
+    // Initialise index for counting SourceCards for this JetLeafCard
+    int sc = 0;
+    // Each Leaf card contains three jetFinders
+    for (int jf=0; jf<3; jf++) {
       // Source card numbering:
       // 3*i+1 cover the endcap and HF regions
       // 3*i+2 cover the barrel regions
       //
-      // In the Leaf card and JetFinder, the even-numbered
-      // inputs are the barrel regions and the odd-numbered
-      // regions the endcap and HF
-      int k = 3*(j/2) - (j%2) + 2;
-      jetSourceCards.at(j)=theSourceCards.at((i*9+k));
-      // Neighbour connections
-      int iup = (i*3+3) % 9;
-      int idn = (i*3+8) % 9;
-      int ii, i0, i1, i2, i3, i4, i5;
-      if (i<3) {
-	ii = iup;
-	i0 = idn;
-	// Remaining connections are the ones across the eta-0 boundary
-	i1 = idn+9;
-	i2 = i*3+9;
-	i3 = i*3+10;
-	i4 = i*3+11;
-	i5 = iup+9;
-      } else {
-	ii = iup+9;
-	i0 = idn + 9;
-	// Remaining connections are the ones across the eta-0 boundary
-	i1 = idn;
-	i2 = i*3-9;
-	i3 = i*3-8;
-	i4 = i*3-7;
-	i5 = iup;
-      }
-      // Leaf card inputs 6-9 are the neighbours in phi,
-      // taking account of wraparound at phi=0
-      jetSourceCards.at(6) = theSourceCards.at(ii*3+2);
-      jetSourceCards.at(7) = theSourceCards.at(ii*3+1);
-      jetSourceCards.at(8) = theSourceCards.at(i0*3+2);
-      jetSourceCards.at(9) = theSourceCards.at(i0*3+1);
-      // The remaining connections are those for the eta-0
-      // regions from the other wheel and may change
-      jetSourceCards.at(10)= theSourceCards.at(i1*3+2);
-      jetSourceCards.at(11)= theSourceCards.at(i2*3+2);
-      jetSourceCards.at(12)= theSourceCards.at(i3*3+2);
-      jetSourceCards.at(13)= theSourceCards.at(i4*3+2);
-      jetSourceCards.at(14)= theSourceCards.at(i5*3+2);
-      //
-      
+      // Three source cards for each jetFinder:
+      // First is endcap source card
+      jetSourceCards.at(sc++) = theSourceCards.at((jlc*9) + (3*jf) + 1);
+      // Second is barrel source card
+      jetSourceCards.at(sc++) = theSourceCards.at((jlc*9) + (3*jf) + 2);
+      // Third is the barrel source card that supplies
+      // data from across the eta=0 boundary
+      jetSourceCards.at(sc++) = theSourceCards.at((nlc*9) + (3*jf) + 2);
     }
-    theJetLeafCards.at(i) = new L1GctJetLeafCard(i,i % 3,jetSourceCards, m_jetEtCalLut);
+    // Neighbour connections
+    jetSourceCards.at(sc++)=theSourceCards.at((jup*9+1));
+    jetSourceCards.at(sc++)=theSourceCards.at((jup*9+2));
+    jetSourceCards.at(sc++)=theSourceCards.at((nup*9+2));
+    jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+7));
+    jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+8));
+    jetSourceCards.at(sc++)=theSourceCards.at((ndn*9+8));
+
+    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, m_jetEtCalLut);
+  }
+
+  //Link jet leaf cards together
+  vector<L1GctJetLeafCard*> neighbours(2);
+  for (int jlc=0 ; jlc<N_JET_LEAF_CARDS/2; jlc++) {
+    // Define local constant for ease of typing
+    static const int NL = N_JET_LEAF_CARDS/2;
+    int nlc = (jlc+1)%NL;
+    int mlc = (jlc+(NL-1))%NL;
+    neighbours.at(0) = theJetLeafCards.at(mlc);
+    neighbours.at(1) = theJetLeafCards.at(nlc);
+    theJetLeafCards.at(jlc)->setNeighbourLeafCards(neighbours);
+    neighbours.at(0) = theJetLeafCards.at(NL+mlc);
+    neighbours.at(1) = theJetLeafCards.at(NL+nlc);
+    theJetLeafCards.at(NL+jlc)->setNeighbourLeafCards(neighbours);
   }
 
   // EM leaf cards  
