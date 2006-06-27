@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/04/10 12:30:44 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/24 17:21:38 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -139,43 +139,57 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
   if ( folder == "Occupancies/Noise" ||
        folder == "Occupancies/Signal" ||
        folder == "Occupancies/AfterPulse" ) {
-    (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
-					 dtLayer.station(),
-					 dtLayer.sector(),
-					 dtLayer.superlayer(),
-					 dtLayer.layer()).rawId())] = 
+    (digiHistos[histoTag])[DTLayerId(dtLayer.wheel(),
+				     dtLayer.station(),
+				     dtLayer.sector(),
+				     dtLayer.superlayer(),
+				     dtLayer.layer()).rawId()] = 
       dbe->book1D(histoName,histoName,nWires,0,nWires);
   
   }
 
   if ( folder == "TimeBoxes") {
     if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
-      (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
-					   dtLayer.station(),
-					   dtLayer.sector(),
-					   dtLayer.superlayer(),
-					   dtLayer.layer()).rawId())] = 
+      (digiHistos[histoTag])[DTLayerId(dtLayer.wheel(),
+				       dtLayer.station(),
+				       dtLayer.sector(),
+				       dtLayer.superlayer(),
+				       dtLayer.layer()).rawId()] = 
 	dbe->book1D(histoName,histoName, 2000, 0, 10000);
       
     }    
     else {
-      (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
-					   dtLayer.station(),
-					   dtLayer.sector(),
-					   dtLayer.superlayer(),
-					   dtLayer.layer()).rawId())] = 
+      (digiHistos[histoTag])[DTLayerId(dtLayer.wheel(),
+				       dtLayer.station(),
+				       dtLayer.sector(),
+				       dtLayer.superlayer(),
+				       dtLayer.layer()).rawId()] = 
 	dbe->book1D(histoName,histoName, 
 		    2*tMax/parameters.getUntrackedParameter<int>("timeBoxGranularity",1), tTrig-tMax, tTrig+2*tMax);
     }
   }
 
   if ( folder == "CathodPhotoPeaks" && !parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
-    (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
-					 dtLayer.station(),
-					 dtLayer.sector(),
-					 dtLayer.superlayer(),
-					 dtLayer.layer()).rawId())] = 
+    (digiHistos[histoTag])[DTLayerId(dtLayer.wheel(),
+				     dtLayer.station(),
+				     dtLayer.sector(),
+				     dtLayer.superlayer(),
+				     dtLayer.layer()).rawId()] = 
       dbe->book1D(histoName,histoName,500,0,1000);
+  }
+
+  /// FIXME: patch to provide tTrig to the Client. TO BE REMOVED once the ES will be accesible
+  histoName = histoTag 
+    + "_W" + wheel.str() 
+    + "_St" + station.str() 
+    + "_Sec" + sector.str() 
+    + "_SL" + superLayer.str();
+  if ( folder == "tTrigRef" && !parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+    (digiHistos[histoTag])[DTSuperLayerId(dtLayer.wheel(),
+					  dtLayer.station(),
+					  dtLayer.sector(),
+					  dtLayer.superlayer()).rawId()] = 
+      dbe->book1D(histoName,histoName,10000,0,10000);
   }
 
 }
@@ -199,7 +213,8 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 
       // for clearness..
-      int index = ((*dtLayerId_It).first).rawId();
+      uint32_t index = ((*dtLayerId_It).first).rawId();
+      uint32_t indexSL = ((*dtLayerId_It).first).superlayerId().rawId();
 
       if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
 	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
@@ -326,8 +341,19 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  }
 	}
        
-      }
 
+	// Fake tTrig histo
+	if (digiHistos[string("tTrigRef")].find(indexSL) != 
+	      digiHistos[string("tTrigRef")].end()) {
+	    (digiHistos.find(string("tTrigRef"))->second).find(indexSL)->second->Fill(tTrig);
+	} else {
+	  bookHistos( (*dtLayerId_It).first, string("tTrigRef"), string("tTrigRef") );
+	  cout<<"[DTDigiTask]::analyze()-DEBUG 1"<<endl;
+	  (digiHistos.find(string("tTrigRef"))->second).find(indexSL)->second->Fill(tTrig);
+	  cout<<"[DTDigiTask]::analyze()-DEBUG 2"<<endl;
+	} 
+
+      }
     }
   }
   

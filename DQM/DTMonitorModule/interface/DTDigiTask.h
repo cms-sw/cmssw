@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/02/21 19:04:13 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/24 17:21:37 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -31,6 +31,7 @@
 
 class DTGeometry;
 class DTLayerId;
+class DTSuperLayerId;
 class DTTtrig;
 class DTT0;
 
@@ -86,7 +87,7 @@ private:
   string outputFile;
   ofstream logFile;
 
-  map<string, map<int, MonitorElement*> > digiHistos;
+  map<string, map<uint32_t, MonitorElement*> > digiHistos;
 
   
 };
