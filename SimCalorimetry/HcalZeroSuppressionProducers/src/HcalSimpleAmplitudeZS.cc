@@ -11,6 +11,7 @@ using namespace std;
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -29,7 +30,7 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
     subdet_=HcalForward;
     produces<HFDigiCollection>();
   } else {
-    std::cout << "HcalSimpleAmplitudeZS is not associated with a specific subdetector!" << std::endl;
+    throw cms::Exception("Configuration") << "HcalSimpleAmplitudeZS is not associated with a specific subdetector!";
   }       
   
 }
@@ -53,7 +54,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // run the algorithm
     algo_.suppress(*conditions,*(digi.product()),*zs);
 
-    LogDebug("HcalZeroSuppression") << "Suppression input " << digi->size() << " digis, output " << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);
@@ -66,7 +67,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // run the algorithm
     algo_.suppress(*conditions,*(digi.product()),*zs);
 
-    LogDebug("HcalZeroSuppression") << "Suppression input " << digi->size() << " digis, output " << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HO) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);    
@@ -79,7 +80,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     // run the algorithm
     algo_.suppress(*conditions,*(digi.product()),*zs);
 
-    LogDebug("HcalZeroSuppression") << "Suppression input " << digi->size() << " digis, output " << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HF) input " << digi->size() << " digis, output " << zs->size() << " digis";
 
     // return result
     e.put(zs);     
