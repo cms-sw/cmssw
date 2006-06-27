@@ -4,6 +4,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+
+using namespace reco;
+
 namespace {
   namespace {
     CaloJetCollection o1;

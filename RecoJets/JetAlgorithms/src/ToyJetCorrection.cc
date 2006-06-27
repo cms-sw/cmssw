@@ -8,6 +8,7 @@
 #include "RecoJets/JetAlgorithms/interface/ToyJetCorrection.h"
 
 using namespace std;
+using namespace reco;
 
 CaloJet ToyJetCorrection::applyCorrection (const CaloJet& fJet) {
   Jet::LorentzVector newP4 (fJet.px()*mScale, fJet.py()*mScale, 

@@ -6,13 +6,13 @@
     Mar 2, 2006
 */
 
-class CaloJet;
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
 
 class ToyJetCorrection {
  public:
   ToyJetCorrection (double fScale = 1.) : mScale (fScale) {}
   ~ToyJetCorrection () {}
-  CaloJet applyCorrection (const CaloJet& fJet);
+  reco::CaloJet applyCorrection (const reco::CaloJet& fJet);
  private:
   double mScale;
 };

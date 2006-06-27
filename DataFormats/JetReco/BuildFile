@@ -2,10 +2,12 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/Common>
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/RecoCandidate>
 <export>
  <lib name=DataFormatsJetReco>
  <use name=clhep>
  <use name=DataFormats/Math>
  <use name=DataFormats/Common>
  <use name=DataFormats/CaloTowers>
+ <use name=DataFormats/RecoCandidate>
 </export>

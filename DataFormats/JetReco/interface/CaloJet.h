@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.14 2006/05/24 00:40:43 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.15 2006/06/01 19:23:50 fedor Exp $
  ************************************************************/
 
 
@@ -27,6 +27,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 
+namespace reco {
 class CaloJet : public Jet {
  public:
   struct Specific {
@@ -75,8 +76,13 @@ class CaloJet : public Jet {
   CaloJet() {}
   
   /** Constructor from values*/
+  CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
+	  const std::vector<CaloTowerDetId>& fIndices);
+
+  /** backward compatible, vertex=(0,0,0) */
   CaloJet(const LorentzVector& fP4, const Specific& fSpecific, 
 	  const std::vector<CaloTowerDetId>& fIndices);
+
   
   virtual ~CaloJet() {};
   
@@ -109,13 +115,19 @@ class CaloJet : public Jet {
   
   const std::vector<CaloTowerDetId>& getTowerIndices() const {return m_towerIdxs;};
   const Specific& getSpecific () const {return m_specific;}
-  
+
+  /// Polymorphic clone
+  virtual CaloJet* clone () const;
   
  private:
+  /// Polymorphic overlap
+  virtual bool overlap( const Candidate & ) const;
+  
   // Data members
   /** List of CaloTower IDs the Jet consists of*/
   std::vector<CaloTowerDetId> m_towerIdxs;
   //Variables specific to to the CaloJet class
   Specific m_specific;
 };
+}
 #endif

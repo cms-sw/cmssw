@@ -1,7 +1,7 @@
 /* Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id: ToyJetCorrector.cc,v 1.2 2006/03/08 20:34:20 fedor Exp $
+    $Id: ToyJetCorrector.cc,v 1.3 2006/03/31 20:57:52 fedor Exp $
 */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -13,6 +13,7 @@
 #include "RecoJets/JetProducers/interface/ToyJetCorrector.h"
 
 using namespace std;
+using namespace reco;
 
 namespace cms
 {

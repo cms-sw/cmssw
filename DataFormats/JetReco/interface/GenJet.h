@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.4 2006/05/24 00:40:43 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.5 2006/06/01 19:23:50 fedor Exp $
  ************************************************************/
 
 
@@ -20,6 +20,7 @@
 
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
 
+namespace reco {
 class GenJet : public Jet {
 public:
   struct Specific {
@@ -43,6 +44,10 @@ public:
   GenJet() {}
 
   /** Constructor from values*/
+  GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
+	 const std::vector<int>& fBarcodes);
+
+  /** backward compatible, vertex=(0,0,0) */
   GenJet(const LorentzVector& fP4, const Specific& fSpecific, 
 	 const std::vector<int>& fBarcodes);
 
@@ -62,11 +67,18 @@ public:
   const Specific& getSpecific () const {return m_specific;}
 
   
+  /// Polymorphic clone
+  virtual GenJet* clone () const;
+  
 private:
+  /// Polymorphic overlap
+  virtual bool overlap( const Candidate & ) const;
+  
   // Data members
   /** List of MC particles the Jet consists of*/
   std::vector<int> m_barcodes;
   //Variables specific to to the GenJet class
   Specific m_specific;
 };
+}
 #endif
