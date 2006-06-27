@@ -25,11 +25,12 @@ namespace stor
     void join();
 
     const edm::ProductRegistry& getRegistry();
+    edm::ServiceToken getToken() { return ep_.getToken();}
     HLTInfo* getInfo() { return info_; }
 
   private:
     EPRunner(const EPRunner&);
-	EPRunner& operator=(const EPRunner&);
+    EPRunner& operator=(const EPRunner&);
 
     static void run(EPRunner*);
     void dowork();

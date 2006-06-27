@@ -50,6 +50,7 @@ namespace stor
     void push_back(edm::EventMsg msg) 
       { collector_->esbuf_push_back(msg); }
     void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
+    edm::ServiceToken getToken() { return ep_runner_->getToken();}
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);
