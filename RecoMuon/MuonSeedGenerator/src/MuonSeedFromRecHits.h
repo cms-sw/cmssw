@@ -31,7 +31,6 @@ class MuonSeedFromRecHits {
 
   public:
   MuonSeedFromRecHits(){
-    debug = true;
   }
 
   void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
@@ -52,7 +51,6 @@ class MuonSeedFromRecHits {
 
   private:
   RecHitContainer theRhits;
-  bool debug;
 };
 
 #endif

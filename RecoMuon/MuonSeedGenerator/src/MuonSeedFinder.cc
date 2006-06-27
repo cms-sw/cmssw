@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 08:31:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/21 17:54:37 $
+ *  $Revision: 1.8 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -31,6 +31,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iomanip>
 
@@ -41,11 +42,12 @@ MuonSeedFinder::MuonSeedFinder(){
   // FIXME put it in a pSet
   // theMinMomentum = pset.getParameter<double>("EndCapSeedMinPt");  //3.0
   theMinMomentum = 3.0;
-  debug = true;
 }
 
 
 vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) const {
+
+  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
 
   //  MuonDumper debug;
   vector<TrajectorySeed> theSeeds;
@@ -62,8 +64,8 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
 
   if ( num_bar ) {
-    if ( debug ) // 5
-      cout << "MuSeedGenByRecHits: Barrel Seeds " << num_bar << endl;
+    LogDebug(metname)
+      << "Barrel Seeds " << num_bar << endl;
     theSeeds.push_back(barrel.seed(eSetup));
  
     //if ( debug ) //2
@@ -73,7 +75,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
   
   // 5
-  if ( debug ) cout << "Endcap Seed" << endl;
+  else LogDebug(metname) << "Endcap Seed" << endl;
 
   //Search ME1  ...
   MuonTransientTrackingRecHit *me1=0, *meit=0;
@@ -150,6 +152,8 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
+  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
   
@@ -159,12 +163,22 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
 
   // seed error = chamber dimension
   AlgebraicSymMatrix mat(5,0) ;
-  mat[1][1] = (300./700.)*(300./700.)/12.;
-  mat[2][2] = (300./700.)*(300./700.)/12.;
-  mat[3][3] = 1.*1.;
-  mat[4][4] = 6.*6.;
 
- // We want pT but it's not in RecHit interface, so we've put it within this class
+  // mat[1][1] = (300./700.)*(300./700.)/12.;
+  // mat[2][2] = (300./700.)*(300./700.)/12.;
+  // mat[3][3] = 1.*1.;
+  // mat[4][4] = 6.*6.;
+
+  // this perform H.T() * parErr * H, which is the projection of the 
+  // the measurement error (rechit rf) to the state error (TSOS rf)
+  // Legenda:
+  // H => is the 4x5 projection matrix
+  // parError the 4x4 parameter error matrix of the RecHit
+  
+  // FIXME Use this!!!!!!!!
+  mat = me->parametersError().similarityT( me->projectionMatrix() );
+  
+  // We want pT but it's not in RecHit interface, so we've put it within this class
   float momentum = computePt(me,&*field);
 
   // set minimum momentum for endcap seed
@@ -201,7 +215,7 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
   const FreeTrajectoryState state = *(tsos.freeState());
 
   MuonPatternRecoDumper debugDumper;
-  if ( debug ) debugDumper.dumpFTS(state);
+  debugDumper.dumpFTS(state,metname);
 
   float z=0;
   /// magic number: eta=1.479 correspond to upper corner of ME1/1
@@ -250,15 +264,13 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
 
     theSeeds.push_back(seed);
     
-    if ( debug ) {
-     cout<<"  Propag.oppositeToMomentum "<<endl;
-     debugDumper.dumpTSOS(trj);
-     cout << "=== Successfull propagation" << endl;  // +v
-    }
+    LogDebug(metname)<<"  Propag.oppositeToMomentum "<<endl;
+    debugDumper.dumpTSOS(trj,metname);
+    LogDebug(metname) << "=== Successfull propagation" << endl;  // +v
+    
     result=true;
   } else {
-    // 4
-    if ( debug )  cout << "Invalid propagation" << endl;
+    LogDebug(metname) << "Invalid propagation" << endl;
     result=false;
   }
   delete propagator;

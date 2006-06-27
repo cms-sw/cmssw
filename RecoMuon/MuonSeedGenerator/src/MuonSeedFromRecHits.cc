@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/06/16 08:32:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/21 17:48:52 $
+ *  $Revision: 1.6 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -26,6 +26,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -40,6 +41,8 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   double pt[8] = { 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 };
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
 
+  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+
   /// compute pts with vertex constraint
   computePtWithVtx(pt, spt);
 
@@ -47,24 +50,23 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   computePtWithoutVtx(pt, spt);
 
   // some dump...
-  if ( debug ) 
-    cout << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << endl 
-      << " Pt MB2 @vtx: " << pt[1] << " w: " << spt[1]<< endl ;
-  if ( debug ) 
-    cout << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< endl 
-      << " Pt MB3-MB1 " << pt[3] << " w: " << spt[3]<< endl 
-      << " Pt MB3-MB2 " << pt[4] << " w: " << spt[4]<< endl 
-      << " Pt MB4-MB1 " << pt[5] << " w: " << spt[5]<< endl 
-      << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< endl 
-      << " Pt MB4-MB3 " << pt[7] << " w: " << spt[7]<< endl  ;
-
+  LogDebug(metname) << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << endl 
+		    << " Pt MB2 @vtx: " << pt[1] << " w: " << spt[1]<< endl ;
+  
+  LogDebug(metname) << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< endl 
+		    << " Pt MB3-MB1 " << pt[3] << " w: " << spt[3]<< endl 
+		    << " Pt MB3-MB2 " << pt[4] << " w: " << spt[4]<< endl 
+		    << " Pt MB4-MB1 " << pt[5] << " w: " << spt[5]<< endl 
+		    << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< endl 
+		    << " Pt MB4-MB3 " << pt[7] << " w: " << spt[7]<< endl  ;
+  
   /// now combine all pt estimate
   float ptmean=0.;
   float sptmean=0.;
   computeBestPt(pt, spt, ptmean, sptmean);
   
-  if ( debug ) cout << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
-
+  LogDebug(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
+  
   return createSeed(ptmean, sptmean,eSetup);
 }
 
@@ -339,6 +341,9 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
                                            double* spt,
                                            float& ptmean,
                                            float& sptmean) const {
+
+  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+
   int nTotal=8;
   int igood=-1;
   for (int i=0;i<=7;i++) {
@@ -378,7 +383,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
         sptvtx = gsl_stats_wvariance_m (spt, 1, pt, 1, n, ptvtx);
         sptvtx = sqrt(sptvtx);
       }
-      if ( debug ) cout << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
+      LogDebug(metname) << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
         sptvtx << endl;
       
       // FIXME: temp hack
@@ -409,7 +414,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
         sptMB = gsl_stats_wvariance_m (&spt[2], 1, &pt[2], 1, n, ptMB);
         sptMB = sqrt(sptMB);
       }
-      if ( debug ) cout << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
+      LogDebug(metname) << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
         sptMB << endl;
     }
 
@@ -418,7 +423,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
     if((ptvtx+ptMB)!=0.0) ptpool=(ptvtx-ptMB)/(ptvtx+ptMB);
     bool fromvtx=true;
     if(fabs(ptpool)>0.2) fromvtx=false; 
-    if ( debug ) cout << "From vtx? " <<fromvtx << " ptpool "<< ptpool << endl;
+    LogDebug(metname) << "From vtx? " <<fromvtx << " ptpool "<< ptpool << endl;
 
     // now choose the "right" pt => weighted mean
     int n=0;
@@ -439,7 +444,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
       sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
       sptmean = sqrt(sptmean);
     }
-    if ( debug ) cout << " GSL Pt :" << ptmean << "+/-" << sptmean << endl;
+    LogDebug(metname) << " GSL Pt :" << ptmean << "+/-" << sptmean << endl;
 
     // Recompute mean with a cut at 3 sigma
     for ( int nm =0; nm<8; nm++ ){
@@ -450,13 +455,16 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
     ptmean = gsl_stats_wmean(sptTmp, 1, ptTmp, 1, n);
     sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
     sptmean = sqrt(sptmean);
-    if ( debug ) cout << " GSL recomp Pt :" << ptmean << "+/-" << sptmean << endl;
+    LogDebug(metname) << " GSL recomp Pt :" << ptmean << "+/-" << sptmean << endl;
   }
 }
 
 TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 					       float sptmean,
 					       const edm::EventSetup& eSetup) const{
+
+  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+  
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
 
@@ -489,32 +497,24 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   int charge=(int)(ptmean/fabs(ptmean));
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 
-  mat[1][1] = last->parametersError()[1][1];
-  mat[3][3] = last->parametersError()[0][0];
-  mat[1][3] = last->parametersError()[1][0];
-  mat[2][2] = last->parametersError()[1][1];
-  mat[4][4] = last->parametersError()[0][0];
-  mat[2][4] = last->parametersError()[1][0];
+  //   mat[1][1] = last->parametersError()[1][1];
+  //   mat[3][3] = last->parametersError()[0][0];
+  //   mat[1][3] = last->parametersError()[1][0];
+  //   mat[2][2] = last->parametersError()[1][1];
+  //   mat[4][4] = last->parametersError()[0][0];
+  //   mat[2][4] = last->parametersError()[1][0];
   
-//   if(last->dimension() == 4){
-//     mat[1][1] = last->parametersError()[0][0];
-//     mat[3][3] = last->parametersError()[2][2];
-//     mat[1][3] = last->parametersError()[1][0];
-//     mat[2][2] = last->parametersError()[1][1];
-//     mat[4][4] = last->parametersError()[3][3];
-
-//     // FIXME is it right?
-//     mat[1][2] = last->parametersError()[0][1];
-//     mat[1][3] = last->parametersError()[0][2];
-//     mat[1][4] = last->parametersError()[0][3];
-//     mat[2][3] = last->parametersError()[1][2];
-//     mat[2][4] = last->parametersError()[1][3];
-//     mat[3][4] = last->parametersError()[2][3];
-//   }
-//   //FIXME  else
+  // this perform H.T() * parErr * H, which is the projection of the 
+  // the measurement error (rechit rf) to the state error (TSOS rf)
+  // Legenda:
+  // H => is the 4x5 projection matrix
+  // parError the 4x4 parameter error matrix of the RecHit
 
 
+  // FIXME Use this!!!!!!!!
+  mat = last->parametersError().similarityT( last->projectionMatrix() );
 
+  
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
 
@@ -524,10 +524,10 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   const FreeTrajectoryState state = *(tsos.freeState());
 
-  if ( debug )
-    cout << " Before extr.: pos. :" << state.position() 
-	 <<" eta "<<state.position().eta()<<" phi "<<state.position().phi()<< endl;
-
+  
+  LogDebug(metname) << " Before extr.: pos. :" << state.position() 
+		    <<" eta "<<state.position().eta()<<" phi "<<state.position().phi()<< endl;
+  
   // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
   Surface::PositionType pos(0., 0., 0.);
   Surface::RotationType rot;
@@ -541,8 +541,9 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   if ( trj.isValid() ) {
     const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
 
-    if ( debug ) cout << " After extr.: pos. :" << e_state.position() 
-	   <<" eta "<<e_state.position().eta()<<" phi "<<e_state.position().phi()<< endl;
+    LogDebug(metname) << " After extr.: pos. :" << e_state.position() 
+		      <<" eta "<<e_state.position().eta()
+		      <<" phi "<<e_state.position().phi()<< endl;
     
     // Transform it in a TrajectoryStateOnSurface
     TrajectoryStateTransform tsTransform;
@@ -567,7 +568,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
     result = theSeed;
   } else {
-    if ( debug ) cout << " Extr. failed" << endl;
+    LogDebug(metname) << " Extr. failed" << endl;
   }
 
   return result;
