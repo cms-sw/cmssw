@@ -6,7 +6,9 @@
  
 // user include files
 #include "Validation/Geometry/interface/MaterialBudgetTree.h"
+#include "Validation/Geometry/interface/MaterialBudgetFormat.h"
 #include "Validation/Geometry/interface/MaterialBudgetHistos.h"
+#include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
@@ -17,45 +19,54 @@
 using namespace std;
 
 class BeginOfTrack;
+class BeginOfRun;
 class G4Step;
 class EndOfTrack;
 class G4StepPoint;
+class G4VTouchable;
 
 class MaterialBudgetAction : public SimProducer, 
+			     public Observer<const BeginOfRun*>,
 			     public Observer<const BeginOfTrack*>,
 			     public Observer<const G4Step*>,
 			     public Observer<const EndOfTrack*>
 {
-   public:
-      MaterialBudgetAction(const edm::ParameterSet&);
-      virtual ~MaterialBudgetAction();
+ public:
+  MaterialBudgetAction(const edm::ParameterSet&);
+  virtual ~MaterialBudgetAction();
+  
+  void produce(edm::Event&, const edm::EventSetup&);
+  
+  
+ private:
+  MaterialBudgetAction(const MaterialBudgetAction&); // stop default
+  
+  const MaterialBudgetAction& operator=(const MaterialBudgetAction&); // stop default
+  
+  void update(const BeginOfRun*);
+  void update(const BeginOfTrack*);
+  void update(const G4Step*);
+  void update(const EndOfTrack*);
+  
+  void initRun();
+  void processEvent( uint nEv );
+  void endRun();
+  
+  bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
+  bool StopAfterProcess( const G4Step* aStep );
 
-      void produce(edm::Event&, const edm::EventSetup&);
-
-
-   private:
-      MaterialBudgetAction(const MaterialBudgetAction&); // stop default
-
-      const MaterialBudgetAction& operator=(const MaterialBudgetAction&); // stop default
-
-      void update(const BeginOfTrack*);
-      void update(const G4Step*);
-      void update(const EndOfTrack*);
-
-      void initRun();
-      void processEvent( uint nEv );
-      void endRun();
-   
-   private:
+ private:
   void save( const G4Step* aStep );
   std::string getSubDetectorName( G4StepPoint* aStepPoint );
   std::string getPartName( G4StepPoint* aStepPoint );
   MaterialBudgetData* theData;
   MaterialBudgetTree* theTree;
-  MaterialBudgetHistos* theHistos;
+  MaterialBudgetFormat* theHistos;
   MaterialBudgetTxt* theTxt;
   bool saveToTxt, saveToTree, saveToHistos;
 
+  std::vector<G4String> theVolumeList; 
+  G4String theProcessToStop;
 };
 
 #endif

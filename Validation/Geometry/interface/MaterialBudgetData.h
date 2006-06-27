@@ -23,6 +23,36 @@ public:
  public:
   float getTotalMB() const {
     return theTotalMB; }
+  // rr
+  float getSupportFractionMB() const {
+    return theSupportFractionMB; }
+  float getSensitiveFractionMB() const {
+    return theSensitiveFractionMB; }
+  float getCablesFractionMB() const {
+    return theCablesFractionMB; }
+  float getCoolingFractionMB() const {
+    return theCoolingFractionMB; }
+  float getElectronicsFractionMB() const {
+    return theElectronicsFractionMB; }
+  float getOtherFractionMB() const {
+    return theOtherFractionMB; }
+  float getAirFractionMB() const {
+    return theAirFractionMB; }
+  float getSupportMB() const {
+    return theSupportMB; }
+  float getSensitiveMB() const {
+    return theSensitiveMB; }
+  float getCablesMB() const {
+    return theCablesMB; }
+  float getCoolingMB() const {
+    return theCoolingMB; }
+  float getElectronicsMB() const {
+    return theElectronicsMB; }
+  float getOtherMB() const {
+    return theOtherMB; }
+  float getAirMB() const {
+    return theAirMB; }
+  // rr
   float getEta() const {
     return theEta; }
   float getPhi() const {
@@ -64,6 +94,11 @@ public:
 
  private:
   float theTotalMB, theEta, thePhi;
+  // rr
+  float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
+    theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
+  float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
+  // rr
   int theStepN;
   float *theX, *theY, *theZ;
   float *theDmb;

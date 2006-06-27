@@ -39,8 +39,8 @@ private:
   float t_X[MAXSTEPS];
   float t_Y[MAXSTEPS];
   float t_Z[MAXSTEPS];
-  int t_VoluID[MAXSTEPS];
-  int t_MateID[MAXSTEPS];
+  float t_VoluID[MAXSTEPS];
+  float t_MateID[MAXSTEPS];
 
 };
 
