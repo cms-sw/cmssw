@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/06/14 17:47:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/21 17:36:51 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -20,6 +20,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
+class MuonTrackLoader;
 
 class MuonTrackFinder{ 
   
@@ -30,13 +31,18 @@ class MuonTrackFinder{
  public:
   
   /// constructor
-  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder);
+  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
+		  MuonTrackLoader* concreteMuonTrackLoader); 
   
   /// Destructor
   virtual ~MuonTrackFinder();
   
   /// Reconstruct tracks
-  std::auto_ptr<reco::TrackCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&);
+  void reconstruct(const edm::Handle<TrajectorySeedCollection>&,
+		   edm::Event&,
+		   const edm::EventSetup&);
+
+ private:
 
   /// Percolate the Event Setup
   void setES(const edm::EventSetup&);
@@ -44,13 +50,16 @@ class MuonTrackFinder{
   /// Percolate the Event Setup
   void setEvent(const edm::Event&);
 
+  /// Convert the trajectories into tracks and load them in to the event
+  void load(const TrajectoryContainer &trajectories, edm::Event &event);
+
  private:
 
   MuonTrajectoryBuilder* theTrajBuilder; // It isn't the same as in ORCA!!Now it is a base class
 
   MuonTrajectoryCleaner* theTrajCleaner;
 
-  std::auto_ptr<reco::TrackCollection> convert(TrajectoryContainer&) const;
+  MuonTrackLoader *theTrackLoader;
 
  protected:
   
