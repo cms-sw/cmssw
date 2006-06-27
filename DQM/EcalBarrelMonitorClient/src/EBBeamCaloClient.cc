@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/06/26 18:12:46 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/26 20:15:05 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -441,7 +441,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Beam</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">BeamCalo</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
 //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;

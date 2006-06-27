@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/27 12:43:26 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/27 14:03:04 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -646,7 +646,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Beam</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">BeamHodo</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
 //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
@@ -658,6 +658,111 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
+
+  const int csize = 250;
+  
+  const double histMax = 1.e15;
+  
+  int pCol3[3] = { 2, 3, 5 };
+  
+  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
+  for ( int i = 0; i < 68; i++ ) {
+    int a = 2 + ( i/4 ) * 5;
+    int b = 2 + ( i%4 ) * 5;
+    dummy.Fill( a, b, i+1 );
+  } 
+  dummy.SetMarkerSize(2);
+
+  string imgNameP, imgNameR, imgName, meName;
+
+  TCanvas* cP = new TCanvas("cP", "Temp", csize, csize);
+
+  TH2F* obj2f;
+  TH1F* obj1f;
+  TProfile2D* objp;
+
+  for (int i=0; i<4; i++) {
+
+    imgNameP = "";
+
+    obj1f = ho01_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    obj1f = hr01_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+    
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameR = meName + ".png";
+      imgName = htmlDir + imgNameR;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    if ( imgNameR.size() != 0 )
+      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameR << "\"></td>" << endl;
+    else
+      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+  }
 
   htmlFile.close();
 
