@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/23 07:02:26 $
- * $Revision: 1.10 $
+ * $Date: 2006/06/23 14:49:30 $
+ * $Revision: 1.12 $
  * \author A. Ghezzi
  *
  */
@@ -44,10 +44,10 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   meBBCaloMaxEneCry_ = 0;
   TableMoving_ = 0;
 
-  for(int u=0;u<1701;u++){
-    meBBCaloE3x3Cry_[u]=0;
-    meBBCaloE1Cry_[u]=0;
-  }
+//   for(int u=0;u<1701;u++){
+//     meBBCaloE3x3Cry_[u]=0;
+//     meBBCaloE1Cry_[u]=0;
+//   }
   // LogDebug("EBBeamCaloTask") << " 2 construct  ";
   
 
@@ -122,16 +122,16 @@ void EBBeamCaloTask::setup(void){
 
     }
     
-    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
-    for(int u=0; u< 1701;u++){
-      sprintf(histo, "EBBCT rec Ene sum 3x3 cry: %04d",u);
-      meBBCaloE3x3Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
+//     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     for(int u=0; u< 1701;u++){
+//       sprintf(histo, "EBBCT rec Ene sum 3x3 cry: %04d",u);
+//       meBBCaloE3x3Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
 
-      sprintf(histo, "EBBCT rec Energy1 cry: %04d",u);
-      meBBCaloE1Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
-    }
+//       sprintf(histo, "EBBCT rec Energy1 cry: %04d",u);
+//       meBBCaloE1Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
+//     }
     
-    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+//     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     sprintf(histo, "EBBCT readout crystals");
     meBBCaloCryRead_  =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
@@ -219,15 +219,15 @@ void EBBeamCaloTask::cleanup(void){
       meBBCaloEneMoving_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
-    for(int u=0; u< 1701;u++){ 
-      if ( meBBCaloE3x3Cry_[u] ) dbe->removeElement( meBBCaloE3x3Cry_[u]->getName() );
-      meBBCaloE3x3Cry_[u] = 0;
-      if ( meBBCaloE1Cry_[u] ) dbe->removeElement( meBBCaloE1Cry_[u]->getName() );
-      meBBCaloE1Cry_[u] = 0;
-    }
+//     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     for(int u=0; u< 1701;u++){ 
+//       if ( meBBCaloE3x3Cry_[u] ) dbe->removeElement( meBBCaloE3x3Cry_[u]->getName() );
+//       meBBCaloE3x3Cry_[u] = 0;
+//       if ( meBBCaloE1Cry_[u] ) dbe->removeElement( meBBCaloE1Cry_[u]->getName() );
+//       meBBCaloE1Cry_[u] = 0;
+//     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+//     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     if ( meBBCaloCryRead_ ) dbe->removeElement( meBBCaloCryRead_->getName() );
     meBBCaloCryRead_ = 0;
     if ( meBBCaloCryReadMoving_ ) dbe->removeElement( meBBCaloCryReadMoving_->getName() );
@@ -607,10 +607,10 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   if (!tb_moving){
     meBBCaloE3x3_->Fill(ene3x3);
-    if( cry_in_beam > 0 && cry_in_beam < 1701){
-      meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
-      meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
-    }
+//     if( cry_in_beam > 0 && cry_in_beam < 1701){
+//       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
+//       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
+//     }
     meBBCaloMaxEneCry_->Fill(ieM,ipM);
   }
   else{meBBCaloE3x3Moving_->Fill(ene3x3);}

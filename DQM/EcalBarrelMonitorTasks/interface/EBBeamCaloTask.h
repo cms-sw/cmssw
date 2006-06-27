@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/06/17 10:07:47 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/22 18:43:27 $
+ * $Revision: 1.7 $
  * \author A. Ghezzi
  *
 */
@@ -95,8 +95,8 @@ MonitorElement* meBBNumCaloCryRead_;
 MonitorElement* meBBCaloE3x3_;
 MonitorElement* meBBCaloE3x3Moving_;
 
-MonitorElement* meBBCaloE3x3Cry_[1701];
-MonitorElement* meBBCaloE1Cry_[1701];
+/* MonitorElement* meBBCaloE3x3Cry_[1701]; */
+/* MonitorElement* meBBCaloE1Cry_[1701]; */
 
 MonitorElement* meBBCaloCryOnBeam_;
 MonitorElement* meBBCaloMaxEneCry_;
