@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.6 2006/06/24 01:46:36 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.7 2006/06/27 16:24:54 fischler Exp $
 //
 // Change log
 //
@@ -92,6 +92,12 @@ MessageLogger( ParameterSet const & iPS
 
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
+
+  iRegistry.watchPreModuleConstruction(this,&MessageLogger::preModuleConstruction);
+  iRegistry.watchPostModuleConstruction(this,&MessageLogger::postModuleConstruction);
+
+   iRegistry.watchPreSourceConstruction(this,&MessageLogger::preSourceConstruction);
+   iRegistry.watchPostSourceConstruction(this,&MessageLogger::postSourceConstruction);
 
   iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
   iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
