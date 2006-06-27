@@ -119,7 +119,7 @@ std::vector<const Trajectory*>  OutInConversionTrackFinder::tracks(const Traject
 
 
  
-  std::sort( tmp.begin(), tmp.end(), ByNumOfHits() ); 
+  //  std::sort( tmp.begin(), tmp.end(), ByNumOfHits() ); 
  // precomputed_value_sort( tmp.begin(), tmp.end(), ExtractNumOfHits<Trajectory> ); 
 
   if ( tmp.size() ) {
