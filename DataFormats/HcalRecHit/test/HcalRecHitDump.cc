@@ -14,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2006/01/25 00:57:14 $
-  $Revision: 1.3 $
+  $Date: 2006/01/25 02:10:24 $
+  $Revision: 1.4 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -28,18 +28,16 @@ namespace cms {
   }
   
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    std::vector<edm::Handle<HBHERecHitCollection> > hbhe;
     std::vector<edm::Handle<HORecHitCollection> > ho;
     std::vector<edm::Handle<HFRecHitCollection> > hf;
     edm::Handle<HcalSourcePositionData> spd;
 
     try {
-      e.getManyByType(hbhe);
+      std::vector<edm::Handle<HBHERecHitCollection> > colls;
+      e.getManyByType(colls);
       std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
-      for (i=hbhe.begin(); i!=hbhe.end(); i++) {
-	const HBHERecHitCollection& c=*(*i);
-	
-	for (HBHERecHitCollection::const_iterator j=c.begin(); j!=c.end(); j++) 
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
 	  cout << *j << std::endl;
       }
     } catch (...) {
@@ -47,12 +45,11 @@ namespace cms {
     }
     
     try {
-      e.getManyByType(hf);
+      std::vector<edm::Handle<HFRecHitCollection> > colls;
+      e.getManyByType(colls);
       std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-      for (i=hf.begin(); i!=hf.end(); i++) {
-	const HFRecHitCollection& c=*(*i);
-	
-	for (HFRecHitCollection::const_iterator j=c.begin(); j!=c.end(); j++) 
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
 	  cout << *j << std::endl;
       }
     } catch (...) {
@@ -60,17 +57,42 @@ namespace cms {
     }
     
     try {
-      e.getManyByType(ho);
+      std::vector<edm::Handle<HORecHitCollection> > colls;
+      e.getManyByType(colls);
       std::vector<edm::Handle<HORecHitCollection> >::iterator i;
-      for (i=ho.begin(); i!=ho.end(); i++) {
-	const HORecHitCollection& c=*(*i);
-	
-	for (HORecHitCollection::const_iterator j=c.begin(); j!=c.end(); j++) 
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
 	  cout << *j << std::endl;
       }
     } catch (...) {
       cout << "No HO RecHits." << endl;
     }
+
+    try {
+      std::vector<edm::Handle<HcalCalibRecHitCollection> > colls;
+      e.getManyByType(colls);
+      std::vector<edm::Handle<HcalCalibRecHitCollection> >::iterator i;
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (HcalCalibRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
+	  cout << *j << std::endl;
+      }
+    } catch (...) {
+      //      cout << "No Calib RecHits." << endl;
+    }
+
+    try {
+      std::vector<edm::Handle<ZDCRecHitCollection> > colls;
+      e.getManyByType(colls);
+      std::vector<edm::Handle<ZDCRecHitCollection> >::iterator i;
+      for (i=colls.begin(); i!=colls.end(); i++) {
+	for (ZDCRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
+	  cout << *j << std::endl;
+      }
+    } catch (...) {
+      //      cout << "No ZDC RecHits." << endl;
+    }
+
+
     try {
       e.getByType(spd);
       cout << *spd << std::endl;
