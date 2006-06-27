@@ -31,7 +31,7 @@ public:
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
   /// constructor for emulation : HF regions
-  L1CaloRegion(unsigned et, bool overFlow, unsigned crate, unsigned rgn);
+  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
 
   // constructor for unpacking
   L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn);

@@ -26,12 +26,13 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 }
 
 // constructor for emulation : HF regions
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, unsigned crate, unsigned rgn)
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn)
 {
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
     (et & 0x3ff) | 
-    ((checkOvF) ? 0x400  : 0x0);
+    ((checkOvF) ? 0x400  : 0x0) |
+    ((fineGrain)  ? 0x800  : 0x0);
 }
 
 
