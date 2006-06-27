@@ -162,8 +162,8 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
 
   std::string poolName = "SMi2oPool";
   // Set committed memeory pool size - currently hardwired!
-  committedpoolsize_ = 0x8000000; // 128MB
-  //committedpoolsize_ = 0x1000000; // 16MB
+  //  committedpoolsize_ = 0x8000000; // 128MB
+  committedpoolsize_ = 0x4000000; // 64MB
   try
   {
     toolbox::mem::CommittedHeapAllocator *allocator =
