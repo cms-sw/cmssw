@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/06/14 17:50:09 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/06/21 17:11:48 $
+ *   $Revision: 1.10 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
 
@@ -25,6 +26,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"
 
 // Input and output collection
 
@@ -39,7 +41,7 @@ using namespace std;
 
 /// constructor with config
 StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet){
-  cout<<"StandAloneMuonProducer::StandAloneMuonProducer called"<<endl;
+  LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
   ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
@@ -49,47 +51,45 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
 
   // instantiate the concrete trajectory builder in the Track Finder
   // FIXME: potential memory leak??
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet),
+				       new StandAloneMuonTrackLoader());
   
-  //  produces<reco::TrackCollection>();
-  produces<double>();
+  produces<reco::TrackCollection>();
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackExtraCollection>();
+  // produces<double>();
 }
   
 /// destructor
 StandAloneMuonProducer::~StandAloneMuonProducer(){
-  cout<<"StandAloneMuonProducer destructor called"<<endl;
+  LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"StandAloneMuonProducer destructor called"<<endl;
   if (theTrackFinder) delete theTrackFinder;
 }
 
 
 /// reconstruct muons
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
-  cout<<endl<<endl<<endl;
-  cout<<"StandAloneMuonProducer::produce"<<endl;
+  std::string metname = "Muon|RecoMuon|StandAloneMuonProducer";
+  
+  LogDebug(metname)<<endl<<endl<<endl;
+  LogDebug(metname)<<"Stand Alone Muon Reconstruction Started"<<endl;
 
   // Take the seeds container
-  cout<<"Taking the seeds"<<endl;
+  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
-  // Percolate the event setup
-  cout<<"Event setup percolation"<<endl;
-  theTrackFinder->setES(eventSetup);
-
-  // Percolate the event 
-  cout<<"Event percolation"<<endl;
-  theTrackFinder->setEvent(event);
-
   // Reconstruct 
-  cout<<"Track Reconstruction"<<endl;
-  std::auto_ptr<reco::TrackCollection> recMuons
-    = theTrackFinder->reconstruct(seeds);
+  LogDebug(metname)<<"Track Reconstruction"<<endl;
+  theTrackFinder->reconstruct(seeds,event,eventSetup);
+ 
+  // FIXME This is DUMMY!
+  //  auto_ptr<double> recDouble(new double(3.) );
+  // event.put(recDouble);
+  //
 
-  // Load the RecMuon Container in the Event
-  cout<<"Load the tracks in the event"<<endl;
-  //  event.put(recMuons);
-  auto_ptr<double> recDouble(new double(3.) );
-  event.put(recDouble);
-  cout<<"Event loaded"<<endl;
+  LogDebug(metname)<<"Event loaded"
+		   <<"================================"
+		   <<endl<<endl;
 }
 

@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/05/23 17:48:31 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/06/05 14:54:34 $
+ *   $Revision: 1.5 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
 
@@ -29,6 +30,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -47,7 +49,9 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet));
+  // FIXME: tmp!
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet),
+				       new StandAloneMuonTrackLoader);
 
 
   produces<reco::TrackCollection>();
@@ -62,22 +66,24 @@ L2MuonProducer::~L2MuonProducer(){
 /// reconstruct muons
 void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
+  std::string metname = "Muon|RecoMuon|L2MuonProducer";
+  
+  LogDebug(metname)<<endl<<endl<<endl;
+  LogDebug(metname)<<"L2 Muon Reconstruction Started"<<endl;
+  
   // Take the seeds container
   // FIXME: Change in the L1 container!
+  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
-  // Percolate the event setup
-  theTrackFinder->setES(eventSetup);
-
-  // Percolate the event
-  theTrackFinder->setEvent(event);
-  
   // Reconstruct 
-  std::auto_ptr<reco::TrackCollection> recMuons
-    = theTrackFinder->reconstruct(seeds);
+  LogDebug(metname)<<"Track Reconstruction"<<endl;
+  theTrackFinder->reconstruct(seeds,event,eventSetup);
   
-  // Load the RecMuon Container in the Event
-  event.put(recMuons);
+
+  LogDebug(metname)<<"Event loaded"
+		   <<"================================"
+		   <<endl<<endl;
 }
 
