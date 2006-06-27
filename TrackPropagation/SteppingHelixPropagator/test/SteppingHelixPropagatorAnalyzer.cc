@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.3 2006/05/03 06:42:03 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.4 2006/06/14 11:35:47 slava77 Exp $
 //
 //
 
@@ -56,10 +56,10 @@ positions of a muon in the detector.
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -221,8 +221,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   const double FPRP_MISMATCH = 150.;
   int pStatus = 0; //1 will be bad
 
-  Handle<EmbdSimTrackContainer> simTracks;
-  iEvent.getByType<EmbdSimTrackContainer>(simTracks);
+  Handle<SimTrackContainer> simTracks;
+  iEvent.getByType<SimTrackContainer>(simTracks);
   if (! simTracks.isValid() ){
     std::cout<<"No tracks found"<<std::endl;
     return;
@@ -231,8 +231,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     std::cout<<"Got simTracks of size "<< simTracks->size()<<std::endl;
   }
 
-  Handle<EmbdSimVertexContainer> simVertices;
-  iEvent.getByType<EmbdSimVertexContainer>(simVertices);
+  Handle<SimVertexContainer> simVertices;
+  iEvent.getByType<SimVertexContainer>(simVertices);
   if (! simVertices.isValid() ){
     std::cout<<"No tracks found"<<std::endl;
     return;
@@ -270,7 +270,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     std::cout<<"Got MuonRPCHits of size "<< simHitsRPC->size()<<std::endl;
   }
 
-  EmbdSimTrackContainer::const_iterator tracksCI = simTracks->begin();
+  SimTrackContainer::const_iterator tracksCI = simTracks->begin();
   for(; tracksCI != simTracks->end(); tracksCI++){
     
     int trkPDG = tracksCI->type();
