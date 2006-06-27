@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/06/26 20:59:39 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/26 22:51:29 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -117,9 +117,6 @@ void EBBeamHodoTask::setup(void){
     
     sprintf(histo, "EBBHT (TDC-Calo)VsCry SM%02d", smId);
     meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
-
-
-
 
     // following ME (type II):
     //  *** can be filled only when table is **not**Moving

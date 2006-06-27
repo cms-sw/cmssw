@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2006/06/23 09:20:41 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/26 20:15:04 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -92,6 +92,25 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+
+TH1F* ho01_[4];
+TH1F* hr01_[4];
+
+TH1F* hp01_[2];
+TH2F* hp02_;
+
+TH1F* hs01_[2];
+
+TH1F* hq01_[2];
+
+TH1F* ht01_;
+
+TH1F* hc01_[3];
+
+TProfile* he01_[2];
+TProfile2D* he02_[2];
+
+TProfile* he03_[3];
 
 };
 
