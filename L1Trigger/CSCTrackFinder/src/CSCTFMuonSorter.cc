@@ -47,7 +47,6 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
   unsigned ii = 1;
   for(; ittr != result.end(); ittr++)
     {
-      ittr->print();
       LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii++ << ": Eta: " << ittr->etaValue() 
 					<< " Phi: " << ittr->phiValue() << " Pt: " << ittr->ptValue()
 					<< " Quality: " << ittr->quality();
