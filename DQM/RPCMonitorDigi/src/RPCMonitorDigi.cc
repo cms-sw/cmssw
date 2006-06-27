@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/22 10:23:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/23 12:29:22 $
+ *  $Revision: 1.8 $
  *
  * \author Ilaria Segoni
  */
@@ -188,10 +188,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   //usleep(10000000);
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(RPCMonitorDigi)
-
  
  
 
