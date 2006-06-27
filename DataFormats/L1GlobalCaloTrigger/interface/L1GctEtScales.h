@@ -1,7 +1,8 @@
 #ifndef L1GCTETSCALES_H
 #define L1GCTETSCALES_H
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 /*!
  * \author Jim Brooke
