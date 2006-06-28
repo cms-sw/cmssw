@@ -12,7 +12,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"  //The class to be tested
 
 //Custom headers needed for this test
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
@@ -29,7 +29,7 @@ using namespace std;
 
 
 //Typedefs for the vector templates and other types used
-typedef vector<L1GctRegion> RegionsVector;
+typedef vector<L1CaloRegion> RegionsVector;
 typedef vector<L1GctJet> JetsVector;
 typedef unsigned long int ULong;
 
@@ -58,7 +58,7 @@ void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads regions from file and pushes the specified number into a vector of regions
 void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions);
 /// Gets the data of a single region from the testDataFile (reasonably safely). 
-L1GctRegion readSingleRegion(ifstream &fin);
+L1CaloRegion readSingleRegion(ifstream &fin);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
@@ -188,7 +188,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   outputHt = myJetFinder->getHt().value();
   
   //an empty regions vector for reset comparison
-  vector<L1GctRegion> blankRegionsVec(numInputRegions);
+  vector<L1CaloRegion> blankRegionsVec(numInputRegions);
   vector<L1GctJet> blankJetsVec(numOutputJets);
   
   //Test that all the vectors/values are empty/zero
@@ -289,7 +289,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 }
 
 //Gets the data of a single region from the testDataFile (reasonably safely). 
-L1GctRegion readSingleRegion(ifstream &fin)
+L1CaloRegion readSingleRegion(ifstream &fin)
 {   
   //Represents how many numbers there are per line for a region in the input file
   const int numRegionComponents = 6; //the id, et, overFlow, tauVeto, mip, quiet, tauVeto.
@@ -311,12 +311,14 @@ L1GctRegion readSingleRegion(ifstream &fin)
   }
   
   //return object
-  L1GctRegion tempRegion(regionComponents[0],
-                         regionComponents[1],
-                         static_cast<bool>(regionComponents[2]),
-                         static_cast<bool>(regionComponents[3]),
-                         static_cast<bool>(regionComponents[4]),
-                         static_cast<bool>(regionComponents[5]));
+//   L1CaloRegion tempRegion(regionComponents[0],
+// 			  regionComponents[1],
+// 			  static_cast<bool>(regionComponents[2]),
+// 			  static_cast<bool>(regionComponents[3]),
+// 			  static_cast<bool>(regionComponents[4]),
+// 			  static_cast<bool>(regionComponents[5]));
+  
+  L1CaloRegion tempRegion;
   
   return tempRegion;
 }
