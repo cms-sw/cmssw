@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-
+using namespace reco;
 
 class UserPartonMixture{
  public:

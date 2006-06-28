@@ -24,7 +24,7 @@ public:
   JetCalibratorMCJet() : parametrization(),
                          theCalibrationType() {};
   virtual ~JetCalibratorMCJet();
-  CaloJet applyCorrection (const CaloJet& fJet);
+  reco::CaloJet applyCorrection (const reco::CaloJet& fJet);
   void setParameters(std::string );
    
 private:

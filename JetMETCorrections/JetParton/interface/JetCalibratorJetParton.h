@@ -25,7 +25,7 @@ public:
   JetCalibratorJetParton(); 
   virtual ~JetCalibratorJetParton();
   
-  CaloJet applyCorrection (const CaloJet& fJet);
+  reco::CaloJet applyCorrection (const reco::CaloJet& fJet);
    
   void setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture);
   

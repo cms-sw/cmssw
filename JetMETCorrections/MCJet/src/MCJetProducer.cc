@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: MCJetProducer.cc,v 1.2 2006/03/08 08:30:05 kodolova Exp $
+// $Id: MCJetProducer.cc,v 1.3 2006/04/02 10:18:20 kodolova Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "JetMETCorrections/MCJet/interface/MCJetProducer.h"
 #include "JetMETCorrections/MCJet/interface/JetCalibratorMCJet.h"
 using namespace std;
-
+using namespace reco;
 namespace cms 
 {
 

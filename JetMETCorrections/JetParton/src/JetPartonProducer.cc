@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: MCJetProducer.cc,v 1.2 2006/03/08 08:30:05 kodolova Exp $
+// $Id: JetPartonProducer.cc,v 1.1 2006/04/14 11:30:38 kodolova Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "JetMETCorrections/JetParton/interface/JetPartonProducer.h"
 #include "JetMETCorrections/JetParton/interface/JetCalibratorJetParton.h"
 using namespace std;
-
+using namespace reco;
 namespace cms 
 {
 
