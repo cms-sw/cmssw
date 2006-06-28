@@ -24,13 +24,16 @@ public:
   ~TrackingParticle();
   /// constructor from pointer to generator particle
   TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
-		    double t, int pdgId );
+		    double t, const int pdgId,  const int source, const int crossing );
   /// PDG identifier  
   int pdgId() const { return pdgId_; }
+  int source() const { return signalSource_ % 4 == 0; }
+  int crossing() const { return crossing_; }
 
 // Setters for Embd and Sim Tracks
   void addG4Track(const SimTrackRef&);
   void addGenParticle(const GenParticleRef&);
+  
 // Need Getters for Embd and Sim Tracks
 
 private:
@@ -41,6 +44,8 @@ private:
   /// references to G4 and HepMC tracks
   SimTrackRefVector g4Tracks_;
   GenParticleRefVector  genParticles_;
+  int signalSource_; 
+  int crossing_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
