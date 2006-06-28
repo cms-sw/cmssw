@@ -14,8 +14,11 @@ private:
   void produce( edm::Event &, const edm::EventSetup & );
 
   edm::ParameterSet conf_;
-  double distanceCut_;
+  double                   distanceCut_;
   std::vector<std::string> dataLabels_;
+  double                   volumeRadius_;
+  double                   volumeZ_;
+  bool                     discardOutVolume_;
   
 };
 

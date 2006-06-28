@@ -6,14 +6,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
-
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-
-//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <map>
 
@@ -21,8 +19,6 @@ using namespace edm;
 using namespace std; 
 using CLHEP::HepLorentzVector;
 
-typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
-typedef std::vector<TrackingParticle> TrackingParticleCollection;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
@@ -32,9 +28,15 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexCollection>();
   produces<TrackingParticleCollection>();
   conf_ = conf;
-  distanceCut_ = conf_.getParameter<double>("distanceCut");
-  dataLabels_  = conf_.getParameter<vector<string> >("dataLabels");
-  edm::LogInfo (MessageCategory) << "Vertex distance cut set to " << distanceCut_ << " mm";
+  distanceCut_      = conf_.getParameter<double>("vertexDistanceCut");
+  dataLabels_       = conf_.getParameter<vector<string> >("HepMCDataLabels");
+  volumeRadius_     = conf_.getParameter<double>("volumeRadius");   
+  volumeZ_          = conf_.getParameter<double>("volumeZ");   
+  discardOutVolume_ = conf_.getParameter<bool>("discardOutVolume");     
+  edm::LogInfo (MessageCategory) << "Vertex distance cut set to " << distanceCut_  << " mm";
+  edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
+  edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
+  edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
 }
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
@@ -120,18 +122,22 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   int index = 0;
   for (edm::SimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
        itVtx != G4VtxContainer->end(); 
-       ++itVtx) {
+       ++itVtx,++index) {
 
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
-    bool inVolume = (position.perp() < 1200 && abs(position.z()) < 3000); // In or out of Tracker
+    bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
+    cout << "Before check: " << index << endl;
+    if (!inVolume && discardOutVolume_) { continue; } 
+    cout << "After  check: " << index << endl;
+    
     int crossing = 0;
     int source   = 0;
     
 // Figure out the barcode of the HepMC Vertex if there is one
     
     int vertexBarcode = 0;       
-    int vtxParent = itVtx -> parentIndex();    // Get incoming EmbdSimTtrack
-    if (vtxParent >= 0) {                      // Is there a parent track 
+    int vtxParent = itVtx -> parentIndex();    // Get incoming SimTtrack
+    if (vtxParent >= 0) {                      // Is there a parent track? 
       SimTrack est = etc->at(vtxParent);       // Pull track out from vector
       int partHepMC =     est.genpartIndex();  // Get HepMC particle barcode
       HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
@@ -179,7 +185,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
         (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
       }
     }
-    ++index;     
+         
   }
 
   edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
