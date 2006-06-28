@@ -5,8 +5,8 @@
  * *
  *  DT DQM Client for Noise checks
  *
- *  $Date: 2006/05/08 12:26:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/28 11:16:07 $
+ *  $Revision: 1.1 $
  *  \author Marco Zanetti 
  *   
  */
@@ -20,7 +20,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <map>
 
+class DTLayerId;
 
 class DTNoiseClient  {
 
@@ -35,10 +37,16 @@ public:
   /// Check the noise Status
   void performCheck(MonitorUserInterface * mui);
 
+  /// Draw the summary plots
+  void drawSummaryNoise();
 
 private:
 
-  
+  /// < DTLayerId, numberOfNoisyCh >
+  std::map<DTLayerId, int> noisyChannelsStatistics;
+
+  /// < DTLayerId, average noise >
+  std::map<DTLayerId, float> noiseStatistics;
 
 };
 
