@@ -1,0 +1,34 @@
+<use name=boost>
+<use name=root> 
+<use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
+<use name=Geometry/DTGeometry>
+<use name=xdaq>
+<lib name=xgi>
+<lib name=xdata>
+<lib name=cgicc>
+<lib name=log4cplus>
+<lib name=xcept>
+<lib name=udpappender>
+<lib name=peer>
+<lib name=mimetic>
+<lib name=xmlappender>
+<export>
+ <lib name=DQMDTMonitorClient>
+ <use name=root>
+ <use name=boost>
+ <use name=DQMServices/Core>
+ <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/Daemon>
+ <use name=DQMServices/UI>
+ <use name=DQMServices/Components>
+ <use name=DQMServices/WebComponents>
+ <use name=DQMServices/ClientConfig> 
+ <use name=xdaq>
+</export>
+
