@@ -114,20 +114,19 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (edm::SimVertexContainer::const_iterator itVtx = G4VtxContainer->begin(); 
        itVtx != G4VtxContainer->end(); 
        ++itVtx) {
-    bool InVolume = false;
-         
-    CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
 
-    if (position.perp() < 1200 && abs(position.z()) < 3000) { // In or out of Tracker
-      InVolume = true;
-    }
+    CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
+    bool inVolume = (position.perp() < 1200 && abs(position.z()) < 3000); // In or out of Tracker
+    int crossing = 0;
+    int source   = 0;
     
 // Figure out the barcode of the HepMC Vertex if there is one
+    
     int vertexBarcode = 0;       
-    int vtxParent = itVtx -> parentIndex(); // Get incoming EmbdSimTtrack
-    if (vtxParent >= 0) {                     // Is there a parent track 
-      SimTrack est = etc->at(vtxParent);  // Pull track out from vector
-      int partHepMC =     est.genpartIndex();     // Get HepMC particle barcode
+    int vtxParent = itVtx -> parentIndex();    // Get incoming EmbdSimTtrack
+    if (vtxParent >= 0) {                      // Is there a parent track 
+      SimTrack est = etc->at(vtxParent);       // Pull track out from vector
+      int partHepMC =     est.genpartIndex();  // Get HepMC particle barcode
       HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
       if (hmp != 0) {
         HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
@@ -153,7 +152,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // If outside cutoff, create another TrackingVertex, set nearest to it
     
     if (closest > distanceCut_) {
-      tVC -> push_back(TrackingVertex(position));
+      tVC -> push_back(TrackingVertex(position,inVolume,source,crossing));
       nearestVertex = --(tVC -> end());  // Last entry of vector
     } 
      
