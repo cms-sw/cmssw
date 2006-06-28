@@ -26,6 +26,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
     valTree_=NULL;
   }
   
+  label_= iConfig.getParameter<std::string>("Label");
+  fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
   //FIXME: add configuration
 					      
 }
@@ -40,11 +42,11 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-delete algo_;
-if (valid_) {
-histfile_->Write();
-histfile_->Close();
-}
+  delete algo_;
+  if (valid_) {
+    histfile_->Write();
+    histfile_->Close();
+  }
 
 }
 
@@ -56,16 +58,18 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   using namespace edm;
   edm::Handle<EBDigiCollection> ebDigis;
-  e.getByType(ebDigis);
+  //  e.getByType(ebDigis);
+  e.getByLabel(label_,ebDigis);
+  edm::Handle<EEDigiCollection> eeDigis;
+  //  e.getByType(eeDigis);
+  e.getByLabel(label_,eeDigis);
 
   LogDebug("Startproduce") <<" =================> Treating event "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
-  
-  //  std::auto_ptr<std::vector <EcalTriggerPrimitiveDigi> > pOut(new std::vector <EcalTriggerPrimitiveDigi>);
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new EcalTrigPrimDigiCollection);
   
   // invoke algorithm  //FIXME: better separation
   //   algo_->setupES(iSetup);
-  algo_->run(ebDigis.product(),*pOut);
+  algo_->run(ebDigis.product(),eeDigis.product(),*pOut, fgvbMinEnergy_);
   for (unsigned int i=0;i<pOut->size();++i) {
     for (int isam=0;isam<(*pOut)[i].size();++isam) {
       if ((*pOut)[i][isam].raw()) LogDebug("Produced for ") <<" Tower "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();

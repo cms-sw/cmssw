@@ -42,6 +42,8 @@ class EcalTrigPrimProducer : public edm::EDProducer
   TFile *histfile_;
   TTree *valTree_;
   bool valid_;
+  std::string label_;
+  int fgvbMinEnergy_;
 };
   
 #endif

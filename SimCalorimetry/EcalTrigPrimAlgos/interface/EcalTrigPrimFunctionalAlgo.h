@@ -14,18 +14,17 @@ class ETPCoherenceTest;
 class EcalTriggerPrimitiveSample;
 class EcalBarrelTopology;
  
-/* #include "CARF/SetUp/interface/SuId.h" */
-
-/* #include "Utilities/UI/interface/Verbosity.h" */
-/* #include "CARF/G3Event/interface/G3EventProxy.h"   */
-/* #include "Utilities/Notification/interface/Observer.h" */
-/* #include "CARF/G3PersistentReco/interface/PRecDet.h" */
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h"
+//#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalEndcapFenixTcp.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-using namespace tpg;
+#include "FWCore/Framework/interface/ESHandle.h"
+
+using namespace tpg; //FIXME
 
 /** Main Algo for Ecal trigger primitives. */
 class EcalTrigPrimFunctionalAlgo
@@ -40,7 +39,7 @@ public:
 
   /** this actually calculates the trigger primitives (from Digis) */
 
-  void run(const EBDigiCollection* ebdcol, EcalTrigPrimDigiCollection & result);
+  void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, int fgvbMinEn);
 
 private:
 
@@ -53,6 +52,7 @@ private:
   
   void fillBarrel(const EcalTrigTowerDetId & coarser, const EBDataFrame & frame);
 
+  void fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame);
 
   // create stripnr
   int createStripNr(const EBDetId& cryst);
@@ -60,13 +60,21 @@ private:
   //--------------------
 
 
- typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EBDataFrame> >,std::less<EcalTrigTowerDetId> > SUMV;
+  typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EBDataFrame> >,std::less<EcalTrigTowerDetId> > SUMVB;
+  //  typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EEDataFrame> >,std::less<EcalTrigTowerDetId> > SUMVE;
 
-
+  // typedef std::map<CellID,CaloTimeSample,less<CellID> > SUM;
+  // temporary, waiting for pseudostrip geometry
+  // SUMVE sumEndcap_;
+  // this contains for each trigger tower, first the summed energies, then all EEDataFrames beloonging to this tower
+   typedef std::map<EcalTrigTowerDetId,std::vector<int> > SUMVE;
+   SUMVE sumEndcap_;
+   typedef std::map<EcalTrigTowerDetId,std::vector<EEDataFrame> > MAPE;
+   MAPE mapEndcap_;
 
   /** map of (coarse granularity) cell to the CaloTimeSample objects
       associated to this cell for the EcalBarrel. */
-  SUMV sumBarrel_; 
+  SUMVB sumBarrel_; 
 
 
   /** number of 'strips' (crystals of same eta index) per trigger
@@ -83,18 +91,22 @@ private:
   enum {ecal_endcap_maxstrips_per_tower = 5};
 
   //
-   EcalBarrelFenixStrip * ebstrip_;
+  EcalBarrelFenixStrip * ebstrip_;
 
-   EcalBarrelFenixTcp ebtcp_;
+  EcalBarrelFenixTcp ebtcp_;
 
-   EcalBarrelTopology* ebTopology_;
+  EcalBarrelTopology* ebTopology_;
 
-   // for debugging
-   ETPCoherenceTest *cTest_;
+  //  EcalEndcapFenixTcp eetcp_;
 
-   //for validation
-   bool valid_;
-   TTree * valTree_;
+   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+
+  // for debugging
+  ETPCoherenceTest *cTest_;
+
+  //for validation
+  bool valid_;
+  TTree * valTree_;
 };
 
 #endif
