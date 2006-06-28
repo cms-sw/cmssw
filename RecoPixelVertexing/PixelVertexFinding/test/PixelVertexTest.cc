@@ -55,6 +55,7 @@ private:
   double errvzwt_[maxvtx_];
   int nvtx2_;
   double vz2_[maxvtx_];
+  double trk2avg_[maxvtx_];
   double errvz2_[maxvtx_];
   int ntrk2_[maxvtx_];
   double sumpt2_[maxvtx_];
@@ -89,6 +90,7 @@ void PixelVertexTest::beginJob(const edm::EventSetup& es) {
   t_->Branch("errvzwt",errvzwt_,"errvzwt[nvtx]/D");
   t_->Branch("nvtx2",&nvtx2_,"nvtx2/I");
   t_->Branch("vz2",vz2_,"vz2[nvtx2]/D");
+  t_->Branch("trk2avg",trk2avg_,"trk2avg[nvtx2]/D");
   t_->Branch("errvz2",errvz2_,"errvz2[nvtx2]/D");
   t_->Branch("ntrk2",ntrk2_,"ntrk2[nvtx2]/I");
   t_->Branch("sumpt2",sumpt2_,"sumpt2[nvtx2]/D");
@@ -165,6 +167,12 @@ void PixelVertexTest::analyze(
     errvz2_[i] = std::sqrt(vertexes[i].error()(2,2));
     ntrk2_[i] = vertexes[i].tracksSize();
     sumpt2_[i] = vcompare.pTSquaredSum(vertexes[i]);
+    // Now calculate my own average position by hand to cross check conversion process
+    //    trks.clear(); // not yet implemented
+    while (! trks.empty()) trks.erase( trks.begin() );
+    for (reco::track_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) 
+      trks.push_back( *j );
+    trk2avg_[i] = pos.wtAverage(trks).value();
   }
 
 
