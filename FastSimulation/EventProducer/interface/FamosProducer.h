@@ -10,8 +10,8 @@
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 class FamosManager;
 

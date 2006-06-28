@@ -18,8 +18,8 @@
 FamosProducer::FamosProducer(edm::ParameterSet const & p)      
 {    
     produces<edm::HepMCProduct>();
-    produces<edm::EmbdSimTrackContainer>();
-    produces<edm::EmbdSimVertexContainer>();
+    produces<edm::SimTrackContainer>();
+    produces<edm::SimVertexContainer>();
 
     famosManager_ = new FamosManager(p);
 
@@ -56,8 +56,8 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
    
-   std::auto_ptr<edm::EmbdSimTrackContainer> p1(new edm::EmbdSimTrackContainer);
-   std::auto_ptr<edm::EmbdSimVertexContainer> p2(new edm::EmbdSimVertexContainer);
+   std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
+   std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
    fevt->load(*p1);
    fevt->load(*p2);
 
