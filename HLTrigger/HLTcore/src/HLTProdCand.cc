@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/18 17:44:04 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 23:54:09 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -87,7 +87,9 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            } else if (abs(ipdg)==22) {
              phot->push_back(PhotonCandidate(0,p4));
 	   } else { 
-             jets->push_back(CaloJet(0,p4));
+	     CaloJet::Specific specific;
+             vector<CaloTowerDetId> ctdi(0);
+             jets->push_back(CaloJet(p4,specific,ctdi));
 	   }
          }
        }
