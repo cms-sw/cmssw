@@ -15,9 +15,7 @@
  * \class L1CaloRegion
  * \brief A calorimeter trigger region (sum of 4x4 trigger towers)
  *
- *  Note that geographical information is not currently stored,
- *  awaiting advice on implementation.
- *
+ * 
  *
  */
 
@@ -29,16 +27,16 @@ public:
   /// default constructor
   L1CaloRegion();
 
-  /// constructor for emulation : HB/HE regions
+  /// constructor for emulation : HB/HE regions (for RCT emulator)
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
-  /// constructor for emulation : HF regions
+  /// constructor for emulation : HF regions (for RCT emulator)
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
 
-  /// construct with global eta,phi indices
+  /// construct with global eta,phi indices (for testing GCT emulator)
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, int eta, int phi);
 
-  /// constructor for unpacking
+  /// constructor from raw data & position (for unpacking)
   L1CaloRegion(uint16_t data, int eta, int phi);
 
   /// destructor

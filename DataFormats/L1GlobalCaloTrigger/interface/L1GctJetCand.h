@@ -34,14 +34,23 @@ public:
   /// get rank bits
   unsigned rank() const { return m_data & 0x3f; }
   
-  /// get eta bits
-  int level1EtaIndex() const { return (m_data>>6) & 0x7; } // fix sign!
+  /// which half of the detector?
+  int zside() const { return (m_data&0x8)?(1):(-1) ; }
 
-  /// get eta sign
-  int level1EtaSign() const { return (m_data>>7) & 0x1; }
+  /// get magnitude of eta
+  int ietaAbs() const { return (m_data>>6) & 0x7; }
+
+  /// get eta index
+  int ieta() const { return zside()*ietaAbs(); }
+
+  /// get phi index
+  int iphi() const { return (m_data>>10) & 0x1f; }
+
+  /// get eta bits
+  int level1EtaIndex() const { return ieta(); }
 
   /// get phi bits
-  int level1PhiIndex() const { return (m_data>>10) & 0x1f; }
+  int level1PhiIndex() const { return iphi(); }
 
   /// check if this is a central jet
   bool isCentral() const { return (!m_isTau) && (!m_isFor); }

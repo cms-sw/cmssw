@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/28 17:44:59 $
+ *  $Revision: 1.1 $
  *  \author Jim Brooke 
 */
 
@@ -39,7 +39,7 @@ class L1CaloRegionDetId : public DetId {
   /// absolute eta value
   int ietaAbs() const { return id_ & 0x7; }
 
-  /// global eta index (-10 - +10)
+  /// global eta index (-11 - +10)
   int ieta() const { return zside()*ietaAbs(); }
 
   /// global phi index (0-18)
