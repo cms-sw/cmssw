@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/ParameterSet/interface/IncludeNode.h"
+#include "FWCore/ParameterSet/interface/ImplicitIncludeNode.h"
 #include "FWCore/ParameterSet/interface/VEntryNode.h"
 #include "FWCore/ParameterSet/interface/ModuleNode.h"
 #include "FWCore/ParameterSet/interface/WrapperNode.h"

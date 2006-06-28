@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.29 2006/06/15 23:13:01 rpw Exp $
+ * $Id: pset_parse.y,v 1.30 2006/06/21 17:55:28 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -853,6 +853,24 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
+                 MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok
+                 {
+                   DBPRINT("procnode: IMPLICITINCLUDE_MODULE");
+                   string label(toString($<str>2));
+                   string classname(toString($<str>4));
+                   ImplicitIncludeNode* wn(new ImplicitIncludeNode(classname, label, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok
+                 {
+                   DBPRINT("procnode: IMPLICITINCLUDE_ESMODULE");
+                   string label(toString($<str>2));
+                   string classname(toString($<str>4));
+                   ImplicitIncludeNode* wn(new ImplicitIncludeNode(label, classname, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
                  SEQUENCE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
                  {
                    DBPRINT("procnode: SEQ");
@@ -881,6 +899,7 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  }
                ;
 
+ 
 /* Returns a NodePtrList pointer */
 scoped:          nonblankscoped
                |
