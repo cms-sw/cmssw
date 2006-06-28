@@ -3,12 +3,14 @@
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
-TrackingVertex::TrackingVertex( const HepLorentzVector &p, const bool inVolume, 
-                                const int source,          const int  crossing) : 
-      position_(p), signalSource_(crossing*4+source), inVolume_(inVolume)
-     {}
+// Constructors
 
-TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)) {}
+TrackingVertex::TrackingVertex() : 
+    position_(HepLorentzVector(0,0,0,0)), signalSource_(0), inVolume_(0) {}
+
+TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, 
+                               const int source,          const int  crossing) : 
+    position_(p), signalSource_(crossing*4+source), inVolume_(inVolume)  {}
 
 /// add a reference to a Track
 void TrackingVertex::add( const TrackingParticleRef & r ) { tracks_.push_back( r ); }
@@ -42,3 +44,7 @@ const TrackingParticleRefVector TrackingVertex::trackingParticles() const {
   return  tracks_;
 };
 
+const bool TrackingVertex::isSignal() const { return (signalSource_%4 == 0); }; 
+const int  TrackingVertex::source()   const { return (signalSource_ % 4);    }; 
+const int  TrackingVertex::crossing() const { return (signalSource_ / 4);    }; 
+const bool TrackingVertex::inVolume() const { return (inVolume_);            }; 

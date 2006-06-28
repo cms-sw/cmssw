@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.9 2006/06/27 16:53:24 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.10 2006/06/28 17:15:29 ewv Exp $
  *
  */
 #include <Rtypes.h>
@@ -38,16 +38,15 @@ class TrackingVertex {
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
   typedef TrackingParticleContainer::iterator                  track_iterator;
   
-  /// default constructor
+// Default constructor
   TrackingVertex();
-  /// constructor from values
-  TrackingVertex(const HepLorentzVector &, const bool inVolume, 
-                 const int source,         const int  crossing);
-  /// first iterator over tracks
+// Constructor from values
+  TrackingVertex(const HepLorentzVector&, const bool inVolume, 
+                 const int source,        const int  crossing);
+
+// Track iterators
   track_iterator tracks_begin() const ;
-  /// last iterator over tracks
-  track_iterator tracks_end() const ;
-  
+  track_iterator tracks_end()   const ;
 
 // Add references to reference containers
   void add( const TrackingParticleRef & r );
@@ -55,11 +54,16 @@ class TrackingVertex {
   void addGenVertex(const GenVertexRef&);
   
 // Getters for RefVectors   
-  const SimVertexRefVector        g4Vertices() const;
-  const GenVertexRefVector        genVertices() const;
+  const SimVertexRefVector         g4Vertices()       const;
+  const GenVertexRefVector        genVertices()       const;
   const TrackingParticleRefVector trackingParticles() const;
 
-  const HepLorentzVector & position() const ;
+// Getters for other info
+  const HepLorentzVector& position() const; // Position and time
+  const bool              isSignal() const; // Is from signal process
+  const int               crossing() const; // Crossing number (-n ... +n)
+  const int               source()   const; // Signal source
+  const bool              inVolume() const; // Inside tracking volume
   
  private:
   
