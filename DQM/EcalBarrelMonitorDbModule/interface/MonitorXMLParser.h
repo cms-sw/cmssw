@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.h,v 1.2 2006/06/16 15:41:12 benigno Exp $
+// $Id: MonitorXMLParser.h,v 1.3 2006/06/19 16:00:55 benigno Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2006/06/16 15:41:12 $
+  \version $Revision: 1.3 $
+  \date $Date: 2006/06/19 16:00:55 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -30,9 +30,11 @@ enum { ERROR_ARGS = 1 ,
 
 // - - - - - - - - - - - - - - - - - - - -
 
+typedef struct { std::string query; std::string arg; std::string alias; } DbQuery;
+
 typedef struct { std::string type; std::string title; int xbins; double xfrom; double xto; 
-  int ybins; double yfrom; double yto; int zbins; double zfrom; double zto; 
-std::multimap< std::string, std::string > queries; } DB_ME;
+  int ybins; double yfrom; double yto; int zbins; double zfrom; double zto; unsigned int ncycle; unsigned int loop;
+  std::vector< DbQuery > queries; } DB_ME;
 
 // - - - - - - - - - - - - - - - - - - - -
 
@@ -57,9 +59,11 @@ public:
   XMLCh* ATTR_ZBINS;
   XMLCh* ATTR_ZFROM;
   XMLCh* ATTR_ZTO;
+  XMLCh* ATTR_NCYCLE;
+  XMLCh* ATTR_LOOP;
   XMLCh* ATTR_NAME;
   XMLCh* ATTR_ARG;
-  
+  XMLCh* ATTR_ALIAS;  
 
   TagNames() :
     TAG_DBE( xercesc::XMLString::transcode( "dbelements" ) ),
@@ -80,8 +84,11 @@ public:
     ATTR_ZBINS( xercesc::XMLString::transcode( "ybins" ) ),
     ATTR_ZFROM( xercesc::XMLString::transcode( "yfrom" ) ),
     ATTR_ZTO( xercesc::XMLString::transcode( "yto" ) ),
+    ATTR_NCYCLE( xercesc::XMLString::transcode( "ncycle" ) ),
+    ATTR_LOOP( xercesc::XMLString::transcode( "loop" ) ),
     ATTR_NAME( xercesc::XMLString::transcode( "name" ) ),
-    ATTR_ARG( xercesc::XMLString::transcode( "arg" ) )  {
+    ATTR_ARG( xercesc::XMLString::transcode( "arg" ) ),
+    ATTR_ALIAS( xercesc::XMLString::transcode( "alias" ) )  { 
 
     return ;
 
@@ -106,8 +113,11 @@ public:
       xercesc::XMLString::release( &ATTR_YFROM ) ;
       xercesc::XMLString::release( &ATTR_YTO ) ;
       xercesc::XMLString::release( &ATTR_YBINS ) ;
+      xercesc::XMLString::release( &ATTR_NCYCLE ) ;
+      xercesc::XMLString::release( &ATTR_LOOP ) ;
       xercesc::XMLString::release( &ATTR_NAME ) ;
       xercesc::XMLString::release( &ATTR_ARG ) ;
+      xercesc::XMLString::release( &ATTR_ALIAS ) ;
 
     }catch( ... ){
       std::cerr << "Unknown exception encountered in TagNames dtor" << std::endl ;

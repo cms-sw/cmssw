@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.cc,v 1.2 2006/06/16 15:41:13 benigno Exp $
+// $Id: MonitorXMLParser.cc,v 1.3 2006/06/19 16:00:56 benigno Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2006/06/16 15:41:13 $
+  \version $Revision: 1.3 $
+  \date $Date: 2006/06/19 16:00:56 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -115,6 +115,18 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       s.clear(); s.str( c );
       s >> me.xto;
       xercesc::XMLString::release( &c );
+
+      const XMLCh* d1ncycleXMLCh = d1Element->getAttribute( tags_->ATTR_NCYCLE ) ;
+      c = xercesc::XMLString::transcode( d1ncycleXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.ncycle;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* d1loopXMLCh = d1Element->getAttribute( tags_->ATTR_LOOP ) ;
+      c = xercesc::XMLString::transcode( d1loopXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.loop;
+      xercesc::XMLString::release( &c );
       
       me.ybins = 0;
       me.yfrom = 0.0;
@@ -177,6 +189,18 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       s >> me.yto;
       xercesc::XMLString::release( &c );
 
+      const XMLCh* d2ncycleXMLCh = d2Element->getAttribute( tags_->ATTR_NCYCLE ) ;
+      c = xercesc::XMLString::transcode( d2ncycleXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.ncycle;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* d2loopXMLCh = d2Element->getAttribute( tags_->ATTR_LOOP ) ;
+      c = xercesc::XMLString::transcode( d2loopXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.loop;
+      xercesc::XMLString::release( &c );
+
       me.zbins = 0;
       me.zfrom = 0.0;
       me.zto = 0.0;
@@ -233,6 +257,18 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       c = xercesc::XMLString::transcode( tpytoXMLCh ); 
       s.clear(); s.str( c );
       s >> me.yto;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* tpncycleXMLCh = tpElement->getAttribute( tags_->ATTR_NCYCLE ) ;
+      c = xercesc::XMLString::transcode( tpncycleXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.ncycle;
+      xercesc::XMLString::release( &c );
+
+      const XMLCh* tploopXMLCh = tpElement->getAttribute( tags_->ATTR_LOOP ) ;
+      c = xercesc::XMLString::transcode( tploopXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.loop;
       xercesc::XMLString::release( &c );
 
       me.zbins = 0;
@@ -311,7 +347,18 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       s >> me.zto;
       xercesc::XMLString::release( &c );
 
+      const XMLCh* tp2dncycleXMLCh = tp2dElement->getAttribute( tags_->ATTR_NCYCLE ) ;
+      c = xercesc::XMLString::transcode( tp2dncycleXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.ncycle;
+      xercesc::XMLString::release( &c );
       
+      const XMLCh* tp2dloopXMLCh = tp2dElement->getAttribute( tags_->ATTR_LOOP ) ;
+      c = xercesc::XMLString::transcode( tp2dloopXMLCh ); 
+      s.clear(); s.str( c );
+      s >> me.loop;
+      xercesc::XMLString::release( &c );
+
     }
       
       
@@ -322,18 +369,27 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
       
       xercesc::DOMNode* qNode = qNodes->item( qIndex ) ;
       
-      xercesc::DOMElement* tpElement = dynamic_cast< xercesc::DOMElement* >( qNode ) ;
+      xercesc::DOMElement* qElement = dynamic_cast< xercesc::DOMElement* >( qNode ) ;
       
-      const XMLCh* nameXMLCh = tpElement->getAttribute( tags_->ATTR_NAME ) ;
+      const XMLCh* nameXMLCh = qElement->getAttribute( tags_->ATTR_NAME ) ;
       c = xercesc::XMLString::transcode( nameXMLCh ); 
       
-      const XMLCh* argXMLCh = tpElement->getAttribute( tags_->ATTR_ARG ) ;
+      const XMLCh* argXMLCh = qElement->getAttribute( tags_->ATTR_ARG ) ;
       char* d = xercesc::XMLString::transcode( argXMLCh ); 
+
+      const XMLCh* aliasXMLCh = qElement->getAttribute( tags_->ATTR_ALIAS ) ;
+      char* e = xercesc::XMLString::transcode( aliasXMLCh ); 
       
-      me.queries.insert(std::pair<std::string, std::string>( c, d ));
-      
+      DbQuery tmpQuery;
+      tmpQuery.query = c;
+      tmpQuery.arg = d;
+      tmpQuery.alias = e;
+
+      me.queries.push_back( tmpQuery );
+
       xercesc::XMLString::release( &c );
       xercesc::XMLString::release( &d );
+      xercesc::XMLString::release( &e );
       
       
     }
