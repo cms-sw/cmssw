@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace dqm::me_util;
+
+using std::string;
 
 CollateMonitorElement::CollateMonitorElement(const string & name, 
 					     const string title, 

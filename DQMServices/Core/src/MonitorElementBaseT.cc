@@ -1,6 +1,6 @@
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 
-using namespace std;
+using std::string; using std::ostringstream;
 
 void MonitorElementFloat::Fill(float x, float y, float z, float w)
 {

@@ -4,9 +4,11 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace dqm::me_util;
 using namespace dqm::qtests;
+
+using std::cout; using std::endl; using std::cerr;
+using std::string; using std::vector;
 
 /* Use the default constructor for running in standalone mode (ie. without
    sources or collectors); if flag=true, client will accept downstream connections

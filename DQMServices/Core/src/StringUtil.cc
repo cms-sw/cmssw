@@ -3,8 +3,10 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace dqm::me_util;
+
+using std::cout; using std::endl; using std::cerr;
+using std::string; using std::vector;
 
 // yes if we have a match (<pattern> can include unix-like wildcards "*", "?")
 bool StringUtil::matchit(const string & s, const string & pattern) const

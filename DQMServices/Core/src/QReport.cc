@@ -3,7 +3,7 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include <iostream>
 
-using namespace std;
+using std::string;
 
 QReport::QReport(string qtname)
 {

@@ -4,9 +4,10 @@
 
 #include <iostream>
 
-using namespace std;
-
 using namespace dqm::qtests;
+
+using std::cout; using std::endl; using std::cerr;
+using std::string;
 
 MonitorElement::MonitorElement() 
 {

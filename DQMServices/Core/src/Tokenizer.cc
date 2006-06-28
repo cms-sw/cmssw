@@ -1,7 +1,8 @@
 #include "DQMServices/Core/interface/Tokenizer.h"
 
 using namespace dqm;
-using namespace std;
+using std::string;
+
 Tokenizer::Tokenizer(const string & sep, const string & input, bool alsoempty) 
 {
   size_type i=0, j=0;

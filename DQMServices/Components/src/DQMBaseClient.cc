@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-using namespace std;
+using std::cout; using std::endl;
 
 DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s, 
 			     std::string name, 

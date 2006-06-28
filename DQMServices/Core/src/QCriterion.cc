@@ -4,8 +4,6 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 const float QCriterion::ERROR_PROB_THRESHOLD = 0.50;
 const float QCriterion::WARNING_PROB_THRESHOLD = 0.90;
 

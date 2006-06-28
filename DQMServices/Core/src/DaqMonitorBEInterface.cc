@@ -2,9 +2,12 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace dqm::me_util;
 using namespace dqm::qtests;
+
+using std::cout; using std::endl; using std::cerr;
+using std::vector; using std::string; using std::set;
+
 
 // check against null objects
 bool DaqMonitorBEInterface::checkElement(const MonitorElement * const me) const
