@@ -102,9 +102,11 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        tPC -> push_back(tp);
        ++iG4Track;
   }
+
+// Put TrackingParticles in event and get handle to access them    
+  
   edm::OrphanHandle<TrackingParticleCollection> tpcHandle = event.put(tPC);
   TrackingParticleCollection trackCollection = *tpcHandle;
-  edm::LogInfo (MessageCategory) << "Put "<< trackCollection.size() << " tracks in event";
        
 // Find and loop over EmbdSimVertex vertices
     
