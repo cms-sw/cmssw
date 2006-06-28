@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/06/14 00:14:31 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/26 23:01:44 $
+ * $Revision: 1.4 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -42,6 +42,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 //
@@ -50,6 +51,9 @@
 CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 {
   produces<reco::TrackCollection>();
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackExtraCollection>();
+
   edm::LogInfo("CosmicMuonProducer")<<"cosmic begin";
 
 }
@@ -81,16 +85,24 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::LogInfo("CosmicMuonProducer") << "No. of Trajectories: "<<theTrajs.size();
 
   std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
+  std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
 
   for (std::vector<Trajectory>::const_iterator theT = theTrajs.begin(); theT != theTrajs.end(); theT++) {
 
     //sets the innermost TSOSs
     TrajectoryStateOnSurface innertsos;
+    GlobalPoint v;
+    GlobalVector p;
 
     if (theT->direction() == alongMomentum) {
       innertsos = theT->firstMeasurement().updatedState();
+      v = theT->lastMeasurement().updatedState().globalPosition();
+      p =theT->lastMeasurement().updatedState().globalMomentum();
     } else {
       innertsos = theT->lastMeasurement().updatedState();
+      v = theT->firstMeasurement().updatedState().globalPosition();
+      p = theT->firstMeasurement().updatedState().globalMomentum();
     }
     if (!innertsos.isValid()) continue;
     TSCPBuilderNoMaterial tscpBuilder;
@@ -104,25 +116,42 @@ CosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const edm::OwnVector<const TransientTrackingRecHit>& rhL = theT->recHits();
 
     for (edm::OwnVector<const TransientTrackingRecHit>::const_iterator irh = rhL.begin(); irh != rhL.end(); irh++) {
+       outputRHColl->push_back(((irh->hit())->clone()));
        ndof += irh->dimension();
     }
+    edm::OrphanHandle<TrackingRecHitCollection> ohRH =iEvent.put(outputRHColl);
+
     ndof -= 5;
     if (ndof < 0) ndof =0;
     edm::LogInfo("CosmicMuonProducer") << "ndof "<<ndof;
     edm::LogInfo("CosmicMuonProducer") << "chi2 "<<theT->chiSquared();
 
-    outputTColl->push_back(reco::Track(theT->chiSquared(),
+    reco::Track  theTrack(theT->chiSquared(),
                                ndof,
                                theT->foundHits(),// number of rechit
                                0,
                                theT->lostHits(),
                                param,
-                               covar));
+                               covar);
 
+     math::XYZVector outmom( p.x(), p.y(), p.z() );
+     math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+     reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+     for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=rhL.begin();
+	    j!=rhL.end(); j++){
+	  theTrackExtra->add(TrackingRecHitRef(ohRH,0));
+	}
+
+     outputTEColl->push_back(*theTrackExtra);
+     edm::OrphanHandle<reco::TrackExtraCollection>ohTE=iEvent.put(outputTEColl);
+
+     reco::TrackExtraRef  theTrackExtraRef(ohTE,0);
+     theTrack.setExtra(theTrackExtraRef);
+     outputTColl->push_back(theTrack);      
+
+     iEvent.put(outputTColl);
 
   }
-
-  iEvent.put(outputTColl);
 
 }
 
