@@ -61,35 +61,17 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
 
     LogDebug("MeasurementDet") << "got from TrackerGeometry " << dets.size() << "detector" ; 
 
-    // get pixelCPE
-    //  ---- TEMPORARY SOLUTION TO COMMIT CODE FOR 070pre2   ----
-    /*
-    std::string cpeName = conf.getParameter<std::string>("PixelCPE");   
-    edm::LogInfo("MeasurementDet") <<" Asking for the CPE with name "<< cpeName ;
-
+    // --- get pixelCPE
+    std::string pixelCpeName = conf.getParameter<std::string>("PixelCPE");   
     edm::ESHandle<PixelClusterParameterEstimator> pixelCPEHandle;
-    setup.get<TrackerCPERecord>().get(cpeName,pixelCPEHandle);
-    
+    setup.get<TrackerCPERecord>().get(pixelCpeName,pixelCPEHandle);  
     LogDebug("MeasurementDet") << "Got a pixelCPE " << typeid(*pixelCPEHandle).name() ;
-
     pixelCPE = &(*pixelCPEHandle);
 
-    edm::ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
-    */
-
-    edm::ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
-    edm::ParameterSet confPixelCPE;
-    confPixelCPE.addParameter("TanLorentzAnglePerTesla",0.106);
-    confPixelCPE.addUntrackedParameter("VerboseLevel",20);
-    pixelCPE = new CPEFromDetPosition(confPixelCPE, &(*magfield));
-    // -----------------------------------------------
-
-    // get stripCPE
+    // --- get stripCPE
+    std::string stripCpeName = conf.getParameter<std::string>("StripCPE"); 
     edm::ESHandle<StripClusterParameterEstimator> stripCPEHandle;
-    setup.get<TrackerCPERecord>().get("StripCPEfromTrackAngle",stripCPEHandle);
-
+    setup.get<TrackerCPERecord>().get(stripCpeName,stripCPEHandle);
     LogDebug("MeasurementDet") << "Got a stripCPE " << typeid(*stripCPEHandle).name() ;
     stripCPE = &(*stripCPEHandle);
 
