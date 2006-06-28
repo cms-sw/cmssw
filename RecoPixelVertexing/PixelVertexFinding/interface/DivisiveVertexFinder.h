@@ -19,8 +19,8 @@
  average of the tracks. Weighted means weighted with the error
  of the data point.
 
- $Date: 2006/06/05 23:23:34 $
- $Revision: 1.2 $
+ $Date: 2006/06/06 22:28:25 $
+ $Revision: 1.3 $
  \author Aaron Dominguez (UNL)
 */
 #include <vector>
@@ -28,7 +28,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "CommonTools/Clustering1D/interface/DivisiveClusterizer1D.h"
+//#include "CommonTools/Clustering1D/interface/DivisiveClusterizer1D.h"
+#include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveClusterizer1D.h"
 
 class DivisiveVertexFinder {
  public:
@@ -48,7 +49,7 @@ class DivisiveVertexFinder {
   bool useError_, wtAverage_;
 
   /// We use Wolfgang's templated class that implements the actual divisive method
-  DivisiveClusterizer1D< reco::Track > divmeth_;
+  pixeltemp::DivisiveClusterizer1D< reco::Track > divmeth_;
 
   // How loud should I be?
   int verbose_;
