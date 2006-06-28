@@ -1,8 +1,8 @@
 #include <memory>
 /** \file MuonNavigationTest
  *
- *  $Date: 2006/06/02 20:47:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/22 13:49:16 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu
  */
 
@@ -19,7 +19,7 @@
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
+//#include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
