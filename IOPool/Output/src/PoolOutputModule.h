@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.6 2006/04/18 20:28:26 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.7 2006/05/03 18:28:26 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/FileCatalog.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
-#include "IOPool/Common/interface/PoolNames.h"
+#include "FWCore/Utilities/interface/PersistentNames.h"
 #include "PersistencySvc/Placement.h"
 
 namespace pool {

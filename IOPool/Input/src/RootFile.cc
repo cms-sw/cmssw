@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.19 2006/06/24 05:46:06 wmtan Exp $
+$Id: RootFile.cc,v 1.20 2006/06/26 20:33:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Input/src/RootDelayedReader.h"
-#include "IOPool/Common/interface/PoolNames.h"
+#include "FWCore/Utilities/interface/PersistentNames.h"
 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
