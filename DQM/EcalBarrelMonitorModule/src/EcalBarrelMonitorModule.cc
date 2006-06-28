@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/24 08:36:04 $
- * $Revision: 1.101 $
+ * $Date: 2006/06/27 20:56:21 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -149,7 +149,7 @@ void EcalBarrelMonitorModule::setup(void){
   // this should give enough time to our control MEs to reach the Collector,
   // and then hopefully the Client
 
-  sleep(1);
+  sleep(5);
 
   Char_t histo[20];
 
@@ -239,7 +239,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   // we should always sleep at least a little ...
 
-  sleep(1);
+  sleep(5);
 
   this->cleanup();
 
@@ -330,7 +330,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
 
-  if ( ievt_ == 1 ) sleep(1);
+  if ( ievt_ == 1 ) sleep(5);
 
   Handle<EBDigiCollection> digis;
   //  e.getByLabel("ecalEBunpacker", digis);
