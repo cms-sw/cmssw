@@ -3,7 +3,10 @@
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
-TrackingVertex::TrackingVertex( const HepLorentzVector &p) : position_(p) {}
+TrackingVertex::TrackingVertex( const HepLorentzVector &p, const bool inVolume, 
+                                const int source,          const int  crossing) : 
+      position_(p), signalSource_(crossing*4+source), inVolume_(inVolume)
+     {}
 
 TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)) {}
 
