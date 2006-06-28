@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/24 21:04:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/06/26 23:39:25 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
 
 #include "FWCore/Framework/interface/Handle.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -62,16 +62,16 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // get hold of jets
-   Handle<RecoCaloJetCandidateCollection> jets;
+   Handle<CaloJetCollection> jets;
    iEvent.getByLabel (inputTag_,jets);
 
    // look at all jets,  check cuts and add to filter object
    int n(0);
-   RecoCaloJetCandidateCollection::const_iterator jet(jets->begin());
+   CaloJetCollection::const_iterator jet(jets->begin());
    for (; jet!=jets->end(); jet++) {
      if ( (jet->pt()) >= ptcut_) {
        n++;
-       ref=RefToBase<Candidate>(RecoCaloJetCandidateRef(jets,distance(jets->begin(),jet)));
+       ref=RefToBase<Candidate>(CaloJetRef(jets,distance(jets->begin(),jet)));
        filterproduct->putParticle(ref);
      }
    }
