@@ -13,6 +13,8 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 #include <map>
 
 using namespace edm;
@@ -54,6 +56,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
   edm::Handle<SimVertexContainer>      G4VtxContainer;
   edm::Handle<edm::SimTrackContainer>  G4TrkContainer;
+  //edm::Handle<edm::PSimHitContainer>   
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
   
@@ -79,7 +82,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        CLHEP::HepLorentzVector p = itP -> momentum();
        const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
        double time =  0; 
-       int pdgId = 0; 
+       int pdgId = 0;
+       int theSource = 0; 
+       int theCrossing = 0;
        const HepMC::GenParticle * gp = 0;       
        int genPart = itP -> genpartIndex();
        if (genPart >= 0) {
@@ -95,7 +100,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 	   theVertex = math::XYZPoint(v.x(), v.y(), v.z());
 	   time = v.t(); 
        }
-       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId);
+       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, theSource, theCrossing);
        tp.addG4Track(SimTrackRef(G4VtxContainer,iG4Track));
        tp.addGenParticle(GenParticleRef(hepMC,genPart));
        productionVertex.insert(pair<int,int>(tPC->size(),genVert));
