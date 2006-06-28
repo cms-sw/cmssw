@@ -43,13 +43,10 @@ L1GctElectronSorter::~L1GctElectronSorter()
 
 // clear buffers
 void L1GctElectronSorter::reset() {
-  // *** FIX THIS ***
-//   for(unsigned i = 0;i!=m_inputCands.size();i++){    
-//     m_inputCands[i] = 0;
-//   }
-  for(unsigned i = 0;i!=m_outputCands.size();i++){  
-    m_outputCands[i] = 0;
-  } 
+  m_inputCands.clear();
+  m_inputCands.resize(m_id*4);
+  m_outputCands.clear();
+  m_outputCands.resize(4);
 }
 
 // get the input data

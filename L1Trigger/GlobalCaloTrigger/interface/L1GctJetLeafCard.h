@@ -58,9 +58,6 @@ public:
   L1GctJetFinder* getJetFinderB() const { return m_jetFinderB; }
   L1GctJetFinder* getJetFinderC() const { return m_jetFinderC; }
 
-/*   /// get the input data */
-/*   std::vector<L1CaloRegion> getInputRegions() const; */
-    
   // get the jet output
   std::vector<L1GctJet> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
   std::vector<L1GctJet> getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)

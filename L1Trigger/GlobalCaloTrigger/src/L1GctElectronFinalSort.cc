@@ -29,12 +29,10 @@ L1GctElectronFinalSort::~L1GctElectronFinalSort(){
 }
 
 void L1GctElectronFinalSort::reset(){
-  for(unsigned i = 0;i!=m_inputCands.size();i++){    
-    m_inputCands[i] = 0;
-  }
-  for(unsigned i = 0;i!=m_outputCands.size();i++){  
-    m_outputCands[i] = 0;
-  }
+  m_inputCands.clear();
+  m_inputCands.resize(16);
+  m_outputCands.clear();
+  m_outputCands.resize(4);
 }
 
 void L1GctElectronFinalSort::fetchInput() {
