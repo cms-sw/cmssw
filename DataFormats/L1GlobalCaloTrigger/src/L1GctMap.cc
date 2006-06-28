@@ -57,13 +57,13 @@ unsigned L1GctMap::rctPhi(L1CaloRegion r) {
 /// get global eta index
 unsigned L1GctMap::eta(L1CaloRegion r) {
   // id = phi + 18eta
-  return (r.id() / N_RGN_PHI);
+  //  return (r.id().ieta() / N_RGN_PHI);
 }
 
 /// get global phi index 
 unsigned L1GctMap::phi(L1CaloRegion r) {
   // id = phi + 18eta
-  return (r.id() % N_RGN_PHI);
+  //  return (r.id().iphi() % N_RGN_PHI);
 }
 
 /// get physical eta 
