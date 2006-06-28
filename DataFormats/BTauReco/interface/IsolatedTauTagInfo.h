@@ -70,23 +70,31 @@ struct SortByDescendingTrackPt
     
     //get the reference to the jet
     const JetTagRef & jetRef() const { return m_jetTag; }
+
+    virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
     //default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
-     double discriminator() const { 
-       double myDiscr = m_jetTag->discriminator();
-       return myDiscr; }
-     //methids to be used to recomputed the isolation with a new set of parameters
-     double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
-     double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
-    virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
+    double discriminator() const { 
+      double myDiscr = m_jetTag->discriminator();
+      return myDiscr; }
+
+    //methods to be used to recomputed the isolation with a new set of parameters
+    double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
+    double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const;
+    //Used in case the PV is not considered
+    double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
+    double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
+
+    
     // return all tracks in a cone of size "size" around a direction "direction" 
     const edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min ) const;
- 
+    const edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min, const float z_pv, const float dz_lt ) const;
+    
     //return the leading track in a given cone around the jet axis or a given direction
     const TrackRef leadingSignalTrack(const float rm_cone, const float pt_min) const;
     const TrackRef leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
-    
-    
+     
+     
   private:
     
 
