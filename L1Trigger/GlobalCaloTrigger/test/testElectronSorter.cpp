@@ -13,7 +13,6 @@
 //To be sorted out!
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h" 
 //#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 //Standard library headers
 #include <fstream>   //for file IO
 #include <string>
@@ -30,21 +29,22 @@ using std::vector;
 
 
 //Typedefs and other definitions
-typedef vector<L1GctEmCand> EmCandVec;
+typedef vector<L1CaloEmCand> EmInputCandVec;
+typedef vector<L1GctEmCand> EmOutputCandVec;
 ifstream file;
 ofstream ofile;
-vector<L1GctEmCand> data;
+vector<L1CaloEmCand> data;
 
 //  Function for reading in the dummy data
 void LoadFileData(const string &inputFile);
 
 //Function that outputs a txt file with the output
-void WriteFileData(EmCandVec outputs);
+void WriteFileData(EmOutputCandVec outputs);
 
 int main()
 {
-  EmCandVec inputs;
-  EmCandVec outputs;
+  EmInputCandVec inputs;
+  EmOutputCandVec outputs;
   bool checkIn = false;
   bool checkOut = false;
 
@@ -66,14 +66,14 @@ int main()
       cout << "Error in data: Discrepancy between Rank in file and input buffer!"<<endl;
       checkIn = true;
     }
-    if(data[i].eta() != inputs[i].eta()){
-      cout << "Error in data:Discrepancy between Eta in file and input buffer!"<<endl;
-      checkIn = true;
-    }
-    if(data[i].phi() != inputs[i].phi()){
-      cout << "Error in data:Discrepancy between Phi in file and input buffer!"<<endl;
-      checkIn = true;
-    }
+//     if(data[i].eta() != inputs[i].eta()){
+//       cout << "Error in data:Discrepancy between Eta in file and input buffer!"<<endl;
+//       checkIn = true;
+//     }
+//     if(data[i].phi() != inputs[i].phi()){
+//       cout << "Error in data:Discrepancy between Phi in file and input buffer!"<<endl;
+//       checkIn = true;
+//     }
   }
 
   //sort the electron candidates by rank
@@ -140,7 +140,8 @@ void LoadFileData(const string &inputFile)
     file >>std::hex>>candRank;
     file >>std::hex>>candEta;
     file >>std::hex>>candPhi;
-    L1GctEmCand electron(candRank,candEta,candPhi,0,0);
+//     L1CaloEmCand electron(candRank,candEta,candPhi,0,0);
+    L1CaloEmCand electron;
     data.push_back(electron);
   }
   
@@ -148,17 +149,17 @@ void LoadFileData(const string &inputFile)
 }
 
 //Function definition, that writes the output to a file
-void WriteFileData(EmCandVec outputs)
+void WriteFileData(EmOutputCandVec outputs)
 {
-  EmCandVec writeThis;
+  EmOutputCandVec writeThis;
   writeThis = outputs;
   ofile.open("sortOutput.txt",ios::out);
   for(unsigned int i=0;i!=writeThis.size();i++){ 
       ofile<<std::hex<<writeThis[i].rank();
-      ofile<<" ";
-      ofile<<std::hex<<writeThis[i].eta();
-      ofile<<" ";
-      ofile<<std::hex<<writeThis[i].phi();
+//       ofile<<" ";
+//       ofile<<std::hex<<writeThis[i].eta();
+//       ofile<<" ";
+//       ofile<<std::hex<<writeThis[i].phi();
       ofile<<"\n";
     }
     return;

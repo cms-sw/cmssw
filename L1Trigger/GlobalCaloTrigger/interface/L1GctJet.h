@@ -6,7 +6,7 @@
 #include <ostream>
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 /*!

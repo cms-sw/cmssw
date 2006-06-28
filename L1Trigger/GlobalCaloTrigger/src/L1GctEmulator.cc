@@ -15,9 +15,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 // data format include files
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 #include <memory>
 
@@ -34,6 +34,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtTotal>();
   produces<L1GctEtHad>();
   produces<L1GctEtMiss>();
+  produces<L1GctJetCounts>();
 
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger(true);

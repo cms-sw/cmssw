@@ -1,8 +1,8 @@
 #ifndef L1GLOBALCALOTRIGGER_H_
 #define L1GLOBALCALOTRIGGER_H_
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
@@ -65,7 +65,7 @@ public:
   void process();
   
   /// set a jet region at the input to be processed
-  void setRegion(L1GctRegion region);
+  void setRegion(L1CaloRegion region);
 
   /// iso electron outputs to GT
   std::vector<L1GctEmCand> getIsoElectrons() const;

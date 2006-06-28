@@ -1,7 +1,8 @@
 #ifndef L1GCTJETFINDERBASE_H_
 #define L1GCTJETFINDERBASE_H_
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
@@ -76,10 +77,10 @@ public:
   virtual void process() = 0;
 
   /// Set input data
-  void setInputRegion(unsigned i, L1GctRegion region);
+  void setInputRegion(unsigned i, L1CaloRegion region);
     
   /// Return input data   
-  std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
+  std::vector<L1CaloRegion> getInputRegions() const { return m_inputRegions; }
 
   /// Return pointer to calibration LUT
   L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
@@ -107,7 +108,7 @@ public:
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
     
   /// input data required for jet finding
-  std::vector<L1GctRegion> m_inputRegions;
+  std::vector<L1CaloRegion> m_inputRegions;
 
   /// output jets
   JetVector m_outputJets;

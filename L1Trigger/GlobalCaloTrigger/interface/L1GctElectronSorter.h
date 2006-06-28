@@ -1,8 +1,11 @@
 #ifndef L1GCTELECTRONSORTER_H_
 #define L1GCTELECTRONSORTER_H_
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+
 #include <vector>
 #include <functional>
 #include <ostream>
@@ -48,10 +51,10 @@ class L1GctElectronSorter : public L1GctProcessor
   virtual void process();
   ///
   /// set input candidate
-  void setInputEmCand(int i, L1GctEmCand cand);
+  void setInputEmCand(int i, L1CaloEmCand cand);
   ///	
   /// get input candidates
-  inline std::vector<L1GctEmCand> getInputCands() { return m_inputCands; }
+  inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
   ///
   /// get output candidates
   inline std::vector<L1GctEmCand> getOutputCands() { return m_outputCands; }
@@ -76,7 +79,7 @@ class L1GctElectronSorter : public L1GctProcessor
   std::vector<L1GctSourceCard*> m_theSCs;
   ///
   /// input data
-  std::vector<L1GctEmCand> m_inputCands;
+  std::vector<L1CaloEmCand> m_inputCands;
   ///
   /// output data
   std::vector<L1GctEmCand> m_outputCands;

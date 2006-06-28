@@ -154,7 +154,7 @@ void L1GlobalCaloTrigger::process() {
 
 }
 
-void L1GlobalCaloTrigger::setRegion(L1GctRegion region) {
+void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
 
   if (readFromFile) {
     throw cms::Exception("L1GctInputError")
@@ -164,7 +164,7 @@ void L1GlobalCaloTrigger::setRegion(L1GctRegion region) {
   unsigned scnum = L1GctMap::getMap()->sourceCard(region);
   unsigned input = L1GctMap::getMap()->sourceCardOutput(region);
   L1GctSourceCard* sc = theSourceCards.at(scnum);
-  std::vector<L1GctRegion> tempRegions = sc->getRegions();
+  std::vector<L1CaloRegion> tempRegions = sc->getRegions();
   tempRegions.at(input) = region;
   sc->setRegions(tempRegions);
 }

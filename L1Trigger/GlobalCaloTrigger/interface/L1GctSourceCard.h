@@ -1,8 +1,7 @@
 #ifndef L1GCTSOURCECARD_H_
 #define L1GCTSOURCECARD_H_
 
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include <vector>
@@ -91,10 +90,10 @@ class L1GctSourceCard
   void setRegions(std::vector<L1CaloRegion> regions);
 
   /// set the Iso Em candidates
-  void setIsoEm(std::vector<L1GctEmCand> isoEm);
+  void setIsoEm(std::vector<L1CaloEmCand> isoEm);
 
   /// set the Non Iso Em candidates
-  void setNonIsoEm(std::vector<L1GctEmCand> nonIsoEm);
+  void setNonIsoEm(std::vector<L1CaloEmCand> nonIsoEm);
 
   /// set the Mip bits
   void setMipBits(unsigned mip);
@@ -103,8 +102,8 @@ class L1GctSourceCard
   void setQuietBits(unsigned quiet);
 
   //Methods to read the BX data out from the class
-  std::vector<L1GctEmCand> getIsoElectrons() const;
-  std::vector<L1GctEmCand> getNonIsoElectrons() const;
+  std::vector<L1CaloEmCand> getIsoElectrons() const;
+  std::vector<L1CaloEmCand> getNonIsoElectrons() const;
   unsigned getMipBits() const;
   unsigned getQuietBits() const;
   std::vector<L1CaloRegion> getRegions() const;
@@ -126,7 +125,7 @@ class L1GctSourceCard
   void readBxNum();  
 
   L1CaloRegion makeRegion(ULong rctFileData);
-  L1GctEmCand makeEmCand(ULong rctFileData, bool iso);
+  L1CaloEmCand makeEmCand(ULong rctFileData, bool iso);
 
 
  private:  // members
@@ -152,8 +151,8 @@ class L1GctSourceCard
   long int m_currentBX;
 
   //Data buffers
-  std::vector<L1GctEmCand> m_isoElectrons;  
-  std::vector<L1GctEmCand> m_nonIsoElectrons;
+  std::vector<L1CaloEmCand> m_isoElectrons;  
+  std::vector<L1CaloEmCand> m_nonIsoElectrons;
   unsigned m_mipBits;   //IMPORTANT - the static_casts in the getCables1And2 method should
   unsigned m_quietBits; //match the types of m_mipBits and m_quietBits.
   std::vector<L1CaloRegion> m_regions;

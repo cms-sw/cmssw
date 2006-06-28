@@ -138,7 +138,7 @@ void L1GctJetFinderBase::reset()
   m_outputHt = 0;
 }
 
-void L1GctJetFinderBase::setInputRegion(unsigned i, L1GctRegion region)
+void L1GctJetFinderBase::setInputRegion(unsigned i, L1CaloRegion region)
 {
   if(i >= 0 && i < this->maxRegionsIn())
   {

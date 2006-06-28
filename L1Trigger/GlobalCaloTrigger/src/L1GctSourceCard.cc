@@ -1,7 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -139,7 +137,7 @@ void L1GctSourceCard::setRegions(vector<L1CaloRegion> regions) {
 }
 
 /// set the Iso Em candidates
-void L1GctSourceCard::setIsoEm(vector<L1GctEmCand> isoEm) {
+void L1GctSourceCard::setIsoEm(vector<L1CaloEmCand> isoEm) {
   if (m_cardType!=cardType1) {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
@@ -158,7 +156,7 @@ void L1GctSourceCard::setIsoEm(vector<L1GctEmCand> isoEm) {
 }
 
 /// set the Non Iso Em candidates
-void L1GctSourceCard::setNonIsoEm(vector<L1GctEmCand> nonIsoEm) {
+void L1GctSourceCard::setNonIsoEm(vector<L1CaloEmCand> nonIsoEm) {
   if (m_cardType!=cardType1) {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setNonIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
@@ -200,7 +198,7 @@ void L1GctSourceCard::setQuietBits(unsigned quiet) {
   }
 }
 
-vector<L1GctEmCand> L1GctSourceCard::getIsoElectrons() const
+vector<L1CaloEmCand> L1GctSourceCard::getIsoElectrons() const
 {
   if(m_cardType != cardType1)
   {
@@ -211,7 +209,7 @@ vector<L1GctEmCand> L1GctSourceCard::getIsoElectrons() const
   return m_isoElectrons;
 }
 
-vector<L1GctEmCand> L1GctSourceCard::getNonIsoElectrons() const
+vector<L1CaloEmCand> L1GctSourceCard::getNonIsoElectrons() const
 {
   if(m_cardType != cardType1)
   {
@@ -433,16 +431,16 @@ L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
 //   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
 
 //  return L1GctRegion(0, et, overFlow, tauVeto, false, false);
-  return LCaloRegion(rctFileData,0,0,0);
+  return L1CaloRegion(rctFileData,0,0,0);
 
 }
 
 // make EM cand from file data
-L1GctEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
+L1CaloEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
     unsigned rank = rctFileData & 0x3f;
     rctFileData >>= 6;   //shift the remaining bits down, to remove the rank info         
     int phi = rctFileData & 0x1;  //1 bit of Phi
     int eta = (rctFileData & 0xE) >> 1;  //other 3 bits are eta
 
-    return L1GctEmCand(rank, phi, eta, iso, m_id/3);
+    return L1CaloEmCand(rank, phi, eta, iso, m_id/3);
 }

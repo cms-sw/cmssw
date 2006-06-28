@@ -112,6 +112,7 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
       return true;
     }
 //USE THIS BLOCK INSTEAD IF YOU WANT OVERFLOW BIT FUNCTIONALITY        
+//*** BUT IT WILL NEED MODIFICATION SINCE L1GctRegion IS OBSOLETE ***
 /*    // Get the energy of the central region & OR the overflow bit to become the MSB
     ULong testEt = (m_inputRegions.at(centreIndex).et() | (m_inputRegions.at(centreIndex).getOverFlow() << L1GctRegion::ET_BITWIDTH));
         

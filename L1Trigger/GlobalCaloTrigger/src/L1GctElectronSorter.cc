@@ -43,9 +43,10 @@ L1GctElectronSorter::~L1GctElectronSorter()
 
 // clear buffers
 void L1GctElectronSorter::reset() {
-  for(unsigned i = 0;i!=m_inputCands.size();i++){    
-    m_inputCands[i] = 0;
-  }
+  // *** FIX THIS ***
+//   for(unsigned i = 0;i!=m_inputCands.size();i++){    
+//     m_inputCands[i] = 0;
+//   }
   for(unsigned i = 0;i!=m_outputCands.size();i++){  
     m_outputCands[i] = 0;
   } 
@@ -72,7 +73,10 @@ void L1GctElectronSorter::process() {
 
 
 //Make temporary copy of data
-    std::vector<L1GctEmCand> data = m_inputCands;
+    std::vector<L1CaloEmCand> calodata = m_inputCands;
+
+    // *** FIX THIS *** 
+    std::vector<L1GctEmCand> data(calodata.size());
 
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
@@ -84,7 +88,7 @@ void L1GctElectronSorter::process() {
 
 }
 
-void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){
+void L1GctElectronSorter::setInputEmCand(int i, L1CaloEmCand cand){
   m_inputCands[i] = cand;
 }
 
