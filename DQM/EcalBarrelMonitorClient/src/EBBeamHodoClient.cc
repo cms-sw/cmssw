@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/27 20:20:09 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/28 09:00:35 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -591,35 +591,35 @@ void EBBeamHodoClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, he02_[0] );
+  he02_[0] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, he02_[1] );
+  he02_[1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[0] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[0] );
+  he03_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[1] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[1] );
+  he03_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[2] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[2] );
+  he03_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
 
 }
 
@@ -662,9 +662,10 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   const int csize = 250;
   
   const double histMax = 1.e15;
-  
-  int pCol3[3] = { 2, 3, 5 };
-  
+ 
+  int pCol4[10];
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
+ 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
@@ -677,9 +678,9 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TCanvas* cP = new TCanvas("cP", "Temp", csize, csize);
 
-  TH2F* obj2f;
   TH1F* obj1f;
-  TProfile2D* objp;
+  TH2F* obj2f;
+  TProfile* objp;
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -894,6 +895,170 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       } else {
         gPad->SetLogy(0);
       }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<3; i++) { 
+
+    imgNameP = "";
+
+    obj1f = hc01_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<2; i++) {
+
+    imgNameP = "";
+
+    objp = he01_[i];
+
+    if ( objp ) {
+
+      meName = objp->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP; 
+    
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      objp->SetStats(kTRUE); 
+      objp->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    imgNameR = "";
+  
+    obj2f = he02_[i];
+  
+    if ( obj2f ) {
+  
+      meName = obj2f->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameR = meName + ".png";
+      imgName = htmlDir + imgNameR;
+
+      cP->cd();
+//      gStyle->SetOptStat("euomr");
+//      obj2f->SetStats(kTRUE);
+      obj2f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    if ( imgNameR.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameR << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<3; i++) {
+
+    imgNameP = "";
+
+    obj1f = he03_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE); 
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
