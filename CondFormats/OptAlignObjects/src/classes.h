@@ -12,21 +12,15 @@
 #include <string>
 #include <vector>
 
-template std::vector<OpticalAlignInfo>::iterator;
-
-template std::vector<MBAChBenchCalPlateData>::iterator;
-template std::vector<MBAChBenchSurveyPlateData>::iterator;
-
-template std::vector<CSCZSensorData>::iterator;
-template std::vector<CSCRSensorData>::iterator;
-
-template std::vector<OpticalAlignParam>::iterator;
-template std::vector< int >::iterator;
-template std::vector< int >::const_iterator;
-//template edm::Wrapper<OpticalAlignments>;
 namespace {
   namespace {
     edm::Wrapper<OpticalAlignments> tw;
+    std::vector<OpticalAlignInfo> opinfo;
+    std::vector<MBAChBenchCalPlateData> plate;
+    std::vector<CSCZSensorData> z;
+    std::vector<CSCRSensorData> r;
+    std::vector<OpticalAlignParam> pa;
+    std::vector< int > i;
   }
 }
 
