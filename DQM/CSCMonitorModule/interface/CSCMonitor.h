@@ -5,8 +5,8 @@
  *
  * Class for CSC Detector Monitoring.
  *  
- *  $Date: 2006/01/18 11:18:56 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/03/09 16:48:38 $
+ *  $Revision: 1.9 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -78,6 +78,10 @@ private:
   int L1ANumber[maxDDU];
   
   int FEBUnpacked;
+  
+  bool saveRootFile;
+  int  saveRootFileEventsInterval;
+  std::string RootFileName;
 
 };
 

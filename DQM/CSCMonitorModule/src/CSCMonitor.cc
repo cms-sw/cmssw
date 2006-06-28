@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/03/20 09:54:04 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/03/20 13:12:13 $
+ *  $Revision: 1.13 $
  *
  * \author Ilaria Segoni
  */
@@ -25,6 +25,9 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
  
  
  printout = iConfig.getUntrackedParameter<bool>("monitorVerbosity", false);
+ saveRootFile  = iConfig.getUntrackedParameter<bool>("CSCDQMSaveRootFile", false); 
+ saveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EventsInterval", 10000); 
+ RootFileName  = iConfig.getUntrackedParameter<std::string>("RootFileName", "CSCMonitor.root"); 
 
  for(int ddu=0; ddu<maxDDU; ddu++) {
    dduBooked[ddu]=false;
@@ -71,7 +74,9 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
       }
       
       
-  if(nEvents % 1000 == 0)   dbe->save("CSCDQMPlots.root"); 
+  if((!(nEvents%saveRootFileEventsInterval ))&&(saveRootFile ) ) {
+    dbe->save(RootFileName);
+  }
    
   usleep(100000);
 }
