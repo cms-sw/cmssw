@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/28 09:00:35 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/28 10:39:17 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1072,6 +1072,8 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   }
+
+  delete cP;
 
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
