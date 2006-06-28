@@ -53,6 +53,8 @@ class L1GctElectronSorter : public L1GctProcessor
   /// set input candidate
   void setInputEmCand(int i, L1CaloEmCand cand);
   ///	
+  /// converts from L1CaloEmCand to L1GctEmCand
+  std::vector<L1GctEmCand> convert(std::vector<L1CaloEmCand> cand);
   /// get input candidates
   inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
   ///

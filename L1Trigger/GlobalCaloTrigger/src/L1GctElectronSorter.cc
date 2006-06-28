@@ -69,12 +69,9 @@ void L1GctElectronSorter::fetchInput() {
 void L1GctElectronSorter::process() {
 
 
-//Make temporary copy of data
-    std::vector<L1CaloEmCand> calodata = m_inputCands;
-
-    // *** FIX THIS *** 
-    std::vector<L1GctEmCand> data(calodata.size());
-
+//Convert from caloEmCand to gctEmCand and make temporary copy of data
+  std::vector<L1GctEmCand> data = this->convert(m_inputCands);
+ 
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
 
@@ -101,5 +98,16 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
   return s;
 }
 
-
+std::vector<L1GctEmCand> L1GctElectronSorter::convert(std::vector<L1CaloEmCand> cand){
+  std::vector<L1GctEmCand> gctCand(cand.size());
+  for(unsigned int i = 0;i!=cand.size();i++){
+    unsigned int rank = cand[i].rank();
+    int phi = 0;
+    int eta = 0;
+    bool iso = cand[i].isolated();
+    L1GctEmCand gctTemp(rank,phi,eta,iso);
+    gctCand[i] = gctTemp;
+  }
+  return gctCand;
+}
 
