@@ -6,11 +6,11 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 // Constructors
 
 TrackingVertex::TrackingVertex() : 
-    position_(HepLorentzVector(0,0,0,0)), signalSource_(0), inVolume_(0) {}
+    position_(HepLorentzVector(0,0,0,0)), inVolume_(false), signalSource_(0) {}
 
 TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, 
                                const int source,          const int  crossing) : 
-    position_(p), signalSource_(crossing*4+source), inVolume_(inVolume)  {}
+    position_(p), inVolume_(inVolume), signalSource_(crossing*4+source)  {}
 
 /// add a reference to a Track
 void TrackingVertex::add( const TrackingParticleRef & r ) { tracks_.push_back( r ); }
