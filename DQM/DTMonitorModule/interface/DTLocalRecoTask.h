@@ -4,8 +4,8 @@
 /*
  * \file DTLocalRecoTask.h
  *
- * $Date: 2006/06/01 14:34:12 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/20 12:17:41 $
+ * $Revision: 1.4 $
  * \author M. Zanetti & G. Cerminara - INFN Padova & Torino
  *
 */
@@ -61,6 +61,9 @@ private:
   DTSegmentAnalysis *theSegmentAnalysis;
   DTResolutionAnalysis *theResolutionAnalysis;
   
+  bool doSegmentAnalysis;
+  bool doResolutionAnalysis;
+
 };
 
 #endif

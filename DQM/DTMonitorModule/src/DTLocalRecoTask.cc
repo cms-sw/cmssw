@@ -1,8 +1,8 @@
 /*
  * \file DTLocalRecoTask.cc
  * 
- * $Date: 2006/06/01 14:34:11 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/20 12:17:42 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -29,7 +29,8 @@ using namespace edm;
 
 
 DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
-							     theSegmentAnalysis(0) {
+							     theSegmentAnalysis(0),
+							     theResolutionAnalysis(0) {
   debug = pset.getUntrackedParameter<bool>("debug", "false");
 
   if(debug)
@@ -47,15 +48,18 @@ DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
   
   if (dbe)
     dbe->setCurrentFolder("DT/DTLocalRecoTask");
-
-
+  
+  doSegmentAnalysis = pset.getUntrackedParameter<bool>("doSegmentAnalysis", false);
+  doResolutionAnalysis = pset.getUntrackedParameter<bool>("doResolutionAnalysis", false);
   
   // Create the classes which really make the analysis
-  theSegmentAnalysis =
-    new DTSegmentAnalysis(pset.getParameter<ParameterSet>("segmentAnalysisConfig"), dbe);
+  if(doSegmentAnalysis)
+    theSegmentAnalysis =
+      new DTSegmentAnalysis(pset.getParameter<ParameterSet>("segmentAnalysisConfig"), dbe);
   
-  theResolutionAnalysis =
-    new DTResolutionAnalysis(pset.getParameter<ParameterSet>("resolutionAnalysisConfig"), dbe);
+  if(doResolutionAnalysis)
+    theResolutionAnalysis =
+      new DTResolutionAnalysis(pset.getParameter<ParameterSet>("resolutionAnalysisConfig"), dbe);
 
 
 //   logFile.open("DTLocalRecoTask.log");
@@ -87,9 +91,10 @@ void DTLocalRecoTask::endJob(){
 }
 
 void DTLocalRecoTask::analyze(const Event& event, const EventSetup& setup){
- 
-  theSegmentAnalysis->analyze(event, setup);
-  theResolutionAnalysis->analyze(event, setup);
+  if(doSegmentAnalysis)
+    theSegmentAnalysis->analyze(event, setup);
+  if(doResolutionAnalysis)
+    theResolutionAnalysis->analyze(event, setup);
 
 }
 
