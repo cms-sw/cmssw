@@ -19,8 +19,6 @@
  <class name="EcalMGPAGainRatio"/>
  <class name="EcalIntercalibConstants"/>
 
-
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
- <class pattern="*iterator*"/>
 </lcgdict>
