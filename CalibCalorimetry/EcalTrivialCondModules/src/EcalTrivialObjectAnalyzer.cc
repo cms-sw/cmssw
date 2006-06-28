@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.4 2006/05/13 06:40:14 meridian Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.5 2006/06/23 14:37:02 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -171,7 +171,7 @@ using namespace std;
      }
      std::cout << "weight matrix before gain switch:" << std::endl;
      std::cout << clmat1 << std::endl;
-     std::cout << "weight matrix before gain switch:" << std::endl;
+     std::cout << "weight matrix after gain switch:" << std::endl;
      std::cout << clmat2 << std::endl;
 
    } else {
