@@ -17,7 +17,7 @@ namespace edm {
     : thePluginManager(seal::PluginManager::get())
     {
       thePluginManager->initialise();
-      // map every module to its library
+      // map every module to its library.  Code copied from SealPluginDump
       for (PluginManager::DirectoryIterator moduleCache = thePluginManager->beginDirectories ();
            moduleCache != thePluginManager->endDirectories (); ++moduleCache)
       {
@@ -29,6 +29,7 @@ namespace edm {
           for (unsigned i=0; i < moduleDescriptor->children(); ++i)
           {
             string moduleClass = moduleDescriptor->child(i)->token(1);
+
             theLibraryMap[moduleClass] = libraryName;
           }
         }
@@ -40,7 +41,7 @@ namespace edm {
                                             const string & moduleLabel)
     {
       FileInPath result;
-      string libraryName = theLibraryMap[moduleClass];
+      string libraryName = libraryOf(moduleClass);
       string name = stripHeader(libraryName);
       name = stripTrailer(name);
       // parse around capital letters
@@ -70,6 +71,19 @@ namespace edm {
         << name;
        // just to suppress compiler warnings
        return result;
+    }
+
+
+    string IncludeFileFinder::libraryOf(const string & moduleClass)
+    {
+      std::map<string, string>::const_iterator mapItr 
+        = theLibraryMap.find(moduleClass);
+      if(mapItr == theLibraryMap.end())
+      {
+        throw edm::Exception(errors::Configuration, "IncludeFileFinder")
+          << "Cannot find " << moduleClass << " in the SEAL Plugin list";
+      }
+      return mapItr->second;
     }
 
 

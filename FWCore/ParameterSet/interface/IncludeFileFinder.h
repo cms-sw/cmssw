@@ -24,9 +24,7 @@ namespace edm {
                       const std::string & moduleLabel);
 
       /// these are public just for testing purposes
-      std::string libraryOf(const std::string & moduleClass)  {
-        return theLibraryMap[moduleClass];
-      }
+      std::string libraryOf(const std::string & moduleClass);
 
       /// takes off the 'lib' part of the library name
       static std::string stripHeader(const std::string & libraryName);
