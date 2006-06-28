@@ -1,6 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -118,7 +117,7 @@ void L1GctSourceCard::fetchInput()
 
 
 /// set the Regions
-void L1GctSourceCard::setRegions(vector<L1GctRegion> regions) {
+void L1GctSourceCard::setRegions(vector<L1CaloRegion> regions) {
   if (m_cardType!=cardType2 && m_cardType!=cardType3) {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setRegions() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
@@ -245,7 +244,7 @@ unsigned L1GctSourceCard::getQuietBits() const
   return m_quietBits;
 }
 
-vector<L1GctRegion> L1GctSourceCard::getRegions() const
+vector<L1CaloRegion> L1GctSourceCard::getRegions() const
 {
   if(m_cardType == cardType1)
   {
@@ -425,15 +424,16 @@ void L1GctSourceCard::readBxNum()
 }
 
 // make region from file data
-L1GctRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
-  int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
+L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
+//   int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
 
-  rctFileData >>= 10;  //shift the remaining bits down to remove the 10 bits of Et
+//   rctFileData >>= 10;  //shift the remaining bits down to remove the 10 bits of Et
 
-  bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
-  bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
+//   bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
+//   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
 
-  return L1GctRegion(0, et, overFlow, tauVeto, false, false);
+//  return L1GctRegion(0, et, overFlow, tauVeto, false, false);
+  return LCaloRegion(rctFileData,0,0,0);
 
 }
 

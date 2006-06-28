@@ -3,7 +3,7 @@
 
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include <vector>
 #include <bitset>
@@ -88,7 +88,7 @@ class L1GctSourceCard
   // methods to set data in the card for use when pushing from RCT
 
   /// set the Regions
-  void setRegions(std::vector<L1GctRegion> regions);
+  void setRegions(std::vector<L1CaloRegion> regions);
 
   /// set the Iso Em candidates
   void setIsoEm(std::vector<L1GctEmCand> isoEm);
@@ -107,7 +107,7 @@ class L1GctSourceCard
   std::vector<L1GctEmCand> getNonIsoElectrons() const;
   unsigned getMipBits() const;
   unsigned getQuietBits() const;
-  std::vector<L1GctRegion> getRegions() const;
+  std::vector<L1CaloRegion> getRegions() const;
       
   /// Returns the value of the current bunch crossing number
   long int getBxNum() const { return m_currentBX; }
@@ -125,7 +125,7 @@ class L1GctSourceCard
   /// Reads the Bunch Crossing number from the file
   void readBxNum();  
 
-  L1GctRegion makeRegion(ULong rctFileData);
+  L1CaloRegion makeRegion(ULong rctFileData);
   L1GctEmCand makeEmCand(ULong rctFileData, bool iso);
 
 
@@ -156,7 +156,7 @@ class L1GctSourceCard
   std::vector<L1GctEmCand> m_nonIsoElectrons;
   unsigned m_mipBits;   //IMPORTANT - the static_casts in the getCables1And2 method should
   unsigned m_quietBits; //match the types of m_mipBits and m_quietBits.
-  std::vector<L1GctRegion> m_regions;
+  std::vector<L1CaloRegion> m_regions;
   
     
 };
