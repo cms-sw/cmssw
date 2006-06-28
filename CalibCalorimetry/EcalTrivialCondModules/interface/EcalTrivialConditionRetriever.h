@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.3 2006/05/13 06:39:29 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.4 2006/06/23 14:36:28 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -72,6 +72,7 @@ private:
   EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ); // stop default
   const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ); // stop default
 
+  void getWeightsFromConfiguration(const edm::ParameterSet& ps);
   // data members
   double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
   double adcToGeVEEConstant_;      // ADC -> GeV scale for endcap
@@ -98,11 +99,28 @@ private:
   double gainRatio12over6_;        // ratio of MGPA gain12 / gain6
   double gainRatio6over1_;         // ratio of MGPA gain6 / gain1
 
-  std::vector<EcalWeight> amplWeights_;  // weights to compute amplitudes after ped subtraction
-  std::vector<EcalWeight> amplWeightsAft_;  // weights to compute amplitudes after ped subtraction
-  std::vector<EcalWeight> pedWeights_;  // weights to compute amplitudes w/o ped subtraction
-  std::vector<EcalWeight> jittWeights_;  // weights to compute jitter
+  std::vector< std::vector<EcalWeight> > amplWeights_;  // weights to compute amplitudes after ped subtraction
+  std::vector< std::vector<EcalWeight> > amplWeightsAft_;  // weights to compute amplitudes after ped subtraction
 
+  std::vector< std::vector<EcalWeight> > pedWeights_;  // weights to compute amplitudes w/o ped subtraction
+  std::vector< std::vector<EcalWeight> > pedWeightsAft_;  // weights to compute amplitudes w/o ped subtraction
+
+  std::vector< std::vector<EcalWeight> > jittWeights_;  // weights to compute jitter
+  std::vector< std::vector<EcalWeight> > jittWeightsAft_;  // weights to compute jitter
+
+  std::vector< EcalWeightSet::EcalWeightMatrix > chi2Matrix_;
+  std::vector< EcalWeightSet::EcalWeightMatrix > chi2MatrixAft_;
+
+  std::string amplWeightsFile_;
+  std::string amplWeightsAftFile_;
+  std::string pedWeightsFile_;
+  std::string jittWeightsFile_; 
+  std::string chi2MatrixFile_;
+
+  int nTDCbins_;
+
+  bool getWeightsFromFile_;
+  bool weightsForAsynchronousRunning_;
   bool producedEcalPedestals_;
   bool producedEcalWeights_;
   bool producedEcalIntercalibConstants_;
