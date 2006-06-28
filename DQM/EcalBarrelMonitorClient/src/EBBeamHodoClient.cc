@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/27 16:31:23 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/27 20:20:09 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -497,7 +497,7 @@ void EBBeamHodoClient::analyze(void){
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hp01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
@@ -718,6 +718,8 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    imgNameR = "";
+
     obj1f = hr01_[i];
 
     if ( obj1f ) {
@@ -765,7 +767,148 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
 
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<2; i++) {
+
+    imgNameP = "";
+
+    obj1f = hp01_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  obj2f = hp02_;
+
+  imgNameP = "";
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int j = 0; j < meName.size(); j++ ) {
+      if ( meName.substr(j, 1) == " " )  {
+        meName.replace(j, 1, "_");
+      }
+    }
+    imgNameP = meName + ".png";
+    imgName = htmlDir + imgNameP;
+  
+    cP->cd();
+//    gStyle->SetOptStat("euomr");
+//    obj2f->SetStats(kTRUE);
+    obj2f->Draw();
+    cP->Update();
+    cP->SaveAs(imgName.c_str());
+
+  }
+
+  if ( imgNameP.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<4; i++) {
+
+    imgNameP = "";
+
+    obj1f = 0;
+    switch ( i ) {
+    case 0:
+      obj1f = hs01_[0];
+      break;
+    case 1:
+      obj1f = hs01_[1];
+      break;
+    case 2:
+      obj1f = hq01_[0];
+      break;
+    case 3:
+      obj1f = hq01_[1];
+      break;
+    default:
+      break;
+    }
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
