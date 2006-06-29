@@ -1,57 +1,51 @@
 #ifndef AlignTransform_H
 #define AlignTransform_H
+#include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Matrix/SymMatrix.h"   // TEMPORARILY also include alignment error
 #include <boost/cstdint.hpp>
 
 
 /// Class holding data for an Alignment transformation
-/// It contains the raw detector id, its global position and global orientation (3 angles),
-/// and the corresponding errors. It is optimized for storage.
+/// It contains the raw detector id, its global position and global orientation.
+/// It is optimized for storage.
 class  AlignTransform 
 {
 public:
+  typedef CLHEP::HepEulerAngles EulerAngles;
   typedef CLHEP::Hep3Vector     ThreeVector;
   typedef CLHEP::HepRotation    Rotation;
   typedef ThreeVector Translation;
-  typedef ThreeVector Angles;
 
   /// Default constructor
   AlignTransform(){}
 
-  /// Constructor without errors
+  /// Constructor from Euler angles
   AlignTransform( const Translation & itranslation, 
-				  const Translation & itranslationError,
+				  const EulerAngles & ieulerAngles,
                   const uint32_t & irawId ) :
 	m_translation(itranslation),
-	m_translationError(itranslationError),
-	m_angles(0),m_angleErrors(0),
+    m_eulerAngles(ieulerAngles),
     m_rawId(irawId) {}
   
-  /// Constructor with errors
+  /// Constructor from Rotation
   AlignTransform( const Translation & itranslation, 
-				  const Translation & itranslationError,
-				  const Angles & iangles,
-				  const Angles & iangleErrors,
+				  const Rotation    & irotation,
                   const uint32_t & irawId ) :
 	m_translation(itranslation),
-	m_translationError(itranslationError),
-	m_angles(iangles),
-	m_angleErrors(iangleErrors),
+	m_eulerAngles(irotation.eulerAngles()),
     m_rawId(irawId) {}
 
   const Translation & translation() const { return m_translation; }
-  const Translation & translationError() const { return m_translationError; }
-  const Angles & angles() const { return m_angles; }
-  const Angles & angleErrors() const { return m_angleErrors; }
+  const EulerAngles & eulerAngles() const { return m_eulerAngles; }
   const uint32_t & rawId() const { return m_rawId; }
+  Rotation rotation() const { return Rotation(m_eulerAngles); }
 
 private:
 
   Translation m_translation;
-  Translation m_translationError;
-  Angles      m_angles;
-  Angles      m_angleErrors;
+  EulerAngles m_eulerAngles;
   uint32_t    m_rawId;
 
 
