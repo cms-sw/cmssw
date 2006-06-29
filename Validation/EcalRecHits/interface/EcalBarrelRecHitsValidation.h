@@ -25,6 +25,10 @@
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -62,7 +66,9 @@ private:
  
  DaqMonitorBEInterface* dbe_;
 
+ string digiProducer_;
  string uncalibrecHitProducer_;
+ string EBdigiCollection_;
  string EBuncalibrechitCollection_;
 
  MonitorElement* meEBUncalibRecHitsOccupancy_;     
@@ -70,6 +76,15 @@ private:
  MonitorElement* meEBUncalibRecHitsPedestal_;      
  MonitorElement* meEBUncalibRecHitsJitter_;        
  MonitorElement* meEBUncalibRecHitsChi2_;          
+ MonitorElement* meEBUncalibRecHitMaxSampleRatio_;
+ MonitorElement* meEBUncalibRecHitsOccupancyGt100adc_;     
+ MonitorElement* meEBUncalibRecHitsAmplitudeGt100adc_;    
+ MonitorElement* meEBUncalibRecHitsPedestalGt100adc_;      
+ MonitorElement* meEBUncalibRecHitsJitterGt100adc_;        
+ MonitorElement* meEBUncalibRecHitsChi2Gt100adc_;          
+ MonitorElement* meEBUncalibRecHitMaxSampleRatioGt100adc_;
+ MonitorElement* meEBUncalibRecHitsAmpFullMap_;
+ MonitorElement* meEBUncalibRecHitsPedFullMap_;
  MonitorElement* meEBUncalibRecHitAmplMap_[36];
  MonitorElement* meEBUncalibRecHitPedMap_[36];
 };

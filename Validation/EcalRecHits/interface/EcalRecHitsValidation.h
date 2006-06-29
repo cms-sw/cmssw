@@ -93,6 +93,8 @@ private:
  MonitorElement* meEBRecHitSimHitRatio_;
  MonitorElement* meEERecHitSimHitRatio_;
  MonitorElement* meESRecHitSimHitRatio_;
+ MonitorElement* meEBRecHitSimHitRatioGt35_;
+ MonitorElement* meEERecHitSimHitRatioGt35_;
 };
 
 #endif

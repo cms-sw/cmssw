@@ -25,6 +25,10 @@
 
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -62,14 +66,27 @@ private:
  
  DaqMonitorBEInterface* dbe_;
 
+ string digiProducer_;
  string uncalibrecHitProducer_;
+ string EEdigiCollection_;
  string EEuncalibrechitCollection_;
 
- MonitorElement* meEEUncalibRecHitsOccupancy_;     
+ MonitorElement* meEEUncalibRecHitsOccupancyPlus_;     
+ MonitorElement* meEEUncalibRecHitsOccupancyMinus_;     
  MonitorElement* meEEUncalibRecHitsAmplitude_;    
  MonitorElement* meEEUncalibRecHitsPedestal_;      
  MonitorElement* meEEUncalibRecHitsJitter_;        
  MonitorElement* meEEUncalibRecHitsChi2_;          
+ MonitorElement* meEEUncalibRecHitMaxSampleRatio_; 
+ MonitorElement* meEEUncalibRecHitsOccupancyPlusGt60adc_;     
+ MonitorElement* meEEUncalibRecHitsOccupancyMinusGt60adc_;     
+ MonitorElement* meEEUncalibRecHitsAmplitudeGt60adc_;    
+ MonitorElement* meEEUncalibRecHitsPedestalGt60adc_;      
+ MonitorElement* meEEUncalibRecHitsJitterGt60adc_;        
+ MonitorElement* meEEUncalibRecHitsChi2Gt60adc_;          
+ MonitorElement* meEEUncalibRecHitMaxSampleRatioGt60adc_; 
+ MonitorElement* meEEUncalibRecHitsAmpFullMap_;
+ MonitorElement* meEEUncalibRecHitsPedFullMap_;
 };
 
 #endif

@@ -1,3 +1,8 @@
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalRecHit>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
@@ -11,6 +16,11 @@
 <flags SEAL_PLUGIN_NAME="ValidationEcalRecHits">
 <export>
    <lib name=ValidationEcalRecHits>
+   <use name=FWCore/ParameterSet>	
+   <use name=DataFormats/EcalDigi>
+   <use name=DataFormats/EcalRecHit>
+   <use name=CondFormats/EcalObjects>
+   <use name=CondFormats/DataRecord>
    <use name=SimDataFormats/CaloHit>      
    <use name=SimDataFormats/Track>        
    <use name=SimDataFormats/Vertex>       
