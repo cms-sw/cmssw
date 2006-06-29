@@ -4,7 +4,7 @@
   <Class table="DTTTRIG" id_columns="IOV_VALUE_ID" name="DTTtrig" >
     <Primitive column="DATA_VERSION" name="dataVersion" />
     <Container table="DT_TTRIGSL" id_columns="IOV_VALUE_ID" name="slData" position_column="DATA_ID" >
-      <Object table="DT_TTRIGSL" id_columns="DATA_ID IOV_VALUE_ID" name="DTSLTtrigData" >
+      <Object table="DT_TTRIGSL" id_columns="DATA_ID IOV_VALUE_ID" name="value_type" >
         <Primitive column="WHEEL" name="wheelId" />
         <Primitive column="STATION" name="stationId" />
         <Primitive column="SECTOR" name="sectorId" />

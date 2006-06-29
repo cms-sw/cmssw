@@ -3,7 +3,7 @@
 <Mapping version="DTT0-1.0" >
   <Class table="DTT0" id_columns="IOV_VALUE_ID" name="DTT0" >
     <Container table="DT_T0CELL" id_columns="IOV_VALUE_ID" name="cellData" position_column="DATA_ID" >
-      <Object table="DT_T0CELL" id_columns="DATA_ID IOV_VALUE_ID" name="DTCellT0Data" >
+      <Object table="DT_T0CELL" id_columns="DATA_ID IOV_VALUE_ID" name="value_type" >
         <Primitive column="WHEEL" name="wheelId" />
         <Primitive column="STATION" name="stationId" />
         <Primitive column="SECTOR" name="sectorId" />
