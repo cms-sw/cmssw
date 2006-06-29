@@ -118,7 +118,7 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
-  return (acc>=threshold || gain12saturated);
+  return (acc>=thr || gain12saturated);
 }
 
 void EcalSelectiveReadoutSuppressor::run(
@@ -183,7 +183,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
     }
     
     unsigned int iPhi = trigPrim->id().iphi() - 1;
-    const int iTPSample = 4;
+    const int iTPSample = 5;
     if(trigPrim->size()>=iTPSample){
       ttFlags[iEta][iPhi] = (EcalSelectiveReadout::ttFlag_t)(*trigPrim)[iTPSample].ttFlag();
     }
