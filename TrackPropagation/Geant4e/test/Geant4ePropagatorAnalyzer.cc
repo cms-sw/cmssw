@@ -38,10 +38,10 @@
 //- SimHits, Tracks and Vertices
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 //- Geant4
 #include "G4TransportationManager.hh"
@@ -178,16 +178,16 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
   ///////////////////////////////////////
   //Get the sim tracks & vertices 
-  Handle<EmbdSimTrackContainer> simTracks;
-  iEvent.getByType<EmbdSimTrackContainer>(simTracks);
+  Handle<SimTrackContainer> simTracks;
+  iEvent.getByType<SimTrackContainer>(simTracks);
   if (! simTracks.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
   }
   LogDebug("Geant4e") << "Got simTracks of size " << simTracks->size();
 
-  Handle<EmbdSimVertexContainer> simVertices;
-  iEvent.getByType<EmbdSimVertexContainer>(simVertices);
+  Handle<SimVertexContainer> simVertices;
+  iEvent.getByType<SimVertexContainer>(simVertices);
   if (! simVertices.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
@@ -227,7 +227,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   ///////////////////////////////////////
   // Iterate over sim tracks to build the FreeTrajectoryState for
   // for the initial position.
-  for(EmbdSimTrackContainer::const_iterator simTracksIt = simTracks->begin(); 
+  for(SimTrackContainer::const_iterator simTracksIt = simTracks->begin(); 
       simTracksIt != simTracks->end(); 
       simTracksIt++){
 
