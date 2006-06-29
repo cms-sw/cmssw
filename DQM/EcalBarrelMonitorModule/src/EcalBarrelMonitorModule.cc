@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/27 20:56:21 $
- * $Revision: 1.102 $
+ * $Date: 2006/06/28 09:45:52 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -116,10 +116,7 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
   // begin-of-run
   if ( meStatus_ ) meStatus_->Fill(0);
 
-//  if ( meRun_ ) meRun_->Fill(irun_);
-//  if ( meEvt_ ) meEvt_->Fill(ievt_);
-
-//  if ( meRunType_ ) meRunType_->Fill(runType_);
+  if ( meEvt_ ) meEvt_->Fill(ievt_);
 
 }
 
@@ -275,6 +272,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
       if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
+
+      if ( dccMap[dcch.id()].getRunType() != -1 ) runType_ = dccMap[dcch.id()].getRunType();
 
       if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
