@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2006/06/27 14:03:03 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/28 10:39:17 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -82,6 +82,7 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
+bool enableQT_;
 
 bool verbose_;
 

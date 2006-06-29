@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/06/23 09:18:34 $
- * $Revision: 1.51 $
+ * $Date: 2006/06/26 12:30:28 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,6 +101,7 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
+bool enableQT_;
  
 bool verbose_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/21 17:38:48 $
- * $Revision: 1.78 $
+ * $Date: 2006/06/22 14:47:06 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -47,6 +47,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -124,42 +127,51 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     meaopn03_[ism-1] = 0;
     meaopn04_[ism-1] = 0;
 
+    qth01_[ism-1] = 0;
+    qth02_[ism-1] = 0;
+    qth03_[ism-1] = 0;
+    qth04_[ism-1] = 0;
+
   }
 
   percentVariation_ = 0.4;
 
-  Char_t qtname[80];
+  if ( enableQT_ ) {
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    Char_t qtname[80];
 
-    int ism = superModules_[i];
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
-    qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      int ism = superModules_[i];
 
-    sprintf(qtname, "EBLT laser quality SM%02d L2", ism);
-    qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBLT laser quality SM%02d L1", ism);
+      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBLT laser quality SM%02d L3", ism);
-    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBLT laser quality SM%02d L2", ism);
+      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
-    qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBLT laser quality SM%02d L3", ism);
+      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-    qth01_[ism-1]->setMeanRange(100., 4096.);
-    qth02_[ism-1]->setMeanRange(100., 4096.);
-    qth02_[ism-1]->setMeanRange(100., 4096.);
-    qth03_[ism-1]->setMeanRange(100., 4096.);
+      sprintf(qtname, "EBLT laser quality SM%02d L4", ism);
+      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-    qth01_[ism-1]->setMinimumEntries(10*1700);
-    qth02_[ism-1]->setMinimumEntries(10*1700);
-    qth03_[ism-1]->setMinimumEntries(10*1700);
-    qth04_[ism-1]->setMinimumEntries(10*1700);
+      qth01_[ism-1]->setMeanRange(100., 4096.);
+      qth02_[ism-1]->setMeanRange(100., 4096.);
+      qth02_[ism-1]->setMeanRange(100., 4096.);
+      qth03_[ism-1]->setMeanRange(100., 4096.);
 
-    qth01_[ism-1]->setErrorProb(1.00);
-    qth02_[ism-1]->setErrorProb(1.00);
-    qth03_[ism-1]->setErrorProb(1.00);
-    qth04_[ism-1]->setErrorProb(1.00);
+      qth01_[ism-1]->setMinimumEntries(10*1700);
+      qth02_[ism-1]->setMinimumEntries(10*1700);
+      qth03_[ism-1]->setMinimumEntries(10*1700);
+      qth04_[ism-1]->setMinimumEntries(10*1700);
+
+      qth01_[ism-1]->setErrorProb(1.00);
+      qth02_[ism-1]->setErrorProb(1.00);
+      qth03_[ism-1]->setErrorProb(1.00);
+      qth04_[ism-1]->setErrorProb(1.00);
+
+    }
 
   }
 

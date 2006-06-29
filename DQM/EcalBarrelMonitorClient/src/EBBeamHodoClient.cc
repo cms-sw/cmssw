@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/28 10:39:17 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/28 17:12:36 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,6 +40,9 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps, MonitorUserInterface*
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);

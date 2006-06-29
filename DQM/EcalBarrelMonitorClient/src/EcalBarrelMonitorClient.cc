@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/26 12:30:29 $
- * $Revision: 1.150 $
+ * $Date: 2006/06/26 13:17:34 $
+ * $Revision: 1.151 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -154,6 +154,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is ON" << endl;
   } else {
     cout << " cloneME switch is OFF" << endl;
+  }
+
+  // enableQT switch
+
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
+
+  if ( enableQT_ ) {
+    cout << " enableQT switch is ON" << endl;
+  } else {
+    cout << " enableQT switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -926,7 +936,7 @@ void EcalBarrelMonitorClient::analyze(void){
   int updates = mui_->getNumUpdates();
 
   if ( ! enableStateMachine_ ) {
-    mui_->runQTests();
+    if ( enableQT_ ) mui_->runQTests();
     mui_->doMonitoring();
   }
 
@@ -1049,26 +1059,26 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
-          // BEGIN: Quality Tests
+          if (enableQT_ ) {
 
-          cout << endl;
-          switch ( mui_->getSystemStatus() ) {
-            case dqm::qstatus::ERROR:
-              cout << " Error(s)";
-              break;
-            case dqm::qstatus::WARNING:
-              cout << " Warning(s)";
-              break;
-            case dqm::qstatus::OTHER:
-              cout << " Some tests did not run;";
-              break;
-            default:
-              cout << " No problems";
+            cout << endl;
+            switch ( mui_->getSystemStatus() ) {
+              case dqm::qstatus::ERROR:
+                cout << " Error(s)";
+                break;
+              case dqm::qstatus::WARNING:
+                cout << " Warning(s)";
+                break;
+              case dqm::qstatus::OTHER:
+                cout << " Some tests did not run;";
+                break;
+              default:
+                cout << " No problems";
+            }
+            cout << " reported after running the quality tests" << endl;
+            cout << endl;
+
           }
-          cout << " reported after running the quality tests" << endl;
-          cout << endl;
-
-          // END: Quality Tests
 
         }
 

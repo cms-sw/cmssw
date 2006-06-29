@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.23 $
+ * $Date: 2006/06/22 14:47:05 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -82,6 +82,7 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
+bool enableQT_;
 
 bool verbose_;
 

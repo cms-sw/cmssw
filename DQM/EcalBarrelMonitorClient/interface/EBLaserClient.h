@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.33 $
+ * $Date: 2006/06/22 14:47:05 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -81,6 +81,7 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
+bool enableQT_;
 
 bool verbose_;
 

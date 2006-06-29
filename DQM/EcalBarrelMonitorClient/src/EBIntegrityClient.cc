@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/21 17:38:48 $
- * $Revision: 1.98 $
+ * $Date: 2006/06/22 14:47:06 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,6 +44,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -89,78 +92,93 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
 
+    qth01_[ism-1] = 0;
+    qth02_[ism-1] = 0;
+    qth03_[ism-1] = 0;
+    qth04_[ism-1] = 0;
+    qth05_[ism-1] = 0;
+    qth06_[ism-1] = 0;
+    qth07_[ism-1] = 0;
+    qth08_[ism-1] = 0;
+    qth09_[ism-1] = 0;
+    qth10_[ism-1] = 0;
+
   }
 
   threshCry_ = 0.;
 
-  Char_t qtname[80];
-    
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  if ( enableQT_ ) {
+
+    Char_t qtname[80];
+
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
   
-    int ism = superModules_[i];
+      int ism = superModules_[i];
 
-    sprintf(qtname, "EBIT data integrity quality gain SM%02d", ism);
-    qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality gain SM%02d", ism);
+      qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality ChId SM%02d", ism);
-    qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality ChId SM%02d", ism);
+      qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality gain switch SM%02d", ism);
-    qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality gain switch SM%02d", ism);
+      qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality gain switch stay SM%02d", ism);
-    qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality gain switch stay SM%02d", ism);
+      qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality TTId SM%02d", ism);
-    qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality TTId SM%02d", ism);
+      qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality TTBlockSize SM%02d", ism);
-    qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality TTBlockSize SM%02d", ism);
+      qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality MemChId SM%02d", ism);
-    qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality MemChId SM%02d", ism);
+      qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
   
-    sprintf(qtname, "EBIT data integrity quality MemGain SM%02d", ism);
-    qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality MemGain SM%02d", ism);
+      qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality MemTTId SM%02d", ism);
-    qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality MemTTId SM%02d", ism);
+      qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBIT data integrity quality MemSize SM%02d", ism);
-    qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBIT data integrity quality MemSize SM%02d", ism);
+      qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth02_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth03_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth04_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth05_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth06_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth07_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
-    qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth02_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth03_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth04_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth05_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth06_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth07_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
+      qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
   
-    qth01_[ism-1]->setMinimumEntries(0);
-    qth02_[ism-1]->setMinimumEntries(0);
-    qth03_[ism-1]->setMinimumEntries(0);
-    qth04_[ism-1]->setMinimumEntries(0);
-    qth05_[ism-1]->setMinimumEntries(0);
-    qth06_[ism-1]->setMinimumEntries(0);
-    qth07_[ism-1]->setMinimumEntries(0);
-    qth08_[ism-1]->setMinimumEntries(0);
-    qth09_[ism-1]->setMinimumEntries(0);
-    qth10_[ism-1]->setMinimumEntries(0);
+      qth01_[ism-1]->setMinimumEntries(0);
+      qth02_[ism-1]->setMinimumEntries(0);
+      qth03_[ism-1]->setMinimumEntries(0);
+      qth04_[ism-1]->setMinimumEntries(0);
+      qth05_[ism-1]->setMinimumEntries(0);
+      qth06_[ism-1]->setMinimumEntries(0);
+      qth07_[ism-1]->setMinimumEntries(0);
+      qth08_[ism-1]->setMinimumEntries(0);
+      qth09_[ism-1]->setMinimumEntries(0);
+      qth10_[ism-1]->setMinimumEntries(0);
 
-    qth01_[ism-1]->setErrorProb(1.00);
-    qth02_[ism-1]->setErrorProb(1.00);
-    qth03_[ism-1]->setErrorProb(1.00);
-    qth04_[ism-1]->setErrorProb(1.00);
-    qth05_[ism-1]->setErrorProb(1.00);
-    qth06_[ism-1]->setErrorProb(1.00);
-    qth07_[ism-1]->setErrorProb(1.00);
-    qth08_[ism-1]->setErrorProb(1.00);
-    qth09_[ism-1]->setErrorProb(1.00);
-    qth10_[ism-1]->setErrorProb(1.00);
+      qth01_[ism-1]->setErrorProb(1.00);
+      qth02_[ism-1]->setErrorProb(1.00);
+      qth03_[ism-1]->setErrorProb(1.00);
+      qth04_[ism-1]->setErrorProb(1.00);
+      qth05_[ism-1]->setErrorProb(1.00);
+      qth06_[ism-1]->setErrorProb(1.00);
+      qth07_[ism-1]->setErrorProb(1.00);
+      qth08_[ism-1]->setErrorProb(1.00);
+      qth09_[ism-1]->setErrorProb(1.00);
+      qth10_[ism-1]->setErrorProb(1.00);
+
+    }
 
   }
 

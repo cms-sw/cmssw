@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/18 15:22:18 $
- * $Revision: 1.53 $
+ * $Date: 2006/06/22 14:47:06 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,6 +41,9 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);

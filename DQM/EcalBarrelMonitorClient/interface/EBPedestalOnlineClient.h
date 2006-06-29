@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/06/18 12:58:33 $
- * $Revision: 1.15 $
+ * $Date: 2006/06/22 14:47:05 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,7 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
+bool enableQT_;
 
 bool verbose_;
 

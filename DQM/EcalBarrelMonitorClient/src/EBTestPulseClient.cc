@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/23 12:24:44 $
- * $Revision: 1.81 $
+ * $Date: 2006/06/23 13:02:32 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -43,6 +43,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -93,42 +96,50 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
     mea02_[ism-1] = 0;
     mea03_[ism-1] = 0;
 
+    qtha01_[ism-1] = 0;
+    qtha02_[ism-1] = 0;
+    qtha03_[ism-1] = 0;
+
   }
 
   amplitudeThreshold_ = 400.0;
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
-  Char_t qtname[80];
+  if ( enableQT_ ) {
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    Char_t qtname[80];
 
-    int ism = superModules_[i];
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    sprintf(qtname, "EBTPT quality SM%02d G01", ism);
-    qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      int ism = superModules_[i];
 
-    sprintf(qtname, "EBTPT quality SM%02d G06", ism);
-    qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBTPT quality SM%02d G01", ism);
+      qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EBTPT quality SM%02d G12", ism);
-    qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      sprintf(qtname, "EBTPT quality SM%02d G06", ism);
+      qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBTPT quality SM%02d G12", ism);
+      qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
  
-    qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-    qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-    qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
 
-    qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-    qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
-    qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+      qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+      qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
+      qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
 
-    qtha01_[ism-1]->setMinimumEntries(10*1700);
-    qtha02_[ism-1]->setMinimumEntries(10*1700);
-    qtha03_[ism-1]->setMinimumEntries(10*1700);
+      qtha01_[ism-1]->setMinimumEntries(10*1700);
+      qtha02_[ism-1]->setMinimumEntries(10*1700);
+      qtha03_[ism-1]->setMinimumEntries(10*1700);
 
-    qtha01_[ism-1]->setErrorProb(1.00);
-    qtha02_[ism-1]->setErrorProb(1.00);
-    qtha03_[ism-1]->setErrorProb(1.00);
+      qtha01_[ism-1]->setErrorProb(1.00);
+      qtha02_[ism-1]->setErrorProb(1.00);
+      qtha03_[ism-1]->setErrorProb(1.00);
+
+    }
 
   }
 

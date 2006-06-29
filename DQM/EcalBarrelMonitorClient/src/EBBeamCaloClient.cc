@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/06/26 20:15:05 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/27 16:31:23 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -40,6 +40,9 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps, MonitorUserInterface*
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // enableQT switch
+  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
