@@ -4,7 +4,7 @@
   <Class table="IOV" id_columns="ID" name="cond::IOV" >
     <Container table="IOV_DATA" id_columns="ID" name="iov" position_column="POS" >
       <Primitive column="IOV_TOKEN" name="key_type" />
-      <Primitive column="IOV_TIME" name="mapped_type" />
+      <Primitive column="IOV_TIME" name="string" />
     </Container >
   </Class >
 </Mapping >
