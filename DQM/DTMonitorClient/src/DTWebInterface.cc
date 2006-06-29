@@ -34,9 +34,9 @@ DTWebInterface::DTWebInterface(std::string theContextURL, std::string theApplica
 
 
   Button * butNoiseCheck = new Button(getApplicationURL(), 
-				      "310px", "10px", "NoiseCheck", "Check Noise");
+				      "470px", "10px", "NoiseCheck", "Check Noise");
   Button * butNoiseCheckStop = new Button(getApplicationURL(), 
-					  "340px", "10px", "NoiseCheckStop", "Stop Noise Checking");
+					  "500px", "10px", "NoiseCheckStop", "Stop Noise Checking");
 
 
   GifDisplay * dis = new GifDisplay(getApplicationURL(), 

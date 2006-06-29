@@ -1,8 +1,8 @@
 /*
  * \file DTNoiseClient.cc
  * 
- * $Date: 2006/06/28 11:15:42 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/28 17:41:08 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -12,6 +12,7 @@
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Geometry
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -19,8 +20,8 @@
 // ROOT Staff
 #include "TROOT.h"
 #include "TCanvas.h"
-#include "TH2F.h"
 #include "TText.h"
+#include "TStyle.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -31,15 +32,44 @@ using namespace edm;
 using namespace std;
 
 DTNoiseClient::DTNoiseClient() {
-  
-  //pippo  
+
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+ 
+  summaryAverage_W2_Se10 = TH2F("summaryAverage_W2_Se10","Average Noise YB2_Sector10",3,1,4,20,1,21);
+  summaryAverage_W2_Se11 = TH2F("summaryAverage_W2_Se11","Average Noise YB2_Sector11",3,1,4,20,1,21);
+  summaryAverage_W1_Se10 = TH2F("summaryAverage_W1_Se10","Average Noise YB1_Sector10",3,1,4,20,1,21);
+
+  summaryNoiseChs_W2_Se10 = TH2F("summaryNoiseChs_W2_Se10","Noisy Channels YB2_Sector10",3,1,4,20,1,21);
+  summaryNoiseChs_W2_Se11 = TH2F("summaryNoiseChs_W2_Se11","Noisy Channels YB2_Sector11",3,1,4,20,1,21);
+  summaryNoiseChs_W1_Se10 = TH2F("summaryNoiseChs_W1_Se10","Noisy Channels YB1_Sector10",3,1,4,20,1,21);
 
 }
 
 
 DTNoiseClient::~DTNoiseClient() {
   
-  ///~pippo
+  dbe->save("NoiseSummary.root");
+
+}
+
+
+void DTNoiseClient::bookHistos(const DTLayerId& dtLayer) {
+
+  stringstream wheel; wheel << dtLayer.wheel();	
+  stringstream sector; sector << dtLayer.sector();	
+
+  dbe->setCurrentFolder("DT/DTDigiClient/Summary");
+
+  int code;
+  if ( dtLayer.sector() != 14 )
+    code = dtLayer.sector()*10 + dtLayer.wheel();
+  else code = 10 + dtLayer.wheel();
+
+  string histoName =  "summaryAverage_W" + wheel.str() + "_Se" + sector.str();
+  noiseAverageHistos[code] = dbe->book2D(histoName,histoName,3,1,4,20,1,21);
+  histoName =  "summaryNoiseChs_W" + wheel.str() + "_Se" + sector.str();
+  noiseChHistos[code] = dbe->book2D(histoName,histoName,3,1,4,20,1,21);
+
 
 }
 
@@ -52,7 +82,7 @@ void DTNoiseClient::performCheck(MonitorUserInterface * mui) {
     stringstream wheel; wheel  << w;
     for (int st=1; st<=4; st++) {
       stringstream station; station  << st;
-      for (int se=1; se<=4; se++) {
+      for (int se=1; se<=12; se++) {
 	stringstream sector; sector  << se;
 
 	/// WARNING: Pay attantion to the FU number!!!
@@ -76,27 +106,28 @@ void DTNoiseClient::performCheck(MonitorUserInterface * mui) {
 	    MonitorElement * noise = mui->get(histoName);
 
 	    if (noise) {
-
+	      
 	      // get the NoisyChannels report
-	      string criterionName = "piip";
+	      string criterionName = "NoisyChannels"; // this as to be the same in QualityTests.xml
 	      const QReport * theQReport = noise->getQReport(criterionName);
 	      if(theQReport) {
 		
 		vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
 		for (vector<dqm::me_util::Channel>::iterator ch_it = badChannels.begin(); 
 		     ch_it != badChannels.end(); ch_it++) {
-		 
+		  
 		  noisyChannelsStatistics[DTLayerId(w,st,se,sl,l)]++;
  		  		  
 		}
 	      }
-	     
+	      
 	      // noise average per layer
 	      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(noise);
 	      if (ob) {
-
+		
 		TH1F * noiseT = dynamic_cast<TH1F*> (ob->operator->());
 		if (noiseT) {
+
 		  float average=0;
 		  for (int i = 0; i <= noiseT->GetNbinsX(); i++){
 		    average += noiseT->GetBinContent(i); 
@@ -120,21 +151,29 @@ void DTNoiseClient::performCheck(MonitorUserInterface * mui) {
 
 void DTNoiseClient::drawSummaryNoise() {
 
-  TCanvas noiseCanvas("noiseCanvas","noiseCanvas",50,0,1000,900);
-  noiseCanvas.Divide(3,2);
-
-  TH2F summaryAverage_W2_Se10("summary_W2_Se10","Average Noise YB2_Sector10",3,1,3,20,1,20);
-  TH2F summaryAverage_W2_Se11("summary_W2_Se11","Average Noise YB2_Sector11",3,1,3,20,1,20);
-  TH2F summaryAverage_W1_Se10("summary_W1_Se10","Average Noise YB1_Sector10",3,1,3,20,1,20);
-
-  TH2F summaryNoiseChs_W2_Se10("summary_W2_Se10","Noisy Channels YB2_Sector10",3,1,3,20,1,20);
-  TH2F summaryNoiseChs_W2_Se11("summary_W2_Se11","Noisy Channels YB2_Sector11",3,1,3,20,1,20);
-  TH2F summaryNoiseChs_W1_Se10("summary_W1_Se10","Noisy Channels YB1_Sector10",3,1,3,20,1,20);
 
 
   /// Filling
   for (map<DTLayerId,float>::iterator ns_it = noiseStatistics.begin();
        ns_it != noiseStatistics.end(); ns_it++) {
+
+    int code;
+    if ( ((*ns_it).first).sector() != 14 )
+      code = ((*ns_it).first).sector()*10+((*ns_it).first).wheel();
+    else code = 10 +((*ns_it).first).wheel();
+    
+    if (noiseAverageHistos.find(code) != noiseAverageHistos.end() ) {
+      noiseAverageHistos.find(code)->second->Fill(((*ns_it).first).station() ,
+						  5*( ((*ns_it).first).superLayer()-1) + ((*ns_it).first).layer(),
+						  ((*ns_it).second));
+    }
+    else {
+      bookHistos((*ns_it).first);
+      noiseAverageHistos.find(code)->second->Fill(((*ns_it).first).station() ,
+						  5*( ((*ns_it).first).superLayer()-1) + ((*ns_it).first).layer(),
+						  ((*ns_it).second));
+    }
+      
 
     if ( ((*ns_it).first).superlayerId().chamberId().wheel() == 2 ) {
       if ( ((*ns_it).first).sector() == 10 ||((*ns_it).first).sector() == 14 ) 
@@ -157,6 +196,26 @@ void DTNoiseClient::drawSummaryNoise() {
   for (map<DTLayerId,int>::iterator ns_it = noisyChannelsStatistics.begin();
        ns_it != noisyChannelsStatistics.end(); ns_it++) {
 
+
+    int code;
+    if ( ((*ns_it).first).sector() != 14 )
+      code = ((*ns_it).first).sector()*10+((*ns_it).first).wheel();
+    else code = 10 +((*ns_it).first).wheel();
+    
+    if (noiseChHistos.find(code) != noiseChHistos.end() ) {
+      noiseChHistos.find(code)->second->Fill(((*ns_it).first).station() ,
+						  5*( ((*ns_it).first).superLayer()-1) + ((*ns_it).first).layer(),
+						  ((*ns_it).second));
+    }
+    else {
+      bookHistos((*ns_it).first);
+      noiseChHistos.find(code)->second->Fill(((*ns_it).first).station() ,
+						  5*( ((*ns_it).first).superLayer()-1) + ((*ns_it).first).layer(),
+						  ((*ns_it).second));
+    }
+ 
+
+
     if ( ((*ns_it).first).superlayerId().chamberId().wheel() == 2 ) {
       if ( ((*ns_it).first).sector() == 10 ||((*ns_it).first).sector() == 14 ) 
 	summaryNoiseChs_W2_Se10.Fill( ((*ns_it).first).station() ,
@@ -178,20 +237,27 @@ void DTNoiseClient::drawSummaryNoise() {
 
   
   /// Drawing
+  TCanvas noiseCanvas("noiseCanvas","noiseCanvas",50,0,1000,900);
+  noiseCanvas.SetFillColor(10);
+  noiseCanvas.Divide(3,2);
+
+  gStyle->SetPalette(1);
   noiseCanvas.cd(1);
-  summaryNoiseChs_W2_Se10.Draw("colz");
+  summaryNoiseChs_W2_Se10.Draw("colz"); noiseCanvas.Update();
   noiseCanvas.cd(2);
-  summaryNoiseChs_W2_Se11.Draw("colz");
+  summaryNoiseChs_W2_Se11.Draw("colz"); noiseCanvas.Update();
   noiseCanvas.cd(3);
-  summaryNoiseChs_W1_Se10.Draw("colz");
+  summaryNoiseChs_W1_Se10.Draw("colz"); noiseCanvas.Update();
 
   noiseCanvas.cd(4);
-  summaryAverage_W2_Se10.Draw("colz");
+  summaryAverage_W2_Se10.Draw("colz"); noiseCanvas.Update();
   noiseCanvas.cd(5);
-  summaryAverage_W2_Se11.Draw("colz");
+  summaryAverage_W2_Se11.Draw("colz"); noiseCanvas.Update();
   noiseCanvas.cd(6);
-  summaryAverage_W1_Se10.Draw("colz");
+  summaryAverage_W1_Se10.Draw("colz"); noiseCanvas.Update();
 
+  noiseCanvas.Draw();
+  noiseCanvas.SaveAs("NoiseSummary.jpg");
 
 }
 
