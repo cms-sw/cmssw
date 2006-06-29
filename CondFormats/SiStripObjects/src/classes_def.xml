@@ -9,12 +9,6 @@
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
-  <class name="SiStripReadoutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
-
-  <class name="SiStripControlCabling" id="DD8ED99A-A237-6B30-60A5-0F1BFC1C4EDF"/>
-  <class name="SiStripControlCabling::RingItem"/>
-  <class name="SiStripControlCabling::RingItem::I2CItem"/>
-
   <class name="SiStripFedCabling" id="10370265-3A9F-DF71-5178-0B43B9EF23D4"/>
   <class name="FedChannelConnection"/>
   <class name="std::vector<unsigned short>"/>

@@ -14,16 +14,6 @@ template std::vector<short>::const_iterator;
 template std::vector< SiStripNoises::DetRegistry >::iterator;
 template std::vector< SiStripNoises::DetRegistry >::const_iterator;
 
-#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
-template std::vector<std::pair<uint32_t, unsigned short> >::iterator;
-template std::vector<std::pair<uint32_t, unsigned short> >::const_iterator;
-
-#include "CondFormats/SiStripObjects/interface/SiStripControlCabling.h"
-template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::iterator;
-template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::const_iterator;
-template std::vector<unsigned short>::iterator;
-template std::vector<unsigned short>::const_iterator;
-
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 template std::vector< std::vector<FedChannelConnection> >::iterator;
