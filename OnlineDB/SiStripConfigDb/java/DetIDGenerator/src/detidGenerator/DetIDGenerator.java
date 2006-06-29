@@ -11,9 +11,12 @@ import java.util.Vector;
 **/
 
 /*
-  $Date: 2006/06/07 12:40:42 $
+  $Date: 2006/06/28 11:42:24 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.1  2006/06/28 11:42:24  gbaulieu
+  First import of the sources
+
   Revision 1.15  2006/06/07 12:40:42  baulieu
   Add a - verbose option
   Add a serialVersionUID to the ClassNotSupportedException class to avoid a warning
@@ -363,11 +366,21 @@ public class DetIDGenerator
 
     private void exportData(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
 	c.disconnect();
-	if(DetIDGenerator.mtcc){
-	    c.setUser("cms_mtcc_sitracker");
-	    c.setUrl("jdbc:oracle:thin:@oracms.cern.ch:1521:CMSOMDS");
-	    c.setPassword("cms_mtcc");
 
+	//Retrieve the connection data
+	String dbString = System.getProperty("CONFDB");
+	if(dbString==null || dbString.equals("") || dbString.indexOf('/')==-1 || dbString.indexOf('@')==-1)
+	    throw new java.sql.SQLException("No valid $CONFDB variable found : can not connect!");
+	
+	String user = dbString.substring(0,dbString.indexOf('/'));
+	String password = dbString.substring(dbString.indexOf('/')+1, dbString.indexOf('@'));
+	String url = dbString.substring(dbString.indexOf('@')+1, dbString.length());
+
+	c.setUser(user);
+	c.setUrl("jdbc:oracle:thin:@"+url);
+	c.setPassword(password);
+
+	if(DetIDGenerator.mtcc){
 	    for(String[] s : TOBMTCC){
 		Vector<String> n = new Vector<String>();
 		n.add(s[0]);
@@ -377,13 +390,10 @@ public class DetIDGenerator
 		list.add(n);
 	    }
 	}
-	else{
-	    c.setUser("cms_tracker_baulieu");
-	    c.setUrl("jdbc:oracle:thin:@oradev10.cern.ch:10520:D10");
-	    c.setPassword("alowa2005");
-	}
-	if(DetIDGenerator.export)
+
+	if(DetIDGenerator.export){
 	    c.connect();
+	}
 	
 	for(int i=0;i<list.size();i++){
 	    Vector<String> v = list.get(i);
@@ -407,6 +417,7 @@ public class DetIDGenerator
 	    if(DetIDGenerator.verbose)
 		System.out.print(((i*100)/list.size())+" %\r");
 	}
+
     }
 
     /**

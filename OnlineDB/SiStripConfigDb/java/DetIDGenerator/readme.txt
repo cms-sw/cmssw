@@ -13,7 +13,7 @@ You can use the ./generate script in the DetIdGenerator directory
 Options :
         -h : This text.
         -mtcc : Informations for the magnet test.
-        -export : Export informations to a database.
+        -export : Export informations to the database defined in $CONFDB.
         -verbose : Display additional informations during the process.
 
 Documentation :
