@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2005/05/31 18:52:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/27 14:38:48 $
+//   $Revision: 1.3 $
 //
 //   Modifications:
 //
@@ -32,8 +32,8 @@
 
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) : iev(0) {
 
-  wireDigiProducer_ = conf.getParameter<std::string>("CSCWireDigiProducer");
-  compDigiProducer_ = conf.getParameter<std::string>("CSCComparatorDigiProducer");
+  wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
+  compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
 
@@ -63,8 +63,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
   edm::Handle<CSCWireDigiCollection>       wireDigis;
-  ev.getByLabel(compDigiProducer_, "MuonCSCComparatorDigi", compDigis);
-  ev.getByLabel(wireDigiProducer_, "MuonCSCWireDigi",       wireDigis);
+  ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(), compDigis);
+  ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wireDigis);
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.

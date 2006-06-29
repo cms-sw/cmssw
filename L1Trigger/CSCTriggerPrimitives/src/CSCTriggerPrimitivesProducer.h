@@ -17,8 +17,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2005/05/31 18:52:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/27 14:38:48 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -26,6 +26,7 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 class CSCTriggerPrimitivesBuilder;
 
@@ -39,8 +40,8 @@ class CSCTriggerPrimitivesProducer : public edm::EDProducer
 
  private:
   int iev; // event number
-  std::string compDigiProducer_;
-  std::string wireDigiProducer_;
+  edm::InputTag compDigiProducer_;
+  edm::InputTag wireDigiProducer_;
   CSCTriggerPrimitivesBuilder* lctBuilder_;
 };
 
