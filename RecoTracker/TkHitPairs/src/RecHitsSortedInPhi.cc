@@ -6,7 +6,7 @@
 using namespace std;
 
 RecHitsSortedInPhi::RecHitsSortedInPhi( const vector<const TrackingRecHit*>& hits,
-					const TransientTrackingRecHitBuilder*& theBuilder) 
+					const TrackerGeometry* theBuilder) 
 {
   //initTiming();
   // TimeMe tm1( *theFillTimer, false);

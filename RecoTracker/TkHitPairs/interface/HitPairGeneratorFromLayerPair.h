@@ -43,8 +43,9 @@ private:
 			   OrderedHitPairs & ap,
 			   const edm::EventSetup& iSetup);
 
-  // all data members are "shallow copy"
+
   const TransientTrackingRecHitBuilder * TTRHbuilder;
+  const TrackerGeometry* trackerGeometry;
   LayerCacheType & theLayerCache;
   const LayerWithHits* theOuterLayer;  
   const LayerWithHits* theInnerLayer; 

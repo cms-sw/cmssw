@@ -21,13 +21,16 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(const LayerWithHits
 							     const LayerWithHits* outer, 
 							     LayerCacheType* layerCache, 
 							     const edm::EventSetup& iSetup)
-  : TTRHbuilder(0),theLayerCache(*layerCache), 
+  : TTRHbuilder(0),trackerGeometry(0),theLayerCache(*layerCache), 
     theOuterLayer(outer), theInnerLayer(inner)
 {
-  //a builder is added to trasform TRHs in TTRHs;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
   iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilderHandle);
   TTRHbuilder = theBuilderHandle.product();
+
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  trackerGeometry = tracker.product();
 }
 
 void HitPairGeneratorFromLayerPair::hitPairs(
@@ -176,7 +179,7 @@ void HitPairGeneratorFromLayerPair::
   //BM vector<RecHit>     outerHits(region.hits(theOuterLayer));
   vector<const TrackingRecHit*> outerHits(theOuterLayer->recHits());
   //BM  RecHitsSortedInPhi innerSortedHits(region.hits(theInnerLayer));
-  RecHitsSortedInPhi innerSortedHits(theInnerLayer->recHits(),TTRHbuilder);
+  RecHitsSortedInPhi innerSortedHits(theInnerLayer->recHits(),trackerGeometry);
 				   
   float zMinOrigin = region.origin().z() - region.originZBound();
   float zMaxOrigin = region.origin().z() + region.originZBound();
@@ -192,7 +195,8 @@ void HitPairGeneratorFromLayerPair::
     GlobalPoint hitPos = recHit->globalPosition();
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
-     
+    delete recHit;
+
     float phiHit = hitPos.phi();
     vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer->layer(), *oh,iSetup);
@@ -214,7 +218,7 @@ void HitPairGeneratorFromLayerPair::
       if (! crossRange.empty() ) {
         result.push_back( OrderedHitPair( *ih, *oh ) );
       }
-    
+      delete recHit;
     } 
     delete checkRZ;
   }

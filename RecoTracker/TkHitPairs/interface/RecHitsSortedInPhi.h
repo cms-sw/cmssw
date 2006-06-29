@@ -3,6 +3,8 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 //#include "Utilities/Notification/interface/TimingReport.h"
 #include <vector>
 
@@ -20,11 +22,10 @@ public:
   class Hit {
   public:
     Hit( const TrackingRecHit* hit,
-	 const TransientTrackingRecHitBuilder* theBuilder) 
+	 const TrackerGeometry* theGeometry) 
       : theRecHit(hit)
       {
-	TransientTrackingRecHit* TTRHit = theBuilder->build(hit);
-	thePhi = TTRHit->globalPosition().phi();
+        thePhi = theGeometry->idToDet( hit->geographicalId() )->surface().toGlobal( hit->localPosition() ).phi();
       }
     Hit( float phi) : theRecHit(), thePhi( phi) {}
     float phi() const {return thePhi;}
@@ -48,7 +49,7 @@ public:
   typedef std::pair<HitIter,HitIter>            Range;
 
   RecHitsSortedInPhi( const std::vector<const TrackingRecHit*>& hits,
-		      const TransientTrackingRecHitBuilder*& theBuilder);
+		      const TrackerGeometry* theGeometry);
 
   /** Returns the hits in the phi range (phi in radians).
    *  The phi interval ( phiMin, phiMax) defined as the signed path along the 
