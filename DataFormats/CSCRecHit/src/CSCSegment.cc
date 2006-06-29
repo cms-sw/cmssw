@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/05/15 11:32:56 $
+ *  $Date: 2006/05/16 14:23:52 $
  *  \author Matteo Sani
  */
 
@@ -21,8 +21,7 @@ CSCSegment::~CSCSegment() {}
 
 std::vector<const TrackingRecHit*> CSCSegment::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  std::vector<CSCRecHit2D> cscRHs = specificRecHits();
-  for (std::vector<CSCRecHit2D>::const_iterator irh = cscRHs.begin(); irh!=cscRHs.end(); ++irh) {
+  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCRecHits.begin(); irh!=theCSCRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
@@ -31,8 +30,7 @@ std::vector<const TrackingRecHit*> CSCSegment::recHits() const{
 std::vector<TrackingRecHit*> CSCSegment::recHits() {
   
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  std::vector<CSCRecHit2D> cscRHs = specificRecHits();
-  for (std::vector<CSCRecHit2D>::iterator irh = cscRHs.begin(); irh!=cscRHs.end(); ++irh) {
+  for (std::vector<CSCRecHit2D>::iterator irh = theCSCRecHits.begin(); irh!=theCSCRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
