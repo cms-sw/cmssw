@@ -29,7 +29,7 @@ ForwardDetRingOneZ::ForwardDetRingOneZ( const vector<const GeomDet*>& dets)
 void ForwardDetRingOneZ::initialize()
 {
   // assume the dets ARE in a ring
-  // sort them in Z
+  // sort them in phi
   precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetPhi());
   setDisk(ForwardRingDiskBuilderFromDet()(theDets));
 }
