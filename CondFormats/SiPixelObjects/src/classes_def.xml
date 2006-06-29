@@ -6,5 +6,4 @@
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
-  <class pattern="*iterator*"/>
 </lcgdict>   
