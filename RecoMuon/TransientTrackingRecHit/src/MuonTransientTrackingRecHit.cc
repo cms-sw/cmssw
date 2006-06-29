@@ -1,9 +1,22 @@
+/** \file
+ *
+ *  $Date: $
+ *  $Revision: $
+ */
+
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <map>
+
+MuonTransientTrackingRecHit::MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
+  GenericTransientTrackingRecHit(geom,rh){}
+
+MuonTransientTrackingRecHit::MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other ) :
+  GenericTransientTrackingRecHit(other.det(), other.hit()) {}
+
 
 LocalVector MuonTransientTrackingRecHit::localDirection() const
 {
