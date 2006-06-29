@@ -6,7 +6,6 @@
   <class name="std::vector<RPCReadOutLink>"/>
   <class name="std::map<RPCdeteIndex,RPCelecIndex>"/>
   <class name="std::map<RPCelecIndex,RPCdeteIndex>"/>
-  <class pattern="*iterator*"/>
   <class pattern="*pair*"/>
 </lcgdict>
 
