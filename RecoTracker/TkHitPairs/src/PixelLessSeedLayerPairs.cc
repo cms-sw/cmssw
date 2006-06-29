@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 PixelLessSeedLayerPairs::~PixelLessSeedLayerPairs(){
   for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); it!=allLayersWithHits.end();it++){
@@ -79,60 +79,60 @@ void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollectio
   barrelLayers.push_back(new LayerWithHits(detLayersTIB[0],selectHitTIB(collmatch,collstereo,collrphi,1)) );
   barrelLayers.push_back(new LayerWithHits(detLayersTIB[1],selectHitTIB(collmatch,collstereo,collrphi,2)) );
   
-  //TID 2=forward, 1,2,3=disk, 2,3=ring
+  //TID 2=forward, 1,2,3=disk, 1= firstRing 2,3=lastRing
   fwdLayers.push_back(new LayerWithHits(detLayersPosTID[0],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									2,1,2      )));   
+									2,1,1,2      )));   
 
   fwdLayers.push_back(new LayerWithHits(detLayersPosTID[1],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									2,2,3      )));   
+									2,2,1,3      )));   
 
   fwdLayers.push_back(new LayerWithHits(detLayersPosTID[2],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									2,3,2      )));   
+									2,3,1,2      )));   
 
-  //TID 1=backward, 1,2,3=disk, 2,3=ring
+  //TID 1=backward, 1,2,3=disk, 1=firstRing 2,3=lastRing
   bkwLayers.push_back(new LayerWithHits(detLayersNegTID[0],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									1,1,2      )));   
+									1,1,1,2      )));   
 
   bkwLayers.push_back(new LayerWithHits(detLayersNegTID[1],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									1,2,3      )));   
+									1,2,1,3      )));   
 
   bkwLayers.push_back(new LayerWithHits(detLayersNegTID[2],selectHitTID(collmatch,
 									collstereo,
 									collrphi,
-									1,3,2      )));   
+									1,3,1,2      )));   
   
 
-  //TEC 2=forward, 2,3=disk, 2=ring
+  //TEC 2=forward, 2,3=disk, 1=firstRing 2=lastRing
   fwdLayers.push_back(new LayerWithHits(detLayersPosTEC[1],selectHitTEC(collmatch,
 									collstereo,
 									collrphi,
-									2,2,2      ))); 
+									2,2,1,2      ))); 
 
   fwdLayers.push_back(new LayerWithHits(detLayersPosTEC[2],selectHitTEC(collmatch,
 									collstereo,
 									collrphi,
-									2,3,2      )));   
+									2,3,1,2      )));   
 
-  //TEC 1=backward, 2,3=disk, 2=ring
+  //TEC 1=backward, 2,3=disk, 1=firstRing 2=lastRing
   bkwLayers.push_back(new LayerWithHits(detLayersNegTEC[1],selectHitTEC(collmatch,
 									collstereo,
 									collrphi,
-									1,2,2      ))); 
+									1,2,1,2      ))); 
 
   bkwLayers.push_back(new LayerWithHits(detLayersNegTEC[2],selectHitTEC(collmatch,
 									collstereo,
 									collrphi,
-									1,3,2      )));   
+									1,3,1,2      )));   
   
   allLayersWithHits.insert(allLayersWithHits.end(),barrelLayers.begin(),barrelLayers.end());
   allLayersWithHits.insert(allLayersWithHits.end(),fwdLayers.begin(),fwdLayers.end());
@@ -183,14 +183,17 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
 				      const SiStripRecHit2DLocalPosCollection &collrphi,
 				      int side,
 				      int disk,
-				      int ring) 
+				      int firstRing,
+				      int lastRing)
 {
   vector<const TrackingRecHit*> theChoosedHits;
   
   SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTIDDisk(side,disk));
   for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
-    theChoosedHits.push_back( &(*it) );
+    int ring = TIDDetId( it->geographicalId() ).ring();
+    cout << "TIDDetId( it->geographicalId() ).ring(): " << ring << endl;
+    if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
   }
   
   
@@ -198,7 +201,12 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
   for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
-    theChoosedHits.push_back( &(*it) );
+    int ring = TIDDetId( it->geographicalId() ).ring();
+    // ---- until the filter over rphi hit is not implemented,
+    // the first two rings are skipped
+    //if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
+    if(ring>=3 && ring<=lastRing) theChoosedHits.push_back( &(*it) );
+
   }
 
   /*
@@ -210,7 +218,6 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
   }
   */
 
-  //TODO: fileter over rings is still missing
   LogDebug("TkHitPairs") << "size choosed hits for TID layer: " << theChoosedHits.size() ;
   return theChoosedHits;
 }
@@ -222,7 +229,8 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
 				      const SiStripRecHit2DLocalPosCollection &collrphi,
 				      int side,
 				      int disk,
-				      int ring)  
+				      int firstRing,
+				      int lastRing)
 {  
   vector<const TrackingRecHit*> theChoosedHits;
   
@@ -230,7 +238,8 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTECDisk(side,disk));
   for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
-    theChoosedHits.push_back( &(*it) );
+    int ring = TECDetId( it->geographicalId() ).ring();
+    if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
   }
   
   
@@ -253,7 +262,6 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   }
   */
 
-  //TODO: fileter over rings is still missing
   return theChoosedHits;
 }
 

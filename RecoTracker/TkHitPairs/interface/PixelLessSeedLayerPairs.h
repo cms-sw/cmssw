@@ -14,6 +14,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
+
 class PixelLessSeedLayerPairs : public SeedLayerPairs{
 public:
   PixelLessSeedLayerPairs():SeedLayerPairs(),isFirstCall(true),
@@ -33,13 +34,6 @@ public:
 	    const edm::EventSetup& iSetup);
   
 private:
-
-  //definition of the map 
- 
-  SiStripRecHit2DMatchedLocalPosCollection::range map_range1;
-  SiStripRecHit2DMatchedLocalPosCollection::range map_range2;
-
-
   TrackerLayerIdAccessor acc;
   
   bool isFirstCall;
@@ -70,14 +64,16 @@ private:
 					     const SiStripRecHit2DLocalPosCollection &collrphi,
 					     int side,
 					     int disk,
-					     int ring);
+					     int firstRing,
+					     int lastRing);
 
   vector<const TrackingRecHit*> selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
 					     const SiStripRecHit2DLocalPosCollection &collstereo, 
 					     const SiStripRecHit2DLocalPosCollection &collrphi,
 					     int side,
 					     int disk,
-					     int ring);
+					     int firstRing,
+					     int lastRing);
 
   void addBarrelBarrelLayers( int mid, int outer, 
 			      std::vector<LayerPair>& result) const;
