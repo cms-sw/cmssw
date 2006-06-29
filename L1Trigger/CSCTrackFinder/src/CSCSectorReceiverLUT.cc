@@ -26,18 +26,35 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 {
   LUTsFromFile = pset.getUntrackedParameter<bool>("ReadLUTs",false);
   isBinary = pset.getUntrackedParameter<bool>("Binary",false);
-  lut_path = pset.getUntrackedParameter<std::string>("LUTPath","./");
   me_global_eta = NULL;
   me_global_phi = NULL;
   mb_global_phi = NULL;
-  if(LUTsFromFile) readLUTsFromFile();
+  if(LUTsFromFile)
+    {
+      me_lcl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("LocalPhiLUT", edm::FileInPath(std::string("L1Trigger/CSCTrackFinder/LUTs/LocalPhiLUT"
+													       + (isBinary ? std::string(".bin") : std::string(".dat")))));
+      me_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTME", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiME") 
+												       + encodeFileIndex() 
+												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
+      if(station == 1)
+	mb_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTMB", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiMB") 
+													 + encodeFileIndex() 
+													 + (isBinary ? std::string(".bin") : std::string(".dat")))));
+      me_gbl_eta_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalEtaLUTME", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalEtaME")
+												       + encodeFileIndex() 
+												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
+      readLUTsFromFile();
+    }
 }
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_endcap(lut._endcap),
 									    _sector(lut._sector),
 									    _subsector(lut._subsector),
 									    _station(lut._station),
-									    lut_path(lut.lut_path),
+									    me_lcl_phi_file(lut.me_lcl_phi_file),
+									    me_gbl_phi_file(lut.me_gbl_phi_file),
+									    mb_gbl_phi_file(lut.mb_gbl_phi_file),
+									    me_gbl_eta_file(lut.me_gbl_eta_file),
 									    LUTsFromFile(lut.LUTsFromFile),
 									    isBinary(lut.isBinary)
 {
@@ -69,7 +86,10 @@ CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT
       _sector = lut._sector;
       _subsector = lut._subsector;
       _station = lut._station;
-      lut_path = lut.lut_path;
+      me_lcl_phi_file = lut.me_lcl_phi_file;
+      me_gbl_phi_file = lut.me_gbl_phi_file;
+      mb_gbl_phi_file = lut.mb_gbl_phi_file;
+      me_gbl_eta_file = lut.me_gbl_eta_file;      
       LUTsFromFile = lut.LUTsFromFile;
       isBinary = lut.isBinary;
 
@@ -708,16 +728,14 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
     {
       me_lcl_phi = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
       memset(me_lcl_phi, 0, (1<<CSCBitWidths::kLocalPhiAddressWidth)*sizeof(short));
-      std::string fName("LocalPhiLUT");
+      std::string fName(me_lcl_phi_file.fullPath());
       std::ifstream LocalPhiLUT;
 
-      edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName; 
-
-      fName += ((isBinary) ? ".bin" : ".dat");
+      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName; 
 
       if(isBinary)
 	{
-	  LocalPhiLUT.open((lut_path+fName).c_str(),std::ios::binary);
+	  LocalPhiLUT.open(fName.c_str(),std::ios::binary);
           LocalPhiLUT.seekg(0,std::ios::end);
           int length = LocalPhiLUT.tellg();
           if(length == (1<<CSCBitWidths::kLocalPhiAddressWidth)*sizeof(short))
@@ -727,12 +745,12 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
 	      LocalPhiLUT.close();
 	    }
 	  else
-	    edm::LogError("CSCSectorReceiverLUT|loadLUT") << "File "<< fName << " is incorrect size!";
+	    edm::LogError("CSCSectorReceiverLUT") << "File "<< fName << " is incorrect size!";
 	  LocalPhiLUT.close();
 	}
       else
         {
-          LocalPhiLUT.open((lut_path+fName).c_str());
+          LocalPhiLUT.open(fName.c_str());
       	  unsigned i = 0;
 	  unsigned short temp = 0;
           while(!LocalPhiLUT.eof() && i < 1<<CSCBitWidths::kLocalPhiAddressWidth)
@@ -747,16 +765,14 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
     {
       me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memset(me_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
-      std::string fName = std::string("GlobalPhiME") + encodeFileIndex();
+      std::string fName = me_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
-      edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName;
-
-      fName += ((isBinary) ? ".bin" : ".dat");
+      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName;
 
       if(isBinary)
         {
-          GlobalPhiLUT.open((lut_path + fName).c_str(),std::ios::binary);
+          GlobalPhiLUT.open(fName.c_str(),std::ios::binary);
           GlobalPhiLUT.seekg(0,std::ios::end);
           int length = GlobalPhiLUT.tellg();
           if(length == (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short))
@@ -765,12 +781,12 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
               GlobalPhiLUT.read(reinterpret_cast<char*>(me_global_phi),length);
             }
           else
-            edm::LogError("CSCSectorReceiverLUT|loadLUT") << "File "<< fName << " is incorrect size!";
+            edm::LogError("CSCSectorReceiverLUT") << "File "<< fName << " is incorrect size!";
           GlobalPhiLUT.close();
         }
       else
         {
-          GlobalPhiLUT.open((lut_path + fName).c_str());
+          GlobalPhiLUT.open( fName.c_str());
           unsigned short temp = 0;
           unsigned i = 0;
           while(!GlobalPhiLUT.eof() && i < 1<<CSCBitWidths::kGlobalPhiAddressWidth)
@@ -785,16 +801,14 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
     {
       mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memset(mb_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
-      std::string fName = std::string("GlobalPhiMB") + encodeFileIndex();
+      std::string fName = mb_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
-      edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName;
-
-      fName += ((isBinary) ? ".bin" : ".dat");
+      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName;
 
       if(isBinary)
         {
-          GlobalPhiLUT.open((lut_path + fName).c_str(),std::ios::binary);
+          GlobalPhiLUT.open( fName.c_str(),std::ios::binary);
           GlobalPhiLUT.seekg(0,std::ios::end);
           int length = GlobalPhiLUT.tellg();
           if(length == (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short))
@@ -803,12 +817,12 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
               GlobalPhiLUT.read(reinterpret_cast<char*>(mb_global_phi),length);
             }
           else
-            edm::LogError("CSCSectorReceiverLUT|loadLUT") << "File "<< fName << " is incorrect size!";
+            edm::LogError("CSCSectorReceiverLUT") << "File "<< fName << " is incorrect size!";
           GlobalPhiLUT.close();
         }
       else
         {
-          GlobalPhiLUT.open((lut_path + fName).c_str());
+          GlobalPhiLUT.open(fName.c_str());
           unsigned short temp = 0;
           unsigned i = 0;
           while(!GlobalPhiLUT.eof() && i < 1<<CSCBitWidths::kGlobalPhiAddressWidth)
@@ -823,16 +837,14 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
       memset(me_global_eta, 0, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(short));
-      std::string fName = std::string("GlobalEtaME") + encodeFileIndex();
+      std::string fName = me_gbl_eta_file.fullPath();
       std::ifstream GlobalEtaLUT;
       
-      edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName;
-
-      fName += ((isBinary) ? ".bin" : ".dat");
+      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName;
 
       if(isBinary)
 	{
-	  GlobalEtaLUT.open((lut_path + fName).c_str(),std::ios::binary);
+	  GlobalEtaLUT.open(fName.c_str(),std::ios::binary);
 	  GlobalEtaLUT.seekg(0,std::ios::end);
 	  int length = GlobalEtaLUT.tellg();
 	  if(length == (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(short))
@@ -841,12 +853,12 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
 	      GlobalEtaLUT.read(reinterpret_cast<char*>(me_global_eta),length);
 	    }
 	  else
-	    edm::LogError("CSCSectorReceiverLUT|loadLUT") << "File "<< fName << " is incorrect size!";
+	    edm::LogError("CSCSectorReceiverLUT") << "File "<< fName << " is incorrect size!";
 	  GlobalEtaLUT.close();
 	}
       else
 	{
-	  GlobalEtaLUT.open((lut_path + fName).c_str());
+	  GlobalEtaLUT.open(fName.c_str());
 	  unsigned short temp = 0;
 	  unsigned i = 0;
 	  while(!GlobalEtaLUT.eof() && i < 1<<CSCBitWidths::kGlobalEtaAddressWidth)

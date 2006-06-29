@@ -1,5 +1,7 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <fstream>
 
 ptdat* CSCTFPtLUT::pt_lut = NULL;
 bool CSCTFPtLUT::lut_read_in = false;
@@ -9,6 +11,12 @@ CSCTFPtMethods CSCTFPtLUT::ptMethods;
 CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset)
 {
   read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
+  if(read_pt_lut)
+    {
+      pt_lut_file = pset.getUntrackedParameter<edm::FileInPath>("PtLUTFile",edm::FileInPath("L1Trigger/CSCTrackFinder/LUTs/L1CSCPtLUT.dat"));
+      isBinary = pset.getUntrackedParameter<bool>("isBinary", false);
+    }
+
   // Determine the pt assignment method to use
   // 1 - Darin's parameterization method
   // 2 - Cathy Yeh's chi-square minimization method
@@ -348,5 +356,34 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
 
 void CSCTFPtLUT::readLUT()
 {
-  // fill in later
+  std::ifstream PtLUT;
+  
+  if(isBinary)
+    {
+      PtLUT.open(pt_lut_file.fullPath().c_str(), std::ios::binary);
+      PtLUT.seekg(0, std::ios::end);
+      int length = PtLUT.tellg();;
+      if( length == (1<<CSCBitWidths::kPtAddressWidth) )
+	{
+	  PtLUT.seekg(0, std::ios::beg);
+	  PtLUT.read(reinterpret_cast<char*>(pt_lut),length);	  
+	}
+      else
+	{
+	  edm::LogError("CSCPtLUT") << "File " << pt_lut_file.fullPath() << " is incorrect size!\n";
+	}
+      PtLUT.close();
+    }
+  else
+    {
+      PtLUT.open(pt_lut_file.fullPath().c_str());
+      unsigned i = 0;
+      unsigned short temp = 0;
+      while(!PtLUT.eof() && i < 1 << CSCBitWidths::kPtAddressWidth)
+	{
+	  PtLUT >> temp;
+	  pt_lut[i++] = (*reinterpret_cast<ptdat*>(&temp));
+	}
+      PtLUT.close();
+    }
 }
