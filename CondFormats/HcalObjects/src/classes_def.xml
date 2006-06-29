@@ -17,5 +17,4 @@
  <class name="HcalChannelQuality::Item"/>
 
  <class pattern="*vector*"/>
- <class pattern="*iterator*"/>
 </lcgdict>   
