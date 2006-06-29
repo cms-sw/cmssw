@@ -10,7 +10,7 @@
 /** \class LTCDigi
  *  Data from the Local Trigger Controller (LTC)
  *
- * $Id: LTCDigi.h,v 1.2 2006/05/26 10:42:25 wittich Exp $
+ * $Id: LTCDigi.h,v 1.3 2006/06/09 21:56:17 wittich Exp $
  */
 
 
@@ -70,7 +70,7 @@ class LTCDigi
   
   bool HasTriggered( int i ) const {
     if ( i > 5 ) return false; // throw exception?
-    return (externTriggerMask()&(0x1U<<i)!=0);
+    return ((externTriggerMask()&(0x1U<<i))!=0);
   }
 
   
