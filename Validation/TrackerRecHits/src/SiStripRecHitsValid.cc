@@ -37,7 +37,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<4 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_rphi_layer%dtib",i+1);
-    meNstpRphiTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpRphiTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_rphi_layer%dtib",i+1);
     meAdcRphiTIB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_rphi_layer%dtib",i+1);
@@ -52,7 +52,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<2 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_sas_layer%dtib",i+1);
-    meNstpSasTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpSasTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_sas_layer%dtib",i+1);
     meAdcSasTIB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_sas_layer%dtib",i+1);
@@ -81,7 +81,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<6 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_rphi_layer%dtob",i+1);
-    meNstpRphiTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpRphiTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_rphi_layer%dtob",i+1);
     meAdcRphiTOB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_rphi_layer%dtob",i+1);
@@ -96,7 +96,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<2 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_sas_layer%dtob",i+1);
-    meNstpSasTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpSasTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_sas_layer%dtob",i+1);
     meAdcSasTOB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_sas_layer%dtob",i+1);
@@ -109,11 +109,11 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
     sprintf(histo,"Posx_matched_layer%dtob",i+1);
     mePosxMatchedTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
     sprintf(histo,"Posy_matched_layer%dtob",i+1);
-    mePosyMatchedTOB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
+    mePosyMatchedTOB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-10.0, +10.0);  
     sprintf(histo,"Errx_matched_layer%dtob",i+1);
     meErrxMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
     sprintf(histo,"Erry_matched_layer%dtob",i+1);
-    meErryMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+    meErryMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.1);  
     sprintf(histo,"Resx_matched_layer%dtob",i+1);
     meResxMatchedTOB[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
     sprintf(histo,"Resy_matched_layer%dtob",i+1);
@@ -125,13 +125,13 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<3 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_rphi_layer%dtid",i+1);
-    meNstpRphiTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpRphiTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_rphi_layer%dtid",i+1);
     meAdcRphiTID[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_rphi_layer%dtid",i+1);
     mePosxRphiTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtid",i+1);
-    meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.1);  
+    meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.5);  
     sprintf(histo,"Res_rphi_layer%dtid",i+1);
     meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
   }
@@ -140,13 +140,13 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<2 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_sas_layer%dtid",i+1);
-    meNstpSasTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpSasTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_sas_layer%dtid",i+1);
     meAdcSasTID[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_sas_layer%dtid",i+1);
     mePosxSasTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_sas_layer%dtid",i+1);
-    meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.1);  
+    meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.5);  
     sprintf(histo,"Res_sas_layer%dtid",i+1);
     meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
 
@@ -169,13 +169,13 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   for(int i = 0 ;i<7 ; i++) {
     Char_t histo[200];
     sprintf(histo,"Nstp_rphi_layer%dtec",i+1);
-    meNstpRphiTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    meNstpRphiTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
     sprintf(histo,"Adc_rphi_layer%dtec",i+1);
     meAdcRphiTEC[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
     sprintf(histo,"Posx_rphi_layer%dtec",i+1);
     mePosxRphiTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
     sprintf(histo,"Errx_rphi_layer%dtec",i+1);
-    meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.1);  
+    meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.5);  
     sprintf(histo,"Res_rphi_layer%dtec",i+1);
     meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
   }
@@ -185,13 +185,13 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
     if(i == 0 || i == 1 || i == 4) {
       Char_t histo[200];
       sprintf(histo,"Nstp_sas_layer%dtec",i+1);
-      meNstpSasTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+      meNstpSasTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",10,0.5,10.5);  
       sprintf(histo,"Adc_sas_layer%dtec",i+1);
       meAdcSasTEC[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
       sprintf(histo,"Posx_sas_layer%dtec",i+1);
       mePosxSasTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
       sprintf(histo,"Errx_sas_layer%dtec",i+1);
-      meErrxSasTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+      meErrxSasTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.5);  
       sprintf(histo,"Res_sas_layer%dtec",i+1);
       meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
       
@@ -280,9 +280,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       rechitmatchederrxx[i] =0;
       rechitmatchederrxy[i] =0;
       rechitmatchederryy[i] =0;
-      rechitmatchedresx[i]=0;
-      rechitmatchedresy[i]=0;
-      
+      rechitmatchedresx[i]=-999;
+      rechitmatchedresy[i]=-999;
     }
     
     numrechitrphi =0;
