@@ -2,42 +2,32 @@
 \page SimData SIM data tier
 
 \section sim SIM Event content
-Simulation output and Monte Carlo truth
+Simulation output and Monte Carlo truth.
+
+\section format Data Format definition
+The Data Format is defined in the following package sets:
+ - \ref SimPackages "SIM data format packages" 
+ - \ref CommonData "Common data format packagess" 
+
+\section content Event content
 
 \htmlinclude datatable_begin.doi
 
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>XYZ collections</td>
-</tr>
-<tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
-</tr>
-<tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
-</tr>
-<tr>
-  <td> \endhtmlonly XYZObject \htmlonly </rd>
-  <td> \endhtmlonly XYZCollection \htmlonly </td>
-  <td>xyscollection</td>
-  <td class="description">Collection of xyz object simulated with ...</td>
-  <td>D.Elvira</td>
-</tr>
+\htmlinclude TrackerMuonSimHitCollections.doi
+\htmlinclude CaloSimHitCollections.doi
 
 \htmlinclude datatable_end.doi
+
+\section status Status
+Very preliminary, to be checked and corrected by the experts.
+Monte Carlo truth  is still missing.
 
 \section contact Contact persons
 - Daniel Elvira
 - Maya Stavrianakou
 
+
 <hr>
-Last updated: @DATE@ L.Lista
+Last updated: @DATE@ K.Lassila-Perini
 
 */

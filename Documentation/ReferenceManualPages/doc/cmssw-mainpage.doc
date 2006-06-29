@@ -3,7 +3,6 @@
 This is main page of the CMSSW Reference Manual.
 
 \htmlonly
-
 <script type="text/javascript">
 <!--
   function alternate() {
@@ -22,14 +21,12 @@ This is main page of the CMSSW Reference Manual.
   window.onload = alternate;
 -->
 </script>
-
 \endhtmlonly
 
 \section datav Data View
 Definition of the event content.
 
 \htmlonly
-
 <table class="doctable">
 <caption>
 </caption>
@@ -68,54 +65,21 @@ Definition of the event content.
     <a href="mailto:">Maya Stavrianakou</a>
   </td>
 </tr>
+<!-- still missing!
 <tr>
   <td>  \endhtmlonly \ref CondData "COND Data"  \htmlonly  </td>
   <td>Conditions data, including calibrations and alignments</td>
   <td class="contact"> 
   </td>
 </tr>
-
-<tr class="colgroup">
-  <td class="colgroup" colspan=3>Data Formats</td>
-</tr>
-<tr>
-  <td>  \endhtmlonly \ref CommonData "Common data formats"   \htmlonly  </td>
-  <td>Common persistent data types</td>
-  <td class="contact"> 
-    <a href="mailto:">Luca Lista</a>,
-    <a href="mailto:">William Tanenbaum</a>
-  </td>
-</tr>
-<tr>
-  <td>  \endhtmlonly \ref RecoPackages "RECO/AOD data formats"   \htmlonly  </td>
-  <td>Reconstruction data types</td>
-  <td class="contact"><a href="mailto:">Luca Lista</a>,
-       <a href="mailto:">Tommaso Boccali</a>
-  </td>
-</tr>
-<tr>
-  <td>  \endhtmlonly \ref SimPackages "SIM data format"   \htmlonly  </td>
-  <td>Simulation data types</td>
-  <td class="contact">
-    <a href="mailto:">Daniel Elvira</a>,
-    <a href="mailto:">Maya Stavrianakou</a>
-  </td>
-</tr>
-<tr>
-  <td>  \endhtmlonly \ref CondPackages "COND data format"   \htmlonly  </td>
-  <td>Conditions data types</td>
-  <td class="contact">
-  </td>
-</tr>
+-->
 </table>
-
 \endhtmlonly
 
 \section funcv Functional View
 Definition of packages according to the different functionalities.
 
 \htmlonly
-
 <table class="doctable">
 <caption>
 </caption>
@@ -160,14 +124,12 @@ Definition of packages according to the different functionalities.
   </td>
 </tr>
 </table>
-
 \endhtmlonly
 
 \section detv Detector View
 Definition of packages by detector.
 
 \htmlonly
-
 <table class="doctable">
 <caption>
 </caption>
@@ -192,7 +154,6 @@ Definition of packages by detector.
   </td>
 </tr>
 </table>
-
 \endhtmlonly
 
 <br><br>

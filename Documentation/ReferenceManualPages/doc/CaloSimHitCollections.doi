@@ -1,0 +1,9 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Calorimeter SimHit collections</td>
+<tr>
+  <td><a href="classPCaloHit.html">PCaloHit </a></td>
+  <td><a href="#">PCaloHitContainer</a></td>
+  <td><a href="#">SimG4Object? </a></td>
+  <td class="description">Simulated hits in calorimeters </td>
+  <td>?</td>
+</tr>

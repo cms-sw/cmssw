@@ -4,9 +4,12 @@
 \section event RECO Event content
 Reconstruction output.
 
+\section format Data Format definition
 The Data Format is defined in the following package sets:
- - \ref RecoData "RECO data format packages" 
+ - \ref RecoPackages "RECO/AOD data format packages" 
  - \ref CommonData "Common data format packagess" 
+
+\section content Event content
 
 \htmlinclude datatable_begin.doi
 
@@ -20,6 +23,9 @@ The Data Format is defined in the following package sets:
 \htmlinclude GenJetRecoCollections.doi
 
 \htmlinclude datatable_end.doi
+
+\section status Status
+Close to completion. Still some collections missing.
 
 \section contact Contact persons
 - Luca Lista

@@ -2,6 +2,14 @@
 \page AodData AOD data tier
 
 \section aod AOD Event content
+Analysis input.
+
+\section format Data Format definition
+The Data Format is defined in the following package sets:
+ - \ref RecoPackages "RECO/AOD data format packages" 
+ - \ref CommonData "Common data format packagess" 
+
+\section Event Content
 AOD will be a subset of \ref RecoData "RECO" data, still to be defined.
 
 \htmlonly
@@ -25,6 +33,9 @@ AOD will be a subset of \ref RecoData "RECO" data, still to be defined.
 </script>
 
 \endhtmlonly
+
+\section status Status
+Empty at the moment.
 
 \section contact Contact persons
 - Luca Lista
