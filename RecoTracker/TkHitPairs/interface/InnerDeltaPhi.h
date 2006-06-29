@@ -2,13 +2,10 @@
 #define InnerDeltaPhi_H
 
 /** predict phi bending in layer for the tracks constratind by outer hit r-z */ 
-   using namespace std;
-//   #include <stdio.h>
-   #include <fstream>
+#include <fstream>
 #include "FWCore/Framework/interface/EventSetup.h"
-//  #include <string>
-   //  #include <stdlib.h>
 //#include "Utilities/Notification/interface/TimingReport.h"
+
 class DetLayer;
 class MultipleScatteringParametrisation;
 
@@ -46,7 +43,7 @@ private:
     if (theRDefined) return theRLayer;
     else {
       float invRmin = (hitZ-theB)/theA/hitR;
-      return ( invRmin> 0) ? max( 1./invRmin, (double)theRLayer) : theRLayer;
+      return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
     }
   }
 
