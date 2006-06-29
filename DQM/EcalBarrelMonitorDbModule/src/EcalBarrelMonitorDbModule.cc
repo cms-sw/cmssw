@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2006/06/07 10:59:26 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/28 10:46:18 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -136,7 +136,8 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 
     // Set configuration parameters
     coral::IConnectionServiceConfiguration& config = connectionService->configuration();
-    config.setNumberOfConnectionRetrials(2);
+    config.setConnectionRetrialPeriod(1);
+    config.setConnectionRetrialTimeOut(10);
 
     session_ = connectionService->connect("ECAL CondDB", coral::ReadOnly);    
 
