@@ -18,6 +18,5 @@
   <class name="std::vector<DTSLRangeT0Data>"/>
   <class name="std::vector<DTCellStatusFlagData>"/>
   <class name="std::basic_string<char>"/>
-  <class pattern="*iterator*"/>
 </lcgdict>
 
