@@ -1,0 +1,11 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/CoreROOT>
+<flags SEAL_PLUGIN_NAME="DQMServicesLTCDQMSource">
+<export>
+   <lib name=DQMServicesLTCDQMSource>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
