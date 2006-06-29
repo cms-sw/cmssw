@@ -1,6 +1,6 @@
 {
 cout << "Loading FWLite..." << endl;
-gSystem->Load("libPhysicsToolsFWLite");
+gSystem->Load("libFWCoreFWLite");
 AutoLibraryLoader::enable();
 
 }
