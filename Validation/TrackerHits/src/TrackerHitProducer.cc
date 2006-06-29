@@ -169,15 +169,15 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   ////////////////////////////
   // get G4Vertex information
   ////////////////////////////
-  edm::Handle<edm::EmbdSimVertexContainer> G4VtxContainer;
+  edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByType(G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
-      << "Unable to find EmbdSimVertex in event!";
+      << "Unable to find SimVertex in event!";
     return;
   }
   int i = 0;
-  edm::EmbdSimVertexContainer::const_iterator itVtx;
+  edm::SimVertexContainer::const_iterator itVtx;
   for (itVtx = G4VtxContainer->begin(); itVtx != G4VtxContainer->end(); 
        ++itVtx) {
     
@@ -197,15 +197,15 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   ///////////////////////////
   // get G4Track information
   ///////////////////////////
-  edm::Handle<edm::EmbdSimTrackContainer> G4TrkContainer;
+  edm::Handle<edm::SimTrackContainer> G4TrkContainer;
   iEvent.getByType(G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
-      << "Unable to find EmbdSimTrack in event!";
+      << "Unable to find SimTrack in event!";
     return;
   }
   i = 0;
-  edm::EmbdSimTrackContainer::const_iterator itTrk;
+  edm::SimTrackContainer::const_iterator itTrk;
   for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); 
        ++itTrk) {
 
