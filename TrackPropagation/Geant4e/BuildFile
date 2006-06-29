@@ -3,8 +3,6 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<lib name=G4error>
 <export>
-   <lib name=G4error>
    <lib name=TrackPropagationGeant4e>
 </export>
