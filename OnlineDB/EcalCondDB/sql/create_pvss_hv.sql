@@ -3,7 +3,7 @@
 CREATE TABLE pvss_hv_imon_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   imon		NUMBER
 );
 
@@ -15,7 +15,7 @@ ALTER TABLE pvss_hv_imon_dat ADD CONSTRAINT pvss_hv_imon_uk UNIQUE (since, till)
 CREATE TABLE pvss_hv_i0_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   i0		NUMBER
 );
 
@@ -27,7 +27,7 @@ ALTER TABLE pvss_hv_i0_dat ADD CONSTRAINT pvss_hv_i0_uk UNIQUE (since, till);
 CREATE TABLE pvss_hv_vmon_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   vmon		NUMBER
 );
 
@@ -39,7 +39,7 @@ ALTER TABLE pvss_hv_vmon_dat ADD CONSTRAINT pvss_hv_vmon_uk UNIQUE (since, till)
 CREATE TABLE pvss_hv_v0_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   v0		NUMBER
 );
 
@@ -51,7 +51,7 @@ ALTER TABLE pvss_hv_v0_dat ADD CONSTRAINT pvss_hv_v0_uk UNIQUE (since, till);
 CREATE TABLE pvss_hv_t_board_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   t_board	NUMBER
 );
 
@@ -63,7 +63,7 @@ ALTER TABLE pvss_hv_t_board_dat ADD CONSTRAINT pvss_hv_t_board_uk UNIQUE (since,
 CREATE TABLE pvss_hv_chan_status_dat (
   logic_id	NUMBER(10),
   since		DATE,
-  till		DATE DEFAULT '31-12-9999 23:59:59',
+  till		DATE DEFAULT to_date('9999-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'),
   status        NUMBER
 );
 
