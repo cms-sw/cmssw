@@ -2,10 +2,11 @@
 #define DTSLRecSegment2D_H
 
 /** \class DTSLRecSegment2D
- *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  a 2D (x, dx/dz) segment in a DT superlayer.
+ *
+ *  $Date: 2006/05/02 07:06:00 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -17,9 +18,6 @@ class DTSLRecSegment2D: public DTRecSegment2D{
 public:
   /// Constructor
   DTSLRecSegment2D(){};
-
-  /// Constructor
-  DTSLRecSegment2D(const DTSuperLayerId id);
 
   /// c'tor from hits
   DTSLRecSegment2D(const DTSuperLayerId id, const std::vector<DTRecHit1D>& hits);

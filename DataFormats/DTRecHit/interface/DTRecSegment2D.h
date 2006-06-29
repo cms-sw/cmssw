@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2006/02/23 10:32:05 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/02 07:07:16 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -51,8 +51,6 @@ class DTRecSegment2D : public RecSegment{
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
   DTRecSegment2D() {}
-  /// c'tor with no hits
-  DTRecSegment2D(const DetId& id) ;
   
   /// c'tor from hits
   DTRecSegment2D(const DetId& id, const std::vector<DTRecHit1D>& hits) ;
@@ -67,6 +65,9 @@ class DTRecSegment2D : public RecSegment{
   virtual ~DTRecSegment2D() {};
 
   /* Operations */ 
+
+  virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
+
 
   /// the vector of parameters
   virtual AlgebraicVector parameters() const {
@@ -110,10 +111,10 @@ class DTRecSegment2D : public RecSegment{
   /// return the DOF of the segment 
   virtual int degreesOfFreedom() const ;
 
-  /// Access to component RecHits (if any)
+  // Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const ;
 
-  /// Non-const access to component RecHits (if any)
+  // Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
 
   /// Access to specific components

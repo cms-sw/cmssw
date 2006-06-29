@@ -3,10 +3,10 @@
 
 /** \class DTRecSegment4D
  *
- * 4 parameters RecHits for MuonBarrel DT
+ * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2006/05/02 07:08:42 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/10 20:48:02 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -72,10 +72,10 @@ class DTRecSegment4D : public RecSegment4D{
   /// return the DOF of the segment 
   virtual int degreesOfFreedom() const ;
 
-  /// Access to component RecHits (if any)
+  // Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const ;
 
-  /// Non-const access to component RecHits (if any)
+  // Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
 
   /// the id 

@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2006/03/31 09:59:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/05 16:40:53 $
+ *  $Revision: 1.4 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -76,12 +76,10 @@ class DTRecHit1D : public RecHit1D {
   virtual  DTRecHit1D* clone() const;
 
   
-  /// Access to component RecHits.
   /// No components rechits: it returns a null vector
   virtual std::vector<const TrackingRecHit*> recHits() const;
 
 
-  /// Non-const access to component RecHits.
   /// No components rechits: it returns a null vector
   virtual std::vector<TrackingRecHit*> recHits();
 

@@ -1,14 +1,10 @@
-/** \class DTSLRecSegment2D
- *  No description available.
+/** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/02 07:06:01 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
-
-/// Constructor
-DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId id):DTRecSegment2D(id){}
 
 /// c'tor from hits
 DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId id, const std::vector<DTRecHit1D>& hits):

@@ -3,10 +3,10 @@
 
 /** \class DTRecSegment4DCollection
  *  
- *  Collection of DTRecSegment4DD. See \ref DTRecSegment4DCollection.h for details
+ *  Collection of DTRecSegment4D. See \ref DTRecSegment4DCollection.h for details
  *
- *  $Date: 2006/06/14 12:11:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/20 17:27:50 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
