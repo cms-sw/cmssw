@@ -9,5 +9,4 @@
  <class name="AlignTransformError"/>
  <class name="std::vector<AlignTransformError>"/>
 
- <class pattern="*iterator*"/>
 </lcgdict>   
