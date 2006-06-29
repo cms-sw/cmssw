@@ -30,7 +30,6 @@ class TrackerG4SimHitNumberingScheme;
 class TkAccumulatingSensitiveDetector : 
 public SensitiveTkDetector, 
 public Observer<const BeginOfEvent*>,
-public Observer<const EndOfEvent*>,
 public Observer<const BeginOfTrack*>,
 public Observer<const BeginOfJob*>
 { 
@@ -55,7 +54,6 @@ private:
     virtual void createHit(G4Step *);
     void checkExitPoint(Local3DPoint);
     void update(const BeginOfEvent *);
-    void update(const ::EndOfEvent *);
     void update(const BeginOfTrack *);
     void update(const BeginOfJob *);
     virtual void clearHits();

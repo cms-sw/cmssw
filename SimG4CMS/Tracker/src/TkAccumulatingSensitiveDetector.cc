@@ -397,11 +397,6 @@ void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
       sendHit();
 }
 
-void TkAccumulatingSensitiveDetector::update(const ::EndOfEvent*){
-  //   slaveLowTof->renumbering(theManager);	
-  //   slaveHighTof->renumbering(theManager);
-}    
-
 void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
 {
     clearHits();
