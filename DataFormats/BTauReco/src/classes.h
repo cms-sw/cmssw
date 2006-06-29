@@ -48,6 +48,6 @@ namespace {
 
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;
-    edm::RefProd<CaloJetCollection> rpj1;
+    edm::RefProd<reco::CaloJetCollection> rpj1;
   }
 }

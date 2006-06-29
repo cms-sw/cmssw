@@ -13,14 +13,14 @@
   <class name="edm::RefProd<std::vector<reco::TrackCountingTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> >" />
 
-<!--  <class name="edm::AssociationMap<std::vector<CaloJet>, std::vector<reco::Track>, edm::OneToMany, unsigned long>" /> -->
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<CaloJet>, std::vector<reco::Track>, unsigned int > >" />
+<!--  <class name="edm::AssociationMap<std::vector<reco::CaloJet>, std::vector<reco::Track>, edm::OneToMany, unsigned long>" /> -->
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > >" />
   <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
 
   <class name="reco::IsolatedTauTagInfo" />
   <class name="std::vector<reco::IsolatedTauTagInfo>" />
@@ -38,7 +38,7 @@
 
   <class name="std::pair<unsigned int, unsigned int>" />
   <class name="std::map<unsigned long, std::vector<unsigned long> >" />
-  <class name="edm::RefProd<std::vector<CaloJet> > " />
+  <class name="edm::RefProd<std::vector<reco::CaloJet> > " />
 
   <class name="reco::SoftLeptonTagInfo" />
   <class name="std::vector<reco::SoftLeptonTagInfo>" />

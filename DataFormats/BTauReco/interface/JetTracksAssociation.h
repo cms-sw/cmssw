@@ -16,8 +16,8 @@
 
 namespace reco {
   typedef
-  edm::AssociationMap<edm::OneToMany<CaloJetCollection, TrackCollection, unsigned int> >
-                      JetTracksAssociationCollection;
+  edm::AssociationMap<edm::OneToMany<CaloJetCollection, TrackCollection> >
+    JetTracksAssociationCollection;
   
   typedef
   JetTracksAssociationCollection::value_type JetTracksAssociation;
