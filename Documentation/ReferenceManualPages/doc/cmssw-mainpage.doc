@@ -31,9 +31,6 @@ Definition of the event content.
 <caption>
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
-<tr class="colgroup">
-  <td class="colgroup" colspan=3>Events Content</td>
-</tr>
 <tr>
   <td>  \endhtmlonly \ref RawData "RAW Data"  \htmlonly  </td>
   <td>Raw detector output</td>
