@@ -397,7 +397,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setChargePacked(~(io->signHp)&0x1);
 	  trkH.setLocalPhi(io->phiHp);
 	  trkH.setEtaPacked(io->etaPTHp);
-	  trkH.setBx((int)(bx)+minBX);
+	  trkH.setBx((int)(bx)+minBX - latency);
 	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
 	  trkH.m_output_link = 1;
 	  mytracks.push_back(trkH);	  
@@ -408,7 +408,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setChargePacked(~(io->signMp)&0x1);
 	  trkM.setLocalPhi(io->phiMp);
 	  trkM.setEtaPacked(io->etaPTMp);
-	  trkM.setBx((int)(bx)+minBX);
+	  trkM.setBx((int)(bx)+minBX - latency);
 	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
 	  trkM.m_output_link = 2;
 	  mytracks.push_back(trkM);
@@ -419,7 +419,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setChargePacked(~(io->signLp)&0x1);
 	  trkL.setLocalPhi(io->phiLp);
 	  trkL.setEtaPacked(io->etaPTLp);
-	  trkL.setBx((int)(bx)+minBX);
+	  trkL.setBx((int)(bx)+minBX - latency);
 	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
 	  trkL.m_output_link = 3;
 	  mytracks.push_back(trkL);

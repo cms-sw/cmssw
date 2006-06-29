@@ -13,7 +13,7 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
   std::vector<L1MuRegionalCand> result;
 
   // First we sort and crop the incoming tracks based on their rank.
-  for(int bx = m_minBX; bx <= m_maxBX; ++bx)
+  for(int bx = m_minBX - 6; bx <= m_maxBX - 6; ++bx) // switch back into signed BX
     {
       std::vector<csc::L1Track> tks = tracks.get(bx);
       std::sort(tks.begin(),tks.end(),std::greater<csc::L1Track>());
@@ -49,7 +49,7 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
     {
       LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii++ << ": Eta: " << ittr->etaValue() 
 					<< " Phi: " << ittr->phiValue() << " Pt: " << ittr->ptValue()
-					<< " Quality: " << ittr->quality();
+					<< " Quality: " << ittr->quality() << " BX: " << ittr->bx();
     }
 
   return result;
