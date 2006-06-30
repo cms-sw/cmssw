@@ -139,7 +139,7 @@ using namespace edm;
 	    if(matched.size()>1) cout << " matched = " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	      cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
-	      dist = rechit.localPosition().x() - (*m).localPosition().x();
+	      dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
 		closest = (*m);
