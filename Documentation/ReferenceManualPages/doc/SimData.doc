@@ -15,6 +15,7 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude TrackerMuonSimHitCollections.doi
 \htmlinclude TrackerSimDigiCollections.doi
+\htmlinclude MuonDigiCollections.doi
 \htmlinclude CaloSimHitCollections.doi
 
 \htmlinclude datatable_end.doi
