@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/26 13:17:34 $
- * $Revision: 1.151 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.152 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,7 +226,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // Server switch
 
   enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort_", 9900);
+  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
 
   if ( enableServer_ ) {
     cout << " Server on port '" << serverPort_ << "' is enabled" << endl;
