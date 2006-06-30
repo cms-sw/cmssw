@@ -29,10 +29,20 @@
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "striprechitshisto.root");
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
   dbe_->showDirStructure();
+  dbe_->setCurrentFolder("SISTRIP");
+
+  meNumTotRphi = dbe_->book1D("NumTotRphi","Num of RecHits rphi",100, 0, 10000);
+  meNumTotSas = dbe_->book1D("NumTotSas","Num of RecHits sas",100, 0, 10000);
+  meNumTotMatched = dbe_->book1D("NumTotMatched","Num of RecHits rmatched",100, 0, 10000);
+
   dbe_->setCurrentFolder("TIB");
+  meNumRphiTIB = dbe_->book1D("NumRphiTIB","Num of RecHits rphi", 100, 0, 1000.);
+  meNumSasTIB = dbe_->book1D("NumSasTIB","Num of RecHits sas", 100, 0, 1000.);
+  meNumMatchedTIB = dbe_->book1D("NumMatchedTIB","Num of RecHits matched", 100, 0, 1000.);
+
   //one histo per Layer rphi hits
   for(int i = 0 ;i<4 ; i++) {
     Char_t histo[200];
@@ -77,6 +87,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   }
 
   dbe_->setCurrentFolder("TOB");
+  meNumRphiTOB = dbe_->book1D("NumRphiTOB","Num of RecHits rphi", 100, 0, 1000.);
+  meNumSasTOB = dbe_->book1D("NumSasTOB","Num of RecHits sas", 100, 0, 1000.);
+  meNumMatchedTOB = dbe_->book1D("NumMatchedTOB","Num of RecHits matched", 100, 0, 1000.);
   //one histo per Layer rphi hits
   for(int i = 0 ;i<6 ; i++) {
     Char_t histo[200];
@@ -121,6 +134,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   }
 
   dbe_->setCurrentFolder("TID");
+  meNumRphiTID = dbe_->book1D("NumRphiTID","Num of RecHits rphi", 100, 0, 1000.);
+  meNumSasTID = dbe_->book1D("NumSasTID","Num of RecHits sas", 100, 0, 1000.);
+  meNumMatchedTID = dbe_->book1D("NumMatchedTID","Num of RecHits matched", 100, 0, 1000.);
+
   //one histo per Ring rphi hits: 3 rings, 6 disks, 2 inner rings are glued 
   for(int i = 0 ;i<3 ; i++) {
     Char_t histo[200];
@@ -165,6 +182,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
   }
 
   dbe_->setCurrentFolder("TEC");
+  meNumRphiTEC = dbe_->book1D("NumRphiTEC","Num of RecHits rphi", 100, 0, 1000.);
+  meNumSasTEC = dbe_->book1D("NumSasTEC","Num of RecHits sas", 100, 0, 1000.);
+  meNumMatchedTEC = dbe_->book1D("NumMatchedTEC","Num of RecHits matched", 100, 0, 1000.);
+
   //one histo per Ring rphi hits: 7 rings, 18 disks. Innermost 3 rings are same as TID above.  
   for(int i = 0 ;i<7 ; i++) {
     Char_t histo[200];
@@ -246,6 +267,22 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   int numrechitrphi   =0;
   int numrechitsas    =0;
   int numrechitmatched=0;
+
+  int totTibnumrechitrphi=0;
+  int totTibnumrechitsas=0;
+  int totTibnumrechitmatched=0;
+  int totTobnumrechitrphi=0;
+  int totTobnumrechitsas=0;
+  int totTobnumrechitmatched=0;
+  int totTidnumrechitrphi=0;
+  int totTidnumrechitsas=0;
+  int totTidnumrechitmatched=0;
+  int totTecnumrechitrphi=0;
+  int totTecnumrechitsas=0;
+  int totTecnumrechitmatched=0;
+  int totrechitrphi =0;
+  int totrechitsas =0;
+  int totrechitmatched =0;
   
   TrackerHitAssociator associate(e);
   
@@ -292,7 +329,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     SiStripRecHit2DLocalPosCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
     
     numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
+         
     if(numrechitrphi > 0 ){
+      totrechitrphi+=numrechitrphi;
       int i=0;
       for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
 	SiStripRecHit2DLocalPos const rechit=*iterrphi;
@@ -320,7 +359,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	PSimHit closest;
 	if(!matched.empty()){
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	    dist = rechitrphix[i] - (*m).localPosition().x();
+	    dist = fabs(rechitrphix[i] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
 	      closest = (*m);
@@ -340,6 +379,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     SiStripRecHit2DLocalPosCollection::const_iterator itersas=rechitsasRangeIteratorBegin;
     numrechitsas = rechitsasRangeIteratorEnd - rechitsasRangeIteratorBegin;   
     if(numrechitsas > 0){
+      totrechitsas+=numrechitsas;
       int j=0;
       for(itersas=rechitsasRangeIteratorBegin; itersas!=rechitsasRangeIteratorEnd;++itersas){
 	SiStripRecHit2DLocalPos const rechit=*itersas;
@@ -367,7 +407,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	matched = associate.associateHit(rechit);
 	if(!matched.empty()){
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	    dist = rechitsasx[j] - (*m).localPosition().x();
+	    dist = fabs(rechitsasx[j] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
 	      closest = (*m);
@@ -389,6 +429,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     SiStripRecHit2DMatchedLocalPosCollection::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
     numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
     if(numrechitmatched > 0){
+      totrechitmatched +=numrechitmatched;
       int j=0;
       for(itermatched=rechitmatchedRangeIteratorBegin; itermatched!=rechitmatchedRangeIteratorEnd;++itermatched){
 	SiStripRecHit2DMatchedLocalPos const rechit=*itermatched;
@@ -421,8 +462,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
-	    distx = rechitmatchedx[j] - hitPair.first.x();
-	    disty = rechitmatchedy[j] - hitPair.first.y();
+	    distx = fabs(rechitmatchedx[j] - hitPair.first.x());
+	    disty = fabs(rechitmatchedy[j] - hitPair.first.y());
 	    if(distx<mindistx){
 	      mindistx = distx;
 	      closestPair = hitPair;
@@ -441,13 +482,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       }
     }
     
-
+    //for each detid
     if(numrechitrphi>0 || numrechitsas>0 || numrechitmatched){
       if (detid.subdetId() == int(StripSubdetector::TIB)){
 	TIBDetId tibid(myid);
 	int Tibnumrechitrphi    = numrechitrphi;
 	int Tibnumrechitsas     = numrechitsas;
 	int Tibnumrechitmatched = numrechitmatched;
+	totTibnumrechitrphi +=numrechitrphi;
+	totTibnumrechitsas +=numrechitsas;
+	totTibnumrechitmatched +=numrechitmatched;
 
 	int ilay = tibid.layer() - 1; //for histogram filling
 	
@@ -488,6 +532,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tobnumrechitrphi    = numrechitrphi;
 	int Tobnumrechitsas     = numrechitsas;
 	int Tobnumrechitmatched = numrechitmatched;
+	totTobnumrechitrphi +=numrechitrphi;
+	totTobnumrechitsas +=numrechitsas;
+	totTobnumrechitmatched +=numrechitmatched;
 
 	int ilay = tobid.layer() - 1; //for histogram filling
 	
@@ -526,6 +573,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tidnumrechitrphi    = numrechitrphi;
 	int Tidnumrechitsas     = numrechitsas;
 	int Tidnumrechitmatched = numrechitmatched;
+	totTidnumrechitrphi +=numrechitrphi;
+	totTidnumrechitsas +=numrechitsas;
+	totTidnumrechitmatched +=numrechitmatched;
 
 	int ilay = tidid.ring() - 1; //for histogram filling
 	
@@ -564,6 +614,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tecnumrechitrphi    = numrechitrphi;
 	int Tecnumrechitsas     = numrechitsas;
 	int Tecnumrechitmatched = numrechitmatched;
+	totTecnumrechitrphi +=numrechitrphi;
+	totTecnumrechitsas +=numrechitsas;
+	totTecnumrechitmatched +=numrechitmatched;
 
 	int ilay = tecid.ring() - 1; //for histogram filling
 	
@@ -598,13 +651,31 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	}
       }
 
-
-
-
     }
   }
 
+  //now fill the cumulative histograms of the hits
+
+  meNumRphiTIB->Fill(totTibnumrechitrphi);
+  meNumSasTIB->Fill(totTibnumrechitsas);
+  meNumMatchedTIB->Fill(totTibnumrechitmatched);
+  meNumRphiTOB->Fill(totTobnumrechitrphi);
+  meNumSasTOB->Fill(totTobnumrechitsas);
+  meNumMatchedTOB->Fill(totTobnumrechitmatched);
+  meNumRphiTID->Fill(totTidnumrechitrphi);
+  meNumSasTID->Fill(totTidnumrechitsas);
+  meNumMatchedTID->Fill(totTidnumrechitmatched);
+  meNumRphiTEC->Fill(totTecnumrechitrphi);
+  meNumSasTEC->Fill(totTecnumrechitsas);
+  meNumMatchedTEC->Fill(totTecnumrechitmatched);
+
+  meNumTotRphi->Fill(totrechitrphi);
+  meNumTotSas->Fill(totrechitsas);
+  meNumTotMatched->Fill(totrechitmatched);
+
+ 
 }
+
   
 //needed by to do the residual for matched hits
 std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,

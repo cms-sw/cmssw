@@ -69,6 +69,22 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   //Back-End Interface
   DaqMonitorBEInterface* dbe_;
   string outputFile_;
+  MonitorElement*  meNumTotRphi;
+  MonitorElement*  meNumTotSas;
+  MonitorElement*  meNumTotMatched;
+  MonitorElement*  meNumRphiTIB;
+  MonitorElement*  meNumSasTIB;
+  MonitorElement*  meNumMatchedTIB;
+  MonitorElement*  meNumRphiTOB;
+  MonitorElement*  meNumSasTOB;
+  MonitorElement*  meNumMatchedTOB;
+  MonitorElement*  meNumRphiTID;
+  MonitorElement*  meNumSasTID;
+  MonitorElement*  meNumMatchedTID;
+  MonitorElement*  meNumRphiTEC;
+  MonitorElement*  meNumSasTEC;
+  MonitorElement*  meNumMatchedTEC;
+
   //TIB
   MonitorElement* meNstpRphiTIB[4];
   MonitorElement* meAdcRphiTIB[4];
