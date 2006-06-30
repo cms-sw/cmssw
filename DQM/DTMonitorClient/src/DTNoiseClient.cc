@@ -1,8 +1,8 @@
 /*
  * \file DTNoiseClient.cc
  * 
- * $Date: 2006/06/28 17:41:08 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/29 17:03:09 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -12,7 +12,7 @@
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 // Geometry
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -33,21 +33,22 @@ using namespace std;
 
 DTNoiseClient::DTNoiseClient() {
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
- 
-  summaryAverage_W2_Se10 = TH2F("summaryAverage_W2_Se10","Average Noise YB2_Sector10",3,1,4,20,1,21);
-  summaryAverage_W2_Se11 = TH2F("summaryAverage_W2_Se11","Average Noise YB2_Sector11",3,1,4,20,1,21);
-  summaryAverage_W1_Se10 = TH2F("summaryAverage_W1_Se10","Average Noise YB1_Sector10",3,1,4,20,1,21);
+  // dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  
+  summaryAverage_W2_Se10 = TH2F("summaryAverage_W2_Se10","Average Noise YB2_Sector10",4,1,5,15,1,16);
+  summaryAverage_W2_Se11 = TH2F("summaryAverage_W2_Se11","Average Noise YB2_Sector11",4,1,5,15,1,16);
+  summaryAverage_W1_Se10 = TH2F("summaryAverage_W1_Se10","Average Noise YB1_Sector10",4,1,5,15,1,16);
 
-  summaryNoiseChs_W2_Se10 = TH2F("summaryNoiseChs_W2_Se10","Noisy Channels YB2_Sector10",3,1,4,20,1,21);
-  summaryNoiseChs_W2_Se11 = TH2F("summaryNoiseChs_W2_Se11","Noisy Channels YB2_Sector11",3,1,4,20,1,21);
-  summaryNoiseChs_W1_Se10 = TH2F("summaryNoiseChs_W1_Se10","Noisy Channels YB1_Sector10",3,1,4,20,1,21);
+  summaryNoiseChs_W2_Se10 = TH2F("summaryNoiseChs_W2_Se10","Noisy Channels YB2_Sector10",4,1,5,15,1,16);
+  summaryNoiseChs_W2_Se11 = TH2F("summaryNoiseChs_W2_Se11","Noisy Channels YB2_Sector11",4,1,5,15,1,16);
+  summaryNoiseChs_W1_Se10 = TH2F("summaryNoiseChs_W1_Se10","Noisy Channels YB1_Sector10",4,1,5,15,1,16);
 
 }
 
 
 DTNoiseClient::~DTNoiseClient() {
-  
+
+  DaqMonitorBEInterface* dbe = mui->getBEInterface();
   dbe->save("NoiseSummary.root");
 
 }
@@ -58,6 +59,8 @@ void DTNoiseClient::bookHistos(const DTLayerId& dtLayer) {
   stringstream wheel; wheel << dtLayer.wheel();	
   stringstream sector; sector << dtLayer.sector();	
 
+  DaqMonitorBEInterface* dbe = mui->getBEInterface();
+
   dbe->setCurrentFolder("DT/DTDigiClient/Summary");
 
   int code;
@@ -66,23 +69,26 @@ void DTNoiseClient::bookHistos(const DTLayerId& dtLayer) {
   else code = 10 + dtLayer.wheel();
 
   string histoName =  "summaryAverage_W" + wheel.str() + "_Se" + sector.str();
-  noiseAverageHistos[code] = dbe->book2D(histoName,histoName,3,1,4,20,1,21);
+  noiseAverageHistos[code] = dbe->book2D(histoName,histoName,4,1,5,15,1,16);
   histoName =  "summaryNoiseChs_W" + wheel.str() + "_Se" + sector.str();
-  noiseChHistos[code] = dbe->book2D(histoName,histoName,3,1,4,20,1,21);
+  noiseChHistos[code] = dbe->book2D(histoName,histoName,4,1,5,15,1,16);
 
 
 }
 
 
-void DTNoiseClient::performCheck(MonitorUserInterface * mui) {
+void DTNoiseClient::performCheck(MonitorUserInterface * mui_) {
 
+  // Get the MonitorUserInterface
+  mui = mui_;
+  
   /// FIXME: ES missing, no way to get the geometry 
   /// fake loop 
   for (int w=-2; w<=2; w++) {
     stringstream wheel; wheel  << w;
     for (int st=1; st<=4; st++) {
       stringstream station; station  << st;
-      for (int se=1; se<=12; se++) {
+      for (int se=1; se<=14; se++) {
 	stringstream sector; sector  << se;
 
 	/// WARNING: Pay attantion to the FU number!!!
@@ -91,7 +97,7 @@ void DTNoiseClient::performCheck(MonitorUserInterface * mui) {
 			"/Sector" + sector.str() + "/Occupancies/Noise/";
 
 	for (int sl=1; sl<=3; sl++) {
-	  if (se==4 && sl==2) continue;
+	  if (st==4 && sl==2) continue;
 	  stringstream superLayer; superLayer  << sl;
 	  for (int l=1; l<=4; l++) {
 	    stringstream layer; layer  << sl;

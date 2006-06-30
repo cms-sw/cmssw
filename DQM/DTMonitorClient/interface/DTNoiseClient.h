@@ -5,8 +5,8 @@
  * *
  *  DT DQM Client for Noise checks
  *
- *  $Date: 2006/06/28 17:41:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/29 17:03:09 $
+ *  $Revision: 1.3 $
  *  \author Marco Zanetti 
  *   
  */
@@ -15,7 +15,7 @@
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
 
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -49,7 +49,7 @@ public:
 
 private:
 
-  DaqMonitorBEInterface* dbe;
+  MonitorUserInterface * mui;
 
   /// < DTLayerId, numberOfNoisyCh >
   std::map<DTLayerId, int> noisyChannelsStatistics;
