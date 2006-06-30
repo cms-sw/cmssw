@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
 //
 //
 
@@ -174,12 +174,13 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
 	  pred1Meas.push_back( prediction);
 	
 	  validMeasurements.push_back(*m);      
-          LogDebug("") <<"Found a rechit in layer ";
-	  const ForwardDetLayer *fdetl = dynamic_cast<const ForwardDetLayer *>(*flayer);
-	  if (fdetl) {
-	     LogDebug("") <<" with radius "<<fdetl->initialPosition();
-	  }
-	  else   LogDebug("") <<"Could not downcast!!";
+	  //FIXME: method disappeared!
+//           LogDebug("") <<"Found a rechit in layer ";
+// 	  const ForwardDetLayer *fdetl = dynamic_cast<const ForwardDetLayer *>(*flayer);
+// 	  if (fdetl) {
+// 	     LogDebug("") <<" with radius "<<fdetl->initialPosition();
+// 	  }
+// 	  else   LogDebug("") <<"Could not downcast!!";
 	}
       }
     }
