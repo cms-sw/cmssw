@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.4 2006/06/08 16:54:51 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.5 2006/06/30 12:36:57 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -238,9 +238,9 @@ void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& innerh
   recHits_.clear();
   
   SiPixelRecHit *hit;
-  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
-  recHits_.push_back(hit);
   hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (innerhit.hit())));
+  recHits_.push_back(hit);
+  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
   recHits_.push_back(hit);
 
   typedef TrajectoryStateOnSurface     TSOS;
