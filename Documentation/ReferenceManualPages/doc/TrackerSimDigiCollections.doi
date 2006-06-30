@@ -14,3 +14,19 @@
   <td class="description">Link between Pixel SimHits and Digis </td>
   <td>D. Kotlinski</td>
 </tr>
+</tr><tr class="colgroup">
+  <td class="colgroup" colspan=5>Silicon Strip detector Digi collections</td>
+<tr>
+  <td><a href="classSiStripDigi.html">SiStripDigi </a></td>
+  <td><a href="DataFormats_SiStripDigi.html">edm::DetSetVector&lt;SiStripDigi</a></td>
+  <td><a href="SimTracker_SiStripDigitizer.html">stripdigi</a></td>
+  <td class="description">Silicon Strip digi from digitizer </td>
+  <td>F. Ambroglini</td>
+</tr>
+<tr>
+  <td><a href="classStripDigiSimLink.html">StripDigiSimLink </a></td>
+  <td><a href="SimDataFormats_TrackerDigiSimLink.html">edm::DetSetVector&lt;StripDigiSimLink</a></td>
+  <td><a href="SimTracker_SiStripDigitizer.html">stripdigi</a></td>
+  <td class="description">Link between Silicon Strip SimHits and Digis </td>
+  <td>P. Azzi</td>
+</tr>
