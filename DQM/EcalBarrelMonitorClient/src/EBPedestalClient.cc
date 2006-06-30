@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.82 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,9 +33,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -123,6 +121,21 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
 
+}
+
+EBPedestalClient::~EBPedestalClient(){
+
+}
+
+void EBPedestalClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
+
+  if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
+
+  ievt_ = 0;
+  jevt_ = 0;
+
   if ( enableQT_ ) {
 
     Char_t qtname[80];
@@ -159,19 +172,6 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
     }
 
   }
-
-}
-
-EBPedestalClient::~EBPedestalClient(){
-
-}
-
-void EBPedestalClient::beginJob(void){
-
-  if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
-
-  ievt_ = 0;
-  jevt_ = 0;
 
 }
 

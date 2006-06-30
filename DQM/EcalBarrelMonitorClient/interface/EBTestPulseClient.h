@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/06/22 14:47:05 $
- * $Revision: 1.32 $
+ * $Date: 2006/06/29 22:03:24 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,7 @@ class EBTestPulseClient : public EBClient {
 public:
 
 /// Constructor
-EBTestPulseClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EBTestPulseClient(const ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTestPulseClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(void);
+void beginJob(MonitorUserInterface* mui);
 
 /// EndJob
 void endJob(void);

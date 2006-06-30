@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.152 $
+ * $Date: 2006/06/30 07:45:10 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -239,37 +239,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_); 
 
-  cout << " Selected Super Modules :" << endl;
+  cout << " Selected SMs:" << endl;
 
   for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
     cout << " " << setw(2) << setfill('0') << superModules_[i];
   }
 
   cout << endl;
-
-  // start DQM user interface instance
-
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
-    } else {
-      mui_ = new MonitorUIRoot();
-    }
-  }
-
-  if ( verbose_ ) {
-    mui_->setVerbose(1);
-  } else {
-    mui_->setVerbose(0);
-  }
-
-  if ( enableServer_ ) {
-    mui_->actAsServer(serverPort_, clientName_);
-  }
-
-  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
-
-  mui_->setReconnectDelay(5);
 
   // global ROOT style
 
@@ -311,7 +287,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.reserve(8);
   clientNames_.reserve(8);
 
-  clients_.push_back( new EBIntegrityClient(ps, mui_) );
+  clients_.push_back( new EBIntegrityClient(ps) );
   clientNames_.push_back( "Integrity" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
@@ -320,22 +296,22 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back( new EBCosmicClient(ps, mui_) );
+  clients_.push_back( new EBCosmicClient(ps) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
 
-  clients_.push_back(  new EBLaserClient(ps, mui_) );
+  clients_.push_back(  new EBLaserClient(ps) );
   clientNames_.push_back( "Laser" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBPedestalClient(ps, mui_) );
+  clients_.push_back(  new EBPedestalClient(ps) );
   clientNames_.push_back( "Pedestal" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
-  clients_.push_back(  new EBPedestalOnlineClient(ps, mui_) );
+  clients_.push_back(  new EBPedestalOnlineClient(ps) );
   clientNames_.push_back( "PedestalOnLine" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
@@ -344,16 +320,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBTestPulseClient(ps, mui_) );
+  clients_.push_back(  new EBTestPulseClient(ps) );
   clientNames_.push_back( "TestPulse" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
-  clients_.push_back(  new EBBeamCaloClient(ps, mui_) );
+  clients_.push_back(  new EBBeamCaloClient(ps) );
   clientNames_.push_back( "BeamCalo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBBeamHodoClient(ps, mui_) );
+  clients_.push_back(  new EBBeamHodoClient(ps) );
   clientNames_.push_back( "BeamHodo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
@@ -370,10 +346,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
     delete clients_[i];
   }
 
-  mui_->disconnect();
-
-  if ( mui_ ) delete mui_;
-
 }
 
 void EcalBarrelMonitorClient::beginJob(void){
@@ -383,8 +355,32 @@ void EcalBarrelMonitorClient::beginJob(void){
   ievt_ = 0;
   jevt_ = 0;
 
+  // start DQM user interface instance
+
+  if ( ! enableStateMachine_ ) {
+    if ( enableMonitorDaemon_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+    } else {
+      mui_ = new MonitorUIRoot();
+    }
+  }
+
+  if ( verbose_ ) {
+    mui_->setVerbose(1);
+  } else {
+    mui_->setVerbose(0);
+  }
+
+  if ( enableServer_ ) {
+    mui_->actAsServer(serverPort_, clientName_);
+  }
+
+  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
+
+  mui_->setReconnectDelay(5);
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob();
+    clients_[i]->beginJob(mui_);
   }
 
   this->subscribe();
@@ -467,6 +463,10 @@ void EcalBarrelMonitorClient::endJob(void) {
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->endJob();
   }
+
+  mui_->disconnect();
+
+  delete mui_;
 
 }
 
@@ -1059,7 +1059,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
-          if (enableQT_ ) {
+          if ( enableQT_ ) {
 
             cout << endl;
             switch ( mui_->getSystemStatus() ) {

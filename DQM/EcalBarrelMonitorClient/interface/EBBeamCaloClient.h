@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/06/26 20:15:04 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/29 22:03:24 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -38,7 +38,7 @@ class EBBeamCaloClient : public EBClient {
 public:
 
 /// Constructor
-EBBeamCaloClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EBBeamCaloClient(const ParameterSet& ps);
 
 /// Destructor
 virtual ~EBBeamCaloClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(void);
+void beginJob(MonitorUserInterface* mui);
 
 /// EndJob
 void endJob(void);

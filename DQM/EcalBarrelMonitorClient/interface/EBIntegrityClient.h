@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2006/06/22 14:47:05 $
- * $Revision: 1.36 $
+ * $Date: 2006/06/29 22:03:24 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,7 +38,7 @@ class EBIntegrityClient : public EBClient {
 public:
 
 /// Constructor
-EBIntegrityClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EBIntegrityClient(const ParameterSet& ps);
 
 /// Destructor
 virtual ~EBIntegrityClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(void);
+void beginJob(MonitorUserInterface* mui);
 
 /// EndJob
 void endJob(void);

@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2006/06/28 10:39:17 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/29 22:03:24 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,7 +38,7 @@ class EBBeamHodoClient : public EBClient {
 public:
 
 /// Constructor
-EBBeamHodoClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EBBeamHodoClient(const ParameterSet& ps);
 
 /// Destructor
 virtual ~EBBeamHodoClient();
@@ -52,7 +52,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(void);
+void beginJob(MonitorUserInterface* mui);
 
 /// EndJob
 void endJob(void);

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/28 17:12:36 $
- * $Revision: 1.10 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,9 +31,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -98,12 +96,18 @@ EBBeamHodoClient::~EBBeamHodoClient(){
 
 }
 
-void EBBeamHodoClient::beginJob(void){
+void EBBeamHodoClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   if ( verbose_ ) cout << "EBBeamHodoClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
+
+  if ( enableQT_ ) {
+
+  }
 
 }
 

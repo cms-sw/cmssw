@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/23 13:02:32 $
- * $Revision: 1.82 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,9 +34,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -106,6 +104,21 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
+}
+
+EBTestPulseClient::~EBTestPulseClient(){
+
+}
+
+void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
+
+  if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
+
+  ievt_ = 0;
+  jevt_ = 0;
+
   if ( enableQT_ ) {
 
     Char_t qtname[80];
@@ -142,19 +155,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
     }
 
   }
-
-}
-
-EBTestPulseClient::~EBTestPulseClient(){
-
-}
-
-void EBTestPulseClient::beginJob(void){
-
-  if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
-
-  ievt_ = 0;
-  jevt_ = 0;
 
 }
 

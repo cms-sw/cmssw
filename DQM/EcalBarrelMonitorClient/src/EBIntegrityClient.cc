@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.99 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,9 +35,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -106,6 +104,21 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
   }
 
   threshCry_ = 0.;
+
+}
+
+EBIntegrityClient::~EBIntegrityClient(){
+
+}
+
+void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
+
+  if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
+
+  ievt_ = 0;
+  jevt_ = 0;
 
   if ( enableQT_ ) {
 
@@ -181,19 +194,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
     }
 
   }
-
-}
-
-EBIntegrityClient::~EBIntegrityClient(){
-
-}
-
-void EBIntegrityClient::beginJob(void){
-
-  if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
-
-  ievt_ = 0;
-  jevt_ = 0;
 
 }
 

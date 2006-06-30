@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.54 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,9 +32,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -79,7 +77,9 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(void){
+void EBCosmicClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 

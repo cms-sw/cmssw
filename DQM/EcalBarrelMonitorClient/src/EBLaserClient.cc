@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/22 14:47:06 $
- * $Revision: 1.79 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -38,9 +38,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -136,6 +134,21 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   percentVariation_ = 0.4;
 
+}
+
+EBLaserClient::~EBLaserClient(){
+
+}
+
+void EBLaserClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
+
+  if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
+
+  ievt_ = 0;
+  jevt_ = 0;
+
   if ( enableQT_ ) {
 
     Char_t qtname[80];
@@ -174,19 +187,6 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     }
 
   }
-
-}
-
-EBLaserClient::~EBLaserClient(){
-
-}
-
-void EBLaserClient::beginJob(void){
-
-  if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
-
-  ievt_ = 0;
-  jevt_ = 0;
 
 }
 

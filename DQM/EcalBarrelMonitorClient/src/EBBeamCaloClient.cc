@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/06/27 16:31:23 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/29 22:03:25 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -31,9 +31,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  mui_ = mui;
+EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -81,12 +79,18 @@ EBBeamCaloClient::~EBBeamCaloClient(){
 
 }
 
-void EBBeamCaloClient::beginJob(void){
+void EBBeamCaloClient::beginJob(MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   if ( verbose_ ) cout << "EBBeamCaloClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
+
+  if ( enableQT_ ) {
+
+  }
 
 }
 
