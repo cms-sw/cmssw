@@ -12,4 +12,5 @@
  <class name="mySiStripNoises::SiStripData"/>
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
+ <class pattern="*iterator*"/>
 </lcgdict>   
