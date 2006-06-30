@@ -431,7 +431,7 @@ L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
 //   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
 
 //  return L1GctRegion(0, et, overFlow, tauVeto, false, false);
-  return L1CaloRegion(rctFileData,0,0,0);
+  return L1CaloRegion(rctFileData,0,0);
 
 }
 
