@@ -1,190 +1,60 @@
-/*
- *  See header file for a description of this class.
- *
- *  $Date: 2006/03/16 17:00:20 $
- *  $Revision: 1.1 $
- *  \author Marcello Maggi INFN Bari
- *
- */
-#include "CondFormats/RPCObjects/interface/RPCdeteIndex.h"
-#include "CondFormats/RPCObjects/interface/RPCelecIndex.h"
-
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
+#include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 
+#include<iostream>
 
-RPCReadOutLink::RPCReadOutLink():
-  dccId( 0 ),
-  tbId( 0 ),
-  lboxId( 0 ),
-  mbId( 0 ),
-  lboardId( 0 ),
-  channelId( 0 ),
+RPCReadOutMapping::RPCReadOutMapping(const std::string & version) 
+  : theVersion(version) { }
 
-  regionId( 0 ),
-  diskId( 0 ),
-  stationId( 0 ),
-  sectorId( 0 ),
-  layerId( 0 ),
-  subsectorId( 0 ),
-  rollId( 0 ) ,
-  stripId( 0 )
-{}
-
-
-RPCReadOutLink::~RPCReadOutLink() 
+const DccSpec * RPCReadOutMapping::dcc( int dccId) const
 {
+  IMAP im = theFeds.find(dccId);
+  const DccSpec & ddc = (*im).second;
+  return (im != theFeds.end()) ?  &ddc : 0;
+}
+
+void RPCReadOutMapping::add(const DccSpec & dcc)
+{
+  theFeds[dcc.id()] = dcc;
 }
 
 
-
-RPCReadOutMapping::RPCReadOutMapping()
+std::vector<const DccSpec*> RPCReadOutMapping::dccList() const
 {
-}
-
-
-RPCReadOutMapping::~RPCReadOutMapping() 
-{
-}
-
-
-void RPCReadOutMapping::initSetup() 
-{
-  std::vector<RPCReadOutLink>::const_iterator iter =
-    readOutRPCMap.begin();
-  std::vector<RPCReadOutLink>::const_iterator iend =
-    readOutRPCMap.end();
-
-  int      dccId;
-  int      tbId;
-  int      lboxId;
-  int      mbId;
-  int      lboardId; 
-  int      channelId;
-
-  int      regionId;
-  int      diskId;
-  int      stationId;
-  int      sectorId;
-  int      layerId;
-  int      subsectorId;
-  int      rollId;
-  int      stripId;
-
-  while ( iter != iend ) {
-    const RPCReadOutLink& link = *iter++;
-
-    dccId       = link.dccId;
-    tbId        = link.tbId;
-    lboxId      = link.lboxId;
-    mbId        = link.mbId;
-    lboardId    = link.lboardId; 
-    channelId   = link.channelId;
-
-    RPCelecIndex eind(dccId,tbId,lboxId,mbId,lboardId,channelId);
-
-    regionId    = link.regionId;
-    diskId      = link.diskId;
-    stationId   = link.stationId;
-    sectorId    = link.sectorId;
-    layerId     = link.layerId;
-    subsectorId = link.subsectorId;
-    rollId      = link.rollId;
-    stripId     = link.stripId;
-
-    RPCdeteIndex dind(regionId,diskId,stationId,sectorId,
-		      layerId,subsectorId,rollId,stripId);
-
-    dtoe[dind]=eind;
-    etod[eind]=dind;
-
+  std::vector<const DccSpec*> result;
+  result.reserve(theFeds.size());
+  for (IMAP im = theFeds.begin(); im != theFeds.end(); im++) {
+    result.push_back( &(im->second) );
   }
-
+  return result;
 }
 
-
-void
-RPCReadOutMapping::readOutToGeometry( int       dccId,
-				      int        tbId,
-				      int      lboxId,
-				      int        mbId,
-				      int    lboardId,
-				      int   channelId,
-				      int&   regionId,
-				      int&     diskId,
-				      int&  stationId,
-				      int&   sectorId,
-				      int&    layerId,
-				      int&subsectorId,
-				      int&     rollId,
-				      int&    stripId) 
+std::pair<int,int> RPCReadOutMapping::dccNumberRange() const
 {
-  RPCelecIndex eind(dccId,tbId,lboxId,mbId,lboardId,channelId);
-  RPCdeteIndex dind=etod[eind];
-  regionId    = dind.region();
-  diskId      = dind.disk();
-  stationId   = dind.station();
-  sectorId    = dind.sector();
-  layerId     = dind.layer();
-  subsectorId = dind.subsector();
-  rollId      = dind.roll();
-  stripId     = dind.strip();
+  
+  if (theFeds.empty()) return std::make_pair(0,-1);
+  else {
+    IMAP first = theFeds.begin();
+    IMAP last  = theFeds.end(); last--;
+    return  std::make_pair(first->first, last->first);
+  }
 }
 
-
-
-void 
-RPCReadOutMapping::clear() 
+const ChamberLocationSpec * RPCReadOutMapping::location(const ChamberRawDataSpec & ele) const
 {
-  readOutRPCMap.clear();
-  dtoe.clear();
-  etod.clear();
+  //FIXME after debugging change to dcc(ele.dccId)->triggerBoard(ele.dccInputChannelNum)->...
+  const DccSpec *dcc = RPCReadOutMapping::dcc(ele.dccId);
+  if (dcc) {
+    const TriggerBoardSpec *tb = dcc->triggerBoard(ele.dccInputChannelNum);
+    if (tb) {
+      const LinkConnSpec *lc = tb->linkConn( ele.tbLinkInputNum);
+      if (lc) {
+        const LinkBoardSpec *lb = lc->linkBoard(ele.lbNumInLink);
+        if (lb) return &(lb->chamberLocationSpec());
+      }
+    }
+  }
+  return 0;
 }
-
-
-void
-RPCReadOutMapping::insertReadOutGeometryLink( int       dccId,
-					      int        tbId,
-					      int      lboxId,
-					      int        mbId,
-					      int    lboardId,
-					      int   channelId,
-					      int    regionId,
-					      int      diskId,
-					      int   stationId,
-					      int    sectorId,
-					      int     layerId,
-					      int subsectorId,
-					      int      rollId,
-					      int     stripId) 
-{
-  RPCReadOutLink link;
-  link.dccId     = dccId;
-  link.tbId      = tbId;
-  link.lboxId    = lboxId;
-  link.mbId      = mbId;
-  link.lboardId  = lboardId;
-  link.channelId = channelId;
-
-  link.regionId    = regionId;
-  link.diskId      = diskId;
-  link.stationId   = stationId;
-  link.sectorId    = sectorId;
-  link.layerId     = layerId;
-  link.subsectorId = subsectorId;
-  link.rollId      = rollId;
-  link.stripId     = stripId;
-
-  readOutRPCMap.push_back( link );
-
-}
-
-
-RPCReadOutMapping::const_iterator RPCReadOutMapping::begin() const {
-  return readOutRPCMap.begin();
-}
-
-
-RPCReadOutMapping::const_iterator RPCReadOutMapping::end() const {
-  return readOutRPCMap.end();
-}
-

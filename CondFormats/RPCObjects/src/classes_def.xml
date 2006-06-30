@@ -1,11 +1,23 @@
 <lcgdict>
+  <class name="ChamberLocationSpec"/>
+
+  <class name="LinkBoardSpec"/>
+
+  <class name="LinkConnSpec"/>
+  <class name="std::vector<LinkBoardSpec>"/>
+
+  <class name="TriggerBoardSpec"/>
+  <class name="std::vector<LinkConnSpec>"/>
+
+  <class name="DccSpec"/>
+  <class name="std::vector<TriggerBoardSpec>"/>
+
   <class name="RPCReadOutMapping"/>
-  <class name="RPCReadOutLink"/>
-  <class name="RPCdeteIndex"/>
-  <class name="RPCelecIndex"/>
-  <class name="std::vector<RPCReadOutLink>"/>
-  <class name="std::map<RPCdeteIndex,RPCelecIndex>"/>
-  <class name="std::map<RPCelecIndex,RPCdeteIndex>"/>
+  <class name="std::map<int,DccSpec>"/>
+
   <class pattern="*pair*"/>
+  <class pattern="*vector*"/>
+  <class pattern="*map*"/>
+  <class pattern="*iterator*"/>
 </lcgdict>
 
