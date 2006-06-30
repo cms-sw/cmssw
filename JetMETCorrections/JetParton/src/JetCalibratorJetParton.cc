@@ -177,7 +177,7 @@ void JetCalibratorJetParton::setParameters(std::string aCalibrationType, double 
       parametrization[pset.eta(ieta)]=new ParametrizationJetParton(thePartonMixture,(*pq.find(ieta)).second,(*pg.find(ieta)).second,(*pqcd.find(ieta)).second);    
     }
 }
-CaloJet JetCalibratorJetParton::applyCorrection( const CaloJet& fJet)
+reco::CaloJet JetCalibratorJetParton::applyCorrection( const reco::CaloJet& fJet)
 {
   if(parametrization.empty()) { return fJet; }
   
@@ -213,7 +213,7 @@ CaloJet JetCalibratorJetParton::applyCorrection( const CaloJet& fJet)
   Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
 
-  CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
+  reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
   cout<<" JetParton::The new jet is created "<<endl;
 
   return theJet;
