@@ -1,0 +1,17 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="NoisyChannels">
+	<TYPE>NoisyChannelROOT</TYPE>	
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="tolerance">1</PARAM>
+	<PARAM name="neighbours">3</PARAM>
+</QTEST>
+
+
+<LINK name="*OccupancyNoise*">
+	<TestName activate="true">NoisyChannels</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>
