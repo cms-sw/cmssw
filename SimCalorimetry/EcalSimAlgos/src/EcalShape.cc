@@ -14,7 +14,7 @@ EcalShape::EcalShape(double timePhase)
 {
   setTpeak(timePhase);
   
-  nsamp = 250;
+  nsamp = 250 * 2;
 
   threshold = 0.00013;
 
@@ -22,6 +22,9 @@ EcalShape::EcalShape(double timePhase)
   // from 0. to 250. (i.e. 10 x 25 ns ) ns
   // TProfile SHAPE_XTAL_704 from A. Zabi
   // F. Cossutti - 15-Jun-2006 16:03
+
+  // Modififed by Alex Zabi-29/06/06
+  // expanding the shape to simulate out-of-time pile-up
 
   std::vector<double> shapeArray(nsamp,0.0);
 
@@ -276,6 +279,11 @@ EcalShape::EcalShape(double timePhase)
   shapeArray[248] = 0.253549 ; 
   shapeArray[249] = 0.249493 ; 
 
+  // Alex 29/06/06 - modification to expand the shape up to more the 1500 bins 
+  // to simulate out-of-time pile-up properly
+  // Exponential fit on the tail of the pulse shape [180,250ns]
+  for ( int i = 250 ; i < nsamp; ++i ) shapeArray[i] = exp(2.39735 - 0.0151053* ((double)i+1.0));
+
   for ( int i = 0 ; i < nsamp; ++i ) {
     LogDebug("EcalShape") << " time (ns) = " << (double)i << " tabulated ECAL pulse shape = " << shapeArray[i];
   }
@@ -306,7 +314,7 @@ EcalShape::EcalShape(double timePhase)
     // a la H4SIM, parabolic interpolation and analytic continuation
     if (ibin < 0 ) { value = 0.; deriv = 0.; }
     else if (ibin == 0) { value = shapeArray[ibin]; deriv = 0.; }
-    else if (ibin+1 == shapeArray.size()) { value = shapeArray[ibin]; deriv = 0.; }
+    else if (ibin+1 == shapeArray.size()) { value = shapeArray[ibin]; deriv = 0.;}
     else {
       double x = xb - ((double)ibin+0.5);
       double f1 = shapeArray[ibin - 1];
@@ -354,7 +362,7 @@ double EcalShape::operator () (double time_) const
     return nt[jtime+binstart];
   }
   else if (jtime<0) {return 0.;}
-  else {
+  else {    
     LogDebug("EcalShape") << " ECAL MGPA shape requested for out of range time " << time_;
     return 0.0;
   }
