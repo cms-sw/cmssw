@@ -6,3 +6,4 @@
 
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
+<use name=FWCore/Framework>
