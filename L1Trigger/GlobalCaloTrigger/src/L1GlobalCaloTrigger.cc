@@ -169,6 +169,17 @@ void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
   sc->setRegions(tempRegions);
 }
 
+void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion> rgn)
+{
+  for (uint i=0; i<rgn.size(); i++){
+    setRegion(rgn.at(i));
+  }
+}
+
+void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand> em)
+{
+}
+
 void L1GlobalCaloTrigger::print() {
 
   cout << "=== Global Calo Trigger ===" << endl;
