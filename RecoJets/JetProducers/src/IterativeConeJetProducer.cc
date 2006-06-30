@@ -33,8 +33,13 @@ namespace cms
     src_(conf.getParameter<string>( "src" )),
     jetType_ (conf.getUntrackedParameter<string>( "jetType", "CaloJet"))
   {
-    if (makeCaloJet (jetType_)) produces<CaloJetCollection>();
-    if (makeGenJet (jetType_)) produces<GenJetCollection>();
+    // branch alias
+    char label [32];
+    sprintf (label, "IC%d%s", 
+	     int (floor (conf.getParameter<double>("coneRadius") * 10. + 0.5)), 
+	     jetType_.c_str());
+    if (makeCaloJet (jetType_)) produces<CaloJetCollection>().setBranchAlias (label);
+    if (makeGenJet (jetType_)) produces<GenJetCollection>().setBranchAlias (label);
   }
 
   // Virtual destructor needed.

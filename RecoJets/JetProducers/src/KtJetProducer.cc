@@ -4,7 +4,7 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: KtJetProducer.cc,v 1.13 2006/04/08 00:37:08 fedor Exp $
+// $Id: KtJetProducer.cc,v 1.14 2006/05/23 01:14:34 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -41,8 +41,13 @@ namespace cms
     src_(conf.getParameter<string>( "src" )),
     jetType_ (conf.getUntrackedParameter<string>( "jetType", "CaloJet"))
   {
-    if (makeCaloJet (jetType_)) produces<CaloJetCollection>();
-    if (makeGenJet (jetType_)) produces<GenJetCollection>();
+    // branch alias
+    char label [32];
+    sprintf (label, "KT%d%s", 
+	     int (floor (conf.getParameter<double>("ktRParam") * 10. + 0.5)),
+	     jetType_.c_str());
+    if (makeCaloJet (jetType_)) produces<CaloJetCollection>().setBranchAlias (label);
+    if (makeGenJet (jetType_)) produces<GenJetCollection>().setBranchAlias (label);
   }
 
   // Virtual destructor needed.
