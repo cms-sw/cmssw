@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.4 2006/06/23 14:36:28 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.5 2006/06/28 18:00:37 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -114,8 +114,11 @@ private:
   std::string amplWeightsFile_;
   std::string amplWeightsAftFile_;
   std::string pedWeightsFile_;
+  std::string pedWeightsAftFile_;
   std::string jittWeightsFile_; 
+  std::string jittWeightsAftFile_; 
   std::string chi2MatrixFile_;
+  std::string chi2MatrixAftFile_;
 
   int nTDCbins_;
 

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.7 2006/06/27 18:49:40 fabiocos Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.8 2006/06/28 18:00:37 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -70,10 +70,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   weightType = str.str();
   
   amplWeightsFile_ = ps.getUntrackedParameter<std::string>("amplWeightsFile",path+"ampWeights"+weightType);
-  amplWeightsAftFile_ = ps.getUntrackedParameter<std::string>("amplWeightsFile",path+"ampWeightsAfterGainSwitch"+weightType);
+  amplWeightsAftFile_ = ps.getUntrackedParameter<std::string>("amplWeightsAftFile",path+"ampWeightsAfterGainSwitch"+weightType);
   pedWeightsFile_ = ps.getUntrackedParameter<std::string>("pedWeightsFile",path+"pedWeights"+weightType);
+  pedWeightsAftFile_ = ps.getUntrackedParameter<std::string>("pedWeightsAftFile",path+"pedWeightsAfterGainSwitch"+weightType);
   jittWeightsFile_ = ps.getUntrackedParameter<std::string>("jittWeightsFile",path+"timeWeights"+weightType);
+  jittWeightsAftFile_ = ps.getUntrackedParameter<std::string>("jittWeightsAftFile",path+"timeWeightsAfterGainSwitch"+weightType);
   chi2MatrixFile_ = ps.getUntrackedParameter<std::string>("chi2MatrixFile",path+"chi2Matrix"+weightType);
+  chi2MatrixAftFile_ = ps.getUntrackedParameter<std::string>("chi2MatrixAftFile",path+"chi2MatrixAfterGainSwitch"+weightType);
 
   amplWeights_.resize(nTDCbins_);  
   amplWeightsAft_.resize(nTDCbins_); 
@@ -559,7 +562,6 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       throw cms::Exception("WrongConfig");
     }
 
-
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(pedwgtv[i].size() == 10);
@@ -568,14 +570,57 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       }
     }
   
-  //For the moment pedWeightsAft all zero
+  std::vector< std::vector<double> > pedwgtvaft(nTDCbins_);
+
+  if (!getWeightsFromFile_ && nTDCbins_ == 1)
+    {
+      std::vector<double> vped;
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      vped.push_back( 0. );
+      pedwgtvaft[0] = ps.getUntrackedParameter< std::vector<double> >("pedWeightsAft", vped);
+    }
+  else if (getWeightsFromFile_)
+    {
+      //Read from file
+      edm::LogInfo("EcalTrivialConditionRetriever") << "Reading pedestal after gain switch weights from file " << edm::FileInPath(pedWeightsAftFile_).fullPath().c_str() ;
+      std::ifstream pedFile(edm::FileInPath(pedWeightsAftFile_).fullPath().c_str());
+      int tdcBin=0;
+      while (!pedFile.eof() && tdcBin < nTDCbins_) 
+	{
+	  for(int j = 0; j < 10; ++j) {
+	    float ww;
+	    pedFile >> ww;
+	    pedwgtvaft[tdcBin].push_back(ww);
+	  }
+	  ++tdcBin;
+	}
+      assert (tdcBin == nTDCbins_);
+    }
+  else
+    {
+      //Not supported
+      edm::LogError("EcalTrivialConditionRetriever") << "Configuration not supported. Exception is raised ";
+      throw cms::Exception("WrongConfig");
+    }
+  
   for (int i=0;i<nTDCbins_;i++)
     {
-      for(int j=0;j<10;j++)
-	pedWeightsAft_[i].push_back( EcalWeight(0.));
+      assert(pedwgtvaft[i].size() == 10);
+      for(std::vector<double>::const_iterator it = pedwgtvaft[i].begin(); it != pedwgtvaft[i].end(); ++it) {
+	pedWeightsAft_[i].push_back( EcalWeight(*it) );
+      }
     }
-
-
+  
+  
+  
   // default weights to reco jitter
 
   std::vector< std::vector<double> > jittwgtv(nTDCbins_);
@@ -627,14 +672,55 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       }
     }
   
-   //Weights after gain switch for the moment equal to zero
-   for (int i=0;i<nTDCbins_;i++)
-     {
-       for(int j=0;j<10;j++)
-	 {
-	   jittWeightsAft_[i].push_back(0.);
-	 }
-     }
+  std::vector< std::vector<double> > jittwgtvaft(nTDCbins_);
+
+  if (!getWeightsFromFile_ && nTDCbins_ == 1)
+    {
+      std::vector<double> vjitt;
+      vjitt.push_back( 0. );
+      vjitt.push_back( 0. );
+      vjitt.push_back( 0. );
+      vjitt.push_back( 0. );
+      vjitt.push_back( 1.097871 );
+      vjitt.push_back( -0.04551035 );
+      vjitt.push_back( -0.4159156 );
+      vjitt.push_back( -0.4185352 );
+      vjitt.push_back( -0.3367127 );
+      vjitt.push_back( 0. );
+      jittwgtvaft[0] = ps.getUntrackedParameter< std::vector<double> >("jittWeightsAft", vjitt);
+    }
+  else if (getWeightsFromFile_)
+    {
+      //Read from file
+      edm::LogInfo("EcalTrivialConditionRetriever") << "Reading jitter after gain switch weights from file " << edm::FileInPath(jittWeightsAftFile_).fullPath().c_str() ;
+      std::ifstream jittFile(edm::FileInPath(jittWeightsAftFile_).fullPath().c_str());
+      int tdcBin=0;
+      while (!jittFile.eof() && tdcBin < nTDCbins_) 
+	{
+	  for(int j = 0; j < 10; ++j) {
+	    float ww;
+	    jittFile >> ww;
+	    jittwgtvaft[tdcBin].push_back(ww);
+	  }
+	  ++tdcBin;
+	}
+      assert (tdcBin == nTDCbins_);
+    }
+  else
+    {
+      //Not supported
+      edm::LogError("EcalTrivialConditionRetriever") << "Configuration not supported. Exception is raised ";
+      throw cms::Exception("WrongConfig");
+    }
+  
+  for (int i=0;i<nTDCbins_;i++)
+    {
+      assert(jittwgtvaft[i].size() == 10);
+      for(std::vector<double>::const_iterator it = jittwgtvaft[i].begin(); it != jittwgtvaft[i].end(); ++it) {
+	jittWeightsAft_[i].push_back( EcalWeight(*it) );
+      }
+    }
+
    
    std::vector< EcalWeightSet::EcalWeightMatrix > chi2Matrix(nTDCbins_);
    if (!getWeightsFromFile_  && nTDCbins_ == 1 )
@@ -777,17 +863,145 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
        chi2Matrix_ =  chi2Matrix;
      }
 
-   //Chi2 after gain switch for the moment equal to zero
+   std::vector< EcalWeightSet::EcalWeightMatrix > chi2MatrixAft(nTDCbins_);
+   if (!getWeightsFromFile_  && nTDCbins_ == 1 )
+     {
+       chi2MatrixAft[0].resize(10);
+       for (int i=0;i<10;i++)
+	 chi2MatrixAft[0][i].resize(10);
+
+       chi2MatrixAft[0][0][0] = 0.;
+       chi2MatrixAft[0][0][1] = 0.;  
+       chi2MatrixAft[0][0][2] = 0.;
+       chi2MatrixAft[0][0][3] = 0.;
+       chi2MatrixAft[0][0][4] = 0.;
+       chi2MatrixAft[0][0][5] = 0.;
+       chi2MatrixAft[0][0][6] = 0.;
+       chi2MatrixAft[0][0][7] = 0.;
+       chi2MatrixAft[0][0][8] = 0.;
+       chi2MatrixAft[0][0][9] = 0.;
+       chi2MatrixAft[0][1][0] = 0.;
+       chi2MatrixAft[0][1][1] = 0.;
+       chi2MatrixAft[0][1][2] = 0.;
+       chi2MatrixAft[0][1][3] = 0.;
+       chi2MatrixAft[0][1][4] = 0.;
+       chi2MatrixAft[0][1][5] = 0.;
+       chi2MatrixAft[0][1][6] = 0.;
+       chi2MatrixAft[0][1][7] = 0.;
+       chi2MatrixAft[0][1][8] = 0.;
+       chi2MatrixAft[0][1][9] = 0.;
+       chi2MatrixAft[0][2][0] = 0.;
+       chi2MatrixAft[0][2][1] = 0.;
+       chi2MatrixAft[0][2][2] = 0.;
+       chi2MatrixAft[0][2][3] = 0.;
+       chi2MatrixAft[0][2][4] = 0.;
+       chi2MatrixAft[0][2][5] = 0.;
+       chi2MatrixAft[0][2][6] = 0.;
+       chi2MatrixAft[0][2][7] = 0.;
+       chi2MatrixAft[0][2][8] = 0.;
+       chi2MatrixAft[0][2][9] = 0.;
+       chi2MatrixAft[0][3][0] = 0.;
+       chi2MatrixAft[0][3][1] = 0.;
+       chi2MatrixAft[0][3][2] = 0.;
+       chi2MatrixAft[0][3][3] = 0.;
+       chi2MatrixAft[0][3][4] = 0.;
+       chi2MatrixAft[0][3][5] = 0.;
+       chi2MatrixAft[0][3][6] = 0.;
+       chi2MatrixAft[0][3][7] = 0.;
+       chi2MatrixAft[0][3][8] = 0.;
+       chi2MatrixAft[0][3][9] = 0.; 
+       chi2MatrixAft[0][4][0] = 0.;
+       chi2MatrixAft[0][4][1] = 0.;
+       chi2MatrixAft[0][4][2] = 0.;
+       chi2MatrixAft[0][4][3] = 0.;
+       chi2MatrixAft[0][4][4] = 0.8030884;
+       chi2MatrixAft[0][4][5] = -0.2543541;
+       chi2MatrixAft[0][4][6] = -0.2243544;
+       chi2MatrixAft[0][4][7] = -0.1698177;
+       chi2MatrixAft[0][4][8] = -0.1194506;
+       chi2MatrixAft[0][4][9] = 0.; 
+       chi2MatrixAft[0][5][0] = 0.;
+       chi2MatrixAft[0][5][1] = 0.;
+       chi2MatrixAft[0][5][2] = 0.;
+       chi2MatrixAft[0][5][3] = 0.;
+       chi2MatrixAft[0][5][4] = -0.2543541;
+       chi2MatrixAft[0][5][5] = 0.6714465;
+       chi2MatrixAft[0][5][6] = -0.2898025;
+       chi2MatrixAft[0][5][7] = -0.2193564;
+       chi2MatrixAft[0][5][8] = -0.1542964;
+       chi2MatrixAft[0][5][9] = 0.;
+       chi2MatrixAft[0][6][0] = 0.;
+       chi2MatrixAft[0][6][1] = 0.;
+       chi2MatrixAft[0][6][2] = 0.;
+       chi2MatrixAft[0][6][3] = 0.;
+       chi2MatrixAft[0][6][4] = -0.2243544;
+       chi2MatrixAft[0][6][5] = -0.2898025;
+       chi2MatrixAft[0][6][6] = 0.7443781;
+       chi2MatrixAft[0][6][7] = -0.1934846;
+       chi2MatrixAft[0][6][8] = -0.136098;
+       chi2MatrixAft[0][6][9] = 0.; 
+       chi2MatrixAft[0][7][0] = 0.;
+       chi2MatrixAft[0][7][1] = 0.;
+       chi2MatrixAft[0][7][2] = 0.;
+       chi2MatrixAft[0][7][3] = 0.;
+       chi2MatrixAft[0][7][4] = -0.1698177;
+       chi2MatrixAft[0][7][5] = -0.2193564;
+       chi2MatrixAft[0][7][6] = -0.1934846;
+       chi2MatrixAft[0][7][7] = 0.8535482;
+       chi2MatrixAft[0][7][8] = -0.1030149;
+       chi2MatrixAft[0][7][9] = 0.; 
+       chi2MatrixAft[0][8][0] = 0.;
+       chi2MatrixAft[0][8][1] = 0.;
+       chi2MatrixAft[0][8][2] = 0.;
+       chi2MatrixAft[0][8][3] = 0.;
+       chi2MatrixAft[0][8][4] = -0.1194506;
+       chi2MatrixAft[0][8][5] = -0.1542964;
+       chi2MatrixAft[0][8][6] = -0.136098;
+       chi2MatrixAft[0][8][7] = -0.1030149;
+       chi2MatrixAft[0][8][8] = 0.9275388;
+       chi2MatrixAft[0][8][9] = 0.;
+       chi2MatrixAft[0][9][0] = 0.;
+       chi2MatrixAft[0][9][1] = 0.;
+       chi2MatrixAft[0][9][2] = 0.;
+       chi2MatrixAft[0][9][3] = 0.;
+       chi2MatrixAft[0][9][4] = 0.;
+       chi2MatrixAft[0][9][5] = 0.;
+       chi2MatrixAft[0][9][6] = 0.;
+       chi2MatrixAft[0][9][7] = 0.;
+       chi2MatrixAft[0][9][8] = 0.;
+       chi2MatrixAft[0][9][9] = 0.; 
+     }
+   else if (getWeightsFromFile_)
+    {
+      //Read from file
+      edm::LogInfo("EcalTrivialConditionRetriever") << "Reading chi2MatrixAft from file " << edm::FileInPath(chi2MatrixAftFile_).fullPath().c_str() ;
+      std::ifstream chi2MatrixAftFile(edm::FileInPath(chi2MatrixAftFile_).fullPath().c_str());
+      int tdcBin=0;
+      while (!chi2MatrixAftFile.eof() && tdcBin < nTDCbins_) 
+	{
+	  chi2MatrixAft[tdcBin].resize(10);
+	  for(int j = 0; j < 10; ++j) {
+	    for(int l = 0; l < 10; ++l) {
+	      float ww;
+	      chi2MatrixAftFile >> ww;
+	      chi2MatrixAft[tdcBin][j].push_back(ww);
+	    }
+	  }
+	  ++tdcBin;
+	}
+      assert (tdcBin == nTDCbins_);
+    }
+  else
+    {
+      //Not supported
+      edm::LogError("EcalTrivialConditionRetriever") << "Configuration not supported. Exception is raised ";
+      throw cms::Exception("WrongConfig");
+    }
+   
    for (int i=0;i<nTDCbins_;i++)
      {
-       chi2MatrixAft_[i].resize(10);
-       for(int j=0;j<10;j++)
-	 {
-	   for(int l=0;l<10;l++)
-	     {
-	       chi2MatrixAft_[i][j].push_back(0.);
-	     }
-	 }
+       assert(chi2MatrixAft[i].size() == 10);
+       chi2MatrixAft_ =  chi2MatrixAft;
      }
 
 }
