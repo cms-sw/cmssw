@@ -13,14 +13,14 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ForwardMeasurementEstimator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
-using namespace std; // FIXME: for Philess
+//using namespace std; // FIXME: for Philess
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "RecoEgamma/EgammaElectronAlgos/src/GlobalDetRangeRPhi.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
@@ -71,8 +71,10 @@ pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOn
 
  
 
+
   if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
        rhR < rMax && rhR > rMin) {
+ 
     return pair<bool,double>(true,1.);
   } else {
     return pair<bool,double>(false,0.);

@@ -13,21 +13,21 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: BarrelMeasurementEstimator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 using namespace std; // FIXME: for Philess
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/src/GlobalDetRangeZPhi.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 
-  // zero value indicates incompatible ts - hit pair
+// zero value indicates incompatible ts - hit pair
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-			   const TransientTrackingRecHit& hit) const {
+							     const TransientTrackingRecHit& hit) const {
 
   float tsPhi = ts.globalParameters().position().phi();
   LocalPoint lp = hit.localPosition();
@@ -47,12 +47,15 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
     return std::pair<bool,double>(true,1.);
   } else {
 
+    //     cout<<" barrel rechit est returns false!!"<<endl;
+    //     cout << " phiDiff,thePhiRangeMax,thePhiRangeMin  "<<phiDiff<<" "<<thePhiRangeMax<<" "<< thePhiRangeMin<<endl;
+    //     cout << " zDiff, theZRangeMax, theZRangeMin "<<zDiff<<" "<<theZRangeMax<<" "<< theZRangeMin<<endl;
     return std::pair<bool,double>(false,0.);
   }
 }
 
 bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-			   const BoundPlane& plane) const {
+					   const BoundPlane& plane) const {
     
   typedef std::pair<float,float> Range; 
 
@@ -65,9 +68,17 @@ bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 
   if(rangesIntersect(trajZRange, detRange.zRange()) &&
      rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())) {
-      return true;
+    return true;
   }
   else { 
+    //     cout <<cout<<" barrel boundpl est returns false!!"<<endl;
+    //     cout<<"BarrelMeasurementEstimator(estimate) :thePhiRangeMin,thePhiRangeMax, theZRangeMin,theZRangeMax "<<thePhiRangeMin<<" "<<thePhiRangeMax<<" "<< theZRangeMin<<" "<<theZRangeMax<<endl;
+    //     cout<<" trajZRange "<<trajZRange.first<<" "<<trajZRange.second<<endl;
+    //     cout<<" trajPhiRange "<<trajPhiRange.first<<" "<<trajPhiRange.second<<endl;
+    //     cout<<" detZRange "<<detRange.zRange().first<<" "<<detRange.zRange().second<<endl;
+    //     cout<<" detPhiRange "<<detRange.phiRange().first<<" "<<detRange.phiRange().second<<endl;
+    //     cout<<" intersect z: "<<rangesIntersect(trajZRange, detRange.zRange())<<endl;
+    //     cout<<" intersect phi: "<<rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())<<endl;
     return false;
   }
 

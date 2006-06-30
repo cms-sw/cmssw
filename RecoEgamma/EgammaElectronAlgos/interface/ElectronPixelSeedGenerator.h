@@ -55,6 +55,7 @@ public:
 			  float izmin2,
 			  float izmax2
 			  );
+
   ~ElectronPixelSeedGenerator();
 
   void setup(bool);
@@ -72,6 +73,10 @@ public:
   float pphimax1;
   float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
+
+  std::string moduleLabel_;
+  std::string instanceName_;
+
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
   mode theMode_;
@@ -85,7 +90,7 @@ public:
   const NavigationSchool*       theNavigationSchool;
 
   const edm::EventSetup *theSetup; 
-  TrajectoryStateTransform transformer; 
+  TrajectoryStateTransform transformer_; 
   recHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 
 

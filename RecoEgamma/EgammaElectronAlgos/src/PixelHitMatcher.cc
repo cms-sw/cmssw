@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: PixelHitMatcher.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>  //FIXME
 
@@ -60,6 +61,7 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, TSiPixelRecHit> > result;
+   LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
 
 
   vector<TrajectoryMeasurement> validMeasurements;
@@ -83,6 +85,7 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
 				 energy, charge);
 
   // We have to propagate to the outermost barrel layer
+  //CC or the outermost endcap layer!! to be added
   BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
   const TrajectoryStateOnSurface tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
   if (tsos.isValid()) {
@@ -90,21 +93,25 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
       theLayerMeasurements->measurements(**firstLayer,tsos, 
 					 *prop1stLayer, meas1stBLayer);
  
+    LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
-      if (m->recHit()->isValid()) {
+     if (m->recHit()->isValid()) {
 	Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
+         LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition();
+         LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition();
 	pred1Meas.push_back( prediction);
       
 	validMeasurements.push_back(*m);
-	//	std::cout<<"Found a rechit in layer ";
-	//	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-	//	if (bdetl) {
-	//	  std::cout <<" with radius "<<bdetl->specificSurface().radius()<<std::endl;
-	//	}
-	//	else  std::cout<<"Could not downcast!!"<<std::endl;
-      } 
+	//@@ uncomment lines below
+		LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
+		const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
+		if (bdetl) {
+		  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
+		}
+		else  LogDebug("") <<"Could not downcast!!";
+      } //else  cout << "[PixelHitMatcher::compatibleHits] invalid pixel recHit " << endl;
     }
 
     
@@ -122,14 +129,17 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
 	pred1Meas.push_back( prediction);
+        LogDebug("")  << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition() << endl;
+        LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition() << endl;
       
 	validMeasurements.push_back(*m);
-	//	std::cout<<"Found a rechit in layer ";
-	//	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-	//	if (bdetl) {
-	//	  std::cout <<" with radius "<<bdetl->specificSurface().radius()<<std::endl;
-	//	}
-	//	else  std::cout<<"Could not downcast!!"<<std::endl;
+	//@@ uncomment lines below
+		LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
+		const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
+		if (bdetl) {
+		  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
+		}
+		else  LogDebug("") <<"Could not downcast!!";
       }
     }
   }
@@ -164,12 +174,12 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
 	  pred1Meas.push_back( prediction);
 	
 	  validMeasurements.push_back(*m);      
-          std::cout<<"Found a rechit in layer ";
+          LogDebug("") <<"Found a rechit in layer ";
 	  const ForwardDetLayer *fdetl = dynamic_cast<const ForwardDetLayer *>(*flayer);
 	  if (fdetl) {
-	    std::cout <<" with radius "<<fdetl->initialPosition()<<std::endl;
+	     LogDebug("") <<" with radius "<<fdetl->initialPosition();
 	  }
-	  else  std::cout<<"Could not downcast!!"<<std::endl;
+	  else   LogDebug("") <<"Could not downcast!!";
 	}
       }
     }

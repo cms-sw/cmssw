@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: BarrelMeasurementEstimator.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 
@@ -35,7 +35,7 @@ public:
   BarrelMeasurementEstimator( float phiRangeMin, float phiRangeMax, 
                                  float zRangeMin, float zRangeMax ) : 
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
-                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) {}
+                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) { }
 
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.3 2006/06/06 23:20:25 rahatlou Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.4 2006/06/08 16:54:51 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -49,13 +49,13 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(
 			  float iephimax1,
 			  float ipphimin1,
 			  float ipphimax1,
-			  float iphimin2,
-			  float iphimax2,
+			  float ipphimin2,
+			  float ipphimax2,
 			  float izmin1,
 			  float izmax1,
 			  float izmin2,
 			  float izmax2
-		):  theMode_(unknown), theMeasurementTracker(0)
+		):  ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2), pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2), theMode_(unknown), theMeasurementTracker(0)
 {}
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
@@ -80,6 +80,14 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 //   vTrackerDigi=v2;
 //   vTrackerReco=v3;
 
+  //CC
+  // input data
+  // hybrid super clusters
+  //superClusterProducer_ = conf.getParameter<std::string>("HybridClusterProducer"); 
+  //superClusterCollection_ = conf.getParameter<std::string>("superClusterCollection");
+  // corrected hybrid super clusters
+  //std::string clusterProducer = conf.getParameter<std::string>("EgammaSCCorrectionMaker"); 
+   
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
   setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
@@ -91,6 +99,9 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
+
+  moduleLabel_=conf.getParameter<string>("superClusterProducer");
+  instanceName_=conf.getParameter<string>("superClusterLabel");
 }
 
 void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedCollection & out){
@@ -101,43 +112,53 @@ void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedColl
 
   // get input clusters 
   edm::Handle<SuperClusterCollection> clusters;
-  e.getByType(clusters);
-
-
+  //CC use full data specification with getByLabel(ML, IN, result)
+  // specification can be seen from branch name: PT_ML_IN_PN
+  // PT = product type
+  // ML = module label
+  // IN = instance name
+  // PN = process name
+  //e.getByLabel("hybridSuperClusterProducer", "HybridSuperClusterCollection", clusters); 
+  e.getByLabel(moduleLabel_,instanceName_,clusters);
   for  ( unsigned int i=0;i<clusters.product()->size();++i) {
 
     edm::Ref<SuperClusterCollection> theClus(clusters,i);
     // Find the seeds
     recHits_.clear();
+    LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
     seedsFromThisCluster(theClus,out) ;
   }
-  cout << "ElectronPixelSeedGenerator";
-  if(theMode_==offline) cout << "(offline)";
-  std::cout << ": For event "<<e.id()<<", nr of superclusters: "<<clusters.product()->size()<<", no. of ElectronPixelSeeds found = " << out.size() << std::endl;
+
+  if(theMode_==offline) LogDebug ("run") << "(offline)";
+  LogDebug ("run") << ": For event "<<e.id();
+  LogDebug ("run") <<"Nr of superclusters: "<<clusters.product()->size()<<", no. of ElectronPixelSeeds found = " << out.size();
   
 }
 
 void ElectronPixelSeedGenerator::setup(bool off)
 {
 
-   if(theMode_==unknown)
-     {
+  if(theMode_==unknown)
+    {
       // Instantiate the pixel hit matchers
-       //      cout << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
-       //	   << pphimin1 << ", " << pphimax1 << endl;
+      LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
+		   << pphimin1 << ", " << pphimax1;
       myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
       myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
-           if(off) theMode_=offline; else theMode_ = HLT;
-        }
+      if(off) theMode_=offline; else theMode_ = HLT;
+    }
 }
+
 void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection& result)
 {
+  result.clear();
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 
 			 seedCluster->position().z());
   const GlobalPoint vertexPos(0.,0.,0.);
-   
+   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
+   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
    
   PropagationDirection dir = alongMomentum;
    
@@ -151,6 +172,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
  
   int isEle = 0;
   if (!elePixelHits.empty() ) {
+    LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] electron compatible hits found ";
     isEle = 1;
     //     vector<pair<RecHitWithDist,RecHit> >::iterator v;
     vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
@@ -185,6 +207,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
    
   GlobalPoint posVertex(0.,0.,vertexZ); 
   if (!posPixelHits.empty() ) {
+    LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] positron compatible hits found ";
     isEle == 1 ? isEle = 3 : isEle = 2;
     vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
@@ -206,12 +229,14 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
 
  return ;
 }
-void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos) {
+void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& innerhit,const TSiPixelRecHit& outerhit, const GlobalPoint& vertexPos) {
 
   // debug prints
-  std::cout <<" outer PixelHit   x,y,z "<<outerhit.globalPosition()<<std::endl;
-  std::cout <<" inner PixelHit   x,y,z "<<innerhit.globalPosition()<<std::endl;
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit.globalPosition();
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit.globalPosition();
 
+  recHits_.clear();
+  
   SiPixelRecHit *hit;
   hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
   recHits_.push_back(hit);
@@ -235,6 +260,7 @@ void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& outerh
     throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
   TSOS updatedState_out = theUpdator->update(propagatedState_out, outerhit);
   // debug prints
-  //  std::cout<<" final TSOS, position: "<<updatedState_out.globalPosition()<<" momentum: "<<updatedState_out.globalMomentum()<<std::endl;
-  pts_ =  transformer.persistentState(updatedState_out, outerhit.geographicalId().rawId());
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] final TSOS, position: "<<updatedState_out.globalPosition()<<" momentum: "<<updatedState_out.globalMomentum();
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] final TSOS Pt: "<<updatedState_out.globalMomentum().perp();
+  pts_ =  transformer_.persistentState(updatedState_out, outerhit.geographicalId().rawId());
 }

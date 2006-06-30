@@ -16,13 +16,13 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ForwardMeasurementEstimator.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
-
+#include <utility>
 
 class ForwardMeasurementEstimator : public MeasurementEstimator {
 public:
@@ -33,7 +33,7 @@ public:
                            theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) {}
 
   // zero value indicates incompatible ts - hit pair
-  virtual pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			   const BoundPlane& plane) const;

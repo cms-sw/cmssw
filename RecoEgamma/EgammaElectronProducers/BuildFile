@@ -6,6 +6,7 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=DataFormats/DetId>
+<use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
 <use name=Geometry/CommonDetUnit>
@@ -19,5 +20,15 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/SiPixelCluster>
+   <use name=DataFormats/TrackerRecHit2D>
+   <use name=DataFormats/TrackingRecHit>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=SimDataFormats/HepMCProduct>
    <use name=DataFormats/EgammaCandidates>
+   <use name=RecoEgamma/EgammaElectronAlgos>
 </export>
