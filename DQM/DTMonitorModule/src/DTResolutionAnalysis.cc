@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/01 14:35:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/20 12:17:42 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -168,7 +168,7 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
 
 			  
       }// End of loop over 1D RecHit inside 4D segment
-    }// Ed of loop over the rechits of this ChamerId
+    }// End of loop over the rechits of this ChamerId
   }
   // -----------------------------------------------------------------------------
 }
@@ -201,10 +201,10 @@ void DTResolutionAnalysis::bookHistos(DTSuperLayerId slId) {
   // Note hte order matters
   histos.push_back(theDbe->book1D("hResDist"+slHistoName,
 				  "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
-				  500, -1, 1));
+				  200, -0.4, 0.4));
   histos.push_back(theDbe->book2D("hResDistVsDist"+slHistoName,
 				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
-				  100, 0, 2.5, 500, -1, 1));
+				  100, 0, 2.5, 200, -0.4, 0.4));
   histosPerSL[slId] = histos;
 }
 
