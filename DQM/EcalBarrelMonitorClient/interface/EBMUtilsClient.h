@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.11 2006/06/30 12:00:28 benigno Exp $
+// $Id: EBMUtilsClient.h,v 1.12 2006/06/30 13:11:00 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2006/06/30 12:00:28 $
+  \version $Revision: 1.12 $
+  \date $Date: 2006/06/30 13:11:00 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -46,6 +46,8 @@ class EBMUtilsClient {
       } else {
 	ret = 0;
       }
+    } else {
+      if ( !clone ) ret = 0;
     }
     return ret;
   }
