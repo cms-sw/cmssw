@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.15 2006/06/16 17:48:51 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.16 2006/06/20 09:44:33 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -13,6 +13,31 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+
+namespace {
+  class HcalDetIdLess {
+  public:
+    bool operator () (HcalDetId first, HcalDetId second) const {
+      return
+	first.subdet () != second.subdet () ? first.subdet () < second.subdet () :
+	first.zside () != second.zside () ? first.zside () < second.zside () :
+	first.iphi () != second.iphi () ? first.iphi () < second.iphi () :
+	first.ietaAbs () != second.ietaAbs () ? first.ietaAbs () < second.ietaAbs () :
+	first.depth () < second.depth ();
+    }
+  };
+  class HcalElectronicsIdLess {
+  public:
+    bool operator () (HcalElectronicsId first, HcalElectronicsId second) const {
+      return
+	first.readoutVMECrateId () != second.readoutVMECrateId () ? first.readoutVMECrateId () < second.readoutVMECrateId () :
+	first.htrSlot () != second.htrSlot () ? first.htrSlot () < second.htrSlot () :
+	first.htrTopBottom () != second.htrTopBottom () ? first.htrTopBottom () < second.htrTopBottom () :
+	first.fiberIndex () != second.fiberIndex () ? first.fiberIndex () < second.fiberIndex () :
+	first.fiberChanId () < second.fiberChanId ();
+    }
+  };
+}
 
 std::vector <std::string> splitString (const std::string& fLine) {
   std::vector <std::string> result;
@@ -80,6 +105,7 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "HcalDetId");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
@@ -136,6 +162,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
 	   "HcalDetId");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
@@ -209,6 +236,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
@@ -263,6 +291,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
 	   "eta", "phi", "dep", "det", "32 x charges");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
@@ -404,33 +433,28 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
-  std::vector <HcalElectronicsId> allEIds = fObject.allElectronicsId ();
+  std::vector<HcalDetId> channels = fObject.allDetectorId ();
+  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
   char buf [1024];
   sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s",
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber", "fibcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
-  for (unsigned i = 0; i < allEIds.size (); i++) {
-    HcalElectronicsId eid = allEIds [i];
-    DetId id = fObject.lookup (eid);
-    if (!id.null ()) {
-      HcalDetId hcalId (id);
-      if (!hcalId.null ()) {
-	char buf [1024];
-	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %6s %6d %6d %6d",
-		 i,
-		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-		 hcalId.subdet()==HcalBarrel?"HB": hcalId.subdet()==HcalEndcap?"HE": hcalId.subdet()==HcalOuter?"HO": hcalId.subdet()==HcalForward?"HF":"NA",
-		 hcalId.ieta(), hcalId.iphi(), hcalId.depth()
-		 );
-	  fOutput << buf << std::endl;
-      }
-      else {
-	std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not convert Id into HcalDetId " << id.rawId() << std::endl;
-      }
+  for (unsigned i = 0; i < channels.size (); i++) {
+    HcalDetId hcalId = channels [i];
+    HcalElectronicsId eid = fObject.lookup (hcalId, false);
+    if (eid.rawId()) {
+      char buf [1024];
+      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %6s %6d %6d %6d",
+	       i,
+	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+	       hcalId.subdet()==HcalBarrel?"HB": hcalId.subdet()==HcalEndcap?"HE": hcalId.subdet()==HcalOuter?"HO": hcalId.subdet()==HcalForward?"HF":"NA",
+	       hcalId.ieta(), hcalId.iphi(), hcalId.depth()
+	       );
+      fOutput << buf << std::endl;
     }
     else {
-      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find ID for EID " << eid << std::endl;
+      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for HcalDetId " << hcalId << std::endl;
     }
   }
   return true;
