@@ -23,7 +23,7 @@
 <use name=Geometry/Surface>
 
 <export>
-
+ <lib name=RecoTrackerRoadSearchCloudMaker>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>

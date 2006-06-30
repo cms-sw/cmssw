@@ -17,6 +17,7 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
 <export>
+ <lib name=RecoTrackerRoadSearchHelixMaker>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
