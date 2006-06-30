@@ -33,7 +33,7 @@ namespace oracle {
 
 class HcalDbOnline {
  public:
-  HcalDbOnline (const std::string& fDb);
+  HcalDbOnline (const std::string& fDb, bool fVerbose = false);
   ~HcalDbOnline ();
 
   bool getObject (HcalPedestals* fObject, const std::string& fTag);
@@ -48,6 +48,6 @@ class HcalDbOnline {
   oracle::occi::Connection* mConnect;
   oracle::occi::Statement* mStatement;
   template <class T> bool getObjectGeneric (T* fObject, const std::string& fTag);
-
+  bool mVerbose;
 };
 #endif

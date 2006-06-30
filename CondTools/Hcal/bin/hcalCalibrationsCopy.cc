@@ -217,7 +217,8 @@ template <class T> bool copyObject (T* fObject,
 				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
 				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun,
 				    unsigned fVersion, unsigned long fIovgmtbegin, unsigned long fIovgmtend,
-				    unsigned fNread, unsigned fNwrite, unsigned fNtrace
+				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
+				    bool fVerbose
 				    ) {
   bool result = false;
   time_t t0 = time (0);
@@ -249,7 +250,7 @@ template <class T> bool copyObject (T* fObject,
     }
     else if (onlineFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Online" << std::endl;
-      if (!onlineDb) onlineDb = new HcalDbOnline (fInput);
+      if (!onlineDb) onlineDb = new HcalDbOnline (fInput, fVerbose);
       fObject = new T;
       result = onlineDb->getObject (fObject, fInputTag);
     }
@@ -327,7 +328,8 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-nwrite", "repeat output that many times with increasing run#");
   args.defineParameter ("-trace", "trace time every that many operations");
   args.defineOption ("-help", "this help");
-  args.defineOption ("-online", "Interpret input DB as an online DB");
+  args.defineOption ("-online", "interpret input DB as an online DB");
+  args.defineOption ("-verbose", "makes program verbose");
   
   args.parse (argn, argv);
   
@@ -354,36 +356,38 @@ int main (int argn, char* argv []) {
   unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
   unsigned trace = args.getParameter ("-trace").empty () ? 0 : atoi (args.getParameter ("-trace").c_str ());
 
+  bool verbose = args.optionIsSet ("-verbose");
+
 
   std::string what = arguments [0];
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "pwidths") {
     HcalPedestalWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "gwidths") {
     HcalGainWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
   }
 }
 

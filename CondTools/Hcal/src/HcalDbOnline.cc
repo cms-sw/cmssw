@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.7 2006/06/16 17:48:52 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.8 2006/06/16 22:51:47 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -62,8 +62,9 @@ namespace {
   }
 }
 
-HcalDbOnline::HcalDbOnline (const std::string& fDb) 
-  : mConnect (0)
+HcalDbOnline::HcalDbOnline (const std::string& fDb, bool fVerbose) 
+  : mConnect (0),
+    mVerbose (fVerbose)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
@@ -125,7 +126,7 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
   sql_query += " AND KOC2.EXTENSION_TABLE_NAME='HCAL_HARDWARE_LOGICAL_MAPS' \n";
   sql_query += " AND DS2.VERSION='" + tag + "'\n";
   try {
-    std::cout << "executing query: \n" << sql_query << std::endl;
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     //    oracle::occi::Statement* stmt = mConnect->createStatement ();
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
@@ -225,7 +226,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
   sql_query += " ADC.ADC_POSITION=DAT2.ADC";
   
   try {
-    // std::cout << "executing query: \n" << sql_query << std::endl;
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     //    oracle::occi::Statement* stmt = mConnect->createStatement ();
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
@@ -323,7 +324,7 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
   sql_query += " ADC.ADC_POSITION=DAT2.ADC\n";
   
   try {
-    std::cout << "executing query: \n" << sql_query << std::endl;
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     //    oracle::occi::Statement* stmt = mConnect->createStatement ();
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
