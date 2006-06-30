@@ -36,8 +36,8 @@ ExampleWebInterface::ExampleWebInterface(std::string theContextURL, std::string 
   // the select-menu widget
   Select *sel = new Select(getApplicationURL(), "350px", "10px", "AnotherCustomRequest", "My Select Button");
   std::vector<std::string> options_v;
-  options_v.push_back("Kitharistas");
-  options_v.push_back("Drummer");
+  options_v.push_back("MALESANI");
+  options_v.push_back("IRON MAIDEN");
   sel->setOptionsVector(options_v);
 
   // every web interface needs to instantiate a WebPage...
@@ -75,6 +75,7 @@ void ExampleWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out
 void ExampleWebInterface::CustomRequestResponse(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
   std::cout << "A custom request has arrived" << std::endl;
+  sendMessage("22 Acacia Avenue - the Continuing Story of Charlotte the Harlot", "If you're feeling down, depressed and lonely,\nI know a place where we can go,\n22 Acacia Avenue,\nmeet a lady that I know", info);
 }
 
 void ExampleWebInterface::AnotherCustomRequestResponse(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception)
@@ -83,5 +84,14 @@ void ExampleWebInterface::AnotherCustomRequestResponse(xgi::Input * in, xgi::Out
   CgiReader reader(in);
   reader.read_form(request_multimap);
   std::string choice = get_from_multimap(request_multimap, "Argument");
+
   std::cout << "The user selected : " << choice << std::endl;
+  if (choice == "IRON MAIDEN")
+    {
+      sendMessage("22 Acacia Avenue - the Continuing Saga of Charlotte the Harlot", "If you're feeling down, depressed and lonely,\nI know a place where we can go", info);
+    }
+  if (choice == "MALESANI")
+    {
+      sendMessage("State calmi tutti", "Cosa ridete, cazzo?", error);
+    }
 }
