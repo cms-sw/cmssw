@@ -15,6 +15,11 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 // data format include files
+
+// input RCT data
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
+// output GCT data
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
@@ -55,9 +60,19 @@ L1GctEmulator::~L1GctEmulator() {
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
+  // get the RCT data
+  edm::Handle<L1CaloEmCollection> em;
+  edm::Handle<L1CaloRegionCollection> rgn;
+  e.getByType(em);
+  e.getByType(rgn);
+
   // reset the GCT internal buffers
   m_gct->reset();
-
+  
+  // fill the GCT source cards
+  m_gct->fillEmCands(*em);
+  m_gct->fillRegions(*rgn);
+  
   // process the event
   m_gct->process();
 
@@ -70,11 +85,11 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // fill the em and jet collections with digis
   for (int i=0; i<4; i++) {
-    isoEmResult->push_back(m_gct->getIsoElectrons()[i]);
-    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i]);
-    cenJetResult->push_back(m_gct->getCentralJets()[i].makeJetCand());
-    forJetResult->push_back(m_gct->getForwardJets()[i].makeJetCand());
-    tauJetResult->push_back(m_gct->getTauJets()[i].makeJetCand());
+    isoEmResult->push_back(m_gct->getIsoElectrons().at(i));
+    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons().at(i));
+    cenJetResult->push_back(m_gct->getCentralJets().at(i).makeJetCand());
+    forJetResult->push_back(m_gct->getForwardJets().at(i).makeJetCand());
+    tauJetResult->push_back(m_gct->getTauJets().at(i).makeJetCand());
   }
 
   // create the energy sum digis
