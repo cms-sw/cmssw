@@ -174,8 +174,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 							std::vector<CSCSP_MEblock> lct = sp->record(tbin).LCT(FPGA,MPClink);
 							if( lct.size()==0 ) continue;
 							int station = ( FPGA ? FPGA : 1 );
-							int endcap  = (sp->header().endcap()?1:2);
-							int sector  =  sp->header().sector();
+							int endcap  = 1;//(sp->header().endcap()?1:2); // Currently map file knows only endcap=1
+							int sector  = 5;// sp->header().sector();      // Currently map file knows only sector=5
 							int subsector = ( FPGA>1 ? 0 : FPGA+1 );
 							int cscid   = lct[0].csc() ;
 
@@ -195,8 +195,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
 					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++){
 					        L1CSCTrack track;
-						track.first.m_endcap = (sp->header().endcap()?1:2);
-						track.first.m_sector =  sp->header().sector();
+						track.first.m_endcap = 1;//(sp->header().endcap()?1:2);  // Currently map file knows only endcap=1
+						track.first.m_sector = 5;// sp->header().sector();       // Currently map file knows only sector=5
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
@@ -213,12 +213,12 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 //						track.setQualityPacked( quality );
 
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
+
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++){
 							int station   = ( lct->spInput()>6 ? (lct->spInput()-1)/3 : 1 );
 							int subsector = ( lct->spInput()>6 ? 0 : (lct->spInput()-1)/3 + 1 );
 							try{
-								CSCDetId id = TFmapping->detId(track.first.m_endcap,station,track.first.m_sector,
-											       subsector,lct->csc(),0);
+								CSCDetId id = TFmapping->detId(track.first.m_endcap,station,track.first.m_sector,subsector,lct->csc(),0);
 								track.second.insertDigi(id,CSCCorrelatedLCTDigi(0,lct->vp(),lct->quality(),lct->wireGroup(),
 													     lct->strip(),lct->pattern(),lct->l_r(),
 													     lct->tbin(),lct->link() ));
