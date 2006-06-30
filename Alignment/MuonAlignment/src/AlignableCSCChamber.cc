@@ -86,6 +86,8 @@ AlignableCSCChamber::PositionType AlignableCSCChamber::computePosition()
   yy /= static_cast<float>(theDets.size());
   zz /= static_cast<float>(theDets.size());
 
+// std::cout << "x,y,z=" << xx << ", " << yy  << ", " << zz << std::endl;
+
   return PositionType( xx, yy, zz );
 
 }

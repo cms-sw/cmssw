@@ -8,7 +8,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+//#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+//#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
@@ -187,76 +188,71 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
 void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
 {
   
- LogDebug("Position") << "Constructing AlignableDTBarrel"; 
-
+ LogDebug("Position") << "Constructing AlignableCSCBarrel"; 
 
   // Temporary container for chambers in a given station
-  std::vector<AlignableCSCChamber*>   tmpCSCChambersInStation;
+  std::vector<AlignableCSCStation*>  tmpCSCStationsInEndcap;
 
   // Loop over endcaps ( 1..2 )
   for( int iec = 1 ; iec < 3 ; iec++ ){
+
+    // Temporary container for chambers in a given station
+    std::vector<AlignableCSCChamber*>   tmpCSCChambersInStation;
 
     // Loop over stations ( 1..4 )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom CSC Chambers
-      std::vector<GeomDet*> theLayers;
-      for( std::vector<CSCChamber*>::const_iterator det = pCSC->chambers().begin();  
-                                              det != pCSC->chambers().end(); ++det ){
+      std::vector<CSCChamber*> vc = pCSC->chambers();
+      for( std::vector<CSCChamber*>::const_iterator det = vc.begin();  
+                                                   det != vc.end(); ++det ){
+//      for( std::vector<CSCChamber*>::const_iterator det = pCSC->chambers().begin(); det != pCSC->chambers().end(); ++det ){
 
         // Get the CSCDet ID
         CSCDetId cscId = (*det)->id();
 
         // Get chamber, station, ring, layer and endcap labels of the CSC chamber
+        int ec = cscId.endcap();
         int ch = cscId.chamber();
         int st = cscId.station();
-//        int ri = cscId.ring();
-//        int la = cscId.layer();
-        int ec = cscId.endcap();
-
 
         // Select the chambers in a given endcap in a given station
         if ( iec == ec && ist == st ){
 
-
-          std::cout << "        " << std::endl ;
-          std::cout << "        " << std::endl ;
-          std::cout << "Chamber=" << ch << std::endl ;
-          std::cout << "Station=" << st << std::endl ;
-          std::cout << "Endcap =" << ec << std::endl ;
-          std::cout << "        " << std::endl ;
-          std::cout << "        " << std::endl ;
-    
-
           // Get the vector of layers in this chamber. Here one needs const_cast
+          std::vector<GeomDet*> theLayers;
           std::vector<const GeomDet*> tmpLs = (*det)->components();
           for ( std::vector<const GeomDet*>::const_iterator it = tmpLs.begin();
                                                            it != tmpLs.end() ; it++ ){
             GeomDet* tmpL = const_cast< GeomDet* > ( *it ) ;
+
             theLayers.push_back( tmpL );
+
           }
 
-        // End If chamber selection
-	}
-
-        // Create the alignable CSC chamber 
-        AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber( theLayers );
+          // Create the alignable CSC chamber 
+          AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber( theLayers );
   
-        // Store the alignable CSC chambers
-        tmpCSCChambersInStation.push_back( tmpCSCChamber );    
+          // Clear the vector of CSC layers
+          theLayers.clear();
+
+          // Store the alignable CSC chambers
+          tmpCSCChambersInStation.push_back( tmpCSCChamber );    
+
+        // End If chamber selection
+        }
 
       // End loop over geom CSC chambers
       }
 
       // Store the alignable CSC chambers
-      theCSCChambers.insert(  theCSCChambers.end(), tmpCSCChambersInStation.begin(),
-                              tmpCSCChambersInStation.end() );    
+      theCSCChambers.insert(  theCSCChambers.end(), tmpCSCChambersInStation.begin(), tmpCSCChambersInStation.end() );    
 
       // Create the alignable CSC station with chambers in a given station 
       AlignableCSCStation* tmpCSCStation  = new AlignableCSCStation( tmpCSCChambersInStation );
      
       // Store the CSC stations in a given endcap  
-      theCSCStations.push_back( tmpCSCStation );
+      tmpCSCStationsInEndcap.push_back( tmpCSCStation );
 
       // Clear the temporary vector of chambers in station
       tmpCSCChambersInStation.clear();
@@ -265,10 +261,16 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
     }
 
     // Create the alignable CSC endcap 
-    AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap( theCSCStations );
+    AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap( tmpCSCStationsInEndcap );
      
-    // Store the CSC stations in a given endcap  
+    // Store the alignable CSC stations 
+      theCSCStations.insert(  theCSCStations.end(), tmpCSCStationsInEndcap.begin(), tmpCSCStationsInEndcap.end() );
+
+    // Store the alignable CSC endcaps
     theCSCEndcaps.push_back( tmpEndcap );
+
+    // Clear the temporary vector of stations in endcap
+    tmpCSCStationsInEndcap.clear();
 
   // End loop over endcaps  
   }
