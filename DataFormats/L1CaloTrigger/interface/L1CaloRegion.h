@@ -27,17 +27,17 @@ public:
   /// default constructor
   L1CaloRegion();
 
-  /// constructor for emulation : HB/HE regions (for RCT emulator)
+  /// constructor for RCT emulator (HB/HE regions)
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
-  /// constructor for emulation : HF regions (for RCT emulator)
+  /// constructor for RCT emulator (HF regions)
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
 
-  /// construct with global eta,phi indices (for testing GCT emulator)
-  L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, int eta, int phi);
+  /// construct with GCT eta,phi indices, for testing GCT emulator
+  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
 
-  /// constructor from raw data & position (for unpacking)
-  L1CaloRegion(uint16_t data, int eta, int phi);
+  /// constructor from raw data and GCT indices for unpacking
+  L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi);
 
   /// destructor
   ~L1CaloRegion();
@@ -46,13 +46,16 @@ public:
   // get/set methods for the data
 
   /// get Et
-  unsigned et() const { return (m_data & 0x3ff); }
+  unsigned et() const { return (m_id.isForward() ? m_data&0xff : m_data&0x3ff); }
 
   /// get overflow
   bool overFlow() const { return ((m_data>>10) & 0x1)!=0; }
 
   /// get tau veto bit
-  bool tauVeto() const { return ((m_data>>11) & 0x1)!=0; }
+  bool tauVeto() const { return (m_id.isForward() ? false : fineGrain()); }
+
+  /// get fine grain bit
+  bool fineGrain() const { return ((m_data>>11) & 0x1)!=0; }
 
   /// get MIP bit
   bool mip() const { return ((m_data>>12) & 0x1)!=0; }
@@ -82,19 +85,34 @@ public:
   unsigned rctRegionIndex() const { return m_id.rctRegion(); }
 
   /// get local eta index (within RCT crate)
-  unsigned rctEtaIndex() const { return m_id.rctEta(); }
+  unsigned rctEta() const { return m_id.rctEta(); }
 
   /// get local phi index (within RCT crate)
-  unsigned rctPhiIndex() const { return m_id.rctPhi(); } 
+  unsigned rctPhi() const { return m_id.rctPhi(); } 
+
+  /// to be deprecated - use rctEta()
+  unsigned rctEtaIndex() const { return rctEta(); }
+
+  /// to be deprecated - use rctPhi()
+  unsigned rctPhiIndex() const { return rctPhi(); } 
 
   /// get GCT source card ID
-  unsigned gctCard() const { return 0; }
+  unsigned gctCard() const { return m_id.gctCard(); }
 
-  /// get GCT eta index (global)
-  unsigned gctEtaIndex() const { return m_id.ieta(); }
+  /// get GCT source card region index
+  unsigned gctRegionIndex() const { return m_id.gctRegion(); }
 
-  /// get GCT phi index (global)
-  unsigned gctPhiIndex() const { return m_id.iphi(); }
+  /// get GCT eta index
+  unsigned gctEta() const { return m_id.ieta(); }
+
+  /// get GCT phi index
+  unsigned gctPhi() const { return m_id.iphi(); }
+
+  /// to be deprecated - use gctEta()
+  unsigned gctEtaIndex() const { return gctEta(); }
+
+  /// to be deprecated - use gctPhi()
+  unsigned gctPhiIndex() const { return gctPhi(); }
 
   /// get pseudorapidity
   float pseudorapidity() const { return 0.; }

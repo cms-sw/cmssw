@@ -11,9 +11,9 @@ using std::endl;
 L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
 
 
-// constructor for emulation : HB/HE regions
+// constructor for RCT emulator (HB/HE regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
-  m_id(crate, card, rgn)
+  m_id(false, crate, card, rgn)
 {
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
@@ -24,27 +24,21 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
     ((quiet)    ? 0x2000 : 0x0);
 }
 
-// constructor for emulation : HF regions
+// constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn) :
-  m_id()
+  m_id(false, crate, 0, rgn)
 {
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
     (et & 0x3ff) | 
     ((checkOvF) ? 0x400  : 0x0) |
     ((fineGrain)  ? 0x800  : 0x0);
-
-  // calculate eta, phi
-  // int ieta=0;
-  // int iphi=0;
-  // id=L1CaloRegionDetId(ieta, iphi);
-
 }
 
 
 // construct from global eta, phi indices
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, int eta, int phi) :
-  m_id(eta, phi)
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
+  m_id(ieta, iphi)
 {
   bool checkOvF = overFlow || (et>=0x400);
   m_data = 
@@ -56,7 +50,8 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 }
 
 //constructor for unpacking
-L1CaloRegion::L1CaloRegion(uint16_t data, int eta, int phi) :
+L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi) :
+  m_id(ieta, iphi),
   m_data(data)
 {
 
@@ -82,6 +77,7 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << "L1CaloRegion:";
   os << " Et=" << reg.et();
   os << " o/f=" << reg.overFlow();
+  os << " f/g=" << reg.fineGrain();
   os << " tau=" << reg.tauVeto();
   os << " mip=" << reg.mip();
   os << " qt=" << reg.quiet();
@@ -90,13 +86,17 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << " RCT crate=" << reg.rctCrate();
   os << " RCT crad=" << reg.rctCard();
   os << " RCT rgn=" << reg.rctRegionIndex();
-  os << " RCT eta=" << reg.rctEtaIndex();
-  os << " RCT phi=" << reg.rctPhiIndex();
+  os << " RCT eta=" << reg.rctEta();
+  os << " RCT phi=" << reg.rctPhi();
   os << endl;
   os << "             ";
   os << " GCT card=" << reg.gctCard();
-  os << " GCT eta=" << reg.gctEtaIndex();
-  os << " GCT phi=" << reg.gctPhiIndex();
+  os << " GCT eta=" << reg.gctEta();
+  os << " GCT phi=" << reg.gctPhi();
+  os << endl;
+  os << "             ";
+  os << " pseudorapidity=" << reg.pseudorapidity();
+  os << " phi=" << reg.phi();
   os << endl;
   return os;
 }

@@ -11,25 +11,22 @@ L1CaloRegionDetId::L1CaloRegionDetId(uint32_t rawid) : DetId(rawid) { }
 
 
 // construct from ieta, iphi indices
-L1CaloRegionDetId::L1CaloRegionDetId(int ieta, int iphi) :
+// ieta runs from 0 (at -z) to 21 (at +z)
+L1CaloRegionDetId::L1CaloRegionDetId(unsigned ieta, unsigned iphi) :
   DetId(Calo, 2) 
 { 
-  id_ |= ((ieta>0)?(0x8|ieta):(-ieta)) |
-    (iphi&0x1f)<<4;
+  id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
 
 
 // construct from RCT crate, card, region IDs
-L1CaloRegionDetId::L1CaloRegionDetId(unsigned icrate, unsigned icard, unsigned irgn) :
+L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned icard, unsigned irgn) :
   DetId(Calo, 2)
 {
 
-  // calculate ieta
   int ieta=0;
-
-  // calculate iphi
   int iphi=0;
 
-  id_ |= ((ieta>0)?(0x8|ieta):(-ieta)) |
-    (iphi&0x1f)<<4;
+  /// TODO - calculate ieta and iphi
+  id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
