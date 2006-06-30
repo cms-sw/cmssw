@@ -68,6 +68,8 @@ private:
   typedef Surface::PositionType    PositionType;
 
 
+  void apply( Alignable* );
+
 };
 
 //
@@ -117,59 +119,57 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   AlignableMuon* theAlignableMuon = new AlignableMuon( iSetup );
 
-  std::vector<Alignable*> theDTWheels = theAlignableMuon->DTWheels();
+  // Apply  alignment
 
-  std::cout << "Number of wheels=" << theDTWheels.size() << std::endl;
+  std::vector<Alignable*> theAlignables = theAlignableMuon->DTChambers();
+//  std::vector<Alignable*> theAlignables = theAlignableMuon->CSCEndcaps();
 
 
-  // Apply alignment
-  for ( std::vector<Alignable*>::iterator iter = theDTWheels.begin();
-		iter != theDTWheels.end(); iter++ )
-	{
+  for ( std::vector<Alignable*>::iterator iter = theAlignables.begin();
+		                          iter != theAlignables.end(); iter++ ){ 
+    apply( *iter ); 
+  }
+
+  theAlignables.clear();
+
+
+edm::LogInfo("MuonAlignment") << "Done!";
+
+}
+
+
+
+void TestTranslation::apply( Alignable* it )
+{
 	  std::cout << "------------------------" << std::endl
 		    << " BEFORE TRANSLATION " << std::endl;
 
-	  GlobalPoint  pos_i  = (*iter)->globalPosition() ;
-          RotationType dir_i  = (*iter)->globalRotation();
+	  GlobalPoint  pos_i  = (it)->globalPosition() ;
+          RotationType dir_i  = (it)->globalRotation();
 
-	std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
-
+	  std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
 
 	  float dx = 1.0;
           float dy = 2.0;
           float dz = 3.0;
           GlobalVector dr( dx, dy, dz );
-	  (*iter)->move( dr );
-
+	  it->move( dr );
 
 	  std::cout << "------------------------" << std::endl
 		    << " AFTER TRANSLATION " << std::endl;
 
-          GlobalPoint  pos_f  = (*iter)->globalPosition() ;
-          RotationType dir_f = (*iter)->globalRotation();
+          GlobalPoint  pos_f  = (it)->globalPosition() ;
+          RotationType dir_f = (it)->globalRotation();
 
-        std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
-
+          std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
 
 	  std::cout << "------------------------" << std::endl;
 
-	}
+}
   
 
 //  delete theAlignableMuon ;
 
-
-
-
-
-
-
-
-
- 
-  edm::LogInfo("MuonAlignment") << "Done!";
-
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestTranslation)
