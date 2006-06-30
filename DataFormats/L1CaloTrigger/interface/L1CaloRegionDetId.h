@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: 2006/06/28 18:57:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/30 12:28:10 $
+ *  $Revision: 1.3 $
  *  \author Jim Brooke 
 */
 
@@ -51,7 +51,7 @@ class L1CaloRegionDetId : public DetId {
   bool isForward() const { return (ieta()<4 || ieta()>17); }
 
   /// return RCT crate number (0-17)
-  unsigned rctCrate() const { return 0; }    /// TODO - fill this method in! 
+  unsigned rctCrate() const;
 
   /// return RCT card number (0-6)
   unsigned rctCard() const { return 0; }  /// TODO - fill this method in!
@@ -60,11 +60,15 @@ class L1CaloRegionDetId : public DetId {
   unsigned rctRegion() const { return 0; }  /// TODO - fill this method in!
 
   /// return local RCT eta index (0-10)
-  unsigned rctEta() const { return 0; }  /// TODO - fill this method in!
+  unsigned rctEta() const { return (ieta()<11 ? 10-ieta() : ieta()-11); }  /// TODO - check this is correct
 
   /// return local RCT phi index (0-1)
-  unsigned rctPhi() const { return 0; }  /// TODO - fill this method in!
+  unsigned rctPhi() const { return (rctCrate()%9)*2 + (iphi()%2); }  /// TODO - check this is correct
 
+ private:
+
+  static const unsigned N_PHI=18;
+  static const unsigned N_ETA=22;
 
 };
 

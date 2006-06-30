@@ -30,3 +30,9 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
   /// TODO - calculate ieta and iphi
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
+
+// return RCT crate ID
+unsigned L1CaloRegionDetId::rctCrate() const { // TODO - check this is correct!
+  unsigned phiCrate = ((N_PHI + 4 - iphi()) % N_PHI) / 2;
+  return (ieta()<(N_ETA/2) ? phiCrate : phiCrate + N_PHI/2) ;
+}

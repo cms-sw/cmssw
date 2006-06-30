@@ -129,7 +129,7 @@ public:
   /// region id
   L1CaloRegionDetId m_id;
 
-  /// region data : et, overflow, tau veto, mip and quiet bits
+  /// region data : et, overflow, fine grain/tau veto, mip and quiet bits
   uint16_t m_data;
 
 };
