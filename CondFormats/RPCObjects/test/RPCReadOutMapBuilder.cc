@@ -31,6 +31,8 @@
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/FebSpec.h"
+#include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 
 using namespace std;
 using namespace edm;
@@ -138,8 +140,12 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
      DccSpec dcc(790);
      TriggerBoardSpec tb1(6);
      LinkConnSpec  lc(8); 
-     ChamberLocationSpec chamber = {1,2,3,"Cos","+-","cos","cos","E"};
+     ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
      LinkBoardSpec lb(true, 2, chamber);
+     FebSpec feb(3,"F",2);
+     ChamberStripSpec strip = {5,21};
+     feb.add( strip);
+     lb.add(feb); 
      lc.add(lb);
      tb1.add(lc);
      dcc.add(tb1);

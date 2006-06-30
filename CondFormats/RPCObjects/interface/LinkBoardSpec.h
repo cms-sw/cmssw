@@ -2,6 +2,7 @@
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/FebSpec.h"
 
 /** \class LinkBoardSpec
  * RPC LinkBoard Specification for readout decoding. Provide chamber location specification (as in DB throught FEBs) 
@@ -22,6 +23,12 @@ public:
   /// this LB number in link
   int linkBoardNumInLink() const { return theLinkBoardNumInLink; }
 
+  /// attache feb
+  void add(const FebSpec & feb); 
+
+  /// get Feb by its connection number to this board
+  const FebSpec * feb(int febInputNum) const;
+
   /// serving chamber location info
   const ChamberLocationSpec & chamberLocationSpec() const 
       { return theChamberSpec; }
@@ -33,5 +40,6 @@ private:
   bool theMaster;
   int theLinkBoardNumInLink; 
   ChamberLocationSpec theChamberSpec;
+  std::vector<FebSpec> theFebs;
 };
 #endif

@@ -1,7 +1,14 @@
 <lcgdict>
+  <class name="ChamberStripSpec"/>
+
+  <class name="FebSpec">
+  <field name="theRawId" transient="true"/>
+  </class>
+
   <class name="ChamberLocationSpec"/>
 
   <class name="LinkBoardSpec"/>
+  <class name="std::vector<FebSpec>"/>
 
   <class name="LinkConnSpec"/>
   <class name="std::vector<LinkBoardSpec>"/>
@@ -15,6 +22,9 @@
   <class name="RPCReadOutMapping"/>
   <class name="std::map<int,DccSpec>"/>
 
+  <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
+  <class pattern="*iterator*"/>
 </lcgdict>
+
