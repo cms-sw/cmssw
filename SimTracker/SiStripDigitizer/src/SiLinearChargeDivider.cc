@@ -21,6 +21,11 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf
   // delta cutoff in MeV, has to be same as in OSCAR (0.120425 MeV corresponding // to 100um range for electrons)
   //SimpleConfigurable<double>  SiLinearChargeDivider::deltaCut(0.120425,
   deltaCut=conf_.getParameter<double>("DeltaProductionCut");
+
+  //Offset for digitization during the MTCC and in general for taking cosmic particle
+  //The value to be used it must be evaluated and depend on the volume defnition used
+  //for the cosimc generation (Considering only teh tracker the value is 11 ns)
+  cosmicShift=conf_.getUntrackedParameter<double>("CosmicDelayShift");
 }
 
 SiChargeDivider::ionization_type 
@@ -125,9 +130,16 @@ float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUni
   float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
   float SigmaShape = 52.17; // From fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
-  float tofNorm = (hit.tof() - t0)/SigmaShape;
+  float tofNorm = (hit.tof() - cosmicShift - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
+  std::cout<<"Time with cosmicShift"<<readTimeNorm<<std::endl;
+  if(1 + readTimeNorm > 0) {
+    std::cout<<"Time with cosmicShift : output subroutine "<< 
+      hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm) <<std::endl;
+  } else {
+    std::cout<<"Time with cosmicShift : output subroutine "<< 000 <<std::endl;
+  }
   // return the energyLoss weighted CR-RC shape peaked at t0.
   if (1 + readTimeNorm > 0) {
     return hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
