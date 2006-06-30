@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/02/13 22:14:27 $
-$Revision: 1.5 $
+$Date: 2006/02/15 19:48:02 $
+$Revision: 1.6 $
 */
 
 #include <iostream>
@@ -30,7 +30,8 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId,
     if (fWarning) std::cerr << "HcalElectronicsMap-> container is not sorted. Use sortByChaId () to search effectively" << std::endl;
     item = mItems.begin();
     Item::LessById less;
-    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
+    while (! (item == mItems.end() || (!less (*item,target) && !less (target, *item)))) item++;
+    //    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
   }
   if (item == mItems.end() || item->mId != fId) return 0;
   return &*item;
