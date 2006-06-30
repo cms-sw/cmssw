@@ -14,6 +14,7 @@ The Data Format is defined in the following package sets:
 \htmlinclude datatable_begin.doi
 
 \htmlinclude TrackerMuonSimHitCollections.doi
+\htmlinclude TrackerSimDigiCollections.doi
 \htmlinclude CaloSimHitCollections.doi
 
 \htmlinclude datatable_end.doi
@@ -28,6 +29,6 @@ Monte Carlo truth  is still missing.
 
 
 <hr>
-Last updated: @DATE@ K.Lassila-Perini
+Last updated: @DATE@ V.Chiochia
 
 */

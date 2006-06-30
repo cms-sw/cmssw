@@ -1,0 +1,16 @@
+</tr><tr class="colgroup">
+  <td class="colgroup" colspan=5>Pixel detector Digi collections</td>
+<tr>
+  <td><a href="classSiPixelDigi.html">SiPixelDigi </a></td>
+  <td><a href="DataFormats_SiPixelDigi.html">edm::DetSetVector&lt;SiPixelDigi</a></td>
+  <td><a href="SimTracker_SiPixelDigitizer.html">pixdigi</a></td>
+  <td class="description">Pixel digi from digitizer </td>
+  <td>D. Kotlinski</td>
+</tr>
+<tr>
+  <td><a href="classPixelDigiSimLink.html">PixelDigiSimLink </a></td>
+  <td><a href="SimDataFormats_TrackerDigiSimLink.html">edm::DetSetVector&lt;PixelDigiSimLink</a></td>
+  <td><a href="SimTracker_SiPixelDigitizer.html">pixdigi</a></td>
+  <td class="description">Link between Pixel SimHits and Digis </td>
+  <td>D. Kotlinski</td>
+</tr>
