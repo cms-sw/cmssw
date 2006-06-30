@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/06/07 09:51:24 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/17 09:15:56 $
+ *  $Revision: 1.12 $
  *
  * \author Ilaria Segoni
  */
@@ -20,16 +20,20 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 #include <vector>
 
 //#define RPCRECORFORMATTER_DEBUG_
 
-RPCRecordFormatter::RPCRecordFormatter():currentBX(0),currentRMB(0),currentTbLinkInputNumber(0){
+RPCRecordFormatter::RPCRecordFormatter(int fedId, const RPCReadOutMapping *r)
+ : currentFED(fedId), currentBX(0),currentRMB(0),currentTbLinkInputNumber(0), readoutMapping(r){
 }
 
 RPCRecordFormatter::~RPCRecordFormatter(){
@@ -57,43 +61,57 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
     /// Unpacking BITS With Hit (uniquely related to strips with hit)
     if(typeOfRecord==RPCRecord::LinkBoardData)	    {
 	RPCLinkBoardData lbData=this->unpackLBRecord(recordIndexInt);
-	int dccId=790;//fedNumber;
-	int tbId=currentRMB;
-	int lboxId=currentTbLinkInputNumber/5;
-	int mbId=currentTbLinkInputNumber%5;
-	int lboardId=lbData.lbNumber();
-	
-	 rawData.addRMBData(currentRMB,currentTbLinkInputNumber, lbData);  
+
+      ChamberRawDataSpec eleIndex;
+      eleIndex.dccId = currentFED;
+      eleIndex.dccInputChannelNum = currentRMB;
+      eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
+      eleIndex.lbNumInLink = lbData.lbNumber();
+
+	rawData.addRMBData(currentRMB,currentTbLinkInputNumber, lbData);  
+      const ChamberLocationSpec *location = readoutMapping->location(eleIndex);
+      if (!location) throw cms::Exception("Invalid Chamber Location !");
+      const LinkBoardSpec * linkBoard = readoutMapping->
+          dcc(eleIndex.dccId)->
+          triggerBoard(eleIndex.dccInputChannelNum)->
+          linkConn(eleIndex.tbLinkInputNum)->
+          linkBoard(eleIndex.lbNumInLink);
 
 	std::vector<int> bits=lbData.bitsOn();
 	for(std::vector<int>::iterator pBit = bits.begin(); pBit !=
     		      bits.end(); ++pBit){
 
-		int bit = *(pBit);
-		RPCReadOutMapping rmap;
-		int region(0);
-		int ring(1);
-		int station(2);
-		int sector(10); 
-		int layer(1);
-		int subsector(1);
-		int roll(2);
-		int strip(20);
-		// Not working yet
-		rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
-				      region,ring,station,sector,layer,
-				      subsector,roll,strip);
+		int rawBit = *(pBit);
 
-		RPCDetId detId(region,ring,station,sector,
-			       layer,subsector,roll);
+            // FIXME convert to LinkBoardFrame (unpartitioning), check
+            int lbBit = lbData.partitionNumber()*8 + lbData.halfP()*4+rawBit;
+
+            // FIXME  not sure about conversion, check! 
+            int febInLB = lbBit/6;
+            int stripPinInFeb = lbBit%6;
+
+            // corresponfing FEB and strip
+            const FebSpec * feb = linkBoard->feb(febInLB);
+            if(!feb) throw cms::Exception("Invalid Feb pointer!");
+            const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
+            if(!strip)  throw cms::Exception("Invalid Strip pointer!");
+
+            // strip in chamber unmbering
+            int deteStrip = strip->chamberStripNumber;
+
+            // det unit to which feb is assigned
+            const uint32_t & rawDetId = feb->rawId(*location);
+            
+            // FIXME convert bits to DetUnitFrame  
+            int geomStrip = deteStrip;
 
 		/// Creating RPC digi
 		/// When channel mapping available calculate strip
 		///and replace bit with strip
-		RPCDigi digi(strip,currentBX);
+		RPCDigi digi(geomStrip,currentBX);
 
 		/// Committing digi to the product
-		prod->insertDigi(detId,digi);
+		prod->insertDigi(RPCDetId(rawDetId),digi);
           }
     }
     

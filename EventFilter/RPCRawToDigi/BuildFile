@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/RPCDigi>
+<use name=CondFormats/DataRecord>
 <use name=CondFormats/RPCObjects>
 <use name=FWCore/MessageLogger>
 <use name=boost>
@@ -12,6 +13,7 @@
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/RPCDigi>
  <use name=CondFormats/RPCObjects>
+ <use name=CondFormats/DataRecord>
  <use name=FWCore/MessageLogger>
  <use name=boost>	
 </export>

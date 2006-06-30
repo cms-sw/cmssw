@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/03/30 15:19:30 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/06/07 09:51:57 $
+ *  $Revision: 1.16 $
  *
  * \author Ilaria Segoni
  */
@@ -23,10 +23,16 @@
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h"
+
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+
 
 #include <iostream>
 
@@ -60,6 +66,9 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  Handle<FEDRawDataCollection> allFEDRawData; 
  e.getByType(allFEDRawData); 
 
+ edm::ESHandle<RPCReadOutMapping> readoutMapping;
+ c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+
  edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  
  std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
@@ -71,10 +80,11 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
  edm::LogInfo ("RPCUnpacker") <<"Beginning To Unpack Event: "<<nEvents;
 
-	RPCRecordFormatter interpreter;
+
 	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
 
  		const FEDRawData & fedData = allFEDRawData->FEDData(id);
+	      RPCRecordFormatter interpreter(id, readoutMapping.product()) ;
     		RPCFEDData rpcRawData;
   
                 edm::LogInfo ("RPCUnpacker") <<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes";			 
