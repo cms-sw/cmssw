@@ -25,9 +25,13 @@ void TrackingVertex::addGenVertex(const GenVertexRef &ref){
   genVertices_.push_back(ref);
 }
     
-/// Iterators over tracks
-TrackingVertex::track_iterator TrackingVertex::tracks_begin() const { return tracks_.begin(); }
-TrackingVertex::track_iterator TrackingVertex::tracks_end()   const { return tracks_.end(); }
+/// Iterators over tracks and vertices
+TrackingVertex::track_iterator TrackingVertex::tracks_begin()      const { return      tracks_.begin(); }
+TrackingVertex::track_iterator TrackingVertex::tracks_end()        const { return      tracks_.end();   }
+TrackingVertex::genv_iterator  TrackingVertex::genVertices_begin() const { return genVertices_.begin(); }
+TrackingVertex::genv_iterator  TrackingVertex::genVertices_end()   const { return genVertices_.end();   }
+TrackingVertex::g4v_iterator   TrackingVertex::g4Vertices_begin()  const { return  g4Vertices_.begin(); }
+TrackingVertex::g4v_iterator   TrackingVertex::g4Vertices_end()    const { return  g4Vertices_.end();   }
 
 /// position 
 const HepLorentzVector & TrackingVertex::position() const { return position_; }
