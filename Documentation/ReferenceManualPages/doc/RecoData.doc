@@ -21,6 +21,8 @@ The Data Format is defined in the following package sets:
 \htmlinclude CaloJetRecoCollections.doi
 \htmlinclude CaloTowerRecoCollections.doi
 \htmlinclude GenJetRecoCollections.doi
+\htmlinclude MuonRecoCollections.doi
+
 
 \htmlinclude datatable_end.doi
 
