@@ -60,20 +60,18 @@ inline void convert(uint16 i, char_uint16 v)
 {
   v[0]=i&0xff;
   v[1]=(i>>8)&0xff;
-  v[2]=(i>>16)&0xff;
-  v[3]=(i>>24)&0xff;
 }
 
 inline void convert(uint64 li, char_uint64 v)
 {
-  v[0]=li&0xffff;
-  v[1]=(li>>8)&0xffff;
-  v[2]=(li>>16)&0xffff;
-  v[3]=(li>>24)&0xffff;
-  v[4]=(li>>32)&0xffff;
-  v[5]=(li>>40)&0xffff;
-  v[6]=(li>>48)&0xffff;
-  v[7]=(li>>56)&0xffff;
+  v[0]=li&0xff;
+  v[1]=(li>>8)&0xff;
+  v[2]=(li>>16)&0xff;
+  v[3]=(li>>24)&0xff;
+  v[4]=(li>>32)&0xff;
+  v[5]=(li>>40)&0xff;
+  v[6]=(li>>48)&0xff;
+  v[7]=(li>>56)&0xff;
 }
 
 
