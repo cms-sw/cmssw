@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.10 2006/06/03 14:44:48 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.11 2006/06/30 12:00:28 benigno Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2006/06/03 14:44:48 $
+  \version $Revision: 1.11 $
+  \date $Date: 2006/06/30 12:00:28 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -43,8 +43,7 @@ class EBMUtilsClient {
         } else {
           ret = dynamic_cast<T>( ob->operator->()); 
         }
-      }
-      else {
+      } else {
 	ret = 0;
       }
     }
