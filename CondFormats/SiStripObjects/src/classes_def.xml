@@ -9,7 +9,7 @@
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
-  <class name="SiStripFedCabling" id="10370265-3A9F-DF71-5178-0B43B9EF23D4"/>
+  <class name="SiStripFedCabling"/>
   <class name="FedChannelConnection"/>
   <class name="std::vector<unsigned short>"/>
   <class name="std::vector<FedChannelConnection>"/>
