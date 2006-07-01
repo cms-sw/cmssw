@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.30 2006/06/21 17:55:28 rpw Exp $
+ * $Id: pset_parse.y,v 1.31 2006/06/28 18:58:17 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -456,7 +456,10 @@ anyarray:        array
                |
                  strarray
                |
-                 blankarray;
+                 blankarray
+/*               |
+                 producttagarray
+*/               ;
 
 possiblyblankstrarray: strarray
                |
@@ -557,6 +560,15 @@ anyproducttag:   PRODUCTTAG_tok
                    DBPRINT("anyproducttag: LETTERSTART");
                    $<str>$ = $<str>1;
                  }
+               ;
+
+replaceEntry:    VALUE_tok
+               |
+                 LETTERSTART_tok
+               |
+                 PRODUCTTAG_tok
+               |
+                 anyquote
                ;
 
 producttags:     producttags COMMA_tok anyproducttag
@@ -721,7 +733,7 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = $<_PSetNode>2;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok any
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok replaceEntry
                  {
                    DBPRINT("procnode: REPLACEVALUE");
                    string name(toString($<str>2));
@@ -739,17 +751,6 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
-                   $<_Node>$ = wn;
-                 }
-               |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyquote
-                 {
-                   DBPRINT("procnode: REPLACESTRING");
-                   string name(toString($<str>2));
-                   string value(toString($<str>4));
-                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
-                   NodePtr entryPtr(entry);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
