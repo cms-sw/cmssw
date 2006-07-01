@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/30 07:45:10 $
- * $Revision: 1.153 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.154 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -356,12 +356,20 @@ void EcalBarrelMonitorClient::beginJob(void){
   jevt_ = 0;
 
   // start DQM user interface instance
+  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
   if ( ! enableStateMachine_ ) {
     if ( enableMonitorDaemon_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+      if ( enableServer_ ) {
+        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
+      } else {
+        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+      }
     } else {
       mui_ = new MonitorUIRoot();
+      if ( enableServer_ ) {
+        mui_->actAsServer(serverPort_, clientName_);
+      }
     }
   }
 
@@ -370,14 +378,6 @@ void EcalBarrelMonitorClient::beginJob(void){
   } else {
     mui_->setVerbose(0);
   }
-
-  if ( enableServer_ ) {
-    mui_->actAsServer(serverPort_, clientName_);
-  }
-
-  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
-
-  mui_->setReconnectDelay(5);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob(mui_);
