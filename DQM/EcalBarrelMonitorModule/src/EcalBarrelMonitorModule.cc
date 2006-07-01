@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/28 09:45:52 $
- * $Revision: 1.103 $
+ * $Date: 2006/06/29 22:04:48 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,24 +17,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   runType_ = -1;
 
   // this should come from the EcalBarrel run header
-  string s = ps.getUntrackedParameter<string>("runType", "unknown");
-
-  if ( s == "COSMIC" ) {
-    runType_ = EcalDCCHeaderBlock::COSMIC;
-  } else if ( s == "LASER" ) {
-    runType_ = EcalDCCHeaderBlock::LASER_STD;
-  } else if ( s == "PEDESTAL" ) {
-    runType_ = EcalDCCHeaderBlock::PEDESTAL_STD;
-  } else if ( s == "TEST_PULSE" ) {
-    runType_ = EcalDCCHeaderBlock::TESTPULSE_MGPA;
-  } else if ( s == "ELECTRON" ) {
-    runType_ = EcalDCCHeaderBlock::BEAMH4;
-  } else if ( s == "ELECTRON2" ) {
-    runType_ = EcalDCCHeaderBlock::BEAMH2;
-  }
-
-  LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
-
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
   LogInfo("EcalBarrelMonitor") << " Processing run: " << irun_;
