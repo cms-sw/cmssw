@@ -40,9 +40,6 @@ public:
     virtual void		close (void);
    
 private:
-   void        md5(const void *from, seal::IOSize n);
- 
-private:
     std::string			m_storageClass;
     seal::Storage		*m_baseStorage;
 

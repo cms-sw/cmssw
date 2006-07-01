@@ -33,6 +33,10 @@ namespace T0Repack {
     
   };
 
+
+
+
+
   /* read full file from seal:storage and save it in a string
    */
   class InputStream : public  std::istringstream {
@@ -97,7 +101,7 @@ namespace T0Repack {
 
   private:
     enum {N_Actions=4};
-    enum Actions {OPEN, CLOSE, INDEX, SELECT}; 
+    enum Actions {OPEN, CLOSE, INDEX, SELECT, TRACE}; 
     static std::string ActionName[N_Actions];
 
     void oneStep();
@@ -110,6 +114,7 @@ namespace T0Repack {
 
 
   private:
+    int m_traceLevel;
     int m_selectedStream;
     std::queue<Step> m_steps;
     std::vector<boost::shared_ptr<OutputEventFile> > m_output;

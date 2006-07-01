@@ -84,13 +84,3 @@ StorageAccountProxy::close (void)
     stats.tick ();
 }
 
-#include "SealZip/MD5Digest.h"
-
-void
-StorageAccountProxy::md5(const void *from, seal::IOSize n)
-{  
-	// seal::MD5Digest md5;
-    // md5.update((const void *)(s.c_str()), s.size());
-    //return md5.format();
-}
-
