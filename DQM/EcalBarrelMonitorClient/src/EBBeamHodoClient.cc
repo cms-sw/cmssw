@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.11 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -655,6 +655,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">BeamHodo</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
+
 //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
 //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
 //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
@@ -665,6 +666,27 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a href=\"#Hodo_raw\"> Hodoscope raw </a>" << endl;
+  htmlFile << "</br>" << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a href=\"#Hodo_reco\"> Hodoscope reco </a>" << endl;
+  htmlFile << "</br>" << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a href=\"#Hodo-Calo\"> Hodo-Calo </a>" << endl;
+  htmlFile << "</br>" << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a href=\"#eneVspos\"> Energy VS positon </a>" << endl;
+  htmlFile << "</br>" << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"Hodo_raw\"> <B> Hodoscope raw plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+
 
   const int csize = 250;
   
@@ -777,6 +799,11 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"Hodo_reco\"> <B> Hodoscope reco plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -920,6 +947,12 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"Hodo-Calo\"> <B> Hodo-Calo plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
@@ -967,6 +1000,54 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for (int i=0; i<3; i++) {
+
+    imgNameP = "";
+
+    obj1f = he03_[i];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+      for ( unsigned int j = 0; j < meName.size(); j++ ) {
+        if ( meName.substr(j, 1) == " " )  {
+          meName.replace(j, 1, "_");
+        }
+      }
+      imgNameP = meName + ".png";
+      imgName = htmlDir + imgNameP;
+
+      cP->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE); 
+      obj1f->Draw();
+      cP->Update();
+      cP->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
+    if ( imgNameP.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy VS positon plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1042,43 +1123,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
 
-  for (int i=0; i<3; i++) {
-
-    imgNameP = "";
-
-    obj1f = he03_[i];
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP;
-
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE); 
-      obj1f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
 
   delete cP;
 
