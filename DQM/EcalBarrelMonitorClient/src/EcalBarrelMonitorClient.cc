@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.154 $
+ * $Date: 2006/07/01 10:58:48 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -576,7 +576,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag(runTypes_[runtype_]);
+  runtag.setGeneralTag( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] );
 
   // fetch the RunIOV from the DB
 
