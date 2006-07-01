@@ -29,7 +29,7 @@ private:
 	unsigned zero_2            : 7;
 	unsigned trailer_mark_7    : 4;  // constant, should be 1110 = 0xE
 	/////// word 6 ///////
-	unsigned board_id          : 12;
+	unsigned board_id_         : 12;
 	unsigned trailer_mark_8    : 4;  // constant, should be 1110 = 0xE
 	/////// word 7 ///////
 	unsigned crc_low           : 11;
