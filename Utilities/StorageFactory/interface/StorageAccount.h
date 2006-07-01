@@ -18,34 +18,48 @@
 class StorageAccount
 {
 public:
-    struct Counter
-    {
-	seal::ULongLong	attempts;
-	seal::ULongLong	successes;
-	double		amount;
-	double		time;
-    };
-    class Stamp
-    {
-    public:
-        Stamp (Counter &counter);
 
-        void		tick (double amount = 0.) const;
-    private:
-	Counter		&m_counter;
-        double		m_start;
-    };
-
-    typedef std::map<std::string, Counter> OperationStats;
-    typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
-
-    static const StorageStats &	summary (void);
-    static std::string		summaryText (void);
-    static Counter &		counter (const std::string &storageClass,
+  struct Counter
+  {
+    seal::ULongLong	attempts;
+    seal::ULongLong	successes;
+    double		amount;
+    double		time;
+    std::string         idTag;
+  };
+  
+  class Stamp
+  {
+  public:
+    Stamp (Counter &counter);
+    
+    void		tick (double amount = 0.) const;
+  private:
+    Counter		&m_counter;
+    double		m_start;
+  };
+  
+  typedef std::map<std::string, Counter> OperationStats;
+  typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
+  
+  static const StorageStats &	summary (void);
+  static std::string		summaryText (void);
+  static Counter &		counter (const std::string &storageClass,
 					 const std::string &operation);
-
+  
+  struct LastOp
+  {
+    std::string     idTag;
+    double	    startTime;
+    double	    elapsed;
+  };
+  
+  
+  static  LastOp & lastOp();
+  static  void setCurrentOp(const Counter * currOp, double stime);
+  
 private:
-    static StorageStats	s_stats;
+  static StorageStats	s_stats;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
