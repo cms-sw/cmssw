@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical RPC strips
  *
- *  $Date: 2006/04/07 05:20:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/30 06:21:06 $
+ *  $Revision: 1.3 $
  *  \author Marcello Maggi -- INFN Bari
  *
  */
@@ -20,6 +20,7 @@
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
+class LinkBoardSpec;
 
 
 class RPCReadOutMapping {
@@ -37,7 +38,7 @@ public:
   std::vector<const DccSpec*> dccList() const;
 
   /// conversion between electronic and detector indexing
-  const ChamberLocationSpec * location (const ChamberRawDataSpec & ele) const;  
+  std::pair< const LinkBoardSpec*, const ChamberLocationSpec* > location (const ChamberRawDataSpec & ele) const;  
 
   /// attach FED to map
   void add(const DccSpec & dcc);

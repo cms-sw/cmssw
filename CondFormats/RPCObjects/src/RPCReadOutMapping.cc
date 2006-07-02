@@ -42,7 +42,8 @@ std::pair<int,int> RPCReadOutMapping::dccNumberRange() const
   }
 }
 
-const ChamberLocationSpec * RPCReadOutMapping::location(const ChamberRawDataSpec & ele) const
+std::pair< const LinkBoardSpec*,  const ChamberLocationSpec *> 
+    RPCReadOutMapping::location(const ChamberRawDataSpec & ele) const
 {
   //FIXME after debugging change to dcc(ele.dccId)->triggerBoard(ele.dccInputChannelNum)->...
   const DccSpec *dcc = RPCReadOutMapping::dcc(ele.dccId);
@@ -52,9 +53,11 @@ const ChamberLocationSpec * RPCReadOutMapping::location(const ChamberRawDataSpec
       const LinkConnSpec *lc = tb->linkConn( ele.tbLinkInputNum);
       if (lc) {
         const LinkBoardSpec *lb = lc->linkBoard(ele.lbNumInLink);
-        if (lb) return &(lb->chamberLocationSpec());
+        if (lb) return std::make_pair(lb, & lb->chamberLocationSpec());
       }
     }
   }
-  return 0;
+   const LinkBoardSpec *lb = 0;
+   const  ChamberLocationSpec * cb = 0;
+  return std::make_pair(lb,cb);
 }

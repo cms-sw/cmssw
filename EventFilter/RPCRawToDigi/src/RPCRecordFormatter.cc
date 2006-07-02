@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/06/17 09:15:56 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/30 19:27:58 $
+ *  $Revision: 1.13 $
  *
  * \author Ilaria Segoni
  */
@@ -69,13 +69,11 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
       eleIndex.lbNumInLink = lbData.lbNumber();
 
 	rawData.addRMBData(currentRMB,currentTbLinkInputNumber, lbData);  
-      const ChamberLocationSpec *location = readoutMapping->location(eleIndex);
+      std::pair<const LinkBoardSpec*, const ChamberLocationSpec*> lbcls=
+         readoutMapping->location(eleIndex);
+      const LinkBoardSpec* linkBoard = lbcls.first;
+      const ChamberLocationSpec* location = lbcls.second;
       if (!location) throw cms::Exception("Invalid Chamber Location !");
-      const LinkBoardSpec * linkBoard = readoutMapping->
-          dcc(eleIndex.dccId)->
-          triggerBoard(eleIndex.dccInputChannelNum)->
-          linkConn(eleIndex.tbLinkInputNum)->
-          linkBoard(eleIndex.lbNumInLink);
 
 	std::vector<int> bits=lbData.bitsOn();
 	for(std::vector<int>::iterator pBit = bits.begin(); pBit !=

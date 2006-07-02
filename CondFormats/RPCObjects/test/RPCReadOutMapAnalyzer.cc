@@ -62,7 +62,7 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
    int febInputNum=3;
    int stripPinNum=5;
 
-   const ChamberLocationSpec *location = map->location(chamber);
+   const ChamberLocationSpec *location = (map->location(chamber)).second;
    if (location) {
      location->print();
      const DccSpec *dcc = map->dcc(chamber.dccId);

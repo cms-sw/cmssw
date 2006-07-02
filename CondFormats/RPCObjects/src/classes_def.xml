@@ -4,6 +4,7 @@
   <class name="FebSpec">
   <field name="theRawId" transient="true"/>
   </class>
+  <class name="std::vector<ChamberStripSpec>"/>
 
   <class name="ChamberLocationSpec"/>
 
@@ -22,9 +23,6 @@
   <class name="RPCReadOutMapping"/>
   <class name="std::map<int,DccSpec>"/>
 
-  <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
-  <class pattern="*iterator*"/>
 </lcgdict>
-
