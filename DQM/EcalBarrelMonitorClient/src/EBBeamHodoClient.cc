@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/01 23:35:28 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/02 08:33:05 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -656,32 +656,23 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " style=\"color: rgb(0, 0, 153);\">BeamHodo</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
-//  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-//  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-//  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-//  htmlFile << "<hr>" << endl;
-
   // Produce the plots to be shown as .png files from existing histograms
 
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
-  htmlFile << "<br>" << endl;
   htmlFile <<  "<a href=\"#Hodo_raw\"> Hodoscope raw </a>" << endl;
-  htmlFile << "</br>" << endl;
-
-  htmlFile << "<br>" << endl;
+  htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#Hodo_reco\"> Hodoscope reco </a>" << endl;
-  htmlFile << "</br>" << endl;
-
-  htmlFile << "<br>" << endl;
+  htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#Hodo-Calo\"> Hodo-Calo </a>" << endl;
-  htmlFile << "</br>" << endl;
-
-  htmlFile << "<br>" << endl;
+  htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#eneVspos\"> Energy VS position </a>" << endl;
-  htmlFile << "</br>" << endl;
+  htmlFile << "<p>" << endl;
+
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<p>" << endl;
 
   htmlFile << "<br>" << endl;
   htmlFile <<  "<a name=\"Hodo_raw\"> <B> Hodoscope raw plots </B> </a> " << endl;
