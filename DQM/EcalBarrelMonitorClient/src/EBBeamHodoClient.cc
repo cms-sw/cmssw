@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/02 08:33:05 $
- * $Revision: 1.14 $
+ * $Date: 2006/07/02 08:48:20 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -859,7 +859,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     cP->cd();
 //    gStyle->SetOptStat("euomr");
 //    obj2f->SetStats(kTRUE);
-    obj2f->Draw();
+    obj2f->Draw("");
     cP->Update();
     cP->SaveAs(imgName.c_str());
 
@@ -996,6 +996,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
+
   for (int i=0; i<3; i++) {
 
     imgNameP = "";
@@ -1016,12 +1017,19 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE); 
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
+
       gPad->SetLogy(0);
 
     }
+
 
     if ( imgNameP.size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
