@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/06/27 14:03:05 $
- * $Revision: 1.10 $
+ * $Date: 2006/07/02 11:30:43 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -101,10 +101,10 @@ void EBBeamHodoTask::setup(void){
     meHodoSloYRec_ = dbe->book1D(histo, histo, 50, -0.005, 0.005);
     
     sprintf(histo, "EBBHT QualX SM%02d", smId);
-    meHodoQuaXRec_ = dbe->book1D(histo, histo, 50, 0, 3);
+    meHodoQuaXRec_ = dbe->book1D(histo, histo, 50, 0, 5);
     
     sprintf(histo, "EBBHT QualY SM%02d", smId);
-    meHodoQuaYRec_ = dbe->book1D(histo, histo, 50, 0, 3);
+    meHodoQuaYRec_ = dbe->book1D(histo, histo, 50, 0, 5);
     
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
