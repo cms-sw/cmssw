@@ -28,6 +28,15 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 //
 // -- Read Configurationn File
 //
+void SiStripActionExecutor::readConfiguration() {
+  if (configParser_ == 0) {
+    configParser_ = new SiStripConfigParser();
+    configParser_->getDocument("sistrip_monitorelement_config.xml");
+  }
+}
+//
+// -- Read Configurationn File
+//
 bool SiStripActionExecutor::readConfiguration(int& tkmap_freq, int& sum_freq) {
   if (configParser_ == 0) {
     configParser_ = new SiStripConfigParser();

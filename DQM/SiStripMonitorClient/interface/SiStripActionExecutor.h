@@ -24,6 +24,7 @@ class SiStripActionExecutor {
  void createCollation(MonitorUserInterface * mui);
  void createTkMap(MonitorUserInterface* mui);
  bool readConfiguration(int& tkmap_freq, int& sum_freq);
+ void readConfiguration();
 
  private:
   MonitorElement* getSummaryME(MonitorUserInterface* mui, string me_name);

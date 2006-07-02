@@ -14,7 +14,6 @@
 #include <string>
 #include <iostream>
 
-class SiStripActionExecutor;
 
 class SiStripClient : public DQMBaseClient, 
 			 public dqm::UpdateObserver
@@ -54,8 +53,6 @@ public:
 
   void checkCustomRequests() const;
   void setupQTest() const;
-
-  SiStripActionExecutor* actionExecutor_;
 
   int updateFrequencyForTrackerMap_;
   int updateFrequencyForSummary_;
