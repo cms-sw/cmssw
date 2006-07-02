@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.12 $
+ * $Date: 2006/07/01 23:35:28 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -680,7 +680,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</br>" << endl;
 
   htmlFile << "<br>" << endl;
-  htmlFile <<  "<a href=\"#eneVspos\"> Energy VS positon </a>" << endl;
+  htmlFile <<  "<a href=\"#eneVspos\"> Energy VS position </a>" << endl;
   htmlFile << "</br>" << endl;
 
   htmlFile << "<br>" << endl;
@@ -1045,7 +1045,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 
   htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy VS positon plots </B> </a> " << endl;
+  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy VS position plots </B> </a> " << endl;
   htmlFile << "</br>" << endl;
 
 
