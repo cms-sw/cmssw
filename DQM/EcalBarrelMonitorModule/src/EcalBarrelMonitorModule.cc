@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/06/29 22:04:48 $
- * $Revision: 1.104 $
+ * $Date: 2006/07/01 10:59:28 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -280,6 +280,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
+      runType_ = EcalDCCHeaderBlock::BEAMH4;
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
       LogWarning("EcalBarrelMonitorModule") << "EcalTBEventHeader found, instead" << endl;
