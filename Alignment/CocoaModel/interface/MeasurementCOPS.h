@@ -18,7 +18,8 @@
 class MeasurementCOPS : public Measurement
 { 
 public:
-  MeasurementCOPS( const ALIint measdim, std::vector<ALIstring>& wl ) : Measurement( measdim, wl ){
+  MeasurementCOPS( const ALIint measdim, ALIstring& type, ALIstring& name )
+: Measurement( measdim, type, name ){
     for(uint ii=0; ii<4; ii++) theXlaserLine[ii] = -1; 
   };
   MeasurementCOPS(){ };   

@@ -17,7 +17,7 @@ report_verbose 3
 
 save_matrices 0
 
-debug_verbose 0
+debug_verbose 5
 
 calcul_type 0
 
@@ -37,7 +37,7 @@ output_angle_value_dimension 3//degrees
 
 output_angle_error_dimension 3//millirad
 
-VisWriteVRML 1
+VisWriteVRML 0
 VisWriteIguana 2
 MaxNoFitIterations 5000
 
@@ -54,14 +54,16 @@ error_prec_mes_ccd  100
 
 sens_pos_err 10
 sens_ang_err 10
+mirr_pos_err 10
+mirr_ang_err 10
 
 SYSTEM_TREE_DESCRIPTION
 
-object system laser 2 sensor2D
+object system laser mirror 2 sensor2D 
 
 SYSTEM_TREE_DATA
 
-system s
+system OCMS
 laser laser1
   centre 
     X   0.   10  fix
@@ -69,8 +71,24 @@ laser laser1
     Z   0.   10  fix 
    angles           
     X   laser_angX   1   unk
-    Y   1.  10   fix
+    Y   0.  10   fix
     Z   45.   10   fix
+mirror mirror
+  ENTRY {
+    length length 4. 0. fix
+    length width  4. 0. fix
+    nodim  refra_ind    1.4              0          fix
+    length shiftTX  0.1  10.  fix
+    angle  deviTX   0.03 10.  fix 
+  }
+  centre
+    X     0  mirr_pos_err  fix
+    Y   sens2_posY  mirr_pos_err  cal
+    Z   200  mirr_pos_err  fix
+  angles
+    X       0.    mirr_ang_err  fix
+    Y      45.    mirr_ang_err  fix
+    Z       0.    mirr_ang_err  fix
 sensor2D sens1
   centre
     X   0  sens_pos_err  fix
@@ -82,34 +100,32 @@ sensor2D sens1
     Z   0   sens_ang_err  fix
 sensor2D sens2
   centre
-    X   0  sens_pos_err  fix
-    Y   sens2_posY  sens_pos_err  cal
+    X   100  sens_pos_err  fix
+    Y    0  sens_pos_err  cal
     Z   200  sens_pos_err  fix 
   angles           
     X   0   sens_ang_err  fix
-    Y   0   sens_ang_err  fix
+    Y  90.  sens_ang_err  fix
     Z   0   sens_ang_err  fix
 
 
 MEASUREMENTS
 
 SENSOR2D sens1
-s/laser1 & s/sens1
-H 1.2342595    error_prec_mes_ccd  
-V 1.2342595    error_prec_mes_ccd  
-//H 0.1    error_prec_mes_ccd  
-//V 0.20  error_prec_mes_ccd	
+OCMS/laser1 & OCMS/sens1
+H simulated_value error_prec_mes_ccd  
+V simulated_value  error_prec_mes_ccd	
 //H 1.2342595    error_prec_mes_ccd  
-//V 0.20  error_prec_mes_ccd	
+//V 1.2342595    error_prec_mes_ccd  
 
 SENSOR2D
-s/laser1 & s/sens2
-H   2.468519  error_prec_mes_ccd  
-V   2.568519  error_prec_mes_ccd  
-//H 0.1  error_prec_mes_ccd  
-//V 0.21   error_prec_mes_ccd	
-//V 0.21   error_prec_mes_ccd	
+OCMS/laser1 & OCMS/mirror:DD & OCMS/sens2
+//H   2.468519  error_prec_mes_ccd  
+//V   2.568519  error_prec_mes_ccd  
+H simulated_value error_prec_mes_ccd  
+V simulated_value  error_prec_mes_ccd	
 
-measurements_from_file simple2D.meas
+
+measurements_from_file simple2DWithMirror.meas
 
 

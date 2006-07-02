@@ -34,11 +34,11 @@ void EntryLengthAffCentre::displace( ALIdouble disp )
   if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::Displace" <<  disp <<std::endl;
   ALIint namelength = name().length()-1;
   XYZcoor axisNo = XCoor;
-  if ( _name[namelength] == 'X' ) {
+  if ( name_[namelength] == 'X' ) {
      axisNo = XCoor;
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
      axisNo = YCoor;
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
      axisNo = ZCoor;
   }
   OptOCurrent()->displaceCentreGlob( axisNo, disp );
@@ -51,11 +51,11 @@ void EntryLengthAffCentre::displaceOriginal( ALIdouble disp )
 {
   if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::DisplaceOriginal" <<  disp <<std::endl;
   ALIint namelength = name().length()-1;
-  if ( _name[namelength] == 'X' ) {
+  if ( name_[namelength] == 'X' ) {
       OptOCurrent()->displaceCentreGlobOriginal( XCoor, disp );
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
       OptOCurrent()->displaceCentreGlobOriginal( YCoor, disp );
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
       OptOCurrent()->displaceCentreGlobOriginal( ZCoor, disp );
   }
 
@@ -66,11 +66,11 @@ void EntryLengthAffCentre::displaceOriginalOriginal( ALIdouble disp )
 {
   if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::DisplaceOriginalOriginal" <<  disp <<std::endl;
   ALIint namelength = name().length()-1;
-  if ( _name[namelength] == 'X' ) {
+  if ( name_[namelength] == 'X' ) {
       OptOCurrent()->displaceCentreGlobOriginalOriginal( XCoor, disp );
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
       OptOCurrent()->displaceCentreGlobOriginalOriginal( YCoor, disp );
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
       OptOCurrent()->displaceCentreGlobOriginalOriginal( ZCoor, disp );
   }
 

@@ -18,7 +18,8 @@
 class MeasurementDistancemeter3dim : public Measurement
 { 
 public:
-  MeasurementDistancemeter3dim( const ALIint measdim, std::vector<ALIstring>& wl ) : Measurement( measdim, wl ), theFactor(1.), theFactorSigma(0.){ };
+  MeasurementDistancemeter3dim( const ALIint measdim, ALIstring& type, ALIstring& name )
+    : Measurement( measdim, type, name ), theFactor(1.), theFactorSigma(0.){ };
   MeasurementDistancemeter3dim(){ };   
   ~MeasurementDistancemeter3dim(){ };
     

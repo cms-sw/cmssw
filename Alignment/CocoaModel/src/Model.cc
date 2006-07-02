@@ -18,6 +18,7 @@
 #include "Alignment/CocoaModel/interface/MeasurementTiltmeter.h"
 #include "Alignment/CocoaModel/interface/MeasurementCOPS.h"
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
+#include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
 //t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
@@ -29,6 +30,9 @@
 #include "Alignment/CocoaModel/interface/EntryMgr.h"
 #include "Alignment/CocoaModel/interface/EntryData.h"
 #include "Alignment/CocoaModel/interface/FittedEntriesReader.h"
+
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -70,6 +74,7 @@ ALIstring Model::theMatricesFName = "matrices.out";
 // struct tm Model::theMeasurementsTime;
 cocoaStatus Model::theCocoaStatus = COCOA_Init;
 FittedEntriesReader* Model::theFittedEntriesReader = 0;
+std::vector<OpticalAlignInfo> Model::theOpticalAlignments;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model
@@ -399,39 +404,48 @@ void Model::readSystemDescription()
     } else if( currentSectionNo == sectMeasurements ) {
       //---------- Create Measurement with appropiate dimension
       Measurement* meastemp = 0;
-      if ( wordlist[0] == ALIstring("SENSOR2D") ) {
-        meastemp = new MeasurementSensor2D( 2, wordlist );      
+      ALIstring measType = wordlist[0];
+      ALIstring measName;
+      if( wordlist.size() == 2 ) {
+	measName = wordlist[1];
+        wordlist.pop_back();
+      } else {
+	measName = "";
+      }
+      if ( measType == ALIstring("SENSOR2D") ) {
+        meastemp = new MeasurementSensor2D( 2, measType, measName );      
         meastemp->setConversionFactor( wordlist );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("DISTANCEMETER3DIM") ) {
-	meastemp = new MeasurementDistancemeter3dim( 1, wordlist );
+      } else if ( measType == ALIstring("DISTANCEMETER3DIM") ) {
+	meastemp = new MeasurementDistancemeter3dim( 1, measType, measName );
 	meastemp->setConversionFactor( wordlist );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("DISTANCEMETER") ||
-		  wordlist[0] == ALIstring("DISTANCEMETER1DIM") ) {
-        meastemp = new MeasurementDistancemeter( 1, wordlist );
+      } else if ( measType == ALIstring("DISTANCEMETER") ||
+		  measType == ALIstring("DISTANCEMETER1DIM") ) {
+        meastemp = new MeasurementDistancemeter( 1, measType, measName );
         meastemp->setConversionFactor( wordlist );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("TILTMETER") ) {
-        meastemp = new MeasurementTiltmeter( 1, wordlist );
+      } else if ( measType == ALIstring("TILTMETER") ) {
+        meastemp = new MeasurementTiltmeter( 1, measType, measName );
         meastemp->setConversionFactor( wordlist );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("COPS") ) {
-        meastemp = new MeasurementCOPS( 4, wordlist );
+      } else if ( measType == ALIstring("COPS") ) {
+        meastemp = new MeasurementCOPS( 4, measType, measName );
         meastemp->setConversionFactor( wordlist );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("DIFFCENTRE") ) {
- //t       meastemp = new MeasurementDiffCentre( 1, wordlist );
+      } else if ( measType == ALIstring("DIFFCENTRE") ) {
+ //t       meastemp = new MeasurementDiffCentre( 1, measType, measName );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("DIFFANGLE") ) {
-//t        meastemp = new MeasurementDiffAngle( 2, wordlist );
+      } else if ( measType == ALIstring("DIFFANGLE") ) {
+//t        meastemp = new MeasurementDiffAngle( 2, measType, measName );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("DIFFENTRY") ) {
-        meastemp = new MeasurementDiffEntry( 1, wordlist );
+      } else if ( measType == ALIstring("DIFFENTRY") ) {
+        meastemp = new MeasurementDiffEntry( 1, measType, measName );
 	meastemp->construct();
-      } else if ( wordlist[0] == ALIstring("measurements_from_file") || wordlist[0] == ALIstring("@measurements_from_file") ) {
-	Measurement::setMeasurementsFileName( wordlist[1] );
-	 if ( ALIUtils::debug >= 2) std::cout << " setting measurements_from_file " << wordlist[0] << " == " << Measurement::measurementsFileName() << std::endl;
+      } else if ( measType == ALIstring("measurements_from_file") || measType == ALIstring("@measurements_from_file") ) {
+	new CocoaDaqReaderText( wordlist[1] );
+	//m Measurement::setMeasurementsFileName( wordlist[1] );
+	//m if ( ALIUtils::debug >= 2) std::cout << " setting measurements_from_file " << measType << " == " << Measurement::measurementsFileName() << std::endl;
         if( wordlist.size() == 4) {
 	  Measurement::only1 = 1; 
 	  Measurement::only1Date = wordlist[2]; 
@@ -1404,6 +1418,12 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	      const ALIdouble* sigmav = meastemp->sigma();
 	      sigma = sigmav[ii];
 	    }
+	    //---- Check measurement value type is OK
+	    if( meastemp->valueType(ii) != wordlist[0] ) {
+	      filein.ErrorInLine();
+	      std::cerr << "!!!FATAL ERROR: Measurement value type is " << wordlist[0] << " while in setup definition was " << meastemp->valueType(ii) << std::endl;
+	      exit(1);
+	    }
 	    meastemp->fillData( ii, wordlist );
             if( !sigmaFF ) { 
 	      meastemp->setSigma( ii, sigma );
@@ -1471,23 +1491,30 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
     std::cout << " newName " << newName << std::endl;
     wlt.push_back( newName );
 
+    ALIstring measType = wlt[0];
+    ALIstring measName;
+    if( wlt.size() == 2 ) {
+      measName = wlt[1];
+    } else {
+      measName = "";
+    }
     if ( meas->type() == ALIstring("SENSOR2D") ) {
-      meastemp = new MeasurementSensor2D( 2, wlt );      
+      meastemp = new MeasurementSensor2D( 2, measType, measName );      
       //	  } else if ( meas->type() == ALIstring("DISTANCEMETER3DIM") ) {
-      //	    meastemp = new MeasurementDistancemeter3dim( 1, wlt );
+      //	    meastemp = new MeasurementDistancemeter3dim( 1, measType, measName );
     } else if ( meas->type() == ALIstring("DISTANCEMETER") ||
-	meas->type() == ALIstring("DISTANCEMETER1DIM") ) {
-      meastemp = new MeasurementDistancemeter( 1, wlt );
+		meas->type() == ALIstring("DISTANCEMETER1DIM") ) {
+      meastemp = new MeasurementDistancemeter( 1, measType, measName );
     } else if ( meas->type() == ALIstring("TILTMETER") ) {
-      meastemp = new MeasurementTiltmeter( 1, wlt );
+      meastemp = new MeasurementTiltmeter( 1, measType, measName );
     } else if ( meas->type() == ALIstring("DIFFCENTRE") ) {
- //     meastemp = new MeasurementDiffCentre( 1, wlt );
+ //     meastemp = new MeasurementDiffCentre( 1, measType, measName );
     } else if ( meas->type() == ALIstring("DIFFANGLE") ) {
-//      meastemp = new MeasurementDiffAngle( 1, wlt );
+//      meastemp = new MeasurementDiffAngle( 1, measType, measName );
     } else if ( meas->type() == ALIstring("DIFFENTRY") ) {
-      meastemp = new MeasurementDiffEntry( 1, wlt );
+      meastemp = new MeasurementDiffEntry( 1, measType, measName );
     } else if ( meas->type() == ALIstring("COPS") ) {
-      meastemp = new MeasurementCOPS( 4, wlt );
+      meastemp = new MeasurementCOPS( 4, measType, measName );
     }
 
     //later        meastemp->copyConversionFactor( wordlist );
@@ -1548,3 +1575,88 @@ std::string Model::printCocoaStatus(const cocoaStatus cs)
   return str;
 }
 
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Model::BuildSystemDescriptionFromOA( OpticalAlignments& optAlig )
+{
+  theOpticalAlignments = optAlig.opticalAlignments();
+
+  OpticalAlignInfo oai_system = FindOptAlignInfoByType( "system" );
+
+  OpticalObject* OptOsystem = new OpticalObject( 0, "system", oai_system.name_, 0 );
+ 
+  OptOsystem->constructFromOptAligInfo( oai_system );
+
+  //-              Model::_OptOtree.insert( std::multimap< ALIstring, OpticalObject*, std::less<ALIstring> >::value_type(OptOsystem->type(), OptOsystem) );
+  //              theOptOlist[OptOsystem->name()] = OptOsystem; 
+  theOptOList.push_back( OptOsystem ); 
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+OpticalAlignInfo Model::FindOptAlignInfoByType( const ALIstring& type )
+{
+  OpticalAlignInfo oai;
+
+  ALIbool bFound = 0;
+  std::vector<OpticalAlignInfo>::iterator ite;
+  for( ite = theOpticalAlignments.begin(); ite != theOpticalAlignments.end(); ite++ ){
+    //    std::cout << " Model::FindOptAlignInfoByType " <<  (*ite).type_ << " =? " << type << std::endl;
+    if( (*ite).type_ == type ) {
+      if( !bFound ){ 
+	oai = *ite;
+	bFound = 1;
+      } else {
+	std::cerr << "!! WARNING: Model::FindOptAlignInfoByType more than one objects of type " << type << std::endl;
+	std::cerr << " returning object " << oai.name_ << std::endl
+		  << " skipping object " << (*ite).name_ << std::endl;
+      }
+    }
+  }
+  if( !bFound ) { 
+    std::cerr << "!! ERROR: Model::FindOptAlignInfoByType object not found, of type " << type << std::endl;
+    std::exception();
+  }
+
+  return oai;
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
+{
+  std::vector<OpticalAlignMeasurementInfo>::iterator mite;
+
+  if( ALIUtils::debug >= 5 ) std::cout << " BuildMeasurementsFromOA " << std::endl;
+  std::vector<OpticalAlignMeasurementInfo> measInfos = measList.oaMeasurements_;
+  for( mite = measInfos.begin(); mite != measInfos.end(); mite++ ) {
+    std::string measType = (*mite).type_;
+    std::string measName = (*mite).name_;
+    std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+    //---------- Create Measurement with appropiate dimension
+    Measurement* meastemp = 0;
+    if ( measType == ALIstring("SENSOR2D") ) {
+      meastemp = new MeasurementSensor2D( 2, measType, measName );  
+    } else if ( measType == ALIstring("DISTANCEMETER3DIM") ) {
+      meastemp = new MeasurementDistancemeter3dim( 1, measType, measName );
+    } else if ( measType == ALIstring("DISTANCEMETER") ||
+		measType == ALIstring("DISTANCEMETER1DIM") ) {
+      meastemp = new MeasurementDistancemeter( 1, measType, measName );
+    } else if ( measType == ALIstring("TILTMETER") ) {
+      meastemp = new MeasurementTiltmeter( 1, measType, measName );
+    } else if ( measType == ALIstring("COPS") ) {
+      meastemp = new MeasurementCOPS( 4, measType, measName );
+    } else if ( measType == ALIstring("DIFFCENTRE") ) {
+      //t       meastemp = new MeasurementDiffCentre( 1, measType, measName );
+    } else if ( measType == ALIstring("DIFFANGLE") ) {
+      //t        meastemp = new MeasurementDiffAngle( 2, measType, measName );
+    } else if ( measType == ALIstring("DIFFENTRY") ) {
+      meastemp = new MeasurementDiffEntry( 1, measType, measName );
+    } else {
+      std::cerr << " !!! Model::BuildMeasurementsFromOA : measType not found " << measType << std::endl;
+    std::exception();
+    } 
+    meastemp->constructFromOA( *mite );
+
+  }
+}

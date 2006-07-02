@@ -25,6 +25,12 @@ class Measurement;
 class ALIFileIn;
 class FittedEntriesReader;
 
+class OpticalAlignments;
+class OpticalAlignMeasurements;
+
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
+
+
 enum sectionType{ sectGlobalOptions, sectParameters, sectSystemTreeDescription, sectSystemTreeData, sectMeasurements, sectReportOut };
 
 enum cocoaStatus{ COCOA_Init, COCOA_ReadingModel, COCOA_InitFit, COCOA_FitOK, COCOA_FitImproving, COCOA_FitCannotImprove, COCOA_FitChi2Worsened, COCOA_FitMatrixNonInversable };
@@ -45,6 +51,12 @@ public:
 
   ///---------- Read the different sections of the SDF and act accordingly
   static void readSystemDescription();
+
+  //----------- Build OpticalObjects's from info in XML file
+  void BuildSystemDescriptionFromOA( OpticalAlignments& optAlig );
+  OpticalAlignInfo FindOptAlignInfoByType( const ALIstring& type );
+  //----------- Build Measurements's from info in XML file
+  void BuildMeasurementsFromOA( OpticalAlignMeasurements& measList );
 
 /// ACCESS STATIC DATA MEMBERS
 
@@ -125,6 +137,8 @@ public:
   static struct tm& MeasurementsTime() {
     return theMeasurementsTime;
   }
+
+  static std::vector<OpticalAlignInfo> getOpticalAlignments() { return theOpticalAlignments; }
 
 
 ///*****************  SET DATA MEMBERS
@@ -279,6 +293,7 @@ private:
 
   static FittedEntriesReader* theFittedEntriesReader;
 
+  static std::vector<OpticalAlignInfo> theOpticalAlignments;
 };
 
 #endif 

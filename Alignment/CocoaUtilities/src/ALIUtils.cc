@@ -15,14 +15,14 @@
 
 ALIint ALIUtils::debug = -1;
 ALIint ALIUtils::report = 1;
-ALIdouble ALIUtils::_LengthValueDimensionFactor;
-ALIdouble ALIUtils::_LengthSigmaDimensionFactor;
-ALIdouble ALIUtils::_AngleValueDimensionFactor;
-ALIdouble ALIUtils::_AngleSigmaDimensionFactor;
-ALIdouble ALIUtils::_OutputLengthValueDimensionFactor;
-ALIdouble ALIUtils::_OutputLengthSigmaDimensionFactor;
-ALIdouble ALIUtils::_OutputAngleValueDimensionFactor;
-ALIdouble ALIUtils::_OutputAngleSigmaDimensionFactor;
+ALIdouble ALIUtils::_LengthValueDimensionFactor = 1.E-3; //! COCOA internal units are meters, DDD milimeters
+ALIdouble ALIUtils::_LengthSigmaDimensionFactor = 1.E-3;
+ALIdouble ALIUtils::_AngleValueDimensionFactor = 1.;
+ALIdouble ALIUtils::_AngleSigmaDimensionFactor = 1.;
+ALIdouble ALIUtils::_OutputLengthValueDimensionFactor = 1.E-3;
+ALIdouble ALIUtils::_OutputLengthSigmaDimensionFactor = 1.E-3;
+ALIdouble ALIUtils::_OutputAngleValueDimensionFactor = M_PI/180.;
+ALIdouble ALIUtils::_OutputAngleSigmaDimensionFactor = M_PI/180.;
 time_t ALIUtils::_time_now;
 ALIdouble ALIUtils::deg = 0.017453293;
 ALIbool ALIUtils::firstTime;
@@ -589,7 +589,7 @@ std::string ALIUtils::changeName( const std::string& oldName, const std::string&
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ )
+std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( const CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ )
 {
   double pii = acos(0.)*2;
   std::vector<double> newang(3);
@@ -643,33 +643,51 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( CLHEP::HepRotation& r
   }
   newang[1] = -asin( rotzx );
   if( ALIUtils::debug >= 5 ) std::cout << "First calculation of angles: " << std::endl 
-			       << " newang[0] " << newang[0] << " " << rotzy << " " << rotzz << std::endl
-			       << " newang[1] " << newang[1] << " " << rotzx << std::endl
-			       << " newang[2] " << newang[2] << " " << rotyx << " " << rotxx << std::endl;
+			       << " newang[0] " << newang[0] << " rotzy " << rotzy << " rotzz " << rotzz << std::endl
+			       << " newang[1] " << newang[1] << " rotzx " << rotzx << std::endl
+			       << " newang[2] " << newang[2] << " rotyx " << rotyx << " rotxx " << rotxx << std::endl;
   
   //    newang[2] = acos( rmLocal.xx() / cos( newang[1] ) );
   //----- CHECK if the angles are OK (there are several symmetries)
   //--- Check if the predictions with the angles obtained match the values of the rotation matrix (they may differ for exampole by a sign or more in complicated formulas)
-  double rotnewxx = cos( newang[1] ) * cos( newang[2] );
-  double rotnewzz = cos( newang[0] ) * cos( newang[1] );
-  double rotnewxy = sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
-  double rotnewxz = cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) + sin( newang[0] )* sin( newang[2] );
-  double rotnewyy = sin( newang[0] ) * sin( newang[1] ) * sin( newang[2] ) + cos( newang[0] )* cos( newang[2] );
-  double rotnewyz = cos( newang[0] ) * sin( newang[1] ) * sin( newang[2] ) - sin( newang[0] )* cos( newang[2] );
+  double sx = sin(newang[0]);
+  double cx = cos(newang[0]);
+  double sy = sin(newang[1]);
+  double cy = cos(newang[1]);
+  double sz = sin(newang[2]);
+  double cz = cos(newang[2]);
+
+  double rotnewxx = cy*cz;
+  double rotnewxy = sx*sy*cz-cx*sz;
+  double rotnewxz = cx*sy*cz+sx*sz;
+  double rotnewyx = cy*sz;
+  double rotnewyy = sx*sy*sz+cx*cz;
+  double rotnewyz = cx*sy*sz-sx*cz;
+  double rotnewzx = -sy;
+  double rotnewzy = sx*cy;
+  double rotnewzz = cx*cy;
 
   bool eqxx = eq2ang( rotnewxx, rmLocal.xx() );
-  bool eqzz = eq2ang( rotnewzz, rmLocal.zz() );
   bool eqxy = eq2ang( rotnewxy, rmLocal.xy() );
   bool eqxz = eq2ang( rotnewxz, rmLocal.xz() );
+  bool eqyx = eq2ang( rotnewyx, rmLocal.yx() );
   bool eqyy = eq2ang( rotnewyy, rmLocal.yy() );
   bool eqyz = eq2ang( rotnewyz, rmLocal.yz() );
+  bool eqzx = eq2ang( rotnewzx, rmLocal.zx() );
+  bool eqzy = eq2ang( rotnewzy, rmLocal.zy() );
+  bool eqzz = eq2ang( rotnewzz, rmLocal.zz() );
 
   //--- Check if one of the tree angles should be changed
   if( ALIUtils::debug >= 5 ) {
-    std::cout << " pred rm.xx " << rotnewxx << " =? " << rmLocal.xx() 
-	 << " pred rm.zz " << rotnewzz << " =? " << rmLocal.zz() 
-	 << std::endl;
-    std::cout << " eqxx " << eqxx << " eqzz " << eqzz << std::endl;
+    std::cout << " pred rm.xx " << rotnewxx << " =? " << rmLocal.xx() << " eqxx " << eqxx << std::endl
+	      << " pred rm.xy " << rotnewxy << " =? " << rmLocal.xy() << " eqxy " << eqxy << std::endl
+	      << " pred rm.xz " << rotnewxz << " =? " << rmLocal.xz() << " eqxz " << eqxz << std::endl
+	      << " pred rm.yx " << rotnewyx << " =? " << rmLocal.yx() << " eqyx " << eqyx << std::endl
+	      << " pred rm.yy " << rotnewyy << " =? " << rmLocal.yy() << " eqyy " << eqyy << std::endl
+	      << " pred rm.yz " << rotnewyz << " =? " << rmLocal.yz() << " eqyz " << eqyz << std::endl
+	      << " pred rm.zx " << rotnewzx << " =? " << rmLocal.zx() << " eqzx " << eqzx << std::endl
+	      << " pred rm.zy " << rotnewzy << " =? " << rmLocal.zy() << " eqzy " << eqzy << std::endl
+	      << " pred rm.zz " << rotnewzz << " =? " << rmLocal.zz() << " eqzz " << eqzz << std::endl;
     //-    std::cout << " rotnewxx " << rotnewxx << " = " << rmLocal.xx() << " " << fabs( rotnewxx - rmLocal.xx() ) << " " <<(fabs( rotnewxx - rmLocal.xx() ) < 0.0001) << std::endl;
   }
 
@@ -685,15 +703,6 @@ std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( CLHEP::HepRotation& r
   }
 
   //--- Check if the 3 angles should be changed (previous check is invariant to the 3 changing)
-  if( ALIUtils::debug >= 5 ) {
-    std::cout << " pred rm.xy " << rotnewxy << " =? " << rmLocal.xy() 
-	 << " pred rm.xz " << rotnewxz << " =? " << rmLocal.xz() 
-	 << " pred rm.yy " << rotnewyy << " =? " << rmLocal.yy()
-	 << " pred rm.yz " << rotnewyz << " =? " << rmLocal.yz()
-	 << std::endl;
-    std::cout << " eqxy " << eqxy << " eqxz " << eqxz << " eqyy " << eqyy << " eqyz " << eqyz << std::endl;
-  }
-
   if( !eqxy || !eqxz || !eqyy || !eqyz ) {
     // check also cases where one of the above 'eq' is OK because it is = 0
     if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
@@ -797,9 +806,10 @@ double ALIUtils::addPii( double val )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-int ALIUtils::checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot)
+int ALIUtils::checkMatrixEquations( double angleX, double angleY, double angleZ, const CLHEP::HepRotation* rotorig)
 {
-  //-  std::cout << " cme " << angleX << " " << angleY << " " << angleZ << std::endl;
+  if( ALIUtils::debug >= 5 ) std::cout << " checkMatrixEquations " << angleX << " " << angleY << " " << angleZ << std::endl;
+  CLHEP::HepRotation* rot = rotorig;
   if( rot == 0 ) {
     rot = new CLHEP::HepRotation();
     rot->rotateX( angleX );

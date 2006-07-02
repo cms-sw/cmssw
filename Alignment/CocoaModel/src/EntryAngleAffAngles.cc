@@ -33,12 +33,12 @@ void EntryAngleAffAngles::displace( ALIdouble disp )
 {
   XYZcoor coor = XCoor;
   ALIint namelength = name().length()-1;
-  //-  std::cout << this << "ENtryAnglesAffAngle" << _name << namelength <<std::endl;
-  if ( _name[namelength] == 'X' ) {
+  //-  std::cout << this << "ENtryAnglesAffAngle" << name_ << namelength <<std::endl;
+  if ( name_[namelength] == 'X' ) {
     coor = XCoor;
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
     coor = YCoor;
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
     coor = ZCoor;
   }
 
@@ -56,14 +56,14 @@ void EntryAngleAffAngles::displace( ALIdouble disp )
 void EntryAngleAffAngles::displaceOriginal( ALIdouble disp )
 {
   ALIint namelength = name().length()-1;
-  //-  std::cout << this << "ENtryAnglesAffAngle" << _name << namelength <<std::endl;
-  if ( _name[namelength] == 'X' ) {
+  //-  std::cout << this << "ENtryAnglesAffAngle" << name_ << namelength <<std::endl;
+  if ( name_[namelength] == 'X' ) {
     //-    std::cout << "displaX";
       OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), XCoor, disp );
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
     //-    std::cout << "displaY";
       OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), YCoor, disp );
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
       OptOCurrent()->displaceRmGlobOriginal( OptOCurrent(), ZCoor, disp );
   }
  
@@ -73,14 +73,14 @@ void EntryAngleAffAngles::displaceOriginal( ALIdouble disp )
 void EntryAngleAffAngles::displaceOriginalOriginal( ALIdouble disp )
 {
   ALIint namelength = name().length()-1;
-  if(ALIUtils::debug >= 5) std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << _name <<std::endl;
-  if ( _name[namelength] == 'X' ) {
+  if(ALIUtils::debug >= 5) std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << name_ <<std::endl;
+  if ( name_[namelength] == 'X' ) {
     //-    std::cout << "displaX";
       OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), XCoor, disp );
-  } else if ( _name[namelength] == 'Y' ) {
+  } else if ( name_[namelength] == 'Y' ) {
     //-    std::cout << "displaY";
       OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), YCoor, disp );
-  } else if ( _name[namelength] == 'Z' ) {
+  } else if ( name_[namelength] == 'Z' ) {
       OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), ZCoor, disp );
   }
  

@@ -31,34 +31,29 @@ std::ostream & operator<<(std::ostream &, const OpticalAlignParam &);
     Date:    Dec. 19, 2005
  **/
 class OpticalAlignParam {
-  
  public:
-/*   std::string name() const { return name_; } */
-/*   double value() const { return value_; } */
-/*   double error() const { return error_; } */
-/*   int qual() const { return qual_; } */
-/*   std::string dimension() const { return dimension_; } */
+  OpticalAlignParam();
+  OpticalAlignParam( const OpticalAlignParam &rhs );
 
-  OpticalAlignParam() { }
-  virtual ~OpticalAlignParam() { }
-
-  //copy constructor
-/*   OpticalAlignParam( OpticalAlignParam& rhs ); */
-/*   OpticalAlignParam( const OpticalAlignParam& rhs ); */
+  std::string name() const { return name_; }
+  double value() const { return value_; }
+  double error() const { return error_; }
+  int quality() const { return quality_; }
+  std::string dimType() const { return dim_type_; }
 
  public:
   double value_;
   double error_;
-  int qual_; // f = fixed, c = calibrated, u = unknown.
+  int quality_; // f = fixed, c = calibrated, u = unknown.
   std::string name_;
-  std::string dimension_;
+  std::string dim_type_;
 
-/*   void clear() { */
-/*     value_ = 0.0; */
-/*     error_ = 0.0; */
-/*     qual_ = int( oa_unknown ); */
-/*     name_.clear(); */
-/*   } */
+  void clear() {
+    value_ = 0.0;
+    error_ = 0.0;
+    quality_ = int( oa_unknown );
+    name_.clear();
+  }
 };
 
 // a Class holding data for an Optical Alignment transformation
@@ -80,40 +75,31 @@ class  OpticalAlignInfo {
   OpticalAlignParam angY() const { return angy_; }
   OpticalAlignParam angZ() const { return angz_; }
   std::vector<OpticalAlignParam> extraEntries() const { return extraEntries_; }
-  std::string type() { return objectType_; }
-  std::string name() const { return objectName_; }
+  std::string type() { return type_; }
+  std::string name() const { return name_; }
   std::string parentName() const { return parentObjectName_; }
-  unsigned long ID() const { return objectID_; }
+  unsigned long ID() const { return ID_; }
   */
-
-  OpticalAlignInfo () { } // : extraEntries_() { }
-  virtual ~OpticalAlignInfo () { }
-
-  // copy constructor
-/*   OpticalAlignInfo ( OpticalAlignInfo& rhs ); */
-/*   OpticalAlignInfo ( const OpticalAlignInfo& rhs ); */
+  OpticalAlignParam* findExtraEntry( std::string& name );
 
  public:
   OpticalAlignParam x_, y_, z_, angx_, angy_, angz_;
   std::vector<OpticalAlignParam> extraEntries_;
-  std::string objectType_;
-  std::string objectName_;
-  std::string parentObjectName_;
-  unsigned long objectID_;
-/*   void clear() { */
-/*     x_.clear(); */
-/*     y_.clear(); */
-/*     z_.clear(); */
-/*     angx_.clear(); */
-/*     angy_.clear(); */
-/*     angz_.clear(); */
-/*     std::cout <<"before clear extraEntries_.size() = " << extraEntries_.size() << std::endl; */
-/*     extraEntries_.clear(); */
-/*     std::cout <<"after clear extraEntries_.size() = " << extraEntries_.size() << std::endl; */
-/*     parentObjectName_.clear(); */
-/*     objectType_.clear(); */
-/*     objectID_ = 0; */
-/*   } */
+  std::string type_;
+  std::string name_;
+  std::string parentName_;
+  unsigned long ID_;
+  void clear() {
+    x_.clear();
+    y_.clear();
+    z_.clear();
+    angx_.clear();
+    angy_.clear();
+    angz_.clear();
+    extraEntries_.clear();
+    type_.clear();
+    ID_ = 0;
+  }
 };
 
 

@@ -80,18 +80,18 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
 
     ALIdouble detH =  1000*meas.valueSimulated(0); if(fabs(detH) <= 1.e-9 ) detH = 0.;
     ALIdouble detV =  1000*meas.valueSimulated(1); if(fabs(detV) <= 1.e-9 ) detV = 0.;
-    std::cout << "REAL value: " << chrg <<"H: " << 1000*meas.value()[0] << chrg << " V: " << 1000*meas.value()[1]  << " (mm)  " << (this)->name() 
+    std::cout << "REAL value: " << chrg << meas.valueType(0) << ": " << 1000*meas.value()[0] << chrg << " " << meas.valueType(1) << ": " << 1000*meas.value()[1]  << " (mm)  " << (this)->name() 
 	 << "   DIFF= " << detH-1000*meas.value()[0] << " " << detV-1000*meas.value()[1] << std::endl;
-    std::cout << "SIMU value: " << chrg << "H: "
+    std::cout << "SIMU value: " << chrg << " " << meas.valueType(0) << ": "
       // << setprecision(3) << setw(4)
 	      << detH 
-	      << chrg << " V: " << detV 
+	      << chrg << " " << meas.valueType(1) << ": " << detV 
 	      << " (mm)  " << (this)->name() << std::endl;
-    std::cout << "SIMU value: " << chrg << "H: "
+    /*-    std::cout << "SIMU value: " << chrg << " " << meas.valueType(0) << ": "
       // << setprecision(3) << setw(4)
       	      << detH / 0.3125
-	      << chrg << " V: " << detV / 0.3125
-	      << " STRIPS  " << (this)->name() << std::endl;
+	      << chrg << " " << meas.valueType(1) << ": " << detV / 0.3125
+	      << " STRIPS  " << (this)->name() << std::endl; */
     //	 << detH 
     //	 << chrg << " V: " << detV 
     //	 << " (mm)  " << (this)->name() << std::endl;

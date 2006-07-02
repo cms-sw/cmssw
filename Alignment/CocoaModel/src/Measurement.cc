@@ -25,6 +25,8 @@
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
+
 
 ALIdouble Measurement::cameraScaleFactor = 1.;
 ALIstring Measurement::theMeasurementsFileName = "";
@@ -38,9 +40,9 @@ ALIstring Measurement::only1Time = "";
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ constructor:
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-Measurement::Measurement( const ALIint measdim, std::vector<ALIstring>& wl )
-: theDim(measdim), theType(wl[0]) {
-
+Measurement::Measurement( const ALIint measdim, ALIstring& type, ALIstring& name ) 
+: theDim(measdim), theType(type), theName( name )
+{
   //  _OptOnames = new ALIstring[theDim];
   theValue = new ALIdouble[theDim];
   theSigma = new ALIdouble[theDim];
@@ -49,16 +51,6 @@ Measurement::Measurement( const ALIint measdim, std::vector<ALIstring>& wl )
   theValueSimulated = new ALIdouble[theDim];
   theValueSimulated_orig = new ALIdouble[theDim];
   theValueIsSimulated = new ALIbool[theDim];
-
-  // set name 
-  if( wl.size() == 2 ) {
-    theName = wl[1];
-    wl.pop_back();
-  } else {
-    theName = "";
-  }
-
-  //-  setConversionFactor( wl );
 
 }
 
@@ -98,19 +90,81 @@ void Measurement::construct()
   postConstruct();
 }
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) 
+{
+  //---- Build wordlist to build object name list
+  std::vector<std::string> objNames = measInfo.measObjectNames_;
+  std::vector<std::string>::const_iterator site;
+  std::vector<ALIstring> wordlist;
+  for( site = objNames.begin(); site != objNames.end(); site++) {
+    if( site != objNames.begin() ) wordlist.push_back("&");
+    wordlist.push_back(*site);
+  }
+  //--- Fill the list of names of OptOs that take part in this measurement ( names only )
+  buildOptONamesList( wordlist );
+  
+  if(ALIUtils::debug >= 3) {
+    std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << std::endl
+	      << " MEASURED OPTO NAMES: ";
+    std::ostream_iterator<ALIstring> outs(std::cout," ");
+    copy(wordlist.begin(), wordlist.end(), outs);
+    std::cout << std::endl;
+  }
+
+
+  //---------- No data, set to simulated_value
+  for ( uint ii=0; ii<dim(); ii++){
+    wordlist.clear();
+    wordlist.push_back( (measInfo.values_)[ii].name_ );
+    char ctmp[20];
+    if( measInfo.isSimulatedValue_[ii] ){
+      if ( ALIUtils::debug >= 5 ) {
+	std::cout << "Measurement::constructFromOA:  meas value " << ii << " "  << dim() << " = simulated_value" << std::endl;
+      }
+      wordlist.push_back("simulated_value");
+    } else { 
+      if ( ALIUtils::debug >= 5 ) {
+	std::cout << "Measurement::constructFromOA:  meas value " << ii << " "  << dim() << " = " << measInfo.values_.size() << std::endl;
+      }
+      ALIdouble val = (measInfo.values_)[ii].value_ / valueDimensionFactor(); //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
+      gcvt( val, 10, ctmp );
+      wordlist.push_back( ctmp );
+    }
+    ALIdouble err = (measInfo.values_)[ii].error_ / valueDimensionFactor(); //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
+    gcvt( err, 10, ctmp );
+    wordlist.push_back( ctmp );
+    //-    wordlist.push_back( "simulated_value" );
+    //-   wordlist.push_back( "1." );
+      if ( ALIUtils::debug >= 5 ) ALIUtils::dumpVS(wordlist, " Measurement: calling fillData ");
+    //-    std::cout << " MEAS INFO " << measInfo << std::endl;
+    //-   std::cout << ii << " MEAS INFO PARAM " <<  (measInfo.values_)[ii] << std::endl;
+    //- std::cout << ii << " MEAS INFO PARAM VALUE " <<  (measInfo.values_)[ii].value_ << std::endl;
+    fillData( ii, wordlist );
+  }
+
+  postConstruct();
+
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::postConstruct()
 {
   //---------- Set name as name of last OptO 
   setName();
 
   //---------- Transform for each Measurement the Measured OptO names to Measured OptO pointers
-   buildOptOList();
+  buildOptOList();
 
-   //---------- Build list of Entries that affect a Measurement 
+  //---------- Build list of Entries that affect a Measurement 
   buildAffectingEntryList();
-
+  
   //---------- add this measurement to the global list of measurements
   Model::addMeasurementToList( this );
+
+  if ( ALIUtils::debug >= 10 ) {
+    std::cout << Model::MeasurementList().size() << std::endl;
+  }
 }
 
 
@@ -191,7 +245,7 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
     val = atof( wordlist[1].c_str() ); 
   }
   val *= valueDimensionFactor();
-  if( ALIUtils::debug >= 3 ) std::cout << "VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+  if( ALIUtils::debug >= 3 ) std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
 
   //----- Set sigma (translate it if a PARAMETER is used)
   ALIdouble sig = 0.;

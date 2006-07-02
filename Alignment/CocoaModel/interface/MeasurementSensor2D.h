@@ -18,7 +18,7 @@
 class MeasurementSensor2D : public Measurement
 { 
 public:
-  MeasurementSensor2D( const ALIint measdim, std::vector<ALIstring>& wl ) : Measurement( measdim, wl ){ };
+  MeasurementSensor2D( const ALIint measdim, ALIstring& type, ALIstring& name ) : Measurement( measdim, type, name ){ };
   MeasurementSensor2D(){ };   
   ~MeasurementSensor2D(){ };
     

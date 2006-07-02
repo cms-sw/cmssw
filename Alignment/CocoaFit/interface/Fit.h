@@ -133,6 +133,8 @@ public:
 public:
   // maximum deviation in a Measurent when a parameter is  displaced to get derivative
 
+  static ALIMatrix* GetAtWAMatrix(){ 
+    return AtWAMatrix; }
 
 // private DATA MEMBERS 
 private:

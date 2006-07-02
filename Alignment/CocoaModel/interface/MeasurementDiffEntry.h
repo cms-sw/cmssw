@@ -18,7 +18,8 @@
 class MeasurementDiffEntry : public Measurement
 { 
 public:
-  MeasurementDiffEntry( const ALIint measdim, std::vector<ALIstring>& wl ) : Measurement( measdim, wl ){ };
+  MeasurementDiffEntry( const ALIint measdim, ALIstring& type, ALIstring& name )
+    : Measurement( measdim, type, name ){};
   MeasurementDiffEntry(){ };   
   ~MeasurementDiffEntry(){ };
 

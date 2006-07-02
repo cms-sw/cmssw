@@ -38,9 +38,12 @@ class OpticalObjectMgr
 
   void dumpOptOs( std::ostream& out= std::cout ) const;
 
+  uint32_t buildCmsSwID();
+
  private:
   static OpticalObjectMgr* theInstance;
   msopto theOptODict;
+  uint32_t theLastCmsSwID;
 };
 
 #endif

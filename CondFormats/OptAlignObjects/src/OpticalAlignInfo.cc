@@ -3,25 +3,32 @@
 #include <iostream>
 #include <iomanip>
 
+OpticalAlignParam::OpticalAlignParam()
+{
+  quality_ = -1;
+  dim_type_ = "";
+};
+
 std::ostream & operator<<(std::ostream & os, const OpticalAlignInfo & r)
 {
-  os << "Name: " << r.objectName_ << std::endl;
-  os << "Parent Name: " << r.parentObjectName_ << std::endl; 
-  os << "Type: " << r.objectType_ << "  ID: " << r.objectID_ << std::endl;
+  os << "Name: " << r.name_ << std::endl;
+  os << "Parent Name: " << r.parentName_ << std::endl; 
+  os << "Type: " << r.type_ << "  ID: " << r.ID_ << std::endl;
   int iw = os.width(); // save current width
   int ip = os.precision(); // save current precision
   int now = 12;
   int nop = 5;
   os << std::setw( now ) << std::setprecision( nop ) << "member";
+  os << std::setw( now ) << std::setprecision( nop ) << "dim_type";
   os << std::setw( now ) << std::setprecision( nop ) << "value";
   os << std::setw( now ) << std::setprecision( nop ) << "error";
-  os << std::setw( now ) << std::setprecision( nop ) << "qual." << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "x" << r.x_ << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "y" << r.y_ << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "z" << r.z_ << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "angx" << r.angx_ << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "angy" << r.angy_ << std::endl;
-  os << std::setw( now ) << std::setprecision( nop ) << "angz" << r.angz_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << "quality" << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.x_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.y_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.z_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.angx_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.angy_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.angz_ << std::endl;
   os <<  std::setw( now ) << std::setprecision( nop ) << "--- Extra Entries --- " << std::endl;
   size_t max = r.extraEntries_.size();
   size_t iE = 0;
@@ -41,71 +48,35 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignParam & r)
   int now = 12;
   int nop = 5;
   os << std::setw( now ) << std::setprecision( nop ) << r.name_;
-  os << std::setw( now ) << std::setprecision( nop ) << r.dimension_;
+  os << std::setw( now ) << std::setprecision( nop ) << r.dim_type_;
   os << std::setw( now ) << std::setprecision( nop ) << r.value_;
   os << std::setw( now ) << std::setprecision( nop ) << r.error_;
-  os << std::setw( now ) << std::setprecision( nop ) << r.qual_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.quality_ << std::endl;
 
   // Reset the values we changed
   std::cout << std::setprecision( ip ) << std::setw( iw );
   return os;
 }
 
-//   // copy constructor and assignment operator
-// OpticalAlignParam::OpticalAlignParam ( OpticalAlignParam& rhs ) {
-//   name_ = rhs.name_;
-//   value_ = rhs.value_;
-//   error_ = rhs.error_;
-//   qual_ = rhs.qual_;
-//   dimension_ = rhs.dimension_;
-// }
+OpticalAlignParam::OpticalAlignParam( const OpticalAlignParam &rhs )
+{
+   value_ = rhs.value_;
+   error_ = rhs.error_;
+   quality_ = rhs.quality_; 
+   name_ = rhs.name_;
+   dim_type_ = rhs.dim_type_;
+}
 
-// OpticalAlignParam::OpticalAlignParam ( const OpticalAlignParam& rhs ) {
-//   name_ = rhs.name_;
-//   value_ = rhs.value_;
-//   error_ = rhs.error_;
-//   qual_ = rhs.qual_;
-//   dimension_ = rhs.dimension_;
-// }
+OpticalAlignParam* OpticalAlignInfo::findExtraEntry( std::string& name )
+{
+  OpticalAlignParam* param = 0;
+  std::vector<OpticalAlignParam>::const_iterator ite;
+  for( std::vector<OpticalAlignParam>::const_iterator ite = extraEntries_.begin(); ite != extraEntries_.end(); ite++ ){
+    if( (*ite).name_ == name ){
+      param = &(*ite);
+      break;
+    }
+  }
+  return param;
+}
 
-// OpticalAlignInfo::OpticalAlignInfo ( OpticalAlignInfo& rhs ) {
-//   x_ = rhs.x_;
-//   y_ = rhs.y_;
-//   z_ = rhs.z_;
-//   angx_ = rhs.angx_;
-//   angy_ = rhs.angy_;
-//   angz_ = rhs.angz_;
-//   std::vector<OpticalAlignParam>::const_iterator oapit = rhs.extraEntries_.begin();
-//   std::vector<OpticalAlignParam>::const_iterator oapendit = rhs.extraEntries_.end();
-//   if ( oapit == oapendit ) {
-//     extraEntries_.clear();
-//   } else {
-//     for ( ; oapit != oapendit; ++oapit ) {
-//       extraEntries_.push_back (*oapit);
-//     }
-//   }
-//   objectType_ = rhs.objectType_;
-//   objectName_ = rhs.objectName_;
-//   parentObjectName_ = rhs.parentObjectName_;
-// }
-
-// OpticalAlignInfo::OpticalAlignInfo ( const OpticalAlignInfo& rhs ) {
-//   x_ = rhs.x_;
-//   y_ = rhs.y_;
-//   z_ = rhs.z_;
-//   angx_ = rhs.angx_;
-//   angy_ = rhs.angy_;
-//   angz_ = rhs.angz_;
-//   std::vector<OpticalAlignParam>::const_iterator oapit = rhs.extraEntries_.begin();
-//   std::vector<OpticalAlignParam>::const_iterator oapendit = rhs.extraEntries_.end();
-//   if ( oapit == oapendit ) {
-//     extraEntries_.clear();
-//   } else {
-//     for ( ; oapit != oapendit; ++oapit ) {
-//       extraEntries_.push_back (*oapit);
-//     }
-//   }
-//   objectType_ = rhs.objectType_;
-//   objectName_ = rhs.objectName_;
-//   parentObjectName_ = rhs.parentObjectName_;
-// }

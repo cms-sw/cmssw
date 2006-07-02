@@ -20,13 +20,14 @@
 class OpticalObject;
 class Entry;
 class EntryLength;
+class OpticalAlignMeasurementInfo;
 
 
 class Measurement
 { 
 public:
   //----- Constructors / destructor
-  Measurement( const ALIint dimension, std::vector<ALIstring>& type );
+  Measurement( const ALIint measdim, ALIstring& type, ALIstring& name );
   Measurement(){ };   
   virtual ~Measurement();
     
@@ -71,6 +72,8 @@ public:
   static void setCurrentDate( const std::vector<ALIstring>& wl );
 
   void copyMeas( Measurement* meas, const std::string& subsstr1, const std::string& subsstr2 );
+
+  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) ;
 
  // ACCESS DATA MEMBERS
   const ALIuint dim() const { 

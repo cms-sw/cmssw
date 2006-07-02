@@ -18,7 +18,7 @@
 class MeasurementTiltmeter : public Measurement
 { 
 public:
-  MeasurementTiltmeter( const ALIint measdim, std::vector<ALIstring>& wl ) : Measurement( measdim, wl ), theFactor(1.), theFactorSigma(0.), theConstantTerm(0.), theConstantTermSigma(0.), thePedestal(0.), thePedestalSigma(0.)
+  MeasurementTiltmeter( const ALIint measdim, ALIstring& type, ALIstring& name ) : Measurement( measdim, type, name ), theFactor(1.), theFactorSigma(0.), theConstantTerm(0.), theConstantTermSigma(0.), thePedestal(0.), thePedestalSigma(0.)
 { };
   MeasurementTiltmeter(){ };   
   ~MeasurementTiltmeter(){ };

@@ -16,6 +16,9 @@ class EntryData;
 
 class Entry
 {
+
+  friend std::ostream& operator << (std::ostream& os, const Entry& c);
+
 public:
   //----- Constructor / destructor 
   //-  Entry(){ };
@@ -45,35 +48,35 @@ public:
   virtual ALIdouble valueInGlobalReferenceFrame() const {return value();}; 
 
  // Access DATA MEMBERS
-  const ALIstring& name() const { return _name; }
+  const ALIstring& name() const { return name_; }
   const ALIstring& type() const { return type_; }
-  ALIdouble value() const { return _value; }
-  ALIdouble valueOriginalOriginal() const { return _valueOriginalOriginal; }
-  ALIdouble sigma() const { return _sigma; }
-  ALIdouble sigmaOriginalOriginal() const { return _sigmaOriginalOriginal; }
-  ALIint quality() const { return _quality; }
-  ALIint fitPos() const { return theFitPos; }
-  OpticalObject* OptOCurrent() const{ return _OptOCurrent; } // non const, Displace( ) modifies it return _OptOCurrent;
+  ALIdouble value() const { return value_; }
+  ALIdouble valueOriginalOriginal() const { return valueOriginalOriginal_; }
+  ALIdouble sigma() const { return sigma_; }
+  ALIdouble sigmaOriginalOriginal() const { return sigmaOriginalOriginal_; }
+  ALIint quality() const { return quality_; }
+  ALIint fitPos() const { return fitPos_; }
+  OpticalObject* OptOCurrent() const{ return OptOCurrent_; } // non const, Displace( ) modifies it return _OptOCurrent;
   virtual ALIdouble valueDisplaced() const;
   ALIdouble valueDisplacementByFitting() const{ 
     //-    cout << this << " " << name() << " get valueDisplacementByFitting " << theValueDisplacementByFitting << endl;
-    return theValueDisplacementByFitting; }
+    return valueDisplacementByFitting_; }
   void resetValueDisplacementByFitting();
   virtual ALIdouble startingDisplacement(){ return 0.; };
   ALIdouble lastAdditionToValueDisplacementByFitting() const {
-    return theLastAdditionToValueDisplacementByFitting; }
+    return lastAdditionToValueDisplacementByFitting_; }
   void setLastAdditionToValueDisplacementByFitting( const ALIdouble val ){
-    theLastAdditionToValueDisplacementByFitting = val; }
+    lastAdditionToValueDisplacementByFitting_ = val; }
 
 public:
  // Set DATA MEMBERS
-  void setName( const ALIstring& name ) { _name = name; }
+  void setName( const ALIstring& name ) { name_ = name; }
   void setType( ALIstring type ){ type_ = type; }
-  void setValue( ALIdouble val ){ _value = val; }
-  void setSigma( ALIdouble sig ){ _sigma = sig; }
-  void setQuality( ALIuint qual ){ _quality = qual; }
-  void setFitPos( const ALIint fitpos ) { theFitPos = fitpos; } 
-  void setOptOCurrent( OpticalObject* opto ){ _OptOCurrent = opto; }
+  void setValue( ALIdouble val ){ value_ = val; }
+  void setSigma( ALIdouble sig ){ sigma_ = sig; }
+  void setQuality( ALIuint qual ){ quality_ = qual; }
+  void setFitPos( const ALIint fitpos ) { fitPos_ = fitpos; } 
+  void setOptOCurrent( OpticalObject* opto ){ OptOCurrent_ = opto; }
   void addFittedDisplacementToValue(const ALIdouble val);
 
   void substractToHalfFittedDisplacementToValue();
@@ -92,18 +95,18 @@ private:
 private:
  // private DATA MEMBERS
 protected:
-  ALIstring _name;
+  ALIstring name_;
   ALIstring type_;
-  ALIdouble _value;
-  ALIdouble _valueOriginalOriginal;
-  ALIdouble _sigma;
-  ALIdouble _sigmaOriginalOriginal;
-  ALIuint _quality;
-  OpticalObject* _OptOCurrent;
-  ALIint theFitPos;
+  ALIdouble value_;
+  ALIdouble valueOriginalOriginal_;
+  ALIdouble sigma_;
+  ALIdouble sigmaOriginalOriginal_;
+  ALIuint quality_;
+  OpticalObject* OptOCurrent_;
+  ALIint fitPos_;
 
-  ALIdouble theValueDisplacementByFitting;
-  ALIdouble theLastAdditionToValueDisplacementByFitting;
+  ALIdouble valueDisplacementByFitting_;
+  ALIdouble lastAdditionToValueDisplacementByFitting_;
 
   /*  
   virtual void DisplaceParameter( ALIint paramNo, ALIdouble displace ){ };  
