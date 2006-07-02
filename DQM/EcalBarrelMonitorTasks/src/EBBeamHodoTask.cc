@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/02 11:30:43 $
- * $Revision: 1.11 $
+ * $Date: 2006/07/02 11:32:08 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -80,7 +80,7 @@ void EBBeamHodoTask::setup(void){
 
     for (int i=0; i<4; i++) {
       sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
-      meHodoOcc_[i] = dbe->book1D(histo, histo, 30, 0., 64.);
+      meHodoOcc_[i] = dbe->book1D(histo, histo, 30, 0., 30.);
       sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
       meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
     }
