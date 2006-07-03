@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/05/04 14:24:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/17 12:36:43 $
+ *  $Revision: 1.7 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -43,7 +43,7 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
   
   // Get the concrete 4D-segments reconstruction algo from the factory
   string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");
-  cout << "the Reco4D AlgoName is " << theReco4DAlgoName << endl;
+  if(debug) cout << "the Reco4D AlgoName is " << theReco4DAlgoName << endl;
   the4DAlgo = DTRecSegment4DAlgoFactory::get()->create(theReco4DAlgoName,
 						       pset.getParameter<ParameterSet>("Reco4DAlgoConfig"));
 }
@@ -89,19 +89,19 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     if(debug) cout << "ChamberId: "<< chId << endl;
     the4DAlgo->setChamber(chId);
 
-    cout<<"Take the DTRecHits1D and set them in the reconstructor"<<endl;
+    if(debug) cout<<"Take the DTRecHits1D and set them in the reconstructor"<<endl;
 
     the4DAlgo->setDTRecHit1DContainer(all1DHits);
 
-    cout<<"Take the DTRecSegments2D and set them in the reconstructor"<<endl;
+    if(debug) cout<<"Take the DTRecSegments2D and set them in the reconstructor"<<endl;
 
     the4DAlgo->setDTRecSegment2DContainer(all2DSegments);
 
-    cout << "Start 4D-Segments Reco " << endl;
+    if(debug) cout << "Start 4D-Segments Reco " << endl;
     
     OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
     
-    cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
+    if(debug) cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
 
     if (segments4D.size() > 0 )
       // convert the OwnVector into a Collection

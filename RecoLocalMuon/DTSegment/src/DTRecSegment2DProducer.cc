@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/04 16:31:48 $
- * $Revision: 1.10 $
+ * $Date: 2006/05/17 12:36:43 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -49,7 +49,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
 
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-  cout << "the Reco2D AlgoName is " << theAlgoName << endl;
+  if(debug) cout << "the Reco2D AlgoName is " << theAlgoName << endl;
   theAlgo = DTRecSegment2DAlgoFactory::get()->create(theAlgoName,
                                                      pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
@@ -101,9 +101,9 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
 
     if(debug) cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
 
-    cout << "Start the 2D-segments Reco "<< endl;
+    if(debug) cout << "Start the 2D-segments Reco "<< endl;
     OwnVector<DTSLRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
-    cout << "Number of Reconstructed segments: " << segs.size() << endl;
+    if(debug) cout << "Number of Reconstructed segments: " << segs.size() << endl;
 
     if (segs.size() > 0 )
       segments->put(SLId, segs.begin(),segs.end());

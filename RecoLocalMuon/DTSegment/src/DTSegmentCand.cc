@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/09 13:20:16 $
- * $Revision: 1.9 $
+ * $Date: 2006/05/09 13:57:21 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -115,9 +115,6 @@ int DTSegmentCand::nLayers() const {
 
 DTSegmentCand::operator DTSLRecSegment2D*() const{
   
-  // FIXME: comment out the output
-  std::cout<<"Convert DTSegmentCand in DTSLRecSegment2D"<<std::endl;
-  
   LocalPoint seg2Dposition = position();
   LocalVector seg2DDirection = direction();
   double seg2DChi2 = chi2();
@@ -147,9 +144,6 @@ DTSegmentCand::operator DTSLRecSegment2D*() const{
 }
 
 DTSegmentCand::operator DTChamberRecSegment2D*() const{
-  
-  // FIXME: comment out the output
-  std::cout<<"Convert DTSegmentCand in DTChamberRecSegment2D"<<std::endl;
   
   // input position and direction are in sl frame, while must be stored in
   // chamber one: so I have to extrapolate the position (along the direction) to
