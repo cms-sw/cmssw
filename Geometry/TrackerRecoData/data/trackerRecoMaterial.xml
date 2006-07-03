@@ -24,14 +24,14 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIBLayer0" eval="true">
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0A/TIBWaferRphi0/TIBActiveRphi0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0A/TIBWaferSter0/TIBActiveSter0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0A/TIBWaferRphi0/TIBActiveRphi0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0A/TIBWaferSter0/TIBActiveSter0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0B/TIBWaferRphi0/TIBActiveRphi0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0B/TIBWaferSter0/TIBActiveSter0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0B/TIBWaferRphi0/TIBActiveRphi0" />
-      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0B/TIBWaferSter0/TIBActiveSter0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B/TIBWaferRphi0/TIBActiveRphi0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoMin1/TIBModule0B/TIBWaferSter0/TIBActiveSter0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B/TIBWaferRphi0/TIBActiveRphi0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Down/TIBString0Lo1/TIBString0LoPls1/TIBModule0B/TIBWaferSter0/TIBActiveSter0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A/TIBWaferRphi0/TIBActiveRphi0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpMin1/TIBModule0A/TIBWaferSter0/TIBActiveSter0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A/TIBWaferRphi0/TIBActiveRphi0" />
+      <PartSelector path="//TIB/TIBLayer0/TIBLayer0Up/TIBString0Up1/TIBString0UpPls1/TIBModule0A/TIBWaferSter0/TIBActiveSter0" />
       <Parameter name="TrackerRadLength" value="0.057" />
       <Parameter name="TrackerXi" value="1.24e-04" />
    </SpecPar>
