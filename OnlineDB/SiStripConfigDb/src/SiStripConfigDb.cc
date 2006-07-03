@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.10 2006/06/30 06:57:52 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
@@ -9,6 +9,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // 
 const string SiStripConfigDb::errorCategory_ = "SiStrip|ConfigDb";
+uint32_t SiStripConfigDb::cntr_ = 0;
 
 // -----------------------------------------------------------------------------
 // 
@@ -51,8 +52,10 @@ SiStripConfigDb::SiStripConfigDb( string user,
   // Misc
   usingStrips_(true)
 {
+  cntr_++;
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
-			       << " Using configuration database...";
+			       << " Constructing object..."
+			       << " (Class instance: " << cntr_ << ")";
   partition_.name_ = partition;
   partition_.major_ = 0;
   partition_.minor_ = 0;
@@ -103,8 +106,10 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
   // Misc
   usingStrips_(true)
 {
+  cntr_++;
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
-			       << " Using XML files...";
+			       << " Constructing object..."
+			       << " (Class instance: " << cntr_ << ")";
 }
 
 // -----------------------------------------------------------------------------
@@ -112,6 +117,7 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
 SiStripConfigDb::~SiStripConfigDb() {
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::~SiStripConfigDb]"
 			       << " Destructing object...";
+  if ( cntr_ ) { cntr_--; }
 }
 
 // -----------------------------------------------------------------------------
@@ -207,14 +213,14 @@ void SiStripConfigDb::usingDatabase() {
     handleException( method, ss.str() );
   }
 
-  // DCU-DetId 
-  try { 
-    deviceFactory(method)->addAllDetId();
-  } catch (...) { 
-    stringstream ss; 
-    ss << "DCU-DetId map!"; 
-    handleException( method, ss.str() );
-  }
+//   // DCU-DetId 
+//   try { 
+//     deviceFactory(method)->addAllDetId();
+//   } catch (...) { 
+//     stringstream ss; 
+//     ss << "DCU-DetId map!"; 
+//     handleException( method, ss.str() );
+//   }
   
   stringstream ss;
   ss << "["<<method<<"]"
@@ -566,7 +572,7 @@ void SiStripConfigDb::createPartition( const string& partition_name,
   // Create and upload FED connections
   const FedConnections& conns = createFedConnections( fec_cabling );
   if ( !conns.empty() ) {
-    FedConnections::iterator iconn = conns.begin();
+    FedConnections::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) { 
       try {
 	deviceFactory(method)->addFedChannelConnection( *iconn );

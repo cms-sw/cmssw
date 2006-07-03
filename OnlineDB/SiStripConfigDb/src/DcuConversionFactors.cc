@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
 // Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -59,6 +59,19 @@ void SiStripConfigDb::resetDcuConversionFactors() {
   resetDcuConvs_ = true;
 }
 
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::setDcuConversionFactors( const DcuConversionFactors& dcu_convs ) {
+  dcuConversionFactors_ = dcu_convs;
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::uploadDcuConversionFactors() {
+  //dcuConversionFactors_ = dcu_convs;
+}
+
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversionFactors( const SiStripFecCabling& fec_cabling ) {
@@ -103,7 +116,7 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
       fec_hardware_id << setw(4) << setfill('0') << 100 * icrate->fecCrate() + ifec->fecSlot();
 
       // Set sub-detector string for DCU conversion factor
-      dcu_conv_default.setSubDetector( fec_hardware_id.str() );
+      dcu_conv_default.setSubDetector( "ROB" );
       
       for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.7 2006/06/23 07:47:48 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.8 2006/06/30 06:57:51 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -213,17 +213,17 @@ class SiStripConfigDb {
   const DcuConversionFactors& getDcuConversionFactors();
   
   /** Overwrites local cache of DCU conversion factors. */
-  void setDcuConversionFactors() {;}
-
+  void setDcuConversionFactors( const DcuConversionFactors& );
+  
   /** Resets and clears local cache. */
   void resetDcuConversionFactors();
-
+  
   /** Uploads DCU conversion factors to DB/xml. */
-  void uploadDcuConversionFactors() {;}
-
+  void uploadDcuConversionFactors();
+  
   /** Create "dummy" DCU conversion factors based on FEC cabling. */
   const DcuConversionFactors& createDcuConversionFactors( const SiStripFecCabling& );
-
+  
   // -------------------- PIA reset descriptions --------------------
 
   /** Fills local cache with PIA reset descriptions from DB/xml. */
@@ -369,6 +369,8 @@ class SiStripConfigDb {
 
   /** Constant string that defines error category for this class. */
   static const std::string errorCategory_;
+
+  static uint32_t cntr_;
   
 };
 

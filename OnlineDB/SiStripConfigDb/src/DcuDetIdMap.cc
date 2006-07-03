@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
 // Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -65,6 +65,7 @@ void SiStripConfigDb::uploadDcuDetIdMap() {
   try {
     deviceFactory(method)->deleteHashMapTkDcuInfo();
     deviceFactory(method)->setTkDcuInfo( dcuDetIdMap_ );
+    deviceFactory(method)->addAllDetId();
   }
   catch (... ) {
     string info = "Problems updating objects in TkDcuInfoFactory!";
