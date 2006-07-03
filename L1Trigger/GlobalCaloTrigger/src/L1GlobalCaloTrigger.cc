@@ -1,6 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
@@ -161,8 +160,8 @@ void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
       << " L1 Global Calo Trigger is set to read input data from file, "
       << " setRegion method should not be used\n"; 
   }
-  unsigned scnum = L1GctMap::getMap()->sourceCard(region);
-  unsigned input = L1GctMap::getMap()->sourceCardOutput(region);
+  unsigned scnum = region.gctCard();
+  unsigned input = region.gctRegionIndex();
   L1GctSourceCard* sc = theSourceCards.at(scnum);
   std::vector<L1CaloRegion> tempRegions = sc->getRegions();
   tempRegions.at(input) = region;

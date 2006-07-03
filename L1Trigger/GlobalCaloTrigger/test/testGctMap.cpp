@@ -33,9 +33,9 @@ int main() {
 
     }
 
-    cout << endl;
-
   }
+
+  cout << endl;
 
   cout << "testing source card mapping\n";
 
