@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.12 2006/06/30 13:11:00 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.13 2006/06/30 13:26:24 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.12 $
-  \date $Date: 2006/06/30 13:11:00 $
+  \version $Revision: 1.13 $
+  \date $Date: 2006/06/30 13:26:24 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -37,17 +37,24 @@ class EBMUtilsClient {
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
       if( ob ) { 
         if( clone ) {
-          if( ret ) delete ret;
+          if( ret ) {
+            delete ret;
+          }
           std::string s = "ME " + me->getName();
           ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
+          if( ret ) {
+            ret->SetDirectory(0);
+          }
         } else {
-          ret = dynamic_cast<T>( ob->operator->()); 
+          ret = dynamic_cast<T>(ob->operator->()); 
         }
       } else {
 	ret = 0;
       }
     } else {
-      if ( !clone ) ret = 0;
+      if( !clone ) {
+        ret = 0;
+      }
     }
     return ret;
   }
