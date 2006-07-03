@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/27 23:54:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/28 01:25:38 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -13,8 +13,8 @@
 
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
@@ -82,10 +82,10 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of products from Event
 
-   Handle<PhotonCandidateCollection>      photons;
-   Handle<ElectronCandidateCollection>    electrons;
-   Handle<MuonCollection>                 muons;
-   Handle<CaloJetCollection>              jets;
+   Handle<PhotonCollection>   photons;
+   Handle<ElectronCollection> electrons;
+   Handle<MuonCollection>     muons;
+   Handle<CaloJetCollection>  jets;
 
    iEvent.getByLabel(photTag_,photons  );
    iEvent.getByLabel(elecTag_,electrons);
@@ -97,26 +97,26 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // photons
    bool         bphot(false);
-   PhotonCandidateCollection::const_iterator aphot(photons->begin());
-   PhotonCandidateCollection::const_iterator ophot(photons->end());
-   PhotonCandidateCollection::const_iterator iphot;
+   PhotonCollection::const_iterator aphot(photons->begin());
+   PhotonCollection::const_iterator ophot(photons->end());
+   PhotonCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= phot_pt_) {
        bphot=true;
-       ref=RefToBase<Candidate>(PhotonCandidateRef(photons,distance(aphot,iphot)));
+       ref=RefToBase<Candidate>(PhotonRef(photons,distance(aphot,iphot)));
        filterproduct->putParticle(ref);
      }
    }
 
    // electrons
    bool         belec(false);
-   ElectronCandidateCollection::const_iterator aelec(electrons->begin());
-   ElectronCandidateCollection::const_iterator oelec(electrons->end());
-   ElectronCandidateCollection::const_iterator ielec;
+   ElectronCollection::const_iterator aelec(electrons->begin());
+   ElectronCollection::const_iterator oelec(electrons->end());
+   ElectronCollection::const_iterator ielec;
    for (ielec=aelec; ielec!=oelec; ielec++) {
      if (ielec->pt() >= elec_pt_) {
        belec=true;
-       ref=RefToBase<Candidate>(ElectronCandidateRef(electrons,distance(aelec,ielec)));
+       ref=RefToBase<Candidate>(ElectronRef(electrons,distance(aelec,ielec)));
        filterproduct->putParticle(ref);
      }
    }

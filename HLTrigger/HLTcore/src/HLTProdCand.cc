@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/27 23:54:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/28 01:25:38 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -13,8 +13,8 @@
 
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
@@ -33,8 +33,8 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 
    //register your products
 
-   produces<reco::PhotonCandidateCollection>();
-   produces<reco::ElectronCandidateCollection>();
+   produces<reco::PhotonCollection>();
+   produces<reco::ElectronCollection>();
    produces<reco::MuonCollection>();
    produces<reco::CaloJetCollection>();
 
@@ -57,10 +57,10 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // produce dummy collections of photons, electrons, muons, and jets
 
-   auto_ptr<PhotonCandidateCollection>      phot (new PhotonCandidateCollection);
-   auto_ptr<ElectronCandidateCollection>    elec (new ElectronCandidateCollection);
-   auto_ptr<MuonCollection>                 muon (new MuonCollection);
-   auto_ptr<CaloJetCollection>              jets (new CaloJetCollection);
+   auto_ptr<PhotonCollection>   phot (new PhotonCollection);
+   auto_ptr<ElectronCollection> elec (new ElectronCollection);
+   auto_ptr<MuonCollection>     muon (new MuonCollection);
+   auto_ptr<CaloJetCollection>  jets (new CaloJetCollection);
 
 
    vector<edm::Handle<edm::HepMCProduct> > hepmcs;
@@ -81,11 +81,11 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            p4=math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t());
            int ipdg = (*pitr)->pdg_id();
            if (abs(ipdg)==11) {
-             elec->push_back(ElectronCandidate(0,p4));
+             elec->push_back(Electron(0,p4));
 	   } else if (abs(ipdg)==13) {
              muon->push_back(Muon(0,p4));
            } else if (abs(ipdg)==22) {
-             phot->push_back(PhotonCandidate(0,p4));
+             phot->push_back(Photon(0,p4));
 	   } else { 
 	     CaloJet::Specific specific;
              vector<CaloTowerDetId> ctdi(0);
