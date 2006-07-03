@@ -3,17 +3,19 @@
 
 EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet& params) 
 {
+  digiProducer_   = params.getParameter<std::string>("digiProducer");
   EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
   EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
-  digiProducer_   = params.getParameter<std::string>("digiProducer");
+  EBZSdigiCollection_ = params.getParameter<std::string>("EBZSdigiCollection");
+  EEZSdigiCollection_ = params.getParameter<std::string>("EEZSdigiCollection");
 
   // initialize the default values for the thresholds in number of noise sigmas
 
   glbBarrelThreshold_ = params.getUntrackedParameter<double>("glbBarrelThreshold",0.2);
   glbEndcapThreshold_ = params.getUntrackedParameter<double>("glbEndcapThreshold",0.4);
 
-  produces<EBDigiCollection>();
-  produces<EEDigiCollection>();
+  produces<EBDigiCollection>(EBZSdigiCollection_);
+  produces<EEDigiCollection>(EEZSdigiCollection_);
 
 }
 
@@ -110,8 +112,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   
   }
   // Step D: Put outputs into event
-  event.put(gzsBarrelDigis);
-  event.put(gzsEndcapDigis);
+  event.put(gzsBarrelDigis, EBZSdigiCollection_);
+  event.put(gzsEndcapDigis, EEZSdigiCollection_);
 
 }
 

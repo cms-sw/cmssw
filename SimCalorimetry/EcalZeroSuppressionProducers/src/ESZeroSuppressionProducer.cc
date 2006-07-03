@@ -2,8 +2,9 @@
 
 ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps) 
 {
-  ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
   digiProducer_   = ps.getParameter<std::string>("digiProducer");
+  ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
+  ESZSdigiCollection_ = ps.getParameter<std::string>("ESZSdigiCollection");
  
   ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
   ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
@@ -14,7 +15,7 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
-  produces<ESDigiCollection>();
+  produces<ESDigiCollection>(ESZSdigiCollection_);
 }
 
 ESZeroSuppressionProducer::~ESZeroSuppressionProducer() 
@@ -45,6 +46,6 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
     }
   }   
   
-  event.put(ESZSDigis);  
+  event.put(ESZSDigis, ESZSdigiCollection_);  
 }
 

@@ -31,6 +31,7 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   
   std::string digiProducer_;
   std::string ESdigiCollection_;
+  std::string ESZSdigiCollection_;
 
   ESRecHitSimAlgo *algo_;
 
