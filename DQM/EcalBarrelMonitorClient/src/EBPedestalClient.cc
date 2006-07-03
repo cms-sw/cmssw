@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.83 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -778,26 +778,26 @@ void EBPedestalClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-        mui_->useQTest(histo, qth01_[ism-1]->getName()); 
+        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName()); 
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-        mui_->useQTest(histo, qth02_[ism-1]->getName()); 
+        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName()); 
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName()); 
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName()); 
       }
     }
 

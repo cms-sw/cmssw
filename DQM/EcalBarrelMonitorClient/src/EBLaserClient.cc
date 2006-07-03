@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.80 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -1386,32 +1386,32 @@ void EBLaserClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-      mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-      mui_->useQTest(histo, qth02_[ism-1]->getName());
+      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-      mui_->useQTest(histo, qth04_[ism-1]->getName());
+      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-        mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-        mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-        mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-        mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
       }
     }
 

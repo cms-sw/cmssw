@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.35 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -381,14 +381,14 @@ void EBPedestalOnlineClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-      mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-        mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       }
     }
 

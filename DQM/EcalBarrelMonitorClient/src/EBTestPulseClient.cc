@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.83 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -786,26 +786,26 @@ void EBTestPulseClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-      mui_->useQTest(histo, qtha01_[ism-1]->getName());
+      if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-      mui_->useQTest(histo, qtha02_[ism-1]->getName());
+      if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-      mui_->useQTest(histo, qtha03_[ism-1]->getName());
+      if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-        mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-        mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-        mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-        mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-        mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-        mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
       }
     }
 
