@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/13 12:17:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/05 10:03:20 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -50,9 +50,8 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
   double tBoxMax=0;     // The max of the time box, it is used as seed for gaussian integral
 
   //hTimeBox->Rebin(2); //FIXME: Temporary for low statistics
-
-  getFitSeeds(hTimeBox, xValue, xFitSigma, tBoxMax, xFitMin, xFitMax);
-
+  TH1F *hTimeBoxForSeed = (TH1F*) hTimeBox->Clone(); //FIXME: test
+  getFitSeeds(hTimeBoxForSeed, xValue, xFitSigma, tBoxMax, xFitMin, xFitMax);
 
   // Define the fitting function and use fit seeds
   TF1 *fIntGaus = new TF1("IntGauss", intGauss, xFitMin, xFitMax, 3); 
@@ -99,18 +98,24 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   // The approximate width of the time box
   static const int tBoxWidth = 400; //FIXE: tune it
 
-  const int nBins = hTBox->GetNbinsX();
+  int nBins = hTBox->GetNbinsX();
   const int xMin = (int)hTBox->GetXaxis()->GetXmin();
   const int xMax = (int)hTBox->GetXaxis()->GetXmax();
   const int nEntries =  (int)hTBox->GetEntries();
 
-  const double binValue = (double)(xMax-xMin)/(double)nBins;
+  double binValue = (double)(xMax-xMin)/(double)nBins;
 
   // Compute a threshold for TimeBox discrimination
   const double threshold = binValue*nEntries/(double)(tBoxWidth*2.);
+  if(theVerbosityLevel >= 2)
+    cout << "   Threshold for logic time box is (# entries): " <<  threshold << endl;
+    
 
-  if(threshold < 10) {
-    //FIXME: rebin?
+  while(threshold > hTBox->GetMaximum()/2.) {
+    cout << " Rebinning!" << endl;
+    hTBox->Rebin(2);
+    nBins = hTBox->GetNbinsX();
+    binValue = (double)(xMax-xMin)/(double)nBins;
   }
 
   hDebugFile->cd();
@@ -125,7 +130,8 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   
   // Look for the time box in the "logic histo" and save beginning and lenght of each plateau
   vector< pair<int, int> > startAndLenght;
-
+  if(theVerbosityLevel >= 2)
+    cout << "   Look for rising and folling edges of logic time box: " << endl;
   int start = -1;
   int lenght = -1;
   for(int j = 1; j < nBins;j++) {
@@ -133,8 +139,16 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     if(diff == 1) { // This is a rising edge
       start = j;
       lenght = 1;
+      if(theVerbosityLevel >= 2) {
+	cout << "     >>>----" << endl;
+	cout << "      bin: " << j << " is a rising edge" << endl;
+      }
     } else if(diff == -1) { // This is a falling edge
       startAndLenght.push_back(make_pair(start, lenght));
+      if(theVerbosityLevel >= 2) {
+	cout << "      bin: " << j << " is a falling edge, lenght is: " << lenght << endl;
+	cout << "     <<<----" << endl;
+      }
       start = -1;
       lenght = -1;
     } else if(diff == 0 && (int)hLTB.GetBinContent(j) == 1) { // This is a bin within the plateau
@@ -143,6 +157,8 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   }
 
   // Look for the plateau of the right lenght
+  if(theVerbosityLevel >= 2)
+    cout << "    Look for the best interval:" << endl;
   int delta = 999999;
   int beginning = -1;
   int tbWidth = -1;
@@ -153,6 +169,10 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
       delta = abs((*stAndL).second - tBoxWidth);
       beginning = (*stAndL).first;
       tbWidth = (*stAndL).second;
+      if(theVerbosityLevel >= 2)
+	cout << "   Candidate: First: " <<  beginning
+	     << ", width: " << tbWidth
+	     << ", delta: " << delta << endl;
     }
   }
 
