@@ -2,12 +2,14 @@
 <use name=boost>
 <use name=xerces-c>
 <use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
 
 <export>
  <lib name=FWCoreServices>
  <use name=boost>
  <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
  <use name=FWCore/MessageLogger>
 </export>
 
