@@ -21,8 +21,6 @@ public:
 
   ForwardDetLayer();
 
-  ForwardDetLayer( float initPos);
-
   virtual ~ForwardDetLayer();
 
   // GeometricSearchDet interface
@@ -38,23 +36,27 @@ public:
   // Extension of the interface
   virtual const BoundDisk&    specificSurface() const { return *theDisk;}
 
-  void setSurface( BoundDisk* cp);
-  
   bool contains( const Local3DPoint& p) const;  
   
  protected:
+  void setSurface( BoundDisk* cp);
 
   virtual void initialize();
 
-  float rmin() const { return theRmin;}
-  float rmax() const { return theRmax;}
+  float rmin() const { return theDisk->innerRadius();}
+  float rmax() const { return theDisk->outerRadius();}
+  float zmin() const { return (theDisk->position().z() - theDisk->bounds().thickness()/2);}
+  float zmax() const { return (theDisk->position().z() + theDisk->bounds().thickness()/2);}
+
+
   virtual BoundDisk* computeSurface();
 
+
  private:
-  
+  //float theRmin, theRmax, theZmin, theZmax;
   ReferenceCountingPointer<BoundDisk> theDisk;
 
-  float theRmin, theRmax, theZmin, theZmax;
+
 };
 
 
