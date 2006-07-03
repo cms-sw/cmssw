@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 13:44:36 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/06 14:47:33 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -124,7 +124,8 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   }
 
   if(debug) {
-    cout << "[DTTTrigSyncFromDB] Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
+    cout << "[DTTTrigSyncFromDB] Channel: " << wireId << endl
+	 << "      Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
 	 << "      various contributions are: " << endl
 	 << "      tTrig + t0 (ns):   " << tTrig << endl
 	 << "      tZero (ns):   " << t0 << endl
