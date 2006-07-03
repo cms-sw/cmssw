@@ -37,6 +37,14 @@
 
   o  style.css                       : color, border... etc
 
+  o  sistrip_qualitytest_config.xml  : quality Test Configuration file 
+                                       where the tests and the attachments 
+                                       of tests with ME are defined
+  o  sistrip_monitorelement_config.xml : the MEs to be used in TrackerMap 
+                                         and the summary plot are defined
+                                          here
+
+
 3. Running
 =================
 
