@@ -19,7 +19,7 @@ TT6PedestalCalculator::TT6PedestalCalculator(int evnt_ini,
 //
 // Initialization.
 //
-void TT6PedestalCalculator::init() {
+void TT6PedestalCalculator::init() { 
   theRawNoise.clear();
   thePedestal.clear();
   thePedSum.clear();
@@ -85,10 +85,10 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
     int ii=0;
     for (;i!=in.data.end() ; i++) {
       vector<uint16_t> temp;
-      temp.resize(eventsRequiredToCalibrate);
-      copy ( theRawSignalEventStrip[ii].begin(), 
-             theRawSignalEventStrip[ii].end(), temp.begin());
-      sort(temp.begin(), temp.end());
+       temp.resize(eventsRequiredToCalibrate);
+       copy ( theRawSignalEventStrip[ii].begin(), 
+	      theRawSignalEventStrip[ii].end(), temp.begin());
+       sort(temp.begin(), temp.end()); 
 
 
       int len = int(temp.size());
@@ -97,9 +97,9 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
    
       double sumVal = 0.0;
       double sqSumVal = 0.0;
-      sumVal   = accumulate(temp.begin(), (temp.end()-nTrunc), sumVal);
-      sqSumVal = inner_product(temp.begin(), (temp.end()-nTrunc), 
-                                             temp.begin(), sqSumVal);
+            sumVal   = accumulate(temp.begin(), (temp.end()-nTrunc), sumVal);
+            sqSumVal = inner_product(temp.begin(), (temp.end()-nTrunc), 
+                                           temp.begin(), sqSumVal);
 
       double avVal    = (rlen) ? sumVal/rlen   : 0.0;
       double sqAvVal  = (rlen) ? sqSumVal/rlen : 0.0;

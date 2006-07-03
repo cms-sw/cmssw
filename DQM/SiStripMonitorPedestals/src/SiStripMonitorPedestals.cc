@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.1 2006/07/01 07:37:23 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.2 2006/07/03 14:20:45 gennai Exp $
 //
 //
 
@@ -198,7 +198,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       if(local_modmes.CMDistribution != NULL){ 
 	vector<float> tmp;
 	tmp.clear();
-	//	apvFactory_->getCommonMode(id, tmp);
+	apvFactory_->getCommonMode(id, tmp);
 	//unpacking the info looking at the right topology
 	int numberCMBlocks = int(128. / NumCMstripsInGroup_);
 	int ibin=0;
