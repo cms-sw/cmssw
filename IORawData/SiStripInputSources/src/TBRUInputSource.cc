@@ -197,6 +197,7 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
   int* ibuf = (int*) cbuf;
   // Check old data structure
   bool old = ( (unsigned int) ibuf[0] ==  (m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
+  // cout << ibuf[0] <<":"<<(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize) <<endl;
   bool slinkswap = false;
   if (old)
     {
@@ -223,8 +224,11 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
       else
 	{
 	  //copy data
+           
 	  memcpy(&dest[0],&ibuf[1],ibuf[0]-2*sizeof(int));
 	  int fed_len = (ibuf[0]-2*sizeof(int))/sizeof(int);
+	  cout <<"FED Lenght" << fed_len <<endl;
+	  cout <<hex<< dest[fed_len-1]<<":" << dest[fed_len-2]<<dec <<endl;
 	  int blen=fed_len*sizeof(int);
 	  if ( dest[fed_len-1] ==   (0xa0000000 | (blen>>3)) )
 	    slinkswap = true;
@@ -252,11 +256,15 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
 
 	  memcpy(&dest[0],cbuf,(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
 
-	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
-	  if ( dest[fed_len-1] == (0xa0000000 | fed_len) )
+	  //int frl_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
+	  unsigned int* fedb = &dest[sizeof(frlh_t)/sizeof(int)];
+	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int)- sizeof(frlh_t)/sizeof(int);
+	  //	  cout <<hex<< dest[frl_len-1]<<":" << dest[frl_len-2]<<dec <<endl;
+	  int fedlen = (fed_len*sizeof(int))>>3;
+	  if ( fedb[fed_len-1] == (0xa0000000 | (fedlen) ))
 	    slinkswap = true;
 	  else
-	    if ( dest[fed_len-2] == (0xa0000000 | fed_len) )
+	    if ( fedb[fed_len-2] == (0xa0000000 | (fedlen) ))
 	      slinkswap = false;
 	    else
 	      cout << " Not a FED structure " << i << endl;
