@@ -40,13 +40,20 @@ void TPedValues::insert (const int gainId,
                          const int DAC, 
                          const int pedestal) 
 {
-  assert (gainId > 0) ;
-  assert (gainId < 4) ;
+//  assert (gainId > 0) ;
+//  assert (gainId < 4) ;
+  if (gainId <= 0 || gainId > 4)
+    {
+      std::cerr << "ERROR : gainId " << gainId
+                << " does not exist, entry skipped\n" ;
+      return ;    
+    }
   assert (crystal > 0) ;
   assert (crystal <= 1700) ;
   assert (DAC >= 0) ; 
   assert (DAC < 256) ;
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;
+  return ;
 }
     
 
