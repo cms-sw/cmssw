@@ -7,8 +7,8 @@
  *  
  * In addition to RecHit, it has direction, chi2 and other stuff
  *
- * $Date: 22/02/2006 13:36:03 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/02/23 10:32:05 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -28,22 +28,25 @@
 
 class RecSegment : public TrackingRecHit{
 
-  public:
+ public:
 
-/// Destructor
-    virtual ~RecSegment() {};
+  /// Destructor
+  virtual ~RecSegment() {};
 
-/* Operations */ 
-    /// Local direction
-    virtual LocalVector localDirection() const = 0;
+  /// Local direction
+  virtual LocalVector localDirection() const = 0;
 
-    /// Error on the local direction
-    virtual LocalError localDirectionError() const = 0;
+  /// Error on the local direction
+  virtual LocalError localDirectionError() const = 0;
 
-    virtual double chi2() const  = 0 ;
+  /// Chi2 of the segment fit
+  virtual double chi2() const  = 0 ;
 
-    virtual int degreesOfFreedom() const = 0 ;
+  /// Degrees of freedom of the segment fit
+  virtual int degreesOfFreedom() const = 0 ;
 
+  /// Dimension (in parameter space)
+  virtual int dimension() const = 0 ;
 
 };
 #endif // TrackingRecHit_RecSegment_h

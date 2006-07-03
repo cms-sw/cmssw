@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/05/16 14:23:52 $
+ *  $Date: 2006/06/29 16:44:31 $
  *  \author Matteo Sani
  */
 
@@ -43,6 +43,32 @@ LocalError CSCSegment::localPositionError() const {
 LocalError CSCSegment::localDirectionError() const {
   return LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]); 
 }
+
+
+AlgebraicVector CSCSegment::parameters() const {
+  // (x,y,dx/dz,dy/dz)
+  AlgebraicVector result(4);
+  result[2] = theOrigin.x();
+  result[3] = theOrigin.y();
+  result[0] = theLocalDirection.x()/theLocalDirection.z();
+  result[1] = theLocalDirection.y()/theLocalDirection.z();    
+  return result;
+}
+
+
+AlgebraicMatrix CSCSegment::projectionMatrix() const {
+  static AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
+  static bool isInitialized = false;
+  if (!isInitialized) {
+    theProjectionMatrix[0][1] = 1;
+    theProjectionMatrix[1][2] = 1;
+    theProjectionMatrix[2][3] = 1;
+    theProjectionMatrix[3][4] = 1;
+    isInitialized=true;
+  }    
+  return theProjectionMatrix;
+}
+
 
 void CSCSegment::print() const {
   std::cout << *this << std::endl;

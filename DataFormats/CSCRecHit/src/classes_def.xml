@@ -8,7 +8,6 @@
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
 
-  <class name="RecSegment4D"/>
   <class name="RecSegment"/>
   <class name="std::vector<CSCSegment*>"/>
   <class name="CLHEP::HepSymMatrix"/>

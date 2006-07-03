@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/10 20:48:03 $
- * $Revision: 1.7 $
+ * $Date: 2006/05/15 09:25:00 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -15,27 +15,25 @@
 /* C++ Headers */
 #include <iosfwd>
 
-/* ====================================================================== */
-// FIXME
-// is the choice .specificRecHits().size() the best way to do the check??
 
 
-/// Constructor
-DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg, const DTSLRecSegment2D& zedSeg,  
-			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
-  thePhiSeg(phiSeg),theZedSeg(zedSeg){
-  
-  if(zedSeg.specificRecHits().size()){ 
-    if(DTChamberId(phiSeg.geographicalId().rawId()) != DTChamberId(zedSeg.geographicalId().rawId()))
-      throw cms::Exception("DTRecSegment4D")
-	<<"the z Segment and the phi segment have different chamber id"<<std::endl;
-  }
-  
-  theDetId = phiSeg.chamberId();
+DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg,
+			       const DTSLRecSegment2D& zedSeg,  
+			       const LocalPoint& posZInCh,
+			       const LocalVector& dirZInCh):
+  theProjection(full),
+  thePhiSeg(phiSeg),
+  theZedSeg(zedSeg),
+  theDimension(4),
+  theDetId(phiSeg.chamberId())
+{
+  // Check consistency of 2 sub-segments
+  if(DTChamberId(phiSeg.geographicalId().rawId()) != DTChamberId(zedSeg.geographicalId().rawId()))
+    throw cms::Exception("DTRecSegment4D")
+      <<"the z Segment and the phi segment have different chamber id"<<std::endl;
 
   // The position of 2D segments are defined in the SL frame: I must first
   // extrapolate that position at the Chamber reference plane
-
   LocalPoint posZAt0 = posZInCh +
     dirZInCh * (-posZInCh.z())/cos(dirZInCh.theta());
 
@@ -50,46 +48,43 @@ DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg, const DTSLRe
                            -1.);
   theDirection=theDirection.unit();
 
-  theCovMatrix=AlgebraicSymMatrix(4);
-
   // set cov matrix
+  theCovMatrix=AlgebraicSymMatrix(4);
   theCovMatrix[0][0]=phiSeg.covMatrix()[0][0]; //sigma (dx/dz)
   theCovMatrix[0][2]=phiSeg.covMatrix()[0][1]; //cov(dx/dz,x)
   theCovMatrix[2][2]=phiSeg.covMatrix()[1][1]; //sigma (x)
-  
   setCovMatrixForZed(posZInCh);
-
-  // set the projection matrix and the dimension
-  theDimension=4;
-  theProjMatrix = RecSegment4D::projectionMatrix();
 }
 
-DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg) :
-  thePhiSeg(phiSeg), theZedSeg( DTSLRecSegment2D() ){
-  
-  theDetId = phiSeg.chamberId();
 
+DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg) :
+  theProjection(phi),
+  thePhiSeg(phiSeg),
+  theZedSeg(DTSLRecSegment2D()),
+  theDimension(2),
+  theDetId(phiSeg.chamberId())
+{
   thePosition=thePhiSeg.localPosition();
   
   theDirection=thePhiSeg.localDirection();
 
-  theCovMatrix=AlgebraicSymMatrix(4);
   // set cov matrix
+  theCovMatrix=AlgebraicSymMatrix(4);
   theCovMatrix[0][0]=phiSeg.covMatrix()[0][0]; //sigma (dx/dz)
   theCovMatrix[0][2]=phiSeg.covMatrix()[0][1]; //cov(dx/dz,x)
   theCovMatrix[2][2]=phiSeg.covMatrix()[1][1]; //sigma (x)
-
-  // set the projection matrix and the dimension
-  theDimension=2;
-  theProjMatrix=AlgebraicMatrix(2,5,0);
-  theProjMatrix[0][1] = 1;
-  theProjMatrix[1][3] = 1;
 }
 
+
 DTRecSegment4D::DTRecSegment4D(const DTSLRecSegment2D& zedSeg,
-			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
-  thePhiSeg( DTChamberRecSegment2D() ), theZedSeg( zedSeg){
-  theDetId = zedSeg.superLayerId().chamberId();
+			       const LocalPoint& posZInCh,
+			       const LocalVector& dirZInCh) :
+  theProjection(Z),
+  thePhiSeg(DTChamberRecSegment2D()),
+  theZedSeg(zedSeg),
+  theDimension(2),
+  theDetId(zedSeg.superLayerId().chamberId())
+{
   
   LocalPoint posZAt0=posZInCh+
     dirZInCh*(-posZInCh.z()/cos(dirZInCh.theta()));
@@ -97,77 +92,118 @@ DTRecSegment4D::DTRecSegment4D(const DTSLRecSegment2D& zedSeg,
   thePosition=posZAt0;
   theDirection = dirZInCh;
 
-  theCovMatrix=AlgebraicSymMatrix(4);
   // set cov matrix
+  theCovMatrix=AlgebraicSymMatrix(4);
   setCovMatrixForZed(posZInCh);
-
-  // set the projection matrix and the dimension
-  theDimension=2;
-  theProjMatrix=AlgebraicMatrix(2,5,0);
-  theProjMatrix[0][2] = 1;
-  theProjMatrix[1][4] = 1;
 }
 
-/// Destructor
+
 DTRecSegment4D::~DTRecSegment4D() {}
 
-/* Operations */ 
 
-// returns the parameters for the KF: x,y,dx/dy,dy/dz
 AlgebraicVector DTRecSegment4D::parameters() const {
+  if (dimension()==4) {
+    // (x,y,dx/dz,dy/dz)
+    AlgebraicVector result(4);
+    result[2] = thePosition.x();
+    result[3] = thePosition.y();
+    result[0] = theDirection.x()/theDirection.z();
+    result[1] = theDirection.y()/theDirection.z();    
+    return result;
+  } 
+
   AlgebraicVector result(2);
-  if (dimension()==4) return RecSegment4D::parameters();
-  else {
-    if (thePhiSeg.specificRecHits().size()) {
-      result[1] = localPosition().x();
-      result[0] = localDirection().x()/localDirection().z();
-    } else {
-      result[1] = localPosition().y();
-      result[0] = localDirection().y()/localDirection().z();
-    }
+  if (theProjection==phi) {
+    // (x,dx/dz)  
+    result[1] = thePosition.x();
+    result[0] = theDirection.x()/theDirection.z();
+  } else if (theProjection==Z) {
+    // (y,dy/dz) (note we are in the chamber r.f.)
+    result[1] = thePosition.y();
+    result[0] = theDirection.y()/theDirection.z();
   }
   return result;
 }
 
 
 AlgebraicSymMatrix DTRecSegment4D::parametersError() const { 
+
+  if (dimension()==4) {
+    return theCovMatrix;
+  }
+
   AlgebraicSymMatrix result(2);
-  if (dimension()==4) return theCovMatrix;
-  else {
-    if (thePhiSeg.specificRecHits().size()) {
-      result[0][0] = theCovMatrix[0][0]; //S(dx/dz)
-      result[0][1] = theCovMatrix[0][2]; //Cov(dx/dz,x)
-      result[1][1] = theCovMatrix[2][2]; //S(x)
-    } else {
-      result[0][0] = theCovMatrix[1][1]; //S(dy/dz)
-      result[0][1] = theCovMatrix[1][3]; //Cov(dy/dz,y)
-      result[1][1] = theCovMatrix[3][3]; //S(y)
-    }
+  if (theProjection==phi) {
+    result[0][0] = theCovMatrix[0][0]; //S(dx/dz)
+    result[0][1] = theCovMatrix[0][2]; //Cov(dx/dz,x)
+    result[1][1] = theCovMatrix[2][2]; //S(x)
+  } else if (theProjection==Z) {
+    result[0][0] = theCovMatrix[1][1]; //S(dy/dz)
+    result[0][1] = theCovMatrix[1][3]; //Cov(dy/dz,y)
+    result[1][1] = theCovMatrix[3][3]; //S(y)
   }
   return result;
 }
+
+
+AlgebraicMatrix DTRecSegment4D::projectionMatrix() const {
+  static bool isInitialized=false;
+  static AlgebraicMatrix the4DProjectionMatrix(4, 5, 0); 
+  static AlgebraicMatrix the2DPhiProjMatrix(2, 5, 0);
+  static AlgebraicMatrix the2DZProjMatrix(2, 5, 0);
+
+  if (!isInitialized) {
+    the4DProjectionMatrix[0][1] = 1;
+    the4DProjectionMatrix[1][2] = 1;
+    the4DProjectionMatrix[2][3] = 1;
+    the4DProjectionMatrix[3][4] = 1;
+
+    the2DPhiProjMatrix[0][1] = 1;
+    the2DPhiProjMatrix[1][3] = 1;
+
+    the2DZProjMatrix[0][2] = 1;
+    the2DZProjMatrix[1][4] = 1;
+
+    isInitialized= true;
+  }
+
+  if (dimension()==4) { 
+    return the4DProjectionMatrix;
+  } else if (theProjection==phi) {
+    return the2DPhiProjMatrix;
+  } else if (theProjection==Z) {
+    return the2DZProjMatrix;
+  } else {
+    return AlgebraicMatrix();
+  }
+}
+
 
 LocalError DTRecSegment4D::localPositionError() const {
   return LocalError(theCovMatrix[2][2],theCovMatrix[2][3],theCovMatrix[3][3]);
 }
 
+
 LocalError DTRecSegment4D::localDirectionError() const {
   return LocalError(theCovMatrix[0][0],theCovMatrix[0][1],theCovMatrix[1][1]);
 }
 
+
 double DTRecSegment4D::chi2() const {
   double result=0;
-  if (thePhiSeg.specificRecHits().size()) result+=thePhiSeg.chi2();
-  if (theZedSeg.specificRecHits().size()) result+=theZedSeg.chi2();
+  if (hasPhi()) result+=thePhiSeg.chi2();
+  if (hasZed()) result+=theZedSeg.chi2();
   return result;
 }
 
+
 int DTRecSegment4D::degreesOfFreedom() const {
   int result=0;
-  if (thePhiSeg.specificRecHits().size()) result+=thePhiSeg.degreesOfFreedom();
-  if (theZedSeg.specificRecHits().size()) result+=theZedSeg.degreesOfFreedom();
+  if (hasPhi()) result+=thePhiSeg.degreesOfFreedom();
+  if (hasZed()) result+=theZedSeg.degreesOfFreedom();
   return result;
 }
+
 
 void DTRecSegment4D::setCovMatrixForZed(const LocalPoint& posZInCh){
   // Warning!!! the covariance matrix for Theta SL segment is defined in the SL
@@ -210,15 +246,6 @@ std::ostream& operator<<(std::ostream& os, const DTRecSegment4D& seg) {
 }
 
 
-// DTChamberId DTRecSegment4D::chamberId() const{
-//   if(phiSegment()->chamberId() == zSegment()->superLayerId().chamberId())
-//     return phiSegment()->chamberId();
-//   else 
-//     throw cms::Exception("DTRecSegment4D")
-//       <<"the z Segment and the phi segment have different chamber id"<<std::endl;
-// }
-
-
 /// Access to component RecHits (if any)
 std::vector<const TrackingRecHit*> DTRecSegment4D::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits; 
@@ -228,6 +255,7 @@ std::vector<const TrackingRecHit*> DTRecSegment4D::recHits() const{
 
   return pointersOfRecHits;
 }
+
 
 /// Non-const access to component RecHits (if any)
 std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
@@ -239,6 +267,7 @@ std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
   
   return pointersOfRecHits;
 }
+
 
 DTChamberId DTRecSegment4D::chamberId() const {
   return DTChamberId(theDetId.rawId());
