@@ -35,7 +35,7 @@ class IslandClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
-      VerbosityLevel verbosity;
+      IslandClusterAlgo::VerbosityLevel verbosity;
 
       std::string barrelHitProducer_;
       std::string endcapHitProducer_;
@@ -66,7 +66,7 @@ class IslandClusterProducer : public edm::EDProducer
 			      std::string hitProducer,
 			      std::string hitCollection,
 			      std::string clusterCollection, 
-			      EcalPart ecalPart);
+			      IslandClusterAlgo::EcalPart ecalPart);
 
       void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
 };

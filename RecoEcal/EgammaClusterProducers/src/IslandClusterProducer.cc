@@ -37,10 +37,10 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
 {
   // The verbosity level
   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = DEBUG;
-  else if (verbosityString == "WARNING") verbosity = WARNING;
-  else if (verbosityString == "INFO")    verbosity = INFO;
-  else                                   verbosity = ERROR;
+  if      (verbosityString == "DEBUG")   verbosity = IslandClusterAlgo::DEBUG;
+  else if (verbosityString == "WARNING") verbosity = IslandClusterAlgo::WARNING;
+  else if (verbosityString == "INFO")    verbosity = IslandClusterAlgo::INFO;
+  else                                   verbosity = IslandClusterAlgo::ERROR;
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
@@ -79,8 +79,8 @@ IslandClusterProducer::~IslandClusterProducer()
 
 void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrel);
+  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, IslandClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, IslandClusterAlgo::barrel);
   
   nEvt_++;
 }
@@ -124,7 +124,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 					       std::string hitProducer,
 					       std::string hitCollection,
 					       std::string clusterCollection,
-					       EcalPart ecalPart)
+					       IslandClusterAlgo::EcalPart ecalPart)
 {
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
@@ -140,7 +140,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
-  if (ecalPart == barrel) 
+  if (ecalPart == IslandClusterAlgo::barrel) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
       topology_p = new EcalBarrelTopology(geoHandle);

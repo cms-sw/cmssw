@@ -24,10 +24,10 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 {
   // The verbosity level
   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = DEBUG;
-  else if (verbosityString == "WARNING") verbosity = WARNING;
-  else if (verbosityString == "INFO")    verbosity = INFO;
-  else                                   verbosity = ERROR;
+  if      (verbosityString == "DEBUG")   verbosity = BremRecoveryClusterAlgo::DEBUG;
+  else if (verbosityString == "WARNING") verbosity = BremRecoveryClusterAlgo::WARNING;
+  else if (verbosityString == "INFO")    verbosity = BremRecoveryClusterAlgo::INFO;
+  else                                   verbosity = BremRecoveryClusterAlgo::ERROR;
 
   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
