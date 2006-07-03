@@ -34,7 +34,7 @@ public:
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
-  int rank() const { return m_data & 0x3f; }
+  unsigned rank() const { return m_data & 0x3f; }
 
   /// get RCT receiver card
   unsigned rctCard() const { return (m_data>>7) & 0x7; }

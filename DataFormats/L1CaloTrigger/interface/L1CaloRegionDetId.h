@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: 2006/06/30 12:28:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/30 13:35:38 $
+ *  $Revision: 1.4 $
  *  \author Jim Brooke 
 */
 
@@ -27,7 +27,7 @@ class L1CaloRegionDetId : public DetId {
   /// create id from raw data (0=invalid code?)
   L1CaloRegionDetId(uint32_t rawid);
 
-  /// create id from global eta, phi indices (eta=0-22, phi=0-18)
+  /// create id from global eta, phi indices (eta=0-21, phi=0-17)
   L1CaloRegionDetId(unsigned ieta, unsigned iphi);
 
   /// create id from RCT crate, RCT card, RCT region (within card)
@@ -35,10 +35,10 @@ class L1CaloRegionDetId : public DetId {
   /// or to false to create central regions (including card argument)
   L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned icard, unsigned irgn);
 
-  /// global eta index (0-22)
+  /// global eta index (0-21)
   unsigned ieta() const { return id_&0x1f; }
 
-  /// global phi index (0-18)
+  /// global phi index (0-17)
   unsigned iphi() const { return (id_>>5)&0x1f; }
 
   /// return GCT source card number

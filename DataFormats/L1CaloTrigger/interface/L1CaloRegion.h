@@ -90,12 +90,6 @@ public:
   /// get local phi index (within RCT crate)
   unsigned rctPhi() const { return m_id.rctPhi(); } 
 
-  /// to be deprecated - use rctEta()
-  unsigned rctEtaIndex() const { return rctEta(); }
-
-  /// to be deprecated - use rctPhi()
-  unsigned rctPhiIndex() const { return rctPhi(); } 
-
   /// get GCT source card ID
   unsigned gctCard() const { return m_id.gctCard(); }
 
@@ -107,12 +101,6 @@ public:
 
   /// get GCT phi index
   unsigned gctPhi() const { return m_id.iphi(); }
-
-  /// to be deprecated - use gctEta()
-  unsigned gctEtaIndex() const { return gctEta(); }
-
-  /// to be deprecated - use gctPhi()
-  unsigned gctPhiIndex() const { return gctPhi(); }
 
   /// get pseudorapidity
   float pseudorapidity() const { return 0.; }
