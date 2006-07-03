@@ -33,7 +33,7 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
 
   //They should be already phi-ordered. TO BE CHECKED!!
   //sort( theBlades.begin(), theBlades.end(), PhiLess());
-  setSurface( computeDisk(blades) );
+  setSurface( computeSurface() );
   
   //Is a "periodic" binFinderInPhi enough?. TO BE CHECKED!!
   theBinFinder = BinFinderType( theComps.front()->surface().position().phi(),
@@ -258,55 +258,5 @@ PixelForwardLayer::computeWindowSize( const GeomDet* det,
 {
   return est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
 }
-
-
-
-BoundDisk* 
-PixelForwardLayer::computeDisk(const vector<const PixelBlade*>& blades) const
-{
-  vector<const PixelBlade*>::const_iterator ifirst = blades.begin();
-  vector<const PixelBlade*>::const_iterator ilast  = blades.end();
-
-  // Find extension in R
-  // float tolerance = 1.; // cm
-  float theRmin = (**ifirst).position().perp(); float theRmax = theRmin;
-  float theZmin = (**ifirst).position().z(); float theZmax = theZmin;
-  for ( vector<const PixelBlade*>::const_iterator deti = ifirst;
-	deti != ilast; deti++) {
-    vector<GlobalPoint> corners = 
-      BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin();
-	 ic != corners.end(); ic++) {
-      float r = ic->perp();
-      float z = ic->z();
-      theRmin = min( theRmin, r);
-      theRmax = max( theRmax, r);
-      theZmin = min( theZmin, z);
-      theZmax = max( theZmax, z);
-    }
-
-    // in addition to the corners we have to check the middle of the 
-    // det +/- length/2
-    // , since the min (max) radius for typical fw dets is reached there
-    float rdet = (**deti).position().perp();
-    float len = (**deti).surface().bounds().length();
-    theRmin = min( theRmin, rdet-len/2.F);
-    theRmax = max( theRmax, rdet+len/2.F);
-  }
-
-  LogDebug("TkDetLayers") << "creating SimpleDiskBounds with r range" << theRmin << " " 
-			  << theRmax << " and z range " << theZmin << " " << theZmax ;
-  
-  // By default the forward layers are positioned around the z axis of the
-  // global frame, and the axes of their local frame coincide with 
-  // those of the global grame (z along the disk axis)
-  float zPos = (theZmax+theZmin)/2.;
-  Surface::PositionType pos(0.,0.,zPos);
-  Surface::RotationType rot;
-
-  return new BoundDisk( pos, rot, 
-			SimpleDiskBounds( theRmin, theRmax, 
-					  theZmin-zPos, theZmax-zPos));
-}    
 
 
