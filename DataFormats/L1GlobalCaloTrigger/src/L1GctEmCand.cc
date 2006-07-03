@@ -3,6 +3,7 @@
 #include <iostream>
 
 using std::ostream;
+using std::string;
 
 // default constructor
 L1GctEmCand::L1GctEmCand() :
@@ -20,22 +21,32 @@ L1GctEmCand::L1GctEmCand() :
 
  }
 
-// construct from content (for use in emulator)
-L1GctEmCand::L1GctEmCand(unsigned rank, int eta, int phi, bool iso) : 
+// construct from content (for use in emulator)  
+// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
   m_iso(iso) 
 {
-  // need to include sign bit!
-  m_data = (rank & 0x3f) + ((eta & 0x7)<<6) + ((static_cast<unsigned>(phi) & 0xf)<<10); 
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0xf)<<10); 
 }
 
 // destructor
 L1GctEmCand::~L1GctEmCand() { } 
 
+// name of candidate type
+string L1GctEmCand::name() const {
+  return (isolated() ? "iso EM" : "non iso EM" ); 
+}
+
+// was a candidate found
+bool L1GctEmCand::empty() const { 
+  return (rank() == 0); 
+}
+
 // pretty print
 ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "L1GctEmCand : ";
   s << "rank=" << cand.rank();
-  s << ", eta=" << cand.level1EtaIndex() << ", phi=" << cand.level1PhiIndex();
+  s << ", eta=" << cand.etaIndex() << ", phi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated();
   return s;
 }

@@ -3,6 +3,9 @@
 
 #include <boost/cstdint.hpp>
 #include <ostream>
+#include <string>
+
+#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 /*! \class L1GctEmCand
  * \brief Level-1 Trigger EM candidate at output of GCT
@@ -14,7 +17,7 @@
  */
 
 
-class L1GctEmCand {
+class L1GctEmCand : public L1TriggerObject {
 public:
 
   /// default constructor (for vector initialisation etc.)
@@ -24,34 +27,32 @@ public:
   L1GctEmCand(uint16_t data, bool iso);
 
   /// construct from rank, eta, phi, isolation
-  L1GctEmCand(unsigned rank, int phi, int eta, bool iso);
+  /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+  L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
 
    /// destructor
- ~L1GctEmCand();
- 
+  ~L1GctEmCand();
+  
+  /// name of object - inherited from L1TriggerObject
+  std::string name() const;
+
+  /// was an object really found? - inherited from L1TriggerObject
+  bool empty() const;
+  
   /// get the raw data
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
   unsigned rank() const { return m_data & 0x3f; }
 
-  /// which half of the detector?
-  int zside() const { return (m_data&0x8)?(1):(-1) ; }
+  /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
+  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
 
-  /// get magnitude of eta
-  int ietaAbs() const { return (m_data>>6) & 0x7; }
+  /// get eta sign (1 for -ve Z, 0 for +ve Z)
+  unsigned etaSign() const { return (m_data>>9) & 0x1; }
 
-  /// get eta index
-  int ieta() const { return zside()*ietaAbs(); }
-
-  /// get phi index
-  int iphi() const { return (m_data>>10) & 0x1f; }
-
-  /// get eta bits
-  int level1EtaIndex() const { return ieta(); }
-
-  /// get phi bits
-  int level1PhiIndex() const { return iphi(); }
+  /// get phi index (0-17)
+  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }
