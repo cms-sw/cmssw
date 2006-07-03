@@ -36,7 +36,7 @@ void ApvTimingTask::book() {
 						fedKey(),
 						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
-
+  
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nBins_*25.-0.5,
 				       1024, 0., 1024. );

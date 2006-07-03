@@ -47,7 +47,7 @@ void PedestalsTask::book() {
 						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
 						  extra );
-
+    
     peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
 					       1024, 0., 1024. );

@@ -38,24 +38,6 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
 				    connection_.ccuAddr(),
 				    connection_.ccuChan(),
 				    connection_.lldChannel() );
-
-//   // DEBUG
-//   int32_t lsb = 0xFFFFFFFF;
-//   int32_t msb = 0x10000001;
-//   double temp = static_cast<double>( msb ) * static_cast<double>(0x80000000);
-//   temp += static_cast<double>( lsb );
-  
-//   double sq = static_cast<double>( abs(msb) ) * static_cast<double>(0x80000000);
-//   sq += static_cast<double>( abs(lsb) );
-//   if ( lsb < 0 || msb < 0 ) { sq *= -1.; }
-  
-//   cout << "SIZE: " << sizeof(int32_t) << " " << sizeof(double) << endl;
-//   cout << "DEC: lsb: " << lsb << " msb: " << msb << " temp: " << temp << endl;
-//   cout << hex << "HEX: lsb: " << lsb << " msb: " << msb << " temp: " << temp << dec << endl;
-  
-// 	float sign = histo_set.vSumOfSquaresOverflow_[ibin] < 0 ? -1. : 1.;
-// 	histo_set.meSumOfSquares_->Fill( ibin+1, sign*(float)0x7FFFFFFF ); 
-// 	histo_set.meSumOfSquares_->Fill( ibin+1, sign );
   
 }
 
@@ -84,8 +66,8 @@ void CommissioningTask::bookHistograms() {
 				<< connection_.fedCh();
   book();
   booked_ = true;
-
-//   SiStripHistoNamingScheme::HistoTitle histo_title = SiStripHistoNamingScheme::histoTitle( title );
+  
+  //   SiStripHistoNamingScheme::HistoTitle histo_title = SiStripHistoNamingScheme::histoTitle( title );
 //   cout << "HistoTitle components: " 
 //        << SiStripHistoNamingScheme::task( histo_title.task_ ) << " " 
 //        << SiStripHistoNamingScheme::contents( histo_title.contents_ ) << " " 
@@ -156,7 +138,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
-
+  
   // Check if histo exists
   if ( !histo_set.histo_ ) {
     edm::LogError("Commissioning") << "[CommissioningTask::updateHistoSet]" 

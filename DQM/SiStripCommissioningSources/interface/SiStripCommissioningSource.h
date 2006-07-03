@@ -36,10 +36,13 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** Private default constructor. */
   SiStripCommissioningSource();
-
-  void createDirs();
+  
+  /** */
   void createTask( sistrip::Task task );
-
+  
+  /** */
+  DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
+  
  private: // ----- data members -----
 
   string inputModuleLabel_;
@@ -51,19 +54,22 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   TaskMap tasks_;
   /** */
   int updateFreq_;
+
   /** */
   string filename_;
+
   /** */
   uint32_t run_;
   /** */
   bool firstEvent_;
+
   /** */
   SiStripFedCabling* fedCabling_;
   /** */
   SiStripFecCabling* fecCabling_;
   /** */
   bool cablingTask_;
-
+  
 };
 
 #endif // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H
