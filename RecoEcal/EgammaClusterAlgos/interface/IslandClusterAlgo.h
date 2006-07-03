@@ -21,13 +21,6 @@
 
 //
 
-enum EcalPart { barrel = 0, endcap = 1 };
-
-#ifndef VerbosityLevelEnum
-#define VerbosityLevelEnum
-enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
-#endif
-
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
 // Less than operator for sorting EcalRecHits according to energy.
@@ -45,6 +38,9 @@ class IslandClusterAlgo
 {
  public:
   
+  enum EcalPart { barrel = 0, endcap = 1 };
+  enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
+
   IslandClusterAlgo()
     {
     }
