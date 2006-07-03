@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -96,32 +96,51 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 
 //specific task me
+vector<int> checkedCry_;
+float prescaling_; 
+//specific task me
 
-TH1D* meBBCaloGains_[cryInArray_];
-TH1D* meBBCaloEne1_;
+TH1F* hBGains_[cryInArray_];
+TH1F* hBEne1_;
 
-TH1D* meBBCaloGainsMoving_[cryInArray_];
-TH1D* meBBCaloEne1Moving_;
-
-
-TH1D* meBBCaloAllNeededCry_;
-
-TH1D* meBBCaloE3x3_;
-
-TH1D* meBBCaloE3x3Moving_;
-
-TH2D* meBBCaloCryOnBeam_;
-
-TH2D* meBBCaloMaxEneCry_;
+TH1F* hBGainsMoving_[cryInArray_];
+TH1F* hBEne1Moving_;
 
 
-TH1D* meEBBCaloReadCryErrors_;
+TH1F* hBAllNeededCry_;
 
-TH1D* meEBBCaloE1vsCry_;
+TH1F* hBNumReadCry_;
 
-TH1D* meEBBCaloE3x3vsCry_;
+TH1F* hBE3x3_;
+
+TH1F* hBE3x3Moving_;
+
+TH2F* hBCryOnBeam_;
+
+TH2F* hBMaxEneCry_;
+
+
+TH1F* hBReadCryErrors_;
+
+TH1F* hBE1vsCry_;
+
+TH1F* hBE3x3vsCry_;
+
+TH1F* hBcryDone_; 
+
+TH2F* hBBeamCentered_;
 
 MonitorElement* meEBBCaloRedGreen_;
+MonitorElement* meEBBCaloRedGreenReadCry_;
+// quality check parameters
+ int minEvtNum_;
+ float aveEne1_;
+ float E1Th_;
+ float aveEne3x3_;
+ float E3x3Th_;
+ float RMSEne3x3_;
+ float ReadCryErrThr_;
+ 
 };
 
 #endif
