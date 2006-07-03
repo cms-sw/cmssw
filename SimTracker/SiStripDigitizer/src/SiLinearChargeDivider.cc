@@ -133,13 +133,6 @@ float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUni
   float tofNorm = (hit.tof() - cosmicShift - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
-  std::cout<<"Time with cosmicShift"<<readTimeNorm<<std::endl;
-  if(1 + readTimeNorm > 0) {
-    std::cout<<"Time with cosmicShift : output subroutine "<< 
-      hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm) <<std::endl;
-  } else {
-    std::cout<<"Time with cosmicShift : output subroutine "<< 000 <<std::endl;
-  }
   // return the energyLoss weighted CR-RC shape peaked at t0.
   if (1 + readTimeNorm > 0) {
     return hit.energyLoss()*(1 + readTimeNorm)*exp(-readTimeNorm);
