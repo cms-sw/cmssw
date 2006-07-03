@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/13 11:06:41 $
+ *  $Date: 2006/03/13 12:17:38 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -28,9 +28,9 @@
 using namespace std;
 
 // Constructor
-DTTimeBoxPlotter::DTTimeBoxPlotter( TFile *file) : theFile(file) {
+DTTimeBoxPlotter::DTTimeBoxPlotter( TFile *file) : theFile(file), theVerbosityLevel(0) {
   theFitter = new DTTimeBoxFitter();
-  theFitter->setVerbosity(2);
+  theFitter->setVerbosity(1);
 }
 
 
@@ -205,3 +205,8 @@ TCanvas * DTTimeBoxPlotter::newCanvas(TString name, int form, int w)
 }
 
 
+// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
+void DTTimeBoxPlotter::setVerbosity(unsigned int lvl) {
+  theVerbosityLevel = lvl;
+  theFitter->setVerbosity(lvl);
+}
