@@ -35,7 +35,6 @@ namespace edmtestp
     Buf buf_;
     int events_read_;      // use this until we inherent from the right input source
     edm::EventDecoder decoder_;
-    edm::ProductRegistry prods_;
   };
 
 }
