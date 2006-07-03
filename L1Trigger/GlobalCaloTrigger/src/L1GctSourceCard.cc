@@ -423,15 +423,18 @@ void L1GctSourceCard::readBxNum()
 
 // make region from file data
 L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
-//   int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
 
-//   rctFileData >>= 10;  //shift the remaining bits down to remove the 10 bits of Et
+  int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
+  
+  rctFileData >>= 10;  //shift the remaining bits down to remove the 10 bits of Et
+  
+  bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
+  bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
+  
+  int ieta=0;  // perhaps we need to create regions by source card ID?
+  int iphi=0;
 
-//   bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
-//   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
-
-//  return L1GctRegion(0, et, overFlow, tauVeto, false, false);
-  return L1CaloRegion(rctFileData,0,0);
+  return L1CaloRegion(0, et, overFlow, tauVeto, false, false, ieta, iphi);
 
 }
 
