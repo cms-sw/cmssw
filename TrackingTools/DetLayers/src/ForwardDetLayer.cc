@@ -8,13 +8,8 @@
 using namespace std;
 
 ForwardDetLayer::ForwardDetLayer() : 
-  theDisk(0),
-  theRmin(0), theRmax(0), theZmin(0), theZmax(0)
-{}
-
-ForwardDetLayer::ForwardDetLayer( float initPos) : 
-  theDisk(0),
-  theRmin(0), theRmax(0), theZmin(0), theZmax(0)
+  theDisk(0)
+  //theRmin(0), theRmax(0), theZmin(0), theZmax(0)
 {}
 
 
@@ -38,20 +33,17 @@ void ForwardDetLayer::initialize() {
 
 
 BoundDisk* ForwardDetLayer::computeSurface() {
+  vector<const GeometricSearchDet*> comps= components();
 
-  // FIXME: it could work (faster) with components() instead of basicComponents()
-  vector<const GeomDet*> comps= basicComponents();
-
-  vector<const GeomDet*>::const_iterator ifirst = comps.begin();
-  vector<const GeomDet*>::const_iterator ilast  = comps.end();
+  vector<const GeometricSearchDet*>::const_iterator ifirst = comps.begin();
+  vector<const GeometricSearchDet*>::const_iterator ilast  = comps.end();
 
   // Find extension in R
-  // float tolerance = 1.; // cm
-  theRmin = basicComponents().front()->position().perp(); 
-  theRmax = theRmin;
-  theZmin = basicComponents().back()->position().z();
-  theZmax = theZmin;
-  for ( vector<const GeomDet*>::const_iterator deti = ifirst;
+  float theRmin = components().front()->position().perp(); 
+  float theRmax = theRmin;
+  float theZmin = components().back()->position().z();
+  float theZmax = theZmin;
+  for ( vector<const GeometricSearchDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 
       BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));
@@ -78,7 +70,6 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   LogDebug("DetLayers") << "creating SimpleDiskBounds with r range" << theRmin << " " 
 			<< theRmax << " and z range " << theZmin << " " << theZmax ;
 
-
   // By default the forward layers are positioned around the z axis of the
   // global frame, and the axes of their local frame coincide with 
   // those of the global grame (z along the disk axis)
@@ -97,6 +88,10 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
 			     const Propagator& prop, 
 			     const MeasurementEstimator& est) const
 {
+  if(theDisk == 0)  edm::LogError("DetLayers") 
+    << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
+  // throw an exception? which one?
+
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
   if ( !myState.isValid()) return make_pair( false, myState);
 
@@ -112,9 +107,9 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
     deltaR += nSigma * sqrt(err.xx() + err.yy());
   }
 
-  float zPos = (theZmax+theZmin)/2.;
-  SimpleDiskBounds tmp( theRmin-deltaR, theRmax+deltaR, 
-			theZmin-zPos, theZmax-zPos);
+  float zPos = (zmax()+zmin())/2.;
+  SimpleDiskBounds tmp( rmin()-deltaR, rmax()+deltaR, 
+			zmin()-zPos, zmax()-zPos);
 
   return make_pair( tmp.inside(myState.localPosition()), myState);
 }
