@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/06/14 09:33:41 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/20 14:52:44 $
+//   $Revision: 1.4 $
 //
 //   Modifications: 
 //
@@ -128,7 +128,7 @@ const int CSCCathodeLCTProcessor::pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_P
    999,   4,   4, 999, 999, 999, 999,   
      5,   5, 999, 999, 999, 999, 999, 1}*/
 
-  ///// The old set of patterns
+  ///// The standard set of patterns
   {999, 999, 999, 999, 999, 999, 999,
    999, 999, 999, 999, 999, 999, 999,
    999, 999, 999, 999, 999, 999, 999,
@@ -268,6 +268,17 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 					    theSubsector, theTrigChamber);
   if (theChamber) {
     numStrips = theChamber->layer(1)->geometry()->numberOfStrips();
+    // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.
+    // Still need to decide whether we do any special adjustments to
+    // reconstruct LCTs in this region (3:1 ganged strips); for now, we
+    // simply allow for hits in ME1/a and apply standard reconstruction
+    // to them.
+    if (theStation == 1 &&
+	CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						   theTrigChamber) == 1) {
+      numStrips = 80;
+    }
+
     if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
       throw cms::Exception("CSCCathodeLCTProcessor")
 	<< "+++ Number of strips, " << numStrips
@@ -324,7 +335,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       if (thisStrip < 0 || thisStrip >= numStrips) {
 	throw cms::Exception("CSCCathodeLCTProcessor")
 	  << "+++ Comparator digi with wrong strip number: digi #" << j
-	  << ", strip = " << thisStrip << " +++" << std::endl;
+	  << ", strip = " << thisStrip
+	  << ", max strips = " << numStrips << " +++" << std::endl;
       }
       int diStrip = thisStrip/2; // [0-39]
 
