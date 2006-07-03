@@ -46,7 +46,7 @@ int main() {
   double x = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
   double startx = x;
 
-  int nsamp = 250;
+  int nsamp = 500;
   int tconv = 10;
   unsigned int histsiz = nsamp*tconv;
 
