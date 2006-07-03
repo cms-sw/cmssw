@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/16 12:22:38 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -53,9 +53,10 @@ void DumpFileToDB::endJob() {
 
   // Write the ttrig object to DB
   edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
+  size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
  if( dbOutputSvc.isAvailable() ){
     try{
-      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime());
+      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
     }catch(const cond::Exception& er){
       cout << er.what() << endl;
     }catch(const std::exception& er){
