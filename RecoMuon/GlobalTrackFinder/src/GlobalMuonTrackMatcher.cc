@@ -3,8 +3,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with a tracker track
  *
- *  $Date: 2006/07/02 03:01:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 12:01:58 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  - Purdue University
  */
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -38,9 +38,11 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const edm::Handle<reco
 
 }
 
-/** determine if the tk and standalone Tracks are compatible
-  by comparing their TSOSs on outer Tracker surface
- */
+
+//
+// determine if two Tracks are compatible
+// by comparing their TSOSs on the outer Tracker surface
+//
 std::pair<bool,double> 
 GlobalMuonTrackMatcher::match(const reco::TrackRef&, const reco::TrackRef&) const {
 
@@ -48,10 +50,13 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef&, const reco::TrackRef&) cons
 
 }
 
-/** determine if two TSOSs are compatible
- */
+
+//
+// determine if two TSOSs are compatible
+//
 std::pair<bool,double> 
-GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1, const TrajectoryStateOnSurface& tsos2) const {
+GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1, 
+                              const TrajectoryStateOnSurface& tsos2) const {
 
   AlgebraicVector v(tsos1.globalParameters().vector() - tsos2.globalParameters().vector());
   AlgebraicSymMatrix m(tsos1.curvilinearError().matrix() + tsos2.curvilinearError().matrix());
