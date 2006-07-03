@@ -10,11 +10,6 @@
 #include <vector>
 
 
-#ifndef VerbosityLevelEnum
-#define VerbosityLevelEnum
-enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
-#endif
-
 /*
   The BremRecoveryClusterAlgo class encapsulates the functionality needed
   to perform the SuperClustering.
@@ -27,6 +22,8 @@ class BremRecoveryClusterAlgo
 {
  public:
   
+  enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
+
   BremRecoveryClusterAlgo(double eb_sc_road_etasize = 0.06, // Search window in eta - Barrel
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
