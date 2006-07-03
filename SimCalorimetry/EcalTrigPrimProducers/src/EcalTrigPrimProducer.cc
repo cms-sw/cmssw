@@ -4,6 +4,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Common/interface/ParameterSetID.h"
 
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -67,6 +70,14 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   LogDebug("Startproduce") <<" =================> Treating event "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new EcalTrigPrimDigiCollection);
   
+  //get and set binOfMax
+  const Provenance p=e.getProvenance(ebDigis.id());
+  ParameterSet result;
+  pset::Registry::instance()->getParameterSet(p.psetID(), result);
+  int binofmax=result.getParameter<int>("binOfMaximum");
+  //pout->setBinOfMax(binofmax);
+  cout<<" bin of Max : "<<binofmax<<endl;
+
   // invoke algorithm  //FIXME: better separation
   //   algo_->setupES(iSetup);
   algo_->run(ebDigis.product(),eeDigis.product(),*pOut, fgvbMinEnergy_);
