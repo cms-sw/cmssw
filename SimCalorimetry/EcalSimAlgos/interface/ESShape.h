@@ -31,11 +31,12 @@ class ESShape : public CaloVShape
 
  private:
 
-  int theGain;
-  double A;
-  double Qcf;
-  double omegac;
-  double norm;
+  int theGain_;
+  double A_;
+  double Qcf_;
+  double omegac_;
+  double norm_;
+  double M_;
 
 };
 
