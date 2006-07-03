@@ -18,9 +18,16 @@
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
 :  theGeometry(0)
 {
-  produces<EBDigiCollection>();
-  produces<EEDigiCollection>();
-  produces<ESDigiCollection>();
+
+  /// output collections names
+
+  EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+  EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+  ESdigiCollection_ = params.getParameter<std::string>("ESdigiCollection");
+
+  produces<EBDigiCollection>(EBdigiCollection_);
+  produces<EEDigiCollection>(EEdigiCollection_);
+  produces<ESDigiCollection>(ESdigiCollection_);
 
 
   // initialize the default valuer for hardcoded parameters and the EB/EE shape
@@ -201,9 +208,9 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   }
 
   // Step D: Put outputs into event
-  event.put(barrelResult);
-  event.put(endcapResult);
-  event.put(preshowerResult);
+  event.put(barrelResult, EBdigiCollection_);
+  event.put(endcapResult, EEdigiCollection_);
+  event.put(preshowerResult, ESdigiCollection_);
 
 }
 

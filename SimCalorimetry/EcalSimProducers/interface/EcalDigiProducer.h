@@ -69,6 +69,10 @@ private:
   std::vector<DetId> theEndcapDets;
   std::vector<DetId> theESDets;
 
+  std::string EBdigiCollection_;
+  std::string EEdigiCollection_;
+  std::string ESdigiCollection_;
+
 };
 
 #endif 
