@@ -6,8 +6,11 @@
 using namespace std;
 
 //DEFINE STATICS
+// *** Note the following definition in terms of COL_OFFSET appears not to work ***
+// ***          for some deep C++ reason that I don't understand - GPH          ***
 // const unsigned int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinder::N_COLS;
-const unsigned int L1GctJetFinder::MAX_REGIONS_IN = (((L1GctMap::N_RGN_ETA)/2)+1)*L1GctJetFinder::N_COLS;
+// ***                        So - use the following instead                    ***
+const unsigned int L1GctJetFinder::MAX_REGIONS_IN = (((L1GctJet::N_RGN_ETA)/2)+1)*L1GctJetFinder::N_COLS;
 
 const int L1GctJetFinder::N_COLS = 4;
 const unsigned int L1GctJetFinder::CENTRAL_COL0 = 1;
@@ -44,17 +47,18 @@ void L1GctJetFinder::process()
   doEnergySums();
 }
 
+/// HERE IS THE JETFINDER CODE
+
 void L1GctJetFinder::findJets() 
 {
   UShort jetNum = 0; //holds the number of jets currently found
-  for(UShort column = 1; column <=2; ++column)  //Find jets in the central search region
+  UShort centreIndex = COL_OFFSET*this->centralCol0();
+  for(UShort column = 0; column <2; ++column)  //Find jets in the central search region
   {
     //don't include row zero as it is not in the search region
+    ++centreIndex;
     for (UShort row = 1; row < COL_OFFSET; ++row)  
     {
-      //the region index of the center of our 3*3 window
-      UShort centreIndex = (column*COL_OFFSET) + row;
-           
       //Determine if we are at end of the HF or not (so need 3*2 window)
       bool hfBoundary = (row == COL_OFFSET-1);
       //Determine if we are at the end of the endcap HCAL regions, so need boundary condition tauveto
@@ -69,10 +73,8 @@ void L1GctJetFinder::findJets()
       {
         assert(jetNum < MAX_JETS_OUT);
                 
-        m_outputJets.at(jetNum).setRawsum(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)));
-	// Use the jetFinder m_id to assign the eta and phi in global coordinates here
-        m_outputJets.at(jetNum).setEta(map->globalEta((row-1),   (m_id/N_JF_PER_WHEEL)));
-        m_outputJets.at(jetNum).setPhi(map->globalPhi((column-1),(m_id%N_JF_PER_WHEEL)));
+        m_outputJets.at(jetNum).setRawsum(calcJetEnergy(centreIndex, hfBoundary));
+        m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
         {
           m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
@@ -83,6 +85,7 @@ void L1GctJetFinder::findJets()
         }
         ++jetNum;
       }
+      ++centreIndex;
     }
   }
 }
@@ -177,6 +180,12 @@ ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundar
     }
   }
   return energy;                                   
+}
+
+// returns the encoded (eta, phi) position of the centre region
+L1CaloRegionDetId L1GctJetFinder::calcJetPosition(const UShort centreIndex) const
+{
+  return m_inputRegions.at(centreIndex).id();
 }
 
 // returns the combined tauveto of the nine regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.

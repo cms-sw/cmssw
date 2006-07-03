@@ -363,8 +363,8 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       for(ULong i = 0; i < vector1.size(); ++i)
       {
         if(vector1[i].rank() != vector2[i].rank()) { cout << "rank fail " << endl; testPass = false; break; }
-        if(vector1[i].eta() != vector2[i].eta()) { cout << "eta fail " << endl; testPass = false; break; }
-        if(vector1[i].phi() != vector2[i].phi()) { cout << "phi fail " << endl; testPass = false; break; }
+        if(vector1[i].globalEta() != vector2[i].globalEta()) { cout << "eta fail " << endl; testPass = false; break; }
+        if(vector1[i].globalPhi() != vector2[i].globalPhi()) { cout << "phi fail " << endl; testPass = false; break; }
         if(vector1[i].tauVeto() != vector2[i].tauVeto()) { cout << "tau fail " << endl; testPass = false; break; }
       }
     }
@@ -393,8 +393,8 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
     for(ULong i=0; i < jets.size(); ++i)
     {
       fout << jets[i].rank() << "\t" 
-           << jets[i].eta()  << "\t"
-           << jets[i].phi()  << "\t"
+           << jets[i].globalEta()  << "\t"
+           << jets[i].globalPhi()  << "\t"
            << jets[i].tauVeto() << endl;
     }
   }

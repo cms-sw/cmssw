@@ -3,19 +3,15 @@
 #include "FWCore/Utilities/interface/Exception.h"  
 
 //DEFINE STATICS
-const unsigned L1GctJet::LOCAL_ETA_HF_START = 7;
-const unsigned L1GctJet::RAWSUM_BITWIDTH = L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH;  
-const unsigned L1GctJet::ETA_BITWIDTH = 4;
-const unsigned L1GctJet::PHI_BITWIDTH = 5;
-const unsigned L1GctJet::N_RGN_ETA = L1GctMap::N_RGN_ETA;
-const unsigned L1GctJet::N_RGN_PHI = L1GctMap::N_RGN_PHI;
+const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
+const unsigned L1GctJet::N_RGN_ETA = 22;
+const unsigned L1GctJet::N_RGN_PHI = 18;
 
 
-L1GctJet::L1GctJet(uint16_t rawsum, uint16_t eta, uint16_t phi, bool tauVeto,
+L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto,
 		   L1GctJetEtCalibrationLut* lut) :
   m_rawsum(rawsum),
-  m_eta(eta),
-  m_phi(phi),
+  m_id(eta, phi),
   m_tauVeto(tauVeto),
   m_jetEtCalibrationLut(lut)
 {
@@ -30,8 +26,8 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
 {
   os << "L1 Gct jet";
   os << " energy sum " << cand.m_rawsum;
-  os << " Eta " << cand.m_eta;
-  os << " Phi " << cand.m_phi;
+  os << " Eta " << cand.globalEta();
+  os << " Phi " << cand.globalPhi();
   os << " Tau " << cand.m_tauVeto;
   if (cand.m_jetEtCalibrationLut == 0) {
     os << " using default lut!" << std::endl;
@@ -43,12 +39,12 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
   return os;
 }	
 
-void L1GctJet::setupJet(uint16_t rawsum, uint16_t eta, uint16_t phi, bool tauVeto)
+void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto)
 {
-    m_rawsum = rawsum;
-    m_eta = eta;
-    m_phi = phi;
-    m_tauVeto = tauVeto;    
+  L1CaloRegionDetId temp(eta, phi);
+  m_rawsum = rawsum;
+  m_id = temp;
+  m_tauVeto = tauVeto;
 }
 
 /// Methods to return the jet rank
@@ -59,7 +55,7 @@ uint16_t L1GctJet::rank()      const
   if (m_jetEtCalibrationLut==0) {
     result = std::min(63, m_rawsum >> (RAWSUM_BITWIDTH - 6));
   } else {
-    result = m_jetEtCalibrationLut->convertToSixBitRank(m_rawsum, m_eta);
+    result = m_jetEtCalibrationLut->convertToSixBitRank(m_rawsum, m_id.ieta());
   }
   return result;
 }
@@ -71,7 +67,7 @@ uint16_t L1GctJet::rankForHt() const
   if (m_jetEtCalibrationLut==0) {
     result = std::min(1023, m_rawsum >> (RAWSUM_BITWIDTH - 10));
   } else {
-    result = m_jetEtCalibrationLut->convertToTenBitRank(m_rawsum, m_eta);
+    result = m_jetEtCalibrationLut->convertToTenBitRank(m_rawsum, m_id.ieta());
   }
   return result;
 }
@@ -81,35 +77,17 @@ L1GctJetCand L1GctJet::makeJetCand() {
   return L1GctJetCand(this->rank(), this->hwEta(), this->hwPhi(), this->isTauJet(), this->isForwardJet());
 }
 
-/// eta value in local jetFinder coordinates
-unsigned L1GctJet::jfLocalEta() const
-{
-  return (m_eta < (N_RGN_ETA/2) ? ((N_RGN_ETA/2)-1-m_eta) : m_eta-(N_RGN_ETA/2) ) ;
-}
-
-/// phi value in local jetFinder coordinates
-unsigned L1GctJet::jfLocalPhi() const
-{
-  return m_phi % 2;
-}
-
 /// eta value as encoded in hardware at the GCT output
 unsigned L1GctJet::hwEta() const
 {
-  // Force into ETA_BITWIDTH bits. It should fit OK if things are properly set up.
+  // Force into 4 bits.
   // Count eta bins separately for central and forward jets. Set MSB to indicate the Wheel
-  return (((this->jfLocalEta() % LOCAL_ETA_HF_START) && ((1<<(ETA_BITWIDTH-1))-1)) || ((1-this->jfWheelIndex())<<ETA_BITWIDTH));
+  return (((m_id.rctEta() % 7) & 0x7) | (m_id.ieta()<11 ? 0x10 : 0));
 }
 
 /// phi value as encoded in hardware at the GCT output
 unsigned L1GctJet::hwPhi() const
 {
-  // Force into PHI_BITWIDTH bits. It should fit OK if things are properly set up.
-  return m_phi && ((1<<PHI_BITWIDTH)-1);
-}
-
-/// the jetFinder that produced this jet
-unsigned L1GctJet::jfIdNum() const
-{
-  return (((N_RGN_PHI + 4 - m_phi) % N_RGN_PHI) / 2) + ((m_eta/(N_RGN_ETA/2)) * (N_RGN_PHI/2));
+  // Force into 5 bits.
+  return m_id.iphi() & 0x1f;
 }

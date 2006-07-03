@@ -9,12 +9,12 @@
 /*! \class L1GctJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
  *
- *  Locates the jets from 48 inputted L1GctRegions.
+ *  Locates the jets from 48 inputted L1CaloRegions.
  *  This uses the 3*3 sliding window algorithm.
  * 
- *  SourceCard pointers should be set up according to:
- *  http://frazier.home.cern.ch/frazier/wiki_resources/GCT/jetfinder_sourcecard_wiring.jpg
- * 
+ *  The details of the sourceCard wiring, and the filling of the input
+ *  L1CaloRegions, are now contained in the L1GctJetFinderBase class
+ *
  *  Inputted regions are expected in a certain order with respect
  *  to the index i:
  * 
@@ -39,10 +39,8 @@
  *  will locate the jet in the region furthest from eta=0 that has the
  *  lowest value of phi.
  * 
- *  The jet finder now stores jets with (eta, phi) in a global coordinate
- *  system. Eta runs from 0 at the Minus end HF to 21 at the Plus end.
- *  Phi is defined in 20-degree bins with bin centre in CMS coordinate
- *  system at (bin number)*20 degrees.
+ *  The jet finder now stores jets with (eta, phi) information encoded
+ *  in an L1CaloRegionDetId.
  *
  *  Modified to use L1GctJetFinderBase class by Greg Heath, June 2006.
  *  
@@ -96,6 +94,9 @@ private:
 
   /// Returns energy sum of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
   ULong calcJetEnergy(const UShort centreIndex, const bool boundary = false) const;
+
+  /// returns the encoded (eta, phi) position of the centre region
+  L1CaloRegionDetId calcJetPosition(const UShort centreIndex) const;
 
   /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
   bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;

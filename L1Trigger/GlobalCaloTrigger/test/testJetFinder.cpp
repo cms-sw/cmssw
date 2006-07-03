@@ -419,8 +419,8 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       for(unsigned int i = 0; i < vector1.size(); ++i)
       {
         if(vector1[i].rank() != vector2[i].rank()) { testPass = false; break; }
-        if(vector1[i].jfLocalEta() != vector2[i].jfLocalEta()) { testPass = false; break; }
-        if(vector1[i].jfLocalPhi() != vector2[i].jfLocalPhi()) { testPass = false; break; }
+        if(vector1[i].rctEta() != vector2[i].rctEta()) { testPass = false; break; }
+        if(vector1[i].rctPhi() != vector2[i].rctPhi()) { testPass = false; break; }
         if(vector1[i].tauVeto() != vector2[i].tauVeto()) { testPass = false; break; }
       }
     }
@@ -448,8 +448,9 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
   {
     for (unsigned int i=0; i < regions.size(); ++i)
     {
-      fout << regions[i].id() << "\t"
-           << regions[i].et() << "\t"
+      fout << regions[i].et() << "\t"
+           << regions[i].gctEta() << "\t"
+	   << regions[i].gctPhi() << "\t"
            << regions[i].overFlow() << "\t"
            << regions[i].tauVeto() << "\t"
            << regions[i].mip() << "\t"
@@ -469,8 +470,8 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
     for(unsigned int i=0; i < jets.size(); ++i)
     {
       fout << jets[i].rank() << "\t" 
-           << jets[i].eta()  << "\t"
-           << jets[i].phi()  << "\t"
+           << jets[i].globalEta()  << "\t"
+           << jets[i].globalPhi()  << "\t"
            << jets[i].tauVeto() << endl;
     }
   }

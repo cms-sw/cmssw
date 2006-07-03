@@ -8,8 +8,8 @@ using namespace std;
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinderBase::MAX_SOURCE_CARDS = 9;
-const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1GctMap::N_RGN_ETA)/2)+1;
-const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1GctMap::N_RGN_PHI)/2);
+const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1GctJet::N_RGN_ETA)/2)+1;
+const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1GctJet::N_RGN_PHI)/2);
 
 const unsigned int L1GctJetFinderBase::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinderBase::N_COLS;
 const int L1GctJetFinderBase::N_COLS = 2;
@@ -26,7 +26,6 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCa
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
-  map = L1GctMap::getMap();
   // Call reset to initialise vectors for input and output
   this->reset();
   //Check jetfinder setup
@@ -172,27 +171,36 @@ void L1GctJetFinderBase::fetchEdgeStripsInput() {
 
 /// Copy the input regions from one source card into the m_inputRegions vector
 void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, unsigned scType, int col0) {
-  for (unsigned i=0; i<sourceCard->getRegions().size(); ++i) {
-    unsigned localEta = map->rctEta(scType, i);
-    unsigned localPhi = map->rctPhi(scType, i);
+  RegionsVector::iterator thisRegion;
+  for ( thisRegion  = sourceCard->getRegions().begin();
+	thisRegion != sourceCard->getRegions().end(); ++thisRegion) {
+    unsigned localEta = thisRegion->rctEta();
+    unsigned localPhi = thisRegion->rctPhi();
 
     int col = col0+localPhi;
     if (col>=0 && col<this->nCols()) {
       unsigned offset = col*COL_OFFSET + localEta + 1;
-      m_inputRegions.at(offset) = sourceCard->getRegions().at(i);
+      m_inputRegions.at(offset) = *thisRegion;
     }
   }
 }
 
 /// Copy the input regions from one eta=0 neighbour source card
+/// No method to find the eta=0 regions directly so we loop 
+/// over all regions as in fetchScInput
 void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0) {
-  for (unsigned iphi=0; iphi<2; ++iphi) {
-    int col = col0+iphi;
-    if (col>=0 && col<this->nCols()) {
-      unsigned scOutput = map->sourceCardOutput(0, iphi);
+  RegionsVector::iterator thisRegion;
+  for ( thisRegion  = sourceCard->getRegions().begin();
+	thisRegion != sourceCard->getRegions().end(); ++thisRegion) {
+    unsigned localEta = thisRegion->rctEta();
+    unsigned localPhi = thisRegion->rctPhi();
 
-      unsigned offset = col*COL_OFFSET;
-      m_inputRegions.at(offset) = sourceCard->getRegions().at(scOutput);
+    if (localEta == 0) {
+      int col = col0+localPhi;
+      if (col>=0 && col<this->nCols()) {
+	unsigned offset = col*COL_OFFSET;
+	m_inputRegions.at(offset) = *thisRegion;
+      }
     }
   }
 }

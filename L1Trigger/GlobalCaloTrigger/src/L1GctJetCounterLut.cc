@@ -1,7 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
-
 #include "FWCore/Utilities/interface/Exception.h"  
 
 #include <iostream>
@@ -123,31 +121,31 @@ void L1GctJetCounterLut::checkCut(const validCutType cutType, const unsigned cut
       return;
 
     case centralEta:
-      if (cutValue1>=L1GctMap::N_RGN_ETA/2) {
+      if (cutValue1>=L1GctJet::N_RGN_ETA/2) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; eta value " << cutValue1
-	  << " should be less than " << L1GctMap::N_RGN_ETA/2 << endl;
+	  << " should be less than " << L1GctJet::N_RGN_ETA/2 << endl;
       }
       return;
 
     case forwardEta:
-      if (cutValue1>=L1GctMap::N_RGN_ETA/2) {
+      if (cutValue1>=L1GctJet::N_RGN_ETA/2) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; eta value " << cutValue1
-	  << " should be less than " << L1GctMap::N_RGN_ETA/2 << endl;
+	  << " should be less than " << L1GctJet::N_RGN_ETA/2 << endl;
       }
       return;
 
     case phiWindow:
-      if (cutValue1>=L1GctMap::N_RGN_PHI) {
+      if (cutValue1>=L1GctJet::N_RGN_PHI) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; phi value1 " << cutValue1
-	  << " should be less than " << L1GctMap::N_RGN_PHI << endl;
+	  << " should be less than " << L1GctJet::N_RGN_PHI << endl;
       }
-      if (cutValue2>=L1GctMap::N_RGN_PHI) {
+      if (cutValue2>=L1GctJet::N_RGN_PHI) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; phi value2 " << cutValue2
-	  << " should be less than " << L1GctMap::N_RGN_PHI << endl;
+	  << " should be less than " << L1GctJet::N_RGN_PHI << endl;
       }
       return;
 
@@ -172,15 +170,15 @@ bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJet jet, const unsigned i) 
       return (jet.rank()<=m_cutValue1.at(i));
 
     case centralEta:
-      return (jet.eta()<=m_cutValue1.at(i));
+      return (jet.rctEta()<=m_cutValue1.at(i));
 
     case forwardEta:
-      return (jet.eta()>=m_cutValue1.at(i));
+      return (jet.rctEta()>=m_cutValue1.at(i));
 
     case phiWindow:
       return (m_cutValue2.at(i)>m_cutValue1.at(i) ?
-	      ((jet.phi() >= m_cutValue1.at(i)) && (jet.phi() <= m_cutValue2.at(i))) :
-	      ((jet.phi() >= m_cutValue1.at(i)) || (jet.phi() <= m_cutValue2.at(i))));
+	      ((jet.globalPhi() >= m_cutValue1.at(i)) && (jet.globalPhi() <= m_cutValue2.at(i))) :
+	      ((jet.globalPhi() >= m_cutValue1.at(i)) || (jet.globalPhi() <= m_cutValue2.at(i))));
 
     case nullCutType:
       return false;

@@ -22,18 +22,18 @@
 class L1GctJetEtCalibrationLut
 {
 public:
-  static const int JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
+  static const unsigned JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
   
   L1GctJetEtCalibrationLut();
   ~L1GctJetEtCalibrationLut();
   
   /// Converts a 10-bit jet Et to a 6-bit rank.
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToSixBitRank(uint16_t jetEnergy, uint16_t eta) const;
+  uint16_t convertToSixBitRank(uint16_t jetEnergy, unsigned eta) const;
 
   /// Converts a 10-bit jet Et to a 10-bit Et (applying eta-dependent calibration)
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToTenBitRank(uint16_t jetEnergy, uint16_t eta) const;
+  uint16_t convertToTenBitRank(uint16_t jetEnergy, unsigned eta) const;
   
 private:
 

@@ -5,7 +5,8 @@
 #include <functional>
 #include <ostream>
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
@@ -25,26 +26,23 @@ class L1GctJet
 
 public:
   //Statics
-  static const unsigned LOCAL_ETA_HF_START; ///< start of the HF in 'local' jetfinder co-ordinates (11*2 in eta*phi)
+  static const unsigned RAWSUM_BITWIDTH;  
   static const unsigned N_RGN_ETA;
   static const unsigned N_RGN_PHI;
   
   //Constructors/destructors
-  L1GctJet(uint16_t rawsum=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true,
+  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool tauVeto=true,
 	   L1GctJetEtCalibrationLut* lut=0);
   ~L1GctJet();
   
   // set rawsum and position bits
   void setRawsum(uint16_t rawsum) { m_rawsum = rawsum; }
-  void setEta(uint16_t eta) { m_eta = eta; }
-  void setPhi(uint16_t phi) { m_phi = phi; }
+  void setDetId(L1CaloRegionDetId detId) { m_id = detId; }
   void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
   void setLut(L1GctJetEtCalibrationLut* lut) {m_jetEtCalibrationLut = lut; }
   
   // get rawsum and position bits
   uint16_t rawsum()const { return m_rawsum; }
-  uint16_t eta()const { return m_eta; }
-  uint16_t phi()const { return m_phi; }
   bool tauVeto()const { return m_tauVeto; }
   L1GctJetEtCalibrationLut* lut() const { return m_jetEtCalibrationLut; }
 
@@ -52,21 +50,21 @@ public:
   uint16_t rankForHt() const;
 
   /// test whether this jet candidate is a valid tau jet	
-  bool isTauJet()     const { return (this->jfLocalEta()<LOCAL_ETA_HF_START && !m_tauVeto); } 
+  bool isTauJet()     const { return (!m_id.isForward() && !m_tauVeto); } 
 
   /// test whether this jet candidate is a (non-tau) central jet
-  bool isCentralJet() const { return (this->jfLocalEta()<LOCAL_ETA_HF_START && m_tauVeto); } 
+  bool isCentralJet() const { return (!m_id.isForward() && m_tauVeto); } 
 
   /// test whether this jet candidate is a forward jet	
-  bool isForwardJet() const { return (this->jfLocalEta()>=LOCAL_ETA_HF_START); } 
+  bool isForwardJet() const { return m_id.isForward(); } 
 
   /// test whether this jet candidate has been filled	
-  bool isNullJet() const { return ((m_rawsum==0) && (m_eta==0) && (m_phi==0)); } 
+  bool isNullJet() const { return ((m_rawsum==0) && (globalEta()==0) && (globalPhi()==0)); } 
 
   friend std::ostream& operator << (std::ostream& os, const L1GctJet& cand);
   
   ///Setup an existing jet all in one go
-  void setupJet(uint16_t rawsum, uint16_t eta, uint16_t phi, bool tauVeto=true);
+  void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto=true);
   
   // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
   struct rankGreaterThan : public std::binary_function<L1GctJet, L1GctJet, bool> 
@@ -80,16 +78,16 @@ public:
   L1GctJetCand makeJetCand();
   
   /// eta value in global CMS coordinates
-  unsigned globalEta() const { return static_cast<unsigned>(m_eta); } 
+  unsigned globalEta() const { return m_id.ieta(); } 
 
   /// phi value in global CMS coordinates
-  unsigned globalPhi() const { return static_cast<unsigned>(m_phi); } 
+  unsigned globalPhi() const { return m_id.iphi(); } 
 
-  /// eta value in local jetFinder coordinates
-  unsigned jfLocalEta() const; 
+  /// eta value in global CMS coordinates
+  unsigned rctEta() const { return m_id.rctEta(); } 
 
-  /// phi value in local jetFinder coordinates
-  unsigned jfLocalPhi() const; 
+  /// phi value in global CMS coordinates
+  unsigned rctPhi() const { return m_id.rctPhi(); } 
 
   /// eta value as encoded in hardware at the GCT output
   unsigned hwEta() const; 
@@ -97,26 +95,12 @@ public:
   /// phi value as encoded in hardware at the GCT output
   unsigned hwPhi() const; 
 
-  /// the jetFinder that produced this jet
-  unsigned jfIdNum() const;
-
-  /// the position of the jet finder in phi within the Wheel
-  unsigned jfPhiIndex()   const { return this->jfIdNum() % (N_RGN_PHI/2); }
-
-  /// the Wheel number for this jet finder (0=MinusWheel, 1=PlusWheel)
-  unsigned jfWheelIndex() const { return this->jfIdNum() / (N_RGN_PHI/2); }
-
 
  private:
 
-  //Declare statics
-  static const unsigned RAWSUM_BITWIDTH;  
-  static const unsigned ETA_BITWIDTH;
-  static const unsigned PHI_BITWIDTH;
-  
   uint16_t m_rawsum;
-  uint16_t m_eta;
-  uint16_t m_phi;
+  /// region id, encodes eta and phi
+  L1CaloRegionDetId m_id;
   bool m_tauVeto;
 
   L1GctJetEtCalibrationLut* m_jetEtCalibrationLut;

@@ -1,6 +1,9 @@
 
+// Test the various geometry/position transformations in calorimeter
+// regions input from the RCT to the GCT emulator.
+// This used to be done in a class called L1GctMap.
+
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
 
 #include <iostream>
 
@@ -8,35 +11,31 @@ using namespace std;
 
 int main() {
 
-  L1GctMap* map = L1GctMap::getMap();
-
   bool testPass=true;
 
   cout << "Testing eta,phi to/from ID conversion" << endl << endl;
 
-//   for (unsigned ieta=0; ieta<22; ieta++) {   // loop over eta
+  for (unsigned ieta=0; ieta<22; ieta++) {   // loop over eta
 
-//     cout << ieta << " ";
+    cout << ieta << " ";
 
-//     for (unsigned iphi=0; iphi<18; iphi++) {   // loop over phi
+    for (unsigned iphi=0; iphi<18; iphi++) {   // loop over phi
 
-//       if ( map->phi(map->id(ieta, iphi)) != iphi ) { testPass = false;
-// 	cout << "Error : phi->id->phi conversion failed for phi=" << iphi << " id=" << map->id(ieta,iphi) << endl;
-//       }
+      L1CaloRegionDetId temp(ieta, iphi);
 
-//       if ( map->eta(map->id(ieta, iphi)) != ieta ) { testPass = false;
-// 	cout << "Error : eta->id->eta conversion failed for eta=" << iphi << " id=" << map->id(ieta,iphi) << endl;
-//       }
+      if ( temp.iphi() != iphi ) { testPass = false;
+	cout << "Error : phi->id->phi conversion failed for phi=" << iphi << " stored phi=" << temp.iphi() << endl;
+      }
 
-//       cout << map->id(ieta, iphi) << " ";
-//       cout << map->eta(map->id(ieta, iphi)) << " ";
-//       cout << map->phi(map->id(ieta, iphi)) << " ";      
+      if ( temp.ieta() != ieta ) { testPass = false;
+	cout << "Error : eta->id->eta conversion failed for eta=" << ieta << " stored eta=" << temp.ieta() << endl;
+      }
 
-//     }
+    }
 
-//     cout << endl;
+    cout << endl;
 
-//   }
+  }
 
   cout << "testing source card mapping\n";
 

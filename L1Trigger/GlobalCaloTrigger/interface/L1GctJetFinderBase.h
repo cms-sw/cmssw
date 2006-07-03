@@ -3,8 +3,6 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctMap.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
@@ -26,6 +24,12 @@
  *  and from across the eta=0 boundary between Wheels. The input regions
  *  are copied into a vector of dimension N_COLS*COL_OFFSET.
  *
+ *  SourceCard pointers should be set up according to:
+ *  http://frazier.home.cern.ch/frazier/wiki_resources/GCT/jetfinder_sourcecard_wiring.jpg
+ * 
+ *  The array of input regions is filled in a certain order with respect
+ *  to the index i: 
+ * 
  *  The jetFinder can also pull in "proto-jets" from adjacent jetFinders.
  *  If required by the algorithm, these must be calculated in the
  *  fetchInput() method;
@@ -44,6 +48,7 @@ public:
   //Typedefs
   typedef unsigned long int ULong;
   typedef unsigned short int UShort;
+  typedef std::vector<L1CaloRegion> RegionsVector;
   typedef std::vector<L1GctJet> JetVector;
 
   //Statics
@@ -117,9 +122,6 @@ public:
   L1GctScalarEtVal m_outputEtStrip0;
   L1GctScalarEtVal m_outputEtStrip1;
   L1GctScalarEtVal m_outputHt;
-    
-  /// map for coordinate transformations
-  L1GctMap* map;
     
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
