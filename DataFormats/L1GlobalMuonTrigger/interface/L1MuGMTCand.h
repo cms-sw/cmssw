@@ -7,8 +7,8 @@
  *   This candidate contains only information sent to the GT.
 */
 //
-//   $Date: 2004/02/03 16:31:46 $
-//   $Revision: 1.16 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin               HEPHY Vienna
@@ -30,6 +30,8 @@
 // Base Class Headers --
 //----------------------
 
+#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
+
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -40,7 +42,7 @@
 //              ---------------------
 using namespace std;
 
-class L1MuGMTCand {
+class L1MuGMTCand : L1TriggerObject {
 
   public:
 
@@ -73,10 +75,10 @@ class L1MuGMTCand {
     string name() const { return m_name; }
 
     /// get phi-code
-    unsigned int phi() const { return readDataField( PHI_START, PHI_LENGTH); }
+    unsigned int phiIndex() const { return readDataField( PHI_START, PHI_LENGTH); }
     
     /// get pt-code
-    unsigned int pt() const { return readDataField( PT_START, PT_LENGTH); }
+    unsigned int ptIndex() const { return readDataField( PT_START, PT_LENGTH); }
     
     /// get quality
 
@@ -108,7 +110,7 @@ class L1MuGMTCand {
     bool isHaloCand() const { return quality() == 1; }
 
      /// get eta-code
-    unsigned int eta() const { return readDataField( ETA_START, ETA_LENGTH); }
+    unsigned int etaIndex() const { return readDataField( ETA_START, ETA_LENGTH); }
     
     /// get charge/synchronization word (0=POS, 1=NEG, 2=UNDEF, 3=SYNC)
     unsigned sysign() const { return readDataField( SYSIGN_START, SYSIGN_LENGTH); }
@@ -122,13 +124,16 @@ class L1MuGMTCand {
     /// get bunch crossing identifier
     int bx() const { return m_bx; }
     
-    /// get phi-value of muon candidate in radians (low edge of bin)
+    /// get phi-value of muon candidate in radians (low edge of bin) 
+    /// this functionality will be moved to an extra Producer
     float phiValue() const;
     
     /// get eta-value of muon candidate
+    /// this functionality will be moved to an extra Producer
     float etaValue() const;
     
     /// get pt-value of muon candidate in GeV
+    /// this functionality will be moved to an extra Producer
     float ptValue() const;
     
      /// get charge (+1  -1)
@@ -180,9 +185,9 @@ class L1MuGMTCand {
     /// return pt-scale
     unsigned int triggerScale(float value) const;
 
-    unsigned int etaRegionIndex() const { return eta(); }
+    unsigned int etaRegionIndex() const { return etaIndex(); }
 
-    unsigned int phiRegionIndex() const { return phi(); }
+    unsigned int phiRegionIndex() const { return phiIndex(); }
 
     /// equal operator
     bool operator==(const L1MuGMTCand&) const;
