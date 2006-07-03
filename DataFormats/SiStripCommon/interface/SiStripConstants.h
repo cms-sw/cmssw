@@ -5,6 +5,18 @@
 #include <string>
 
 // -----------------------------------------------------------------------------
+// Constants related to error conditions
+namespace sistrip { 
+
+  static const std::string sistrip_ = "SiStrip|";
+  
+  // Error categories
+  static const std::string DQM_FWK    = sistrip_ + "DQM_FWK";
+  static const std::string DQM_HISTOS = sistrip_ + "DQM_HISTOS";
+  
+}
+
+// -----------------------------------------------------------------------------
 // Useful constants associated with the FED
 namespace sistrip { 
 
