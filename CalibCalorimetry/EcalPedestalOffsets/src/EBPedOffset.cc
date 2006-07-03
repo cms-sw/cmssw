@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/05/15 09:25:51 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/25 10:55:07 $
+ * $Revision: 1.6 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -52,6 +52,9 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
 }
 
 
+// -----------------------------------------------------------------------------
+
+
 //! dtor
 EBPedOffset::~EBPedOffset ()
 {
@@ -66,11 +69,17 @@ EBPedOffset::~EBPedOffset ()
 }
 
 
+// -----------------------------------------------------------------------------
+
+
 //! begin the job
 void EBPedOffset::beginJob (EventSetup const& eventSetup)
 {
    std::cout << "[EBPedOffset][beginJob] " << std::endl ;
 }
+
+
+// -----------------------------------------------------------------------------
 
 
 //! perform te analysis
@@ -138,6 +147,9 @@ void EBPedOffset::analyze (Event const& event,
 }
 
 
+// -----------------------------------------------------------------------------
+
+
 //! perform the minimiation and write results
 void EBPedOffset::endJob () 
 {
@@ -156,6 +168,9 @@ void EBPedOffset::endJob ()
   if (m_plotting != '0') makePlots () ;
   if (m_dbHostName != '0') writeDb () ;          
 }
+
+
+// -----------------------------------------------------------------------------
 
 
 //! write the m_pedResult in the DB
@@ -180,8 +195,8 @@ void EBPedOffset::writeDb ()
   RunTypeDef rundef ;
   locdef.setLocation ("H4") ;
   rundef.setRunType ("PEDESTAL-OFFSET") ;
-  rundef.setConfigTag ("PEDESTAL-OFFSET_SCAN") ;
-  rundef.setConfigVersion (1) ;  // for H4
+//  rundef.setConfigTag ("PEDESTAL-OFFSET_SCAN") ;
+//  rundef.setConfigVersion (1) ;  // for H4
   runtag.setLocationDef (locdef) ;
   runtag.setRunTypeDef (rundef) ;
   runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
@@ -247,6 +262,9 @@ void EBPedOffset::writeDb ()
 }
 
 
+// -----------------------------------------------------------------------------
+
+
 //!calculate the super module number from the headers
 int EBPedOffset::getHeaderSMId (const int headerId) 
 {
@@ -261,6 +279,9 @@ int EBPedOffset::getHeaderSMId (const int headerId)
   if ( zside() < 0 ) id += 18;
   */
 }
+
+
+// -----------------------------------------------------------------------------
 
 
 //! write the m_pedResult in an XML file
@@ -304,6 +325,9 @@ void EBPedOffset::writeXMLFile (std::string fileName)
   xml_outfile.close () ;
 
 }
+
+
+// -----------------------------------------------------------------------------
 
 
 //! create the plots of the DAC pedestal trend
