@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.18 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -88,7 +88,7 @@ void L1MuGMTCand::reset() {
 float L1MuGMTCand::phiValue() const {
 
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPhiScale()->getLowEdge( phi() );
+  return theTriggerScales->getPhiScale()->getLowEdge( phiIndex() );
 
 }
 
@@ -99,7 +99,7 @@ float L1MuGMTCand::phiValue() const {
 float L1MuGMTCand::etaValue() const {
 
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getGMTEtaScale()->getCenter( eta() );
+  return theTriggerScales->getGMTEtaScale()->getCenter( etaIndex() );
 
 }
 
@@ -110,7 +110,7 @@ float L1MuGMTCand::etaValue() const {
 float L1MuGMTCand::ptValue() const {
 
   L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPtScale()->getLowEdge( pt() );
+  return theTriggerScales->getPtScale()->getLowEdge( ptIndex() );
 
 }
 
