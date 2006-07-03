@@ -1,8 +1,8 @@
 /*
  * \file DTLocalRecoTask.cc
  * 
- * $Date: 2006/06/20 12:17:42 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/28 09:21:26 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -49,8 +49,8 @@ DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
   if (dbe)
     dbe->setCurrentFolder("DT/DTLocalRecoTask");
   
-  doSegmentAnalysis = pset.getUntrackedParameter<bool>("doSegmentAnalysis", false);
-  doResolutionAnalysis = pset.getUntrackedParameter<bool>("doResolutionAnalysis", false);
+  doSegmentAnalysis = pset.getUntrackedParameter<bool>("doSegmentAnalysis", true);
+  doResolutionAnalysis = pset.getUntrackedParameter<bool>("doResolutionAnalysis", true);
   
   // Create the classes which really make the analysis
   if(doSegmentAnalysis)
