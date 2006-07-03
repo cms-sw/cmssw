@@ -62,11 +62,7 @@ namespace cond{
 	cond::service::serviceCallbackRecord& myrecord=it->second;
 	if (!m_dbstarted) this->initDB();
 	if(!myrecord.m_payloadWriter){
-	  if( m_customMappingFile.empty() ){
-	    myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName);
-	  }else{
-	    myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName,m_customMappingFile);
-	  }
+	  myrecord.m_payloadWriter=new cond::DBWriter(*m_session,myrecord.m_containerName);
 	}
 	std::string payloadTok=myrecord.m_payloadWriter->markWrite(payloadObj);
 	if( myrecord.m_appendIOV ){
@@ -111,7 +107,7 @@ namespace cond{
       std::string m_connect;
       std::string m_timetype;
       unsigned int m_connectMode;
-      std::string m_customMappingFile;
+      //std::string m_customMappingFile;
       std::string m_catalog;
       unsigned long long m_endOfTime;
       unsigned long long m_currentTime;

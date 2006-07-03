@@ -21,7 +21,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_connect( iConfig.getParameter< std::string > ("connect") ),
   m_timetype( iConfig.getParameter< std::string >("timetype") ),
   m_connectMode( iConfig.getUntrackedParameter< unsigned int >("connectMode" ,0) ),
-  m_customMappingFile( iConfig.getUntrackedParameter< std::string >("customMappingFile","") ),
+  //m_customMappingFile( iConfig.getUntrackedParameter< std::string >("customMappingFile","") ),
   m_loader( new cond::ServiceLoader ),
   m_metadata( 0 ),
   m_session( 0 ),
