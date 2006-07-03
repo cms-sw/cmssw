@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.2 2006/03/08 13:00:45 dkcira Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.1 2006/07/01 07:37:23 gennai Exp $
 //
 //
 
@@ -210,7 +210,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	}
       }
     }
-    /*
+
     //asking for the status
     if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1)
     {
@@ -237,7 +237,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     }
     }
     }
-    */
+
     }
     
 }
