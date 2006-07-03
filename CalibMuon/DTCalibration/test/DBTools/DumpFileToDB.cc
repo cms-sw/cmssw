@@ -2,13 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 12:22:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 14:29:38 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DumpFileToDB.h"
-#include "DTCalibrationFile.h"
+#include "DTCalibrationMap.h"
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@ using namespace edm;
 using namespace std;
 
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
-  theCalibFile = new DTCalibrationFile(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
+  theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
 }
 
 DumpFileToDB::~DumpFileToDB(){}
@@ -37,7 +37,7 @@ void DumpFileToDB::endJob() {
   DTTtrig* tTrig = new DTTtrig();
 
   // Loop over file entries
-  for(DTCalibrationFile::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+  for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
       keyAndCalibs != theCalibFile->keyAndConsts_end();
       ++keyAndCalibs) {
     cout << "key: " << (*keyAndCalibs).first

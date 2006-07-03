@@ -4,10 +4,10 @@
 /** \class DumpDBToFile
  *  Class which dump the ttrig written in a DB into
  *  a txt file of the same format of ORCA MuBarDigiParameters
- *  (see DTCalibrationFile for details)
+ *  (see DTCalibrationMap for details)
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/16 12:22:38 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -17,7 +17,7 @@
 #include <string>
 
 class DTTtrig;
-class DTCalibrationFile;
+class DTCalibrationMap;
 
 class DumpDBToFile : public edm::EDAnalyzer {
 public:
@@ -40,7 +40,7 @@ protected:
 private:
   const DTTtrig *tTrigMap;
 
-  DTCalibrationFile *theCalibFile;
+  DTCalibrationMap *theCalibFile;
 
   std::string theOutputFileName;
 };

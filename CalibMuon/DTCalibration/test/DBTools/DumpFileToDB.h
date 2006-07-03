@@ -3,18 +3,18 @@
 
 /** \class DumpFileToDB
  *  Dump the content of a txt file with the format
- *  of ORCA MuBarDigiParameters (see DTCalibrationFile for details)
+ *  of ORCA MuBarDigiParameters (see DTCalibrationMap for details)
  *  into a DB. At the moment only the ttrig info is handled.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/16 12:22:38 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class DTCalibrationFile;
+class DTCalibrationMap;
 
 class DumpFileToDB : public edm::EDAnalyzer {
 public:
@@ -33,7 +33,7 @@ public:
 protected:
 
 private:
-  const DTCalibrationFile *theCalibFile;
+  const DTCalibrationMap *theCalibFile;
 
 };
 #endif

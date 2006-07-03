@@ -2,13 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/16 12:22:38 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DumpDBToFile.h"
-#include "DTCalibrationFile.h"
+#include "DTCalibrationMap.h"
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +24,7 @@ using namespace edm;
 using namespace std;
 
 DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
-  theCalibFile = new DTCalibrationFile(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
+  theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
   theOutputFileName = pset.getUntrackedParameter<string>("outputFileName");
 }
 
