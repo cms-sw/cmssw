@@ -68,6 +68,12 @@ public:
   /// set a jet region at the input to be processed
   void setRegion(L1CaloRegion region);
 
+  /// set an isolated EM candidate to be processed
+  void setIsoEm(L1CaloEmCand em);
+
+  /// set a non-isolated EM candidate to be processed
+  void setNonIsoEm(L1CaloEmCand em);
+
   /// set jet regions from the RCT at the input to be processed
   void fillRegions(std::vector<L1CaloRegion> rgn);
 

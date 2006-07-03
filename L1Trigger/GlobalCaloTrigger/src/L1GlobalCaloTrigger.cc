@@ -168,6 +168,44 @@ void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
   sc->setRegions(tempRegions);
 }
 
+void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) {
+
+  if (readFromFile) {
+    throw cms::Exception("L1GctInputError")
+      << " L1 Global Calo Trigger is set to read input data from file, "
+      << " setIsoEm method should not be used\n"; 
+  }
+  unsigned scnum = em.rctCrate()*3;
+  L1GctSourceCard* sc = theSourceCards.at(scnum);
+  std::vector<L1CaloEmCand> tempEmCands = sc->getIsoElectrons();
+  for (uint input=0; input<tempEmCands.size();input++){
+    if (tempEmCands.at(input).rank()==0) {
+      tempEmCands.at(input) = em;
+      break;
+    }
+  }
+  sc->setIsoEm(tempEmCands);
+}
+
+void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em) {
+
+  if (readFromFile) {
+    throw cms::Exception("L1GctInputError")
+      << " L1 Global Calo Trigger is set to read input data from file, "
+      << " setIsoEm method should not be used\n"; 
+  }
+  unsigned scnum = em.rctCrate()*3;
+  L1GctSourceCard* sc = theSourceCards.at(scnum);
+  std::vector<L1CaloEmCand> tempEmCands = sc->getNonIsoElectrons();
+  for (uint input=0; input<tempEmCands.size();input++){
+    if (tempEmCands.at(input).rank()==0) {
+      tempEmCands.at(input) = em;
+      break;
+    }
+  }
+  sc->setNonIsoEm(tempEmCands);
+}
+
 void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion> rgn)
 {
   for (uint i=0; i<rgn.size(); i++){
@@ -177,6 +215,13 @@ void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion> rgn)
 
 void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand> em)
 {
+  for (uint i=0; i<em.size(); i++){
+    if (em.at(i).isolated()){
+      setIsoEm(em.at(i));
+    } else {
+      setNonIsoEm(em.at(i));
+    }
+  }
 }
 
 void L1GlobalCaloTrigger::print() {
