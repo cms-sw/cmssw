@@ -53,11 +53,13 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
 BoundDisk* 
 TIDLayer::computeDisk( const vector<const TIDRing*>& rings) const
 {
-  float theRmin( 1000.);
-  float theRmax( 0.);
-  float theZmin(1000.);
-  float theZmax(-1000.);
-
+  float theRmin = rings.front()->specificSurface().innerRadius();
+  float theRmax = rings.front()->specificSurface().outerRadius();
+  float theZmin = rings.front()->position().z() -
+    rings.front()->surface().bounds().thickness()/2;
+  float theZmax = rings.front()->position().z() +
+    rings.front()->surface().bounds().thickness()/2;
+  
   for (vector<const TIDRing*>::const_iterator i = rings.begin(); i != rings.end(); i++) {
     float rmin = (**i).specificSurface().innerRadius();
     float rmax = (**i).specificSurface().outerRadius();
