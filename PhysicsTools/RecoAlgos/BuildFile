@@ -4,8 +4,10 @@
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+
 <export>
   <lib name=PhysicsToolsRecoAlgos>
   <use name=PhysicsTools/UtilAlgos> 
@@ -13,6 +15,7 @@
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/EgammaCandidates>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
 </export>
