@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 08:56:02 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/04 09:27:52 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -223,7 +223,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
       if ( propagatedTSOS.isValid() ) {
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *recHit);
 
-	LogDebug(metname) << "Kalman chi2 " << thisChi2.second;
+	LogDebug(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
@@ -232,8 +232,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
           updated=true;
 	  
           LogDebug(metname) << endl 
-			    << "     Kalman Start" << endl << endl;
-          LogDebug(metname) << "  Meas. Position : " << recHit->globalPosition() << endl
+			    << "     Kalman Start" << "\n" << "\n";
+          LogDebug(metname) << "  Meas. Position : " << recHit->globalPosition() << "\n"
 			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
 			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
 
@@ -241,14 +241,14 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 
           LogDebug(metname) << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
 			    << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection()
-			    << endl
+			    << "\n"
 			    << "  Fit position radius : " 
-			    << lastUpdatedTSOS.globalPosition().perp() << endl
-			    << endl << " Filter UPDATED" << endl;
+			    << lastUpdatedTSOS.globalPosition().perp()
+			    << "filter updated" << endl;
 	  
 	  muonDumper.dumpTSOS(lastUpdatedTSOS,metname);
 	  
-	  LogDebug(metname) << "     Kalman End" << endl << endl;	      
+	  LogDebug(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
 									*recHit,thisChi2.second,detLayer, 

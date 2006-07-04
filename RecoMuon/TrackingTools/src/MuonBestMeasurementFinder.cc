@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/06/21 17:36:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/27 13:44:51 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -109,8 +109,8 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
       }
     }
     double chi2PerNDoF = thisChi2/npts;
-    LogDebug(metname) << " --> chi2/npts " << chi2PerNDoF << " with dof = " << npts
-		      << " best chi2=" << minChi2PerNDoF;
+    LogDebug(metname) << " The eeasurement has a chi2/npts " << chi2PerNDoF << " with dof = " << npts
+		      << " \n Till now the best chi2 is " << minChi2PerNDoF;
     
     if ( chi2PerNDoF && chi2PerNDoF<minChi2PerNDoF ) {
       minChi2PerNDoF = chi2PerNDoF;	
@@ -118,7 +118,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
     }
     
   }
-  LogDebug(metname)<<"Final best chi2: "<<minChi2PerNDoF<<endl;
+  LogDebug(metname)<<"The final best chi2 is "<<minChi2PerNDoF<<endl;
   return bestMeasurement;
 }
 
