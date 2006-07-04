@@ -4,42 +4,51 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/02 03:00:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 12:00:56 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  - Purdue University
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
 class TrajectoryStateOnSurface;
-
+class MuonUpdatorAtVertex;
+class MagneticField;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class GlobalMuonTrackMatcher {
+public:
+  /// constructor
+  GlobalMuonTrackMatcher(double chi2, const MagneticField*);
 
-  public:
+  /// destructor
+  virtual ~GlobalMuonTrackMatcher() {};
 
-    /// constructor
-    GlobalMuonTrackMatcher(double chi2);
+  /// choose one that with smallest chi2
+  std::pair<bool, reco::TrackRef*> matchOne(const reco::TrackRef*, const edm::Handle<reco::TrackCollection>&) const;
 
-    /// destructor
-    virtual ~GlobalMuonTrackMatcher() {};
+  /// choose all that has chi2 less than MaxChi2
+  std::vector<reco::TrackRef*> match(const reco::TrackRef*, const edm::Handle<reco::TrackCollection>&) const;
 
-    ///
-    std::pair<bool, reco::TrackRef> match(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>&) const;
+  /// check if two tracks are match
+  std::pair<bool,double> match(const reco::TrackRef*, const reco::TrackRef*) const; 
 
-    ///
-    std::pair<bool,double> match(const reco::TrackRef&, const reco::TrackRef&) const; 
+  /// check if two TSOS are match
+  std::pair<bool,double> match(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
 
-    ///
-    std::pair<bool,double> match(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
-
-  private:
-
-    double theMaxChi2;
+private:
+  double theMaxChi2;
+  double theMinP;
+  double theMinPt;
+  GlobalPoint theVertexPos;
+  GlobalError theVertexErr;
+  MuonUpdatorAtVertex* theUpdator;
+  const MagneticField* theField;
 
 };
 
