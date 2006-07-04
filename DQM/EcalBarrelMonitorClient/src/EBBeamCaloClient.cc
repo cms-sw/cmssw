@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/03 12:28:12 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/04 13:37:37 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -499,7 +499,7 @@ void EBBeamCaloClient::analyze(void){
    
   //  MonitorElement* RecEne1;
   if ( collateSources_ ) {;}
-  else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry: 5").c_str() ); }
+  else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry 5").c_str() ); }
   //RecEne1= mui_->get(histo);
   me = mui_->get(histo);
   hBEne1_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/23 14:49:30 $
- * $Revision: 1.12 $
+ * $Date: 2006/06/27 08:40:58 $
+ * $Revision: 1.13 $
  * \author A. Ghezzi
  *
  */
@@ -88,35 +88,35 @@ void EBBeamCaloTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     
     for (int i = 0; i < cryInArray_ ; i++) {
-      sprintf(histo, "EBBCT pulse profile cry: %01d", i+1);
+      sprintf(histo, "EBBCT pulse profile cry %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
       meBBCaloPulseProf_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
-      sprintf(histo, "EBBCT pulse profile in G12 cry: %01d", i+1);
+      sprintf(histo, "EBBCT pulse profile in G12 cry %01d", i+1);
       meBBCaloPulseProfG12_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
-      sprintf(histo, "EBBCT found gains cry: %01d", i+1);
+      sprintf(histo, "EBBCT found gains cry %01d", i+1);
       meBBCaloGains_[i] =  dbe->book1D(histo,histo,14,0.,14.);
       // g1-> bin 2, g6-> bin 7, g12-> bin 13
       
-      sprintf(histo, "EBBCT rec energy cry: %01d", i+1);
+      sprintf(histo, "EBBCT rec energy cry %01d", i+1);
       meBBCaloEne_[i] =  dbe->book1D(histo,histo,2000,0.,9000.);
       //9000 ADC in G12 equivalent is about 330 GeV
 
       //////////////////////////////// me for the moving table////////////////////////////////////////////
 
-      sprintf(histo, "EBBCT pulse profile moving table cry: %01d", i+1);
+      sprintf(histo, "EBBCT pulse profile moving table cry %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
       meBBCaloPulseProfMoving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
-      sprintf(histo, "EBBCT pulse profile in G12 moving table cry: %01d", i+1);
+      sprintf(histo, "EBBCT pulse profile in G12 moving table cry %01d", i+1);
       meBBCaloPulseProfG12Moving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
-      sprintf(histo, "EBBCT found gains moving table cry: %01d", i+1);
+      sprintf(histo, "EBBCT found gains moving table cry %01d", i+1);
       meBBCaloGainsMoving_[i] =  dbe->book1D(histo,histo,14,0.,14.);
       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
-      sprintf(histo, "EBBCT rec energy moving table cry: %01d", i+1);
+      sprintf(histo, "EBBCT rec energy moving table cry %01d", i+1);
       meBBCaloEneMoving_[i] =  dbe->book1D(histo,histo,2000,0.,9000.);
       //9000 ADC in G12 equivalent is about 330 GeV
 
