@@ -55,8 +55,6 @@ int main() {
   TH1F* deriv2 = new TH1F("deriv2","Computed Ecal MGPA derivative",nsamp,0.,(float)(nsamp));
   double y = 0.;
   double dy = 0.;
-  double mean_bin = 0.0;
-  double mean_dev = 0.0;
   for ( unsigned int i = 0; i < histsiz; ++i ) {
     y  = (theShape)(x);
     dy = theShape.derivative(x);
