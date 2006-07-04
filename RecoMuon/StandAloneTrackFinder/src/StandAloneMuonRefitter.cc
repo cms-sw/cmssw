@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/27 13:47:14 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/04 09:02:36 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -151,40 +151,6 @@ void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
   totalChambers++;
 }
 
-void 
-StandAloneMuonRefitter::vectorLimits(vector<const DetLayer*> &vect,
-				     vector<const DetLayer*>::const_iterator &vector_begin,
-				     vector<const DetLayer*>::const_iterator &vector_end) const{
-  
-  if( propagationDirection() == alongMomentum ){
-    vector_begin = vect.begin();
-    vector_end = vect.end();
-  }
-  else if( propagationDirection() == oppositeToMomentum ){
-    vector_begin = vect.end()-1;
-    vector_end = vect.begin()-1;
-  }
-  else{
-    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in vectorLimits!!";
-  }
-}
-
-void 
-StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterator &iter) const{
-
-  if( propagationDirection() == alongMomentum )
-    ++iter;
-  
-  else if( propagationDirection() == oppositeToMomentum )
-    --iter;
-  
-  else{
-    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in incrementIterator!!";
-  }
-}
-
-
-
 void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 				   const DetLayer* initialLayer, Trajectory &trajectory){
   
@@ -208,31 +174,21 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   
   lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
   
-  // FIXME: check the prop direction!
-  // it must be alongMomentum for the in-out refit
+  // ask for compatible layers
   vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
 								     propagationDirection());  
     
-  // FIXME FIXME
   // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
   // In fact the first layer is not returned by initialLayer->compatibleLayers.
   detLayers.insert(detLayers.begin(),initialLayer);
-
-
+  
   LogDebug(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
   
   vector<const DetLayer*>::const_iterator layer;
-  // vector<const DetLayer*>::const_iterator detLayers_begin;
-  // vector<const DetLayer*>::const_iterator detLayers_end;
 
-  // FIXME check the layer order!  
-  // Set the limits according to the propagation direction
-  //  vectorLimits(detLayers,detLayers_begin,detLayers_end);
-  
-  // increment/decrement the iterator according to the propagation direction 
-  //  for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
+  // the layers are ordered in agreement with the propagation direction 
   for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
-
+    
     //    bool firstTime = true;
 
     debug.dumpLayer(*layer,metname);

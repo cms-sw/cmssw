@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/21 18:02:19 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/04 09:02:09 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -13,9 +13,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-// FIXME tmp here!!
-// #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 class Propagator;
 class DetLayer;
@@ -84,13 +81,6 @@ private:
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);
 
-  /// I have to use this method since I have to cope with two propagation direction
-  void vectorLimits(std::vector<const DetLayer*> &vect,
-		    std::vector<const DetLayer*>::const_iterator &vector_begin,
-		    std::vector<const DetLayer*>::const_iterator &vector_end) const;
-  /// I have to use this method since I have to cope with two propagation direction
-  void incrementIterator(std::vector<const DetLayer*>::const_iterator &iter) const;
-
   /// Extract the Event Setup info at each event. It is called by setES
   virtual void init(const edm::EventSetup& setup);
   
@@ -105,15 +95,9 @@ private:
   /// The propagator
   Propagator *thePropagator;
   
-  // FIXME
-  // SteppingHelixPropagator *thePropagator;
-
   /// access at the propagator
   Propagator *propagator() const {return thePropagator;}
 
-  // FIXME
-  // SteppingHelixPropagator *propagator() const {return thePropagator;}
-  
   /// The Estimator
   MeasurementEstimator *theEstimator;
 
