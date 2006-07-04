@@ -1,12 +1,11 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/06/27 08:40:58 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/04 13:48:23 $
+ * $Revision: 1.14 $
  * \author A. Ghezzi
  *
  */
-
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
@@ -43,6 +42,14 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   meBBCaloCryOnBeam_ = 0;
   meBBCaloMaxEneCry_ = 0;
   TableMoving_ = 0;
+
+  CrystalsDone_ = 0;
+  CrystalInBeam_vs_Event_ = 0;
+  meEBBCaloReadCryErrors_ = 0;
+  meEBBCaloE1vsCry_ = 0;
+  meEBBCaloE3x3vsCry_ = 0;
+  meEBBCaloEntriesVsCry_ = 0;
+  meEBBCaloBeamCentered_ = 0;
 
 //   for(int u=0;u<1701;u++){
 //     meBBCaloE3x3Cry_[u]=0;
@@ -133,11 +140,11 @@ void EBBeamCaloTask::setup(void){
     
 //     dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     sprintf(histo, "EBBCT readout crystals");
-    meBBCaloCryRead_  =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    meBBCaloCryRead_ =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     sprintf(histo, "EBBCT readout crystals table moving");
-    meBBCaloCryReadMoving_  =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    meBBCaloCryReadMoving_ =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     sprintf(histo, "EBBCT all needed crystals readout");
@@ -166,8 +173,10 @@ void EBBeamCaloTask::setup(void){
     //table is moving-> bin 1, table is not moving-> bin 2
 
     sprintf(histo, "EBBCT crystals done");
-    CrystalsDone_= dbe->book1D(histo,histo,1700,0.,1700.);
-    
+    CrystalsDone_ = dbe->book1D(histo,histo,1700,0.,1700.);
+    //for a crystal done the corresponing bin is filled with the step in the 
+    //autoscan pertainig to the given crystales 
+  
     sprintf(histo, "EBBCT crystal in beam vs event");
     CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.,"s");
     // 1 bin each 10 events
@@ -175,16 +184,19 @@ void EBBeamCaloTask::setup(void){
     // when table is constantely moving do not fill...
 
     sprintf(histo, "EBBCT errors in the number of readout crystals");
-    meEBBCaloReadCryErrors_= dbe->book1D(histo, histo, 425,1.,86.);
+    meEBBCaloReadCryErrors_ = dbe->book1D(histo, histo, 425,1.,86.);
 
     sprintf(histo, "EBBCT average rec energy in the single cristal");
-    meEBBCaloE1vsCry_= dbe->book1D(histo, histo, 85,1.,86.);
+    meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
     meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
-
+    
+    sprintf(histo, "EBBCT number of entries");
+    meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,85,1.,86.);
+    
     sprintf(histo, "EBBCT energy deposition in the 3x3");
-    meEBBCaloBeamCentered_= dbe->book2D(histo, histo,3,-2,2,3,-2,2);
+    meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-2,2,3,-2,2);
 
   }
   
@@ -256,6 +268,8 @@ void EBBeamCaloTask::cleanup(void){
     meEBBCaloE1vsCry_ = 0;
     if( meEBBCaloE3x3vsCry_ ) dbe->removeElement( meEBBCaloE3x3vsCry_->getName() );
     meEBBCaloE3x3vsCry_ = 0;
+    if( meEBBCaloEntriesVsCry_ )  dbe->removeElement( meEBBCaloEntriesVsCry_->getName() );
+    meEBBCaloEntriesVsCry_ = 0;
     if( meEBBCaloBeamCentered_ ) dbe->removeElement( meEBBCaloBeamCentered_->getName() );
     meEBBCaloBeamCentered_= 0;
   }
@@ -309,7 +323,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++; 
-
+  //FIX ME, in the task we should use LV1 instead of ievt_ (prescaling)
   int cry_in_beam = 0; 
   cry_in_beam = 704;//just for test, to be filled with info from the event
   
@@ -324,14 +338,23 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 //   if(ievt_ > 2500){tb_moving=false; cry_in_beam = 706;}
 //   if(ievt_ > 3500){tb_moving=true; }
 
-  if(ievt_ > 3300){tb_moving=true; }
-  if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
-  if(ievt_ == 6201){tb_moving=true; }
-  if(ievt_ > 9000){tb_moving=true; }
-  if(ievt_ == 11021){tb_moving=false; }
-  if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
-  if(ievt_ > 15320){tb_moving=true; }
-  if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
+//   if(ievt_ > 3300){tb_moving=true; }
+//   if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
+//   if(ievt_ == 6201){tb_moving=true; }
+//   if(ievt_ > 9000){tb_moving=true; }
+//   if(ievt_ == 11021){tb_moving=false; }
+//   if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
+//   if(ievt_ > 15320){tb_moving=true; }
+//   if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
+
+  if(ievt_ > 20){tb_moving=true; }
+  if(ievt_ > 40){tb_moving=false; cry_in_beam = 705;}
+  if(ievt_ == 23){tb_moving=true; }
+  if(ievt_ > 90 ){tb_moving=true; }
+  if(ievt_ == 65){tb_moving=false; }
+  if(ievt_ > 110){tb_moving=false; cry_in_beam = 706;}
+  if(ievt_ > 115){tb_moving=true; }
+  if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
   //if(tb_moving) {CrystalInBeam_vs_Event_->Fill(ievt_,-100.);}
   //else{CrystalInBeam_vs_Event_->Fill(ievt_,float(cry_in_beam));}
   
@@ -344,7 +367,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       // while the tb is moving and is set to the new one only when the table
       // reaches the new position
       lastStableStatus_ = 1;
-      CrystalsDone_->Fill(float(cry_in_beam)-0.5);
+      CrystalsDone_->Fill(float(cry_in_beam)-0.5,crystal_step_);
     }
     else if(PreviousTableStatus_[1] == 0) {
       skip_this_event=true;
@@ -423,7 +446,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
     meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
     meEBBCaloE3x3vsCry_->setBinError(crystal_step_ , meBBCaloE3x3_->getRMS() );
-    
+
+    meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
     crystal_step_++;
 
     //here the follwowing histos should be reset
