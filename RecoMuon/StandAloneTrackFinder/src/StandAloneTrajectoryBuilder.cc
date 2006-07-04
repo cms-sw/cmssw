@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/27 13:47:39 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/07/04 09:03:33 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -116,7 +116,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajectoryContainer;
   
-  // FIXME:check the prop direction!!
   Trajectory trajectoryFW(seed,alongMomentum);
 
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
@@ -141,7 +140,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
 //   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, cyl, &*theMGField);
 
-  // FIXME remove this
   if(seedDetId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( seedDetId.rawId() );
     LogDebug(metname)<< "Seed id (CSC)"<< cscId << endl ;
@@ -213,7 +211,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // fw_low-granularity + bw_high-granularity + smoother (not yet sure...)
 
   // BackwardFiltering
-  // FIXME:check the prop direction!!
   Trajectory trajectoryBW(seed,oppositeToMomentum);
 
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
