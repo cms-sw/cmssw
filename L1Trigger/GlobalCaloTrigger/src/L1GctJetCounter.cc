@@ -67,17 +67,17 @@ ostream& operator << (ostream& os, const L1GctJetCounter& algo)
   if ((algo.m_id/100) == 0) { os << "Minus wheel, "; }
   else { os << "Plus wheel, "; }
   os << "jet counter no. " << algo.m_id%100 <<  "; ID = " << algo.m_id << endl;
-  os << "JetCounterLut* = " <<  algo.m_jetCounterLut << endl;
+//   os << "JetCounterLut* = " <<  algo.m_jetCounterLut << endl;
   os << *algo.m_jetCounterLut << endl;
-  os << "No of Leaf cards " << algo.m_jetLeafCards.size();
-  os << ". Total input jets " << algo.m_jets.size() << endl;
-  for (unsigned i=0; i<algo.m_jetLeafCards.size(); i++) {
-    // One line of printing per leaf card
-    os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards.at(i);
-    os << " No of jets " << algo.m_jetLeafCards.at(i)->getOutputJetsA().size() ;
-    os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsB().size();
-    os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsC().size() << endl;
-  }
+//   os << "No of Leaf cards " << algo.m_jetLeafCards.size();
+//   os << ". Total input jets " << algo.m_jets.size() << endl;
+//   for (unsigned i=0; i<algo.m_jetLeafCards.size(); i++) {
+//     // One line of printing per leaf card
+//     os << "JetLeafCard* " << i << " = " << algo.m_jetLeafCards.at(i);
+//     os << " No of jets " << algo.m_jetLeafCards.at(i)->getOutputJetsA().size() ;
+//     os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsB().size();
+//     os << " + " << algo.m_jetLeafCards.at(i)->getOutputJetsC().size() << endl;
+//   }
 //   for(unsigned i=0; i < algo.m_jets.size(); ++i)
 //     {
 //       os << algo.m_jets.at(i); 

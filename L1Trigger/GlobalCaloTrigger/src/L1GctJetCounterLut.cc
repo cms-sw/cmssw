@@ -45,42 +45,42 @@ L1GctJetCounterLut::~L1GctJetCounterLut()
 
 ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)
 {
-  os << "===L1GctJetCounterLut===" << endl;
-  os << "Number of cuts for this Lut is " << lut.m_nCuts << endl;
+//   os << "===L1GctJetCounterLut===" << endl;
+//   os << "Number of cuts for this Lut is " << lut.m_nCuts << endl;
   for (unsigned i=0; i<lut.m_nCuts; i++) {
     if (i==0) {
       os << "Jet passes ";
     } else {
-      os << "and " ;
+      os << "\nand " ;
     }
     switch (lut.m_cutType.at(i))
       {
       case L1GctJetCounterLut::minRank:
-	os << "if its rank is at least " << lut.m_cutValue1.at(i) << endl ;
+	os << "if its rank is at least " << lut.m_cutValue1.at(i) ;
 	break;
 
       case L1GctJetCounterLut::maxRank:
-	os << "if its rank is at most " << lut.m_cutValue1.at(i) << endl ;
+	os << "if its rank is at most " << lut.m_cutValue1.at(i) ;
 	break;
 
       case L1GctJetCounterLut::centralEta:
-	os << "if it is in the central eta range with max eta " << lut.m_cutValue1.at(i) << endl ;
+	os << "if it is in the central eta range with max (local) eta " << lut.m_cutValue1.at(i) ;
 	break;
 
       case L1GctJetCounterLut::forwardEta:
-	os << "if it is in the forward eta range with min eta " << lut.m_cutValue1.at(i) << endl ;
+	os << "if it is in the forward eta range with min (local) eta " << lut.m_cutValue1.at(i) ;
 	break;
 
       case L1GctJetCounterLut::phiWindow:
 	if (lut.m_cutValue2.at(i)>lut.m_cutValue1.at(i)) {
-	  os << "if its phi is between " << lut.m_cutValue1.at(i) << " and " << lut.m_cutValue2.at(i) << endl;
+	  os << "if its phi is between " << lut.m_cutValue1.at(i) << " and " << lut.m_cutValue2.at(i) ;
 	} else {
-	  os << "if its phi is larger than " << lut.m_cutValue1.at(i) << " or smaller than " << lut.m_cutValue2.at(i) << endl;
+	  os << "if its phi is larger than " << lut.m_cutValue1.at(i) << " or smaller than " << lut.m_cutValue2.at(i) ;
 	}
 	break;
 
       case L1GctJetCounterLut::nullCutType:
-	os << "if Hell freezes over " << endl;
+	os << "if Hell freezes over " ;
 	break;
 
       default: // do nothing, shouldn't get here!
