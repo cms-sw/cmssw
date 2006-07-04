@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/02 08:18:20 $
- * $Revision: 1.157 $
+ * $Date: 2006/07/03 07:57:58 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -312,13 +312,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.push_back(  new EBPedestalClient(ps) );
   clientNames_.push_back( "Pedestal" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
 
   clients_.push_back(  new EBPedestalOnlineClient(ps) );
   clientNames_.push_back( "PedestalOnLine" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
