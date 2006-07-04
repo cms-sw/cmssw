@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/27 07:16:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/04 08:54:51 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -25,7 +25,6 @@ class MeasurementEstimator;
 class TrajectoryMeasurement;
 class Trajectory;
 class TrajectoryStateOnSurface;
-//class TransientTrackingRecHit;
 class TrajectoryStateUpdator;
 class DetLayer;
 
@@ -100,21 +99,11 @@ private:
   /// Maybe in a second step there will be more than 3 option
   /// i.e. max granularity for DT but not for the CSC and the viceversa
   int theGranularity; 
-  
   // FIXME: ask Tim if the CSC segments can be used, since in ORCA they wasn't.
-
-  /// I have to use this method since I have to cope with two propagation direction
-  void ownVectorLimits(edm::OwnVector<const TransientTrackingRecHit> &ownvector,
-		       edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_begin,
-		       edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_end);
-
-  /// I have to use this method since I have to cope with two propagation direction
-  void incrementIterator(edm::OwnVector<const TransientTrackingRecHit>::iterator &recHitIterator);
 
   /// copy objs from an OwnVector to another one
   void insert(edm::OwnVector<const TransientTrackingRecHit> & to,
 	      edm::OwnVector<const TransientTrackingRecHit> & from);
-  
   
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{

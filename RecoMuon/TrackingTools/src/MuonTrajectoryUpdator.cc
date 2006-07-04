@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/27 07:16:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/04 08:56:02 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -24,7 +24,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
@@ -89,7 +88,6 @@ MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
 }
 
 
-// FIXME: check&test!
 pair<bool,TrajectoryStateOnSurface> 
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas, 
 			      Trajectory& theTraj){
@@ -178,6 +176,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	  
 	  // FIXME: this function is not yet available!
 	  // recHitsForFit.insert(recHitsForFit.end(), rechit1D.begin(), rechit1D.end());
+
 	  // FIXME: remove this as insert will be available
 	  insert(recHitsForFit,rechit1D);	  
 	}
@@ -284,39 +283,6 @@ MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
     propagator()->propagate(state, current.det()->surface());
   return tsos;
 
-}
-
-
-void 
-MuonTrajectoryUpdator::ownVectorLimits(OwnVector<const TransientTrackingRecHit> &ownvector,
-				       OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_begin,
-				       OwnVector<const TransientTrackingRecHit>::iterator &recHitsForFit_end){
-  
-  if(propagator()->propagationDirection() == alongMomentum){
-    recHitsForFit_begin = ownvector.begin();
-    recHitsForFit_end = ownvector.end();
-  }
-  else if(propagator()->propagationDirection() == oppositeToMomentum){
-    recHitsForFit_begin = ownvector.end()-1;
-    recHitsForFit_end = ownvector.begin()-1;
-  }
-  else{
-    LogError("MuonTrajectoryUpdator::ownVectorLimits") <<"Wrong propagation direction!!";
-  }
-}
-
-void 
-MuonTrajectoryUpdator::incrementIterator(OwnVector<const TransientTrackingRecHit>::iterator &recHitIterator){
-
-  if(propagator()->propagationDirection() == alongMomentum)
-    ++recHitIterator;
-  
-  else if(propagator()->propagationDirection() == oppositeToMomentum)
-    --recHitIterator;
-  
-  else{
-    LogError("MuonTrajectoryUpdator::incrementRecHitIterator") <<"Wrong propagation direction!!";
-  }
 }
 
 // FIXME: would I a different threatment for the two prop dirrections??
