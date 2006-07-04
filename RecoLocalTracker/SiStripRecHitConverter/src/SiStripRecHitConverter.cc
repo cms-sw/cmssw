@@ -21,6 +21,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
@@ -45,23 +46,26 @@ namespace cms
   // Functions that gets called by framework every event
   void SiStripRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
   {
+    //get tracker geometry
     using namespace edm;
     edm::ESHandle<TrackerGeometry> pDD;
     es.get<TrackerDigiGeometryRecord>().get( pDD );
     const TrackerGeometry &tracker(*pDD);
     
-    //    edm::ESHandle<MagneticField> pSetup;
-    //    es.get<IdealMagneticFieldRecord>().get(pSetup);
-    //const MagneticField &BField(*pSetup);
-
+    //get Cluster Parameter Estimator
     std::string cpe = conf_.getParameter<std::string>("StripCPE");
     edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
     es.get<TrackerCPERecord>().get(cpe, parameterestimator); 
     const StripClusterParameterEstimator &stripcpe(*parameterestimator);
-
-    std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
+    
+    //get matcher
+    std::string matcher = conf_.getParameter<std::string>("Matcher");
+    edm::ESHandle<SiStripRecHitMatcher> rechitmatcher;
+    es.get<TrackerCPERecord>().get(matcher, rechitmatcher); 
+    const SiStripRecHitMatcher &rhmatcher(*rechitmatcher);
 
     // Step A: Get Inputs 
+    std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
     e.getByLabel(clusterProducer, clusters);
 
@@ -71,7 +75,7 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe);
+    recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
 
     // Step D: write output to file
     e.put(outputmatched,"matchedRecHit");

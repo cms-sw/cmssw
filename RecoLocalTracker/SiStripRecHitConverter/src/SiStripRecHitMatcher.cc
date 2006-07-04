@@ -10,7 +10,7 @@
 const SiStripRecHit2DMatchedLocalPos& SiStripRecHitMatcher::match(const SiStripRecHit2DLocalPos *monoRH, 
 					    const SiStripRecHit2DLocalPos *stereoRH,
 					    const GluedGeomDet* gluedDet,
-					    LocalVector trackdirection){
+					    LocalVector trackdirection) const{
   SimpleHitCollection stereoHits;
   stereoHits.push_back(stereoRH);
   //const StripGeomDetUnit* monoDet = dynamic_cast< const StripGeomDetUnit*>(gluedDet->monoDet());
@@ -41,7 +41,7 @@ edm::OwnVector<SiStripRecHit2DMatchedLocalPos>
 SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
 			     RecHitIterator &begin, RecHitIterator &end, 
 			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection)
+			     LocalVector trackdirection) const
 {
   SimpleHitCollection stereoHits;
   for (RecHitIterator i=begin; i != end; ++i) {
@@ -56,7 +56,7 @@ edm::OwnVector<SiStripRecHit2DMatchedLocalPos>
 SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
 			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection)
+			     LocalVector trackdirection) const
 {
   // stripdet = mono
   // partnerstripdet = stereo
@@ -133,7 +133,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
 }
 
 
-SiStripRecHitMatcher::StripPosition SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection)
+SiStripRecHitMatcher::StripPosition SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection)const
 {
 
   GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first);

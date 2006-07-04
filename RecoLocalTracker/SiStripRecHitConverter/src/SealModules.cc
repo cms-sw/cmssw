@@ -2,6 +2,8 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngleESProducer.h"
 
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcherESProducer.h"
+
 #include "PluginManager/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -16,6 +18,8 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEESProducer)
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngleESProducer)
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SiStripRecHitMatcherESProducer)
+EVENTSETUP_DATA_REG(SiStripRecHitMatcher);
 using cms::SiStripRecHitConverter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripRecHitConverter)
 

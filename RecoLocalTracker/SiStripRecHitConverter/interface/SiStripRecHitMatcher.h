@@ -1,5 +1,5 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
-#define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITRMATCH_H
+#define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
@@ -28,12 +28,12 @@ public:
   const SiStripRecHit2DMatchedLocalPos& match(const SiStripRecHit2DLocalPos *monoRH, 
 					      const SiStripRecHit2DLocalPos *stereoRH,
 					      const GluedGeomDet* gluedDet,
-					      LocalVector trackdirection);
+					      LocalVector trackdirection) const;
 
   edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 RecHitIterator &begin, RecHitIterator &end, 
-	 const GluedGeomDet* gluedDet) {
+	 const GluedGeomDet* gluedDet) const {
     return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
   }
 
@@ -41,7 +41,7 @@ public:
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 RecHitIterator &begin, RecHitIterator &end, 
 	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection);
+	 LocalVector trackdirection) const;
 
 
   /// More convenient interface with a GluedDet
@@ -54,7 +54,7 @@ public:
 
   // project strip coordinates on Glueddet
 
-  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection);
+  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection) const;
 
   //private:
 
@@ -64,7 +64,7 @@ public:
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
 	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection);
+	 LocalVector trackdirection) const;
   float scale_;
 
 };
