@@ -36,6 +36,9 @@ class SiStripFecCabling {
   
   /** */
   inline const std::vector<SiStripFecCrate>& crates() const;
+  
+  /** TEMPORARY method to maintain backward compatibility! */
+  inline const std::vector<SiStripFec>& fecs() const;
 
   /** */
   void connections( std::vector<FedChannelConnection>& ) const;
@@ -75,6 +78,13 @@ class SiStripFecCabling {
 // ---------- inline methods ----------
 
 const std::vector<SiStripFecCrate>& SiStripFecCabling::crates() const { return crates_; }
+
+// TEMPORARY method to maintain backward compatibility!
+const std::vector<SiStripFec>& SiStripFecCabling::fecs() const { 
+  static std::vector<SiStripFec> my_fecs;
+  if ( !crates_.empty() ) { return crates_[0].fecs(); }
+  else { return my_fecs; }
+}
 
 void SiStripFecCabling::dcuId( const FedChannelConnection& conn ) { 
   const_cast<SiStripModule&>(module(conn)).dcuId(conn.dcuId()); 
