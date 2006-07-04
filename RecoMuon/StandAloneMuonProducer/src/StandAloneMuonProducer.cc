@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/06/21 17:11:48 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/06/27 13:49:19 $
+ *   $Revision: 1.11 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -57,7 +57,6 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-  // produces<double>();
 }
   
 /// destructor
@@ -83,11 +82,6 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   LogDebug(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event,eventSetup);
  
-  // FIXME This is DUMMY!
-  //  auto_ptr<double> recDouble(new double(3.) );
-  // event.put(recDouble);
-  //
-
   LogDebug(metname)<<"Event loaded"
 		   <<"================================"
 		   <<endl<<endl;
