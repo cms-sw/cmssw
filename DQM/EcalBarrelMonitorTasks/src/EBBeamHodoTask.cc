@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/02 11:32:08 $
- * $Revision: 1.12 $
+ * $Date: 2006/07/02 12:44:30 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -79,9 +79,9 @@ void EBBeamHodoTask::setup(void){
     //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
-      sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
+      sprintf(histo, "EBBHT occup SM%02d %02d", smId, i+1);
       meHodoOcc_[i] = dbe->book1D(histo, histo, 30, 0., 30.);
-      sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
+      sprintf(histo, "EBBHT raw SM%02d %02d", smId, i+1);
       meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
     }
     
@@ -109,13 +109,13 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    sprintf(histo, "EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo X Vs Cry SM%02d", smId);
     meHodoPosXMinusCaloPosXVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo Y Vs Cry SM%02d", smId);
     meHodoPosYMinusCaloPosYVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT (TDC-Calo)VsCry SM%02d", smId);
+    sprintf(histo, "EBBHT TDC-Calo Vs Cry SM%02d", smId);
     meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
 
     // following ME (type II):
@@ -134,13 +134,13 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT his E1 vs Y SM%02d", smId);
     meEvsYRecHis_    = dbe-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBHT PosX: Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosX Hodo-Calo SM%02d", smId);
     meCaloVsHodoXPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT PosY: Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosY Hodo-Calo SM%02d", smId);
     meCaloVsHodoYPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT TimeMax: TDC-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT TimeMax TDC-Calo SM%02d", smId);
     meCaloVsTDCTime_  = dbe->book1D(histo, histo, 100, -1, 1);//tentative
 
   }
