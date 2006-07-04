@@ -13,7 +13,7 @@ int main() {
 
   bool testPass=true;
 
-  cout << "Testing eta,phi to/from ID conversion" << endl << endl;
+  cout << "\nTesting eta,phi to/from ID conversion" << endl << endl;
 
   for (unsigned ieta=0; ieta<22; ieta++) {   // loop over eta
 
@@ -37,44 +37,128 @@ int main() {
 
   cout << endl;
 
-  cout << "testing source card mapping\n";
+  cout << "\nTesting source card mapping\n";
 
-//   for (unsigned crate=0; crate<18; crate++) {
+  unsigned crate=0;
+  unsigned card=0;
+  unsigned phi=4;
+  for (; crate<9; crate++) {
+    ++card;
+    cout << "Crate " << crate << " source 2 \n"; 
+    unsigned eta;
+    for (unsigned in=0; in<12; in++) {
+      unsigned phj;
+      switch (in) {
+      case 0 : eta = 6; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      case 1 : eta = 5; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      case 2 : eta = 4; phj=phi; break;
+      case 3 : eta = 4; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      default : eta = 3-((in-4)%4); phj = ((phi+18-((in-4)/4))%18); break;
+      }
+      L1CaloRegion temp(100,
+			false, false, false, false,
+			eta, phj);
+      if ((temp.rctCrate()!=crate) ||
+	  (temp.gctCard()!=card) ||
+	  (temp.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << temp.gctEta() << "," << temp.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << temp.rctCrate()
+	     << " sourceCard " << temp.gctCard()
+	     << " scOutput "   << temp.gctRegionIndex() << endl;
+      } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+    }
+    cout << endl;
 
-//     cout << "Crate " << crate << " source 2 \n"; 
-//     for (unsigned in=0; in<12; in++) {
-//       L1CaloRegion temp(map->id(crate,2,in), 100,
-// 			false, false, false, false);
-//       if ((map->rctCrate(temp)!=crate) ||
-// 	  (map->sourceCardType(temp)!=2) ||
-// 	  (map->sourceCardOutput(temp)!=in)) { testPass = false;
-// 	cout << "Error for crate " << crate
-// 	     << " source card 2, input " << in
-// 	     << " id is " << temp.id() << endl;
-// 	cout << "rctCrate " << map->rctCrate(temp)
-// 	     << " scType " << map->sourceCardType(temp)
-// 	     << " scOutput " << map->sourceCardOutput(temp) << endl;
-//       } else { cout << "  " << temp.id(); }
-//     }
-//     cout << endl;
+    cout << "Crate " << crate << " source 3 \n";
+    ++card;
+    eta = 11;
+    for (unsigned in=0; in<10; in++) {
+      --eta;
+      L1CaloRegion temp(100,
+			false, false, false, false,
+			eta, phi);
+      if ((temp.rctCrate()!=crate) ||
+	  (temp.gctCard()!=card) ||
+	  (temp.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << temp.gctEta() << "," << temp.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << temp.rctCrate()
+	     << " sourceCard " << temp.gctCard()
+	     << " scOutput "   << temp.gctRegionIndex() << endl;
+      } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+      if (eta == 5) {
+	eta = 11;
+	if (phi == 0) { phi=18; }
+	--phi;
+      }
+    }
+    cout << endl;
+    ++card;
+    if (phi==0) { phi=18; }
+    --phi;
+  }
 
-//     cout << "Crate " << crate << " source 3 \n";
-//     for (unsigned in=0; in<10; in++) {
-//       L1CaloRegion temp(map->id(crate,3,in), 100,
-// 			false, false, false, false);
-//       if ((map->rctCrate(temp)!=crate) ||
-// 	  (map->sourceCardType(temp)!=3) ||
-// 	  (map->sourceCardOutput(temp)!=in)) { testPass = false;
-// 	cout << "Error for crate " << crate
-// 	     << " source card 3, input " << in
-// 	     << " id is " << temp.id() << endl;
-// 	cout << "rctCrate " << map->rctCrate(temp)
-// 	     << " scType " << map->sourceCardType(temp)
-// 	     << " scOutput " << map->sourceCardOutput(temp) << endl;
-//       } else { cout << "  " << temp.id(); }
-//     }
-//     cout << endl;
-//   }
+  for (; crate<18; crate++) {
+    ++card;
+    cout << "Crate " << crate << " source 2 \n"; 
+    unsigned eta;
+    for (unsigned in=0; in<12; in++) {
+      unsigned phj;
+      switch (in) {
+      case 0 : eta = 15; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      case 1 : eta = 16; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      case 2 : eta = 17; phj=phi; break;
+      case 3 : eta = 17; if (phi==0) { phj=17; } else { phj=phi-1; } break;
+      default : eta = 18+((in-4)%4); phj = ((phi+18-((in-4)/4))%18); break;
+      }
+      L1CaloRegion temp(100,
+			false, false, false, false,
+			eta, phj);
+      if ((temp.rctCrate()!=crate) ||
+	  (temp.gctCard()!=card) ||
+	  (temp.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << temp.gctEta() << "," << temp.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << temp.rctCrate()
+	     << " sourceCard " << temp.gctCard()
+	     << " scOutput "   << temp.gctRegionIndex() << endl;
+      } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+    }
+    cout << endl;
+
+    cout << "Crate " << crate << " source 3 \n";
+    ++card;
+    eta = 11;
+    for (unsigned in=0; in<10; in++) {
+      L1CaloRegion temp(100,
+			false, false, false, false,
+			eta, phi);
+      if ((temp.rctCrate()!=crate) ||
+	  (temp.gctCard()!=card) ||
+	  (temp.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << temp.gctEta() << "," << temp.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << temp.rctCrate()
+	     << " sourceCard " << temp.gctCard()
+	     << " scOutput "   << temp.gctRegionIndex() << endl;
+      } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+      if (eta == 16) {
+	eta = 10;
+	if (phi == 0) { phi=18; }
+	--phi;
+      }
+      ++eta;
+    }
+    cout << endl;
+    ++card;
+    if (phi==0) { phi=18; }
+    --phi;
+  }
 
   cout << "\nTest of L1GctMap " << (testPass ? "passed!" : "failed!") << endl;
   return 0;

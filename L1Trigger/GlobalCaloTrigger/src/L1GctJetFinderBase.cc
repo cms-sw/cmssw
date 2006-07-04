@@ -171,17 +171,23 @@ void L1GctJetFinderBase::fetchEdgeStripsInput() {
 
 /// Copy the input regions from one source card into the m_inputRegions vector
 void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, unsigned scType, int col0) {
+  RegionsVector rgv = sourceCard->getRegions();
   RegionsVector::iterator thisRegion;
-  for ( thisRegion  = sourceCard->getRegions().begin();
-	thisRegion != sourceCard->getRegions().end(); ++thisRegion) {
-    unsigned localEta = thisRegion->rctEta();
-    unsigned localPhi = thisRegion->rctPhi();
+  unsigned pos = 0;
+  for ( thisRegion  = rgv.begin();
+	thisRegion != rgv.end(); ++thisRegion) {
+    // Cross-check position in output array
+    if ( (thisRegion->gctRegionIndex() == pos) ) {
+      unsigned localEta = thisRegion->rctEta();
+      unsigned localPhi = thisRegion->rctPhi();
 
-    int col = col0+localPhi;
-    if (col>=0 && col<this->nCols()) {
-      unsigned offset = col*COL_OFFSET + localEta + 1;
-      m_inputRegions.at(offset) = *thisRegion;
+      int col = col0+localPhi;
+      if (col>=0 && col<this->nCols()) {
+	unsigned offset = col*COL_OFFSET + localEta + 1;
+	m_inputRegions.at(offset) = *thisRegion;
+      }
     }
+    ++pos;
   }
 }
 
@@ -189,19 +195,25 @@ void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, unsigned scTy
 /// No method to find the eta=0 regions directly so we loop 
 /// over all regions as in fetchScInput
 void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0) {
+  RegionsVector rgv = sourceCard->getRegions();
   RegionsVector::iterator thisRegion;
-  for ( thisRegion  = sourceCard->getRegions().begin();
-	thisRegion != sourceCard->getRegions().end(); ++thisRegion) {
-    unsigned localEta = thisRegion->rctEta();
-    unsigned localPhi = thisRegion->rctPhi();
+  unsigned pos = 0;
+  for ( thisRegion  = rgv.begin();
+	thisRegion != rgv.end(); ++thisRegion) {
+    // Cross-check position in output array
+    if ( (thisRegion->gctRegionIndex() == pos) ) {
+      unsigned localEta = thisRegion->rctEta();
+      unsigned localPhi = thisRegion->rctPhi();
 
-    if (localEta == 0) {
-      int col = col0+localPhi;
-      if (col>=0 && col<this->nCols()) {
-	unsigned offset = col*COL_OFFSET;
-	m_inputRegions.at(offset) = *thisRegion;
+      if (localEta == 0) {
+	int col = col0+localPhi;
+	if (col>=0 && col<this->nCols()) {
+	  unsigned offset = col*COL_OFFSET;
+	  m_inputRegions.at(offset) = *thisRegion;
+	}
       }
     }
+    ++pos;
   }
 }
 
@@ -253,13 +265,16 @@ L1GctScalarEtVal L1GctJetFinderBase::calcEtStrip(const UShort strip) const
 L1GctScalarEtVal L1GctJetFinderBase::calcHt() const
 {    
   unsigned ht = 0;
+  bool of = false;
   for(UShort i=0; i < MAX_JETS_OUT; ++i)
   {
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
       ht += static_cast<unsigned>(m_outputJets.at(i).rankForHt());
+      of |= m_outputJets.at(i).overFlow();
     }
   }
   L1GctScalarEtVal temp(ht);
+  temp.setOverFlow(temp.overFlow() || of);
   return temp;
 }

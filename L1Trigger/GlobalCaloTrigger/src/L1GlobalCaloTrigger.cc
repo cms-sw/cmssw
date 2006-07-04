@@ -168,6 +168,12 @@ void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
   sc->setRegions(tempRegions);
 }
 
+void L1GlobalCaloTrigger::setRegion(unsigned et, unsigned ieta, unsigned iphi, bool overFlow, bool fineGrain)
+{
+  L1CaloRegion temp(et, overFlow, fineGrain, false, false, ieta, iphi);
+  setRegion(temp);
+}
+
 void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) {
 
   if (readFromFile) {

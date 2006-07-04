@@ -68,6 +68,9 @@ public:
   /// set a jet region at the input to be processed
   void setRegion(L1CaloRegion region);
 
+  /// construct a jet region and set it at the input to be processed
+  void setRegion(unsigned et, unsigned ieta, unsigned iphi, bool overFlow=false, bool fineGrain=true);
+
   /// set an isolated EM candidate to be processed
   void setIsoEm(L1CaloEmCand em);
 
