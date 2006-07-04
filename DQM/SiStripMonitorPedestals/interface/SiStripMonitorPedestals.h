@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.2 2006/03/08 13:00:30 dkcira Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.1 2006/07/01 07:37:36 gennai Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
