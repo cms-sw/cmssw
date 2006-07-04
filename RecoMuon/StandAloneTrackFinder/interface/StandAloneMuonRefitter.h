@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/06/12 13:38:07 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/21 18:02:19 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -15,9 +15,9 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 // FIXME tmp here!!
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+// #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-//class Propagator;
+class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
 class Trajectory;
@@ -35,7 +35,7 @@ public:
   // Operations
   
   /// Perform the inner-outward fitting
-  void refit(TrajectoryStateOnSurface& initialState, const DetLayer*, Trajectory& trajectory);
+  void refit(const TrajectoryStateOnSurface& initialState, const DetLayer*, Trajectory& trajectory);
 
   /// the last free trajectory state
   FreeTrajectoryState lastUpdatedFTS() const {return *theLastUpdatedTSOS.freeTrajectoryState();}
@@ -103,15 +103,16 @@ private:
   MuonDetLayerMeasurements theMeasurementExtractor;
   
   /// The propagator
-  //Propagator *thePropagator;
+  Propagator *thePropagator;
+  
   // FIXME
-  SteppingHelixPropagator *thePropagator;
+  // SteppingHelixPropagator *thePropagator;
 
   /// access at the propagator
-  //  Propagator *propagator() const {return thePropagator;}
+  Propagator *propagator() const {return thePropagator;}
 
   // FIXME
-  SteppingHelixPropagator *propagator() const {return thePropagator;}
+  // SteppingHelixPropagator *propagator() const {return thePropagator;}
   
   /// The Estimator
   MeasurementEstimator *theEstimator;
@@ -138,6 +139,9 @@ private:
 
   /// the det layer used in the reconstruction
   std::vector<const DetLayer*> theDetLayers;
+
+  /// the propagator name
+  std::string thePropagatorName;
 
   int totalChambers;
   int dtChambers;
