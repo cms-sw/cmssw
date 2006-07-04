@@ -2,8 +2,8 @@
 /** \class StandAloneMuonTrackLoader
  *  Concrete class to load the product of the StandAloneProducer in the event
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/27 13:46:39 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -29,7 +29,6 @@ void StandAloneMuonTrackLoader::loadTracks(const TrajectoryContainer &trajectori
   // the rechit collection, it will be loaded in the event  
   std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
 
-  std::cout<<"trajectories.size(): "<<trajectories.size()<<std::endl;
   if( !trajectories.size() ) return;
 
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
@@ -37,19 +36,14 @@ void StandAloneMuonTrackLoader::loadTracks(const TrajectoryContainer &trajectori
     
     // get the transient rechit from the trajectory
     const Trajectory::RecHitContainer transHits = trajectory->recHits();
-    std::cout<<"transHits.size(): "<<transHits.size()<<std::endl;
 
     // fill the rechit collection
     for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	recHit != transHits.end(); ++recHit){
-      std::cout<<"recHit: "<<recHit->globalPosition()<<std::endl;
-      std::cout<<"recHit->hit(): "<<recHit->hit()->localPosition()<<std::endl;
-      std::cout<<"recHit->hit()->clone(): "<<recHit->hit()->clone()->localPosition()<<std::endl;
-      
       recHitCollection->push_back( recHit->hit()->clone() );       
     }
   }
-
+  
 
   // put the collection of TrackingRecHit in the event
   LogDebug(metname) << 
@@ -112,6 +106,14 @@ void StandAloneMuonTrackLoader::loadTracks(const TrajectoryContainer &trajectori
     
     // set the persistent track-extra reference to the Track
     track.setExtra(trackExtraRef);
+
+    // Hit Pattern
+    //     TrackingRecHitRefVector hitlist;
+    //     for (unsigned int i=0; i<trackExtraRef->recHitsSize(); i++) {
+    // 	    hitlist.push_back(trackExtraRef->recHit(i));
+    //     }
+    
+    //     track.setHitPattern(hitlist);
     
     //fill the TrackCollection
     trackCollection->push_back(track);
@@ -139,14 +141,13 @@ reco::Track StandAloneMuonTrackLoader::buildTrack (const Trajectory& trajectory)
   
   // FIXME: check the prop direction
   TrajectoryStateOnSurface innerTSOS;
-
+  
   if (trajectory.direction() == alongMomentum) {
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } else { 
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
   
-    
   // This is needed to extrapolate the tsos at vertex
   // FIXME: check it!
   TSCPBuilderNoMaterial tscpBuilder;
