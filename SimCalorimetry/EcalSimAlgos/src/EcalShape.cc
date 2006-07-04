@@ -304,14 +304,13 @@ EcalShape::EcalShape(double timePhase)
   double delta = (1./(double)tconv)/2.;
 
   for(j=0;j<nbin;j++){
-    xb = ((double)(j+1))/tconv-delta;
+    xb = ((double)(j+1))/tconv-delta; 
     value = 0.0;
     deriv = 0.0;
 
     unsigned int ibin = j/(int)tconv;
 
-
-    // a la H4SIM, parabolic interpolation and analytic continuation
+    // A la H4SIM, parabolic interpolation and analytic continuation
     if (ibin < 0 ) { value = 0.; deriv = 0.; }
     else if (ibin == 0) { value = shapeArray[ibin]; deriv = 0.; }
     else if (ibin+1 == shapeArray.size()) { value = shapeArray[ibin]; deriv = 0.;}
@@ -324,7 +323,7 @@ EcalShape::EcalShape(double timePhase)
       double b = (f3 - f1)/2.;
       double c = (f1 + f3)/2. - f2;
       value = a + b*x + c*x*x;
-      deriv = b + c*x;
+      deriv = (b + 2*c*x)/delta;
     }
 
     ntmp[j] = value;

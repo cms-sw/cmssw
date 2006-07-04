@@ -9,6 +9,7 @@
 #include "TStyle.h"
 #include "TH1F.h"
 #include "TCanvas.h"
+#include "TF1.h"
 
 int main() {
 
@@ -54,32 +55,39 @@ int main() {
   TH1F* deriv2 = new TH1F("deriv2","Computed Ecal MGPA derivative",nsamp,0.,(float)(nsamp));
   double y = 0.;
   double dy = 0.;
+  double mean_bin = 0.0;
+  double mean_dev = 0.0;
   for ( unsigned int i = 0; i < histsiz; ++i ) {
-    y = (theShape)(x);
+    y  = (theShape)(x);
     dy = theShape.derivative(x);
     shape2->Fill((float)(x-startx),(float)y);
     deriv2->Fill((float)(x-startx),(float)dy);
-    std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << x-startx 
-              << " shape = " << std::setw(11) << std::setprecision(8) << y
+    std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-startx 
+              << " shape = "      << std::setw(11) << std::setprecision(8) << y
               << " derivative = " << std::setw(11) << std::setprecision(8) << dy << std::endl;
     x = x+1./(double)tconv;
   }
+
+  double tzero = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
+  for (int iSample = 0; iSample < 10; iSample++) 
+    std::cout << (theShape)(tzero + iSample*25.0) << std::endl; 
 
   showShape->Divide(2,1);
   showShape->cd(1);
   gPad->SetGrid();
   shape2->GetXaxis()->SetNdivisions(10,kFALSE);
   shape2->Draw();
+
   showShape->cd(2);
   gPad->SetGrid();
   deriv2->GetXaxis()->SetNdivisions(10,kFALSE);
   deriv2->Draw();
+
   showShape->SaveAs("EcalShapeUsed.jpg");
 
   delete shape2;
   delete deriv2;
   delete showShape;
-  
 
   return 0;
 
