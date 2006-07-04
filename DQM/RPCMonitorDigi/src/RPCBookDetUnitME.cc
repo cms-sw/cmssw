@@ -92,7 +92,11 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
 
  sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
  sprintf(meTitle,"RecHit_Xposition_vs_Error_%s",layerLabel);
- meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,-10,10);
+ meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,10,10);
+ 
+ sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
+ sprintf(meTitle,"RecHit_Yposition_vs_Error_%s",layerLabel);
+ meMap[meId] = dbe->book2D(meId, meTitle, 30, -100, 100,30,10,10);
  
 	
 	return meMap;

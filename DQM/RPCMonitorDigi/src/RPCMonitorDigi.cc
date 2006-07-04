@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/23 12:29:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 08:01:35 $
+ *  $Revision: 1.9 $
  *
  * \author Ilaria Segoni
  */
@@ -163,7 +163,10 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
 		meMap[meId]->Fill(xposition,error.xx());
 
+		sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
+		meMap[meId]->Fill(yposition,error.yy());
 		numberOfHits++;
+	
 	}/// loop on RPCRecHits
 	}
 	
