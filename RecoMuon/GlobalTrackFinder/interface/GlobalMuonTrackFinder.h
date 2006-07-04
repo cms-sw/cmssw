@@ -5,8 +5,8 @@
  *  class to build (Tk and Combined) Tracks from standalone muon Track
  *  using GlobalMuonTrajectoryBuilder
  *
- *  $Date: 2006/06/30 03:31:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/02 03:00:56 $
+ *  $Revision: 1.2 $
  *  \author C. Liu - Purdue University
  */
 
@@ -24,14 +24,13 @@
 namespace edm {class ParameterSet;}
 
 class GlobalMuonTrajectoryBuilder;
-class GlobalMuonTrackMatcher;
 
 class GlobalMuonTrackFinder{
 
 public:
 
   /// constructor
-  GlobalMuonTrackFinder(GlobalMuonTrajectoryBuilder*,GlobalMuonTrackMatcher*);
+  GlobalMuonTrackFinder(GlobalMuonTrajectoryBuilder*);
           
   /// destructor 
   ~GlobalMuonTrackFinder();
@@ -43,8 +42,8 @@ public:
 
 private:
 
+    std::string theTkTrackLabel;
     GlobalMuonTrajectoryBuilder*  theTrajectoryBuilder;
-    GlobalMuonTrackMatcher* theTrackMatcher;
 
 };
 #endif

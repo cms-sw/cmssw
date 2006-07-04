@@ -5,8 +5,8 @@
  *  or build tracker and combined Tracks from standalone muon Track
  *  using GlobalMuonTrajectoryBuilder
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2006/07/02 03:02:17 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -20,15 +20,16 @@
 #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
+#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
 
 using namespace std;
 
 /// constructor
-GlobalMuonTrackFinder::GlobalMuonTrackFinder(GlobalMuonTrajectoryBuilder *trajectoryBuilder, GlobalMuonTrackMatcher* trackMatcher) : 
-theTrajectoryBuilder(trajectoryBuilder),
-theTrackMatcher(trackMatcher)
+GlobalMuonTrackFinder::GlobalMuonTrackFinder(GlobalMuonTrajectoryBuilder *trajectoryBuilder) : 
+theTrajectoryBuilder(trajectoryBuilder)
 {
+  theTkTrackLabel = "";
+
 }
 
 /// destructor
@@ -43,39 +44,36 @@ void GlobalMuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>
 
   std::auto_ptr<reco::TrackCollection> combinedTColl(new reco::TrackCollection());
   std::auto_ptr<reco::MuonCollection> gMuonColl(new reco::MuonCollection());
-   
+
+  std::vector<Trajectory> cTrajs;  
   // reconstruct the traj
-  for (int position = 0; position < int(staMuons->size()); position++) {
+  unsigned int position;
+  for (position = 0; position < staMuons->size(); position++) {
+      reco::TrackRef staMuon(staMuons,position);
+      // build trajectory, both vector size should be 0 or 1
+      std::vector<Trajectory> trajs = theTrajectoryBuilder->trajectories(&staMuon,event,eSetup);
+      std::vector<reco::TrackRef*> tkTracks = theTrajectoryBuilder->chosenTrackerTrackRef();
+//      if (trajs.size() >1 || tkTracks.size() >1)  something wrong;
+//      if (trajs.size() != tkTracks.size() )  something wrong;
 
-      //get tk TrackCollection from Event
-      edm::Handle<reco::TrackCollection> tkTrackC;
-
-      // get sta Track from Collection
-      reco::TrackRef staTrack(staMuons, position);
-
-      //choose one tkTrack from the Collection 
-      pair<bool,reco::TrackRef> tkTrack = theTrackMatcher->match(staTrack, tkTrackC);
-
-      if (!tkTrack.first) continue;
-
- //     Trajectory combinedTraj;// = theTrajectoryBuilder.build(staTrack, tkTrack);
-      reco::Track combinedTrack; // = buildTrack(gtTrajectories.first);
-      combinedTColl->push_back(combinedTrack);
+      cTrajs.push_back(trajs.front());
 
       reco::Muon recMuon;
 // link reco Muon with standalone and tracker Track
-      recMuon.setTrack(tkTrack.second);
-      recMuon.setStandAlone(staTrack);
+      recMuon.setTrack(*tkTracks.front());
+      recMuon.setStandAlone(staMuon);
       gMuonColl->push_back(recMuon);
 
   }
+
+//      theTrackLoader->(cTrajs,event);
 
 // put combined Track into Event
   edm::OrphanHandle<reco::TrackCollection> orphanHandleTrack = event.put(combinedTColl);
 
 // second loop links combined Track with Muon
 
-  int position =0; 
+  position =0; 
   for (reco::MuonCollection::iterator recMuon = gMuonColl->begin(); recMuon != gMuonColl->end(); recMuon++) {
     const reco::TrackRef combinedTR(orphanHandleTrack,position); 
     recMuon->setCombined(combinedTR);
