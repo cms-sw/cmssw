@@ -16,6 +16,7 @@
 
 #include "TROOT.h"
 #include "TProfile2D.h"
+#include "TProfile.h"
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -96,7 +97,7 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 
 //specific task me
-vector<int> checkedCry_;
+vector<int> checkedSteps_;
 float prescaling_; 
 //specific task me
 
@@ -119,19 +120,25 @@ TH2F* hBCryOnBeam_;
 
 TH2F* hBMaxEneCry_;
 
-
 TH1F* hBReadCryErrors_;
 
 TH1F* hBE1vsCry_;
 
 TH1F* hBE3x3vsCry_;
 
+TH1F* hBEntriesvsCry_;
+
 TH1F* hBcryDone_; 
 
 TH2F* hBBeamCentered_;
 
+TH1F* hbTBmoving_;
+
+TProfile* pBCriInBeamEvents_;
+
 MonitorElement* meEBBCaloRedGreen_;
 MonitorElement* meEBBCaloRedGreenReadCry_;
+MonitorElement* meEBBCaloRedGreenSteps_; 
 // quality check parameters
  int minEvtNum_;
  float aveEne1_;
