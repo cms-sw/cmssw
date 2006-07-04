@@ -3,8 +3,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/03 12:06:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/04 15:42:22 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -16,7 +16,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 
-GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const double& chi2, const MagneticField* field) {
+GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2, const MagneticField* field) {
 
   theMaxChi2 = chi2;
   theMinP = 2.5;
