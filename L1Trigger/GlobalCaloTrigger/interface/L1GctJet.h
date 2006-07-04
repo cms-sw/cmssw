@@ -49,6 +49,9 @@ public:
   uint16_t rank()      const;
   uint16_t rankForHt() const;
 
+  /// get overflow
+  bool overFlow() const { return (m_rawsum>=(1<<RAWSUM_BITWIDTH)); }
+
   /// test whether this jet candidate is a valid tau jet	
   bool isTauJet()     const { return (!m_id.isForward() && !m_tauVeto); } 
 
