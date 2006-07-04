@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/02 12:44:30 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/04 13:30:44 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -109,13 +109,13 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    sprintf(histo, "EBBHT Hodo-Calo X Vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo X vs Cry SM%02d", smId);
     meHodoPosXMinusCaloPosXVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT Hodo-Calo Y Vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
     meHodoPosYMinusCaloPosYVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
     
-    sprintf(histo, "EBBHT TDC-Calo Vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT TDC-Calo vs Cry SM%02d", smId);
     meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
 
     // following ME (type II):

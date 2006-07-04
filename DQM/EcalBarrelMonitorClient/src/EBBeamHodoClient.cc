@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/02 13:58:54 $
- * $Revision: 1.16 $
+ * $Date: 2006/07/04 13:37:37 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -282,13 +282,13 @@ void EBBeamHodoClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -359,13 +359,13 @@ void EBBeamHodoClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -432,13 +432,13 @@ void EBBeamHodoClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -488,14 +488,14 @@ void EBBeamHodoClient::analyze(void){
 
     if ( collateSources_ ) {
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d").c_str(), smId, i+1);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
     ho01_[i] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
 
     if ( collateSources_ ) {
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d, %02d").c_str(), smId, i+1);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
     hr01_[i] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
@@ -560,21 +560,21 @@ void EBBeamHodoClient::analyze(void){
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
@@ -668,7 +668,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#Hodo-Calo\"> Hodo-Calo </a>" << endl;
   htmlFile << "<p>" << endl;
-  htmlFile <<  "<a href=\"#eneVspos\"> Energy VS position </a>" << endl;
+  htmlFile <<  "<a href=\"#eneVspos\"> Energy vs position </a>" << endl;
   htmlFile << "<p>" << endl;
 
   htmlFile << "<hr>" << endl;
@@ -1044,7 +1044,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 
   htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy VS position plots </B> </a> " << endl;
+  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy vs position plots </B> </a> " << endl;
   htmlFile << "</br>" << endl;
 
 
