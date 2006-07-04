@@ -10,20 +10,22 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/06/12 13:43:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/27 07:16:06 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include <functional>
 
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
 class Trajectory;
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHit;
+//class TransientTrackingRecHit;
 class TrajectoryStateUpdator;
 class DetLayer;
 
@@ -112,15 +114,45 @@ private:
   /// copy objs from an OwnVector to another one
   void insert(edm::OwnVector<const TransientTrackingRecHit> & to,
 	      edm::OwnVector<const TransientTrackingRecHit> & from);
+  
+  
+  /// Ordering along increasing radius (for DT rechits)
+  struct RadiusComparatorInOut{
+    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
+      return a.det()->surface().position().mag() < b.det()->surface().position().mag(); 
+    }
+  };
+  
+  /// Ordering along decreasing radius (for DT rechits)
+  struct RadiusComparatorOutIn{
+    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
+      return a.det()->surface().position().mag() > b.det()->surface().position().mag();
+    }
+  };
+  
+  /// Ordering along increasing zed (for CSC rechits)
+  struct ZedComparatorInOut{  
+    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit& b) const{ 
+      return a.globalPosition().z() < b.globalPosition().z(); 
+    }
+  };
+  
+  /// Ordering along decreasing zed (for CSC rechits)
+  struct ZedComparatorOutIn{
+    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit &b) const{ 
+      return a.globalPosition().z() > b.globalPosition().z(); 
+    }
+  };
 
-
+  void sort(edm::OwnVector<const TransientTrackingRecHit>&, const DetLayer*);
+  
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
 					   const TrajectoryStateOnSurface &lastUpdatedTSOS, 
 					   const TransientTrackingRecHit &recHit,
 					   const double &chi2, const DetLayer *detLayer, 
 					   const TrajectoryMeasurement *initialMeasurement);
-
+  
 
   Propagator *thePropagator;
   MeasurementEstimator *theEstimator;
