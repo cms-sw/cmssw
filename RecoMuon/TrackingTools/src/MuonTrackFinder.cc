@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/06/21 17:36:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 13:44:19 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -76,6 +76,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
   // reconstruct the traj
   for(TrajectorySeedCollection::const_iterator seed = seeds->begin();
       seed != seeds->end(); seed++){
+    LogDebug(metname)<<"+++ New Seed +++"<<endl;
     TrajectoryContainer muonTrajs_temp = theTrajBuilder->trajectories(*seed);
     for(TrajectoryContainer::const_iterator it = muonTrajs_temp.begin(); 
 	it != muonTrajs_temp.end(); it++) 
