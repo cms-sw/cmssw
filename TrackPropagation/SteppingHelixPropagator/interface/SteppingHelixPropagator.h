@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/05/03 06:48:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/07 09:18:17 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.3 2006/05/03 06:48:55 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.4 2006/06/07 09:18:17 slava77 Exp $
 //
 //
 
@@ -55,8 +55,9 @@ class SteppingHelixPropagator : public Propagator {
     APPROX,
     RANGEOUT,
     INACC,
-    NOT_IMPLEMENTED
-  } ;
+    NOT_IMPLEMENTED,
+    UNDEFINED
+  };
 
   enum Pars {
     RADIUS_P=0,
@@ -133,17 +134,10 @@ class SteppingHelixPropagator : public Propagator {
   void getFState(SteppingHelixPropagator::Vector& p3, SteppingHelixPropagator::Point& r3,  
 		 HepSymMatrix& cov) const;
 
-  /// propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
-  Result propagateToR(double rDest, double epsilon = 1e-2) const;
-  /// propagate to fixed Z with precision epsilon
-  Result propagateToZ(double zDest, double epsilon = 1e-2) const;
-  /// stop when path length sDest is reached with precision epsilon
-  Result propagateByPathLength(double sDest, double epsilon = 1e-2) const;
-  /// propagate: stop when within epsilon from a plane defined 
-  /// by [x0,y0,z0, n_x, n_y, n_z] parameters
-  Result propagateToPlane(const double pars[6], double epsilon = 1e-2) const;
   /// propagate: chose stop point by type argument
-  Result propagate(SteppingHelixPropagator::DestType type, const double pars[6]) const;
+  /// propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
+  /// propagate to plane by [x0,y0,z0, n_x, n_y, n_z] parameters
+  Result propagate(SteppingHelixPropagator::DestType type, const double pars[6], double epsilon = 1e-3) const;
 
   /// (Internals) compute transient values for initial point (resets step counter).
   ///  Called by setIState
@@ -173,7 +167,8 @@ class SteppingHelixPropagator : public Propagator {
   int cIndex_(int ind) const;
 
   /// (Internals) determine distance and direction from the current position to the plane
-  void refToPlane(int ind, const double pars[6], double& dist, bool& isIncoming) const;
+  Result refToDest(DestType dest, int ind, const double pars[6], 
+		   double& dist, double& secTheta, bool& isIncoming) const;
 
   /// Compute covariance matrix rotation given change in basis vectors
   void initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
