@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/06/05 14:54:34 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/06/27 13:48:58 $
+ *   $Revision: 1.6 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -55,6 +55,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
 
   produces<reco::TrackCollection>();
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackExtraCollection>();
 }
   
 /// destructor
@@ -81,7 +83,6 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   LogDebug(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event,eventSetup);
   
-
   LogDebug(metname)<<"Event loaded"
 		   <<"================================"
 		   <<endl<<endl;
