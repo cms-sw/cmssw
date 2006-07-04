@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/29 18:19:54 $
+ *  $Revision: 1.6 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -79,16 +79,39 @@ edm::OwnVector<const TransientTrackingRecHit> MuonTransientTrackingRecHit::trans
   // the sub rec hit of this TransientRecHit
   std::vector<const TrackingRecHit*> ownRecHits = recHits();
 
+  if(ownRecHits.size() == 0){
+    theSubTransientRecHits.push_back(this);
+    return theSubTransientRecHits;
+  }
+  
   // the components of the geom det on which reside this rechit
   std::vector<const GeomDet *> geomDets = det()->components();
 
+  if(isDT() && dimension() == 2 && ownRecHits.front()->dimension() == 1 
+     && (geomDets.size() == 3 || geomDets.size() == 2) ){ // it is a phi segment!!
+    
+    std::vector<const GeomDet *> subGeomDets;
+
+    int sl = 1;
+    for(std::vector<const GeomDet *>::const_iterator geoDet = geomDets.begin();
+	geoDet != geomDets.end(); ++geoDet){
+      if(sl != 3){ // FIXME!! this maybe is not always true
+	std::vector<const GeomDet *> tmp = (*geoDet)->components();
+	std::copy(tmp.begin(),tmp.end(),back_inserter(subGeomDets));
+      }
+      ++sl;
+    }
+    geomDets.clear();
+    geomDets = subGeomDets;
+  }
+  
   // Fill the GeomDet map
   std::map<DetId,const GeomDet*> gemDetMap;
-
+  
   for (std::vector<const GeomDet*>::const_iterator subDet = geomDets.begin(); 
        subDet != geomDets.end(); ++subDet)
     gemDetMap[ (*subDet)->geographicalId() ] = *subDet;
-
+  
   std::map<DetId,const GeomDet*>::iterator gemDetMap_iter;
   
   // Loop in order to check the ids
@@ -99,7 +122,7 @@ edm::OwnVector<const TransientTrackingRecHit> MuonTransientTrackingRecHit::trans
     
     if(gemDetMap_iter != gemDetMap.end() )
       theSubTransientRecHits.push_back(new MuonTransientTrackingRecHit(gemDetMap_iter->second, 
-								       *rechit) );
+									 *rechit) );
     else if( (*rechit)->geographicalId() == det()->geographicalId() ) // Phi in DT is on Chamber
       theSubTransientRecHits.push_back(new MuonTransientTrackingRecHit(det(), 
 								       *rechit) );
