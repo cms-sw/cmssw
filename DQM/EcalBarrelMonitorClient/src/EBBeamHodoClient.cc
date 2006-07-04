@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/02 08:48:20 $
- * $Revision: 1.15 $
+ * $Date: 2006/07/02 13:58:54 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -251,9 +251,9 @@ void EBBeamHodoClient::subscribe(void){
 
   for (int i=0; i<4; i++) {
 
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d %02d", smId, i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d, %02d", smId, i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d %02d", smId, i+1);
     mui_->subscribe(histo);
 
   }
@@ -303,13 +303,13 @@ void EBBeamHodoClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
   if ( collateSources_ ) {
@@ -380,13 +380,13 @@ void EBBeamHodoClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
 }
@@ -453,13 +453,13 @@ void EBBeamHodoClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
   if ( collateSources_ ) {
@@ -609,21 +609,21 @@ void EBBeamHodoClient::analyze(void){
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   he03_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   he03_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   he03_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );

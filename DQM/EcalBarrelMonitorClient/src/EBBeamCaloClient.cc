@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/03 12:28:12 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -243,21 +243,21 @@ void EBBeamCaloClient::subscribe(void){
   Char_t histo[200];
 
   for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
 
   }
     
@@ -313,21 +313,21 @@ void EBBeamCaloClient::subscribeNew(void){
   Char_t histo[200];
   
   for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
 
   }
     
@@ -378,21 +378,21 @@ void EBBeamCaloClient::unsubscribe(void){
   Char_t histo[200];
 
   for (int i = 0; i < cryInArray_ ; i++){
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry: %01d", i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
 
   }
     
