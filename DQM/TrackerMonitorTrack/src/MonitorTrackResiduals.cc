@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.10 2006/06/19 13:21:38 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.11 2006/06/27 07:52:57 dkcira Exp $
 //
 //
 
@@ -164,8 +164,8 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
-      DetId * detId = state.detId();
-      TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(*detId)->surface()), theMF);
+      DetId detId(state.detId());
+      TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(detId)->surface()), theMF);
 
 //      OwnVector<TransientTrackingRecHit> hits;
       Trajectory::RecHitContainer hits;
