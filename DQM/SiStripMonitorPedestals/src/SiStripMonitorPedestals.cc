@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.2 2006/07/03 14:20:45 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.3 2006/07/03 14:49:25 gennai Exp $
 //
 //
 
@@ -22,8 +22,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
-#include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
+//#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
+//#include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
