@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/21 18:23:57 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/06/27 13:47:39 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -219,7 +219,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
   TimeMe timer2(t2,timing);
 
-  bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
+  // FIXME! under check!
+  //  bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
+  bwfilter()->refit(trajectoryFW.lastMeasurement().predictedState(),refitter()->lastDetLayer(),trajectoryBW);
 
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
