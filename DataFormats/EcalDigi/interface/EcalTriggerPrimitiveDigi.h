@@ -30,10 +30,26 @@ class EcalTriggerPrimitiveDigi {
   void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
     
   static const int MAXSAMPLES = 20;
+
+  /// get the encoded/compressed Et of interesting sample
+  int compressedEt() const; 
+  
+  
+  /// get the fine-grain bit of interesting sample
+  bool fineGrain() const; 
+  
+  /// get the Trigger tower Flag of interesting sample
+  int ttFlag() const; 
+  
+  /// True if debug mode (# of samples > 1)
+  bool isDebug() const;
+
  private:
+  
   EcalTrigTowerDetId id_;
   int size_;
   std::vector<EcalTriggerPrimitiveSample> data_;
+  int sampleOfInterest() const;
 };
 
 
