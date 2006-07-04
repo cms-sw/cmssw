@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.11 2006/06/23 11:54:57 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.12 2006/06/23 11:58:40 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -62,7 +62,8 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
 				 << " Building FED cabling...";
   
   // Create FED cabling object 
-  SiStripFedCabling* fed_cabling = new SiStripFedCabling();
+  SiStripFedCabling* fed_cabling = 0; // TEMP!
+  //SiStripFedCabling* fed_cabling = new SiStripFedCabling();
   
   // Create Dcu-DetId map
   SiStripConfigDb::DcuDetIdMap dcu_detid_map;
@@ -180,8 +181,8 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 			       dcu_id, 0, 0, // null values for DetId and ApvPairs 
 			       fed_id, fed_ch );
 
-    stringstream ss;
-    conn.print(ss);
+    // stringstream ss;
+    // conn.print(ss);
     
     // Add object to FEC cabling
     fec_cabling.addDevices( conn );
@@ -680,7 +681,8 @@ void SiStripFedCablingBuilderFromDb::getFedCabling( const SiStripFecCabling& fec
 						    SiStripFedCabling& fed_cabling ) {
   vector<FedChannelConnection> conns;
   fec_cabling.connections( conns );
-  fed_cabling.buildFedCabling( conns );
+  fed_cabling = *( new SiStripFedCabling( conns ) ); // TEMP!
+  //fed_cabling.buildFedCabling( conns );
 }
 
 // -----------------------------------------------------------------------------
