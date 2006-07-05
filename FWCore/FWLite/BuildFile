@@ -7,7 +7,7 @@
  <use name=root>
  <use name=DataFormats/Common>
 </export>
-<lib name=boost_regex-gcc-mt>
+<use name=boost_regex>
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=rootrflx>
