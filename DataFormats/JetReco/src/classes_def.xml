@@ -15,4 +15,9 @@
   <class name="edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
   <class name="edm::RefProd<std::vector<reco::GenJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::GenJet> >"/>
+
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> > >" />
+  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
+
 </lcgdict>
