@@ -33,7 +33,10 @@ public:
   /// constructor for RCT emulator (HF regions)
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
 
-  /// construct with GCT eta,phi indices, for testing GCT emulator
+  /// construct from GCT source card indices - note argument ordering!
+  L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
+
+  /// construct with GCT eta,phi indices, for testing GCT emulator - note argument ordering!
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
 
   /// constructor from raw data and GCT indices for unpacking
@@ -44,6 +47,9 @@ public:
   
 
   // get/set methods for the data
+
+  /// reset the data content (not position id!)
+  void reset() { m_data = 0; }
 
   /// get Et
   unsigned et() const { return (m_id.isForward() ? m_data&0xff : m_data&0x3ff); }
@@ -113,6 +119,9 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
  private:
+
+  /// pack the raw data from arguments (used in constructors)
+  void pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
 
   /// region id
   L1CaloRegionDetId m_id;

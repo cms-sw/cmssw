@@ -27,7 +27,19 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
   int ieta=0;
   int iphi=0;
 
-  /// TODO - calculate ieta and iphi
+  /// TODO - calculate ieta and iphi from RCT crate/card/region #
+  id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
+}
+
+// construct from GCT card, region #s
+L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icard, unsigned irgn) :
+  DetId(Calo, 2)
+{
+
+  int ieta=0;
+  int iphi=0;
+
+  /// TODO - calculate ieta and iphi from GCT card/region #
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
 

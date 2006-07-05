@@ -15,38 +15,28 @@ L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
   m_id(false, crate, card, rgn)
 {
-  bool checkOvF = overFlow || (et>=0x400);
-  m_data = 
-    (et & 0x3ff) | 
-    ((checkOvF) ? 0x400  : 0x0) |
-    ((tauVeto)  ? 0x800  : 0x0) |
-    ((mip)      ? 0x1000 : 0x0) |
-    ((quiet)    ? 0x2000 : 0x0);
+  pack(et, overFlow, tauVeto, mip, quiet);
 }
 
 // constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn) :
   m_id(false, crate, 0, rgn)
 {
-  bool checkOvF = overFlow || (et>=0x400);
-  m_data = 
-    (et & 0x3ff) | 
-    ((checkOvF) ? 0x400  : 0x0) |
-    ((fineGrain)  ? 0x800  : 0x0);
+  pack(et, overFlow, fineGrain, false, false);
 }
 
+// constructor from GCT card, region numbers
+L1CaloRegion::L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) :
+  m_id(false, card, input) // use constructor with dummy argument here (GCT card/input # NOT eta/phi!)
+{
+  pack(et, overFlow, fineGrain, mip, quiet);
+}
 
 // construct from global eta, phi indices
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
   m_id(ieta, iphi)
 {
-  bool checkOvF = overFlow || (et>=0x400);
-  m_data = 
-    (et & 0x3ff) | 
-    ((checkOvF) ? 0x400  : 0x0) |
-    ((tauVeto)  ? 0x800  : 0x0) |
-    ((mip)      ? 0x1000 : 0x0) |
-    ((quiet)    ? 0x2000 : 0x0);
+  pack(et, overFlow, fineGrain, mip, quiet);
 }
 
 //constructor for unpacking
@@ -70,6 +60,16 @@ void L1CaloRegion::setMip(bool mip) {
 void L1CaloRegion::setQuiet(bool quiet) {
   if (quiet) { m_data |= 0x2000; }
   else { m_data &= 0xdfff; }
+}
+
+void L1CaloRegion::pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) {
+  bool checkOvF = overFlow || (et>=0x400);
+  m_data = 
+    (et & 0x3ff) | 
+    ((checkOvF)  ? 0x400  : 0x0) |
+    ((fineGrain) ? 0x800  : 0x0) |
+    ((mip)       ? 0x1000 : 0x0) |
+    ((quiet)     ? 0x2000 : 0x0);
 }
 
 // print to stream

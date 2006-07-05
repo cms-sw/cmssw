@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: 2006/07/03 12:38:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/03 12:55:12 $
+ *  $Revision: 1.6 $
  *  \author Jim Brooke 
 */
 
@@ -34,6 +34,10 @@ class L1CaloRegionDetId : public DetId {
   /// set isForward to true to create forward regions (ignoring card argument)
   /// or to false to create central regions (including card argument)
   L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned icard, unsigned irgn);
+
+  /// create id from GCT card and input number
+  /// NB - isForward has no effect; dummy argument to differentiate from global eta/phi indices!
+  L1CaloRegionDetId(bool isForward, unsigned icard, unsigned irgn);
 
   /// global eta index (0-21)
   unsigned ieta() const { return id_&0x1f; }
