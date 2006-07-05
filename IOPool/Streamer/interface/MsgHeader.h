@@ -16,7 +16,7 @@ struct Header
 class HeaderView
 {
 public:
-  HeaderView(void* buf, uint32 size)
+  HeaderView(void* buf)
   {
     Header* h = (Header*)buf;
     code_ = h->code_;
