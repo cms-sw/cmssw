@@ -6,7 +6,6 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/DTSimAlgo>
 <use name=root>
 <use name=clhep>
 
@@ -24,7 +23,6 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=DataFormats/DetId>
  <use name=Geometry/CommonDetUnit>
- <use name=Geometry/DTSimAlgo>
  <use name=root>
  <use name=clhep>
 </export>
