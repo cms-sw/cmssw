@@ -37,13 +37,15 @@ public:
   
   /// Converts a 10-bit jet Et to a 6-bit rank.
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToSixBitRank(uint16_t jetEnergy, unsigned eta) const;
+  uint16_t convertToSixBitRank(uint16_t jetEt, unsigned eta) const;
 
   /// Converts a 10-bit jet Et to a 10-bit Et (applying eta-dependent calibration)
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t convertToTenBitRank(uint16_t jetEnergy, unsigned eta) const;
+  uint16_t convertToTenBitRank(uint16_t jetEt, unsigned eta) const;
   
 private:
+
+  uint16_t 
 
   std::vector< std::vector<float> > m_calibFunc;
 

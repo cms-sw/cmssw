@@ -66,7 +66,7 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 {
 }
 
-uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEnergy, unsigned eta) const
+uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta) const
 {
 //   double corrEt = 0;
   
@@ -74,16 +74,16 @@ uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEnergy, unsig
 //     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
 //   }
 
-//   jetEnergy = (uint16_t)corrEt;
+//   jetEt = (uint16_t)corrEt;
 
-  if(jetEnergy < (1 << JET_ENERGY_BITWIDTH))
+  if(jetEt < (1 << JET_ENERGY_BITWIDTH))
   {
-    return jetEnergy/16;
+    return jetEt/16;
   }
   return 63;
 }
 
-uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEnergy, unsigned eta) const
+uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned eta) const
 {
 //   double corrEt = 0;
   
@@ -91,11 +91,11 @@ uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEnergy, unsig
 //     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
 //   }
 
-//   jetEnergy = (uint16_t)corrEt;
+//   jetEt = (uint16_t)corrEt;
 
-  if(jetEnergy < (1 << JET_ENERGY_BITWIDTH))
+  if(jetEt < (1 << JET_ENERGY_BITWIDTH))
   {
-    return jetEnergy;
+    return jetEt;
   }
   return 1023;
 }
