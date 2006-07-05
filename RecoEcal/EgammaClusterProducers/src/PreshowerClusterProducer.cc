@@ -1,4 +1,3 @@
-
 // system include files
 #include <vector>
 #include <memory>
@@ -41,6 +40,9 @@
 #include "TFile.h"
 
 ///----
+// #include <fstream>
+// FILE* froad;
+// FILE* fclust;
 
 PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) {
 
@@ -102,7 +104,7 @@ void PreshowerClusterProducer::beginJob(edm::EventSetup const&) {
   h1_esNhits_x = new TH1F("esNhits_x"," ES cluster Nhits in  X-plane",10, 0, 10);
   h1_esNhits_y = new TH1F("esNhits_y"," ES cluster Nhits in  Y-plane",10, 0, 10);
   h1_esDeltaE = new TH1F("esDeltaE"," DeltaE",20, 0, 0.50); 
-  
+
 }
 
 PreshowerClusterProducer::~PreshowerClusterProducer() {
@@ -121,10 +123,13 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
 
-  const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  topology_p = new EcalPreshowerTopology(geoHandle); 
+//   const CaloSubdetectorGeometry *geometry_p;
+//   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  const CaloSubdetectorGeometry *& geometry_p = geometry;
+
+  CaloSubdetectorTopology *topology = new EcalPreshowerTopology(geoHandle); 
+  CaloSubdetectorTopology *& topology_p = topology;
 
  // fetch the product (pSuperClusters)
   try {
@@ -187,14 +192,10 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
          double X = (*b_iter)->x();
 	 double Y = (*b_iter)->y();
          double Z = (*b_iter)->z();
-	 const GlobalPoint point(X,Y,Z); 
-        
-         std::cout << " ### 1 ### " << "  X = " << X << "  Y = " << Y << "  Z = " << Z << std::endl;
+	 const GlobalPoint point(X,Y,Z);         
 
 	 ESDetId strip1((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane1)); 
          ESDetId strip2((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane2));
-
-         std::cout << " ### 2 ### " << std::endl;
 
          if ( debugL <= pINFO ) {
 	    if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
@@ -207,8 +208,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
             else if ( strip2 == ESDetId(0) )
               std::cout << " No intersected strip in plane 2 " << std::endl;
          }
-
-         std::cout << " ### 3 ### " << std::endl;
 
          // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.         
          for (int i=0; i<preshNclust_; i++) {
