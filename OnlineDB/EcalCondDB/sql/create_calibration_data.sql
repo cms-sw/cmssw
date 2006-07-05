@@ -9,13 +9,12 @@ CREATE TABLE cali_general_dat (
   iov_id                NUMBER(10),
   logic_id          	NUMBER(10), -- (SM)
   NUM_EVENTS          	NUMBER(10), 
-  location_id		NUMBER(10) NOT NULL,
-  comment               VARCHAR(100)  
+  comments              VARCHAR(100)  
 );
  
 ALTER TABLE cali_general_dat ADD CONSTRAINT cali_general_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE cali_general_dat ADD CONSTRAINT cali_general_fk FOREIGN KEY (iov_id) REFERENCES cali_iov (iov_id);
-ALTER TABLE cali_general_tag ADD CONSTRAINT cali_general_fk1 FOREIGN KEY (location_id) REFERENCES location_def (def_id);
+
 
 
 CREATE TABLE cali_crystal_intercal_dat (

@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.2 2006/05/18 15:26:20 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.3 2006/06/05 18:36:20 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -24,6 +24,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/DCUIOV.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/CaliIOV.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -186,6 +187,14 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Return a laser moniotring farm run object
    */
   LMFRunIOV fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t lmfrun)
+    throw(std::runtime_error);
+
+
+
+  /**
+   *   Return a Calibration IOV object
+   */
+  CaliIOV fetchCaliIOV(CaliTag* tag, Tm evenTm)
     throw(std::runtime_error);
 
 

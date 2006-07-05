@@ -1,0 +1,5 @@
+#include "OnlineDB/EcalCondDB/interface/CaliTag.h"
+#include "OnlineDB/EcalCondDB/interface/CaliIOV.h"
+#include "OnlineDB/EcalCondDB/interface/CaliGeneralDat.h"
+#include "OnlineDB/EcalCondDB/interface/CaliCrystalIntercalDat.h"
+#include "OnlineDB/EcalCondDB/interface/CaliHVScanRatioDat.h"

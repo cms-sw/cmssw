@@ -5,6 +5,7 @@
 /*  cali_tag */
 CREATE TABLE cali_tag (
   tag_id		NUMBER(10) NOT NULL,
+  location_id		NUMBER(10) NOT NULL,
   gen_tag		VARCHAR(30) NOT NULL,
   method		VARCHAR(40) NOT NULL,
   version		VARCHAR(40) NOT NULL,
@@ -14,7 +15,7 @@ CREATE TABLE cali_tag (
 CREATE SEQUENCE cali_tag_sq INCREMENT BY 1 START WITH 1;
 
 ALTER TABLE cali_tag ADD CONSTRAINT cali_tag_pk PRIMARY KEY (tag_id);
-
+ALTER TABLE cali_tag ADD CONSTRAINT cali_tag_fk FOREIGN KEY (location_id) REFERENCES location_def (def_id);
 
 /* cali iov */
 CREATE TABLE cali_iov (

@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.1 2006/03/01 23:39:52 egeland Exp $
+// $Id: EcalCondDBInterface.cc,v 1.2 2006/06/05 18:36:20 egeland Exp $
 
 #include <iostream>
 #include <string>
@@ -283,6 +283,17 @@ LMFRunIOV EcalCondDBInterface::fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag,
   lmfiov.setConnection(env, conn);
   lmfiov.setByRun(lmftag, &runiov, subrun);
   return lmfiov;
+}
+
+
+
+CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, Tm eventTm)
+  throw(runtime_error)
+{
+  CaliIOV caliiov;
+  caliiov.setConnection(env, conn);
+  caliiov.setByTm(tag, eventTm);
+  return caliiov;
 }
 
 
