@@ -58,7 +58,7 @@ void dumpStartMsg(InitMsgView* view)
 
 void dumpInit(uint8* buf, uint32 bufsize)
 {
-  InitMsgView view(buf,bufsize);
+  InitMsgView view(buf);
   dumpInitHeader(&view);
   
   cout << "desc len = " << view.descLength() << "\n";
@@ -109,7 +109,7 @@ void dumpEventIndex(EventMsgView* eview, uint32 hltsize,uint32 l1size)
 
 void dumpEvent(uint8* buf,uint32 bufsize,uint32 hltsize,uint32 l1size)
 {
-  EventMsgView eview(buf,bufsize,hltsize,l1size);
+  EventMsgView eview(buf,hltsize,l1size);
 
   dumpEventHeader(&eview, hltsize, l1size);
 
