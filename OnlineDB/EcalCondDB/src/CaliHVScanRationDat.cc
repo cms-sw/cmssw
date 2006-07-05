@@ -36,7 +36,7 @@ void CaliHVScanRatioDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO cali_hv_scan_ratio_dat (iov_id, logic_id, "
-			"hvratio, hvratio_rms, num_events, task_status) "
+			"hvratio, hvratio_rms, task_status) "
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
@@ -90,7 +90,7 @@ void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* 
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.cali, d.cali_rms, d.num_events, d.task_status "
+		 "d.hvratio, d.hvratio_rms, d.task_status "
 		 "FROM channelview cv JOIN cali_hv_scan_ratio_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");

@@ -3,6 +3,8 @@
  *  Note:  Does not include the CHANNELVIEW and VIEWDESCRIPTION tables/data!
  */
 
+@clear_calibration_data
+@clear_calibration_core
 @clear_laser_data
 @clear_laser_core
 @clear_dcu_data
