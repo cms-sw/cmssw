@@ -99,7 +99,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
     LSB[igain] = 0.;
     if ( igain > 0 ) LSB[igain]= Emax/(MAXADC*gains[igain]);
     threeSigmaADCNoise[igain] = 0.;
-    if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
+    if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain] * 3.;
   }
 
   CaloSamples noiseframe(detId, caloSamples.size());
