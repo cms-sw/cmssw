@@ -35,7 +35,6 @@ public:
 
 private:
   uint8* buf_;
-  Header* head_;
   uint32 msgBody_;
 };
 
@@ -49,7 +48,7 @@ public:
   //Constructor to View OtherMessage 
   OtherMessageView(void* buf): 
   buf_((uint8*)buf), 
-  head_(buf,0) 
+  head_(buf) 
   { 
    msg_body_start_ = buf_ + sizeof(HeaderView); 
    msgBody_ = convert32(msg_body_start_); 
