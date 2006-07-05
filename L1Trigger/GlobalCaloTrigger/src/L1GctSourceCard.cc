@@ -97,14 +97,22 @@ void L1GctSourceCard::readBX()
 
 void L1GctSourceCard::reset()
 {
+  // Clear the electron vectors
   m_isoElectrons.clear();
   m_nonIsoElectrons.clear();
+    
+  // Set the size of the electron vectors
+  m_isoElectrons.resize(NUM_ELEC);
+  m_nonIsoElectrons.resize(NUM_ELEC);
+   
   m_mipBits=0;
   m_quietBits=0;
-  m_regions.clear();
-    
-  setVectorSizes();
-   
+  // Don't clear and resize the regions vector.
+  // Instead we reset all the elements.
+  for (unsigned i=0; i<m_regions.size(); ++i) {
+    m_regions.at(i).reset();
+  }
+
   m_currentBX = 0;
 }
 
@@ -266,10 +274,30 @@ void L1GctSourceCard::setVectorSizes()
 
   case cardType2:
     m_regions.resize(NUM_REG_TYPE2);
+    for (unsigned i=0; i<m_regions.size(); ++i) {
+      L1CaloRegion temp(m_id, i, 0, false, false, false, false);
+      if ((temp.gctCard() == m_id) && (temp.gctRegionIndex() == i)) {
+	m_regions.at(i) = temp;
+      } else {
+	throw cms::Exception("L1GctSetupError")
+	  << "L1GctSourceCard::setVectorSizes() : In Source Card ID: " << m_id
+	  << " initialisation of position info for offset " << i << " has failed!\n!";
+      }
+    }
     break;
         
   case cardType3:
     m_regions.resize(NUM_REG_TYPE3);
+    for (unsigned i=0; i<m_regions.size(); ++i) {
+      L1CaloRegion temp(m_id, i, 0, false, false, false, false);
+      if ((temp.gctCard() == m_id) && (temp.gctRegionIndex() == i)) {
+	m_regions.at(i) = temp;
+      } else {
+	throw cms::Exception("L1GctSetupError")
+	  << "L1GctSourceCard::setVectorSizes() : In Source Card ID: " << m_id
+	  << " initialisation of position info for offset " << i << " has failed!\n!";
+      }
+    }
     break;
 
   default:

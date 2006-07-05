@@ -68,6 +68,18 @@ int main() {
 	     << " sourceCard " << temp.gctCard()
 	     << " scOutput "   << temp.gctRegionIndex() << endl;
       } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+      L1CaloRegion tump(card, in, 100,
+			false, false, false, false);
+      if ((tump.rctCrate()!=crate) ||
+	  (tump.gctCard()!=card) ||
+	  (tump.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << tump.gctEta() << "," << tump.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << tump.rctCrate()
+	     << " sourceCard " << tump.gctCard()
+	     << " scOutput "   << tump.gctRegionIndex() << endl;
+      } else { cout << "(" << tump.gctEta() << "," << tump.gctPhi() << ") "; }
     }
     cout << endl;
 
@@ -94,6 +106,18 @@ int main() {
 	if (phi == 0) { phi=18; }
 	--phi;
       }
+      L1CaloRegion tump(card, in, 100,
+			false, false, false, false);
+      if ((tump.rctCrate()!=crate) ||
+	  (tump.gctCard()!=card) ||
+	  (tump.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << tump.gctEta() << "," << tump.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << tump.rctCrate()
+	     << " sourceCard " << tump.gctCard()
+	     << " scOutput "   << tump.gctRegionIndex() << endl;
+      } else { cout << "(" << tump.gctEta() << "," << tump.gctPhi() << ") "; }
     }
     cout << endl;
     ++card;
@@ -127,6 +151,18 @@ int main() {
 	     << " sourceCard " << temp.gctCard()
 	     << " scOutput "   << temp.gctRegionIndex() << endl;
       } else { cout << "(" << temp.gctEta() << "," << temp.gctPhi() << ") "; }
+      L1CaloRegion tump(card, in, 100,
+			false, false, false, false);
+      if ((tump.rctCrate()!=crate) ||
+	  (tump.gctCard()!=card) ||
+	  (tump.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << tump.gctEta() << "," << tump.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << tump.rctCrate()
+	     << " sourceCard " << tump.gctCard()
+	     << " scOutput "   << tump.gctRegionIndex() << endl;
+      } else { cout << "(" << tump.gctEta() << "," << tump.gctPhi() << ") "; }
     }
     cout << endl;
 
@@ -153,6 +189,18 @@ int main() {
 	--phi;
       }
       ++eta;
+      L1CaloRegion tump(card, in, 100,
+			false, false, false, false);
+      if ((tump.rctCrate()!=crate) ||
+	  (tump.gctCard()!=card) ||
+	  (tump.gctRegionIndex()!=in)) { testPass = false;
+	cout << "Error for crate " << crate
+	     << " source card " << card << ", input " << in
+	     << " id is " << "  (" << tump.gctEta() << "," << tump.gctPhi() << ")" << endl;
+	cout << "rctCrate "    << tump.rctCrate()
+	     << " sourceCard " << tump.gctCard()
+	     << " scOutput "   << tump.gctRegionIndex() << endl;
+      } else { cout << "(" << tump.gctEta() << "," << tump.gctPhi() << ") "; }
     }
     cout << endl;
     ++card;
