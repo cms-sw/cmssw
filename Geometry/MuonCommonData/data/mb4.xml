@@ -900,19 +900,19 @@
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1892"/>
-  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4TopChimP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBChimPos_z]" />
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4TopChimP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBChimPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_1P"/>
