@@ -20,7 +20,7 @@ class EEDataFrame : public EcalDataFrame
     
   virtual ~EEDataFrame() {};
 
-  virtual const DetId& id() const { return id_; }
+  virtual const EEDetId& id() const { return id_; }
     
  private:
   EEDetId id_;

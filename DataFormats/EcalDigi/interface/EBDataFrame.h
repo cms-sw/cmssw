@@ -10,7 +10,7 @@
 
 /** \class EBDataFrame
       
-$Id: $
+$Id: EBDataFrame.h,v 1.3 2006/06/24 13:28:11 meridian Exp $
 */
 
 class EBDataFrame : public EcalDataFrame 
@@ -23,7 +23,7 @@ class EBDataFrame : public EcalDataFrame
     
   virtual ~EBDataFrame() {};
 
-  virtual const DetId& id() const { return id_; }
+  virtual const EBDetId& id() const { return id_; }
 
  private:
   EBDetId id_;
