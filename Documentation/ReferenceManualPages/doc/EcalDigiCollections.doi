@@ -4,35 +4,35 @@
   <td><a href="classEBDataFrame.html">EBDataFrame</a></td>
   <td><a href="#">edm::SortedCollection&lt;EBDataFrame&gt; </td>
   <td><a href="classEcalDigiProducer.html">ecaldigi</a></td>
-  <td class="description">Description?</td>
+  <td class="description">ECAL barrel digis</td>
   <td>F.Cossutti</td>
 </tr>
 <tr>
   <td><a href="classEEDataFrame.html">EEDataFrame</a></td>
   <td><a href="#"> edm::SortedCollection&lt;EEDataFrame&gt;</td>
   <td><a href="classEcalDigiProducer.html">ecaldigi</a></td>
-  <td class="description">Description?</td>
+  <td class="description">ECAL endcap digis</td>
   <td>F.Cossutti</td>
 </tr>
 <tr>
   <td><a href="classESDataFrame.html">ESDataFrame</a></td>
   <td><a href="#"> edm::SortedCollection&lt;ESDataFrame&gt;</td>
   <td><a href="classEcalDigiProducer.html">ecaldigi</a></td>
-  <td class="description">Description?</td>
+  <td class="description">ECAL preshower digis</td>
   <td>F.Cossutti</td>
 </tr>
 <tr>
   <td><a href="classEcalPnDiodeDigi.html">EcalPnDiodeDigi</a></td>
   <td><a href="#"> edm::SortedCollection&lt;EcalPnDiodeDigi&gt;</td>
-  <td><a href="classEcalDigiProducer.html">ecaldigi?</a></td>
-  <td class="description">Description?</td>
+  <td><a href="#">?</a></td>
+  <td class="description">Pn diode digis</td>
   <td>F.Cossutti</td>
 </tr>
 <tr>
   <td><a href="classEcalTriggerPrimitiveDigi.html">EcalTriggerPrimitiveDigi</a></td>
   <td><a href="#">edm::SortedCollection&lt;EcalTriggerPrimitiveDigi&gt;</td>
-  <td><a href="classEcalTrigPrimProducer.html">can't find cfi</a></td>
-  <td class="description">Description?</td>
+  <td><a href="classEcalTrigPrimProducer.html">tp</a></td>
+  <td class="description">ECAL trigger primitives</td>
   <td>F.Cossutti</td>
 </tr>
 
