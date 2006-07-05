@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.7 2006/06/06 20:49:09 dkcira Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.8 2006/06/27 07:52:57 dkcira Exp $
 //
 //
 
@@ -101,6 +101,7 @@ MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    Handle<reco::TrackCollection> trackCollection;
    iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
+// ---> implement this but need vector<reco::TrackCollection>>   iEvent.getManyByType(trackCollection);
    NumberOfTracks->Fill(trackCollection->size());
 
    int totalRecHits = 0;
