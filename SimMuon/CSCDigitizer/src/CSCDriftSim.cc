@@ -61,7 +61,12 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   
   GlobalPoint globalPosition = layer->surface().toGlobal(pos);
   assert(theMagneticField != 0);
-  bz = theMagneticField->inTesla(globalPosition).z() * 10.;
+ 
+  //  bz = theMagneticField->inTesla(globalPosition).z() * 10.;
+
+  // We need magnetic field in _local_ coordinates
+  // Interface now allows access in kGauss directly.
+  bz = layer->toLocal( theMagneticField->inKGauss( globalPosition ) ).z();
 
   // these subroutines label the coordinates in GEANT coords...
   ycell = clusterPos.z() / specs->anodeCathodeSpacing();
