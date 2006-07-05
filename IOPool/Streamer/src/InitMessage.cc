@@ -1,8 +1,8 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 
 
-InitMsgView::InitMsgView(void* buf, uint32 size):
-  buf_((uint8*)buf),size_(size),head_(buf,size)
+InitMsgView::InitMsgView(void* buf):
+  buf_((uint8*)buf),head_(buf)
 {
 
   release_start_ = buf_ + sizeof(InitHeader);

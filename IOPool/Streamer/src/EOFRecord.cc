@@ -1,8 +1,7 @@
 #include "IOPool/Streamer/interface/EOFRecord.h"
 
-EOFRecordView::EOFRecordView(void* buf, uint32 size,
-                           uint32 hlt_path_cnt):
-  buf_((uint8*)buf),size_(size),head_(buf,size),
+EOFRecordView::EOFRecordView(void* buf, uint32 hlt_path_cnt):
+  buf_((uint8*)buf),head_(buf),
   hlt_path_count_(hlt_path_cnt)
 {
   hlt_path_stat_start_ = buf_ + sizeof(EOFRecordHeader);
