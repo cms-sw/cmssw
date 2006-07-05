@@ -59,8 +59,6 @@ void L1GctJetFinder::findJets()
     ++centreIndex;
     for (UShort row = 1; row < COL_OFFSET; ++row)  
     {
-      if (m_inputRegions.at(centreIndex).et()>0) {
-      }
       //Determine if we are at end of the HF or not (so need 3*2 window)
       bool hfBoundary = (row == COL_OFFSET-1);
       //Determine if we are at the end of the endcap HCAL regions, so need boundary condition tauveto
