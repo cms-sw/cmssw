@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.48 $
+ * $Date: 2006/06/23 07:02:26 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ void EBCosmicTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -96,6 +96,8 @@ void EBCosmicTask::cleanup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 

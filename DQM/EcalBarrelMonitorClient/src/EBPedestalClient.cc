@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.84 $
+ * $Date: 2006/07/03 14:15:04 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -138,7 +138,7 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
   if ( enableQT_ ) {
 
-    Char_t qtname[80];
+    Char_t qtname[200];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -209,7 +209,7 @@ void EBPedestalClient::endRun(void) {
 
 void EBPedestalClient::setup(void) {
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -671,7 +671,7 @@ void EBPedestalClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -807,7 +807,7 @@ void EBPedestalClient::subscribe(void){
 
 void EBPedestalClient::subscribeNew(void){
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -878,7 +878,7 @@ void EBPedestalClient::unsubscribe(void){
 
   }
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -922,7 +922,7 @@ void EBPedestalClient::analyze(void){
     if ( verbose_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/06/17 10:07:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,7 +35,7 @@ void EBOccupancyTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -78,6 +78,8 @@ void EBOccupancyTask::cleanup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 

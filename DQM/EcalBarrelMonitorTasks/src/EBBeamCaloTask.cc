@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/04 13:48:23 $
- * $Revision: 1.14 $
+ * $Date: 2006/07/04 18:48:16 $
+ * $Revision: 1.15 $
  * \author A. Ghezzi
  *
  */
@@ -273,6 +273,8 @@ void EBBeamCaloTask::cleanup(void){
     if( meEBBCaloBeamCentered_ ) dbe->removeElement( meEBBCaloBeamCentered_->getName() );
     meEBBCaloBeamCentered_= 0;
   }
+
+  init_ = false;
 
 }
 

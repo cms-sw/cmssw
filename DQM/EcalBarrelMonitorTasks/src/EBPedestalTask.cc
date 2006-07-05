@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.38 $
+ * $Date: 2006/06/23 07:02:26 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ void EBPedestalTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -155,6 +155,8 @@ void EBPedestalTask::cleanup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.81 $
+ * $Date: 2006/07/03 14:15:04 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -151,7 +151,7 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
 
   if ( enableQT_ ) {
 
-    Char_t qtname[80];
+    Char_t qtname[200];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -224,7 +224,7 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
   
@@ -1161,7 +1161,7 @@ void EBLaserClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBLaserClient: subscribe" << endl;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1421,7 +1421,7 @@ void EBLaserClient::subscribe(void){
 
 void EBLaserClient::subscribeNew(void){
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1542,7 +1542,7 @@ void EBLaserClient::unsubscribe(void){
 
   }
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1619,7 +1619,7 @@ void EBLaserClient::analyze(void){
     if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
 

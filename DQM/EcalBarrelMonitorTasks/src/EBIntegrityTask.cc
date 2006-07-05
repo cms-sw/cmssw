@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/06/17 17:17:11 $
- * $Revision: 1.18 $
+ * $Date: 2006/06/17 17:19:42 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
  */
@@ -44,7 +44,7 @@ void EBIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -210,6 +210,8 @@ void EBIntegrityTask::cleanup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 

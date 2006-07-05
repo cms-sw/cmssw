@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/29 22:03:25 $
- * $Revision: 1.55 $
+ * $Date: 2006/06/30 10:33:28 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -240,7 +240,7 @@ void EBCosmicClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -286,7 +286,7 @@ void EBCosmicClient::subscribe(void){
 
 void EBCosmicClient::subscribeNew(void){
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -327,7 +327,7 @@ void EBCosmicClient::unsubscribe(void){
 
   }
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -352,7 +352,7 @@ void EBCosmicClient::analyze(void){
     if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
 

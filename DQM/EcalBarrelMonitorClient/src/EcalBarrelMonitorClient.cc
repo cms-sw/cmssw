@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/04 08:52:56 $
- * $Revision: 1.160 $
+ * $Date: 2006/07/04 16:40:41 $
+ * $Revision: 1.161 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -878,7 +878,7 @@ void EcalBarrelMonitorClient::subscribe(void){
 
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: collate" << endl;
 
-    Char_t histo[80];
+    Char_t histo[200];
 
     sprintf(histo, "EVTTYPE");
     me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums");
@@ -944,7 +944,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   this->subscribeNew();
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
   string s;

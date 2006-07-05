@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/04 13:37:37 $
- * $Revision: 1.17 $
+ * $Date: 2006/07/04 19:53:07 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -247,7 +247,7 @@ void EBBeamHodoClient::subscribe(void){
 
   int smId = 1;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for (int i=0; i<4; i++) {
 
@@ -322,7 +322,7 @@ void EBBeamHodoClient::subscribe(void){
 
 void EBBeamHodoClient::subscribeNew(void){
 
-  Char_t histo[80];
+  Char_t histo[200];
   
   int smId = 1;
   
@@ -395,7 +395,7 @@ void EBBeamHodoClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBBeamHodoClient: unsubscribe" << endl;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   int smId = 1;
 
@@ -480,7 +480,7 @@ void EBBeamHodoClient::analyze(void){
 
   int smId = 1;
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
 

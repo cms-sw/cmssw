@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.101 $
+ * $Date: 2006/07/03 14:15:04 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -122,7 +122,7 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
 
   if ( enableQT_ ) {
 
-    Char_t qtname[80];
+    Char_t qtname[200];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
   
@@ -231,7 +231,7 @@ void EBIntegrityClient::endRun(void) {
 
 void EBIntegrityClient::setup(void) {
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -929,7 +929,7 @@ void EBIntegrityClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1118,7 +1118,7 @@ void EBIntegrityClient::subscribe(void){
 
 void EBIntegrityClient::subscribeNew(void){
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1191,7 +1191,7 @@ void EBIntegrityClient::unsubscribe(void){
 
   }
 
-  Char_t histo[80];
+  Char_t histo[200];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1236,7 +1236,7 @@ void EBIntegrityClient::analyze(void){
     if ( verbose_ ) cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[150];
+  Char_t histo[200];
 
   MonitorElement* me;
 

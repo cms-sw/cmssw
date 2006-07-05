@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/04 13:30:44 $
- * $Revision: 1.14 $
+ * $Date: 2006/07/04 19:53:08 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -64,7 +64,7 @@ void EBBeamHodoTask::setup(void){
 
   smId =1;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -202,6 +202,8 @@ void EBBeamHodoTask::cleanup(void){
     meTDCTimeMinusCaloTimeVsCry_  = 0;
 
   }
+
+  init_ = false;
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.49 $
+ * $Date: 2006/06/23 07:02:26 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -64,7 +64,7 @@ void EBLaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[20];
+  Char_t histo[200];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -197,6 +197,8 @@ void EBLaserTask::setup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 
