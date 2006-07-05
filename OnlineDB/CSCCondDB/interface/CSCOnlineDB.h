@@ -32,8 +32,8 @@ class condbon
    */
   ~condbon () throw (oracle::occi::SQLException);
 /* time should be given in format like "Fri May 26 16:55:51 2006" */
-  void cdbon_write (CSCobject *obj, std::string obj_name, int run, std::string time);
-  void cdbon_last_run (std::string obj_name, int *run);
+  void cdbon_write (CSCobject *obj, std::string obj_name, int record, std::string time);
+  void cdbon_last_record (std::string obj_name, int *record);
 
   }; // end of class condbon
 #endif
