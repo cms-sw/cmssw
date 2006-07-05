@@ -8,6 +8,7 @@
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/MeasurementDet>
 <use name=RecoMuon/TransientTrackingRecHit>
+<use name=RecoMuon/Navigation>
 <use name=CLHEP>
 <use name=root>
 <use name=gsl>
@@ -26,6 +27,7 @@
    <use name=RecoMuon/TrackingTools>
    <use name=RecoMuon/DetLayers>
    <use name=RecoMuon/MeasurementDet>
+   <use name=RecoMuon/Navigation>
    <use name=RecoMuon/TransientTrackingRecHit>
 
    <use name=CLHEP>

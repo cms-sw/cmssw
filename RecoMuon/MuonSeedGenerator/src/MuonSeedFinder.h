@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/05/30 13:50:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/27 13:42:41 $
+ *  $Revision: 1.6 $
  *  
  */
 
@@ -53,9 +53,13 @@ private:
   bool createEndcapSeed(MuonTransientTrackingRecHit *me, 
 			std::vector<TrajectorySeed>& theSeeds,
 			const edm::EventSetup& eSetup) const;
+
+  bool createEndcapSeed_OLD(MuonTransientTrackingRecHit *me, 
+			    std::vector<TrajectorySeed>& theSeeds,
+			    const edm::EventSetup& eSetup) const;
   
   float computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const;
-
+  
   RecHitContainer theRhits;
  
   // put a parameterSet instead of

@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/21 17:54:37 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 13:42:41 $
+ *  $Revision: 1.9 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -148,7 +148,85 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, 
+MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *last, 
+				 vector<TrajectorySeed>& theSeeds,
+				 const edm::EventSetup& eSetup) const {
+
+  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  
+  edm::ESHandle<MagneticField> field;
+  eSetup.get<IdealMagneticFieldRecord>().get(field);
+  
+  AlgebraicSymMatrix mat(5,0) ;
+
+  // this perform H.T() * parErr * H, which is the projection of the 
+  // the measurement error (rechit rf) to the state error (TSOS rf)
+  // Legenda:
+  // H => is the 4x5 projection matrix
+  // parError the 4x4 parameter error matrix of the RecHit
+  
+  mat = last->parametersError().similarityT( last->projectionMatrix() );
+  
+  // We want pT but it's not in RecHit interface, so we've put it within this class
+  float momentum = computePt(last,&*field);
+  // FIXME
+  float smomentum = 0.25; // FIXME!!!!
+ 
+  MuonSeedFromRecHits seedCreator;
+  TrajectorySeed cscSeed = seedCreator.createSeed(momentum,smomentum,last,eSetup);
+
+  theSeeds.push_back(cscSeed);
+
+  // FIXME
+  return true;
+}
+
+
+float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
+// assume dZ = dPhi*R*C, here C = pZ/pT
+// =======================================================================
+// ptc: I suspect the following comment should really be
+// dZ/dPsi = 0.5*dz/dPhi
+// which I can derive if I assume the particle has travelled in a circle
+// projected onto the global xy plane, starting at the origin on the z-axis.
+// Here Psi is the angle traced out in the xy plane by the projection of the
+// helical path of the charged particle. The axis of the helix is assumed 
+// parallel to the main B field of the solenoid.
+// =======================================================================
+// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
+
+// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
+// then it's ridiculous to follow this algorithm... just set some
+// arbitrary 'high' value and note the sign is undetermined
+
+//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
+  static float small = 1.e-06;
+  static float big = 1.e+10;
+
+  LocalVector lod = muon->localDirection();
+  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
+    return big;
+  }
+
+  GlobalPoint gp = muon->globalPosition();
+  GlobalVector gv = muon->globalDirection();
+  float getx0 = gp.x();
+  float getay = gv.y()/gv.z();
+  float gety0 = gp.y();
+  float getax = gv.x()/gv.z();
+  float getz0 = gp.z();
+  
+  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
+  float dZdT = getz0/gp.perp();
+  float rho = dZdT/dZdPhi;
+  
+  // convert to pT (watch the sign !)
+  GlobalVector fld = field->inInverseGeV( gp );
+  return -fld.z()/rho;
+}
+
+bool 
+MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
@@ -275,48 +353,4 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
   }
   delete propagator;
   return result;
-}
-
-
-float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
-// assume dZ = dPhi*R*C, here C = pZ/pT
-// =======================================================================
-// ptc: I suspect the following comment should really be
-// dZ/dPsi = 0.5*dz/dPhi
-// which I can derive if I assume the particle has travelled in a circle
-// projected onto the global xy plane, starting at the origin on the z-axis.
-// Here Psi is the angle traced out in the xy plane by the projection of the
-// helical path of the charged particle. The axis of the helix is assumed 
-// parallel to the main B field of the solenoid.
-// =======================================================================
-// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
-
-// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
-// then it's ridiculous to follow this algorithm... just set some
-// arbitrary 'high' value and note the sign is undetermined
-
-//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
-  static float small = 1.e-06;
-  static float big = 1.e+10;
-
-  LocalVector lod = muon->localDirection();
-  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
-    return big;
-  }
-
-  GlobalPoint gp = muon->globalPosition();
-  GlobalVector gv = muon->globalDirection();
-  float getx0 = gp.x();
-  float getay = gv.y()/gv.z();
-  float gety0 = gp.y();
-  float getax = gv.x()/gv.z();
-  float getz0 = gp.z();
-  
-  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
-  float dZdT = getz0/gp.perp();
-  float rho = dZdT/dZdPhi;
-  
-  // convert to pT (watch the sign !)
-  GlobalVector fld = field->inInverseGeV( gp );
-  return -fld.z()/rho;
 }

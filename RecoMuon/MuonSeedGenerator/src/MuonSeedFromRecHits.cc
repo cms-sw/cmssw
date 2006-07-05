@@ -2,34 +2,43 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/06/21 17:48:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/27 13:42:41 $
+ *  $Revision: 1.7 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-// FIXME
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "gsl/gsl_statistics.h"
 
@@ -50,14 +59,14 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   computePtWithoutVtx(pt, spt);
 
   // some dump...
-  LogDebug(metname) << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << endl 
+  LogDebug(metname) << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << "\n" 
 		    << " Pt MB2 @vtx: " << pt[1] << " w: " << spt[1]<< endl ;
   
-  LogDebug(metname) << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< endl 
-		    << " Pt MB3-MB1 " << pt[3] << " w: " << spt[3]<< endl 
-		    << " Pt MB3-MB2 " << pt[4] << " w: " << spt[4]<< endl 
-		    << " Pt MB4-MB1 " << pt[5] << " w: " << spt[5]<< endl 
-		    << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< endl 
+  LogDebug(metname) << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< "\n" 
+		    << " Pt MB3-MB1 " << pt[3] << " w: " << spt[3]<< "\n" 
+		    << " Pt MB3-MB2 " << pt[4] << " w: " << spt[4]<< "\n" 
+		    << " Pt MB4-MB1 " << pt[5] << " w: " << spt[5]<< "\n" 
+		    << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< "\n" 
 		    << " Pt MB4-MB3 " << pt[7] << " w: " << spt[7]<< endl  ;
   
   /// now combine all pt estimate
@@ -67,7 +76,9 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   
   LogDebug(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
   
-  return createSeed(ptmean, sptmean,eSetup);
+  // take the best candidate
+  MuonTransientTrackingRecHit* last = best_cand();
+  return createSeed(ptmean, sptmean,last,eSetup);
 }
 
 MuonTransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
@@ -461,32 +472,47 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
 
 TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 					       float sptmean,
+					       MuonTransientTrackingRecHit* last,
 					       const edm::EventSetup& eSetup) const{
-
+  
   std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+
+  MuonPatternRecoDumper debug;
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
 
+  // FIXME: put it into a parameter set  
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
+  eSetup.get<TrackingComponentsRecord>().get("Chi2MeasurementEstimator",estimator);
+  
+  // FIXME: put it into a parameter set
+  edm::ESHandle<Propagator> propagator;
+  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite",propagator);
+
+  // FIXME: put it into a parameter set!
+  double theMinMomentum = 3.0;
+
+  // Take the whole tracking geometry
+  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
+  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+
+  // set the proper navigation school
+  MuonNavigationSchool school(&*muonLayers);
+  NavigationSetter setter(school);
+  
   TrajectorySeed result;
-  if ( fabs(ptmean) < 3. ) ptmean = 100. * ptmean/fabs(ptmean) ;
+
+  // Minimal pt
+  if ( fabs(ptmean) < theMinMomentum ) ptmean = theMinMomentum * ptmean/fabs(ptmean) ;
+
+  // FIXME!! was:
+  // if ( fabs(ptmean) < 3. ) ptmean = 100. * ptmean/fabs(ptmean) ;
 
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
 
-  MuonTransientTrackingRecHit* last = best_cand();
-
-  // float p_x = last.localDirection().x();
-  // float p_y = last.localDirection().y();
-  // float p_z = last.localDirection().z();
-
-  // float p_norm = ptmean/sqrt(p_x*p_x + p_z*p_z);
-  // t[0] = p_x/p_z;
-  // t[1] = p_y/p_z;
-  // t[2] = last.localPosition().x();
-  // t[3] = last.localPosition().y();
-  // LocalTrajectoryParameters param1(1./p_norm,t[0],t[1],t[2],t[3],-1);
-
+  // Fill the LocalTrajectoryParameters
   LocalPoint segPos=last->localPosition();
   GlobalVector mom=last->globalPosition()-GlobalPoint();
   GlobalVector polar(GlobalVector::Spherical(mom.theta(),
@@ -495,81 +521,112 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   polar *=fabs(ptmean)/polar.perp();
   LocalVector segDirFromPos=last->det()->toLocal(polar);
   int charge=(int)(ptmean/fabs(ptmean));
+
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 
-  //   mat[1][1] = last->parametersError()[1][1];
-  //   mat[3][3] = last->parametersError()[0][0];
-  //   mat[1][3] = last->parametersError()[1][0];
-  //   mat[2][2] = last->parametersError()[1][1];
-  //   mat[4][4] = last->parametersError()[0][0];
-  //   mat[2][4] = last->parametersError()[1][0];
-  
   // this perform H.T() * parErr * H, which is the projection of the 
   // the measurement error (rechit rf) to the state error (TSOS rf)
   // Legenda:
   // H => is the 4x5 projection matrix
   // parError the 4x4 parameter error matrix of the RecHit
 
-
-  // FIXME Use this!!!!!!!!
   mat = last->parametersError().similarityT( last->projectionMatrix() );
-
   
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
 
   LocalTrajectoryError error(mat);
   
+  // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(),&*field);
 
   const FreeTrajectoryState state = *(tsos.freeState());
-
   
-  LogDebug(metname) << " Before extr.: pos. :" << state.position() 
-		    <<" eta "<<state.position().eta()<<" phi "<<state.position().phi()<< endl;
+  LogDebug(metname) << " Before extrapolation" << endl;
+  debug.dumpFTS(state,metname);
   
-  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
-  Surface::PositionType pos(0., 0., 0.);
-  Surface::RotationType rot;
-  ReferenceCountingPointer<BoundCylinder> cyl=
-    new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
+  // Take the DetLayer on which relies the rechit
+  DetId id = last->geographicalId();
+  const DetLayer *initialLayer = muonLayers->idToLayer(id);
 
-  // FIXME
-  SteppingHelixPropagator prop(&*field,oppositeToMomentum);
+  if(last->isDT()){
+    DTChamberId chamberId(id.rawId());
+    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
+  }
+  else if(last->isCSC()){
+    CSCDetId chamberId(id.rawId());
+    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
+  }
+  else if(last->isRPC()){
+    RPCDetId chamberId(id.rawId());
+    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
+  }
+  else edm::LogWarning(metname)<<"The DetLayer is not a valid Muon DetLayer. ";
   
-  const TrajectoryStateOnSurface trj = prop.propagate( state, *cyl );
-  if ( trj.isValid() ) {
-    const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
+  // ask for compatible layers
+  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
+  
+  std::vector<DetWithState> detsWithStates;
 
-    LogDebug(metname) << " After extr.: pos. :" << e_state.position() 
-		      <<" eta "<<e_state.position().eta()
-		      <<" phi "<<e_state.position().phi()<< endl;
+  if(detLayers.size()){
+    // ask for compatible dets
+    debug.dumpLayer(detLayers.back(),metname);
+    detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
+    LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
+  }
+
+  if(detsWithStates.size()){
+    // get the updated TSOS
+    TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+    const GeomDet *newTSOSDet = detsWithStates.front().first;
+    
+    if ( newTSOS.isValid() ) {
+      
+      // Get the corresp. chamber id
+//       if(last->isDT()){
+// 	DTChamberId internalChamberId( newTSOSDet->geographicalId().rawId() );
+// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
+      
+//       }
+//       else if(last->isCSC()){
+// 	CSCDetId internalChamberId( newTSOSDet->geographicalId().rawId() );
+// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
+//       }
+//       else if(last->isRPC()){
+// 	RPCDetId internalChamberId( newTSOSDet->geographicalId().rawId() );
+// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
+//       }
+//       else edm::LogWarning(metname)<<"The DetLayer is not a valid Muon DetLayer. ";
+      
+      LogDebug(metname) << "After Extrapolation"<<endl;
+      debug.dumpTSOS(newTSOS, metname);
+      
+      // Transform it in a TrajectoryStateOnSurface
+      TrajectoryStateTransform tsTransform;
+      
+      PTrajectoryStateOnDet *seedTSOS =
+	tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+      
+      edm::OwnVector<TrackingRecHit> container;
+      TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+      
+      result = theSeed;
+    } 
+    else LogDebug(metname) << " Extrapolation failed" << endl;
+  }
+  else{
     
     // Transform it in a TrajectoryStateOnSurface
     TrajectoryStateTransform tsTransform;
-
-    // FIXME FIXME TEST
-//     PTrajectoryStateOnDet *seedTSOS =
-//       tsTransform.persistentState( trj ,last->geographicalId().rawId());
     
-    // FIXME the tsos is defined on the "me" surface, this must be changed!!!
     PTrajectoryStateOnDet *seedTSOS =
       tsTransform.persistentState( tsos ,last->geographicalId().rawId());
     
-    //<< FIXME would be:
-
-    // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
-    // But is:
     edm::OwnVector<TrackingRecHit> container;
-    //    container.push_back(last->hit()->clone()); 
-
     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-    //>> is it right??
-
+    
     result = theSeed;
-  } else {
-    LogDebug(metname) << " Extr. failed" << endl;
   }
-
+  
   return result;
 }
