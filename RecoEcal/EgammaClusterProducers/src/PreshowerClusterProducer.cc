@@ -40,9 +40,6 @@
 #include "TFile.h"
 
 ///----
-// #include <fstream>
-// FILE* froad;
-// FILE* fclust;
 
 PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) {
 
