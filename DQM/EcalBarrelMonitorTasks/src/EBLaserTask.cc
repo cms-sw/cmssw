@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/06/23 07:02:26 $
- * $Revision: 1.50 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -198,8 +198,6 @@ void EBLaserTask::setup(void){
 
   }
 
-  init_ = false;
-
 }
 
 void EBLaserTask::cleanup(void){
@@ -335,6 +333,8 @@ void EBLaserTask::cleanup(void){
     }
 
   }
+
+  init_ = false;
 
 }
 
