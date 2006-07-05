@@ -155,6 +155,53 @@ string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
 }
 
 // -----------------------------------------------------------------------------
+
+ std::pair<uint16_t,uint16_t> SiStripHistoNamingScheme::readoutPath( const std::string& directory ) { 
+
+   pair<unsigned int,unsigned int> path;
+   path.first = sistrip::all_;
+   path.second = sistrip::all_;
+
+  uint32_t curr = 0; // current string position
+  uint32_t next = 0; // next string position
+  next = directory.find( sistrip::readoutView_, curr );
+  // Extract view 
+  curr = next;
+  if ( curr != string::npos ) { 
+    next = directory.find( sistrip::fedId_, curr );
+    string readout_view( directory, 
+			 curr+sistrip::readoutView_.size(), 
+			 (next-sistrip::dir_.size())-curr );
+    // Extract FED Id
+    curr = next;
+    if ( curr != string::npos ) { 
+      next = directory.find( sistrip::fecSlot_, curr );
+      string fed_id( directory, 
+			curr+sistrip::fecCrate_.size(), 
+			(next-sistrip::dir_.size())-curr ); 
+      path.first = atoi( fed_id.c_str() );
+      // Extract FED Channel
+      curr = next;
+      if ( curr != string::npos ) { 
+	next = directory.find( sistrip::fedChannel_, curr );
+	string fed_channel( directory, 
+			 curr+sistrip::fecSlot_.size(), 
+			 (next-sistrip::dir_.size())-curr );
+	path.second = atoi( fed_channel.c_str() );
+      }
+    }
+  } else {
+    edm::LogError("DQM") << "[SiStripHistoNamingScheme::readoutPath]" 
+			 << " Unexpected view! Not " << sistrip::readoutView_ << "!";
+  }
+  
+  LogDebug("DQM") << "[SiStripHistoNamingScheme::readoutPath]" 
+		  << "  FedId: " << path.first
+		  << "  FedChannel: " << path.second;
+  return path;
+ }
+
+// -----------------------------------------------------------------------------
 // 
 string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task, 
 					     sistrip::Contents    histo_contents,
