@@ -35,8 +35,8 @@ class SiStripHistoNamingScheme {
   
   // ----- METHODS RETURNING SOME GENERIC STRINGS AND CONSTANTS -----
 
-  sistrip::View view( const std::string& directory );
-  const std::string& view( const sistrip::View& );
+  static sistrip::View view( const std::string& directory );
+  static const std::string& view( const sistrip::View& );
   
   // ----- FORMULATION OF DIRECTORY PATHS -----
 
@@ -61,7 +61,7 @@ class SiStripHistoNamingScheme {
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
       ReadoutView/FedIdX/FedChannelY/. */
-  static std::pair<uint16_t,uint16_t> readoutPath( const std::string& path ) { return std::pair<uint16_t,uint16_t>(0,0); } //@@ NO IMPLEMENTATION YET!
+  static std::pair<uint16_t,uint16_t> readoutPath( const std::string& directory );
   
   // ----- FORMULATION OF HISTOGRAM TITLES -----
   
