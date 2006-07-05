@@ -1,62 +1,60 @@
 //
-// $Id: $
+// $Id: PreshowerCluster.cc,v 1.6 2006/06/11 17:59:42 rahatlou Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 using namespace reco;
 
-PreshowerCluster::PreshowerCluster() {
-  energy  = 0;
-  euncorrected = 0;
-  et = 0;
-  radius = 0;
-  theta = 0;
-  eta = 0;
-  phi = 0;
-  layer = 0;
-}
-
 PreshowerCluster::~PreshowerCluster() { }
 
-PreshowerCluster::PreshowerCluster(const Point& pos, const EcalRecHitCollection & rhits_, int layer_) //:
-{  
-  rhits = rhits_;
-  float x = pos.x();
-  float y = pos.y();
-  float z = pos.z();
-  radius = sqrt(x*x+y*y+z*z);
-  theta = pos.theta();
-  eta = pos.eta();
-  phi = pos.phi();
-  layer = layer_; 
 
-  if (rhits.size()>0) {
-    EcalRecHitCollection::iterator it;
-    for (it=rhits.begin(); it != rhits.end(); it++) {
-      energy += it->energy();	  
-    }
-    // cluster calibration?
-    euncorrected = energy;
-    et = energy*sin(Theta());
+PreshowerCluster::PreshowerCluster(const double E, const Point& pos, const EcalRecHitCollection & rhits, BasicClusterRefVector::iterator BC_ref,
+                     const int plane): EcalCluster(E, pos)
+{
+  rhits_ = rhits;
+  float X = pos.x();
+  float Y = pos.y();
+  float Z = pos.z();
+  radius_ = sqrt(X*X + Y*Y + Z*Z);
+  theta_ = pos.theta();
+  eta_ = pos.eta();
+  phi_ = pos.phi();
+  plane_ = plane; 
+  if (rhits_.size() > 0) {
+     EcalRecHitCollection::iterator it;
+     for (it=rhits_.begin(); it != rhits_.end(); it++) {
+        usedHits_.push_back(it->id());
+     }
+     // cluster calibration?
+     euncorrected_ = energy();
+     et_ = energy()*sin(theta());
   }
   else {
-    euncorrected = 0.;
-    et = 0.;
-    eta = -999.;
+     euncorrected_ = 0.;
+     et_ = 0.;
+     eta_ = -999.;
   }
+
+  bc_ref_ = (*BC_ref);
+
+//   std::cout << " PreshowerCluster::PreshowerCluster, E = " << energy() << std::endl;
+//   std::cout << " PreshowerCluster::PreshowerCluster, POS = " << "(" << X <<","<< Y <<","<< Z <<")"<< std::endl;
+//   std::cout << " PreshowerCluster::PreshowerCluster, ETA = " << eta_ << std::endl; 
 
 }
 
-PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) {
-  rhits = b.rhits;
-  energy = b.energy;
-  et = b.et;
-  theta = b.theta;
-  radius = b.radius;
-  eta = b.eta;
-  phi = b.phi;
-  layer = b.layer; 
+
+PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) : EcalCluster( b.energy(), b.position() ) 
+{
+  rhits_ = b.rhits_;
+  //  energy_ = b.energy_;
+  et_ = b.et_;
+  theta_ = b.theta_;
+  radius_ = b.radius_;
+  eta_ = b.eta_;
+  phi_ = b.phi_;
+  plane_ = b.plane_; 
 }
 
 
@@ -64,12 +62,12 @@ PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) {
 
 bool PreshowerCluster::operator==(const PreshowerCluster &b) const {
   double EPS = 0.000001;
-  float Tdiff = fabs(b.Theta() - Theta());
-  float Pdiff = fabs(b.Phi() - Phi());
+  float Tdiff = fabs(b.theta() - theta());
+  float Pdiff = fabs(b.phi() - phi());
   if ( (Tdiff < EPS) && (Pdiff < EPS) ) return true;
   else return false;
 }
 
 bool PreshowerCluster::operator<(const PreshowerCluster &b) const {
-  return energy*sin(Theta()) < b.energy*sin(Theta()) ? true : false;
+  return energy()*sin(theta()) < b.energy()*sin(theta()) ? true : false;
 }
