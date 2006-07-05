@@ -30,8 +30,8 @@ public:
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
 
-   /// destructor
-  ~L1GctEmCand();
+   /// destructor (virtual to prevent compiler warnings)
+  virtual ~L1GctEmCand();
   
   /// name of object - inherited from L1TriggerObject
   std::string name() const;

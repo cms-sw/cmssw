@@ -29,8 +29,8 @@ public:
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor);
 
-  /// destructor
-  ~L1GctJetCand();
+  /// destructor (virtual to prevent compiler warnings)
+  virtual ~L1GctJetCand();
 
   /// name of object - inherited from L1TriggerObject
   std::string name() const;
