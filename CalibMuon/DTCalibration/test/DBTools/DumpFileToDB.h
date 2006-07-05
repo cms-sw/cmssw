@@ -6,13 +6,16 @@
  *  of ORCA MuBarDigiParameters (see DTCalibrationMap for details)
  *  into a DB. At the moment only the ttrig info is handled.
  *
- *  $Date: 2006/06/16 12:22:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 15:09:40 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include <string>
+
 
 class DTCalibrationMap;
 
@@ -35,6 +38,7 @@ protected:
 private:
   const DTCalibrationMap *theCalibFile;
 
+  std::string dbToDump;
 };
 #endif
 
