@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.1 2006/06/09 17:30:21 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.1 2006/06/24 04:56:07 dmytro Exp $
 //
 //
 
@@ -185,7 +185,7 @@ void DetIdAssociator::buildMap()
 	 LogDebug("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
-	   "\nTower center: " << getPosition(*id_itr) << "\n";
+	   "\nTower id: " << id_itr->rawId() << "\n";
 	 numberOfDetIdsOutsideEtaRange++;
 	 continue;
       }

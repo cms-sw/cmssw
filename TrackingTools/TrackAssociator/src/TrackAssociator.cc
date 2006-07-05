@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.1 2006/06/09 17:30:21 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.1 2006/06/24 04:56:07 dmytro Exp $
 //
 //
 
@@ -144,6 +144,7 @@ void TrackAssociator::init( const edm::EventSetup& iSetup )
       SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField);
       prop->setMaterialMode(false);
       prop->applyRadX0Correction(true);
+      // prop->setDebug(true); // tmp
       defProp_ = prop;
       setPropagator(defProp_);
    }
@@ -420,7 +421,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 	 GlobalPoint dtSeg = surf.toGlobal(recseg->localPosition());
 	 
 	 LogDebug("TrackAssociator::fillDTSegments")
-	   << "Segment global position: " << dtSeg << " \t (rho,eta,phi): "
+	   << "Segment global position: " << dtSeg << " \t (R_xy,eta,phi): "
 	   << dtSeg.perp() << "," << dtSeg.eta() << "," << dtSeg.phi() << "\n";
 	 
 	 LogDebug("TrackAssociator::fillDTSegments")
@@ -509,3 +510,4 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
    
    return FreeTrajectoryState(tPars, tCov);
 }
+
