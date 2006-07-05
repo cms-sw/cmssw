@@ -9,7 +9,9 @@ using std::cout; using std::endl;
 DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s, 
 			     std::string name, 
 			     std::string server, 
-			     int port) 
+			     int port,
+			     int reconnect_delay_secs,
+			     bool actAsServer) 
   : dqm::StateMachine(s)
 {
   contextURL = getApplicationDescriptor()->getContextDescriptor()->getURL();
@@ -20,6 +22,8 @@ DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s,
   name_   = name;
   server_ = server;
   port_   = port;
+  reconnect_delay_secs_ = reconnect_delay_secs;
+  actAsServer_ = actAsServer;
 
   xgi::bind(this, &DQMBaseClient::Default, "Default");
   xgi::bind(this, &DQMBaseClient::general, "general");
@@ -35,6 +39,8 @@ void DQMBaseClient::fireConfiguration(std::string name, std::string server, int 
   sp->fireItemAvailable("serverHost",&server_);
   sp->fireItemAvailable("serverPort",&port_);
   sp->fireItemAvailable("subscribeList",&subs_);
+  sp->fireItemAvailable("actAsServer",&actAsServer_);
+  sp->fireItemAvailable("reconnectDelaySecs",&reconnect_delay_secs_);
 }
 
 #include "xgi/include/xgi/Utils.h"
@@ -65,7 +71,7 @@ void DQMBaseClient::configureAction(toolbox::Event::Reference e)
   cout << "configureAction called " << endl;
   if(!mui_)
     {
-      mui_ = new MonitorUIRoot(server_, port_, name_);
+      mui_ = new MonitorUIRoot(server_, port_, name_, reconnect_delay_secs_, actAsServer_);
     }
   for(unsigned int i = 0; i < subs_.size(); i++)
     mui_->subscribe(*((string*)subs_.elementAt(i)));

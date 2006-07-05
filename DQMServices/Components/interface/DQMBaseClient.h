@@ -6,6 +6,8 @@
 #include "xdata/include/xdata/UnsignedLong.h"
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Vector.h"
+#include "xdata/include/xdata/Boolean.h"
+
 
 #include <string>
 
@@ -23,7 +25,9 @@ public:
   DQMBaseClient(xdaq::ApplicationStub *s, 
 		std::string name = "DQMBaseClient", 
 		std::string server = "localhost", 
-		int port = 9090);
+		int port = 9090, 
+		int reconnect_delay_secs = 5,
+		bool actAsServer = false);
   void fireConfiguration(std::string name, std::string server, int port);
   virtual ~DQMBaseClient(){finalize();}
   void Default(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
@@ -73,7 +77,11 @@ private:
   std::string name_;
 
   xdata::String server_;
+
   xdata::UnsignedLong port_;
+  xdata::UnsignedLong reconnect_delay_secs_;
+
+  xdata::Boolean actAsServer_;
 
   xdata::Vector<xdata::String> subs_;
 
