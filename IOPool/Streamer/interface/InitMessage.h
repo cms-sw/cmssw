@@ -36,7 +36,7 @@ class InitMsgView
 {
 public:
 
-  InitMsgView(void* buf, uint32 size);
+  InitMsgView(void* buf);
 
   uint32 code() const { return head_.code(); }
   uint32 size() const { return head_.size(); }
@@ -58,8 +58,6 @@ private:
   void getNames(uint8* from, uint32 from_len, Strings& to) const;
 
   uint8* buf_;
-  uint32 size_;
-
   HeaderView head_;
 
   uint8* release_start_; // points to the string

@@ -25,8 +25,7 @@ struct EventHeader
 class EventMsgView
 {
 public:
-  EventMsgView(void* buf, uint32 size,
-               uint32 hlt_bit_cnt, uint32 l1_bit_cnt);
+  EventMsgView(void* buf, uint32 hlt_bit_cnt, uint32 l1_bit_cnt);
 
   uint32 code() const { return head_.code(); }
   uint32 size() const { return head_.size(); }
@@ -45,8 +44,6 @@ public:
 
 private:
   uint8* buf_;
-  uint32 size_;
-
   HeaderView head_;
 
   uint8* hlt_bits_start_;

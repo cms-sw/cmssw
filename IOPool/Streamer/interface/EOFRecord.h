@@ -25,8 +25,7 @@ struct EOFRecordHeader
 class EOFRecordView
 {
 public:
-  EOFRecordView(void* buf, uint32 size,
-               uint32 hlt_path_cnt);
+  EOFRecordView(void* buf, uint32 hlt_path_cnt);
 
   uint32 code() const { return head_.code(); }
   uint32 size() const { return head_.size(); }
@@ -43,7 +42,6 @@ public:
                               What order ???? */
 private:
   uint8* buf_;
-  uint32 size_;
   HeaderView head_;
 
   uint32 hlt_path_count_;
