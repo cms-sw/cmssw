@@ -73,24 +73,23 @@ int CSCGangedWireGrouping::wireGroup(int wire) const {
   int wireG = 0;
 
   // upper_bound works on a sorted range and points to first element 
-  // succeeding supplied value.
+  // _succeeding_ supplied value.
 
   CIterator it = upper_bound( theFirstWireOfEachWireGroup.begin(),
-			 theFirstWireOfEachWireGroup.end(), wire );
+			      theFirstWireOfEachWireGroup.end(), wire );
 
-  // The '-1' steps back to group in which the wire lies
+  // We are now pointing to the wire group _after_ the required one
+  // (unless we are at begin() or end() when we just return wireG=0)
+  ptrdiff_t pd = it - theFirstWireOfEachWireGroup.begin(); 
 
-  int id = it - theFirstWireOfEachWireGroup.begin() - 1;
-
-  // Skip id=-1 (i.e. value is less than any in range)
-
-  if ( id >= 0 ) { // index of group in which wire lies
+  if ( pd > 0 ) {
+    size_t id = --pd; //@@ Need to step back one. IS THIS SANE CODE?
     int wiresInGroup = theNumberOfWiresPerWireGroup[id];
-    int firstWire = theFirstWireOfEachWireGroup[id];
+    int firstWire    = theFirstWireOfEachWireGroup[id];
   
   // Require wire not past end of group (may be in a dead region, or
   // bigger than total wires in chamber)
-    if ( wire < (firstWire + wiresInGroup) ) wireG = id + 1;
+    if ( wire < (firstWire + wiresInGroup) ) wireG = ++id;
   }
   return wireG;
 }
