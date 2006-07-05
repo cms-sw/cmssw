@@ -24,7 +24,7 @@
     oracle::occi::Environment::terminateEnvironment (env);
   }  // end of ~condbon ()
 
-  void condbon::cdbon_write (CSCobject *obj, std::string obj_name, int run,
+  void condbon::cdbon_write (CSCobject *obj, std::string obj_name, int record,
                             std::string data_time)
 {
   int i,j,k;
@@ -58,16 +58,17 @@
      std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
      std::cout<<ex.getMessage() << std::endl;
     }
-  rec_id=rec_id+1;
   stmt->closeResultSet (rset);
 
-  sqlStmt = "INSERT INTO "+tab+" VALUES (:1, :2, :3, :4)";
-  stmt->setSQL(sqlStmt);
-  time(&now);
-  curtime=*localtime(&now);
-  try{
-  stmt->setInt (1, rec_id);
-  stmt->setInt (2, run);
+  if(record>rec_id){
+   sqlStmt = "INSERT INTO "+tab+" VALUES (:1, :2, :3, :4, :5)";
+   stmt->setSQL(sqlStmt);
+   time(&now);
+   curtime=*localtime(&now);
+   try{
+   stmt->setInt (1, record);
+   stmt->setInt (2, 1);
+   stmt->setInt (5, 0);
 /* For time as "05/17/2006 16:30:07"
   std::string st=data_time.substr(0,2);
   int mon=atoi(st.c_str());
@@ -83,35 +84,35 @@
   int sec=atoi(st.c_str());
 */
 /* For time of format "Mon May 29 10:28:58 2006" */
-  std::map <std::string, int> month;
-  month["Jan"]=1; month["Feb"]=2; month["Mar"]=3; month["Apr"]=4;
-  month["May"]=5; month["Jun"]=6; month["Jul"]=7; month["Aug"]=8;
-  month["Sep"]=9; month["Oct"]=10; month["Nov"]=11; month["Dec"]=12;
-  std::string st=data_time.substr(4,3);
-  int mon=month[st];
-  st=data_time.substr(8,2);
-  int mday=atoi(st.c_str());
-  st=data_time.substr(20,4);
-  int year=atoi(st.c_str());
-  st=data_time.substr(11,2);
-  int hour=atoi(st.c_str());
-  st=data_time.substr(14,2);
-  int min=atoi(st.c_str());
-  st=data_time.substr(17,2);
-  int sec=atoi(st.c_str());
-  oracle::occi::Date edate(env, year, mon, mday, hour, min, sec);
-  stmt->setDate(3, edate);
-  oracle::occi::Date edate_c(env, curtime.tm_year+1900, curtime.tm_mon+1, curtime.tm_mday,
+   std::map <std::string, int> month;
+   month["Jan"]=1; month["Feb"]=2; month["Mar"]=3; month["Apr"]=4;
+   month["May"]=5; month["Jun"]=6; month["Jul"]=7; month["Aug"]=8;
+   month["Sep"]=9; month["Oct"]=10; month["Nov"]=11; month["Dec"]=12;
+   std::string st=data_time.substr(4,3);
+   int mon=month[st];
+   st=data_time.substr(8,2);
+   int mday=atoi(st.c_str());
+   st=data_time.substr(20,4);
+   int year=atoi(st.c_str());
+   st=data_time.substr(11,2);
+   int hour=atoi(st.c_str());
+   st=data_time.substr(14,2);
+   int min=atoi(st.c_str());
+   st=data_time.substr(17,2);
+   int sec=atoi(st.c_str());
+   oracle::occi::Date edate(env, year, mon, mday, hour, min, sec);
+   stmt->setDate(3, edate);
+   oracle::occi::Date edate_c(env, curtime.tm_year+1900, curtime.tm_mon+1, curtime.tm_mday,
    curtime.tm_hour, curtime.tm_min, curtime.tm_sec);
-  stmt->setDate(4, edate_c);
-  if(obj_name!="test") stmt->executeUpdate ();
-  }catch(oracle::occi::SQLException ex)
-  {
-   std::cout<<"Exception thrown for insertBind"<<std::endl;
-   std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-   std::cout<<ex.getMessage() << std::endl;
+   stmt->setDate(4, edate_c);
+   if(obj_name!="test") stmt->executeUpdate ();
+   }catch(oracle::occi::SQLException ex)
+   {
+    std::cout<<"Exception thrown for insertBind"<<std::endl;
+    std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+    std::cout<<ex.getMessage() << std::endl;
+   }
   }
-
   sqlStmt = "SELECT max(map_id) from "+tab_map;
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
@@ -164,7 +165,7 @@
    map_index=map_index+1;
   try{
    stmt->setInt (1, map_id);
-   stmt->setInt (2, rec_id);
+   stmt->setInt (2, record);
    stmt->setInt (3, map_index);
    stmt->setInt (4, id_det);
    if(obj_name!="test") stmt->executeUpdate ();
@@ -209,17 +210,17 @@
   con->terminateStatement (stmt1);
 }; //end of cdbon_write
 
-void condbon::cdbon_last_run (std::string obj_name, int *run)
+void condbon::cdbon_last_record (std::string obj_name, int *record)
 {
   std::string sqlStmt;
-  sqlStmt = "SELECT max(run_num) from "+obj_name;
+  sqlStmt = "SELECT max(record_id) from "+obj_name;
   stmt=con->createStatement ();
   stmt->setSQL(sqlStmt);
   oracle::occi::ResultSet *rset;
   rset = stmt->executeQuery ();
   try{
     while (rset->next ())
-    {*run = rset->getInt (1);}
+    {*record = rset->getInt (1);}
      }catch(oracle::occi::SQLException ex)
     {
      std::cout<<"Exception thrown: "<<std::endl;
@@ -227,4 +228,4 @@ void condbon::cdbon_last_run (std::string obj_name, int *run)
      std::cout<<ex.getMessage() << std::endl;
     }
   con->terminateStatement (stmt);
-}; // end of cdbon_last_run
+}; // end of cdbon_last_record
