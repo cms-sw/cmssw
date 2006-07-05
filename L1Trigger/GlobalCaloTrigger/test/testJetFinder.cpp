@@ -50,7 +50,7 @@ const int numOutputJets = 6;     //Num. jets expected out
 /// Runs the test on the L1GctJetFinder instance passed into it.
 void classTest(L1GctJetFinder *myJetFinder);
 /// Loads test input regions and also the known results from a text file.
-void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt); //Need to add Jet Counts eventually
+void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
 /// Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
@@ -125,7 +125,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   RegionsVector inputRegions;  //Size?
   JetsVector trueJets;         //Size?
   ULong trueHt;
-  //Jet Counts to be added at some point
+  ULong stripSum0, stripSum1;
   
   // Vectors for receiving the output from the object under test.
   RegionsVector outputRegions; //Size?
@@ -134,7 +134,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   //Jet Counts to be added at some point
   
   // Load our test input data and known results
-  loadTestData(inputRegions, trueJets, trueHt);  //will need to add Jet Counts eventually
+  loadTestData(inputRegions, trueJets, trueHt, stripSum0, stripSum1); 
   
   //Fill the L1GctJetFinder with regions.
   for(int i = 0; i < numInputRegions; ++i)
@@ -166,7 +166,21 @@ void classTest(L1GctJetFinder *myJetFinder)
   {
     cout << "\nTest class has passed Ht comparison." << endl;
   }
-      
+
+  //Test the Et strip sums against known results
+  if ((stripSum0 != myJetFinder->getEtStrip0().value()) ||
+      (stripSum1 != myJetFinder->getEtStrip1().value())) {     
+    cout << "strip sum 0 comparison: expected " << stripSum0 << " found " << myJetFinder->getEtStrip0() << endl;
+    cout << "strip sum 1 comparison: expected " << stripSum1 << " found " << myJetFinder->getEtStrip1() << endl;
+    cout << "\nTest class has FAILED Et strip sum comparison!" << endl;
+    testPass = false;
+  }
+  else
+  {
+    cout << "\nTest class has passed Et strip sum comparison." << endl;
+  }
+
+
   //Write out all outputtable information to file
   cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
   ofstream fout;
@@ -175,7 +189,8 @@ void classTest(L1GctJetFinder *myJetFinder)
   outputJetsVector(fout, outputJets, "Outputted Jets");
   fout << "Outputted Ht" << endl;
   fout << outputHt << endl << endl;
-  //will need to output jet counts here eventually
+  fout << "Outputted Et strip sums" << endl;
+  fout << stripSum0 << "  " << stripSum1 << endl << endl;
   fout.close();
   cout << "Done!" << endl;
   
@@ -186,6 +201,8 @@ void classTest(L1GctJetFinder *myJetFinder)
   outputRegions = myJetFinder->getInputRegions();
   outputJets = myJetFinder->getJets();
   outputHt = myJetFinder->getHt().value();
+  stripSum0 = myJetFinder->getEtStrip0().value();
+  stripSum1 = myJetFinder->getEtStrip1().value();
   
   //an empty regions vector for reset comparison
   vector<L1CaloRegion> blankRegionsVec(numInputRegions);
@@ -194,7 +211,7 @@ void classTest(L1GctJetFinder *myJetFinder)
   //Test that all the vectors/values are empty/zero
   if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
      compareJetsVectors(outputJets, blankJetsVec, "output jets reset") &&
-     outputHt == 0)
+     outputHt == 0 && stripSum0 == 0 && stripSum1 == 0)
   { 
     cout << "\nTest class has passed reset method testing." << endl;
   }
@@ -223,7 +240,7 @@ void classTest(L1GctJetFinder *myJetFinder)
 
 
 // Loads test input regions from a text file.
-void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt) //Need to add Jet Counts eventually
+void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1) 
 {
   // File input stream
   ifstream fin;
@@ -240,9 +257,10 @@ void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &true
   else
   {
     fin >> trueHt;
+    fin >> stripSum0;
+    fin >> stripSum1;
   }
   
-  //Will need to add a Jet Counts bit to this
   
   fin.close();
   
@@ -310,15 +328,18 @@ L1CaloRegion readSingleRegion(ifstream &fin)
     }
   }
   
+  // First input value is position in JetFinder array.
+  // Convert to eta and phi in global coordinates.
+  // This assumes we have created jetFinder id=9.
+  unsigned ieta = (regionComponents[0]%12 + 10);
+  unsigned iphi = (regionComponents[0]/12 + 17)%18;
   //return object
-//   L1CaloRegion tempRegion(regionComponents[0],
-// 			  regionComponents[1],
-// 			  static_cast<bool>(regionComponents[2]),
-// 			  static_cast<bool>(regionComponents[3]),
-// 			  static_cast<bool>(regionComponents[4]),
-// 			  static_cast<bool>(regionComponents[5]));
-  
-  L1CaloRegion tempRegion;
+  L1CaloRegion tempRegion(regionComponents[1],
+			  static_cast<bool>(regionComponents[2]),
+			  static_cast<bool>(regionComponents[3]),
+			  static_cast<bool>(regionComponents[4]),
+			  static_cast<bool>(regionComponents[5]),
+			  ieta, iphi);
   
   return tempRegion;
 }
