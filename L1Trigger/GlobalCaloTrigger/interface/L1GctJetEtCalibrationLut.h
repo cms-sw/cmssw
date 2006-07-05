@@ -45,7 +45,7 @@ public:
   
 private:
 
-  uint16_t 
+/*   uint16_t  */
 
   std::vector< std::vector<float> > m_calibFunc;
 

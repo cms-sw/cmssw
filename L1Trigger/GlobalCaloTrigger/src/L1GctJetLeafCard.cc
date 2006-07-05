@@ -49,9 +49,9 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   }
 
   //create vectors to pass into the three jetfinders
-  vector<L1GctSourceCard*> srcCardsForJetFinderA(L1GctJetFinder::MAX_SOURCE_CARDS);
-  vector<L1GctSourceCard*> srcCardsForJetFinderB(L1GctJetFinder::MAX_SOURCE_CARDS);
-  vector<L1GctSourceCard*> srcCardsForJetFinderC(L1GctJetFinder::MAX_SOURCE_CARDS);
+  vector<L1GctSourceCard*> srcCardsForJetFinderA(L1GctJetFinderBase::MAX_SOURCE_CARDS);
+  vector<L1GctSourceCard*> srcCardsForJetFinderB(L1GctJetFinderBase::MAX_SOURCE_CARDS);
+  vector<L1GctSourceCard*> srcCardsForJetFinderC(L1GctJetFinderBase::MAX_SOURCE_CARDS);
 
   srcCardsForJetFinderA.at(0) = m_sourceCards.at(0);
   srcCardsForJetFinderA.at(1) = m_sourceCards.at(1);
@@ -83,9 +83,9 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   srcCardsForJetFinderC.at(7) = m_sourceCards.at(4);
   srcCardsForJetFinderC.at(8) = m_sourceCards.at(5);
   
-  m_jetFinderA = new L1GctJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
-  m_jetFinderB = new L1GctJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
-  m_jetFinderC = new L1GctJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+  m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
+  m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
+  m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
 
 }
 

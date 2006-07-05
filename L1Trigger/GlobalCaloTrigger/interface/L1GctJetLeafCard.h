@@ -2,7 +2,7 @@
 #define L1GCTJETLEAFCARD_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -54,9 +54,9 @@ public:
   std::vector<L1GctSourceCard*> getSourceCards() const { return m_sourceCards; }
 
   /// get pointers to associated jetfinders
-  L1GctJetFinder* getJetFinderA() const { return m_jetFinderA; }
-  L1GctJetFinder* getJetFinderB() const { return m_jetFinderB; }
-  L1GctJetFinder* getJetFinderC() const { return m_jetFinderC; }
+  L1GctJetFinderBase* getJetFinderA() const { return m_jetFinderA; }
+  L1GctJetFinderBase* getJetFinderB() const { return m_jetFinderB; }
+  L1GctJetFinderBase* getJetFinderC() const { return m_jetFinderC; }
 
   // get the jet output
   std::vector<L1GctJet> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
@@ -79,9 +79,9 @@ private:
   int m_id;
 
   // internal algorithms
-  L1GctJetFinder* m_jetFinderA;  ///< lowest jetFinder in phi
-  L1GctJetFinder* m_jetFinderB;  ///< middle jetFinder in phi
-  L1GctJetFinder* m_jetFinderC;  ///< highest jetFinder in phi
+  L1GctJetFinderBase* m_jetFinderA;  ///< lowest jetFinder in phi
+  L1GctJetFinderBase* m_jetFinderB;  ///< middle jetFinder in phi
+  L1GctJetFinderBase* m_jetFinderC;  ///< highest jetFinder in phi
   
   /// Remember whether the neighbour pointers have been stored
   bool m_gotNeighbourPointers;

@@ -1,12 +1,12 @@
-#ifndef L1GCTJETFINDER_H_
-#define L1GCTJETFINDER_H_
+#ifndef L1GCTTDRJETFINDER_H_
+#define L1GCTTDRJETFINDER_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
-/*! \class L1GctJetFinder
+/*! \class L1GctTdrJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
  *
  *  Locates the jets from 48 inputted L1CaloRegions.
@@ -52,18 +52,18 @@
 
 
 
-class L1GctJetFinder : public L1GctJetFinderBase
+class L1GctTdrJetFinder : public L1GctJetFinderBase
 {
  public:
 
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
+  L1GctTdrJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
                  L1GctJetEtCalibrationLut* jetEtCalLut);
                  
-  ~L1GctJetFinder();
+  ~L1GctTdrJetFinder();
    
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+  friend std::ostream& operator << (std::ostream& os, const L1GctTdrJetFinder& algo);
 
   /// get input data from sources
   virtual void fetchInput();
@@ -103,6 +103,6 @@ private:
     
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+std::ostream& operator << (std::ostream& os, const L1GctTdrJetFinder& algo);
 
-#endif /*L1GCTJETFINDER_H_*/
+#endif /*L1GCTTDRJETFINDER_H_*/

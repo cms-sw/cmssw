@@ -1,4 +1,4 @@
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
  
 #include "FWCore/Utilities/interface/Exception.h"  
 
@@ -8,25 +8,25 @@ using namespace std;
 //DEFINE STATICS
 // *** Note the following definition in terms of COL_OFFSET appears not to work ***
 // ***          for some deep C++ reason that I don't understand - GPH          ***
-// const unsigned int L1GctJetFinder::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinder::N_COLS;
+// const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctTdrJetFinder::N_COLS;
 // ***                        So - use the following instead                    ***
-const unsigned int L1GctJetFinder::MAX_REGIONS_IN = (((L1GctJet::N_RGN_ETA)/2)+1)*L1GctJetFinder::N_COLS;
+const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = (((L1GctJet::N_RGN_ETA)/2)+1)*L1GctTdrJetFinder::N_COLS;
 
-const int L1GctJetFinder::N_COLS = 4;
-const unsigned int L1GctJetFinder::CENTRAL_COL0 = 1;
+const int L1GctTdrJetFinder::N_COLS = 4;
+const unsigned int L1GctTdrJetFinder::CENTRAL_COL0 = 1;
 
-L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-                               L1GctJetEtCalibrationLut* jetEtCalLut):
+L1GctTdrJetFinder::L1GctTdrJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
+				     L1GctJetEtCalibrationLut* jetEtCalLut):
   L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
 {
   this->reset();
 }
 
-L1GctJetFinder::~L1GctJetFinder()
+L1GctTdrJetFinder::~L1GctTdrJetFinder()
 {
 }
 
-ostream& operator << (ostream& os, const L1GctJetFinder& algo)
+ostream& operator << (ostream& os, const L1GctTdrJetFinder& algo)
 {
   os << "===L1GctTdrJetFinder===" << endl;
   const L1GctJetFinderBase* temp = &algo;
@@ -34,13 +34,13 @@ ostream& operator << (ostream& os, const L1GctJetFinder& algo)
   return os;
 }
 
-void L1GctJetFinder::fetchInput()
+void L1GctTdrJetFinder::fetchInput()
 {
   fetchCentreStripsInput();
   fetchEdgeStripsInput();
 }
 
-void L1GctJetFinder::process() 
+void L1GctTdrJetFinder::process() 
 {
   findJets();
   sortJets();
@@ -49,7 +49,7 @@ void L1GctJetFinder::process()
 
 /// HERE IS THE JETFINDER CODE
 
-void L1GctJetFinder::findJets() 
+void L1GctTdrJetFinder::findJets() 
 {
   UShort jetNum = 0; //holds the number of jets currently found
   UShort centreIndex = COL_OFFSET*this->centralCol0();
@@ -91,7 +91,7 @@ void L1GctJetFinder::findJets()
 }
 
 // Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
-bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) const
+bool L1GctTdrJetFinder::detectJet(const UShort centreIndex, const bool boundary) const
 {
   if(!boundary)  //Not at boundary, so use 3*3 window of regions to determine if a jet
   {
@@ -158,7 +158,7 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
 }
 
 // returns the energy sum of the nine regions centred (physically) about centreIndex
-ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundary) const
+ULong L1GctTdrJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundary) const
 {
   ULong energy = 0;
     
@@ -183,13 +183,13 @@ ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundar
 }
 
 // returns the encoded (eta, phi) position of the centre region
-L1CaloRegionDetId L1GctJetFinder::calcJetPosition(const UShort centreIndex) const
+L1CaloRegionDetId L1GctTdrJetFinder::calcJetPosition(const UShort centreIndex) const
 {
   return m_inputRegions.at(centreIndex).id();
 }
 
 // returns the combined tauveto of the nine regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
-bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundary) const
+bool L1GctTdrJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundary) const
 {
   bool partial[3] = {false, false, false};
     

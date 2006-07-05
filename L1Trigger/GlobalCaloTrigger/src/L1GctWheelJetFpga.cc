@@ -7,7 +7,7 @@ using namespace std;
 //DEFINE STATICS
 const int L1GctWheelJetFpga::MAX_JETS_OUT = 4;
 const unsigned int L1GctWheelJetFpga::MAX_LEAF_CARDS = 3;
-const unsigned int L1GctWheelJetFpga::MAX_JETS_PER_LEAF = L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinder::MAX_JETS_OUT;
+const unsigned int L1GctWheelJetFpga::MAX_JETS_PER_LEAF = L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinderBase::MAX_JETS_OUT;
 const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L1GctWheelJetFpga::MAX_JETS_PER_LEAF;
 const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
 const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
@@ -177,8 +177,8 @@ void L1GctWheelJetFpga::fetchInput()
     assert(m_inputLeafCards.at(iLeaf) != 0);  //check that the pointers have been set up!
 
     storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsA(), iLeaf, 0);
-    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, L1GctJetFinder::MAX_JETS_OUT);
-    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*L1GctJetFinder::MAX_JETS_OUT);
+    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, L1GctJetFinderBase::MAX_JETS_OUT);
+    storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*L1GctJetFinderBase::MAX_JETS_OUT);
         
     // Deal with the Ht inputs
     m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
@@ -245,7 +245,7 @@ void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
 
 void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
 {
-  for(unsigned short iJet = 0; iJet < L1GctJetFinder::MAX_JETS_OUT; ++iJet)
+  for(unsigned short iJet = 0; iJet < L1GctJetFinderBase::MAX_JETS_OUT; ++iJet)
   {
     m_inputJets.at(iLeaf*MAX_JETS_PER_LEAF + offset + iJet) = jets.at(iJet);
   }
@@ -303,7 +303,7 @@ void L1GctWheelJetFpga::classifyJets()
 	}
     }
     //move onto the next jet finder phi position every 6 jets
-    if(++inputJetIndex % L1GctJetFinder::MAX_JETS_OUT == 0) { ++jetFinderIndex; }
+    if(++inputJetIndex % L1GctJetFinderBase::MAX_JETS_OUT == 0) { ++jetFinderIndex; }
   }
 }
 
