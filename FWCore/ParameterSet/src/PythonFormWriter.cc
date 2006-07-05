@@ -240,6 +240,19 @@ namespace edm
       moduleStack_.top() += "}";
     }
 
+
+    void 
+    PythonFormWriter::visitInclude(const IncludeNode &n)
+    {
+      NodePtrList::const_iterator i = n.nodes()->begin();
+      NodePtrList::const_iterator e = n.nodes()->end();
+      for ( ; i != e; ++i)
+      {
+        (*i)->accept(*this);
+      }
+    }
+
+
     void
     PythonFormWriter:: visitPSet(const PSetNode& n)
     { 
