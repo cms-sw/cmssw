@@ -1,7 +1,7 @@
 /*! \file testJetFinder.cpp
- * \brief Procedural unit-test code for the L1GctJetFinder class.
+ * \brief Procedural unit-test code for the L1GctTdrJetFinder class.
  *
- *  This is code that tests each public method of the L1GctJetFinder
+ *  This is code that tests each public method of the L1GctTdrJetFinder
  *  class.  It takes data from a file to test the methods against known
  *  results.  Results are also output to file to allow debugging.
  *
@@ -9,7 +9,7 @@
  * \date March 2006
  */
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"  //The class to be tested
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"  //The class to be tested
 
 //Custom headers needed for this test
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
@@ -48,7 +48,7 @@ const int numOutputJets = 6;     //Num. jets expected out
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinder instance passed into it.
-void classTest(L1GctJetFinder *myJetFinder);
+void classTest(L1GctTdrJetFinder *myJetFinder);
 /// Loads test input regions and also the known results from a text file.
 void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
 /// Function to safely open input files of any name, using a referenced return ifstream
@@ -83,8 +83,8 @@ int main(int argc, char **argv)
   try
   {
     //make up some source card pointers to pass into jet finder
-    vector<L1GctSourceCard*> srcCrds(L1GctJetFinder::MAX_SOURCE_CARDS);
-    for(unsigned i=0; i < L1GctJetFinder::MAX_SOURCE_CARDS; ++i)
+    vector<L1GctSourceCard*> srcCrds(L1GctJetFinderBase::MAX_SOURCE_CARDS);
+    for(unsigned i=0; i < L1GctJetFinderBase::MAX_SOURCE_CARDS; ++i)
     {
       srcCrds[i] = new L1GctSourceCard(i, L1GctSourceCard::cardType3);
     }
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     //create jet calibration lookup table
     L1GctJetEtCalibrationLut* myJetEtCalLut = new L1GctJetEtCalibrationLut();
   
-    L1GctJetFinder * myJetFinder = new L1GctJetFinder(9, srcCrds, myJetEtCalLut); //TEST OBJECT on heap;
+    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9, srcCrds, myJetEtCalLut); //TEST OBJECT on heap;
         
     classTest(myJetFinder);
     
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 }
 
 // Runs the test, and returns a string with the test result message in.
-void classTest(L1GctJetFinder *myJetFinder)
+void classTest(L1GctTdrJetFinder *myJetFinder)
 {
   bool testPass = true; //flag to mark test failure
   
