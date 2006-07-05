@@ -36,10 +36,38 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icard, unsigned ir
   DetId(Calo, 2)
 {
 
-  int ieta=0;
-  int iphi=0;
+  int ieta=0x1f;
+  int iphi=0x1f;
 
-  /// TODO - calculate ieta and iphi from GCT card/region #
+  unsigned scType = icard%3 + 1;
+  unsigned jfNum  = icard/3;
+
+  if (jfNum<N_PHI) {
+    if ((scType == 2) && (irgn<12)) {
+      unsigned rctEta = 99;
+      unsigned rctPhi = 99;
+
+      if (irgn<2)  { rctEta=irgn+4; rctPhi=1; }     //cardType2: inputs 0-1
+      if (irgn==2) { rctEta=6;      rctPhi=0; }     //cardType2: input  2
+      if (irgn==3) { rctEta=6;      rctPhi=1; }     //cardType2: input  3
+      if (irgn>3)  { rctEta=(irgn%4)+7;
+                     rctPhi=(irgn/4)-1; }           //cardType2: inputs 4-11
+
+      ieta = (jfNum < (N_PHI/2)) ? ((N_ETA/2)-1-rctEta) : ((N_ETA/2)+rctEta) ;
+      iphi = (2*(N_PHI-jfNum) + 4 - rctPhi) % N_PHI;
+    }
+    if ((scType == 3) && (irgn<10)) {
+      unsigned rctEta = 99;
+      unsigned rctPhi = 99;
+
+      if (irgn<6)  { rctEta=irgn;   rctPhi=0; }    //cardType3: inputs 0-5
+      else         { rctEta=irgn-6; rctPhi=1; }    //cardType3: inputs 6-11
+
+      ieta = (jfNum < (N_PHI/2)) ? ((N_ETA/2)-1-rctEta) : ((N_ETA/2)+rctEta) ;
+      iphi = (2*(N_PHI-jfNum) + 4 - rctPhi) % N_PHI;
+    }
+  }
+
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
 
