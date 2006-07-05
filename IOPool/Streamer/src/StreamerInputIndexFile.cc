@@ -63,7 +63,7 @@ void StreamerInputIndexFile::readStartMessage() {
   startMsg_.magic = new uint32 (convert32((unsigned char*)&headerBuf_[0]));
   startMsg_.reserved = (uint64*)new long long 
 		(convert64((unsigned char*)&headerBuf_[4]));
-  startMsg_.init = new InitMsgView(&headerBuf_[12], ist_->gcount() );
+  startMsg_.init = new InitMsgView(&headerBuf_[12]);
   uint32 headerSize = startMsg_.init->headerSize();
   //Bring the ist_ at end of Header
   ist_->clear();
@@ -83,7 +83,7 @@ int StreamerInputIndexFile::readEventMessage()  {
 	return 0;
   }
  
-  HeaderView head_(&eventBuf_[eventBufPtr_+1], 5);
+  HeaderView head_(&eventBuf_[eventBufPtr_+1]);
   uint32 code = head_.code();
   if (code != 1) /** Not an event message should return */
      return 0;
@@ -103,7 +103,6 @@ int StreamerInputIndexFile::readEventMessage()  {
 
   EventIndexRecord currentEvMsg_;
   currentEvMsg_.eview = new EventMsgView((void*)&eventBuf_[eventBufPtr_+1], 
-					 (uint32)ist_->gcount(),
 					 hlt_bit_cnt_, l1_bit_cnt_);
   currentEvMsg_.offset = (uint64*) new long long (convert64((unsigned char*)
 				   &eventBuf_[eventBufPtr_+1+currentEvMsg_.eview->

@@ -79,7 +79,7 @@ void StreamerInputFile::readStartMessage()
   ist_->seekg(0, ios::beg);
   ist_->read((char*)&headerBuf_[0], headerSize);
   
-  startMsg_ = new InitMsgView(&headerBuf_[0], ist_->gcount() ) ;
+  startMsg_ = new InitMsgView(&headerBuf_[0]) ;
   headerBuf_.resize(startMsg_->size());
 }
 
@@ -111,7 +111,7 @@ int StreamerInputFile::readEventMessage()
   if (ist_->gcount() < 1)
     return 0;
 
-  HeaderView head_(&eventBuf_[0], 5);
+  HeaderView head_(&eventBuf_[0]);
   uint32 code = head_.code();
   if (code != 1) /** Not an event message should return ******/
     return 0;
@@ -124,7 +124,6 @@ int StreamerInputFile::readEventMessage()
   if (ist_->gcount() < 1) return 0;
   
   currentEvMsg_ = new EventMsgView((void*)&eventBuf_[0], 
-				   (uint32)ist_->gcount(),
 				   hlt_bit_cnt_, l1_bit_cnt_) ;
   
   //This Brings the pointer to end of this Event Msg.

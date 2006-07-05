@@ -58,7 +58,7 @@ int main()
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 
-  InitMsgView view(&buf[0],buf.size());
+  InitMsgView view(&buf[0]);
   uint8 psetid2[16];
   Strings hlt2;
   Strings l12;
@@ -106,7 +106,7 @@ int main()
 
   // ------ check for sameness
 
-  EventMsgView eview(&buf[0],buf.size(),hltsize,l1bit.size());
+  EventMsgView eview(&buf[0],hltsize,l1bit.size());
 
   std::vector<bool> l1_out;
   uint8 hlt_out[10];
