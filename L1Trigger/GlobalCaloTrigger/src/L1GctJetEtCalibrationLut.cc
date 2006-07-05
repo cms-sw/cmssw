@@ -74,11 +74,12 @@ uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned 
 //     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
 //   }
 
-//   jetEt = (uint16_t)corrEt;
+  uint16_t jetEtOut = jetEt;
+//   jetEtOut = (uint16_t)corrEt;
 
-  if(jetEt < (1 << JET_ENERGY_BITWIDTH))
+  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
   {
-    return jetEt/16;
+    return jetEtOut/16;
   }
   return 63;
 }
@@ -91,11 +92,12 @@ uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned 
 //     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
 //   }
 
-//   jetEt = (uint16_t)corrEt;
+  uint16_t jetEtOut = jetEt;
+//   jetEtOut = (uint16_t)corrEt;
 
-  if(jetEt < (1 << JET_ENERGY_BITWIDTH))
+  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
   {
-    return jetEt;
+    return jetEtOut;
   }
   return 1023;
 }
