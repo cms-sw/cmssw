@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <fstream>
+//#include <fstream>
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
@@ -49,8 +49,8 @@ class PreshowerClusterAlgo {
    reco::PreshowerCluster makeOneCluster(ESDetId strip, 
                                          RecHitsMap *rechits_map,
 				         reco::BasicClusterRefVector::iterator basicClust_ref,
-                                         const CaloSubdetectorGeometry *geometry_p,
-					 CaloSubdetectorTopology *topology_p);
+                                         const CaloSubdetectorGeometry*& geometry_p,
+					 CaloSubdetectorTopology*& topology_p);
 
    bool goodStrip(RecHitsMap::iterator candidate_it, ESDetId ID);
 
