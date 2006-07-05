@@ -154,40 +154,35 @@ void L1GctJetFinderBase::setInputRegion(unsigned i, L1CaloRegion region)
 // PROTECTED METHODS BELOW
 /// Get the input regions for the 2x11 search window plus eta=0 neighbours
 void L1GctJetFinderBase::fetchCentreStripsInput() {
-  fetchScInput(m_sourceCards.at(0), 2, this->centralCol0());
-  fetchScInput(m_sourceCards.at(1), 3, this->centralCol0());
+  fetchScInput(m_sourceCards.at(0), this->centralCol0());
+  fetchScInput(m_sourceCards.at(1), this->centralCol0());
   fetchNeighbourScInput(m_sourceCards.at(2), this->centralCol0());
 }
 
 /// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
 void L1GctJetFinderBase::fetchEdgeStripsInput() {
-  fetchScInput(m_sourceCards.at(3), 2, (this->centralCol0()+2));
-  fetchScInput(m_sourceCards.at(4), 3, (this->centralCol0()+2));
+  fetchScInput(m_sourceCards.at(3), (this->centralCol0()+2));
+  fetchScInput(m_sourceCards.at(4), (this->centralCol0()+2));
   fetchNeighbourScInput(m_sourceCards.at(5), (this->centralCol0()+2));
-  fetchScInput(m_sourceCards.at(6), 2, (this->centralCol0()-2));
-  fetchScInput(m_sourceCards.at(7), 3, (this->centralCol0()-2));
+  fetchScInput(m_sourceCards.at(6), (this->centralCol0()-2));
+  fetchScInput(m_sourceCards.at(7), (this->centralCol0()-2));
   fetchNeighbourScInput(m_sourceCards.at(8), (this->centralCol0()-2));
 }
 
 /// Copy the input regions from one source card into the m_inputRegions vector
-void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, unsigned scType, int col0) {
-  RegionsVector rgv = sourceCard->getRegions();
-  RegionsVector::iterator thisRegion;
-  unsigned pos = 0;
-  for ( thisRegion  = rgv.begin();
-	thisRegion != rgv.end(); ++thisRegion) {
+void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, int col0) {
+  for ( unsigned pos = 0; pos<sourceCard->getRegions().size(); ++pos) {
     // Cross-check position in output array
-    if ( (thisRegion->gctRegionIndex() == pos) ) {
-      unsigned localEta = thisRegion->rctEta();
-      unsigned localPhi = thisRegion->rctPhi();
+    if ( (sourceCard->getRegions().at(pos).gctRegionIndex() == pos) ) {
+      unsigned localEta = sourceCard->getRegions().at(pos).rctEta();
+      unsigned localPhi = sourceCard->getRegions().at(pos).rctPhi();
 
       int col = col0+localPhi;
       if (col>=0 && col<this->nCols()) {
 	unsigned offset = col*COL_OFFSET + localEta + 1;
-	m_inputRegions.at(offset) = *thisRegion;
+	m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
       }
     }
-    ++pos;
   }
 }
 
@@ -195,25 +190,20 @@ void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, unsigned scTy
 /// No method to find the eta=0 regions directly so we loop 
 /// over all regions as in fetchScInput
 void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0) {
-  RegionsVector rgv = sourceCard->getRegions();
-  RegionsVector::iterator thisRegion;
-  unsigned pos = 0;
-  for ( thisRegion  = rgv.begin();
-	thisRegion != rgv.end(); ++thisRegion) {
+  for ( unsigned pos = 0; pos<sourceCard->getRegions().size(); ++pos) {
     // Cross-check position in output array
-    if ( (thisRegion->gctRegionIndex() == pos) ) {
-      unsigned localEta = thisRegion->rctEta();
-      unsigned localPhi = thisRegion->rctPhi();
+    if ( (sourceCard->getRegions().at(pos).gctRegionIndex() == pos) ) {
+      unsigned localEta = sourceCard->getRegions().at(pos).rctEta();
+      unsigned localPhi = sourceCard->getRegions().at(pos).rctPhi();
 
       if (localEta == 0) {
 	int col = col0+localPhi;
 	if (col>=0 && col<this->nCols()) {
 	  unsigned offset = col*COL_OFFSET;
-	  m_inputRegions.at(offset) = *thisRegion;
+	  m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
 	}
       }
     }
-    ++pos;
   }
 }
 
