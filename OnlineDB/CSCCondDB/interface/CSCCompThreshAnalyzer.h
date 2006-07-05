@@ -5,7 +5,6 @@
  */
 
 #include <iostream>
-#include "OnlineDB/CSCCondDB/interface/condbc.h"
 #include "OnlineDB/CSCCondDB/interface/cscmap.h"
 
 class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
