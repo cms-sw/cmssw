@@ -57,7 +57,7 @@ void InitMsgBuilder::setDescLength(uint32 len)
 uint32 InitMsgBuilder::size() const
 {
 
-  HeaderView v(buf_,size_);
+  HeaderView v(buf_);
   return v.size();
 }
 
