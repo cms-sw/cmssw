@@ -7,16 +7,8 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
-<use name=xdaq>
-<lib name=xgi>
-<lib name=xdata>
-<lib name=cgicc>
-<lib name=log4cplus>
-<lib name=xcept>
-<lib name=udpappender>
-<lib name=peer>
-<lib name=mimetic>
-<lib name=xmlappender>
+<tool name=mimetic>
+<tool name=xdaq>
 <export>
  <lib name=DQMRPCMonitorClient>
  <use name=root>
@@ -28,5 +20,5 @@
  <use name=DQMServices/Components>
  <use name=DQMServices/WebComponents>
  <use name=DQMServices/ClientConfig> 
- <use name=xdaq>
+ <tool name=xdaq>
 </export>
