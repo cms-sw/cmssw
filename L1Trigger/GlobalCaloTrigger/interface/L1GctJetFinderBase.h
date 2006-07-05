@@ -142,7 +142,7 @@ public:
   void doEnergySums();
     
   /// Copy the input regions from one source card into the m_inputRegions vector
-  void fetchScInput(L1GctSourceCard* sourceCard, unsigned scType, int col0);
+  void fetchScInput(L1GctSourceCard* sourceCard, int col0);
   /// Copy the input regions from one eta=0 neighbour source card
   void fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0);
 
