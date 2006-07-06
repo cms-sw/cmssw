@@ -183,7 +183,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
     }
     
     unsigned int iPhi = trigPrim->id().iphi() - 1;
-    const int iTPSample = 5;
+    const int iTPSample = 2;
     if(trigPrim->size()>=iTPSample){
       ttFlags[iEta][iPhi] = (EcalSelectiveReadout::ttFlag_t)(*trigPrim)[iTPSample].ttFlag();
     }
