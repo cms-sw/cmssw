@@ -44,6 +44,40 @@ void testTriggerGeometry() {
 }
 
 
+void testClosestCell(const HcalDetId & detId, const CaloSubdetectorGeometry * geom)
+{
+  const CaloCellGeometry* cell = geom->getGeometry(detId);
+  HcalDetId closest = geom->getClosestCell( cell->getPosition() );
+
+
+  if(closest != detId)
+  {
+    std::cout << "ERROR mismatch.  Original HCAL cell is "
+              << detId << " while nearest is " << closest << std::endl;
+  }
+}
+
+void testClosestCells() {
+  HcalHardcodeGeometryLoader l;
+  std::auto_ptr<CaloSubdetectorGeometry> g = l .load();
+
+  // make sure each cel is its own closest cell
+  HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
+  HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
+  HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
+  HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
+  HcalDetId forwardDet1(HcalForward, 30, 71, 1);
+  HcalDetId forwardDet3(HcalForward, -40, 69, 1);
+
+  testClosestCell(barrelDet, g.get());
+  testClosestCell(barrelDet2, g.get());
+  testClosestCell(endcapDet1, g.get());
+  testClosestCell(endcapDet2, g.get());
+  testClosestCell(forwardDet1, g.get());
+  testClosestCell(forwardDet3, g.get());
+}
+
+
 
 int main() {
 
@@ -95,5 +129,7 @@ int main() {
   }
 
   testTriggerGeometry();
+
+  testClosestCells();
   return 0;
 }
