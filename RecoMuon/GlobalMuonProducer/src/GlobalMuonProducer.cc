@@ -3,11 +3,10 @@
  *   Global muon reconstructor:
  *   reconstructs muons using DT, CSC, RPC and tracker
  *   information,<BR>
- *   starting from internal seeds (muon track segments).
+ *   starting from a standalone reonstructed muon.
  *
- *
- *   $Date: 2006/06/05 08:20:49 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/06/26 23:55:32 $
+ *   $Revision: 1.6 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -18,58 +17,75 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
 
-// TrackFinder and Specific GLB Trajectory Builder
+// TrackFinder and specific GLB Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
 
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+// Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 using namespace edm;
 using namespace std;
 
-/// constructor with config
-GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet){
+//
+// constructor with config
+//
+GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
+
+  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "constructor called" << endl;
 
   // Parameter set for the Builder
   ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
 
-  // MuonSeed Collection Label
-  theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
+  // STA Muon Collection Label
+  theSTACollectionLabel = parameterSet.getParameter<string>("MuonCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
 
+  //theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet),
+  //                                     new GlobalMuonTrackLoader());
+
+  theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
+  
+
   produces<reco::TrackCollection>();
-//  produces<reco::MuonCollection>();
-}
-  
-/// destructor
-GlobalMuonProducer::~GlobalMuonProducer(){
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackExtraCollection>();
+
+  produces<reco::MuonCollection>();
+
 }
 
 
-/// reconstruct muons
-void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup){
+//
+// destructor
+//
+GlobalMuonProducer::~GlobalMuonProducer() {
+
+  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "destructor called" << endl;
+  if (theTrackFinder) delete theTrackFinder;
+
+}
+
+
+//
+// reconstruct muons
+//
+void GlobalMuonProducer::produce(Event& event, const EventSetup& setup) {
   
-  // Take the seeds container
-  Handle<TrajectorySeedCollection> seeds; 
-  event.getByLabel(theSeedCollectionLabel,seeds);
+  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "Global Muon Reconstruction started" << endl;  
+
+  // Take the STA muon container
+  Handle<TrackCollection> staMuons;
+  event.getByLabel(theSTACollectionLabel,staMuons);
 
   // Reconstruct the tracks in the tracker+muon system
-  std::auto_ptr<reco::TrackCollection> recTracks;
- //   = theTrackFinder->reconstruct(seeds);
+  theTrackFinder->reconstruct(staMuons,event,setup);
 
-  // Create a Muon Collection which holds the above infos plus the STA one
-  
-  
-  // Load the RecMuon and the Tracks Containers in the Event
-  event.put(recTracks);
 }
-
