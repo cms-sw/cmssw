@@ -1,11 +1,11 @@
-#ifndef SiStripMonitorDigi_SiStripMonitorDigiTemp_h
-#define SiStripMonitorDigi_SiStripMonitorDigiTemp_h
+#ifndef SiStripMonitorPedestals_SiStripMonitorPedestalsTemp_h
+#define SiStripMonitorPedestals_SiStripMonitorPedestalsTemp_h
 // -*- C++ -*-
 //
-// Package:     SiStripMonitorDigi_temp
-// Class  :     SiStripMonitorDigi_temp
+// Package:     SiStripMonitorPedestals
+// Class  :     SiStripMonitorPedestals
 // 
-/**\class SiStripMonitorDigi SiStripMonitorDigi.h 
+/**\class SiStripMonitorPedestals SiStripMonitorPedestals.h 
 
  Description: <one line class summary>
 
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  dkcira
+// Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.2 2006/07/04 08:06:00 gennai Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.3 2006/07/06 11:08:18 gennai Exp $
 //
 
 // system include files
@@ -79,8 +79,10 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        struct ModMEs{
 	 MonitorElement* PedsPerStrip;
 	 MonitorElement* PedsDistribution;
+	 MonitorElement* PedsEvolution;
 	 MonitorElement* CMSubNoisePerStrip;
 	 MonitorElement* RawNoisePerStrip;
+	 MonitorElement* NoisyStrips;
 	 MonitorElement* CMDistribution;
 	 
        };
@@ -88,28 +90,16 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        edm::ParameterSet conf_;
        // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
        std::map<uint32_t, ModMEs> DigiMEs;
-       Fed9U::Fed9UEvent* fedEvent_;
-       Fed9U::Fed9UDescription* fedDescription_;
        SiStripFedCabling* fedCabling_;
 
        bool analyzed;
-       string inputModuleLabel_;
-       int16_t fedid;
-       int16_t freq;
-       int16_t fedkey;
-       int16_t headerBytes_;
-       int16_t dumpFrequency_;
-
-       vector<float> peds_tmp_;
-       vector<float> peds_updated_;
-        vector<float>  rms_peds_;
-        vector<float> rms_peds_updated_;
        
        //The following to be put inside the parametersets
        int16_t nEvUpdate_;
        int16_t signalCutPeds_;
        int16_t nEvTot_;
        int16_t nEvInit_;
+       int nIteration_;
        ApvAnalysisFactory* apvFactory_;
        edm::ParameterSet pedsPSet_;
        int  theEventInitNumber_; 

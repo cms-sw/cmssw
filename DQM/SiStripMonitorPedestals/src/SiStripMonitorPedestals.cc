@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.4 2006/07/04 13:49:56 sashby Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.5 2006/07/06 11:08:19 gennai Exp $
 //
 //
 
@@ -41,6 +41,9 @@
 // std
 #include <cstdlib>
 #include <string>
+#include <cmath>
+#include <numeric>
+#include <algorithm>
 
 using namespace std;
 
@@ -51,10 +54,10 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(const edm::ParameterSet& iConfi
   pedsPSet_ = conf_.getParameter<edm::ParameterSet>("PedestalsPSet");
   
   analyzed = false;
-  fedEvent_ =0;
   signalCutPeds_ = 4;
   nEvTot_=0;
   apvFactory_=0;
+  nIteration_=0;
 
   outPutFileName = conf_.getParameter<string>("OutPutFileName");
 
@@ -66,7 +69,6 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(const edm::ParameterSet& iConfi
 
 SiStripMonitorPedestals::~SiStripMonitorPedestals()
 {
-  if ( fedEvent_ ) { delete fedEvent_; }
   if (apvFactory_) {delete apvFactory_;} 
 }
 
@@ -103,23 +105,6 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
       int napvs = (conn.nApvPairs())*2;
       if(key_id > 0 && napvs >0) { 
 	
-	//	cout <<"DetId before the map "<<key_id<< " "<<conn.nApvPairs()<<endl;
-	/*
-	map<uint32_t,int>::const_iterator Cpos = detIdApv.find(key_id);
-	if(Cpos != detIdApv.end()) {
-	  //int newApvN = napvs + Cpos->second;
-	  // detIdApv[key_id] = newApvN; 
-	  detIdApv[key_id] = napvs; 
-	}else{
-	  detIdApv.insert(pair< uint32_t, int >(key_id,napvs));
-	}
-      }
-    }
-    map<uint32_t,int>::const_iterator detId_pos = detIdApv.begin();
-	*/
-
-	//instantiate the apvs
-	//	uint32_t detId= detId_pos->first;
 	//	int nAPVS = detId_pos->second;
 	bool newDetId =   apvFactory_->instantiateApvs(key_id,napvs);
 	if(newDetId ) {
@@ -135,14 +120,20 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  hid = hidmanager.createHistoId("PedsDistribution","det", key_id);
 	  local_modmes.PedsDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
 
+	  hid = hidmanager.createHistoId("PedsEvolution","det", key_id);
+	  local_modmes.PedsEvolution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
+
 	  hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", key_id);
 	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("RawNoisePerStrip","det", key_id);
 	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
+	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
+	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,0.,6.);//to modify the size binning 
+
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
-	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -10., 10); //to modify the size binning 
+	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
     
 	  // append to DigiMEs
 	  DigiMEs.insert( std::make_pair(key_id, local_modmes));
@@ -174,7 +165,8 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     iEvent.getByLabel(digiProducer, digiType, digi_collection);
     // loop over all MEs
 
-    //    cout <<"Number of Event "<<nEvTot_<<endl;
+    //Increase the number of iterations ...
+    if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1) nIteration_++;
 
     for (map<uint32_t, ModMEs >::const_iterator i = DigiMEs.begin() ; i!=DigiMEs.end() ; i++) {
       uint32_t detid = i->first; ModMEs local_modmes = i->second;
@@ -208,11 +200,23 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       //asking for the status
       if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1)
 	{
+	      
 	  vector<float> tmp;
 	  tmp.clear();
 	  apvFactory_->getPedestal(id, tmp);
 	  if(local_modmes.PedsPerStrip != NULL){ 
+	    int numberOfApvs = int(tmp.size()/128.);
+	    for(int i=0; i<numberOfApvs;i++){
+	      vector<float> myPedPerApv;
+	      apvFactory_->getPedestal(id, i, myPedPerApv);
+	      float avarage = 0;
+	      avarage = accumulate(myPedPerApv.begin(), myPedPerApv.end(), avarage);
+	      avarage = avarage/128.;
+	      (local_modmes.PedsEvolution)->setBinContent(i+1,nIteration_,avarage);
+	      
+	    }
 	    int ibin=0;
+	  
 	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
 	      int napv = int(ibin / 128.);
 	      ibin++;
@@ -255,8 +259,22 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	      }
 	    }
 	  }
+
+	  if(local_modmes.NoisyStrips != NULL){ 
+	    TkApvMask::MaskType tmp;
+	    apvFactory_->getMask(id, tmp);
+
+	    
+	    int ibin=0;
+	    for (TkApvMask::MaskType::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	      ibin++;
+	      
+		(local_modmes.NoisyStrips)->Fill(ibin,static_cast<float>(*iped));
+	    }
+	  }
+
+
 	}
-      
     }
     
 }
