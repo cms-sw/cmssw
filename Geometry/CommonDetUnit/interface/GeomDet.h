@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/04/12 13:35:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/14 13:03:30 $
+ *  $Revision: 1.8 $
  */
 
 
@@ -77,6 +77,11 @@ public:
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
+
+  /// Returns a component GeomDet given its DetId, if existing
+  // FIXME: must become pure virtual
+  virtual const GeomDet* component(DetId id) const {return 0;}
+
 
 private:
 

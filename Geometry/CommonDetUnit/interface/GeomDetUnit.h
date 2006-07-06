@@ -26,6 +26,8 @@ public:
     return std::vector< const GeomDet*>();
   }
 
+  virtual const GeomDet* components(DetId id) const {return 0;}
+
 };
   
 #endif
