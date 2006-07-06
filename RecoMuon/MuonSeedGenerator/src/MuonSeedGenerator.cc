@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/06/07 14:04:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/22 10:45:19 $
+ *  $Revision: 1.7 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -50,11 +50,20 @@ using namespace std;
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
-  
-  // the name of the DT rec hits collection
-  theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");
-  // the name of the CSC rec hits collection
-  theCSCRecSegmentLabel = pset.getParameter<string>("CSCRecSegmentLabel");
+
+  // enable the DT chamber
+  enableDTMeasurement = pset.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+
+  // enable the CSC chamber
+  enableCSCMeasurement = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+
+  if(enableDTMeasurement)
+    // the name of the DT rec hits collection
+    theDTRecSegmentLabel = pset.getUntrackedParameter<string>("DTRecSegmentLabel");
+
+  if(enableCSCMeasurement)
+    // the name of the CSC rec hits collection
+    theCSCRecSegmentLabel = pset.getUntrackedParameter<string>("CSCRecSegmentLabel");
 }
 
 // Destructor
@@ -103,7 +112,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel);
+  MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,
+					    theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   // ------------        EndCap disk z<0 + barrel
 

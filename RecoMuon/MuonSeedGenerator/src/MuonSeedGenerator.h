@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2006/05/15 17:25:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/24 17:14:38 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -53,6 +53,12 @@ class MuonSeedGenerator: public edm::EDProducer {
 
   /// the name of the CSC rec hits collection
   std::string theCSCRecSegmentLabel;
+
+  ///Enable the DT measurement
+  bool enableDTMeasurement;
+
+  ///Enable the CSC measurement
+  bool enableCSCMeasurement;
 };
 #endif
 
