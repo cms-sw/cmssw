@@ -35,6 +35,8 @@ class EcalCoder
   // 2^12 -1
   /// adc max range
   enum {MAXADC = 4095}; 
+  /// adc gain switch
+  enum {ADCGAINSWITCH = 4080};
   /// number of electronic gains
   enum {NGAINS = 3};
 
