@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/06/21 17:36:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 13:44:19 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -31,8 +31,7 @@ class MuonTrackFinder{
  public:
   
   /// constructor
-  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
-		  MuonTrackLoader* concreteMuonTrackLoader); 
+  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder); 
   
   /// Destructor
   virtual ~MuonTrackFinder();

@@ -2,21 +2,23 @@
 #define RecoMuon_TrackingTools_MuonTrackLoader_H
 
 /** \class MuonTrackLoader
- *  Base class to load the tracks in the event
+ *  Class to load the tracks in the event, it provide some common functionalities
+ *  both for all the RecoMuon producers.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/27 13:44:19 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include <vector>
 
-class MuonTrackFinder;
+class Trajectory;
 namespace edm {class Event;}
 
 class MuonTrackLoader {
-public:
+ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   
   /// Constructor
@@ -29,11 +31,14 @@ public:
   
   /// Convert the trajectories in tracks and load the tracks in the event
   virtual void loadTracks(const TrajectoryContainer &trajectories, 
-			  edm::Event& event) = 0;
+			  edm::Event& event);
 
-protected:
+ protected:
+  
+ private:
+  reco::Track buildTrack (const Trajectory& trajectory) const;
+  reco::TrackExtra buildTrackExtra(const Trajectory& trajectory) const;
 
-private:
 
 };
 #endif

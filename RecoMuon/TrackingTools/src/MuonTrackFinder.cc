@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/06/27 13:44:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/04 08:55:18 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -24,10 +24,10 @@
 using namespace std;
 
 // constructor
-MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder,
-				 MuonTrackLoader *concreteMuonTrackLoader):
-  theTrajBuilder(ConcreteMuonTrajectoryBuilder),theTrackLoader(concreteMuonTrackLoader)
-{
+MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBuilder):
+  theTrajBuilder(ConcreteMuonTrajectoryBuilder){
+
+  theTrackLoader = new MuonTrackLoader();
   theTrajCleaner = new MuonTrajectoryCleaner();
 }
 

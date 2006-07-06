@@ -1,14 +1,17 @@
 
-/** \class StandAloneMuonTrackLoader
- *  Concrete class to load the product of the StandAloneProducer in the event
+/** \class MuonTrackLoader
+ *  Class to load the product in the event
  *
- *  $Date: 2006/06/27 13:46:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/04 09:03:06 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+// FIXME!!!
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,10 +19,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
-void StandAloneMuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
+void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 					   edm::Event& event){
 
-  std::string metname = "Muon|RecoMuon|StandAloneMuonTrackLoader";
+  std::string metname = "Muon|RecoMuon|MuonTrackLoader";
 
   // *** first loop: create the full collection of TrackingRecHit ***
 
@@ -137,7 +140,7 @@ void StandAloneMuonTrackLoader::loadTracks(const TrajectoryContainer &trajectori
   
 }
 
-reco::Track StandAloneMuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
+reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
   
   // FIXME: check the prop direction
   TrajectoryStateOnSurface innerTSOS;
@@ -177,7 +180,7 @@ reco::Track StandAloneMuonTrackLoader::buildTrack (const Trajectory& trajectory)
 }
 
 
-reco::TrackExtra StandAloneMuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const{
+reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const{
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   

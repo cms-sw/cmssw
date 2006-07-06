@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2006/06/28 18:29:57 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/03 01:11:48 $
+ * $Revision: 1.6 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -36,7 +36,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"//FIXME: trackLoader should go to TrackingTools
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
 //
 // constructors and destructor
@@ -46,8 +46,7 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
   theSeedCollectionLabel = iConfig.getParameter<std::string>("MuonSeedCollectionLabel");
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar),
-				       new StandAloneMuonTrackLoader());
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -60,7 +59,7 @@ CosmicMuonProducer::CosmicMuonProducer(const edm::ParameterSet& iConfig)
 
 CosmicMuonProducer::~CosmicMuonProducer()
 {
-
+  if (theTrackFinder) delete theTrackFinder;
 }
 
 

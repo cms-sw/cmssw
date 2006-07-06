@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/06/27 13:48:58 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/07/04 17:07:17 $
+ *   $Revision: 1.7 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -30,7 +30,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -50,8 +50,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   // instantiate the concrete trajectory builder in the Track Finder
   // FIXME: tmp!
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet),
-				       new StandAloneMuonTrackLoader);
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet));
 
 
   produces<reco::TrackCollection>();
