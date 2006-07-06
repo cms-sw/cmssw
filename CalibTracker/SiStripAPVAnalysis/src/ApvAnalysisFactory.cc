@@ -206,6 +206,7 @@ float ApvAnalysisFactory::getStripNoise(uint32_t detId, int stripNumber)
   return temp[stripN];
 
 }
+
 void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& peds)
 {
   //Get the pedestal for a given apv
@@ -222,6 +223,51 @@ void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& ped
 	}
     }
 }
+
+
+ void ApvAnalysisFactory::getRawNoise(uint32_t detId, int apvNumber, ApvAnalysis::PedestalType& noise)
+{
+  //Get the pedestal for a given apv
+  noise.clear();
+  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  if(apvAnalysisIt != apvMap_.end())
+    {
+      vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
+
+      noise = theApvs[apvNumber]->pedestalCalculator().rawNoise();
+    }
+}
+
+float ApvAnalysisFactory::getStripRawNoise(uint32_t detId, int stripNumber)
+{
+  //Get the pedestal for a given apv
+  ApvAnalysis::PedestalType temp;
+  int apvNumb = int(stripNumber / 128.); 
+  int stripN = (stripNumber - apvNumb*128);
+  
+  getRawNoise(detId, apvNumb, temp);
+  return temp[stripN];
+
+}
+
+void ApvAnalysisFactory::getRawNoise(uint32_t detId, ApvAnalysis::PedestalType& peds)
+{
+  //Get the pedestal for a given apv
+  peds.clear();
+  map<uint32_t, vector<ApvAnalysis* > >::const_iterator theApvs_map =  apvMap_.find(detId);
+  if(theApvs_map != apvMap_.end())
+    {
+      vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
+      for(; theApvs !=  (theApvs_map->second).end();theApvs++)
+	{
+	  ApvAnalysis::PedestalType tmp = (*theApvs)->pedestalCalculator().rawNoise();
+	  for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+	    peds.push_back(*pit);
+	}
+    }
+}
+
+
 
 vector<float> ApvAnalysisFactory::getCommonMode(uint32_t detId, int apvNumber)
 {

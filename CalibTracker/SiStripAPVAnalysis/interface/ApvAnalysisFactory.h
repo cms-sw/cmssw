@@ -47,8 +47,12 @@ class ApvAnalysisFactory
 
   void getNoise(uint32_t det_id, int apvNumber,  ApvAnalysis::PedestalType& noise);
   void getNoise(uint32_t det_id,  ApvAnalysis::PedestalType& noise);
-
   float getStripNoise(uint32_t det_id, int stripNumber);
+
+  void getRawNoise(uint32_t det_id, int apvNumber,  ApvAnalysis::PedestalType& noise);
+  void getRawNoise(uint32_t det_id,  ApvAnalysis::PedestalType& noise);
+  float getStripRawNoise(uint32_t det_id, int stripNumber);
+
 
   void update(uint32_t det_id, const edm::DetSet<SiStripRawDigi>& in);
   std::string getStatus(uint32_t det_id);

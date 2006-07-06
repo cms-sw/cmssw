@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Dorian Kcira
+// Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.3 2006/07/03 14:49:25 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.4 2006/07/04 13:49:56 sashby Exp $
 //
 //
 
@@ -50,12 +50,6 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(const edm::ParameterSet& iConfi
   conf_ = iConfig;
   pedsPSet_ = conf_.getParameter<edm::ParameterSet>("PedestalsPSet");
   
-   
-  //   fedkey = conf_.getUntrackedParameter<bool>("UseFedKey",false);
-  
-  //   fedid  = conf_.getUntrackedParameter<int>("TriggerFedId",1023);
-  
-  //   inputModuleLabel_ = conf_.getParameter<string>( "InputModuleLabel" );  
   analyzed = false;
   fedEvent_ =0;
   signalCutPeds_ = 4;
@@ -82,9 +76,6 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
   using namespace edm;
  vector<uint32_t> SelectedDetIds;
  SelectedDetIds.clear();
- peds_tmp_.clear();
- peds_updated_.clear();
- rms_peds_.clear();
 
  //ApvAnalysisFactory
  apvFactory_ = new ApvAnalysisFactory(pedsPSet_);
@@ -139,13 +130,16 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  folder_organizer.setDetectorFolder(key_id); // pass the detid to this method
 	  int nStrip  = napvs*128;
 	  hid = hidmanager.createHistoId("PedsPerStrip","det", key_id);
-	  local_modmes.PedsPerStrip = dbe_->book1D(hid, hid, nStrip,-0.5,nStrip-0.5); //to modify the size binning 
+	  local_modmes.PedsPerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
 
 	  hid = hidmanager.createHistoId("PedsDistribution","det", key_id);
 	  local_modmes.PedsDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
 
-	  hid = hidmanager.createHistoId("RMSPerStrip","det", key_id);
-	  local_modmes.RMSPerStrip = dbe_->book1D(hid, hid, nStrip,-0.5,nStrip-0.5);//to modify the size binning 
+	  hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", key_id);
+	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
+
+	  hid = hidmanager.createHistoId("RawNoisePerStrip","det", key_id);
+	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
 	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -10., 10); //to modify the size binning 
@@ -186,61 +180,88 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       uint32_t detid = i->first; ModMEs local_modmes = i->second;
       // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector
       
-    vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
-    if ( digis->data.empty() ) { 
-      edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
-    } 
-    uint32_t id  = detid;
-    //    cout <<"Data size "<<digis->data.size()<<endl;
-     apvFactory_->update(id, (*digis));
-
-    if(nEvTot_ > theEventInitNumber_) {
-      if(local_modmes.CMDistribution != NULL){ 
-	vector<float> tmp;
-	tmp.clear();
-	apvFactory_->getCommonMode(id, tmp);
-	//unpacking the info looking at the right topology
-	int numberCMBlocks = int(128. / NumCMstripsInGroup_);
-	int ibin=0;
-	for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
-	  int iapv = int (ibin/numberCMBlocks);
-	  (local_modmes.CMDistribution)->Fill(iapv,static_cast<float>(*iped));
-	  ibin++;
-	  
+      vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
+      if ( digis->data.empty() ) { 
+	edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
+      } 
+      uint32_t id  = detid;
+      //    cout <<"Data size "<<digis->data.size()<<endl;
+      apvFactory_->update(id, (*digis));
+      
+      if(nEvTot_ > theEventInitNumber_) {
+	if(local_modmes.CMDistribution != NULL){ 
+	  vector<float> tmp;
+	  tmp.clear();
+	  apvFactory_->getCommonMode(id, tmp);
+	  //unpacking the info looking at the right topology
+	  int numberCMBlocks = int(128. / NumCMstripsInGroup_);
+	  int ibin=0;
+	  for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	    int iapv = int (ibin/numberCMBlocks);
+	    (local_modmes.CMDistribution)->Fill(iapv,static_cast<float>(*iped));
+	    ibin++;
+	    
+	  }
 	}
       }
-    }
-
-    //asking for the status
-    if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1)
-    {
-    vector<float> tmp;
-    tmp.clear();
-    apvFactory_->getPedestal(id, tmp);
-    if(local_modmes.PedsPerStrip != NULL){ 
-    int ibin=0;
-    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
-    int napv = int(ibin / 128.);
-    ibin++;
-    (local_modmes.PedsPerStrip)->setBinContent(ibin,static_cast<float>(*iped));
-    (local_modmes.PedsDistribution)->Fill(napv,static_cast<float>(*iped));
-    }
-    }
-    
-    if(local_modmes.RMSPerStrip != NULL){ 
-    tmp.clear();
-    apvFactory_->getNoise(id, tmp);
-    int ibin=0;
-    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
-    ibin++;
-    (local_modmes.RMSPerStrip)->setBinContent(ibin,static_cast<float>(*iped));
-    }
-    }
-    }
-
+      
+      //asking for the status
+      if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1)
+	{
+	  vector<float> tmp;
+	  tmp.clear();
+	  apvFactory_->getPedestal(id, tmp);
+	  if(local_modmes.PedsPerStrip != NULL){ 
+	    int ibin=0;
+	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	      int napv = int(ibin / 128.);
+	      ibin++;
+	      float last_value = (local_modmes.PedsPerStrip)->getBinContent(ibin);
+	      if(last_value != 0.){
+		(local_modmes.PedsPerStrip)->setBinContent(ibin,(static_cast<float>(*iped) + last_value)/2.);
+	      }else{
+		(local_modmes.PedsPerStrip)->setBinContent(ibin,static_cast<float>(*iped));
+	      }
+	      (local_modmes.PedsDistribution)->Fill(napv,static_cast<float>(*iped));
+	    }
+	  }
+	  
+	  if(local_modmes.CMSubNoisePerStrip != NULL){ 
+	    tmp.clear();
+	    apvFactory_->getNoise(id, tmp);
+	    int ibin=0;
+	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	      ibin++;
+	      float last_value = (local_modmes.CMSubNoisePerStrip)->getBinContent(ibin);
+	      if(last_value != 0.){
+		(local_modmes.CMSubNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);
+	      }else{
+		(local_modmes.CMSubNoisePerStrip)->setBinContent(ibin,static_cast<float>(*iped));
+	      }
+	    }
+	  }
+	  
+	  if(local_modmes.RawNoisePerStrip != NULL){ 
+	    tmp.clear();
+	    apvFactory_->getRawNoise(id, tmp);
+	    int ibin=0;
+	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	      ibin++;
+	      float last_value = (local_modmes.RawNoisePerStrip)->getBinContent(ibin);
+	      if(last_value != 0.){
+		(local_modmes.RawNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);
+	      }else{
+		(local_modmes.RawNoisePerStrip)->setBinContent(ibin,static_cast<float>(*iped));
+	      }
+	    }
+	  }
+	}
+      
     }
     
 }
+    
+
 
 void SiStripMonitorPedestals::endJob(void){
 

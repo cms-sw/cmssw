@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.1 2006/07/01 07:37:36 gennai Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.2 2006/07/04 08:06:00 gennai Exp $
 //
 
 // system include files
@@ -79,7 +79,8 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        struct ModMEs{
 	 MonitorElement* PedsPerStrip;
 	 MonitorElement* PedsDistribution;
-	 MonitorElement* RMSPerStrip;
+	 MonitorElement* CMSubNoisePerStrip;
+	 MonitorElement* RawNoisePerStrip;
 	 MonitorElement* CMDistribution;
 	 
        };
