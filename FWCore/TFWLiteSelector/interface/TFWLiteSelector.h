@@ -40,16 +40,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 30 21:04:46 CDT 2006
-// $Id$
+// $Id: TFWLiteSelector.h,v 1.2 2006/07/06 14:20:45 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/TFWLiteSelector/interface/TWFLiteSelectorBasic.h"
+#include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 // forward declarations
-template <TWorker>
+template <class TWorker>
 class TFWLiteSelector : public TFWLiteSelectorBasic
 {
 
@@ -73,9 +73,9 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       virtual void preProcessing(const TList*in, TList& out) {
         //need to remove all output so that when we delete the worker
         // we are not left with a stale pointer
-        fOutput->Clear();
+        out.Clear();
         delete worker_;
-        worker_= new(buffer_) TWorker(in,out);
+        worker_= new TWorker(in,out);
       }
       virtual void process(const edm::Event& iEvent) {
         worker_->process(iEvent);
@@ -86,8 +86,6 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       
       // ---------- member data --------------------------------
       TWorker* worker_;
-      char [ sizeof(TWorker) ] buffer_;
 };
-
 
 #endif
