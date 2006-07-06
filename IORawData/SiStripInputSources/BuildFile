@@ -2,10 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
-<use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
-<use name=DataFormats/SiStripDetId>
-<use name=DQM/SiStripCommon>
 <use name=TkOnlineSw>
 <use name=oracle>
 <use name=root>
@@ -18,10 +15,7 @@
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=Foundation/PluginManager>
-   <use name=DataFormats/Common>
    <use name=DataFormats/FEDRawData>
-   <use name=DataFormats/SiStripDetId>
-   <use name=DQM/SiStripCommon>
    <use name=TkOnlineSw>
    <use name=oracle>
    <use name=root>
