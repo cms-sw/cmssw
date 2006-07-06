@@ -30,8 +30,8 @@ protected:
   
   TkCommonMode*        theTkCommonMode;
   std::vector<float>        theCommonModeValues;
- TkNoiseCalculator*   theNoiseCalculator;
- TkApvMask*           theApvMask;
+  TkNoiseCalculator*   theNoiseCalculator;
+  TkApvMask*           theApvMask;
   bool alreadyUsedEvent;
 
 

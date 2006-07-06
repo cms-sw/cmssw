@@ -300,8 +300,27 @@ void ApvAnalysisFactory::getCommonMode(uint32_t detId,ApvAnalysis::PedestalType&
     }
 }
 
-
-
+void ApvAnalysisFactory::getMask(uint32_t det_id, TkApvMask::MaskType& tmp)
+{
+  
+  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(det_id);
+  if(apvAnalysisIt != apvMap_.end())
+    {
+      
+      vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
+      for(int i=0; i< theApvs.size(); i++)
+	{
+	  TkApvMask::MaskType theMaskType = (theApvs[i]->mask()).mask();
+	  //cout <<"theMaskType size "<<theMaskType.size()<<endl;
+	      
+	  for(int ii=0;ii<theMaskType.size();ii++)
+	    {
+	      tmp.push_back(theMaskType[ii]);
+	      //cout <<"The Value "<<theMaskType[ii]<<" "<<ii<<endl;
+	    }
+	}
+    }
+}
 bool ApvAnalysisFactory::isUpdating(uint32_t detId)
 {
   bool updating = true;

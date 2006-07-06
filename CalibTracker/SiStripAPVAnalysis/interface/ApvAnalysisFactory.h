@@ -42,6 +42,7 @@ class ApvAnalysisFactory
   void getPedestal(uint32_t det_id , ApvAnalysis::PedestalType& peds);
   float getStripPedestal(uint32_t det_id, int stripNumber);
 
+  void getMask(uint32_t det_id, TkApvMask::MaskType& tmp);
   void getCommonMode(uint32_t det_id, ApvAnalysis::PedestalType& tmp);
   std::vector<float> getCommonMode(uint32_t det_id, int apvNumber);
 
