@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/03/24 01:30:20 $
-*  $Revision: 1.3 $
+*  $Date: 2006/04/07 04:04:18 $
+*  $Revision: 1.4 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
@@ -83,7 +83,7 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
       //
       // if there's already one, just bail out
       //
-      if ( (AllHepMCEvt[i].provenance()->product).module.moduleLabel_ == "VtxSmeared" )
+      if ( AllHepMCEvt[i].provenance()->moduleLabel() == "VtxSmeared" )
       {
 	 throw Exception(errors::LogicError, "VtxSmeared HepMCProduce already exists") ;
       }
