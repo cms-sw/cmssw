@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.9 2006/06/27 20:18:35 fischler Exp $
+// $Id: MessageLogger.cc,v 1.10 2006/06/27 21:02:23 fischler Exp $
 //
 // Change log
 //
@@ -27,7 +27,6 @@
 // 4 mf   6/27/06	Between events the run/event is previous one
 
 // system include files
-
 // user include files
 
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
@@ -112,7 +111,9 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPreModule(this,&MessageLogger::preModule);
   iRegistry.watchPostModule(this,&MessageLogger::postModule);
 
-  
+  iRegistry.watchPreSource(this,&MessageLogger::preSource);
+  iRegistry.watchPostSource(this,&MessageLogger::postSource);
+								// change log 3
 }
 
 // edm::service::
@@ -190,11 +191,11 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
 }
 
 void
-MessageLogger::preSource(const ModuleDescription& desc)
+MessageLogger::preSource()
 {
-  curr_module_ = desc.moduleName_;
+  curr_module_ = "main_input";
   curr_module_ += ":";
-  curr_module_ += desc.moduleLabel_;
+  curr_module_ += "source";
   MessageDrop::instance()->moduleName = curr_module_;  
   if (!anyDebugEnabled_) {
     MessageDrop::instance()->debugEnabled = false;
@@ -202,7 +203,7 @@ MessageLogger::preSource(const ModuleDescription& desc)
     MessageDrop::instance()->debugEnabled = true;
   } else {
     MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel_);
+    			debugEnabledModules_.count("source");
   }
 }
 
@@ -262,7 +263,7 @@ MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
 }
 
 void
-MessageLogger::postSource(const ModuleDescription& iDescription)
+MessageLogger::postSource()
 {
   // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
   //                      << " finished";
