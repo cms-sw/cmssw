@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/04 09:03:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/06 09:21:08 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -32,7 +32,17 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
   // the rechit collection, it will be loaded in the event  
   std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
 
-  if( !trajectories.size() ) return;
+  // the track extra collection, it will be loaded in the event  
+  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+
+  // the track collection, it will be loaded in the event  
+  std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
+
+  // Don't waste any time...
+  if( !trajectories.size() ){ 
+    event.put(trackCollection);
+    return;
+  }
 
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
       trajectory != trajectories.end(); ++trajectory){
@@ -47,22 +57,17 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
     }
   }
   
-
   // put the collection of TrackingRecHit in the event
   LogDebug(metname) << 
     "put the collection of TrackingRecHit in the event" << "\n";
   
   edm::OrphanHandle<TrackingRecHitCollection> orphanHandleRecHit = event.put( recHitCollection );
-
   
   // *** second loop: create the collection of TrackExtra ***
 
   LogDebug(metname) << 
     "second loop: create the collection of TrackExtra" << "\n";
-  
-   // the track extra collection, it will be loaded in the event  
-  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
-  
+
   int position = 0;
 	
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
@@ -94,8 +99,6 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 
   LogDebug(metname) << "third loop: create the collection of Tracks" << "\n";
   
-  std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
-
   position = 0;
 
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
