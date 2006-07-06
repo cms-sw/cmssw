@@ -4,8 +4,8 @@
 /** \class MuonPatternRecoDumper
  *  A class to print information used for debugging
  *
- *  $Date: 2006/05/23 08:06:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/23 13:48:08 $
+ *  $Revision: 1.4 $
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -15,6 +15,7 @@
 class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
+class DetId;
 
 class MuonPatternRecoDumper {
 public:
@@ -45,8 +46,9 @@ public:
   void dumpTSOS(const TrajectoryStateOnSurface& tsos, std::string &where) const {
       dumpTSOS(const_cast<TrajectoryStateOnSurface&>(tsos), where);
   }
-
-
+  
+  void dumpMuonId(const DetId &id) const;
+  void dumpMuonId(const DetId &id, std::string &where) const;
 
 protected:
 
