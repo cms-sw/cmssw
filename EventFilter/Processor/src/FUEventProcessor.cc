@@ -598,7 +598,7 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "      " << "Application"                                  << endl;
   
   if(descs_.size()>0)
-    *out << " (Process name=" << descs_[0]->processName_ << ")"       << endl;
+    *out << " (Process name=" << descs_[0]->processName() << ")"       << endl;
   
   
   
@@ -621,17 +621,17 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
     {
       *out << "<tr>" << std::endl;
       *out << "<td >" << std::endl;
-      if(mwr && mwr->checkWeb(descs_[idesc]->moduleName_))
-	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc]->moduleName_ << "\">" 
-	     << descs_[idesc]->moduleName_ << "</a>" << std::endl;
+      if(mwr && mwr->checkWeb(descs_[idesc]->moduleName()))
+	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc]->moduleName() << "\">" 
+	     << descs_[idesc]->moduleName() << "</a>" << std::endl;
       else
-	*out << descs_[idesc]->moduleName_ << std::endl;
+	*out << descs_[idesc]->moduleName() << std::endl;
       *out << "</td>" << std::endl;
       *out << "<td >" << std::endl;
-      *out << descs_[idesc]->moduleLabel_ << std::endl;
+      *out << descs_[idesc]->moduleLabel() << std::endl;
       *out << "</td>" << std::endl;
       *out << "<td >" << std::endl;
-      *out << descs_[idesc]->versionNumber_ << std::endl;
+      *out << descs_[idesc]->releaseVersion() << std::endl;
       *out << "</td>" << std::endl;
       *out << "</tr>" << std::endl;
     }
