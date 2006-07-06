@@ -84,6 +84,50 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   return result;  
 }
 
+
+std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) 
+{
+  
+  //vector with the matched SimTrackID 
+  simtrackid.clear();
+  
+  //get the Detector type of the rechit
+  DetId detid=  thit.geographicalId();
+  uint32_t detID = detid.rawId();
+  //cout << "Associator ---> get Detid " << detID << endl;
+  //check we are in the strip tracker
+  if(detid.subdetId() == StripSubdetector::TIB ||
+     detid.subdetId() == StripSubdetector::TOB || 
+     detid.subdetId() == StripSubdetector::TID ||
+     detid.subdetId() == StripSubdetector::TEC) 
+    {
+      //check if it is a simple SiStripRecHit2DLocalPos
+      if(const SiStripRecHit2DLocalPos * rechit = 
+	 dynamic_cast<const SiStripRecHit2DLocalPos *>(&thit))
+	{	  
+	  simtrackid = associateSimpleRecHit(rechit);
+	}
+      //check if it is a matched SiStripRecHit2DMatchedLocalpos
+      if(const SiStripRecHit2DMatchedLocalPos * rechit = 
+	 dynamic_cast<const SiStripRecHit2DMatchedLocalPos *>(&thit))
+	{	  
+	  simtrackid = associateMatchedRecHit(rechit);
+	}
+    }
+  //check we are in the pixel tracker
+  if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
+      detid.subdetId() == PixelSubdetector::PixelEndcap) 
+    {
+      if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
+	{	  
+	  simtrackid = associatePixelRecHit(rechit);
+	}
+    }
+  //move here the choice of the id of the closest hit...??? 
+  return simtrackid;  
+}
+
+
 std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit)
 {
   DetId detid=  simplerechit->geographicalId();

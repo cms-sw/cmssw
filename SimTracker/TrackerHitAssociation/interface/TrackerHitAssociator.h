@@ -48,6 +48,7 @@ class TrackerHitAssociator {
   virtual ~TrackerHitAssociator(){}
   
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
+  std::vector<unsigned int> associateHitId(const TrackingRecHit & thit);
   
   std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit);
   std::vector<unsigned int> associateMatchedRecHit(const SiStripRecHit2DMatchedLocalPos * matchedrechit);
