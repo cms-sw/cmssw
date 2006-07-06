@@ -66,7 +66,7 @@ void VtxTester::analyze( const Event& e, const EventSetup& )
             double Phi = Mom.phi() ;
             double Eta = -log(tan(Mom.theta()/2.));
 	 
-	    if ( (EvtHandles[i].provenance()->product).module.moduleLabel_ == "VtxSmeared" )
+	 if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
 	    {	 
                fVtxHist->Fill( (*Vtx)->position().z() ) ;
                fPhiHistSmr->Fill( Phi ) ;
