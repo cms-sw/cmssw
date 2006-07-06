@@ -7,102 +7,89 @@
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <RecoMuon/DetLayers/interface/MuDetRod.h>
 
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
 
 using namespace std;
 
-MuonRPCDetLayerGeometryBuilder::MuonRPCDetLayerGeometryBuilder() {
-}
-
 MuonRPCDetLayerGeometryBuilder::~MuonRPCDetLayerGeometryBuilder() {
 }
 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
 MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
-        
-  //    vector<MuRingForwardLayer*> result[2];
-    vector<DetLayer*> detlayers[2];
-    vector<const ForwardDetRing*> muDetRings;
-  /*          
-    for(int endcap = RPCDetId::minEndcapId(); endcap != RPCDetId::maxEndcapId(); endcap++) {
 
-        for(int ring = 2; ring <= 3; ring++) {
-                
-            vector<const GeomDet*> geomDets;
-            for(int chamber = RPCDetId::minChamberId(); chamber <= RPCDetId::maxChamberId(); chamber++) {
-		  
-                const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap, 1, ring, chamber, 0));
-	            if (geomDet) {
-		            geomDets.push_back(geomDet);
-		            LogDebug("xxx") << "get RPC chamber " <<  RPCDetId(endcap, 1, ring, chamber, 0) << " " << geomDet;
-		        }
-            }
-                
-		    if (geomDets.size()!=0) {
-                muDetRings.push_back(new MuDetRing(geomDets));
-		        LogDebug("xxx") << "New ring with " << geomDets.size() << " chambers";
-		    }
-        }
-                
-        result[endcap].push_back(new MuRingForwardLayer(muDetRings));  
-	    LogDebug("xxx") << "New layer with " << muDetRings.size() << " rings";
-        muDetRings.clear();  
-            
-        for(int ring = 1; ring <= 4; ring+=4) {
-                
-            vector<const GeomDet*> geomDets;
-            for(int chamber = RPCDetId::minChamberId(); chamber <= RPCDetId::maxChamberId(); chamber++) {
-		  
-                const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap, 1, ring, chamber, 0));
-	            if (geomDet) {
-	                geomDets.push_back(geomDet);
-	                //cout << "get RPC chamber " <<  RPCDetId(endcap, station, ring, chamber, 0) << " " << geomDet << endl;
-	            }
-            }
-                
-	        if (geomDets.size()!=0) {
-                muDetRings.push_back(new MuDetRing(geomDets));
-	            LogDebug("xxx") << "New ring with " << geomDets.size() << " chambers";
-	        }
-        }
-                
-        result[endcap].push_back(new MuRingForwardLayer(muDetRings));    
-	    LogDebug("xxx") << "New layer with " << muDetRings.size() << " rings" << endl;
-        muDetRings.clear();
-    
-        for(int station = 2; station <= RPCDetId::maxStationId(); station++) {
 
-            for(int ring = RPCDetId::minRingId(); ring <= RPCDetId::maxRingId(); ring++) {
-                
-                vector<const GeomDet*> geomDets;
-                for(int chamber = RPCDetId::minChamberId(); chamber <= RPCDetId::maxChamberId(); chamber++) {
-		  
-		            const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap, station, ring, chamber, 0));
-		            if (geomDet) {
-		                geomDets.push_back(geomDet);
-		                LogDebug("xxx") << "get RPC chamber " <<  RPCDetId(endcap, station, ring, chamber, 0) << " " << geomDet;
-		            }
-                }
-                
-		        if (geomDets.size()!=0) {
-                    muDetRings.push_back(new MuDetRing(geomDets));
-		            LogDebug("xxx") << "New ring with " << geomDets.size() << " chambers";
-		        }
-            }
-                
-            result[endcap].push_back(new MuRingForwardLayer(muDetRings));    
-	        LogDebug("xxx") << "New layer with " << muDetRings.size() << " rings";
-            muDetRings.clear();
-        }
-        
-        for(vector<MuRingForwardLayer*>::const_iterator it = result[endcap].begin(); it != result[endcap].end(); it++)
-                detlayers[endcap].push_back((DetLayer*)(*it));
-    }    
-    */
-    pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(detlayers[0], detlayers[1]); 
-    return res_pair;
+ vector<DetLayer*> result[2];
+
+ for(int endcap = RPCDetId::minRegionId; endcap<=RPCDetId::maxRegionId; endcap+=2){
+ 
+	for(int station = RPCDetId::minStationId; station <= RPCDetId::maxStationId; ++station) {
+	for(int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
+		vector<int> rolls;      
+      
+		for(int ring = RPCDetId::minRingForwardId; ring <= RPCDetId::maxRingForwardId; ++ring) {
+		for(int roll = RPCDetId::minRollId; roll <= RPCDetId::maxRollId; ++roll) {
+			rolls.push_back(roll);
+		}
+		
+		MuRingForwardLayer* ringLayer = buildLayer(endcap, ring, station, layer, rolls, geo);          
+		if (layer) result[endcap].push_back(ringLayer);
+		}
+	}
+	} 
+ 
+  }
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
+  return res_pair;
+
+}
+
+
+
+MuRingForwardLayer* MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,int ring, int station,int layer,
+                                                               vector<int>& rolls,
+							       const RPCGeometry& geo) {
+  MuRingForwardLayer* result=0;
+  
+  vector<const ForwardDetRing*> muDetRings;
+
+  for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
+	vector<const GeomDet*> geomDets;
+	for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
+	for(int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
+
+		const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap,ring, station,sector,layer,subsector, (*roll)));
+		if (geomDet) {
+			geomDets.push_back(geomDet);
+			LogDebug("Muon|RPC|RecoMuonDetLayers") << "get RPC chamber "
+					       <<  RPCDetId(endcap,ring, station,sector,layer,subsector, (*roll))
+					       << " at R=" << geomDet->position().perp()
+					       << ", phi=" << geomDet->position().phi();
+		}
+	}
+	}
+
+	if (geomDets.size()!=0) {
+		precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
+		muDetRings.push_back(new MuDetRing(geomDets));
+		LogDebug("Muon|RPC|RecoMuonDetLayers") << "New roll with " << geomDets.size()
+					     << " chambers at z="<< muDetRings.back()->position().z();
+	}
+  }
+  
+  
+  
+  if (muDetRings.size()!=0) {
+	result = new MuRingForwardLayer(muDetRings);  
+	LogDebug("Muon|RPC|RecoMuonDetLayers") << "New layer with " << muDetRings.size() 
+					   << " rolls, at Z " << result->position().z();
+  }
+
+  return result;
 }
 
 
