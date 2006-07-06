@@ -137,7 +137,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
                              << " noise " << widths[igain] << " conversion factor " << LSB[igain] 
                              << " result (ped,tmpadc)= " << ped << " " << tmpadc;
          
-       if(tmpadc <= MAXADC ) {
+       if(tmpadc < ADCGAINSWITCH ) {
          adc = tmpadc;
          break ;
        }
