@@ -8,6 +8,12 @@
 # include <string>
 # include <map>
 
+namespace boost {
+
+  class recursive_mutex;
+}
+
+
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -38,7 +44,8 @@ public:
     Counter		&m_counter;
     double		m_start;
   };
-  
+  friend class Stamp;
+
   typedef std::map<std::string, Counter> OperationStats;
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
   
@@ -59,7 +66,9 @@ public:
   static  void setCurrentOp(const Counter * currOp, double stime);
   
 private:
+  static boost::recursive_mutex s_mutex;
   static StorageStats	s_stats;
+
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

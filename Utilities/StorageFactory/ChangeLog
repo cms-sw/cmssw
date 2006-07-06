@@ -1,3 +1,8 @@
+2006-07-06  Vincenzo Innocente <vincenzo.innocente@cern.ch>
+
+	* M StorageAccount.h,.cpp:
+	made StorageAccount ThreadSafe
+	
 2005-11-28  Giulio Eulisse  <giulio.eulisse@cern.ch>
 
 	* M any.cpp, ftp.cpp, ftp2.cpp, http.cpp, http2.cpp, http3.cpp,

@@ -2,6 +2,10 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "SealBase/TimeInfo.h"
 #include <sstream>
+#include <boost/thread/tss.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+typedef boost::recursive_mutex::scoped_lock ScopedLock;
+
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -10,6 +14,7 @@
 //<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
+boost::recursive_mutex StorageAccount::s_mutex;
 StorageAccount::StorageStats StorageAccount::s_stats;
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
@@ -41,6 +46,9 @@ StorageAccount::summary (void)
 StorageAccount::Counter &
 StorageAccount::counter (const std::string &storageClass, const std::string &operation)
 {
+
+  ScopedLock sl(s_stats);
+
   boost::shared_ptr<OperationStats> &opstats = s_stats [storageClass];
   if (! opstats) opstats.reset(new OperationStats);
   
@@ -58,27 +66,32 @@ StorageAccount::Stamp::Stamp (Counter &counter)
   : m_counter (counter),
     m_start (seal::TimeInfo::realNsecs ())
 {
-  m_counter.attempts++;
+  {
+    ScopedLock sl(StorageAccount::s_stats);
+    m_counter.attempts++;
+  }
   StorageAccount::setCurrentOp(&m_counter,m_start);
 }
 
 void
 StorageAccount::Stamp::tick (double amount) const
 {
-  m_counter.successes++;
-  m_counter.amount += amount;
   double elapsed = seal::TimeInfo::realNsecs () - m_start;
-  m_counter.time += elapsed;
+  {
+    ScopedLock sl(StorageAccount::s_stats);
+    m_counter.successes++;
+    m_counter.amount += amount;
+    m_counter.time += elapsed;
+  }
   StorageAccount::setCurrentOp(0,elapsed);
 }
 
 
-//FIXME (not thread safe)
 StorageAccount::LastOp & 
 StorageAccount::lastOp() 
 {
-  static LastOp local;
-  return local;
+  static boost::thread_specific_ptr<LastOp> local;
+  return *local;
 }
 
 
