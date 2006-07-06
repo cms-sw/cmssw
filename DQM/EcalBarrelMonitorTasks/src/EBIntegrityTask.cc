@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/06/17 17:19:42 $
- * $Revision: 1.19 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
  */
@@ -334,11 +334,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
-    //    int ismt = id.iDCC();
-    int ismt = 1;
+    int ismt = id.iDCC();
+    //    int ismt = 1;
 
-    float xiet = iet + 0.5;
-    float xipt = ipt + 0.5;
+    float xiet = iet - 0.5;
+    float xipt = ipt - 0.5;
 
     if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
 
@@ -354,10 +354,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
+    int ismt = id.iDCC();
     //    int ismt = id.ism();
-    int ismt = 1;
+    //    int ismt = 1;
 
-     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(iet, ipt);
+    float xiet = iet - 0.5;
+    float xipt = ipt - 0.5;
+
+     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
 
    }
 
