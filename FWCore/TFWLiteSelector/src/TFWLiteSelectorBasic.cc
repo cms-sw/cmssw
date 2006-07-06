@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
-// Package:     FWLite
-// Class  :     TFWLiteSelector
+// Package:     TFWLiteSelector
+// Class  :     TFWLiteSelectorBasic
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id$
+// $Id: TFWLiteSelectorBasic.cc,v 1.1 2006/06/30 16:55:07 chrjones Exp $
 //
 
 // system include files
@@ -21,7 +21,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/TFWLiteSelector/interface/TFWLiteSelector.h"
+#include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "IOPool/Common/interface/PoolNames.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -125,17 +125,17 @@ namespace edm {
 //
 // constructors and destructor
 //
-TFWLiteSelector::TFWLiteSelector() : m_(new edm::root::TFWLiteSelectorMembers),
+TFWLiteSelectorBasic::TFWLiteSelectorBasic() : m_(new edm::root::TFWLiteSelectorMembers),
 				     everythingOK_(false)
 {
 }
 
-// TFWLiteSelector::TFWLiteSelector(const TFWLiteSelector& rhs)
+// TFWLiteSelectorBasic::TFWLiteSelectorBasic(const TFWLiteSelectorBasic& rhs)
 // {
 //    // do actual copying here;
 // }
 
-TFWLiteSelector::~TFWLiteSelector()
+TFWLiteSelectorBasic::~TFWLiteSelectorBasic()
 {
   delete m_;
 }
@@ -143,10 +143,10 @@ TFWLiteSelector::~TFWLiteSelector()
 //
 // assignment operators
 //
-// const TFWLiteSelector& TFWLiteSelector::operator=(const TFWLiteSelector& rhs)
+// const TFWLiteSelectorBasic& TFWLiteSelectorBasic::operator=(const TFWLiteSelectorBasic& rhs)
 // {
 //   //An exception safe implementation is
-//   TFWLiteSelector temp(rhs);
+//   TFWLiteSelectorBasic temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -156,26 +156,26 @@ TFWLiteSelector::~TFWLiteSelector()
 // member functions
 //
 void
-TFWLiteSelector::Begin(TTree * iTree) { 
+TFWLiteSelectorBasic::Begin(TTree * iTree) { 
   Init(iTree);
-  begin();
+  begin(fInput);
 }
 
 void
-TFWLiteSelector::SlaveBegin(TTree *iTree) { 
+TFWLiteSelectorBasic::SlaveBegin(TTree *iTree) { 
   Init(iTree);
-  preProcessing(*fOutput);
+  preProcessing(fInput,*fOutput);
 }
 
 void
-TFWLiteSelector::Init(TTree *iTree) { 
+TFWLiteSelectorBasic::Init(TTree *iTree) { 
   if(iTree==0) return;
   m_->setTree(iTree);
 }
 
 
 Bool_t
-TFWLiteSelector::Notify() { 
+TFWLiteSelectorBasic::Notify() { 
    std::cout <<"Notify start"<<std::endl;
   //we have switched to a new file  
   //get new file from Tree
@@ -220,7 +220,7 @@ TFWLiteSelector::Notify() {
 }
 
 Bool_t
-TFWLiteSelector::Process(Long64_t iEntry) { 
+TFWLiteSelectorBasic::Process(Long64_t iEntry) { 
    std::cout <<"Process start"<<std::endl;
    if(everythingOK_) {
       edm::EventAux aux;
@@ -281,12 +281,12 @@ TFWLiteSelector::Process(Long64_t iEntry) {
 }
 
 void
-TFWLiteSelector::SlaveTerminate() { 
-  postProcessing();
+TFWLiteSelectorBasic::SlaveTerminate() { 
+  postProcessing(*fOutput);
 }
 
 void
-TFWLiteSelector::Terminate() {
+TFWLiteSelectorBasic::Terminate() {
   terminate(*fOutput);
 }
 
