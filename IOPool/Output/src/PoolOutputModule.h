@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.7 2006/05/03 18:28:26 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.7.2.2 2006/06/30 04:32:11 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -73,7 +73,18 @@ namespace edm {
     void setBranchAliases() const;
 
   private:
-    typedef std::pair<BranchDescription const*, pool::Placement> OutputItem;
+    struct OutputItem {
+      OutputItem() : branchDescription_(0), selected_(false), provenancePlacement_(), eventPlacement_() {}
+      OutputItem(BranchDescription const* bd, bool sel, pool::Placement const& plProv,
+		pool::Placement const& plEvent = pool::Placement()) :
+		branchDescription_(bd), selected_(sel),
+		provenancePlacement_(plProv), eventPlacement_(plEvent) {}
+      ~OutputItem() {}
+      BranchDescription const* branchDescription_;
+      bool selected_;
+      pool::Placement provenancePlacement_;
+      pool::Placement eventPlacement_;
+    };
     typedef std::vector<OutputItem> OutputItemList;
     OutputItemList outputItemList_;
     std::vector<std::string> branchNames_;
@@ -82,11 +93,14 @@ namespace edm {
     JobReport::Token reportToken_;
     unsigned long eventCount_;
     unsigned long fileSizeCheckEvent_;
-    pool::Placement provenancePlacement_;
     pool::Placement auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
-    pool::Placement parameterSetIDPlacement_;
     pool::Placement parameterSetPlacement_;
+    pool::Placement moduleDescriptionPlacement_;
+    pool::Placement processHistoryPlacement_;
+    pool::Placement fileFormatVersionPlacement_;
+    pool::Placement runBlockPlacement_;
+    pool::Placement luminosityBlockPlacement_;
     PoolOutputModule const* om_;
   };
 }

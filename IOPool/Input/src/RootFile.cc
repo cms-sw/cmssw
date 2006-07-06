@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.20 2006/06/26 20:33:35 wmtan Exp $
+$Id: RootFile.cc,v 1.20.2.7 2006/07/04 14:47:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -10,11 +10,12 @@ $Id: RootFile.cc,v 1.20 2006/06/26 20:33:35 wmtan Exp $
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/EventProvenance.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
+#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,6 +29,8 @@ namespace edm {
     file_(fileName),
     catalog_(catalogName),
     branchNames_(),
+    eventProvenance_(),
+    eventProvenancePtrs_(),
     reportToken_(0),
     eventID_(),
     entryNumber_(-1),
@@ -35,29 +38,62 @@ namespace edm {
     productRegistry_(new ProductRegistry),
     branches_(new BranchMap),
     eventTree_(0),
+    eventMetaTree_(0),
     auxBranch_(0),
-    provBranch_(0),
     filePtr_(TFile::Open(file_.c_str())) {
 
     open();
 
+    // Set up buffers for registries.
+    ProductRegistry *ppReg = productRegistry_.get();
+    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
+    PsetMap psetMap;
+    ProcessHistoryMap pHistMap;
+    ModuleDescriptionMap mdMap;
+    PsetMap *psetMapPtr = &psetMap;
+    ProcessHistoryMap *pHistMapPtr = &pHistMap;
+    ModuleDescriptionMap *mdMapPtr = &mdMap;
+
+    // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
 
-    // Load streamers for product dictionary and member/base classes.
-    ProductRegistry *ppReg = productRegistry_.get();
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
+    metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+    metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+    metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+
     metaDataTree->GetEntry(0);
     productRegistry().setFrozen();
 
+    // Merge into the registries. For now, we do NOT merge the product registry.
+    pset::Registry& psetRegistry = *pset::Registry::instance();
+    for (PsetMap::const_iterator i = psetMap.begin(); i != psetMap.end(); ++i) {
+      psetRegistry.insertMapped(ParameterSet(i->second.pset_));
+    } 
+    ProcessHistoryRegistry & processNameListRegistry = *ProcessHistoryRegistry::instance();
+    for (ProcessHistoryMap::const_iterator j = pHistMap.begin(); j != pHistMap.end(); ++j) {
+      processNameListRegistry.insertMapped(j->second);
+    } 
+    ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
+    for (ModuleDescriptionMap::const_iterator k = mdMap.begin(); k != mdMap.end(); ++k) {
+      moduleDescriptionRegistry.insertMapped(k->second);
+    } 
+
+    // Read the event and event meta trees.
     eventTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
     assert(eventTree_ != 0);
+    eventMetaTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventMetaDataTreeName().c_str()));
+    assert(eventMetaTree_ != 0);
     entries_ = eventTree_->GetEntries();
+    assert(entries_ == eventMetaTree_->GetEntries());
 
     auxBranch_ = eventTree_->GetBranch(poolNames::auxiliaryBranchName().c_str());
-    provBranch_ = eventTree_->GetBranch(poolNames::provenanceBranchName().c_str());
 
+    // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
+    eventProvenance_.reserve(prodList.size());
+    eventProvenancePtrs_.reserve(prodList.size());
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
@@ -68,6 +104,10 @@ namespace edm {
       branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID(), it->second));
       branchNames_.push_back(prod.branchName());
+      int n = eventProvenance_.size();
+      eventProvenance_.push_back(BranchEntryDescription());
+      eventProvenancePtrs_.push_back(&eventProvenance_[n]);
+      eventMetaTree_->SetBranchAddress(prod.branchName().c_str(),(&eventProvenancePtrs_[n]));
     }
   }
 
@@ -101,25 +141,6 @@ namespace edm {
     reportSvc->inputFileClosed(reportToken_);
   }
 
-  void
-  RootFile::fillParameterSetRegistry(pset::Registry & psetRegistry) const {
-    ParameterSetID psetID;
-    ParameterSetBlob psetBlob;
-    ParameterSetID *psetIDptr = &psetID;
-    ParameterSetBlob *psetBlobptr = &psetBlob;
-    TTree *parameterSetTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetTreeName().c_str()));
-    if (!parameterSetTree) {
-      return;
-    }
-    int nEntries = parameterSetTree->GetEntries();
-    parameterSetTree->SetBranchAddress(poolNames::parameterSetIDBranchName().c_str(), &psetIDptr);
-    parameterSetTree->SetBranchAddress(poolNames::parameterSetBranchName().c_str(), &psetBlobptr);
-    for (int i = 0; i < nEntries; ++i) {
-      parameterSetTree->GetEntry(i);
-      psetRegistry.insertParameterSet(ParameterSet(psetBlob.pset_));
-    }
-  }
-
   RootFile::EntryNumber
   RootFile::getEntryNumber(EventID const& eventID) const {
     return eventTree_->GetEntryNumberWithIndex(eventID.run(), eventID.event());
@@ -141,22 +162,21 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   RootFile::read(ProductRegistry const& pReg) {
     EventAux evAux;
-    EventProvenance evProv;
     EventAux *pEvAux = &evAux;
-    EventProvenance *pEvProv = &evProv;
     auxBranch_->SetAddress(&pEvAux);
-    provBranch_->SetAddress(&pEvProv);
     auxBranch_->GetEntry(entryNumber());
-    provBranch_->GetEntry(entryNumber());
-    eventID_ = evAux.id_;
+    eventMetaTree_->GetEntry(entryNumber());
+    eventID_ = evAux.id();
     // We're not done ... so prepare the EventPrincipal
     boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
-    std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(evAux.id(), evAux.time(), pReg, evAux.processHistory(), store_));
+    std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
+		eventID_, evAux.time(), pReg, evAux.luminosityBlockID(),
+		evAux.processHistoryID_, store_));
     // Loop over provenance
-    std::vector<BranchEntryDescription>::iterator pit = evProv.data_.begin();
-    std::vector<BranchEntryDescription>::iterator pitEnd = evProv.data_.end();
+    std::vector<BranchEntryDescription>::iterator pit = eventProvenance_.begin();
+    std::vector<BranchEntryDescription>::iterator pitEnd = eventProvenance_.end();
     for (; pit != pitEnd; ++pit) {
-      if (pit->status != BranchEntryDescription::Success) continue;
+      // if (pit->creatorStatus() != BranchEntryDescription::Success) continue;
       // BEGIN These lines read all branches
       // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
       // br->SetAddress(p);
@@ -169,7 +189,7 @@ namespace edm {
       std::auto_ptr<Provenance> prov(new Provenance);
       prov->event = *pit;
       prov->product = productMap_[prov->event.productID_];
-      std::auto_ptr<Group> g(new Group(prov));
+      std::auto_ptr<Group> g(new Group(prov, prov->event.isPresent()));
       // END These lines defer reading branches
       thisEvent->addGroup(g);
     }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.30 2006/05/30 20:07:31 wmtan Exp $
+$Id: PoolSource.cc,v 1.31.2.1 2006/06/30 19:25:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -61,9 +61,6 @@ namespace edm {
   void PoolSource::init(std::string const& file) {
 
     rootFile_ = RootFileSharedPtr(new RootFile(file, catalog().url()));
-    if (mainInput_) {
-      rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
-    }
   }
 
   void PoolSource::updateProductRegistry() const {

@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.29 2006/06/24 01:45:44 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.30.2.7 2006/07/05 03:04:44 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -7,7 +7,8 @@
 
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/EventProvenance.h"
+#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
+#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -71,54 +72,78 @@ namespace edm {
       file_(), lfn_(),
       reportToken_(0), eventCount_(0),
       fileSizeCheckEvent_(100),
-      provenancePlacement_(), auxiliaryPlacement_(), productDescriptionPlacement_(),
+      auxiliaryPlacement_(),
+      productDescriptionPlacement_(),
+      parameterSetPlacement_(),
+      moduleDescriptionPlacement_(),
+      processHistoryPlacement_(),
       om_(om) {
     std::string const suffix(".root");
-    std::string::size_type offset = om->fileName_.rfind(suffix);
-    bool ext = (offset == om->fileName_.size() - suffix.size());
-    std::string fileBase(ext ? om->fileName_.substr(0, offset): om->fileName_);
-    if (om->fileCount_) {
+    std::string::size_type offset = om_->fileName_.rfind(suffix);
+    bool ext = (offset == om_->fileName_.size() - suffix.size());
+    std::string fileBase(ext ? om_->fileName_.substr(0, offset): om_->fileName_);
+    if (om_->fileCount_) {
       std::ostringstream ofilename;
-      ofilename << fileBase << std::setw(3) << std::setfill('0') << om->fileCount_ << suffix;
+      ofilename << fileBase << std::setw(3) << std::setfill('0') << om_->fileCount_ << suffix;
       file_ = ofilename.str();
-      if (!om->logicalFileName_.empty()) {
+      if (!om_->logicalFileName_.empty()) {
 	std::ostringstream lfilename;
-	lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_;
+	lfilename << om_->logicalFileName_ << std::setw(3) << std::setfill('0') << om_->fileCount_;
 	lfn_ = lfilename.str();
       }
     } else {
       file_ = fileBase + suffix;
-      lfn_ = om->logicalFileName_;
+      lfn_ = om_->logicalFileName_;
     }
-    makePlacement(poolNames::eventTreeName(), poolNames::provenanceBranchName(), provenancePlacement_);
     makePlacement(poolNames::eventTreeName(), poolNames::auxiliaryBranchName(), auxiliaryPlacement_);
-    makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(), productDescriptionPlacement_);
-    makePlacement(poolNames::parameterSetTreeName(), poolNames::parameterSetIDBranchName(), parameterSetIDPlacement_);
-    makePlacement(poolNames::parameterSetTreeName(), poolNames::parameterSetBranchName(), parameterSetPlacement_);
+    makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(),
+	productDescriptionPlacement_);
+    makePlacement(poolNames::metaDataTreeName(), poolNames::parameterSetMapBranchName(),
+	parameterSetPlacement_);
+    makePlacement(poolNames::metaDataTreeName(), poolNames::moduleDescriptionMapBranchName(),
+	moduleDescriptionPlacement_);
+    makePlacement(poolNames::metaDataTreeName(), poolNames::processHistoryMapBranchName(),
+	processHistoryPlacement_);
+    makePlacement(poolNames::metaDataTreeName(), poolNames::fileFormatVersionBranchName(),
+	fileFormatVersionPlacement_);
     ProductRegistry pReg;
-    pReg.setNextID(om->nextID());
+    pReg.setNextID(om_->nextID());
    
-    for (Selections::const_iterator it = om->descVec_.begin();
-      it != om->descVec_.end(); ++it) {
+    for (Selections::const_iterator it = om_->descVec_.begin();
+      it != om_->descVec_.end(); ++it) {
       pReg.copyProduct(**it);
-      pool::Placement placement;
-      makePlacement(poolNames::eventTreeName(), (*it)->branchName(), placement);
-      outputItemList_.push_back(std::make_pair(*it, placement));
+      pool::Placement provenancePlacement;
+      pool::Placement eventPlacement;
+      makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
+      makePlacement(poolNames::eventTreeName(), (*it)->branchName(), eventPlacement);
+      outputItemList_.push_back(OutputItem(*it, true, provenancePlacement, eventPlacement));
       branchNames_.push_back((*it)->branchName());
     }
-    std::vector<boost::shared_ptr<ParameterSetBlob> > psets;
+    for (Selections::const_iterator it = om_->droppedVec_.begin();
+      it != om_->droppedVec_.end(); ++it) {
+      pReg.copyProduct(**it);
+      pool::Placement provenancePlacement;
+      makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
+      outputItemList_.push_back(OutputItem(*it, false, provenancePlacement));
+    }
+
     startTransaction();
-    pool::Ref<ProductRegistry const> rp(om->context(), &pReg);
+
+    pool::Ref<ProductRegistry const> rp(om_->context(), &pReg);
     rp.markWrite(productDescriptionPlacement_);
+
+    pool::Ref<ModuleDescriptionMap const> rmod(om_->context(), &ModuleDescriptionRegistry::instance()->data());
+    rmod.markWrite(moduleDescriptionPlacement_);
+
+    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
+    PsetMap psetMap;
     pset::Registry const* psetRegistry = pset::Registry::instance();    
     for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
-      pool::Ref<ParameterSetID const> rpsetid(om->context(), &it->first);
-      boost::shared_ptr<ParameterSetBlob> pset(new ParameterSetBlob(it->second.toStringOfTracked()));
-      psets.push_back(pset); // Keeps ParameterSetBlob alive until after the commit.
-      pool::Ref<ParameterSetBlob const> rpset(om->context(), pset.get());
-      rpset.markWrite(parameterSetPlacement_);
-      rpsetid.markWrite(parameterSetIDPlacement_);
+      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
     }
+    pool::Ref<PsetMap const> rpparam(om_->context(), &psetMap);
+    rpparam.markWrite(parameterSetPlacement_);
+
     commitAndFlushTransaction();
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -126,11 +151,11 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->outputFileOpened(
 		      file_, lfn_,  // PFN and LFN
-		      om->catalog_.url(),  // catalog
+		      om_->catalog_.url(),  // catalog
 		      moduleName,   // module class name
-		      om->moduleLabel_,  // module label
+		      om_->moduleLabel_,  // module label
 		      branchNames_); // branch names being written
-    om->catalog_.registerFile(file_, lfn_);
+    om_->catalog_.registerFile(file_, lfn_);
   }
 
   void PoolOutputModule::PoolFile::startTransaction() const {
@@ -156,52 +181,72 @@ namespace edm {
     startTransaction();
     // Write auxiliary branch
     EventAux aux;
-    aux.process_history_ = e.processHistory();
+    aux.processHistoryID_ = e.processHistoryID();
     aux.id_ = e.id();
     aux.time_ = e.time();
 
     pool::Ref<const EventAux> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_);	
 
-    EventProvenance eventProvenance;
+    std::list<BranchEntryDescription> dummyProvenances;
+
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = outputItemList_.begin();
 	 i != outputItemList_.end(); ++i) {
-      ProductID const& id = i->first->productID_;
+      ProductID const& id = i->branchDescription_->productID_;
 
       if (id == ProductID()) {
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
       }
-      EventPrincipal::SharedGroupPtr const g = e.getGroup(id);
-      if (g.get() == 0) {
-	// No product with this ID is in the event.  Add a null one.
-	BranchEntryDescription event;
-	event.status = BranchEntryDescription::CreatorNotRun;
-	event.productID_ = id;
-	eventProvenance.data_.push_back(event);
 
-	std::string const& name = i->first->className();
-	std::string const className = wrappedClassName(name);
-	TClass *cp = gROOT->GetClass(className.c_str());
-	if (cp == 0) {
-	  throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	    << "TypeID::className: No dictionary for class " << className << '\n'
-	    << "Add an entry for this class\n"
-	    << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
+      EDProduct const* product = 0;
+      EventPrincipal::SharedGroupPtr const g = e.getGroup(id, i->selected_);
+      if (g.get() == 0) {
+	// No Group with this ID is in the event.
+	// Create the provenance.
+	if (i->branchDescription_->produced_) {
+          BranchEntryDescription event;
+	  event.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
+	  event.productID_ = id;
+	  event.status_ = BranchEntryDescription::CreatorNotRun;
+	  event.isPresent_ = false;
+	  event.cid_ = 0;
+	  
+	  dummyProvenances.push_front(event); 
+	  pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+	  refp.markWrite(i->provenancePlacement_);
+	} else {
+	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
+	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
-	EDProduct *p = static_cast<EDProduct *>(cp->New());
-	pool::Ref<EDProduct const> ref(context(), p);
-	ref.markWrite(i->second);
       } else {
-	eventProvenance.data_.push_back(g->provenance().event);
-	pool::Ref<EDProduct const> ref(context(), g->product());
-	ref.markWrite(i->second);
+	if (!i->selected_) {
+	  g->provenance().event.isPresent_ = false;
+	}
+	pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
+	refp.markWrite(i->provenancePlacement_);
+	product = g->product();
+      }
+      if (i->selected_) {
+	if (product == 0) {
+	  // Add a null product.
+	  std::string const& name = i->branchDescription_->className();
+	  std::string const className = wrappedClassName(name);
+	  TClass *cp = gROOT->GetClass(className.c_str());
+	  if (cp == 0) {
+	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	      << "TypeID::className: No dictionary for class " << className << '\n'
+	      << "Add an entry for this class\n"
+	      << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
+	  }
+	  product = static_cast<EDProduct *>(cp->New());
+	}
+	pool::Ref<EDProduct const> ref(context(), product);
+	ref.markWrite(i->eventPlacement_);
       }
     }
-    // Write the provenance branch
-    pool::Ref<EventProvenance const> rp(context(), &eventProvenance);
-    rp.markWrite(provenancePlacement_);
 
     commitTransaction();
     // Report event written 
@@ -229,6 +274,10 @@ namespace edm {
   }
 
   void PoolOutputModule::PoolFile::endFile() {
+    startTransaction();
+    pool::Ref<ProcessHistoryMap const> rhist(om_->context(), &ProcessHistoryRegistry::instance()->data());
+    rhist.markWrite(processHistoryPlacement_);
+
     commitAndFlushTransaction();
     om_->catalog_.commitCatalog();
     context()->session().disconnectAll();
@@ -251,10 +300,17 @@ namespace edm {
 	it != om_->descVec_.end(); ++it) {
 	BranchDescription const& pd = **it;
 	std::string const& full = pd.branchName() + "obj";
-	std::string const& alias = (pd.branchAlias().empty() ?
-        (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName())
-        : pd.branchAlias());
-	t->SetAlias(alias.c_str(), full.c_str());
+	if (pd.branchAliases().empty()) {
+	  std::string const& alias =
+	      (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
+	  t->SetAlias(alias.c_str(), full.c_str());
+	} else {
+	  std::set<std::string>::const_iterator it = pd.branchAliases().begin();
+	  std::set<std::string>::const_iterator itend = pd.branchAliases().end();
+	  for (; it != itend; ++it) {
+	    t->SetAlias((*it).c_str(), full.c_str());
+	  }
+	}
       }
       t->Write(t->GetName(), TObject::kWriteDelete);
     }
