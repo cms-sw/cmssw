@@ -10,7 +10,7 @@ class TkApvMask {
   
  public:
 
-  enum StripMaskType{ok=1,dead=2,noisy=3};
+  enum StripMaskType{ok=0,dead=1,noisy=2};
   
   typedef std::vector<StripMaskType> MaskType;
   

@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.5 2006/07/06 11:08:19 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.6 2006/07/06 17:04:13 gennai Exp $
 //
 //
 
@@ -130,7 +130,7 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
-	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,0.,6.);//to modify the size binning 
+	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
 	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
@@ -261,15 +261,22 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  }
 
 	  if(local_modmes.NoisyStrips != NULL){ 
-	    TkApvMask::MaskType tmp;
-	    apvFactory_->getMask(id, tmp);
-
-	    
+	    TkApvMask::MaskType temp;
+	    apvFactory_->getMask(id, temp);
 	    int ibin=0;
-	    for (TkApvMask::MaskType::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	    for (TkApvMask::MaskType::const_iterator iped=temp.begin(); iped!=temp.end();iped++) {
 	      ibin++;
 	      
+	      if(nIteration_ <2){
+		if(*iped == 1)
+		  (local_modmes.NoisyStrips)->Fill(ibin,3.);
+		if(*iped == 2)
+		  (local_modmes.NoisyStrips)->Fill(ibin,4.);
+		if(*iped == 0)
+		  (local_modmes.NoisyStrips)->Fill(ibin,0.);
+	      }else{
 		(local_modmes.NoisyStrips)->Fill(ibin,static_cast<float>(*iped));
+	      }
 	    }
 	  }
 
