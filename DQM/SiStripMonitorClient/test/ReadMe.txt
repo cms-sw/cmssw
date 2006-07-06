@@ -15,9 +15,6 @@
 
 2. Auxiliary files in test directory
 =====================================
-
-  o sistrip_qualitytest_config.xml   : Quality tests and the association of tests with ME 
-                                        is defined here
   
   o tracker.dat                      : needed to create TrackerMap
     trackermap.txt                   : header of the SVG file to be created
@@ -54,7 +51,7 @@
 
    The Client needs have Source and the Collector to run. The Collector and the Client 
     must not run in the same machine. It is probably better to start Collector, Client 
-    and Source on three different macchines.
+    and Source on three different machines.
 
   - Collector
        o login to a (lxplus) machine
