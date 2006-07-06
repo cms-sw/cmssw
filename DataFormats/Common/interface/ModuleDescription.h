@@ -5,23 +5,47 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+$Id: ModuleDescription.h,v 1.2.2.4 2006/07/05 23:55:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
 
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/VersionNumber.h"
+#include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Common/interface/ModuleDescriptionID.h"
 
 namespace edm {
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
+
   struct ModuleDescription {
 
+    ModuleDescription();
+
+    ParameterSetID const& parameterSetID() const {return parameterSetID_;}
+    std::string const& moduleName() const {return moduleName_;}
+    std::string const& moduleLabel() const {return moduleLabel_;}
+    ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
+    std::string const& processName() const {return processConfiguration().processName();}
+    std::string const& releaseVersion() const {return processConfiguration().releaseVersion();}
+    std::string const& passID() const {return processConfiguration().passID();}
+    ParameterSetID const& mainParameterSetID() const {return processConfiguration().parameterSetID();}
+
+    // compiler-written copy c'tor, assignment, and d'tor are correct.
+
+    bool operator<(ModuleDescription const& rh) const;
+
+    bool operator==(ModuleDescription const& rh) const;
+
+    bool operator!=(ModuleDescription const& rh) const;
+    
+    ModuleDescriptionID id() const;
+
     // ID of parameter set of the creator
-    ParameterSetID pid;
+    ParameterSetID parameterSetID_;
 
     // The class name of the creator
     std::string moduleName_;    
@@ -30,29 +54,15 @@ namespace edm {
     // and becomes part of the identity of a product that it produces
     std::string moduleLabel_;
 
-    // the release tag of the executable
-    VersionNumber versionNumber_;
-
-    // the physical process that this program was part of (e.g. production)
-    std::string processName_;
-
-    // what the heck is this? I think its the version of the processName_
-    // e.g. second production pass
-    PassID pass;
-
-    bool operator<(ModuleDescription const& rh) const;
-
-    bool operator==(ModuleDescription const& rh) const;
-
-    bool operator!=(ModuleDescription const& rh) const;
+    // The process configuration.
+    ProcessConfiguration processConfiguration_;
   };
 
   inline
   std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md) {
-    ost << "Module type=" << md.moduleName_ << ", "
-	<< "Module label=" << md.moduleLabel_ << ", "
-	<< "Process name=" << md.processName_;
-
+    ost << "Module type=" << md.moduleName() << ", "
+	<< "Module label=" << md.moduleLabel() << ", "
+	<< "Process name=" << md.processConfiguration().processName();
     return ost;
   }
 }

@@ -1,9 +1,11 @@
 #ifndef Common_PassID_h
 #define Common_PassID_h
 
+#include <string>
+
 namespace edm
 {
-  typedef unsigned long PassID;
+  typedef std::string PassID;
 }
 
 #endif

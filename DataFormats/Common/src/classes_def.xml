@@ -1,8 +1,6 @@
 <lcgdict>
  <class name="edm::EDProduct"/>
  <class name="edm::ProductID"/>
- <class name="edm::ParameterSetID"/>
- <class name="edm::ParameterSetBlob"/>
  <class name="edm::EventID"/>
  <class name="edm::Timestamp"/>
  <class name="edm::RefCore">
@@ -47,6 +45,7 @@
  <class name="std::map<unsigned long, std::vector<unsigned long> >"/>
  <class name="std::map<unsigned int, std::vector<unsigned int> >"/>
  <class name="std::map<unsigned short, std::vector<unsigned short> >"/>
+ <class name="std::set<std::basic_string<char> >"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
  <class name="edm::Wrapper<float>"/>
  <class name="edm::Wrapper<double>"/>
@@ -77,20 +76,39 @@
  <class name="edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > >"/>
  <class name="edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > >"/>
  <class name="edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > >"/>
- <class name="edm::EventAux"/>
+ <class name="edm::EventAux">
+   <field name="processHistoryPtr_" transient="true"/>
+ </class>
  <class name="edm::EventProvenance"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
  </class>
- <class name="std::vector<edm::BranchEntryDescription>"/>
  <class name="std::map<edm::BranchKey, edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
- <class name="edm::BranchEntryDescription"/>
+ <class name="edm::BranchEntryDescription">
+   <field name="moduleDescriptionPtr_" transient="true"/>
+ </class>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
+   <field name="produced_" transient="true"/>
+   <field name="moduleDescriptionID_" transient="true"/>
  </class>
+ <class name="edm::ParameterSetBlob"/>
+ <class name="edm::ProcessConfiguration"/>
+ <class name="std::vector<edm::ProcessConfiguration>"/>
+ <class name="edm::ProcessHistory"/>
+
+ <class name="edm::MD5Hash"/>
+ <class name="edm::Hash<0>"/>
+ <class name="std::map<edm::Hash<0>, edm::ModuleDescription>"/>
+ <class name="edm::Hash<2>"/>
+ <class name="std::map<edm::Hash<2>, edm::ProcessHistory>"/>
+ <class name="edm::Hash<1>"/>
+ <class name="std::set<edm::Hash<1> >"/>
+ <class name="std::map<edm::Hash<1>, edm::ParameterSetBlob>"/>
+
  <class name="edm::HLTPathStatus"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>"/>
  <class name="std::vector<edm::HLTPathStatus>"/>
@@ -101,3 +119,5 @@
  <class name="edm::Wrapper<edm::TriggerResults>"/>
 
 </lcgdict>
+
+

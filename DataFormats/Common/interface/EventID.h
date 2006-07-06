@@ -7,7 +7,8 @@
 // 
 /**\class EventID EventID.h DataFormats/Common/interface/EventID.h
 
- Description: Holds run and event number
+ Description: Holds run and event number, and flag to indicate
+ if the event is simulated.
 
  Usage:
     <usage>
@@ -16,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.3 2005/09/01 23:30:48 wmtan Exp $
+// $Id: EventID.h,v 1.1.2.1 2006/07/05 23:55:14 wmtan Exp $
 //
 
 // system include files
@@ -37,11 +38,12 @@ class EventID
    public:
    
    
-      EventID() : run_(0), event_(0) {}
-      EventID(RunNumber_t iRun, EventNumber_t iEvent) :run_(iRun), event_(iEvent) {}
+      EventID() : run_(0), event_(0), simulated_(false) {}
+      EventID(RunNumber_t iRun, EventNumber_t iEvent, bool iSim=false) :
+	run_(iRun), event_(iEvent), simulated_(iSim) {}
       
       //FIXME: only used for backwards compatibility
-      EventID(EventNumber_t iEvent) : run_(1UL), event_(iEvent) {} 
+      EventID(EventNumber_t iEvent) : run_(1UL), event_(iEvent), simulated_(false) {} 
       //virtual ~EventID();
 
       // ---------- const member functions ---------------------
@@ -126,6 +128,7 @@ class EventID
       // ---------- member data --------------------------------
       RunNumber_t run_;
       EventNumber_t event_;
+      bool simulated_;
 };
 
 inline

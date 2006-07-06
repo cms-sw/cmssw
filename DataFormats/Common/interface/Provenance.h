@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.4 2006/04/26 19:48:36 wmtan Exp $
+$Id: Provenance.h,v 1.5.2.9 2006/07/04 13:56:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
@@ -38,18 +38,23 @@ namespace edm {
     std::string const& branchName() const {return product.branchName();}
     std::string const& className() const {return product.className();}
     std::string const& moduleLabel() const {return product.moduleLabel();}
-    std::string const& moduleName() const {return product.moduleName();}
-    PassID passID() const {return product.passID();}
+    std::string const& moduleName() const {return event.moduleName();}
+    PassID const& passID() const {return event.passID();}
     std::string const& processName() const {return product.processName();}
-    ProductID productID() const {return product.productID();}
+    ProductID const& productID() const {return product.productID();}
     std::string const& productInstanceName() const {return product.productInstanceName();}
-    std::string const& productType() const {return product.productType();}
-    ParameterSetID const& psetID() const {return product.psetID();}
-    VersionNumber versionNumber() const {return product.versionNumber();}
+    std::string const& friendlyClassName() const {return product.friendlyClassName();}
+    std::set<ParameterSetID> const& psetIDs() const {return product.psetIDs();}
+    ParameterSetID const& psetID() const {return event.psetID();}
+    ReleaseVersion const& releaseVersion() const {return event.releaseVersion();}
+    std::set<std::string> const& branchAliases() const {return product.branchAliases();}
+    ModuleDescriptionID const& moduleDescriptionID() const {return event.moduleDescriptionID();}
+    ModuleDescription const& moduleDescription() const {return event.moduleDescription();}
 
-    ConditionsID const& conditionsID() const {return event.cid;}
-    BranchEntryDescription::CreatorStatus const& creatorStatus() const {return event.status;}
-    std::vector<ProductID> const& parents() const {return event.parents;}
+    ConditionsID const& conditionsID() const {return event.conditionsID();}
+    BranchEntryDescription::CreatorStatus const& creatorStatus() const {return event.creatorStatus();}
+    bool const& isPresent() const {return event.isPresent();}
+    std::vector<ProductID> const& parents() const {return event.parents();}
 
     void write(std::ostream& os) const;
   };
@@ -60,5 +65,8 @@ namespace edm {
     p.write(os);
     return os;
   }
+
+  bool operator==(Provenance const& a, Provenance const& b);
+
 }
 #endif

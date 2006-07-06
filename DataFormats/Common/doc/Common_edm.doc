@@ -17,17 +17,18 @@ Commonly used EDM classes.
 - edm::ConditionsID:
 - edm::EDProduct:
 - edm::EDProductGetter:
-- edm::ModuleDescription:
 - edm::EventID:
+- edm::ModuleDescription:
+- edm::ModuleDescriptionID:
 - edm::ParameterSetID:
 - edm::PassID:
-- edm::ParameterSetID:
 - edm::Provenance:
-- edm::ProcessNameList:
+- edm::ProcessHistory:
+- edm::ProcessHistoryID:
 - edm::ProductRegistry:
+- edm::ReleaseVersion:
 - edm::Timestamp:
 - edm::TriggerResults:
-- edm::VersionNumber:
 - edm::Wrapper:
 
 \subsection modules Modules

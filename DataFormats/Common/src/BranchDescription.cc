@@ -4,31 +4,43 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.6 2006/06/24 01:47:34 wmtan Exp $
+$Id: BranchDescription.cc,v 1.7.2.3 2006/06/30 04:30:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   BranchDescription::BranchDescription() :
-    module(),
+    moduleLabel_(),
+    processName_(),
     productID_(),
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
-    branchAlias_()
+    moduleDescriptionID_(),
+    psetIDs_(),
+    branchAliases_(),
+    produced_(false)
   { }
 
-  BranchDescription::BranchDescription(ModuleDescription const& md,
-				       std::string const& name, 
-				       std::string const& fName, 
-				       std::string const& pin, 
-				       std::string const& alias) :
-    module(md),
+  BranchDescription::BranchDescription(
+			std::string const& moduleLabel, 
+			std::string const& processName, 
+			std::string const& name, 
+			std::string const& fName, 
+			std::string const& pin, 
+			ModuleDescriptionID const& mdID,
+			std::set<ParameterSetID> const& psetIDs,
+			std::set<std::string> const& aliases) :
+    moduleLabel_(moduleLabel),
+    processName_(processName),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    branchAlias_(alias) {
+    moduleDescriptionID_(mdID),
+    psetIDs_(psetIDs),
+    branchAliases_(aliases),
+    produced_(true) {
     init();
   }
 
@@ -36,66 +48,59 @@ namespace edm {
   BranchDescription::init() const {
     char const underscore('_');
     char const period('.');
-    std::string const prod("PROD");
 
-    if (productType().find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Class name '" << productType()
+    if (friendlyClassName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName_
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
-    if (moduleLabel().find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
+    if (moduleLabel_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel_
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
-    if (productInstanceName().find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
+    if (productInstanceName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName_
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
-    if (processName().find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Process name '" << processName()
+    if (processName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Process name '" << processName_
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    if (processName() == prod) {
-      if (productInstanceName().empty()) {
-        branchName_ = productType() + underscore + moduleLabel() + period;
-        return;
-      }
-      branchName_ = productType() + underscore + moduleLabel() + underscore +
-        productInstanceName() + period;
-      return;
-    }
-    branchName_ = productType() + underscore + moduleLabel() + underscore +
-      productInstanceName() + underscore + processName() + period;
+    branchName_ = friendlyClassName_ + underscore + moduleLabel_ + underscore +
+      productInstanceName_ + underscore + processName_ + period;
   }
 
   void
   BranchDescription::write(std::ostream& os) const {
-    os << module << std::endl;
-    os << "Product ID = " << productID() << '\n';
-    os << "Class Name = " << className() << '\n';
-    os << "Friendly Class Name = " << productType() << '\n';
-    os << "Product Instance Name = " << productInstanceName() << std::endl;
+    os << "Process Name = " << processName_ << std::endl;
+    os << "ModuleLabel = " << moduleLabel_ << std::endl;
+    os << "Product ID = " << productID_ << '\n';
+    os << "Class Name = " << fullClassName_ << '\n';
+    os << "Friendly Class Name = " << friendlyClassName_ << '\n';
+    os << "Product Instance Name = " << productInstanceName_ << std::endl;
   }
 
   bool
-  BranchDescription::operator<(BranchDescription const& rh) const {
-    if (productType() < rh.productType()) return true;
-    if (rh.productType() < productType()) return false;
-    if (productInstanceName() < rh.productInstanceName()) return true;
-    if (rh.productInstanceName() < productInstanceName()) return false;
-    if (module < rh.module) return true;
-    if (rh.module < module) return false;
-    if (className() < rh.className()) return true;
-    if (rh.className() < className()) return false;
-    if (productID() < rh.productID()) return true;
+  operator<(BranchDescription const& a, BranchDescription const& b) {
+    if (a.friendlyClassName_ < b.friendlyClassName_) return true;
+    if (b.friendlyClassName_ < a.friendlyClassName_) return false;
+    if (a.productInstanceName_ < b.productInstanceName_) return true;
+    if (b.productInstanceName_ < a.productInstanceName_) return false;
+    if (a.processName_ < b.processName_) return true;
+    if (b.processName_ < a.processName_) return false;
+    if (a.moduleLabel_ < b.moduleLabel_) return true;
+    if (b.moduleLabel_ < a.moduleLabel_) return false;
+    if (a.fullClassName_ < b.fullClassName_) return true;
+    if (b.fullClassName_ < a.fullClassName_) return false;
+    if (a.productID_ < b.productID_) return true;
     return false;
   }
 
   bool
-  BranchDescription::operator==(BranchDescription const& rh) const {
-    return !((*this) < rh || rh < (*this));
+  operator==(BranchDescription const& a, BranchDescription const& b) {
+    return !(a < b || b < a);
   }
 }

@@ -1,9 +1,1 @@
-#ifndef Common_VersionNumber_h
-#define Common_VersionNumber_h
-
-namespace edm
-{
-  typedef unsigned long VersionNumber;
-}
-
-#endif
+#error : Replaced by DataFormats/Common/interface/ReleaseVersion.h
