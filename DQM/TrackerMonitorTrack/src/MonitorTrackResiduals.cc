@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.11 2006/06/27 07:52:57 dkcira Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.12 2006/07/04 13:01:59 dkcira Exp $
 //
 //
 
@@ -39,17 +39,23 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+
 
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
@@ -126,6 +132,7 @@ void MonitorTrackResiduals::endJob(void)
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
+    edm::LogInfo("TrackerMonitorTrack|MonitorTrackResiduals")<<" writing out histograms to file "<<outputFileName;
     dbe->save(outputFileName);
   }
 }
@@ -140,9 +147,17 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   std::string TrackCandidateLabel = conf_.getParameter<std::string>("TrackCandidateLabel");
 
   ESHandle<TrackerGeometry> theRG;
+  iSetup.get<TrackerDigiGeometryRecord>().get(theRG);
   ESHandle<MagneticField> theRMF;
+  iSetup.get<IdealMagneticFieldRecord>().get(theRMF);
+  //
+  std::string cpeName = conf_.getParameter<std::string>("TTRHBuilder");
   ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  iSetup.get<TransientRecHitRecord>().get(cpeName,theBuilder);
+  //
+  std::string fitterName = conf_.getParameter<std::string>("Fitter");
   ESHandle<TrajectoryFitter> theRFitter;
+  iSetup.get<TrackingComponentsRecord>().get(fitterName,theRFitter);
 
   const TransientTrackingRecHitBuilder* builder = theBuilder.product();
   const TrackingGeometry * theG = theRG.product();
@@ -165,6 +180,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
       DetId detId(state.detId());
+
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(detId)->surface()), theMF);
 
 //      OwnVector<TransientTrackingRecHit> hits;
@@ -224,6 +240,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	    }
 	}
     }
+
 }
 
 //define this as a plug-in
