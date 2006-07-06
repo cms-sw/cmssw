@@ -59,6 +59,10 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   
   useExaminer = pset.getUntrackedParameter<bool>("UseExaminer", true);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
+  errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
+					       
+
+
   if(instatiateDQM){
    
    monitor = edm::Service<CSCMonitorInterface>().operator->(); 
@@ -84,6 +88,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   CSCDDUEventData::setDebug(debug);
   CSCTMBHeader::setDebug(debug);
   CSCRPCData::setDebug(debug);  
+
+  CSCDDUEventData::setErrorMask(errorMask);
 
   theMapping  = CSCReadoutMappingFromFile( mappingFileName );
   
@@ -120,6 +126,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   
   //this line is to skip unpacking until 1309th event
   //if (numOfEvents>1308) {
+
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -162,7 +169,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	
 	  ///skip the DDU if its data has serious errors
 	  /// define a mask for serious errors  (currently DFCFEFFF)
-	  if (dduData[iDDU].trailer().errorstat()&0xDFCFEFFF) {
+	  if (dduData[iDDU].trailer().errorstat()&errorMask) {
 	    edm::LogError("CSCDCCUnpacker") << "DDU has errors - Digis are not stored! " <<
 	      std::hex << dduData[iDDU].trailer().errorstat();
 	    continue;

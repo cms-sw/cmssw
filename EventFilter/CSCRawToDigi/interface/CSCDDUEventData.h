@@ -27,7 +27,7 @@ public:
   ~CSCDDUEventData();
 
   static void setDebug(bool value) {debug = value;} 
-  static void setDCCData(bool value) {dccData = value;} 
+  static void setErrorMask(unsigned int value) {errMask = value;} 
 
   /// accessor to data
   const std::vector<CSCEventData> & cscData() const {return theData;}
@@ -57,7 +57,7 @@ public:
   BitVector pack();
   
   static bool debug;
-  static bool dccData;
+  static unsigned int errMask;
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:

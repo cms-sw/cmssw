@@ -20,6 +20,8 @@
 #include <cstdio>
 
 bool CSCDDUEventData::debug = false;
+unsigned int CSCDDUEventData::errMask = 0xFFFFFFFF;
+
 
 CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header) {
   theDDUHeader = header;
@@ -47,7 +49,7 @@ void CSCDDUEventData::decodeStatus() const {
 void CSCDDUEventData::decodeStatus(int code) const {
   //JRG is Jason Gilmore
   // JRG, low-order 16-bit status (most serious errors):
-  if((code&0xFFFFFFFF)>0){///this is a mask for printing out errors
+  if((code&errMask)>0){///this is a mask for printing out errors
     // JRG, low-order 16-bit status (most serious errors):
     if((code&0x0000F000)>0){
       if((0x00008000&code)>0)
@@ -183,7 +185,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
   if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
   errorstat=theDDUTrailer.errorstat();
-  if (errorstat != 0)  {
+  if (errorstat&errMask != 0)  {
     if (theDDUTrailer.check()) {
       edm::LogError ("CSCDDUEventData") 
 	<< "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";

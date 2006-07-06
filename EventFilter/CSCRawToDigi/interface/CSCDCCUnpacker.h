@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2006/02/22 09:39:30 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/04/07 10:21:09 $
+ *  $Revision: 1.9 $
  * \author Alex Tumanov 
  */
 
@@ -13,7 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
-
 
 class CSCMonitorInterface;
 
@@ -35,6 +34,7 @@ class CSCDCCUnpacker: public edm::EDProducer {
 
   bool debug, PrintEventNumber, goodEvent, useExaminer; 
   int numOfEvents;
+  unsigned int errorMask;
   CSCReadoutMappingFromFile theMapping;
   bool instatiateDQM;
   CSCMonitorInterface * monitor;
