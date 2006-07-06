@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 08:54:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/04 09:27:52 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -108,14 +108,14 @@ private:
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{
     bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().mag() < b.det()->surface().position().mag(); 
+      return a.det()->surface().position().perp() < b.det()->surface().position().perp(); 
     }
   };
   
   /// Ordering along decreasing radius (for DT rechits)
   struct RadiusComparatorOutIn{
     bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().mag() > b.det()->surface().position().mag();
+      return a.det()->surface().position().perp() > b.det()->surface().position().perp();
     }
   };
   
