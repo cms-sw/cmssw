@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.7 2006/06/14 12:53:22 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.8 2006/06/20 12:37:38 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -45,8 +45,8 @@ my $batchfile;
 my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
 $opts{DEBUG} = 0; # Debugging off by default;
 $opts{CLEAN} = 1; # Remove the checked out directories by default;
-$opts{BATCH} = $opts{USE_WGET} = 0; # Normal operation is commandline rather than file or
-                                    # wget from DB as source of new packages/admin/developer info;
+$opts{BATCH} = $opts{USE_WGET} = $opts{TCQUERY} = 0; # Normal operation is commandline rather than file or
+                                                     # wget from DB as source of new packages/admin/developer info;
 $opts{UPDATE_TC} = 0; # We require a second command to update the tag collector package list;
 
 my %options = (
@@ -58,6 +58,7 @@ my %options = (
 	       "noclean"       => sub { $opts{CLEAN} = 0; },
 	       "tcupdate"      => sub { $opts{UPDATE_TC} = 1; },
 	       "usewget"       => sub { $opts{USE_WGET} = 1; },
+	       "querytc"       => sub { $opts{TCQUERY} = 1; },
 	       "batch=s"       => sub { $opts{BATCH} = 1; $batchfile=$_[1]; },
 	       "help"          => sub { &usage(); exit(0) }
 	       );
@@ -90,6 +91,13 @@ else
       # Reset the TC:
       my $rv = &update_tc();
       exit($rv);
+      }
+   elsif ($opts{TCQUERY})
+      {
+      # Query th tag collector and dump the package list:
+      &query_tc_for_new_packages();
+      print "Done\n";
+      exit(0);
       }
    else
       {
@@ -210,6 +218,21 @@ sub set_admins()
 	 $developers->{$package} ->{$loginid} = [ "$firstname $lastname", $email, 1 ];
 	 }
       }
+   }
+
+sub query_tc_for_new_packages()
+   {
+   open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
+      || die "Can't run wget request: $!","\n";
+   my $n = 0;
+   while(<WGET>)
+      {
+      chomp;
+      print "TC_REQUEST QUERY: ",$_,"\n";
+      $n++;
+      }
+   print $n." package requests queued.\n";
+   close(WGET);
    }
 
 sub set_admins_from_wget_req()
@@ -500,6 +523,7 @@ sub usage()
    $string.="                              <PACKAGE> admins:A,B,C,D developers:A,B,C,D\n";
    $string.="--usewget                     Use wget to run a CGI script on the server to check for and return\n";
    $string.="                              the current list of approved packages, their developers/admins.\n";
+   $string.="--querytc                     Query the tag collector for new packages queued for creation.\n";
    $string.="--tcupdate                    Update the Tag Collector status for the created packages.\n";
    $string.="\n";
    $string.="--noclean                     Don't remove the checked out directories from the working area.\n";
