@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/06/07 09:20:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/04 01:20:21 $
+ *  $Revision: 1.6 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.5 2006/06/07 09:20:16 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.6 2006/07/04 01:20:21 slava77 Exp $
 //
 //
 
@@ -63,6 +63,19 @@ SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cy
   return propagateWithPath(ftsStart, cDest).first;
 }
 
+FreeTrajectoryState
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const
+{
+  return propagateWithPath(ftsStart, pDest).first;
+}
+
+FreeTrajectoryState
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
+				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const
+{
+  return propagateWithPath(ftsStart, pDest1, pDest2).first;
+}
+
 
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
@@ -96,7 +109,6 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   getFState(p3F, r3F, covF); 
   GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
   GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  //how do I tell that I didn't reach the surface without throuwing an exception?
   SurfaceSide side = atCenterOfSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
@@ -138,7 +150,6 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   getFState(p3F, r3F, covF); 
   GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
   GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  //how do I tell that I didn't reach the surface without throuwing an exception?
   SurfaceSide side = atCenterOfSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
@@ -149,6 +160,87 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
+}
+
+
+std::pair<FreeTrajectoryState, double> 
+SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
+					   const GlobalPoint& pDest) const {
+  //need to get rid of these conversions .. later
+  GlobalVector p3GV = ftsStart.momentum();
+  GlobalPoint r3GP = ftsStart.position();
+  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
+  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
+
+  int charge = ftsStart.charge();
+
+  setIState(p3, r3, charge,  
+	    (ftsStart.hasError() && !noErrorPropagation_) 
+	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
+	    propagationDirection());
+  Result result = propagate(POINT_PCA_DT, pars);
+  if (result != OK) return FtsPP();
+
+
+  Vector p3F;
+  Point  r3F;
+  HepSymMatrix covF;
+
+  
+  getFState(p3F, r3F, covF); 
+  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
+  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
+  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
+  CartesianTrajectoryError tCovDest(covF);
+
+  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
+    ? FreeTrajectoryState(tParsDest, tCovDest) 
+    : FreeTrajectoryState(tParsDest);
+  int cInd = cIndex_(nPoints_-1);
+
+  return FtsPP(ftsDest, path_[cInd]);
+}
+
+std::pair<FreeTrajectoryState, double> 
+SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
+					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+  if ((pDest1-pDest2).mag() < 1e-10) return FtsPP();
+  //need to get rid of these conversions .. later
+  GlobalVector p3GV = ftsStart.momentum();
+  GlobalPoint r3GP = ftsStart.position();
+  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
+  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
+  double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
+		    pDest2.x(), pDest2.y(), pDest2.z()};
+
+  int charge = ftsStart.charge();
+
+  setIState(p3, r3, charge,  
+	    (ftsStart.hasError() && !noErrorPropagation_) 
+	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
+	    propagationDirection());
+  Result result = propagate(LINE_PCA_DT, pars);
+  if (result != OK) return FtsPP();
+
+
+  Vector p3F;
+  Point  r3F;
+  HepSymMatrix covF;
+
+  
+  getFState(p3F, r3F, covF); 
+  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
+  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
+  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
+  CartesianTrajectoryError tCovDest(covF);
+
+  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
+    ? FreeTrajectoryState(tParsDest, tCovDest) 
+    : FreeTrajectoryState(tParsDest);
+  int cInd = cIndex_(nPoints_-1);
+
+  return FtsPP(ftsDest, path_[cInd]);
 }
 
 
@@ -226,9 +318,37 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     oldDir = dir;
 
     if (fabs(dist) < fabs(epsilon)  ) result = OK;
+
+    if ((type == POINT_PCA_DT || type == LINE_PCA_DT )
+	&& fabs(dStep) < fabs(epsilon)  ){
+      //now check if it's not a branch point (peek ahead at 1 cm)
+      double nextDist = 0;
+      double nextSecTheta = 0;
+      bool nextIsIncoming = false;
+      makeAtomStep(nPoints_-1, 1., dir, HEL_AS_F);
+      nPoints_++; cInd = cIndex_(nPoints_-1);
+      refToDest(type, nPoints_-1, pars, nextDist, nextSecTheta, nextIsIncoming);
+      if ( fabs(nextDist) > fabs(dist)){
+	nPoints_--;   cInd = cIndex_(nPoints_-1);
+	result = OK;
+	if (debug_){
+	  std::cout<<"Found real local minimum in PCA"<<std::endl;
+	}
+      } else {
+	//keep this trial point and continue
+	dStep = 1.;
+	if (debug_){
+	  std::cout<<"Found branch point in PCA"<<std::endl;
+	}
+      }
+    }
+
     if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
+
     if (p3_[cInd].mag() < 0.1 ) result = RANGEOUT;
+
     if ( curR > 20000 || fabs(curZ) > 20000 ) result = INACC;
+
     makeNextStep = result == UNDEFINED;
   }
 
@@ -248,6 +368,19 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	Point rPlane(pars[0], pars[1], pars[2]);
 	Vector nPlane(pars[3], pars[4], pars[5]);
 	std::cout<<"going to plane r0:"<<rPlane<<" n:"<<nPlane<<std::endl;
+      }
+      break;
+    case POINT_PCA_DT:
+      {
+	Point rDest(pars[0], pars[1], pars[2]);
+	std::cout<<"going to PCA to point "<<rDest<<std::endl;
+      }
+      break;
+    case LINE_PCA_DT:
+      {
+	Point rDest1(pars[0], pars[1], pars[2]);
+	Point rDest2(pars[3], pars[4], pars[5]);
+	std::cout<<"going to PCA to line "<<rDest1<<" - "<<rDest2<<std::endl;
       }
       break;
     default:
@@ -735,6 +868,33 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       dist = pars[PATHL_P] - curS;
       secTheta = 1.;
       isIncoming = pars[PATHL_P] > 0 ? true : false;
+      result = OK;
+    }
+    break;
+  case POINT_PCA_DT:
+    {
+      Point pDest(pars[0], pars[1], pars[2]);
+      dist = (r3_[cInd] - pDest).mag();
+      secTheta = (r3_[cInd] - pDest).dot(p3_[cInd])/(dist*p3_[cInd].mag());
+      isIncoming = secTheta < 0;
+      result = OK;
+    }
+    break;
+  case LINE_PCA_DT:
+    {
+      Point rLine(pars[0], pars[1], pars[2]);
+      Vector dLine(pars[3], pars[4], pars[5]);
+      dLine = (dLine - rLine);
+      dLine /= dLine.mag();
+
+      Vector dR = r3_[cInd] - rLine;
+      Vector dRPerp = dR - dLine*(dR.dot(dLine));
+      dist = dRPerp.mag();
+      secTheta = dRPerp.dot(p3_[cInd])/(dist*p3_[cInd].mag());
+      //angle wrt line
+      double cosAlpha = dLine.dot(p3_[cInd])/p3_[cInd].mag();
+      secTheta *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)));
+      isIncoming = secTheta < 0;
       result = OK;
     }
     break;

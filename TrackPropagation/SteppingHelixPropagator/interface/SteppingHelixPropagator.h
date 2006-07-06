@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/06/07 09:18:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/04 01:20:21 $
+ *  $Revision: 1.5 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.4 2006/06/07 09:18:17 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.5 2006/07/04 01:20:21 slava77 Exp $
 //
 //
 
@@ -71,7 +71,9 @@ class SteppingHelixPropagator : public Propagator {
     PLANE_DT,
     CONE_DT,
     CYLINDER_DT,
-    PATHL_DT
+    PATHL_DT,
+    POINT_PCA_DT,
+    LINE_PCA_DT
   };
 
   enum Fancy {
@@ -96,9 +98,17 @@ class SteppingHelixPropagator : public Propagator {
   /// Propagate to Plane given a starting point
   virtual TrajectoryStateOnSurface 
     propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
-  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0
+  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
   virtual TrajectoryStateOnSurface 
     propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
+  /// Propagate to PCA to point given a starting point 
+  virtual FreeTrajectoryState 
+    propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+  /// Propagate to PCA to a line (given by 2 points) given a starting point 
+  virtual FreeTrajectoryState 
+    propagate(const FreeTrajectoryState& ftsStart, 
+	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+
   /// Propagate to Plane given a starting point: return final 
   /// TrajectoryState and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
@@ -107,6 +117,13 @@ class SteppingHelixPropagator : public Propagator {
   ///and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
+  /// Propagate to PCA to point given a starting point 
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+  /// Propagate to PCA to a line (given by 2 points) given a starting point 
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState& ftsStart, 
+	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
   
 
   /// Switch debug printouts (to cout) .. very verbose
@@ -180,6 +197,7 @@ class SteppingHelixPropagator : public Propagator {
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
+  typedef std::pair<FreeTrajectoryState, double> FtsPP;
   static const int MAX_STEPS = 10000;
   static const int MAX_POINTS = 50;
   mutable int nPoints_;
