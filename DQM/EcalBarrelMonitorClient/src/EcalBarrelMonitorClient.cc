@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/04 16:40:41 $
- * $Revision: 1.161 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.162 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -230,7 +230,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
 
   if ( enableServer_ ) {
+    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
+      cout << " Forcing the same port for Collector and Server" << endl;
+      serverPort_ = hostPort_;
+    }
     cout << " Server on port '" << serverPort_ << "' is enabled" << endl;
+  } else {
+    cout << " Server is not enabled" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
