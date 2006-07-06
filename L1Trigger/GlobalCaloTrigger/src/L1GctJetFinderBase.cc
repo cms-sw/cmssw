@@ -8,8 +8,8 @@ using namespace std;
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinderBase::MAX_SOURCE_CARDS = 9;
-const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1GctJet::N_RGN_ETA)/2)+1;
-const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1GctJet::N_RGN_PHI)/2);
+const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1CaloRegionDetId::N_ETA)/2)+1;
+const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1CaloRegionDetId::N_PHI)/2);
 
 const unsigned int L1GctJetFinderBase::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinderBase::N_COLS;
 const int L1GctJetFinderBase::N_COLS = 2;

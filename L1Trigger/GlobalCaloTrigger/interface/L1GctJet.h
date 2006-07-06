@@ -27,8 +27,6 @@ class L1GctJet
 public:
   //Statics
   static const unsigned RAWSUM_BITWIDTH;  
-  static const unsigned N_RGN_ETA;
-  static const unsigned N_RGN_PHI;
   
   //Constructors/destructors
   L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool tauVeto=true,

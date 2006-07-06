@@ -6,7 +6,7 @@
 using namespace std;
 
 //DEFINE STATICS
-const unsigned int L1GctSimpleJetFinder::MAX_REGIONS_IN = (((L1GctJet::N_RGN_ETA)/2)+1)*L1GctSimpleJetFinder::N_COLS;
+const unsigned int L1GctSimpleJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctSimpleJetFinder::N_COLS;
 
 const int L1GctSimpleJetFinder::N_COLS = 2;
 const unsigned int L1GctSimpleJetFinder::CENTRAL_COL0 = 0;

@@ -121,31 +121,31 @@ void L1GctJetCounterLut::checkCut(const validCutType cutType, const unsigned cut
       return;
 
     case centralEta:
-      if (cutValue1>=L1GctJet::N_RGN_ETA/2) {
+      if (cutValue1>=L1CaloRegionDetId::N_ETA/2) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; eta value " << cutValue1
-	  << " should be less than " << L1GctJet::N_RGN_ETA/2 << endl;
+	  << " should be less than " << L1CaloRegionDetId::N_ETA/2 << endl;
       }
       return;
 
     case forwardEta:
-      if (cutValue1>=L1GctJet::N_RGN_ETA/2) {
+      if (cutValue1>=L1CaloRegionDetId::N_ETA/2) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; eta value " << cutValue1
-	  << " should be less than " << L1GctJet::N_RGN_ETA/2 << endl;
+	  << " should be less than " << L1CaloRegionDetId::N_ETA/2 << endl;
       }
       return;
 
     case phiWindow:
-      if (cutValue1>=L1GctJet::N_RGN_PHI) {
+      if (cutValue1>=L1CaloRegionDetId::N_PHI) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; phi value1 " << cutValue1
-	  << " should be less than " << L1GctJet::N_RGN_PHI << endl;
+	  << " should be less than " << L1CaloRegionDetId::N_PHI << endl;
       }
-      if (cutValue2>=L1GctJet::N_RGN_PHI) {
+      if (cutValue2>=L1CaloRegionDetId::N_PHI) {
 	throw cms::Exception("L1GctSetupError")
 	  << "Error in constructing L1GctJetCounterLut; phi value2 " << cutValue2
-	  << " should be less than " << L1GctJet::N_RGN_PHI << endl;
+	  << " should be less than " << L1CaloRegionDetId::N_PHI << endl;
       }
       return;
 

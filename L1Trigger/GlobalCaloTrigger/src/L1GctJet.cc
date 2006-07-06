@@ -4,8 +4,6 @@
 
 //DEFINE STATICS
 const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
-const unsigned L1GctJet::N_RGN_ETA = 22;
-const unsigned L1GctJet::N_RGN_PHI = 18;
 
 
 L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto,

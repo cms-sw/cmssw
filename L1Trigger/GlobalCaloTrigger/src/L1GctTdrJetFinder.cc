@@ -10,7 +10,7 @@ using namespace std;
 // ***          for some deep C++ reason that I don't understand - GPH          ***
 // const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctTdrJetFinder::N_COLS;
 // ***                        So - use the following instead                    ***
-const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = (((L1GctJet::N_RGN_ETA)/2)+1)*L1GctTdrJetFinder::N_COLS;
+const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctTdrJetFinder::N_COLS;
 
 const int L1GctTdrJetFinder::N_COLS = 4;
 const unsigned int L1GctTdrJetFinder::CENTRAL_COL0 = 1;
