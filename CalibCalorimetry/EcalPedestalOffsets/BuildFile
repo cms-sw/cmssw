@@ -17,7 +17,7 @@
 
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalPedestalOffsets">
 <export>
-  <lib name=RecoLocalCaloPedOffset>
+  <lib name=CalibCalorimetryEcalPedestalOffsets>
   <use name=EventFilter/EcalTBRawToDigi>
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/EcalDetId>
