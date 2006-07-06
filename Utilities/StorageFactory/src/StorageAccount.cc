@@ -47,7 +47,7 @@ StorageAccount::Counter &
 StorageAccount::counter (const std::string &storageClass, const std::string &operation)
 {
 
-  ScopedLock sl(s_stats);
+  ScopedLock sl(s_mutex);
 
   boost::shared_ptr<OperationStats> &opstats = s_stats [storageClass];
   if (! opstats) opstats.reset(new OperationStats);
@@ -67,7 +67,7 @@ StorageAccount::Stamp::Stamp (Counter &counter)
     m_start (seal::TimeInfo::realNsecs ())
 {
   {
-    ScopedLock sl(StorageAccount::s_stats);
+    ScopedLock sl(StorageAccount::s_mutex);
     m_counter.attempts++;
   }
   StorageAccount::setCurrentOp(&m_counter,m_start);
@@ -78,7 +78,7 @@ StorageAccount::Stamp::tick (double amount) const
 {
   double elapsed = seal::TimeInfo::realNsecs () - m_start;
   {
-    ScopedLock sl(StorageAccount::s_stats);
+    ScopedLock sl(StorageAccount::s_mutex);
     m_counter.successes++;
     m_counter.amount += amount;
     m_counter.time += elapsed;
