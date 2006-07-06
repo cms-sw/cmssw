@@ -5,7 +5,7 @@
 <use name=root> 
 <flags SEAL_PLUGIN_NAME="IOMCNtupleConverter">
 <export>
- <lib name=NtupleConverter>
+ <lib name=IOMCNtupleConverter>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
