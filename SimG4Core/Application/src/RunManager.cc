@@ -292,7 +292,7 @@ G4Event * RunManager::generateEvent(int i, edm::Event & inpevt)
 	  {
              throw SimG4Exception("Invalid Handle to HepMCProduct(HepMC::GenEvent) in edm::Event  ");
 	  }
-	  if ((AllHepMCEvt[i].provenance()->product).module.moduleLabel_ == "VtxSmeared")
+	  if (AllHepMCEvt[i].provenance()->moduleLabel() == "VtxSmeared")
 	  {
 	     // std::cout << "I am picking up the VtxSmeared HepMCProduct !" << std::endl ;
 	     HepMCEvt = AllHepMCEvt[i];
