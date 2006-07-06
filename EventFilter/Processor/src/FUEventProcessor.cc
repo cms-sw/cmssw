@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
 #include "toolbox/include/TaskGroup.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
@@ -44,7 +45,7 @@ using namespace evf;
 
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
 outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
-							       proc_(0), group_(0), fsm_(0), ah_(0), serviceToken_(), servicesDone_(false)
+							       proc_(0), group_(0), fsm_(0), ah_(0), serviceToken_(), servicesDone_(false), rmt_p(0)
 {
   string xmlClass = getApplicationDescriptor()->getClassName();
   unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -177,7 +178,7 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       internal::addServiceMaybe(pServiceSets, "MonitorDaemon");
       serviceToken_ = edm::ServiceRegistry::createSet(pServiceSets);
       edm::ServiceRegistry::Operate operate(serviceToken_);
-      edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
+      rmt_p = edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
       edm::Service<ML::MLlog4cplus>()->setAppl(this);
       servicesDone_ = true;
     }
@@ -193,6 +194,17 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
     outprev_=outPut_;
 
     proc_->setRunNumber(runNumber_.value_);
+
+    ModuleWebRegistry *mwr = 0;
+    try{
+      if(edm::Service<ModuleWebRegistry>().isAvailable())
+	mwr = edm::Service<ModuleWebRegistry>().operator->();
+    }
+    catch(...)
+      { cout <<"exception when trying to get the service registry " << endl;}
+    if(mwr)
+      mwr->publish(getApplicationInfoSpace());
+
   }
   catch(seal::Error& e)
     {
@@ -217,7 +229,7 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
     }
   LOG4CPLUS_INFO(this->getApplicationLogger(),
 		 "Finished with FUEventProcessor configuration ");
-
+  
 }
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
@@ -288,6 +300,7 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
   int trycount = 0;
   try
     {
+      //      rmt_p->pause();
       sdn_.notify();
       edm::event_processor::State procstate = proc_->getState();
       while(proc_->getState() != edm::event_processor::sStopping && trycount < 10)
@@ -332,6 +345,7 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
       proc_->endJob();
       
       delete proc_;
+      //      rmt_p->release();
     }
   
   catch(seal::Error& e)
@@ -515,7 +529,7 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
 #include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
 
 
-#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+
 #include "DataFormats/Common/interface/ModuleDescription.h"
 
 void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out, 
