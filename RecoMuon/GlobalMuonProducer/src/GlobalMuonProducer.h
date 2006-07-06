@@ -6,11 +6,11 @@
  *   Global muon reconstructor:
  *   reconstructs muons using DT, CSC, RPC and tracker
  *   information,<BR>
- *   starting from internal seeds (muon track segments).
+ *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2006/04/26 07:02:57 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/05/19 15:23:20 $
+ *   $Revision: 1.2 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -23,24 +23,24 @@ class MuonTrackFinder;
 
 class GlobalMuonProducer : public edm::EDProducer {
 
- public:
+  public:
 
-  /// constructor with config
-  GlobalMuonProducer(const edm::ParameterSet&);
+    /// constructor with config
+    GlobalMuonProducer(const edm::ParameterSet&);
   
-  /// destructor
-  virtual ~GlobalMuonProducer(); 
+    /// destructor
+    virtual ~GlobalMuonProducer(); 
   
-  /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  // ex virtual void reconstruct();
+    /// reconstruct muons
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+
   
- private:
+  private:
     
-  // Seed Collection Label
-  std::string theSeedCollectionLabel;
+    /// Seed STA Label
+    std::string theSTACollectionLabel;
   
-  MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
+    MuonTrackFinder* theTrackFinder;
  
 };
 
