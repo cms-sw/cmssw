@@ -5,6 +5,8 @@
 //--------------------------------------------
 
 #include "Mixing/Base/interface/BMixingModule.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,14 +48,12 @@ namespace edm {
     input_(maybeMakePileUp(pset)),
     md_()
   {
-    md_.pid = pset.id();
+    md_.parameterSetID_ = pset.id();
     md_.moduleName_ = pset.getParameter<std::string>("@module_type");
     md_.moduleLabel_ = pset.getParameter<std::string>("@module_label");
     //#warning process name is hard coded, for now.  Fix this.
-    md_.processName_ = "PILEUP";
-    //#warning version and pass are hardcoded
-    md_.versionNumber_ = 1;
-    md_.pass = 1;
+    //#warning the parameter set ID passed should be the one for the full process.  Fix this.
+    md_.processConfiguration_ = ProcessConfiguration("PILEUP", pset.id(), getReleaseVersion(), getPassID());
   }
 
   // Virtual destructor needed.
