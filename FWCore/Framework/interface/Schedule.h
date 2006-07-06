@@ -1,10 +1,10 @@
-#ifndef Framework_Schedule_H
-#define Framework_Schedule_H 1
+#ifndef Framework_Schedule_h
+#define Framework_Schedule_h
 
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.15 2006/06/08 21:54:16 paterno Exp $
+  $Id: Schedule.h,v 1.16.2.2 2006/07/05 23:57:17 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -212,11 +212,11 @@ namespace edm
     void fillEndPath(int bitpos,const std::string& name);
     void handleWronglyPlacedModules();
 
-    ParameterSet        pset_;       // why is this kept?
+    ParameterSet        pset_;
     WorkerRegistry*     worker_reg_;
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
-    std::string         proc_name_;
+    std::string         processName_;
     ParameterSet        trig_pset_;  // why is this kept?
     ActivityRegistryPtr act_reg_;
 

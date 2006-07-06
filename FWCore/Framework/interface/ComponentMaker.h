@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.9 2005/12/16 01:48:50 chrjones Exp $
+// $Id: ComponentMaker.h,v 1.10.2.1 2006/07/04 14:03:42 wmtan Exp $
 //
 
 // system include files
@@ -40,8 +40,8 @@ public:
          virtual void addTo(EventSetupProvider& iProvider,
                      ParameterSet const& iConfiguration,
                      std::string const& iProcessName,
-                     unsigned long iVersion,
-                     unsigned long iPass) const = 0;
+                     ReleaseVersion const& iVersion,
+                     PassID const& iPass) const = 0;
       };
       
 template <class T, class TComponent>
@@ -56,8 +56,8 @@ template <class T, class TComponent>
    virtual void addTo(EventSetupProvider& iProvider,
                        ParameterSet const& iConfiguration,
                        std::string const& iProcessName,
-                       unsigned long iVersion,
-                       unsigned long iPass) const;
+                       ReleaseVersion const& iVersion,
+                       PassID const& iPass) const;
    
       // ---------- static member functions --------------------
 
@@ -82,8 +82,8 @@ void
 ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
                                         ParameterSet const& iConfiguration,
                                         std::string const& iProcessName,
-                                        unsigned long iVersion,
-                                        unsigned long iPass) const 
+                                        ReleaseVersion const& iVersion,
+                                        PassID const& iPass) const
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    
@@ -91,10 +91,10 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
    description.type_  = iConfiguration.template getParameter<std::string>("@module_type");
    description.label_ = iConfiguration.template getParameter<std::string>("@module_label");
 
-   description.versionNumber_ = iVersion;
+   description.releaseVersion_ = iVersion;
    description.pid_           = iConfiguration.id();
    description.processName_   = iProcessName;
-   description.pass_          = iPass;
+   description.passID_          = iPass;
       
    setDescription(component.get(),description);
    T::addTo(iProvider, component);

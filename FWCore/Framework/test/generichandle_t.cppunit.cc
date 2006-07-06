@@ -2,24 +2,18 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.8 2006/05/11 19:05:51 chrjones Exp $
+$Id: generichandle_t.cppunit.cc,v 1.9.2.3 2006/07/05 23:57:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
-#include <cassert>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
 #include <string>
-#include <typeinfo>
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/ProductID.h"
-#include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
@@ -61,7 +55,7 @@ void testGenericHandle::failWrongType() {
 void testGenericHandle::failgetbyLabelTest() {
 
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
      edm::ModuleDescription modDesc;
@@ -101,9 +95,9 @@ void testGenericHandle::getbyLabelTest() {
   pprov->product.friendlyClassName_ = className;
 
 
-  pprov->product.module.moduleLabel_ = label;
+  pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.module.processName_ = processName;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -112,7 +106,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
   

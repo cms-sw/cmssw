@@ -337,7 +337,7 @@ void testEventsetup::provenanceTest()
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
          description.pid_ = ParameterSetID("test11");
-         description.versionNumber_ = 11;
+         description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
          provider.add(dummyProv);
@@ -345,9 +345,9 @@ void testEventsetup::provenanceTest()
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
          description.pid_ = ParameterSetID("test22");
-         description.versionNumber_ = 22;
+         description.releaseVersion_ = "CMSSW_12_0_0";
          description.processName_ = "UnitTest";
-         description.pass_ = 22;
+         description.passID_ = "22";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
          dummyProv->setDescription(description);
          provider.add(dummyProv);

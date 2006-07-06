@@ -1,9 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.11 2006/05/02 02:15:08 wmtan Exp $
+$Id: InputSource.cc,v 1.12.2.2 2006/07/05 23:57:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,11 +16,10 @@ namespace edm {
       remainingEvents_(maxEvents_),
       readCount_(0),
       unlimited_(maxEvents_ < 0),
-      module_(desc.module_),
-      preg_(desc.preg_) {
+      isDesc_(desc) {
     // Secondary input sources currently do not have a product registry.
     // So, this assert is commented out. for now.
-    // assert(preg_ != 0);
+    // assert(isDesc.pRoductRegistry_ != 0);
   }
 
   InputSource::~InputSource() {}
@@ -35,7 +33,7 @@ namespace edm {
   void
   InputSource::registerProducts() {
     if (!typeLabelList().empty()) {
-      addToRegistry(typeLabelList().begin(), typeLabelList().end(), module(), *preg_);
+      addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistry());
     }
   }
 
@@ -60,7 +58,7 @@ namespace edm {
     // Do we need any error handling (e.g. exception translation) here?
     std::auto_ptr<EventPrincipal> ep(readEvent_());
     if (ep.get()) {
-	ep->addToProcessHistory(module().processName_);
+	ep->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
     }
     return ep;
   }
@@ -87,7 +85,7 @@ namespace edm {
     // Do we need any error handling (e.g. exception translation) here?
     std::auto_ptr<EventPrincipal> ep(readEvent_(eventID));
     if (ep.get()) {
-	ep->addToProcessHistory(module().processName_);
+	ep->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
     }
     return ep;
   }

@@ -9,13 +9,15 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.3 2005/09/19 08:18:02 chrjones Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.4.2.1 2006/07/04 14:03:44 wmtan Exp $
 //
 
 // system include files
 #include <cppunit/extensions/HelperMacros.h>
 // user include files
 #include "PluginManager/PluginManager.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -57,7 +59,7 @@ void testEventsetupplugin::finderTest()
    edm::ParameterSet dummyFinderPSet;
    dummyFinderPSet.insert(true, "@module_type", edm::Entry(std::string("LoadableDummyFinder"), true));
    dummyFinderPSet.insert(true, "@module_label", edm::Entry(std::string(""), true));
-   SourceFactory::get()->addTo(provider, dummyFinderPSet, "RECO", 1, 1);
+   SourceFactory::get()->addTo(provider, dummyFinderPSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
 
    
    ComponentDescription descFinder("LoadableDummyFinder","",true);
@@ -69,7 +71,7 @@ void testEventsetupplugin::finderTest()
    edm::ParameterSet dummyProviderPSet;
    dummyProviderPSet.insert(true, "@module_type", edm::Entry(std::string("LoadableDummyProvider"), true));
    dummyProviderPSet.insert(true, "@module_label", edm::Entry(std::string(""), true));
-   ModuleFactory::get()->addTo(provider, dummyProviderPSet, "RECO", 1, 1);
+   ModuleFactory::get()->addTo(provider, dummyProviderPSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
 
    ComponentDescription desc("LoadableDummyProvider","",false);
    descriptions = provider.proxyProviderDescriptions();
@@ -80,7 +82,7 @@ void testEventsetupplugin::finderTest()
    edm::ParameterSet dummySourcePSet;
    dummySourcePSet.insert(true, "@module_type", edm::Entry(std::string("LoadableDummyESSource"), true));
    dummySourcePSet.insert(true, "@module_label", edm::Entry(std::string(""), true));
-   SourceFactory::get()->addTo(provider, dummySourcePSet, "RECO", 1, 1);
+   SourceFactory::get()->addTo(provider, dummySourcePSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
    
    ComponentDescription descSource("LoadableDummyESSource","",true);
    descriptions = provider.proxyProviderDescriptions();

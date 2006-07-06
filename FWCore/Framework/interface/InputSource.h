@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.9 2006/05/02 02:15:06 wmtan Exp $
+$Id: InputSource.h,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@ $Id: InputSource.h,v 1.9 2006/05/02 02:15:06 wmtan Exp $
 #include <string>
 
 #include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 namespace edm {
@@ -92,7 +92,7 @@ namespace edm {
     void registerProducts();
 
     /// Accessor for product registry.
-    ProductRegistry & productRegistry() const {return *preg_;}
+    ProductRegistry & productRegistry() const {return *isDesc_.productRegistry_;}
     
     /// Reset the remaining number of events to the maximum number.
     void repeat() {remainingEvents_ = maxEvents_;}
@@ -105,7 +105,7 @@ namespace edm {
     int remainingEvents() const {return remainingEvents_;}
 
     /// Accessor for 'module' description.
-    ModuleDescription const& module() const {return module_;}
+    ModuleDescription const& moduleDescription() const {return isDesc_.moduleDescription_;}
 
     /// Called by framework at beginning of job
     virtual void beginJob(EventSetup const&);
@@ -143,10 +143,7 @@ namespace edm {
 
     bool const unlimited_;
 
-    ModuleDescription module_;
-
-    // A pointer to the ProductRegistry;
-    ProductRegistry * preg_;
+    InputSourceDescription isDesc_;
   };
 }
 

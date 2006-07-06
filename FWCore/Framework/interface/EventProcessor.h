@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.20 2006/05/02 15:50:51 paterno Exp $
+$Id: EventProcessor.h,v 1.21.2.1 2006/07/04 14:03:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,6 +49,8 @@ $Id: EventProcessor.h,v 1.20 2006/05/02 15:50:51 paterno Exp $
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -218,21 +220,21 @@ namespace edm {
     struct CommonParams
     {
       CommonParams():
-	version_(),
-	pass_()
+	releaseVersion_(),
+	passID_()
       { }
 
-      CommonParams(const std::string& name,
-		   unsigned long ver,
-		   unsigned long pass):
-	processName_(name),
-	version_(ver),
-	pass_(pass)
+      CommonParams(std::string const& processName,
+		   ReleaseVersion const& releaseVersion,
+		   PassID const& passID):
+	processName_(processName),
+	releaseVersion_(releaseVersion),
+	passID_(passID)
       { }
       
-      std::string             processName_;
-      unsigned long           version_;
-      unsigned long           pass_;
+      std::string processName_;
+      ReleaseVersion releaseVersion_;
+      PassID passID_;
     }; // struct CommonParams
 
     // Really should not be public,

@@ -1,6 +1,8 @@
 
 #include <iostream>
 
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -74,8 +76,8 @@ void testmaker2::maker2Test()
   edm::ActionTable table;
 
   edm::ProductRegistry preg;
-  edm::WorkerParams params1(p1, preg, table, "PROD", 0, 0);
-  edm::WorkerParams params2(p2, preg, table, "PROD", 0, 0);
+  edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+  edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
 
   boost::signal<void (const ModuleDescription&)> aSignal;
   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);

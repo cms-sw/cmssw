@@ -1,3 +1,6 @@
+
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -6,6 +9,8 @@
 #include "FWCore/Framework/src/ProducerWorker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -26,6 +31,7 @@
 #include "boost/lambda/bind.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <list>
@@ -92,21 +98,20 @@ namespace edm
     // probably be a utility in the WorkerRegistry or elsewhere.
 
     Schedule::WorkerPtr 
-    makeInserter(const ParameterSet& trig_pset,
+    makeInserter(const ParameterSet& proc_pset,
+		 const ParameterSet& trig_pset,
 		 const string& proc_name,
 		 ProductRegistry& preg,
 		 ActionTable& actions,
 		 Schedule::TrigResPtr trptr)
     {
 #if 1
-      WorkerParams work_args(trig_pset,preg,actions,proc_name);
+      WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
       ModuleDescription md;
-      md.pid = trig_pset.id();
+      md.parameterSetID_ = trig_pset.id();
       md.moduleName_ = "TriggerResultInserter";
       md.moduleLabel_ = "TriggerResults";
-      md.processName_ = proc_name;
-      md.versionNumber_ = 0; // not set properly!!!
-      md.pass = 0; // not set properly!!!
+      md.processConfiguration_ = ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID());
 
       auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
 
@@ -192,7 +197,7 @@ namespace edm
     worker_reg_(&wreg),
     prod_reg_(&preg),
     act_table_(&actions),
-    proc_name_(tns.getProcessName()),
+    processName_(tns.getProcessName()),
     trig_pset_(tns.getTrigPSet()),
     act_reg_(areg),
     state_(Ready),
@@ -240,7 +245,7 @@ namespace edm
 
     // the results inserter stands alone
     if(hasFilter || makeTriggerResults_) {
-      results_inserter_=makeInserter(trig_pset_,proc_name_,
+      results_inserter_=makeInserter(pset_,trig_pset_,processName_,
 				     preg,actions,results_);
       all_workers_.insert(results_inserter_.get());
     }
@@ -288,13 +293,12 @@ namespace edm
 	  itLabel != unusedLabels.end();
 	  ++itLabel) {
 	if (allowUnscheduled) {
-	  const unsigned long version=1, pass=1;
 	  unscheduledLabels.insert(*itLabel);
 	  //Need to hold onto the parameters long enough to make the call to getWorker
 	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
-	  WorkerParams params(workersParams,
+	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
-			      proc_name_, version, pass);
+			      processName_, getReleaseVersion(), getPassID());
 	  Worker* newWorker(wreg.getWorker(params));
 	  if (dynamic_cast<ProducerWorker*>(newWorker)) {
 	    unscheduled_->addWorker(newWorker);
@@ -378,9 +382,8 @@ namespace edm
         throw edm::Exception(edm::errors::Configuration)<<"The unknown module label \""<<realname<<"\" appears in "<<pathType<<" \""<<name
 							<<"\"\n please check spelling or remove that label from the path.";
       }
-      unsigned long version=1, pass=1;
-      WorkerParams params(modpset, *prod_reg_, *act_table_,
-			  proc_name_, version, pass);
+      WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
+			  processName_, getReleaseVersion(), getPassID());
       WorkerInPath w(worker_reg_->getWorker(params),state);
       tmpworkers.push_back(w);
     }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 15 14:07:57 EST 2005
-// $Id: ComponentDescription.h,v 1.1 2005/12/16 00:26:57 chrjones Exp $
+// $Id: ComponentDescription.h,v 1.2.2.1 2006/07/04 14:03:42 wmtan Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 // user include files
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/VersionNumber.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 
 // forward declarations
 namespace edm {
@@ -43,14 +43,14 @@ namespace edm {
          ParameterSetID pid_;
 
          // the release tag of the executable
-         VersionNumber versionNumber_;
+         ReleaseVersion releaseVersion_;
 
          // the physical process that this program was part of (e.g. production)
          std::string processName_;
          
          // what the heck is this? I think its the version of the processName_
          // e.g. second production pass
-         PassID pass_;
+         PassID passID_;
          /* ----------- end of provenance information ------------- */
                      
          

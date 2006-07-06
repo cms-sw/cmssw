@@ -6,10 +6,12 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.6 2006/01/29 23:33:58 jbk Exp $
+   \version $Id: WorkerRegistry.h,v 1.7.2.1 2006/07/04 14:03:43 wmtan Exp $
    \date 18 May 2005
 */
 
+#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -47,20 +49,20 @@ namespace edm {
     /** If the worker with that set of parameters does not exist,
         create it
         @note Workers are owned by this class, do not delete them*/
-    Worker*  getWorker(const WorkerParams&);
+    Worker*  getWorker(WorkerParams const&);
     void clear();
     
   private:
     // Disable Assignment and copy construction
-    WorkerRegistry(const WorkerRegistry&);         // not implemented
-    void operator=(const WorkerRegistry&) const;   // not implemented
+    WorkerRegistry(WorkerRegistry const&);         // not implemented
+    void operator=(WorkerRegistry const&) const;   // not implemented
   
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     std::string mangleWorkerParameters(ParameterSet const& parameterSet,
 				       std::string const& processName,
-				       unsigned long versionNumber,
-				       unsigned long pass);
+				       ReleaseVersion const& releaseVersion,
+				       PassID const& passID);
 
     /// the container of workers
     typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;

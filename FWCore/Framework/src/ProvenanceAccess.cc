@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Feb 15 11:49:59 IST 2006
-// $Id: ProvenanceAccess.cc,v 1.1 2006/03/05 21:40:22 chrjones Exp $
+// $Id: ProvenanceAccess.cc,v 1.2.2.1 2006/07/01 06:23:37 wmtan Exp $
 //
 
 // system include files
@@ -42,17 +42,11 @@ prov_(iProv), filler_(iFiller), haveFilled_(false)
 //
 // const member functions
 //
-   const BranchDescription& 
-   ProvenanceAccess::product() const
+   const Provenance& 
+   ProvenanceAccess::provenance() const
    {
-      return prov_->product;
+      return *prov_;
    }
-   const BranchEntryDescription& 
-      ProvenanceAccess::event() const
-   {
-      return prov_->event;
-   }
-
 //
 // static member functions
 //

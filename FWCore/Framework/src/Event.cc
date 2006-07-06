@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.23 2006/02/08 00:44:25 wmtan Exp $
+$Id: Event.cc,v 1.24.2.2 2006/07/05 23:57:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -58,9 +58,11 @@ namespace edm {
 	auto_ptr<Provenance> pv(new Provenance(*pit->second));
 
 	// set parts of provenance
-	pv->event.cid = 0; // TODO: what is this supposed to be?
-	pv->event.status = BranchEntryDescription::Success;
-	pv->event.parents = gotProductIDs_;
+	pv->event.cid_ = 0; // TODO: what is this supposed to be?
+	pv->event.status_ = BranchEntryDescription::Success;
+	pv->event.isPresent_ = true;
+	pv->event.parents_ = gotProductIDs_;
+	pv->event.moduleDescriptionID_ = pit->second->moduleDescriptionID_;
 
 	ep_.put(pr,pv);
 	++pit;
@@ -126,7 +128,7 @@ namespace edm {
   BranchDescription const&
   Event::getBranchDescription(std::string const& friendlyClassName,
                       std::string const& productInstanceName) const {
-    BranchKey const bk(friendlyClassName, md_.moduleLabel_, productInstanceName, md_.processName_);
+    BranchKey const bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ProductList const& pl = ep_.productRegistry().productList();
     ProductRegistry::ProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {

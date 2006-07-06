@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.30 2006/05/03 23:36:27 wmtan Exp $
+$Id: EventPrincipal.h,v 1.30.2.6 2006/07/05 23:57:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -29,11 +29,12 @@ $Id: EventPrincipal.h,v 1.30 2006/05/03 23:36:27 wmtan Exp $
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Common/interface/LuminosityBlockID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EventAux.h"
-#include "DataFormats/Common/interface/ProcessNameList.h"
+#include "DataFormats/Common/interface/ProcessHistory.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -50,7 +51,7 @@ namespace edm {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
-    typedef ProcessNameList::const_iterator        ProcessNameConstIterator;
+    typedef ProcessHistory::const_iterator        ProcessNameConstIterator;
     typedef boost::shared_ptr<Group>               SharedGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
 
@@ -62,7 +63,8 @@ namespace edm {
     EventPrincipal(EventID const& id,
                    Timestamp const& time,
                    ProductRegistry const& reg,
-                   ProcessNameList const& nl = ProcessNameList(),
+		   LuminosityBlockID const& lb = LuminosityBlockID(),
+                   ProcessHistoryID const& hist = ProcessHistoryID(),
                    boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~EventPrincipal();
@@ -80,7 +82,7 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    SharedGroupPtr const getGroup(ProductID const& oid) const;
+    SharedGroupPtr const getGroup(ProductID const& oid, bool resolve = true) const;
 
     BasicHandle  get(ProductID const& oid) const;
 
@@ -118,7 +120,11 @@ namespace edm {
       return aux_.processHistory().end();
     }
 
-    ProcessNameList const& processHistory() const;    
+    ProcessHistory const& processHistory() const;    
+
+    ProcessHistoryID const& processHistoryID() const {
+      return aux_.processHistoryID();   
+    }
 
     // ----- manipulation of provenance
 
@@ -130,7 +136,7 @@ namespace edm {
 
     // ----- Mark this EventPrincipal as having been updated in the
     // given Process.
-    void addToProcessHistory(std::string const& processName);
+    void addToProcessHistory(ProcessConfiguration const& processConfiguration);
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>);
     
@@ -143,7 +149,7 @@ namespace edm {
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of groups through this call, and so
     // *this is const.
-    void resolve_(Group const& g) const;
+    void resolve_(Group const& g, bool unconditional = false) const;
 
     virtual EDProduct const* getIt(ProductID const& oid) const;
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.41 2006/06/24 05:44:57 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.41.2.8 2006/07/05 23:57:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -9,6 +9,7 @@ $Id: EventPrincipal.cc,v 1.41 2006/06/24 05:44:57 wmtan Exp $
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenanceFiller.h"
+#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
@@ -48,16 +49,17 @@ private:
   EventPrincipal::EventPrincipal(EventID const& id,
 				 Timestamp const& time,
                                  ProductRegistry const& reg,
-				 ProcessNameList const& nl,
+				 LuminosityBlockID const& lb,
+				 ProcessHistoryID const& hist,
 				 boost::shared_ptr<DelayedReader> rtrv) :
-   aux_(id,time),
+   aux_(id,time,lb),
    groups_(),
    branchDict_(),
    typeDict_(),
    preg_(&reg),
    store_(rtrv)
   {
-    aux_.process_history_ = nl;
+    aux_.processHistoryID_ = hist;
     groups_.reserve(reg.productList().size());
   }
 
@@ -82,7 +84,7 @@ private:
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group) {
     assert (!group->productDescription().className().empty());
-    assert (!group->productDescription().productType().empty());
+    assert (!group->productDescription().friendlyClassName().empty());
     assert (!group->productDescription().moduleLabel().empty());
     assert (!group->productDescription().processName().empty());
     SharedGroupPtr g(group);
@@ -132,17 +134,22 @@ private:
   }
 
   void
-  EventPrincipal::addToProcessHistory(string const& processName) {
-    ProcessNameList& ph = aux_.process_history_;
-    if (find(ph.begin(), ph.end(), processName) != ph.end()) {
-      throw edm::Exception(errors::Configuration, "Duplicate Process")
-        << "The process name " << processName << " was previously used on these events.\n"
-        << "Please modify the configuration file to use a distinct process name.";
+  EventPrincipal::addToProcessHistory(ProcessConfiguration const& processConfiguration) {
+    ProcessHistory& ph = aux_.processHistory();
+    std::string const& processName = processConfiguration.processName();
+    for (ProcessHistory::const_iterator it = ph.begin(); it != ph.end(); ++it) {
+      if (processName == it->processName()) {
+	throw edm::Exception(errors::Configuration, "Duplicate Process")
+	  << "The process name " << processName << " was previously used on these events.\n"
+	  << "Please modify the configuration file to use a distinct process name.";
+      }
     }
-    ph.push_back(processName);
+    ph.push_back(processConfiguration);
+    ProcessHistoryRegistry::instance()->insertMapped(ph);
+    aux_.processHistoryID_ = ph.id();
   }
 
-  ProcessNameList const&
+  ProcessHistory const&
   EventPrincipal::processHistory() const {
     return aux_.processHistory();
   }
@@ -177,7 +184,7 @@ private:
   }
 
   EventPrincipal::SharedGroupPtr const
-  EventPrincipal::getGroup(ProductID const& oid) const {
+  EventPrincipal::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
 	return SharedGroupPtr();
@@ -186,7 +193,9 @@ private:
     assert(slotNumber < groups_.size());
 
     SharedGroupPtr const& g = groups_[slotNumber];
-    this->resolve_(*g);
+    if (resolve && g->provenance().isPresent()) {
+      this->resolve_(*g, true);
+    }
     return g;
   }
 
@@ -293,11 +302,11 @@ private:
     // correct policy of making the assumed label be ... whatever we
     // set the policy to be. I don't know the answer right now...
 
-    ProcessNameList::const_reverse_iterator iproc = aux_.processHistory().rbegin();
-    ProcessNameList::const_reverse_iterator eproc = aux_.processHistory().rend();
+    ProcessHistory::const_reverse_iterator iproc = aux_.processHistory().rbegin();
+    ProcessHistory::const_reverse_iterator eproc = aux_.processHistory().rend();
     while (iproc != eproc) {
-	string const& processName_ = *iproc;
-	BranchKey bk(id.friendlyClassName(), label, productInstanceName, processName_);
+	string const& processName = iproc->processName();
+	BranchKey bk(id.friendlyClassName(), label, productInstanceName, processName);
 	BranchDict::const_iterator i = branchDict_.find(bk);
 
 	if (i != branchDict_.end()) {
@@ -449,8 +458,8 @@ private:
   }
 
   void
-  EventPrincipal::resolve_(Group const& g) const {
-    if (!g.isAccessible())
+  EventPrincipal::resolve_(Group const& g, bool unconditional) const {
+    if (!unconditional && !g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance();

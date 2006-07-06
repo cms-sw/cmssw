@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id$
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.1.2.3 2006/07/05 23:57:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -13,6 +13,8 @@ $Id$
 #include <typeinfo>
 
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -54,7 +56,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   try {
      edm::ModuleDescription modDesc;
@@ -90,9 +92,9 @@ void testEventGetRefBeforePut::getRefTest() {
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
 
-  pprov->product.module.moduleLabel_ = label;
+  pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.module.processName_ = processName;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -101,14 +103,14 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory(processName);
+  ep.addToProcessHistory(edm::ProcessConfiguration(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
     edm::ModuleDescription modDesc;
     modDesc.moduleName_="Blah";
     modDesc.moduleLabel_=label; 
-    modDesc.processName_ = processName;
+    modDesc.processConfiguration_.processName_ = processName;
 
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);

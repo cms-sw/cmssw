@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.13 2006/05/24 01:52:52 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.14.2.2 2006/06/30 04:31:26 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 
 namespace edm {
@@ -66,11 +66,9 @@ namespace {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
       void respond(const edm::BranchDescription& iDesc){
-         edm::ModuleDescription modDesc;
-         modDesc.moduleLabel_ = name_;
          edm::BranchDescription prod(iDesc);
-         prod.productInstanceName_ = prod.productInstanceName_+"-"+prod.moduleLabel();
-         prod.module = modDesc;
+         prod.moduleLabel_ = name_;
+         prod.productInstanceName_ = prod.productInstanceName()+"-"+prod.moduleLabel();
          reg_->addProduct(prod);
       }
    };
@@ -84,8 +82,7 @@ void  testProductRegistry:: testSignal(){
    Listener listening(hear);
    reg.productAddedSignal_.connect(listening);
    
-   ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", "int");
+   BranchDescription prod("label", "PROD", "int", "int", "int");
    
    reg.addProduct(prod);
    CPPUNIT_ASSERT(1==hear);
@@ -103,11 +100,10 @@ void  testProductRegistry:: testWatch(){
 
    Responder one("one",constReg, reg);
                  
-   ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", "int");
+   BranchDescription prod("label", "PROD", "int", "int", "int");
    reg.addProduct(prod);
 
-   BranchDescription prod2(modDesc, "float", "float", "float", "float");
+   BranchDescription prod2("label", "PROD", "float", "float", "float");
    reg.addProduct(prod2);
    
    //Should be 4 products
@@ -131,8 +127,7 @@ void  testProductRegistry:: testCircular(){
    Responder one("one",constReg, reg);
    Responder two("two",constReg, reg);
    
-   ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", "int");
+   BranchDescription prod("label", "PROD", "int", "int", "int");
    
    reg.addProduct(prod);
    //Should be 5 products

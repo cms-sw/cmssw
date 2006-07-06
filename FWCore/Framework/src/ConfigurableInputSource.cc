@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.4 2006/05/19 11:52:02 chrjones Exp $
+$Id: ConfigurableInputSource.cc,v 1.5.2.1 2006/07/04 14:03:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,7 @@ namespace edm {
     }
     std::auto_ptr<EventPrincipal> result = 
       std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
-    Event e(*result, module());
+    Event e(*result, moduleDescription());
     if (!produce(e)) {
       return std::auto_ptr<EventPrincipal>(0); 
     }

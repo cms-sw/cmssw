@@ -7,6 +7,10 @@ This struct is used to communication parameters into the worker factory.
 
 ---------------------- **/
 
+#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
@@ -19,23 +23,26 @@ namespace edm
   struct WorkerParams
   {
     WorkerParams(): 
-      pset_(),reg_(),actions_(),
-      processName_(),versionNumber__(),pass_() { }
+      procPset_(0), pset_(0),reg_(0),actions_(0),
+      processName_(),releaseVersion_(),passID_() { }
 
-    WorkerParams(ParameterSet const& pset,
+    WorkerParams(ParameterSet const& procPset,
+		 ParameterSet const& pset,
 		 ProductRegistry& reg,
 		 ActionTable& actions,
-		 const std::string& pn,
-		 unsigned long vn=0, unsigned long pass=0):
-      pset_(&pset),reg_(&reg),actions_(&actions),
-      processName_(pn),versionNumber__(vn),pass_(pass) { }
+		 std::string const& processName,
+		 std::string releaseVersion=getReleaseVersion(),
+		 std::string passID=getPassID()):
+      procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
+      processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
 
-    const ParameterSet* pset_;
+    ParameterSet const* procPset_;
+    ParameterSet const* pset_;
     ProductRegistry* reg_;
     ActionTable* actions_;
     std::string processName_;
-    unsigned long versionNumber__;
-    unsigned long pass_;
+    ReleaseVersion releaseVersion_;
+    PassID passID_;
   };
 }
 

@@ -17,8 +17,11 @@
 
 #include "PluginManager/PluginManager.h"
 
+#include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -72,9 +75,6 @@ namespace edm {
   typedef list<WorkerPtr>  WorkerList;
   typedef list<WorkerList> PathList;
 
-
-  // temporary function because we do not know how to do this
-  unsigned long getVersion() { return 0; }
 
   namespace {
 
@@ -301,17 +301,16 @@ namespace edm {
       
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
+      // Also fill in the process history item for this process.
       ModuleDescription md;
-      md.pid = main_input.id();
+      md.parameterSetID_ = main_input.id();
       md.moduleName_ =
 	main_input.template getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so 
       // just use "source".
       md.moduleLabel_ = "source";
-      md.processName_ = common.processName_; 
-     // warning version and pass are hardcoded
-      md.versionNumber_ = 1;
-      md.pass = 1; 
+      md.processConfiguration_ = ProcessConfiguration(common.processName_,
+				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg);
@@ -439,8 +438,8 @@ namespace edm {
 	ModuleFactory::get()->addTo(cp, 
 				    providerPSet, 
 				    common.processName_, 
-				    common.version_, 
-				    common.pass_);
+				    common.releaseVersion_, 
+				    common.passID_);
       }
     
     vector<string> sources = 
@@ -454,8 +453,8 @@ namespace edm {
 	SourceFactory::get()->addTo(cp, 
 				    providerPSet, 
 				    common.processName_, 
-				    common.version_, 
-				    common.pass_);
+				    common.releaseVersion_, 
+				    common.passID_);
     }
   }
 
@@ -498,7 +497,7 @@ namespace edm {
     newpset.addParameter<string>("@service_type",service);
     adjust.push_back(newpset);
     // Record this new ParameterSet in the Registry!
-    pset::Registry::instance()->insertParameterSet(newpset);
+    pset::Registry::instance()->insertMapped(newpset);
   }
 
   // Add a service to the services list if it is not already there
@@ -540,8 +539,8 @@ namespace edm {
     // not modified.
 
     shared_ptr<vector<ParameterSet> > pServiceSets;
-    shared_ptr<ParameterSet>          params_; // change this name!
-    makeParameterSets(config, params_, pServiceSets);
+    shared_ptr<ParameterSet> processParamsPtr; // change this name!
+    makeParameterSets(config, processParamsPtr, pServiceSets);
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
     adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
     adjustForService(*(pServiceSets.get()), "JobReportService");
@@ -562,13 +561,13 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
-    string proc_name = params_->getParameter<string>("@process_name");
+    string processName = processParamsPtr->getParameter<string>("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
     shared_ptr<w_TNS> tnsptr
-      (new w_TNS( std::auto_ptr<TNS>(new TNS(*params_))));
+      (new w_TNS( std::auto_ptr<TNS>(new TNS(*processParamsPtr))));
 
     serviceToken_=ServiceRegistry::createContaining(tnsptr, 
 						    tempToken2, 
@@ -577,18 +576,18 @@ namespace edm {
     //make the services available
   ServiceRegistry::Operate operate(serviceToken_);
      
-    //params_ = builder.getProcessPSet();
-    act_table_ = ActionTable(*params_);
-    common_ = CommonParams(proc_name,
-			   getVersion(), // this is not written for real yet
-			   0); // Where does it come from?
+    //processParamsPtr = builder.getProcessPSet();
+    act_table_ = ActionTable(*processParamsPtr);
+    common_ = CommonParams(processName,
+			   getReleaseVersion(),
+			   getPassID());
 
-    esp_ = makeEventSetupProvider(*params_);
-    fillEventSetupProvider(*esp_, *params_, common_);
+    esp_ = makeEventSetupProvider(*processParamsPtr);
+    fillEventSetupProvider(*esp_, *processParamsPtr, common_);
      
-    input_= makeInput(*params_, common_, preg_,*actReg_);
+    input_= makeInput(*processParamsPtr, common_, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(*params_,
+      (new Schedule(*processParamsPtr,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
 		    preg_,
@@ -596,7 +595,7 @@ namespace edm {
 		    actReg_));
 
     //   initialize(iToken,iLegacy);
-    FDEBUG(2) << params_->toString() << std::endl;
+    FDEBUG(2) << processParamsPtr->toString() << std::endl;
     connectSigs(this);
   }
 

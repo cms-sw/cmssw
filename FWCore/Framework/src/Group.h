@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.11 2006/02/08 00:44:25 wmtan Exp $
+$Id: Group.h,v 1.12.2.1 2006/06/30 04:31:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,8 @@ $Id: Group.h,v 1.11 2006/02/08 00:44:25 wmtan Exp $
 namespace edm {
   class Group {
   public:
-    explicit Group(std::auto_ptr<Provenance> prov);
+    explicit Group(std::auto_ptr<Provenance> prov,
+ 	  bool acc=true);
 
     Group(std::auto_ptr<EDProduct> edp,
 	  std::auto_ptr<Provenance> prov,

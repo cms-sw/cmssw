@@ -3,12 +3,15 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.9 2006/03/05 21:49:43 chrjones Exp $
+   \version $Id: WorkerRegistry.cc,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.9 2006/03/05 21:49:43 chrjones Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.10.2.1 2006/07/04 14:03:43 wmtan Exp $";
 
+
+#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/Worker.h"
@@ -42,7 +45,7 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
   string workerid= 
     mangleWorkerParameters(*p.pset_, p.processName_,
-			   p.versionNumber__,p.pass_);
+			   p.releaseVersion_,p.passID_);
 
   WorkerMap::iterator workerIt = m_workerMap.find(workerid);
   
@@ -68,14 +71,14 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
 string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
 					      std::string const& processName,
-					      unsigned long versionNumber,
-					      unsigned long pass) {
+					      ReleaseVersion const& releaseVersion,
+					      PassID const& passID) {
 
   stringstream mangled_parameters;
   mangled_parameters<< parameterSet.toString()
                     << processName
-                    << versionNumber
-                    << pass;
+                    << releaseVersion
+                    << passID;
 
   return mangled_parameters.str();
 

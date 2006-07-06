@@ -60,14 +60,13 @@ namespace edm {
     typedef typename UserType::ModuleType ModuleType;
     typedef typename WorkerType<ModuleType>::worker_type  worker_type;
 
+    const ParameterSet& procParams = *p.procPset_;
     const ParameterSet& conf = *p.pset_;
     ModuleDescription md;
-    md.pid = conf.id();
+    md.parameterSetID_ = conf.id();
     md.moduleName_ = conf.template getParameter<std::string>("@module_type");
     md.moduleLabel_ = conf.template getParameter<std::string>("@module_label");
-    md.versionNumber_ = p.versionNumber__;
-    md.processName_ = p.processName_;;
-    md.pass = p.pass_; 
+    md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_); 
 
     std::auto_ptr<Worker> worker;
     try {

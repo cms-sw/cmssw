@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.15 2006/04/15 04:45:43 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.16.2.1 2006/07/01 06:23:37 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -150,7 +150,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 //   Rule::applyToOne(edm::BranchDescription const* branch) const
 //   {
 //     bool match = 
-//       partial_match(productType_, branch->productType()) && 
+//       partial_match(productType_, branch->friendlyClassName()) && 
 //       partial_match(moduleLabel_, branch->moduleLabel()) &&
 //       partial_match(instanceName_, branch->productInstanceName()) &&
 //       partial_match(processName_, branch->processName());
@@ -169,7 +169,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   GroupSelector::Rule::appliesTo(edm::BranchDescription const* branch) const
   {
     return
-      partial_match(productType_, branch->productType()) && 
+      partial_match(productType_, branch->friendlyClassName()) && 
       partial_match(moduleLabel_, branch->moduleLabel()) &&
       partial_match(instanceName_, branch->productInstanceName()) &&
       partial_match(processName_, branch->processName());

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.23 2006/03/29 21:51:54 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.24.2.3 2006/07/05 23:57:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -13,6 +13,9 @@ $Id: eventprincipal_t.cppunit.cc,v 1.23 2006/03/29 21:51:54 wmtan Exp $
 #include <typeinfo>
 
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -69,7 +72,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testeventprincipal);
 
 void testeventprincipal::failgetbyIdTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::ProductID id;
     handle h = ep.get(id);
@@ -86,7 +89,7 @@ void testeventprincipal::failgetbyIdTest() {
 void testeventprincipal::failgetbySelectorTest()
 {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::TypeID tid(ep);   // sure not to match any product
     edm::ProcessNameSelector sel("PROD");
@@ -103,7 +106,7 @@ void testeventprincipal::failgetbySelectorTest()
 
 void testeventprincipal::failgetbyLabelTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::TypeID tid(ep);   // sure not to match any product
     std::string label("this does not exist");
@@ -120,7 +123,7 @@ void testeventprincipal::failgetbyLabelTest() {
 
 void testeventprincipal::failgetManyTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::TypeID tid(ep);   // sure not to match any product
     edm::ProcessNameSelector sel("PROD");
@@ -138,7 +141,7 @@ void testeventprincipal::failgetManyTest() {
 
 void testeventprincipal::failgetbyTypeTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::TypeID tid(ep);   // sure not to match any product
     handle h = ep.getByType(tid);
@@ -154,7 +157,7 @@ void testeventprincipal::failgetbyTypeTest() {
 
 void testeventprincipal::failgetManybyTypeTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::TypeID tid(ep);   // sure not to match any product
     std::vector<handle> handles;
@@ -184,8 +187,8 @@ void testeventprincipal::failgetbyInvalidIdTest() {
   std::string className = dummytype.friendlyClassName();
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
-  pprov->product.module.moduleLabel_ = label;
-  pprov->product.module.processName_ = processName;
+  pprov->product.moduleLabel_ = label;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -194,7 +197,7 @@ void testeventprincipal::failgetbyInvalidIdTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
 
@@ -214,7 +217,7 @@ void testeventprincipal::failgetbyInvalidIdTest() {
 
 void testeventprincipal::failgetProvenanceTest() {
   edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
   try {
     edm::ProductID id;
     edm::Provenance const& prov = ep.getProvenance(id);
@@ -246,8 +249,8 @@ void testeventprincipal::getbyIdTest() {
 
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
-  pprov->product.module.moduleLabel_ = label;
-  pprov->product.module.processName_ = processName;
+  pprov->product.moduleLabel_ = label;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -256,7 +259,7 @@ void testeventprincipal::getbyIdTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
 
@@ -296,9 +299,9 @@ void testeventprincipal::getbyLabelTest() {
   pprov->product.friendlyClassName_ = className;
 
 
-  pprov->product.module.moduleLabel_ = label;
+  pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.module.processName_ = processName;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -307,7 +310,7 @@ void testeventprincipal::getbyLabelTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
   
@@ -346,8 +349,8 @@ void testeventprincipal::getbySelectorTest() {
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
 
-  pprov->product.module.moduleLabel_ = label;
-  pprov->product.module.processName_ = processName;
+  pprov->product.moduleLabel_ = label;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -356,7 +359,7 @@ void testeventprincipal::getbySelectorTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
 
@@ -398,9 +401,9 @@ void testeventprincipal::getbyTypeTest() {
   pprov->product.friendlyClassName_ = className;
 
 
-  pprov->product.module.moduleLabel_ = label;
+  pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.module.processName_ = processName;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -409,7 +412,7 @@ void testeventprincipal::getbyTypeTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
   
@@ -447,8 +450,8 @@ void testeventprincipal::getProvenanceTest() {
 
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
-  pprov->product.module.moduleLabel_ = label;
-  pprov->product.module.processName_ = processName;
+  pprov->product.moduleLabel_ = label;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -457,7 +460,7 @@ void testeventprincipal::getProvenanceTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
 
@@ -493,8 +496,8 @@ void testeventprincipal::getAllProvenanceTest() {
 
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
-  pprov->product.module.moduleLabel_ = label;
-  pprov->product.module.processName_ = processName;
+  pprov->product.moduleLabel_ = label;
+  pprov->product.processName_ = processName;
   pprov->product.init();
 
   edm::ProductRegistry preg;
@@ -503,7 +506,7 @@ void testeventprincipal::getAllProvenanceTest() {
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory("PROD");
+  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
 
   ep.put(pprod, pprov);
 

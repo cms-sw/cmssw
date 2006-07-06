@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.16 2006/06/24 01:46:37 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.17.2.1 2006/07/04 14:14:22 wmtan Exp $
 //
 //
 
@@ -291,7 +291,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(Provenances::iterator itProv  = provenances.begin();
                              itProv != provenances.end();
                            ++itProv) {
-      friendlyName = (*itProv)->productType();
+      friendlyName = (*itProv)->friendlyClassName();
       //if(friendlyName.empty())  friendlyName = std::string("||");
 
       modLabel = (*itProv)->moduleLabel();

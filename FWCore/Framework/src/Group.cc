@@ -1,15 +1,16 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.10 2006/03/05 21:45:07 chrjones Exp $
+$Id: Group.cc,v 1.11.2.1 2006/06/30 04:31:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Group.h"
 
 namespace edm
 {
-  Group::Group(std::auto_ptr<Provenance> prov) :
+  Group::Group(std::auto_ptr<Provenance> prov,
+	       bool acc) :
     product_(),
     provenance_(prov.release()),
-    accessible_(true) {
+    accessible_(acc) {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp,

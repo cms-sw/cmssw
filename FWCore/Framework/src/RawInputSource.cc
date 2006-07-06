@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.2 2006/04/04 22:15:22 wmtan Exp $
+$Id: RawInputSource.cc,v 1.3.2.1 2006/07/04 14:03:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@ namespace edm {
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
     ep_ = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventId, Timestamp(tstamp), productRegistry()));
-    std::auto_ptr<Event> e(new Event(*ep_, module()));
+    std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }
 
