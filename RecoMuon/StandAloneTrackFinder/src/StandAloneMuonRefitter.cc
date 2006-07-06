@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:02:36 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/04 09:26:17 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -19,11 +19,14 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+// FIXME!! use this (i.e. take the estimator from the esetup)
+// #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -74,6 +77,12 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet); //FIXME this is very very temp!!!
 
   thePropagatorName = par.getParameter<string>("Propagator");
+
+  // Measurement Extractor: enable the measure for each muon sub detector
+  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+
+  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,enableCSCMeasurement);
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
@@ -85,6 +94,7 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   //delete thePropagator;
   delete theEstimator;
   delete theMuonUpdator;
+  delete theMeasurementExtractor;
 }
 
 
@@ -103,9 +113,7 @@ void StandAloneMuonRefitter::setES(const EventSetup& setup){
 }
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
-  theMeasurementExtractor.setEvent(event);
-  // reset the refitter each event
-  reset();
+  theMeasurementExtractor->setEvent(event);
 }
 
 void StandAloneMuonRefitter::init(const EventSetup& setup){
@@ -156,6 +164,9 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   
   std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
   bool timing = true;
+
+  // reset the refitter each seed refinement
+  reset();
   
   MuonPatternRecoDumper debug;
   
@@ -196,7 +207,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
     
     vector<TrajectoryMeasurement> measL = 
-      theMeasurementExtractor.measurements(*layer,
+      theMeasurementExtractor->measurements(*layer,
       					   lastTSOS, 
       					   *propagator(), 
 					   *estimator());
@@ -223,7 +234,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
-      measL = theMeasurementExtractor.measurements(*layer,
+      measL = theMeasurementExtractor->measurements(*layer,
 						   lastButOneUpdatedTSOS, 
 						   *propagator(), 
 						   *estimator());
@@ -240,7 +251,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
 
-      measL = theMeasurementExtractor.measurements(*layer,
+      measL = theMeasurementExtractor->measurements(*layer,
 						   initialTSOS, 
 						   *propagator(), 
 						   *estimator());

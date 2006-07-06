@@ -4,20 +4,21 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:02:09 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/04 09:26:04 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
 class Trajectory;
+class MuonDetLayerMeasurements;
+class MeasurementEstimator;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -90,7 +91,7 @@ private:
   TrajectoryStateOnSurface theLastButOneUpdatedTSOS;
 
   /// The Measurement extractor
-  MuonDetLayerMeasurements theMeasurementExtractor;
+  MuonDetLayerMeasurements *theMeasurementExtractor;
   
   /// The propagator
   Propagator *thePropagator;
