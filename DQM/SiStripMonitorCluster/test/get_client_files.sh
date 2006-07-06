@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WHICH_RELEASE="CMSSW_0_8_0_pre3"
+setenv WHICH_RELEASE CMSSW_0_8_0_pre3
 
 cvs -q co -r $WHICH_RELEASE -p  DQM/SiStripMonitorClient/test/.SiStripClient.xml > .SiStripClient.xml
 cvs -q co -r $WHICH_RELEASE -p  DQM/SiStripMonitorClient/test/.WebTest.xml > .WebTest.xml
