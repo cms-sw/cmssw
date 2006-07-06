@@ -9,6 +9,8 @@ NOTE: This is *very* incomplete.
 
 ----------------------------------------------------------------------*/
 
+#include "FWCore/ParameterSet/interface/Registry.h"
+
 namespace edm
 {
   class ParameterSet;

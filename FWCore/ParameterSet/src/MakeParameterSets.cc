@@ -36,14 +36,13 @@ namespace edm
     serviceparams = processDesc.getServicesPSets();
 
     // Load every ParameterSet into the Registry
-    pset::loadAllNestedParameterSets(*main);
-    {
-      // Should be able to use boost::lambda here. It did seem easy to
-      // get it to work...
-      pset::Registry* reg = pset::Registry::instance();
-      std::vector<ParameterSet>::const_iterator i = serviceparams->begin();
-      std::vector<ParameterSet>::const_iterator e = serviceparams->end();
-      for (; i != e; ++i) reg->insertParameterSet(*i);
-    }
+    pset::Registry* reg = pset::Registry::instance();
+
+    pset::loadAllNestedParameterSets(reg, *main);
+
+    typedef std::vector<ParameterSet>::const_iterator iter;
+
+    for (iter i=serviceparams->begin(), e=serviceparams->end(); i!=e; ++i)
+      reg->insertMapped(*i);
   }
 } // namespace edm

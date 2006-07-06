@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.25 2006/04/27 19:56:03 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.26.2.1 2006/06/29 19:00:19 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -423,7 +423,7 @@ namespace edm {
   ParameterSet
   getParameterSet(ParameterSetID const& id) {
     ParameterSet result;
-    if(!pset::Registry::instance()->getParameterSet(id, result)) {
+    if(!pset::Registry::instance()->getMapped(id, result)) {
         throw edm::Exception(errors::Configuration,"MissingParameterSet:")
           << "Parameter Set ID '" << id
           << "' not found.";
