@@ -3,18 +3,20 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class HcalGeometry : public CaloSubdetectorGeometry {
 public:
 
-  HcalGeometry();
+  explicit HcalGeometry(const HcalTopology * topology);
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
   
   virtual std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
-  /// TODO: add "nearest cell" code eventually
+  virtual const DetId getClosestCell(const GlobalPoint& r) const ;
 
 private:
+  const HcalTopology * theTopology;
   mutable DetId::Detector lastReqDet_;
   mutable int lastReqSubdet_;
 };
