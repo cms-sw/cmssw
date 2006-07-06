@@ -6,8 +6,8 @@
  */
 
 struct ChamberStripSpec {
-  int cablePinNumber;
-  int chamberStripNumber;
+  char cablePinNumber;
+  char chamberStripNumber;
   
   /// debug printout
   void print( int depth = 0) const;
