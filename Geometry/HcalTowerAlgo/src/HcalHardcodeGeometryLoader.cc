@@ -41,7 +41,7 @@ void HcalHardcodeGeometryLoader::init() {
 std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load(DetId::Detector det, int subdet) {
 
   HcalSubdetector hsub=static_cast<HcalSubdetector>(subdet);
-  std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry());
+  std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry(&theTopology));
   switch (hsub) {
   case (HcalBarrel) : fill(hsub, theTopology.firstHBRing(), theTopology.lastHBRing(), hg.get()); break;
   case (HcalEndcap) : fill(hsub, theTopology.firstHERing(), theTopology.lastHERing(), hg.get()); break;
@@ -53,7 +53,7 @@ std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load(DetId::D
 }
 
 std::auto_ptr<CaloSubdetectorGeometry> HcalHardcodeGeometryLoader::load() {
-  std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry());
+  std::auto_ptr<CaloSubdetectorGeometry> hg(new HcalGeometry(&theTopology));
   fill(HcalBarrel, theTopology.firstHBRing(), theTopology.lastHBRing(), hg.get()); 
   fill(HcalEndcap, theTopology.firstHERing(), theTopology.lastHERing(), hg.get()); 
   fill(HcalForward, theTopology.firstHFRing(), theTopology.lastHFRing(), hg.get()); 
