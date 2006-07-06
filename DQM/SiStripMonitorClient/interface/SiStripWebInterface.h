@@ -19,6 +19,7 @@ class SiStripWebInterface : public WebInterface
  ~SiStripWebInterface();
 
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+ void readSelectedRequest(xgi::Input * in, xgi::Output * out, std::string& choice) throw (xgi::exception::Exception);
   void createAll();
  
   void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
@@ -34,6 +35,7 @@ class SiStripWebInterface : public WebInterface
   SiStripActionType theActionFlag;
   SiStripActionExecutor* actionExecutor_;
 
+  std::vector<std::string> tkMapOptions_;
  protected:
 
 

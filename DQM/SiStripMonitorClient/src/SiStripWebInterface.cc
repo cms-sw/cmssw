@@ -7,6 +7,7 @@
 #include "DQMServices/WebComponents/interface/Navigator.h"
 #include "DQMServices/WebComponents/interface/ContentViewer.h"
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
+#include "DQMServices/WebComponents/interface/Select.h"
 
 #include <SealBase/Callback.h>
 #include <map>
@@ -20,6 +21,8 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   
   theActionFlag = NoAction;
   actionExecutor_ = 0;
+  tkMapOptions_.push_back("Persistant");
+  tkMapOptions_.push_back("Temporary");
   
   createAll();
 
@@ -37,10 +40,14 @@ void SiStripWebInterface::createAll() {
   Button * compBut = new Button(getApplicationURL(), "360px", "50px", "CheckQTResults", "Check QTest Results");
   Button * sumBut = new Button(getApplicationURL(), "400px", "50px", "CreateSummary", "Create Summary");
   Button * collBut = new Button(getApplicationURL(), "440px", "50px", "CollateME", "Collate ME");
-  Button * tkMapBut1 = new Button(getApplicationURL(), "480px", "50px", "CreateTrackerMap1", "Create Persistant TrackerMap");
-  Button * tkMapBut2 = new Button(getApplicationURL(), "480px", "300px", "CreateTrackerMap2", "Create TempTrackerMap");
-  Button * saveBut = new Button(getApplicationURL(), "480px", "550px", "SaveToFile", "Save To File");
+  /*  Button * tkMapBut1 = new Button(getApplicationURL(), "480px", "50px", "CreateTrackerMap1", "Create Persistant TrackerMap");
+  Button * tkMapBut2 = new Button(getApplicationURL(), "480px", "300px", "CreateTrackerMap2", "Create TempTrackerMap");*/
+  Button * saveBut = new Button(getApplicationURL(), "480px", "50px", "SaveToFile", "Save To File");
   
+  Select *selTkMap = new Select(getApplicationURL(), "520px", "50px", "SelectTkMap", "Select Tk Map");
+
+  selTkMap->setOptionsVector(tkMapOptions_);
+
   page_p = new WebPage(getApplicationURL());
   page_p->add("navigator", nav);
   page_p->add("contentViewer", cont);
@@ -50,8 +57,10 @@ void SiStripWebInterface::createAll() {
   page_p->add("Smbutton", sumBut);
   page_p->add("SvButton", saveBut);
   page_p->add("ClButton", collBut);
-  page_p->add("Tbutton1", tkMapBut1);
-  page_p->add("Tbutton2", tkMapBut2);
+  /*  page_p->add("Tbutton1", tkMapBut1);
+      page_p->add("Tbutton2", tkMapBut2);*/
+  page_p->add("Tselect", selTkMap);
+
 }
 //
 // --  Destructor
@@ -84,12 +93,29 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
      theActionFlag = SaveData;
   } else if (requestID == "CollateME") {
      theActionFlag = Collate;
-  } else if (requestID == "CreateTrackerMap1") {
+     /*  } else if (requestID == "CreateTrackerMap1") {
      theActionFlag = PersistantTkMap;
   } else if (requestID == "CreateTrackerMap2") {
-     theActionFlag = TemporaryTkMap;
+  theActionFlag = TemporaryTkMap;*/
+  } else if (requestID == "SelectTkMap") {
+    std::multimap<std::string, std::string> selection_multimap;
+    std::string choice;
+    readSelectedRequest(in, out, choice);
+    if (choice == tkMapOptions_[0]) theActionFlag = PersistantTkMap;
+    else if (choice == tkMapOptions_[1]) theActionFlag = TemporaryTkMap;
   }
   configureCustomRequest(in, out);
+}
+//
+// -- Read the option specified in the Select widget
+//
+void SiStripWebInterface::readSelectedRequest(xgi::Input * in, xgi::Output * out, std::
+string& choice) throw (xgi::exception::Exception){
+  std::multimap<std::string, std::string> selection_multimap;
+  CgiReader reader(in);
+  reader.read_form(selection_multimap);
+  choice = get_from_multimap(selection_multimap, "Argument");
+
 }
 //
 // -- Scedule Custom Action
