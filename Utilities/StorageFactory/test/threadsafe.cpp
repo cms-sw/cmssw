@@ -16,12 +16,12 @@ namespace {
     
     std::vector<char> buf(10000,'1');
     
-    Storage	*s = StorageFactory::get ()->open ("/tmp/innocent/null", 
+    Storage	*s = StorageFactory::get ()->open ("/dev/null", 
 						   IOFlags::OpenWrite|IOFlags::OpenAppend);
 
 
 
-    for (int i=0;i<100;i++)
+    for (int i=0;i<10000;i++)
       s->write(&buf[0],buf.size());
     delete s;
     
@@ -32,13 +32,21 @@ namespace {
 
 int main (int argc, char **argv)
 {
+
   Signal::handleFatal (argv [0]);
   PluginManager::get ()->initialise ();
   StorageFactory::get ()->enableAccounting(true);
   
-  dump();
-  
+  std::cerr << "start StorageFactory thread test"  << std::endl;
+
+
+  const int NUMTHREADS=10;
+    boost::thread_group threads;
+    for (int i=0; i<NUMTHREADS; ++i)
+      threads.create_thread(&dump);
+    threads.join_all();
   
   std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
   return EXIT_SUCCESS;
 }
+

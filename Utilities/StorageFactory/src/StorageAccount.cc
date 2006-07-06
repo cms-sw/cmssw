@@ -4,7 +4,9 @@
 #include <sstream>
 #include <boost/thread/tss.hpp>
 #include <boost/thread/recursive_mutex.hpp>
-typedef boost::recursive_mutex::scoped_lock ScopedLock;
+#include <boost/thread/mutex.hpp>
+
+typedef boost::mutex::scoped_lock ScopedLock;
 
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -14,7 +16,7 @@ typedef boost::recursive_mutex::scoped_lock ScopedLock;
 //<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-boost::recursive_mutex StorageAccount::s_mutex;
+boost::mutex StorageAccount::s_mutex;
 StorageAccount::StorageStats StorageAccount::s_stats;
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
@@ -69,29 +71,32 @@ StorageAccount::Stamp::Stamp (Counter &counter)
   {
     ScopedLock sl(StorageAccount::s_mutex);
     m_counter.attempts++;
+    StorageAccount::setCurrentOp(&m_counter,m_start);
   }
-  StorageAccount::setCurrentOp(&m_counter,m_start);
 }
 
 void
 StorageAccount::Stamp::tick (double amount) const
 {
-  double elapsed = seal::TimeInfo::realNsecs () - m_start;
   {
     ScopedLock sl(StorageAccount::s_mutex);
+    double elapsed = seal::TimeInfo::realNsecs () - m_start;
     m_counter.successes++;
     m_counter.amount += amount;
     m_counter.time += elapsed;
+    StorageAccount::setCurrentOp(0,elapsed);
   }
-  StorageAccount::setCurrentOp(0,elapsed);
 }
+
 
 
 StorageAccount::LastOp & 
 StorageAccount::lastOp() 
 {
-  static boost::thread_specific_ptr<LastOp> local;
-  return *local;
+  static std::map<unsigned int, boost::shared_ptr<LastOp> > local;
+  boost::shared_ptr<LastOp> & lop = local[pthread_self()];
+  if (!lop) lop.reset(new LastOp) ;
+  return *lop;
 }
 
 

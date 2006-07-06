@@ -7,11 +7,9 @@
 # include <boost/shared_ptr.hpp>
 # include <string>
 # include <map>
+# include <boost/thread/recursive_mutex.hpp>
+# include <boost/thread/mutex.hpp>
 
-namespace boost {
-
-  class recursive_mutex;
-}
 
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
@@ -66,7 +64,7 @@ public:
   static  void setCurrentOp(const Counter * currOp, double stime);
   
 private:
-  static boost::recursive_mutex s_mutex;
+  static boost::mutex s_mutex;
   static StorageStats	s_stats;
 
 };
