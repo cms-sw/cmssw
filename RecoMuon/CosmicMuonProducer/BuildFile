@@ -9,7 +9,6 @@
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/Navigation>
 <use name=RecoMuon/TrackingTools>
-<use name=RecoMuon/StandAloneTrackFinder>
 <use name=RecoMuon/MeasurementDet>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackReco>
@@ -31,7 +30,6 @@
    <use name=RecoMuon/DetLayers>
    <use name=RecoMuon/Navigation>
    <use name=RecoMuon/TrackingTools>
-   <use name=RecoMuon/StandAloneTrackFinder>
    <use name=DataFormats/TrajectorySeed>
    <use name=DataFormats/TrackReco>
    <use name=TrackPropagation/SteppingHelixPropagator>
