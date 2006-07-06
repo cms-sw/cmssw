@@ -15,12 +15,16 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
 {
   //sets up parameters:
    digiProducer_ = params.getParameter<string>("digiProducer");
+   ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+   eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+   ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
+   eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
    //declares the products made by this producer:
-   produces<EBDigiCollection>("ebDigis");
-   produces<EEDigiCollection>("eeDigis");
+   produces<EBDigiCollection>(ebSRPdigiCollection_);
+   produces<EEDigiCollection>(eeSRPdigiCollection_);
 }
 
 
@@ -68,8 +72,8 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 #endif //DEBUG_SRP defined
   
   //puts the selected digis into the event:
-  event.put(selectedEBDigi, "ebDigis");
-  event.put(selectedEEDigi, "eeDigis");
+  event.put(selectedEBDigi, ebSRPdigiCollection_);
+  event.put(selectedEEDigi, eeSRPdigiCollection_);
   
 }
 

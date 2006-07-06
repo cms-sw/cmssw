@@ -55,6 +55,10 @@ private:
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
+  std::string ebdigiCollection_; // secondary name given to collection of digis
+  std::string eedigiCollection_; // secondary name given to collection of digis
+  std::string ebSRPdigiCollection_; // secondary name given to collection of digis
+  std::string eeSRPdigiCollection_; // secondary name given to collection of digis
   std::string trigPrimProducer_; // name of module/plugin/producer making triggere primitives
 
   // store the pointer, so we don't have to update it every event
