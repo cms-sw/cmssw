@@ -21,11 +21,6 @@
   <class name="SiStripEventSummary"/>
   <class name="edm::Wrapper< SiStripEventSummary >"/>
 
-  <class name="Profile"/>
-  <class name="edm::DetSetVector<Profile>"/>
-  <class name="Histo"/>
-  <class name="edm::DetSetVector<Histo>"/>
-
 </lcgdict>
 
 

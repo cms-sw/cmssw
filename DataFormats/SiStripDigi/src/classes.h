@@ -38,18 +38,6 @@ namespace {
   }
 }
 
-#include "DataFormats/SiStripDigi/interface/Profile.h"
-#include "DataFormats/SiStripDigi/interface/Histo.h"
-namespace {
-  namespace {
-    edm::Wrapper<Profile> profile;
-    edm::Wrapper< edm::DetSetVector<Profile> > profiles;
-    edm::Wrapper<Histo> histo;
-    edm::Wrapper< edm::DetSetVector<Histo> > histos;
-
-  }
-}
-
 #endif // DataFormats_SiStripDigi_Classes_H
 
 
