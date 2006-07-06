@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/04 18:46:16 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -76,6 +76,8 @@ void htmlOutput(int run, string htmlDir, string htmlName);
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
+template<class T> void AdjustRange(T obj);
+
 private:
  const static int cryInArray_ = 9;
 
@@ -135,6 +137,9 @@ TH2F* hBBeamCentered_;
 TH1F* hbTBmoving_;
 
 TProfile* pBCriInBeamEvents_;
+
+TProfile* hBpulse_[cryInArray_];
+
 
 MonitorElement* meEBBCaloRedGreen_;
 MonitorElement* meEBBCaloRedGreenReadCry_;

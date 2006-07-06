@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/04 13:48:22 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/04 18:46:16 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -563,8 +563,23 @@ void EBBeamCaloClient::analyze(void){
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event").c_str() );}
   me = mui_->get(histo);
   pBCriInBeamEvents_ =  EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
-
-
+  
+  if ( collateSources_ ){;}
+  else {
+    char me_name[200];
+    for(int ind = 0; ind < cryInArray_; ind ++){
+      sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", ind+1);
+      sprintf(histo, (prefixME_ + me_name).c_str() );
+      me = mui_->get(histo);
+      hBpulse_[ind] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
+      
+      sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", ind+1);
+      sprintf(histo, (prefixME_ + me_name).c_str() );
+      me = mui_->get(histo);
+      hBGains_[ind] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
+    }
+  }
+  
   int DoneCry = 0;//if it stays 0 the run is not an autoscan
   if (hBcryDone_){
     for(int cry=1 ; cry<1701 ; cry ++){
@@ -748,7 +763,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   string meName,imgName1,imgName2,imgName3;
   TH2F* obj2f = 0;
   TH1F* obj1f = 0;
-  
+  TProfile* objp1 = 0;
 
   ////////////////////////////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -847,7 +862,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(3, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
-    obj2f->SetTitle("");
+    //obj2f->SetTitle("");
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
@@ -889,6 +904,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -916,6 +932,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1031,6 +1048,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1058,6 +1076,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1103,6 +1122,98 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
   ////////////////////////////////////////////////////////////////////////////////
+  string pulseImg[cryInArray_], gainsImg[cryInArray_], pulseImgF[cryInArray_], gainsImgF[cryInArray_];
+  for(int ind = 0; ind < cryInArray_; ind ++){
+    objp1 = hBpulse_[ind]; 
+    if ( objp1 ) {
+      TCanvas* can = new TCanvas("can", "Temp", csize, csize);
+      meName = objp1->GetName();
+      
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1, "_");
+	}
+      }
+      pulseImg[ind] = meName + ".png";
+      pulseImgF[ind] = htmlDir + pulseImg[ind] ;
+      
+      can->cd();
+      objp1->SetStats(kTRUE);
+      gStyle->SetOptStat("e");
+      objp1->Draw();
+      can->Update();
+      can->SaveAs( pulseImgF[ind].c_str());
+      delete can;
+    }
+    
+    obj1f = hBGains_[ind];
+    if ( obj1f ) {
+      TCanvas* can = new TCanvas("can", "Temp", csize, csize);
+      meName = obj1f->GetName();
+    
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1, "_");
+	}
+      }
+      gainsImg[ind] = meName + ".png";
+      gainsImgF[ind] = htmlDir + gainsImg[ind];
+      
+      can->cd();
+      obj1f->SetStats(kTRUE);
+      gStyle->SetOptStat(1110);
+      if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
+      obj1f->Draw();
+      can->Update();
+      can->SaveAs(gainsImgF[ind].c_str());
+      gStyle->SetOptLogy(0);
+      delete can;
+    }
+
+  }
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td>" << endl;
+  int row = (int) sqrt(float(cryInArray_));
+  ///// sub table /////////////////
+  htmlFile << "<table border=\"4\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for(int ind=0; ind < cryInArray_; ind++){
+    if ( pulseImgF[ind].size() != 0 )
+      htmlFile << "<td><img src=\"" << pulseImg[ind] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    if ( (ind+1) % row == 0){htmlFile << "</tr>" << endl;}
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+  /////
+  htmlFile << "</td>" << endl;
+  htmlFile << "<td>" << endl;
+  ////sub table /////////////////
+  htmlFile << "<table border=\"4\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  
+  for(int ind=0; ind < cryInArray_; ind++){
+    if ( gainsImgF[ind].size() != 0 )
+      htmlFile << "<td><img src=\"" << gainsImg[ind] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    if ( (ind+1) % row == 0){htmlFile << "</tr>" << endl;}
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+  ///////////
+  htmlFile << "</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+  //////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1125,6 +1236,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1153,6 +1265,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
+    AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1185,6 +1298,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    AdjustRange(obj1f);
     obj1f->Draw("e");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1212,6 +1326,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    AdjustRange(obj1f);
     obj1f->Draw("e");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1232,7 +1347,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   // cryVSeventImg, TBmoving;
-  TProfile* objp1 = pBCriInBeamEvents_;
+  objp1 = pBCriInBeamEvents_;
   if ( objp1 ) {
     TCanvas* can = new TCanvas("can", "Temp", 3*csize, csize);
     meName = objp1->GetName();
@@ -1248,6 +1363,20 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     //objp1->SetStats(kTRUE);
     //gStyle->SetOptStat("e");
+    float dd = objp1->GetBinContent(2)+0.01;
+    objp1->Fill(21,dd);
+    AdjustRange(objp1);
+    float Ymin = 1701, Ymax =0;
+    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
+      float temp = objp1->GetBinContent(bin);
+      if(temp >0){
+	if(temp < Ymin){Ymin=temp;}
+	if(temp > Ymax){Ymax=temp;}
+      }
+    }
+    //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
+    if( Ymin < Ymax+1 ){objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);}
+
     objp1->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1293,5 +1422,22 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile.close();
 
+}
+
+template<class T> void EBBeamCaloClient::AdjustRange( T obj){
+  if (obj->GetEntries() == 0) {return;}
+  int first_bin = -1, last_bin=-1;
+  for( int bin=1; bin < obj->GetNbinsX()+1; bin++ ){
+    if( obj->GetBinContent(bin) > 0){
+      if(first_bin == -1){first_bin = bin;}
+      last_bin = bin;
+    }
+  }
+  
+  if(first_bin < 1 || last_bin < 1){return;}
+  if(first_bin > 1){first_bin -= 1;}
+  if(last_bin < obj->GetNbinsX() ){last_bin += 1;}
+  
+  obj->GetXaxis()->SetRange(first_bin, last_bin);
 }
 
