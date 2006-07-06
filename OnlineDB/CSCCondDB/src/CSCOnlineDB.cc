@@ -30,7 +30,7 @@
   int i,j,k;
   std::string tab, tab_map, tab_data;
   std::string sqlStmt, sqlStmt1;
-  int rec_id, map_id;
+  int rec_id, map_id, map_index;
   tm curtime;
   time_t now;
 
@@ -113,12 +113,31 @@
     std::cout<<ex.getMessage() << std::endl;
    }
   }
+
   sqlStmt = "SELECT max(map_id) from "+tab_map;
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
   try{
     while (rset->next ())
     {map_id= rset->getInt (1);}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
+  stmt->closeResultSet (rset);
+
+  std::ostringstream ss;
+  ss<<record;
+
+  sqlStmt = "SELECT max(map_index) from "+tab_map+" where record_id="+ss.str();
+  ss.str(""); // clear
+  stmt->setSQL(sqlStmt);
+  rset = stmt->executeQuery ();
+  try{
+    while (rset->next ())
+    {map_index= rset->getInt (1);}
      }catch(oracle::occi::SQLException ex)
     {
      std::cout<<"Exception thrown: "<<std::endl;
@@ -134,7 +153,6 @@
   itm=obj->obj.begin();
   int sizeint=itm->second[0].size();
   sqlStmt1 = "INSERT INTO "+tab_data+" VALUES (:1, :2";
-  std::ostringstream ss;
   for(i=1;i<sizeint+1;++i){
     ss<<i+2;
     sqlStmt1=sqlStmt1+", :"+ss.str();
@@ -156,7 +174,6 @@
   stmt1 = con->createStatement ();
   stmt1->setSQL(sqlStmt1);
 
-  int map_index=0;
   for(itm=obj->obj.begin();itm!=obj->obj.end(); ++itm){
    int id_det=itm->first;
    int sizev=obj->obj[id_det].size();
