@@ -164,29 +164,27 @@ string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
 
   uint32_t curr = 0; // current string position
   uint32_t next = 0; // next string position
-  next = directory.find( sistrip::readoutView_, curr );
+  next = directory.find( sistrip::readoutView_, curr ) 
+    + sistrip::readoutView_.size();
   // Extract view 
-  curr = next;
-  if ( curr != string::npos ) { 
-    next = directory.find( sistrip::fedId_, curr );
-    string readout_view( directory, 
-			 curr+sistrip::readoutView_.size(), 
-			 (next-sistrip::dir_.size())-curr );
+  if ( next != string::npos ) { 
     // Extract FED Id
-    curr = next;
-    if ( curr != string::npos ) { 
-      next = directory.find( sistrip::fecSlot_, curr );
-      string fed_id( directory, 
-			curr+sistrip::fecCrate_.size(), 
-			(next-sistrip::dir_.size())-curr ); 
+    curr = directory.find( sistrip::fedId_, next ) 
+      + sistrip::fedId_.size();
+    next = directory.find( sistrip::dir_, curr);
+    if ( next != string::npos ) { 
+       string fed_id( directory, 
+		      curr, 
+		      next - curr); 
       path.first = atoi( fed_id.c_str() );
       // Extract FED Channel
-      curr = next;
+    curr = directory.find( sistrip::fedChannel_, next ) 
+      + sistrip::fedChannel_.size();
+    next = directory.find( sistrip::dir_, curr);
       if ( curr != string::npos ) { 
-	next = directory.find( sistrip::fedChannel_, curr );
 	string fed_channel( directory, 
-			 curr+sistrip::fecSlot_.size(), 
-			 (next-sistrip::dir_.size())-curr );
+			    curr, 
+			    next - curr );
 	path.second = atoi( fed_channel.c_str() );
       }
     }
