@@ -24,6 +24,8 @@
                   <properties xmlns="urn:xdaq-application:SiStripClient" xsi:type="soapenc:Struct">
                     <serverHost xsi:type="xsd:string">.collector</serverHost>
                     <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
+                    <reconnectDelaySecs xsi:type="xsd:unsignedLong">5</reconnectDelaySecs>
+                    <actAsServer xsi:type="xsd:boolean">false</actAsServer>
                   </properties>
                 </xc:Application>
 

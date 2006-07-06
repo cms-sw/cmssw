@@ -23,10 +23,14 @@
     trackermap.txt                   : header of the SVG file to be created
 
   o sendCmdToApp.pl                  : scripts needed to start the xdaq.exe
-    webPingXDAQ.pl       
-    WebLib.js               
-   
-  o setup.sh                         : creates necessary xml and other files needed
+    webPingXDAQ.pl 
+      
+  o ConfigBox.js, GifDisplay.js,     : Java scripts for the Web Widjets
+    Navigator.js,  WebLib.js, 
+    Select.js, ContentViewer.js  
+    Messages.js
+
+  o setup.sh                         : creates necessary xml and scripts needed
                                        for a given environment
 
   o .SiStripClient.xml                : used by setup.sh to create real ones
@@ -48,22 +52,53 @@
 3. Running
 =================
 
-  - do not forget to execute
-     eval `scramv1 runtime -csh`
+   The Client needs have Source and the Collector to run. The Collector and the Client 
+    must not run in the same machine. It is probably better to start Collector, Client 
+    and Source on three different macchines.
 
-  - collector
-        execute DQLCollector from any directory 
+  - Collector
+       o login to a (lxplus) machine
+       o go to the CMSSW working directory
+       o do a eval `scramv1 runtime -csh`
+       o execute "DQMCollector"
 
-  - source
-        execute cmsRun -p DQM_digicluster.cfg in DQM/StripMonitorCluster/test directory
+   - Source
+       o login to a (lxplus) machine (possibly different than the Collector one)
+       o go to DQM/StripMonitorCluster/test area of CMSSW working directory
+       o do a eval `scramv1 runtime -csh`
+       o put the Collector machine name in DQM/StripMonitorCluster/data/MonitorDaemon.cfi
+         config file (in the field DestinationAddress)
+       o execute "cmsRun -p  OnlyDQM.cfg"
 
 
-  - client (start xdaq executable)
+   - Client (start xdaq executable)
        in DQM/SiStripMonitorClient/test directory
 
-        o execute setup.sh script to setup the machine name
-        o execute startMonitorClient script to start xdaq executable
+       o login to a machine which must be different wrt the Collector one
+       o go to DQM/SiStripMonitorClient/test of the CMSSW working directory, 
+       o do a eval  `scramv1 runtime -csh`
+       o execute setup.sh script to setup the machine names for Collector and Client
+         (the Client machine is taken automatically, instead the Collector machine
+          name should be put in the argument)
 
-        o in a web browser open the link
-           http://MACHINE_NAME:1972  (e.g http://lxplus020.cern.ch:1972)
+          setup.sh COLLECTOR_MACHINE_NAME
 
+       o execute startMonitorClient script to start xdaq executable
+
+       o in a web browser open the link
+           http://CLIENT_MCHINE_NAME:1972  (e.g http://lxplus020.cern.ch:1972)
+       o select SiStripClient application from XDAQ window
+       o click "Configure" and "Enable" buttons .... then the Client is ready to run!
+
+   - IGUANA-CMS GUI
+
+      one can start the IGUANA-CMS GUI using the Client as the server. To do that
+      one has to use "actAsServer" as true in .SiStripClient.xml before executing
+      setup.sh before starting the Client
+
+      o go to any directory inside CMSSW working area
+      o do a eval  `scramv1 runtime -csh`     
+      o execute "iguana"
+      o select "Vis Example--NTuple browser"
+      o specify Client machine name (or the Collector) and the port (9090)
+      
