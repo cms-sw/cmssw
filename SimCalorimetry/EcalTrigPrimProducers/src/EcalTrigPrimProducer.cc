@@ -5,8 +5,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
+#include "DataFormats/Common/interface/Provenance.h"
 
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -31,13 +34,31 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
   
   label_= iConfig.getParameter<std::string>("Label");
   fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
+  algo_=NULL;
   //FIXME: add configuration
 					      
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   //FIXME add config for validation
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_);
+
+  //get  binOfMax
+    edm::Service<edm::ConstProductRegistry> reg;
+    // Loop over provenance of products in registry.
+    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
+	 it != reg->productList().end(); ++it) {
+      // See FWCore/Framework/interface/BranchDescription.h
+      // BranchDescription contains all the information for the product.
+      edm::BranchDescription desc = it->second;
+      if (!desc.friendlyClassName_.compare(0,18,"EBDataFramesSorted")) {
+      edm::ParameterSet result;
+      edm::pset::Registry::instance()->getParameterSet(desc.psetID(), result);
+      binOfMaximum_=result.getParameter<int>("binOfMaximum");
+      break;
+      }
+    }
+    algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_);
+    cout <<" EcalTrigPrimProducer built with nrSamples: "<<nrSamples_<<" found binOfMaximum = "<<binOfMaximum_<<endl;
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -59,24 +80,22 @@ void
 EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
 
-  using namespace edm;
+  //  using namespace edm;
   edm::Handle<EBDigiCollection> ebDigis;
-  //  e.getByType(ebDigis);
   e.getByLabel(label_,ebDigis);
   edm::Handle<EEDigiCollection> eeDigis;
-  //  e.getByType(eeDigis);
   e.getByLabel(label_,eeDigis);
 
   LogDebug("Startproduce") <<" =================> Treating event "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new EcalTrigPrimDigiCollection);
   
-  //get and set binOfMax
-  const Provenance p=e.getProvenance(ebDigis.id());
-  ParameterSet result;
-  pset::Registry::instance()->getParameterSet(p.psetID(), result);
-  int binofmax=result.getParameter<int>("binOfMaximum");
-  //pout->setBinOfMax(binofmax);
-  cout<<" bin of Max : "<<binofmax<<endl;
+//   //get and set binOfMax
+//   const Provenance p=e.getProvenance(ebDigis.id());
+//   ParameterSet result;
+//   pset::Registry::instance()->getParameterSet(p.psetID(), result);
+//   int binofmax=result.getParameter<int>("binOfMaximum");
+//   //pout->setBinOfMax(binofmax);
+//   cout<<" bin of Max : "<<binofmax<<endl;
 
   // invoke algorithm  //FIXME: better separation
   //   algo_->setupES(iSetup);

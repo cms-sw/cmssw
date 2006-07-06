@@ -26,7 +26,8 @@ namespace tpg {
     virtual ~EcalBarrelFenixTcp() ;
 
     //    void process(std::vector<EcalTriggerPrimitiveSample> tpframetow, EcalTriggerPrimitiveSample tptow);
-    void process(std::vector<std::vector<int> > & tpframetow, EcalTriggerPrimitiveDigi & tptow);//steph
+    //    void process(std::vector<std::vector<int> > & tpframetow, EcalTriggerPrimitiveDigi & tptow);//steph
+    void process(std::vector<std::vector<int> > & tpframetow, std::vector<int> &out);
     EcalFenixBypassLin *getBypasslin(int i) const {return bypasslin_[i];}
     EcalFenixEtTot *getAdder() const { return  dynamic_cast<EcalFenixEtTot *>(adder_);}
     EcalFenixMaxof2 *getMaxOf2() const {return maxOf2_;}
@@ -34,7 +35,7 @@ namespace tpg {
     EcalFenixFgvbEB *getFGVB() const {return dynamic_cast<EcalFenixFgvbEB *>(fgvb_);}
 
   private:
-    enum {nStripsPerTower_ = 5};  //UB FIXME: configure?
+    enum {nStripsPerTower_ = 5};  //
 
     EcalFenixMaxof2 *maxOf2_;
     EcalFenixBypassLin *bypasslin_[nStripsPerTower_];

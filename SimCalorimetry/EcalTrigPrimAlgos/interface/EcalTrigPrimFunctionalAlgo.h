@@ -33,8 +33,8 @@ public:
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
@@ -57,7 +57,9 @@ private:
   // create stripnr
   int createStripNr(const EBDetId& cryst);
 
-  //--------------------
+  int calculateTTF(const int en);
+
+ //--------------------
 
 
   typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EBDataFrame> >,std::less<EcalTrigTowerDetId> > SUMVB;
@@ -107,6 +109,9 @@ private:
   //for validation
   bool valid_;
   TTree * valTree_;
+
+  int binOfMaximum_;
+  int nrSamplesToWrite_;
 };
 
 #endif

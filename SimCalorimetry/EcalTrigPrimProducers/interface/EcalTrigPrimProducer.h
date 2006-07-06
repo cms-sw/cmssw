@@ -44,6 +44,8 @@ class EcalTrigPrimProducer : public edm::EDProducer
   bool valid_;
   std::string label_;
   int fgvbMinEnergy_;
+  int binOfMaximum_;
+  enum {nrSamples_= 5}; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
 };
   
 #endif

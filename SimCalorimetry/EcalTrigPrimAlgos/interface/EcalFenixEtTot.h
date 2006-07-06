@@ -29,7 +29,7 @@ class EcalFenixEtTot : public EcalVAdder {
  public:
   EcalFenixEtTot();
   virtual ~EcalFenixEtTot();
-  virtual std::vector<int> process(std::vector<EBDataFrame> ); //UB FIXME: used??
+  virtual std::vector<int> process(const std::vector<EBDataFrame> &); 
     
     std::vector<int> process(std::vector<std::vector <int> >);
 

@@ -22,7 +22,7 @@ class EcalVAdder {
 
 
  public:
-  virtual std::vector<int> process(std::vector<EBDataFrame>) =0;
+  virtual std::vector<int> process(const std::vector<EBDataFrame> &) =0;
   };
 
 } /* End of namespace tpg */

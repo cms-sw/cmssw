@@ -29,7 +29,7 @@ namespace tpg {
 
   { 
 
- // call linearizer
+    // call linearizer
     vector<EBDataFrame> lin_out;
     //this is a test:
     //    cout<<"EcalBarrelFenixStrip input is a vector of size: "<<df.size()<<endl;
@@ -40,6 +40,7 @@ namespace tpg {
 //       cout <<"cryst= "<<cryst<<" EBDataFrame is: "<<endl; 
 //       for ( int i = 0; i<cc.size();i++){
 // 	cout <<" "<<df[cryst][i];
+// 	if (df[cryst][i].adc() > 210) cout<<" is great!!";
 //       }
 //       cout<<endl;
 

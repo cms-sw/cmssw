@@ -12,7 +12,7 @@ namespace tpg {
   EcalFenixEtTot::~EcalFenixEtTot(){
   }
 
-  vector<int> EcalFenixEtTot::process(vector<EBDataFrame> calodatafr){
+  vector<int> EcalFenixEtTot::process(const vector<EBDataFrame> &calodatafr){
     std::vector<int> out;
     return out;
   }

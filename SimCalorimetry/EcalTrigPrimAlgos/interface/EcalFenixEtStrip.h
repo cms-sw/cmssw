@@ -34,7 +34,7 @@ class EcalFenixEtStrip : public EcalVAdder {
  public:
   EcalFenixEtStrip();
   virtual ~EcalFenixEtStrip();
-  virtual std::vector<int> process(std::vector<EBDataFrame> ); 
+  virtual std::vector<int> process(const std::vector<EBDataFrame> &); 
   };
 
 } /* End of namespace tpg */

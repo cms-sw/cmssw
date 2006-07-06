@@ -13,7 +13,7 @@ namespace tpg {
   
   
   
-  vector<int> EcalFenixEtStrip::process(vector<EBDataFrame> linout)
+  vector<int> EcalFenixEtStrip::process(const vector<EBDataFrame> &linout)
   {
     std::vector<int> output(SIZEMAX);
     for (int i =0;i<SIZEMAX;i++){
@@ -22,8 +22,6 @@ namespace tpg {
     //    cout<<" size of EtStrip input is: "<<linout.size()<<endl;;
     for(unsigned int ixtal=0;ixtal<linout.size();ixtal++){
       for (int i=0;i<SIZEMAX;i++) {
-	EBDataFrame temp= linout[ixtal];
-	//	cout<<"value is: "<<temp[i]<<endl;
  	output[i]+=(linout[ixtal])[i].adc();
 	if(output[i]>0X3FFFF)output[i]=0X3FFFF;
       }

@@ -22,12 +22,12 @@
 
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup):valid_(false),valTree_(NULL)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples)
 
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree):valid_(true),valTree_(tree)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
@@ -103,9 +103,13 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
   }// loop over all CaloDataFrames
   std::cout << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
-  	    << sumEndcap_.size() << " EFRY towers  "  << std::endl;
+  	    << mapEndcap_.size() << " EFRY towers  "  << std::endl;
 
-  
+  // prepare writing of TP-s
+
+        int firstSample = binOfMaximum_-1 -nrSamplesToWrite_/2;
+        int lastSample = binOfMaximum_-1 +nrSamplesToWrite_/2;
+ 
  //   Barrel treatment
 
     SUMVB::const_iterator it = sumBarrel_.begin(); 
@@ -143,11 +147,18 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	   }
 
 
-	EcalTriggerPrimitiveDigi tptow(thisTower);
+	std::vector<int> towtp;
+	ebtcp_.process(striptp,towtp);
 
-	ebtcp_.process(striptp,tptow);
-	result.push_back(tptow);
-	
+	// Fill TriggerPrimitiveDigi
+	EcalTriggerPrimitiveDigi tptow(thisTower);
+	tptow.setSize(nrSamplesToWrite_);
+        if (towtp.size()<nrSamplesToWrite_)  cout<<"EcalTrigPrimFunctionalAlgo: too few samples produced, nr is "<<towtp.size()<<endl;
+	int isam=0;
+        for (int i=firstSample;i<=lastSample;++i) {
+          tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp[i]));
+	}
+  	result.push_back(tptow);
       }
 
     //   Endcap treatment
@@ -165,38 +176,45 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	// loop over all strips assigned to this trigger tower
  	std::vector<int> striptp;
 
-	EcalTriggerPrimitiveDigi tptow(thisTower);
 
         int nrFrames=mapEndcap_[thisTower].size();
 	// first, estimate thresholds
-	std::vector<int>  thresholds(nrFrames);
+        std::vector<int>  thresholds(nrFrames);
 	LogDebug("treatEndcap")<<"\nFor TT "<<itow<<", size of vector  "<<mapEndcap_[thisTower].size()<<" ID "<<thisTower;
         for (int ii=0;ii<nrFrames;++ii) {
 	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
 	  LogDebug("treatEndcap")<<" Crystal "<< ii<<" threshold "<<thresholds[ii]<<", energies: ";
-	  for (int j=0;j<(mapEndcap_[thisTower][ii]).size();++j) 	LogDebug("treatEndcap")<<" "<<(mapEndcap_[thisTower][ii])[j].adc();
+	  for (int j=0;j<(mapEndcap_[thisTower][ii]).size();++j) {
+	    LogDebug("treatEndcap")<<" "<<(mapEndcap_[thisTower][ii])[j].adc();
+	  }
 	  LogDebug("treatEndcap")<<"\n";
 	}
 	// 	eetcp_.process(striptp,tptow);
 	int nrSamples=mapEndcap_[thisTower][0].size();
-        for (int i=0;i<nrSamples;++i) {
-	  //	  std::vector<int>  crystal_en;
+	std::vector<EcalTriggerPrimitiveSample> primitives;
+	for (int i=0;i<nrSamples;++i) {
 	  int et=0,etmax=0;
 
 	  for (int ii=0;ii<nrFrames;++ii) {
 	    int en=(mapEndcap_[thisTower][ii])[i].adc();
-	    et += en- thresholds[ii];
+	    et += TMath::Max(en- thresholds[ii],0);
 	    if (en- thresholds[ii] > etmax) etmax=en- thresholds[ii];
 	  }
 
 	  int fgvb=0;
 	  if (etmax > fgvbMinEn && float(etmax)/float(et) > .85) fgvb=1;
 	  LogDebug("EndcapTP")<<" For sample "<<i<<" summed et "<<et<<" fgvb "<<fgvb<<" etmax "<<etmax;
-          int comp=et | fgvb;
-	  tptow.setSample(i,EcalTriggerPrimitiveSample(uint16_t(comp)));
+	  primitives.push_back(EcalTriggerPrimitiveSample(et,fgvb,calculateTTF(et)));
+	}
+	// Fill TriggerPrimitiveDigi
+	EcalTriggerPrimitiveDigi tptow(thisTower);
+	tptow.setSize(nrSamplesToWrite_);
+        if (nrSamples<nrSamplesToWrite_)  cout<<"EcalTrigPrimFunctionalAlgo: too few samples produced, nr is "<<nrSamples<<endl;
+	int isam=0;
+        for (int i=firstSample;i<=lastSample;++i) {
+          tptow.setSample(isam++,primitives[i]);
 	}
        	result.push_back(tptow);
-	
       }
 }
 
@@ -265,5 +283,15 @@ int EcalTrigPrimFunctionalAlgo::createStripNr(const EBDetId &cryst) {
 }
 
 
+//----------------------------------------------------------------------
+int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
+  //temporary version of TTF calculation
+  int high=83; // adc value corresponding to 5 GeV, factor 0.06
+  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+  int ttf=0;
+  if (en>high) ttf=3;
+  else if (ttf<high && ttf >low ) ttf=2;
+  return ttf;
+}
 
 
