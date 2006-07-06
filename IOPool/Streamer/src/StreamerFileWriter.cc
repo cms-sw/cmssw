@@ -217,7 +217,6 @@ void StreamerFileWriter::write(EventPrincipal const& e)
 
 void StreamerFileWriter::serialize(EventPrincipal const& e)
   {
-    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
     // all provenance data needs to be transferred, including the
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
@@ -236,7 +235,9 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
           << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
-      if (group.get() == 0) {
+      assert(group.get());
+      // ModuleDescription md = group->provenance().moduleDescription();
+      if (group->product() == 0) {
         std::string const& name = desc.className();
         std::string const className = wrappedClassName(name);
         TClass *cp = gROOT->GetClass(className.c_str());
@@ -248,12 +249,7 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
 	}
         EDProduct *p = static_cast<EDProduct *>(cp->New());
 
-        Provenance prov(desc);
-        prov.event.status = BranchEntryDescription::CreatorNotRun;
-        prov.event.productID_ = id;
-        provenances.push_back(prov);
-        Provenance & provenance = *provenances.rbegin();
-        se.prods_.push_back(ProdPair(p, &provenance));
+        se.prods_.push_back(ProdPair(p, &group->provenance()));
       } else {
         se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
       }

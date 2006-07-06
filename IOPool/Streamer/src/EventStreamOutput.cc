@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.19 2006/06/24 02:41:13 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.20 2006/06/25 14:13:43 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -146,7 +146,6 @@ namespace edm
 
   void EventStreamerImpl::serialize(EventPrincipal const& e)
   {
-    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
     // all provenance data needs to be transferred, including the
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
@@ -162,26 +161,23 @@ namespace edm
 	  << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
-      if (group.get() == 0) {
-	std::string const& name = desc.className();
-	std::string const className = wrappedClassName(name);
-	TClass *cp = gROOT->GetClass(className.c_str());
-	if (cp == 0) {
+      assert(group.get());
+      // ModuleDescription md = group->provenance().moduleDescription();
+      if (group->product() == 0) {
+        std::string const& name = desc.className();
+        std::string const className = wrappedClassName(name);
+        TClass *cp = gROOT->GetClass(className.c_str());
+        if (cp == 0) {
           throw edm::Exception(errors::ProductNotFound,"NoMatch")
             << "TypeID::className: No dictionary for class " << className << '\n'
             << "Add an entry for this class\n"
             << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-	}
-	EDProduct *p = static_cast<EDProduct *>(cp->New());
+        }
+        EDProduct *p = static_cast<EDProduct *>(cp->New());
 
-	Provenance prov(desc);
-	prov.event.status = BranchEntryDescription::CreatorNotRun;
-	prov.event.productID_ = id;
-	provenances.push_back(prov);
-	Provenance & provenance = *provenances.rbegin();
-	se.prods_.push_back(ProdPair(p, &provenance));
+        se.prods_.push_back(ProdPair(p, &group->provenance()));
       } else {
-	se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
       }
     }
 

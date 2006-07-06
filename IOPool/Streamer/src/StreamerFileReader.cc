@@ -163,12 +163,17 @@ namespace edmtestp
         auto_ptr<Provenance> aprov(new Provenance);
         aprov->event   = *(aedesc.get());
         aprov->product = *(adesc.get());
-        if(aprov->event.status == BranchEntryDescription::Success) {
+        if(aprov->isPresent()) {
           FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
           FDEBUG(10) << "addgroup next " << aprov->event.productID_ << endl;
           ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));
           FDEBUG(10) << "addgroup done" << endl;
-        }
+        } else {
+          FDEBUG(10) << "addgroup empty next " << aprov->productID() << endl;
+          FDEBUG(10) << "addgroup empty next " << aprov->event.productID_ << endl;
+          ep->addGroup(auto_ptr<Group>(new Group(aprov, false)));
+          FDEBUG(10) << "addgroup empty done" << endl;
+	}
         spi->clear();
       }
 

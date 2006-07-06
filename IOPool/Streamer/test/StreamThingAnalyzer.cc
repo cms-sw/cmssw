@@ -32,7 +32,7 @@ namespace
     AllSelector(const std::string& name):name_(name) {}
     
     virtual bool doMatch(const edm::ProvenanceAccess& p) const {
-      return p.product().moduleLabel()==name_;
+      return p.provenance().moduleLabel()==name_;
     }
 
   private:
