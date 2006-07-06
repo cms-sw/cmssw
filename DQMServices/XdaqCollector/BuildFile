@@ -6,5 +6,5 @@
 <use name=DQMServices/UI>
 <use name=DQMServices/Components>
 <export>
- <lib name=xdaqCollector>
+ <lib name=DQMServicesXdaqCollector>
 </export>
