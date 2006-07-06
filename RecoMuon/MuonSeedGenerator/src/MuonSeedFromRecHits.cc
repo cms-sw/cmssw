@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/06/27 13:42:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/05 09:32:45 $
+ *  $Revision: 1.8 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -542,38 +542,40 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   const FreeTrajectoryState state = *(tsos.freeState());
   
-  LogDebug(metname) << " Before extrapolation" << endl;
+  LogDebug(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
   debug.dumpFTS(state,metname);
   
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
   const DetLayer *initialLayer = muonLayers->idToLayer(id);
 
-  if(last->isDT()){
-    DTChamberId chamberId(id.rawId());
-    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
-  }
-  else if(last->isCSC()){
-    CSCDetId chamberId(id.rawId());
-    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
-  }
-  else if(last->isRPC()){
-    RPCDetId chamberId(id.rawId());
-    LogDebug(metname)<<"Starting from: "<<chamberId<<endl;  
-  }
-  else edm::LogWarning(metname)<<"The DetLayer is not a valid Muon DetLayer. ";
-  
+  // Segment layer
+  LogDebug(metname) << "The RecSegment relies on: "<<endl;
+  debug.dumpMuonId(last->geographicalId(),metname);
+
   // ask for compatible layers
   vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
-  
+  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
+
   std::vector<DetWithState> detsWithStates;
 
   if(detLayers.size()){
+    LogDebug(metname) <<"Compatible layers:"<<endl;
+    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); layer != detLayers.end(); layer++){
+      debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId(),metname);
+      debug.dumpLayer(*layer,metname);
+    }
+    
     // ask for compatible dets
+    LogDebug(metname) <<"Most internal one:"<<endl;
     debug.dumpLayer(detLayers.back(),metname);
+    debug.dumpTSOS(tsos,metname);
     detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
     LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
   }
+  else
+    LogDebug(metname)<<"No compatible layers found"<<endl;
+
 
   if(detsWithStates.size()){
     // get the updated TSOS
@@ -582,23 +584,10 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     
     if ( newTSOS.isValid() ) {
       
-      // Get the corresp. chamber id
-//       if(last->isDT()){
-// 	DTChamberId internalChamberId( newTSOSDet->geographicalId().rawId() );
-// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
-      
-//       }
-//       else if(last->isCSC()){
-// 	CSCDetId internalChamberId( newTSOSDet->geographicalId().rawId() );
-// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
-//       }
-//       else if(last->isRPC()){
-// 	RPCDetId internalChamberId( newTSOSDet->geographicalId().rawId() );
-// 	LogDebug(metname)<<"Most compatible det: "<<internalChamberId<<endl;
-//       }
-//       else edm::LogWarning(metname)<<"The DetLayer is not a valid Muon DetLayer. ";
-      
-      LogDebug(metname) << "After Extrapolation"<<endl;
+      LogDebug(metname)<<"Most compatible det: "<<endl;
+      debug.dumpMuonId(newTSOSDet->geographicalId(),metname);
+
+      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
       debug.dumpTSOS(newTSOS, metname);
       
       // Transform it in a TrajectoryStateOnSurface
