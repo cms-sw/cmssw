@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/04/27 13:22:15 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/04/27 21:56:57 $
+ *  $Revision: 1.25 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -200,7 +200,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       // for the time being consider only zside>0
 
       int etaTT = (_ExpectedTowers[_expTowersIndex]-1)  / kTowersInPhi +1;
-      int phiTT = kTowersInPhi - ((_ExpectedTowers[_expTowersIndex]-1)  % kTowersInPhi);
+      int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
+
 
       EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
 
