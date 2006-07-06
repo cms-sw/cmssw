@@ -132,4 +132,4 @@ public:
 };
 
 
-#endif /*L1GCTREGION_H_*/
+#endif /*L1CALOREGION_H*/

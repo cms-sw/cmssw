@@ -2,6 +2,10 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
+unsigned const L1CaloRegionDetId::N_PHI=18;
+unsigned const L1CaloRegionDetId::N_ETA=22;
+
+
 // default constructor - null DetId
 L1CaloRegionDetId::L1CaloRegionDetId() : DetId() { }
 

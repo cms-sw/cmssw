@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: 2006/07/03 12:55:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/05 09:22:13 $
+ *  $Revision: 1.7 $
  *  \author Jim Brooke 
 */
 
@@ -20,6 +20,9 @@
 class L1CaloRegionDetId : public DetId {
 
  public:
+
+  static const unsigned N_PHI;
+  static const unsigned N_ETA;
 
   /// create null id
   L1CaloRegionDetId();
@@ -68,11 +71,6 @@ class L1CaloRegionDetId : public DetId {
 
   /// return local RCT phi index (0-1)
   unsigned rctPhi() const { return (iphi()%2); }  /// TODO - check this is correct
-
- private:
-
-  static const unsigned N_PHI=18;
-  static const unsigned N_ETA=22;
 
 };
 
