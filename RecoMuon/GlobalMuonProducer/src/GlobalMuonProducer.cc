@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/06/26 23:55:32 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/07/06 12:52:08 $
+ *   $Revision: 1.7 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -28,6 +28,7 @@
 
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 using namespace edm;
@@ -47,13 +48,8 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   theSTACollectionLabel = parameterSet.getParameter<string>("MuonCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
-
-  //theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet),
-  //                                     new GlobalMuonTrackLoader());
-
   theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
   
-
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -82,7 +78,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& setup) {
   LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "Global Muon Reconstruction started" << endl;  
 
   // Take the STA muon container
-  Handle<TrackCollection> staMuons;
+  Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
 
   // Reconstruct the tracks in the tracker+muon system
