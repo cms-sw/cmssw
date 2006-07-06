@@ -32,7 +32,7 @@ private:
   int theId;
   std::vector<TriggerBoardSpec> theTBs;
 
-  static const int MIN_CHANNEL_NUMBER = 0;
+  static const int MIN_CHANNEL_NUMBER = 1;
   static const int NUMBER_OF_CHANNELS = 68;
 };
 

@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/06/30 19:27:58 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/02 00:08:56 $
+ *  $Revision: 1.14 $
  *
  * \author Ilaria Segoni
  */
@@ -73,20 +73,30 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
          readoutMapping->location(eleIndex);
       const LinkBoardSpec* linkBoard = lbcls.first;
       const ChamberLocationSpec* location = lbcls.second;
-      if (!location) throw cms::Exception("Invalid Chamber Location !");
+      if (!location) {
+         throw cms::Exception("Invalid Chamber Location !") 
+                  << "dccId: "<<eleIndex.dccId
+                  << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
+                  << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
+                  << " lbNumInLink: "<<eleIndex.lbNumInLink;
+      }
 
 	std::vector<int> bits=lbData.bitsOn();
 	for(std::vector<int>::iterator pBit = bits.begin(); pBit !=
     		      bits.end(); ++pBit){
 
-		int rawBit = *(pBit);
-
-            // FIXME convert to LinkBoardFrame (unpartitioning), check
-            int lbBit = lbData.partitionNumber()*8 + lbData.halfP()*4+rawBit;
+            // fired strip in LB frame
+		int lbBit = *(pBit);
 
             // FIXME  not sure about conversion, check! 
-            int febInLB = lbBit/6;
-            int stripPinInFeb = lbBit%6;
+            int febInLB = lbBit%6;
+            int stripPinInFeb = lbBit/6;
+
+//          std::cout << " febInLB: " << febInLB 
+//                    << " stripPin: " << stripPinInFeb 
+//                    << " (partitionNumber: " <<lbData.partitionNumber()
+//                    <<" half: " << lbData.halfP()<< " rawBit: "<<rawBit
+//                    <<" )"<< std::endl;
 
             // corresponfing FEB and strip
             const FebSpec * feb = linkBoard->feb(febInLB);
@@ -100,7 +110,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             // det unit to which feb is assigned
             const uint32_t & rawDetId = feb->rawId(*location);
             
-            // FIXME convert bits to DetUnitFrame  
+            // FIXME convert bits to DetUnitFrame, if necessary  
             int geomStrip = deteStrip;
 
 		/// Creating RPC digi

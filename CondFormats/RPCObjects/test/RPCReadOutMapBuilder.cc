@@ -138,27 +138,30 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
    cabling =  new RPCReadOutMapping("My map V-TEST");
    {
      DccSpec dcc(790);
-     TriggerBoardSpec tb1(6);
-     LinkConnSpec  lc(8); 
-     ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
-     LinkBoardSpec lb(true, 2, chamber);
-     FebSpec feb(3,"F",2);
-     ChamberStripSpec strip = {5,21};
-     feb.add( strip);
-     lb.add(feb); 
-     lc.add(lb);
-     tb1.add(lc);
-     dcc.add(tb1);
+     for (int idtb=1; idtb <= 68; idtb++) {
+       TriggerBoardSpec tb( idtb);
 
-     TriggerBoardSpec tb2(2);
-     dcc.add(tb2);
+       for (int idlc=0; idlc <=17; idlc++) {
+         LinkConnSpec  lc(idlc); 
+         for (int idlb=0; idlb <=2; idlb++) {
+           bool master = (idlb==0);
+           ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
+           LinkBoardSpec lb(master, idlb, chamber);
+           for (int ifeb=0; ifeb <= 5; ifeb++) {
+             FebSpec feb(ifeb,"F",2);
+             for (int istrip=0; istrip <= 15; istrip++) {
+               ChamberStripSpec strip = {istrip, ifeb*16+istrip};
+               feb.add( strip);
+             }
+             lb.add(feb); 
+           }
+           lc.add(lb);
+         }
+         tb.add(lc);
+       }
+       dcc.add(tb);
+     }
      cabling->add(dcc); 
-   }
-   {
-     TriggerBoardSpec tb(12);
-     DccSpec dcc(791);
-     dcc.add(tb);
-     cabling->add(dcc);
    }
    
 }

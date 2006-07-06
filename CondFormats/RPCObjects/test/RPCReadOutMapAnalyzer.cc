@@ -52,7 +52,7 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
    typedef vector<const DccSpec *>::const_iterator IDCC;
    for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) (**idcc).print(9);
 
-   cout <<"--------"<<endl; 
+   cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
    ChamberRawDataSpec chamber;
    chamber.dccId = 790;
    chamber.dccInputChannelNum = 6;

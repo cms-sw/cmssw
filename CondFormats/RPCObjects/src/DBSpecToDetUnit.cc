@@ -6,9 +6,8 @@
 uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, const std::string & roll) 
 {
   //
-  //FIXME - semi-dummy and buggy method, check carefully !!!!
+  //FIXME !!!  semi-dummy and buggy method, check carefully !!!!
   //
-  std::cout << "convedrsion called for roll: " << roll << std::endl;
 
   // REGION
   int region = -2;
