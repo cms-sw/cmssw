@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.6 2006/06/05 16:54:13 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.7 2006/06/14 12:00:30 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -79,7 +79,7 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   //end TT interest class composition debugging display
   
   //For the endcap the TT classification must be mapped to the SC:
-  std::vector<DetId> endcapDetIds = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  const std::vector<DetId>& endcapDetIds = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   for(std::vector<DetId>::const_iterator eeDetIdItr = endcapDetIds.begin();
       eeDetIdItr != endcapDetIds.end(); ++eeDetIdItr)
   {
