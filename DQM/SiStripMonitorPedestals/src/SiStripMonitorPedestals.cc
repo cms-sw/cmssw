@@ -133,7 +133,7 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
 
 	  hid = hidmanager.createHistoId("CMSubNoiseProfile","det", key_id);
-	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
+	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -100., 100.);
 
 	  hid = hidmanager.createHistoId("RawNoiseProfile","det", key_id);
 	  local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
@@ -241,12 +241,14 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    }
 	  }
 	  
-	  if(local_modmes.CMSubNoisePerStrip != NULL){ 
+	  if(local_modmes.CMSubNoisePerStrip != NULL && local_modmes.CMSubNoiseProfile != NULL){ 
 	    tmp.clear();
 	    apvFactory_->getNoise(id, tmp);
 	    int ibin=0;
 	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
 	      ibin++;
+		(local_modmes.CMSubNoiseProfile)->Fill(static_cast<double>(ibin*1.),static_cast<float>(*iped));
+
 	      float last_value = (local_modmes.CMSubNoisePerStrip)->getBinContent(ibin);
 	      if(last_value != 0.){
 		(local_modmes.CMSubNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);
@@ -256,24 +258,14 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    }
 	  }
 
-	  if(local_modmes.CMSubNoiseProfile != NULL){ 
-	    tmp.clear();
-	    apvFactory_->getNoise(id, tmp);
-	    int ibin=0;
-	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
-	      ibin++;
-		(local_modmes.CMSubNoiseProfile)->Fill(ibin,static_cast<float>(*iped));
-	    }
-	    
-	  }
-
 	  
-	  if(local_modmes.RawNoisePerStrip != NULL){ 
+	  if(local_modmes.RawNoisePerStrip != NULL && local_modmes.RawNoiseProfile != NULL){ 
 	    tmp.clear();
 	    apvFactory_->getRawNoise(id, tmp);
 	    int ibin=0;
 	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
 	      ibin++;
+	      (local_modmes.RawNoiseProfile)->Fill(static_cast<double>(ibin*1.),static_cast<float>(*iped));
 	      float last_value = (local_modmes.RawNoisePerStrip)->getBinContent(ibin);
 	      if(last_value != 0.){
 		(local_modmes.RawNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);
