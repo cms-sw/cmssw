@@ -10,6 +10,7 @@
 #include <boost/thread/condition.hpp>
 #include <iostream>
 #include <boost/thread/thread.hpp>
+#include <vector>
 typedef boost::mutex::scoped_lock ScopedLock;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -24,6 +25,16 @@ typedef boost::mutex::scoped_lock ScopedLock;
 
 using namespace seal;
 
+/*
+
+box not ready: writers wait...
+box ready : writers starts, set waits
+box ready : first writer end, set waits
+box ready : late writers enter -> starts
+box ready : first writer re-enter -> wait
+set wait, box ready, last writer end -> alldone
+
+*/
 
 
 struct cond_predicate
@@ -36,13 +47,25 @@ struct cond_predicate
     int _val;
 };
 
+class thread_adapter
+{
+public:
+    thread_adapter(void (*func)(void*), void* param) : _func(func), _param(param) { }
+    void operator()() const { _func(_param); }
+private:
+    void (*_func)(void*);
+    void* _param;
+};
+
 
 class OutputDropBox {
 public:
 
-  OutputDropBox() : outbuf(100000), nout(0), os(0), ce(0), writing(0) {}
+  OutputDropBox() : ready(false), alldone(true), writers(0),outbuf(100000), nout(0),  ce(0), writing(0) {}
 
-  bool set(Storage * s, std::vector<char> & ibuf, IOSize n) {
+  void setWriters(int i) { writers=i;}
+
+  bool set(std::vector<char> & ibuf, IOSize n) {
     //   void set(Storage * s, seal::IOBuffer ibuf) {
     // wait it finishes write to swap
     ScopedLock gl(lock);
@@ -53,14 +76,16 @@ public:
     // if error in previous write return....
     if (ce==0) {
       ce=0;
-      os = s;
       outbuf.swap(ibuf);
       nout = n;
     }
     else ret = false;
     {
       ScopedLock wl(wlock);
-      writing= 1;  // number of writing threads...
+      writing= writers;  // number of writing threads..
+      undo(); // clean al bits;
+      alldone=false;
+      ready=true;
     }
       //    buffer = ibuf;
     doit.notify_all();
@@ -69,22 +94,22 @@ public:
   
   bool wait () const {
     // first time exit.... 
-    if (!os) return true;
+    // if (!nout) return true;
     ScopedLock gl(lock);
     std::cout << "box wait" << std::endl;
     done.wait(gl);
     return !ce;
   }
   
-  bool write() {
+  bool write(Storage * os,int it) {
     ScopedLock gl(lock);
     std::cout << "box write " << nout << std::endl;
-    // wait is box empty...
-    if (!writing) doit.wait(gl);
+    // wait is box empty or this thread already consumed...
+    if (m_done[it]) doit.wait(gl);
     std::cout << "box writing " << nout << std::endl;
     bool ret=true;
     // os==0 notify thread to exit....
-    if (!os) ret=false;
+    if (nout==0) ret=false;
     else
       try {
 	std::cout << "box real write " << nout << std::endl;
@@ -95,17 +120,33 @@ public:
     //    done.notify_all(); 
     {
       ScopedLock wl(wlock);
+      m_done[it]=true;
       writing--;
+      if (writing==0) alldone=true;
     } 
     done.notify_all(); 
     std::cout << "box write done" << std::endl;
     return ret;
   }
   
+
+  int addWriter(){
+    ScopedLock wl(wlock);
+    m_done.push_back(true);
+    return m_done.size()-1;
+  }
+ 
+  void undo() {
+    std::fill(m_done.begin(),m_done.end(),false);
+  }
+
+  std::vector<bool> m_done;
+  bool ready;
+  bool alldone;
+  int writers;
   std::vector<char> outbuf;
   IOSize nout;
   // seal::IOBuffer buffer;
-  Storage * os;
   seal::Error * ce;
   int writing;
   // writing lock
@@ -122,11 +163,14 @@ namespace {
   OutputDropBox dropbox;
 
 
-  void writeThread() {
-    
-    std::cout << "start writing thread" << std::endl;
+  void writeThread(void * param) {
+    Storage * os = static_cast<Storage * >(param);
 
-    while(dropbox.write());
+    int me = dropbox.addWriter();
+    
+    std::cout << "start writing thread " << me << std::endl;
+
+    while(dropbox.write(os,me));
     
     std::cout << "end writing thread" << std::endl;
   
@@ -161,44 +205,50 @@ int main (int argc, char **argv)
     }
 
 
+    boost::thread_group threads;
 
-    // open output file
-    boost::shared_ptr<Storage> os;
-    try {
-      os.reset(StorageFactory::get ()->open (argv[2],
-					     IOFlags::OpenWrite
-					     | IOFlags::OpenCreate
-					     | IOFlags::OpenTruncate)
-	       );
-    } catch (...) {
-      std::cerr << "error in opening output file " << argv[2] << std::endl;
-      return EXIT_FAILURE;
-    }
+    // open output files
+    // create thread
+    std::vector<boost::shared_ptr<Storage> > os(argc-2);
+    for (int i=0; i<argc-2;i++)
+      try {
+	os[i].reset(StorageFactory::get ()->open (argv[i+2],
+						  IOFlags::OpenWrite
+						  | IOFlags::OpenCreate
+						  | IOFlags::OpenTruncate)
+		    );
+	threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
+      } catch (...) {
+	std::cerr << "error in opening output file " << argv[i+2] << std::endl;
+	return EXIT_FAILURE;
+      }
+
+
+    // set number of writers in dropbox;
+
+    dropbox.setWriters(os.size());
     
     std::vector<char> inbuf(100000);
     std::vector<char> outbuf(100000);
     IOSize	n;
     
-    // create thread
-    boost::thread_group threads;
-    threads.create_thread(&writeThread);
     
     while ((n = is->read (&inbuf[0], inbuf.size()))) {
-      // wait thread has finished to write
+      // wait threads have finished to write
       // swap buffers.
       //      inbuf.swap(outbuf);
       // drop buffer in thread
-      if (!dropbox.set(os.get(),inbuf,n)) break;
+      if (!dropbox.set(inbuf,n)) break;
     }
     
     std::cout << "main end reading" << std::endl;
 
     // tell thread to end
     // dropbox.wait();
-    dropbox.set(0,inbuf, 0);
+    dropbox.set(inbuf, 0);
     
     threads.join_all();
-    os.reset();
+
     
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
     return EXIT_SUCCESS;
