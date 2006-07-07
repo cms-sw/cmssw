@@ -379,7 +379,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int i_chamber,i_layer,reportedChambers,chamber_num,sector,record,NChambers ;
+  int chamber,i_layer,reportedChambers,chamber_num,sector,record,NChambers ;
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;
