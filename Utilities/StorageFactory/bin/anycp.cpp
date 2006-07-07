@@ -61,9 +61,7 @@ private:
 class OutputDropBox {
 public:
 
-  OutputDropBox() : ready(false), alldone(true), writers(0),outbuf(100000), nout(0),  ce(0), writing(0) {}
-
-  void setWriters(int i) { writers=i;}
+  OutputDropBox() : outbuf(100000), nout(0),  ce(0), writing(0) {}
 
   bool set(std::vector<char> & ibuf, IOSize n) {
     //   void set(Storage * s, seal::IOBuffer ibuf) {
@@ -80,13 +78,7 @@ public:
       nout = n;
     }
     else ret = false;
-    {
-      ScopedLock wl(wlock);
-      writing= writers;  // number of writing threads..
-      undo(); // clean al bits;
-      alldone=false;
-      ready=true;
-    }
+    undo(); // clean al bits, set writing to its size...
       //    buffer = ibuf;
     doit.notify_all();
     return ret;
@@ -122,7 +114,6 @@ public:
       ScopedLock wl(wlock);
       m_done[it]=true;
       writing--;
-      if (writing==0) alldone=true;
     } 
     done.notify_all(); 
     std::cout << "box write done" << std::endl;
@@ -137,13 +128,12 @@ public:
   }
  
   void undo() {
+    ScopedLock wl(wlock);
+    writing= m_done.size();
     std::fill(m_done.begin(),m_done.end(),false);
   }
 
   std::vector<bool> m_done;
-  bool ready;
-  bool alldone;
-  int writers;
   std::vector<char> outbuf;
   IOSize nout;
   // seal::IOBuffer buffer;
@@ -224,9 +214,6 @@ int main (int argc, char **argv)
       }
 
 
-    // set number of writers in dropbox;
-
-    dropbox.setWriters(os.size());
     
     std::vector<char> inbuf(100000);
     std::vector<char> outbuf(100000);
