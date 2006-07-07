@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/25 22:25:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/26 00:19:12 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -20,15 +20,20 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+
 //
 // constructors and destructor
 //
 HLTMakeSummaryObjects::HLTMakeSummaryObjects(const edm::ParameterSet& iConfig)
 {
-   names_ = iConfig.getParameter< std::vector<std::string> > ("names");
 
+   edm::Service<edm::service::TriggerNamesService> tns;
+   names_=tns->getTrigPaths();
    const unsigned int n(names_.size());
-   LogDebug("") << "Number of paths expected: " << n;
+   LogDebug("") << "Number of trigger paths: " << n;
+
 
    //register your products
    for (unsigned int i=0; i!=n; i++) {
