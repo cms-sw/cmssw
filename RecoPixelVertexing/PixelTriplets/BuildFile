@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="RecoPixelVertexingPixelTriplets">
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
