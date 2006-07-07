@@ -449,7 +449,7 @@ template<class T>
 double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame) const{
   double weights[] = {-1/3., -1/3., -1/3., 0., 0., 1.};   
 
-  double adc2GeV;
+  double adc2GeV = 0.;
   if(typeid(frame) == typeid(EBDataFrame)){
     adc2GeV = 0.035;
   } else if(typeid(frame) == typeid(EEDataFrame)){
