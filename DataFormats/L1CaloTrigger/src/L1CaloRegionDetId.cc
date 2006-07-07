@@ -81,6 +81,44 @@ unsigned L1CaloRegionDetId::rctCrate() const { // TODO - check this is correct!
   return (ieta()<(N_ETA/2) ? phiCrate : phiCrate + N_PHI/2) ;
 }
 
+// return RCT card number
+unsigned L1CaloRegionDetId::rctCard() const {
+  unsigned card = 999;
+  if ((ieta() == 4) || (ieta() == 17)){
+    card = 6;
+  }
+  else if ((ieta() > 4) && (ieta() <= 10)){
+    unsigned index = (ieta() - 5)/2;
+    card = ((2 - index) * 2) + (iphi() % 2);
+  }
+  else if ((ieta() >= 11) && (ieta() < 17)){
+    unsigned index = (ieta() - 11)/2;
+    card = (index * 2) + (iphi() % 2);
+  }
+  return card;
+}
+
+// return RCT region number
+unsigned L1CaloRegionDetId::rctRegion() const {
+  unsigned rgn = 999;
+  if (ieta() < 4){
+    rgn = (3 - ieta()) + 4 * (iphi() % 2);
+  }
+  else if (ieta() > 17){
+    rgn = (ieta() - 18) + 4 * (iphi() % 2);
+  }
+  else if ((ieta() == 4) || (ieta() == 17)){
+    rgn = (iphi() % 2);
+  }
+  else if ((ieta() > 4) && (ieta() <= 10)){
+    rgn = (ieta() % 2);
+  }
+  else if ((ieta() >= 11) && (ieta() < 17)){
+    rgn = ((ieta() - 1) % 2);
+  }
+  return rgn;
+}
+
 // return GCT source card number
 unsigned L1CaloRegionDetId::gctCard() const
 {
