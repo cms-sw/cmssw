@@ -4,7 +4,7 @@
 #include "FWCore/Services/src/Tracer.h"
 
 #include "FWCore/Services/src/JobReportService.h"
-#include "FWCore/Services/src/Timing.h"
+#include "FWCore/Services/interface/Timing.h"
 #include "FWCore/Services/src/Memory.h"
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/LoadAllDictionaries.h"

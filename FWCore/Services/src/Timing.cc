@@ -6,10 +6,10 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.2 2006/02/07 07:16:46 wmtan Exp $
+// $Id: Timing.cc,v 1.3 2006/02/08 00:44:27 wmtan Exp $
 //
 
-#include "FWCore/Services/src/Timing.h"
+#include "FWCore/Services/interface/Timing.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
@@ -106,6 +106,7 @@ namespace edm {
 	   << desc.moduleLabel_ << " "
 	   << desc.moduleName_ << " "
 	   << t << "\n";
+      newMeasurementSignal(desc,t);
     }
 
   }
