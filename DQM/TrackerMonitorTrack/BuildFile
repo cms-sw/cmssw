@@ -9,15 +9,9 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerTopology>
 <lib name=GeometryTrackerGeometryBuilder>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=RecoTracker/TransientTrackingRecHit> 
-<use name=TrackingTools/PatternTools> 
-<use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
+<use name=TrackingTools/TrackFitters>
 <flags SEAL_PLUGIN_NAME="DQMTrackerMonitorTrack">
 <export>
    <lib name=DQMTrackerMonitorTrack>
@@ -31,14 +25,8 @@
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/CommonTopologies>
    <use name=Geometry/TrackerTopology>
-   <use name=MagneticField/Engine>
-   <use name=MagneticField/Records>
-   <use name=Geometry/Records>
-   <use name=Geometry/TrackerGeometryBuilder>
-   <use name=RecoTracker/TransientTrackingRecHit> 
-   <use name=TrackingTools/PatternTools> 
-   <use name=TrackingTools/TrackFitters>
+   <lib name=GeometryTrackerGeometryBuilder>
    <use name=TrackingTools/TransientTrackingRecHit> 
    <use name=TrackingTools/TransientTrack> 
-   <lib name=GeometryTrackerGeometryBuilder>
+   <use name=TrackingTools/TrackFitters>
 </export>

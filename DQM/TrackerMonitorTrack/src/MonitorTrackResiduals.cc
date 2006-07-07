@@ -39,23 +39,20 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-
 
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
@@ -132,7 +129,6 @@ void MonitorTrackResiduals::endJob(void)
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    edm::LogInfo("TrackerMonitorTrack|MonitorTrackResiduals")<<" writing out histograms to file "<<outputFileName;
     dbe->save(outputFileName);
   }
 }
@@ -145,102 +141,107 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
   std::string TrackCandidateProducer = conf_.getParameter<std::string>("TrackCandidateProducer");
   std::string TrackCandidateLabel = conf_.getParameter<std::string>("TrackCandidateLabel");
+  //  std::string BuilderLabel = conf_.getParameter<std::string>("ComponentName");
+  //  std::string FitterLabel = conf_.getParameter<std::string>("Fitter");
+  //  std::cout<<BuilderLabel<<" & "<<FitterLabel<<std::endl;
 
   ESHandle<TrackerGeometry> theRG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theRG);
   ESHandle<MagneticField> theRMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theRMF);
-  //
-  std::string cpeName = conf_.getParameter<std::string>("TTRHBuilder");
   ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  iSetup.get<TransientRecHitRecord>().get(cpeName,theBuilder);
-  //
-  std::string fitterName = conf_.getParameter<std::string>("Fitter");
   ESHandle<TrajectoryFitter> theRFitter;
-  iSetup.get<TrackingComponentsRecord>().get(fitterName,theRFitter);
+
+  iSetup.get<TrackerDigiGeometryRecord>().get( theRG );
+  std::cout<<"TrackerGeometry handle "<<((theRG.isValid())?"is":"isn't")<<" valid."<<std::endl;
+  iSetup.get<IdealMagneticFieldRecord>().get( theRMF );
+  std::cout<<"MagneticField handle "<<((theRMF.isValid())?"is":"isn't")<<" valid."<<std::endl;
+  iSetup.get<TransientRecHitRecord>().get( "WithTrackAngle",theBuilder );
+  std::cout<<"TransientTrackingRecHitBuilder handle "<<((theBuilder.isValid())?"is":"isn't")<<" valid."<<std::endl;
+  iSetup.get<TrackingComponentsRecord>().get("KFFittingSmoother", theRFitter );
+  std::cout<<"TrajectoryFitter handle "<<((theRFitter.isValid())?"is":"isn't")<<" valid."<<std::endl;
 
   const TransientTrackingRecHitBuilder* builder = theBuilder.product();
-  const TrackingGeometry * theG = theRG.product();
+  const TrackerGeometry * theG = theRG.product();
   const MagneticField * theMF = theRMF.product();
   const TrajectoryFitter * theFitter = theRFitter.product();
 
   Handle<TrackCandidateCollection> trackCandidateCollection;
   iEvent.getByLabel(TrackCandidateProducer, TrackCandidateLabel, trackCandidateCollection);
 
-  ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+  std::cout<<"Track Candidate Collection size: "<<trackCandidateCollection->size()<<std::endl;
 
   for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); track!=trackCandidateCollection->end(); ++track)
-    {
+    { std::cout<<"Track Candidate "<<(int)(track-trackCandidateCollection->begin());
       const TrackCandidate * theTC = &(*track);
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
       const TrackCandidate::range& recHitVec=theTC->recHits();
       const TrajectorySeed& seed = theTC->seed();
+      std::cout<<" with "<<(int)(recHitVec.second-recHitVec.first)<<" hits"<<std::endl;
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
-      DetId detId(state.detId());
 
+      DetId detId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state, &(theG->idToDet(detId)->surface()), theMF);
 
 //      OwnVector<TransientTrackingRecHit> hits;
       Trajectory::RecHitContainer hits;
       TrackingRecHitCollection::const_iterator hit;
-      for (hit=recHitVec.first; hit!= recHitVec.second; ++hit)
-	{
-	  hits.push_back(builder->build(&(*hit)));
 
+      for (hit=recHitVec.first; hit!= recHitVec.second; ++hit)
+	{ std::cout<<"Hit "<<(int)(hit-recHitVec.first)<<hit->localPosition()<<std::endl;
+
+	  hits.push_back(builder->build(&(*hit)));
+	}
 	  // do the fitting
 	  std::vector<Trajectory> trajVec = theFitter->fit(seed,  hits, theTSOS);
+	  std::cout<<"Fitted candidate with "<<trajVec.size()<<" tracks"<<std::endl;
 
-	  TrajectoryStateOnSurface innertsos;  
 	  if (trajVec.size() != 0)
 	    {   
 	      const Trajectory& theTraj = trajVec.front();
-	      if (theTraj.direction() == alongMomentum)
-		{      
-		  innertsos = theTraj.firstMeasurement().updatedState();
-		}
-	      else
-		{
-		  innertsos = theTraj.lastMeasurement().updatedState();
+	      Trajectory::DataContainer fits = theTraj.measurements();
+
+	      for (Trajectory::DataContainer::iterator fit=fits.begin(); fit != fits.end(); fit++)
+		{ std::cout<<"Fit "<<(int)(fit-fits.begin())<<std::endl;
+		const TransientTrackingRecHit* hit = 	fit->recHit();
+		const LocalPoint & LocalHitPos = hit->localPosition();
+		
+		const LocalPoint& LocalTrajPos = fit->updatedState().localPosition();
+		const DetId & detId = hit->geographicalId();
+		const GeomDetUnit *detUnit = theG->idToDetUnit(detId);
+		const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
+		const StripTopology& topology = stripDet->specificTopology();
+		
+		const float hitPositionInStrips = topology.strip(LocalHitPos);
+		const float trackPositionInStrips = topology.strip(LocalTrajPos);
+		
+		double residual = trackPositionInStrips - hitPositionInStrips;
+		std::cout<<"Hit, Track: "<<LocalHitPos<<LocalTrajPos<<std::endl;
+		std::cout<<"hit "<<hitPositionInStrips<<" track "<<trackPositionInStrips<<" residual "<<residual<<std::endl;
+		//		if (hit->detUnit() == NULL) { std::cout<<"STEREO HIT!"<<std::endl;}
+
+		DetId hit_detId = hit->geographicalId();
+		int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
+		switch(hit_detId.subdetId())
+		  { case StripSubdetector::TIB :
+		      HitResidual["TIB"]->Fill(CutRawDetId, residual);
+		      break;
+		  case StripSubdetector::TOB :
+		    HitResidual["TOB"]->Fill(CutRawDetId, residual);
+		    break;
+		  case StripSubdetector::TID :
+		    HitResidual["TID"]->Fill(CutRawDetId, residual);
+		    break;
+		  case StripSubdetector::TEC :
+		    HitResidual["TEC"]->Fill(CutRawDetId, residual);
+		    break;
+		  default:
+		    break;
+		  }
 		}
 	    }
-
-	  const LocalPoint & LocalHitPos = hit->localPosition();
-
-	  const LocalPoint& LocalTrajPos = innertsos.localPosition();
-	  const DetId & detId = hit->geographicalId();
-	  const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
-	  const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
-	  const StripTopology& topology = stripDet->specificTopology();
-
-	  const float hitPositionInStrips = topology.strip(LocalHitPos);
-	  const float trackPositionInStrips = topology.strip(LocalTrajPos);
 	  
-	  double residual = trackPositionInStrips - hitPositionInStrips;
-
-	  DetId hit_detId = hit->geographicalId();
-	  int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
-	  if (hit_detId.subdetId() == int( StripSubdetector::TIB ))
-	    {
-	      HitResidual["TIB"]->Fill(CutRawDetId, residual);
-	    }
-	  if (hit_detId.subdetId() == int( StripSubdetector::TOB ))
-	    {
-	      HitResidual["TOB"]->Fill(CutRawDetId, residual);
-	    }
-	  if (hit_detId.subdetId() == int( StripSubdetector::TID ))
-	    {
-	      HitResidual["TID"]->Fill(CutRawDetId, residual);
-	    }
-	  if (hit_detId.subdetId() == int( StripSubdetector::TEC ))
-	    {
-	      HitResidual["TEC"]->Fill(CutRawDetId, residual);
-	    }
-	}
     }
-
 }
 
 //define this as a plug-in
