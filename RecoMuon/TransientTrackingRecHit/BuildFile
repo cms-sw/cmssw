@@ -16,4 +16,4 @@
   <use name=FWCore/Framework>
 </export>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonTransientTrackingRecHit">
+#<flags SEAL_PLUGIN_NAME="RecoMuonTransientTrackingRecHit">
