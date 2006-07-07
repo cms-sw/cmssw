@@ -32,8 +32,8 @@
  * 
 */ 
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -81,14 +81,14 @@ class L1MuGMTLUT {
     /// Init and Destruct
 
     /// default constructor w/o init
-    L1MuGMTLUT() : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true) {};
+    L1MuGMTLUT() : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {};
 
     /// constructor with init
     L1MuGMTLUT(const char* name, 
 	       const vector<string>&  instances, 
 	       const vector<port>& in_widths, 
 	       const vector<port>& out_widths, 
-	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true) {
+	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, instances, in_widths, out_widths, vme_addr_width, distrRAM); 
       };
 
@@ -96,7 +96,7 @@ class L1MuGMTLUT {
 	       const string& instances, 
 	       const string& inputs, 
 	       const string& outputs, 
-	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true) {
+	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, L1MuGMTLUTHelpers::Tokenizer(" ",instances), PortDecoder(inputs), PortDecoder(outputs), 
 	    vme_addr_width, distrRAM); 
       };
@@ -128,7 +128,7 @@ class L1MuGMTLUT {
     void Load (const char* path);
     
     /// save to LUT file
-    void Save (const char* path) const;    
+    void Save (const char* path);    
 
     /// lookup defined as analytic function
     /// to be impemented in derived class
@@ -206,6 +206,7 @@ class L1MuGMTLUT {
     unsigned m_vme_addr_width;
     bool m_distrRAM;
     string m_name;
+    bool m_saveFlag;
 };
 
 //--------------------------------------------------------------------------------

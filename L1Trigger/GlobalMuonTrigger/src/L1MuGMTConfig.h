@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2004/01/20 17:25:27 $
-//   $Revision: 1.6 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -68,6 +68,8 @@ class L1MuGMTPhiLUT;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
+
+using namespace std;
 
 class L1MuGMTConfig {
 
@@ -154,6 +156,9 @@ class L1MuGMTConfig {
 
     static const edm::ParameterSet* getParameterSet() { return m_ps; }
      
+    void dumpLUTs(string dir);
+    void dumpRegs(string dir);
+
   private:
   
     //    void setDefaults(const edm::ParameterSet& ps);

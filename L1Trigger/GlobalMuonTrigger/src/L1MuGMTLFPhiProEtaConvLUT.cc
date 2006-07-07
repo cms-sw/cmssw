@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProEtaConvLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -63,8 +63,7 @@ unsigned L1MuGMTLFPhiProEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in)
   unsigned eta4bit = 0;
   if ( (isRPC && isFWD && fabs(etaValue) < m_theGMTScales->getReducedEtaScale(3)->getScaleMin() ) ||
        (isRPC && !isFWD && fabs(etaValue) > m_theGMTScales->getReducedEtaScale(1)->getScaleMax() )) {
-    cout << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue << endl;
-    cout << "  this message is ok during LUT generation but not during an ORCA run." << endl;
+    if(!m_saveFlag) cout << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue << endl;
   }
   else 
     eta4bit = m_theGMTScales->getReducedEtaScale(idx)->getPacked( etaValue );

@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -87,9 +87,8 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
 
   if ( (isRPC && isFWD && fabs(oldeta) < 1.04  ) ||
        (isRPC && !isFWD && fabs(oldeta) > 1.04 ) ) {
-    cout << "L1MuGMTMIAUEtaProLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") 
-	 << " eta value out of range: " << oldeta << endl;
-    cout << "  this message is ok during LUT generation but not during an ORCA run." << endl;
+    if(!m_saveFlag) cout << "L1MuGMTMIAUEtaProLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") 
+	                 << " eta value out of range: " << oldeta << endl;
   }
 
   // eta conversion depends only on isys by default

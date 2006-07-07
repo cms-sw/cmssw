@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2004/01/20 17:25:27 $
-//   $Revision: 1.9 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -27,7 +27,10 @@
 //---------------
 
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -72,6 +75,17 @@ L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
 
   m_ps = &ps;
   setDefaults(); 
+
+  bool writeLUTsAndRegs = m_ps->getUntrackedParameter<bool>("WriteLUTsAndRegs",false);
+  if(writeLUTsAndRegs) {
+    string dir = "gmtconfig";
+  
+    mkdir(dir.c_str(), S_ISUID|S_ISGID|S_ISVTX|S_IRUSR|S_IWUSR|S_IXUSR);
+
+    dumpLUTs(dir);
+    dumpRegs(dir);
+
+  }
 
 }
   
@@ -178,6 +192,75 @@ void L1MuGMTConfig::setDefaults() {
   m_MIAUPhiPro1LUT = new L1MuGMTMIAUPhiPro1LUT();
   m_MIAUPhiPro2LUT = new L1MuGMTMIAUPhiPro2LUT();
   m_PhiLUT = new L1MuGMTPhiLUT();
+
+}
+
+void L1MuGMTConfig::dumpLUTs(string dir) {
+  vector<L1MuGMTLUT*> theLUTs;
+
+  theLUTs.push_back( m_LFSortRankEtaQLUT );  
+  theLUTs.push_back( m_LFSortRankPtQLUT );   
+  theLUTs.push_back( m_LFSortRankEtaPhiLUT );
+  theLUTs.push_back( m_LFSortRankCombineLUT );
+
+  theLUTs.push_back( m_LFDisableHotLUT );
+
+  theLUTs.push_back( m_LFMergeRankEtaQLUT );  
+  theLUTs.push_back( m_LFMergeRankPtQLUT );   
+  theLUTs.push_back( m_LFMergeRankEtaPhiLUT );
+  theLUTs.push_back( m_LFMergeRankCombineLUT );
+
+  theLUTs.push_back( m_LFDeltaEtaLUT );
+  theLUTs.push_back( m_LFMatchQualLUT );
+  theLUTs.push_back( m_LFOvlEtaConvLUT );
+  theLUTs.push_back( m_LFCOUDeltaEtaLUT );
+
+  theLUTs.push_back( m_LFEtaConvLUT );
+
+  theLUTs.push_back( m_LFPtMixLUT );
+  theLUTs.push_back( m_LFPhiProLUT );
+  theLUTs.push_back( m_LFPhiProEtaConvLUT );
+
+  theLUTs.push_back( m_MIAUEtaConvLUT );
+  theLUTs.push_back( m_MIAUPhiPro1LUT );
+  theLUTs.push_back( m_MIAUPhiPro2LUT );
+  theLUTs.push_back( m_MIAUEtaProLUT );
+
+  vector<L1MuGMTLUT*>::iterator it = theLUTs.begin();
+  for (;it != theLUTs.end(); it++) {
+    cout << "**** Generating " << (*it)->Name() << " LUT ****" << endl;
+    cout << "saving" << endl;
+    string fn = dir + "/" + (*it)->Name() + ".lut";
+    (*it)->Save(fn.c_str());    
+  }
+
+  cout << "Successfully created all GMT look-up tables in directory './" << dir << "'" << endl << endl;
+
+}
+
+void L1MuGMTConfig::dumpRegs(string dir) {
+  vector<L1MuGMTReg*> theRegs;
+
+  theRegs.push_back( m_RegCDLConfig );
+  theRegs.push_back( m_RegMMConfigPhi );
+  theRegs.push_back( m_RegMMConfigEta );
+  theRegs.push_back( m_RegMMConfigPt );
+  theRegs.push_back( m_RegMMConfigCharge );
+  theRegs.push_back( m_RegMMConfigSRK );
+  theRegs.push_back( m_RegMMConfigMIP );
+  theRegs.push_back( m_RegMMConfigISO );
+  theRegs.push_back( m_RegSortRankOffset );
+
+
+  ofstream of( (dir + "/LogicFPGARegs.cfg").c_str() );
+
+  vector<L1MuGMTReg*>::iterator it = theRegs.begin();
+  for (;it != theRegs.end(); it++) {
+
+    for (unsigned int i=0; i<(*it)->getNumberOfInstances(); i++)
+      of << (*it)->getName() << "[" << i << "] = " << (*it)->getValue(i) << endl;
+
+  }
 
 }
 

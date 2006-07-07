@@ -7,8 +7,8 @@
  * 
 */ 
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -70,11 +70,13 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
 };
 
 
-void L1MuGMTLUT::Save(const char* path) const {
+void L1MuGMTLUT::Save(const char* path) {
   if (! m_initialized) {
     cout << "Error in L1MuGMTLUT::Save: LUT not initialized. " << endl;
     return;
   }
+
+  m_saveFlag = true;
 
   ofstream of(path);
   of << "// This is a CMS L1 Global Muon Trigger .lut file. " << endl;
@@ -145,6 +147,9 @@ void L1MuGMTLUT::Save(const char* path) const {
     }
     of << endl;
   }
+
+  m_saveFlag = false;
+
 };
 
 
