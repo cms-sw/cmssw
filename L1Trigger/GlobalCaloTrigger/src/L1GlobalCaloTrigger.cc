@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
@@ -31,7 +30,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType) :
   readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
@@ -42,7 +41,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
   m_plusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL)
 {
   setupLuts();
-  build();
+  build(jfType);
   
 }
 
@@ -118,9 +117,13 @@ void L1GlobalCaloTrigger::process() {
     theEmLeafCards.at(i)->process();
   }
 
-  // Jet Leaf cards
+  // Jet Leaf cards - first stage processing
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards.at(i)->fetchInput();
+  }
+
+  // Jet Leaf cards - second stage processing
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards.at(i)->process();
   }
 
@@ -340,7 +343,7 @@ L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
 /* PRIVATE METHODS */
 
 // instantiate hardware/algorithms
-void L1GlobalCaloTrigger::build() {
+void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 
   // Jet Et LUT
   m_jetEtCalLut = new L1GctJetEtCalibrationLut();
@@ -392,7 +395,7 @@ void L1GlobalCaloTrigger::build() {
     jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+8));
     jetSourceCards.at(sc++)=theSourceCards.at((ndn*9+8));
 
-    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, m_jetEtCalLut);
+    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, m_jetEtCalLut, jfType);
   }
 
   //Link jet leaf cards together

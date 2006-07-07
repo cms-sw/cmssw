@@ -29,11 +29,11 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCa
   // Call reset to initialise vectors for input and output
   this->reset();
   //Check jetfinder setup
-  if(m_id < 0 || m_id > 17)
+  if(m_id < 0 || m_id >= static_cast<int>(L1CaloRegionDetId::N_PHI))
   {
     throw cms::Exception("L1GctSetupError")
     << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 17\n";
+    << "ID number should be between the range of 0 to " << L1CaloRegionDetId::N_PHI-1 << "\n";
   } 
   
   if(m_sourceCards.size() != MAX_SOURCE_CARDS)
@@ -132,6 +132,13 @@ void L1GctJetFinderBase::reset()
     currentJet->setLut(m_jetEtCalLut);
   }
 
+  m_sentProtoJets.clear();
+  m_sentProtoJets.resize(MAX_JETS_OUT);
+  m_rcvdProtoJets.clear();
+  m_rcvdProtoJets.resize(MAX_JETS_OUT);
+  m_keptProtoJets.clear();
+  m_keptProtoJets.resize(MAX_JETS_OUT);
+
   m_outputEtStrip0 = 0;
   m_outputEtStrip1 = 0;
   m_outputHt = 0;
@@ -206,6 +213,14 @@ void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int 
     }
   }
 }
+
+/// fetch the protoJets from neighbour jetFinder
+void L1GctJetFinderBase::fetchProtoJetsFromNeighbour()
+{
+  m_rcvdProtoJets = m_neighbourJetFinders.at(0)->getSentProtoJets();
+
+}
+
 
 /// Sort the found jets. All jetFinders should call this in process().
 void L1GctJetFinderBase::sortJets()

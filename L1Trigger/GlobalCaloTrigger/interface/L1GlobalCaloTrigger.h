@@ -8,6 +8,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+
 #include <vector>
 
 /*!
@@ -51,7 +53,8 @@ public:
   static const unsigned int N_JET_COUNTERS_PER_WHEEL;
 
   /// construct the GCT
-  L1GlobalCaloTrigger(bool useFile=false);
+  L1GlobalCaloTrigger(bool useFile=false,
+		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
   
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -147,7 +150,7 @@ public:
  private:
   
   /// instantiate the hardware & algo objects and wire up the system
-  void build();
+  void build(L1GctJetLeafCard::jetFinderType jfType);
 
   /// setup look-up tables
   void setupLuts();

@@ -3,6 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -20,13 +21,17 @@
 class L1GctJetLeafCard : L1GctProcessor
 {
 public:
+  //Type declaration
+  enum jetFinderType { tdrJetFinder, hardwareJetFinder };
+
   //Statics
   static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card
   static const unsigned int MAX_SOURCE_CARDS;  ///< Number of source cards required to provide input per jet leaf card
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, std::vector<L1GctSourceCard*> sourceCards,
-                   L1GctJetEtCalibrationLut* jetEtCalLut);
+                   L1GctJetEtCalibrationLut* jetEtCalLut,
+		   jetFinderType jfType = tdrJetFinder);
                    
   ~L1GctJetLeafCard();
 
@@ -77,6 +82,9 @@ private:
 
   // Leaf card ID
   int m_id;
+
+  // Which jetFinder to use?
+  jetFinderType m_whichJetFinder;
 
   // internal algorithms
   L1GctJetFinderBase* m_jetFinderA;  ///< lowest jetFinder in phi

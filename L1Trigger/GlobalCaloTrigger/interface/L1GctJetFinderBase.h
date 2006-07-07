@@ -85,7 +85,16 @@ public:
   void setInputRegion(unsigned i, L1CaloRegion region);
     
   /// Return input data   
-  std::vector<L1CaloRegion> getInputRegions() const { return m_inputRegions; }
+  RegionsVector getInputRegions() const { return m_inputRegions; }
+
+  /// get protoJets sent to neighbour
+  RegionsVector getSentProtoJets() const { return m_sentProtoJets; }
+
+  /// get protoJets received from neighbour
+  RegionsVector getRcvdProtoJets() const { return m_rcvdProtoJets; }
+
+  /// get protoJets kept
+  RegionsVector getKeptProtoJets() const { return m_keptProtoJets; }
 
   /// Return pointer to calibration LUT
   L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
@@ -113,7 +122,14 @@ public:
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
     
   /// input data required for jet finding
-  std::vector<L1CaloRegion> m_inputRegions;
+  RegionsVector m_inputRegions;
+
+  /// List of pre-clustered jets to be sent to neighbour after the first stage of clustering
+  RegionsVector m_sentProtoJets;
+  /// List of pre-clustered jets received from neighbour before the final stage of clustering
+  RegionsVector m_rcvdProtoJets;
+  /// List of pre-clustered jets retained locally as input to the final clustering
+  RegionsVector m_keptProtoJets;
 
   /// output jets
   JetVector m_outputJets;
@@ -136,6 +152,8 @@ public:
   void fetchCentreStripsInput();
   /// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
   void fetchEdgeStripsInput();
+  /// fetch the protoJets from neighbour jetFinder
+  void fetchProtoJetsFromNeighbour();
   /// Sort the found jets. All jetFinders should call this in process().
   void sortJets();
   /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().

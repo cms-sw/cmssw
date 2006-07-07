@@ -9,8 +9,10 @@ const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;
 const unsigned int L1GctJetLeafCard::MAX_SOURCE_CARDS = 15;
 
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> sourceCards,
-                                   L1GctJetEtCalibrationLut* jetEtCalLut):
+                                   L1GctJetEtCalibrationLut* jetEtCalLut,
+				   jetFinderType jfType):
   m_id(id),
+  m_whichJetFinder(jfType),
   m_sourceCards(sourceCards),
   phiPosition(iphi)
 {
@@ -83,9 +85,26 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   srcCardsForJetFinderC.at(7) = m_sourceCards.at(4);
   srcCardsForJetFinderC.at(8) = m_sourceCards.at(5);
   
-  m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
-  m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
-  m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+  switch (m_whichJetFinder) {
+  case tdrJetFinder :
+    m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
+    m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
+    m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+    break;
+
+  case hardwareJetFinder :
+    m_jetFinderA = new L1GctHardwareJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
+    m_jetFinderB = new L1GctHardwareJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
+    m_jetFinderC = new L1GctHardwareJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+    break;
+
+  default :
+
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+      << "Unrecognised jetFinder type " << m_whichJetFinder << ", cannot setup jetFinders\n";
+
+  }
 
 }
 

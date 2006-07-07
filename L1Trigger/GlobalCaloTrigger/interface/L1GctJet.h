@@ -1,5 +1,5 @@
-#ifndef L1GCTJETCAND_H_
-#define L1GCTJETCAND_H_
+#ifndef L1GCTJET_H_
+#define L1GCTJET_H_
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <functional>
@@ -110,4 +110,4 @@ public:
 
 std::ostream& operator << (std::ostream& os, const L1GctJet& cand);
 
-#endif /*L1GCTJETCAND_H_*/
+#endif /*L1GCTJET_H_*/
