@@ -459,8 +459,8 @@ L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
   bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
   
-  int ieta=0;  // perhaps we need to create regions by source card ID?
-  int iphi=0;
+  unsigned ieta=0;  // TODO - give regions proper eta indices!
+  unsigned iphi=0;  // TODO - give regions proper phi indices!
 
   return L1CaloRegion(0, et, overFlow, tauVeto, false, false, ieta, iphi);
 
@@ -468,10 +468,11 @@ L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
 
 // make EM cand from file data
 L1CaloEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
-    unsigned rank = rctFileData & 0x3f;
-    rctFileData >>= 6;   //shift the remaining bits down, to remove the rank info         
-    int phi = rctFileData & 0x1;  //1 bit of Phi
-    int eta = (rctFileData & 0xE) >> 1;  //other 3 bits are eta
 
-    return L1CaloEmCand(rank, phi, eta, iso, m_id/3);
+  unsigned rank = rctFileData & 0x3f;       // 6 bits rank
+    unsigned rgn = (rctFileData>>6) & 0x1;  // 1 bit region ID
+    unsigned card = (rctFileData>>7) & 0x7; // other 3 bits are card ID
+    unsigned crate = m_id/3;
+
+    return L1CaloEmCand(rank, rgn, card, crate, iso);
 }
