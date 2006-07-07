@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/07 14:15:14 $
- * $Revision: 1.108 $
+ * $Date: 2006/07/07 14:26:40 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -95,6 +95,13 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dbe_->rmdir("EcalBarrel/EcalInfo");
+    dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+    dbe_->rmdir("EcalBarrel/EcalEvent");
+  }
+
 }
 
 void EcalBarrelMonitorModule::setup(void){
@@ -102,7 +109,7 @@ void EcalBarrelMonitorModule::setup(void){
   init_ = true;
 
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel");
+    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
 
     meStatus_ = dbe_->bookInt("STATUS");
 
@@ -128,7 +135,7 @@ void EcalBarrelMonitorModule::setup(void){
   Char_t histo[20];
 
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel");
+    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
 
     meEBDCC_ = dbe_->book1D("EBMM SM", "EBMM SM", 36, 1, 37.);
 
@@ -152,7 +159,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
   if ( dbe_ ) {
 
-    dbe_->setCurrentFolder("EcalBarrel");
+    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
 
     if ( meStatus_ ) dbe_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
