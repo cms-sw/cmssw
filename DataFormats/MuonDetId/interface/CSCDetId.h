@@ -229,14 +229,21 @@ private:
        ( (istation & MASK_STATION) << START_STATION ) | 
        ( (iendcap  & MASK_ENDCAP)  << START_ENDCAP ) ; }
 
+  /**
+   *
+   * Methods for changing ME1/1 CSCDetId. 
+   * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4).
+   *
+   */
   static int intToDetId(int iring) {
     int i = (iring+1)%4;
     if (i == 0)
       i = 4;
     return i;
   }
+
   static int detIdToInt(int iring) {
-    int i = (iring-1)%4;
+    int i = (iring-1);
     if (i == 0)
       i = 4;
     return i;
