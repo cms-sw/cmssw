@@ -1,0 +1,7 @@
+cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw /tmp/innocent/crap
+cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw /tmp/innocent/crap1 /tmp/innocent/crap2
+t0cksum rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw ; cksum /tmp/innocent/crap; cksum /tmp/innocent/crap1 ; cksum /tmp/innocent/crap2 ;
+
+cms_anycp /tmp/innocent/crap /tmp/innocent/crap1 /tmp/innocent/crap2
+t0cksum rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw ; cksum /tmp/innocent/crap; cksum /tmp/innocent/crap1 ; cksum /tmp/innocent/crap2 ;
+
