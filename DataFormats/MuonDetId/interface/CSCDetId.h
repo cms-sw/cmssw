@@ -74,7 +74,11 @@ public:
    *
    */
    int ring() const {
-     return (  (id_>>START_RING) & MASK_RING ); }
+     if (((id_>>START_STATION) & MASK_STATION) == 1)
+       return (  detIdToInt((id_>>START_RING) & MASK_RING )); 
+     else
+       return (((id_>>START_RING) & MASK_RING )); 
+   }
 
   /**
    * Return Station label.
@@ -136,7 +140,11 @@ public:
     *
     */
    static int ring( int index ) {
-     return (  (index>>START_RING) & MASK_RING ); }
+     if (((index>>START_STATION) & MASK_STATION) == 1)
+       return (  detIdToInt((index>>START_RING) & MASK_RING )); 
+     else
+       return (( index>>START_RING) & MASK_RING ); 
+   }
 
    /**
     * Return Station label for supplied CSCDetId index.
@@ -203,13 +211,17 @@ public:
    static int maxLayerId()   { return MAX_LAYER; }
 
 private:
-
+ 
   /**
    * Method for initialization within ctors.
    *
    */
   static uint32_t init( int iendcap, int istation, 
 			int iring, int ichamber, int ilayer ) {
+    
+    if (istation == 1)
+      iring = intToDetId(iring);
+
      return
          (ilayer   & MASK_LAYER)                      |
        ( (ichamber & MASK_CHAMBER) << START_CHAMBER ) |
@@ -217,6 +229,18 @@ private:
        ( (istation & MASK_STATION) << START_STATION ) | 
        ( (iendcap  & MASK_ENDCAP)  << START_ENDCAP ) ; }
 
+  static int intToDetId(int iring) {
+    int i = (iring+1)%4;
+    if (i == 0)
+      i = 4;
+    return i;
+  }
+  static int detIdToInt(int iring) {
+    int i = (iring-1)%4;
+    if (i == 0)
+      i = 4;
+    return i;
+  }
  
   // The following define the bit-packing implementation...
 
