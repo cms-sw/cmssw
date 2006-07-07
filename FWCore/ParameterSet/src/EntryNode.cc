@@ -74,12 +74,12 @@ namespace edm {
        }
      else if(type()=="int32")
        {
-         int d = atoi(value_.c_str());
+         int d = strtol(value_.c_str(),0,0);
          return Entry(d, !tracked_);
        }
      else if(type()=="uint32")
        {
-         unsigned int d = strtoul(value_.c_str(),0,10);
+         unsigned int d = strtoul(value_.c_str(),0,0);
          return Entry(d, !tracked_);
        }
      else if(type()=="bool")
