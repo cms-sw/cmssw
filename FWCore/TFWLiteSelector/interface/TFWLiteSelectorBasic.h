@@ -10,13 +10,14 @@
  Description: A ROOT TSelector which accesses data using an edm::Event
 
  Usage:
-    <usage>
+    By inheriting from this class one can make a TSelector for ROOT which works with PROOF and which 
+allows you to access data using an edm::Event.
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 16:37:27 EDT 2006
-// $Id: TFWLiteSelectorBasic.h,v 1.1 2006/06/30 16:54:57 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.h,v 1.1 2006/07/06 14:20:45 chrjones Exp $
 //
 
 // system include files
@@ -51,21 +52,25 @@ class TFWLiteSelectorBasic : public TSelector
          and its content once you are done with it.
         */
       virtual void begin(TList*& in) = 0;
+      
       /**Called each time the 'slave' is about to start processing
         \param in a pointer to the list of objects created in 'begin()'.  The pointer can be 0
         \param out a list of objects that are the result of processing (e.g. histograms).
         You should call 'Add()' for each object you want sent to the 'terminate' method.
         */
       virtual void preProcessing(const TList* in, TList& out) = 0;
+      
       /**Call each time the 'slave' gets a new Event
         \param event a standard edm::Event which works just like it does in cmsRun
         */
       virtual void process(const edm::Event& event) = 0;
+      
       /**Called each time the 'slave' has seen all the events
         \param out the list of objects that will be sent to 'terminate'.
         You can Add() additional objects to 'out' at this point as well.
         */
       virtual void postProcessing(TList& out) =0;
+      
       /**Called each time the 'client' has finished processing.
         \param out contains the accumulated output of all slaves.
         */
