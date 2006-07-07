@@ -28,8 +28,11 @@ using namespace seal;
 class OutputDropBox {
 public:
 
+  OutputDropBox() : os(0), ce(0) {}
+
   void set(Storage * s, seal::IOBuffer ibuf) {
     ScopedLock gl(lock);
+    std::cout << "box set" << std::endl;
     ce=0;
     os = s;
     buffer = ibuf;
@@ -40,21 +43,24 @@ public:
     // first time exit.... 
     if (!os) return true;
     ScopedLock gl(lock);
+    std::cout << "box wait" << std::endl;
     done.wait(gl);
-    return ce;
+    return !ce;
   }
   
   bool write() {
     ScopedLock gl(lock);
+    std::cout << "box write" << std::endl;
     doit.wait(gl);
     bool ret=true;
     // os==0 notify thread to exit....
     if (!os) ret=false;
-    try {
-      os->write(buffer);
-    } catch(seal::Error & lce) {
-      ce = lce.clone();
-    }
+    else
+      try {
+	os->write(buffer);
+      } catch(seal::Error & lce) {
+	ce = lce.clone();
+      }
     done.notify_all(); 
     return ret;
   }
@@ -62,8 +68,8 @@ public:
   
   
   seal::IOBuffer buffer;
-  seal::Error * ce;
   Storage * os;
+  seal::Error * ce;
   mutable boost::mutex lock;
   mutable boost::condition doit;
   mutable boost::condition done;
@@ -145,7 +151,10 @@ int main (int argc, char **argv)
       dropbox.set(os.get(),seal::IOBuffer(&outbuf[0],n));
     }
     
+    std::cout << "main end reading" << std::endl;
+
     // tell thread to end
+    dropbox.wait();
     os.reset();
     dropbox.set(0,seal::IOBuffer());
     
