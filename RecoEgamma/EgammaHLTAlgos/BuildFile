@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HcalDetId>
 <use name=Geometry/CaloGeometry>
-<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaHLTAlgos">
 <export>
    <lib name=RecoEgammaEgammaHLTAlgos>
    <use name=FWCore/Framework>
