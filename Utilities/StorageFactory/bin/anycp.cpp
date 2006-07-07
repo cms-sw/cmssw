@@ -4,8 +4,13 @@
 #include "SealBase/Storage.h"
 #include "SealBase/DebugAids.h"
 #include "SealBase/Signal.h"
+# include "SealBase/IOError.h"
 # include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <iostream>
+#include <boost/thread/thread.hpp>
+typedef boost::mutex::scoped_lock ScopedLock;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -18,6 +23,70 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 using namespace seal;
+
+
+class OutputDropBox {
+public:
+
+  void set(Storage * s, seal::IOBuffer ibuf) {
+    ScopedLock gl(lock);
+    ce=0;
+    os = s;
+    buffer = ibuf;
+    doit.notify_all();
+  } 
+  
+  bool wait () const {
+    // first time exit.... 
+    if (!os) return true;
+    ScopedLock gl(lock);
+    done.wait(gl);
+    return ce;
+  }
+  
+  bool write() {
+    ScopedLock gl(lock);
+    doit.wait(gl);
+    bool ret=true;
+    // os==0 notify thread to exit....
+    if (!os) ret=false;
+    try {
+      os->write(buffer);
+    } catch(seal::Error & lce) {
+      ce = lce.clone();
+    }
+    done.notify_all(); 
+    return ret;
+  }
+  
+  
+  
+  seal::IOBuffer buffer;
+  seal::Error * ce;
+  Storage * os;
+  mutable boost::mutex lock;
+  mutable boost::condition doit;
+  mutable boost::condition done;
+};
+
+
+namespace {
+
+  OutputDropBox dropbox;
+
+
+  void writeThread() {
+    
+    std::cout << "start writing thread" << std::endl;
+
+    while(dropbox.write());
+    
+    std::cout << "end writing thread" << std::endl;
+  
+  }
+
+}
+
 int main (int argc, char **argv)
 {
     Signal::handleFatal (argv [0]);
@@ -47,7 +116,7 @@ int main (int argc, char **argv)
 
 
     // open output file
-     boost::shared_ptr<Storage> os;
+    boost::shared_ptr<Storage> os;
     try {
       os.reset(StorageFactory::get ()->open (argv[2],
 					     IOFlags::OpenWrite
@@ -58,14 +127,30 @@ int main (int argc, char **argv)
       std::cerr << "error in opening output file " << argv[2] << std::endl;
       return EXIT_FAILURE;
     }
-
-    std::vector<char> buf(100000);
+    
+    std::vector<char> inbuf(100000);
+    std::vector<char> outbuf(100000);
     IOSize	n;
-
-    while ((n = is->read (&buf[0], buf.size())))
-      os->write (&buf[0], n);
-
-
+    
+    // create thread
+    boost::thread_group threads;
+    threads.create_thread(&writeThread);
+    
+    while ((n = is->read (&inbuf[0], inbuf.size()))) {
+      // wait thread has finished to write
+      if (!dropbox.wait()) break;
+      // swap buffers.
+      inbuf.swap(outbuf);
+      // drop buffer in thread
+      dropbox.set(os.get(),seal::IOBuffer(&outbuf[0],n));
+    }
+    
+    // tell thread to end
+    os.reset();
+    dropbox.set(0,seal::IOBuffer());
+    
+    threads.join_all();
+    
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
     return EXIT_SUCCESS;
 }
