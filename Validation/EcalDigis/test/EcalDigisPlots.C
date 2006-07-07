@@ -276,7 +276,9 @@ void EcalDigisPlots()
    }
    for ( Int_t  i=0 ; i<3; i++ ) {
      Ecal->cd(i+1);
+     gPad->SetLogy(0);
      if ( meESDigiADC_[i] ) meESDigiADC_[i]->Draw();
+     gPad->SetLogy(1);
    }
    Ecal->Print("Preshower_ADC_counts.eps");
  }
