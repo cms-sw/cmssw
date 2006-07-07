@@ -7,8 +7,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 class EcalSelectiveReadoutSuppressor 
@@ -21,17 +21,21 @@ public:
   EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
 
   enum {BARREL, ENDCAP};
+
+  static int getFIRTapCount(){ return nFIRTaps;}
   
   /// the mapping of which cell goes with which trigger tower
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
   void setGeometry(const CaloGeometry * caloGeometry);
   
-  void run(const EcalTrigPrimDigiCollection & trigPrims,
+  void run(const edm::EventSetup& eventSetup,
+	   const EcalTrigPrimDigiCollection & trigPrims,
            EBDigiCollection & barrelDigis,
            EEDigiCollection & endcapDigis);
 
-  void run(const EcalTrigPrimDigiCollection & trigPrims,
+  void run(const edm::EventSetup& eventSetup,
+	   const EcalTrigPrimDigiCollection & trigPrims,
            const EBDigiCollection & barrelDigis,
            const EEDigiCollection & endcapDigis,
            EBDigiCollection & selectedBarrelDigis,
@@ -43,8 +47,8 @@ public:
  private:
 
   /** Returns true if a digi passes the zero suppression.
-   * @param frame, data frame (aka digi). Must be of type EEDataFrame or
-   * EBDataFrame.
+   * @param frame, data frame (aka digi). T must be an EEDataFrame
+   * or an EBDataFrame 
    * @para zero suppression threshold.
    */
   template<class T>
@@ -86,11 +90,56 @@ public:
    * absolute value is replaced by (2**12-1).
    */
   std::vector<int> getFIRWeigths();
+
+  /**Transforms CMSSW eta ECAL crystal indices to indices starting at 0
+   * to use for c-array or vector.
+   * @param iEta CMSSW eta index (numbering -85...-1,1...85)
+   * @return index in numbering from 0 to 169
+   */
+  int iEta2cIndex(int iEta) const{
+    return (iEta<0)?iEta+85:iEta+84;
+  }
+  
+  /**Transforms CMSSW phi ECAL crystal indices to indices starting at 0
+   * to use for c-array or vector.
+   * @param iPhi CMSSW phi index (numbering 1...360)
+   * @return index in numbering 0...359
+   */
+  int iPhi2cIndex(int iPhi) const{
+    return iPhi-1;
+  }
+
+  /**Transforms CMSSW eta ECAL TT indices to indices starting at 0
+   * to use for c-array or vector.
+   * @param iEta CMSSW eta index (numbering -28...-1,28...56)
+   * @return index in numbering from 0 to 55
+   */
+  int iTTEta2cIndex(int iEta) const{
+    return (iEta<0)?iEta+28:iEta+27;
+  }
+  
+  /**Transforms CMSSW phi ECAL crystal indices to indices starting at 0
+   * to use for c-array or vector.
+   * @param iPhi CMSSW phi index (numbering 1...72)
+   * @return index in numbering 0...71
+   */
+  int iTTPhi2cIndex(int iPhi) const{
+    return iPhi-1;
+  }
+
   
   double threshold(const EBDetId & detId) const;
   double threshold(const EEDetId & detId) const;
 
+  void setTtFlags(const edm::EventSetup& eventSetup,
+		  const EBDigiCollection& ebDigis,
+		  const EEDigiCollection& eeDigis);
+  
   void setTtFlags(const EcalTrigPrimDigiCollection & trigPrims);
+
+  template<class T>
+  double frame2Energy(const T& frame) const;
+
   
   /** Number of endcap, obviously two.
    */
@@ -142,9 +191,10 @@ public:
    */
   double eeMeV2ADC;
   
-  /** Deep of DCC zero suppression FIR filter (number of taps), in principal 6.
+  /** Depth of DCC zero suppression FIR filter (number of taps),
+   * in principal 6.
    */
-  int nFIRTaps;
+  static const int nFIRTaps;
 
   /** DCC zero suppression FIR filter uncalibrated normalized weigths
    */
@@ -155,6 +205,20 @@ public:
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t
    */
   double zsThreshold[2][4];
-};
 
+
+  /** Switch for trigger primitive simulation module bypass debug mode.
+   */
+  bool trigPrimBypass_;
+
+  /** Low TT Et threshold for trigger primitive simulation module bypass
+   * debug mode.
+   */
+  double trigPrimBypassLTH_;
+
+  /** Low TT Et threshold for trigger primitive simulation module bypass
+   * debug mode.
+   */
+  double trigPrimBypassHTH_;
+};
 #endif

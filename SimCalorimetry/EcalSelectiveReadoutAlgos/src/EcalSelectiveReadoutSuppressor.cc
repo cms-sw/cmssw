@@ -1,13 +1,34 @@
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
-#include<limits>
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+//#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Geometry
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+//exceptions:
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <limits>
 
 using namespace boost;
 using namespace std;
 
+const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
+
+
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
   firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  nFIRTaps(6),
   weights(params.getParameter<vector<double> >("dccNormalizedWeights"))
 {
   double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
@@ -23,11 +44,19 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
 		     params.getParameter<double>("srpBarrelHighInterestChannelZS"),
                      params.getParameter<double>("srpEndcapHighInterestChannelZS")
 		     );
+  trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassLTH_ = params.getParameter<double>("trigPrimBypassLTH");
+  trigPrimBypassHTH_ = params.getParameter<double>("trigPrimBypassHTH");
+  if(trigPrimBypass_){
+    edm::LogWarning("Digitization") << "Beware a simplified trigger primitive "
+       "computation is used for the ECAL selective readout";
+   }
 }
 
 
 void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap * map) 
 {
+  theTriggerMap = map;
   ecalSelectiveReadout->setTriggerMap(map);
 }
 
@@ -76,13 +105,22 @@ double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
 
 //This implementation  assumes that int is coded on at least 28-bits,
 //which in pratice should be always true.
-//T is expectec to be EEDataFrame or EBDataFrame class
 template<class T>
 bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 					    float threshold){
-  //TODO: change ebMeV2ADC to eeMeV2ADC for endcap!!!!
+  double eMeV2ADC;
+  switch(frame.id().subdetId()){
+  case EcalBarrel:
+    eMeV2ADC = ebMeV2ADC;
+    break;
+  case EcalEndcap:
+    eMeV2ADC = eeMeV2ADC;
+    break;
+  default:
+    throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
+  }
   
-  int thr = (int)(threshold * ebMeV2ADC * 4. + .5);
+  int thr = (int)(threshold * eMeV2ADC * 4. + .5);
   //treating over- and underflows, threshold is coded on 11+1 signed bits
   if(thr>0x7FF){
     thr = 0x7FF;
@@ -98,12 +136,16 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   //accumulator used to compute weighted sum of samples
   int acc = 0;
   bool gain12saturated = false;
-  const int gain12 = 0x01;
+  const int gain12 = 0x01; 
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
+  // edm:::LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
+  //     << "DCC FIR operation: ";
   for(int i=firstFIRSample; i<lastFIRSample; ++i){
     if(i>=0 && i < frame.size()){
       const EcalMGPASample& sample = frame[i];
       if(sample.gainId()!=gain12) gain12saturated = true;
+      //edm:::LogDebug("DccFIR") << (i>firstFIRSample?"+":"") << sample.adc()
+      //   << "*(" << w[i] << ")";
       acc+=sample.adc()*w[i];
     } else{
       //TODO: deals properly logging...
@@ -111,6 +153,7 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 	": Not enough samples in data frame...\n";
     }
   }
+  //cout << "\n";
   //discards the 8 LSBs
   //(shift operator cannot be used on negative numbers because
   // the result depends on compilator implementation)
@@ -118,17 +161,23 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
+
+  // edm:::LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
+  //        <<  "acc: " << acc << "\n"
+  //        << "threshold: " << threshold << " - " << thr << "\n"
+  //        << "saturated: " << (gain12saturated?"yes":"no") << "\n";
+  
   return (acc>=thr || gain12saturated);
 }
 
-void EcalSelectiveReadoutSuppressor::run(
-           const EcalTrigPrimDigiCollection & trigPrims,
-           EBDigiCollection & barrelDigis,
-           EEDigiCollection & endcapDigis){
+void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,   
+					 const EcalTrigPrimDigiCollection & trigPrims,
+					 EBDigiCollection & barrelDigis,
+					 EEDigiCollection & endcapDigis){
   EBDigiCollection selectedBarrelDigis;
   EEDigiCollection selectedEndcapDigis;
 
-  run(trigPrims, barrelDigis, endcapDigis,
+  run(eventSetup, trigPrims, barrelDigis, endcapDigis,
       selectedBarrelDigis, selectedEndcapDigis);
   
 //replaces the input with the suppressed version
@@ -138,19 +187,25 @@ void EcalSelectiveReadoutSuppressor::run(
 
 
 void
-EcalSelectiveReadoutSuppressor::run(const EcalTrigPrimDigiCollection & trigPrims,
+EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
+				    const EcalTrigPrimDigiCollection & trigPrims,
 				    const EBDigiCollection & barrelDigis,
 				    const EEDigiCollection & endcapDigis,
 				    EBDigiCollection & selectedBarrelDigis,
 				    EEDigiCollection & selectedEndcapDigis)
 {
-  setTtFlags(trigPrims);
+  if(!trigPrimBypass_){//normal mode
+    setTtFlags(trigPrims);
+  } else{//debug mode, run w/o TP digis
+    setTtFlags(eventSetup, barrelDigis, endcapDigis);
+  }
   
   ecalSelectiveReadout->runSelectiveReadout0(ttFlags);
 
   // do barrel first
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr){
+    //TO DO: remove EBDetId conversion once EBxxxDigi::id() return type fixed 
     if(accept(*digiItr, threshold(EBDetId(digiItr->id())))){
       selectedBarrelDigis.push_back(*digiItr);
     } 
@@ -159,6 +214,7 @@ EcalSelectiveReadoutSuppressor::run(const EcalTrigPrimDigiCollection & trigPrims
   // and endcaps
   for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
       digiItr != endcapDigis.end(); ++digiItr){
+    //TO DO: remove EEDetId conversion once EBxxxDigi::id() return type fixed 
     if(accept(*digiItr, threshold(EEDetId(digiItr->id())))){
       selectedEndcapDigis.push_back(*digiItr);
     }
@@ -181,9 +237,17 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
     } else{ //z+ halfECAL: transforming ranges 1;28 => 28;55
       iEta = iEta0 + nTriggerTowersInEta/2 - 1;
     }
-    
+
     unsigned int iPhi = trigPrim->id().iphi() - 1;
-    const int iTPSample = 2;
+
+    //TODO: code below must be change to use
+    //EcalTriggerPrimitiveDigi::ttFlags() method, once available:
+    int iTPSample;
+    if(trigPrim->size()>8){//version before nb of Tp data samples was changed
+      iTPSample = 5;
+    } else{
+      iTPSample = 2;
+    }
     if(trigPrim->size()>=iTPSample){
       ttFlags[iEta][iPhi] = (EcalSelectiveReadout::ttFlag_t)(*trigPrim)[iTPSample].ttFlag();
     }
@@ -274,7 +338,7 @@ vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths(){
   if(firWeights.size()==0){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
-    for(unsigned i=0; i < weights.size(); ++i){ 
+    for(unsigned i=0; i < min((unsigned)nFIRTaps,weights.size()); ++i){ 
       firWeights[i] = (int)(weights[i] * (1<<10) + 0.5);
       if(abs(firWeights[i])>maxWeight){//overflow
 	firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
@@ -282,4 +346,130 @@ vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths(){
     }
   }
   return firWeights;
+}
+
+void
+EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
+					   const EBDigiCollection& ebDigis,
+					   const EEDigiCollection& eeDigis){
+  double trigPrim[nTriggerTowersInEta][nTriggerTowersInPhi];
+
+  //ecal geometry:
+  static const CaloSubdetectorGeometry* eeGeometry = 0;
+  static const CaloSubdetectorGeometry* ebGeometry = 0;
+  if(eeGeometry==0 || ebGeometry==0){
+    edm::ESHandle<CaloGeometry> geoHandle;
+    es.get<IdealGeometryRecord>().get(geoHandle);
+    eeGeometry
+      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    ebGeometry
+      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  }
+
+  //init trigPrim array:
+  bzero(trigPrim, sizeof(trigPrim));
+	
+  for(EBDigiCollection::const_iterator it = ebDigis.begin();
+      it != ebDigis.end(); ++it){
+    const EBDataFrame& frame = *it;
+    const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
+//      edm:::LogDebug("TT") << __FILE__ << ":" << __LINE__ << ": " 
+//  	 <<  ((EBDetId&)frame.id()).ieta()
+//  	 << "," << ((EBDetId&)frame.id()).iphi()
+//  	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
+    const int iTTEta0 = iTTEta2cIndex(ttId.ieta());
+    const int iTTPhi0 = iTTPhi2cIndex(ttId.iphi());
+    double theta = ebGeometry->getGeometry(frame.id())->getPosition().theta();
+    trigPrim[iTTEta0][iTTPhi0] += frame2Energy(frame)*sin(theta);    
+  }
+
+  for(EEDigiCollection::const_iterator it = eeDigis.begin();
+      it != eeDigis.end(); ++it){
+    const EEDataFrame& frame = *it;
+    const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
+    const int iTTEta0 = iTTEta2cIndex(ttId.ieta());
+    const int iTTPhi0 = iTTPhi2cIndex(ttId.iphi());
+    cout << __FILE__ << ":" << __LINE__ << ": EE xtal->TT "
+	 <<  ((EEDetId&)frame.id()).ix()
+	 << "," << ((EEDetId&)frame.id()).iy()
+	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
+    double theta = eeGeometry->getGeometry(frame.id())->getPosition().theta();
+    trigPrim[iTTEta0][iTTPhi0] += frame2Energy(frame)*sin(theta);
+  }
+
+  //dealing with pseudo-TT in two inner EE eta-ring:
+  int innerTTEtas[] = {0, 1, 54, 55};
+  for(unsigned iRing = 0; iRing < sizeof(innerTTEtas)/sizeof(innerTTEtas[0]);
+      ++iRing){
+    int iTTEta0 = innerTTEtas[iRing];
+    //this detector eta-section is divided in only 36 phi bins
+    //For this eta regions,
+    //current tower eta numbering scheme is inconsistent. For geometry
+    //version 133:
+    //- TT are numbered from 0 to 72 for 36 bins
+    //- some TT have an even index, some an odd index
+    //For geometry version 125, there are 72 phi bins.
+    //The code below should handle both geometry definition.
+    //If there are 72 input trigger primitives for each inner eta-ring,
+    //then the average of the trigger primitive of the two pseudo-TT of
+    //a pair (nEta, nEta+1) is taken as Et of both pseudo TTs.
+    //If there are only 36 input TTs for each inner eta ring, then half
+    //of the present primitive of a pseudo TT pair is used as Et of both
+    //pseudo TTs.
+
+    for(unsigned iTTPhi0 = 0; iTTPhi0 < nTriggerTowersInPhi-1; iTTPhi0 += 2){
+      double et = .5*(trigPrim[iTTEta0][iTTPhi0]
+		      +trigPrim[iTTEta0][iTTPhi0+1]);
+      //divides the TT into 2 phi bins in order to match with 72 phi-bins SRP
+      //scheme or average the Et on the two pseudo TTs if the TT is already
+      //divided into two trigger primitives.
+      trigPrim[iTTEta0][iTTPhi0] = et;
+      trigPrim[iTTEta0][iTTPhi0+1] = et;
+    }
+  }
+    
+  for(unsigned iTTEta0 = 0; iTTEta0 < nTriggerTowersInEta; ++iTTEta0){
+    for(unsigned iTTPhi0 = 0; iTTPhi0 < nTriggerTowersInPhi; ++iTTPhi0){
+      if(trigPrim[iTTEta0][iTTPhi0] > trigPrimBypassHTH_){
+	ttFlags[iTTEta0][iTTPhi0] = EcalSelectiveReadout::TTF_HIGH_INTEREST;
+      } else if(trigPrim[iTTEta0][iTTPhi0] > trigPrimBypassLTH_){
+	ttFlags[iTTEta0][iTTPhi0] = EcalSelectiveReadout::TTF_MID_INTEREST;
+      } else{
+	ttFlags[iTTEta0][iTTPhi0] = EcalSelectiveReadout::TTF_LOW_INTEREST;
+      }
+      
+      // cout /*edm::LogDebug("TT")*/
+      // 	<< "ttFlags[" << iTTEta0 << "][" << iTTPhi0 << "] = "
+      // 	<< ttFlags[iTTEta0][iTTPhi0] << "\n";
+    }
+  }
+}
+
+template<class T>
+double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame) const{
+  double weights[] = {-1/3., -1/3., -1/3., 0., 0., 1.};   
+
+  double adc2GeV;
+  if(typeid(frame) == typeid(EBDataFrame)){
+    adc2GeV = 0.035;
+  } else if(typeid(frame) == typeid(EEDataFrame)){
+    adc2GeV = 0.060;
+  } else{ //T is an invalid type!
+    //TODO: replace message by a cms exception
+    cerr << "Severe error. "
+	 << __FILE__ << ":" << __LINE__ << ": "
+	 << "this is a bug. Please report it.\n";
+  }
+    
+  double acc = 0;
+
+  const int n = min<int>(frame.size(), sizeof(weights)/sizeof(weights[0]));
+
+  double gainInv[] = {12., 6., 1.};  
+  
+  for(int i=0; i < n; ++i){
+    acc += weights[i]*frame[i].adc()*gainInv[frame[i].gainId()]*adc2GeV;
+  }
+
+  return acc;
 }
