@@ -40,7 +40,7 @@ namespace edm
     state_ = edm::hlt::Ready;
 
     // nwrue =  numWorkersRunWithoutUnhandledException
-    int nwrwue = 0;
+    int nwrwue = -1;
     bool should_continue = true;
     CurrentProcessingContext cpc(&name_, bitPosition());
 
@@ -48,27 +48,23 @@ namespace edm
     // It seems likely that 'nwrwue' and 'idx' can never differ ---
     // if so, we should remove one of them!.
     for ( Workers::iterator i = workers_.begin(), e = workers_.end();
-	  i != e && should_continue;
-	  ++i, ++idx )
-      {
-	assert ( static_cast<int>(idx) == nwrwue );
-	try
-	  {
-	    cpc.activate(idx, i->getWorker()->descPtr());
-	    should_continue = i->runWorker(ep, es, &cpc);
-	  }
-	catch(cms::Exception& e)
-	  {
-	    // handleWorkerFailure may throw a new exception.
-	    should_continue = handleWorkerFailure(e, nwrwue);
-	  }
-	catch(...)
-	  {
-	    recordUnknownException(nwrwue);
-	    throw;
-	  }
-	++nwrwue;
+          i != e && should_continue;
+          ++i, ++idx ) {
+      ++nwrwue;
+      assert ( static_cast<int>(idx) == nwrwue );
+      try {
+        cpc.activate(idx, i->getWorker()->descPtr());
+        should_continue = i->runWorker(ep, es, &cpc);
       }
+      catch(cms::Exception& e) {
+        // handleWorkerFailure may throw a new exception.
+        should_continue = handleWorkerFailure(e, nwrwue);
+      }
+      catch(...) {
+        recordUnknownException(nwrwue);
+        throw;
+      }
+    }
     updateCounters(should_continue);
     recordStatus(nwrwue);
   }
