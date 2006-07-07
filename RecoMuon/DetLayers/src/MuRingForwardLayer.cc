@@ -1,13 +1,14 @@
 /** \file
  *
- *  $Date: 2006/06/27 12:33:29 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/27 12:34:54 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
 #include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/Surface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
 
@@ -30,26 +31,51 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theBinFinder(0),
   isOverlapping(false) 
 {
+  // Initial values for R and Z bounds
+  float theRmin = rings.front()->basicComponents().front()->position().perp(); 
+  float theRmax = theRmin;
+  float theZmin = rings.front()->position().z();
+  float theZmax = theZmin;
+
   // Cache chamber pointers (the basic components_)
+  // and find extension in R and Z
   for (vector<const ForwardDetRing*>::const_iterator it=rings.begin();
        it!=rings.end(); it++) {
     vector<const GeomDet*> tmp2 = (*it)->basicComponents();
     theBasicComps.insert(theBasicComps.end(),tmp2.begin(),tmp2.end());
+    
+    theRmin = min( theRmin, (*it)->specificSurface().innerRadius());
+    theRmax = max( theRmax, (*it)->specificSurface().outerRadius());
+    float halfThick = (*it)->surface().bounds().thickness()/2.;
+    float zCenter = (*it)->surface().position().z();
+    theZmin = min( theZmin, zCenter-halfThick);
+    theZmax = max( theZmax, zCenter+halfThick); 
   }  
-
+  
   RBorderFinder bf(theRings);
   isOverlapping = bf.isROverlapping();
   theBinFinder = new GeneralBinFinderInR<double>(bf);
 
-  ForwardDetLayer::initialize(); // Compute surface
+  // Build surface
+  
+  float zPos = (theZmax+theZmin)/2.;
+  PositionType pos(0.,0.,zPos);
+  RotationType rot;
+
+  setSurface(new BoundDisk( pos, rot, 
+			    SimpleDiskBounds( theRmin, theRmax, 
+					      theZmin-zPos, theZmax-zPos)));
+
 
   if ( MDEBUG ) 
     cout << "Constructing MuRingForwardLayer: "
 	 << basicComponents().size() << " Dets " 
 	 << theRings.size() << " Rings "
 	 << " Z: " << specificSurface().position().z()
-// 	 << " Per.: " << bf.isRPeriodic()
-// 	 << " Overl.: " << isOverlapping
+	 << " R1: " << specificSurface().innerRadius()
+	 << " R2: " << specificSurface().outerRadius()
+ 	 << " Per.: " << bf.isRPeriodic()
+ 	 << " Overl.: " << bf.isROverlapping()
 	 << endl;
 }
 
