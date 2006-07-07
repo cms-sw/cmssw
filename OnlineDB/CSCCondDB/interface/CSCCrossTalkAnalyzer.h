@@ -74,17 +74,17 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
     }
     
     //get name of run file from .cfg and name root output after that
-    string::size_type runNameStart = name.find("RunNum",0);
+    string::size_type runNameStart = name.find("06",0);
     string::size_type runNameEnd   = name.find("bin",0);
-    string::size_type rootStart    = name.find("Evs",0);
+    string::size_type rootStart    = name.find("Crosstalk",0);
     int nameSize = runNameEnd+3-runNameStart;
-    int myRootSize = rootStart-runNameStart;
+    int myRootSize = rootStart-runNameStart+9;
     std::string myname= name.substr(runNameStart,nameSize);
     std::string myRootName= name.substr(runNameStart,myRootSize);
-    std::string myRootType = "xtalk";
+    //std::string myRootType = "xtalk";
     std::string myRootEnd = ".root";
     std::string runFile= myRootName;
-    std::string myRootFileName = myRootType+runFile+myRootEnd;
+    std::string myRootFileName = runFile+myRootEnd;
     const char *myNewName=myRootFileName.c_str();
 
     struct tm* clock;			    
@@ -335,7 +335,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    calib_evt.maxADC   = newPeak[fff];
 	    calib_evt.sum      = newSumFive[fff];
 	    
-	    std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flag "<<flag<<std::endl;
+	    //std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flag "<<flag<<std::endl;
 	    
 	    // *outfile << chamber_num <<"  "<<j<<"  "<<k<<"  "<<meanPedestal<<"  "<<theRMS<<"  "<<thePeak<<"  "<<thePeakRMS<<"  "<<theSumFive<<"  "<<the_xtalk_left_a<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_right_a<<"  "<<the_xtalk_right_b<<"  "<<the_peakTime-mean<<std::endl; 
 	    calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
@@ -367,19 +367,19 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
       }//chambers
     }//Nddu
    
-    dbon->cdbon_last_run("pedestals",&run);
-    std::cout<<"Last pedestal run "<<run<<std::endl;
-    if(debug) dbon->cdbon_write(cn,"pedestals",run+1,myTime);
-    dbon->cdbon_last_run("crosstalk",&run);
-    std::cout<<"Last crosstalk run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-    if(debug) dbon->cdbon_write(cn1,"crosstalk",run+1,myTime);
+    dbon->cdbon_last_record("pedestals",&record);
+    std::cout<<"Last pedestal record "<<record<<std::endl;
+    if(debug) dbon->cdbon_write(cn,"pedestals",11,myTime);
+    dbon->cdbon_last_record("crosstalk",&record);
+    std::cout<<"Last crosstalk record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+    if(debug) dbon->cdbon_write(cn1,"crosstalk",11,myTime);
     calibfile.Write();    
     calibfile.Close();  
   }
   
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int i_chamber,i_layer,reportedChambers,chamber_num,sector,run,NChambers ;
+  int i_chamber,i_layer,reportedChambers,chamber_num,sector,record,NChambers ;
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;

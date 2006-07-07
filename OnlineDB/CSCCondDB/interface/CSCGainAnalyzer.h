@@ -53,10 +53,17 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 	cout<<name<<endl;
       }
     }
-    string::size_type runNameStart = name.find("RunNum",0);
+    string::size_type runNameStart = name.find("06",0);
     string::size_type runNameEnd   = name.find("bin",0);
+    string::size_type rootStart    = name.find("PulseDAC",0);
     int nameSize = runNameEnd+3-runNameStart;
+    int myRootSize = rootStart-runNameStart+8;
     std::string myname= name.substr(runNameStart,nameSize);
+    std::string myRootName= name.substr(runNameStart,myRootSize);
+    std::string myRootEnd = ".root";
+    std::string runFile= myRootName;
+    std::string myRootFileName = runFile+myRootEnd;
+    const char *myNewName=myRootFileName.c_str();
        
     struct tm* clock;			    
     struct stat attrib;			    
@@ -71,7 +78,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
     
     //root ntuple information
     TCalibGainEvt calib_evt;
-    TFile calibfile("calibgain.root", "RECREATE");
+    TFile calibfile(myNewName, "RECREATE");
     TTree calibtree("Calibration","Gains");
     calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I");
     
@@ -147,9 +154,9 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
     }//dduiter
     
     //send data to DB
-    dbon->cdbon_last_run("gains",&run);
-    std::cout<<"Last gains run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-    if(debug) dbon->cdbon_write(cn,"gains",run+1,myTime);
+    dbon->cdbon_last_record("gains",&record);
+    std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+    if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
     calibfile.Write();
     calibfile.Close();
   }
@@ -158,7 +165,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   std::vector<int> newadc; 
   std::string chamber_id;
   int eventNumber,evt,chamber_num,sector,i_chamber,i_layer,reportedChambers;
-  int fff,ret_code,length,strip,misMatch,NChambers,Nddu,run;
+  int fff,ret_code,length,strip,misMatch,NChambers,Nddu,record;
   time_t rawtime;
   int dmbID[CHAMBERS_ga],crateID[CHAMBERS_ga],size[CHAMBERS_ga]; 
   float gainSlope,gainIntercept;

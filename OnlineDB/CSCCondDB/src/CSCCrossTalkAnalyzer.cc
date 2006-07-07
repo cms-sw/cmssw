@@ -6,6 +6,7 @@
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/MessageLogger/data/MessageLogger.cfi"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -29,14 +30,14 @@
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0, Nddu=0;
+  eventNumber=0, Nddu=0,chamber=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
-  i_chamber=0,i_layer=0,reportedChambers=0;
+  i_layer=0,reportedChambers=0;
   length=1,myevt=0,flag=-9;
   aPeak=0.0,sumFive=0.0;
-  pedMean=0.0,NChambers=0;
+  pedMean=0.0,evt=0,NChambers=0;
 
-  //definition of histograms
+   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
   pulse_shape_ch1 = TH2F("pulse shape_ch1","pulse shape_ch1", 100,-100,500,100,-100,1100);
   pulse_shape_ch2 = TH2F("pulse shape_ch2","pulse shape_ch2", 100,-100,500,100,-100,1100);
@@ -142,7 +143,8 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
-      evt++;      
+      evt++;  
+ 
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data

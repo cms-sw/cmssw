@@ -56,11 +56,18 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
 	cout<<name<<endl;
       }
     }
-    string::size_type runNameStart = name.find("RunNum",0);
+    string::size_type runNameStart = name.find("06",0);
     string::size_type runNameEnd   = name.find("bin",0);
+     string::size_type rootStart    = name.find("Gains",0);
     int nameSize = runNameEnd+3-runNameStart;
+    int myRootSize = rootStart-runNameStart+5;
     std::string myname= name.substr(runNameStart,nameSize);
-           
+    std::string myRootName= name.substr(runNameStart,myRootSize);
+      std::string myRootEnd = ".root";
+    std::string runFile= myRootName;
+    std::string myRootFileName = runFile+myRootEnd;
+    const char *myNewName=myRootFileName.c_str();
+
     struct tm* clock;			    
     struct stat attrib;			    
     stat(myname.c_str(), &attrib);          
@@ -74,7 +81,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
     
     //root ntuple
     TCalibNoiseMatrixEvt calib_evt;
-    TFile calibfile("calibmatrix.root", "RECREATE");
+    TFile calibfile(myNewName, "RECREATE");
     TTree calibtree("Calibration","NoiseMatrix");
     calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I");
    
@@ -138,20 +145,20 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
      //}//myDDU
      
      //send data to DB
-     dbon->cdbon_last_run("noisematrix",&run);
-     std::cout<<"run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-     if(debug) dbon->cdbon_write(cn,"noisematrix",run+1,myTime);
-
+     dbon->cdbon_last_record("noisematrix",&record);
+     std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+     if(debug) dbon->cdbon_write(cn,"noisematrix",11,myTime);
+     
      calibfile.Write();
      calibfile.Close();
   }
-
+  
  private:
  // variables persistent across events should be declared here.
  std::vector<int> adc;
  std::string chamber_id;
  int eventNumber,evt,strip,misMatch,NChambers,Nddu;
- int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,run;
+ int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,record;
  int dmbID[CHAMBERS_ma],crateID[CHAMBERS_ma],size[CHAMBERS_ma];
  int lines;
  std::ifstream filein;
