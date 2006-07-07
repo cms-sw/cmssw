@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.162 $
+ * $Date: 2006/07/06 07:11:06 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -874,11 +874,11 @@ void EcalBarrelMonitorClient::subscribe(void){
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
-  mui_->subscribe("*/EcalBarrel/STATUS");
-  mui_->subscribe("*/EcalBarrel/RUN");
-  mui_->subscribe("*/EcalBarrel/EVT");
-  mui_->subscribe("*/EcalBarrel/EVTTYPE");
-  mui_->subscribe("*/EcalBarrel/RUNTYPE");
+  mui_->subscribe("*/EcalBarrel/EcalInfo/STATUS");
+  mui_->subscribe("*/EcalBarrel/EcalInfo/RUN");
+  mui_->subscribe("*/EcalBarrel/EcalInfo/EVT");
+  mui_->subscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
+  mui_->subscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
 
   if ( collateSources_ ) {
 
@@ -887,8 +887,8 @@ void EcalBarrelMonitorClient::subscribe(void){
     Char_t histo[200];
 
     sprintf(histo, "EVTTYPE");
-    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums");
-    sprintf(histo, "*/EcalBarrel/EVTTYPE");
+    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalInfo");
+    sprintf(histo, "*/EcalBarrel/EcalInfo/EVTTYPE");
     mui_->add(me_h_, histo);
 
   }
@@ -897,11 +897,11 @@ void EcalBarrelMonitorClient::subscribe(void){
 
 void EcalBarrelMonitorClient::subscribeNew(void){
 
-  mui_->subscribeNew("*/EcalBarrel/STATUS");
-  mui_->subscribeNew("*/EcalBarrel/RUN");
-  mui_->subscribeNew("*/EcalBarrel/EVT");
-  mui_->subscribeNew("*/EcalBarrel/EVTTYPE");
-  mui_->subscribeNew("*/EcalBarrel/RUNTYPE");
+  mui_->subscribeNew("*/EcalBarrel/EcalInfo/STATUS");
+  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUN");
+  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVT");
+  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVTTYPE");
+  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUNTYPE");
 
 }
 
@@ -921,11 +921,11 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
 
   }
 
-  mui_->unsubscribe("*/EcalBarrel/STATUS");
-  mui_->unsubscribe("*/EcalBarrel/RUN");
-  mui_->unsubscribe("*/EcalBarrel/EVT");
-  mui_->unsubscribe("*/EcalBarrel/EVTTYPE");
-  mui_->unsubscribe("*/EcalBarrel/RUNTYPE");
+  mui_->unsubscribe("*/EcalBarrel/EcalInfo/STATUS");
+  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUN");
+  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVT");
+  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
+  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
 
 }
 
@@ -959,7 +959,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
-    sprintf(histo, (prefixME_+"EcalBarrel/STATUS").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/STATUS").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -970,7 +970,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/RUN").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -978,7 +978,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EVT").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -987,14 +987,14 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
+      sprintf(histo, "EcalBarrel/Sums/EcalInfo/EVTTYPE");
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EVTTYPE").c_str());
+      sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
     h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/RUNTYPE").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUNTYPE").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
