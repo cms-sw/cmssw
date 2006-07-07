@@ -14,7 +14,7 @@
 <use name=CondCore/MetaDataService>
 
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="CalibTrackerSiPixelConnectivity">
+#<flags SEAL_PLUGIN_NAME="CalibTrackerSiPixelConnectivity">
 
 <export>
 <lib name=CalibTrackerSiPixelConnectivity>
