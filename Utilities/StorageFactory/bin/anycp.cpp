@@ -74,7 +74,6 @@ public:
     bool ret = true;
     // if error in previous write return....
     if (ce==0) {
-      ce=0;
       outbuf.swap(ibuf);
       nout = n;
     }
@@ -155,7 +154,7 @@ namespace {
 
     while(dropbox.write(os,me));
     
-    std::cout << "end writing thread" << std::endl;
+    std::cout << "end writing thread " << me << std::endl;
   
   }
 
