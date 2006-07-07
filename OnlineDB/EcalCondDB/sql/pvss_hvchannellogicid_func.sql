@@ -5,7 +5,7 @@ alias varchar2(1000);
 superModuleNumber number;
 moduleNumber number;
 channelNumber number;
-invalid_channel_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
+invalid_channel_name exception;
 
 begin
 /*

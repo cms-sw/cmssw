@@ -4,7 +4,7 @@ function HVBOARDLOGICID(DPEName in varchar2) return varchar2 is
 alias varchar2(1000);
 superModuleNumber number;
 boardNumber number;
-invalid_board_name exception; --there probably isn't much point defining my own exception type since it will be out of scope by the time anything sees it and will just show as a user defined exception, but it's better than throwing some unrelated predefined exception
+invalid_board_name exception;
 
 /*
  For the HV boards the logic_ids are
