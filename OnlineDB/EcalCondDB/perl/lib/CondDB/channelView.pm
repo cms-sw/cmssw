@@ -870,27 +870,16 @@ sub define_EB_fe_crystal_number_to_EB_crystal_number {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (0..36) {
-    foreach my $cn (1..1700) {
-      my ($tt, $fecn) = cn_to_fecn($cn);
-      
-      # get the logic_id for this cn channel
-      my $cn_id;
-      for my $i (0..$count-1) {
-	my @ids = @{$$cn_channel_ids[$i]};
-	if ($ids[0] == $SM && $ids[1] == $cn) {
-	  $cn_id = $$cn_logic_ids[$i];
-	  last;
-	}
-      }
-      if (!defined $fecn_id) {
-	die "Cannot determine logic_id of crystal channel SM=$SM, cn=$cn\n";
-      }
-      
-      # set the mapping
-      push @logic_ids, $cn_id;
-      push @channel_ids, [$SM, $tt, $fecn];          
-    }
+  # get the logic_id for this cn channel
+  my $cn_id;
+  for my $i (0..$count-1) {
+    my @ids = @{$$cn_channel_ids[$i]};
+    my ($SM, $cn) = @ids[0..1];
+    my ($tt, $fecn) = cn_to_fecn($cn);	
+    $cn_id = $$cn_logic_ids[$i];
+    # set the mapping
+    push @logic_ids, $cn_id;
+    push @channel_ids, [$SM, $tt, $fecn];          
   }
   
   return { 
