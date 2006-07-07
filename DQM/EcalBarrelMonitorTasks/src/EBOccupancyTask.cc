@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/06/17 13:46:21 $
- * $Revision: 1.4 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,9 +43,8 @@ void EBOccupancyTask::setup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
+    dbe->setCurrentFolder("EcalBarrel/EcalOccupancyTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EcalOccupancy");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBMM occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -67,9 +66,8 @@ void EBOccupancyTask::cleanup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
+    dbe->setCurrentFolder("EcalBarrel/EcalOccupancyTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EcalOccupancy");
     for (int i = 0; i < 36; i++) {
       if ( meOccupancy_[i] ) dbe->removeElement( meOccupancy_[i]->getName() );
       meOccupancy_[i] = 0;

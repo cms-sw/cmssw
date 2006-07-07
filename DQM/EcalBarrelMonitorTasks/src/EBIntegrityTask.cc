@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.20 $
+ * $Date: 2006/07/06 23:08:58 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
  */
@@ -52,10 +52,9 @@ void EBIntegrityTask::setup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
 
     // checking when number of towers in data different than expected from header
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
 
@@ -143,9 +142,8 @@ void EBIntegrityTask::cleanup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
   
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
-
     dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+
     if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
