@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/03 07:57:59 $
- * $Revision: 1.107 $
+ * $Date: 2006/07/07 14:15:14 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -94,13 +94,6 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   ievt_ = 0;
-
-  if ( ! init_ ) this->setup();
-
-  // begin-of-run
-  if ( meStatus_ ) meStatus_->Fill(0);
-
-  if ( meEvt_ ) meEvt_->Fill(ievt_);
 
 }
 
