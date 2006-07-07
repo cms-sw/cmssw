@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/07 14:21:25 $
- * $Revision: 1.22 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
  */
@@ -343,7 +343,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int ipt = id.iphi();
 
     int ismt = id.iDCC();
-    //    int ismt = 1;
 
     float xiet = iet - 0.5;
     float xipt = ipt - 0.5;
@@ -363,8 +362,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int ipt = id.iphi();
 
     int ismt = id.iDCC();
-    //    int ismt = id.ism();
-    //    int ismt = 1;
 
     float xiet = iet - 0.5;
     float xipt = ipt - 0.5;
