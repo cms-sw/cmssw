@@ -11,6 +11,7 @@
 #include <iostream>
 #include <boost/thread/thread.hpp>
 #include <vector>
+#include "SealBase/TimeInfo.h"
 typedef boost::mutex::scoped_lock ScopedLock;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -162,6 +163,8 @@ namespace {
 
 int main (int argc, char **argv)
 {
+  TimeInfo::init ();
+
     Signal::handleFatal (argv [0]);
     PluginManager::get ()->initialise ();
 
