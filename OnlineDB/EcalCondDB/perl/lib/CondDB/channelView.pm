@@ -60,7 +60,9 @@ sub new {
 		   'EB_crystal_number_to_EB_fe_crystal_number'
 		   => \&define_EB_crystal_number_to_EB_fe_crystal_number,
 		   'EB_elec_crystal_number_to_EB_crystal_number',
-		   => \&define_EB_elec_crystal_number_to_EB_crystal_number
+		   => \&define_EB_elec_crystal_number_to_EB_crystal_number,
+		   'EB_fe_crystal_number_to_EB_crystal_number',
+		   => \&define_EB_fe_crystal_number_to_EB_crystal_number
 		  };
 
   bless($this, $class);
@@ -854,6 +856,49 @@ sub define_EB_crystal_number_to_EB_fe_crystal_number {
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
 	 };
 }
+
+
+sub define_EB_fe_crystal_number_to_EB_crystal_number {
+  my $cn_def = define_EB_crystal_number();
+  my $cn_logic_ids = $cn_def->{logic_ids};
+  my $cn_channel_ids = $cn_def->{channel_ids};
+  my $count = scalar @{$cn_logic_ids};
+
+  my $name = "EB_fe_crystal_number";
+  my $maps_to = "EB_crystal_number";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    foreach my $cn (1..1700) {
+      my ($tt, $fecn) = cn_to_fecn($cn);
+      
+      # get the logic_id for this cn channel
+      my $cn_id;
+      for my $i (0..$count-1) {
+	my @ids = @{$$cn_channel_ids[$i]};
+	if ($ids[0] == $SM && $ids[1] == $cn) {
+	  $cn_id = $$cn_logic_ids[$i];
+	  last;
+	}
+      }
+      if (!defined $fecn_id) {
+	die "Cannot determine logic_id of crystal channel SM=$SM, cn=$cn\n";
+      }
+      
+      # set the mapping
+      push @logic_ids, $cn_id;
+      push @channel_ids, [$SM, $tt, $fecn];          
+    }
+  }
+  
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
 
 sub define_EB_elec_crystal_number_to_EB_crystal_number {
   my $cn_def = define_EB_crystal_number();
