@@ -63,13 +63,13 @@ public:
 
   OutputDropBox() : outbuf(100000), nout(0),  ce(0), writing(0) {}
 
+  // called by main 
   bool set(std::vector<char> & ibuf, IOSize n) {
     //   void set(Storage * s, seal::IOBuffer ibuf) {
-    // wait it finishes write to swap
+    // wait that all threads finish write to swap
     ScopedLock gl(lock);
-    std::cout << "box set " << writing << std::endl;
     done.wait(gl, cond_predicate(writing, 0));
-    std::cout << "box setting " << std::endl;
+
     bool ret = true;
     // if error in previous write return....
     if (ce==0) {
@@ -80,53 +80,45 @@ public:
     else ret = false;
     undo(); // clean al bits, set writing to its size...
       //    buffer = ibuf;
+    // notify threads buffer is ready
     doit.notify_all();
     return ret;
   } 
   
-  bool wait () const {
-    // first time exit.... 
-    // if (!nout) return true;
-    ScopedLock gl(lock);
-    std::cout << "box wait" << std::endl;
-    done.wait(gl);
-    return !ce;
-  }
-  
+  // called by thread
   bool write(Storage * os,int it) {
     ScopedLock gl(lock);
-    std::cout << "box write " << nout << std::endl;
-    // wait is box empty or this thread already consumed...
+    // wait if box empty or this thread already consumed...
     if (m_done[it]) doit.wait(gl);
-    std::cout << "box writing " << nout << std::endl;
     bool ret=true;
-    // os==0 notify thread to exit....
+    // nout==0 notify thread to exit....
     if (nout==0) ret=false;
     else
       try {
-	std::cout << "box real write " << nout << std::endl;
 	os->write(&outbuf[0],nout);
       } catch(seal::Error & lce) {
 	ce = lce.clone();
-      }
-    //    done.notify_all(); 
+      } 
     {
+      // declare it finishes
       ScopedLock wl(wlock);
       m_done[it]=true;
       writing--;
     } 
     done.notify_all(); 
-    std::cout << "box write done" << std::endl;
     return ret;
   }
   
-
+  /* add a writer (called by thread itself)
+     return thread index....
+   */
   int addWriter(){
     ScopedLock wl(wlock);
     m_done.push_back(true);
     return m_done.size()-1;
   }
  
+  // clear bits (declare box ready...)
   void undo() {
     ScopedLock wl(wlock);
     writing= m_done.size();
