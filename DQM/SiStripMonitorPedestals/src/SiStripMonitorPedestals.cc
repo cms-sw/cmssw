@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.6 2006/07/06 17:04:13 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.7 2006/07/06 17:53:57 gennai Exp $
 //
 //
 
@@ -114,6 +114,7 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  // set appropriate folder using SiStripFolderOrganizer
 	  folder_organizer.setDetectorFolder(key_id); // pass the detid to this method
 	  int nStrip  = napvs*128;
+	  //Pedestals histos
 	  hid = hidmanager.createHistoId("PedsPerStrip","det", key_id);
 	  local_modmes.PedsPerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
 
@@ -123,15 +124,25 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  hid = hidmanager.createHistoId("PedsEvolution","det", key_id);
 	  local_modmes.PedsEvolution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
 
+
+	  //Noise histos
 	  hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", key_id);
-	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
+	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
 
 	  hid = hidmanager.createHistoId("RawNoisePerStrip","det", key_id);
-	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
+	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+
+	  hid = hidmanager.createHistoId("CMSubNoiseProfile","det", key_id);
+	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
+
+	  hid = hidmanager.createHistoId("RawNoiseProfile","det", key_id);
+	  local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
+
 
 	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
-	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);//to modify the size binning 
+	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
 
+	  //Common Mode histos
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
 	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
     

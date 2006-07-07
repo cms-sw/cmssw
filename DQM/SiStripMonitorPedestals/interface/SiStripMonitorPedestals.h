@@ -1,5 +1,5 @@
-#ifndef SiStripMonitorPedestals_SiStripMonitorPedestalsTemp_h
-#define SiStripMonitorPedestals_SiStripMonitorPedestalsTemp_h
+#ifndef SiStripMonitorPedestals_SiStripMonitorPedestals_h
+#define SiStripMonitorPedestals_SiStripMonitorPedestals_h
 // -*- C++ -*-
 //
 // Package:     SiStripMonitorPedestals
@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.3 2006/07/06 11:08:18 gennai Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.4 2006/07/06 17:04:13 gennai Exp $
 //
 
 // system include files
@@ -38,13 +38,11 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
-//#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 //
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
@@ -80,15 +78,18 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
 	 MonitorElement* PedsPerStrip;
 	 MonitorElement* PedsDistribution;
 	 MonitorElement* PedsEvolution;
+
 	 MonitorElement* CMSubNoisePerStrip;
 	 MonitorElement* RawNoisePerStrip;
+	 MonitorElement* CMSubNoiseProfile;
+	 MonitorElement* RawNoiseProfile;
 	 MonitorElement* NoisyStrips;
+
 	 MonitorElement* CMDistribution;
 	 
        };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-       // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
        std::map<uint32_t, ModMEs> DigiMEs;
        SiStripFedCabling* fedCabling_;
 
