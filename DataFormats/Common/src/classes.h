@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
+#include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Common/interface/ProcessConfigurationID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/RefBase.h"
@@ -84,4 +86,5 @@ namespace { namespace {
   std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProc;
   std::map<edm::Hash<1>, edm::ParameterSetBlob> dummyMapParam;
   std::set<edm::Hash<1> > dummySetParam;
+  std::set<edm::Hash<3> > dummySetProcessDesc;
 }}

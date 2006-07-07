@@ -2,24 +2,25 @@
 #define Common_ProcessConfiguration_h
 
 #include <string>
+#include <ostream>
 
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Common/interface/ProcessConfigurationID.h"
 
 namespace edm {
   struct ProcessConfiguration {
     ProcessConfiguration() : processName_(), parameterSetID_(), releaseVersion_(), passID_() {}
-    ProcessConfiguration(
-	std::string const& procName,
-	ParameterSetID const& pSetID,
-	ReleaseVersion const& relVersion,
-	PassID const& pass) :
-	  processName_(procName),
-	  parameterSetID_(pSetID),
-	  releaseVersion_(relVersion),
-	  passID_(pass) {}
-
+    ProcessConfiguration(std::string const& procName,
+			 ParameterSetID const& pSetID,
+			 ReleaseVersion const& relVersion,
+			 PassID const& pass) :
+      processName_(procName),
+      parameterSetID_(pSetID),
+      releaseVersion_(relVersion),
+      passID_(pass) { }
+    
     std::string const& processName() const {return processName_;}
     ParameterSetID const& parameterSetID() const {return parameterSetID_;}
     ReleaseVersion const& releaseVersion() const {return releaseVersion_;}
@@ -29,6 +30,8 @@ namespace edm {
     ParameterSetID parameterSetID_;
     ReleaseVersion releaseVersion_; 
     PassID passID_;
+
+    ProcessConfigurationID id() const;
   };
 
   inline
@@ -44,6 +47,16 @@ namespace edm {
   bool
   operator!=(ProcessConfiguration const& a, ProcessConfiguration const& b) {
     return !(a == b);
+  }
+
+  inline
+  std::ostream&
+  operator<< (std::ostream& os, ProcessConfiguration const& pc) {
+    os << pc.processName_ << ' ' 
+       << pc.parameterSetID_ << ' '
+       << pc.releaseVersion_ << ' '
+       << pc.passID_;
+    return os;
   }
 }
 

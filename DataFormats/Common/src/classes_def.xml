@@ -108,6 +108,7 @@
  <class name="edm::Hash<1>"/>
  <class name="std::set<edm::Hash<1> >"/>
  <class name="std::map<edm::Hash<1>, edm::ParameterSetBlob>"/>
+ <class name="edm::Hash<3>"/>
 
  <class name="edm::HLTPathStatus"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>"/>
