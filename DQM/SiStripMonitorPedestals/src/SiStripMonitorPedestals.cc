@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.7 2006/07/06 17:53:57 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.8 2006/07/07 08:22:52 gennai Exp $
 //
 //
 
@@ -255,6 +255,18 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	      }
 	    }
 	  }
+
+	  if(local_modmes.CMSubNoiseProfile != NULL){ 
+	    tmp.clear();
+	    apvFactory_->getNoise(id, tmp);
+	    int ibin=0;
+	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
+	      ibin++;
+		(local_modmes.CMSubNoiseProfile)->Fill(ibin,static_cast<float>(*iped));
+	    }
+	    
+	  }
+
 	  
 	  if(local_modmes.RawNoisePerStrip != NULL){ 
 	    tmp.clear();
