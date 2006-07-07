@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.11.2.6 2006/07/01 06:21:57 wmtan Exp $
+$Id: BranchDescription.h,v 1.12 2006/07/06 18:34:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -15,6 +15,7 @@ $Id: BranchDescription.h,v 1.11.2.6 2006/07/01 06:21:57 wmtan Exp $
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
+#include "DataFormats/Common/interface/ProcessConfigurationID.h"
 
 /*
   BranchDescription
@@ -37,10 +38,31 @@ namespace edm {
 		std::string const& pin, 
 		ModuleDescriptionID const& mdID = ModuleDescriptionID(),
 		std::set<ParameterSetID> const& psetIDs = std::set<ParameterSetID>(),
+		std::set<ProcessConfigurationID> const& procConfigIDs = std::set<ProcessConfigurationID>(),
 		std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
 
+    void init() const;
+
+    void write(std::ostream& os) const;
+
+    std::string const& moduleLabel() const {return moduleLabel_;}
+    std::string const& processName() const {return processName_;}
+    ProductID const& productID() const {return productID_;}
+    std::string const& fullClassName() const {return fullClassName_;}
+    std::string const& className() const {return fullClassName();}
+    std::string const& friendlyClassName() const {return friendlyClassName_;}
+    std::string const& productInstanceName() const {return productInstanceName_;} 
+
+    std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
+    ParameterSetID const& psetID() const;
+    bool isPsetIDUnique() const {return psetIDs().size() == 1;}
+    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
+    std::set<std::string> const& branchAliases() const {return branchAliases_;}
+    std::string const& branchName() const {return branchName_;}
+
+  //TODO: Make all the data private!
     // A human friendly string that uniquely identifies the EDProducer
     // and becomes part of the identity of a product that it produces
     std::string moduleLabel_;
@@ -63,14 +85,20 @@ namespace edm {
 
     // The module description id of the producer (transient).
     // This is only valid if produced_ is true.
+    // This is just used as a cache, and is not logically
+    // part of the branch description.
     mutable ModuleDescriptionID moduleDescriptionID_;
 
     // ID's of parameter set of the creators of products
     // on this branch
     std::set<ParameterSetID> psetIDs_;
 
-    // The branch ROOT alias(es), which arw settable by the user.
-    mutable std::set<std::string> branchAliases_;
+    // ID's of process configurations for products
+    // on this branch
+    std::set<ProcessConfigurationID> processConfigurationIDs_;
+
+    // The branch ROOT alias(es), which are settable by the user.
+    std::set<std::string> branchAliases_;
 
     // The branch name (transient), which is currently derivable fron the other
     // attributes.
@@ -80,19 +108,6 @@ namespace edm {
     // rather than in a previous process
     bool produced_;
 
-    void init() const;
-
-    void write(std::ostream& os) const;
-
-    std::string const& branchName() const {return branchName_;}
-    std::string const& className() const {return fullClassName_;}
-    std::string const& moduleLabel() const {return moduleLabel_;}
-    std::string const& processName() const {return processName_;}
-    ProductID const& productID() const {return productID_;}
-    std::string const& productInstanceName() const {return productInstanceName_;} 
-    std::string const& friendlyClassName() const {return friendlyClassName_;}
-    std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
   };
   
   inline

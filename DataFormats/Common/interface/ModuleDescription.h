@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.2.2.4 2006/07/05 23:55:14 wmtan Exp $
+$Id: ModuleDescription.h,v 1.3 2006/07/06 18:34:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
@@ -13,6 +13,7 @@ $Id: ModuleDescription.h,v 1.2.2.4 2006/07/05 23:55:14 wmtan Exp $
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Common/interface/ProcessConfigurationID.h"
 #include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
 
@@ -29,6 +30,7 @@ namespace edm {
     std::string const& moduleName() const {return moduleName_;}
     std::string const& moduleLabel() const {return moduleLabel_;}
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
+    ProcessConfigurationID const processConfigurationID() const {return processConfiguration().id();}
     std::string const& processName() const {return processConfiguration().processName();}
     std::string const& releaseVersion() const {return processConfiguration().releaseVersion();}
     std::string const& passID() const {return processConfiguration().passID();}

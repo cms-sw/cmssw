@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.7.2.3 2006/06/30 04:30:05 wmtan Exp $
+$Id: BranchDescription.cc,v 1.8 2006/07/06 18:34:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ namespace edm {
     productInstanceName_(),
     moduleDescriptionID_(),
     psetIDs_(),
+    processConfigurationIDs_(),
     branchAliases_(),
     produced_(false)
   { }
@@ -30,6 +31,7 @@ namespace edm {
 			std::string const& pin, 
 			ModuleDescriptionID const& mdID,
 			std::set<ParameterSetID> const& psetIDs,
+			std::set<ProcessConfigurationID> const& procConfigIDs,
 			std::set<std::string> const& aliases) :
     moduleLabel_(moduleLabel),
     processName_(processName),
@@ -39,6 +41,7 @@ namespace edm {
     productInstanceName_(pin),
     moduleDescriptionID_(mdID),
     psetIDs_(psetIDs),
+    processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
     produced_(true) {
     init();
@@ -50,57 +53,85 @@ namespace edm {
     char const period('.');
 
     if (friendlyClassName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName_
+      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName()
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
     if (moduleLabel_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel_
+      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
     if (productInstanceName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName_
+      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
     if (processName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Process name '" << processName_
+      throw cms::Exception("IllegalCharacter") << "Process name '" << processName()
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName_ = friendlyClassName_ + underscore + moduleLabel_ + underscore +
-      productInstanceName_ + underscore + processName_ + period;
+    branchName_ = friendlyClassName() + underscore + moduleLabel() + underscore +
+      productInstanceName() + underscore + processName() + period;
+  }
+
+  ParameterSetID const&
+    BranchDescription::psetID() const {
+    assert(!psetIDs().empty());
+    if (psetIDs().size() != 1) {
+      throw cms::Exception("Ambiguous")
+	<< "Your application requires all events on Branch '" << branchName()
+	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
+	<< "on this branch.  Use a different input file.\n";
+    }
+    return *psetIDs().begin();
   }
 
   void
   BranchDescription::write(std::ostream& os) const {
-    os << "Process Name = " << processName_ << std::endl;
-    os << "ModuleLabel = " << moduleLabel_ << std::endl;
-    os << "Product ID = " << productID_ << '\n';
-    os << "Class Name = " << fullClassName_ << '\n';
-    os << "Friendly Class Name = " << friendlyClassName_ << '\n';
-    os << "Product Instance Name = " << productInstanceName_ << std::endl;
+    os << "Process Name = " << processName() << std::endl;
+    os << "ModuleLabel = " << moduleLabel() << std::endl;
+    os << "Product ID = " << productID() << '\n';
+    os << "Class Name = " << fullClassName() << '\n';
+    os << "Friendly Class Name = " << friendlyClassName() << '\n';
+    os << "Product Instance Name = " << productInstanceName() << std::endl;
   }
 
   bool
   operator<(BranchDescription const& a, BranchDescription const& b) {
-    if (a.friendlyClassName_ < b.friendlyClassName_) return true;
-    if (b.friendlyClassName_ < a.friendlyClassName_) return false;
-    if (a.productInstanceName_ < b.productInstanceName_) return true;
-    if (b.productInstanceName_ < a.productInstanceName_) return false;
-    if (a.processName_ < b.processName_) return true;
-    if (b.processName_ < a.processName_) return false;
-    if (a.moduleLabel_ < b.moduleLabel_) return true;
-    if (b.moduleLabel_ < a.moduleLabel_) return false;
-    if (a.fullClassName_ < b.fullClassName_) return true;
-    if (b.fullClassName_ < a.fullClassName_) return false;
-    if (a.productID_ < b.productID_) return true;
+    if (a.processName() < b.processName()) return true;
+    if (b.processName() < a.processName()) return false;
+    if (a.productID() < b.productID()) return true;
+    if (b.productID() < a.productID()) return false;
+    if (a.fullClassName() < b.fullClassName()) return true;
+    if (b.fullClassName() < a.fullClassName()) return false;
+    if (a.friendlyClassName() < b.friendlyClassName()) return true;
+    if (b.friendlyClassName() < a.friendlyClassName()) return false;
+    if (a.productInstanceName() < b.productInstanceName()) return true;
+    if (b.productInstanceName() < a.productInstanceName()) return false;
+    if (a.moduleLabel() < b.moduleLabel()) return true;
+    if (b.moduleLabel() < a.moduleLabel()) return false;
+    if (a.psetIDs() < b.psetIDs()) return true;
+    if (b.psetIDs() < a.psetIDs()) return false;
+    if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
+    if (b.processConfigurationIDs() < a.processConfigurationIDs()) return false;
+    if (a.branchAliases() < b.branchAliases()) return true;
+    if (b.branchAliases() < a.branchAliases()) return false;
     return false;
   }
 
   bool
   operator==(BranchDescription const& a, BranchDescription const& b) {
-    return !(a < b || b < a);
+    return
+    (a.processName() == b.processName()) &&
+    (a.productID() == b.productID()) &&
+    (a.fullClassName() == b.fullClassName()) &&
+    (a.friendlyClassName() == b.friendlyClassName()) &&
+    (a.productInstanceName() == b.productInstanceName()) &&
+    (a.moduleLabel() == b.moduleLabel()) &&
+    (a.psetIDs() == b.psetIDs()) &&
+    (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
+    (a.branchAliases() == b.branchAliases());
   }
 }
