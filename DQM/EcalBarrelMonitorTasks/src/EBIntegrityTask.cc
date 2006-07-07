@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/06 23:08:58 $
- * $Revision: 1.21 $
+ * $Date: 2006/07/07 14:21:25 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */
@@ -37,6 +37,16 @@ EBIntegrityTask::~EBIntegrityTask(){
 void EBIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dbe->rmdir("EcalBarrel/EBIntegrityTask");
+  }
 
 }
 

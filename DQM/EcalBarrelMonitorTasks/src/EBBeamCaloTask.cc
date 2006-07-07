@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/04 18:48:16 $
- * $Revision: 1.15 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.16 $
  * \author A. Ghezzi
  *
  */
@@ -67,6 +67,16 @@ EBBeamCaloTask::~EBBeamCaloTask(){
 void EBBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    dbe->rmdir("EcalBarrel/EBBeamCaloTask");
+  }
 
 }
 

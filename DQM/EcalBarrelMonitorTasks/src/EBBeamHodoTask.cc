@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/04 19:53:08 $
- * $Revision: 1.15 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,6 +52,17 @@ EBBeamHodoTask::~EBBeamHodoTask(){
 void EBBeamHodoTask::beginJob(const EventSetup& c){
 
   ievt_  = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
+    dbe->rmdir("EcalBarrel/EBBeamHodoTask");
+  }
+
   LV1_ = 0;
   cryInBeamCounter_ =1;
   resetNow_                =false;

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/06/23 07:02:26 $
- * $Revision: 1.48 $
+ * $Date: 2006/07/05 07:52:39 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,16 @@ EBTestPulseTask::~EBTestPulseTask(){
 void EBTestPulseTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
+    dbe->rmdir("EcalBarrel/EBTestPulseTask");
+  }
 
 }
 

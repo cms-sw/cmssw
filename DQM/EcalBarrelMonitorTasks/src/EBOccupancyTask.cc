@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/07 14:21:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,6 +28,16 @@ EBOccupancyTask::~EBOccupancyTask(){
 void EBOccupancyTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+    dbe->rmdir("EcalBarrel/EBOccupancyTask");
+  }
 
 }
 
