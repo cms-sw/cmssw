@@ -124,7 +124,7 @@ class L1GctSourceCard
   /// Reads the Bunch Crossing number from the file
   void readBxNum();  
 
-  L1CaloRegion makeRegion(ULong rctFileData);
+  L1CaloRegion makeRegion(ULong rctFileData, unsigned irgn);
   L1CaloEmCand makeEmCand(ULong rctFileData, bool iso);
 
 
