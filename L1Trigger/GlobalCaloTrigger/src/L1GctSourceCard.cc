@@ -388,14 +388,14 @@ void L1GctSourceCard::getCables3And4()
   for(i=0; i < 4; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions.at(i) = makeRegion(uLongBuffer);            
+    m_regions.at(i) = makeRegion(uLongBuffer, i);            
   }
 
   //get the 8 forward regions
   for(i=4; i < NUM_REG_TYPE2; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions.at(i) = makeRegion(uLongBuffer);
+    m_regions.at(i) = makeRegion(uLongBuffer, i);
   }
 
   return;
@@ -423,7 +423,7 @@ void L1GctSourceCard::getCables5And6()
   for(i=0; i < NUM_REG_TYPE3; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions.at(i) = makeRegion(uLongBuffer);            
+    m_regions.at(i) = makeRegion(uLongBuffer, i);            
   }
     
   //Skip some more data
@@ -450,7 +450,7 @@ void L1GctSourceCard::readBxNum()
 }
 
 // make region from file data
-L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
+L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData, unsigned input) {
 
   int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
   
@@ -459,10 +459,8 @@ L1CaloRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
   bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
   
-  unsigned ieta=0;  // TODO - give regions proper eta indices!
-  unsigned iphi=0;  // TODO - give regions proper phi indices!
-
-  return L1CaloRegion(0, et, overFlow, tauVeto, false, false, ieta, iphi);
+  // use constructor from GCT source card/input indices
+  return L1CaloRegion(m_id, input, et, overFlow, tauVeto, false, false);
 
 }
 
