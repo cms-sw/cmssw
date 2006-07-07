@@ -31,7 +31,7 @@ public:
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
   /// constructor for RCT emulator (HF regions)
-  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
+  L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn);
 
   /// construct from GCT source card indices - note argument ordering!
   L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);

@@ -19,10 +19,10 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 }
 
 // constructor for RCT emulator (HF regions)
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn) :
+L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
   m_id(false, crate, 0, rgn)
 {
-  pack(et, overFlow, fineGrain, false, false);
+  pack(et, false, fineGrain, false, false);
 }
 
 // constructor from GCT card, region numbers
