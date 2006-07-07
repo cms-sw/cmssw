@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="FWCoreServices">
 <use name=boost>
+<use name=rootcintex>
 <use name=xerces-c>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
