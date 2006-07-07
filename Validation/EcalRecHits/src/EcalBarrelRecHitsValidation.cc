@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
  */
@@ -78,7 +78,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
       
       sprintf (histo, "EB Pedestal" );
-      meEBUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 194., 201.);
+      meEBUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
       
       sprintf (histo, "EB Jitter" );
       meEBUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
@@ -96,7 +96,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsAmplitudeGt100adc_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
 
       sprintf (histo, "EB Pedestal gt 100 adc counts" );
-      meEBUncalibRecHitsPedestalGt100adc_ = dbe_->book1D(histo, histo, 50, 194., 201.);
+      meEBUncalibRecHitsPedestalGt100adc_ = dbe_->book1D(histo, histo, 50, 190., 210.);
 
       sprintf (histo, "EB Jitter gt 100 adc counts" );
       meEBUncalibRecHitsJitterGt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);

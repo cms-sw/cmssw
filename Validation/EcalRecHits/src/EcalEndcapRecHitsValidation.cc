@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
  */
@@ -78,7 +78,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
       meEEUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
       
       sprintf (histo, "EE Pedestal" );
-      meEEUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 194., 201.);
+      meEEUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
       
       sprintf (histo, "EE Jitter" );
       meEEUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
@@ -99,7 +99,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
       meEEUncalibRecHitsAmplitudeGt60adc_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
       
       sprintf (histo, "EE Pedestal gt 60 adc counts" );
-      meEEUncalibRecHitsPedestalGt60adc_ = dbe_->book1D(histo, histo, 50, 194., 201.);
+      meEEUncalibRecHitsPedestalGt60adc_ = dbe_->book1D(histo, histo, 50, 190., 210.);
       
       sprintf (histo, "EE Jitter gt 60 adc counts" );
       meEEUncalibRecHitsJitterGt60adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
