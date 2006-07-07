@@ -43,24 +43,29 @@ int EcalFenixAmplitudeFilter::setInput(int input)
 }
 
 
-vector<int> EcalFenixAmplitudeFilter::process(vector<int> addout)
-{
+  vector<int> EcalFenixAmplitudeFilter::process(vector<int> addout)
+  {
   
-  vector<int> output;
-  // test
-  inputsAlreadyIn_=0;
-  for (unsigned int i =0;i<5;i++) buffer_[i]=0;
+    vector<int> output;
+    // test
+    inputsAlreadyIn_=0;
+    for (unsigned int i =0;i<5;i++) buffer_[i]=0;
 
-  // test end
+    // test end
   
-  for (unsigned int i =0;i<addout.size();i++){
+    for (unsigned int i =0;i<addout.size();i++){
     
-    setInput(addout[i]);
-    int outone= process();
-    output.push_back(outone);
+      setInput(addout[i]);
+      int outone= process();
+      output.push_back(outone);
+    }
+    // shift the result by 1!
+    for (int i=0 ; i<(output.size());i++){
+      if (i!=output.size()-1) output[i]=output[i+1];
+      else output[i]=0;
+    }  
+    return output;
   }
-  return output;
-}
 int EcalFenixAmplitudeFilter::process()
 {
   //UB FIXME: 5

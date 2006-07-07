@@ -1,3 +1,17 @@
+/** \class EcalTrigPrimFunctionalAlgo
+ *
+ * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
+ * It coordinates all the aother algorithms
+ * Structi=ure is very close to electronics
+ *
+ *
+ * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ *
+ * \version   1st Version may 2006
+ * \version   2nd Version jul 2006
+
+ *
+ ************************************************************/
 #include <string>
 #include <algorithm>
 #include <numeric>
@@ -82,15 +96,15 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
     const EcalTrigTowerDetId coarser= myid.tower();
     if(coarser.null())  
       {
-	std::cout << "Cell " << myid << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)" << std::endl;
+	LogDebug("")<< "Cell " << myid << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)";
 	continue;
       }	
 	
    nhitsb++;
    fillBarrel(coarser,(*ebdcol)[i]);
   }// loop over all CaloDataFrames
-  std::cout << "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
-  	    << sumBarrel_.size() << " EBRY towers  "  << std::endl;
+  edm::LogInfo("")<< "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
+  	    << sumBarrel_.size() << " EBRY towers  ";
 
   
 // loop over dataframes and fill map for endcap
@@ -102,8 +116,8 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
     fillEndcap(coarser,(*eedcol)[i]);
 
   }// loop over all CaloDataFrames
-  std::cout << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
-  	    << mapEndcap_.size() << " EFRY towers  "  << std::endl;
+   edm::LogInfo("") << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
+  	    << mapEndcap_.size() << " EFRY towers  ";
 
   // prepare writing of TP-s
 
@@ -126,19 +140,9 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
         std::vector<std::vector<EBDataFrame> > dbgdf;
 	for(unsigned int i = 0; i < min(it->second.size(),size_t(ecal_barrel_strips_per_trigger_tower)) ; ++i) 
            {
-// 	    // 	    // inventing an id for the strip
-// 	    //             // temporary, as long as CaloBase ESTR not yet exists
-// 	    //             unsigned int stripnr=stripbasenumber+i+1;
-// 	    //             printf("null, stripnr %d\n",stripnr);fflush(stdout);
-// 	    //             PCellID pc(stripnr);
-// 	    //             printf("nullnull, stripnr %d\n",stripnr);fflush(stdout);
-// 	    // 	    //            CellID tpid= CellID(pc);
-// 	    //            CellID tpid; // dummy since no corresponding caloBase for strips
-
 	    std::vector<int> tp;
  	    std::vector<EBDataFrame> df=it->second[i];
-// 	    // here ebstrip should be configured
-// 	    //should become  ebstrip.process(df,tp); with stripnr coded in CellID of the EcalTrigPrim
+
 	    if (df.size()>0) {
 	      tp=ebstrip_->process(df,i);
 	      striptp.push_back(tp);
@@ -147,13 +151,16 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	   }
 
 
-	std::vector<int> towtp;
+	std::vector<EcalTriggerPrimitiveSample> towtp;
 	ebtcp_.process(striptp,towtp);
 
 	// Fill TriggerPrimitiveDigi
 	EcalTriggerPrimitiveDigi tptow(thisTower);
 	tptow.setSize(nrSamplesToWrite_);
-        if (towtp.size()<nrSamplesToWrite_)  cout<<"EcalTrigPrimFunctionalAlgo: too few samples produced, nr is "<<towtp.size()<<endl;
+        if (towtp.size()<nrSamplesToWrite_)  {  //UB FIXME: exception?
+	  edm::LogWarning("Barrel") <<"Too few samples produced, nr is "<<towtp.size();
+	  break;
+	}
 	int isam=0;
         for (int i=firstSample;i<=lastSample;++i) {
           tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp[i]));
@@ -179,6 +186,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
         int nrFrames=mapEndcap_[thisTower].size();
 	// first, estimate thresholds
+	LogDebug("treatEndcap")<<"\nStart TT "<<itow;
         std::vector<int>  thresholds(nrFrames);
 	LogDebug("treatEndcap")<<"\nFor TT "<<itow<<", size of vector  "<<mapEndcap_[thisTower].size()<<" ID "<<thisTower;
         for (int ii=0;ii<nrFrames;++ii) {
@@ -189,7 +197,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  }
 	  LogDebug("treatEndcap")<<"\n";
 	}
-	// 	eetcp_.process(striptp,tptow);
+
 	int nrSamples=mapEndcap_[thisTower][0].size();
 	std::vector<EcalTriggerPrimitiveSample> primitives;
 	for (int i=0;i<nrSamples;++i) {
@@ -197,19 +205,26 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
 	  for (int ii=0;ii<nrFrames;++ii) {
 	    int en=(mapEndcap_[thisTower][ii])[i].adc();
-	    et += TMath::Max(en- thresholds[ii],0);
-	    if (en- thresholds[ii] > etmax) etmax=en- thresholds[ii];
+	    int et0 = TMath::Max(en- thresholds[ii],0);
+	    et += et0;
+            if (et0 > etmax) etmax=et0;
 	  }
 
 	  int fgvb=0;
-	  if (etmax > fgvbMinEn && float(etmax)/float(et) > .85) fgvb=1;
+	  if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
 	  LogDebug("EndcapTP")<<" For sample "<<i<<" summed et "<<et<<" fgvb "<<fgvb<<" etmax "<<etmax;
-	  primitives.push_back(EcalTriggerPrimitiveSample(et,fgvb,calculateTTF(et)));
+	  int ttf=calculateTTF(et);
+          if (et>0xFF) et=0xFF;
+	  primitives.push_back(EcalTriggerPrimitiveSample(et,fgvb,ttf));
+	  LogDebug("EndcapTP")<<" For sample "<<i<<" summed et "<<et<<" fgvb "<<fgvb<<" etmax "<<etmax<<" ttf "<<ttf;
 	}
 	// Fill TriggerPrimitiveDigi
 	EcalTriggerPrimitiveDigi tptow(thisTower);
 	tptow.setSize(nrSamplesToWrite_);
-        if (nrSamples<nrSamplesToWrite_)  cout<<"EcalTrigPrimFunctionalAlgo: too few samples produced, nr is "<<nrSamples<<endl;
+        if (nrSamples<nrSamplesToWrite_)  { //UB FIXME: exception?
+	  edm::LogWarning("Endcap") <<"Too few samples produced, nr is "<<nrSamples;
+	  break;
+	}
 	int isam=0;
         for (int i=firstSample;i<=lastSample;++i) {
           tptow.setSample(isam++,primitives[i]);

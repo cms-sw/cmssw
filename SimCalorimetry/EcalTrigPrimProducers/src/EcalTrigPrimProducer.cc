@@ -1,3 +1,17 @@
+/** \class EcalTrigPrimProducer
+ *
+ * EcalTrigPrimProducer produces a EcalTrigPrimDigiCollection
+ * The barrel code does a detailed simulation
+ * The code for the endcap is simulated in a rough way, due to missing strip geometry
+ *
+ *
+ * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ *
+ * \version   1st Version may 2006
+ * \version   2nd Version jul 2006
+
+ *
+ ************************************************************/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -47,8 +61,6 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     // Loop over provenance of products in registry.
     for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
 	 it != reg->productList().end(); ++it) {
-      // See FWCore/Framework/interface/BranchDescription.h
-      // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
       if (!desc.friendlyClassName_.compare(0,18,"EBDataFramesSorted")) {
       edm::ParameterSet result;
@@ -58,7 +70,7 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
       }
     }
     algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_);
-    cout <<" EcalTrigPrimProducer built with nrSamples: "<<nrSamples_<<" found binOfMaximum = "<<binOfMaximum_<<endl;
+    edm::LogInfo("constructor") <<" EcalTrigPrimProducer built with nrSamples: "<<nrSamples_<<" found binOfMaximum = "<<binOfMaximum_<<endl;
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -89,15 +101,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   LogDebug("Startproduce") <<" =================> Treating event "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new EcalTrigPrimDigiCollection);
   
-//   //get and set binOfMax
-//   const Provenance p=e.getProvenance(ebDigis.id());
-//   ParameterSet result;
-//   pset::Registry::instance()->getParameterSet(p.psetID(), result);
-//   int binofmax=result.getParameter<int>("binOfMaximum");
-//   //pout->setBinOfMax(binofmax);
-//   cout<<" bin of Max : "<<binofmax<<endl;
 
-  // invoke algorithm  //FIXME: better separation
+  // invoke algorithm  //FIXME: better separation 
   //   algo_->setupES(iSetup);
   algo_->run(ebDigis.product(),eeDigis.product(),*pOut, fgvbMinEnergy_);
   for (unsigned int i=0;i<pOut->size();++i) {

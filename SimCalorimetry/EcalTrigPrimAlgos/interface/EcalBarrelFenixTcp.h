@@ -7,7 +7,7 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixMaxof2.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixFgvbEB.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
  
 using namespace std;
 
@@ -25,9 +25,7 @@ namespace tpg {
     EcalBarrelFenixTcp();
     virtual ~EcalBarrelFenixTcp() ;
 
-    //    void process(std::vector<EcalTriggerPrimitiveSample> tpframetow, EcalTriggerPrimitiveSample tptow);
-    //    void process(std::vector<std::vector<int> > & tpframetow, EcalTriggerPrimitiveDigi & tptow);//steph
-    void process(std::vector<std::vector<int> > & tpframetow, std::vector<int> &out);
+    void process(std::vector<std::vector<int> > & tpframetow,std::vector< EcalTriggerPrimitiveSample> & tptow);//steph
     EcalFenixBypassLin *getBypasslin(int i) const {return bypasslin_[i];}
     EcalFenixEtTot *getAdder() const { return  dynamic_cast<EcalFenixEtTot *>(adder_);}
     EcalFenixMaxof2 *getMaxOf2() const {return maxOf2_;}

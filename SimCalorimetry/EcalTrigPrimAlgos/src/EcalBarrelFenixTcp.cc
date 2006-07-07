@@ -1,7 +1,6 @@
 using namespace std;
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
-//#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <iostream>
 
 namespace tpg {
@@ -22,7 +21,7 @@ namespace tpg {
     delete fgvb_;
   }
  
- void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, std::vector<int> &formatter_out) 
+ void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, std::vector<EcalTriggerPrimitiveSample> &tcp_out) 
   { 
 
     //call bypasslin
@@ -80,8 +79,7 @@ namespace tpg {
 //     std::cout<<endl;
 
     // call formatter
-    //    std::vector<int> formatter_out;
-    formatter_out = this->getFormatter()->process(adder_out,fgvb_out); //UB FIXME: efficiency
+    this->getFormatter()->process(adder_out,fgvb_out,tcp_out);
      //this is a test:
     //    std::cout<< "output of formatter is a vector of size: "<<formatter_out.size()<<endl; 
     //    std::cout<< "value : "<<endl;
@@ -90,15 +88,7 @@ namespace tpg {
 //     }    
 //     std::cout<<endl;
 
-//     // create output
-//     tptow.setSize(formatter_out.size());
-    
-//     // take care of eliminating first and last (MAXSAMPLES=8!) FIXME
-//     for (unsigned int i =0; i<formatter_out.size()-2;i++) {
-//       //      std::cout <<", i= "<<i<<" "<<formatter_out[i+1];
-//       tptow.setSample(i,EcalTriggerPrimitiveSample(uint16_t(formatter_out[i+1])));
-//     }
-    //     std::cout<<endl;
+
     return;
       
 

@@ -1,17 +1,22 @@
 #ifndef EcaltrigprimProducer_h
 #define EcaltrigprimProducer_h
   
-//
-// Package:        Simcalorimetry/EcalTrigPrimProducer
-// Class:          EcaTtrigPrimProducer
-// 
-// Authors: Stephanie Baffioni, Ursula berthon, LLR Palaiseau
-//          10/05/06
-// Description:     Calls algorithms to create EcalTriggerPrimitiveDigi-s
-//                  depending on configuration, 'simple' or 'functional' algorthm is used
-//                  For the moment, only functional algorithm is implemented for the barrel
-//  
-  
+/** \class EcalTrigPrimProducer
+ *
+ * EcalTrigPrimProducer produces a EcalTrigPrimDigiCollection
+ * The barrel code does a detailed simulation
+ * The code for the endcap is simulated in a rough way, due to missing strip geometry
+ *
+ *
+ * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ *
+ * \version   1st Version may 2006
+ * \version   2nd Version jul 2006
+
+ *
+ ************************************************************/
+
+ 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"

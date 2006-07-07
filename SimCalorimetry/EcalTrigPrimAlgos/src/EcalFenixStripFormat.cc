@@ -1,6 +1,6 @@
 using namespace std;
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormat.h>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace tpg {
 
@@ -33,7 +33,7 @@ namespace tpg {
   {
     vector<int> output;
     if  (peakout.size()!=filtout.size()){
-      cout<<" problem in EcalFenixStripFormat: peak_out and filt_out don't have the same size"<<endl; 
+      edm::LogWarning("")<<" problem in EcalFenixStripFormat: peak_out and filt_out don't have the same size";
     }
     for  (unsigned int i =0;i<filtout.size();i++){
       setInput(filtout[i],peakout[i]);

@@ -68,8 +68,7 @@ int EcalFenixLinearizer::setInput(EcalMGPASample RawSam, int stripNum, int XtalN
     }
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
-  //UB FIXME: necessary or not???  gainID_--;       //To have gainID_ in the range [0; 2] and not [1;3]!! //UB FIXME??
-  if (gainID_>=3)  cout<< "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! gain ID= "<<gainID_<<endl;
+  gainID_--;       //To have gainID_ in the range [0; 2] and not [1;3]!! 
 
   base_=getBase(XtalNumberInStrip);
   mult_=getMult();
@@ -122,7 +121,6 @@ int EcalFenixLinearizer::getShift() const
       --crystnr;
       tmp=nav.south();
       if (tmp.null()) {
-	cout <<" south border "<<endl; // should never happen
 	break; //no cell south of this one
       }
     }

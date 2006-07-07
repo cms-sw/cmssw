@@ -1,5 +1,19 @@
 #ifndef EcalTrigPrimFunctionalAlgo_h
 #define EcalTrigPrimFunctionalAlgo_h
+/** \class EcalTrigPrimFunctionalAlgo
+ *
+ * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
+ * It coordinates all the aother algorithms
+ * Structi=ure is very close to electronics
+ *
+ *
+ * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ *
+ * \version   1st Version may 2006
+ * \version   2nd Version jul 2006
+
+ *
+ ************************************************************/
 
 #include <vector>
 #include <map>
@@ -17,7 +31,6 @@ class EcalBarrelTopology;
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h"
-//#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalEndcapFenixTcp.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"

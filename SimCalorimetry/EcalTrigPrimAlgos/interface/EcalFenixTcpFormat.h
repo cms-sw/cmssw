@@ -2,8 +2,8 @@
 #define ECAL_FENIX_TCP_FORMAT_H
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFormatter.h>
-#include <boost/cstdint.hpp>
-
+#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
+#include <vector>
 
 namespace tpg {
 
@@ -16,7 +16,7 @@ namespace tpg {
    \brief Formatting for Fenix strip
    *  input 10 bits from Ettot 
    *         1 bit from fgvb
-   *         3 bits TriggerTowerFlag (dummy for the moment)
+   *         3 bits TriggerTowerFlag 
    *  output: 16 bits
    *  simple formatting
    *  
@@ -27,9 +27,10 @@ class EcalFenixTcpFormat : public EcalVFormatter {
  public:
     EcalFenixTcpFormat();
     virtual ~EcalFenixTcpFormat();
-    virtual vector<int> process(vector<int>,vector<int>);
-   };
+    virtual vector<int> process(vector<int>,vector<int>) {  std::vector<int> v;return v;}
+    void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<EcalTriggerPrimitiveSample> & out) ;
 
+};
 } /* End of namespace tpg */
 
 #endif
