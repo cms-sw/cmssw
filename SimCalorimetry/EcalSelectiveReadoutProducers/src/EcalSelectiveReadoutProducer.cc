@@ -3,15 +3,20 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include <memory>
 
 #include <fstream> //used for debugging
+
+#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
 //#define DEBUG_SRP
 
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
+  : params_(params)
 {
   //sets up parameters:
    digiProducer_ = params.getParameter<string>("digiProducer");
@@ -20,8 +25,10 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
    eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
+
    //declares the products made by this producer:
    produces<EBDigiCollection>(ebSRPdigiCollection_);
    produces<EEDigiCollection>(eeSRPdigiCollection_);
@@ -41,7 +48,9 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   checkTriggerMap(eventSetup);
 
   //gets the trigger primitives:
-  const EcalTrigPrimDigiCollection* trigPrims = getTrigPrims(event);
+  EcalTrigPrimDigiCollection emptyTPColl;
+  const EcalTrigPrimDigiCollection* trigPrims =
+    trigPrimBypass_?&emptyTPColl:getTrigPrims(event);
 
 #ifdef DEBUG_SRP
   static int iEvent = 0;
@@ -59,7 +68,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   auto_ptr<EBDigiCollection> selectedEBDigi(new EBDigiCollection);
   auto_ptr<EEDigiCollection> selectedEEDigi(new EEDigiCollection);
 
-  suppressor_->run(*trigPrims, *ebDigis, *eeDigis,
+  suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
 		   *selectedEBDigi, *selectedEEDigi);
   
 #ifdef DEBUG_SRP
@@ -78,23 +87,33 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 }
 
 const EBDigiCollection*
-EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event)
+EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
 {
   edm::Handle< EBDigiCollection > hEBDigis;
   event.getByLabel(digiProducer_, hEBDigis);
+  static bool firstCall= true;
+  if(firstCall){
+    checkWeights(event, hEBDigis.id());
+    firstCall = false;
+  }
   return hEBDigis.product();
 }
 
 const EEDigiCollection*
-EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event)
+EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
 {
   edm::Handle< EEDigiCollection > hEEDigis;
   event.getByLabel(digiProducer_, hEEDigis);
+  static bool firstCall = true;
+  if(firstCall){
+    checkWeights(event, hEEDigis.id());
+    firstCall = false;
+  }
   return hEEDigis.product();
 }
 
 const EcalTrigPrimDigiCollection*
-EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event)
+EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
 {
   edm::Handle<EcalTrigPrimDigiCollection> hTPDigis;
   event.getByLabel(trigPrimProducer_, hTPDigis);
@@ -133,7 +152,7 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
 }
 
 
-void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection& tp, ostream& os){
+void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection& tp, ostream& os) const{
   const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
   const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
   const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
@@ -169,3 +188,65 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
   }
 }
 
+void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
+						const edm::ProductID& noZsDigiId) const{
+  const vector<double> & weights = params_.getParameter<vector<double> >("dccNormalizedWeights");
+  int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
+  static bool warnWeightCnt = true;
+  if((int)weights.size() > nFIRTaps && !warnWeightCnt){
+      edm::LogWarning("Configuration") << "The list of DCC zero suppression FIR "
+	"weights given in parameter dccNormalizedWeights is longer "
+	"than the expected depth of the FIR filter :(" << nFIRTaps << "). "
+	"The last weights will be discarded.";
+      warnWeightCnt = false; //it's not needed to repeat the warning.
+  }
+  
+  if(weights.size()>0){
+    int iMaxWeight = 0;
+    double maxWeight = weights[iMaxWeight];
+    //look for index of maximum weight
+    for(unsigned i=0; i<weights.size(); ++i){
+      if(weights[i]>maxWeight){
+	iMaxWeight = i;
+	maxWeight = weights[iMaxWeight];
+      }
+    }
+
+    //position of time sample whose maximum weight is applied:
+    int maxWeightBin = params_.getParameter<int>("ecalDccZs1stSample")
+      + iMaxWeight;
+    
+    //gets the bin of maximum (in case of raw data it will not exist)
+    int binOfMax = 0;
+    bool rc = getBinOfMax(evt, noZsDigiId, binOfMax);
+    
+    if(rc && maxWeightBin!=(binOfMax-1)){ //binOfMax starts at 1
+      edm::LogWarning("Configuration")
+	<< "The maximum weight of DCC zero suppression FIR filter is not "
+	"applied to the expected maximum sample(" << binOfMax
+	<< (binOfMax==1?"st":(binOfMax==2?"nd":"th"))
+	<< " time sample). This may indicate faulty 'dccNormalizedWeights' "
+	"or 'ecalDccZs1sSample' parameters.";
+    }
+  }
+}
+
+bool
+EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
+					  const edm::ProductID& noZsDigiId,
+					  int& binOfMax) const{
+  bool rc;
+  const edm::Provenance p=evt.getProvenance(noZsDigiId);
+  edm::ParameterSet result;
+  edm::pset::Registry::instance()->getParameterSet(p.psetID(), result);
+  vector<string> ebDigiParamList = result.getParameterNames();
+  string bofm("binOfMaximum");
+  if(find(ebDigiParamList.begin(), ebDigiParamList.end(), bofm)
+     != ebDigiParamList.end()){//bofm found
+    binOfMax=result.getParameter<int>("binOfMaximum");
+    rc = true;
+  } else{
+    rc = false;
+  }
+  return rc;
+}
