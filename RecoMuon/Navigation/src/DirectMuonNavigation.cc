@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/28 15:41:28 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -20,11 +20,12 @@
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
+#include <algorithm>
 
 using namespace std;
 
 DirectMuonNavigation::DirectMuonNavigation(const MuonDetLayerGeometry * muonLayout) : theMuonDetLayerGeometry(muonLayout) {
-   epsilon_ = 10.;
+   epsilon_ = 100.; 
   // get all barrel DetLayers (DT + RPC)
   vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
   for ( vector<DetLayer*>::const_iterator i = barrel.begin(); i != barrel.end(); i++ ) {
@@ -49,6 +50,9 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
 
   float z0 = fts.position().z();
   float zm = fts.momentum().z();
+
+  float x0 = fts.position().x();
+
   bool inOut = outward(fts);
 
   vector<const DetLayer*> output;
@@ -76,6 +80,9 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
         outInBarrel(fts,output);
       } 
    }
+// assume cosmic rays are coming from above. (true for most of them)
+// so for top part, go outside in, for bottom part go inside out.
+  if (x0 > 0) std::reverse(output.begin(),output.end());
 
   return output;
 }
