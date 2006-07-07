@@ -25,18 +25,46 @@ typedef boost::mutex::scoped_lock ScopedLock;
 using namespace seal;
 
 
+
+struct cond_predicate
+{
+    cond_predicate(int& var, int val) : _var(var), _val(val) { }
+
+    bool operator()() { return _var == _val; }
+
+    int& _var;
+    int _val;
+};
+
+
 class OutputDropBox {
 public:
 
-  OutputDropBox() : os(0), ce(0) {}
+  OutputDropBox() : outbuf(100000), nout(0), os(0), ce(0), writing(0) {}
 
-  void set(Storage * s, seal::IOBuffer ibuf) {
+  bool set(Storage * s, std::vector<char> & ibuf, IOSize n) {
+    //   void set(Storage * s, seal::IOBuffer ibuf) {
+    // wait it finishes write to swap
     ScopedLock gl(lock);
-    std::cout << "box set" << std::endl;
-    ce=0;
-    os = s;
-    buffer = ibuf;
+    std::cout << "box set " << writing << std::endl;
+    done.wait(gl, cond_predicate(writing, 0));
+    std::cout << "box setting " << std::endl;
+    bool ret = true;
+    // if error in previous write return....
+    if (ce==0) {
+      ce=0;
+      os = s;
+      outbuf.swap(ibuf);
+      nout = n;
+    }
+    else ret = false;
+    {
+      ScopedLock wl(wlock);
+      writing= 1;  // number of writing threads...
+    }
+      //    buffer = ibuf;
     doit.notify_all();
+    return ret;
   } 
   
   bool wait () const {
@@ -50,26 +78,39 @@ public:
   
   bool write() {
     ScopedLock gl(lock);
-    std::cout << "box write" << std::endl;
-    doit.wait(gl);
+    std::cout << "box write " << nout << std::endl;
+    // wait is box empty...
+    if (!writing) doit.wait(gl);
+    std::cout << "box writing " << nout << std::endl;
     bool ret=true;
     // os==0 notify thread to exit....
     if (!os) ret=false;
     else
       try {
-	os->write(buffer);
+	std::cout << "box real write " << nout << std::endl;
+	os->write(&outbuf[0],nout);
       } catch(seal::Error & lce) {
 	ce = lce.clone();
       }
+    //    done.notify_all(); 
+    {
+      ScopedLock wl(wlock);
+      writing--;
+    } 
     done.notify_all(); 
+    std::cout << "box write done" << std::endl;
     return ret;
   }
   
-  
-  
-  seal::IOBuffer buffer;
+  std::vector<char> outbuf;
+  IOSize nout;
+  // seal::IOBuffer buffer;
   Storage * os;
   seal::Error * ce;
+  int writing;
+  // writing lock
+  mutable boost::mutex wlock;
+  // swap lock
   mutable boost::mutex lock;
   mutable boost::condition doit;
   mutable boost::condition done;
@@ -144,21 +185,20 @@ int main (int argc, char **argv)
     
     while ((n = is->read (&inbuf[0], inbuf.size()))) {
       // wait thread has finished to write
-      if (!dropbox.wait()) break;
       // swap buffers.
-      inbuf.swap(outbuf);
+      //      inbuf.swap(outbuf);
       // drop buffer in thread
-      dropbox.set(os.get(),seal::IOBuffer(&outbuf[0],n));
+      if (!dropbox.set(os.get(),inbuf,n)) break;
     }
     
     std::cout << "main end reading" << std::endl;
 
     // tell thread to end
-    dropbox.wait();
-    os.reset();
-    dropbox.set(0,seal::IOBuffer());
+    // dropbox.wait();
+    dropbox.set(0,inbuf, 0);
     
     threads.join_all();
+    os.reset();
     
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
     return EXIT_SUCCESS;

@@ -41,10 +41,10 @@ int main (int argc, char **argv)
 
 
   const int NUMTHREADS=10;
-    boost::thread_group threads;
-    for (int i=0; i<NUMTHREADS; ++i)
-      threads.create_thread(&dump);
-    threads.join_all();
+  boost::thread_group threads;
+  for (int i=0; i<NUMTHREADS; ++i)
+    threads.create_thread(&dump);
+  threads.join_all();
   
   std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
   return EXIT_SUCCESS;
