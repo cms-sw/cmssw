@@ -24,7 +24,7 @@ t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent
 
 time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
 time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat  rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
-t0cksum  rfio:lxcmsa:/data2/innocent/File-00002000MB.dat t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap1; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap2;  t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap3; 
+t0cksum  rfio:lxcmsa:/data2/innocent/File-00002000MB.dat; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap1; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap2;  t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap3; 
 
 
 

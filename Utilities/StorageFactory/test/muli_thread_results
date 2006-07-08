@@ -1,0 +1,25 @@
+[lxcmsf1] one cpu
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat  rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+
+rfio/construct=4/4/0MB/0.0354896ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/138256ms; rfio/write=6294/6294/6000MB/139834ms
+2.810u 17.820s 2:39.35 12.9%    0+0k 0+0io 1137pf+0w
+
+
+
+[lxcmsg2] two cpu
+
+ ~/w1/CMSSW_0_7_1/src > time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+
+rfio/construct=4/4/0MB/0.0344857ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/131462ms; rfio/write=6294/6294/6000MB/149341ms
+2.280u 16.440s 2:42.18 11.5%    0+0k 0+0io 1138pf+0w
+
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+rfio/construct=2/2/0MB/0.0249975ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/98324.2ms; rfio/write=2098/2098/2000MB/42697.9ms
+1.600u 6.770s 1:41.12 8.2%      0+0k 0+0io 1138pf+0w
+
+time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat lxcmsa:/data1/innocent/tmp/crap
+2097152000 bytes in 59 seconds through eth0 (in) and eth0 (out) (34711 KB/sec)
+0.200u 5.880s 0:59.50 10.2%     0+0k 0+0io 824pf+0w
+

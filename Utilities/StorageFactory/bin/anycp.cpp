@@ -143,10 +143,12 @@ public:
 class InputDropBox {
 public:
 
-  InputDropBox() : inbuf(1000000), nin(0),  ce(0) {}
+  InputDropBox() : end(false), inbuf(1000000), nin(0),  ce(0) {}
 
   // called by main 
   IOSize get(std::vector<char> & ibuf) {
+    // if thread is over return...
+    if (end) return 0;
     // wait that thread finish to read before swapping
     ScopedLock gl(lock);
     if (nin==0) done.wait(gl);
@@ -174,6 +176,10 @@ public:
     else
       try {
 	nin = os->read(&inbuf[0],inbuf.size());
+	if (nin==0) {
+	  end=true; 
+	  ret=false; // stop thread
+	}
       } catch(seal::Error & lce) {
 	ce = lce.clone();
       } 
@@ -182,7 +188,7 @@ public:
     return ret;
   }
   
-
+  bool end;
   std::vector<char> inbuf;
   IOSize nin;
   // seal::IOBuffer buffer;
@@ -281,7 +287,7 @@ int main (int argc, char **argv)
   
   
   
-    std::vector<char> inbuf(1000000);
+    std::vector<char>  inbuf(1000000);
     std::vector<char> outbuf(1000000);
     IOSize	n;
     
