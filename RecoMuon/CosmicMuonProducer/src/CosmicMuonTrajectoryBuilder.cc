@@ -4,16 +4,15 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/06/19 20:01:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/03 01:10:52 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
 /* Collaborating Class Header */
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -48,7 +47,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   edm::LogInfo ("CosmicMuonTrajectoryBuilder")<< "CosmicMuonTrajectoryBuilder begin";
   theMaxChi2 = par.getParameter<double>("MaxChi2");;
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
-  theLayerMeasurements = new MuonDetLayerMeasurements("DTSegment4DProducer","CSCSegmentProducer");
+  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, "DTSegment4DProducer","CSCSegmentProducer");
 
 
 }
@@ -68,8 +67,7 @@ void CosmicMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theField);
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
 
-  thePropagator = new SteppingHelixPropagator(&*theField, oppositeToMomentum);
-  //FIXME: check propagation direction!
+  thePropagator = new SteppingHelixPropagator(&*theField, alongMomentum);
   theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator);
   theUpdator = new MuonTrajectoryUpdator(thePropagator, theMaxChi2, 0);
 
@@ -93,14 +91,21 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetId did(ptsd1.detId());
   const BoundPlane& bp = theTrackingGeometry->idToDet(did)->surface();
   TrajectoryStateOnSurface lastTsos = tsTransform.transientState(ptsd1,&bp,&*theField);
-// use a larger error to search DetLayers if it's in DT Chambers
-//  if ( did.subdetId() == MuonSubdetId::DT )
-//      lastTsos.rescaleError(5.0);
-//FIXME: check direction of DT Segments
+// use a larger error if it's in DT Chambers
+// and if only z or phi
+// since the direction does not contain enough information
+// FIXME 
+//  if ( (did.subdetId() == MuonSubdetId::DT) && (seed.nHits() ==1) ) {
+//    const TrackingRecHit* hit = &*(seed.recHits().first);
+//    const DTRecSegment4D * seg =dynamic_cast<const DTRecSegment4D*>(hit); 
+//    if (seg) {
+//      if (!(seg->hasZed()&&seg->hasPhi())) 
+//      lastTsos.rescaleError(10.0);
+//    }
+//  }
 
    vector<const DetLayer*> navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
 
-//  edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"found "<<navLayerCBack.size()<<" compatible DetLayers for the Seed";
   if (navLayerCBack.size() == 0) {
     return std::vector<Trajectory>();
   }  
@@ -115,7 +120,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
      vector<TrajectoryMeasurement> measL =
         theLayerMeasurements->measurements(*rnxtlayer, lastTsos, *propagator(), *estimator());
-//     edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"measurements in DetLayer "<<measL.size();
      if (measL.size()==0 ) continue;
      TrajectoryMeasurement* theMeas=measFinder()->findBestMeasurement(measL);
      
@@ -125,7 +129,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             = updator()->update(theMeas, theTraj);
 
         if (result.first) {
-//          edm::LogInfo("CosmicMuonTrajectoryBuilder")<< "update successfully";
           if((*rnxtlayer)->module()==dt) DTChamberUsedBack++;
           else if((*rnxtlayer)->module()==csc) CSCChamberUsedBack++;
           else if((*rnxtlayer)->module()==rpc) RPCChamberUsedBack++;
@@ -142,7 +145,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
      trajL.push_back(theTraj);
     } //if traj valid
 
-//  edm::LogInfo("CosmicMuonTrajectoryBuilder")<< "found trajectories: "<<trajL.size();
   return trajL;
 }
 
