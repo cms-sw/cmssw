@@ -184,12 +184,12 @@ public:
   /** Energy->ADC factor used to interpret the zero suppression thresholds
    * for EB
    */
-  double ebMeV2ADC;
+  double ebGeV2ADC;
 
   /** Energy->ADC factor used to interpret the zero suppression thresholds
    * for EE.
    */
-  double eeMeV2ADC;
+  double eeGeV2ADC;
   
   /** Depth of DCC zero suppression FIR filter (number of taps),
    * in principal 6.

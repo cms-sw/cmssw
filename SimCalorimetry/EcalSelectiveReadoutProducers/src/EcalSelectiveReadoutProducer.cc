@@ -192,7 +192,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
   const vector<double> & weights = params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
   static bool warnWeightCnt = true;
-  if((int)weights.size() > nFIRTaps && !warnWeightCnt){
+  if((int)weights.size() > nFIRTaps && warnWeightCnt){
       edm::LogWarning("Configuration") << "The list of DCC zero suppression FIR "
 	"weights given in parameter dccNormalizedWeights is longer "
 	"than the expected depth of the FIR filter :(" << nFIRTaps << "). "
@@ -203,7 +203,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
   if(weights.size()>0){
     int iMaxWeight = 0;
     double maxWeight = weights[iMaxWeight];
-    //look for index of maximum weight
+    //looks for index of maximum weight
     for(unsigned i=0; i<weights.size(); ++i){
       if(weights[i]>maxWeight){
 	iMaxWeight = i;
@@ -219,11 +219,11 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
     int binOfMax = 0;
     bool rc = getBinOfMax(evt, noZsDigiId, binOfMax);
     
-    if(rc && maxWeightBin!=(binOfMax-1)){ //binOfMax starts at 1
+    if(rc && maxWeightBin!=binOfMax){
       edm::LogWarning("Configuration")
 	<< "The maximum weight of DCC zero suppression FIR filter is not "
 	"applied to the expected maximum sample(" << binOfMax
-	<< (binOfMax==1?"st":(binOfMax==2?"nd":"th"))
+	<< (binOfMax==1?"st":(binOfMax==2?"nd":(binOfMax==3?"rd":"th")))
 	<< " time sample). This may indicate faulty 'dccNormalizedWeights' "
 	"or 'ecalDccZs1sSample' parameters.";
     }

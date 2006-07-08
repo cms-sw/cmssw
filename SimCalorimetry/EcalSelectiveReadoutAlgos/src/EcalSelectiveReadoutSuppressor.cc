@@ -32,9 +32,9 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   weights(params.getParameter<vector<double> >("dccNormalizedWeights"))
 {
   double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
-  ebMeV2ADC = adcToGeV!=0?1.e3/adcToGeV:0.;
+  ebGeV2ADC = adcToGeV!=0?1./adcToGeV:0.;
   adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
-  eeMeV2ADC = adcToGeV!=0?1.e3/adcToGeV:0.;
+  eeGeV2ADC = adcToGeV!=0?1./adcToGeV:0.;
   initTowerThresholds( params.getParameter<double>("srpLowTowerThreshold"), 
                params.getParameter<double>("srpHighTowerThreshold"),
                params.getParameter<int>("deltaEta"),
@@ -108,27 +108,27 @@ double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
 template<class T>
 bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 					    float threshold){
-  double eMeV2ADC;
+  double eGeV2ADC;
   switch(frame.id().subdetId()){
   case EcalBarrel:
-    eMeV2ADC = ebMeV2ADC;
+    eGeV2ADC = ebGeV2ADC;
     break;
   case EcalEndcap:
-    eMeV2ADC = eeMeV2ADC;
+    eGeV2ADC = eeGeV2ADC;
     break;
   default:
     throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
   }
   
-  int thr = (int)(threshold * eMeV2ADC * 4. + .5);
-  //treating over- and underflows, threshold is coded on 11+1 signed bits
-  if(thr>0x7FF){
-    thr = 0x7FF;
-  }
-  if(thr<-0x7FF){
-    thr = -0x7FF;
-  }
-
+  int thr = (int)(threshold * eGeV2ADC * 4. + .5);
+  // //treating over- and underflows, threshold is coded on 11+1 signed bits
+  //   if(thr>0x7FF){
+  //     thr = 0x7FF;
+  //   }
+  //   if(thr<-0x7FF){
+  //     thr = -0x7FF;
+  //   }
+  
 
   //FIR filter weights:
   const vector<int>& w = getFIRWeigths();
@@ -138,19 +138,18 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   bool gain12saturated = false;
   const int gain12 = 0x01; 
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
-  // edm:::LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
-  //     << "DCC FIR operation: ";
-  for(int i=firstFIRSample; i<lastFIRSample; ++i){
+  LogDebug("DccFir") << "DCC FIR operation: ";
+  for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
     if(i>=0 && i < frame.size()){
       const EcalMGPASample& sample = frame[i];
       if(sample.gainId()!=gain12) gain12saturated = true;
-      //edm:::LogDebug("DccFIR") << (i>firstFIRSample?"+":"") << sample.adc()
-      //   << "*(" << w[i] << ")";
+      LogDebug("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
+			  << "*(" << w[i] << ")";
       acc+=sample.adc()*w[i];
     } else{
-      //TODO: deals properly logging...
-      cout << __FILE__ << ":" << __LINE__ <<
-	": Not enough samples in data frame...\n";
+      edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
+	": Not enough samples in data frame or 'ecalDccZs1stSample' module "
+	"parameter is not valid...";
     }
   }
   //cout << "\n";
@@ -161,11 +160,13 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
-
-  // edm:::LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "acc: " << acc << "\n"
-  //        << "threshold: " << threshold << " - " << thr << "\n"
-  //        << "saturated: " << (gain12saturated?"yes":"no") << "\n";
+  
+  LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
+		     << "acc: " << acc << "\n"
+		     << "threshold: " << thr << "GeV ("
+		     << threshold << "GeV)\n"
+		     << "saturated: "
+		     << (gain12saturated?"yes":"no") << "\n";
   
   return (acc>=thr || gain12saturated);
 }
@@ -389,10 +390,10 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
     const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
     const int iTTEta0 = iTTEta2cIndex(ttId.ieta());
     const int iTTPhi0 = iTTPhi2cIndex(ttId.iphi());
-    cout << __FILE__ << ":" << __LINE__ << ": EE xtal->TT "
-	 <<  ((EEDetId&)frame.id()).ix()
-	 << "," << ((EEDetId&)frame.id()).iy()
-	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
+//     cout << __FILE__ << ":" << __LINE__ << ": EE xtal->TT "
+// 	 <<  ((EEDetId&)frame.id()).ix()
+// 	 << "," << ((EEDetId&)frame.id()).iy()
+// 	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
     double theta = eeGeometry->getGeometry(frame.id())->getPosition().theta();
     trigPrim[iTTEta0][iTTPhi0] += frame2Energy(frame)*sin(theta);
   }
@@ -438,7 +439,7 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 	ttFlags[iTTEta0][iTTPhi0] = EcalSelectiveReadout::TTF_LOW_INTEREST;
       }
       
-      // cout /*edm::LogDebug("TT")*/
+      // cout /*LogDebug("TT")*/
       // 	<< "ttFlags[" << iTTEta0 << "][" << iTTPhi0 << "] = "
       // 	<< ttFlags[iTTEta0][iTTPhi0] << "\n";
     }
