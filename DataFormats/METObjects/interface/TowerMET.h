@@ -14,7 +14,7 @@
 
 #include "DataFormats/METObjects/interface/BaseMET.h"
 
-class TowerMET: public BaseMET {
+class TowerMETv0: public BaseMETv0 {
 public:
 
   // Methods

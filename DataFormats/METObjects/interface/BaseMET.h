@@ -18,10 +18,10 @@
 #include <vector>
 #include <cstring>
 
-class BaseMET 
+class BaseMETv0 
 {
 public:
-  BaseMET();
+  BaseMETv0();
   // Setters
   //void setLabel(const char *Label) { strcpy( data.label, Label ); }
   void setMET(double MET)     { data.met = MET; } //derived quantity 
@@ -39,12 +39,12 @@ public:
   double MEz()   const { return data.mez; }
   double SumET() const { return data.sumet; }
   double phi()   const { return data.phi; }
-  std::vector<CommonMETData> getAllCorr() const {return corr;}
+  std::vector<CommonMETv0Data> getAllCorr() const {return corr;}
   // Methods
   void clearMET();
 private:
-  CommonMETData data;
-  std::vector<CommonMETData> corr;
+  CommonMETv0Data data;
+  std::vector<CommonMETv0Data> corr;
 };
 
 #endif // METOBJECTS_MET_H

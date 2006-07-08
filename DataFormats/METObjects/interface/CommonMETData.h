@@ -19,7 +19,7 @@
 
 const int MET_LABEL_LEN = 24;
 
-struct CommonMETData {
+struct CommonMETv0Data {
 
   //char label[MET_LABEL_LEN];
 

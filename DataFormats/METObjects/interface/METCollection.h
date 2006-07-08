@@ -16,6 +16,6 @@
 #include <vector>
 #include "DataFormats/METObjects/interface/MET.h"
 
-typedef std::vector<MET> METCollection;
+typedef std::vector<METv0> METv0Collection;
   
 #endif // METOBJECTS_METCOLLECTION_H

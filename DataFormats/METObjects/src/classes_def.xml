@@ -1,16 +1,16 @@
 <lcgdict>
-  <class name="CommonMETData"/>
+  <class name="CommonMETv0Data"/>
 
-  <class name="BaseMET"/>
-  <class name="edm::Wrapper<BaseMET>"/>
+  <class name="BaseMETv0"/>
+  <class name="edm::Wrapper<BaseMETv0>"/>
 
-  <class name="MET"/>
-  <class name="edm::Wrapper<MET>" id="20145548-21F3-49A6-9EDE-36DB78DC1D54"/>
-  <class name="edm::Wrapper<std::vector<MET> >"/>
-  <class name="std::vector<MET>"/>
+  <class name="METv0"/>
+  <class name="edm::Wrapper<METv0>" id="20145548-21F3-49A6-9EDE-36DB78DC1D54"/>
+  <class name="edm::Wrapper<std::vector<METv0> >"/>
+  <class name="std::vector<METv0>"/>
 
-  <class name="TowerMET"/>
-  <class name="edm::Wrapper<TowerMET>" id="83414CC1-1BDD-0922-4752-1589391CBC4B"/>
-  <class name="edm::Wrapper<std::vector<TowerMET> >"/>
-  <class name="std::vector<TowerMET>"/>
+  <class name="TowerMETv0"/>
+  <class name="edm::Wrapper<TowerMETv0>" id="83414CC1-1BDD-0922-4752-1589391CBC4B"/>
+  <class name="edm::Wrapper<std::vector<TowerMETv0> >"/>
+  <class name="std::vector<TowerMETv0>"/>
 </lcgdict>

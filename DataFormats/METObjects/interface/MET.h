@@ -14,7 +14,7 @@
 
 #include "DataFormats/METObjects/interface/BaseMET.h"
 
-class MET: public BaseMET {
+class METv0: public BaseMETv0 {
 public:
 
   // Additional Methods

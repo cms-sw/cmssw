@@ -7,12 +7,12 @@
 
 using namespace std;
 
-BaseMET::BaseMET() 
+BaseMETv0::BaseMETv0() 
 {
   clearMET();
 }
 
-void BaseMET::clearMET() 
+void BaseMETv0::clearMET() 
 {
   //data.label[0] = '\0';
   data.met   = 0.0;

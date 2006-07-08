@@ -16,6 +16,6 @@
 #include <vector>
 #include "DataFormats/METObjects/interface/TowerMET.h"
 
-typedef std::vector<TowerMET> TowerMETCollection;
+typedef std::vector<TowerMETv0> TowerMETv0Collection;
   
 #endif // METOBJECTS_TOWERMETCOLLECTION_H

@@ -7,8 +7,8 @@
 
 using namespace std;
 
-void TowerMET::clearMET() {
+void TowerMETv0::clearMET() {
 
-  BaseMET::clearMET();
+  BaseMETv0::clearMET();
 
 }
