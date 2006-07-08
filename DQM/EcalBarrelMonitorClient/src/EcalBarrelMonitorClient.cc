@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/06 07:11:06 $
- * $Revision: 1.163 $
+ * $Date: 2006/07/07 18:41:49 $
+ * $Revision: 1.164 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -393,22 +393,6 @@ void EcalBarrelMonitorClient::beginJob(void){
 
   this->subscribe();
 
-  // check first event
-
-  if ( ! begin_run_ ) {
-
-    if ( ! enableMonitorDaemon_ ) {
-
-      cout << endl;
-      cout << "Checking first event at beginJob() ... " << endl;
-      cout << endl;
-
-      forced_update_ = true;
-      this->analyze();
-
-    }
-  }
-
 }
 
 void EcalBarrelMonitorClient::beginRun(void){
@@ -452,6 +436,7 @@ void EcalBarrelMonitorClient::endJob(void) {
       if ( ! end_run_ ) {
 
         cout << "Forcing endRun() ... " << endl;
+        cout << endl;
 
         forced_status_ = true;
         this->endRun();
@@ -1065,7 +1050,7 @@ void EcalBarrelMonitorClient::analyze(void){
           }
         }
 
-        if ( status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "end-of-run" || forced_update_ ) {
 
           if ( enableQT_ ) {
 
