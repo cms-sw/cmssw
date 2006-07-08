@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/04 19:53:07 $
- * $Revision: 1.18 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -217,9 +217,13 @@ void EBBeamHodoClient::endRun(void) {
 
 void EBBeamHodoClient::setup(void) {
 
+  mui_->setCurrentFolder( "EcalBarrel/EBBeamHodoClient" );
+
 }
 
 void EBBeamHodoClient::cleanup(void) {
+
+  mui_->setCurrentFolder( "EcalBarrel/EBBeamHodoClient" );
 
 }
 
