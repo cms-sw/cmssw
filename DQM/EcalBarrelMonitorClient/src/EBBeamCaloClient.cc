@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/04 18:46:16 $
- * $Revision: 1.10 $
+ * $Date: 2006/07/06 10:46:46 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -72,10 +72,10 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   ///////// task specific histos 
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
-    hBGainsMoving_[u] = 0;
+    //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;
-  hBEne1Moving_ = 0;
+  //hBEne1Moving_ = 0;
   hBAllNeededCry_ = 0;
   hBNumReadCry_ = 0;
   hBE3x3_ = 0;
@@ -185,10 +185,10 @@ void EBBeamCaloClient::cleanup(void) {
   if ( cloneME_ ) {
     for(int u=0;u<cryInArray_;u++){
       if(hBGains_[u]) delete hBGains_[u];
-      if(hBGainsMoving_[u])delete hBGainsMoving_[u];
+      //if(hBGainsMoving_[u])delete hBGainsMoving_[u];
     }
     if(hBEne1_) delete hBEne1_;
-    if(hBEne1Moving_) delete hBEne1Moving_;
+    //    if(hBEne1Moving_) delete hBEne1Moving_;
     if(hBAllNeededCry_) delete hBAllNeededCry_;
     if(hBNumReadCry_) delete hBNumReadCry_;
     if(hBE3x3_) delete hBE3x3_;
@@ -207,10 +207,10 @@ void EBBeamCaloClient::cleanup(void) {
   
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
-    hBGainsMoving_[u] = 0;
+    //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;
-  hBEne1Moving_ = 0;
+  //hBEne1Moving_ = 0;
   hBAllNeededCry_ = 0;
   hBNumReadCry_ = 0;
   hBE3x3_ = 0;
@@ -270,14 +270,14 @@ void EBBeamCaloClient::subscribe(void){
     mui_->subscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-
+    // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
   }
     
   //     for(int u=0; u< 1701;u++){
@@ -290,8 +290,8 @@ void EBBeamCaloClient::subscribe(void){
    
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  mui_->subscribe(histo);
+  //  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
+  //mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
@@ -342,14 +342,14 @@ void EBBeamCaloClient::subscribeNew(void){
     mui_->subscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
+    //mui_->subscribe(histo);
   }
     
   //     for(int u=0; u< 1701;u++){
@@ -362,8 +362,8 @@ void EBBeamCaloClient::subscribeNew(void){
    
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  mui_->subscribe(histo);
+  // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
+  //mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
@@ -409,14 +409,14 @@ void EBBeamCaloClient::unsubscribe(void){
     mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry %01d", i+1);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
-    mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
-
+    // sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile moving table cry %01d", i+1);
+    //mui_->unsubscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 moving table cry %01d", i+1);
+    //mui_->unsubscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT found gains moving table cry %01d", i+1);
+    //mui_->unsubscribe(histo);
+    //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec energy moving table cry %01d", i+1);
+    //mui_->unsubscribe(histo);
   }
     
   //     for(int u=0; u< 1701;u++){
@@ -429,8 +429,8 @@ void EBBeamCaloClient::unsubscribe(void){
    
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals");
   mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
-  mui_->unsubscribe(histo);
+  //sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals table moving");
+  //mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
@@ -591,16 +591,16 @@ void EBBeamCaloClient::analyze(void){
 	if ( find(checkedSteps_.begin(), checkedSteps_.end(), step ) != checkedSteps_.end() ) {continue;}//already checked
 	if(step > 86){continue;}
 	//cout<<"Checking cry: " <<cry<<"  step: "<< step<<endl;
-	float E3x3RMS = -1, E3x3 =0, E1=0;
+	float E3x3RMS = -1, E3x3 =-1, E1=-1;
 	if(hBE3x3vsCry_){
-	   E3x3RMS = hBE3x3vsCry_->GetBinContent(step);
-	   E3x3 = hBE3x3vsCry_->GetBinError(step);
+	   E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+	   E3x3 = hBE3x3vsCry_->GetBinContent(step);
 	}
 	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
 	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
 	bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
 	bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
-	
+	//cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
 	int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
 	int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
 	//fill the RedGreen histo
@@ -609,9 +609,12 @@ void EBBeamCaloClient::analyze(void){
 	  else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
 	}
 	
-	float Entries = 0.;
-	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetEntries();}
+	float Entries = -1;
+	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
 	bool Nent = ( Entries > minEvtNum_ * prescaling_ );
+	//cout<<"step: "<<step<<" entries: "<<Entries<<endl;
+	//cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
+	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
 	bool readCryOk = true;
 	if( hBReadCryErrors_ ) {
 	  int step_bin = hBReadCryErrors_->GetXaxis()->FindBin(step);
@@ -721,11 +724,26 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   //  htmlFile << "<hr>" << endl;
 
+
+  htmlFile <<  "<a href=\"#qua_plots\"> Quality plots </a>" << endl;
+  htmlFile << "<p>" << endl;
+  htmlFile <<  "<a href=\"#gen_plots\"> General plots </a>" << endl;
+  htmlFile << "<p>" << endl;
+  htmlFile <<  "<a href=\"#fix_plots\"> Plots for the fixed crystal runs </a>" << endl;
+  htmlFile << "<p>" << endl;
+  htmlFile <<  "<a href=\"#aut_plots\"> Plots for the autoscan runs </a>" << endl;
+  htmlFile << "<p>" << endl;
+
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<p>" << endl;
+
+
+
   // Produce the plots to be shown as .png files from existing histograms
 
 
   const int csize = 250;
-  const double histMax = 1.e15;
+  //  const double histMax = 1.e15;
 
   int pCol3[3] = { 2, 3, 5 };
   
@@ -745,8 +763,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       //cout<<"cry: "<<cry<<" step: "<<step <<"  histo: "<<dummyStep.GetBinContent(step+1,1)<<endl;}
     }
   }
-  dummyStep.SetBinContent( 6, 1, 1699 );
-  dummyStep.SetBinContent( 85, 1, 1698 );
+  //dummyStep.SetBinContent( 6, 1, 1699 );
+  //dummyStep.SetBinContent( 85, 1, 1698 );
   dummyStep.SetMarkerSize(2);
   
 
@@ -764,6 +782,12 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f = 0;
   TH1F* obj1f = 0;
   TProfile* objp1 = 0;
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"qua_plots\"> <B> Quality plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
 
   ////////////////////////////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -883,6 +907,13 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   ////////////////////////////////////////////////////////////////////////////////
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"gen_plots\"> <B> General plots </B> </a>" << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
+
   ////////////////////////////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1027,6 +1058,13 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
   ////////////////////////////////////////////////////////////////////////////////
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"fix_plots\"> <B> Plots for the fixed crystal runs </B> </a>" << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
+
   ////////////////////////////////////////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1214,6 +1252,13 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
   //////////////////////////////////////////////////////////
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"aut_plots\"> <B> Plots for the autoscan runs </B> </a>" << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
+
   //////////////////////////////////////////////////////////
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1375,9 +1420,17 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
     }
     //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
-    if( Ymin < Ymax+1 ){objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);}
-
-    objp1->Draw();
+    if( Ymin < Ymax+1 ){
+       for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
+	 if( objp1->GetBinError(bin) >0 ){
+	   objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
+	   // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
+	 }
+       }
+       objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);
+    }
+    
+    objp1->Draw("e");
     can->Update();
     can->SaveAs(imgName1.c_str());
     delete can;

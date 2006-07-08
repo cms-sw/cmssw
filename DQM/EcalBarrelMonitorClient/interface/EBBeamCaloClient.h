@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/04 18:46:16 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/06 10:46:46 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -106,8 +106,8 @@ float prescaling_;
 TH1F* hBGains_[cryInArray_];
 TH1F* hBEne1_;
 
-TH1F* hBGainsMoving_[cryInArray_];
-TH1F* hBEne1Moving_;
+//TH1F* hBGainsMoving_[cryInArray_];
+//TH1F* hBEne1Moving_;
 
 
 TH1F* hBAllNeededCry_;
