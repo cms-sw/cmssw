@@ -17,10 +17,8 @@ METAlgo::METAlgo() {}
 
 METAlgo::~METAlgo() {}
 
-void METAlgo::run(const InputCollection &input, METCollection &metvec) 
-{
-  // Clean up the EDProduct, it should be empty
-  metvec.clear();
+void METAlgo::run(const InputCollection &input, CommonMETData *met) 
+{ 
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
@@ -38,16 +36,11 @@ void METAlgo::run(const InputCollection &input, METCollection &metvec)
       sum_ex += et*cos(phi);
       sum_ey += et*sin(phi);
     }
-  // Create a holder for the "met" data
-  CommonMETData met;
-  met.mex   = -sum_ex;
-  met.mey   = -sum_ey;
-  met.mez   = -sum_ez;
-  met.met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  met.sumet = sum_et;
-  met.phi   = atan2( -sum_ey, -sum_ex );
-  // Save result: create MET object initialised with "met" data
-  MET result( met );
-  metvec.push_back(result);
+  met->mex   = -sum_ex;
+  met->mey   = -sum_ey;
+  met->mez   = -sum_ez;
+  met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  met->sumet = sum_et;
+  met->phi   = atan2( -sum_ey, -sum_ex );
 }
 

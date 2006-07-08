@@ -35,6 +35,7 @@ namespace cms
     private:
       METAlgo alg_; 
       std::string inputLabel;
+      std::string METtype;
     };
 }
 

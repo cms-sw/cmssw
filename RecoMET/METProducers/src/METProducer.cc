@@ -6,8 +6,12 @@
 //--------------------------------------------
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
+#include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 //#include "DataFormats/METObjects/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -20,8 +24,12 @@ namespace cms
 
   METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() 
   {
-    produces<METCollection>(); 
     inputLabel = iConfig.getParameter<std::string>("src");
+    METtype    = iConfig.getParameter<std::string>("METType");
+    std::cout << "MET Type = " << METtype << std::endl;
+    if(      METtype == "CaloMET" ) produces<CaloMETCollection>(); 
+    else if( METtype == "GenMET" )  /*produces<GenMETCollection>()*/; 
+    else                            produces<METCollection>();
   }
 
   METProducer::METProducer() : alg_() 
@@ -40,14 +48,39 @@ namespace cms
     input.reserve( inputs->size() );
     CandidateCollection::const_iterator input_object = inputs->begin();
     for( ; input_object != inputs->end(); input_object++ )
-      {
-	input.push_back( &*input_object );
-      }
+      input.push_back( &*input_object );
     // Step B: Create an empty output.
-    std::auto_ptr<METCollection> result(new METCollection);
-    // Step C: Invoke the algorithm. 
-    alg_.run(input, *result);
-    // Step D: Put output into the Event.
-    event.put(result);
+    CommonMETData output;
+    // Step C: Invoke the common algorithm, which runs on _any_ candidate input. 
+    alg_.run(input, &output);  
+    // Step D: Invoke the specific afterburner, which adds information
+    //         depending on the input type
+    //         Put output into the Event.
+    if( METtype == "CaloMET" ) 
+    {
+      CaloSpecificAlgo calo;
+      std::auto_ptr<CaloMETCollection> calometcoll; 
+      calometcoll.reset(new CaloMETCollection);
+      calometcoll->push_back( calo.addInfo(output) );
+      event.put( calometcoll );
+    }
+    else if( METtype == "GenMET" ) 
+    {
+    /*
+      std::auto_ptr<GenMETCollection> GenMET;
+      GenMET.reset (new GenMETCollection);
+      GenSpecificInfo gen;
+      GenMET->push_back( gen.addInfo(output) );
+      event.put(GenMET);
+    */
+    }
+    else
+    {
+      MET met( output );
+      std::auto_ptr<METCollection> metcoll;
+      metcoll.reset(new METCollection);
+      metcoll->push_back( met );
+      event.put( metcoll );
+    }
   }
 }

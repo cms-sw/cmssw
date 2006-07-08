@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
 
 class METAlgo 
 {
@@ -24,7 +24,7 @@ class METAlgo
   typedef std::vector <const reco::Candidate*> InputCollection;
   METAlgo();
   virtual ~METAlgo();
-  virtual void run(const InputCollection &, METCollection &);
+  virtual void run(const InputCollection &, CommonMETData * );
  private:
 };
 
