@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/07 14:26:40 $
- * $Revision: 1.109 $
+ * $Date: 2006/07/07 18:39:22 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,12 +14,14 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   init_ = false;
 
+  cout << endl;
+  cout << " *** Ecal Barrel Generic Monitor ***" << endl;
+  cout << endl;
+
   runType_ = -1;
 
   // this should come from the EcalBarrel run header
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
-
-  LogInfo("EcalBarrelMonitor") << " Processing run: " << irun_;
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -81,10 +83,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     meEvent_[i] = 0;
   }
 
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
 }
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
@@ -98,8 +96,10 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
     dbe_->rmdir("EcalBarrel/EcalInfo");
-    dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
-    dbe_->rmdir("EcalBarrel/EcalEvent");
+    if ( enableEventDisplay_ ) {
+      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dbe_->rmdir("EcalBarrel/EcalEvent");
+    }
   }
 
 }
@@ -299,6 +299,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   }
 
   if ( ievt_ == 1 ) {
+    LogInfo("EcalBarrelMonitor") << "processing run: " << irun_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
