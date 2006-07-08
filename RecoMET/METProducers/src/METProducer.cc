@@ -13,7 +13,6 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 using namespace edm;
 using namespace std;
@@ -76,7 +75,9 @@ namespace cms
     }
     else
     {
-      MET met( output );
+      LorentzVector p4( output.mex, output.mey, output.mez, output.met);
+      Point vtx(0,0,0);
+      MET met( output.sumet, p4, vtx );
       std::auto_ptr<METCollection> metcoll;
       metcoll.reset(new METCollection);
       metcoll->push_back( met );

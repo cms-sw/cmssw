@@ -22,12 +22,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 namespace cms 
 {
   class METProducer: public edm::EDProducer 
     {
     public:
+      typedef math::XYZTLorentzVector LorentzVector;
+      typedef math::XYZPoint Point;
       explicit METProducer(const edm::ParameterSet&);
       explicit METProducer();
       virtual ~METProducer();

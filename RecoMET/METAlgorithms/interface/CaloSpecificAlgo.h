@@ -6,11 +6,15 @@
 /// 6 June, 2006
 
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
 class CaloSpecificAlgo 
 {
  public:
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef math::XYZPoint Point;
   /// Make CaloMET. Assumes MET is made from CaloTowerCandidates
   reco::CaloMET addInfo(CommonMETData met);
 };

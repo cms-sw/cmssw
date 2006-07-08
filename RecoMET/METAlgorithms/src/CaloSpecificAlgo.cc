@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 
 using namespace reco;
@@ -17,6 +18,8 @@ reco::CaloMET CaloSpecificAlgo::addInfo(CommonMETData met)
   specific.mEmEnergyInHF = 1.0;           // Em energy in HF
   specific.mEnergyFractionHadronic = 1.0; // Hadronic energy fraction
   specific.mEnergyFractionEm = 1.0;       // Em energy fraction
-  CaloMET specificmet(specific, met);
+  const LorentzVector p4( met.mex, met.mey, met.mez, met.met );
+  const Point vtx( 0, 0, 0 );
+  CaloMET specificmet( specific, met.sumet, p4, vtx );
   return specificmet;
 }
