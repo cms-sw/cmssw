@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/07 14:38:07 $
- * $Revision: 1.23 $
+ * $Date: 2006/07/07 15:15:37 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
  */
@@ -37,6 +37,8 @@ EBIntegrityTask::~EBIntegrityTask(){
 void EBIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  LogInfo("EBIntegrityTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

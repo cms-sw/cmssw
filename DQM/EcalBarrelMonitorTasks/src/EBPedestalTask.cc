@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.40 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,8 @@ EBPedestalTask::~EBPedestalTask(){
 void EBPedestalTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  LogInfo("EBPedestalTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.16 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,6 +52,8 @@ EBBeamHodoTask::~EBBeamHodoTask(){
 void EBBeamHodoTask::beginJob(const EventSetup& c){
 
   ievt_  = 0;
+
+  LogInfo("EBBeamHodoTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

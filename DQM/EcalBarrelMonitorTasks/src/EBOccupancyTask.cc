@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/07/07 14:21:25 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,6 +28,8 @@ EBOccupancyTask::~EBOccupancyTask(){
 void EBOccupancyTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  LogInfo("EBOccupancyTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

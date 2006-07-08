@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.49 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,8 @@ EBTestPulseTask::~EBTestPulseTask(){
 void EBTestPulseTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  LogInfo("EBTestPulseTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

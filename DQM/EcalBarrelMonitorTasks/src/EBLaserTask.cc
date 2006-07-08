@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/07/05 13:14:33 $
- * $Revision: 1.52 $
+ * $Date: 2006/07/07 14:38:07 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -57,6 +57,8 @@ EBLaserTask::~EBLaserTask(){
 void EBLaserTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
+
+  LogInfo("EBLaserTask");
 
   DaqMonitorBEInterface* dbe = 0;
 
