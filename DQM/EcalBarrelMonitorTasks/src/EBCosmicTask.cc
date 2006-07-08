@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/07/07 14:38:07 $
- * $Revision: 1.51 $
+ * $Date: 2006/07/08 07:22:02 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -28,8 +28,6 @@ EBCosmicTask::~EBCosmicTask(){
 void EBCosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
-
-  LogInfo("EBCosmicTask");
 
   DaqMonitorBEInterface* dbe = 0;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/07 14:38:07 $
- * $Revision: 1.17 $
+ * $Date: 2006/07/08 07:22:02 $
+ * $Revision: 1.18 $
  * \author A. Ghezzi
  *
  */
@@ -67,8 +67,6 @@ EBBeamCaloTask::~EBBeamCaloTask(){
 void EBBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
-
-  LogInfo("EBBeamCaloTask");
 
   DaqMonitorBEInterface* dbe = 0;
 
