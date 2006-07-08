@@ -60,7 +60,6 @@ void testClosestCell(const HcalDetId & detId, const CaloSubdetectorGeometry * ge
 void testClosestCells() {
   HcalHardcodeGeometryLoader l;
   std::auto_ptr<CaloSubdetectorGeometry> g = l .load();
-
   // make sure each cel is its own closest cell
   HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
   HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
@@ -75,6 +74,11 @@ void testClosestCells() {
   testClosestCell(endcapDet2, g.get());
   testClosestCell(forwardDet1, g.get());
   testClosestCell(forwardDet3, g.get());
+
+  std::vector<DetId> ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
+  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+    testClosestCell(HcalDetId(*i), g.get());
+  }
 }
 
 
