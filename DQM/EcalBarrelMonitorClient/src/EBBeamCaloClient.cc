@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/06 10:46:46 $
- * $Revision: 1.11 $
+ * $Date: 2006/07/08 13:18:55 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -294,7 +294,7 @@ void EBBeamCaloClient::subscribe(void){
   //mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
   mui_->subscribe(histo);
@@ -310,9 +310,9 @@ void EBBeamCaloClient::subscribe(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT errors in the number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single cristal");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
   mui_->subscribe(histo);
@@ -366,7 +366,7 @@ void EBBeamCaloClient::subscribeNew(void){
   //mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
   mui_->subscribe(histo);
@@ -382,9 +382,9 @@ void EBBeamCaloClient::subscribeNew(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT errors in the number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
   mui_->subscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single cristal");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
   mui_->subscribe(histo);
@@ -433,7 +433,7 @@ void EBBeamCaloClient::unsubscribe(void){
   //mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
   mui_->unsubscribe(histo);
@@ -449,9 +449,9 @@ void EBBeamCaloClient::unsubscribe(void){
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
   mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT errors in the number of readout crystals");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
   mui_->unsubscribe(histo);
-  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single cristal");
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
   mui_->unsubscribe(histo);
@@ -503,7 +503,7 @@ void EBBeamCaloClient::analyze(void){
   hBAllNeededCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
  
   if ( collateSources_ ) {;}
-  else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT number of readout crystals").c_str() ); }
+  else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number").c_str() ); }
   //allNeededCry= mui_->get(histo);
   me = mui_->get(histo);
   hBNumReadCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
@@ -517,7 +517,7 @@ void EBBeamCaloClient::analyze(void){
 
   //MonitorElement* ErrRedCry;
   if ( collateSources_ ) {;}
-  else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT errors in the number of readout crystals").c_str() ); }
+  else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors").c_str() ); }
   //ErrRedCry = mui_->get(histo);
   me = mui_->get(histo);
   hBReadCryErrors_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
@@ -540,7 +540,7 @@ void EBBeamCaloClient::analyze(void){
   hBE3x3vsCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3vsCry_);
 
   if ( collateSources_ ) {;}
-  else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single cristal").c_str() ); }
+  else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal").c_str() ); }
   me = mui_->get(histo);
   hBE1vsCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBE1vsCry_);
 
@@ -587,7 +587,7 @@ void EBBeamCaloClient::analyze(void){
       if( step>0 ){//this crystal has been scanned 
 	DoneCry++;
 	//cout<<"cry: " <<cry<<"  step: "<< step<<endl;
-	//activate check for this cristal int the step
+	//activate check for this crystal int the step
 	if ( find(checkedSteps_.begin(), checkedSteps_.end(), step ) != checkedSteps_.end() ) {continue;}//already checked
 	if(step > 86){continue;}
 	//cout<<"Checking cry: " <<cry<<"  step: "<< step<<endl;
@@ -1142,10 +1142,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    obj2f->GetXaxis()->SetNdivisions(0);
-    obj2f->GetYaxis()->SetNdivisions(0);
-    obj2f->SetMinimum(-0.00000001);
-    //obj2f->SetMaximum(2.0);
+    obj2f->SetLineColor(kRed);
+    obj2f->SetFillColor(kRed);
     obj2f->Draw("box");
     can->Update();
     can->SaveAs(imgName1.c_str());

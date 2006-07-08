@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.103 $
+ * $Date: 2006/07/07 14:16:27 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -935,9 +935,9 @@ void EBIntegrityClient::subscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM occupancy SM%02d", ism);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM MEM occupancy SM%02d", ism);
     mui_->subscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
     mui_->subscribe(histo);
@@ -978,13 +978,13 @@ void EBIntegrityClient::subscribe(void){
       int ism = superModules_[i];
 
       sprintf(histo, "EBMM occupancy SM%02d", ism);
-      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EcalOccupancyTask");
-      sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM occupancy SM%02d", ism);
+      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBOccupancyTask");
+      sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM occupancy SM%02d", ism);
       mui_->add(me_h_[ism-1], histo);
 
       sprintf(histo, "EBMM MEM occupancy SM%02d", ism);
-      me_hmem_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EcalOccupancyTask");
-      sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM MEM occupancy SM%02d", ism);
+      me_hmem_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBOccupancyTask");
+      sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM MEM occupancy SM%02d", ism);
       mui_->add(me_hmem_[ism-1], histo);
 
       sprintf(histo, "EBIT gain SM%02d", ism);
@@ -1124,9 +1124,9 @@ void EBIntegrityClient::subscribeNew(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM occupancy SM%02d", ism);
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM MEM occupancy SM%02d", ism);
     mui_->subscribeNew(histo);
     sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
     mui_->subscribeNew(histo);
@@ -1197,9 +1197,9 @@ void EBIntegrityClient::unsubscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM occupancy SM%02d", ism);
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EcalOccupancyTask/EBMM MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBMM MEM occupancy SM%02d", ism);
     mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
     mui_->unsubscribe(histo);
@@ -1253,17 +1253,17 @@ void EBIntegrityClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EcalOccupancyTask/EBMM occupancy SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBOccupancyTask/EBMM occupancy SM%02d", ism);
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EcalOccupancyTask/EBMM occupancy SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBMM occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
     h_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EcalOccupancyTask/EBMM MEM occupancy SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBOccupancyTask/EBMM MEM occupancy SM%02d", ism);
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EcalOccupancyTask/EBMM MEM occupancy SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBMM MEM occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
     hmem_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );

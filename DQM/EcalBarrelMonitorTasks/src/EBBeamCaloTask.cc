@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.19 $
+ * $Date: 2006/07/08 13:32:55 $
+ * $Revision: 1.21 $
  * \author A. Ghezzi
  *
  */
@@ -161,7 +161,7 @@ void EBBeamCaloTask::setup(void){
     meBBCaloAllNeededCry_ = dbe->book1D(histo,histo,3,-1.,2.);
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
     
-    sprintf(histo, "EBBCT number of readout crystals");
+    sprintf(histo, "EBBCT readout crystals number");
     meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1700,1.,1701.);
     
     sprintf(histo, "EBBCT rec Ene sum 3x3");
@@ -193,10 +193,10 @@ void EBBeamCaloTask::setup(void){
     // when table is moving for just one events fill with -100
     // when table is constantely moving do not fill...
 
-    sprintf(histo, "EBBCT errors in the number of readout crystals");
+    sprintf(histo, "EBBCT readout crystals errors");
     meEBBCaloReadCryErrors_ = dbe->book1D(histo, histo, 425,1.,86.);
 
-    sprintf(histo, "EBBCT average rec energy in the single cristal");
+    sprintf(histo, "EBBCT average rec energy in the single crystal");
     meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
@@ -206,7 +206,7 @@ void EBBeamCaloTask::setup(void){
     meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,85,1.,86.);
     
     sprintf(histo, "EBBCT energy deposition in the 3x3");
-    meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-2,2,3,-2,2);
+    meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
 
   }
   
