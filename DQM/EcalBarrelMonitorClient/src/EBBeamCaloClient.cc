@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/08 13:18:55 $
- * $Revision: 1.12 $
+ * $Date: 2006/07/08 15:31:37 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -151,7 +151,7 @@ void EBBeamCaloClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloTask" );
+  mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
   if ( meEBBCaloRedGreen_ ) bei->removeElement( meEBBCaloRedGreen_->getName() );
   sprintf(histo, "EBBCT quality");
@@ -226,7 +226,7 @@ void EBBeamCaloClient::cleanup(void) {
   hbTBmoving_ = 0;
   pBCriInBeamEvents_ =0;
 
-  mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloTask" );
+  mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
   if ( meEBBCaloRedGreen_) bei->removeElement( meEBBCaloRedGreen_->getName() );
   meEBBCaloRedGreen_ = 0;
