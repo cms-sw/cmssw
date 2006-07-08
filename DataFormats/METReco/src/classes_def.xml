@@ -2,9 +2,17 @@
   <class name="CommonMETData"/>
   <class name="std::vector<CommonMETData>"/> 
 
+  <class name="SpecificCaloMETData"/>
+
   <class name="reco::MET"/>
-  <class name="edm::Wrapper<reco::MET>" id="20145548-21F3-49A6-9EDE-36DB78DC1D54"/>
+  <class name="edm::Wrapper<reco::MET>"/>
   <class name="edm::Wrapper<std::vector<reco::MET> >"/>
   <class name="std::vector<reco::MET>"/>
+
+  <class name="reco::CaloMET"/>
+  <class name="edm::Wrapper<reco::CaloMET>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
+  <class name="std::vector<reco::CaloMET>"/>
+
 
 </lcgdict>
