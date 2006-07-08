@@ -4,8 +4,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for searching compatible DetLayers.
  *
- * $Date: 2006/04/24 20:00:31 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/04 18:39:45 $
+ * $Revision: 1.5 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  * with contributions from: R. Bellan - INFN Torino
@@ -27,6 +27,7 @@
 /* C++ Headers */
 #include <algorithm>
 
+
 using namespace std;
 
 extern float calculateEta(float r, float z)  {
@@ -43,15 +44,27 @@ MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) c
   if ( z>0 ) eta = -log((tan(atan(r/z)/2.)));
   else eta = log(-(tan(atan(r/z)/2.)));
 
-  float theta = atan(r/z);
+  double theta = atan(r/z);
 
-  // FIXME safety factor put by hand
-  float spread = 5.0*sqrt(fts.curvilinearError().matrix()(2,2))/fabs(sin(theta));  //5*sigma(eta)
+  double spread = 5.0*sqrt(fts.curvilinearError().matrix()(2,2))/fabs(sin(theta));  //5*sigma(eta)
+
+  //C.L.: this spread could be too large to use.
+  // convert it to a smaller one by assuming a virtual radius
+  // that transforms the error on angle to error on z axis.
+  // not accurate, but works!
+
+  double eta_max = 0;
+
+  if ( z > 0 ) eta_max = calculateEta(r, z+spread); 
+  else eta_max = calculateEta(r, z-spread); 
+
+  spread = std::min(0.07, fabs(eta_max-eta));
 
   MuonEtaRange range(eta+spread,eta-spread);
 
-  if ( spread < 0.07 ) spread = 0.07; 
-
+  spread = 0.07; 
+  // special treatment for special geometry in overlap region
+  
   if ( eta > 1.0 && eta < 1.1 )  range = MuonEtaRange(eta+3.0*spread,eta-spread);
   if ( eta < -1.0 && eta > -1.1 ) range = MuonEtaRange(eta+spread,eta-3.0*spread);
 
