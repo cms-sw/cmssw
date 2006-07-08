@@ -62,7 +62,7 @@ private:
 class OutputDropBox {
 public:
 
-  OutputDropBox() : outbuf(100000), nout(0),  ce(0), writing(0) {}
+  OutputDropBox() : outbuf(1000000), nout(0),  ce(0), writing(0) {}
 
   // called by main 
   bool set(std::vector<char> & ibuf, IOSize n) {
@@ -140,8 +140,66 @@ public:
 };
 
 
+class InputDropBox {
+public:
+
+  InputDropBox() : inbuf(1000000), nin(0),  ce(0) {}
+
+  // called by main 
+  IOSize get(std::vector<char> & ibuf) {
+    // wait that thread finish to read before swapping
+    ScopedLock gl(lock);
+    if (nin==0) done.wait(gl);
+
+    IOSize ret = 0;
+    // if error in previous write return....
+    if (ce==0) {
+      inbuf.swap(ibuf);
+      ret = nin;
+    }
+    nin=0;
+    // notify threads buffer is ready
+    doit.notify_all();
+    return ret;
+  } 
+  
+  // called by thread
+  bool read(Storage * os) {
+    ScopedLock gl(lock);
+    // wait if box empty or this thread already consumed...
+    if (nin!=0) doit.wait(gl);
+    bool ret=true;
+    // inbuf empty notify thread to exit....
+    if (inbuf.empty()) ret=false;
+    else
+      try {
+	nin = os->read(&inbuf[0],inbuf.size());
+      } catch(seal::Error & lce) {
+	ce = lce.clone();
+      } 
+    
+    done.notify_all(); 
+    return ret;
+  }
+  
+
+  std::vector<char> inbuf;
+  IOSize nin;
+  // seal::IOBuffer buffer;
+  seal::Error * ce;
+  // swap lock
+  mutable boost::mutex lock;
+  mutable boost::condition doit;
+  mutable boost::condition done;
+};
+
+
+
+
+
 namespace {
 
+  InputDropBox  inbox;
   OutputDropBox dropbox;
 
 
@@ -158,79 +216,96 @@ namespace {
   
   }
 
+  void readThread(void * param) {
+    Storage * os = static_cast<Storage * >(param);
+
+    std::cout << "start reading thread " << std::endl;
+
+    while(inbox.read(os));
+    
+    std::cout << "end reading thread " << std::endl;
+  
+  }
+
+
 }
 
 int main (int argc, char **argv)
 {
   TimeInfo::init ();
 
-    Signal::handleFatal (argv [0]);
-    PluginManager::get ()->initialise ();
-
-    if (argc <3)
+  Signal::handleFatal (argv [0]);
+  PluginManager::get ()->initialise ();
+  
+  if (argc <3)
     {
-	std::cerr << " please give input and output file names" <<std::endl;
-	return EXIT_FAILURE;
-    }
-
-    IOOffset    size = -1;
-    StorageFactory::get ()->enableAccounting(true);
-    bool	exists = StorageFactory::get ()->check(argv [1], &size);
-    std::cerr << "exists = " << exists << ", size = " << size << "\n";
-    if (! exists) return EXIT_SUCCESS;
-
-     boost::shared_ptr<Storage> is;
-
-    try {
-      is.reset(StorageFactory::get ()->open (argv [1]));
-    } catch (...) {
-      std::cerr << "error in opening input file " << argv[1] << std::endl;
+      std::cerr << " please give input and output file names" <<std::endl;
       return EXIT_FAILURE;
     }
-
-
-    boost::thread_group threads;
-
-    // open output files
-    // create thread
-    std::vector<boost::shared_ptr<Storage> > os(argc-2);
-    for (int i=0; i<argc-2;i++)
-      try {
-	os[i].reset(StorageFactory::get ()->open (argv[i+2],
-						  IOFlags::OpenWrite
-						  | IOFlags::OpenCreate
-						  | IOFlags::OpenTruncate)
-		    );
-	threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
-      } catch (...) {
-	std::cerr << "error in opening output file " << argv[i+2] << std::endl;
-	return EXIT_FAILURE;
-      }
-
-
-    
-    std::vector<char> inbuf(100000);
-    std::vector<char> outbuf(100000);
+  
+  boost::thread_group threads;
+  
+  IOOffset    size = -1;
+  StorageFactory::get ()->enableAccounting(true);
+  bool	exists = StorageFactory::get ()->check(argv [1], &size);
+  std::cerr << "exists = " << exists << ", size = " << size << "\n";
+  if (! exists) return EXIT_SUCCESS;
+  
+  boost::shared_ptr<Storage> is;
+  
+  try {
+    is.reset(StorageFactory::get ()->open (argv [1]));
+    threads.create_thread(thread_adapter(&readThread,is.get())); 
+  } catch (...) {
+    std::cerr << "error in opening input file " << argv[1] << std::endl;
+    return EXIT_FAILURE;
+  }
+  
+  
+  
+  // open output files
+  // create thread
+  std::vector<boost::shared_ptr<Storage> > os(argc-2);
+  for (int i=0; i<argc-2;i++)
+    try {
+      os[i].reset(StorageFactory::get ()->open (argv[i+2],
+						IOFlags::OpenWrite
+						| IOFlags::OpenCreate
+						| IOFlags::OpenTruncate)
+		  );
+      threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
+    } catch (...) {
+      std::cerr << "error in opening output file " << argv[i+2] << std::endl;
+      return EXIT_FAILURE;
+    }
+  
+  
+  
+    std::vector<char> inbuf(1000000);
+    std::vector<char> outbuf(1000000);
     IOSize	n;
     
     
-    while ((n = is->read (&inbuf[0], inbuf.size()))) {
+    while ((n = inbox.get(inbuf))) {
+      //free reading thread
+      inbuf.swap(outbuf);
       // wait threads have finished to write
-      // swap buffers.
-      //      inbuf.swap(outbuf);
       // drop buffer in thread
-      if (!dropbox.set(inbuf,n)) break;
+      if (!dropbox.set(outbuf,n)) break;
     }
     
     std::cout << "main end reading" << std::endl;
-
+    
     // tell thread to end
     // dropbox.wait();
-    dropbox.set(inbuf, 0);
+    inbuf.clear();
+    inbox.get(inbuf);
+    dropbox.set(outbuf, 0);
     
     threads.join_all();
-
+    
     
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
     return EXIT_SUCCESS;
 }
+
