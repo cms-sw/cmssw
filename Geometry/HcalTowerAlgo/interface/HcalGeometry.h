@@ -16,6 +16,10 @@ public:
   virtual const DetId getClosestCell(const GlobalPoint& r) const ;
 
 private:
+  /// helper methods for getClosestCell
+  int etaRing(HcalSubdetector bc, double abseta) const;
+  int phiBin(double phi, int etaring) const;
+
   const HcalTopology * theTopology;
   mutable DetId::Detector lastReqDet_;
   mutable int lastReqSubdet_;

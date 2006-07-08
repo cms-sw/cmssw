@@ -57,58 +57,78 @@ const DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
   }
 
   // find eta bin
-  int etabin;
-  if( bc == HcalForward ) {
-    for(etabin = theTopology->firstHFRing(); 
-        etabin <= theTopology->lastHFRing(); ++etabin)
-    {
-      if(theHFEtaBounds[etabin-theTopology->firstHFRing()+1] > abseta) break;
-    }
-  }
-  else 
-  {
-    for(etabin = 1;
-        etabin <= theTopology->lastHERing(); ++etabin)
-    {
-      if(theHBHEEtaBounds[etabin] > abseta) break;
-    }
-  }
+  int etaring = etaRing(bc, abseta);
   
-  
-  //Now to do phi
-  double pointphi=r.phi();
-  double twopi = M_PI+M_PI;
-  //put phi in correct range (0->2pi)
-  if(pointphi<0.0)pointphi += twopi;
-  int nphibins = theTopology->nPhiBins(etabin);
-  int phibin= static_cast<int>(pointphi/twopi*nphibins)+1;
-  // convert to the convention of numbering 1,3,5, in 36 phi bins
-  // and 1,5,9 in 18 phi bins
-  phibin = (phibin-1)*(72/nphibins) + 1;
+  int phibin = phiBin(r.phi(), etaring);
+
+  // add a sign to the etaring
+  int etabin = (r.z() > 0) ? etaring : -etaring;
 
   //Now do depth if required
   int dbin = 1;
-/*
-  if( depth ) {
-    double pointradius=point.mag();
-    double dradius=99999.;
-    int depthmax = geometry->hcalDepth[bc-3];
-    for(int d=1; d<=depthmax; d++) 
-      {
-        HcalDetId id(bc,etabin,phibin, d);
-        const CaloCellGeometry * cell = getGeometry(id);
-        double radius=position(properties,0.0).mag();
-        if(fabs(pointradius-radius)<dradius) 
-          {
-            dradius=fabs(pointradius-radius);
-            dbin=d;
-          }
-      } // loop over all depths
+  double pointradius=r.mag();
+  double dradius=99999.;
+  HcalDetId currentId(bc, etabin, phibin, dbin);
+  HcalDetId bestId;
+  for(  ; currentId != HcalDetId(); theTopology->incrementDepth(currentId))
+  {    
+    const CaloCellGeometry * cell = getGeometry(currentId);
+    assert(cell != 0);
+    double radius=cell->getPosition().mag();
+    if(fabs(pointradius-radius)<dradius) 
+    {
+      bestId = currentId;
+      dradius=fabs(pointradius-radius);
+    }
   }
-*/
 
-  // add a sign to the etabin
-  if(r.z() < 0) etabin *= -1;
-  return HcalDetId(bc, etabin, phibin, dbin);
+  return bestId;
+}
+
+
+int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const
+{
+  int etaring;
+  if( bc == HcalForward ) {
+    for(etaring = theTopology->firstHFRing();
+        etaring <= theTopology->lastHFRing(); ++etaring)
+    {
+      if(theHFEtaBounds[etaring-theTopology->firstHFRing()+1] > abseta) break;
+    }
+  }
+  else
+  {
+    for(etaring = 1;
+        etaring <= theTopology->lastHERing(); ++etaring)
+    {
+      if(theHBHEEtaBounds[etaring] > abseta) break;
+    }
+  }
+
+  return etaring;
+}
+
+
+int HcalGeometry::phiBin(double phi, int etaring) const
+{
+  double twopi = M_PI+M_PI;
+  //put phi in correct range (0->2pi)
+  if(phi<0.0) phi += twopi;
+  int nphibins = theTopology->nPhiBins(etaring);
+  int phibin= static_cast<int>(phi/twopi*nphibins)+1;
+
+  // rings 40 and 41 are offset wrt the other phi numbering
+  //  1        1         1         2
+  //  ------------------------------
+  //  72       36        36        1
+  if(etaring >= theTopology->firstHFQuadPhiRing())
+  {
+    ++phibin;
+    if(phibin > nphibins) phibin -= nphibins;
+  }
+
+  // convert to the convention of numbering 1,3,5, in 36 phi bins
+  // and 1,5,9 in 18 phi bins
+  return (phibin-1)*(72/nphibins) + 1;
 }
 
