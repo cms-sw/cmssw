@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/07 18:39:22 $
- * $Revision: 1.110 $
+ * $Date: 2006/07/08 09:28:15 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -299,7 +299,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   }
 
   if ( ievt_ == 1 ) {
-    LogInfo("EcalBarrelMonitor") << "processing run: " << irun_;
+    LogInfo("EcalBarrelMonitor") << "processing run " << irun_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
