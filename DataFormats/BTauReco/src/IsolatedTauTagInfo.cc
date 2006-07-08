@@ -87,13 +87,15 @@ const  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_
 
 double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const
 {
-  double myDiscriminator = 0;
-
-const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
+  double myDiscriminator = 0.;
+  const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
 
   if(!leadTk) {
     return myDiscriminator;
   }
+  //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
+  if(sig_cone > iso_cone) return 1.;
+
   math::XYZVector trackMomentum = leadTk->momentum() ;
 const  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
 const RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone , pt_min_tk); 
@@ -106,9 +108,14 @@ const RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, is
 double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0;
+  //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
+  if(sig_cone > iso_cone) return 1.;
 
 const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   if(!leadTk) return myDiscriminator;
+
+  //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
+  if(sig_cone > iso_cone) return 1.;
 
   math::XYZVector trackMomentum = leadTk->momentum() ;
 const   RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk);
@@ -129,6 +136,9 @@ const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
   if(!leadTk) {
     return myDiscriminator;
   }
+  //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
+  if(sig_cone > iso_cone) return 1.;
+
   math::XYZVector trackMomentum = leadTk->momentum() ;
   float z_pv = leadTk->dz();
 const  RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone , pt_min_tk, z_pv, dz_lt);
@@ -145,6 +155,8 @@ double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone,
 
 const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   if(!leadTk) return myDiscriminator;
+  //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
+  if(sig_cone > iso_cone) return 1.;
 
   math::XYZVector trackMomentum = leadTk->momentum() ;
   float z_pv = leadTk->dz();
