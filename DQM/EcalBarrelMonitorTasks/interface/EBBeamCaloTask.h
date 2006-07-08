@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/06/27 08:40:58 $
- * $Revision: 1.8 $
+ * $Date: 2006/07/04 18:48:17 $
+ * $Revision: 1.9 $
  * \author A. Ghezzi
  *
 */
@@ -81,13 +81,13 @@ MonitorElement* meBBCaloPulseProfG12_[cryInArray_];
 MonitorElement* meBBCaloGains_[cryInArray_];
 MonitorElement* meBBCaloEne_[cryInArray_];
 
-MonitorElement* meBBCaloPulseProfMoving_[cryInArray_];
-MonitorElement* meBBCaloPulseProfG12Moving_[cryInArray_];
-MonitorElement* meBBCaloGainsMoving_[cryInArray_];
-MonitorElement* meBBCaloEneMoving_[cryInArray_];
+//MonitorElement* meBBCaloPulseProfMoving_[cryInArray_];
+//MonitorElement* meBBCaloPulseProfG12Moving_[cryInArray_];
+//MonitorElement* meBBCaloGainsMoving_[cryInArray_];
+//MonitorElement* meBBCaloEneMoving_[cryInArray_];
 
 MonitorElement* meBBCaloCryRead_;
-MonitorElement* meBBCaloCryReadMoving_;
+//MonitorElement* meBBCaloCryReadMoving_;
 
 MonitorElement* meBBCaloAllNeededCry_;
 MonitorElement* meBBNumCaloCryRead_;
