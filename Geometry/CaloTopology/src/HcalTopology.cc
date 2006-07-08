@@ -111,8 +111,13 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const
 
 std::vector<DetId> HcalTopology::up(const DetId& id) const
 {
-  std::cout << "HcalTopology::up() not yet implemented" << std::endl; 
+  HcalDetId neighbor = id;
+  incrementDepth(neighbor);
   std::vector<DetId> vNeighborsDetId;
+  if(incrementDepth(neighbor)) 
+  {
+    vNeighborsDetId.push_back(neighbor);
+  }
   return  vNeighborsDetId;
 }
 
@@ -347,7 +352,11 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
     } else if (etaRing==17) {
       nDepthBins = 1;
       startingBin = 1;
-    } else {
+    } else if (etaRing==lastHERing()) {
+      nDepthBins = 2;
+      startingBin = 1;
+    }
+    else {
       nDepthBins = (etaRing >= firstHETripleDepthRing_) ? 3 : 2;
       startingBin = 1;
     }
@@ -366,6 +375,56 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
   else {
     std::cerr << "Bad HCAL subdetector " << subdet << std::endl;
   }
+}
+
+
+bool HcalTopology::incrementDepth(HcalDetId & detId) const
+{
+  HcalSubdetector subdet = detId.subdet();
+  int ieta = detId.ieta();
+  int etaRing = detId.ietaAbs();
+  int depth = detId.depth();
+  int nDepthBins, startingBin;
+  depthBinInformation(subdet, etaRing, nDepthBins, startingBin);
+
+  // see if the new depth bin exists
+  ++depth;
+  if(depth > nDepthBins)
+  {
+    // handle on a case-by-case basis
+    if(subdet == HcalBarrel && etaRing < lastHORing())
+    {
+      // HO
+      subdet = HcalOuter;
+      depth = 4;
+    }
+    else if(subdet == HcalBarrel && etaRing == lastHBRing())
+    {
+      // overlap
+      subdet = HcalEndcap;
+    }
+    else if(subdet == HcalEndcap && etaRing ==  lastHERing()-1)
+    {
+      // guard ring HF29 is behind HE 28
+      subdet = HcalForward;
+      (ieta > 0) ? ++ieta : --ieta;
+      depth = 1;
+    }
+    else if(subdet == HcalEndcap && etaRing ==  lastHERing())
+    {
+      // split cells go to bigger granularity.  Ring 29 -> 28
+      (ieta > 0) ? --ieta : ++ieta;
+    }
+    else 
+    {
+      // no more chances
+      detId = HcalDetId();
+      return false;
+    }
+  }
+  detId = HcalDetId(subdet, ieta, detId.iphi(), depth);
+  assert(validRaw(detId));
+  return true;
 }
 
 
