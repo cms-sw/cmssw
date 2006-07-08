@@ -344,29 +344,30 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   bool tb_moving = false;//just for test, to be filled with info from the event
   bool skip_this_event = false;
 
-  if(ievt_ > 500){tb_moving=true; }
-  if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
-  if(ievt_ > 2000){tb_moving=true; }
-  if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
-  if(ievt_ > 3500){tb_moving=true; }
+//  if(ievt_ > 500){tb_moving=true; }
+//   if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
+//   if(ievt_ > 2000){tb_moving=true; }
+//   if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
+//   if(ievt_ > 3500){tb_moving=true; }
 
-  if(ievt_ > 3300){tb_moving=true; }
-  if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
-  if(ievt_ == 6201){tb_moving=true; }
-  if(ievt_ > 9000){tb_moving=true; }
-  if(ievt_ == 11021){tb_moving=false; }
-  if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
-  if(ievt_ > 15320){tb_moving=true; }
-  if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
+//   if(ievt_ > 3300){tb_moving=true; }
+//   if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
+//   if(ievt_ == 6201){tb_moving=true; }
+//   if(ievt_ > 9000){tb_moving=true; }
+//   if(ievt_ == 11021){tb_moving=false; }
+//   if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
+//   if(ievt_ > 15320){tb_moving=true; }
+//   if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
 
- //  if(ievt_ > 20){tb_moving=true; }
-//   if(ievt_ > 40){tb_moving=false; cry_in_beam = 705;}
-//   if(ievt_ == 23){tb_moving=true; }
-//   if(ievt_ > 90 ){tb_moving=true; }
-//   if(ievt_ == 65){tb_moving=false; }
-//   if(ievt_ > 110){tb_moving=false; cry_in_beam = 706;}
-//   if(ievt_ > 115){tb_moving=true; }
-//   if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
+  if(ievt_ > 20){tb_moving=true; }
+  if(ievt_ > 40){tb_moving=false; cry_in_beam = 705;}
+  if(ievt_ == 23){tb_moving=true; }
+  if(ievt_ > 90 ){tb_moving=true; }
+  if(ievt_ == 65){tb_moving=false; }
+  if(ievt_ > 110){tb_moving=false; cry_in_beam = 706;}
+  if(ievt_ > 115){tb_moving=true; }
+  if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
+
 
   //if(tb_moving) {CrystalInBeam_vs_Event_->Fill(ievt_,-100.);}
   //else{CrystalInBeam_vs_Event_->Fill(ievt_,float(cry_in_beam));}
