@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="CommonMETData"/>
-  <class name="std::vector<CommonMETData>"/> 
+
+  <class name="CorrMETData"/> 
+  <class name="std::vector<CorrMETData>"/> 
 
   <class name="SpecificCaloMETData"/>
 
@@ -13,6 +14,5 @@
   <class name="edm::Wrapper<reco::CaloMET>" id="582C0980-95EA-4E04-B604-684A3BDFA20B"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
-
 
 </lcgdict>

@@ -1,8 +1,16 @@
+<use name=clhep>
+<use name=DataFormats/Math>
 <use name=DataFormats/Common>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/RecoCandidate>
 <use name=rootcore>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsMETReco>
+ <use name=clhep>
+ <use name=DataFormats/Math>
  <use name=DataFormats/Common>
+ <use name=DataFormats/CaloTowers>
+ <use name=DataFormats/RecoCandidate>
  <use name=rootcore>
 </export>

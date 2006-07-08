@@ -13,7 +13,9 @@
  ************************************************************/
 
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
+#include "DataFormats/METReco/interface/CorrMETData.h"
 #include <Rtypes.h>
 #include <cmath>
 #include <vector>
@@ -21,35 +23,27 @@
 
 namespace reco
 {
-  class MET 
+  class MET : public RecoCandidate
     {
     public:
       //Define different Constructors
       MET();
-      MET( double mex, double mey );
-      MET( double mex, double mey, double sumet );
-      MET( double mex, double mey, double sumet, double mez );
-      MET( CommonMETData data_ );
-      MET( CommonMETData data_, std::vector<CommonMETData> corr_ );
+      MET(                                                const LorentzVector& p4_, const Point& vtx_ );
+      MET( double sumet_,                                 const LorentzVector& p4_, const Point& vtx_ );
+      MET( double sumet_, std::vector<CorrMETData> corr_, const LorentzVector& p4_, const Point& vtx_ );
       //Define different methods to extract individual MET data elements
-      double mEt()   const { return data.met; }
-      double mEx()   const { return data.mex; }
-      double mEy()   const { return data.mey; }
-      double mEz()   const { return data.mez; }
-      double sumEt() const { return data.sumet; }
-      double phi()   const { return data.phi; }
+      double sumEt() const { return sumet; }
       //Define different methods to extract corrections to individual MET elements
-      std::vector<double> dmEt();
       std::vector<double> dmEx();
       std::vector<double> dmEy();
       std::vector<double> dsumEt();
-      std::vector<double> dphi();
       //Define different methods to extract MET block data & corrections
-      CommonMETData mEtData() const { return data; }
-      std::vector<CommonMETData> mEtCorr() const { return corr; }
+      std::vector<CorrMETData> mEtCorr() const { return corr; }
     private:
-      CommonMETData data;
-      std::vector<CommonMETData> corr;
+      virtual bool overlap( const Candidate & ) const;
+      double sumet;
+      //CommonMETData data;
+      std::vector<CorrMETData> corr;
     };
 }
 

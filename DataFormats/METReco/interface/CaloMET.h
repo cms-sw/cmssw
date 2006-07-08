@@ -9,7 +9,7 @@
  * Provide energy contributions from different subdetectors
  * in addition to generic MET parameters
  *
- * \author    R. Cavanaugh, UFL
+ * \author    R. Cavanaugh, UFL (inspiration taken from F. Ratnikov)
  *
  ************************************************************/
 
@@ -26,8 +26,8 @@ namespace reco
     public:
       /* Constructors*/
       CaloMET() {}
-      //CaloMET( SpecificCaloMETData calo_data_ );
-      CaloMET( SpecificCaloMETData calo_data_, CommonMETData data_ ) : MET( data_ ), calo_data( calo_data_ ) {}
+      CaloMET( SpecificCaloMETData calo_data_, double sumet_, const LorentzVector& fP4, const Point& fVertex ) 
+	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/
       virtual ~CaloMET() {}
       
@@ -58,6 +58,7 @@ namespace reco
       //const Specific& getSpecific () const {return calo_data;}
       
     private:
+      virtual bool overlap( const Candidate & ) const;
       // Data members
       //Variables specific to to the CaloMET class
       SpecificCaloMETData calo_data;
