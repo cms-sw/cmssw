@@ -4,7 +4,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include <memory>
 
 #include <fstream> //used for debugging
@@ -237,8 +236,7 @@ EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
 					  int& binOfMax) const{
   bool rc;
   const edm::Provenance p=evt.getProvenance(noZsDigiId);
-  edm::ParameterSet result;
-  edm::pset::Registry::instance()->getParameterSet(p.psetID(), result);
+  edm::ParameterSet result = getParameterSet(p.psetID());
   vector<string> ebDigiParamList = result.getParameterNames();
   string bofm("binOfMaximum");
   if(find(ebDigiParamList.begin(), ebDigiParamList.end(), bofm)
