@@ -4,13 +4,14 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/06/26 23:56:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/04 21:23:59 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu - Purdue University
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonReconstructionEnumerators.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,11 +27,12 @@ class GlobalMuonReFitter;
 class TrajectoryFitter;
 class Propagator;
 class Trajectory;
-class TrackerGeometry;
+class GlobalTrackingGeometry;
 class TrajectoryStateOnSurface;
 class TransientTrackingRecHit;
 class TransientTrackingRecHitBuilder;
 class MagneticField;
+class MuonDetLayerGeometry;
 
 namespace edm {class ParameterSet;}
 
@@ -41,9 +43,7 @@ public:
   typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
   typedef std::vector<Trajectory> TC;
   typedef TC::const_iterator TI;
-  typedef std::pair<Trajectory, reco::TrackRef*> TrajWithTkLabel;
-  typedef std::vector<TrajWithTkLabel> TTC;
-
+  typedef std::pair<Trajectory, reco::TrackRef*> MuonCandidate;
  
   /// constructor
   GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par);
@@ -67,7 +67,7 @@ public:
 
     /// choose a set of Track that match given standalone Track
     void chooseTrackerTracks(const reco::TrackRef* staTrack,
-                             const reco::TrackCollection&) const;
+                             reco::TrackCollection&) const;
  
     /// get silicon tracker Trajectories from track Track and Seed directly
     TC getTrackerTraj(const reco::TrackRef*) const;
@@ -83,14 +83,11 @@ public:
     TC getTrackerTrajs(const reco::TrackRef&, int&, int&, int&, int&) const;
 
    void setES(const edm::EventSetup& setup,
-              edm::ESHandle<TrackerGeometry>& theG,
-              edm::ESHandle<MagneticField>& theMF,
               edm::ESHandle<TrajectoryFitter>& theFitter,
-              edm::ESHandle<Propagator>& thePropagator,
-              edm::ESHandle<TransientTrackingRecHitBuilder>& theBuilder);
+              edm::ESHandle<Propagator>& thePropagator);
 
     /// check muon RecHits
-    void checkMuonHits(const reco::TrackRef&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
+    void checkMuonHits(const reco::Track&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
 
     /// select muon RecHits
     RecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
@@ -106,6 +103,9 @@ public:
 
     /// print all RecHits of a trajectory
     void printHits(const RecHitContainer&) const;
+ 
+    /// get TransientTrackingRecHits from Track
+    RecHitContainer getTransientHits(const reco::Track&) const;
 
 
  private:
@@ -124,6 +124,11 @@ public:
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     std::vector<reco::TrackRef*> theTkTrackRef; 
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+    edm::ESHandle<MagneticField> theField;
+    edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTransientHitBuilder;
+
 
 };
 #endif
