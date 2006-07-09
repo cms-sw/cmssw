@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/06/14 17:53:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/06 08:18:27 $
+ *  $Revision: 1.8 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -74,6 +74,10 @@ class MuonDetLayerMeasurements {
 
   /// returns the rechits which are onto the layer
   RecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
+
+  /// returns the rechits which are onto the layer
+  RecHitContainer recHits(const DetLayer* layer) const;
+
 
  private:
 

@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/04 09:06:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/06 08:18:28 $
+ *  $Revision: 1.12 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -96,6 +96,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
   }
   return muonRecHits;
 }
+
 
 MeasurementContainer
 MuonDetLayerMeasurements::measurements( const DetLayer* layer,
@@ -214,3 +215,11 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
   }
   return rhs;
 }
+
+RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer) const
+{
+  RecHitContainer result;
+  if (theEventFlag) return recHits(layer, *theEvent);
+  else return result;
+}
+
