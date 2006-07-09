@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/06/23 17:29:58 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/27 16:29:28 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -55,7 +55,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
 
   gainConv_[0] = 0.;
   gainConv_[1] = 1.;
-  gainConv_[2] = 6.;
+  gainConv_[2] = 2.;
   gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;

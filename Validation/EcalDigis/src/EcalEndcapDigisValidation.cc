@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/06/20 16:26:00 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/23 17:29:58 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
@@ -40,7 +40,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
 
   gainConv_[0] = 0.;
   gainConv_[1] = 1.;
-  gainConv_[2] = 6.;
+  gainConv_[2] = 2.;
   gainConv_[3] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
