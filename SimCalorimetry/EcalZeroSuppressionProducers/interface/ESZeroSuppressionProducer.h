@@ -13,6 +13,7 @@ using namespace std;
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Provenance.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
 
@@ -28,7 +29,12 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   
   
  private:
-  
+
+  void checkGeometry(const edm::EventSetup & eventSetup);
+  void updateGeometry();
+ 
+  const CaloGeometry * theGeometry;
+
   std::string digiProducer_;
   std::string ESdigiCollection_;
   std::string ESZSdigiCollection_;

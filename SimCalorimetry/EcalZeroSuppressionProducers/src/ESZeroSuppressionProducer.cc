@@ -1,4 +1,5 @@
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/ESZeroSuppressionProducer.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps) 
 {
@@ -11,7 +12,13 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
   ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
   ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 78.47);
   ESNoiseSigma = ps.getUntrackedParameter<double>("ESNoiseSigma", 3);
-  ESThreshold = 1.45*ESNoiseSigma*ESMIPkeV/ESMIPADC;
+
+  if (ESGain == 0)
+    ESThreshold = 3.*1.45*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
+  else if (ESGain == 1)
+    ESThreshold = 3.*0.8675*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
+  else if (ESGain == 2)
+    ESThreshold = 3.*0.8528*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
@@ -24,6 +31,8 @@ ESZeroSuppressionProducer::~ESZeroSuppressionProducer()
 
 void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
 {
+  checkGeometry(eventSetup);
+
   edm::Handle<ESDigiCollection> ESDigis;
 
   bool fullESDigis = true;
@@ -39,13 +48,32 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
 
   if (fullESDigis) {
     ESDigiCollection::const_iterator i;
-    for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {
-      
+    for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {            
       if (algo_->EvalAmplitude(*i) > ESThreshold) (*ESZSDigis).push_back(*i);
-
     }
-  }   
-  
+  }     
+
   event.put(ESZSDigis, ESZSdigiCollection_);  
 }
+
+void ESZeroSuppressionProducer::checkGeometry(const edm::EventSetup & eventSetup)
+{
+  // TODO find a way to avoid doing this every event
+  edm::ESHandle<CaloGeometry> hGeometry;
+  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
+   
+  const CaloGeometry *pGeometry = &*hGeometry;
+   
+  // see if we need to update
+  if(pGeometry != theGeometry) {
+    theGeometry = pGeometry;
+    updateGeometry();
+  }
+}
+ 
+void ESZeroSuppressionProducer::updateGeometry()
+{
+  algo_->setGeometry(theGeometry);
+}
+
 
