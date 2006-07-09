@@ -15,9 +15,6 @@
   <class name="std::vector<FedChannelConnection>"/>
   <class name="std::vector< std::vector<FedChannelConnection> >"/>
 
-  <class pattern="*pair*"/>
-  <class pattern="*vector*"/>
-  <class pattern="*map*"/>
   <class pattern="*iterator*"/>
 
 </lcgdict>   
