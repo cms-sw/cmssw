@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <limits>
+#include <cmath>
 
 using namespace boost;
 using namespace std;
@@ -45,6 +46,8 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
                      params.getParameter<double>("srpEndcapHighInterestChannelZS")
 		     );
   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassWithPeakFinder_
+    = params.getParameter<bool>("trigPrimBypassWithPeakFinder");
   trigPrimBypassLTH_ = params.getParameter<double>("trigPrimBypassLTH");
   trigPrimBypassHTH_ = params.getParameter<double>("trigPrimBypassHTH");
   if(trigPrimBypass_){
@@ -120,14 +123,20 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
     throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
   }
   
-  int thr = (int)(threshold * eGeV2ADC * 4. + .5);
-  // //treating over- and underflows, threshold is coded on 11+1 signed bits
-  //   if(thr>0x7FF){
-  //     thr = 0x7FF;
-  //   }
-  //   if(thr<-0x7FF){
-  //     thr = -0x7FF;
-  //   }
+  double thr_ = lround(threshold * eGeV2ADC * 4.);
+  //treating over- and underflows, threshold is coded on 11+1 signed bits
+  //an underflow threshold is considered here as if NoRO DCC switch is on
+  //an overflow threshold is considered here as if ForcedRO DCC switch in on
+  //Beware that conparison must be done on a double type, because conversion
+  //cast to an int of a double higher than MAX_INT is undefined.
+  int thr;
+  if(thr_>0x7FF){
+    thr = numeric_limits<int>::max();
+  } else if(thr_<-0x7FF){
+    thr = -numeric_limits<int>::min();
+  } else{
+    thr = (int) thr_;
+  }
   
 
   //FIR filter weights:
@@ -143,7 +152,7 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
     if(i>=0 && i < frame.size()){
       const EcalMGPASample& sample = frame[i];
       if(sample.gainId()!=gain12) gain12saturated = true;
-      LogDebug("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
+      LogTrace("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
 			  << "*(" << w[i] << ")";
       acc+=sample.adc()*w[i];
     } else{
@@ -152,7 +161,7 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 	"parameter is not valid...";
     }
   }
-  //cout << "\n";
+  LogTrace("DccFir") << "\n";
   //discards the 8 LSBs
   //(shift operator cannot be used on negative numbers because
   // the result depends on compilator implementation)
@@ -160,15 +169,15 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   //ZS passed if weigthed sum acc above ZS threshold or if
   //one sample has a lower gain than gain 12 (that is gain 12 output
   //is saturated)
+
+  const bool result = acc>=thr || gain12saturated;
   
-  LogDebug("DccFir") << __FILE__ << ":" << __LINE__ << ": "
-		     << "acc: " << acc << "\n"
-		     << "threshold: " << thr << "GeV ("
-		     << threshold << "GeV)\n"
-		     << "saturated: "
-		     << (gain12saturated?"yes":"no") << "\n";
+  LogTrace("DccFir") << "acc: " << acc << "\n"
+		     << "threshold: " << thr << " (" << threshold << "GeV)\n"
+		     << "saturated: " << (gain12saturated?"yes":"no") << "\n"
+		     << "ZS passed: " << (result?"yes":"no") << "\n";
   
-  return (acc>=thr || gain12saturated);
+  return result;
 }
 
 void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,   
@@ -340,7 +349,7 @@ vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths(){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
     for(unsigned i=0; i < min((unsigned)nFIRTaps,weights.size()); ++i){ 
-      firWeights[i] = (int)(weights[i] * (1<<10) + 0.5);
+      firWeights[i] = lround(weights[i] * (1<<10));
       if(abs(firWeights[i])>maxWeight){//overflow
 	firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
       }
@@ -381,7 +390,11 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
     const int iTTEta0 = iTTEta2cIndex(ttId.ieta());
     const int iTTPhi0 = iTTPhi2cIndex(ttId.iphi());
     double theta = ebGeometry->getGeometry(frame.id())->getPosition().theta();
-    trigPrim[iTTEta0][iTTPhi0] += frame2Energy(frame)*sin(theta);    
+    double e = frame2Energy(frame);
+    if(!trigPrimBypassWithPeakFinder_
+       || ((frame2Energy(frame,-1) < e) && (frame2Energy(frame, 1) < e))){
+      trigPrim[iTTEta0][iTTPhi0] += e*sin(theta);
+    }
   }
 
   for(EEDigiCollection::const_iterator it = eeDigis.begin();
@@ -395,7 +408,11 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 // 	 << "," << ((EEDetId&)frame.id()).iy()
 // 	 << " -> " << ttId.ieta() << "," << ttId.iphi() << "\n";
     double theta = eeGeometry->getGeometry(frame.id())->getPosition().theta();
-    trigPrim[iTTEta0][iTTPhi0] += frame2Energy(frame)*sin(theta);
+    double e = frame2Energy(frame);
+    if(!trigPrimBypassWithPeakFinder_
+       || ((frame2Energy(frame,-1) < e) && (frame2Energy(frame, 1) < e))){
+      trigPrim[iTTEta0][iTTPhi0] += e*sin(theta);
+    }
   }
 
   //dealing with pseudo-TT in two inner EE eta-ring:
@@ -447,8 +464,11 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 }
 
 template<class T>
-double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame) const{
-  double weights[] = {-1/3., -1/3., -1/3., 0., 0., 1.};   
+double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame,
+						    int offset) const{
+  //we have to start by 0 in order to handle offset=-1
+  //(however Fenix FIR has AFAK only 5 taps)
+  double weights[] = {0., -1/3., -1/3., -1/3., 0., 1.};   
 
   double adc2GeV = 0.;
   if(typeid(frame) == typeid(EBDataFrame)){
@@ -466,11 +486,20 @@ double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame) const{
 
   const int n = min<int>(frame.size(), sizeof(weights)/sizeof(weights[0]));
 
-  double gainInv[] = {12., 6., 1.};  
-  
-  for(int i=0; i < n; ++i){
-    acc += weights[i]*frame[i].adc()*gainInv[frame[i].gainId()]*adc2GeV;
-  }
+  double gainInv[] = {0., 1., 6., 12}; //first elt not used.
 
+
+  //cout << __PRETTY_FUNCTION__ << ": ";
+  for(int i=offset; i < n; ++i){
+    int iframe = i + offset;
+    if(iframe>=0 && iframe<frame.size()){
+      acc += weights[i]*frame[iframe].adc()
+	*gainInv[frame[iframe].gainId()]*adc2GeV;
+      //cout << (iframe>offset?"+":"")
+      //     << frame[iframe].adc() << "*" << gainInv[frame[iframe].gainId()]
+      //     << "*" << adc2GeV << "*(" << weights[i] << ")";
+    }
+  }
+  //cout << "\n";
   return acc;
 }

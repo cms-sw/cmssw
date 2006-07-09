@@ -138,7 +138,7 @@ public:
   void setTtFlags(const EcalTrigPrimDigiCollection & trigPrims);
 
   template<class T>
-  double frame2Energy(const T& frame) const;
+  double frame2Energy(const T& frame, int timeOffset = 0) const;
 
   
   /** Number of endcap, obviously two.
@@ -211,6 +211,12 @@ public:
    */
   bool trigPrimBypass_;
 
+
+  /** When in trigger primitive simulation module bypass debug mode,
+   * switch to enable Peak finder effect simulation
+   */
+  bool trigPrimBypassWithPeakFinder_; 
+  
   /** Low TT Et threshold for trigger primitive simulation module bypass
    * debug mode.
    */
