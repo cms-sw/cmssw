@@ -90,6 +90,11 @@ private:
   edm::ParameterSet params_;
 
   bool trigPrimBypass_;
+
+  /** Number of event whose TT and SR flags must be dumped into a file.
+   */
+  int dumpFlags_;
+
 };
 
 #endif 

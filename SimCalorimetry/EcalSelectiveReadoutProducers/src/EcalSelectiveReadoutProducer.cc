@@ -10,8 +10,6 @@
 
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
-//#define DEBUG_SRP
-
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
@@ -25,6 +23,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+   dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
 
@@ -51,13 +50,15 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   const EcalTrigPrimDigiCollection* trigPrims =
     trigPrimBypass_?&emptyTPColl:getTrigPrims(event);
 
-#ifdef DEBUG_SRP
+
   static int iEvent = 0;
   stringstream buffer;
-  buffer << "TTFMap_" << event.id(); //iEvent;
-  ofstream ttfFile(buffer.str().c_str());
-  printTTFlags(*trigPrims, ttfFile);
-#endif //DEBUG_SRP defined
+  
+  if(dumpFlags_>iEvent){
+    buffer << "TTFMap_" << event.id(); //iEvent;
+    ofstream ttfFile(buffer.str().c_str());
+    printTTFlags(*trigPrims, ttfFile);
+  }
   
   //gets the digis from the events:
   const EBDigiCollection* ebDigis = getEBDigis(event);
@@ -70,14 +71,15 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
 		   *selectedEBDigi, *selectedEEDigi);
   
-#ifdef DEBUG_SRP
-  buffer.str("");
-  buffer << "SRFMap_" << event.id();//iEvent;
-  ofstream srfFile(buffer.str().c_str());
-  suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
-  suppressor_->getEcalSelectiveReadout()->print(srfFile);
+  if(dumpFlags_>iEvent){
+    buffer.str("");
+    buffer << "SRFMap_" << event.id();//iEvent;
+    ofstream srfFile(buffer.str().c_str());
+    suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+    suppressor_->getEcalSelectiveReadout()->print(srfFile);
+  }
+  
   ++iEvent; //event counter
-#endif //DEBUG_SRP defined
   
   //puts the selected digis into the event:
   event.put(selectedEBDigi, ebSRPdigiCollection_);
