@@ -1,0 +1,11 @@
+<use name=clhep>
+<use name=FastSimulation/Event>
+<use name=Geometry/CaloGeometry>
+<use name=DataFormats/EcalDetId>
+
+<export>
+ <lib name=FastSimulationCalorimeterProperties>
+ <use name=FastSimulation/Event>
+ <use name=Geometry/CaloGeometry>	
+ <use name=DataFormats/EcalDetId> 	
+</export>
