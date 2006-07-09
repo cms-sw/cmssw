@@ -16,16 +16,16 @@ ESDetId EcalPreshowerTopology::incrementIy(const ESDetId& id) const {
 	{
 	  if (id.strip() < 32 )
 	    //Incrementing just strip number
-	    nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.plane(),id.zside());
 	  else
 	    //Changing wafer
-	    nextPoint=ESDetId(1,id.six(),id.siy()+1,id.zside(),id.plane());
+	    nextPoint=ESDetId(1,id.six(),id.siy()+1,id.plane(),id.zside());
 	}
       //Strips orientend along y direction for plane 1
       else if (id.plane() == 1)
 	{
 	  //Changing wafer
-	  nextPoint=ESDetId(id.strip(),id.six(),id.siy()+1,id.zside(),id.plane());
+	  nextPoint=ESDetId(id.strip(),id.six(),id.siy()+1,id.plane(),id.zside());
 	}
       else
 	return ESDetId(0);
@@ -56,16 +56,16 @@ ESDetId EcalPreshowerTopology::decrementIy(const ESDetId& id) const {
 	{
 	  if (id.strip() >1 )
 	    //Decrementing just strip number
-	    nextPoint=ESDetId(id.strip()-1,id.six(),id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(id.strip()-1,id.six(),id.siy(),id.plane(),id.zside());
 	  else
 	    //Changing wafer
-	    nextPoint=ESDetId(32,id.six(),id.siy()-1,id.zside(),id.plane());
+	    nextPoint=ESDetId(32,id.six(),id.siy()-1,id.plane(),id.zside());
 	}
       //Strips orientend along y direction for plane 1
       else if (id.plane() == 1)
 	{
 	  //Changing wafer
-	  nextPoint=ESDetId(id.strip(),id.six(),id.siy()-1,id.zside(),id.plane());
+	  nextPoint=ESDetId(id.strip(),id.six(),id.siy()-1,id.plane(),id.zside());
 	}
       else
 	return ESDetId(0);
@@ -94,17 +94,17 @@ ESDetId EcalPreshowerTopology::incrementIx(const ESDetId& id) const {
       if (id.plane() == 2)
 	{
 	  //Changing wafer
-	  nextPoint=ESDetId(id.strip(),id.six()+1,id.siy(),id.zside(),id.plane());
+	  nextPoint=ESDetId(id.strip(),id.six()+1,id.siy(),id.plane(),id.zside());
 	}
       //Strips orientend along y direction for plane 1
       else if (id.plane() == 1)
 	{
 	  if (id.strip() < 32 )
 	    //Incrementing just strip number
-	    nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.plane(),id.zside());
 	  else
 	    //Changing wafer
-	    nextPoint=ESDetId(1,id.six()+1,id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(1,id.six()+1,id.siy(),id.plane(),id.zside());
 	}
       else
 	return ESDetId(0);
@@ -132,17 +132,17 @@ ESDetId EcalPreshowerTopology::decrementIx(const ESDetId& id) const {
       if (id.plane() == 2)
 	{
 	  //Changing wafer
-	  nextPoint=ESDetId(id.strip(),id.six()-1,id.siy(),id.zside(),id.plane());
+	  nextPoint=ESDetId(id.strip(),id.six()-1,id.siy(),id.plane(),id.zside());
 	}
       //Strips orientend along y direction for plane 1
       else if (id.plane() == 1)
 	{
 	  if (id.strip() > 1 )
 	    //Decrementing just strip number
-	    nextPoint=ESDetId(id.strip()-1,id.six(),id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(id.strip()-1,id.six(),id.siy(),id.plane(),id.zside());
 	  else
 	    //Changing wafer
-	    nextPoint=ESDetId(32,id.six()-1,id.siy(),id.zside(),id.plane());
+	    nextPoint=ESDetId(32,id.six()-1,id.siy(),id.plane(),id.zside());
 	}
       else
 	return ESDetId(0);
@@ -167,7 +167,7 @@ ESDetId EcalPreshowerTopology::incrementIz(const ESDetId& id) const {
 	  return ESDetId(0);
 	}      
       ESDetId nextPoint;
-      nextPoint=ESDetId(id.strip(),id.six(),id.siy(),id.zside(),id.plane()+1);
+      nextPoint=ESDetId(id.strip(),id.six(),id.siy(),id.plane()+1,id.zside());
       if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalPreshower)->present(nextPoint))
 	return nextPoint;
       else
@@ -188,7 +188,7 @@ ESDetId EcalPreshowerTopology::decrementIz(const ESDetId& id) const {
 	  return ESDetId(0);
 	}      
       ESDetId nextPoint;
-      nextPoint=ESDetId(id.strip(),id.six(),id.siy(),id.zside(),id.plane()-1);
+      nextPoint=ESDetId(id.strip(),id.six(),id.siy(),id.plane()-1,id.zside());
       if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalPreshower)->present(nextPoint))
 	return nextPoint;
       else
