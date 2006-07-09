@@ -7,6 +7,7 @@
 
 #include "DataFormats/Common/interface/EventID.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -23,7 +24,8 @@
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
-  
+#include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
+#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"  
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -44,6 +46,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       myPileUpProducer(new PUProducer(
 			       mySimEvent,
 			       p.getParameter<edm::ParameterSet>("PUProducer"))),
+       myCalorimetry(new CalorimetryManager(mySimEvent,p.getParameter<edm::ParameterSet>("Calorimetry"))),
       m_FamosSeed(p.getParameter<int>("FamosSeed")),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
@@ -61,6 +64,7 @@ FamosManager::~FamosManager()
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
   if ( myPileUpProducer ) delete myPileUpProducer;
+  if ( myCalorimetry) delete myCalorimetry;
 }
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
@@ -79,7 +83,10 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
  }    
   
   // Pass the information to a singleton
-
+  edm::ESHandle<CaloGeometry> pG;
+  es.get<IdealGeometryRecord>().get(pG);   
+  //  Initialize the calorimeter geometry
+  myCalorimetry->getCalorimeter()->setupGeometry(pG);
 }
 
 /*
@@ -113,6 +120,8 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
     //    mySimEvent->print();
+
+    myCalorimetry->reconstruct();
 
   }
 

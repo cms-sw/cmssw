@@ -6,9 +6,12 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 
 #include "CLHEP/HepMC/GenEvent.h"
 
@@ -20,6 +23,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::HepMCProduct>();
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
+    produces<edm::PCaloHitContainer>("EcalHitsEB");
 
     famosManager_ = new FamosManager(p);
 
@@ -55,15 +59,21 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
+
+   CalorimetryManager * calo = famosManager_->calorimetryManager();
    
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
+   std::auto_ptr<edm::PCaloHitContainer> p3(new edm::PCaloHitContainer);
+
    fevt->load(*p1);
    fevt->load(*p2);
 
+   calo->loadFromBarrel(*p3);
+
    iEvent.put(p1);
    iEvent.put(p2);
-
+   iEvent.put(p3,"EcalHitsEB");
 
 }
 

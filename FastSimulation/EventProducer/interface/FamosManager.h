@@ -15,6 +15,7 @@ class FSimEvent;
 class TrajectoryManager;
 class PUProducer;
 class MagneticField;
+class CalorimetryManager;
 
 namespace CLHEP {
   class HepLorentzVector;
@@ -44,6 +45,9 @@ class FamosManager
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt);
+
+  /// The calorimeter 
+  CalorimetryManager * calorimetryManager() const {return myCalorimetry;}
   
  private:   
 
@@ -52,6 +56,7 @@ class FamosManager
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
   PUProducer* myPileUpProducer;
+  CalorimetryManager * myCalorimetry;
 
  private:
 

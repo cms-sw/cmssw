@@ -5,6 +5,8 @@
 <use name=FastSimulation/TrajectoryManager>
 <use name=FastSimulation/PileUpProducer>
 <use name=FastSimulation/ParticlePropagator>
+<use name=FastSimulation/Calorimetry>
+<use name=FastSimulation/CalorimeterProperties>
 <use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
 <use name=GeometryReaders/XMLIdealGeometryESSource>
@@ -17,6 +19,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/CaloHit>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <export>
@@ -26,6 +29,8 @@
  <use name=FastSimulation/TrajectoryManager>
  <use name=FastSimulation/PileUpProducer>
  <use name=FastSimulation/ParticlePropagator>
+ <use name=FastSimulation/Calorimetry>	
+ <use name=FastSimulation/CalorimeterProperties>
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Parser>
  <use name=GeometryReaders/XMLIdealGeometryESSource>
@@ -38,6 +43,7 @@
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
  <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/CaloHit>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
 </export>
