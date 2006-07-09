@@ -24,11 +24,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 //ES Data
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"

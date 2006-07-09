@@ -9,12 +9,6 @@
 //ES Data
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" 
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-//Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 class SiStripPedestalsService {
 
@@ -31,7 +25,6 @@ class SiStripPedestalsService {
  private:
   edm::ParameterSet conf_;
   edm::ESHandle<SiStripPedestals> ped;
-  edm::ESHandle<TrackerGeometry> tkgeom;
   std::string userEnv_;  
   std::string passwdEnv_;
   bool UseCalibDataFromDB_;

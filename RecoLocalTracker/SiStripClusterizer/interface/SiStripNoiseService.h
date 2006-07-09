@@ -24,7 +24,6 @@ class SiStripNoiseService {
   SiStripNoiseService(const edm::ParameterSet& conf);
   ~SiStripNoiseService(){};
   
-  //  void configure( const edm::EventSetup& es );
   void setESObjects( const edm::EventSetup& es );
   float getNoise   (const uint32_t& detID,const uint16_t& strip) ;
   bool  getDisable (const uint32_t& detID,const uint16_t& strip) ;

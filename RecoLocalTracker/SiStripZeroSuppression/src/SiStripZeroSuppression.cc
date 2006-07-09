@@ -30,7 +30,6 @@ namespace cms
   void SiStripZeroSuppression::beginJob( const edm::EventSetup& es ) {
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::beginJob]";
     
-    //SiStripPedestalsService_.configure(es);
     SiStripZeroSuppressionAlgorithm_.configure(&SiStripPedestalsService_,&SiStripNoiseService_);
   }
 

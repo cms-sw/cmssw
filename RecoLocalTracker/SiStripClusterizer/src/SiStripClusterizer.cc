@@ -28,17 +28,12 @@ namespace cms
   void SiStripClusterizer::beginJob( const edm::EventSetup& es ) {
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::beginJob]";
     
-    //SiStripNoiseService_.configure(es); @not needed anymore, REMOVE
     SiStripClusterizerAlgorithm_.configure(&SiStripNoiseService_);
   }
 
   // Functions that gets called by framework every event
   void SiStripClusterizer::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input StripDigiCollection
-    //    std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-
-
     // Step A: Get ESObject 
     SiStripNoiseService_.setESObjects(es);
 

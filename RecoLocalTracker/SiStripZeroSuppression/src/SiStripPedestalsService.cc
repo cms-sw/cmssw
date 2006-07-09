@@ -29,21 +29,8 @@ SiStripPedestalsService::SiStripPedestalsService(const edm::ParameterSet& conf):
 
 };
 
-// void SiStripPedestalsService::configure( const edm::EventSetup& es ) {
-//   edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure]";
-//   setESObjects(es);
-  
-//   if (UseCalibDataFromDB_==false) {
-//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<<tkgeom->dets().size() <<" detectors instantiated in the geometry";  
-//   } else {
-//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripPedestalsService::configure] There are "<< ped->m_pedestals.size() <<" detector Pedestal descriptions";  
-//   }
-// }
-
 void SiStripPedestalsService::setESObjects( const edm::EventSetup& es ) {
-  if (UseCalibDataFromDB_==false) {
-    es.get<TrackerDigiGeometryRecord>().get( tkgeom );
-  } else {
+  if (UseCalibDataFromDB_==true) {
     es.get<SiStripPedestalsRcd>().get(ped);
 
     //Getting Cond Data

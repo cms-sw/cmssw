@@ -24,16 +24,6 @@ SiStripNoiseService::SiStripNoiseService(const edm::ParameterSet& conf):
   old_noise = -1.;
 };
 
-// void SiStripNoiseService::configure( const edm::EventSetup& es ) {
-//   edm::LogInfo("SiStripZeroSuppression") << "[SiStripNoiseService::configure]";
-//   setESObjects(es);
-  
-//   if (UseCalibDataFromDB_==false) {
-//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripNoiseService::configure] There are "<<tkgeom->dets().size() <<" detectors instantiated in the geometry";  
-//   } else {
-//     edm::LogInfo("SiStripZeroSuppression") << "[SiStripNoiseService::configure] There are "<< noise->m_noises.size() <<" detector Noise descriptions";  
-//   }
-// }
 
 void SiStripNoiseService::setESObjects( const edm::EventSetup& es ) {
   if (UseCalibDataFromDB_==false) {
