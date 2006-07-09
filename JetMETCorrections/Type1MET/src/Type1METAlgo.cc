@@ -8,7 +8,7 @@
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
+#include "DataFormats/METReco/interface/CorrMETData.h"
 
 using namespace std;
 using namespace reco;
@@ -28,40 +28,36 @@ void Type1METAlgo::run(const METCollection *uncorrMET, METCollection &corrMET)
   corrMET.clear();
   //----------------- Set Corrected MET to uncorrected MET
   MET u = uncorrMET->front();
-  CommonMETData correctedMET = u.mEtData();
-  std::vector<CommonMETData> corrections = u.mEtCorr();
+  std::vector<CorrMETData> corrections = u.mEtCorr();
   //----------------- Calculate and set deltas for new MET correction
-      CommonMETData delta;
+  CorrMETData delta;
   if( corrections.size() > 0 ) 
     {
-      CommonMETData old = corrections.back();
-      delta.mex   = old.mex + 10.0; // dummy correction for now
-      delta.mey   = old.mey + 10.0; // dummy correction for now
-      delta.mez   = old.mez + 10.0; // dummy correction for now
+      CorrMETData old = corrections.back(); //cummulate corrections just to test...
+      delta.mex   = old.mex + 10.0;   // dummy correction for now
+      delta.mey   = old.mey + 10.0;   // dummy correction for now
       delta.sumet = old.sumet + 10.0; // dummy correction for now
     }
   else
     {
       delta.mex   =  + 10.0; // dummy correction for now
       delta.mey   =  + 10.0; // dummy correction for now
-      delta.mez   =  + 10.0; // dummy correction for now
       delta.sumet =  + 10.0; // dummy correction for now
     }
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
-  correctedMET.mex   += delta.mex;
-  correctedMET.mey   += delta.mey;
-  correctedMET.mez   += delta.mez;
-  correctedMET.sumet += delta.sumet;
-  correctedMET.met    = sqrt( correctedMET.mex*correctedMET.mex + 
-			      correctedMET.mey*correctedMET.mey );
-  correctedMET.phi    = atan2( correctedMET.mey, correctedMET.mex );
+  LorentzVector correctedMET4vector( u.px()+delta.mex, 
+				     u.py()+delta.mey, 
+				     u.pz(), 
+				     sqrt( (u.px()+delta.mex)*(u.px()+delta.mex) + 
+					   (u.py()+delta.mey)*(u.py()+delta.mey) ));
   //----------------- Determine deltas to derived quantities
-  delta.met   = correctedMET.met - u.mEt();
-  delta.phi   = correctedMET.phi - u.phi();
+  //delta.met   = correctedMET.met - u.mEt();
+  //delta.phi   = correctedMET.phi - u.phi();
   //----------------- get previous corrections and push into new corrections (preserve ordering)
   corrections.push_back( delta );
   //----------------- Push onto MET Collection
-  MET result( correctedMET, corrections );
+  Point vtx(0,0,0);
+  MET result( u.sumEt()+delta.sumet, corrections, correctedMET4vector, vtx);
   corrMET.push_back(result);
 }
 //----------------------------------------------------------------------------

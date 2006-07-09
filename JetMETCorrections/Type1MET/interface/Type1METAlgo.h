@@ -16,10 +16,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 class Type1METAlgo 
 {
  public:
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef math::XYZPoint Point;
   Type1METAlgo();
   virtual ~Type1METAlgo();
   virtual void run(const METCollection*, METCollection &);
