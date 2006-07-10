@@ -1,52 +1,121 @@
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
-/*
-#include "ElectronPhoton/ClusterTools/interface/EgammaVSuperCluster.h"
-#include "ElectronPhoton/ClusterTools/interface/EgammaCandidate.h"
 //
-#include "CommonReco/PatternTools/interface/TTrack.h"
-#include "CommonReco/PatternTools/interface/SeedGenerator.h"
-#include "CommonReco/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "CommonReco/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
-#include "CommonReco/KalmanUpdators/interface/KFUpdator.h"
-#include "CommonReco/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "CommonReco/TrackFitters/interface/KFFittingSmoother.h"
-#include "CommonReco/PatternTools/interface/ConcreteRecTrack.h"
-#include "CommonReco/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "CommonReco/PatternTools/interface/TrajectorySeed.h"
-#include "CommonReco/PatternTools/interface/TrajectoryBuilder.h"
-#include "CommonReco/PatternTools/interface/TrajectoryCleanerBySharedHits.h"
-#include "TrackerReco/GtfPattern/interface/CombinatorialTrajectoryBuilder.h"
-#include "TrackerReco/GtfPattern/interface/RedundantSeedCleaner.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
-#include "CARF/Reco/interface/ParameterSetBuilder.h"
-#include "CARF/Reco/interface/ParameterSet.h"
-#include "CARF/Reco/interface/ComponentSetBuilder.h"
-#include "CARF/Reco/interface/ComponentSet.h"
-#include "CARF/Reco/interface/ConfigAlgoFactory.h"
-#include "CARF/Reco/interface/RecQuery.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+//
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "Utilities/General/interface/precomputed_value_sort.h"
 
-*/
 
 InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
   std::cout << " InOutConversionTrackFinder CTOR " << std:: endl;  
     
   seedClean_ = conf_.getParameter<bool>("inOutSeedCleaning");
   smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
-
+  theInitialState_       = new TransientInitialStateEstimator( es);
+  theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
+  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
 
 
 }
 
 
+InOutConversionTrackFinder::~InOutConversionTrackFinder() {
+
+  delete theCkfTrajectoryBuilder_;
+  delete theTrajectoryCleaner_;
+  delete theInitialState_;
+}
 
 
-std::vector<const Trajectory*>  InOutConversionTrackFinder::tracks(const TrajectorySeedCollection seeds )const  {
+
+
+std::vector<Trajectory>  InOutConversionTrackFinder::tracks(const TrajectorySeedCollection inOutSeeds )const  {
 // TrackCandidateCollection InOutConversionTrackFinder::tracks(const TrajectorySeedCollection seeds )const  {
+  std::cout << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << endl;
+  
+  std::vector<Trajectory> tmpO;
+  tmpO.erase(tmpO.begin(), tmpO.end() ) ;
+  
+  std::vector<Trajectory> result;
+  result.erase(result.begin(), result.end() ) ;
+
+
+  std::vector<Trajectory> rawResult;
+  rawResult.erase(rawResult.begin(), rawResult.end() ) ;
+
+
+
+  for(TrajectorySeedCollection::const_iterator iSeed=inOutSeeds.begin(); iSeed!=inOutSeeds.end();iSeed++){
+    
+    std::cout << " InOutConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << std::endl;
+    std::cout << " InOutConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << std::endl;
+    std::cout << " InOutConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << std::endl;
+    
+    
+    
+    std::vector<Trajectory> theTmpTrajectories;
+
+    theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
+    
+    std:: cout << " InOutConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << std::endl;
+    
+    theTrajectoryCleaner_->clean(theTmpTrajectories);
+    
+    for(std::vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
+	it!=theTmpTrajectories.end(); it++){
+      if( it->isValid() ) {
+	rawResult.push_back(*it);
+      }
+    }
+    std::cout << " InOutConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << std::endl;
+
+  }
+  
+  
+  
+  std::vector<Trajectory> unsmoothedResult;
+  theTrajectoryCleaner_->clean(rawResult);
+  
+  for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
+    if((*itraw).isValid()) {
+          unsmoothedResult.push_back( *itraw);
+	  tmpO.push_back( *itraw );
+	  std::cout << " rawResult num hits " << (*itraw).foundHits() << std::endl;
+    }
+  }
+  
+    
+  
+  std::cout << " InOutConversionTrackFinder  tmpO size " << tmpO.size() << " before sorting " << std::endl; 
+  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
+    std::cout << " InOutConversionTrackFinder  tmpO num of hits " << (*it).foundHits() << " before ordering " << std::endl; 
+    
+  }
+  
+  precomputed_value_sort( tmpO.begin(), tmpO.end(), ExtractNumOfHits()  ); 
+  
+  
+  std::cout << " InOutConversionTrackFinder  tmpO after sorting " << std::endl; 
+  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
+    std::cout << " InOutConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << std::endl; 
+
+  }
+  
+  
+
+
+
 
   
-  std::cout << "  Returning " << theInOutTracks_.size() << " In Out Tracks " << std::endl;
-  return theInOutTracks_;
-
- }
+  std::cout << "  Returning " << result.size() << " In Out Tracks " << std::endl;
+  return result;
+  
+  
+}
