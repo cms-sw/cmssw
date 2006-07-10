@@ -17,7 +17,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 
 // Class definition
@@ -71,8 +70,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  alignments = theAlignableTracker->alignments();
 	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
 			it != alignments->m_align.end(); it++ )
-		edm::LogInfo("DumpPositions")  << std::endl
-									   << (*it).rawId() << " " << (*it).translation();
+ 		edm::LogInfo("DumpPositions")  << std::endl
+ 									   << (*it).rawId() << " " << (*it).translation();
 	}
 
   // Create misalignment scenario

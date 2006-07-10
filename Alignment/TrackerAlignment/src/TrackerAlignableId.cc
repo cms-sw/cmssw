@@ -19,24 +19,6 @@
 //__________________________________________________________________________________________________
 TrackerAlignableId::TrackerAlignableId()
 {
-
-  // Create map
-  theMap.clear();
-  theMap[ AlignableObjectId::AlignableDetUnit              ] = "DetUnit";
-  theMap[ AlignableObjectId::AlignableDet                  ] = "Det";
-  theMap[ AlignableObjectId::AlignableRod                  ] = "Rod";
-  theMap[ AlignableObjectId::AlignableBarrelLayer          ] = "BarrelLayer";
-  theMap[ AlignableObjectId::AlignableHalfBarrel           ] = "HalfBarrel";
-  theMap[ AlignableObjectId::AlignablePetal                ] = "Petal";
-  theMap[ AlignableObjectId::AlignableEndcapLayer          ] = "EndcapLayer";
-  theMap[ AlignableObjectId::AlignableEndcap               ] = "Endcap";
-  theMap[ AlignableObjectId::AlignableTIDRing              ] = "TIDRing";
-  theMap[ AlignableObjectId::AlignableTIDLayer             ] = "TIDLayer";
-  theMap[ AlignableObjectId::AlignableTID                  ] = "TID";
-  theMap[ AlignableObjectId::AlignablePixelHalfBarrelLayer ] = "PixelHalfBarrelLayer";
-  theMap[ AlignableObjectId::AlignablePixelHalfBarrel      ] = "PixelHalfBarrel";
-  theMap[ AlignableObjectId::AlignableTracker              ] = "Tracker";
-
 }
 
 
@@ -140,7 +122,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& g
 const std::string TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
 {
 
-  return alignableTypeIdToName( alignable->alignableObjectId() );
+  return this->alignableTypeIdToName( alignable->alignableObjectId() );
 
 }
 
@@ -149,13 +131,8 @@ const std::string
 TrackerAlignableId::alignableTypeIdToName( const int& id ) const
 {
 
-
-  MapEnumType::const_iterator iter = theMap.find( id );
-  if ( iter != theMap.end() ) return iter->second;
-  
-  edm::LogWarning("LogicError") << "Unknown alignableObjectId: " << id;
-
-  return "Unknown";
+  AlignableObjectId alignableObjectId;
+  return alignableObjectId.typeToName( id );
 
 }
 

@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Alignment
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 
@@ -60,10 +59,9 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 {
 
   // Get name from first element
-  TrackerAlignableId converter;
-  std::string levelName = converter.alignableTypeName( alignables.front() );
+  AlignableObjectId alignableObjectId;
+  std::string levelName = alignableObjectId.typeToName( alignables.front()->alignableObjectId() );
   this->decodeMovements_( pSet, alignables, levelName );
-
 
 }
 
