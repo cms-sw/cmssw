@@ -24,7 +24,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
     produces<edm::PCaloHitContainer>("EcalHitsEB");
-
+    produces<edm::PCaloHitContainer>("HcalHits");
     famosManager_ = new FamosManager(p);
 
 }
@@ -65,15 +65,18 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
    std::auto_ptr<edm::PCaloHitContainer> p3(new edm::PCaloHitContainer);
+   std::auto_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
 
    fevt->load(*p1);
    fevt->load(*p2);
 
-   calo->loadFromBarrel(*p3);
+   calo->loadFromEcalBarrel(*p3);
+   calo->loadFromHcal(*p4);
 
    iEvent.put(p1);
    iEvent.put(p2);
    iEvent.put(p3,"EcalHitsEB");
+   iEvent.put(p4,"HcalHits");
 
 }
 
