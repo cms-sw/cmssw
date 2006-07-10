@@ -3,13 +3,13 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.1 2006/06/09 15:50:14 nancy Exp $ 
- **  $Date: 2006/06/09 15:50:14 $ 
- **  $Revision: 1.1 $
+ **  $Id: ConversionSeedFinder.h,v 1.2 2006/06/23 14:17:51 nancy Exp $ 
+ **  $Date: 2006/06/23 14:17:51 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -41,6 +41,9 @@
 
 
 class DetLayer;
+class FreeTrajectoryState;
+class TrajectoryStateOnSurface;
+
 
 class ConversionSeedFinder {
 
@@ -48,14 +51,18 @@ class ConversionSeedFinder {
   
 
   ConversionSeedFinder();
-  ConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+  ConversionSeedFinder(  const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+
   
 
   
   virtual ~ConversionSeedFinder(){}
 
   
-  virtual void makeSeeds(const reco::BasicClusterCollection& allBc ) const  =0 ;
+  virtual void makeSeeds(const reco::BasicClusterCollection* allBc ) const  =0 ;
+
+
+
   TrajectorySeedCollection seeds() {std::cout << " Returning  seeds " << std::endl; return theSeeds_;}
   virtual void setCandidate(reco::SuperCluster& sc ) const { theSC_=&sc; }			       
   vector<const DetLayer*> layerList() const { return theLayerList_;}
@@ -65,6 +72,19 @@ class ConversionSeedFinder {
   const MeasurementTracker* getMeasurementTracker() const  {return  theMeasurementTracker_;}
 
  protected:
+
+
+  void findLayers() const ;
+  void findLayers(const FreeTrajectoryState & fts) const  ; 
+
+  FreeTrajectoryState trackStateFromClusters ( int aCharge,
+					       const GlobalPoint & gpOrigine, 
+					       PropagationDirection dir, 
+					       float scaleFactor ) const;
+  
+
+  void printLayer(int i) const ;
+
   
   mutable TrajectorySeedCollection theSeeds_;
   mutable GlobalPoint theSCPosition_;
