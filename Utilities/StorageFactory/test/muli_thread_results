@@ -39,8 +39,14 @@ rfio/construct=2/2/0MB/0.0263535ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/20
 1.630u 5.790s 2:03.34 6.0%      0+0k 0+0io 1139pf+0w
 
 time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
-exists = 1, size = 2097152000
-main end reading
-stats:
 rfio/construct=4/4/0MB/0.0295135ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/80380.2ms; rfio/write=6294/6294/6000MB/126086ms
 1.610u 12.950s 3:33.60 6.8%     0+0k 0+0io 1139pf+0w
+
+three threads
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+rfio/construct=4/4/0MB/0.0342557ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/139900ms; rfio/write=6294/6294/6000MB/136020ms
+2.010u 14.840s 2:35.78 10.8%    0+0k 0+0io 1139pf+0w
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap 
+rfio/construct=2/2/0MB/0.028498ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/101221ms; rfio/write=2098/2098/2000MB/42890.3ms
+1.650u 6.430s 1:42.24 7.9%      0+0k 0+0io 1139pf+0w
