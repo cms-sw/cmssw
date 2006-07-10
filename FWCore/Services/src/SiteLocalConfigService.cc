@@ -121,7 +121,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	
 	// The Site Config has the following format
 	// <site-local-config>
-	// <site name="FNAL"/>
+	// <site name="FNAL">
 	//   <event-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
 	//   </event-data>
@@ -129,6 +129,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
 	//     <frontier-proxy url="http://localhost:3128"/>
 	//   </calib-data>
+	// </site>
 	// </site-local-config>
     
 	// FIXME: should probably use the parser for validating the XML.
