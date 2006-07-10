@@ -3,11 +3,12 @@
 from hlt import *
 
 
-trig( "ElectronLoose",       10 )
-trig( "ElectronTight",       11 )
-trig( "MuonLoose",           20 )
-trig( "MuonTight",           30 )
-trig( "PassThrough",       4000 )
+i=0
+while ( i<100 ):
+    tname="Trig" + `i`
+    pscale=i*3
+    trig( tname, pscale)
+    i=i+1
 
 #Make the conf files for this trigger table
 make_cfg_file('triggers.cfi')
