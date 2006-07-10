@@ -26,8 +26,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "OnlineDB/CSCCondDB/interface/CSCscaAnalyzer.h"
 
-//bool CSCscaAnalyzer::debug=false;
-
 CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0, Nddu=0;
@@ -36,7 +34,21 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
   length=1,myevt=0,flag=-9;
   pedMean=0.0,NChambers=0;
 
-  //definition of histograms
+  for (int i=0;i<DDU_sca;i++){
+    for (int j=0;j<CHAMBERS_sca;j++){
+      for (int k=0;k<LAYERS_sca;k++){
+	for (int l=0;l<STRIPS_sca;l++){
+	  for (int m=0;m<Number_sca;m++){
+	    value_adc[i][j][k][l][m]=0;
+	  }
+	}
+      }
+    }
+  }
+
+  //definition of histograms....
+
+  
 }
 
 void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -87,25 +99,29 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	      for (unsigned int layer = 1; layer <= 6; layer++){
 		std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;		
 	
-		//	for (unsigned int i=0; i<digis.size(); i++){//digis size
-		//int strip = digis[i].getStrip();
-		//size[chamber] = digis.size();
-		  for (int itime=0;itime<8;itime++){
-		    CSCCFEBTimeSlice * mytimeSlice =  mycfebData->timeSlice(itime);
-		    if (!mytimeSlice)continue;
-		    
-		    scaBlock = mytimeSlice->scaControllerWord(layer).sca_blk;
-		    trigTime = mytimeSlice->scaControllerWord(layer).trig_time;
-		    lctPhase = mytimeSlice->scaControllerWord(layer).lct_phase;
-		    int tmp=1;
-		    for(power=0;power<8;power++){if(trigTime==tmp) lctPhase=power; tmp=tmp*2;}
-		    cap = lctPhase+digis.size();
-		    scaNumber=8*scaBlock+cap;
-		    //std::vector<int> adc = digis[i].getADCCounts();
-		    std::cout <<" Cap "<<cap<<" CFEB "<<icfeb<<" Layer "<<layer<<" sca_block "<<scaBlock <<" trig_time "<<trigTime<<" lct_phase "<<lctPhase<<" sca_number "<<scaNumber<<" timeslice "<<itime<< std::endl; 
-		    
-		  }//timeslice
-		  //}//digis size
+		for (int itime=0;itime<8;itime++){
+		  CSCCFEBTimeSlice * mytimeSlice =  mycfebData->timeSlice(itime);
+		  if (!mytimeSlice)continue;
+		  
+		  scaBlock = mytimeSlice->scaControllerWord(layer).sca_blk;
+		  trigTime = mytimeSlice->scaControllerWord(layer).trig_time;
+		  lctPhase = mytimeSlice->scaControllerWord(layer).lct_phase;
+		  int tmp=1;
+		  for(power=0;power<8;power++){if(trigTime==tmp) lctPhase=power; tmp=tmp*2;}
+		  cap = lctPhase+itime;
+		  scaNumber=8*scaBlock+cap;
+		  		  
+		  for (unsigned int i=0; i<digis.size(); i++){
+		    int strip = digis[i].getStrip();
+		    std::vector<int> adc = digis[i].getADCCounts();
+		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
+		      value_adc[iDDU][chamber][layer][strip][scaNumber]=adc[itime];
+		   
+		      //std::cout <<" Cap "<<cap<<" CFEB "<<icfeb<<" Layer "<<layer<<" sca_block "<<scaBlock <<" trig_time "<<trigTime<<" lct_phase "<<lctPhase<<" sca_number "<<scaNumber<<" timeslice "<<itime<<" ADC "<<value_adc[iDDU][chamber][layer][strip][scaNumber]<< std::endl; 
+		   }
+		  }
+
+		}//timeslice
 	      }//layer
 	    }//CFEBs
 	  }//CFEB available

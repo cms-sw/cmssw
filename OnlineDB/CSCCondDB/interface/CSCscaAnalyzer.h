@@ -31,6 +31,7 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
 #define STRIPS_sca 80
 #define TIMEBINS_sca 8
 #define DDU_sca 36
+#define Number_sca 96
 #define TOTALSTRIPS_sca 480
 #define TOTALEVENTS_sca 320
 
@@ -50,11 +51,11 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
     }
     
     //get name of run file from .cfg and name root output after that
-    string::size_type runNameStart = name.find("RunNum",0);
+    string::size_type runNameStart = name.find("06",0);
     string::size_type runNameEnd   = name.find("bin",0);
-    string::size_type rootStart    = name.find("Evs",0);
+    string::size_type rootStart    = name.find("Crosstalk",0);
     int nameSize = runNameEnd+3-runNameStart;
-    int myRootSize = rootStart-runNameStart;
+    int myRootSize = rootStart-runNameStart+9;
     std::string myname= name.substr(runNameStart,nameSize);
     std::string myRootName= name.substr(runNameStart,myRootSize);
     std::string myRootType = "SCA";
@@ -72,22 +73,46 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
     //DB object and map
     //CSCobject *cn = new CSCobject();
     //CSCobject *cn1 = new CSCobject();
-    //cscmap *map = new cscmap();
+    cscmap *map = new cscmap();
     //condbon *dbon = new condbon();
+    
+    for (int dduiter=0;dduiter<Nddu;dduiter++){ 
+      for (int cham=0;cham<NChambers;cham++){ 
+	
+	//get chamber ID from DB mapping
+	int new_crateID = crateID[cham];
+	
+	int new_dmbID   = dmbID[cham];
+	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	
+	for (int layeriter=0; layeriter<LAYERS_sca; layeriter++){
+	  for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
+	    for (int k=0;k<Number_sca;k++){
+	      my_scaValue= value_adc[dduiter][cham][layeriter][stripiter][k];
+	    
+	      std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" ADC "<<my_scaValue <<std::endl;
+	    }
+	  }
+	}
+      }
+    }
   }
-
+  
  private:
-
+  
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
   int chamber,layer,reportedChambers,chamber_num,sector,run,NChambers ;
   int dmbID[CHAMBERS_sca],crateID[CHAMBERS_sca],size[CHAMBERS_sca];
+  int value_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   std::vector<int> adc;
   std::string chamber_id;
   int lines;
   std::ifstream filein;
   string PSet,name;
   bool debug;
-  int flag;
+  int flag,my_scaValue;
   float pedMean;
   int scaBlock,trigTime,lctPhase,power,cap,scaNumber;
 };
