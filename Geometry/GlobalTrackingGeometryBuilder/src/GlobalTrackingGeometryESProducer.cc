@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/05/10 18:05:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/07 15:48:12 $
+ *  $Revision: 1.5 $
  *  \author Matteo Sani
  */
 
@@ -18,6 +18,7 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Framework/interface/NoProxyException.h>
+#include <FWCore/Framework/interface/NoRecordException.h>
 
 #include <memory>
 
@@ -47,40 +48,45 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   } catch (edm::eventsetup::NoProxyException<TrackerGeometry>& e) {
     // No Tk geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available." << e.what();
-  }    
+  } catch (edm::eventsetup::NoRecordException<TrackerDigiGeometryRecord>& e){
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No TrackerDigiGeometryRecord is available." << e.what();    
+  }   
+
 
   try {
-  
-    record.getRecord<MuonGeometryRecord>().get(dt);
-    if (dt.isValid())
+    try {  
+      record.getRecord<MuonGeometryRecord>().get(dt);
+      if (dt.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid DT geometry is available.";
 
-  } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
-    // No DT geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available." << e.what();
-  }    
+    } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
+      // No DT geo available
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available." << e.what();
+    }  
 
-  try {
-  
-    record.getRecord<MuonGeometryRecord>().get(csc);
-    if (csc.isValid())
+    try {
+      record.getRecord<MuonGeometryRecord>().get(csc);
+      if (csc.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid CSC geometry is available.";
-
-  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
-    // No CSC geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available." << e.what();
-  }    
-
-  try {
-  
-    record.getRecord<MuonGeometryRecord>().get(rpc);
-    if (rpc.isValid())
+      
+    } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
+      // No CSC geo available
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available." << e.what();
+    }    
+    
+    try {
+      record.getRecord<MuonGeometryRecord>().get(rpc);
+      if (rpc.isValid())
         LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid RPC geometry is available.";
-
-  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
-    // No RPC geo available
-    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available." << e.what();
-  }    
+      
+    } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+      // No RPC geo available
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available." << e.what();
+    }
+  } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available." << e.what();    
+  }
+  
 
   GlobalTrackingGeometryBuilder builder;
   return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(&(*tk), &(*dt), &(*csc), &(*rpc)));
