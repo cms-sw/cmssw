@@ -145,27 +145,22 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	    {
 		DOMNodeList * eventDataList 
 		    = site->getElementsByTagName (_toDOMS ("event-data"));
-		if (	eventDataList->getLength () != 1)
+		if (eventDataList->getLength () > 0)
 		{
-		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml. Cannot find event-data section." ;
+		    DOMElement *eventData 
+			= static_cast <DOMElement *> (eventDataList->item (0));
+	    
+		    DOMNodeList *catalogs 
+			= eventData->getElementsByTagName (_toDOMS ("catalog"));
+	    
+		    if (catalogs->getLength () > 0)
+		    {
+			DOMElement * catalog 
+			    = static_cast <DOMElement *> (catalogs->item (0));
+	    
+			m_dataCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
+		    }
 		}
-	    
-		DOMElement *eventData 
-		    = static_cast <DOMElement *> (eventDataList->item (0));
-	    
-		DOMNodeList *catalogs 
-		    = eventData->getElementsByTagName (_toDOMS ("catalog"));
-	    
-		if (catalogs->getLength () != 1)
-		{
-		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml. Cannot find catalog in event-data section." ;
-		}
-		DOMElement * catalog 
-		    = static_cast <DOMElement *> (catalogs->item (0));
-	    
-		m_dataCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 	    }
 	
 	    // Parsing of the calib-data section
@@ -173,40 +168,33 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		DOMNodeList * calibDataList 
 		    = site->getElementsByTagName (_toDOMS ("calib-data"));
 	    
-		if (calibDataList->getLength () != 1)
+		if (calibDataList->getLength () > 0)
 		{
-		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml. Cannot find calib-data section." ;
-		}
+		    DOMElement *calibData 
+			= static_cast <DOMElement *> (calibDataList->item (0));
 	    
-		DOMElement *calibData 
-		    = static_cast <DOMElement *> (calibDataList->item (0));
+		    DOMNodeList *catalogs = calibData->getElementsByTagName (_toDOMS ("catalog"));
 	    
-		DOMNodeList *catalogs = calibData->getElementsByTagName (_toDOMS ("catalog"));
+		    if (catalogs->getLength () > 0)
+		    {
+			DOMElement *catalog
+			    = static_cast <DOMElement *> (catalogs->item (0));
 	    
-		if (catalogs->getLength () != 1)
-		{
-		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml. Cannot find catalog in calib-data section." ;
-		}
+			m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 	    
-		DOMElement *catalog
-		    = static_cast <DOMElement *> (catalogs->item (0));
-	    
-
-		m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
-	    
-		DOMNodeList *proxies 
-		    = calibData->getElementsByTagName (_toDOMS ("frontier-proxy"));
-		for (unsigned int i = 0;
-		     i < proxies->getLength ();
-		     i++)
-		{
-		    DOMElement *proxy 
-			= static_cast <DOMElement *> (proxies->item (i));
+			DOMNodeList *proxies 
+			    = calibData->getElementsByTagName (_toDOMS ("frontier-proxy"));
+			for (unsigned int i = 0;
+			     i < proxies->getLength ();
+			     i++)
+			{
+			    DOMElement *proxy 
+				= static_cast <DOMElement *> (proxies->item (i));
 		
-		    m_frontierProxies.push_back (_toString (proxy->getAttribute (_toDOMS ("url"))));		
-		}	    	    
+			    m_frontierProxies.push_back (_toString (proxy->getAttribute (_toDOMS ("url"))));		
+			}	    	    
+		    }
+		}
 	    }
 	}
 	m_connected = true;
