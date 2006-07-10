@@ -23,8 +23,11 @@ public:
   typedef std::vector<const SiStripRecHit2DLocalPos *>       SimpleHitCollection;
   typedef SimpleHitCollection::const_iterator                SimpleHitIterator;
   typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 
+
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
   
+  //match a single hit
+
   const SiStripRecHit2DMatchedLocalPos& match(const SiStripRecHit2DLocalPos *monoRH, 
 					      const SiStripRecHit2DLocalPos *stereoRH,
 					      const GluedGeomDet* gluedDet,
@@ -43,14 +46,6 @@ public:
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
 
-
-  /// More convenient interface with a GluedDet
-
-    //  edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
-    //match( const SiStripRecHit2DLocalPos *monoRH, 
-    //	 SimpleHitIterator begin, SimpleHitIterator end,
-    //	 const GluedGeomDet* gluedDet,
-    //	 LocalVector trackdirection);
 
   // project strip coordinates on Glueddet
 
