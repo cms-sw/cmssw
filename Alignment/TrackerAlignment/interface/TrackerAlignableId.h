@@ -58,9 +58,6 @@ private:
   /// Get unique identifyer of first AlignableDet of alignable
   unsigned int firstDetId( Alignable* alignable );
 
-  // Map between AlignableObjectId and string name
-  MapEnumType theMap;
-
 };
 
 #endif

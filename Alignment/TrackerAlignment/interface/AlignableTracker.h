@@ -9,8 +9,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-
 // Classes that will be used to construct the tracker
 class AlignableTrackerHalfBarrel;
 class AlignablePixelHalfBarrel;
