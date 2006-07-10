@@ -6,11 +6,10 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.11 2006/06/28 19:25:57 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.12 2006/06/30 19:21:04 ewv Exp $
  *
  */
  
-#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
