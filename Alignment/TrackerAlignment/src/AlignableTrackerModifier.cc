@@ -276,9 +276,9 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
   edm::LogInfo("PrintArgs") << message.str(); // Arguments
 
   edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
-  alignable->rotateAroundGlobalX( rotV.x() );
-  alignable->rotateAroundGlobalY( rotV.y() );
-  alignable->rotateAroundGlobalZ( rotV.z() );
+  if ( fabs(sigmaPhiX) ) alignable->rotateAroundGlobalX( rotV.x() );
+  if ( fabs(sigmaPhiY) ) alignable->rotateAroundGlobalY( rotV.y() );
+  if ( fabs(sigmaPhiZ) ) alignable->rotateAroundGlobalZ( rotV.z() );
   m_modified++;
 
 
@@ -317,9 +317,9 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   edm::LogInfo("PrintArgs") << message.str(); // Arguments
 
   edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
-  alignable->rotateAroundLocalX( rotV.x() );
-  alignable->rotateAroundLocalY( rotV.y() );
-  alignable->rotateAroundLocalZ( rotV.z() );
+  if ( fabs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
+  if ( fabs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
+  if ( fabs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );
   m_modified++;
 
 
