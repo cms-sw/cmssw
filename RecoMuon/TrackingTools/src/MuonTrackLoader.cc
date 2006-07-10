@@ -2,12 +2,13 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/06 09:21:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/06 16:17:02 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
@@ -18,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
+#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 					   edm::Event& event){
@@ -144,21 +146,45 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 }
 
 reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
+
+  MuonPatternRecoDumper debug;
   
   // FIXME: check the prop direction
   TrajectoryStateOnSurface innerTSOS;
   
   if (trajectory.direction() == alongMomentum) {
+    LogDebug("RecoMuon")<<"alongMomentum";
     innerTSOS = trajectory.firstMeasurement().updatedState();
-  } else { 
+  } 
+  else if (trajectory.direction() == oppositeToMomentum) { 
+    LogDebug("RecoMuon")<<"oppositeToMentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
+  else edm::LogError("RecoMuon")<<"Wrong propagation direction!";
   
+  std::string metname = "RecoMuon";
+  debug.dumpTSOS(innerTSOS,metname);
+
   // This is needed to extrapolate the tsos at vertex
   // FIXME: check it!
   TSCPBuilderNoMaterial tscpBuilder;
-  TrajectoryStateClosestToPoint tscp = tscpBuilder( innerTSOS,
-						    GlobalPoint(0,0,0) );//FIXME Correct?
+  TrajectoryStateClosestToPoint tscp;
+  
+  try{
+    tscp = tscpBuilder( innerTSOS,GlobalPoint(0,0,0) );//FIXME Correct?
+  }
+  catch(const TrajectoryStateException &er){
+    edm::LogWarning("RecoMuon") << "caught TrajectoryStateException: "<< er.what() << std::endl;
+    return reco::Track(); 
+  }
+  catch(const std::exception& er){
+    edm::LogWarning("RecoMuon") << "caught std::exception: " << er.what() << std::endl;
+    return reco::Track(); 
+  }
+  catch(...){
+    edm::LogWarning("RecoMuon") << "Funny error" << std::endl;
+    return reco::Track(); 
+  }
   
   reco::perigee::Parameters param = tscp.perigeeParameters();
   reco::perigee::Covariance covar = tscp.perigeeError();
@@ -194,13 +220,17 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
   
-  if (trajectory.direction() == alongMomentum) {
+  if(trajectory.direction() == alongMomentum) {
+    LogDebug("RecoMuon")<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
-  } else { 
+  } 
+  else if(trajectory.direction() == oppositeToMomentum) {
+      LogDebug("RecoMuon")<<"oppositeToMentum";
       outerTSOS = trajectory.firstMeasurement().updatedState();
       innerTSOS = trajectory.lastMeasurement().updatedState();
-  }
+    }
+  else edm::LogError("RecoMuon")<<"Wrong propagation direction!";
   
   //build the TrackExtra
   GlobalPoint v = outerTSOS.globalParameters().position();
