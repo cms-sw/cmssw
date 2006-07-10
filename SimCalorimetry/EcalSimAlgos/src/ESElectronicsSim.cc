@@ -81,22 +81,31 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
 
   for (int i=0; i<timeframe.size(); i++) {
 
-    int noi = 0;
-    double tmpnoi = 0.;
+    double noi = 0;
+    double signal = 0;    
 
-    if (addNoise_) {
-      if (gain_ == 0)
-	tmpnoi = RandGauss::shoot(0., sigma_);
-      else if (gain_ == 1 || gain_ == 2)
-	tmpnoi = RandGauss::shoot(0., sigma_+0.182);
-    } 
+    if (addNoise_) noi = RandGauss::shoot(0., sigma_);
 
-    noi = (tmpnoi-(int)tmpnoi <= 0.5 ? (int)tmpnoi : (int)tmpnoi + 1);
-    
-    if (gain_ == 0) 
-      adc = int(timeframe[i]*1000000.) + noi + baseline_;
-    else if (gain_ == 1 || gain_ == 2)
-      adc = int(timeframe[i]*1000000.*ADCkeV) + noi + baseline_;
+    if (gain_ == 0) { 
+      signal = timeframe[i]*1000000. + noi + baseline_;     
+
+      if (signal>0) 
+	signal += 0.5;
+      else if (signal<0)
+	signal -= 0.5;
+
+      adc = int(signal);
+    }
+    else if (gain_ == 1 || gain_ == 2) {
+      signal = timeframe[i]*1000000.*ADCkeV + noi + baseline_;
+
+      if (signal>0) 
+	signal += 0.5;
+      else if (signal<0)
+	signal -= 0.5;
+
+      adc = int(signal);
+    }
 
     if (adc>MAXADC) adc = MAXADC;
     if (adc<MINADC) adc = MINADC;
