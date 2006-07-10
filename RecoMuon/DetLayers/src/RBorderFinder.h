@@ -5,8 +5,8 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/07 14:17:03 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,6 +18,7 @@
 #include <FWCore/Utilities/interface/Exception.h>
 
 #include <vector>
+//#include <iostream>
 
 class RBorderFinder {
 public:
@@ -39,54 +40,65 @@ public:
       }
     }
 
-    double step = (disks.back()->innerRadius() -
-		   disks.front()->innerRadius())/(theNbins-1);
-    std::vector<double> spread;
-    std::vector<std::pair<double,double> > REdge;
-    REdge.reserve(theNbins);
-    theRBorders.reserve(theNbins);
-    theRBins.reserve(theNbins);
-    spread.reserve(theNbins);
-    
-    for ( int i = 0; i < theNbins; i++ ) {
-      theRBins.push_back((disks[i]->outerRadius()+disks[i]->innerRadius())/2.);
-      spread.push_back(theRBins.back() - (theRBins[0] + i*step));
-      REdge.push_back(std::pair<double,double>(disks[i]->innerRadius(),
-					  disks[i]->outerRadius()));
-    }
 
-    theRBorders.push_back(REdge[0].first);
-    for (int i = 1; i < theNbins; i++) {
-      double br = (REdge[(i-1)].second + REdge[i].first)/2.;
-      theRBorders.push_back(br);
-    }
-  
-    for (int i = 1; i < theNbins; i++) {
-      if (REdge[i].first - REdge[i-1].second < 0) {
-	isROverlapping_ = true;
-	break;
+    if (theNbins==1) { // Trivial case
+      isRPeriodic_ = true; // meaningless in this case
+      theRBorders.push_back(disks.front()->innerRadius());
+      theRBins.push_back((disks.front()->outerRadius()+disks.front()->innerRadius()));
+//       std::cout << "RBorderFinder:  theNbins " << theNbins << std::endl
+// 		<< " C: " << theRBins[0]
+// 		<< " Border: " << theRBorders[0] << std::endl;
+    } else { // More than 1 bin
+      double step = (disks.back()->innerRadius() -
+		     disks.front()->innerRadius())/(theNbins-1);
+      std::vector<double> spread;
+      std::vector<std::pair<double,double> > REdge;
+      REdge.reserve(theNbins);
+      theRBorders.reserve(theNbins);
+      theRBins.reserve(theNbins);
+      spread.reserve(theNbins);
+    
+      for ( int i = 0; i < theNbins; i++ ) {
+	theRBins.push_back((disks[i]->outerRadius()+disks[i]->innerRadius())/2.);
+	spread.push_back(theRBins.back() - (theRBins[0] + i*step));
+	REdge.push_back(std::pair<double,double>(disks[i]->innerRadius(),
+						 disks[i]->outerRadius()));
       }
-    }
+      
+      theRBorders.push_back(REdge[0].first);
+      for (int i = 1; i < theNbins; i++) {
+	// Average borders of previous and next bins
+	double br = (REdge[(i-1)].second + REdge[i].first)/2.;
+	theRBorders.push_back(br);
+      }
+      
+      for (int i = 1; i < theNbins; i++) {
+	if (REdge[i].first - REdge[i-1].second < 0) {
+	  isROverlapping_ = true;
+	  break;
+	}
+      }
     
-    double rms = stat_RMS(spread); 
-    if ( rms < 0.01*step) { 
-      isRPeriodic_ = true;
+      double rms = stat_RMS(spread); 
+      if ( rms < 0.01*step) { 
+	isRPeriodic_ = true;
+      }
+    
+//       std::cout << "RBorderFinder:  theNbins " << theNbins
+// 		<< " step: " << step << " RMS " << rms << std::endl;
+//       for (int idbg = 0; idbg < theNbins; idbg++) {
+// 	std::cout << "L: " << REdge[idbg].first
+// 		  << " C: " << theRBins[idbg]
+// 		  << " R: " << REdge[idbg].second
+// 		  << " Border: " << theRBorders[idbg]
+// 		  << " SP: " << spread[idbg] << std::endl;
+//       }
     }
-
-//      cout << "RBorderFinder:  theNbins " << theNbins
-// 	  << " step: " << step << " RMS " << rms << endl;
-//      for (int idbg = 0; idbg < theNbins; idbg++) {
-//        cout << "L: " << REdge[idbg].first
-// 	    << " C: " << theRBins[idbg]
-// 	    << " R: " << REdge[idbg].second
-// 	    << " Border: " << theRBorders[idbg]
-// 	    << " SP: " << spread[idbg] << endl;
-//      }
 
     //Check that everything is proper
     if ((int)theRBorders.size() != theNbins || (int)theRBins.size() != theNbins) 
       throw cms::Exception("UnexpectedState") << "RBorderFinder consistency error";
-  }
+}
 
   // Construct from a std::vector of Det*. 
   // Not tested, and do not work if the Dets are rings since 
