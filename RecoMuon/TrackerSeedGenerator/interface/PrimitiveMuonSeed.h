@@ -6,13 +6,13 @@
  *   Primitive tracker seed from muon which 
  *   consists of one measurement and a trajectory state
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/05/17 19:08:34 $
+ *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister   - Purdue University
  */
 
-#include "DataFormats/TrajectorySeed/interface/BasicTrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 //------------------------------------
 // Collaborating Class Declarations --
@@ -25,13 +25,14 @@ class TransientTrackingRecHit;
 //              -- Class Interface --
 //              ---------------------
 
-class PrimitiveMuonSeed : public BasicTrajectorySeed {
+class PrimitiveMuonSeed : public TrajectorySeed {
 
   public:
 
     /// constructor
     PrimitiveMuonSeed(const PTrajectoryStateOnDet& state,
-                      const PropagationDirection direction,
+                      const PropagationDirection& direction,
+		      const recHitContainer layerRecHits,
                       const TrajectoryMeasurement& meas);
 
     /// destructor
@@ -43,7 +44,7 @@ class PrimitiveMuonSeed : public BasicTrajectorySeed {
 
     virtual bool share(const BasicTrajectorySeed&) const;
 
-    virtual BasicTrajectorySeed* clone() const;
+    virtual PrimitiveMuonSeed* clone() const;
 
     virtual range recHits() const ;
 
