@@ -32,7 +32,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0, Nddu=0,chamber=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
-  i_layer=0,reportedChambers=0;
+  layer=0,reportedChambers=0;
   length=1,myevt=0,flag=-9;
   aPeak=0.0,sumFive=0.0;
   pedMean=0.0,evt=0,NChambers=0;

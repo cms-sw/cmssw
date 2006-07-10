@@ -335,7 +335,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    calib_evt.maxADC   = newPeak[fff];
 	    calib_evt.sum      = newSumFive[fff];
 	    
-	    //std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flag "<<flag<<std::endl;
+	    std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flag "<<flag<<std::endl;
 	    
 	    // *outfile << chamber_num <<"  "<<j<<"  "<<k<<"  "<<meanPedestal<<"  "<<theRMS<<"  "<<thePeak<<"  "<<thePeakRMS<<"  "<<theSumFive<<"  "<<the_xtalk_left_a<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_right_a<<"  "<<the_xtalk_right_b<<"  "<<the_peakTime-mean<<std::endl; 
 	    calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
@@ -379,7 +379,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int chamber,i_layer,reportedChambers,chamber_num,sector,record,NChambers ;
+  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;
