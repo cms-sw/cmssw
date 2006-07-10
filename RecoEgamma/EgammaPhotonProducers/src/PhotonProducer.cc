@@ -31,7 +31,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
  
 
   scProducer_       = conf_.getParameter<std::string>("scProducer");
-  scCollection_     = conf_.getParameter<std::string>("scCollection");
+  scBarrelCollection_     = conf_.getParameter<std::string>("scBarrelCollection");
+  scEndcapCollection_     = conf_.getParameter<std::string>("scEndcapCollection");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
   // Register the product
@@ -61,7 +62,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   using namespace edm;
 
-  edm::LogInfo("PhotonProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  edm::LogInfo("PhotonProducer") << "Producing event number: " << theEvent.id() << "\n";
 
 
   //
@@ -75,29 +76,59 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 
 
-  // Get the Super Cluster collection
-  Handle<reco::SuperClusterCollection> scHandle;
+  // Get the  Barrel Super Cluster collection
+  Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
-    theEvent.getByLabel(scProducer_,scCollection_,scHandle);
+    theEvent.getByLabel(scProducer_,scBarrelCollection_,scBarrelHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC " << scCollection_.c_str() ;
+    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scBarrelCollection_.c_str() ;
   } 
-  std::cout << " Trying to access SC collection from my Producer " << std::endl;
-  reco::SuperClusterCollection scCollection = *(scHandle.product());
-  std::cout << " SC collection size  " << scCollection.size() << std::endl;
+  std::cout << " Trying to access barrel SC collection from my Producer " << std::endl;
+  reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
+  std::cout << " barrel SC collection size  " << scBarrelCollection.size() << std::endl;
+
+ // Get the  Endcap Super Cluster collection
+  Handle<reco::SuperClusterCollection> scEndcapHandle;
+  try{  
+    theEvent.getByLabel(scProducer_,scEndcapCollection_,scEndcapHandle);
+  } catch ( cms::Exception& ex ) {
+    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scEndcapCollection_.c_str() ;
+  } 
+  std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
+  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
+  std::cout << " barrel SC collection size  " << scEndcapCollection.size() << std::endl;
 
 
-  //  Loop over SC and fill the  photon collection
+
+  //  Loop over barrel SC and fill the  photon collection
   int iSC=0;
   reco::SuperClusterCollection::iterator aClus;
-  for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
+  for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
     const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
+    outputPhotonCollection[iSC].setSuperCluster(scRef);
+
+    iSC++;      
+
+      
+  }
+  
+
+
+  //  Loop over Endcap SC and fill the  photon collection
+  for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
+
+    const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
+    const reco::Particle::Point  vtx( 0, 0, 0 );
+    reco::Photon newCandidate(0, p4, vtx);
+
+    outputPhotonCollection.push_back(newCandidate);
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, iSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
 
     iSC++;      
