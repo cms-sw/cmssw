@@ -54,9 +54,12 @@ public:
   void setConf(edm::ParameterSet conf){conf_=conf;}
   //edm::ParameterSet conf(){return conf;}
   void setSrc(std::string src){src_=src;}
-private:
+  void setAlias(std::string alias){alias_=alias;}
+ private:
   edm::ParameterSet conf_;
   std::string src_;
+ protected:
+  std::string alias_;
 
 };
 

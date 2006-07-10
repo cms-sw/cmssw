@@ -13,10 +13,14 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 {
   setConf(iConfig);
   setSrc( iConfig.getParameter<std::string>( "src" ));
+  setAlias( iConfig.getParameter<std::string>( "alias" ) );
   //register your products
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackCollection>();
-  produces<reco::TrackExtraCollection>();
+  produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
+  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+//   produces<TrackingRecHitCollection>();
+//   produces<reco::TrackCollection>();
+//   produces<reco::TrackExtraCollection>();
 }
 
 

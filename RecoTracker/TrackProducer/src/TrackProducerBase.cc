@@ -96,15 +96,22 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
       i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     
-    
-    
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
     //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
-    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
-	j!=transHits.end(); j++){
-      outputRHColl->push_back( ( (j->hit() )->clone()) );
+
+    //Put hits in event ordered inside-out
+    if (theTraj->direction()==alongMomentum){
+      for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
+	  j!=transHits.end(); j++){
+	outputRHColl->push_back( ( (j->hit() )->clone()) );
+      }
     }
-    
+    else {
+      for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.end()-1;
+	  j!=transHits.begin()-1; j--){
+	outputRHColl->push_back( ( (j->hit() )->clone()) );
+      }
+    }
   }
   //put the collection of TrackingRecHit in the event
   LogDebug("TrackProducer") << 
@@ -177,6 +184,13 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     
     //use the TrackExtraRef to assign the TrackExtra to the Track
     theTrack->setExtra(theTrackExtraRef);
+
+    TrackingRecHitRefVector hitlist;
+    for (int i=0;i<theTrackExtraRef->recHitsSize();i++) {
+      hitlist.push_back(theTrackExtraRef->recHit(i));
+    }
+    
+    theTrack->setHitPattern(hitlist);
     
     TrackingRecHitRefVector hitlist;
     for (int i=0;i<theTrackExtraRef->recHitsSize();i++) {
