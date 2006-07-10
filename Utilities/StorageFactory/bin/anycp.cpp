@@ -245,8 +245,8 @@ int main (int argc, char **argv)
 
 
   // flags to swith therading on/off
-  bool readThreadActive = false;
-  bool writeThreadActive = false;
+  bool readThreadActive = true;
+  bool writeThreadActive = true;
   
   if (argc <3)
     {

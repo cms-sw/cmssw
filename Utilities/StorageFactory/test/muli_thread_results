@@ -9,15 +9,17 @@ rfio/construct=4/4/0MB/0.0354896ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/20
 
 [lxcmsg2] two cpu
 
- ~/w1/CMSSW_0_7_1/src > time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
 
 rfio/construct=4/4/0MB/0.0344857ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/131462ms; rfio/write=6294/6294/6000MB/149341ms
 2.280u 16.440s 2:42.18 11.5%    0+0k 0+0io 1138pf+0w
 
 
+3 theads
 time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
 rfio/construct=2/2/0MB/0.0249975ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/98324.2ms; rfio/write=2098/2098/2000MB/42697.9ms
 1.600u 6.770s 1:41.12 8.2%      0+0k 0+0io 1138pf+0w
+
 
 time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat lxcmsa:/data1/innocent/tmp/crap
 2097152000 bytes in 59 seconds through eth0 (in) and eth0 (out) (34711 KB/sec)
@@ -30,3 +32,15 @@ file/construct=1/1/0MB/0.00164986ms; file/position=0/0/0MB/0ms; file/read=0/0/0M
 time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat /dev/null
 2097152000 bytes in 33 seconds through eth0 (in) and local (out) (62060 KB/sec)
 0.220u 2.500s 0:33.30 8.1%      0+0k 0+0io 830pf+0w
+
+no threads
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+rfio/construct=2/2/0MB/0.0263535ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/82178.5ms; rfio/write=2098/2098/2000MB/40770.7ms
+1.630u 5.790s 2:03.34 6.0%      0+0k 0+0io 1139pf+0w
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+exists = 1, size = 2097152000
+main end reading
+stats:
+rfio/construct=4/4/0MB/0.0295135ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/80380.2ms; rfio/write=6294/6294/6000MB/126086ms
+1.610u 12.950s 3:33.60 6.8%     0+0k 0+0io 1139pf+0w
