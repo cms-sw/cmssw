@@ -217,8 +217,7 @@ void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int 
 /// fetch the protoJets from neighbour jetFinder
 void L1GctJetFinderBase::fetchProtoJetsFromNeighbour()
 {
-  m_rcvdProtoJets = m_neighbourJetFinders.at(0)->getSentProtoJets();
-
+  m_rcvdProtoJets = m_neighbourJetFinders.at(1)->getSentProtoJets();
 }
 
 

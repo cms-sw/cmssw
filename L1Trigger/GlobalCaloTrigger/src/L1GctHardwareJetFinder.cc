@@ -14,21 +14,24 @@ const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
 
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-					   L1GctJetEtCalibrationLut* jetEtCalLut):
+					       L1GctJetEtCalibrationLut* jetEtCalLut):
   L1GctJetFinderBase(id, sourceCards, jetEtCalLut),
   m_protoJetRegions(MAX_REGIONS_IN)
 {
-  // Setup the position info in protoJetRegions;
+  // Setup the position info in protoJetRegions.
+  // Note the transformation to global phi is not the same as that
+  // contained in L1CaloRegionDetId, because the passing of protoJets
+  // to neighbour jetFinders results in a shift in phi
   for (unsigned column=0; column<2; ++column) {
     for (unsigned row=0; row<COL_OFFSET; ++row) {
       unsigned ieta;
       unsigned iphi;
       if (id<static_cast<int>(L1CaloRegionDetId::N_PHI/2)) {
-	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
-	iphi = (2*m_id+column);
-      } else {
 	ieta = (L1CaloRegionDetId::N_ETA/2-row);
-	iphi = (2*m_id+column-L1CaloRegionDetId::N_PHI);
+	iphi = (L1CaloRegionDetId::N_PHI - (m_id)*2 + 2)%L1CaloRegionDetId::N_PHI + column;
+      } else {
+	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
+	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 2)%L1CaloRegionDetId::N_PHI + column;
       }
       L1CaloRegion temp(0, ieta, iphi);
       m_protoJetRegions.at(column*COL_OFFSET+row) = temp;
@@ -179,13 +182,6 @@ void L1GctHardwareJetFinder::findClusters(const RegionsVector rgv, const bool pr
     unsigned eta = m_localMaxima.at(j).gctEta();
     unsigned phi = m_localMaxima.at(j).gctPhi();
 
-    // In the precluster phase, we shift the phi
-    // position of the region before sending the odd
-    // phi value out to the neighbour
-    if (preClusterLogic) {
-      phi = (L1CaloRegionDetId::N_PHI + phi + 1)%L1CaloRegionDetId::N_PHI;
-    }
-
     L1CaloRegion temp(etCluster, ovrFlowOr, tauVetoOr, false, false, eta, phi);
     m_clusters.at(j) = temp;
   }
@@ -195,13 +191,13 @@ void L1GctHardwareJetFinder::findClusters(const RegionsVector rgv, const bool pr
 void L1GctHardwareJetFinder::fillRegionsFromProtoJets()
 {
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
-    if (m_keptProtoJets.at(j).et()>=JET_THRESHOLD) {
-      unsigned eta0 = m_keptProtoJets.at(j).rctEta();
-      m_protoJetRegions.at(eta0+1) = m_keptProtoJets.at(j);
-    }
     if (m_rcvdProtoJets.at(j).et()>=JET_THRESHOLD) {
-      unsigned eta1 = m_rcvdProtoJets.at(j).rctEta();
-      m_protoJetRegions.at(eta1+1+COL_OFFSET) = m_rcvdProtoJets.at(j);
+      unsigned eta0 = m_rcvdProtoJets.at(j).rctEta();
+      m_protoJetRegions.at(eta0+1) = m_rcvdProtoJets.at(j);
+    }
+    if (m_keptProtoJets.at(j).et()>=JET_THRESHOLD) {
+      unsigned eta1 = m_keptProtoJets.at(j).rctEta();
+      m_protoJetRegions.at(eta1+1+COL_OFFSET) = m_keptProtoJets.at(j);
     }
   }
 }
@@ -214,9 +210,9 @@ void L1GctHardwareJetFinder::convertClustersToProtoJets()
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       if (m_clusters.at(j).rctPhi()==0) {
-	m_keptProtoJets.at(numberOfKeptJets++) = m_clusters.at(j);
+	m_sentProtoJets.at(numberOfKeptJets++) = m_clusters.at(j);
       } else {
-	m_sentProtoJets.at(numberOfSentJets++) = m_clusters.at(j);
+	m_keptProtoJets.at(numberOfSentJets++) = m_clusters.at(j);
       }
     }
   }
