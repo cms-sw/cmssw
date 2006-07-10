@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.8 2006/07/07 08:22:52 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.10 2006/07/07 12:18:31 gennai Exp $
 //
 //
 
@@ -133,10 +133,10 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
 
 	  hid = hidmanager.createHistoId("CMSubNoiseProfile","det", key_id);
-	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -100., 100.);
+	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
 
 	  hid = hidmanager.createHistoId("RawNoiseProfile","det", key_id);
-	  local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
+	  local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
 
 
 	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
