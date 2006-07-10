@@ -30,8 +30,6 @@ class SiStripNoiseService {
 
  private:
   edm::ParameterSet conf_;
-  std::string userEnv_;  
-  std::string passwdEnv_;
   bool UseCalibDataFromDB_;
 
   double ElectronsPerADC_;

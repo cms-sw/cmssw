@@ -25,8 +25,6 @@ class SiStripPedestalsService {
  private:
   edm::ParameterSet conf_;
   edm::ESHandle<SiStripPedestals> ped;
-  std::string userEnv_;  
-  std::string passwdEnv_;
   bool UseCalibDataFromDB_;
 
   double ElectronsPerADC_;

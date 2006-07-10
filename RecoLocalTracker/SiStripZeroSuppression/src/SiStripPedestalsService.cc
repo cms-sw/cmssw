@@ -2,8 +2,6 @@
 
 SiStripPedestalsService::SiStripPedestalsService(const edm::ParameterSet& conf):
   conf_(conf),
-  userEnv_("CORAL_AUTH_USER=" + conf.getUntrackedParameter<std::string>("userEnv","me")),
-  passwdEnv_("CORAL_AUTH_PASSWORD="+ conf.getUntrackedParameter<std::string>("passwdEnv","mypass")),
   UseCalibDataFromDB_(conf.getParameter<bool>("UseCalibDataFromDB")),
   //
   ElectronsPerADC_(conf.getParameter<double>("ElectronPerAdc")),
@@ -20,9 +18,6 @@ SiStripPedestalsService::SiStripPedestalsService(const edm::ParameterSet& conf):
     edm::LogInfo("SiStripZeroSuppression")  << "[SiStripPedestalsService::SiStripPedestalsService] Using Calibration Data accessed from DB";
   }
   
-  ::putenv( const_cast<char*>( userEnv_.c_str() ) );
-  ::putenv( const_cast<char*>( passwdEnv_.c_str() ) );
-
   old_detID = 0;
   old_range = SiStripPedestals::Range((SiStripPedestals::ContainerIterator)0,(SiStripPedestals::ContainerIterator)0);
   old_noise = -1.;
