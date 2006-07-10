@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/04/07 04:04:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/26 22:07:49 $
+ *  $Revision: 1.8 $
  *  \author Julia Yarba
  */
 
@@ -92,10 +92,24 @@ bool FlatRandomPtGunSource::produce(Event &e)
            new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
        Vtx->add_particle_out(Part);
 
+       if ( fAddAntiParticle )
+       {
+          CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+	  HepMC::GenParticle* APart =
+	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),-(fPartIDs[ip]),1);
+	  Vtx->add_particle_out(APart) ;
+       }
+
    }
+
    fEvt->add_vertex(Vtx) ;
    fEvt->set_event_number(event()) ;
-   fEvt->set_signal_process_id(20) ;      
+   fEvt->set_signal_process_id(20) ; 
+        
+   if ( fVerbosity > 0 )
+   {
+      fEvt->print() ;  
+   }
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
@@ -104,7 +118,7 @@ bool FlatRandomPtGunSource::produce(Event &e)
    if ( fVerbosity > 0 )
    {
       // for testing purpose only
-      fEvt->print() ;
+      // fEvt->print() ; // prints empty info after it's made into edm::Event
       cout << " FlatRandomPtGunSource : Event Generation Done " << endl;
    }
 

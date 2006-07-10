@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/04/07 04:04:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/26 22:07:49 $
+ *  $Revision: 1.8 $
  *  \author Julia Yarba
  */
 
@@ -29,22 +29,12 @@ FlatRandomEGunSource::FlatRandomEGunSource(const ParameterSet& pset,
    // doesn't seem necessary to check if pset is empty - if this
    // is the case, default values will be taken for params
    fMinE = pgun_params.getUntrackedParameter<double>("MinE",0.99);
-   fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01);
-
-   cout << "NParts = " << fPartIDs.size() << endl ;
-   for ( int i=0; i<fPartIDs.size(); i++ )
-   {
-      cout << fPartIDs[i] << endl ;
-   }
-   cout << " MinEta, MaxEta = " << fMinEta << " " << fMaxEta << endl ;
-   cout << " MinPhi, MaxPhi = " << fMinPhi << " " << fMaxPhi << endl ;
-   cout << " MinE, MaxE = " << fMinE << " " << fMaxE << endl ;
+   fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01); 
   
-  
-  produces<HepMCProduct>();
+   produces<HepMCProduct>();
 
-  cout << "Internal FlatRandomEGun is initialzed" << endl ;
-  cout << "It is going to generate " << remainingEvents() << "events" << endl ;
+   cout << "Internal FlatRandomEGun is initialzed" << endl ;
+   cout << "It is going to generate " << remainingEvents() << "events" << endl ;
    
 }
 
@@ -108,10 +98,25 @@ bool FlatRandomEGunSource::produce(Event & e)
        HepMC::GenParticle* Part = 
            new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
        Vtx->add_particle_out(Part);
+       
+       if ( fAddAntiParticle )
+       {
+          CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+	  HepMC::GenParticle* APart =
+	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),-(fPartIDs[ip]),1);
+	  Vtx->add_particle_out(APart) ;
+       }
+       
    }
    fEvt->add_vertex(Vtx) ;
    fEvt->set_event_number(event()) ;
-   fEvt->set_signal_process_id(20) ;      
+   fEvt->set_signal_process_id(20) ;  
+   
+   
+   if ( fVerbosity > 0 )
+   {
+      fEvt->print() ;  
+   }  
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
@@ -120,7 +125,8 @@ bool FlatRandomEGunSource::produce(Event & e)
    if ( fVerbosity > 0 )
    {
       // for testing purpose only
-      fEvt->print() ;
+      //fEvt->print() ;  // for some strange reason, it prints NO event info
+      // after it's been put into edm::Event...
       cout << " FlatRandomEGunSource : Event Generation Done " << endl;
    }
       

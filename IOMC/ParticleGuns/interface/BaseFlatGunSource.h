@@ -63,6 +63,8 @@ namespace edm
     HepRandomEngine* fRandomEngine;
     RandFlat*        fRandomGenerator; 
     
+    bool             fAddAntiParticle;
+    
   };
 } 
 
