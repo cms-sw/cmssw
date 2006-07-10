@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/06/02 11:34:19 $
-// $Revision: 1.9 $
+// $Author: burkett $
+// $Date: 2006/06/15 15:37:21 $
+// $Revision: 1.10 $
 //
 
 #include <vector>
@@ -152,7 +152,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     //Loop over RecHits and propagate trajectory to each hit
 
-    double chi2cut = 30;
+    double chi2cut = conf_.getParameter<double>("HitChi2Cut");
     Chi2MeasurementEstimator theEstimator(chi2cut);
     KFUpdator theUpdator;
 
