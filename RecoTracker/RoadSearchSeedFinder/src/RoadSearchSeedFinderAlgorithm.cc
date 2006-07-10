@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/04/03 22:33:37 $
-// $Revision: 1.8 $
+// $Author: burkett $
+// $Date: 2006/04/25 16:12:55 $
+// $Revision: 1.9 $
 //
 
 #include <vector>
@@ -135,7 +135,24 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 				      0, std::sqrt(region.originRBound()),
 				      0, 0, std::sqrt(region.originZBound()));
 
-		  FastHelix helix(outer, inner, GlobalPoint(0.,0.,0.),es);
+		  double x0=0.0,y0=0.0,z0=0.0;
+                  bool nofieldcosmic = conf_.getParameter<bool>("StraightLineNoBeamSpotSeed");
+                  if (nofieldcosmic){
+                    double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
+                    double alpha=atan2(inner.y(),inner.x());
+                    double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());
+                    double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
+                    double l1=0.0,l2=0.0;
+                    if (fabs(cos(phi0))>0.1){
+                      l1=(inner.x()-x0)/cos(phi0);l2=(outer.x()-x0)/cos(phi0);  
+                    }else{
+                      l1=(inner.y()-y0)/sin(phi0);l2=(outer.y()-y0)/sin(phi0);  
+                    }
+                    z0=(l2*inner.z()-l1*outer.z())/(l2-l1);
+//                    std::cout << "In RSSF, d0,phi0,x0,y0,z0 " << d0 << " " << phi0 << " " << x0 << " " << y0 << " " << z0 << std::endl;
+                  }
+
+		  FastHelix helix(outer, inner, GlobalPoint(x0,y0,z0),es);
 
                   FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
                                            initialError( &(*outerSeedDetHit), &(*innerSeedDetHit),
