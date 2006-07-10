@@ -55,8 +55,8 @@ void MakeValidation()
 
   // create attributes
   Int_t rcolor = kBlue;
-  Int_t rtype = kSolid;
-  Int_t stype = kDotted;
+  Int_t rtype = kDotted;
+  Int_t stype = kSolid;
   Int_t scolor = kRed;
   Int_t linewidth = 2;
 
