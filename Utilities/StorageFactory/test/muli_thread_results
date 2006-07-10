@@ -23,3 +23,10 @@ time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat lxcmsa:/data1/innocent/tmp/
 2097152000 bytes in 59 seconds through eth0 (in) and eth0 (out) (34711 KB/sec)
 0.200u 5.880s 0:59.50 10.2%     0+0k 0+0io 824pf+0w
 
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat /dev/null
+file/construct=1/1/0MB/0.00164986ms; file/position=0/0/0MB/0ms; file/read=0/0/0MB/0ms; file/write=2098/2098/2000MB/11.9271ms; rfio/construct=1/1/0MB/0.0282149ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/63243.6ms; rfio/write=0/0/0MB/0ms
+1.520u 2.900s 1:04.89 6.8%      0+0k 0+0io 1139pf+0w
+
+time rfcp lxcmsa:/data2/innocent/File-00002000MB.dat /dev/null
+2097152000 bytes in 33 seconds through eth0 (in) and local (out) (62060 KB/sec)
+0.220u 2.500s 0:33.30 8.1%      0+0k 0+0io 830pf+0w

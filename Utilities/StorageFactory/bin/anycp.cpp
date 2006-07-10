@@ -242,6 +242,11 @@ int main (int argc, char **argv)
 
   Signal::handleFatal (argv [0]);
   PluginManager::get ()->initialise ();
+
+
+  // flags to swith therading on/off
+  bool readThreadActive = false;
+  bool writeThreadActive = false;
   
   if (argc <3)
     {
@@ -261,7 +266,8 @@ int main (int argc, char **argv)
   
   try {
     is.reset(StorageFactory::get ()->open (argv [1]));
-    threads.create_thread(thread_adapter(&readThread,is.get())); 
+    if (readThreadActive) 
+      threads.create_thread(thread_adapter(&readThread,is.get())); 
   } catch (...) {
     std::cerr << "error in opening input file " << argv[1] << std::endl;
     return EXIT_FAILURE;
@@ -279,7 +285,8 @@ int main (int argc, char **argv)
 						| IOFlags::OpenCreate
 						| IOFlags::OpenTruncate)
 		  );
-      threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
+      if (writeThreadActive) 
+	threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
     } catch (...) {
       std::cerr << "error in opening output file " << argv[i+2] << std::endl;
       return EXIT_FAILURE;
@@ -292,23 +299,29 @@ int main (int argc, char **argv)
     IOSize	n;
     
     
-    while ((n = inbox.get(inbuf))) {
-      //free reading thread
-      inbuf.swap(outbuf);
-      // wait threads have finished to write
-      // drop buffer in thread
-      if (!dropbox.set(outbuf,n)) break;
-    }
+    while ((n = readThreadActive ? inbox.get(inbuf) : is->read(&inbuf[0],inbuf.size())))
+      {
+	//free reading thread
+	inbuf.swap(outbuf);
+	// wait threads have finished to write
+	// drop buffer in thread
+	if (writeThreadActive) {
+	  if (!dropbox.set(outbuf,n)) break;
+	} else
+	  for (int i=0; i<os.size();i++)
+	    os[i]->write(&outbuf[0],n);
+      }
     
     std::cout << "main end reading" << std::endl;
     
     // tell thread to end
     // dropbox.wait();
     inbuf.clear();
-    inbox.get(inbuf);
-    dropbox.set(outbuf, 0);
+
+    if (readThreadActive) inbox.get(inbuf);
+    if (writeThreadActive) dropbox.set(outbuf, 0);
     
-    threads.join_all();
+    if (writeThreadActive||readThreadActive) threads.join_all();
     
     
     std::cerr << "stats:\n" << StorageAccount::summaryText () << std::endl;
