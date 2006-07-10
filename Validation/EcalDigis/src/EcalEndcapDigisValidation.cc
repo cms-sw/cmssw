@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/06/23 17:29:58 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/09 16:49:46 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -222,8 +222,8 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
 
       if (meEEPedestal_) meEEPedestal_->Fill ( pedestalPreSample ) ;
-      if (meEEMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog) > 10.*endcapADCtoGeV_) meEEMaximumgt10ADC_->Fill( Pmax ) ;
-      if (meEEMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog) > 100.*endcapADCtoGeV_) meEEMaximumgt100ADC_->Fill( Pmax ) ;
+      if (meEEMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 10.*endcapADCtoGeV_) meEEMaximumgt10ADC_->Fill( Pmax ) ;
+      if (meEEMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEEnADCafterSwitch_) meEEnADCafterSwitch_->Fill(countsAfterGainSwitch);
       
     } 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/06/23 17:29:58 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/09 16:49:46 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -214,8 +214,8 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
 
       if (meEBPedestal_) meEBPedestal_->Fill ( pedestalPreSample ) ;
-      if (meEBMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog) > 10.*barrelADCtoGeV_) meEBMaximumgt10ADC_->Fill( Pmax ) ;
-      if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
+      if (meEBMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 10.*barrelADCtoGeV_) meEBMaximumgt10ADC_->Fill( Pmax ) ;
+      if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEBnADCafterSwitch_) meEBnADCafterSwitch_->Fill( countsAfterGainSwitch ) ;
         
     } 
