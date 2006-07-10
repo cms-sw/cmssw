@@ -23,7 +23,7 @@ EvtGen+DetSim.cfg runs the event generation and detector simulation
 	evtgen_detsim.root which can then be processed by GlobalValProducer.cfg
  	to produce the same GlobalValProducer.root as the full chain, but 
 	allowing for faster turn-around while debugging the code
-GlobalValProducer.cfg uses evtgen_detsim.root (or any file which contains
+Global.cfg uses evtgen_detsim.root (or any file which contains
 	the output of SimG4Core) to add the PGlobalSimHit object
 
 There are two macros to process the data.
