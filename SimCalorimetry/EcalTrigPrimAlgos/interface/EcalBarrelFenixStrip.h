@@ -10,8 +10,7 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEtStrip.h>
 
-//class EcalTrigPrim;
-//class CaloDataFrame;
+
 class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;

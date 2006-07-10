@@ -22,6 +22,7 @@
 
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -36,31 +37,26 @@
 
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, double lowthresh, double highthresh):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), threshLow_(lowthresh), threshHigh_(highthresh)
 
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples, double lowthresh, double highthresh):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), threshLow_(lowthresh), threshHigh_(highthresh)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   edm::ESHandle<CaloGeometry> theGeometry;
+  //  edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry;
+  edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
   setup.get<IdealGeometryRecord>().get( theGeometry );
+  setup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+  theEndcapGeometry = &(*theEndcapGeometry_handle);
   ebTopology_ = new EcalBarrelTopology(theGeometry);
   ebstrip_=new EcalBarrelFenixStrip(ebTopology_,valTree_);
 
   setup.get<IdealGeometryRecord>().get(eTTmap_);
-  //UB FIXME: configurables
-  //   static SimpleConfigurable<float> thresh(0.0,"EcalTrigPrim:Threshold");
-  //   threshold=thresh.value();
-  //   static SimpleConfigurable<bool> coherence(false,"EcalTrigPrim:CoherenceTest");
-  //   // coherence tests
-  //   bool cohtest=coherence.value();
-  //   if (cohtest) cTest_=new ETPCoherenceTest();
-  //   else cTest_=NULL;
-
 }
 //----------------------------------------------------------------------
 
@@ -115,7 +111,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
     nhitse++;
     fillEndcap(coarser,(*eedcol)[i]);
 
-  }// loop over all CaloDataFrames
+  }// loop over all EEDataFrames
    edm::LogInfo("") << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
   	    << mapEndcap_.size() << " EFRY towers  ";
 
@@ -182,7 +178,6 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
         const EcalTrigTowerDetId & thisTower =(*ite).first;
 	// loop over all strips assigned to this trigger tower
  	std::vector<int> striptp;
-
 
         int nrFrames=mapEndcap_[thisTower].size();
 	// first, estimate thresholds
@@ -301,8 +296,10 @@ int EcalTrigPrimFunctionalAlgo::createStripNr(const EBDetId &cryst) {
 //----------------------------------------------------------------------
 int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
   //temporary version of TTF calculation
-  int high=83; // adc value corresponding to 5 GeV, factor 0.06
-  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+  //  int high=83; // adc value corresponding to 5 GeV, factor 0.06
+  //  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+  int high=int(threshHigh_/0.06);
+  int low=int(threshLow_/0.06);
   int ttf=0;
   if (en>high) ttf=3;
   else if (ttf<high && ttf >low ) ttf=2;

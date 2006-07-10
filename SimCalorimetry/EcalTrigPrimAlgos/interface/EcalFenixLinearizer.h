@@ -51,9 +51,8 @@ namespace tpg {
     int baseLine_[5][5][3]; //to be changed
     int strip_;
     EcalBarrelTopology *ebTopol_;
-
     //    int setInput(int RawSam, int stripNum, int XtalNumberInStrip);
-   int setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip);
+    int setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip);
     int getBase(int XtalNumberInTower) const;
     int getMult() const;
     int getShift() const;

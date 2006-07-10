@@ -48,6 +48,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
   
   label_= iConfig.getParameter<std::string>("Label");
   fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
+  ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
+  ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
   algo_=NULL;
   //FIXME: add configuration
 					      
@@ -69,7 +71,7 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
       break;
       }
     }
-    algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_);
+    algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_,ttfThreshLow_,ttfThreshHigh_);
     edm::LogInfo("constructor") <<" EcalTrigPrimProducer built with nrSamples: "<<nrSamples_<<" found binOfMaximum = "<<binOfMaximum_<<endl;
 }
 

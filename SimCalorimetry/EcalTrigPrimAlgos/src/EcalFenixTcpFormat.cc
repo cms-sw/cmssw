@@ -24,6 +24,7 @@ namespace tpg {
     //double adc2GeV = 0.035*4.; 
     
     for (unsigned int i=0; i<Et.size();++i) {
+      Et[i]=Et[i]>>2;
       if (Et[i]>0xFF) Et[i]=0xFF;
       //computes trigger tower flag:
       //FIXME: check if < or <=.

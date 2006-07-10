@@ -37,6 +37,8 @@ class EcalBarrelTopology;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+class CaloSubdetectorGeometry;
+
 using namespace tpg; //FIXME
 
 /** Main Algo for Ecal trigger primitives. */
@@ -46,8 +48,8 @@ public:
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, double threshlow, double threshhigh);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples, double threshlow, double threshhigh);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
@@ -114,7 +116,8 @@ private:
 
   //  EcalEndcapFenixTcp eetcp_;
 
-   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+  CaloSubdetectorGeometry *theEndcapGeometry;
 
   // for debugging
   ETPCoherenceTest *cTest_;
@@ -125,6 +128,8 @@ private:
 
   int binOfMaximum_;
   int nrSamplesToWrite_;
+  double threshLow_;
+  double threshHigh_;
 };
 
 #endif
