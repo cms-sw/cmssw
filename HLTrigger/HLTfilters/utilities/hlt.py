@@ -1,14 +1,20 @@
 #
-# python script to setup hlt trigger table
+# Python functions used by 'hlt' script to generate a config file
+# that defines triggers with prescale values.
 #
-# Doug Wright
+# Original Authors: David Lange, Doug Wright
+
 
 import os,sys,commands,re
 
-hlt = {} # trigger
+#
+#....global variable
+#
+hlt = {} #....trigger list dictionary (i.e., a hash table)
+hlt_file_dir = "HLTrigger/HLTfilters/utilities"  #....location of hlt config files
 
 #
-#....add trigger to the list, check that trigger name is unique
+#....Add trigger to the list, check that trigger name is unique
 #
 def trig(name,prescale):
  if name not in hlt:
@@ -16,27 +22,11 @@ def trig(name,prescale):
  else:
     print "Error:", name,\
           "is already defined! Did not change prescale to", prescale
-
-# look for trigger path include file 
-def findInc(name):
-    env= os.environ.get('CMSSW_SEARCH_PATH')
-    dirList=env.split(':')
-
-    if not dirList: return 0
-
-    for dir in dirList:
-        if not os.path.isdir(dir): continue
-        fname=dir+'/'+name
-        print fname
-        if os.path.isfile(fname):
-            return 1
-
-    return 0
     
 #
-#....use trigger list to create the .cfg file to load all of the triggers
-#    with prescale values
-#
+#....Write config file to load all of the triggers with prescale values set.
+#    Will include trig.cfg if the file exists in CMSSW_SEARCH_PATH
+
 def make_cfg_file(file):
   print "Creating file:",file,"with trigger definition."
   f = open(file,'w')
@@ -44,22 +34,34 @@ def make_cfg_file(file):
     prescale=str(hlt[name])
     name_prescale = "HLT" + name + "Prescale"
     name_sequence = "HLT" + name + "Sequence"
-    hlt_sequence_path = "HLTrigger/HLTfilters/data/" + name_sequence + ".cfi"
+    name_path     = hlt_file_dir + "/" + name_sequence + ".cfi"
+    sequence = name_prescale
+    
     f.write("\n")
-    foundValidIncFile=findInc(hlt_sequence_path)
-    if ( foundValidIncFile == 1 ):
-        f.write("include \"" + hlt_sequence_path + "\"\n")
+    #....Add include statement if name.cfg file exists
+    if findInc(name_path):
+        f.write("include \"" + name_path + "\"\n")
+        sequence += ", " + name_sequence
     else:
-        print "Skipping missing include " + hlt_sequence_path + "\n"
+        print "Skipping missing include " +name_path
     
     f.write("module   " + name_prescale +"= Prescaler { int32 prescaleFactor = " + prescale + " }\n")
     f.write("path     " + name + " =")
-    f.write("{" + name_prescale)
-    if ( foundValidIncFile == 1 ):
-        f.write(", Hlt" + name_sequence + "}\n")
-    else:
-        f.write("}\n")
+    f.write("{" + sequence + "}\n")
         
   f.write("\n")
   f.close()
 
+#
+#....Return True if a name.cfg file exists somewhere in CMSSW_SEARCH_PATH
+#
+def findInc(name):
+    enVar = os.environ.get('CMSSW_SEARCH_PATH')
+    if enVar:
+        dirList=enVar.split(':')
+        for dir in dirList:
+            if os.path.isfile(dir+'/'+name):
+                return True
+    else:
+        print 'CMSSW_SEARCH_PATH is not defined.'
+    return False

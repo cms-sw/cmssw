@@ -1,19 +1,28 @@
 #! /usr/bin/env python
+#
+# hlt
+#
+# Executable python script that creates a trigger table in memory,
+# writes a config file with prescale definitions, and then executes
+# cmsRun to run all of the HLTs.
+#
+# Original Authors: David Lange, Doug Wright
 
+#....Load the python code that does all of the work
 from hlt import *
 
-
+#....Create a list of triggers
+#
+#      Name              Prescale
 trig( "ElectronLoose",       10 )
 trig( "ElectronTight",       11 )
 trig( "MuonLoose",           20 )
 trig( "MuonTight",           30 )
 trig( "PassThrough",       4000 )
 
-#Make the conf files for this trigger table
+#....Make the conf files for this trigger table
 make_cfg_file('triggers.cfi')
  
-#Now cmsRun
-import os
-os.system("pwd")
+#....Run the example
 #os.system("cmsRun hlt.cfg");
 

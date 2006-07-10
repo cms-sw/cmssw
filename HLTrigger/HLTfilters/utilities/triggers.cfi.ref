@@ -1,0 +1,16 @@
+
+module   HLTMuonLoosePrescale= Prescaler { int32 prescaleFactor = 20 }
+path     MuonLoose ={HLTMuonLoosePrescale}
+
+module   HLTPassThroughPrescale= Prescaler { int32 prescaleFactor = 4000 }
+path     PassThrough ={HLTPassThroughPrescale}
+
+module   HLTMuonTightPrescale= Prescaler { int32 prescaleFactor = 30 }
+path     MuonTight ={HLTMuonTightPrescale}
+
+module   HLTElectronTightPrescale= Prescaler { int32 prescaleFactor = 11 }
+path     ElectronTight ={HLTElectronTightPrescale}
+
+module   HLTElectronLoosePrescale= Prescaler { int32 prescaleFactor = 10 }
+path     ElectronLoose ={HLTElectronLoosePrescale}
+
