@@ -71,7 +71,8 @@ void CalorimetryManager::reconstruct()
       } // electron or photon
     } // myTrack.noEndVertex()    
   } // particle loop
-  std::cout << " Nombre de hit (barrel)" << EBMapping_.size() << std::endl;
+  std::cout << " Number of  hits (barrel)" << EBMapping_.size() << std::endl;
+  std::cout << " Number of  hits (Hcal)" << HMapping_.size() << std::endl;
   //  std::cout << " Nombre de hit (endcap)" << EEMapping_.size() << std::endl;
 } // reconstruct
 
@@ -204,6 +205,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   // The closest crystal
   //  std::cout << " Before getClosestCell " << myCalorimeter_ <<std::endl;
   DetId pivot(myCalorimeter_->getClosestCell(meanShower, true, onEcal==1));
+
   //  std::cout << " After getClosestCell " << std::endl;
   
   EcalHitMaker myGrid(myCalorimeter_,ecalentrance,pivot,onEcal,size,0);
@@ -219,8 +221,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 //  std::cout << " " << myGrid.ecalHcalGapTotalX0() << " " << myGrid.hcalTotalX0() << std::endl;
 //  std::cout << " PS ECAL GAP HCAL L0 " << myGrid.ps1TotalL0()+myGrid.ps2TotalL0() << " " << myGrid.ecalTotalL0();
 //   std::cout << " " << myGrid.ecalHcalGapTotalL0() << " " << myGrid.hcalTotalL0() << std::endl;
-//   std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0()*140. << " " << myGrid.truncatedGrid() << std::endl;
-
+//   std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0() << std::endl;
+//
 //  std::cout << " Grid created " << std::endl;
   if(myPreshower) theShower.setPreshower(myPreshower);
   
@@ -328,12 +330,24 @@ void CalorimetryManager::updateMap(uint32_t cellid,float energy,std::map<unsigne
     }  
 }
 
-void CalorimetryManager::loadFromBarrel(edm::PCaloHitContainer & c) const
+void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 {
   std::map<unsigned,float>::const_iterator cellit;
   std::map<unsigned,float>::const_iterator barrelEnd=EBMapping_.end();
   
   for(cellit=EBMapping_.begin();cellit!=barrelEnd;++cellit)
+    {
+      // Add the PCaloHit. No time, no track number 
+      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+    }
+}
+
+void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
+{
+  std::map<unsigned,float>::const_iterator cellit;
+  std::map<unsigned,float>::const_iterator hcalEnd=HMapping_.end();
+  
+  for(cellit=HMapping_.begin();cellit!=hcalEnd;++cellit)
     {
       // Add the PCaloHit. No time, no track number 
       c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));

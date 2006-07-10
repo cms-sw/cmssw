@@ -36,7 +36,9 @@ class CalorimetryManager{
   Calorimeter * getCalorimeter() const {return myCalorimeter_;}
 
   // load container from edm::Event
-  void loadFromBarrel(edm::PCaloHitContainer & c) const;
+  void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
+
+  void loadFromHcal(edm::PCaloHitContainer & c) const;
 
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
