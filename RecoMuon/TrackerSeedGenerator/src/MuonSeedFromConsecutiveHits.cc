@@ -6,8 +6,8 @@
  *   consecutive tracker layers
  *
  *
- *   $Date: $
- *   $Revision:  $
+ *   $Date: 2006/06/09 15:54:58 $
+ *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
@@ -209,7 +209,7 @@ bool MuonSeedFromConsecutiveHits::share(const BasicTrajectorySeed&) const {
 //
 //
 //
-BasicTrajectorySeed* MuonSeedFromConsecutiveHits::clone() const { 
+MuonSeedFromConsecutiveHits* MuonSeedFromConsecutiveHits::clone() const { 
 
   return new MuonSeedFromConsecutiveHits(*this);
 

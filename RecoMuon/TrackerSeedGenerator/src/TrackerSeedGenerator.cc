@@ -1,10 +1,10 @@
 #include "RecoMuon/TrackerSeedGenerator/src/TrackerSeedGenerator.h"
 
-/** \class MuonSeedGenerator
+/** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/06/10 17:38:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/12 02:18:00 $
+ *  $Revision: 1.3 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -46,6 +46,10 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h" 
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
+
+
 
 //---------------------------------
 //       class TrackerSeedGenerator
@@ -200,7 +204,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
 //
 // get ordered list of tracker layers which may be used as seeds
 //
-void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {  
+void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
                 
   theLayerList.clear();
   // we start from the outer surface of the tracker so it's oppositeToMomentum
@@ -241,7 +245,6 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
       bool in = sur.bounds().inside(pos);
       if ( in ) theLayerList.push_back(MuonSeedDetLayer((*ilayer),gpos,layercounter,start));
     }
-
   }
   
   // sort layer list
@@ -257,8 +260,8 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
 
 // primitive seeds
 //
-void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon, 
-                                          const TrajectoryStateOnSurface& traj) {
+void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
+					  const TrajectoryStateOnSurface& traj) {
   int nseeds = theSeeds.size();
   int nlayers = 0;
   bool validLayer = false;
@@ -273,7 +276,7 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
   }
   
   vector<MuonSeedDetLayer>::const_iterator ilayer;
-  for ( ilayer = theLayerList.begin(); ilayer != theLayerList.end(); ilayer++ ) { 
+  for ( ilayer = theLayerList.begin(); ilayer != theLayerList.end(); ilayer++ ) { // start from theDirection
     const DetLayer* layer = (*ilayer).layer(); 
     const TrajectoryStateOnSurface start = (*ilayer).state();
   
@@ -282,26 +285,27 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
     validLayer = false;
 
     if ( start.isValid() ) {
- //     FreeTrajectoryState* fts = start.freeState();
-      // rescale errors
-//      fts->rescaleError(theErrorRescale);
-
       // find measurements on layer
       double maxChi2 = 150.0;
       Chi2MeasurementEstimator aEstimator(maxChi2);
       
       const std::vector<TrajectoryMeasurement> meas = 
-      theLayerMeasurements->measurements((*layer),start,*thePropagator,aEstimator); 
+	theLayerMeasurements->measurements((*layer),start,*thePropagator,aEstimator); 
       //?FIXME: no fast version for layer
-
+      
       vector<TrajectoryMeasurement>::const_iterator it;
       for ( it = meas.begin(); it != meas.end(); it++ ) {
         if ( (*it).recHit()->isValid() ) {
           TrajectoryStateTransform tsTransform;
           PTrajectoryStateOnDet* ptsos = tsTransform.persistentState(start,(*it).recHit()->geographicalId().rawId());
-          BasicTrajectorySeed* theSeed = new PrimitiveMuonSeed(*ptsos,dir,*it);
+	  
+	  edm::OwnVector< TrackingRecHit > layerRecHits;
+          layerRecHits.push_back( ((*it).recHit()->hit()->clone()) ); // start from theDirection
+	  
+	  //PrimitiveMuonSeed* theSeed = new PrimitiveMuonSeed(*ptsos,dir,*it);
+	  PrimitiveMuonSeed* theSeed = new PrimitiveMuonSeed(*ptsos,dir,layerRecHits,*it);
           validLayer = true;
-        
+	  
           if ( nlayers < theMaxLayers && nseeds < theMaxSeeds ) {
             theSeeds.push_back(theSeed);
             nseeds++;
@@ -315,7 +319,6 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
       }
     }
   }
-  
 }
 
 
@@ -323,8 +326,8 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
 // seeds from consecutive hits
 //
 void TrackerSeedGenerator::consecutiveHitsSeeds(const Trajectory& muon,
-                                                const TrajectoryStateOnSurface& traj,
-                                                const edm::EventSetup& iSetup,
+						const TrajectoryStateOnSurface& traj,
+						const edm::EventSetup& iSetup,
                                                 const TrackingRegion& regionOfInterest) {
 
   if ( theLayerList.size() < 2 ) return;
@@ -333,9 +336,9 @@ void TrackerSeedGenerator::consecutiveHitsSeeds(const Trajectory& muon,
   int nseeds = theSeeds.size();
 
   vector<MuonSeedDetLayer>::const_iterator layer1,layer2;
-  for ( layer1 = theLayerList.begin(); layer1 != theLayerList.end()-1; layer1++ ) {
+  for ( layer1 = theLayerList.begin(); layer1 != theLayerList.end()-1; layer1++ ) { // first layer in theDirection
     if ( nlayers >= theMaxLayers || nseeds >= theMaxSeeds ) break;
-    for ( layer2 = layer1+1; layer2 != theLayerList.end(); layer2++ ) {
+    for ( layer2 = layer1+1; layer2 != theLayerList.end(); layer2++ ) { // second layer in theDirection
       if ( theDirection == outsideIn ) {  // start from outside
         createSeed(*layer1,*layer2,iSetup,regionOfInterest);
       }
@@ -370,43 +373,75 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
     dir = alongMomentum;
   }
 
-//  const DetLayer* outerlayer = outer.layer();
-//  const DetLayer* innerlayer = inner.layer();
+  const DetLayer* outerlayer = outer.layer();
+  const DetLayer* innerlayer = inner.layer();
 
   TrajectoryStateOnSurface start1 = outer.state();
   TrajectoryStateOnSurface start2 = inner.state();
-
+  
   if ( start1.isValid() && start2.isValid() ) {
+    // find measurements on layer
+    double maxChi2 = 150.0;
+    Chi2MeasurementEstimator aEstimator(maxChi2);
 
-    const std::vector<TransientTrackingRecHit> meas1;// = regionOfInterest.hits(outerlayer);
-    const std::vector<TransientTrackingRecHit> meas2;// = regionOfInterest.hits(innerlayer);
-    //FIXME method not implemented in TrackingRegion
-    std::vector<TransientTrackingRecHit>::const_iterator it1,it2;
-    for ( it1 = meas1.begin(); it1 != meas1.end(); it1++ ) {
-      if ( !(*it1).isValid() ) continue;
-      for ( it2 = meas2.begin(); it2 != meas2.end(); it2++ ) {
-        if ( !(*it2).isValid() ) continue;
-        MuonSeedFromConsecutiveHits* seed = new MuonSeedFromConsecutiveHits((*it1),(*it2),dir,theVertexPos, theVertexErr, iSetup);
-        if ( seed->recHits().first == seed->recHits().second ) {
-          delete seed;
-        }
-        else if ( fabs(seed->freeTrajectoryState().momentum().eta()-regionOfInterest.direction().eta()) > 0.1 ) {
-          delete seed;
-        }
-        else {
-          if ( nseeds < theMaxSeeds ) {
-            theSeeds.push_back(seed);
-            nseeds++;
-          }
-          else {
-            delete seed;
-            break;
-          } 
-        }
+    //?FIXME: no fast version for layer    
+    const std::vector<TrajectoryMeasurement> measA = 
+      theLayerMeasurements->measurements((*outerlayer),start1,*thePropagator,aEstimator); 
+    const std::vector<TrajectoryMeasurement> measB = 
+      theLayerMeasurements->measurements((*innerlayer),start2,*thePropagator,aEstimator); 
+    
+    //?FIXME method not implemented in TrackingRegion    
+    //const std::vector<TransientTrackingRecHit> meas1;// = regionOfInterest.hits(outerlayer);
+    //const std::vector<TransientTrackingRecHit> meas2;// = regionOfInterest.hits(innerlayer);
+    
+    edm::OwnVector< TransientTrackingRecHit > layerRecHitsA;
+    edm::OwnVector< TransientTrackingRecHit > layerRecHitsB;
+    
+    vector<TrajectoryMeasurement>::const_iterator it;
+    for ( it = measA.begin(); it != measA.end(); it++ ) {
+      if ( (*it).recHit()->isValid() ) {
+	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*outerlayer),(*it).recHit(),iSetup);
+	if(!checkRZ) continue;
+	if((*checkRZ)( (*it).recHit()->globalPosition().perp(), (*it).recHit()->globalPosition().z())) {
+	  layerRecHitsA.push_back( ((*it).recHit()->clone()) ); // start from theDirection
+	}
       }
     }
+    for ( it = measB.begin(); it != measB.end(); it++ ) {
+      if ( (*it).recHit()->isValid() ) {
+	const HitRZCompatibility *checkRZ = regionOfInterest.checkRZ(&(*innerlayer),(*it).recHit(),iSetup);
+	if(!checkRZ) continue;
+	if((*checkRZ)( (*it).recHit()->globalPosition().perp(), (*it).recHit()->globalPosition().z())) {	  
+	  layerRecHitsB.push_back( (*it).recHit()->clone() ); // start from theDirection
+	}
+      }
+    }
+ 
+    edm::OwnVector<TransientTrackingRecHit>::const_iterator it1,it2;
+    for ( it1 = layerRecHitsA.begin(); it1 != layerRecHitsA.end(); it1++ ) {
+      if ( !(*it1).isValid() ) continue;
+      for ( it2 = layerRecHitsB.begin(); it2 != layerRecHitsB.end(); it2++ ) {
+	if ( !(*it2).isValid() ) continue;
+	MuonSeedFromConsecutiveHits* seed = new MuonSeedFromConsecutiveHits((*it1),(*it2),dir,theVertexPos, theVertexErr, iSetup);
+	if ( seed->recHits().first == seed->recHits().second ) {
+	  delete seed;
+	}
+	else if ( fabs(seed->freeTrajectoryState().momentum().eta()-regionOfInterest.direction().eta()) > 0.1 ) {
+	  delete seed;
+	}
+	else {
+	  if ( nseeds < theMaxSeeds ) {
+	    theSeeds.push_back(seed);
+	    nseeds++;
+	  }
+	  else {
+	    delete seed;
+	    break;
+	  } 
+	}
+      }
+    }   
   }
-
 }
 
 

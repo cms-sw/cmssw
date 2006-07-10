@@ -1,11 +1,11 @@
 #ifndef RecoMuon_TrackerSeedGenerator_H
 #define RecoMuon_TrackerSeedGenerator_H
 
-/** \class MuonSeedGenerator
+/** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/06/10 17:38:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/12 02:17:55 $
+ *  $Revision: 1.4 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
