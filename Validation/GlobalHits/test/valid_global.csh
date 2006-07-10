@@ -10,7 +10,7 @@ echo "......producing output file with this release"
 if ( -e MessageLogger.log ) rm MessageLogger.log
 if ( -e output.log ) rm output.log
 if ( -e FrameworkJobReport.xml ) rm FrameworkJobReport.xml
-cp $GLBLREFDIR/MC_060_minbias.root .
+#cp $GLBLREFDIR/MC_060_minbias.root .
 cmsRun -p DetSim+Global.cfg >& output.log
 echo "......comparing against reference file from previous release"
 cp $GLBLREFDIR/GlobalValHistograms-reference.root .
