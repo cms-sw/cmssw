@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/07/09 16:49:46 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/10 11:31:19 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -84,23 +84,23 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     for (int i = 0; i < 10 ; i++ ) {
 
       sprintf (histo, "EcalDigiTask Endcap analog pulse %02d", i+1) ;
-      meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 512, 0., 4096.);
+      meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 1", i+1) ;
-      meEEDigiADCg1_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEEDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 6", i+1) ;
-      meEEDigiADCg6_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEEDigiADCg6_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 12", i+1) ;
-      meEEDigiADCg12_[i] = dbe_->book1D(histo, histo, 512, 0., 4096);
+      meEEDigiADCg12_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Endcap gain pulse %02d", i+1) ;
       meEEDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
     }
     
     sprintf (histo, "EcalDigiTask Endcap pedestal for pre-sample" ) ;
-    meEEPedestal_ = dbe_->book1D(histo, histo, 512, 0., 4096.) ;
+    meEEPedestal_ = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
 
     sprintf (histo, "EcalDigiTask Endcap maximum position gt 100 ADC" ) ;
     meEEMaximumgt100ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
