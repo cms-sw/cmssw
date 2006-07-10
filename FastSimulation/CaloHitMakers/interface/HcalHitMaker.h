@@ -9,6 +9,7 @@
 //CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
 #include <iostream>
 
 class Calorimeter;
@@ -35,15 +36,14 @@ class HcalHitMaker : public CaloHitMaker
     EcalHitMaker& myGrid;
     
     const FSimTrack * myTrack;
-    HepPoint3D ecalEntrance;
+    HepPoint3D ecalEntrance_;
     HepVector3D particleDirection;
     int onHcal;
     
-    unsigned showerType;
-    double currentDepth;
-    HepTransform3D locToGlobal;
-    double radiusFactor;
-    bool mapCalculated;
+    double currentDepth_;
+    HepTransform3D locToGlobal_;
+    double radiusFactor_;
+    bool mapCalculated_;
     
  public:
     static int getSubHcalDet(const FSimTrack* t)

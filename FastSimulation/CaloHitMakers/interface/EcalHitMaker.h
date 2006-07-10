@@ -3,10 +3,14 @@
 
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
+#include "FastSimulation/CaloHitMakers/interface/CaloPoint.h"
+#include "FastSimulation/CaloHitMakers/interface/CaloSegment.h"
 
 // CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Plane3D.h"
+
+#include <vector>
 
 class Calorimeter;
 
@@ -69,6 +73,10 @@ class EcalHitMaker: public CaloHitMaker
   /// ECAL-HCAL transition 
   inline double ecalHcalGapTotalL0() const {  return L0EHGAP_;}
 
+  /// retrieve the segments (the path in the crystal croessed by the extrapolation
+  /// of the track. Debugging only 
+  inline const std::vector<CaloSegment>& getSegments() const {return segments_;};
+
 
   // The following methods are EM showers specific
   
@@ -91,10 +99,23 @@ class EcalHitMaker: public CaloHitMaker
   const std::map<unsigned,float>& getHits() {return hitMap_;} 
  
   // To retrieve the track
-  const FSimTrack*getFSimTrack() const {return myTrack_;}
+  const FSimTrack* getFSimTrack() const {return myTrack_;}
 
   //   used in FamosHcalHitMaker
   inline const HepPoint3D& ecalEntrance() const {return EcalEntrance_;};
+
+ private:
+ // Computes the intersections of a track with the different calorimeters 
+ void cellLine(std::vector<CaloPoint>& cp) ;
+
+ void preshowerCellLine(std::vector<CaloPoint>& cp) const;
+
+ void hcalCellLine(std::vector<CaloPoint>& cp) const;
+
+ void ecalCellLine(const HepPoint3D&, const HepPoint3D&,std::vector<CaloPoint>& cp) const; 
+
+ void buildSegments(const std::vector<CaloPoint>& cp);
+
 
  private:
 
@@ -118,11 +139,19 @@ class EcalHitMaker: public CaloHitMaker
   DetId pivot_;
   HepPoint3D EcalEntrance_;
   HepNormal3D normal_;
- 
+  int central_;
+  int onEcal_;
+   // First segment in ECAL
+  int ecalFirstSegment_;
+
+
  //  int fsimtrack_;
   const FSimTrack* myTrack_;
   
-  
+  // vector of the intersection of the track with the dectectors (PS,ECAL,HCAL)
+  std::vector<CaloPoint> intersections_;
+  // segments obtained from the intersections
+  std::vector<CaloSegment> segments_;
 };
 
 #endif
