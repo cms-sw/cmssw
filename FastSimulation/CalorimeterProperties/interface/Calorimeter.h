@@ -45,7 +45,7 @@ class Calorimeter{
   }
 
   // more user friendly getClosestCell  
-  DetId getClosestCell(const HepPoint3D& point, bool ecal, bool central);
+  DetId getClosestCell(const HepPoint3D& point, bool ecal, bool central) const;
 
  private:
 
@@ -64,6 +64,7 @@ class Calorimeter{
   // The subdetectors geometry
   const CaloSubdetectorGeometry* EcalBarrelGeometry_;
   const CaloSubdetectorGeometry* EcalEndcapGeometry_;
+  const CaloSubdetectorGeometry* HcalGeometry_;
 //  const CaloSubdetectorGeometry* HcalBarrelGeometry_;
 //  const CaloSubdetectorGeometry* HcalEndcapGeometry_;
 //  const CaloSubdetectorGeometry* HcalOuterGeometry_;

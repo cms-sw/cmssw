@@ -2,10 +2,11 @@
 <use name=FastSimulation/Event>
 <use name=Geometry/CaloGeometry>
 <use name=DataFormats/EcalDetId>
-
+<use name=Geometry/HcalTowerAlgo>
 <export>
  <lib name=FastSimulationCalorimeterProperties>
  <use name=FastSimulation/Event>
  <use name=Geometry/CaloGeometry>	
- <use name=DataFormats/EcalDetId> 	
+ <use name=DataFormats/EcalDetId>
+ <use name=Geometry/HcalTowerAlgo> 	
 </export>

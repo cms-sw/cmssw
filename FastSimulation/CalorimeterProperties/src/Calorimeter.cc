@@ -11,6 +11,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALBarrelProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALEndcapProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALForwardProperties.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 #include <iostream>
 
@@ -22,12 +23,9 @@ Calorimeter::Calorimeter():
   myHCALBarrelProperties_     (NULL),  
   myHCALEndcapProperties_     (NULL),  
   myHCALForwardProperties_    (NULL),
-  EcalBarrelGeometry_        (NULL),
-  EcalEndcapGeometry_          (NULL),
-//  HcalBarrelGeometry_         (NULL),
-//  HcalEndcapGeometry_         (NULL),
-//  HcalOuterGeometry_          (NULL),
-//  HcalForwardGeometry_        (NULL),
+  EcalBarrelGeometry_         (NULL),
+  EcalEndcapGeometry_         (NULL),
+  HcalGeometry_               (NULL),
   PreshowerGeometry_          (NULL)
 {
 ;
@@ -43,7 +41,7 @@ Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo):
   myHCALForwardProperties_    (NULL),
   EcalBarrelGeometry_        (NULL),
   EcalEndcapGeometry_          (NULL),
-  //  HcalGeometry_               (NULL),
+  HcalGeometry_               (NULL),
   PreshowerGeometry_          (NULL)  
 {
   edm::ParameterSet fastDet = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
@@ -118,12 +116,14 @@ void Calorimeter::setupGeometry(const edm::ESHandle<CaloGeometry>& pG)
   std::cout << " setupGeometry " << std::endl;
   EcalBarrelGeometry_ = pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   EcalEndcapGeometry_ = pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  HcalGeometry_ = pG->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+
   // Takes a lot of time
   //  PreshowerGeometry_  = pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
 }
 
 
-DetId Calorimeter::getClosestCell(const HepPoint3D& point, bool ecal, bool central)
+DetId Calorimeter::getClosestCell(const HepPoint3D& point, bool ecal, bool central) const
 {
   DetId result;
   //  std::cout << " In getClosestCell " << ecal << " " << central << std::endl;
@@ -139,6 +139,11 @@ DetId Calorimeter::getClosestCell(const HepPoint3D& point, bool ecal, bool centr
 	  result = EcalEndcapGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
 	}
     }
+  else
+    {
+      result=HcalGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
+    }
+  
   //  std::cout << " done " << result.rawId() << std::endl;
   return result;
 }
