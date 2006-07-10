@@ -1,6 +1,7 @@
 # Basic paths, files, and variables
-O2ODIR=$HOME/scratch0
-CMSSW_VER=CMSSW_0_7_0_pre5
+echo "[INFO]   Sourcing general-runtime.sh"
+O2ODIR=$HOME/scratch0/0_9_0
+CMSSW_VER=CMSSW_2006-07-10
 SCRAM_PATH=/afs/cern.ch/cms/utils
 SCRAM_ARCH=slc3_ia32_gcc323
 CMSSW_DIR=${O2ODIR}/${CMSSW_VER}
@@ -10,13 +11,18 @@ then
     exit
 fi
 
+echo "[INFO]  CMSSW_DIR:  $CMSSW_DIR"
+
 LOG=$O2ODIR/o2o-log.txt
+echo "[INFO]  LOG:  $LOG"
 
 # General object setup
 MAPPING_PATH=${CMSSW_DIR}/src/CondTools/IntegrationTest/mappings
+echo "[INFO]  MAPPING_PATH:  $MAPPING_PATH"
 
 # Path to SQL scripts
 SQL_PATH=${CMSSW_DIR}/src/CondTools/IntegrationTest/sql
+echo "[INFO]  SQL_PATH:  $SQL_PATH"
 
 # Set the CMSSW environment
 PATH=$PATH:$SCRAM_PATH
@@ -28,4 +34,4 @@ PATH=$PATH:$COND_UTIL_PATH
 cd $CURR_DIR
 
 # Get the general DB setup
-source general-db-setup.sh
+source ./general-db-setup.sh
