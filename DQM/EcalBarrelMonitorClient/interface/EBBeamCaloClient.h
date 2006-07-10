@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/06 10:46:46 $
- * $Revision: 1.8 $
+ * $Date: 2006/07/08 13:18:56 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -77,6 +77,10 @@ void htmlOutput(int run, string htmlDir, string htmlName);
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
 template<class T> void AdjustRange(T obj);
+
+/// Get Functions
+ inline int getEvtPerJob() { return ievt_; }
+ inline int getEvtPerRun() { return jevt_; }
 
 private:
  const static int cryInArray_ = 9;

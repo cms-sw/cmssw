@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.2 2006/06/18 12:58:33 dellaric Exp $
+// $Id: EBClient.h,v 1.3 2006/06/30 10:33:28 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2006/06/18 12:58:33 $
+  \version $Revision: 1.3 $
+  \date $Date: 2006/06/30 10:33:28 $
 */
 
 
@@ -88,6 +88,17 @@ class EBClient {
     \param ism Supermodule id
   */
   virtual void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) = 0;
+
+  /*! \fn virtual int getEvtPerJob( void );
+    \brief Returns the total number of processed events
+  */
+  virtual int getEvtPerJob( void ) = 0;
+
+  /*! \fn virtual int getEvtPerRun( void );
+    \brief Returns the number of processed events in this Run
+  */
+  virtual int getEvtPerRun( void ) = 0;
+
 
   virtual ~EBClient(void) {}
 

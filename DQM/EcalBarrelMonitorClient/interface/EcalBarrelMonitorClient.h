@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/06/26 12:30:28 $
- * $Revision: 1.52 $
+ * $Date: 2006/06/29 22:03:24 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -93,6 +93,10 @@ void writeDb(void);
 
 /// EndRunDB
 void endRunDb(void);
+
+ inline int    getEvt( void ) { return( evt_ ); }
+ inline int    getRun( void ) { return( run_ ); }
+ inline string getRunType( void ) { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
 
 private:
 
