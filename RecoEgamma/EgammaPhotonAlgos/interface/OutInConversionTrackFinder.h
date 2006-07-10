@@ -3,9 +3,9 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.1 2006/06/09 15:51:32 nancy Exp $ 
- **  $Date: 2006/06/09 15:51:32 $ 
- **  $Revision: 1.1 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.2 2006/06/23 14:19:13 nancy Exp $ 
+ **  $Date: 2006/06/23 14:19:13 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -44,10 +44,11 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
    
   
   
-  virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const;
+  //  virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const;
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
 
 
-  //  virtual  TrackCandidateCollection  tracks(const TrajectorySeedCollection seeds ) const;
+
   
   
   
@@ -59,34 +60,9 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
   CkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
   KFUpdator*                          theUpdator_;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
-  mutable std::vector<const Trajectory*>  theOutInTracks_;
  
-  TransientInitialStateEstimator*theInitialState_;  
-
-
-
-class ByNumOfHits {
- public:
-  bool operator()(const Trajectory * a, const Trajectory * b) {
-    if (a->foundHits() == b->foundHits()) {
-      return a->chiSquared() < b->chiSquared();
-    } else {
-      return a->foundHits() > b->foundHits();
-    }
-  }
-};
-
-
-
-
-/*
-template <class T, class Scalar = typename T::Scalar>
-  struct ExtractNumOfHits {
-    typedef Scalar result_type;
-    Scalar operator()(const T* p) const {return p->foundHits();}
-    Scalar operator()(const T& p) const {return p.foundHits();}
-  };
-*/
+ 
+  TransientInitialStateEstimator* theInitialState_;  
 
 
 

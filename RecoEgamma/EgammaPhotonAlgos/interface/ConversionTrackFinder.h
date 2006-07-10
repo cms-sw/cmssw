@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.1 2006/06/09 15:50:26 nancy Exp $ 
- **  $Date: 2006/06/09 15:50:26 $ 
- **  $Revision: 1.1 $
+ **  $Id: ConversionTrackFinder.h,v 1.2 2006/06/23 14:18:04 nancy Exp $ 
+ **  $Date: 2006/06/23 14:18:04 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -44,7 +44,8 @@ class ConversionTrackFinder {
     }
 
   
-  virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const =0;
+  //virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const =0;
+virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const =0;
 
 
 
@@ -55,6 +56,22 @@ class ConversionTrackFinder {
   const MeasurementTracker*     theMeasurementTracker_;
   bool seedClean_;
   double smootherChiSquare_;
+
+
+struct ExtractNumOfHits {
+  typedef int result_type;
+  result_type operator()(const Trajectory& t) const {return t.foundHits();}
+  result_type operator()(const Trajectory* t) const {return t->foundHits();}
+};
+
+
+struct ExtractChi2 {
+  typedef float result_type;
+  result_type operator()(const Trajectory& t) const {return t.chiSquared();}
+  result_type operator()(const Trajectory* t) const {return t->chiSquared();}
+};
+
+
  
 
 };

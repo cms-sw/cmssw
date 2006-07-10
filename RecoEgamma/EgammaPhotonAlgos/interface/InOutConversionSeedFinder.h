@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.1 2006/06/09 15:50:34 nancy Exp $ 
- **  $Date: 2006/06/09 15:50:34 $ 
- **  $Revision: 1.1 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.2 2006/06/23 14:18:32 nancy Exp $ 
+ **  $Date: 2006/06/23 14:18:32 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -25,8 +25,6 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 #include <string>
 #include <vector>
@@ -51,28 +49,47 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
     
   
   
-  InOutConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker) : ConversionSeedFinder( field, theInputMeasurementTracker  ) {
-    std::cout << "  InOutConversionSeedFinder CTOR " << std::endl;      
+  InOutConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
     
-  }
-  
-   
+     
   virtual ~InOutConversionSeedFinder();
     
-  virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const { ; }  
-  //  void setTracks(std::vector<const TrajectoryMeasurement*> in) {theOutInTracks_.clear(); theOutInTracks_ = in;}
-  void setTracks(std::vector<const Trajectory*> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
 
+  virtual void  makeSeeds( const reco::BasicClusterCollection* allBc) const ; 
+  void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
+ 
 
   private :
 
-    std::vector<const Trajectory*> theOutInTracks_;
-    
-    mutable vector<TrajectoryMeasurement> theFirstMeasurements_;
-   
-    const LayerMeasurements*      theLayerMeasurements_;
-    const NavigationSchool*       theNavigationSchool_;
 
+  virtual void fillClusterSeeds() const ;
+  void startSeed(FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
+  virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
+			 float signedpt, int startingLayer) const ;
+   
+  std::vector<const reco::BasicCluster*> getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const;
+  void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
+  void createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const ;
+
+
+ private:
+  float  the2ndHitdphi_;
+  float   the2ndHitdzConst_;    
+  float  the2ndHitdznSigma_;
+  mutable int track2Charge_;
+  mutable GlobalVector track2InitialMomentum_; 
+     
+
+
+  std::vector<Trajectory> theOutInTracks_;
+  
+  mutable vector<TrajectoryMeasurement> theFirstMeasurements_;
+  
+  const LayerMeasurements*      theLayerMeasurements_;
+  mutable reco::BasicCluster* theSecondBC_;
+  mutable reco::BasicClusterCollection*  bcCollection_;
+
+  
 };
 
 #endif

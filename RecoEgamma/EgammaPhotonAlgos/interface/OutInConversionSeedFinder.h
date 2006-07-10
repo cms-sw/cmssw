@@ -4,9 +4,9 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: $ 
- **  $Date: $ 
- **  $Revision: $
+ **  $Id: OutInConversionSeedFinder.h,v 1.1 2006/06/09 15:51:24 nancy Exp $ 
+ **  $Date: 2006/06/09 15:51:24 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -20,9 +20,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+
 #include <string>
 #include <vector>
 
@@ -52,20 +50,11 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   
   
   
-  virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const  ;
-  
+  virtual void  makeSeeds(const reco::BasicClusterCollection* allBc) const  ;
+
+
  private:
   
-  void findLayers() const ;
-  void findLayers(const FreeTrajectoryState & fts) const  ; 
-  
-  FreeTrajectoryState trackStateFromClusters ( int aCharge,
-					       const GlobalPoint & gpOrigine, 
-					       PropagationDirection dir, 
-					       float scaleFactor ) const;
-  
-
-  void printLayer(int i) const ;
 
   FreeTrajectoryState makeTrackState(int charge) const ;
 

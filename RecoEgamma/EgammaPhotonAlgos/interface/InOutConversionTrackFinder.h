@@ -3,9 +3,9 @@
 /** \class InOutConversionTrackFinder
  **  
  **
- **  $Id: InOutConversionTrackFinder.h,v 1.1 2006/06/09 15:50:48 nancy Exp $ 
- **  $Date: 2006/06/09 15:50:48 $ 
- **  $Revision: 1.1 $
+ **  $Id: InOutConversionTrackFinder.h,v 1.2 2006/06/23 14:18:47 nancy Exp $ 
+ **  $Date: 2006/06/23 14:18:47 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -24,26 +24,29 @@
 
 class MagneticField;
 class CkfTrajectoryBuilder;
+class TrajectoryCleanerBySharedHits;
+class TransientInitialStateEstimator;
+
+
 
 class InOutConversionTrackFinder : public ConversionTrackFinder {
  public :
    
    InOutConversionTrackFinder(  const edm::EventSetup& es,const edm::ParameterSet& config, const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
  
- virtual ~InOutConversionTrackFinder()
-   {
-   }
+ virtual ~InOutConversionTrackFinder();
+  
 
-
-
- virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const;
- //virtual TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const;
+ virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
+ 
  
  private:
  edm::ParameterSet conf_;
  void initComponents();
  CkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
- std::vector<const Trajectory*> theInOutTracks_;
+ TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
+ 
+ TransientInitialStateEstimator* theInitialState_; 
 
 };
 
