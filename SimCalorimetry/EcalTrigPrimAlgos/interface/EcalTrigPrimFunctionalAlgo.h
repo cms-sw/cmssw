@@ -56,6 +56,7 @@ public:
 
   void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, int fgvbMinEn);
 
+
 private:
 
    void init(const edm::EventSetup & setup);
@@ -117,7 +118,7 @@ private:
   //  EcalEndcapFenixTcp eetcp_;
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  CaloSubdetectorGeometry *theEndcapGeometry;
+  const CaloSubdetectorGeometry *theEndcapGeometry;
 
   // for debugging
   ETPCoherenceTest *cTest_;
@@ -128,6 +129,8 @@ private:
 
   int binOfMaximum_;
   int nrSamplesToWrite_;
+
+  // thresholds for TTF calculation
   double threshLow_;
   double threshHigh_;
 };

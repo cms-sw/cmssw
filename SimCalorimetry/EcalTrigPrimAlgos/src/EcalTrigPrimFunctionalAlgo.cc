@@ -108,6 +108,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
    for(unsigned int i = 0; i < eedcol->size() ; ++i) {
     const EEDetId & myid=(*eedcol)[i].id();
     EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myid);
+
     nhitse++;
     fillEndcap(coarser,(*eedcol)[i]);
 
