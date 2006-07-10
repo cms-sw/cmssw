@@ -1,9 +1,9 @@
 #ifndef TrackingAnalysis_TrackingTruthProducer_h
 #define TrackingAnalysis_TrackingTruthProducer_h
+
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 class TrackingTruthProducer : public edm::EDProducer {
 

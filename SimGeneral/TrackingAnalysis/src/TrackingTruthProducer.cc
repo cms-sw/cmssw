@@ -1,12 +1,10 @@
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -20,7 +18,7 @@ using namespace std;
 using CLHEP::HepLorentzVector;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
-typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
+typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
 
 string MessageCategory = "TrackingTruthProducer";
 
@@ -62,8 +60,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.getByType(G4VtxContainer);
   event.getByType(G4TrkContainer);
   
-  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
-  // Is const HepMC::GenEvent *hme = mcp -> GetEvent(); // faster?
+//  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
+  const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
 
   const edm::SimTrackContainer      *etc = G4TrkContainer.product();
 
@@ -73,7 +71,12 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }  
    
 //  genEvent.print();
-
+//  genEvent ->  signal_process_id();
+  // 13 cosmic muons
+  // 20 particle 
+  // Others from Pythia, begin on page 132. Hope there is a flag somewhere else
+  // Don't want to figure out minBias vs. other things.
+  
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   std::map<int,int> productionVertex;
@@ -90,7 +93,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        const HepMC::GenParticle * gp = 0;       
        int genPart = itP -> genpartIndex();
        if (genPart >= 0) {
-           gp = genEvent.barcode_to_particle(genPart);  //pointer to the generating part.
+           gp = genEvent -> barcode_to_particle(genPart);  //pointer to the generating part.
 	   pdgId = gp -> pdg_id();
        }
         math::XYZPoint theVertex;
@@ -127,7 +130,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
     bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     cout << "Before check: " << index << endl;
-    if (!inVolume && discardOutVolume_) { continue; } 
+    if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
     cout << "After  check: " << index << endl;
     
     int crossing = 0;
@@ -140,7 +143,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     if (vtxParent >= 0) {                      // Is there a parent track? 
       SimTrack est = etc->at(vtxParent);       // Pull track out from vector
       int partHepMC =     est.genpartIndex();  // Get HepMC particle barcode
-      HepMC::GenParticle *hmp = genEvent.barcode_to_particle(partHepMC); // Convert barcode
+      HepMC::GenParticle *hmp = genEvent -> barcode_to_particle(partHepMC); // Convert barcode
       if (hmp != 0) {
         HepMC::GenVertex *hmpv = hmp -> production_vertex(); 
         if (hmpv != 0) {
@@ -189,7 +192,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }
 
   edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
-  
 
 // Dump out the results  
   
