@@ -17,7 +17,7 @@ void AlignableDetUnit::move( const GlobalVector& displacement)
       theDisplacement += displacement;
     }
   else 
-	edm::LogInfo("AlignableDetUnit")
+	edm::LogError("NoMisalignment")
 	  << "AlignableDetUnit: Misalignment currently deactivated"
 	  << " - no move done";
 
@@ -37,7 +37,7 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
       theRotation *= rotation;
     }
   else 
-	edm::LogInfo("AlignableDetUnit") 
+	edm::LogError("NoMisalignment") 
 	  << "AlignableDetUnit: Misalignment currently deactivated"
 	  << " - no rotation done";
 
