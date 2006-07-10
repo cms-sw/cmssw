@@ -28,8 +28,6 @@ BEGIN
   AND ldef.def_id = rtag.location_id
   AND ldef.location='H4'
   AND rdef.run_type='PEDESTAL'
-  AND rdef.config_tag='PEDESTAL-STD'
-  AND rdef.config_ver=1
   AND miov.iov_id > last_id
 ;
     
