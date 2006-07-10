@@ -1,6 +1,6 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 {
-  // Option to draw or not (default = 0) histograms in gif.
+  // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
   int doDraw = 0; 
 
   //  char * filename = "simevent.root";
@@ -158,7 +158,7 @@
    
     h1[3]->Fill(ecalJet); //
     h1[4]->Fill(hcalJet); //
-    h1[6]->Fill(etotJet);
+    h1[5]->Fill(etotJet);
 
 
     // All Jets 
@@ -270,22 +270,23 @@
   // this is a temporary stuff that I've made
   // to create a reference ROOT histogram file
 
-  /*  
-  TFile OutFile("HF_ref.root","RECREATE") ;
-  int ih = 0 ;
+  if (doDraw == 2) {
+    TFile OutFile("HF_new.root","RECREATE") ;
+    int ih = 0 ;
 
-  for ( ih=0; ih<Nhist1; ih++ )
-  { 
-     h1[ih]->Write() ;
+    for ( ih=0; ih<Nhist1; ih++ )
+      { 
+	h1[ih]->Write() ;
+      }
+
+    OutFile.Write() ;
+    OutFile.Close() ;
+    cout << "HF_new.root histogram file created" << endl ; 
   }
 
-  OutFile.Write() ;
-  OutFile.Close() ;
-  cout << "ref. histogram file created" << endl ; 
-
-
+  /*
   return;
-*/
+  */
  
 
    // now perform Chi2 test for histograms using
