@@ -65,7 +65,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("PhotonCorrectionProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  edm::LogInfo("PhotonCorrectionProducer") << "Producing event number: " << theEvent.id() << "\n";
 
 
   //

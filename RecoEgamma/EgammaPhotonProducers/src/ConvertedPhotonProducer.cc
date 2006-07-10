@@ -101,7 +101,7 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 
     // get the Out In Seed Finder  
     edm::LogInfo("ConvertedPhotonProducer") << "get the OutInSeedFinder" << "\n";
-    theOutInSeedFinder_ = new OutInConversionSeedFinder ( &(*theMF_) ,  theMeasurementTracker_ );
+    theOutInSeedFinder_ = new OutInConversionSeedFinder (   &(*theMF_) ,  theMeasurementTracker_ );
 
     // get the Out In Track Finder
     edm::LogInfo("ConvertedPhotonProducer") << "get the OutInTrackFinder" << "\n";
@@ -110,7 +110,7 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 
     // get the In Out Seed Finder  
     edm::LogInfo("ConvertedPhotonProducer") << "get the InOutSeedFinder" << "\n";
-    theInOutSeedFinder_ = new InOutConversionSeedFinder ( &(*theMF_) ,  theMeasurementTracker_  );
+    theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_  );
 
 
     // get the In Out Track Finder
@@ -127,7 +127,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   using namespace edm;
 
   edm::LogInfo("ConvertedPhotonProducer") << "Analyzing event number: " << theEvent.id() << "\n";
-
+  std::cout << "ConvertedPhotonProducer:Analyzing event number " <<   theEvent.id() << std::endl;
 
   // Update MeasurementTracker
     theMeasurementTracker_->update(theEvent);
@@ -180,18 +180,19 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
     theOutInSeedFinder_->setCandidate(*aClus);
+    theOutInSeedFinder_->makeSeeds( bccHandle.product()  );
 
-    theOutInSeedFinder_->makeSeeds( *(bccHandle.product()) );
-   
-    //    std::vector<const TrajectoryMeasurement*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
-    std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+    //    theOutInSeedFinder_->makeSeeds( *(bccHandle.product()) );
+    // std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
+
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds( *(bccHandle.product()) );
-
+    theInOutSeedFinder_->makeSeeds(  bccHandle.product() );
+    //theInOutSeedFinder_->makeSeeds( theEventSetup, *(bccHandle.product()) );
     //    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
-    std::vector<const Trajectory*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
+    std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
 
     // Define candidates with tracks
 
