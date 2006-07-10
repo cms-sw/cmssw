@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.53 $
+ * $Date: 2006/07/10 12:40:04 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,9 +94,17 @@ void writeDb(void);
 /// EndRunDB
 void endRunDb(void);
 
- inline int    getEvt( void ) { return( evt_ ); }
- inline int    getRun( void ) { return( run_ ); }
- inline string getRunType( void ) { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+ inline int                      getEvtPerJob()      { return( ievt_ ); }
+ inline int                      getEvtPerRun()      { return( jevt_ ); }
+ inline int                      getEvt( void )      { return( evt_ ); }
+ inline int                      getRun( void )      { return( run_ ); }
+ inline string                   getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+ inline vector<string>           getRunTypes( void ) { return( runTypes_ ); }
+ inline const vector<EBClient*>  getClients()        { return( clients_ ); }
+ inline const vector<string>     getClientNames()    { return( clientNames_ ); }
+ inline RunIOV                   getRunIOV()         { return( runiov_ ); }
+ inline MonRunIOV                getMonIOV()         { return( moniov_ ); }
+ inline const TH1F*              getEntryHisto()     { return( h_ ); }
 
 private:
 
