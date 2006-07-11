@@ -52,14 +52,17 @@ Cluster1D<T> Cluster1DMerger<T>::operator() ( const Cluster1D<T> & first,
     {
         tracks.push_back ( *i );
     };
-    float newpos = ( first.position().value() * first.weight() / first.position().error() / first.position().error() +
-                     second.position().value() * second.weight() / second.position().error() / second.position().error() ) /
-                   ( first.weight() / first.position().error()/ first.position().error() +
-                     second.weight() / second.position().error()/ second.position().error() );
+    float V1=first.position().error() * first.position().error();
+    float V2=second.position().error() * second.position().error();
+    float C1=first.weight() / V1;
+    float C2=second.weight() / V2;
 
-    float newerr = sqrt ( first.position().error() * first.position().error() +
-                          second.position().error() * second.position().error() );
+    float newpos = ( first.position().value() * C1 +
+                     second.position().value() * C2 ) / ( C1 + C2 );
+
+    float newerr = sqrt ( C1 * C1 * V1 + C2 * C2 * V2 ) / ( C1 + C2 );
     float newWeight = theEstimator->weight ( tracks );
+
     Measurement1D newmeas ( newpos, newerr );
     return Cluster1D<T> ( newmeas, tracks, newWeight );
 }
