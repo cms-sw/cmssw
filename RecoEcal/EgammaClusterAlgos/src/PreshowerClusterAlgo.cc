@@ -109,12 +109,13 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   ESDetId next, strip_1, strip_2;
 
   navigator.setHome(max_it->first);
+  ESDetId startES = max_it->first;
 
   if (plane == 1) {
     // Save two neighbouring strips to the east
     int nadjacents_east = 0;
-    while ( (next=navigator.east()) != ESDetId(0) && next != strip && nadjacents_east !=2 ) {
-       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent east: " << nadjacents_east << next << std::endl;
+    while ( (next=navigator.east()) != ESDetId(0) && next != startES && nadjacents_east !=2 ) {
+       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent east #" << nadjacents_east <<": "<< next << std::endl;
        RecHitsMap::iterator strip_it = rechits_map->find(next);
        if(!goodStrip(strip_it,lastID)) continue;
        // Save strip for clustering if it exists and is not already in use, and satisfies energy threshold
@@ -128,8 +129,8 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     // Save two neighbouring strips to the west
     navigator.home();
     int nadjacents_west = 0;
-    while ( (next=navigator.west()) != ESDetId(0) && next != strip && nadjacents_west !=2 ) {
-       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent west: " << nadjacents_west << next << std::endl;    
+    while ( (next=navigator.west()) != ESDetId(0) && next != startES && nadjacents_west !=2 ) {
+      if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent west #" << nadjacents_west <<": "<< next << std::endl;    
        RecHitsMap::iterator strip_it = rechits_map->find(next);
        if(!goodStrip(strip_it,lastID)) continue;
        clusterRecHits.push_back(strip_it->second);
@@ -144,8 +145,8 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 
   // Save two neighbouring strips to the north
     int nadjacents_north = 0;
-    while ( (next=navigator.north()) != ESDetId(0) && next != strip && nadjacents_north !=2 ) {
-       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north: " << nadjacents_north << next << std::endl;          
+    while ( (next=navigator.north()) != ESDetId(0) && next != startES && nadjacents_north !=2 ) {
+       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north #" << nadjacents_north <<": "<< next << std::endl;          
        RecHitsMap::iterator strip_it = rechits_map->find(next);
        if(!goodStrip(strip_it,lastID)) continue;      
        clusterRecHits.push_back(strip_it->second);
@@ -158,8 +159,8 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     // Save two neighbouring strips to the south
     navigator.home();
     int nadjacents_south = 0;
-    while ( (next=navigator.south()) != ESDetId(0) && next != strip && nadjacents_south !=2 ) {
-       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north: " << nadjacents_north << next << std::endl;     
+    while ( (next=navigator.south()) != ESDetId(0) && next != startES && nadjacents_south !=2 ) {
+       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent south #" << nadjacents_south <<": "<< next << std::endl;     
        RecHitsMap::iterator strip_it = rechits_map->find(next);
        if(!goodStrip(strip_it,lastID)) continue;      
        clusterRecHits.push_back(strip_it->second);
