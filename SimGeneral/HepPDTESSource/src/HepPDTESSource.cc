@@ -13,7 +13,7 @@
 //
 // Original Author:  Luca Lista
 //         Created:  Fri Mar 10 15:58:18 CET 2006
-// $Id: HepPDTESSource.cc,v 1.1 2006/03/13 18:03:06 llista Exp $
+// $Id: HepPDTESSource.cc,v 1.1 2006/03/14 16:33:58 llista Exp $
 //
 #include <memory>
 #include <fstream>
@@ -62,7 +62,10 @@ HepPDTESSource::ReturnType
 HepPDTESSource::produce( const PDTRecord & iRecord ) {
   using namespace edm::es;
   std::auto_ptr<PDT> pdt( new PDT( "PDG table" ) );
-  std::ifstream pdtFile( pdtFileName.c_str() );
+  std::string HepPDTBase( getenv("HEPPDT_PARAM_PATH") ) ;
+  std::string fPDGTablePath = HepPDTBase + "/data/";
+  std::string fPDGTableName = fPDGTablePath + pdtFileName;
+  std::ifstream pdtFile( fPDGTableName.c_str() );
   if( ! pdtFile ) 
     throw cms::Exception( "FileNotFound", "can't open pdt file" )
       << "cannot open " << pdtFileName;
