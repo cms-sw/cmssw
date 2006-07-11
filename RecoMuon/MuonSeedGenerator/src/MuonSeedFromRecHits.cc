@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/05 09:32:45 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/06 08:06:31 $
+ *  $Revision: 1.9 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -14,6 +14,8 @@
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
@@ -493,9 +495,16 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // FIXME: put it into a parameter set!
   double theMinMomentum = 3.0;
 
+  // FIXME: put it into a parameter set!
+  string theNavigationType = "Standard";
+
   // Take the whole tracking geometry
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+
+  // Take the whole det layer geometry
+  edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry;
+  eSetup.get<MuonRecoGeometryRecord>().get(detLayerGeometry);
 
   // set the proper navigation school
   MuonNavigationSchool school(&*muonLayers);
@@ -530,10 +539,17 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // H => is the 4x5 projection matrix
   // parError the 4x4 parameter error matrix of the RecHit
 
+  // LogDebug(metname) << "Projection matrix:\n" << last->projectionMatrix();
+  // LogDebug(metname) << "Error matrix:\n" << last->parametersError();
+
   mat = last->parametersError().similarityT( last->projectionMatrix() );
   
+  //  LogDebug(metname) << "Projected matrix:\n" << mat;
+
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
+  
+  //  LogDebug(metname) << "mat[0][0]: "<<mat[0][0]<<endl;
 
   LocalTrajectoryError error(mat);
   
@@ -554,9 +570,19 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   debug.dumpMuonId(last->geographicalId(),metname);
 
   // ask for compatible layers
-  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
+  vector<const DetLayer*> detLayers;
+  
+  if(theNavigationType == "Standard")
+    detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
+  else if (theNavigationType == "Direct"){
+    DirectMuonNavigation navigation(&*detLayerGeometry);
+    detLayers = navigation.compatibleLayers(state,oppositeToMomentum);
+  }
+  else
+    edm::LogError("Muon|RecoMuon|MuonSeedGenerator") << "No Properly Navigation Selected!!"<<endl;
+  
   LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
-
+  
   std::vector<DetWithState> detsWithStates;
 
   if(detLayers.size()){
