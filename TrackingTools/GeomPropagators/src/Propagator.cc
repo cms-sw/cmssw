@@ -39,12 +39,18 @@ Propagator::propagate (const TrajectoryStateOnSurface& state,
   throw PropagationException("The surface is neither Cylinder nor Plane");
 }
 
+
 // default impl. avoids the need to redefinition in concrete
 // propagators that don't benefit from TSOS vs. FTS
 TrajectoryStateOnSurface 
 Propagator::propagate (const TrajectoryStateOnSurface& tsos, 
 		       const Plane& sur) const
 {
+  // Protect against null propagations
+  if (fabs(sur.toLocal(tsos.globalPosition()).z())<1e-5) {
+    // Still have to tarnsform the r.f.!
+    return TrajectoryStateOnSurface(*tsos.freeState(), sur);
+  }
   return propagate( *tsos.freeState(), sur);
 }
 
