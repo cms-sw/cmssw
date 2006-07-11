@@ -32,10 +32,10 @@ This package creates RecHits from Clusters in silicon strip detectors and matche
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
-- SiStripRecHitConverter Base EDProducer (configuration file: SiStripRecHitConverter.cfi). Hits position is calculated using a StripCPE. By default StripCPEfromTrackAngle is used and in the first iteration the track is assumed to be a straight line from the origin. The SiStripRecHitConverter produce three separate collection of hits on rphi, stereo and glued dets. Parameters: used ClusterProducer StripCPE and Matcher.
-- StripCPEESProducer     Base cluster parameter estimator which calculate the local position and local error for the hit without track angle but including correction for the Lorentz shift (configuration file: StripCPE.cfi). Parameters: double TanLorentzAnglePerTesla (default= 0.032); bool UseMagneticField (default= true).
+- SiStripRecHitConverter Base EDProducer (configuration file: SiStripRecHitConverter.cfi). Hit position is calculated using a StripCPE. By default StripCPEfromTrackAngle is used and in the first iteration the track is assumed to be a straight line from the origin. The SiStripRecHitConverter produces three separate collection of hits on rphi, stereo and glued dets. Parameters: used ClusterProducer StripCPE and Matcher.
+- StripCPEESProducer     Base cluster parameter estimator which calculates the local position and local error for the hit without track angle but including correction for the Lorentz shift (configuration file: StripCPE.cfi). Parameters: double TanLorentzAnglePerTesla (default= 0.032); bool UseMagneticField (default= true).
 - StripCPEfromTrackAngleESProducer Improved cluster parameter estimator from ORCA. (configuration file: StripCPEfromTrackAngle.cfi) Parameters: see  StripCPEESProducer.
-- SiStripRecHitMatcherESProducer   RecHit matcher (configuration file: SiStripRecHitMatcher.cfi). Hits on rphi and stereo dets are matched by projecting the hits on the glued det according to the track direction. In the first iteration the track is assumed to be a straight line from the origin. The error is calculated according to TN/95-170. Hits are matched if they are NSigmaInside*error far from detector bounds. Parameters: double NSigmaInside (default=3.).
+- SiStripRecHitMatcherESProducer   RecHit matcher (configuration file: SiStripRecHitMatcher.cfi). Hits on rphi and stereo dets are matched by projecting them on the glued det according to the track direction. In the first iteration the track is assumed to be a straight line from the origin. The error is calculated according to TN/95-170. Hits are matched if they are NSigmaInside*error far from detector bounds. Parameters: double NSigmaInside (default=3.).
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
@@ -43,7 +43,7 @@ An example of configuration file is available in test/DigisToRecHit.cfg. An exam
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Stable. Missing feature: position estimator for large clusters and eta funcion correction.
+Stable. Missing feature: position estimator for large clusters and eta function correction.
 <hr>
 Last updated:
 @DATE@  Author: computer-generated.
