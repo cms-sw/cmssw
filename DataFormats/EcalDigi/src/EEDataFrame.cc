@@ -11,7 +11,7 @@ EEDataFrame::EEDataFrame(const EEDetId& id) :
 }
 
 std::ostream& operator<<(std::ostream& s, const EEDataFrame& digi) {
-  s << EEDataFrame(digi.id()) << " " << digi.size() << " samples " << std::endl;
+  s << digi.id() << " " << digi.size() << " samples " << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
   return s;
