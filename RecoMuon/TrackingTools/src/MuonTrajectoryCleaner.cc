@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/06/05 07:49:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/27 13:45:43 $
+ *  $Revision: 1.3 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -20,6 +20,8 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   Trajectory::DataContainer::const_iterator m1, m2;
 
   if ( trajC.size() < 2 ) return;
+  
+  LogDebug(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 
   int i(0), j(0);
   int match(0);
@@ -27,7 +29,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   vector<bool> mask(trajC.size(),true);
   
   TrajectoryContainer result;
-  result.reserve(trajC.size());
+  //  result.reserve(trajC.size());
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
@@ -45,10 +47,10 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       }
       
       LogDebug(metname) 
-	<< " MuonTrajSelector: trajC " << i << "chi2/nRH=" 
+	<< " MuonTrajSelector: trajC " << i << " chi2/nRH = " 
 	<< (*iter).chiSquared() << "/" << (*iter).foundHits() <<
-	"vs trajC" << j << "chi2/nRH=" << (*jter).chiSquared() <<
-	"/" << (*jter).foundHits() << "Shared RecHits:" << match;
+	" vs trajC " << j << " chi2/nRH = " << (*jter).chiSquared() <<
+	"/" << (*jter).foundHits() << " Shared RecHits: " << match;
        
       // If there are matches, reject the worst track
       if ( match > 0 ) {
