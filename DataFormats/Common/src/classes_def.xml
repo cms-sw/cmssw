@@ -101,6 +101,8 @@
  <class name="edm::ProcessHistory"/>
 
  <class name="edm::FileFormatVersion"/>
+ <class name="edm::LuminosityBlock"/>
+ <class name="edm::RunBlock"/>
 
  <class name="edm::MD5Hash"/>
  <class name="edm::Hash<0>"/>
