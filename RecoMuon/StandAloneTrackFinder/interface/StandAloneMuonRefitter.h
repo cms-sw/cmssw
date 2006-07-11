@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:26:04 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/06 08:20:28 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -19,6 +19,7 @@ class MuonTrajectoryUpdator;
 class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
+class MuonDetLayerGeometry;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -85,6 +86,11 @@ private:
   /// Extract the Event Setup info at each event. It is called by setES
   virtual void init(const edm::EventSetup& setup);
   
+  /// Set the rigth Navigation
+  std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
+						FreeTrajectoryState& fts,
+						PropagationDirection &propDir);
+  
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
   /// the trajectory state on the last but one available surface
@@ -128,10 +134,16 @@ private:
   /// the propagator name
   std::string thePropagatorName;
 
+  /// Navigation type
+  /// "Direct","Standard"
+  std::string theNavigationType;
+
   int totalChambers;
   int dtChambers;
   int cscChambers;
   int rpcChambers;
+
+  MuonDetLayerGeometry *theDetLayerGeometry;
 };
 #endif
 

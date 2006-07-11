@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:26:17 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/06 08:20:28 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -20,6 +20,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -36,13 +39,14 @@
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
 
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropagator(0){
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropagator(0),theDetLayerGeometry(0){
   
   // FIXME
   // I am not yet sure if I want to pass it by paset or have it hard-coded...
@@ -64,6 +68,10 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   // The errors of the trajectory state are multiplied by nSigma 
   // to define acceptance of BoundPlane and maximalLocalDisplacement
   theNSigma = par.getParameter<double>("NumberOfSigma"); // default = 3.
+
+  // The navigation type:
+  // "Direct","Standard"
+  theNavigationType = par.getParameter<string>("NavigationType");
   
   // The estimator: makes the decision wheter a measure is good or not
   // it isn't used by the updator which does the real fit. In fact, in principle,
@@ -107,9 +115,13 @@ void StandAloneMuonRefitter::reset(){
 }
 
 void StandAloneMuonRefitter::setES(const EventSetup& setup){
-  
   init(setup);
   
+  edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry;
+  setup.get<MuonRecoGeometryRecord>().get(detLayerGeometry);
+
+  if(theDetLayerGeometry) delete theDetLayerGeometry;
+  theDetLayerGeometry = detLayerGeometry->clone();
 }
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
@@ -158,6 +170,30 @@ void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
   
   totalChambers++;
 }
+
+vector<const DetLayer*> StandAloneMuonRefitter::compatibleLayers(const DetLayer *initialLayer,
+								 FreeTrajectoryState& fts,
+								 PropagationDirection &propDir){
+  vector<const DetLayer*> detLayers;
+
+  if(theNavigationType == "Standard"){
+    // ask for compatible layers
+    detLayers = initialLayer->compatibleLayers(fts,propDir);  
+    // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
+    // In fact the first layer is not returned by initialLayer->compatibleLayers.
+    detLayers.insert(detLayers.begin(),initialLayer);
+  }
+  else if (theNavigationType == "Direct"){
+    DirectMuonNavigation navigation(theDetLayerGeometry);
+    detLayers = navigation.compatibleLayers(fts,propDir);
+  }
+  else
+    edm::LogError("Muon|RecoMuon|StandAloneMuonRefitter") << "No Properly Navigation Selected!!"<<endl;
+  
+  return detLayers;
+}
+
+
 
 void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 				   const DetLayer* initialLayer, Trajectory &trajectory){
