@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/27 08:01:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/04 15:25:28 $
+ *  $Revision: 1.10 $
  *
  * \author Ilaria Segoni
  */
@@ -69,7 +69,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 /// DIGI     
 
  edm::Handle<RPCDigiCollection> rpcdigis;
- iEvent.getByLabel("rpcunpacker", rpcdigis);
+ iEvent.getByType(rpcdigis);
 
 /// RecHits
  edm::Handle<RPCRecHitCollection> rpcHits;
@@ -145,10 +145,10 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		if(mult<=10) meMap[meId]->Fill(mult);
 		if(mult>10)  meMap[meId]->Fill(11);
 			
-		sprintf(meId,"RecHitX_%s",detUnitLabel);
+		sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
 		meMap[meId]->Fill(xposition);
  
-		sprintf(meId,"RecHitY_%s",detUnitLabel);
+		sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
 		meMap[meId]->Fill(yposition);
  
 		sprintf(meId,"RecHitDX_%s",detUnitLabel);

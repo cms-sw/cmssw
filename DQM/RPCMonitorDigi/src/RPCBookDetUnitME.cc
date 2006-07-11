@@ -70,11 +70,11 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  sprintf(meTitle,"MissingHits__for_%s",layerLabel);
  meMap[meId] = dbe->book2D(meId, meTitle, 100, 0, 100, 2, 0.,2.);
 
- sprintf(meId,"RecHitX_%s",detUnitLabel);
+ sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
  sprintf(meTitle,"RecHit_Xposition_for_%s",layerLabel);
  meMap[meId] = dbe->book1D(meId, meTitle, 30, -100, 100);
  
- sprintf(meId,"RecHitY_%s",detUnitLabel);
+ sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
  sprintf(meTitle,"RecHit_Yposition_for_%s",layerLabel);
  meMap[meId] = dbe->book1D(meId, meTitle, 30, -100, 100);
  
