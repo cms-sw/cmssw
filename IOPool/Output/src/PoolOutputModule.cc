@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.31 2006/07/06 19:25:00 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.32 2006/07/08 05:07:55 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -7,6 +7,7 @@
 
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/FileFormatVersion.h"
+#include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
 #include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
@@ -146,7 +147,8 @@ namespace edm {
     pool::Ref<PsetMap const> rpparam(om_->context(), &psetMap);
     rpparam.markWrite(parameterSetPlacement_);
 
-    FileFormatVersion fileFormatVersion;
+    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
+
     pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
     fft.markWrite(fileFormatVersionPlacement_);
 
