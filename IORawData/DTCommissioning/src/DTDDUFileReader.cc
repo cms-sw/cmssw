@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:15:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/25 10:04:19 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti
  */
 
@@ -67,9 +67,12 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     bool haederTag = false;
     bool dataTag = true;
 
+
+    int wordCount = 0;
+
     // getting the data word by word from the file
     // do it until you get the DDU trailer
-    while ( !isTrailer(word,dataTag) ) {
+    while ( !isTrailer(word, dataTag, wordCount) ) {
       //while ( !isTrailer(word) ) { 
       
       if (readFromDMA) {
@@ -97,7 +100,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
 	}
 	
 	eventData.push_back(word);
-
+	wordCount++;
       }
       
     } 
@@ -194,13 +197,15 @@ bool DTDDUFileReader::isHeader(uint64_t word, bool dataTag) {
 }
 
 
-bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag) {
+bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
 
   bool it_is = false;
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    it_is = true;
+    //cout<<"[DTDDUFileReader] "<<wordCount<<" - "<<candidate.lenght()<<endl;
+    if ( wordCount == candidate.lenght())
+      it_is = true;
   }
  
   return it_is;
