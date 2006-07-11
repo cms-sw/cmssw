@@ -158,7 +158,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 	 continue;
        }
        std::vector<double> pedVec;
-       pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+       pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
        
        // find gain ratios
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
@@ -172,7 +172,8 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 	 continue;
        }
        std::vector<double> gainRatios;
-       gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+       gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
+
        double a,b;
 
        // Define Alpha and Beta either by stored values or by default universal values
@@ -227,7 +228,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 	 continue;
        }
        std::vector<double> pedVec;
-       pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+       pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
        
        // find gain ratios
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
@@ -241,7 +242,8 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 	 continue;
        }
        std::vector<double> gainRatios;
-       gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+       gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
+
        EcalUncalibratedRecHit aHit =  algoEE_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
        EEuncalibRechits->push_back( aHit );
        
