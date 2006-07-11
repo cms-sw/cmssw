@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 23:08:40 $
-// $Revision: 1.5 $
+// $Author: burkett $
+// $Date: 2006/05/14 23:50:39 $
+// $Revision: 1.6 $
 //
 
 #include <string>
@@ -87,7 +87,7 @@ class RoadSearchCloudMakerAlgorithm
 	   RoadSearchCloudCollection &output);
 
   void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
-			    double phi0, double k0, Roads::type roadType, double ringPhi,
+			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 			    const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
@@ -95,7 +95,7 @@ class RoadSearchCloudMakerAlgorithm
 
   bool isBarrelSensor(DetId id);
 
-  double phiFromExtrapolation(double phi0, double k0, double ringRadius, Roads::type roadType);
+  double phiFromExtrapolation(double d0, double phi0, double k0, double ringRadius, Roads::type roadType);
 
   double phiMax(const TrajectorySeed *seed, double phi0, double k0);
 
@@ -117,6 +117,8 @@ class RoadSearchCloudMakerAlgorithm
   static double epsilon;
   static double half_pi;
   double d0h, phi0h, omegah;
+  double rphicsq;
+  int rphinhits;
 
 };
 
