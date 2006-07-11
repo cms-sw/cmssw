@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
@@ -101,7 +101,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
 
 
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( *((*prod).second) );
+    ttks.push_back( reco::TransientTrack(*((*prod).second), thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";
