@@ -191,13 +191,6 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     }
     
     theTrack->setHitPattern(hitlist);
-    
-    TrackingRecHitRefVector hitlist;
-    for (int i=0;i<theTrackExtraRef->recHitsSize();i++) {
-	hitlist.push_back(theTrackExtraRef->recHit(i));
-    }
-
-    theTrack->setHitPattern(hitlist);
    
     //fill the TrackCollection
     outputTColl->push_back(*theTrack);
