@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/04 09:03:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/07/04 09:26:36 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -57,13 +57,17 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // The inward-outward fitter (starts from seed state)
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new StandAloneMuonRefitter(refitterPSet);
+
+  // Disable/Enable the backward filter
+  doBackwardRefit = par.getUntrackedParameter<bool>("DoBackwardRefit",true);
   
-  // The outward-inward fitter (starts from theRefitter outermost state)
-  ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
-  //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
-  theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
-
-
+  if(doBackwardRefit){
+    // The outward-inward fitter (starts from theRefitter outermost state)
+    ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
+    //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
+    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
+  }
+  
   // The outward-inward fitter (starts from theBWFilter innermost state)
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new StandAloneMuonSmoother(smootherPSet);
@@ -81,13 +85,13 @@ void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){
   NavigationSetter setter(school);
   
   theRefitter->setES(setup);
-  theBWFilter->setES(setup);
+   if(doBackwardRefit) theBWFilter->setES(setup);
   theSmoother->setES(setup);
 }
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
   theRefitter->setEvent(event);
-  theBWFilter->setEvent(event);
+   if(doBackwardRefit) theBWFilter->setEvent(event);
   theSmoother->setEvent(event);
 }
 
@@ -96,9 +100,9 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
   LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "StandAloneMuonTrajectoryBuilder destructor called" << endl;
   
-  delete theRefitter;
-  delete theBWFilter;
-  delete theSmoother;
+  if(theRefitter) delete theRefitter;
+  if(doBackwardRefit && theBWFilter) delete theBWFilter;
+  if(theSmoother) delete theSmoother;
 }
 
 
@@ -127,28 +131,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   DetId seedDetId(pTSOD.detId());
 
-  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
   const GeomDet* gdet = theTrackingGeometry->idToDet( seedDetId );
   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
   LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
-  
-  // FIXME!!! FIXME!!! FIXME!!! FIXME!!!
-//   Surface::PositionType pos(0., 0., 0.);
-//   Surface::RotationType rot;
-//   BoundCylinder *cyl=
-//     new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
 
-//   TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, cyl, &*theMGField);
-
-  if(seedDetId.subdetId() == MuonSubdetId::CSC){
-    CSCDetId cscId( seedDetId.rawId() );
-    LogDebug(metname)<< "Seed id (CSC)"<< cscId << endl ;
-  }
-  else if (seedDetId.subdetId() == MuonSubdetId::DT){
-       DTChamberId dtId( seedDetId.rawId() );
-       LogDebug(metname)<< "Seed id (DT) "<< dtId << endl ;
-  }
-  //
+  LogDebug(metname)<< "Seed id in: "<< endl ;
+  debug.dumpMuonId(seedDetId);
   
   // Get the layer from which start the trajectory building
   const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
@@ -199,12 +187,26 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   if( refitter()->layers().size() ) debug.dumpLayer( refitter()->lastDetLayer(), metname);
   else return trajectoryContainer; // FIXME!!!!
   
-  LogDebug(metname) << "Number of DT/CSC/RPC chamber used: " 
+  LogDebug(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
        << refitter()->getDTChamberUsed() << "/"
        << refitter()->getCSCChamberUsed() << "/"
        << refitter()->getRPCChamberUsed() <<endl;
   LogDebug(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
+
+  if(!doBackwardRefit){
+    LogDebug(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
+    
+    if (  refitter()->getTotalChamberUsed() >= 2 && 
+	  (refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ){
+      LogDebug(metname)<< "Trajectory saved" << endl;
+      trajectoryContainer.push_back(trajectoryFW);
+    }
+    else LogDebug(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
+    
+    return trajectoryContainer;
+  }
+
   // FIXME put the possible choices: (factory???)
   // fw_low-granularity + bw_high-granularity
   // fw_high-granularity + smoother
@@ -226,8 +228,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
   debug.dumpTSOS(tsosAfterBWRefit,metname);
   LogDebug(metname) 
-    << "Number of RecHits: " << trajectoryBW.foundHits() << endl
-    << "Number of DT/CSC/RPC chamber used: " 
+    << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
+    << "Number of DT/CSC/RPC chamber used (bw): " 
     << bwfilter()->getDTChamberUsed() << "/"
     << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed();
@@ -236,14 +238,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // least 1 "tracking" (DT or CSC)
   if (  bwfilter()->getTotalChamberUsed() >= 2 && 
 	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
-    LogDebug(metname)<< "TRAJECTORY SAVED" << endl;
+    LogDebug(metname)<< "Trajectory saved" << endl;
     trajectoryContainer.push_back(trajectoryBW);
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
   //trajectory w/o the latest measurement and a looser chi2 cut
   else if ( refitter()->getTotalChamberUsed() >= 2 ) {
-    LogDebug(metname)<< "Trajectory NOT saved. SecondAttempt." << endl
+    LogDebug(metname)<< "Trajectory NOT saved. Second Attempt." << endl
 		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     // FIXME:
     // a better choice could be: identify the poorest one, exclude it, redo

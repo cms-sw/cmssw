@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/23 17:47:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/01 15:43:23 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -59,6 +59,8 @@ public:
   // FIXME
   //  StandAloneMuonBackwardFilter* theBWFilter;
   StandAloneMuonSmoother* theSmoother;
+
+  bool doBackwardRefit;
 
   double theMaxEta;
 
