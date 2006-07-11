@@ -38,7 +38,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
 
-  produces<VertexCollection>("PrimaryVertex");
+  //  produces<VertexCollection>("PrimaryVertex");
+  produces<VertexCollection>();
 
 }
 
@@ -131,7 +132,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   *result = vColl;
-  iEvent.put(result, "PrimaryVertex");
+  //  iEvent.put(result, "PrimaryVertex");
+  iEvent.put(result);
   
 }
 
