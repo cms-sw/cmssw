@@ -26,8 +26,44 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
  vector<DetLayer*> result[2];
 
  for(int endcap = RPCDetId::minRegionId; endcap<=RPCDetId::maxRegionId; endcap+=2){
- 
-	for(int station = RPCDetId::minStationId; station <= RPCDetId::maxStationId; ++station) {
+	
+	/// ME 1
+	int firstStation=1;
+	
+	/// ME 1/1
+	for(int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
+		vector<int> rolls;      
+      
+		int FirstStationRing = 1; 
+		for(int roll = RPCDetId::minRollId; roll <= RPCDetId::maxRollId; ++roll) {
+			rolls.push_back(roll);
+		}
+		
+		MuRingForwardLayer* ringLayer = buildLayer(endcap, FirstStationRing,firstStation , layer, rolls, geo);          
+		if (layer) result[endcap].push_back(ringLayer);
+		
+	}
+	
+	/// ME 1/2 and ME1/3	 
+	for(int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
+		vector<int> rolls;      
+      
+		for(int ring = 2; ring <= 3; ++ring) {
+		for(int roll = RPCDetId::minRollId; roll <= RPCDetId::maxRollId; ++roll) {
+			rolls.push_back(roll);
+		}
+		
+		MuRingForwardLayer* ringLayer = buildLayer(endcap, ring, firstStation , layer, rolls, geo);          
+		if (layer) result[endcap].push_back(ringLayer);
+		}
+	}
+	 
+
+
+
+
+	/// ME 2 and ME 3 
+	for(int station = 2; station <= RPCDetId::maxStationId; ++station) {
 	for(int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
 		vector<int> rolls;      
       
