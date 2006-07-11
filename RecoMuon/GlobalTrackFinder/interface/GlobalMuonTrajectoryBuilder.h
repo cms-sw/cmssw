@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/04 21:23:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/09 17:41:02 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -43,7 +43,7 @@ public:
   typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
   typedef std::vector<Trajectory> TC;
   typedef TC::const_iterator TI;
-  typedef std::pair<Trajectory, reco::TrackRef*> MuonCandidate;
+  typedef std::pair<Trajectory, reco::Track&> MuonCandidate;
  
   /// constructor
   GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par);
@@ -51,26 +51,26 @@ public:
   /// destructor 
   ~GlobalMuonTrajectoryBuilder();
 
-  TC trajectories(const reco::TrackRef* staTrack,
+  TC trajectories(const reco::Track& staTrack,
                   const edm::Event&, 
                   const edm::EventSetup&);
 
-  std::vector<reco::TrackRef*> chosenTrackerTrackRef() const;
+  std::vector<reco::Track&> chosenTrackerTrackRef() const;
 
   private:
 
     /// initialize algorithms
     void init();
 
-    TC build(const reco::TrackRef* staTrack,
+    TC build(const reco::Track& staTrack,
               const std::vector<Trajectory>& tkTrajs);
 
     /// choose a set of Track that match given standalone Track
-    void chooseTrackerTracks(const reco::TrackRef* staTrack,
+    void chooseTrackerTracks(const reco::Track&,
                              reco::TrackCollection&) const;
  
     /// get silicon tracker Trajectories from track Track and Seed directly
-    TC getTrackerTraj(const reco::TrackRef*) const;
+    TC getTrackerTraj(const reco::Track&) const;
 
     /// get silicon tracker Trajectories from track Track and Seed directly
     TC getTrackerTrajs(const TrajectoryFitter* theFitter,
@@ -115,6 +115,10 @@ public:
     TrajectoryCleaner*  theTrajectoryCleaner;
     GlobalMuonReFitter* theRefitter;
 
+    GlobalPoint theVertexPos;
+    GlobalError theVertexErr;
+    MuonUpdatorAtVertex* theUpdator;
+    
     ReconstructionDirection theDirection;
     int   theMuonHitsOption;
     float thePtCut;
@@ -123,12 +127,13 @@ public:
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
-    std::vector<reco::TrackRef*> theTkTrackRef; 
+    std::vector<reco::Track&> theTkTrackRef; 
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     edm::ESHandle<MagneticField> theField;
     edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
     edm::ESHandle<TransientTrackingRecHitBuilder> theTransientHitBuilder;
 
+    TrackingRegion defineRegionOfInterest(reco::Track&);
 
 };
 #endif
