@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.8 2006/06/16 22:51:47 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.9 2006/06/30 22:24:18 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -11,27 +11,6 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 namespace {
-  std::string query (const HcalPedestals* fObject, const std::string& fTag) {
-    std::string result = "select ";
-    result += "DAT.CAPACITOR_0_VALUE, DAT.CAPACITOR_1_VALUE, DAT.CAPACITOR_2_VALUE, DAT.CAPACITOR_3_VALUE, ";
-    result += "CH.Z, CH.ETA, CH.PHI, CH.DEPTH, CH.DETECTOR_NAME ";
-    result += "from ";
-    result += "CMS_HCL_HCAL_CONDITION_OWNER.HCAL_GAIN_PEDSTL_CALIBRATIONS DAT, ";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS, ";
-    result += "CMS_HCL_HCAL_CONDITION_OWNER.HCAL_CHANNELS CH, ";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC, ";
-    result += "CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN ";
-    result += "where ";
-    result += "DS.CONDITION_DATA_SET_ID=DAT.CONDITION_DATA_SET_ID and ";
-    result += "DS.CHANNEL_MAP_ID = CH.CHANNEL_MAP_ID and ";
-    result += "KOC.KIND_OF_CONDITION_ID = DS.KIND_OF_CONDITION_ID and ";
-    result += "RN.COND_RUN_ID=DS.COND_RUN_ID and ";
-    result += "KOC.IS_RECORD_DELETED='F' and ";
-    result += "DS.IS_RECORD_DELETED='F' and ";
-    result += "KOC.NAME='HCAL Pedestals' and ";
-    result += "RN.RUN_NAME='" + fTag + "'";
-    return result;
-  }
   std::string query (const HcalGains* fObject, const std::string& fTag) {
     std::string result = "select ";
     result += "DAT.CAPACITOR_0_VALUE, DAT.CAPACITOR_1_VALUE, DAT.CAPACITOR_2_VALUE, DAT.CAPACITOR_3_VALUE, \n";
@@ -97,7 +76,11 @@ HcalDbOnline::~HcalDbOnline () {
 }
 
 bool HcalDbOnline::getObject (HcalPedestals* fObject, const std::string& fTag) {
-  return getObjectGeneric (fObject, fTag);
+  return getObject (fObject, (HcalPedestalWidths*)0, fTag);
+}
+
+bool HcalDbOnline::getObject (HcalPedestalWidths* fObject, const std::string& fTag) {
+  return getObject ((HcalPedestals*)0, fObject, fTag);
 }
 
 bool HcalDbOnline::getObject (HcalGains* fObject, const std::string& fTag) {
@@ -362,13 +345,65 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 }
 
 
+bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidths, const std::string& fTag) {
+  if (!fObject && !fWidths) return false;
+  std::string sql_query ("");
+  sql_query += "SELECT\n"; 
+  sql_query += " Z, ETA, PHI, DEPTH, DETECTOR_NAME\n"; 
+  sql_query += " , CAPACITOR_0_VALUE, CAPACITOR_1_VALUE, CAPACITOR_2_VALUE, CAPACITOR_3_VALUE\n"; 
+  sql_query += " , SIGMA_0_0, SIGMA_0_1, SIGMA_0_2, SIGMA_0_3, SIGMA_1_1, SIGMA_1_2, SIGMA_1_3, SIGMA_2_2, SIGMA_2_3, SIGMA_3_3\n"; 
+  sql_query += " , RUN_NUMBER, INTERVAL_OF_VALIDITY_BEGIN, INTERVAL_OF_VALIDITY_END\n"; 
+  sql_query += "FROM V_HCAL_PEDESTALS_V2\n"; 
+  sql_query += "WHERE TAG_NAME='" + fTag + "'\n"; 
+  try {
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
+    mStatement->setPrefetchRowCount (100);
+    mStatement->setSQL (sql_query);
+    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+    while (rset->next ()) {
+      int index = 1;
+      int z = rset->getInt (index++);
+      int eta = rset->getInt (index++);
+      int phi = rset->getInt (index++);
+      int depth = rset->getInt (index++);
+      std::string subdet = rset->getString (index++);
+
+      float values [4];
+      float widths [4][4];
+      for (int i = 0; i < 4; i++) values[i] = rset->getFloat (index++);
+      for (int i = 0; i < 4; i++) 
+	for (int j = i; j < 4; j++) widths [i][j] = rset->getFloat (index++);
+
+      unsigned long run = rset->getInt (index++);
+      unsigned long iovBegin = rset->getInt (index++);
+      unsigned long iovEnd = rset->getInt (index++);
+
+      HcalSubdetector sub = hcalSubdet (subdet);
+      HcalDetId id (sub, z * eta, phi, depth);
+
+      if (fObject) fObject->addValue (id, values);
+      if (fWidths) {
+	HcalPedestalWidth* width = fWidths->setWidth (id);
+	for (int i = 0; i < 4; i++) 
+	  for (int j = i; j < 4; j++) width->setSigma (i, j, widths [i][j]);
+      }
+    }
+    delete rset;
+  }
+  catch (oracle::occi::SQLException& sqlExcp) {
+    std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
+  }
+  if (fObject) fObject->sort ();
+  if (fWidths) fWidths->sort ();
+  return true;
+}
+
 template <class T>
 bool HcalDbOnline::getObjectGeneric (T* fObject, const std::string& fTag) {
   if (!fObject) return false;
   std::string sql_query = query (fObject, fTag);
   try {
-    // std::cout << "executing query: \n" << sql_query << std::endl;
-    //    oracle::occi::Statement* stmt = mConnect->createStatement ();
+    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
     mStatement->setPrefetchRowCount (100);
     mStatement->setSQL (sql_query);
     oracle::occi::ResultSet* rset = mStatement->executeQuery ();

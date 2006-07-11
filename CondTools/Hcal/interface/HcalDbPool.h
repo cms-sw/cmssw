@@ -13,7 +13,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.3 2006/03/01 07:27:40 fedor Exp $
+   $Id: HcalDbPool.h,v 1.4 2006/05/22 21:10:37 fedor Exp $
 */
 
 namespace cond {
@@ -37,11 +37,11 @@ namespace pool {
    
 class HcalDbPool {
  public:
-  HcalDbPool (const std::string& fConnect);
+  HcalDbPool (const std::string& fConnect, bool fVerbose = false);
   ~HcalDbPool ();
 
   pool::IDataSvc* service ();
-  coral::ISession* session ();
+  std::auto_ptr<coral::ISession> session ();
   
   const std::string& metadataGetToken (const std::string& fTag);
   bool metadataSetTag (const std::string& fTag, const std::string& fToken);
@@ -71,6 +71,7 @@ class HcalDbPool {
   std::auto_ptr<pool::Placement> mPlacement;
   std::auto_ptr<coral::ISession> mSession;
   std::auto_ptr<seal::Context> mContext;
+  bool mVerbose;
   template <class T>
   bool storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fObject);
 

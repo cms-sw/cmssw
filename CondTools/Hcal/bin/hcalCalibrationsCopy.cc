@@ -244,7 +244,7 @@ template <class T> bool copyObject (T* fObject,
     }
     else if (dbFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Pool" << std::endl;
-      if (!poolDb) poolDb = new HcalDbPool (fInput);
+      if (!poolDb) poolDb = new HcalDbPool (fInput, fVerbose);
       fObject = new T;
       result = poolDb->getObject (fObject, fInputTag, fInputRun);
     }
@@ -294,7 +294,7 @@ template <class T> bool copyObject (T* fObject,
       }
       else if (dbFile (fOutput)) { //POOL
 	if (!traceCounter) std::cout << "USE OUTPUT: Pool" << std::endl;
-	if (!poolDb) poolDb = new HcalDbPool (fOutput);
+	if (!poolDb) poolDb = new HcalDbPool (fOutput, fVerbose);
 	poolDb->putObject (object, fOutputTag, fOutputRun);
 	object = 0; // owned by POOL
       }

@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.10 2006/05/12 22:24:38 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.11 2006/05/22 21:10:37 fedor Exp $
 */
 
 // pool
@@ -69,16 +69,27 @@ typedef std::map<unsigned long long,std::string> IOVCollection;
 
 template <class T>
 bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
+  if (mVerbose) std::cout << "HcalDbPool::storeObject-> start..." << std::endl;
   if (!fRef->isNull ()) {
     std::cerr << "storeObject-> Ref is not empty. Ignore." << std::endl;
     return false;
   }
   try {
+    service ()->transaction().update();
+    if (mVerbose) std::cout << "transaction is active: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
+    if (mVerbose) std::cout << "transaction ---> start" << std::endl;
     service ()->transaction().start(pool::ITransaction::UPDATE);
+    if (mVerbose) std::cout << "transaction is active1: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
+    
     *fRef = pool::Ref <T> (service (), fObject);
+    if (mVerbose) std::cout << "transaction is active2: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     mPlacement->setContainerName (fContainer);
+    if (mVerbose) std::cout << "transaction is active3: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     fRef->markWrite (*mPlacement);
+    if (mVerbose) std::cout << "transaction is active4: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
     service ()->transaction().commit();
+    if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
+    if (mVerbose) std::cout << "transaction is active5: " << service ()->transaction().isActive() << ", type=" << (int) service ()->transaction().type() << std::endl;
   }
   catch (pool::Exception& e) {
     std::cerr << "storeObject->  POOL error: "  << e.what() << std::endl;
@@ -92,21 +103,32 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
      std::cerr << "storeObject->  not standard error "  << std::endl;
      return false;
    }
+  if (mVerbose) std::cout << "HcalDbPool::storeObject-> end..." << std::endl;
   return true;
 } 
 
 template <class T>
 bool HcalDbPool::updateObject (T* fObject, pool::Ref<T>* fUpdate) {
+  if (mVerbose) std::cout << "HcalDbPool::updateObject-> start..." << std::endl;
   try {
+    if (mVerbose) std::cout << "transaction ---> start" << std::endl;
     service ()->transaction().start(pool::ITransaction::UPDATE);
     if (fObject) *(fUpdate->ptr ()) = *fObject; // update object
     fUpdate->markUpdate();
     service ()->transaction().commit();
+    if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
+  }
+  catch (const pool::Exception& e) {
+    std::cerr<<"updateObject-> POOL error: " << e.what() << std::endl;
   }
   catch (std::exception& e) {
     std::cerr << "updateObject->  error: " << e.what () << std::endl;
     return false;
   }
+  catch (...) {
+    std::cerr << "HcalDbPool::updateObject-> General error" << std::endl;
+  }
+  if (mVerbose) std::cout << "HcalDbPool::updateObject-> end..." << std::endl;
   return true;
 }
 
@@ -149,22 +171,25 @@ bool HcalDbPool::getObject (const pool::Ref<cond::IOV>& fIOV, unsigned fRun, poo
 
 template <class T> 
 bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
+  if (mVerbose) std::cout << "HcalDbPool::getObject-> start..." << std::endl;
   try {
     *fObject = pool::Ref <T> (service (), fToken);
+    if (mVerbose) std::cout << "transaction ---> start" << std::endl;
     service ()->transaction().start(pool::ITransaction::READ);
     fObject->isNull ();
     service ()->transaction().commit();
+    if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
   }
   catch(const coral::TableNotExistingException& e) {
     std::cerr << "getObject-> coral::TableNotExisting Exception" << std::endl;
   }
-  // Removed to release 060pre2, it will probably need to be replaced- SA
-  //catch (const seal::Exception& e) {
-  //  std::cerr<<"getObject-> CORAL error: " << e << std::endl;
-  //}
+  catch (const pool::Exception& e) {
+    std::cerr<<"getObject-> POOL error: " << e.what() << std::endl;
+  }
   catch(...){
     std::cerr << "getObject-> Funny error" << std::endl;
   }
+  if (mVerbose) std::cout << "HcalDbPool::getObject-> end..." << std::endl;
   return !(fObject->isNull ());
 }
 
@@ -215,9 +240,10 @@ bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const st
   return true;
 }
 
-HcalDbPool::HcalDbPool (const std::string& fConnect)
-  : mConnect (fConnect) {
-  //std::cout << "HcalDbPool::HcalDbPool started..." << std::endl;
+HcalDbPool::HcalDbPool (const std::string& fConnect, bool fVerbose)
+  : mConnect (fConnect),
+    mVerbose (fVerbose) {
+  if (mVerbose) std::cout << "HcalDbPool::HcalDbPool started..." << std::endl;
   seal::PluginManager::get()->initialise();
   mContext.reset (new seal::Context);
   seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader (&*mContext);
@@ -227,18 +253,29 @@ HcalDbPool::HcalDbPool (const std::string& fConnect)
   mTag.clear ();
   if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blah");
   if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah"); 
-  //std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
+  service ();
+  if (mVerbose) std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
 }
+
+HcalDbPool::~HcalDbPool () {
+  if (mVerbose) std::cout << "HcalDbPool::~HcalDbPool started..." << std::endl;
+  mService->session().disconnectAll();
+  mCatalog->commit ();
+  mCatalog->disconnect ();
+  if (mVerbose) std::cout << "HcalDbPool::~HcalDbPool done..." << std::endl;
+}
+
 
 pool::IDataSvc* HcalDbPool::service ()
 {
   if (!mService.get ()) {
-    //std::cout << "HcalDbPool::service () started..." << std::endl;
+    if (mVerbose) std::cout << "HcalDbPool::service () started..." << std::endl;
     try {
       pool::URIParser parser;
       parser.parse();
       
       mCatalog.reset (new pool::IFileCatalog ());
+      if (mVerbose) std::cout << "HcalDbPool::service ()->parser.contactstring() " << parser.contactstring() << std::endl;
       mCatalog->setWriteCatalog(parser.contactstring());
       mCatalog->connect();
       mCatalog->start();
@@ -256,41 +293,48 @@ pool::IDataSvc* HcalDbPool::service ()
     catch (const pool::Exception& e) {
       std::cerr<<"HcalDbPool::service ()-> POOL error: " << e.what() << std::endl;
     }
+    catch (const std::exception& e) {
+      std::cerr << "HcalDbPool::service ()->  standard error: "  << e.what() << std::endl;
+      return false;
+    }
     catch (...) {
       std::cerr << "HcalDbPool::service ()-> General error" << std::endl;
     }
-    //std::cout << "HcalDbPool::service () done..." << std::endl;
+    if (mVerbose) std::cout << "HcalDbPool::service () done..." << std::endl;
   }
   return mService.get ();
 }
 
-coral::ISession* HcalDbPool::session () {
-  if (!mSession.get ()) {
-    service ();
-    //std::cout << "HcalDbPool::session () started..." << std::endl;
-    try {
-      std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
-      mContext->query( v_svc );
-      if ( v_svc.empty() ) {
-	std::cerr <<  "HcalDbPool::session () -> Could not locate the relational service" << std::endl;
-      }
-      else {
-	seal::IHandle<coral::IRelationalService>& relationalService = v_svc.front();
-	coral::IRelationalDomain& domain = relationalService->domainForConnection (mConnect);
-	mSession.reset (domain.newSession (mConnect));
-      }
+std::auto_ptr<coral::ISession> HcalDbPool::session () {
+  std::auto_ptr<coral::ISession> result;
+  service ();
+  if (mVerbose) std::cout << "HcalDbPool::session () started..." << std::endl;
+  try {
+    std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
+    mContext->query( v_svc );
+    if ( v_svc.empty() ) {
+      std::cerr <<  "HcalDbPool::session () -> Could not locate the relational service" << std::endl;
     }
-    catch (const pool::Exception& e) {
-      std::cerr<<"HcalDbPool::session ()-> POOL error: " << e.what() << std::endl;
+    else {
+      seal::IHandle<coral::IRelationalService>& relationalService = v_svc.front();
+      coral::IRelationalDomain& domain = relationalService->domainForConnection (mConnect);
+      result.reset (domain.newSession (mConnect));
+      result->connect ();
+      result->startUserSession(); // What is that???
     }
-    catch (...) {
-      std::cerr << "HcalDbPool::session ()-> General error" << std::endl;
-    }
-    //std::cout << "HcalDbPool::session () done..." << std::endl;
   }
-  return mSession.get ();
+  catch (const pool::Exception& e) {
+    std::cerr<<"HcalDbPool::session ()-> POOL error: " << e.what() << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cerr << "HcalDbPool::session ()->  standard error: "  << e.what() << std::endl;
+  }
+  catch (...) {
+    std::cerr << "HcalDbPool::session ()-> General error" << std::endl;
+  }
+  if (mVerbose) std::cout << "HcalDbPool::session () done..." << std::endl;
+  return result;
 }
-
 
 namespace {
   const std::string METADATA_TABLE ("METADATA");
@@ -302,14 +346,16 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
   if (mTag != fTag) {
     mTag = fTag;
     mToken.clear ();
+    std::auto_ptr<coral::ISession> coralSession;
     try {
-      
-      //std::cout << "HcalDbPool::metadataGetToken->connecting..." << std::endl;
-      session ()->connect ();
-      session ()->startUserSession(); // What is that???
-      session ()->transaction().start();
-      if (session ()->nominalSchema().existsTable(METADATA_TABLE)) {
-	coral::ITable& mytable=session ()->nominalSchema().tableHandle (METADATA_TABLE);
+      coralSession = session ();
+      if (mVerbose) std::cout << "HcalDbPool::metadataGetToken->connecting..." << std::endl;
+      if (mVerbose) std::cout << "transaction ---> start" << std::endl;
+      if (mVerbose) std::cout << "metadataGetToken->transaction is active1: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+      coralSession->transaction().start(true);
+      if (mVerbose) std::cout << "metadataGetToken->transaction is active2: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+      if (coralSession->nominalSchema().existsTable(METADATA_TABLE)) {
+	coral::ITable& mytable=coralSession->nominalSchema().tableHandle (METADATA_TABLE);
 	std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 	query->setRowCacheSize( 100 );
 	coral::AttributeList emptyBindVariableList;
@@ -323,37 +369,43 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
 	  break; // ignore other tokens
 	}
       }
-      session ()->transaction().commit();
-      session ()->disconnect ();
-      //std::cout << "HcalDbPool::metadataGetToken->disconnecting..." << std::endl;
+      if (mVerbose) std::cout << "metadataGetToken->transaction is active3: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+      coralSession->transaction().commit();
+      if (mVerbose) std::cout << "metadataGetToken->transaction is active4: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+      if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
+      coralSession->disconnect ();
+      if (mVerbose) std::cout << "HcalDbPool::metadataGetToken->disconnecting..." << std::endl;
     }
     catch (const pool::Exception& e) {
-      session ()->transaction().rollback();
-      session ()->disconnect ();
+      coralSession->transaction().rollback();
+      coralSession->disconnect ();
       std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e.what() << std::endl;
       mToken.clear ();
     }
     catch (...) {
-      session ()->transaction().rollback();
-      session ()->disconnect ();
+      coralSession->transaction().rollback();
+      coralSession->disconnect ();
       std::cerr << "HcalDbPool::metadataGetToken-> General error" << std::endl;
       mToken.clear ();
     }
     if (mToken.empty ()) mTag.clear ();
   }
-  //std::cout << "HcalDbPool::metadataGetToken-> " << fTag << '/' << mToken << std::endl;
+  if (mVerbose) std::cout << "HcalDbPool::metadataGetToken-> " << fTag << '/' << mToken << std::endl;
   return mToken;
 }
 
 bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fToken) {
-  //std::cout << "HcalDbPool::metadataSetTag->begin..." << std::endl;
+  if (mVerbose) std::cout << "HcalDbPool::metadataSetTag->begin..." << std::endl;
   bool result = false;
+  std::auto_ptr<coral::ISession> coralSession;
   try {
-    session ()->connect ();
-    session ()->startUserSession(); // What is that???
-    session ()->transaction().start();
-    if (!session ()->nominalSchema().existsTable(METADATA_TABLE)) { // make new table
-      coral::ISchema& schema=session ()->nominalSchema();
+    coralSession = session ();
+    if (mVerbose) std::cout << "transaction ---> start" << std::endl;
+    if (mVerbose) std::cout << "metadataSetToken->transaction is active1: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+    coralSession->transaction().start(false);
+    if (mVerbose) std::cout << "metadataSetToken->transaction is active2: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+    if (!coralSession->nominalSchema().existsTable(METADATA_TABLE)) { // make new table
+      coral::ISchema& schema=coralSession->nominalSchema();
       coral::TableDescription description;
       description.setName (METADATA_TABLE);
       description.insertColumn (METADATA_TAG_COLUMN, coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
@@ -365,38 +417,35 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
       coral::ITable& table=schema.createTable(description);
       table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
     }
-    coral::ITable& mytable=session ()->nominalSchema().tableHandle (METADATA_TABLE);
+    coral::ITable& mytable=coralSession->nominalSchema().tableHandle (METADATA_TABLE);
     coral::AttributeList rowBuffer;
     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
     dataEditor.rowBuffer( rowBuffer );
     rowBuffer[METADATA_TAG_COLUMN].data<std::string>() = fTag;
     rowBuffer[METADATA_TOKEN_COLUMN].data<std::string>() = fToken;
     dataEditor.insertRow( rowBuffer );
-    session ()->transaction().commit() ;
-    session ()->disconnect ();
-    //std::cout << "HcalDbPool::metadataSetTag->disconnect..." << std::endl;
+    if (mVerbose) std::cout << "metadataSetToken->transaction is active3: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+    coralSession->transaction().commit() ;
+    if (mVerbose) std::cout << "metadataSetToken->transaction is active4: " << coralSession->transaction().isActive() << ", readOnly?" << coralSession->transaction().isReadOnly() << std::endl;
+    if (mVerbose) std::cout << "transaction ---> commit" << std::endl;
+    coralSession->disconnect ();
+    if (mVerbose) std::cout << "HcalDbPool::metadataSetTag->disconnect..." << std::endl;
    result = true;
   }
   catch (const pool::Exception& e) {
-    session ()->transaction().rollback();
-    session ()->disconnect ();
+    coralSession->transaction().rollback();
+    coralSession->disconnect ();
     std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e.what() << std::endl;
     result = false;
   }
   catch (...) {
-    session ()->transaction().rollback();
-    session ()->disconnect ();
+    coralSession->transaction().rollback();
+    coralSession->disconnect ();
     std::cerr << "HcalDbPool::metadataSetTag-> General error" << std::endl;
     result = false;
   }
-  // std::cout << "HcalDbPool::metadataSetTag-> " << fTag << '/' << fToken << std::endl;
+   if (mVerbose) std::cout << "HcalDbPool::metadataSetTag-> " << fTag << '/' << fToken << std::endl;
   return result;
-}
-
-HcalDbPool::~HcalDbPool () {
-  mService->session().disconnectAll();
-  mCatalog->commit ();
-  mCatalog->disconnect ();
 }
 
 bool HcalDbPool::getObject (HcalPedestals* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
