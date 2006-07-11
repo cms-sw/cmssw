@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.31 2006/06/28 18:58:17 rpw Exp $
+ * $Id: pset_parse.y,v 1.32 2006/07/01 00:08:13 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -451,15 +451,41 @@ nodesarray:      nodesarray COMMA_tok scoped
                ;
 
 
-/* Return a StringList pointer */
-anyarray:        array
-               |
-                 strarray
+/* ReplaceNodes probably need to accept any slop */
+entryarray:      SCOPE_START_tok entrylist SCOPE_END_tok
+                 {
+                   DBPRINT("entryarray: not empty");
+                   $<_StringList>$ = $<_StringList>2;
+                 }
                |
                  blankarray
-/*               |
-                 producttagarray
-*/               ;
+               ;
+
+entrylist:        entrylist COMMA_tok entry 
+                 {
+                   DBPRINT("entrylist COMMA_tok entry");
+                   StringList* p = $<_StringList>1;
+                   string s(toString($<str>3));
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               |
+                 entry
+                 {
+                   DBPRINT("entrylist");
+                   string s(toString($<str>1));
+                   StringList* p(new StringList);
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               ;
+
+entry:           any
+               |
+                 anyquote
+               |
+                 PRODUCTTAG_tok
+               ;
 
 possiblyblankstrarray: strarray
                |
@@ -613,7 +639,6 @@ anyquote:        SQWORD_tok
                  DQWORD_tok
                  {
                    DBPRINT("anyquote: DQWORD");
- DBPRINT($<str>1);
                    $<str>$ = $<str>1;
                  }
                ;
@@ -744,7 +769,7 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok entryarray
                  {
                    DBPRINT("node: REPLACEARRAY");
                    string name(toString($<str>2));
