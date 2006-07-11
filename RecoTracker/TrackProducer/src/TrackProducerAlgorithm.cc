@@ -113,9 +113,29 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	
 	ndof = ndof - 5;
 
-	hits=tmp;
+	//SORT RECHITS ALONGMOMENTUM
+	const TransientTrackingRecHit * firstHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
+	  if (it->isValid()) {
+	    firstHit=&(*it);
+	    break;
+	  }
+	}
+	const TransientTrackingRecHit * lastHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	  if (it->isValid()) {
+	    lastHit=&(*it);
+	    break;
+	  }
+	}
+	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ){
+	//FIXME temporary should use reverse
+	  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+	    hits.push_back(it->clone());
+	  }
+	} else hits=tmp;
 	
-	reco::TransientTrack theTT(*theT,thePropagator->magneticField());
+	reco::TransientTrack theTT(*theT,thePropagator->magneticField() );
 	
 	//       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
 	//       theTSOS.rescaleError(100);
@@ -181,31 +201,17 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );//FIXME Correct?
     
-    //     reco::perigee::Parameters param = tscp.perigeeParameters();
-    //     reco::perigee::Covariance covar = tscp.perigeeError();
+    reco::perigee::Parameters param = tscp.perigeeParameters();
+ 
+    reco::perigee::Covariance covar = tscp.perigeeError();
 
-    double p[] = {tscp.perigeeParameters().vector()[0], tscp.perigeeParameters().vector()[1],
-		  tscp.perigeeParameters().vector()[2], tscp.perigeeParameters().vector()[3],
-		  tscp.perigeeParameters().vector()[4]};
-
-    AlgebraicSymMatrix matrix = tscp.perigeeError().covarianceMatrix();
-    double e[] = { matrix[1][1], matrix[1][2], matrix[1][3], matrix [1][4], matrix[1][5],
-		   matrix[2][2], matrix[2][3], matrix[2][4], matrix[2][5],
-		   matrix[3][3], matrix[3][4], matrix[3][5],
-		   matrix[4][4], matrix[4][5],
-		   matrix[5][5] };
-    reco::TrackBase::ParameterVector par( p[0], p[1], p[2], p[3], p[4] );
-    reco::TrackBase::CovarianceMatrix cov( e, e + 15 );
-    double pt = tscp.momentum().perp();//FIXME
-    theTrack = new reco::Track( theTraj->chiSquared(), int(ndof), par, pt, cov );
-
-    //     theTrack = new reco::Track(theTraj->chiSquared(),
-    // 			       int(ndof),//FIXME fix weight() in TrackingRecHit
-    // 			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
-    // 			       0, //FIXME no corresponding method in trajectory.h
-    // 			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-    // 			       param,
-    // 			       covar);
+    theTrack = new reco::Track(theTraj->chiSquared(),
+			       int(ndof),//FIXME fix weight() in TrackingRecHit
+			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
+			       0, //FIXME no corresponding method in trajectory.h
+			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
+			       param,
+			       covar);
 
     LogDebug("TrackProducer") <<"track done\n";
 

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
@@ -13,14 +14,10 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 {
   setConf(iConfig);
   setSrc( iConfig.getParameter<std::string>( "src" ));
-  setAlias( iConfig.getParameter<std::string>( "alias" ) );
   //register your products
-  produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
-  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
-  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
-//   produces<TrackingRecHitCollection>();
-//   produces<reco::TrackCollection>();
-//   produces<reco::TrackExtraCollection>();
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackCollection>();
+  produces<reco::TrackExtraCollection>();
 }
 
 
@@ -101,7 +98,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
 
 
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second), thePropagator.product()->magneticField() ));
+    ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";
