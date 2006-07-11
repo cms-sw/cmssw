@@ -43,6 +43,12 @@ void WriteFileData(EmOutputCandVec outputs);
 
 int main()
 {
+  cout << endl;
+  cout << "**************************************" << endl;
+  cout << "  L1GctElectronSorter class unit tester." << endl;
+  cout << "****************************************" << endl;
+
+
   EmInputCandVec inputs;
   EmOutputCandVec outputs;
   bool checkIn = false;
