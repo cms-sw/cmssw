@@ -129,9 +129,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
     CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
     bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
-    cout << "Before check: " << index << endl;
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
-    cout << "After  check: " << index << endl;
     
     int crossing = 0;
     int source   = 0;
