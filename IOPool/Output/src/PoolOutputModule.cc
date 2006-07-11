@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.32 2006/07/08 05:07:55 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.33 2006/07/11 21:41:39 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -7,6 +7,8 @@
 
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/FileFormatVersion.h"
+#include "DataFormats/Common/interface/LuminosityBlock.h"
+#include "DataFormats/Common/interface/RunBlock.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
@@ -80,6 +82,8 @@ namespace edm {
       moduleDescriptionPlacement_(),
       processHistoryPlacement_(),
       fileFormatVersionPlacement_(),
+      runBlockPlacement_(),
+      luminosityBlockPlacement_(),
       om_(om) {
     std::string const suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
@@ -109,6 +113,10 @@ namespace edm {
 	processHistoryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::fileFormatVersionBranchName(),
 	fileFormatVersionPlacement_);
+    makePlacement(poolNames::runTreeName(), poolNames::runBranchName(),
+	runBlockPlacement_);
+    makePlacement(poolNames::luminosityBlockTreeName(), poolNames::luminosityBlockBranchName(),
+	luminosityBlockPlacement_);
     ProductRegistry pReg;
     pReg.setNextID(om_->nextID());
    
@@ -151,6 +159,16 @@ namespace edm {
 
     pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
     fft.markWrite(fileFormatVersionPlacement_);
+
+    // For now, just one run block per file.
+    RunBlock runBlock;
+    pool::Ref<RunBlock const> rblk(om_->context(), &runBlock);
+    rblk.markWrite(runBlockPlacement_);
+
+    // For now, just one luminosity block per file.
+    LuminosityBlock luminosityBlock;
+    pool::Ref<LuminosityBlock const> lblk(om_->context(), &luminosityBlock);
+    lblk.markWrite(luminosityBlockPlacement_);
 
     commitAndFlushTransaction();
     // Register the output file with the JobReport service
