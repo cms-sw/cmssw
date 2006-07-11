@@ -6,7 +6,7 @@
 <use name=DataFormats/SiStripCluster>
 
 <export>
-<lib name=EventFilterSiStripChannelChargeFilte>
+<lib name=EventFilterSiStripChannelChargeFilter>
 <use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
