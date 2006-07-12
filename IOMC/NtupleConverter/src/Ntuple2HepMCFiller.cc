@@ -72,7 +72,6 @@ bool  Ntuple2HepMCFiller::readCurrentEvent() {
 	cout <<"| --<<  "<<evtid<< endl;
 	// 2. fill the evt container - if the read is successful, set the pointer
 	if ( this->toGenEvent( evtid, event ) ) evt=event;
-	evtid++;
 	//	if (evtid> evt->event_number())	filter=false;
 	if (evt){ 
 		cout <<"| --- Ntuple2HepMCFiller: Event Nr. "  <<evt->event_number() <<" with " <<evt->particles_size()<<" particles --- !" <<endl;		
@@ -84,7 +83,8 @@ bool  Ntuple2HepMCFiller::readCurrentEvent() {
 		filter=false;
 		delete  evt;  // @@@
 	}	
-	if (evtid > input_->getNevhep()) filter = false; 	  	  
+	if (evtid > input_->getNevhep()) filter = false; 
+	evtid++;
 	return filter;
 }
 
