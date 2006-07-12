@@ -26,7 +26,8 @@ namespace reco
     public:
       /* Constructors*/
       CaloMET() {}
-      CaloMET( SpecificCaloMETData calo_data_, double sumet_, const LorentzVector& fP4, const Point& fVertex ) 
+      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
+	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/
       virtual ~CaloMET() {}
@@ -36,7 +37,8 @@ namespace reco
       /* Returns the maximum energy deposited in HCAL towers */
       double maxEInHadTowers() const {return calo_data.mMaxEInHadTowers;};
       /* Returns the event hadronic energy fraction          */
-      double energyFractionHadronic () const {return calo_data.mEnergyFractionHadronic;};
+      double energyFractionHadronic () const 
+	{return calo_data.mEnergyFractionHadronic;};
       /* Returns the event electromagnetic energy fraction   */
       double emEnergyFraction() const {return calo_data.mEnergyFractionEm;};
       /* Returns the event hadronic energy in HB             */

@@ -3,8 +3,15 @@
 
 /** \class MET
  *
- * The MET EDProduct type. Stores a few basic variables
- * critical to all higher level MET products.
+ * This is the fundemental class for missing transverse momentum (a.k.a MET).
+ * The class inherits from RecoCandidate, and so is stored in the event as 
+ * a candidate.  The actual MET information is contained in the RecoCandidate 
+ * LorentzVector while supplimentary information is stored as varibles in 
+ * the MET class itself (such as SumET). As there may have been more than 
+ * one correction applied to the missing transverse momentum, a vector of 
+ * corrections to the missing px and the missing py is maintained
+ * so that one can always recover the uncorrected MET by applying the 
+ * negative of each correction.  
  *
  * \authors Michael Schmitt, Richard Cavanaugh The University of Florida
  *
@@ -26,23 +33,32 @@ namespace reco
   class MET : public RecoCandidate
     {
     public:
-      //Define different Constructors
+      //-----------------------------------------------------------------
+      //Define Constructors
       MET();
-      MET(                                                const LorentzVector& p4_, const Point& vtx_ );
-      MET( double sumet_,                                 const LorentzVector& p4_, const Point& vtx_ );
-      MET( double sumet_, std::vector<CorrMETData> corr_, const LorentzVector& p4_, const Point& vtx_ );
-      //Define different methods to extract individual MET data elements
-      double sumEt() const { return sumet; }
-      //Define different methods to extract corrections to individual MET elements
+      MET( const LorentzVector& p4_, const Point& vtx_ );
+      MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ );
+      MET( double sumet_, std::vector<CorrMETData> corr_, 
+	   const LorentzVector& p4_, const Point& vtx_ );
+      //-----------------------------------------------------------------
+      //Define methods to extract elements related to MET
+      //scalar sum of transverse energy over all objects
+      double sumEt() const { return sumet; }       
+      //longitudinal component of the vector sum of energy over all object
+      //(useful for data quality monitoring)
+      double e_longitudinal() const {return elongit; }  
+      //-----------------------------------------------------------------
+      //Define different methods for the corrections to individual MET elements
       std::vector<double> dmEx();
       std::vector<double> dmEy();
       std::vector<double> dsumEt();
-      //Define different methods to extract MET block data & corrections
+      //Define method to extract the entire "block" of MET corrections
       std::vector<CorrMETData> mEtCorr() const { return corr; }
+      //-----------------------------------------------------------------
     private:
       virtual bool overlap( const Candidate & ) const;
       double sumet;
-      //CommonMETData data;
+      double elongit;
       std::vector<CorrMETData> corr;
     };
 }
