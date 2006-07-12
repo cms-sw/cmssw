@@ -17,11 +17,13 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+//#include "IOPool/Streamer/src/StreamerUtilities.h"
+
 #include "boost/shared_ptr.hpp"
 
 //#include "PluginManager/PluginCapabilities.h"
-
 //#include "StorageSvc/IOODatabaseFactory.h"
+
 #include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/DbType.h" 
 
@@ -51,7 +53,7 @@ StreamerFileWriter::StreamerFileWriter(ParameterSet const& ps):
     stream_writer_(new StreamerOutputFile(ps.template getParameter<string>("fileName"))),
     index_writer_(new StreamerOutputIndexFile(
                                 ps.template getParameter<string>("indexFileName"))), 
-    tc_(),
+    //tc_(),
     prod_reg_buf_(100 * 1000),
     prod_reg_len_()
      
@@ -59,7 +61,7 @@ StreamerFileWriter::StreamerFileWriter(ParameterSet const& ps):
     bufs_.resize(ps.template getParameter<int>("max_event_size"));
     FDEBUG(6) << "StreamOutput constructor" << endl;
     edm::loadExtraClasses();
-    tc_ = getTClass(typeid(SendEvent));
+    //tc_ = getTClass(typeid(SendEvent));
   }
 
 
@@ -113,24 +115,6 @@ std::vector<std::string> StreamerFileWriter::getTriggerNames() {
 
 void StreamerFileWriter::beginJob(EventSetup const&)
   {
-    serializeRegistry(descVec_);
-  }
-
-void StreamerFileWriter::serializeRegistry(Selections const& prods)
-  {
-    FDEBUG(6) << "StreamOutput: serializeRegistry" << endl;
-    TClass* prog_reg = getTClass(typeid(SendJobHeader));
-    SendJobHeader sd;
-
-    Selections::const_iterator i(prods.begin()),e(prods.end());
-
-    FDEBUG(9) << "Product List: " << endl;
-    for(;i!=e;++i) 
-      {
-	sd.descs_.push_back(**i);
-	FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
-		  << endl;
-      }
 
     //Following values are strictly DUMMY and will be replaced
     // once available  
@@ -159,42 +143,9 @@ void StreamerFileWriter::serializeRegistry(Selections const& prods)
                  hlt_names,
                  l1_names);
 
-    TBuffer rootbuf(TBuffer::kWrite,(int)prod_reg_buf_.size(),
-                                    init_message.dataAddress(),kFALSE);
-
-    cout<<"\nInitMsgBuilder is being used here"<<endl;
-
-    RootDebug tracer(10,10);
-
-    int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
-    
-    switch(bres)
-      {
-      case 0: // failure
-	{
-	  throw cms::Exception("Output","SerializationReg")
-	    << "EventStreamOutput module could not serialize event\n";
-	  break;
-	}
-      case 1: // succcess
-	break;
-      case 2: // truncated result
-	{
-	  throw cms::Exception("Output","SerializationReg")
-	    << "EventStreamOutput module attempted to serialize the registry\n"
-	    << "that is to big for the allocated buffers\n";
-	  break;
-	}
-      default: // unknown
-	{
-	  throw cms::Exception("Output","SerializationReg")
-	    << "EventStreamOutput module got an unknown error code\n"
-	    << " while attempting to serialize registry\n";
-	  break;
-	}
-      }	    
-
-    init_message.setDescLength(rootbuf.Length()); 
+    int msg_length = serializeRegistry(descVec_, (InitMsgBuilder&) init_message);
+    init_message.setDescLength(msg_length);
+ 
     prod_reg_len_ = prod_reg_buf_.size();
 
     cout<<"init_message.size: "<<init_message.size()<<endl;
@@ -212,62 +163,6 @@ void StreamerFileWriter::serializeRegistry(Selections const& prods)
 
 void StreamerFileWriter::write(EventPrincipal const& e)
   {
-    serialize(e);
-  }
-
-void StreamerFileWriter::serialize(EventPrincipal const& e)
-  {
-    // all provenance data needs to be transferred, including the
-    // indirect stuff referenced from the product provenance structure.
-    SendEvent se(e.id(),e.time());
-
-    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
-    // Loop over EDProducts, fill the provenance, and write.
-
-    cout<<"Loop over EDProducts, fill the provenance, and write"<<endl;
-
-    for(; i != ie; ++i) {
-      BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID();
-
-      if (id == ProductID()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-          << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
-      }
-      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
-      assert(group.get());
-      // ModuleDescription md = group->provenance().moduleDescription();
-      if (group->product() == 0) {
-        std::string const& name = desc.className();
-        std::string const className = wrappedClassName(name);
-        TClass *cp = gROOT->GetClass(className.c_str());
-	if (cp == 0) {
-          throw edm::Exception(errors::ProductNotFound,"NoMatch")
-            << "TypeID::className: No dictionary for class " << className << '\n'
-            << "Add an entry for this class\n"
-            << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-	}
-        EDProduct *p = static_cast<EDProduct *>(cp->New());
-
-        se.prods_.push_back(ProdPair(p, &group->provenance()));
-      } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
-      }
-    }
-
-#if 0
-    FDEBUG(11) << "-----Dump start" << endl;
-    for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
-      std::cout << "Prov:"
-	   << " " << pii->desc()->className()
-	   << " " << pii->desc()->productID_
-	   << endl;      
-    FDEBUG(11) << "-----Dump end" << endl;
-#endif
-
-    //EventBuffer::ProducerBuffer b(*bufs_);
-
-    /*************************************/
     //Following is strictly DUMMY Data, and will be replaced with actual
     // once figured out.
     uint32 lumi=2;  
@@ -285,42 +180,8 @@ void StreamerFileWriter::serialize(EventPrincipal const& e)
                           l1bit, hltbits, hltsize);
     msg.setReserved(reserved);  
 
-
-    TBuffer rootbuf(TBuffer::kWrite,bufs_.size(),msg.eventAddr(),kFALSE);
-    RootDebug tracer(10,10);
-
-    int bres = rootbuf.WriteObjectAny(&se,tc_);
-    
-    switch(bres)
-      {
-      case 0: // failure
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module could not serialize event: "
-	    << e.id();
-	  break;
-	}
-      case 1: // succcess
-	break;
-      case 2: // truncated result
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module attempted to serialize an event\n"
-	    << "that is to big for the allocated buffers: "
-	    << e.id();
-	  break;
-	}
-      default: // unknown
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module got an unknown error code\n"
-	    << " while attempting to serialize event: "
-	    << e.id();
-	  break;
-	}
-      }
-     
-    msg.setEventLength(rootbuf.Length());
+    int msg_length = serializeEvent(e, selections_, msg, bufs_.size() );
+    msg.setEventLength(msg_length);
     //b.commit(msg.size());
 
     cout<<"msg.size: "<<msg.size()<<endl;

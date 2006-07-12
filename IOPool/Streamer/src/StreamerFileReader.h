@@ -39,8 +39,8 @@ namespace edmtestp
 
   private:  
 
-    std::auto_ptr<edm::SendJobHeader>  readHeader();
-    std::auto_ptr<edm::EventPrincipal> readEvent(const edm::ProductRegistry& pr);
+    //std::auto_ptr<edm::SendJobHeader>  readHeader();
+    //std::auto_ptr<edm::EventPrincipal> readEvent(const edm::ProductRegistry& pr);
 
     void mergeWithRegistry(const edm::SendDescs& descs,
                          edm::ProductRegistry& reg);
@@ -50,8 +50,8 @@ namespace edmtestp
     std::string filename_;
     StreamerInputFile* stream_reader_;    
 
-    TClass* tc_;
-    TClass* desc_;
+    //TClass* tc_;
+    //TClass* desc_;
   };
 
 }

@@ -5,6 +5,9 @@
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
+
+//#include "IOPool/Streamer/src/StreamerUtilities.h"
+
 #include "TClass.h"
 
 #include <algorithm>
@@ -15,7 +18,7 @@ using namespace edm;
 
 namespace edmtestp
 {  
-
+/**
     void loadextrastuff()
     {
       static bool loaded = false;
@@ -40,18 +43,18 @@ namespace edmtestp
       }
       return ans;
     } 
-
+**/
   // ----------------------------------
 
   StreamerFileReader::StreamerFileReader(edm::ParameterSet const& pset,
 					       edm::InputSourceDescription const& desc):
     edm::InputSource(pset, desc),
     filename_(pset.getParameter<string>("fileName")),
-    stream_reader_(new StreamerInputFile(filename_.c_str())),
-    tc_(),
-    desc_()
+    stream_reader_(new StreamerInputFile(filename_.c_str()))
+    //tc_(),
+    //desc_()
   {
-    std::auto_ptr<edm::SendJobHeader> p = readHeader();
+    std::auto_ptr<edm::SendJobHeader> p = readHeader(stream_reader_);
     SendDescs & descs = p->descs_;
     mergeWithRegistry(descs, productRegistry());
 
@@ -68,14 +71,14 @@ namespace edmtestp
 
   std::auto_ptr<edm::EventPrincipal> StreamerFileReader::read()
   {
-    return readEvent(productRegistry());
+    return edm::readEvent(productRegistry(), stream_reader_);
   }
 
-
+  /****************
   std::auto_ptr<SendJobHeader> StreamerFileReader::readHeader()
   {
 
-  desc_ = getTClassFor<SendJobHeader>();
+  desc_ = edm::getTClassFor<SendJobHeader>();
  
   InitMsgView* header = (InitMsgView*) stream_reader_->startMessage();
   
@@ -94,10 +97,7 @@ namespace edmtestp
     }
 
     return sd;
-
-
   }
-
  std::auto_ptr<EventPrincipal> StreamerFileReader::readEvent(const ProductRegistry& pr)
  {
 
@@ -114,7 +114,7 @@ namespace edmtestp
               << eview->eventData()
               << endl;
 
-    tc_ = getTClassFor<SendEvent>();
+    tc_ = edm::getTClassFor<SendEvent>();
     TBuffer xbuf(TBuffer::kRead, eview->eventLength(),(char*) eview->eventData(),kFALSE);
     RootDebug tracer(10,10);
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(tc_)); 
@@ -181,6 +181,7 @@ namespace edmtestp
 
     return ep;
  } 
+  *********/
 
   void StreamerFileReader::mergeWithRegistry(const SendDescs& descs,
                          ProductRegistry& reg)

@@ -41,8 +41,8 @@ namespace edm
 
     void stop();
 
-    void serialize(EventPrincipal const& e);
-    void serializeRegistry(Selections const& prods);
+    //void serialize(EventPrincipal const& e);
+    //void serializeRegistry(Selections const& prods);
 
     void* registryBuffer() const { return (void*)&prod_reg_buf_[0]; }
     int registryBufferSize() const { return prod_reg_len_; }

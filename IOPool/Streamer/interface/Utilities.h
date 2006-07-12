@@ -14,6 +14,14 @@
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+
+#include "FWCore/Framework/interface/OutputModule.h"
+#include "IOPool/Streamer/interface/StreamerFileIO.h"
+
+#include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "IOPool/Streamer/interface/EventMsgBuilder.h"
+
+
 #include "TBuffer.h"
 #include "TClass.h"
 
@@ -26,6 +34,25 @@
 
 namespace edm
 {
+
+typedef edm::OutputModule::Selections Selections;
+
+//template <class T>
+//    TClass* getTClassFor();
+
+int serializeRegistry(Selections const& prods, InitMsgBuilder& init_message);
+
+int serializeEvent(EventPrincipal const& e, Selections const* selections, EventMsgBuilder& msg, int maxEventSize);
+
+std::auto_ptr<SendJobHeader> readHeader(StreamerInputFile* stream_reader ) ;
+
+std::auto_ptr<EventPrincipal> readEvent(const ProductRegistry& pr,
+                                        StreamerInputFile* stream_reader);
+
+
+
+
+
   edm::ProductRegistry getRegFromFile(const std::string& filename);
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry& reg);
