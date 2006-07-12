@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/07/06 08:18:27 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/09 00:54:04 $
+ *  $Revision: 1.9 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -32,8 +32,10 @@ class MuonDetLayerMeasurements {
   
   MuonDetLayerMeasurements(bool enableDT = true,
 			   bool enableCSC = true,
+			   bool enableRPC = true,
 			   std::string dtlabel = "DTSegment4DProducer", 
-			   std::string csclabel = "CSCSegmentProducer");
+			   std::string csclabel = "CSCSegmentProducer",
+			   std::string rpclabel = "rpcrechitbuilder"); // FIXME!! This label will be changed!
 
   virtual ~MuonDetLayerMeasurements();
   
@@ -87,9 +89,11 @@ class MuonDetLayerMeasurements {
 
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
+  bool enableRPCMeasurement;
 
   std::string theDTRecHitLabel;
   std::string theCSCRecHitLabel;
+  std::string theRPCRecHitLabel;
 
   bool theEventFlag;
   const edm::Event* theEvent;   

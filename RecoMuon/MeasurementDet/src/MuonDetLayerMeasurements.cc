@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/06 08:18:28 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/09 00:54:11 $
+ *  $Revision: 1.13 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -17,15 +17,18 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(bool enableDT, bool enableCSC,
-						   std::string dtlabel, std::string csclabel): enableDTMeasurement(enableDT),
-											       enableCSCMeasurement(enableCSC),
-											       theDTRecHitLabel(dtlabel),
-											       theCSCRecHitLabel(csclabel)
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(bool enableDT, bool enableCSC, bool enableRPC,
+						   std::string dtlabel, std::string csclabel,
+						   std::string rpclabel): enableDTMeasurement(enableDT),
+									  enableCSCMeasurement(enableCSC),
+									  enableRPCMeasurement(enableRPC),
+									  theDTRecHitLabel(dtlabel),
+									  theCSCRecHitLabel(csclabel),
+									  theRPCRecHitLabel(rpclabel)
 {
   theEventFlag = false;
   
@@ -53,7 +56,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
     
     // Get the DT-Segment which relies on this chamber
-    DTRecSegment4DCollection::range  range = dtRecHits->get(chamberId);
+    DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
     
     // Create the MuonTransientTrackingRechit
     for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
@@ -75,7 +78,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
 
     // Get the CSC-Segment which relies on this chamber
-    CSCSegmentCollection::range  range = cscSegments->get(chamberId);
+    CSCSegmentCollection::range range = cscSegments->get(chamberId);
     
     // Create the MuonTransientTrackingRecHit
     for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
@@ -86,14 +89,31 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
   }
   
   else if (geoId.subdetId()  == MuonSubdetId::RPC ) {
+    if(!enableRPCMeasurement) return muonRecHits;
+    
+    // Get the CSC-Segment collection from the event
+    edm::Handle<RPCRecHitCollection> rpcRecHits;
+    iEvent.getByLabel(theRPCRecHitLabel, rpcRecHits); 
+    
+    // Create the chamber Id
     RPCDetId chamberId(geoId.rawId());
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
+    
+    // Get the RPC-Segment which relies on this chamber
+    RPCRecHitCollection::range range = rpcRecHits->get(chamberId);
+    
+    // Create the MuonTransientTrackingRecHit
+    for (RPCRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
+      
+      MuonTransientTrackingRecHit* muonRecHit = new MuonTransientTrackingRecHit(geomDet, (&(*rechit)));
+      muonRecHits.push_back(muonRecHit);
+    }
   }
-  
   else {
     // wrong type
     edm::LogWarning("MuonDetLayerMeasurements")<<"The DetLayer is not a valid Muon DetLayer. ";
   }
+  
   return muonRecHits;
 }
 
@@ -108,6 +128,7 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
   MeasurementContainer result;
   
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
+  LogDebug("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
   
   for (std::vector<DetWithState>::const_iterator ids = dss.begin(); ids !=dss.end(); ids++){
     
@@ -177,39 +198,75 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
   if (mtype == dt ) {
     if(!enableDTMeasurement) return rhs;
 
+    // Get the DT-Segment collection from the event
     edm::Handle<DTRecSegment4DCollection> dtRecHits;
     iEvent.getByLabel(theDTRecHitLabel, dtRecHits);  
     
     std::vector <const GeomDet*> gds = layer->basicComponents();
+    
     for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
+
+      // Create the chamber Id
       DTChamberId chamberId((*igd)->geographicalId().rawId());
+
+      // Get the DT-Segment which relies on this chamber
       DTRecSegment4DCollection::range  range = dtRecHits->get(chamberId);
+
+       // Create the MuonTransientTrackingRecHit
       for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
 	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
 	rhs.push_back(gttrh);
-      }//for DTRecSegment4DCollection
-    }// for GeomDet
+      }
+    }
   }
   else if (mtype == csc ) {
     if(!enableCSCMeasurement) return rhs;
     
+    // Get the CSC-Segment collection from the event
     edm::Handle<CSCSegmentCollection> cscSegments;
     iEvent.getByLabel(theCSCRecHitLabel, cscSegments); 
 
     std::vector <const GeomDet*> gds = layer->basicComponents();
-
+    
     for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
-      CSCDetId id((*igd)->geographicalId().rawId());
-      CSCSegmentCollection::range  range = cscSegments->get(id);
-      for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
 
+      // Create the chamber Id
+      CSCDetId id((*igd)->geographicalId().rawId());
+
+      // Get the RPC-Segment which relies on this chamber
+      CSCSegmentCollection::range  range = cscSegments->get(id);
+
+      // Create the MuonTransientTrackingRecHit
+      for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
 	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
 	rhs.push_back(gttrh);
-      }//for CSCSegmentCollection
-    }// for GeomDet
-  }else if (mtype == rpc ) {
+      }
+    }
+  }
+  else if (mtype == rpc ) {
+    if(!enableRPCMeasurement) return rhs;
+    
+    edm::Handle<RPCRecHitCollection> rpcRecHits;
+    iEvent.getByLabel(theRPCRecHitLabel, rpcRecHits); 
+    
+    std::vector <const GeomDet*> gds = layer->basicComponents();
 
-  }else {
+    for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
+
+      // Create the chamber Id
+      RPCDetId id((*igd)->geographicalId().rawId());
+      
+      // Get the RPC-Segment which relies on this chamber
+      RPCRecHitCollection::range  range = rpcRecHits->get(id);
+      
+      // Create the MuonTransientTrackingRecHit
+      for (RPCRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
+	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
+	rhs.push_back(gttrh);
+      }
+    }
+  }
+  else {
     //wrong type
     edm::LogInfo("MuonDetLayerMeasurements")<<"The DetLayer is not a valid Muon DetLayer. ";
   }
