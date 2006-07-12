@@ -70,6 +70,13 @@ uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned 
 {
   double corrEt = 0;
   
+  if(eta>(NUMBER_ETA_VALUES-1))
+    {
+      throw cms::Exception("L1GctJetEtCalibraionLut")
+        << "L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta)"
+        << " eta value out of range eta=" << eta << "\n";
+    }
+    
   for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEt,(int)i); 
   }
@@ -87,6 +94,13 @@ uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned 
 {
   double corrEt = 0;
   
+  if(eta>(NUMBER_ETA_VALUES-1))
+    {
+      throw cms::Exception("L1GctJetEtCalibraionLut")
+        << "L1GctJetEtCalibrationLut::convertToTebBitRank(uint16_t jetEt, unsigned eta)"
+        << " eta value out of range eta=" <<  eta <<  "\n";
+    }
+
   for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEt,(int)i); 
   }
