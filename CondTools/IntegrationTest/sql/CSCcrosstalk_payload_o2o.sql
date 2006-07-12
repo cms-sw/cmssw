@@ -12,44 +12,42 @@ AS
 
 BEGIN
 
-insert into "CSCCROSSTALK"
+INSERT INTO "CSCCROSSTALK"
 SELECT
  record_id iov_value_id,
- run_num time
-FROM CROSSTALK@omds
-WHERE record_id > last_id
+ record_id time
+FROM crosstalk@omds
+WHERE record_id > last_id and flag!=0
 ;
 
-
-insert into "CSCCROSSTALK_MAP"
+INSERT INTO "CSCCROSSTALK_MAP"
 SELECT
- map_index map_id,
- record_id iov_value_id,
- layer_id csc_int_id
-FROM CROSSTALK_MAP@omds
-WHERE record_id > last_id
- order by iov_value_id,map_id;
+ crosstalk_map.map_index map_id,
+ crosstalk_map.record_id iov_value_id,
+ crosstalk_map.layer_id csc_int_id
+FROM crosstalk_map@omds, crosstalk@omds
+WHERE crosstalk_map.record_id = crosstalk.record_id
+  AND crosstalk_map.record_id > last_id
+  AND crosstalk.flag!=0
+;
 
-
-insert into "CSCCROSSTALK_DATA"
+INSERT INTO "CSCCROSSTALK_DATA"
 SELECT
- CROSSTALK_DATA.vec_index vec_index,
- CROSSTALK_MAP.map_index map_id,
- CROSSTALK_MAP.record_id iov_value_id,
- CROSSTALK_DATA.xtalk_chi2_left crosstalk_chi2_left,
- CROSSTALK_DATA.xtalk_chi2_right crosstalk_chi2_right,
- CROSSTALK_DATA.xtalk_intercept_left crosstalk_intercept_left,
- CROSSTALK_DATA.xtalk_intercept_right crosstalk_intercept_right,
- CROSSTALK_DATA.xtalk_slope_left crosstalk_slope_left,
- CROSSTALK_DATA.xtalk_slope_right crosstalk_slope_right
-FROM CROSSTALK_DATA@omds,CROSSTALK_MAP@omds
-WHERE
- CROSSTALK_DATA.map_id=CROSSTALK_MAP.map_id
-AND record_id > last_id
-ORDER BY
- iov_value_id,
- map_id,
- vec_index;
+ crosstalk_data.vec_index vec_index,
+ crosstalk_map.map_index map_id,
+ crosstalk_map.record_id iov_value_id,
+ crosstalk_data.xtalk_chi2_left crosstalk_chi2_left,
+ crosstalk_data.xtalk_chi2_right crosstalk_chi2_right,
+ crosstalk_data.xtalk_intercept_left crosstalk_intercept_left,
+ crosstalk_data.xtalk_intercept_right crosstalk_intercept_right,
+ crosstalk_data.xtalk_slope_left crosstalk_slope_left,
+ crosstalk_data.xtalk_slope_right crosstalk_slope_right
+FROM crosstalk_data@omds, crosstalk_map@omds, crosstalk@omds
+WHERE crosstalk_data.map_id = crosstalk_map.map_id
+  AND crosstalk_map.record_id = crosstalk.record_id
+  AND crosstalk_map.record_id > last_id
+  AND crosstalk.flag!=0
+;
 
 END;
 /

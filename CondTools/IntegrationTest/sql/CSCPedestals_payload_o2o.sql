@@ -12,36 +12,39 @@ AS
 
 BEGIN
 
-insert into "CSCPEDESTALS"
+INSERT INTO "CSCPEDESTALS"
 SELECT
  record_id iov_value_id,
- run_num time
-FROM PEDESTALS@omds
-WHERE record_id > last_id
+ runs time
+FROM pedestals@omds
+WHERE record_id > last_id and flag!=0
 ;
 
 
-insert into "CSCPEDESTALS_MAP"
+INSERT INTO "CSCPEDESTALS_MAP"
 SELECT
- map_index map_id,
- record_id iov_value_id,
- layer_id csc_int_id
-FROM PEDESTALS_MAP@omds
-WHERE record_id > last_id
+ pedestals_map.map_index map_id,
+ pedestals_map.record_id iov_value_id,
+ pedestals_map.layer_id csc_int_id
+FROM pedestals_map@omds, pedestals@omds
+WHERE pedestals.record_id = pedestals_map.record_id
+  AND pedestals_map.record_id > last_id 
+  AND pedestals.flag!=0
 ;
 
 
-insert into "CSCPEDESTALS_DATA"
+INSERT INTO "CSCPEDESTALS_DATA"
 SELECT
- PEDESTALS_DATA.vec_index vec_index,
- PEDESTALS_MAP.map_index map_id,
- PEDESTALS_MAP.record_id iov_value_id,
- PEDESTALS_DATA.ped pedestals_ped, 
- PEDESTALS_DATA.rms pedestals_rms
-FROM PEDESTALS_DATA@omds, PEDESTALS_MAP@omds
-WHERE
- PEDESTALS_DATA.map_id=PEDESTALS_MAP.map_id
-AND PEDESTALS_MAP.record_id > last_id
+ pedestals_data.vec_index vec_index,
+ pedestals_map.map_index map_id,
+ pedestals_map.record_id iov_value_id,
+ pedestals_data.ped pedestals_ped, 
+ pedestals_data.rms pedestals_rms
+FROM pedestals_data@omds, pedestals_map@omds, pedestals@omds
+WHERE pedestals_data.map_id=pedestals_map.map_id
+  AND pedestals_map.record_id = pedestals.record_id
+  AND pedestals_map.record_id > last_id 
+  AND pedestals.flag!=0
 ;
 
 END;

@@ -12,36 +12,38 @@ AS
 
 BEGIN
 
-insert into "CSCGAINS"
+INSERT INTO "CSCGAINS"
 SELECT
  record_id iov_value_id,
- run_num time
-FROM GAINS@omds
-WHERE record_id > last_id
+ runs time
+FROM gains@omds
+WHERE record_id > last_id and flag!=0
 ;
 
-insert into "CSCGAINS_MAP"
+INSERT INTO "CSCGAINS_MAP"
 SELECT
- map_index map_id,
- record_id iov_value_id,
- layer_id csc_int_id
-FROM GAINS_MAP@omds
-WHERE record_id > last_id
+ gains_map.map_index map_id,
+ gains_map.record_id iov_value_id,
+ gains_map.layer_id csc_int_id
+FROM gains_map@omds, gains@omds
+WHERE gains_map.record_id = gains.record_id
+  AND gains_map.record_id > last_id 
+  AND gains.flag!=0
 ;
 
-
-insert into "CSCGAINS_DATA"
+INSERT INTO "CSCGAINS_DATA"
 SELECT
- GAINS_DATA.vec_index vec_index,
- GAINS_MAP.map_index map_id,
- GAINS_MAP.record_id iov_value_id,
- GAINS_DATA.gain_chi2 gains_chi2, 
- GAINS_DATA.gain_intercept gains_intercept,
- GAINS_DATA.gain_slope gains_slope
-FROM GAINS_DATA@omds, GAINS_MAP@omds
-WHERE
- GAINS_DATA.map_id=GAINS_MAP.map_id
-AND record_id > last_id
+ gains_data.vec_index vec_index,
+ gains_map.map_index map_id,
+ gains_map.record_id iov_value_id,
+ gains_data.gain_chi2 gains_chi2, 
+ gains_data.gain_intercept gains_intercept,
+ gains_data.gain_slope gains_slope
+FROM gains_data@omds, gains_map@omds, gains@omds
+WHERE gains_data.map_id = gains_map.map_id
+  AND gains_map.record_id = gains.record_id
+  AND gains_map.record_id > last_id 
+  AND gains.flag!=0
 ;
 
 END;
