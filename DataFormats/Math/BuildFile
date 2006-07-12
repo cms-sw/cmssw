@@ -1,9 +1,11 @@
 <use name=DataFormats/Common>
 <use name=rootrflx>
+<use name=relax>
 <lib name=MathCore>
 <export>
  <lib name=DataFormatsMath>
  <use name=DataFormats/Common>
  <use name=rootrflx>
+ <use name=relax>
  <lib name=MathCore>
 </export>
