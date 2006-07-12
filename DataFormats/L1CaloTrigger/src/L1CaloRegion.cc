@@ -20,7 +20,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 
 // constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
-  m_id(false, crate, 0, rgn)
+  m_id(false, crate, 999, rgn)
 {
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
 }
