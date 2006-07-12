@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.2 2006/06/08 16:54:41 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.3 2006/07/03 09:45:42 uberthon Exp $
 //
 //
 
@@ -142,7 +142,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
     
      LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
      LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
-     const SuperCluster *theClus=(*MyS).superCluster();
+     edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
      LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
      LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
      LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
