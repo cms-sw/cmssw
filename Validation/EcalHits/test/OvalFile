@@ -1,10 +1,4 @@
 <config name="run tool" value="oval">
-<!--executable name="valid_ecal_simhit.csh"></executable -->
-<!--executable name="valid_barrel_simhit.csh"></executable -->
-<!--executable name="valid_endcap_simhit.csh"></executable-->
-<!--executable name="valid_ecal_pion.csh"></executable-->
-
-<!-- Providing the second way to do statistical comparison   -->
 <executable name="EcalValidHits30GeV_all.csh"></executable>
 <!--executable name="EcalValidHits200GeV_all.csh"></executable-->
 <executable name="EcalValidHits400GeV_all.csh"></executable>
