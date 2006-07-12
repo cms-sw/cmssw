@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     vector<L1GctSourceCard*> srcCrds(L1GctJetFinderBase::MAX_SOURCE_CARDS);
     for(unsigned i=0; i < L1GctJetFinderBase::MAX_SOURCE_CARDS; ++i)
     {
-      srcCrds[i] = new L1GctSourceCard(i, L1GctSourceCard::cardType3);
+      srcCrds[i] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
     }
         
     //create jet calibration lookup table
