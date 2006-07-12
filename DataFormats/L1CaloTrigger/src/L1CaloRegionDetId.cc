@@ -41,7 +41,7 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
     iphi = phi_index * 2 + irgn;
   // for HF
   else if (icard == 999)
-    iphi = phi_index * 2 + (rgn/4);
+    iphi = phi_index * 2 + (irgn/4);
 
   // Calculate ieta
   int eta_index = 0;
