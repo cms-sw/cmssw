@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/06 16:17:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/10 16:35:08 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -18,19 +18,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
-void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
-					   edm::Event& event){
-
+edm::OrphanHandle<reco::TrackCollection> 
+MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
+			    edm::Event& event){
+  
   std::string metname = "Muon|RecoMuon|MuonTrackLoader";
-
+  
   // *** first loop: create the full collection of TrackingRecHit ***
-
+  
   LogDebug(metname) << 
     "first loop: create the full collection of TrackingRecHit" << "\n";
-
+  
   // the rechit collection, it will be loaded in the event  
   std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
 
@@ -42,8 +42,7 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 
   // Don't waste any time...
   if( !trajectories.size() ){ 
-    event.put(trackCollection);
-    return;
+    return event.put(trackCollection);
   }
 
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
@@ -55,7 +54,8 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
     // fill the rechit collection
     for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	recHit != transHits.end(); ++recHit){
-      recHitCollection->push_back( recHit->hit()->clone() );       
+      if(recHit->isValid())
+	recHitCollection->push_back( recHit->hit()->clone() );       
     }
   }
   
@@ -131,7 +131,7 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
   
   // (finally!) put the TrackCollection in the event
   LogDebug(metname) << "put the TrackCollection in the event" << "\n";
-  event.put(trackCollection);
+  edm::OrphanHandle<reco::TrackCollection> orphanHandleTrack = event.put(trackCollection);
   
   // clean the memory. FIXME: check this!
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
@@ -142,7 +142,7 @@ void MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
   }  
-  
+  return orphanHandleTrack;
 }
 
 reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
