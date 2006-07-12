@@ -205,11 +205,11 @@ TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
     // is larger than a page, ROOT's cache is dumb -- it just cycles
     // through the data a page at a time.  So for large requests do
     // bypass the cache and issue one big read.
-    if (wasReading < 0 && fCache && len <= fCache->GetPageSize ())
+    if (wasReading < 0 && fCacheRead && len <= fCacheRead->GetPageSize ())
     {
         StorageAccount::Stamp cstats (storageCounter (&s_statsCRead, "readc"));
 	Long64_t off = m_offset;
-	Int_t st = fCache->ReadBuffer (off, buf, len);
+	Int_t st = fCacheRead->ReadBuffer (off, buf, len);
 
 	if (st < 0)
 	{
@@ -268,11 +268,11 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
     if (FlushLazySeek ())
 	return kTRUE;
 
-    if (fCache)
+    if (fCacheWrite)
     {
         StorageAccount::Stamp cstats (storageCounter (&s_statsCWrite, "writec"));
 	Long64_t off = m_offset;
-	Int_t st = fCache->WriteBuffer (off, buf, len);
+	Int_t st = fCacheWrite->WriteBuffer (off, buf, len);
 
 	if (st < 0)
 	{
