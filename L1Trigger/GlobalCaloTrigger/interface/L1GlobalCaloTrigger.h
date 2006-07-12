@@ -54,6 +54,7 @@ public:
 
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false,
+		      std::string jetEtLutFile="data/defaultJetEtCalibrationLut.dat",
 		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
   
   /// dismantle the GCT
@@ -152,9 +153,7 @@ public:
   /// instantiate the hardware & algo objects and wire up the system
   void build(L1GctJetLeafCard::jetFinderType jfType);
 
-  /// setup look-up tables
-  void setupLuts();
-  void setupJetEtCalibrationLut();
+  /// setup Jet Counter LUTs
   void setupJetCounterLuts();
 
  private:

@@ -30,7 +30,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, string jetEtLutFile, L1GctJetLeafCard::jetFinderType jfType) :
   readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
@@ -40,7 +40,14 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
   m_minusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL),
   m_plusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL)
 {
-  setupLuts();
+
+  // Jet Et LUT
+  m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile);
+
+  // jet counter LUT
+  setupJetCounterLuts();
+
+  // construct hardware
   build(jfType);
   
 }
@@ -345,9 +352,6 @@ L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
 // instantiate hardware/algorithms
 void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 
-  // Jet Et LUT
-  m_jetEtCalLut = new L1GctJetEtCalibrationLut();
-
   // Source cards
   for (int i=0; i<(N_SOURCE_CARDS/3); i++) {
     theSourceCards.at(3*i)   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
@@ -449,21 +453,6 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 
   // Global Energy Algos
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
-
-}
-
-void L1GlobalCaloTrigger::setupLuts() {
-
-  setupJetEtCalibrationLut();
-  setupJetCounterLuts();
-
-}
-
-void L1GlobalCaloTrigger::setupJetEtCalibrationLut() {
-
-  // Jet Et LUT
-  // We may have some parameters here at some point
-  m_jetEtCalLut = new L1GctJetEtCalibrationLut();
 
 }
 
