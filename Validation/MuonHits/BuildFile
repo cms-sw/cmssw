@@ -1,0 +1,35 @@
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=SimDataFormats/MuonValidation>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/DetId>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/RPCGeometry>
+<use name=root>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="ValidationMuonHits">
+
+<export>
+ <lib name=ValidationMuonHits>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=SimDataFormats/MuonValidation>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=DataFormats/DetId>
+ <use name=Geometry/CommonDetUnit>
+ <use name=DataFormats/MuonDetId>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/RPCGeometry>
+ <use name=root>
+ <use name=clhep>
+</export>
