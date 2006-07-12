@@ -15,10 +15,16 @@ class ChamberLocationSpec;
 class FebSpec {
 public:
   /// ctor with ID only
-  FebSpec(int num=-1, std::string roll = "", int posInRoll =0) 
+  FebSpec(int num=-1, 
+      int connectorNum=-1, // not used?
+      std::string   cmsRoll = "", int posInCmsRoll = 0,
+      std::string localRoll = "", int posInLocalRoll =0) 
     : theLinkBoardInputNum(num), 
-      theFebLocalEtaPartition(roll), 
-      theFebPositionInLocalEtaPartition(posInRoll),
+      theConnectorNum(connectorNum),
+      theFebCmsEtaPartition(cmsRoll),
+      theFebPositionInCmsEtaPartition(posInCmsRoll),
+      theFebLocalEtaPartition(localRoll), 
+      theFebPositionInLocalEtaPartition(posInLocalRoll),
       theRawId(0) { }
 
   /// this FEB channel in LinkBoard
@@ -30,13 +36,22 @@ public:
   /// strip info for input pin
   const ChamberStripSpec * strip(int pinNumber) const; 
 
-  /// FEB postion in Roll 
+  /// local FEB postion in Roll 
   int febPositionInLocalEtaPartition() const { 
       return theFebPositionInLocalEtaPartition;}
 
-  /// FEB roll
+  /// local FEB roll
   std::string febLocalEtaPartition() const {
     return theFebLocalEtaPartition;
+  }
+
+  /// cms FEB postion in Roll 
+  int febPositionInCmsEtaPartition() const { 
+      return theFebPositionInCmsEtaPartition;}
+
+  /// cms FEB roll
+  std::string febCmsEtaPartition() const {
+    return theFebCmsEtaPartition;
   }
 
   /// DetUnit in which Fed belongs to 
@@ -48,6 +63,9 @@ public:
 private:
 
   int theLinkBoardInputNum;
+  int theConnectorNum;
+  std::string theFebCmsEtaPartition;
+  int theFebPositionInCmsEtaPartition;
   std::string theFebLocalEtaPartition;
   int theFebPositionInLocalEtaPartition;
    
