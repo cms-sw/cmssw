@@ -45,7 +45,7 @@ def make_cfg_file(file):
     else:
         print "Skipping missing include " +name_path
     
-    f.write("module   " + name_prescale +"= Prescaler { int32 prescaleFactor = " + prescale + " }\n")
+    f.write("module   " + name_prescale +"= HLTPrescaler { \n   uint32 prescaleFactor = " + prescale + "\n   bool makeFilterObject = true \n }\n")
     f.write("path     " + name + " =")
     f.write("{" + sequence + "}\n")
         

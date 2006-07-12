@@ -16,5 +16,5 @@ make_cfg_file('triggers.cfi')
 #Now cmsRun
 import os
 os.system("pwd")
-#os.system("cmsRun hlt.cfg");
+os.system("cmsRun hlt.cfg");
 
