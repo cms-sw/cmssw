@@ -17,7 +17,7 @@ SELECT
  record_id iov_value_id,
  runs time
 FROM noisematrix@omds
-WHERE record_id > last_id and flag!=0
+WHERE record_id > last_id and flag = 1
 ;
 
 INSERT INTO "CSCNOISEMATRIX_MAP"
@@ -28,7 +28,7 @@ SELECT
 FROM noisematrix_map@omds, noisematrix@omds
 WHERE noisematrix_map.record_id = noisematrix.record_id
   AND noisematrix_map.record_id > last_id
-  AND noisematrix.flag!=0
+  AND noisematrix.flag = 1
 ;
 
 INSERT INTO "CSCNOISEMATRIX_DATA"
@@ -52,7 +52,7 @@ FROM noisematrix_data@omds, noisematrix_map@omds, noisematrix@omds
 WHERE noisematrix_data.map_id = noisematrix_map.map_id
   AND noisematrix_map.record_id = noisematrix.record_id
   AND noisematrix.record_id > last_id
-  AND noisematrix.flag!=0
+  AND noisematrix.flag = 1
 ;
 
 END;

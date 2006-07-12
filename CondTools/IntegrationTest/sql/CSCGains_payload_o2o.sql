@@ -17,7 +17,7 @@ SELECT
  record_id iov_value_id,
  runs time
 FROM gains@omds
-WHERE record_id > last_id and flag!=0
+WHERE record_id > last_id and flag = 1
 ;
 
 INSERT INTO "CSCGAINS_MAP"
@@ -28,7 +28,7 @@ SELECT
 FROM gains_map@omds, gains@omds
 WHERE gains_map.record_id = gains.record_id
   AND gains_map.record_id > last_id 
-  AND gains.flag!=0
+  AND gains.flag = 1
 ;
 
 INSERT INTO "CSCGAINS_DATA"
@@ -43,7 +43,7 @@ FROM gains_data@omds, gains_map@omds, gains@omds
 WHERE gains_data.map_id = gains_map.map_id
   AND gains_map.record_id = gains.record_id
   AND gains_map.record_id > last_id 
-  AND gains.flag!=0
+  AND gains.flag = 1
 ;
 
 END;

@@ -17,7 +17,7 @@ SELECT
  record_id iov_value_id,
  runs time
 FROM crosstalk@omds
-WHERE record_id > last_id and flag!=0
+WHERE record_id > last_id and flag = 1
 ;
 
 INSERT INTO "CSCCROSSTALK_MAP"
@@ -28,7 +28,7 @@ SELECT
 FROM crosstalk_map@omds, crosstalk@omds
 WHERE crosstalk_map.record_id = crosstalk.record_id
   AND crosstalk_map.record_id > last_id
-  AND crosstalk.flag!=0
+  AND crosstalk.flag = 1
 ;
 
 INSERT INTO "CSCCROSSTALK_DATA"
@@ -46,7 +46,7 @@ FROM crosstalk_data@omds, crosstalk_map@omds, crosstalk@omds
 WHERE crosstalk_data.map_id = crosstalk_map.map_id
   AND crosstalk_map.record_id = crosstalk.record_id
   AND crosstalk_map.record_id > last_id
-  AND crosstalk.flag!=0
+  AND crosstalk.flag = 1
 ;
 
 END;

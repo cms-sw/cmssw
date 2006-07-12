@@ -17,7 +17,7 @@ SELECT
  record_id iov_value_id,
  runs time
 FROM pedestals@omds
-WHERE record_id > last_id and flag!=0
+WHERE record_id > last_id and flag = 1
 ;
 
 
@@ -29,7 +29,7 @@ SELECT
 FROM pedestals_map@omds, pedestals@omds
 WHERE pedestals.record_id = pedestals_map.record_id
   AND pedestals_map.record_id > last_id 
-  AND pedestals.flag!=0
+  AND pedestals.flag = 1
 ;
 
 
@@ -44,7 +44,7 @@ FROM pedestals_data@omds, pedestals_map@omds, pedestals@omds
 WHERE pedestals_data.map_id=pedestals_map.map_id
   AND pedestals_map.record_id = pedestals.record_id
   AND pedestals_map.record_id > last_id 
-  AND pedestals.flag!=0
+  AND pedestals.flag = 1
 ;
 
 END;
