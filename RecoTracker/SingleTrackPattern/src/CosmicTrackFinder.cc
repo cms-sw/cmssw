@@ -102,7 +102,7 @@ namespace cms
 
 	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
 
-
+	int cc = 0;	
 	TSOS UpState;
 	if (seedplus)	  UpState=theTraj.lastMeasurement().updatedState();	
 	else      UpState=theTraj.firstMeasurement().updatedState();
@@ -137,7 +137,8 @@ namespace cms
 	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
 	for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
-	  theTrackExtra->add(TrackingRecHitRef(ohRH,0));
+	  theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+	  cc++;
 	}
 
 	outputTEColl->push_back(*theTrackExtra);
