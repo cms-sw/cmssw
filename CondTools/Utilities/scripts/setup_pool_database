@@ -15,6 +15,7 @@ class setup_pool_database:
        self.setupfilename = None
        self.mappingversion = None
        self.inputfile = None
+       self.container = None
        self.username = None
        self.password = None
        self.objectname = None      
@@ -24,25 +25,25 @@ class setup_pool_database:
        self.parsecmdln()
 
     def parsecmdln(self):
-       usage = "usage: \%prog [-u|-p|-o|-h|-v] objectName dictionaryName dbName inputMappingFile\n"
+       usage = "usage: \%prog [-u|-p|-o|-h|-v|-c] objectName dictionaryName dbName inputMappingFile\n"
        usage += "\n"
        usage +="arguments:\n"
        usage +="  objectName: name of object to be processed, e.g. Pedestals\n"
        usage +="  dictionaryName: name of dictionary containing the object, e.g. CondFormatsCalibration\n" 
        usage +="  dbName: connection string to the database, format: technology[_protocol]://dbname[/schemaname], e.g. oracle://devdb10/MYSCHEMA; sqlite_file:my.db\n"
        usage +="  inputMappingFile: input mapping file with path, format: [path]/[objectName]-mapping-[mappingversion].xml, e.g. Pedestals-mapping-1.0.xml\n"
-
+       
        self.parser = OptionParser(usage)  
        #self.parser.add_option("-c","--catalog",action='store',type="string", dest="catalog", default='xmlcatalog_file://PoolFileCatalog.xml', help='Pool file catalog; [default] xmlcatalog_file://PoolFileCatalog.xml' )
        self.parser.add_option("-u","--user",action='store',type="string", dest="username", default='', help='database user or account name' ) 
        self.parser.add_option("-p","--password",action='store',type="string", dest="password", default='', help='database password' ) 
        self.parser.add_option("-o","--outputdir",action='store',type="string", dest="outdir", default=os.getcwd(), help='directory for temporary output files. [defalt] currentdir' )
        self.parser.add_option("-v","--verbose", action='store_true', dest="verbose", help='verbose mode')
-       
+       self.parser.add_option("-c","--container", action='store', type="string", dest="container", help='pool container name')
        (options, args) = self.parser.parse_args()
        if len(args) != 4:
           self.parser.error("incorrect number of arguments, try -h for help") 
-       #self.catalog=self.parser.values.catalog
+       self.container=self.parser.values.container
        self.username=self.parser.values.username
        self.password=self.parser.values.password
        self.outdir=self.parser.values.outdir
@@ -70,7 +71,11 @@ class setup_pool_database:
        f.write("<?xml version='1.0' encoding=\"UTF-8\"?>\n")
        f.write("<!DOCTYPE Database SYSTEM \"InMemory\">\n")
        f.write("<Database connectionString=\"notmatter\" >\n")
-       myline='<HomogeneousContainer name=\"'+self.objectname+'\" >\n'
+       myline=None
+       if self.container is None :
+           myline='<HomogeneousContainer name=\"'+self.objectname+'\" >\n'
+       else :
+           myline='<HomogeneousContainer name=\"'+self.container+'\" >\n'
        f.write(myline)
        myline='<Class name=\"'+self.objectname+'\" mappingVersion=\"'+self.mappingversion+'\"/>\n'
        f.write(myline)
