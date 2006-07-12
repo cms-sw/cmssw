@@ -21,8 +21,8 @@ namespace sistrip {
 namespace sistrip { 
 
   // FED = Front-End Driver, FEUNIT = Front-End Unit, FEDCH = Fed Channel
-  static const uint16_t FEUNITS_PER_FED  = 8;
   static const uint16_t FEDCH_PER_FEUNIT = 12;
+  static const uint16_t FEUNITS_PER_FED  = 8;
   static const uint16_t FEDCH_PER_FED    = FEDCH_PER_FEUNIT * FEUNITS_PER_FED; // 96
   
   // APV = APV25 front-end readout chip
@@ -32,8 +32,9 @@ namespace sistrip {
   
   // STRIP = Detector strips 
   static const uint16_t STRIPS_PER_APV    = 128;
-  static const uint16_t STRIPS_PER_FEUNIT = STRIPS_PER_APV * APVS_PER_FEDCH * FEDCH_PER_FEUNIT; // 3072
-  static const uint16_t STRIPS_PER_FED    = STRIPS_PER_APV * APVS_PER_FEDCH * FEDCH_PER_FED; // 24576
+  static const uint16_t STRIPS_PER_FEDCH  = STRIPS_PER_APV * APVS_PER_FEDCH;
+  static const uint16_t STRIPS_PER_FEUNIT = STRIPS_PER_FEDCH * FEDCH_PER_FEUNIT; // 3072
+  static const uint16_t STRIPS_PER_FED    = STRIPS_PER_FEUNIT * FEUNITS_PER_FED; // 24576
   
 }
 
