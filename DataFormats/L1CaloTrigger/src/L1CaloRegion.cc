@@ -22,7 +22,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
   m_id(false, crate, 0, rgn)
 {
-  pack(et, false, fineGrain, false, false);
+  pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
 }
 
 // constructor from GCT card, region numbers
