@@ -15,7 +15,7 @@ BEGIN
 INSERT INTO "CSCCROSSTALK"
 SELECT
  record_id iov_value_id,
- record_id time
+ runs time
 FROM crosstalk@omds
 WHERE record_id > last_id and flag!=0
 ;
