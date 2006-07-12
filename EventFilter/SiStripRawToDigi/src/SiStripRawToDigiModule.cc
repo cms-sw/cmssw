@@ -1,11 +1,11 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
 // edm
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-//#include "DataFormats/SiStripDigi/interface/Fed9UEventLite.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
@@ -40,7 +40,8 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >   ("ZeroSuppressed");
   produces<SiStripEventSummary>();
-  //produces<Fed9UEventLite>();
+  produces<SiStripDigi>();
+  //produces<SiStripDigi>("SiStripDigis");
   
 }
 
@@ -77,16 +78,17 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  //auto_ptr<Fed9UEventLite> fed9u( new Fed9UEventLite( buffers ) );
+  auto_ptr<SiStripDigis> digis;
   
-  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, summary ); //, fed9u );
+  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, summary, digis );
   
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
   iEvent.put( summary );
-  //iEvent.put( fed9u );
+  //iEvent.put( digis, "SiStripDigis" );
+  iEvent.put( digis );
   
 }
 

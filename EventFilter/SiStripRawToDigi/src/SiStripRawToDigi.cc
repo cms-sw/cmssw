@@ -10,6 +10,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -23,8 +24,8 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <string>
-#include <vector>
+
+using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -68,8 +69,8 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
 				    auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr,
-				    auto_ptr< SiStripEventSummary >& summary ) {
-
+				    auto_ptr< SiStripEventSummary >& summary,
+				    auto_ptr< SiStripDigis >& digis ) {
 
   cout << "[SiStripRawToDigi::createDigis] Event number: " << event << endl;
 
@@ -83,9 +84,9 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
   //dumpRawData( triggerFedId_, trigger_fed ); 
 
   // Retrieve FED ids from cabling map and iterate through 
-  const vector<uint16_t>& fed_ids = cabling->feds(); 
-  vector<uint16_t>::const_iterator ifed;
-  for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+  uint32_t appended_bytes = 0;
+  vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
+  for ( ; ifed != cabling->feds().end(); ifed++ ) {
     anal_.addFed();
     LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Extracting payload from FED id: " << *ifed;
 
@@ -96,6 +97,7 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
     // Locate start of FED buffer within raw data
     FEDRawData output; 
     locateStartOfFedBuffer( *ifed, input, output );
+    appended_bytes = input.size() - output.size();
     Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
     Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
 
@@ -279,6 +281,9 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
       }
     }
   }
+
+  // Create SiStripDigis object
+  digis = auto_ptr<SiStripDigis>( new SiStripDigis( buffers, cabling->feds(), appended_bytes ) );
     
   if ( fedEvent_ ) { 
     delete fedEvent_; //@@ because of bug in fed sw
@@ -352,7 +357,7 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 					       const FEDRawData& input,
 					       FEDRawData& output ) {
-
+  
   // Check size of input buffer
   if ( input.size() < 24 ) { 
     output.resize( input.size() ); // Return UNadjusted buffer start position and size

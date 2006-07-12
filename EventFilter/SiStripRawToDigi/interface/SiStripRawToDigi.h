@@ -8,6 +8,8 @@
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 #include <ostream>
+#include <string>
+#include <vector>
  
 class FEDRawDataCollection;
 class FEDRawData;
@@ -15,8 +17,7 @@ class SiStripDigi;
 class SiStripRawDigi;
 class SiStripEventSummary;
 class SiStripFedCabling;
-
-using namespace std;
+class SiStripDigis;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h
@@ -44,7 +45,8 @@ class SiStripRawToDigi {
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
 		    auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr,
-		    auto_ptr< SiStripEventSummary >& summary );
+		    auto_ptr< SiStripEventSummary >& summary,
+		    auto_ptr< SiStripDigis >& digis );
   
  private: // ----- private methods -----
   
@@ -63,8 +65,8 @@ class SiStripRawToDigi {
   
   /** Catches all possible exceptions and rethrows them as
       cms::Exception's that are caught by the framework. */ 
-  void handleException( const string& method_name,
-			const string& extra_info = "" ) throw (cms::Exception);
+  void handleException( const std::string& method_name,
+			const std::string& extra_info = "" ) throw (cms::Exception);
   
  private: // ----- private data members -----
   
@@ -78,8 +80,6 @@ class SiStripRawToDigi {
 
   SiStripTrivialDigiAnalysis anal_;
 
-  vector<uint16_t> skews_; //@@ debug
-  
 };
 
 void SiStripRawToDigi::readoutOrder( uint16_t& physical_order, 
