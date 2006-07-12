@@ -27,6 +27,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 // std, utilities
@@ -36,7 +38,7 @@
 #include <sstream>
 #include <iomanip>
 
-
+using namespace std;
 
 // -----------------------------------------------------------------------------
 //

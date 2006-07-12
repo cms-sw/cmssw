@@ -3,7 +3,6 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
@@ -13,17 +12,15 @@ class DaqMonitorBEInterface;
 class CommissioningTask;
 class FedChannelConnection;
 
-using namespace std;
-
 /**
    @class SiStripCommissioningSource
 */
 class SiStripCommissioningSource : public edm::EDAnalyzer {
-
+  
  public: // ----- public interface -----
   
   /** Map of task objects, identified through FedChanelId */
-  typedef map<unsigned int, CommissioningTask*> TaskMap;
+  typedef std::map<unsigned int, CommissioningTask*> TaskMap;
   
   SiStripCommissioningSource( const edm::ParameterSet& );
   ~SiStripCommissioningSource();
@@ -45,18 +42,18 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   
  private: // ----- data members -----
 
-  string inputModuleLabel_;
+  std::string inputModuleLabel_;
   /** Interface to Data Quality Monitoring framework. */
   DaqMonitorBEInterface* dqm_;
   /** Identifies commissioning task. */
-  string task_; 
+  std::string task_; 
   /** Map of task objects, identified through FedChanKey. */
   TaskMap tasks_;
   /** */
   int updateFreq_;
 
   /** */
-  string filename_;
+  std::string filename_;
 
   /** */
   uint32_t run_;
