@@ -31,7 +31,34 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
   int ieta=0;
   int iphi=0;
 
-  /// TODO - calculate ieta and iphi from RCT crate/card/region #
+  // Calculate iphi
+  int phi_index = icrate % 9;
+  if ((icard == 0) || (icard == 2) || (icard == 4))
+    iphi = phi_index * 2;
+  else if ((icard == 1) || (icard == 3) || (icard == 5))
+    iphi = phi_index * 2 + 1;
+  else if (icard == 6)
+    iphi = phi_index * 2 + irgn;
+  // for HF
+  else if (icard == 999)
+    iphi = phi_index * 2 + (rgn/4);
+
+  // Calculate ieta
+  int eta_index = 0;
+  if (icard < 6)
+    eta_index = (icard/2) * 2 + irgn;
+  else if (icard == 6)
+    eta_index = 6;
+  // HF
+  else if (icard == 999)
+    eta_index = (irgn % 4) + 7;
+  
+  if (icrate < 9)
+    ieta = 10 - eta_index;
+  else if (icrate >= 9)
+    ieta = 11 + eta_index;
+
+  /// TODO - check calculation of ieta and iphi from RCT crate/card/region #
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
 
