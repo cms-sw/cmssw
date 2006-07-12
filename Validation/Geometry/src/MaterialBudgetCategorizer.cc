@@ -50,6 +50,11 @@ void MaterialBudgetCategorizer::buildMaps()
       air=1.000; 
       oth=0.000;
     }
+    // actually this class does not work if there are spaces into material names --> Recover material properties
+    if((*matTable)[ii]->GetName()=="Carbon fibre str.") { 
+      sup=1.000; 
+      oth=0.000;
+    }
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(sup); // sup
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(sen); // sen
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(cab); // cab
@@ -58,6 +63,8 @@ void MaterialBudgetCategorizer::buildMaps()
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(oth); // oth
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(air); // air
   }
+  //
+  
   //
   std::string materialName;
   while(!theMaterialFile.eof()) {
@@ -85,16 +92,18 @@ void MaterialBudgetCategorizer::buildMaps()
   }
   
   // summary of all the materials loaded
+  cout << endl << endl << "MaterialBudgetCategorizer::Material Summary --------" << endl;
   for( ii = 0; ii < matSize; ii++ ) {
-    edm::LogInfo("MaterialBudgetCategorizer") << " material " << (*matTable)[ii]->GetName()
-					      << " SUP " << theX0Map[ (*matTable)[ii]->GetName() ][0] 
-					      << " SEN " << theX0Map[ (*matTable)[ii]->GetName() ][1]
-					      << " CAB " << theX0Map[ (*matTable)[ii]->GetName() ][2]
-					      << " COL " << theX0Map[ (*matTable)[ii]->GetName() ][3]
-					      << " ELE " << theX0Map[ (*matTable)[ii]->GetName() ][4]
-					      << " OTH " << theX0Map[ (*matTable)[ii]->GetName() ][5]
-					      << " AIR " << theX0Map[ (*matTable)[ii]->GetName() ][6]
-					      << endl;
+    //    edm::LogInfo("MaterialBudgetCategorizer")
+    cout << " material " << (*matTable)[ii]->GetName()
+	 << " SUP " << theX0Map[ (*matTable)[ii]->GetName() ][0] 
+	 << " SEN " << theX0Map[ (*matTable)[ii]->GetName() ][1]
+	 << " CAB " << theX0Map[ (*matTable)[ii]->GetName() ][2]
+	 << " COL " << theX0Map[ (*matTable)[ii]->GetName() ][3]
+	 << " ELE " << theX0Map[ (*matTable)[ii]->GetName() ][4]
+	 << " OTH " << theX0Map[ (*matTable)[ii]->GetName() ][5]
+	 << " AIR " << theX0Map[ (*matTable)[ii]->GetName() ][6]
+	 << endl;
   }
   //
   // rr

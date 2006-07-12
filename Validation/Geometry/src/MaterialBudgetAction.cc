@@ -44,8 +44,15 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
       theVolumeList.push_back( *ite );
       std::cout << (*ite) << std::endl;
     }
-    if( (*ite) == "TIB" || (*ite) == "TIDF" || (*ite) == "TIDB" || (*ite) == "TEC" || (*ite) == "TOB"
-	|| (*ite) == "TrackerScreenCont" || (*ite) == "TrackerPatchPanel" || (*ite) == "Tracker" ) isTracker=true;
+    if(
+       (*ite) == "TrackerScreenCont" || (*ite) == "TrackerPatchPanel"
+       || (*ite) == "PixelBarrel"    || (*ite) == "PixelForwardZPlus" || (*ite) == "PixelForwardZMinus" 
+       || (*ite) == "TIB" 
+       || (*ite) == "TIDF"           || (*ite) == "TIDB" 
+       || (*ite) == "TOB" 
+       || (*ite) == "TEC"
+       || (*ite) == "Tracker"
+       ) isTracker=true;
   }
   // log
   if(isTracker) {
