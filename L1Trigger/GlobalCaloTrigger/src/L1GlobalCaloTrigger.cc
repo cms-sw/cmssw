@@ -30,7 +30,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, string jetEtLutFile, L1GctJetLeafCard::jetFinderType jfType) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType, string jetEtLutFile) :
   readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),

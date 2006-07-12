@@ -54,9 +54,9 @@ public:
 
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false,
-		      std::string jetEtLutFile="data/defaultJetEtCalibrationLut.dat",
-		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
-  
+		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder,
+		      std::string jetEtLutFile="data/defaultJetEtCalibrationLut.dat");
+
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
   
