@@ -147,10 +147,10 @@ public:
 
   // called by main 
   IOSize get(std::vector<char> & ibuf) {
+    ScopedLock gl(lock);
     // if thread is over return...
     if (end) return 0;
     // wait that thread finish to read before swapping
-    ScopedLock gl(lock);
     if (nin==0) done.wait(gl);
 
     IOSize ret = 0;
