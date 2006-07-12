@@ -172,7 +172,10 @@ public:
     if (nin!=0) doit.wait(gl);
     bool ret=true;
     // inbuf empty notify thread to exit....
-    if (inbuf.empty()) ret=false;
+    if (inbuf.empty()) {
+      end=true; 
+      ret=false;
+    }
     else
       try {
 	nin = os->read(&inbuf[0],inbuf.size());
