@@ -13,6 +13,7 @@
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmulator.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 // data format include files
 
@@ -27,11 +28,8 @@
 #include <memory>
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
-  m_verbose(ps.getUntrackedParameter<bool>("verbose", false)),
-  m_jetEtLut_A( ps.getParameter<double>("jetEtLutA") ),
-  m_jetEtLut_B( ps.getParameter<double>("jetEtLutB") ),
-  m_jetEtLut_C( ps.getParameter<double>("jetEtLutC") )
-{
+  m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
+ {
 
   // list of products
   produces<L1GctEmCandCollection>();
@@ -41,12 +39,14 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtMiss>();
   produces<L1GctJetCounts>();
 
+  // Get the filename for the Jet Et LUT
+  edm::FileInPath fp = ps.getParameter<edm::FileInPath>("jetEtLutFile");
+
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(true);
+  m_gct = new L1GlobalCaloTrigger(true,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
   // set parameters
   // m_gct->setVerbose(m_verbose);
-  //  m_gct->getJetEtCalibLut();
 
   // for now, call the debug print output
   m_gct->print();
