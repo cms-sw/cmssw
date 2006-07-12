@@ -27,16 +27,40 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
   os << " Eta " << cand.globalEta();
   os << " Phi " << cand.globalPhi();
   os << " Tau " << cand.m_tauVeto;
+  os << " rank " << cand.rank();
   if (cand.m_jetEtCalibrationLut == 0) {
-    os << " using default lut!" << std::endl;
+    os << " using default lut!";
   } else {
-    os << " rank " << cand.rank();
-    os << " lut address " << cand.m_jetEtCalibrationLut << std::endl;
+    os << " lut address " << cand.m_jetEtCalibrationLut;
   }
 
   return os;
 }	
 
+/// test whether two jets are the same
+bool L1GctJet::operator== (const L1GctJet& cand) const
+{
+  bool result=true;
+  result &= (this->rawsum()==cand.rawsum());
+  result &= (this->tauVeto()==cand.tauVeto());
+  result &= (this->globalEta()==cand.globalEta());
+  result &= (this->globalPhi()==cand.globalPhi());
+  result |= (this->isNullJet() && cand.isNullJet());
+  return result;
+}
+  
+/// test whether two jets are different
+bool L1GctJet::operator!= (const L1GctJet& cand) const
+{
+  bool result=false;
+  result |= !(this->rawsum()==cand.rawsum());
+  result |= !(this->tauVeto()==cand.tauVeto());
+  result |= !(this->globalEta()==cand.globalEta());
+  result |= !(this->globalPhi()==cand.globalPhi());
+  result &= !(this->isNullJet() && cand.isNullJet());
+  return result;
+}
+  
 void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto)
 {
   L1CaloRegionDetId temp(eta, phi);

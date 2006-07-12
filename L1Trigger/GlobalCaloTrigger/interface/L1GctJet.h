@@ -64,6 +64,12 @@ public:
 
   friend std::ostream& operator << (std::ostream& os, const L1GctJet& cand);
   
+  /// test whether two jets are the same
+  bool operator== (const L1GctJet& cand) const;
+  
+  /// test whether two jets are different
+  bool operator!= (const L1GctJet& cand) const;
+  
   ///Setup an existing jet all in one go
   void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto=true);
   
