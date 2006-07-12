@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/09 17:41:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/11 03:40:40 $
+ *  $Revision: 1.4 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -19,7 +19,7 @@
  *  porting author:
  *  C. Liu                   Purdue University
  *
-**/
+ **/
 
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
 
@@ -102,11 +102,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
 
-
   theTkTrackRef.clear();
-
-
-
 
 }
 
@@ -120,7 +116,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   delete theRefitter;
   delete theTrajectoryCleaner;
   delete theTrajectorySmoother;
-  delete theTrajectoryBuilder;
+  //delete theTrajectoryBuilder;
 
 }
 
@@ -132,29 +128,30 @@ std::vector<Trajectory> GlobalMuonTrajectoryBuilder::trajectories(const reco::Tr
 
   std::vector<Trajectory> result;
   
-// get tracker TrackCollection from Event
-// edm::Handle<reco::TrackCollection> allTrackerTracks;
-// iEvent.getByLabel(theTkTrackLabel,allTrackerTracks);
+  // get tracker TrackCollection from Event
+  edm::Handle<reco::TrackCollection> allTrackerTracks;
+  iEvent.getByLabel(theTkTrackLabel,allTrackerTracks);
   
-// narrow down the TrackCollection by matching Eta-Phi Region
-// chooseTrackerTracks(staTrack, tkTracks);
+  // narrow down the TrackCollection by matching Eta-Phi Region
+  chooseTrackerTracks(staTrack, tkTracks);
 
-// choose a set of Tracks from the TrackCollection by TrackMatcher
-// std::vector<reco::Track&> matchedResult =  match(staTrack, tkTracks);
+  // choose a set of Tracks from the TrackCollection by TrackMatcher
+  GlobalMuonTrackMatcher trackMatcher(chi2,&*theField);
+  std::vector<reco::Track&> matchedResult =  trackMatcher.match(staTrack, tkTracks);
 
-// TC matchedTrajs;
+  reco::TrackCollection matchedTrajs;
   
-// std::vector<reco::Track&> theTkTrackRef; set as private member
+  std::vector<reco::Track&> theTkTrackRef; // set as private member
 
-// for(std::vector<reco::Track&>::const_iterator tkt = matchedResult.begin();
-//   tkt = matchedResult.end();tkt++) {
-//   build Trajectories from the tkTracks
-//   std::vector<Trajectory> matchedTraj = getTrackerTraj(*tkt);
-//   if (matchedTraj.size()>0) {
-//     matchedTrajs.push_back(matchedTraj.front());
-//     theTkTrackRef.push_back(*tkt); 
-//   }    
-// } 
+  for(std::vector<reco::Track&>::const_iterator tkt = matchedResult.begin();
+      tkt = matchedResult.end();tkt++) {
+    //   build Trajectories from the tkTracks
+    std::vector<Trajectory> matchedTraj;//IMPLEMENT = getTrackerTraj(*tkt);
+    if (matchedTraj.size()>0) {
+      matchedTrajs.push_back(matchedTraj.front());
+      theTkTrackRef.push_back(*tkt); 
+    }    
+  } 
 // 
 //   build combined Trajectories with muon hits options
 //   TC tjs = build(staTrack, matchedTrajs);
@@ -359,9 +356,11 @@ std::vector<reco::Track&> GlobalMuonTrajectoryBuilder::chooseTrackerTracks(const
 }
 
 /// get silicon tracker Trajectories from track Track and Seed directly
-std::vector<Trajectory> GlobalMuonTrajectoryBuilder::getTrackerTraj(const reco::Track& tkTrack) const{
-
-  TC result;
+std::vector<Trajectory> GlobalMuonTrajectoryBuilder::
+          getTrackerTraj(const reco::Track& tkTrack) const
+{
+  //IMPLEMENT ME
+  std::vectorTC result;
 
   //setES to get theFitter,thePropagator, TransientTrackingRecHitBuilder...
 
@@ -375,11 +374,12 @@ std::vector<Trajectory> GlobalMuonTrajectoryBuilder::getTrackerTraj(const reco::
   return result;
 }
 
-std::vector<Trajectory> GlobalMuonTrajectoryBuilder::getTrackerTrajs (const TrajectoryFitter * theFitter,
-								      const Propagator * thePropagator,
-								      edm::OwnVector<const TransientTrackingRecHit>& hits,
-								      TrajectoryStateOnSurface& theTSOS,
-								      const TrajectorySeedCollection& seeds) const
+std::vector<Trajectory> GlobalMuonTrajectoryBuilder::
+          getTrackerTrajs (const TrajectoryFitter * theFitter,
+			   const Propagator * thePropagator,
+			   edm::OwnVector<const TransientTrackingRecHit>& hits,
+			   TrajectoryStateOnSurface& theTSOS,
+			   const TrajectorySeedCollection& seeds) const
 {
   
   std::vector<Trajectory> result;
@@ -397,9 +397,9 @@ std::vector<Trajectory> GlobalMuonTrajectoryBuilder::getTrackerTrajs (const Traj
   
 }
 
-void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup,
-				  edm::ESHandle<TrajectoryFitter>& theFitter,
-				  edm::ESHandle<Propagator>& thePropagator)
+void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup)
+      				//edm::ESHandle<TrajectoryFitter>& theFitter,
+	      			//edm::ESHandle<Propagator>& thePropagator)
 {
   setup.get<IdealMagneticFieldRecord>().get(theField);  
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
@@ -408,11 +408,13 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup,
   // get the fitter from the ES
   //
   std::string fitterName = "Fittername"; //FIXME
+  edm::ESHandle<TrajectoryFitter>& theFitter,
   setup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
   //
   // get also the propagator
   //
   std::string propagatorName = "Propagatorname"; //FIXME   
+  edm::ESHandle<Propagator>& thePropagator)
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   //
   // get the builder
