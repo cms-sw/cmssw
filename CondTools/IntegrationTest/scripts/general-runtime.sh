@@ -11,18 +11,18 @@ then
     exit
 fi
 
-echo "[INFO]  CMSSW_DIR:  $CMSSW_DIR"
+echo "[INFO]   CMSSW_DIR:  $CMSSW_DIR"
 
 LOG=$O2ODIR/o2o-log.txt
-echo "[INFO]  LOG:  $LOG"
+echo "[INFO]   LOG:  $LOG"
 
 # General object setup
 MAPPING_PATH=${CMSSW_DIR}/src/CondTools/IntegrationTest/mappings
-echo "[INFO]  MAPPING_PATH:  $MAPPING_PATH"
+echo "[INFO]   MAPPING_PATH:  $MAPPING_PATH"
 
 # Path to SQL scripts
 SQL_PATH=${CMSSW_DIR}/src/CondTools/IntegrationTest/sql
-echo "[INFO]  SQL_PATH:  $SQL_PATH"
+echo "[INFO]   SQL_PATH:  $SQL_PATH"
 
 # Set the CMSSW environment
 PATH=$PATH:$SCRAM_PATH
