@@ -19,6 +19,7 @@ class L1RCTCrate {
   //neighbors rather than just copies.
   //Working in non garbage collected languages can really suck sometimes.
   L1RCTReceiverCard* getReceiverCard(int i) { return &receiverCards.at(i);}
+  // L1RCTJetSummaryCard* getJetSummaryCard { return &jetSummaryCard;}
   
   //This method receives the input from the L1RCT class and distributes
   //the RCInput to the 7 receiver cards and sends the HFInput straight
@@ -50,15 +51,41 @@ class L1RCTCrate {
     electronCards.at(i).printEdges();
   }
 
+  // region sums
   vector<unsigned short> getJetRegions(){
-    jetSummaryCard.getJetRegions();
+    return jetSummaryCard.getJetRegions();
   }
-  
+  vector<unsigned short> getBarrelRegions(){
+    return jetSummaryCard.getBarrelRegions();
+  }
+  vector<unsigned short> getHFRegions(){
+    return jetSummaryCard.getHFRegions();
+  }
+
+  // e-gamma objects
   vector<unsigned short> getIsolatedEGObjects(){
-    jetSummaryCard.getIsolatedEGObjects();
+    return jetSummaryCard.getIsolatedEGObjects();
   }
   vector<unsigned short> getNonisolatedEGObjects(){
-    jetSummaryCard.getNonisolatedEGObjects();
+    return jetSummaryCard.getNonisolatedEGObjects();
+  }
+
+  // the bits
+  unsigned short getTauBits(){
+    return jetSummaryCard.getTauBits();
+  }
+  unsigned short getMIPBits(){
+    return jetSummaryCard.getMIPBits();
+  }
+  unsigned short getOverFlowBits(){
+    return jetSummaryCard.getOverFlowBits();
+  }
+  unsigned short getQuietBits(){
+    return jetSummaryCard.getQuietBits();
+  }
+  // hf bit
+  vector<unsigned short> getHFFineGrainBits(){
+    return jetSummaryCard.getHFFineGrainBits();
   }
 
  private:

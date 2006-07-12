@@ -1,16 +1,30 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 
-L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(), crtNo(crtNo),
+L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):lut(),
 						    isolatedEGObjects(4),
 						    nonisolatedEGObjects(4),
 						    jetRegions(22),
 						    HFRegions(8),
 						    barrelRegions(14),
-						    quietThreshold(3),
 						    mipBits(0),
+						    quietBits(0),
 						    tauBits(0),
-						    quietBits(0)
+						    overFlowBits(0),
+						    hfFineGrainBits(8),
+						    crtNo(crtNo),
+						    quietThreshold(3)
 {
+}
+
+void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums){
+  //cout << "JSC.fillHFRegionSums() entered" << endl;
+  for(int i=0;i<8;i++){
+    //cout << "filling hf region at " << i << endl;
+    HFRegions.at(i) = lut.lookup( (hfRegionSums.at(i))/2 );
+    //cout << "hf region " << i << " et filled" << endl;
+    hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
+    //cout << "hf region " << i << " fine grain bit filled" << endl;
+  }
 }
 
 void L1RCTJetSummaryCard::fillJetRegions(){
@@ -84,6 +98,13 @@ void L1RCTJetSummaryCard::fillTauBits(vector<unsigned short> tau){
   for(int i = 0; i<14; i++)
     taus[i] = tau.at(i);
   tauBits = taus.to_ulong();
+}
+
+void L1RCTJetSummaryCard::fillOverFlowBits(vector<unsigned short> overflow){
+  bitset<14> overflows;
+  for(int i = 0; i<14; i++)
+    overflows[i] = overflow.at(i);
+  overFlowBits = overflows.to_ulong();
 }
 
 void L1RCTJetSummaryCard::fillQuietBits(){

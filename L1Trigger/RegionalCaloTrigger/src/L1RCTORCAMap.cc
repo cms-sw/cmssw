@@ -69,13 +69,13 @@ unsigned short L1RCTORCAMap::combine(unsigned short et, unsigned short fg){
 vector<unsigned short> L1RCTORCAMap::combVec(vector<unsigned short> et, 
 					     vector<unsigned short> fg){
   vector<unsigned short> comb(56*72);
-  for(int i = 0; i<et.size(); i++)
+  for(int i = 0; i<(int)et.size(); i++)
     comb.at(i) = combine(et.at(i),fg.at(i));
   return comb;
 }
 
 vector<int> L1RCTORCAMap::orcamap(int eta, int phi){
-  int crateNum;
+  int crateNum(20);
   vector<int> cardTower(2,0);
   vector<int> returnVec(3,0);
   int modEta = eta%28;

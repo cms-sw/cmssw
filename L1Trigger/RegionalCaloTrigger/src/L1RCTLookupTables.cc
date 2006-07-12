@@ -39,7 +39,7 @@ unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
 
 unsigned long L1RCTLookupTables::convertTo7Bits(float et){
   unsigned long etBits = (unsigned long)(et/0.5);
-  unsigned long sevenBits = pow(2,7)-1;
+  unsigned long sevenBits = (unsigned long) pow(2,7)-1;
   if(etBits > sevenBits)
     return sevenBits;
   else
@@ -48,7 +48,7 @@ unsigned long L1RCTLookupTables::convertTo7Bits(float et){
 
 unsigned long L1RCTLookupTables::convertTo9Bits(float et){
   unsigned long etBits = (unsigned short)(et/0.5);
-  unsigned long nineBits = pow(2,9)-1;
+  unsigned long nineBits = (unsigned long) pow(2,9)-1;
   if(etBits > nineBits)
     return nineBits;
   else
@@ -57,7 +57,7 @@ unsigned long L1RCTLookupTables::convertTo9Bits(float et){
 
 unsigned long L1RCTLookupTables::convertTo10Bits(float et){
   unsigned long etBits = (unsigned short)(et/0.5);
-  unsigned long tenBits = pow(2,10)-1;
+  unsigned long tenBits = (unsigned long) pow(2,10)-1;
   if(etBits > tenBits)
     return tenBits;
   else

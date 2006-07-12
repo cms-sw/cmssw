@@ -106,8 +106,10 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 
   
   vector<unsigned short> candidates;
-  candidates.push_back(isoElectron);
-  candidates.push_back(nonIsoElectron);
+  unsigned short fullIsoElectron = isoElectron*16 + cardNo*2;  // any problems with adding to int? (cardNo was int)
+  candidates.push_back(fullIsoElectron);
+  unsigned short fullNonIsoElectron = nonIsoElectron*16 + cardNo*2;
+  candidates.push_back(fullNonIsoElectron);
 
   return candidates;
 }

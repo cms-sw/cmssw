@@ -5,6 +5,8 @@
 #include <iostream>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -52,8 +54,8 @@ class L1RCTElectronIsolationCard {
 			    unsigned short southEt, unsigned short eastEt,
 			    unsigned short westEt);
 
-  int crtNo;
-  int cardNo;
+  unsigned short crtNo;  // changed from int
+  unsigned short cardNo;  // changed from int
 
   L1RCTRegion empty;
 

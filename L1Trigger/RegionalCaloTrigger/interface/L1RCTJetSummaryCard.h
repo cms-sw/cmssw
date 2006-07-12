@@ -6,6 +6,8 @@
 #include <algorithm>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+
 using std::sort;
 using std::bitset;
 using std::vector;
@@ -56,6 +58,8 @@ class L1RCTJetSummaryCard
   // and increases from 0 to +5 for crates 9-17
 
   vector<unsigned short> getJetRegions() {return jetRegions;}
+  vector<unsigned short> getBarrelRegions() {return barrelRegions;}
+  vector<unsigned short> getHFRegions() {return HFRegions;}
 
   // Muon bits consist of 14 quiet bits and 14 MIP bits
   // These are packed into one unsigned short each
@@ -70,11 +74,11 @@ class L1RCTJetSummaryCard
   unsigned short getQuietBits() {return quietBits;}
 
   unsigned short getTauBits() {return tauBits;}
+  unsigned short getOverFlowBits() {return overFlowBits;}
 
-  void fillHFRegionSums(vector<unsigned short> hfRegionSums){
-    for(int i=0;i<8;i++)
-      HFRegions.at(i) = lut.lookup(hfRegionSums.at(i));
-  }
+  vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
+
+  void fillHFRegionSums(vector<unsigned short> hfRegionSums);
   void fillRegionSums(vector<unsigned short> regSums){
     barrelRegions = regSums;
   }
@@ -85,6 +89,7 @@ class L1RCTJetSummaryCard
 
   void fillMIPBits(vector<unsigned short> mip);
   void fillTauBits(vector<unsigned short> tau);
+  void fillOverFlowBits(vector<unsigned short> overflow);
   void fillQuietBits();
 
   void print();
@@ -97,12 +102,15 @@ class L1RCTJetSummaryCard
   vector<unsigned short> nonisolatedEGObjects;
   vector<unsigned short> jetRegions;
 
-  vector<unsigned short> HFRegions;
-  vector<unsigned short> barrelRegions;
+  vector<unsigned short> HFRegions;  // 8-bit et + fine grain?
+  vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
 
   unsigned short mipBits;
   unsigned short quietBits;
   unsigned short tauBits;
+  unsigned short overFlowBits;
+
+  vector<unsigned short> hfFineGrainBits;
 
   int crtNo;
 

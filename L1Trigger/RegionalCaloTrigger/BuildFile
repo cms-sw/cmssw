@@ -1,7 +1,19 @@
 <use name=boost>
+
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=FWCore/Utilities>
+<use name=DataFormats/L1CaloTrigger>
+
+<flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
+
 <export>
 <lib name=L1TriggerRegionalCaloTrigger>
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=FWCore/Utilities>
+<use name=DataFormats/L1CaloTrigger>
 </export>

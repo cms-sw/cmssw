@@ -62,6 +62,7 @@ class L1RCTReceiverCard {
   }
   unsigned short getTauBitRegion(int i) {return tauBits.at(i);}
   unsigned short getMuonBitRegion(int i) {return muonBits.at(i);}
+  unsigned short getOverFlowBitRegion(int i) {return overFlowBits.at(i);}
   unsigned short getEtIn10BitsRegion(int i) {return etIn10Bits.at(i);}
 
   vector<unsigned short> towerToRegionMap(int towernum);
@@ -87,6 +88,7 @@ class L1RCTReceiverCard {
   //The lookup table
   L1RCTLookupTables lut;
   vector<unsigned short> etIn10Bits;
+  vector<unsigned short> overFlowBits;
   vector<unsigned short> muonBits;
   vector<unsigned short> tauBits;
 

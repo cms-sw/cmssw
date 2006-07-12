@@ -1,8 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
 
 L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber) :
-  crtNo(crateNumber),cardNo(cardNumber),regions(2),etIn10Bits(2),
-  muonBits(2),tauBits(2),lut()
+  regions(2),crtNo(crateNumber),cardNo(cardNumber),lut(),etIn10Bits(2),
+  overFlowBits(2),muonBits(2),tauBits(2)
 {
 }
 
@@ -58,10 +58,10 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
   vector<unsigned short> hcalMuon(32);
 
   for(int i = 0; i<32; i++){
-    ecalInput.at(i) = input.at(i)&255;
-    ecalFG.at(i) = (input.at(i)>>8)&1;
-    hcalInput.at(i) = input.at(i+32)&255;
-    hcalMuon.at(i) = (input.at(i+32)>>8)&1;
+    ecalInput.at(i) = input.at(i)&255;       // need to change this to work with digis, maybe
+    ecalFG.at(i) = (input.at(i)>>8)&1;       //
+    hcalInput.at(i) = input.at(i+32)&255;    //
+    hcalMuon.at(i) = (input.at(i+32)>>8)&1;  //
     unsigned long lookup = lut.lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i));
     unsigned short etIn7Bits = lookup&127;
     unsigned short etIn9Bits = (lookup >> 8)&511;
@@ -182,19 +182,26 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
 }
 
 void L1RCTReceiverCard::fillRegionSums(){
-  for(int i = 0; i<2; i++)
-    etIn10Bits.at(i) = calcRegionSum(regions.at(i));
+  for(int i = 0; i<2; i++){
+    etIn10Bits.at(i) = (calcRegionSum(regions.at(i)))/2;
+    overFlowBits.at(i) = (calcRegionSum(regions.at(i)) & 1);
+  }
 }
 
 unsigned short L1RCTReceiverCard::calcRegionSum(L1RCTRegion region){
   unsigned short sum = 0;
+  unsigned short overflow = 0;
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
       sum = sum + region.getEtIn9Bits(i,j);
     }
   }
-  if(sum > 1023) sum = 1023;
-  return sum;
+  if(sum > 1023){
+    sum = 1023;
+    overflow = 1;
+  }
+  unsigned short sumFullInfo = sum*2 + overflow;
+  return sumFullInfo;
 }
 
 void L1RCTReceiverCard::fillMuonBits(){

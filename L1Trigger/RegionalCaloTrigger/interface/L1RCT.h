@@ -1,9 +1,17 @@
 #ifndef L1RCT_h
 #define L1RCT_h
 
+//#include <math>
 #include <vector>
+#include <bitset>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
+
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 class L1RCT {
 
@@ -26,7 +34,9 @@ class L1RCT {
   //to the JSCs
   void processEvent();
 
-  void fileInput(char* filename);
+  void fileInput(const char* filename);       // added "const" also in .cc
+
+  // void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
 
   void randomInput();
 
@@ -53,16 +63,16 @@ class L1RCT {
     crates.at(i).printEICEdges(j);
   }
 
-  vector<unsigned short> getIsolatedEGObjects(int crate){
-    crates.at(crate).getIsolatedEGObjects();
-  }
-  vector<unsigned short> getNonisolatedEGObjects(int crate){
-    crates.at(crate).getNonisolatedEGObjects();
-  }
+  L1CaloEmCollection getIsolatedEGObjects(int crate);
+
+  L1CaloEmCollection getNonisolatedEGObjects(int crate);
+
   vector<unsigned short> getJetRegions(int crate){
-    crates.at(crate).getJetRegions();
+    return crates.at(crate).getJetRegions();
   }
-  
+
+  vector<L1CaloRegion> getRegions(int crate);
+
   
  private:
   
@@ -85,7 +95,7 @@ class L1RCT {
   //in the CaloTrigger Tower Mapping
   //So 0->8 are eta -5 -> 0
   //While 9-17 are eta 0 -> 5
-  //Crate i and crate i+8 are next to each other  
+  //Crate i and crate i+9 are next to each other  
   vector<L1RCTCrate> crates;
 };
 
