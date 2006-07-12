@@ -43,19 +43,22 @@ class ElectronPixelSeed: public TrajectorySeed
     ElectronPixelSeed( const ElectronPixelSeed & ) ;
     ElectronPixelSeed & operator=( const ElectronPixelSeed & ) ;
     virtual ~ElectronPixelSeed() ;
-   //! Constructor from two hits
-     ElectronPixelSeed(edm::Ref<SuperClusterCollection> & seed, PTrajectoryStateOnDet & pts, recHitContainer & rh,  PropagationDirection & dir);
+   
+    //! Constructor from two hits
+    ElectronPixelSeed(edm::Ref<SuperClusterCollection> & seed, PTrajectoryStateOnDet & pts, recHitContainer & rh,  PropagationDirection & dir);
       
-    const SuperCluster * superCluster() const {return &(*theSuperCluster); }
-
+    SuperClusterRef superCluster() const {return theSuperCluster; }
+    
     // interfaces
 
     TrackCharge getCharge() const {return startingState().parameters().charge();}
 
+    ElectronPixelSeed * clone() const {return new ElectronPixelSeed( * this); }
+
  private:
     
     //! Pointer to the electromagnetic super cluster.
-    edm::Ref<SuperClusterCollection> theSuperCluster;
+    SuperClusterRef theSuperCluster;
 
   } ;
 
