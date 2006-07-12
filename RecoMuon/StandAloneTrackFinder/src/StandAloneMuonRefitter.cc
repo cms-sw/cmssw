@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/06 08:20:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/07/11 15:03:22 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -89,8 +89,11 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   // Measurement Extractor: enable the measure for each muon sub detector
   bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
   bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+  bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
 
-  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,enableCSCMeasurement);
+  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,
+							 enableCSCMeasurement,
+							 enableRPCMeasurement);
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
