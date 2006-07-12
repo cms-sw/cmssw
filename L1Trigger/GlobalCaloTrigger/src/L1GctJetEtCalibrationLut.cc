@@ -26,11 +26,11 @@ L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string fileName)
   ifstream ifs(fileName.c_str(),ios::in);
 
   if(!ifs.good())
-  {
-    throw cms::Exception("L1GctFileReadError")
-      << "L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string filename)"
-      << " couldn't open the file " + fileName + " for reading!\n";
-  }
+    {
+      throw cms::Exception("L1GctFileReadError")
+        << "L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string filename)"
+        << " couldn't open the file " + fileName + " for reading!\n";
+    }
 
   // Read in the parameters (11 regions of eta from 0-10 corresponding to eta values of 0 to 5)
   string line;
@@ -68,36 +68,34 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 
 uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta) const
 {
-//   double corrEt = 0;
+  double corrEt = 0;
   
-//   for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
-//     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
-//   }
+  for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
+    corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEt,(int)i); 
+  }
 
-  uint16_t jetEtOut = jetEt;
-//   jetEtOut = (uint16_t)corrEt;
+  uint16_t jetEtOut = (uint16_t)corrEt;
 
   if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
-  {
-    return jetEtOut/16;
-  }
+    {
+      return jetEtOut/16;
+    }
   return 63;
 }
 
 uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned eta) const
 {
-//   double corrEt = 0;
+  double corrEt = 0;
   
-//   for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
-//     corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEnergy,(int)i); 
-//   }
+  for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
+    corrEt += m_calibFunc.at(eta).at(i)*pow((double)jetEt,(int)i); 
+  }
 
-  uint16_t jetEtOut = jetEt;
-//   jetEtOut = (uint16_t)corrEt;
+  uint16_t jetEtOut = (uint16_t)corrEt;
 
   if(jetEtOut < (1 << JET_ENERGY_BITWIDTH))
-  {
-    return jetEtOut;
-  }
+    {
+      return jetEtOut;
+    }
   return 1023;
 }
