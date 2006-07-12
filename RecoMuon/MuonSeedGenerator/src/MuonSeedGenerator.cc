@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/06/22 10:45:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/06 08:06:06 $
+ *  $Revision: 1.8 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -112,7 +112,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,
+  // Don not use RPC for seeding
+  MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false, 
 					    theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   // ------------        EndCap disk z<0 + barrel
