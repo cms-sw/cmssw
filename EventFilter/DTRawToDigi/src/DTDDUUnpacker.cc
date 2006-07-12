@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 10:31:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/27 17:49:54 $
+ *  $Revision: 1.11 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -77,13 +77,34 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   // Check Status Words 
   vector<DTDDUFirstStatusWord> rosStatusWords;
   // [BITS] 3 words of 8 bytes + "rosId" bytes
-  for (int rosId = 0; rosId < 12; rosId++ ) {
-    int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
-    controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
+  // In the case we are reading from DMA, the status word are swapped as the ROS data
+  if (pset.getUntrackedParameter<bool>("isRaw",false)) {
+    // DDU channels from 1 to 4
+    for (int rosId = 0; rosId < 4; rosId++ ) {
+      int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + wordSize_32 + rosId; 
+      controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
+    }
+    // DDU channels from 5 to 8
+    for (int rosId = 0; rosId < 4; rosId++ ) {
+      int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
+      controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
+    }
+    // DDU channels from 9 to 12
+    for (int rosId = 0; rosId < 4; rosId++ ) {
+      int wordIndex8 = numberOf32Words*wordSize_32 - 2*wordSize_64 + wordSize_32 + rosId; 
+      controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
+    }
   }
-  
+  else {
+    for (int rosId = 0; rosId < 12; rosId++ ) {
+      int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
+      controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
+    }
+  }
+
   int theROSList;
   // [BITS] 2 words of 8 bytes + 4 bytes (half 64 bit word)
+  // In the case we are reading from DMA, the status word are swapped as the ROS data
   if (pset.getUntrackedParameter<bool>("isRaw",false)) {
     DTDDUSecondStatusWord dduStatusWord(index32[numberOf32Words - 2*wordSize_64/wordSize_32]);
     controlData.addDDUStatusWord(dduStatusWord);

@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/06/25 15:34:09 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/27 16:37:18 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -51,10 +51,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
  
-  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsROS25 <<" events"<<endl;
-  sleep(10);
+  cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
   
-  if ( outputFile.size() != 0 ) dbe->save(outputFile);
+  //if ( outputFile.size() != 0 ) dbe->save(outputFile);
 
 }
 
@@ -83,7 +82,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "DDUChannelStatus";
     histoName = "FED" + dduID_s.str() + "_DDUChannel" + rosID_s.str() + "_DDUChannelStatus";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,8,0,8);
+    (dduHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,8,0,8);
 
   }
 
@@ -411,7 +410,10 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
  
   }
   
+  if (neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
   
+
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
@@ -433,7 +435,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     dduChannel++;
     code.setROS(dduChannel);
 
-    histoType = "DDUChannelStatus";    
+    histoType = "DDUChannelStatus";   
     if (dduHistos[histoType].find(code.getROSID()) != dduHistos[histoType].end()) {
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
@@ -446,6 +448,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     }
     else {
       bookHistos( string("DDU"), code);
+
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,(*fsw_it).channelEnabled());
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(2,(*fsw_it).timeout());
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,(*fsw_it).eventTrailerLost());
@@ -454,6 +457,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(6,(*fsw_it).tlkPatternError());
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*fsw_it).tlkSignalLost());
       (dduHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,(*fsw_it).errorFromROS());
+
     }
     
   }
