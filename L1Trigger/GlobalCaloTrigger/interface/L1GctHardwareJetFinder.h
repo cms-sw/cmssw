@@ -79,11 +79,13 @@ private:
   /// Both clustering stages need to convert local maxima to clusters
   void findClusters(const RegionsVector rgv, const bool preClusterLogic);
 
-  // comparison operator for sorting local maxima
+  // Comparison operator for sorting local maxima
+  // In the case where the two et values are equal, we favour
+  // the more central region
   struct etGreaterThan : public std::binary_function<L1CaloRegion, L1CaloRegion, bool> 
   {
     bool operator()(const L1CaloRegion& x, const L1CaloRegion& y) {
-      return ( x.et() > y.et() ) ;
+      return ( (x.et() > y.et()) || ((x.et() == y.et()) && (x.rctEta() < y.rctEta())) ) ;
     }
   };
 

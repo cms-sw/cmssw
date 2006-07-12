@@ -19,19 +19,16 @@ L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> 
   m_protoJetRegions(MAX_REGIONS_IN)
 {
   // Setup the position info in protoJetRegions.
-  // Note the transformation to global phi is not the same as that
-  // contained in L1CaloRegionDetId, because the passing of protoJets
-  // to neighbour jetFinders results in a shift in phi
   for (unsigned column=0; column<2; ++column) {
     for (unsigned row=0; row<COL_OFFSET; ++row) {
       unsigned ieta;
       unsigned iphi;
       if (id<static_cast<int>(L1CaloRegionDetId::N_PHI/2)) {
 	ieta = (L1CaloRegionDetId::N_ETA/2-row);
-	iphi = (L1CaloRegionDetId::N_PHI - (m_id)*2 + 2)%L1CaloRegionDetId::N_PHI + column;
+	iphi = (L1CaloRegionDetId::N_PHI - (m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
       } else {
 	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
-	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 2)%L1CaloRegionDetId::N_PHI + column;
+	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
       }
       L1CaloRegion temp(0, ieta, iphi);
       m_protoJetRegions.at(column*COL_OFFSET+row) = temp;
@@ -117,15 +114,15 @@ void L1GctHardwareJetFinder::findLocalMaxima(const RegionsVector rgv)
       }
       if (column==0) {
 	localMax   &= (rgv.at(centreIndex).et() >= rgv.at(centreIndex+COL_OFFSET).et());
-	localMax   &= (rgv.at(centreIndex).et() >  rgv.at(centreIndex+COL_OFFSET-1).et());
+	localMax   &= (rgv.at(centreIndex).et() >= rgv.at(centreIndex+COL_OFFSET-1).et());
 	if (row < (COL_OFFSET-1)) {
-	  localMax &= (rgv.at(centreIndex).et() >  rgv.at(centreIndex+COL_OFFSET-1).et());
+	  localMax &= (rgv.at(centreIndex).et() >= rgv.at(centreIndex+COL_OFFSET+1).et());
 	}
       } else {
 	localMax   &= (rgv.at(centreIndex).et() >  rgv.at(centreIndex-COL_OFFSET).et());
-	localMax   &= (rgv.at(centreIndex).et() >= rgv.at(centreIndex-COL_OFFSET-1).et());
+	localMax   &= (rgv.at(centreIndex).et() >  rgv.at(centreIndex-COL_OFFSET-1).et());
 	if (row < (COL_OFFSET-1)) {
-	  localMax &= (rgv.at(centreIndex).et() >= rgv.at(centreIndex-COL_OFFSET-1).et());
+	  localMax &= (rgv.at(centreIndex).et() >  rgv.at(centreIndex-COL_OFFSET+1).et());
 	}
       }
       if (localMax) {
@@ -169,7 +166,7 @@ void L1GctHardwareJetFinder::findClusters(const RegionsVector rgv, const bool pr
     for (unsigned row=localEta; ((row<(localEta+3)) && (row<COL_OFFSET)); ++row) {
       if (!usedThisRow.at(row)) {
 	for (unsigned column=0; column<2; ++column) {
-	  if ((preClusterLogic) || (column != localPhi) || (row == (localEta+1))) {
+	  if ((preClusterLogic) || (column == localPhi) || (row == (localEta+1))) {
 	    unsigned index = column*COL_OFFSET + row;
 	    etCluster += rgv.at(index).et();
 	    tauVetoOr |= rgv.at(index).tauVeto();
@@ -210,9 +207,9 @@ void L1GctHardwareJetFinder::convertClustersToProtoJets()
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       if (m_clusters.at(j).rctPhi()==0) {
-	m_sentProtoJets.at(numberOfKeptJets++) = m_clusters.at(j);
+	m_keptProtoJets.at(numberOfKeptJets++) = m_clusters.at(j);
       } else {
-	m_keptProtoJets.at(numberOfSentJets++) = m_clusters.at(j);
+	m_sentProtoJets.at(numberOfSentJets++) = m_clusters.at(j);
       }
     }
   }
