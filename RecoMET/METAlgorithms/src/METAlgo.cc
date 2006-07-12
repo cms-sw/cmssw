@@ -3,7 +3,7 @@
 // Author: Michael Schmitt, Richard Cavanaugh The University of Florida
 // Creation Date:  MHS May 31, 2005 Initial version.
 //
-//--------------------------------------------
+//------------------------------------------------------------------------
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -13,17 +13,36 @@
 using namespace std;
 using namespace reco;
 
+//------------------------------------------------------------------------
+// Default Constructer
+//----------------------------------
 METAlgo::METAlgo() {}
+//------------------------------------------------------------------------
 
+//------------------------------------------------------------------------
+// Default Destructor
+//----------------------------------
 METAlgo::~METAlgo() {}
+//------------------------------------------------------------------------
 
+//------------------------------------------------------------------------
+// This method represents "the" implementation of the MET algorithm and is
+// very simple:
+// (1) It takes as input a collection of candidates (which can be
+// calorimeter towers, HEPMC generator-level particles, etc).
+// (2) It returns as output, a pointer to a struct of CommonMETData which
+// contains the following members:  MET, MEx, MEy, SumET, and MEz
+// (The inclusion of MEz deserves some justification ; it is included here
+// since it _may_ be useful for Data Quality Monitering as it should be 
+// symmetrically distributed about the origin.)
+//----------------------------------
 void METAlgo::run(const InputCollection &input, CommonMETData *met) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
-  // Loop over Candidate Objects and calculate MET quantities
+  // Loop over Candidate Objects and calculate MET and related quantities
   METAlgo::InputCollection::const_iterator candidate;
   for( candidate = input.begin(); candidate != input.end(); candidate++ )
     {
@@ -41,6 +60,7 @@ void METAlgo::run(const InputCollection &input, CommonMETData *met)
   met->mez   = -sum_ez;
   met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
   met->sumet = sum_et;
-  met->phi   = atan2( -sum_ey, -sum_ex );
-}
+  met->phi   = atan2( -sum_ey, -sum_ex ); // since MET is now a candidate,
+}                                         // this is no longer needed
+//------------------------------------------------------------------------
 
