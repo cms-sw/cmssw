@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/09 00:54:11 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/12 15:39:25 $
+ *  $Revision: 1.14 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -17,7 +17,7 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
