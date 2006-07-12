@@ -44,17 +44,51 @@ inline XMLCh*  _toDOMS( std::string temp )
     return  buff;
 }
 
+// concatenate all the XML node attribute/value pairs into a
+// paren-separated string (for use by CORAL and frontier_client)
+inline std::string _toParenString(const DOMNode &nodeToConvert)
+{
+    std::ostringstream oss;
+
+    DOMNodeList *childList = nodeToConvert.getChildNodes();
+
+    unsigned int numNodes = childList->getLength ();
+    for (unsigned int i=0; i < numNodes; i++)
+    {
+	DOMNode *childNode = childList->item(i);
+	if (childNode->getNodeType() != DOMNode::ELEMENT_NODE)
+	    continue;
+	DOMElement *child = static_cast <DOMElement *> (childNode);
+
+	DOMNamedNodeMap *attributes = child->getAttributes();
+	unsigned int numAttributes = attributes->getLength ();
+	for (unsigned int j=0; j < numAttributes; j++)
+	{
+	    DOMNode *attributeNode = attributes->item(j);
+	    if (attributeNode->getNodeType() != DOMNode::ATTRIBUTE_NODE)
+		continue;
+	    DOMAttr *attribute = static_cast <DOMAttr *> (attributeNode);
+
+	    oss << "(" << _toString(child->getTagName()) << 
+	    		_toString(attribute->getName()) << "=" << 
+			_toString(attribute->getValue()) << ")";
+	}
+    }
+    return oss.str();
+}
+
+
 edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::ParameterSet &pset,
 							      const edm::ActivityRegistry &activityRegistry)
     : m_connected (false)
 {
-    std::string configURL = "/SITECONF/local/JobConfig/site-local-config.xml";
+    m_url = "/SITECONF/local/JobConfig/site-local-config.xml";
     char * tmp = getenv ("CMS_PATH");
     
     if (tmp)
-	configURL = tmp + configURL;
+	m_url = tmp + m_url;
     
-    this->parse (configURL);	    
+    this->parse (m_url);	    
 }
 
 const std::string
@@ -62,9 +96,15 @@ edm::service::SiteLocalConfigService::dataCatalog (void) const
 {
     if (! m_connected) {
 	//throw cms::Exception ("Incomplete configuration") 
-	//    << "Valid site-local-config not found." ;
+	//    << "Valid site-local-config not found at " << m_url ;
         // Return PoolFileCatalog.xml for now
         return "file:PoolFileCatalog.xml";
+    }
+
+    if (m_dataCatalog == "")
+    {
+	throw cms::Exception ("Incomplete configuration")
+	    << "Did not find catalog in event-data section in " << m_url ;
     }
 
     return  m_dataCatalog;    
@@ -75,32 +115,32 @@ edm::service::SiteLocalConfigService::calibCatalog (void) const
 {
     if (! m_connected)
 	throw cms::Exception ("Incomplete configuration") 
-	    << "Valid site-local-config not found." ;
+	    << "Valid site-local-config not found at " << m_url ;
+
+    if (m_calibCatalog == "")
+    {
+	throw cms::Exception ("Incomplete configuration")
+	    << "Did not find catalog in calib-data section in " << m_url ;
+    }
 
     return  m_calibCatalog;    
 }
 
-edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
-edm::service::SiteLocalConfigService::frontierProxyBegin (void) const
+const std::string
+edm::service::SiteLocalConfigService::frontierConnect (void) const
 {
     if (! m_connected)
 	throw cms::Exception ("Incomplete configuration") 
-	    << "Valid site-local-config not found." ;
+	    << "Valid site-local-config not found at " << m_url ;
     
-    return m_frontierProxies.begin ();    
+    if (m_frontierConnect == "")
+    {
+	throw cms::Exception ("Incomplete configuration")
+	    << "Did not find frontier-connect in calib-data section in " << m_url ;
+    }
+
+    return m_frontierConnect;
 }
-
-edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
-edm::service::SiteLocalConfigService::frontierProxyEnd (void) const
-{
-    if (! m_connected)
-	throw cms::Exception ("Incomplete configuration") 
-	    << "Valid site-local-config not found." ;
-
-    return m_frontierProxies.end ();    
-}
-
-
 
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
@@ -127,7 +167,9 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	//   </event-data>
 	//   <calib-data>
 	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-	//     <frontier-proxy url="http://localhost:3128"/>
+	//     <frontier-connect>
+	//       ... frontier-interpreted server/proxy xml ...
+        //     </frontier-connect>
 	//   </calib-data>
 	// </site>
 	// </site-local-config>
@@ -182,18 +224,17 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 			    = static_cast <DOMElement *> (catalogs->item (0));
 	    
 			m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
-	    
-			DOMNodeList *proxies 
-			    = calibData->getElementsByTagName (_toDOMS ("frontier-proxy"));
-			for (unsigned int i = 0;
-			     i < proxies->getLength ();
-			     i++)
-			{
-			    DOMElement *proxy 
-				= static_cast <DOMElement *> (proxies->item (i));
-		
-			    m_frontierProxies.push_back (_toString (proxy->getAttribute (_toDOMS ("url"))));		
-			}	    	    
+		    }
+		    
+		    DOMNodeList *frontierConnectList
+			= calibData->getElementsByTagName (_toDOMS ("frontier-connect"));
+
+		    if (frontierConnectList->getLength () > 0)
+		    {
+			DOMElement *frontierConnect
+			    = static_cast <DOMElement *> (frontierConnectList->item (0));
+
+			m_frontierConnect = _toParenString(*frontierConnect);
 		    }
 		}
 	    }
