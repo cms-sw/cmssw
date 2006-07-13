@@ -1,5 +1,5 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.2 2006/07/03 18:30:00 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -10,19 +10,20 @@ using namespace std;
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::getDcuDetIdMap]"
-				  << " Retrieving DetId-DCU mapping...";
+			       << " Retrieving DetId-DCU mapping...";
   string method = "SiStripConfigDb::getDcuDetIdMap";
-
+  
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
   
   try {
+    deviceFactory(method)->addDetIdPartition( partition_.name_ );
     dcuDetIdMap_ = deviceFactory(method)->getInfos(); 
     resetDcuDetIdMap_ = false;
   }
   catch (... ) {
     handleException( method );
   }
-
+  
   stringstream ss; 
   if ( dcuDetIdMap_.empty() ) {
     ss << "[SiStripConfigDb::getDcuDetIdMap]"
