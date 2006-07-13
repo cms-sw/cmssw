@@ -15,14 +15,16 @@ echo "The current directory is = $PWD"
 MWC_LIB1="${LOCALRT}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
 echo "Looking for the MonitorWebClient library... $MWC_LIB1"
 if [ ! -f $MWC_LIB1 ]; then
-    echo "Not Found! Will pick it up from the release area..."
-    MWC_LIB1="/afs/cern.ch/cms/Releases/CMSSW/prerelease/${CMSSW_VERSION}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
+    echo "Not Found! Will pick it up from the release area..."    
+    MWC_LIB1="${CMSSW_RELEASE_BASE}/lib/slc3_ia32_gcc323/libDQMServicesExamples.so"
 else 
     echo "Found!"
 fi
 
 MWC_LIB=$(echo "$MWC_LIB1" | sed 's/\//\\\//g')
 echo $MWC_LIB1
+
+SERVED_DIR="http://${HOSTNAME}:1972/temporary"
 
 if [ -e profile.xml ]; then
     rm profile.xml
@@ -37,6 +39,7 @@ fi
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .profile.xml > profile.xml
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g"  -e "s/.collector/${COLLECTOR_NODE}/g" .SiStripClient.xml > SiStripClient.xml 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .startMonitorClient > startMonitorClient
+sed -e "s@SERVED_DIRECTORY_URL@${SERVED_DIR}@g" .WebLib.js > WebLib.js
 
 chmod 751 profile.xml
 chmod 751 SiStripClient.xml
