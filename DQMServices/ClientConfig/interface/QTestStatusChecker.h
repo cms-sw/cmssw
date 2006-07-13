@@ -7,8 +7,8 @@
  *  MonitorUserInterface) and fills string maps containing the alarms
  *
  * 
- *  $Date: 2006/05/04 10:28:18 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:24 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -27,6 +27,9 @@ class QTestStatusChecker{
 	std::pair<std::string,std::string> checkGlobalStatus(MonitorUserInterface * mui); 		 
 	/// Check status of quality tests for individual ME's
 	std::map< std::string, std::vector<std::string> > checkDetailedStatus(MonitorUserInterface * mui);
+	
+	std::vector<std::string> fullPathNames(MonitorUserInterface * mui);
+	void processAlarms(std::vector<std::string> allPathNames, MonitorUserInterface * mui);
  
  
  private:
