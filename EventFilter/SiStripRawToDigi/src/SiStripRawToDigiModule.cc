@@ -39,9 +39,8 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >   ("ZeroSuppressed");
+  produces<SiStripDigis>("SiStripDigis");
   produces<SiStripEventSummary>();
-  produces<SiStripDigi>();
-  //produces<SiStripDigi>("SiStripDigis");
   
 }
 
@@ -80,15 +79,19 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
   auto_ptr<SiStripDigis> digis;
   
-  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, summary, digis );
+  rawToDigi_->createDigis( iEvent.id().event(), 
+			   cabling, 
+			   buffers, 
+			   sm, vr, pr, zs, 
+			   summary, 
+			   digis );
   
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
+  iEvent.put( digis, "SiStripDigis" );
   iEvent.put( summary );
-  //iEvent.put( digis, "SiStripDigis" );
-  iEvent.put( digis );
   
 }
 
