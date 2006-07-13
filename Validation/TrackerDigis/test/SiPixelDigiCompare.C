@@ -118,6 +118,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -221,6 +222,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -328,6 +330,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -987,6 +990,7 @@ if (1) {
 
    for(int i = 0; i< 8; i ++) {
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meMulti_[i]->SetLineColor(2);
       newmeMulti_[i]->SetLineColor(4);
       newmeMulti_[i]->SetLineStyle(2);
