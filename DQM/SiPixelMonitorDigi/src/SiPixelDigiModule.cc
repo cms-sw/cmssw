@@ -1,7 +1,31 @@
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
+// Framework
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+// STL
+#include <vector>
+#include <memory>
+#include <string>
+#include <iostream>
+#include <boost/cstdint.hpp>
+#include <string>
+#include <stdlib.h>
 //
 // Constructors
 //
@@ -17,10 +41,9 @@ SiPixelDigiModule::SiPixelDigiModule(uint32_t id): id_(id) { }
 SiPixelDigiModule::~SiPixelDigiModule() {}
 
 //
-// Book
+// Book histograms
 //
 void SiPixelDigiModule::book() {
-
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
   char hkey[80];  
   sprintf(hkey, "ndigis_module_%i",id_);
@@ -34,40 +57,40 @@ void SiPixelDigiModule::book() {
 }
 
 //
-// Book
+// Fill histograms
 //
-void SiPixelDigiModule::fill(const PixelDigiCollection* digiCollection) {
-
-  const std::vector<unsigned int> detIDs = digiCollection->detIDs();
- 
-  std::vector<unsigned int>::const_iterator detunit_it  = detIDs.begin(), detunit_end = detIDs.end();
-  //int numberOfDigis = 0;
+void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input) {
   
-  for ( ; detunit_it != detunit_end; ++detunit_it ) {
-    if( id_ ==(*detunit_it)) {
-      int numberOfDigis = 0;
-      const PixelDigiCollection::Range digiRange = digiCollection->get(id_);
-      
-      PixelDigiCollection::ContainerIterator digiBegin = digiRange.first;
-      PixelDigiCollection::ContainerIterator digiEnd   = digiRange.second;
-      PixelDigiCollection::ContainerIterator di = digiBegin;
-      //std::cout << " *** SiPixelDigiModule::fill - Filling Detid " << id_ << " size " << digiEnd - digiBegin << std::endl;
- 
-      for( ; di != digiEnd; ++di) {
-	numberOfDigis++;
-	int adc = di->adc();
-	// std::cout << " adc " << adc << std::endl;
-	int col = di->column();
-	int row = di->row();
-	(meADC_)->Fill((float)adc);
-	(meCol_)->Fill((float)col);
-	(meRow_)->Fill((float)row);
-	//       //cout << " DetID: " << detid << " Col: " << col << " Row: " << row << " ADC: " << adc << endl;
-      }
-      (meNDigis_)->Fill((float)numberOfDigis);
-    }
+  edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_); // search  digis of detid
+  
+  if( isearch != input.end() ) {  // Not at empty iterator
     
+    unsigned int numberOfDigis = 0;
+    
+    // Look at digis now
+    edm::DetSet<PixelDigi>::const_iterator  di;
+    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+      numberOfDigis++;
+      int adc = di->adc();    // charge
+      int col = di->column(); // column 
+      int row = di->row();    // row
+      (meADC_)->Fill((float)adc);
+      (meCol_)->Fill((float)col);
+      (meRow_)->Fill((float)row);
+      /*if(subid==2&&adc>0){
+	std::cout<<"Plaquette:"<<side<<" , "<<disk<<" , "<<blade<<" , "
+	<<panel<<" , "<<zindex<<" ADC="<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
+	}else if(subid==1&&adc>0){
+	std::cout<<"Module:"<<layer<<" , "<<ladder<<" , "<<zindex<<" ADC="
+	<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
+	}*/
+    }
+    (meNDigis_)->Fill((float)numberOfDigis);
+    //std::cout<<"number of digis="<<numberOfDigis<<std::endl;
+      
   }
   
+  
+  //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
   
 }

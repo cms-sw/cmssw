@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.2 2006/03/21 15:34:39 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.3 2006/04/07 15:42:19 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -34,6 +34,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 //
 #include <boost/cstdint.hpp>
 #include <string>
@@ -80,16 +82,24 @@ void
 SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-  std::cout << " Processing event: " << eventNo << std::endl;
-  edm::Handle<PixelDigiCollection> digiCollection;
-  iEvent.getByLabel("pixdigi", digiCollection);
   
+  std::cout << " Processing event: " << eventNo << std::endl;
+
+  // retrieve producer name of input SiPixelDigiCollection
+  std::string digiProducer = conf_.getUntrackedParameter<std::string>("DigiProducer","pixdigi");
+
+  // get input data
+  edm::Handle< edm::DetSetVector<PixelDigi> >  input;
+  iEvent.getByLabel(digiProducer, input);
+
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(digiCollection.product());
+    (*struct_iter).second->fill(*input);
     
   }
+
+
   // slow down...
   usleep(1000);
  

@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id$
+// $Id: SiPixelDigiSource.h,v 1.1 2006/02/15 09:40:46 chiochia Exp $
 //
 
 #include <memory>
@@ -30,13 +30,29 @@
 
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+
+
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <boost/cstdint.hpp>
 
  class SiPixelDigiSource : public edm::EDAnalyzer {
     public:
-       explicit SiPixelDigiSource(const edm::ParameterSet&);
+       explicit SiPixelDigiSource(const edm::ParameterSet& conf);
        ~SiPixelDigiSource();
 
+       typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
+       
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob(edm::EventSetup const&) ;
        virtual void endJob() ;
@@ -45,6 +61,7 @@
        virtual void bookMEs();
 
     private:
+       edm::ParameterSet conf_;
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
