@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/06/01 15:43:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/11 15:04:00 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -61,8 +61,6 @@ public:
   StandAloneMuonSmoother* theSmoother;
 
   bool doBackwardRefit;
-
-  double theMaxEta;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
