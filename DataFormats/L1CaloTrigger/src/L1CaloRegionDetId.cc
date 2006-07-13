@@ -34,14 +34,15 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
   // Calculate iphi
   int phi_index = icrate % 9;
   if ((icard == 0) || (icard == 2) || (icard == 4))
-    iphi = phi_index * 2;
+    phi_index = phi_index * 2;
   else if ((icard == 1) || (icard == 3) || (icard == 5))
-    iphi = phi_index * 2 + 1;
+    phi_index = phi_index * 2 + 1;
   else if (icard == 6)
-    iphi = phi_index * 2 + irgn;
+    phi_index = phi_index * 2 + irgn;
   // for HF
   else if (icard == 999)
-    iphi = phi_index * 2 + (irgn/4);
+    phi_index = phi_index * 2 + (irgn/4);
+  iphi = (22 - phi_index) % 18;
 
   // Calculate ieta
   int eta_index = 0;
@@ -111,16 +112,17 @@ unsigned L1CaloRegionDetId::rctCrate() const { // TODO - check this is correct!
 // return RCT card number
 unsigned L1CaloRegionDetId::rctCard() const {
   unsigned card = 999;
+  unsigned rct_phi_index = (22 - iphi()) % 18;
   if ((ieta() == 4) || (ieta() == 17)){
     card = 6;
   }
   else if ((ieta() > 4) && (ieta() <= 10)){
     unsigned index = (ieta() - 5)/2;
-    card = ((2 - index) * 2) + (iphi() % 2);
+    card = ((2 - index) * 2) + (rct_phi_index % 2);
   }
   else if ((ieta() >= 11) && (ieta() < 17)){
     unsigned index = (ieta() - 11)/2;
-    card = (index * 2) + (iphi() % 2);
+    card = (index * 2) + (rct_phi_index % 2);
   }
   return card;
 }
@@ -128,14 +130,15 @@ unsigned L1CaloRegionDetId::rctCard() const {
 // return RCT region number
 unsigned L1CaloRegionDetId::rctRegion() const {
   unsigned rgn = 999;
+  unsigned rct_phi_index = (22 - iphi()) % 18;
   if (ieta() < 4){
-    rgn = (3 - ieta()) + 4 * (iphi() % 2);
+    rgn = (3 - ieta()) + 4 * (rct_phi_index % 2);
   }
   else if (ieta() > 17){
-    rgn = (ieta() - 18) + 4 * (iphi() % 2);
+    rgn = (ieta() - 18) + 4 * (rct_phi_index % 2);
   }
   else if ((ieta() == 4) || (ieta() == 17)){
-    rgn = (iphi() % 2);
+    rgn = (rct_phi_index % 2);
   }
   else if ((ieta() > 4) && (ieta() <= 10)){
     rgn = (ieta() % 2);
