@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/15 16:38:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/23 08:11:34 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -35,7 +35,7 @@ using namespace std;
 RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
   // Set verbose output
 
-  produces<RPCRecHitCollection>("RPCRecHits");
+  produces<RPCRecHitCollection>();
 
   theRPCDigiLabel = config.getParameter<string>("rpcDigiLabel");
   
@@ -86,7 +86,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(rpcId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection, "RPCRecHits");
+  event.put(recHitCollection);
 }
 
 
