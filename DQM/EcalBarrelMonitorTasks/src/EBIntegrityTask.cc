@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/07/08 07:22:02 $
- * $Revision: 1.25 $
+ * $Date: 2006/07/08 09:28:52 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
  */
@@ -449,7 +449,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 }//  end analyze
 
 const int  EBIntegrityTask::chMemAbscissa [25] = {
-    1,1, 1, 1, 1,
+    1, 1, 1, 1, 1,
     2, 2, 2, 2, 2,
     3, 3, 3, 3, 3,
     4, 4, 4, 4, 4,
@@ -457,10 +457,10 @@ const int  EBIntegrityTask::chMemAbscissa [25] = {
 };
 
 const int  EBIntegrityTask::chMemOrdinate [25] = {
-    1,2, 3, 4, 5,
+    1, 2, 3, 4, 5,
     5, 4, 3, 2, 1,
     1, 2, 3, 4, 5,
     5, 4, 3, 2, 1,
-    1, 2, 3,4, 5
+    1, 2, 3, 4, 5
 };
 
