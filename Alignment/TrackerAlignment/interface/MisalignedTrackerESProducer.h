@@ -1,5 +1,5 @@
-#ifndef Alignment_MisalignedTrackerESProducer_MisalignedTrackerESProducerESProducer_h
-#define Alignment_MisalignedTrackerESProducer_MisalignedTrackerESProducerESProducer_h
+#ifndef Alignment_TrackerAlignment_MisalignedTrackerESProducer_h
+#define Alignment_TrackerAlignment_MisalignedTrackerESProducer_h
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,6 @@
 /// 
 /// This should replace the standard TrackerDigiGeometryESModule when producing
 /// Misalignment scenarios.
-/// FIXME: configuration file, output POOL-ORA object?
 ///
 class MisalignedTrackerESProducer: public edm::ESProducer
 {
@@ -34,11 +33,6 @@ private:
   edm::ParameterSet theParameterSet;
   
   boost::shared_ptr<TrackerGeometry> theTracker;
-
-  struct lessDetId : public std::binary_function<AlignTransform,AlignTransform,bool>
-  {
-	bool operator()( AlignTransform a, AlignTransform b ) { return a.rawId() < b.rawId(); }
-  };
 
 };
 
