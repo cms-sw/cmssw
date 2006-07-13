@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/04 09:26:36 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/07/11 15:02:48 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -49,10 +49,6 @@ using namespace std;
 StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par){
   LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "constructor called" << endl;
-
-  // The max allowed eta (physical limit). Since it is the same both for the three filter, 
-  // it has been placed here
-  theMaxEta = par.getParameter<double>("EtaMaxAllowed");
 
   // The inward-outward fitter (starts from seed state)
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
@@ -144,17 +140,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
   debug.dumpTSOS(seedTSOS,metname);
   
-  if (fabs(seedTSOS.globalMomentum().eta())>theMaxEta) {
-    LogDebug(metname) << "############################################################" << endl
-		      << "StandAloneMuonTrajectoryBuilder: WARNING!! " << endl
-		      << "The SeedGenerator delivers this Trajectory:" << endl;
-    debug.dumpTSOS(seedTSOS,metname);
-    LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
-		      << "rejecting the Track." << endl
-		      << "############################################################" << endl;
-    return trajectoryContainer;
-  }
-
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
@@ -165,27 +150,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
 
-  //@@SL 27-Jun-2002: sanity check for trajectory with very high eta, the true
-  //problem is why we do reconstruct such problematics trajectories...
-  if (fabs(tsosAfterRefit.globalMomentum().eta())>theMaxEta) {
-    LogDebug(metname) << "############################################################" << endl
-      		      << "StandAloneMuonTrajectoryBuilder: WARNING!! " << endl
-		      << "At the end of TrajectoryRefitter the Trajectory is:" << endl;
-    
-    debug.dumpTSOS(tsosAfterRefit,metname);
-    
-    LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
-		      << "rejecting the Track." << endl
-		      << "############################################################" << endl;
-    return trajectoryContainer;
-  }
-
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
   debug.dumpTSOS(tsosAfterRefit,metname);
   
 
   if( refitter()->layers().size() ) debug.dumpLayer( refitter()->lastDetLayer(), metname);
-  else return trajectoryContainer; // FIXME!!!!
+  else return trajectoryContainer; 
   
   LogDebug(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
        << refitter()->getDTChamberUsed() << "/"
