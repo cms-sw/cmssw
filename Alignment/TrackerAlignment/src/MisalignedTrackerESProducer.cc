@@ -16,7 +16,7 @@
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/Sorter.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 
@@ -105,9 +105,9 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  alignments = theAlignableTracker->alignments();
 	  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 	  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
-				 lessDetId<AlignTransform>() );
+				 lessAlignmentDetId<AlignTransform>() );
 	  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
-				 lessDetId<AlignTransformError>() );
+				 lessAlignmentDetId<AlignTransformError>() );
 
 	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
 														   poolDbService->endOfTime(),
