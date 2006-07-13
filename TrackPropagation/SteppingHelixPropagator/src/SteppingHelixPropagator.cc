@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/07/04 01:20:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/06 02:23:56 $
+ *  $Revision: 1.7 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.6 2006/07/04 01:20:21 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.7 2006/07/06 02:23:56 slava77 Exp $
 //
 //
 
@@ -308,12 +308,14 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     }
 
     if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) 
-      dStep = fabs(dist*secTheta) -1e-9;
+      dStep = fabs(dist*secTheta) -1e-12;
     if (fabs(dist*secTheta) < dStep){
       dStep = fabs(dist*secTheta); 
     }
-    makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
-    nPoints_++;   cInd = cIndex_(nPoints_-1);
+    if (dStep > 1e-10){
+      makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+      nPoints_++;   cInd = cIndex_(nPoints_-1);
+    }
     if (oldDir != dir) nOsc++;
     oldDir = dir;
 
@@ -549,8 +551,8 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
 
   double cosTheta = tau.z();
   double sinTheta = sin(acos(cosTheta));
-  double cotTheta = fabs(sinTheta) > 1e-12 ? cosTheta/sinTheta : 1e12;
-  //  double tanTheta = fabs(cosTheta) > 1e-12 ? sinTheta/cosTheta : 1e12;
+  double cotTheta = fabs(sinTheta) > 1e-21 ? cosTheta/sinTheta : 1e21;
+  //  double tanTheta = fabs(cosTheta) > 1e-21 ? sinTheta/cosTheta : 1e21;
   double phi = kappa0*dS;
   double cosPhi = cos(phi);
   double oneLessCosPhi = 1.-cosPhi;
@@ -874,7 +876,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
   case POINT_PCA_DT:
     {
       Point pDest(pars[0], pars[1], pars[2]);
-      dist = (r3_[cInd] - pDest).mag();
+      dist = (r3_[cInd] - pDest).mag()+ 1e-24;//add a small number to avoid 1/0
       secTheta = (r3_[cInd] - pDest).dot(p3_[cInd])/(dist*p3_[cInd].mag());
       isIncoming = secTheta < 0;
       result = OK;
@@ -889,11 +891,11 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 
       Vector dR = r3_[cInd] - rLine;
       Vector dRPerp = dR - dLine*(dR.dot(dLine));
-      dist = dRPerp.mag();
+      dist = dRPerp.mag() + 1e-24;//add a small number to avoid 1/0
       secTheta = dRPerp.dot(p3_[cInd])/(dist*p3_[cInd].mag());
       //angle wrt line
       double cosAlpha = dLine.dot(p3_[cInd])/p3_[cInd].mag();
-      secTheta *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)));
+      secTheta *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)+1e-96));
       isIncoming = secTheta < 0;
       result = OK;
     }
