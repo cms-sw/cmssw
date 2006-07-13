@@ -22,7 +22,19 @@ Place for SteppingHelixPropagator: a propagator using a simplified geometry/mate
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 SteppingHelixPropagator
+::propagate(FTS, Cylinder) and ::propagate(FTS, Plane) methods are avialable through
+ Propagator abstract base class interface.
 
+FTS  ::propagate(FTS, GlobalPoint) provides extrapolation to PCA to a point (useful for vertexing)
+FTS  ::propagate(FTS, GlobalPoint, GlobalPoint) provides extrapolation to PCA to a line (e.g., beamline)
+The above two methods are only available as members of SteppingHelixPropagator class 
+(not through Propagator class interface).
+
+Note that the propagator can be configured to propagate
+a) alongMomentum -- the direction of propagation is along momentum
+b) oppositeToMomentum -- the direction of propagation is opposite to momentum
+c) anyDirection -- the direction is estimated internally as the direction of the shorter distance
+to the destination point.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
@@ -43,6 +55,7 @@ Muon swimming is working fine.
 Decent quality error propagation is also implemented.
 Radiation length non-additive (1+0.036*log(x)) effects relevant to multiple scattering 
 are optionally accounted assuming the path integral at the starting point is zero.
+Note that accounting for it is configured by default if the propagator is extracted from event setup.
 Some additions to the  interface of the base (Propagator) class might've halped to handle
 this better.
 The errors in the cov matrix due to multiple scattering appear to be good to within a few percent.
