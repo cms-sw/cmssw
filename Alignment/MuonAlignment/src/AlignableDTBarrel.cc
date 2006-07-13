@@ -1,4 +1,5 @@
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /// The constructor simply copies the vector of wheels and computes the surface from them
@@ -86,7 +87,7 @@ std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )
 void AlignableDTBarrel::dump( void )
 {
 
-  std::cout << (*this);
+  edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTWheel*>::iterator iWheel = theDTWheels.begin();
 		iWheel != theDTWheels.end(); iWheel++ )
 	(*iWheel)->dump();

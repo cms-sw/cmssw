@@ -2,12 +2,20 @@
 
 
 /// The constructor gets all components and stores them as AlignableDets
-AlignableCSCChamber::AlignableCSCChamber( std::vector<GeomDet*>& geomDets  ) 
+AlignableCSCChamber::AlignableCSCChamber( GeomDet* geomDet  ) : AlignableComposite( geomDet )
 {
 
-  for ( std::vector<GeomDet*>::iterator iGeomDet=geomDets.begin(); 
-		iGeomDet != geomDets.end(); iGeomDet++ )
-	theDets.push_back( new AlignableDet(*iGeomDet) );
+  // Retrieve components
+  if ( geomDet->components().size() ) 
+	{
+	  std::vector<const GeomDet*> m_SuperLayers = geomDet->components();
+	  for ( std::vector<const GeomDet*>::iterator iGeomDet = m_SuperLayers.begin(); 
+			iGeomDet != m_SuperLayers.end(); iGeomDet++ )
+		{
+		  GeomDet* tmpGeomDet = const_cast<GeomDet*>(*iGeomDet);
+		  theDets.push_back( new AlignableDet(tmpGeomDet) );
+		}
+	}
 
   setSurface( computeSurface() );
 
@@ -68,68 +76,29 @@ AlignableSurface AlignableCSCChamber::computeSurface()
 }
 
 
-/// Compute average position from all components
+/// Compute average position from geomDet
 AlignableCSCChamber::PositionType AlignableCSCChamber::computePosition() 
 {
   
-  float xx=0., yy=0., zz=0.;
+  return theGeomDet->position();
+
+}
+
+
+/// Compute orientation from geomDet
+AlignableCSCChamber::RotationType AlignableCSCChamber::computeOrientation() 
+{
   
-  for ( std::vector<AlignableDet*>::const_iterator idet=theDets.begin();
-       idet != theDets.end(); idet++ )
-	{
-	  xx += (*idet)->globalPosition().x();
-	  yy += (*idet)->globalPosition().y();
-	  zz += (*idet)->globalPosition().z();
-	}
-
-  xx /= static_cast<float>(theDets.size());
-  yy /= static_cast<float>(theDets.size());
-  zz /= static_cast<float>(theDets.size());
-
-// std::cout << "x,y,z=" << xx << ", " << yy  << ", " << zz << std::endl;
-
-  return PositionType( xx, yy, zz );
+  return theGeomDet->rotation();
 
 }
 
 
-/// Compute orientation from position
-AlignableCSCChamber::RotationType AlignableCSCChamber::computeOrientation() {
-
-  // Force the z-axis along the r-phi direction
-  //           y-axis along the global z direction
-  //           x-axis such that you get a right handed system
-  // (x and y in the (nominal) plane of the rod)
-
-  GlobalVector vec = ( this->computePosition() - GlobalPoint(0,0,0) );
-  GlobalVector vecrphi = GlobalVector(vec.x(), vec.y(),0.).unit();
-  GlobalVector lxaxis = GlobalVector(0.,0.,1.).cross(vecrphi);
-  RotationType orientation(
-						   lxaxis.x(), lxaxis.y(), lxaxis.z(), 
-						   0.,          0.,           1.,
-						   vecrphi.x(), vecrphi.y(), vecrphi.z()
-						   );
-
-  return orientation;
-
-}
-
-
-
-/// Return length calculated from components
+/// Return length from surface
 float AlignableCSCChamber::length() const 
 {
 
-  float zz, zmin=+10000., zmax=-10000.;
-  for ( std::vector<AlignableDet*>::const_iterator idet=theDets.begin();
-		idet != theDets.end(); idet++ )
-	{
-	  zz = (*idet)->globalPosition().z();
-	  if (zz < zmin) zmin = zz;
-	  if (zz > zmax) zmax = zz;
-	}
-
-  return zmax-zmin;
+  return theGeomDet->surface().bounds().length();
 
 }
 

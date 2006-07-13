@@ -14,8 +14,8 @@
 ///
 /// An ESProducer that fills the MuonDigiGeometryRcd with a misaligned Muon
 /// 
-/// 
-/// FIXME: configuration file, output POOL-ORA object?
+/// This should replace the standard DTGeometry and CSCGeometry producers 
+/// when producing Misalignment scenarios.
 ///
 class MisalignedMuonESProducer: public edm::ESProducer
 {
@@ -28,9 +28,8 @@ public:
   virtual ~MisalignedMuonESProducer(); 
   
   /// Produce the misaligned Muon geometry and store it
-//  boost::shared_ptr<DTGeometry> produce( const MuonGeometryRecord& , boost::shared_ptr<DTGeometry> , boost::shared_ptr<CSCGeometry> );
-
-  boost::shared_ptr<DTGeometry> produce( const MuonGeometryRecord&  );
+  edm::ESProducts< boost::shared_ptr<DTGeometry>,
+ 				   boost::shared_ptr<CSCGeometry> > produce( const MuonGeometryRecord&  );
 
 private:
 

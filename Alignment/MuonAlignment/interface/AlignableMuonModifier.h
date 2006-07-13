@@ -81,19 +81,18 @@ private:
   /// Initialisation of all parameters
   void init_(); 
   /// Return a vector of random numbers (gaussian distribution)
-  const GlobalVector gaussianRandomVector_( const float sigmaX, const float sigmaY, 
-											 const float sigmaZ ) const;
+  const GlobalVector gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
   /// Return a vector of random numbers (flat distribution)
-  const GlobalVector flatRandomVector_( const float sigmaX, const float sigmaY, 
-										 const float sigmaZ ) const;
+  const GlobalVector flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
 
   int m_modified; // Indicates if a modification was performed
 
   // All parameters (see AlignableMuonModifier::init() for definitions)
   std::string distribution_;
   bool   random_, gaussian_, setError_;
+  bool   setRotations_,setTranslations_;
   long   seed_;
-  double scaleError_;
+  double scaleError_,scale_;
   double phiX_, phiY_, phiZ_;
   double localX_, localY_, localZ_;
   double dX_, dY_, dZ_;

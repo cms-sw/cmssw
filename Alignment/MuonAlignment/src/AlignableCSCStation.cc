@@ -1,4 +1,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 
 /// The constructor simply copies the vector of CSC Chambers and computes the surface from them
@@ -95,9 +97,9 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCStation& b )
 void AlignableCSCStation::dump( void )
 {
 
-  std::cout << (*this);
+  edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableCSCChamber*>::iterator iChamber = theCSCChambers.begin();
 		iChamber != theCSCChambers.end(); iChamber++ )
-	 std::cout << (**iChamber);
+	 edm::LogInfo("AlignableDump")  << (**iChamber);
 
 }

@@ -1,4 +1,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 
 /// The constructor simply copies the vector of DT Chambers and computes the surface from them
@@ -86,9 +88,9 @@ std::ostream &operator << (std::ostream& os, const AlignableDTStation& b )
 void AlignableDTStation::dump( void )
 {
 
-  std::cout << (*this);
+  edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTChamber*>::iterator iChamber = theDTChambers.begin();
 		iChamber != theDTChambers.end(); iChamber++ )
-	std::cout << (**iChamber);
+	edm::LogInfo("AlignableDump") << (**iChamber);
 
 }

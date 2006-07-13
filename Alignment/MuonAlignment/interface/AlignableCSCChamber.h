@@ -28,7 +28,7 @@ class AlignableCSCChamber: public AlignableComposite
   
 
   /// Constructor from geomdets of the CSCChamber components
-  AlignableCSCChamber( std::vector<GeomDet*>& gmDets );
+  AlignableCSCChamber( GeomDet* geomDet );
   
   ~AlignableCSCChamber();
   

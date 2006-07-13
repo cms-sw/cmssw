@@ -14,10 +14,10 @@
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 
-/// A muon DT Chamber( composite of AlignableDets )
+/// A muon DT Chamber (has an associated GeomDet)
 
 
-class AlignableDTChamber: public AlignableComposite 
+class AlignableDTChamber: public AlignableComposite
 {
 
  public:
@@ -28,8 +28,8 @@ class AlignableDTChamber: public AlignableComposite
   friend std::ostream& operator << ( std::ostream &, const AlignableDTChamber & ); 
   
 
-  /// Constructor from geomdets of the DTChamber components
-  AlignableDTChamber( std::vector<GeomDet*>& gmDets  );
+  /// Constructor from corresponding geomdet
+  AlignableDTChamber( GeomDet* geomDet  );
   
   ~AlignableDTChamber();
   
@@ -53,7 +53,6 @@ class AlignableDTChamber: public AlignableComposite
   AlignableSurface computeSurface();
 
   std::vector<AlignableDet*> theDets;
-
 
 };
 

@@ -27,24 +27,35 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
   
   // DT Barrel
   std::vector<Alignable*> dtBarrel = theMuon->DTBarrel();
-  this->decodeMovements_( theScenario, dtBarrel, "DT" );
+  this->decodeMovements_( theScenario, dtBarrel, "DTBarrel" );
 
   // CSC Endcap
   std::vector<Alignable*> cscEndcaps = theMuon->CSCEndcaps();
-  this->decodeMovements_( theScenario, cscEndcaps, "CSC" );
+  this->decodeMovements_( theScenario, cscEndcaps, "CSCEndcap" );
 
 
 }
 
 
 //__________________________________________________________________________________________________
+// Gets the level name from the first alignable and hands over to the more general version
+void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
+												   std::vector<Alignable*> alignables )
+{
+
+  // Get name from first element
+  AlignableObjectId alignableObjectId;
+  std::string levelName = alignableObjectId.typeToName( alignables.front()->alignableObjectId() );
+  this->decodeMovements_( pSet, alignables, levelName );
+
+}
 
 
 //__________________________________________________________________________________________________
 // Decode nested parameter sets: this is the tricky part... Recursively called on components
 void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-						          std::vector<Alignable*> alignables,
-       							  std::string levelName )
+													std::vector<Alignable*> alignables,
+													std::string levelName )
 {
 
   indent += " "; // For indented output!
@@ -90,7 +101,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  localParameters.getParameterSetNames( parameterSetNames, true );
 	  if ( (*iter)->size() > 0 && parameterSetNames.size() > 0 )
 		// Has components and remaining parameter sets
-		this->decodeMovements_( localParameters, (*iter)->components() , levelName );
+		this->decodeMovements_( localParameters, (*iter)->components() );
 	}
 
   indent = indent.substr( 0, indent.length()-1 );
@@ -239,12 +250,8 @@ const bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& paramete
 
   // Get root name (strip last character)
   std::string root = parameterSetName.substr(0, parameterSetName.length()-1 );
-  if      ( root == "TOB" ) return true;
-  else if ( root == "TIB" ) return true;
-  else if ( root == "TPB" ) return true;
-  else if ( root == "TEC" ) return true;
-  else if ( root == "TID" ) return true;
-  else if ( root == "TPE" ) return true;
+  if      ( root == "DTBarrel" ) return true;
+  else if ( root == "CSCEndcap" ) return true;
 
   return false;
 

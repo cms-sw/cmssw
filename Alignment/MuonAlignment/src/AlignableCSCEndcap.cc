@@ -1,4 +1,5 @@
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /// The constructor simply copies the vector of stations and computes the surface from them
@@ -85,7 +86,7 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 void AlignableCSCEndcap::dump( void )
 {
 
-  std::cout << (*this);
+  edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableCSCStation*>::iterator iLayer = theCSCStations.begin();
 		iLayer != theCSCStations.end(); iLayer++ )
 	(*iLayer)->dump();

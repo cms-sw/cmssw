@@ -27,13 +27,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/MuonAlignmentRcd.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/DataRecord/interface/MuonAlignmentErrorRcd.h"
 
 //
 //
@@ -76,9 +75,11 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
    
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
-  // Retrieve alignments from DBase
+  // Retrieve alignment[Error]s from DBase
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
+  edm::ESHandle<AlignmentErrors> alignmentErrors;
+  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
 
   for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
 		it != alignments->m_align.end(); it++ )
@@ -94,16 +95,23 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 				<< " " << (*it).translation().z()
 				<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
 				<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
-				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz();
-
-	  HepSymMatrix error = (*it).errorMatrix();
-	  for ( int i=1; i<=error.num_row(); i++ )
-		{
-		  for ( int j=1; j<=i; j++ ) std::cout << "  " << error(i,j);
-		}
-	  std::cout << std::endl;
+				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
+				<< std::endl;
 
 	}
+  std::cout << std::endl << "----------------------" << std::endl;
+
+  for ( std::vector<AlignTransformError>::const_iterator it = alignmentErrors->m_alignError.begin();
+		it != alignmentErrors->m_alignError.end(); it++ )
+	{
+	  HepSymMatrix error = (*it).matrix();
+	  std::cout << (*it).rawId() << " ";
+	  for ( int i=0; i<error.num_row(); i++ )
+		for ( int j=0; j<=i; j++ ) 
+		  std::cout << " " << error[i][j];
+	  std::cout << std::endl;
+	}
+
 
   edm::LogInfo("TrackerAlignment") << "Done!";
 

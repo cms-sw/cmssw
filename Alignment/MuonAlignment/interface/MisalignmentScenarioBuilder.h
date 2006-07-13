@@ -29,6 +29,9 @@ public:
 private: // Methods
 
   
+  /// Decode movements defined in given parameter set for given set of alignables
+  void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables );
+  
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
   void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables,
 						 std::string levelName );

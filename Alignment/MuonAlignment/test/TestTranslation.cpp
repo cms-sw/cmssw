@@ -39,7 +39,6 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/Surface/interface/Surface.h"
 
@@ -116,13 +115,21 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   // Build alignable muon geometry from event setup
   //
+  edm::ESHandle<DDCompactView> cpv;
+  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
 
-  AlignableMuon* theAlignableMuon = new AlignableMuon( iSetup );
+  DTGeometryBuilderFromDDD  DTGeometryBuilder;
+  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+
+  theDTGeometry   = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
+  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
+
+  AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
 
   // Apply  alignment
 
   std::vector<Alignable*> theAlignables = theAlignableMuon->DTChambers();
-//  std::vector<Alignable*> theAlignables = theAlignableMuon->CSCEndcaps();
+  std::vector<Alignable*> theAlignables = theAlignableMuon->CSCEndcaps();
 
 
   for ( std::vector<Alignable*>::iterator iter = theAlignables.begin();

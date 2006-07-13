@@ -1,4 +1,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 
 /// The constructor simply copies the vector of stations and computes the surface from them
@@ -85,7 +87,7 @@ std::ostream &operator << (std::ostream& os, const AlignableDTWheel& b )
 void AlignableDTWheel::dump( void )
 {
 
-  std::cout << (*this);
+  edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTStation*>::iterator iStation = theDTStations.begin();
 		iStation != theDTStations.end(); iStation++ )
 	(*iStation)->dump();

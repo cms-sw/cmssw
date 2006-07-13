@@ -21,17 +21,6 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-//#include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
-//#include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
-//#include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
-//#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
-//#include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
-//#include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
-//#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
-
-
-#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
-
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
 class AlignableDTWheel;
@@ -51,12 +40,9 @@ class AlignableMuon: public AlignableComposite
 {
 
 public:
-  
-  /// Constructor from event setup (builds the full hierarchy)
-  AlignableMuon( const edm::EventSetup&  ); 
 
-  /// Constructor from records
-  AlignableMuon( DTGeometry& , CSCGeometry& );
+  /// Constructor from geometries
+  AlignableMuon( DTGeometry* , CSCGeometry* );
 
   /// Destructor
   ~AlignableMuon();
@@ -98,17 +84,11 @@ private:
    // Sub-structure builders 
 
 
-  // Pointer to DTGeometry
-  edm::ESHandle<DTGeometry> pDT;
-
-  // Pointer to CSCGeometry
-  edm::ESHandle<CSCGeometry> pCSC;
-
    // Build muon barrel
-   void buildDTBarrel( edm::ESHandle<DTGeometry>  );
+  void buildDTBarrel( DTGeometry*  );
 
-   // Build muon end caps
-   void buildCSCEndcap( edm::ESHandle<CSCGeometry>  );
+  // Build muon end caps
+  void buildCSCEndcap( CSCGeometry*  );
 
 
 
