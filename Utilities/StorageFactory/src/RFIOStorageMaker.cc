@@ -31,8 +31,8 @@ RFIOStorageMaker::check (const std::string &proto,
 
     if (size)
     {
-	struct stat buf;
-	if (rfio_stat (path.c_str (), &buf) != 0)
+	struct stat64 buf;
+	if (rfio_stat64 (path.c_str (), &buf) != 0)
 	    return false;
 
 	*size = buf.st_size;
