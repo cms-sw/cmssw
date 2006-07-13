@@ -19,6 +19,7 @@ namespace edm {
                  NodePtrListPtr nl,int line=-1);
       virtual Node * clone() const { return new ModuleNode(*this);}
       virtual std::string type() const;
+      std::string className() const {return class_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
