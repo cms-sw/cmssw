@@ -8,7 +8,7 @@ namespace sistrip {
   /** */
   enum FedReadoutMode { SCOPE_MODE = 0, 
 			VIRGIN_RAW = 1, 
-			PROC_RAW = 2, 
+			PROC_RAW   = 2, 
 			ZERO_SUPPR = 3, 
 			UNKNOWN_FED_MODE = 99 };
 
