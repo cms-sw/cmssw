@@ -16,7 +16,7 @@ MWC_LIB1="${LOCALRT}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
 echo "Looking for the MonitorWebClient library... $MWC_LIB1"
 if [ ! -f $MWC_LIB1 ]; then
     echo "Not Found! Will pick it up from the release area..."    
-    MWC_LIB1="${CMSSW_RELEASE_BASE}/lib/slc3_ia32_gcc323/libDQMServicesExamples.so"
+    MWC_LIB1="${CMSSW_RELEASE_BASE}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
 else 
     echo "Found!"
 fi
