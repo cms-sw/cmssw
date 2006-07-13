@@ -8,14 +8,25 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 //
-SiStripFedCabling::SiStripFedCabling( const vector<FedChannelConnection>& input ) :
-  feds_(),
-  connected_(),
-  detected_(),
-  undetected_()
+SiStripFedCabling::SiStripFedCabling( const vector<FedChannelConnection>& input ) 
+  : feds_(),
+    connected_(),
+    detected_(),
+    undetected_()
 {
   edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
   buildFedCabling( input );
+}
+
+// -----------------------------------------------------------------------------
+//
+SiStripFedCabling::SiStripFedCabling() 
+  : feds_(),
+    connected_(),
+    detected_(),
+    undetected_()
+{
+  edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------

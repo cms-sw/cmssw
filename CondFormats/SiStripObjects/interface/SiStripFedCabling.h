@@ -18,7 +18,7 @@ class SiStripFedCabling {
   SiStripFedCabling( const std::vector<FedChannelConnection>& connections );
   
   /** Public default constructor. */
-  SiStripFedCabling() {;}
+  SiStripFedCabling();
   
   /** Virtual destructor. */
   virtual ~SiStripFedCabling();
