@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/01 14:35:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/20 12:17:42 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -64,8 +64,8 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
 	fillHistos(*chamberId,
 		   segment4DLocalPos.x(), 
 		   segment4DLocalPos.y(),
-		   segment4DLocalDirection.x()/segment4DLocalDirection.z()* 180./Geom::pi(),
-		   segment4DLocalDirection.y()/segment4DLocalDirection.z()* 180./Geom::pi(),
+		   atan(segment4DLocalDirection.x()/segment4DLocalDirection.z())* 180./Geom::pi(),
+		   atan(segment4DLocalDirection.y()/segment4DLocalDirection.z())* 180./Geom::pi(),
 		   (*segment4D).chi2()/(*segment4D).degreesOfFreedom());
       } else {
 	cout << "[DTSegmentAnalysis] Warning: segment local direction is: "
