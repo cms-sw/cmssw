@@ -9,15 +9,15 @@ cmsRun -p runP_TOB.cfg
 cmsRun -p runP_TEC.cfg
 cmsRun -p runP_Tracker.cfg
 
-root -b -q 'rrMaterialBudget.C("TIB")'
-root -b -q 'rrMaterialBudget.C("TIDF")'
-root -b -q 'rrMaterialBudget.C("TIDB")'
-root -b -q 'rrMaterialBudget.C("TOB")'
-root -b -q 'rrMaterialBudget.C("TEC")'
-root -b -q 'rrMaterialBudget.C("TkStrct")'
-root -b -q 'rrMaterialBudget.C("PixBar")'
-root -b -q 'rrMaterialBudget.C("PixFwdPlus")'
-root -b -q 'rrMaterialBudget.C("PixFwdMinus")'
-root -b -q 'rrMaterialBudget.C("Tracker")'
-root -b -q 'rrMaterialBudget.C("TrackerSum")'
+root -b -q 'MaterialBudget.C("TIB")'
+root -b -q 'MaterialBudget.C("TIDF")'
+root -b -q 'MaterialBudget.C("TIDB")'
+root -b -q 'MaterialBudget.C("TOB")'
+root -b -q 'MaterialBudget.C("TEC")'
+root -b -q 'MaterialBudget.C("TkStrct")'
+root -b -q 'MaterialBudget.C("PixBar")'
+root -b -q 'MaterialBudget.C("PixFwdPlus")'
+root -b -q 'MaterialBudget.C("PixFwdMinus")'
+root -b -q 'MaterialBudget.C("Tracker")'
+root -b -q 'MaterialBudget.C("TrackerSum")'
 
