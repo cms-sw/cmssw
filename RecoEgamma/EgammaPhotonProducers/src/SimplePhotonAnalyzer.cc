@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: $ 
- ** $Revision: $
+ ** $Date: 2006/07/10 18:10:26 $ 
+ ** $Revision: 1.1 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -54,13 +54,13 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   // go to *OUR* rootfile and book histograms
   rootFile_->cd();
 
-  h1_scE_ = new TH1F("scE","Uncorrected photons : Island SC Energy ",100,0., 50.);
-  h1_scEta_ = new TH1F("scEta","Uncorrected photons: Island SC Eta ",40,-3., 3.);
-  h1_scPhi_ = new TH1F("scPhi","Uncorrected photons: Island SC Phi ",40,0., 6.28);
+  h1_scE_ = new TH1F("scE","Uncorrected photons : SC Energy ",100,0., 50.);
+  h1_scEta_ = new TH1F("scEta","Uncorrected photons:  SC Eta ",40,-3., 3.);
+  h1_scPhi_ = new TH1F("scPhi","Uncorrected photons: SC Phi ",40,0., 6.28);
 
-  h1_corrPho_scE_ = new TH1F("scCorrE","Corrected photons : Island SC Energy ",100,0., 50.);
-  h1_corrPho_scEta_ = new TH1F("scCorrEta","Corrected photons: Island SC Eta ",40,-3., 3.);
-  h1_corrPho_scPhi_ = new TH1F("scCorrPhi","Corrected photons: Island SC Phi ",40,0., 6.28);
+  h1_corrPho_scE_ = new TH1F("scCorrE","Corrected photons : SC Energy ",100,0., 50.);
+  h1_corrPho_scEta_ = new TH1F("scCorrEta","Corrected photons: SC Eta ",40,-3., 3.);
+  h1_corrPho_scPhi_ = new TH1F("scCorrPhi","Corrected photons: SC Phi ",40,0., 6.28);
 
 
 }

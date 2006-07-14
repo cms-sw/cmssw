@@ -30,7 +30,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
  
 
-  scProducer_       = conf_.getParameter<std::string>("scProducer");
+  scBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
+  scEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
+
   scBarrelCollection_     = conf_.getParameter<std::string>("scBarrelCollection");
   scEndcapCollection_     = conf_.getParameter<std::string>("scEndcapCollection");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
@@ -43,7 +45,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 }
 
 PhotonProducer::~PhotonProducer() {
-
 
 }
 
@@ -79,7 +80,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
-    theEvent.getByLabel(scProducer_,scBarrelCollection_,scBarrelHandle);
+    theEvent.getByLabel(scBarrelProducer_,scBarrelCollection_,scBarrelHandle);
   } catch ( cms::Exception& ex ) {
     LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scBarrelCollection_.c_str() ;
   } 
@@ -90,13 +91,13 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   try{  
-    theEvent.getByLabel(scProducer_,scEndcapCollection_,scEndcapHandle);
+    theEvent.getByLabel(scEndcapProducer_,scEndcapCollection_,scEndcapHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scEndcapCollection_.c_str() ;
+    LogError("PhotonProducer") << "Error! can't get the SC in the endcap " << scEndcapCollection_.c_str() ;
   } 
   std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
-  std::cout << " barrel SC collection size  " << scEndcapCollection.size() << std::endl;
+  std::cout << " endcap SC collection size  " << scEndcapCollection.size() << std::endl;
 
 
 
