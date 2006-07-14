@@ -18,6 +18,8 @@ class ModeFinder3d : public unary_function <
 public:
   typedef pair < GlobalPoint, float > PointAndDistance;
   virtual GlobalPoint operator () ( const vector< PointAndDistance > & ) const=0;
+
+  virtual ~ModeFinder3d() {};
   virtual ModeFinder3d * clone () const =0;
 };
 
