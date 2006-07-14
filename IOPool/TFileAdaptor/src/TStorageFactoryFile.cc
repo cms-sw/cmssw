@@ -7,6 +7,8 @@
 #include "SealBase/DebugAids.h"
 #include "SealBase/Error.h"
 #include "TError.h"
+#include "TFileCacheRead.h"
+#include "TFileCacheWrite.h"
 #include "TSystem.h"
 #include "TROOT.h"
 #include <errno.h>
@@ -205,11 +207,11 @@ TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
     // is larger than a page, ROOT's cache is dumb -- it just cycles
     // through the data a page at a time.  So for large requests do
     // bypass the cache and issue one big read.
-    if (wasReading < 0 && fCacheRead && len <= fCacheRead->GetPageSize ())
+    if (wasReading < 0 && fCacheRead)
     {
         StorageAccount::Stamp cstats (storageCounter (&s_statsCRead, "readc"));
 	Long64_t off = m_offset;
-	Int_t st = fCacheRead->ReadBuffer (off, buf, len);
+	Int_t st = fCacheRead->ReadBuffer (buf, off, len);
 
 	if (st < 0)
 	{
@@ -272,7 +274,7 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
     {
         StorageAccount::Stamp cstats (storageCounter (&s_statsCWrite, "writec"));
 	Long64_t off = m_offset;
-	Int_t st = fCacheWrite->WriteBuffer (off, buf, len);
+	Int_t st = fCacheWrite->WriteBuffer (buf, off, len);
 
 	if (st < 0)
 	{
