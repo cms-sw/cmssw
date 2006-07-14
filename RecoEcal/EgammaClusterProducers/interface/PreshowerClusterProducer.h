@@ -53,8 +53,8 @@ class PreshowerClusterProducer : public edm::EDProducer {
   double miptogev_;
 
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
-
-  DebugLevel debugL;
+ 
+  PreshowerClusterAlgo::DebugLevel debugL;  
 
 };
 #endif
