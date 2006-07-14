@@ -20,19 +20,16 @@
 #include <set>
 //#include <fstream>
 
-typedef std::map<DetId, EcalRecHit> RecHitsMap;
-
-#ifndef DebugLevelEnum
-#define DebugLevelEnum
-enum DebugLevel{ pDEBUG = 0, pINFO = 1, pHISTO = 2, pERROR = 3 }; 
-#endif
-
-
 class PreshowerClusterAlgo {
 
  public:
 
+   enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
+
    typedef math::XYZPoint Point;
+
+   typedef std::map<DetId, EcalRecHit> RecHitsMap;
+
 
    PreshowerClusterAlgo() : 
    preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15), debugLevel_(pINFO)
