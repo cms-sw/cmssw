@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 10:04:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/11 16:11:03 $
+ *  $Revision: 1.4 $
  *  \author M. Zanetti
  */
 
@@ -62,88 +62,74 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   uint64_t word = 0;
 
   
-  try {   
 
-    bool haederTag = false;
-    bool dataTag = true;
-
-
-    int wordCount = 0;
-
-    // getting the data word by word from the file
-    // do it until you get the DDU trailer
-    while ( !isTrailer(word, dataTag, wordCount) ) {
-      //while ( !isTrailer(word) ) { 
-      
-      if (readFromDMA) {
-	word = dmaUnpack(dataTag);
-      }
-      
-      else {
-	inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
-	dataTag = false;
-	if ( !inputFile ) throw 1;
-      }
-      
-      // get the DDU header
-      if (isHeader(word,dataTag)) haederTag=true;
-      
-      // from now on fill the eventData with the ROS data
-      if (haederTag) {
-
-	if (readFromDMA) {
-	  // swapping only the 8 byte words
-	  if (dataTag) {
-	    swap(word);
-	  } // WARNING also the ddu status words have been swapped!
-	    // Control the correct interpretation in DDUUnpacker
-	}
-	
-	eventData.push_back(word);
-	wordCount++;
-      }
-      
-    } 
-
-//     FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
-//     cout<<"EventSize: pushed back "<<eventData.size()
-// 	<<";  From trailer "<<candidate.lenght()<<endl;
-
-    // next event reading will start with meaningless trailer+header from DTLocalDAQ
-    // those will be skipped automatically when seeking for the DDU header
-    if (eventData.size() > estimatedEventDimension) throw 2;
-     
-    // Setting the Event ID
-    eID = EventID( runNumber, eventNumber);
+  bool haederTag = false;
+  bool dataTag = true;
+  
+  
+  int wordCount = 0;
+  
+  // getting the data word by word from the file
+  // do it until you get the DDU trailer
+  while ( !isTrailer(word, dataTag, wordCount) ) {
+    //while ( !isTrailer(word) ) { 
     
-    // eventDataSize = (Number Of Words)* (Word Size)
-    int eventDataSize = eventData.size()*dduWordLenght;
-    
-    // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-    fedRawData.resize(eventDataSize);
-    
-    copy(reinterpret_cast<unsigned char*>(&eventData[0]),
-	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
-    
-    return true;
-  }
-
-  catch( int i ) {
-
-    if ( i == 1 ){
-      cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
-      return false;
-    }    
-    else {
-      cout<<"[DTDDUFileReader]:"
-	  <<" ERROR! ROS data exceeding estimated event dimension. Event size = "
-	  <<eventData.size()<<endl;
-      return false;
+    if (readFromDMA) {
+      word = dmaUnpack(dataTag);
     }
     
-  }
-
+    else {
+      inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
+      dataTag = false;
+      if ( !inputFile ) {
+	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	return false;
+      }
+    }
+    
+    // get the DDU header
+    if (isHeader(word,dataTag)) haederTag=true;
+    
+    // from now on fill the eventData with the ROS data
+    if (haederTag) {
+      
+      if (readFromDMA) {
+	// swapping only the 8 byte words
+	if (dataTag) {
+	  swap(word);
+	} // WARNING also the ddu status words have been swapped!
+	// Control the correct interpretation in DDUUnpacker
+      }
+      
+      eventData.push_back(word);
+      wordCount++;
+    }
+    
+  } 
+  
+  //     FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
+  //     cout<<"EventSize: pushed back "<<eventData.size()
+  // 	<<";  From trailer "<<candidate.lenght()<<endl;
+  
+  // next event reading will start with meaningless trailer+header from DTLocalDAQ
+  // those will be skipped automatically when seeking for the DDU header
+  //if (eventData.size() > estimatedEventDimension) throw 2;
+  
+  // Setting the Event ID
+  eID = EventID( runNumber, eventNumber);
+  
+  // eventDataSize = (Number Of Words)* (Word Size)
+  int eventDataSize = eventData.size()*dduWordLenght;
+  
+  // The FED ID is always the first in the DT range
+  FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+  fedRawData.resize(eventDataSize);
+  
+  copy(reinterpret_cast<unsigned char*>(&eventData[0]),
+       reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
+  
+  return true;
+  
 }
 
 void DTDDUFileReader::swap(uint64_t & word) {
