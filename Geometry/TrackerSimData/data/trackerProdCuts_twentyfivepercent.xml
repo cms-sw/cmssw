@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+  
+<SpecParSection label="trackerProdCuts.xml" eval="true">
+  <SpecPar name="tracker-dead">
+    <PartSelector path="//Tracker" />
+    <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="10*cm"/>
+    <Parameter name="ProdCutsForPositrons" value="10*cm"/>
+    <Parameter name="ProdCutsForGamma" value="10*cm"/>
+  </SpecPar>
+  <SpecPar name="tracker-sens">
+    <PartSelector path="//TIBActiveRphi0" />
+    <PartSelector path="//TIBActiveSter0" />
+    <PartSelector path="//TIBActiveRphi2" />
+    <PartSelector path="//TIDModule0RphiActive" />
+    <PartSelector path="//TIDModule0StereoActive" />
+    <PartSelector path="//TIDModule1RphiActive" />
+    <PartSelector path="//TIDModule1StereoActive" />
+    <PartSelector path="//TIDModule2RphiActive" />
+    <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+  </SpecPar>
+
+  <SpecPar name="BeamPipe">
+    <PartSelector path="//BEAM" />
+    <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
+  </SpecPar>
+
+  <SpecPar name="BeamPipeNotBeryllium">
+    <PartSelector path="//BEAM" />
+    <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+  </SpecPar>
+
+  <SpecPar name="TIB_Ledge_Side_Prod_Cuts">
+    <PartSelector path="//TIBModCoolSide" />
+    <Parameter name="CMSCutsRegion" value="TIB_Ledge_Side_ProdCuts" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="5*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="5*mm"/>
+    <Parameter name="ProdCutsForGamma" value="5*mm"/>
+  </SpecPar>
+
+</SpecParSection>
+</DDDefinition>
+
+
