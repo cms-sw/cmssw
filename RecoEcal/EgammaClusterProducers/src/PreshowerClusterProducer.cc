@@ -75,34 +75,15 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
   std::string debugString = ps.getParameter<std::string>("debugLevel");
   if      (debugString == "DEBUG")   debugL = pDEBUG;
   else if (debugString == "INFO")    debugL = pINFO;
-  else if (debugString == "HISTO")   debugL = pHISTO;
   else                               debugL = pERROR;
 
   presh_algo = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst,debugL);
 
-  nEvt_ = 0; 
-
-  outputFile_   = ps.getParameter<std::string>("outputFile");
-  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
+  nEvt_ = 0;  
 
 }
 
 
-void PreshowerClusterProducer::beginJob(edm::EventSetup const&) {
-
-  rootFile_->cd();
-
-  h1_esE_x = new TH1F("esE_x"," ES cluster Energy in  X-plane",20, 0, 0.20);
-  h1_esE_y = new TH1F("esE_y"," ES cluster Energy in  Y-plane",20, 0, 0.20);
-  h1_esEta_x = new TH1F("esEta_x"," ES cluster Eta in X-plane",15, 1.5, 3.0);
-  h1_esEta_y = new TH1F("esEta_y"," ES cluster Eta in Y-plane",15, 1.5, 3.0);
-  h1_esPhi_x = new TH1F("esPhi_x"," ES cluster Phi in X-plane",20, 0, 6.28);
-  h1_esPhi_y = new TH1F("esPhi_y"," ES cluster Phi in Y-plane",20, 0, 6.28);
-  h1_esNhits_x = new TH1F("esNhits_x"," ES cluster Nhits in  X-plane",10, 0, 10);
-  h1_esNhits_y = new TH1F("esNhits_y"," ES cluster Nhits in  Y-plane",10, 0, 10);
-  h1_esDeltaE = new TH1F("esDeltaE"," DeltaE",20, 0, 0.50); 
-
-}
 
 PreshowerClusterProducer::~PreshowerClusterProducer() {
    delete presh_algo;
@@ -191,8 +172,8 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
          double Z = (*b_iter)->z();
 	 const GlobalPoint point(X,Y,Z);         
 
-	 ESDetId strip1((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane1)); 
-         ESDetId strip2((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane2));
+	 ESDetId strip1((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1)); 
+         ESDetId strip2((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2));
 
          if ( debugL <= pINFO ) {
 	    if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
@@ -216,24 +197,11 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
              e1 += cl1.energy();
              e2 += cl2.energy();
 
-             if ( debugL == pHISTO ) {
-                h1_esEta_x->Fill(cl1.eta());
-                h1_esEta_y->Fill(cl2.eta());
-                h1_esPhi_x->Fill(cl1.phi());
-                h1_esPhi_y->Fill(cl2.phi());
-	        h1_esNhits_x->Fill(cl1.nhits());
-	        h1_esNhits_y->Fill(cl2.nhits());
-	     }
-
           } // end of cycle over ES clusters
 
              new_BC.push_back(*b_iter);
 
          }  // end of cycle over BCs
-             if ( debugL == pHISTO ) {
-   	        h1_esE_x->Fill(e1);     
- 	        h1_esE_y->Fill(e2);   
-             }
 
        if ( debugL <= pINFO ) std::cout << " For SC #" << isc-1 << ", containing " << it_super->clustersSize() 
                  << " basic clusters, PreshowerClusterAlgo made " 
@@ -242,9 +210,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
        // update energy of the SuperCluster    
        if(e1+e2 > 1.0e-10)
-           deltaE = miptogev_*(calib_planeX_*e1+calib_planeY_*e2);
-
-       if ( debugL == pHISTO ) h1_esDeltaE->Fill(deltaE);
+           deltaE = miptogev_*(calib_planeX_*e1+calib_planeY_*e2);       
 
        float E = it_super->energy() + deltaE;
        
@@ -276,43 +242,3 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
 }
 
-//========================================================================
-void PreshowerClusterProducer::endJob() {
-//========================================================================
-
-   rootFile_->cd();
-
-   h1_esE_x->Write();     
-   h1_esE_y->Write();
-   h1_esEta_x->Write();
-   h1_esEta_y->Write();
-   h1_esPhi_x->Write();
-   h1_esPhi_y->Write();
-   h1_esNhits_x->Write();
-   h1_esNhits_y->Write();          
-   h1_esDeltaE->Write();
-
-   rootFile_->Close();
-}
-
-const ESDetId PreshowerClusterProducer::getClosestCellInPlane_(const GlobalPoint &point, const int plane) const
-{
-    std::cout << "inside getClosestCellInPlane: x = " << point.x() << std::endl;
-    std::cout << "inside getClosestCellInPlane: y = " << point.y() << std::endl;
-    std::cout << "inside getClosestCellInPlane: z = " << point.z() << std::endl;
-    //                 
-    // ESDetId(int strip, int ixs, int iys, int plane, int iz);
-    const ESDetId startES_1(1,16,1,1,1); 
-    const ESDetId startES_2(1,16,1,2,1);
-    if ( plane == 1 ) {
-      std::cout << "getClosestCellInPlane: Starting at " << startES_1 << std::endl;        
-      return startES_1;
-    }
-    else if ( plane == 2 ) {
-      std::cout << "getClosestCellInPlane: Starting at " << startES_2 << std::endl;        
-      return startES_2;
-    }
-    else { std::cout << "Wrong plane number" << std::endl; 
-      return ESDetId(0);
-   }
-}
