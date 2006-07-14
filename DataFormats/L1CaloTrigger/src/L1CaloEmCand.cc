@@ -27,7 +27,7 @@ L1CaloEmCand::L1CaloEmCand(unsigned rank, unsigned region, unsigned card, unsign
   m_rctCrate(crate),
   m_iso(iso) 
 {
-  m_data = (rank & 0x3f) + ((region & 0x1)<<6) + ((card & 0x7)<<11); 
+  m_data = (rank & 0x3f) + ((region & 0x1)<<6) + ((card & 0x7)<<7); 
 }
 
 // destructor
