@@ -30,7 +30,6 @@ class PreshowerClusterProducer : public edm::EDProducer {
   ~PreshowerClusterProducer();
 
   virtual void produce( edm::Event& evt, const edm::EventSetup& es);
-  const ESDetId getClosestCellInPlane_(const GlobalPoint &point, const int plane) const;
 
  private:
 
@@ -56,20 +55,6 @@ class PreshowerClusterProducer : public edm::EDProducer {
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
 
   DebugLevel debugL;
-
-  virtual void beginJob(edm::EventSetup const&);
-  virtual void endJob();
-  TH1F* h1_esE_x;
-  TH1F* h1_esE_y;
-  TH1F* h1_esEta_x;
-  TH1F* h1_esEta_y;
-  TH1F* h1_esPhi_x;
-  TH1F* h1_esPhi_y;
-  TH1F* h1_esNhits_x;
-  TH1F* h1_esNhits_y;
-  TH1F* h1_esDeltaE;
-  std::string outputFile_; // output file
-  TFile*  rootFile_;
 
 };
 #endif
