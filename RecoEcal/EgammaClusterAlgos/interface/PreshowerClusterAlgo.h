@@ -1,39 +1,29 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.2 2006/06/11 18:02:54 rahatlou Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.4 2006/07/05 18:13:19 dbanduri Exp $
 //
-
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-//#include "RecoEcal/EgammaClusterAlgos/interface/LogPositionCalc.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
 #include <set>
-//#include <fstream>
 
-typedef std::map<DetId, EcalRecHit> RecHitsMap;
-
-enum ESplane { plane1 = 1, plane2 = 2 };
-
-#ifndef DebugLevelEnum
-#define DebugLevelEnum
-enum DebugLevel{ pDEBUG = 0, pINFO = 1, pHISTO = 2, pERROR = 3 }; 
-#endif
+class CaloSubdetectorGeometry;
+class CaloSubdetectorTopology;
 
 
 class PreshowerClusterAlgo {
 
  public:
+   enum ESplane { plane1 = 1, plane2 = 2 };
+   enum DebugLevel{ pDEBUG = 0, pINFO = 1, pHISTO = 2, pERROR = 3 }; 
 
+   typedef std::map<DetId, EcalRecHit> RecHitsMap;
    typedef math::XYZPoint Point;
 
    PreshowerClusterAlgo() : 
