@@ -244,7 +244,7 @@ AdaptiveVertexFitter::reWeightTracks(
   VertexState seed = vertex.vertexState();
   theNr++;
   if (debug() & 4) cout << "Reweighting tracks... " << endl;
-  GlobalPoint pos = seed.position();
+  // GlobalPoint pos = seed.position();
 
   vector<RefCountedVertexTrack> finalTracks;
   VertexTrackFactory vTrackFactory;
