@@ -13,9 +13,9 @@ GlobalPoint HsmModeFinder3d::operator() ( const vector< PointAndDistance> & valu
     v.push_back ( i->first );
   };
   return hsm_3d ( v );
-};
+}
 
 HsmModeFinder3d * HsmModeFinder3d::clone() const
 {
   return new HsmModeFinder3d ( * this );
-};
+}

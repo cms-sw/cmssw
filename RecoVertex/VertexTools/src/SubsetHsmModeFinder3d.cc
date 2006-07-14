@@ -15,7 +15,7 @@ namespace {
       return ( p1.second < p2.second );
     };
   };
-};
+}
 
 GlobalPoint SubsetHsmModeFinder3d::operator() ( const vector< PointAndDistance> & values )
     const 
@@ -55,9 +55,9 @@ GlobalPoint SubsetHsmModeFinder3d::operator() ( const vector< PointAndDistance> 
 
   GlobalPoint ret = hsm_3d ( pts );
   return ret;
-};
+}
 
 SubsetHsmModeFinder3d * SubsetHsmModeFinder3d::clone() const
 {
   return new SubsetHsmModeFinder3d ( * this );
-};
+}

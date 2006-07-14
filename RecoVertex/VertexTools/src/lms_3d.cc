@@ -22,4 +22,4 @@ GlobalPoint lms_3d ( std::vector<GlobalPoint> values )
     z_vals.push_back( i->z() );
   };
   return GlobalPoint ( lms_1d(x_vals), lms_1d(y_vals), lms_1d(z_vals) );
-};
+}

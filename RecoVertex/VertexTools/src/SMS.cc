@@ -2,7 +2,7 @@
 #include "RecoVertex/VertexTools/interface/SMS.h"
 #else
 #include <vector>
-#include <algo.h>
+#include <algorithm>
 #include "RecoVertex/VertexTools/interface/SMS.h"
 using namespace std;
 #endif
@@ -36,18 +36,18 @@ namespace {
   bool debug()
   {
     return false;
-  };
+  }
 
   inline GlobalPoint & operator += ( GlobalPoint & a, const GlobalPoint & b )
   {
     a = GlobalPoint ( a.x() + b.x(), a.y() + b.y(), a.z() + b.z() );
     return a;
-  };
+  }
   inline GlobalPoint & operator /= ( GlobalPoint & a, float b )
   {
     a = GlobalPoint ( a.x() / b, a.y() / b, a.z() / b );
     return a;
-  };
+  }
 
   GlobalPoint average ( const vector < MyPair > & pairs, int nq )
   {
@@ -56,7 +56,7 @@ namespace {
       location+=*( i->second );
     location/=nq;
     return location;
-  };
+  }
 
   GlobalPoint average ( const vector < MyPairWt > & pairs, int nq )
   {
@@ -65,12 +65,12 @@ namespace {
       location+=(i->second)->first;
     location/=nq;
     return location;
-  };
+  }
 
   typedef SMS::SMSType SMSType;
-};
+}
 
-SMS::SMS ( SMSType tp , float q ) : theType(tp) , theRatio(q) {};
+SMS::SMS ( SMSType tp , float q ) : theType(tp) , theRatio(q) {}
 
 
 GlobalPoint SMS::location ( const vector<GlobalPoint> & data ) const
@@ -126,7 +126,7 @@ GlobalPoint SMS::location ( const vector<GlobalPoint> & data ) const
 
   return this->location( data1 );
 
-};
+}
 
 
 GlobalPoint SMS::location (  const vector < GlPtWt > & wdata ) const
@@ -218,4 +218,4 @@ GlobalPoint SMS::location (  const vector < GlPtWt > & wdata ) const
 
   return this->location( wdata1 );
 
-};
+}

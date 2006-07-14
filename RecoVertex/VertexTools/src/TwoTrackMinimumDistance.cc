@@ -7,12 +7,12 @@ namespace {
     return GlobalPoint ( (pr.first.x() + pr.second.x() ) / 2. ,
         (pr.first.y() + pr.second.y() ) / 2. ,
         (pr.first.z() + pr.second.z() ) / 2. );
-  };
+  }
 
   inline double dist ( pair<GlobalPoint, GlobalPoint> pr ) {
     return ( pr.first - pr.second ).mag();
-  };
-};
+  }
+}
 
 double TwoTrackMinimumDistance::firstAngle() const
 {

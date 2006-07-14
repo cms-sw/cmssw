@@ -2,7 +2,7 @@
 
 SmsModeFinder3d::SmsModeFinder3d ( const SMS & algo ) :
     theAlgo(algo)
-{};
+{}
 
 GlobalPoint SmsModeFinder3d::operator() ( const vector<PointAndDistance> & values ) const
 {
@@ -14,9 +14,9 @@ GlobalPoint SmsModeFinder3d::operator() ( const vector<PointAndDistance> & value
     weighted.push_back ( pair < GlobalPoint, float > ( i->first, weight ) );
   };
   return theAlgo.location( weighted );
-};
+}
 
 SmsModeFinder3d * SmsModeFinder3d::clone() const
 {
   return new SmsModeFinder3d ( * this );
-};
+}

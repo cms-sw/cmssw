@@ -3,4 +3,4 @@
 
 GlobalPoint Lms3d::operator() ( vector<GlobalPoint> & values ) const {
   return lms_3d ( values );
-};
+}

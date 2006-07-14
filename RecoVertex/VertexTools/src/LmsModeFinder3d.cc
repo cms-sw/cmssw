@@ -9,9 +9,9 @@ GlobalPoint LmsModeFinder3d::operator() ( const vector<PointAndDistance> & value
     v.push_back ( i->first );
   };
   return lms_3d ( v );
-};
+}
 
 LmsModeFinder3d * LmsModeFinder3d::clone() const
 {
   return new LmsModeFinder3d ( * this );
-};
+}

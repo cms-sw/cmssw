@@ -71,7 +71,7 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
   baseFct = thetanlambdaH * (Z*(px2+py2) - pz*(px*X + py*Y));
   baseDer = - ff;
   return false;
-};
+}
 
 bool TwoTrackMinimumDistanceHelixLine::oneIteration(
     double & thePhiH, double & fct, double & derivative ) const
@@ -104,7 +104,7 @@ bool TwoTrackMinimumDistanceHelixLine::oneIteration(
   derivative += ee * (thecosPhiH*thecosPhiH-thesinPhiH*thesinPhiH);
 
   return false;
-};
+}
 
 bool TwoTrackMinimumDistanceHelixLine::calculate(
     const GlobalTrajectoryParameters & theFirstGTP,
@@ -134,7 +134,7 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
   }
   cout <<"Number of steps exceeded in TwoTrackMinimumDistanceHelixLine\n";
   return true;
-};
+}
 
 double TwoTrackMinimumDistanceHelixLine::firstAngle()  const
 {
@@ -169,4 +169,4 @@ pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixLine::points()
   if (firstGTP==theL) 
     return pair<GlobalPoint, GlobalPoint> (linePoint, helixPoint);
   else return pair<GlobalPoint, GlobalPoint> (helixPoint, linePoint);
-};
+}
