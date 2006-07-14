@@ -3,9 +3,9 @@
 /** \class ElectronProducer
  **  
  **
- **  $Id: ElectronProducer.h,v 1.1 2006/06/27 14:00:05 nancy Exp $ 
- **  $Date: 2006/06/27 14:00:05 $ 
- **  $Revision: 1.1 $
+ **  $Id: ElectronProducer.h,v 1.2 2006/07/10 18:01:13 nancy Exp $ 
+ **  $Date: 2006/07/10 18:01:13 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -38,8 +38,10 @@ class ElectronProducer : public edm::EDProducer {
 
   
   std::string ElectronCollection_;
-  std::string scProducer_;
-  std::string scCollection_;
+  std::string scBarrelProducer_;
+  std::string scEndcapProducer_;
+  std::string scBarrelCollection_;
+  std::string scEndcapCollection_;
   edm::ParameterSet conf_;
 
 
