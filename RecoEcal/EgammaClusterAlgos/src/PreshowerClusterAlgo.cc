@@ -244,13 +244,13 @@ bool PreshowerClusterAlgo::goodStrip(RecHitsMap::iterator candidate_it, ESDetId 
         std::cout << " This strip is in use " << std::endl; 
     if (candidate_it->first == lastID )
         std::cout << " No such a strip in rechits_map " << std::endl; 
-   //  if (candidate_it->second.energy() <= preshStripEnergyCut_)
-//         std::cout << " Strip energy " << candidate_it->second.energy() <<" is below threshold " << std::endl; 
+    if (candidate_it->second.energy() <= preshStripEnergyCut_)
+        std::cout << " Strip energy " << candidate_it->second.energy() <<" is below threshold " << std::endl; 
   }
   // crystal should not be included...
-  if ( (used_s.find(candidate_it->first) != used_s.end())  || // ...if it already belongs to a cluster
-       (candidate_it->first == lastID ) )               // ||// ...if it corresponds to a hit
-       // (candidate_it->second.energy() <= preshStripEnergyCut_ ) )   // ...if it has a negative or zero energy
+  if ( (used_s.find(candidate_it->first) != used_s.end())  ||       // ...if it already belongs to a cluster
+       (candidate_it->first == lastID )                    ||       // ...if it corresponds to a hit
+       (candidate_it->second.energy() <= preshStripEnergyCut_ ) )   // ...if it has a negative or zero energy
     {
       return false;
     }
