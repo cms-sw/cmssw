@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/29 15:25:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/22 09:46:37 $
+ *  $Revision: 1.3 $
  */
 
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -25,6 +25,11 @@ CSCChamber::components() const {
 }
 
 
+const GeomDet* CSCChamber::component(DetId id) const {
+  return layer(CSCDetId(id.rawId()));
+}
+
+
 void CSCChamber::addComponent( int n, const CSCLayer* gd ) { 
 	
   if ((n>0) && (n<7)) 
@@ -34,6 +39,7 @@ void CSCChamber::addComponent( int n, const CSCLayer* gd ) {
 }
 
 const CSCLayer* CSCChamber::layer(CSCDetId id) const {
+  if (id.chamberId()!=theId) return 0; // not in this chamber
   return layer(id.layer());
 }
   

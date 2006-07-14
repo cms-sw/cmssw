@@ -38,7 +38,11 @@ public:
 
   const CSCChamberSpecs* specs() const { return theChamberSpecs; }
 
+  /// Return the layers in this chamber
   virtual std::vector< const GeomDet* > components() const;
+
+  /// Return the layer with a given id in this chamber
+  virtual const GeomDet* component(DetId id) const;
 
 
   // Extension of the interface
