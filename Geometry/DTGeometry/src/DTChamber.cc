@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/31 17:13:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/22 14:40:11 $
+ *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -10,6 +10,7 @@
 
 /* Collaborating Class Header */
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
 
 /* C++ Headers */
 #include <iostream>
@@ -47,12 +48,24 @@ std::vector<const GeomDet*> DTChamber::components() const {
   return  std::vector<const GeomDet*>(theSLs.begin(), theSLs.end());
 }
 
+
+const GeomDet* DTChamber::component(DetId id) const {
+  DTLayerId lId(id.rawId());
+  if (lId.layer()==0) { // is a SL id
+    return superLayer(lId);
+  } else { // is a layer id
+    return layer(lId);
+  }
+}
+
+
 const std::vector<const DTSuperLayer*>& DTChamber::superLayers() const {
   return theSLs;
 }
 
 
 const DTSuperLayer* DTChamber::superLayer(DTSuperLayerId id) const{
+  if (id.chamberId()!=theId) return 0; // not in this SL!
   return superLayer(id.superLayer());
 }
 

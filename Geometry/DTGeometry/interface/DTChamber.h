@@ -10,8 +10,8 @@
  *  The chamber is composed by 2 or three DTSuperLayer, which in turn are 
  *  composed by four DTLayer each.
  *
- *  $Date: 2006/05/31 17:13:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/22 14:40:11 $
+ *  $Revision: 1.4 $
  *  \author S. Lacaprara, N. Amapane
  */
 
@@ -46,6 +46,9 @@ class DTChamber : public GeomDet {
 
     /// Return the superlayers in the chamber
     virtual std::vector< const GeomDet*> components() const;
+
+    /// Return the sub-component (SL or layer) with a given id in this chamber
+    virtual const GeomDet* component(DetId id) const;
 
     /// Return the superlayers in the chamber
     const std::vector< const DTSuperLayer*>& superLayers() const;

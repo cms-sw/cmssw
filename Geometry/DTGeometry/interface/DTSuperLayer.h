@@ -8,7 +8,7 @@
  *  A superlayer is composed by 4 staggered DTLayer s.
  *
  *  $date   : 13/01/2006 11:47:03 CET $
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -53,6 +53,9 @@ class DTSuperLayer : public GeomDet {
 
     /// Return the layers in the SL
     virtual std::vector< const GeomDet*> components() const;
+
+    /// Return the layer with a given id in this SL
+    virtual const GeomDet* component(DetId id) const;
 
     /// Return the layers in the SL
     const std::vector< const DTLayer*>& layers() const;

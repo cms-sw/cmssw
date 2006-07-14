@@ -1,7 +1,7 @@
 /** \file 
  *  
  *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -50,6 +50,12 @@ std::vector< const GeomDet*> DTSuperLayer::components() const {
   return std::vector<const GeomDet*>(theLayers.begin(), theLayers.end());
 }
 
+
+const GeomDet* DTSuperLayer::component(DetId id) const {
+  return layer(DTLayerId(id.rawId()));
+}
+
+
 const std::vector< const DTLayer*>& DTSuperLayer::layers() const {
   return theLayers;
 }
@@ -64,6 +70,7 @@ const DTChamber* DTSuperLayer::chamber() const {
 }
 
 const DTLayer* DTSuperLayer::layer(DTLayerId id) const {
+  if (id.superlayerId()!=theId) return 0; // not in this SL!
   return layer(id.layer());
 }
   
