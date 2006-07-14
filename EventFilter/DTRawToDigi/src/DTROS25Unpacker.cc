@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/14 09:22:55 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/06/25 15:31:39 $
+ *  $Revision: 1.19 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -27,7 +27,6 @@ using namespace std;
 using namespace edm;
 
 
-// FIXME: SC words processing is missing!!
 
 
 DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
@@ -191,7 +190,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      else if (debug) cout<<"[DTROS25Unpacker] Missing wire!"<<endl;
 	    }
                 
-          } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
+          } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer ||
+		    DTROSWordType(word).type() != DTROSWordType::ROSError);
           
           // Check ROB Trailer (condition already verified)
           if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
