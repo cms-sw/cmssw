@@ -20,6 +20,7 @@ public:
 			       RefCountedVertexTrack t) const = 0;
 
   virtual VertexTrackUpdator * clone() const = 0;
+  virtual ~VertexTrackUpdator() {};
 
 };
 

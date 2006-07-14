@@ -1,7 +1,6 @@
 #ifndef _VertexReconstructor_H_
 #define _VertexReconstructor_H_
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include <vector>
