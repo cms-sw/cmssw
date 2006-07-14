@@ -6,7 +6,7 @@ BasicSingleVertexState::BasicSingleVertexState()
     theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
     theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
     theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    theWeightInMix(0.), isValid(false)
+    isValid(false), theWeightInMix(0.)
 {}
 
 
@@ -17,7 +17,7 @@ BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
     theErr(posErr), theErrAvailable(true),
     theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
     theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    theWeightInMix(weightInMix), isValid(true)
+    isValid(true), theWeightInMix(weightInMix)
 {}
 
 
@@ -28,7 +28,7 @@ BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
     theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
     theWeight(posWeight), theWeightAvailable(true),
     theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
-    theWeightInMix(weightInMix), isValid(true)
+    isValid(true), theWeightInMix(weightInMix)
 {}
 
 
@@ -39,7 +39,7 @@ BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector & weightTim
     theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
     theWeight(posWeight), theWeightAvailable(true),
     theWeightTimesPos(weightTimesPosition), theWeightTimesPosAvailable(true),
-    theWeightInMix(weightInMix), isValid(true)
+    isValid(true), theWeightInMix(weightInMix)
 {//cout <<"BasicSingleVertexState ctor\n";
 }
 
