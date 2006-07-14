@@ -4,6 +4,7 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackVertexMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -25,12 +26,15 @@ string MessageCategory = "TrackingTruthProducer";
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexCollection>();
   produces<TrackingParticleCollection>();
+  produces<TrackVertexAssociationCollection>();
+  produces<VertexTrackAssociationCollection>();
   conf_ = conf;
   distanceCut_      = conf_.getParameter<double>("vertexDistanceCut");
   dataLabels_       = conf_.getParameter<vector<string> >("HepMCDataLabels");
   volumeRadius_     = conf_.getParameter<double>("volumeRadius");   
   volumeZ_          = conf_.getParameter<double>("volumeZ");   
   discardOutVolume_ = conf_.getParameter<bool>("discardOutVolume");     
+  edm::LogInfo (MessageCategory) << "Setting up TrackingTruthProducer";
   edm::LogInfo (MessageCategory) << "Vertex distance cut set to " << distanceCut_  << " mm";
   edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
   edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
@@ -52,6 +56,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }    
   }
   const edm::HepMCProduct *mcp = hepMC.product();
+  
+  auto_ptr<TrackVertexAssociationCollection> trackVertexMap(new TrackVertexAssociationCollection);
+  auto_ptr<VertexTrackAssociationCollection> vertexTrackMap(new VertexTrackAssociationCollection);
   
   
   edm::Handle<SimVertexContainer>      G4VtxContainer;
@@ -80,6 +87,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   std::map<int,int> productionVertex;
+  std::multimap<int,int> tmpTrackVertexMap;
   int iG4Track = 0;
   for (edm::SimTrackContainer::const_iterator itP = G4TrkContainer->begin();
        itP !=  G4TrkContainer->end(); ++itP){
@@ -116,7 +124,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Put TrackingParticles in event and get handle to access them    
   
   edm::OrphanHandle<TrackingParticleCollection> tpcHandle = event.put(tPC);
-  TrackingParticleCollection trackCollection = *tpcHandle;
+//  TrackingParticleCollection trackCollection = *tpcHandle;
        
 // Find and loop over EmbdSimVertex vertices
     
@@ -184,6 +192,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          ++mapIndex) {
       if (mapIndex -> second == index) {
         (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
+        tmpTrackVertexMap.insert(pair<int,int>(mapIndex -> first,tVC->size()-1));
       }
     }
          
@@ -204,9 +213,22 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     ++index;  
   }        
   
-// Put new info into event record  
+// Put TrackingVertices in event and get handle to access them    
   
-  event.put(tVC);
+  edm::OrphanHandle<TrackingVertexCollection> tvcHandle = event.put(tVC);
+//  TrackingVertexCollection vertexCollection = *tvcHandle;
+  
+  for (multimap<int,int>::const_iterator a = tmpTrackVertexMap.begin();
+      a !=   tmpTrackVertexMap.end(); ++a) {
+        
+    (*trackVertexMap).insert(TrackingParticleRef(tpcHandle,a -> first),
+                          TrackingVertexRef(tvcHandle,a -> second));
+    (*vertexTrackMap).insert(TrackingVertexRef(tvcHandle,a -> second),
+                             TrackingParticleRef(tpcHandle,a -> first));
+  }
+  
+  event.put(trackVertexMap); 
+  event.put(vertexTrackMap); 
 }
   
 DEFINE_FWK_MODULE(TrackingTruthProducer)
