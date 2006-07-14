@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.2 2006/05/11 21:00:43 mansj Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.3 2006/05/18 20:49:01 mansj Exp $
 //
 //
 
@@ -59,6 +59,7 @@ CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
    prod->useStandardHB(true);
    prod->useStandardHE(true);
    prod->useStandardHF(true);
+   prod->useStandardHO(true);
    prod->useStandardEB(true);
 
    if (!mapFile_.empty()) {

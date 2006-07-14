@@ -8,6 +8,7 @@ CaloTowerConstituentsMap::CaloTowerConstituentsMap() :
   standardHB_(false),
   standardHE_(false),
   standardHF_(false),
+  standardHO_(false),
   standardEB_(false)
 {
 }
@@ -23,6 +24,7 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
       HcalDetId hid(id);
       if (hid.subdet()==HcalBarrel && standardHB_ ||
 	  hid.subdet()==HcalEndcap && standardHE_ ||
+	  hid.subdet()==HcalOuter && standardHO_ ||
 	  hid.subdet()==HcalForward && standardHF_) {
 	if (hid.subdet()==HcalForward && hid.ietaAbs()==29)  // special handling for tower 29
 	  tid=CaloTowerDetId(30*hid.zside(),hid.iphi());
@@ -71,6 +73,9 @@ void CaloTowerConstituentsMap::useStandardHB(bool use) {
 }
 void CaloTowerConstituentsMap::useStandardHE(bool use) {
   standardHE_=use;
+}
+void CaloTowerConstituentsMap::useStandardHO(bool use) {
+  standardHO_=use;
 }
 void CaloTowerConstituentsMap::useStandardHF(bool use) {
   standardHF_=use;

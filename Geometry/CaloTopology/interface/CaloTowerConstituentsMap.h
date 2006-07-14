@@ -8,8 +8,8 @@
 
 /** \class CaloTowerConstituentsMap
   *  
-  * $Date: 2005/10/06 00:42:49 $
-  * $Revision: 1.2 $
+  * $Date: 2006/05/11 20:44:48 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerConstituentsMap {
@@ -32,6 +32,8 @@ public:
   void useStandardHB(bool use=true);
   /// add standard (hardcoded) HE items?
   void useStandardHE(bool use=true);
+  /// add standard (hardcoded) HO items?
+  void useStandardHO(bool use=true);
   /// add standard (hardcoded) HF items?
   void useStandardHF(bool use=true);
   /// add standard (hardcoded) EB items?
@@ -41,6 +43,7 @@ private:
   bool standardHB_;
   bool standardHE_;
   bool standardHF_;
+  bool standardHO_;
   bool standardEB_;
 
   struct MapItem {
