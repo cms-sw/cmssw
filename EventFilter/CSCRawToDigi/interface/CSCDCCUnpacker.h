@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2006/04/07 10:21:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/06 16:15:45 $
+ *  $Revision: 1.10 $
  * \author Alex Tumanov 
  */
 
@@ -34,7 +34,7 @@ class CSCDCCUnpacker: public edm::EDProducer {
 
   bool debug, PrintEventNumber, goodEvent, useExaminer; 
   int numOfEvents;
-  unsigned int errorMask;
+  unsigned int errorMask, examinerMask;
   CSCReadoutMappingFromFile theMapping;
   bool instatiateDQM;
   CSCMonitorInterface * monitor;

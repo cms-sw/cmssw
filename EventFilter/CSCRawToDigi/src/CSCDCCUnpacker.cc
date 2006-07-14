@@ -58,6 +58,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
 								  "csc_slice_test_map.txt");
   
   useExaminer = pset.getUntrackedParameter<bool>("UseExaminer", true);
+  examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
 					       
@@ -141,13 +142,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       goodEvent = true;
       if (useExaminer) {///examine event for integrity
 	CSCDCCExaminer examiner;
+	if( examinerMask&0x40000 ) examiner.crcCFEB(1);
+	if( examinerMask&0x8000  ) examiner.crcTMB (1);
+	if( examinerMask&0x0400  ) examiner.crcALCT(1);
 	examiner.output1().hide();
 	examiner.output2().hide();
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 	if( examiner.check(data,long(fedData.size()/2)) != -1 ){
 	  goodEvent=false;
 	} else {
-	  goodEvent=!(examiner.errors()&0xFB33F8);
+	  goodEvent=!(examiner.errors()&examinerMask);
 	}
       }
       

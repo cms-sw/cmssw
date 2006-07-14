@@ -227,6 +227,13 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 				return length+12;
 			}
 			fDCC_Header  = true;
+			bzero(fERROR,   sizeof(bool)*nERRORS);
+			bzero(fWARNING, sizeof(bool)*nWARNINGS);
+			bERROR = 0; bWARNING = 0;
+			for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
+			for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
+			bCHAMB_ERR.clear();
+			bCHAMB_WRN.clear();
 		}
 
 		// == Check for Format Control Words, set proper flags, perform self-consistency checks
@@ -297,13 +304,13 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			}
 
 			// Reset all Error and Warning flags to be false
-			bzero(fERROR,   sizeof(bool)*nERRORS);
-			bzero(fWARNING, sizeof(bool)*nWARNINGS);
-			bERROR = 0; bWARNING = 0;
-			for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
-			for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
-			bCHAMB_ERR.clear();
-			bCHAMB_WRN.clear();
+			///bzero(fERROR,   sizeof(bool)*nERRORS);
+			///bzero(fWARNING, sizeof(bool)*nWARNINGS);
+			///bERROR = 0; bWARNING = 0;
+			///for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
+			///for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
+			///bCHAMB_ERR.clear();
+			///bCHAMB_WRN.clear();
 			currentChamber = -1; // Unknown yet
 
 			if( fDDU_Trailer && DDU_WordsSinceLastTrailer != 4 ){
