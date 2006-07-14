@@ -30,8 +30,11 @@ ElectronProducer::ElectronProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
  
 
-  scProducer_       = conf_.getParameter<std::string>("scProducer");
-  scCollection_     = conf_.getParameter<std::string>("scCollection");
+  scBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
+  scEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
+
+  scBarrelCollection_     = conf_.getParameter<std::string>("scBarrelCollection");
+  scEndcapCollection_     = conf_.getParameter<std::string>("scEndcapCollection");
   ElectronCollection_ = conf_.getParameter<std::string>("electronCollection");
 
   // Register the product
@@ -42,7 +45,6 @@ ElectronProducer::ElectronProducer(const edm::ParameterSet& config) :
 }
 
 ElectronProducer::~ElectronProducer() {
-
 
 }
 
@@ -61,7 +63,7 @@ void ElectronProducer::produce(edm::Event& theEvent, const edm::EventSetup& theE
 
   using namespace edm;
 
-  edm::LogInfo("ElectronProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  edm::LogInfo("ElectronProducer") << "Producing event number: " << theEvent.id() << "\n";
 
 
   //
@@ -70,34 +72,64 @@ void ElectronProducer::produce(edm::Event& theEvent, const edm::EventSetup& theE
 
   reco::ElectronCollection outputElectronCollection;
   std::auto_ptr< reco::ElectronCollection > outputElectronCollection_p(new reco::ElectronCollection);
+  std::cout << " Created empty ElectronCollection size " <<   std::endl;
 
 
 
 
-
-  // Get the Super Cluster collection
-  Handle<reco::SuperClusterCollection> scHandle;
+  // Get the  Barrel Super Cluster collection
+  Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
-    theEvent.getByLabel(scProducer_,scCollection_,scHandle);
+    theEvent.getByLabel(scBarrelProducer_,scBarrelCollection_,scBarrelHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("ElectronProducer") << "Error! can't get the SC " << scCollection_.c_str() ;
+    LogError("ElectronProducer") << "Error! can't get the SC in the barrel " << scBarrelCollection_.c_str() ;
   } 
- 
-  reco::SuperClusterCollection scCollection = *(scHandle.product());
- 
+  std::cout << " Trying to access barrel SC collection from my Producer " << std::endl;
+  reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
+  std::cout << " barrel SC collection size  " << scBarrelCollection.size() << std::endl;
+
+ // Get the  Endcap Super Cluster collection
+  Handle<reco::SuperClusterCollection> scEndcapHandle;
+  try{  
+    theEvent.getByLabel(scEndcapProducer_,scEndcapCollection_,scEndcapHandle);
+  } catch ( cms::Exception& ex ) {
+    LogError("ElectronProducer") << "Error! can't get the SC in the endcap " << scEndcapCollection_.c_str() ;
+  } 
+  std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
+  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
+  std::cout << " endcap SC collection size  " << scEndcapCollection.size() << std::endl;
 
 
-  //  Loop over SC and fill the  photon collection
+
+  //  Loop over barrel SC and fill the  photon collection
   int iSC=0;
   reco::SuperClusterCollection::iterator aClus;
-  for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
+  for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
     const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
     reco::Electron newCandidate(0, p4, vtx);
 
     outputElectronCollection.push_back(newCandidate);
-    reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, iSC));
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
+    outputElectronCollection[iSC].setSuperCluster(scRef);
+
+    iSC++;      
+
+      
+  }
+  
+
+
+  //  Loop over Endcap SC and fill the  photon collection
+  for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
+
+    const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
+    const reco::Particle::Point  vtx( 0, 0, 0 );
+    reco::Electron newCandidate(0, p4, vtx);
+
+    outputElectronCollection.push_back(newCandidate);
+    reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, iSC));
     outputElectronCollection[iSC].setSuperCluster(scRef);
 
     iSC++;      
