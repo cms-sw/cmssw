@@ -148,8 +148,7 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
            ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
            LinkBoardSpec lb(master, idlb, chamber);
            for (int ifeb=0; ifeb <= 5; ifeb++) {
-             int connector=0;
-             FebSpec feb(ifeb,connector,"F",2,"F",2);
+             FebSpec feb(ifeb,"F",2,"F",2);
              for (int istrip=0; istrip <= 15; istrip++) {
                int chamberStrip = ifeb*16+istrip;
                int cmsStrip = chamberStrip;

@@ -16,11 +16,9 @@ class FebSpec {
 public:
   /// ctor with ID only
   FebSpec(int num=-1, 
-      int connectorNum=-1, // not used?
       std::string   cmsRoll = "", int posInCmsRoll = 0,
       std::string localRoll = "", int posInLocalRoll =0) 
     : theLinkBoardInputNum(num), 
-      theConnectorNum(connectorNum),
       theFebCmsEtaPartition(cmsRoll),
       theFebPositionInCmsEtaPartition(posInCmsRoll),
       theFebLocalEtaPartition(localRoll), 
@@ -63,7 +61,6 @@ public:
 private:
 
   int theLinkBoardInputNum;
-  int theConnectorNum;
   std::string theFebCmsEtaPartition;
   int theFebPositionInCmsEtaPartition;
   std::string theFebLocalEtaPartition;
