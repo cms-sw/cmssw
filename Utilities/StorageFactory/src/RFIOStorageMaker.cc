@@ -17,26 +17,32 @@
 
 namespace {
 
-std::string normalizeURL(const std::string &path) {
+  /* cope with new RFIO TURL stile
+   * try to correct most obvious mispelling (//////) 
+   * try to cope with /castor syntax too
+   */
+  std::string normalizeURL(const std::string &path) {
     std::string ret;
     // look for options
     size_t p = path.find("?");
     if (p==std::string::npos)
-        // old syntax
-	p=0;
+      // old syntax
+      p=0;
     else {
-         // new syntax, normalize host...
-        ret = path.substr(0,p);
-        size_t h = ret.find_first_not_of('/');
-        size_t s = ret.find_last_not_of('/');
-        ret.resize(s+1);
-	ret.replace(0,h,"rfio://");
-        ret+='/';
-     }
-     return ret+path.substr(p);
+      // new syntax, normalize host...
+      ret = path.substr(0,p);
+      //get the host (if any)
+      size_t h = ret.find_first_not_of('/');
+      size_t s = ret.find_last_not_of('/');
+      ret.resize(s+1);
+      ret.replace(0,h,"rfio://");
+      ret+='/';
+    }
+    return ret+path.substr(p);
+  }
+  
 }
 
-}
 
 seal::Storage *
 RFIOStorageMaker::open (const std::string & /* proto */,
