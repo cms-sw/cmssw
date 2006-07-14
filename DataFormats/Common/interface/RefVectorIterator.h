@@ -6,7 +6,7 @@
 RefVectorIterator: An iterator for a RefVector
 
 
-$Id: RefVectorIterator.h,v 1.3 2006/04/30 18:55:30 wmtan Exp $
+$Id: RefVectorIterator.h,v 1.4 2006/06/14 23:42:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,7 +39,7 @@ namespace edm {
     }
     std::auto_ptr<Ref<C, T, F> > operator->() const {
       RefItem<key_type> const& item = *iter_;
-      return std::auto_ptr<Ref<C, T, F> >(new T(product_, item));
+      return std::auto_ptr<Ref<C, T, F> >(new Ref<C,T,F>(product_, item));
     }
     iterator & operator++() {++iter_; return *this;}
     iterator & operator--() {--iter_; return *this;}
