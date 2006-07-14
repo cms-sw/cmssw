@@ -50,3 +50,10 @@ rfio/construct=4/4/0MB/0.0342557ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/20
 time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap 
 rfio/construct=2/2/0MB/0.028498ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/101221ms; rfio/write=2098/2098/2000MB/42890.3ms
 1.650u 6.430s 1:42.24 7.9%      0+0k 0+0io 1139pf+0w
+
+
+using read_64_v3
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+stats:
+rfio/construct=2/2/0MB/0.0272403ms; rfio/position=0/0/0MB/0ms; rfio/read=2099/2099/2000MB/92633.9ms; rfio/write=2098/2098/2000MB/38725.9ms
+0.440u 8.040s 1:33.38 9.0%      0+0k 0+0io 1140pf+0w

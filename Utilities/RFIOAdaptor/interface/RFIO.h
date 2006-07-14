@@ -3,6 +3,13 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+/*
+#include <shift.h>
+# define RFIO_READOPT 1
+inline int   rfio_close64(int s) { return  rfio_close(s);}
+*/
+
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -13,13 +20,20 @@
 //<<<<<< PUBLIC VARIABLES                                               >>>>>>
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 
+
+
 extern "C" {
+    int   rfio_open64_v3(const char *filepath, int flags, int mode);
+  //    int   rfio_close64_v3(int s);
+  //  int   rfio_read64_v3(int s, void *ptr, int size);
+  //  int   rfio_write64_v3(int s, const void *ptr, int size);
+
     int   rfio_open64(const char *filepath, int flags, int mode);
     int   rfio_close(int s);
     int   rfio_close64(int s) { return  rfio_close(s);}
     int   rfio_read64(int s, void *ptr, int size);
     int   rfio_write64(int s, const void *ptr, int size);
-    int   rfio_lseek64(int s, __off64_t  offset, int how);
+    int   rfio_lseek64(int s, off64_t  offset, int how);
     int   rfio_access(const char *filepath, int mode);
     int   rfio_unlink(const char *filepath);
     int   rfio_parse(const char *name, char **host, char **path);

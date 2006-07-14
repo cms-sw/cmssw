@@ -2,8 +2,8 @@
 <export>
  <lib name=UtilitiesRFIOAdaptor>
  <use name=Foundation/SealBase>
- <use name=rfio>
+ <use name=castor>
 </export>
 
 <use name=Foundation/SealBase>
-<use name=rfio>
+<use name=castor>
