@@ -13,7 +13,9 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/RPCRecHit>
-
+<use name=RecoLocalMuon/DTSegment>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryState>
 <export>
 <lib name=DQMRPCMonitorDigi>
 <use name=FWCore/Framework>
@@ -30,5 +32,8 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/RPCRecHit>
+<use name=RecoLocalMuon/DTSegment>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryState>
 </export>
 
