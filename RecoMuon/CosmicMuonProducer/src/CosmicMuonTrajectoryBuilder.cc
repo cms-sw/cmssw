@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/07/03 01:10:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/08 18:33:32 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -47,7 +47,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   edm::LogInfo ("CosmicMuonTrajectoryBuilder")<< "CosmicMuonTrajectoryBuilder begin";
   theMaxChi2 = par.getParameter<double>("MaxChi2");;
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
-  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, "DTSegment4DProducer","CSCSegmentProducer");
+  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, false, "DTSegment4DProducer","CSCSegmentProducer");
 
 
 }
@@ -58,7 +58,6 @@ CosmicMuonTrajectoryBuilder::~CosmicMuonTrajectoryBuilder() {
   delete theBestMeasurementFinder; 
   delete theEstimator;
 //  delete thePropagator;
-// @@CL: FIXME: why crashed if delete propagator?
 }
 
 void CosmicMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
@@ -91,21 +90,9 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetId did(ptsd1.detId());
   const BoundPlane& bp = theTrackingGeometry->idToDet(did)->surface();
   TrajectoryStateOnSurface lastTsos = tsTransform.transientState(ptsd1,&bp,&*theField);
-// use a larger error if it's in DT Chambers
-// and if only z or phi
-// since the direction does not contain enough information
-// FIXME 
-//  if ( (did.subdetId() == MuonSubdetId::DT) && (seed.nHits() ==1) ) {
-//    const TrackingRecHit* hit = &*(seed.recHits().first);
-//    const DTRecSegment4D * seg =dynamic_cast<const DTRecSegment4D*>(hit); 
-//    if (seg) {
-//      if (!(seg->hasZed()&&seg->hasPhi())) 
-//      lastTsos.rescaleError(10.0);
-//    }
-//  }
 
    vector<const DetLayer*> navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
-
+  edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"found "<<navLayerCBack.size()<<" compatible DetLayers for the Seed";
   if (navLayerCBack.size() == 0) {
     return std::vector<Trajectory>();
   }  
@@ -120,6 +107,8 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
      vector<TrajectoryMeasurement> measL =
         theLayerMeasurements->measurements(*rnxtlayer, lastTsos, *propagator(), *estimator());
+edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"measurements in DetLayer "<<measL.size();
+
      if (measL.size()==0 ) continue;
      TrajectoryMeasurement* theMeas=measFinder()->findBestMeasurement(measL);
      
@@ -129,6 +118,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             = updator()->update(theMeas, theTraj);
 
         if (result.first) {
+   edm::LogInfo("CosmicMuonTrajectoryBuilder")<< "update successfully";
           if((*rnxtlayer)->module()==dt) DTChamberUsedBack++;
           else if((*rnxtlayer)->module()==csc) CSCChamberUsedBack++;
           else if((*rnxtlayer)->module()==rpc) RPCChamberUsedBack++;
@@ -136,14 +126,15 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
           if ( !theTraj.empty() ) lastTsos = result.second;
           else lastTsos = theMeas->predictedState();
-        }//if result.first
-      }//if the meas
-  } //for layers
+        }
+      }
+  } 
 
-  if (theTraj.isValid() && TotalChamberUsedBack>=2 && (DTChamberUsedBack+CSCChamberUsedBack)>0){
-
+  if (theTraj.isValid() && TotalChamberUsedBack >= 2 && (DTChamberUsedBack+CSCChamberUsedBack) > 0){
      trajL.push_back(theTraj);
-    } //if traj valid
+    } 
+
+  edm::LogInfo ("CosmicMuonTrajectoryBuilder")<< "trajectories: "<<trajL.size();
 
   return trajL;
 }
