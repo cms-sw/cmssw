@@ -5,6 +5,7 @@
   <class name="InvalidTrackingRecHit"/>
   <class name="CLHEP::HepSymMatrix"/>
   <class name="RecHit2DLocalPos"/>
+  <class name="RecSegment4D"/>
   <class name="std::vector<TrackingRecHit*>"/>
   <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >"/>
   <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
