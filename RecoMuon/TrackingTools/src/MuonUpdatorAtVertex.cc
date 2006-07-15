@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/06/10 19:52:04 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/06/15 15:17:12 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -33,6 +33,7 @@
 #include "TrackingTools/PatternTools/interface/MediumProperties.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
+#include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -42,7 +43,7 @@
 
 MuonUpdatorAtVertex::MuonUpdatorAtVertex(const MagneticField* field) : 
          thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator(field)),
+         theExtrapolator(new TransverseImpactPointExtrapolator()),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
@@ -59,7 +60,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const GlobalPoint p, const GlobalError 
          theVertexPos(p),
          theVertexErr(e),
          thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator(field)),
+         theExtrapolator(new TransverseImpactPointExtrapolator()),
          theUpdator(new KFUpdator()),
          theEstimator(new Chi2MeasurementEstimator(150.))
 { }
@@ -89,16 +90,33 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
   }
   
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm
-  Cylinder surface = TrackerBounds::barrelBound(); //FIXME
+  Cylinder surface = TrackerBounds::barrelBound(); 
   FreeTrajectoryState* ftsOftsos =tsos.freeState();
-  std::pair<TrajectoryStateOnSurface, double> tsosAtTrackerPair =
+  std::pair<TrajectoryStateOnSurface, double> tsosAtBarrelTrackerPair =
   thePropagator->propagateWithPath(*ftsOftsos,surface);
     
-  if ( tsosAtTrackerPair.second == 0. ) {
+  Plane negDisk = TrackerBounds::negativeEndcapDisk();
+  std::pair<TrajectoryStateOnSurface, double> tsosAtNegTrackerPair =
+  thePropagator->propagateWithPath(*ftsOftsos,negDisk);
+
+  Plane posDisk = TrackerBounds::positiveEndcapDisk();
+  std::pair<TrajectoryStateOnSurface, double> tsosAtPosTrackerPair =
+  thePropagator->propagateWithPath(*ftsOftsos,posDisk);
+
+
+  if ( tsosAtBarrelTrackerPair.second == 0. && 
+       tsosAtBarrelTrackerPair.second == 0. &&
+       tsosAtBarrelTrackerPair.second == 0. ) {
     edm::LogInfo("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
     return MuonVertexMeasurement();
   }
-  TrajectoryStateOnSurface tsosAtTracker = tsosAtTrackerPair.first;
+  TrajectoryStateOnSurface tsosAtTracker;
+  if ( tsosAtNegTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtNegTrackerPair.first;
+  if ( tsosAtPosTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtPosTrackerPair.first;
+  if ( tsosAtBarrelTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtBarrelTrackerPair.first;
     
   // get state at outer tracker surface
   StateOnTrackerBound tracker(thePropagator);
@@ -108,8 +126,8 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
   TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(tsosAtTracker,theVertexPos);
 
   TrajectoryStateOnSurface vertexState;
-  double chi2 = 0.0;
   TrajectoryMeasurement vertexMeasurement;
+  double chi2 = 0.0;
   
   if ( ipState.isValid() ) {
 
@@ -138,16 +156,12 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
 
     vertexState = theUpdator->update(ipState, *recHit);
 
-    det.addRecHit(recHit);
-    std::vector<TrajectoryMeasurement> tm;// = det.measurements(vertexState,*theEstimator); //FIXME
-    if ( tm.empty() ) {
-      vertexMeasurement = TrajectoryMeasurement();
-    }
-    else {
-      vertexMeasurement = tm.front();
-    }  
+//    det.addRecHit(recHit);
+// measurements methods no longer exits for det
+    vertexMeasurement = TrajectoryMeasurement(ipState,vertexState,recHit,chi2);
 
   }
+
 
   return MuonVertexMeasurement(trackerState,ipState,vertexState,vertexMeasurement,chi2);
 
