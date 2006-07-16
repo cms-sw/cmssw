@@ -20,28 +20,47 @@ RPCClusterizer::doAction(const RPCDigiCollection::Range& digiRange){
     RPCCluster cl(digi->strip(),digi->strip(),digi->bx());
     cls.insert(cl);
   }
-  this->doActualAction(cls);
-  return cls;
+  RPCClusterContainer clsNew =this->doActualAction(cls);
+  return clsNew;
 }
 
-
-void RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
+RPCClusterContainer
+RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
   
   RPCClusterContainer finalCluster;
   RPCCluster prev;
 
+  int j = 0;
   for(RPCClusterContainer::const_iterator i=initialclusters.begin();
       i != initialclusters.end(); i++){
     RPCCluster cl = *i;
+
+    if(i==initialclusters.begin()){
+      prev = cl;
+      j++;
+      if(j == initialclusters.size()){
+	finalCluster.insert(prev);
+      }
+      else if(j < initialclusters.size()){
+	continue;
+      }
+    }
+
     if(prev.isAdjacent(cl)) {
       prev.merge(cl);
+      j++;
+      if(j == initialclusters.size()){
+	finalCluster.insert(prev);
+      }
     }
-    else{
+    else {
       finalCluster.insert(prev);
-      prev == cl;
-      
+      prev = cl;
+      j++;
     }
   }
+
+  return finalCluster;
 } 
  
 

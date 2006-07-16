@@ -1,8 +1,8 @@
 #ifndef RecoLocalMuon_RPCClusterizer_h
 #define RecoLocalMuon_RPCClusterizer_h
 /** \class RPCClusterizer
- *  $Date: 2006/05/30 09:26:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/01 22:27:09 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -17,7 +17,7 @@ class RPCClusterizer{
   RPCClusterContainer doAction(const RPCDigiCollection::Range& digiRange);
 
  private:
-  void doActualAction(RPCClusterContainer& initialclusters);
+  RPCClusterContainer doActualAction(RPCClusterContainer& initialclusters);
 
  private:
   RPCClusterContainer cls;

@@ -1,4 +1,8 @@
 #include "RPCCluster.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 RPCCluster::RPCCluster() : fstrip(0), lstrip(0), bunchx(0)
 {
@@ -28,7 +32,7 @@ RPCCluster::lastStrip() const
 int
 RPCCluster::clusterSize() const
 {
-  return lstrip-fstrip+1;
+  return -(fstrip-lstrip)+1;
 }
 
 int
@@ -39,17 +43,16 @@ RPCCluster::bx() const
 
 bool RPCCluster::isAdjacent(const RPCCluster& cl) const{
   
-  return ((cl.firstStrip() == this->lastStrip()+1) &&
-	  (cl.bx() == this->bx()));
-  
+    return ((cl.firstStrip() == this->firstStrip()-1) &&
+	    (cl.bx() == this->bx()));
 }
 
 void RPCCluster::merge(const RPCCluster& cl){
   
-  if(this->isAdjacent(cl))
-    { 
-      lstrip = lastStrip();      
-    }
+   if(this->isAdjacent(cl))
+     { 
+       fstrip = cl.firstStrip();  
+     }
 }
 
 bool RPCCluster::operator<(const RPCCluster& cl) const{

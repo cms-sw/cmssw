@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 08:29:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/16 10:13:32 $
+ *  $Revision: 1.4 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -35,8 +35,6 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
 
   RPCClusterizer clizer;
   RPCClusterContainer cls = clizer.doAction(digiRange);
-
-
 
   for (RPCClusterContainer::const_iterator cl = cls.begin();
        cl != cls.end(); cl++){
