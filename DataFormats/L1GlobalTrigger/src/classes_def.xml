@@ -1,0 +1,6 @@
+<lcgdict>
+  
+  <class name="L1GlobalTriggerReadoutRecord"/>
+  <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
+  
+</lcgdict>
