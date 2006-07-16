@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2006/05/22 10:20:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/13 16:36:23 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 
@@ -38,7 +38,6 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(Monitor
 	    		statement.second="green";
 	}
 
-			std::cout<<"In checkglobal"<<statement.first<<std::endl;
 	return statement;
 }
 
@@ -46,6 +45,7 @@ std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetai
 	
 	std::vector<std::string> allPathNames=this->fullPathNames(mui); 
 	detailedWarnings.clear();
+
 	this->processAlarms(allPathNames,mui);	
 	return detailedWarnings;
 } 
@@ -53,48 +53,45 @@ std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetai
 		
 void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, MonitorUserInterface * mui){	
   
-for(std::vector<std::string>::iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
+ for(std::vector<std::string>::iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
         
-        MonitorElement * me=0;
-        std::string colour;
-        char text[128];	
-
-	
+        MonitorElement * me=0;	
         me= mui->get(*fullMePath);
-	std::vector<QReport *> report;
 
 	if(me){
+		std::vector<QReport *> report;
+        	std::string colour;
+
 		if (me->hasError()){
 			colour="red";
 			report= me->getQErrors();
-			std::cout<<"ME: "  <<(*fullMePath) <<" has "<<report.size()<<" errors: "<<std::endl;
  		 } 
  		 if( me->hasWarning()){ 
  			 colour="orange";
  			 report= me->getQWarnings();
-			 std::cout<<"ME: "  <<(*fullMePath) <<" has "<< report.size() <<" warnings: "<<std::endl;
  		 }
  		 if(me->hasOtherReport()){
- 			 colour="black";
+			 colour="black";
  			 report= me->getQOthers();
-			 std::cout <<"ME: "  <<(*fullMePath) <<" has "<< report.size()<<" messages: "<<std::endl;
  		 }
- 		 for(std::vector<QReport *>::iterator itr=report.begin(); itr!=report.end();++itr ){
- 			 sprintf(text,"%s:%s",(*fullMePath).c_str(),((*itr)->getMessage()).c_str());
- 			 
- 			 std::cout<<"MonitorElement "<<*fullMePath<<" has message: "<<(*itr)->getMessage()<<std::endl;
- 		 
+		 for(std::vector<QReport *>::iterator itr=report.begin(); itr!=report.end();++itr ){
+			 std::string text= (*fullMePath) + (*itr)->getMessage();
  			 std::vector<std::string> messageList;
+
  			 if( detailedWarnings.find(colour) == detailedWarnings.end()){
+
  				 messageList.push_back(text);
  				 detailedWarnings[colour]=messageList;
+
  			 }else{
+
  				 messageList=detailedWarnings[colour];
  				 messageList.push_back(text);
- 			 }	     
- 		 }	 
- 	 }
 
+ 			 }	
+ 		 }
+		 	 
+ 	 }
  }
 
 }
