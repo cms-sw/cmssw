@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/03 12:00:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/04 15:54:51 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  - Purdue University
  */
 
@@ -30,13 +30,13 @@ public:
   virtual ~GlobalMuonTrackMatcher() {};
 
   /// choose one that with smallest chi2
-  std::pair<bool, reco::TrackRef*> matchOne(const reco::TrackRef*, const edm::Handle<reco::TrackCollection>&) const;
+  std::pair<bool, reco::TrackRef> matchOne(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>&) const;
 
   /// choose all that has chi2 less than MaxChi2
-  std::vector<reco::TrackRef*> match(const reco::TrackRef*, const edm::Handle<reco::TrackCollection>&) const;
+  std::vector<reco::TrackRef> match(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>&) const;
 
   /// check if two tracks are match
-  std::pair<bool,double> match(const reco::TrackRef*, const reco::TrackRef*) const; 
+  std::pair<bool,double> match(const reco::Track&, const reco::Track&) const; 
 
   /// check if two TSOS are match
   std::pair<bool,double> match(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;

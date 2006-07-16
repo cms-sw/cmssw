@@ -3,8 +3,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/04 15:42:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/04 15:55:08 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -33,14 +33,14 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2, const MagneticField*
 /// choose the tk Track from a TrackCollection which has smallest Chi2 with
 //   a given standalone Track
 
-std::pair<bool, reco::TrackRef*> 
-GlobalMuonTrackMatcher::matchOne(const reco::TrackRef* staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
+std::pair<bool, reco::TrackRef> 
+GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
   bool hasMatchTk = false;
   reco::TrackRef* result = 0;
   double minChi2 = theMaxChi2;
-  for (int position = 0; position < int(tkTs->size()); position++) {
+  for (unsigned int position = 0; position < tkTs->size(); position++) {
     reco::TrackRef tkTRef(tkTs,position);
-    std::pair<bool,double> check = match(staT,&tkTRef);
+    std::pair<bool,double> check = match(*staT,*tkTRef);
     if (!check.first) continue;
     hasMatchTk = true;
     if (check.second < minChi2) { 
@@ -48,7 +48,7 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef* staT, const edm::Handle<r
       result = &tkTRef;
     }
   } 
-  return(std::pair<bool, reco::TrackRef*>(hasMatchTk, result));
+  return(std::pair<bool, reco::TrackRef>(hasMatchTk, *result));
 
 }
 
@@ -56,16 +56,16 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef* staT, const edm::Handle<r
 // choose a vector of tk Tracks from a TrackCollection that has Chi2 less than
 //    theMaxChi2, for a given standalone Track
 //
-std::vector<reco::TrackRef*>
-GlobalMuonTrackMatcher::match(const reco::TrackRef* staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
+std::vector<reco::TrackRef>
+GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
 
-  std::vector<reco::TrackRef*> result;
+  std::vector<reco::TrackRef> result;
 
-  for (int position = 0; position < int(tkTs->size()); position++) {
+  for (unsigned int position = 0; position < tkTs->size(); position++) {
     reco::TrackRef tkTRef(tkTs,position);
-    std::pair<bool,double> check = match(staT,&tkTRef);
+    std::pair<bool,double> check = match(*staT,*tkTRef);
     if (check.first) 
-      result.push_back(&tkTRef);
+      result.push_back(tkTRef);
   }
   return result;
 }
@@ -76,10 +76,10 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef* staT, const edm::Handle<reco
 // by comparing their TSOSs on the outer Tracker surface
 //
 std::pair<bool,double> 
-GlobalMuonTrackMatcher::match(const reco::TrackRef* staTR, const reco::TrackRef* tkTR) const {
+GlobalMuonTrackMatcher::match(const reco::Track& staTR, const reco::Track& tkTR) const {
 
-  reco::TransientTrack staTT(*staTR);  
-  reco::TransientTrack tkTT(*tkTR);
+  reco::TransientTrack staTT(staTR);  
+  reco::TransientTrack tkTT(tkTR);
 
   TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
   TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
