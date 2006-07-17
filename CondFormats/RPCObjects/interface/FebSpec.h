@@ -5,6 +5,7 @@
 #include <string>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 /** \class FebSpec 
  * RPC FEB specification for readout decoding
@@ -16,9 +17,11 @@ class FebSpec {
 public:
   /// ctor with ID only
   FebSpec(int num=-1, 
+      RPCReadOutMapping::ChamberLocationSepcReference chamberLocationRef = -1,
       std::string   cmsRoll = "", int posInCmsRoll = 0,
       std::string localRoll = "", int posInLocalRoll =0) 
     : theLinkBoardInputNum(num), 
+      theChamberSpecRef(chamberLocationRef),
       theFebCmsEtaPartition(cmsRoll),
       theFebPositionInCmsEtaPartition(posInCmsRoll),
       theFebLocalEtaPartition(localRoll), 
@@ -52,8 +55,11 @@ public:
     return theFebCmsEtaPartition;
   }
 
-  /// DetUnit in which Fed belongs to 
-  const uint32_t & rawId(const ChamberLocationSpec & location) const;  
+  /// reference to chamber
+  RPCReadOutMapping::ChamberLocationSepcReference 
+      chamberLocationSpecReference() const { 
+    return theChamberSpecRef;
+  } 
 
   /// debug printout
   void print(int depth) const;
@@ -61,6 +67,7 @@ public:
 private:
 
   int theLinkBoardInputNum;
+  RPCReadOutMapping::ChamberLocationSepcReference theChamberSpecRef; 
   std::string theFebCmsEtaPartition;
   int theFebPositionInCmsEtaPartition;
   std::string theFebLocalEtaPartition;

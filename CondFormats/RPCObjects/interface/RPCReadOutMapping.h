@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical RPC strips
  *
- *  $Date: 2006/06/30 06:21:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/02 00:08:55 $
+ *  $Revision: 1.4 $
  *  \author Marcello Maggi -- INFN Bari
  *
  */
@@ -26,6 +26,9 @@ class LinkBoardSpec;
 class RPCReadOutMapping {
 public:
 
+  typedef std::pair<uint32_t,int> StripInDetUnit;
+  typedef int ChamberLocationSepcReference;
+
   RPCReadOutMapping(const std::string & version = ""); 
 
   /// FED identified by ID
@@ -38,19 +41,27 @@ public:
   std::vector<const DccSpec*> dccList() const;
 
   /// conversion between electronic and detector indexing
-  std::pair< const LinkBoardSpec*, const ChamberLocationSpec* > location (const ChamberRawDataSpec & ele) const;  
+  const LinkBoardSpec* location (const ChamberRawDataSpec & ele) const;  
 
   /// attach FED to map
   void add(const DccSpec & dcc);
 
+  /// attach Chamber to map;
+  ChamberLocationSepcReference add(const ChamberLocationSpec & chamber);
   /// version as string
   const std::string & version() const { return theVersion; }
+
+  /// convert strip location as in raw data to detUnit frame
+  StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
+      int febInLB, int stripPinInFeb) const;
+  
 
 private:
    typedef std::map<int, DccSpec>::const_iterator IMAP;
    std::map<int, DccSpec> theFeds;
    std::string theVersion;
 
+   std::vector<ChamberLocationSpec> theChambers;
   
 };
 
