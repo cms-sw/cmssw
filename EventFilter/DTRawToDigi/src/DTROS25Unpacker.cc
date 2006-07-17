@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/25 15:31:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/07/14 16:30:41 $
+ *  $Revision: 1.20 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -189,9 +189,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      }
 	      else if (debug) cout<<"[DTROS25Unpacker] Missing wire!"<<endl;
 	    }
-                
-          } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer ||
-		    DTROSWordType(word).type() != DTROSWordType::ROSError);
+
+           } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer &&
+ 		    DTROSWordType(word).type() != DTROSWordType::ROSError);
           
           // Check ROB Trailer (condition already verified)
           if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
