@@ -1,9 +1,5 @@
-using namespace std; //necessary!
-
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
 
-
-namespace tpg {
 
   EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter()
 :inputsAlreadyIn_(0){
@@ -43,10 +39,10 @@ int EcalFenixAmplitudeFilter::setInput(int input)
 }
 
 
-  vector<int> EcalFenixAmplitudeFilter::process(vector<int> addout)
+  std::vector<int> EcalFenixAmplitudeFilter::process(std::vector<int> addout)
   {
   
-    vector<int> output;
+    std::vector<int> output;
     // test
     inputsAlreadyIn_=0;
     for (unsigned int i =0;i<5;i++) buffer_[i]=0;
@@ -80,8 +76,5 @@ int EcalFenixAmplitudeFilter::process()
   return output;
 }
 
-// global type definitions for class implementation in source file defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_source> <tag_value>;
 
-} /* End of namespace tpg */
 

@@ -2,8 +2,6 @@
 #define ECAL_V_FGVB_H
 #include <stdio.h>
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -20,7 +18,5 @@ class EcalVFgvb {
  public:
   virtual int process() =0;
   };
-
-} /* End of namespace tpg */
 
 #endif

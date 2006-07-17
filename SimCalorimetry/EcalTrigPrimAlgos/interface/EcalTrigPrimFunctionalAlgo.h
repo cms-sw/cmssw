@@ -14,6 +14,7 @@
 
  *
  ************************************************************/
+#include <sys/time.h>
 
 #include <vector>
 #include <map>
@@ -26,7 +27,7 @@ class EEDataFrame;
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
 class EcalTriggerPrimitiveSample;
-class EcalBarrelTopology;
+class CaloSubdetectorGeometry;
  
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
@@ -37,14 +38,10 @@ class EcalBarrelTopology;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class CaloSubdetectorGeometry;
-
-using namespace tpg; //FIXME
-
 /** Main Algo for Ecal trigger primitives. */
 class EcalTrigPrimFunctionalAlgo
 {  
-public:
+ public:
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
@@ -57,12 +54,9 @@ public:
   void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, int fgvbMinEn);
 
 
-private:
+ private:
 
-   void init(const edm::EventSetup & setup);
-
- //  vector<string> theBaseNames;
-
+  void init(const edm::EventSetup & setup);
 
   float threshold;
   
@@ -71,24 +65,24 @@ private:
   void fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame);
 
   // create stripnr
-  int createStripNr(const EBDetId& cryst);
+  //  int createStripNr(const EBDetId& cryst);
 
   int calculateTTF(const int en);
 
- //--------------------
+  //--------------------
 
 
-  typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EBDataFrame> >,std::less<EcalTrigTowerDetId> > SUMVB;
+  typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<const EBDataFrame * > >,std::less<EcalTrigTowerDetId> > SUMVB;
   //  typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<EEDataFrame> >,std::less<EcalTrigTowerDetId> > SUMVE;
 
   // typedef std::map<CellID,CaloTimeSample,less<CellID> > SUM;
   // temporary, waiting for pseudostrip geometry
   // SUMVE sumEndcap_;
   // this contains for each trigger tower, first the summed energies, then all EEDataFrames beloonging to this tower
-   typedef std::map<EcalTrigTowerDetId,std::vector<int> > SUMVE;
-   SUMVE sumEndcap_;
-   typedef std::map<EcalTrigTowerDetId,std::vector<EEDataFrame> > MAPE;
-   MAPE mapEndcap_;
+  typedef std::map<EcalTrigTowerDetId,std::vector<int> > SUMVE;
+  SUMVE sumEndcap_;
+  typedef std::map<EcalTrigTowerDetId,std::vector<EEDataFrame> > MAPE;
+  MAPE mapEndcap_;
 
   /** map of (coarse granularity) cell to the CaloTimeSample objects
       associated to this cell for the EcalBarrel. */
@@ -113,7 +107,6 @@ private:
 
   EcalBarrelFenixTcp ebtcp_;
 
-  EcalBarrelTopology* ebTopology_;
 
   //  EcalEndcapFenixTcp eetcp_;
 

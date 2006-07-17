@@ -5,38 +5,36 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include <vector>
 
-namespace tpg {
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
 
-  /** 
-   \class EcalFenixEtTot
+/** 
+    \class EcalFenixEtTot
 
-   \brief class for calculation of Et for Fenix tcp
-   *  calculates the sum
-   *  
-   *  input: 5x 12 bits (12 premiers bits du output bu by passlin ou alors on prend les 13 et dans la classe on selectionne les 12 premiers...a voir ) 
-   *  
-   *  output :12 bits
-   *  
-   *  in case of overflow, result is set to (12**2)-1
-   */
+    \brief class for calculation of Et for Fenix tcp
+    *  calculates the sum
+    *  
+    *  input: 5x 12 bits (12 first bits of output of passlin or take 13 bits and select the first 12 ones in the class...)
+    *  
+    *  output :12 bits
+    *  
+    *  in case of overflow, result is set to (12**2)-1
+    */
 class EcalFenixEtTot : public EcalVAdder {
 
 
  public:
   EcalFenixEtTot();
   virtual ~EcalFenixEtTot();
-  virtual std::vector<int> process(const std::vector<EBDataFrame> &); 
+  virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
     
-    std::vector<int> process(std::vector<std::vector <int> >);
+  std::vector<int> process(std::vector<std::vector <int> >);
 
-  private:
-    enum { SIZEMAX = 10}; 
-  };
+ private:
+  enum { SIZEMAX = 10}; 
+};
 
-} /* End of namespace tpg */
 
 #endif

@@ -1,8 +1,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixMaxof2.h>
 
 
-namespace tpg {
-
 // global type definitions for class implementation in source file defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_source> <tag_value>;
   EcalFenixMaxof2::EcalFenixMaxof2(){
@@ -39,5 +37,4 @@ namespace tpg {
     return output;
   }
 
-} /* End of namespace tpg */
 

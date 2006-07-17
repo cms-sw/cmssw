@@ -1,9 +1,6 @@
-using namespace std;
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 #include <iostream>
-
-namespace tpg {
 
   EcalBarrelFenixTcp::EcalBarrelFenixTcp() { 
     for (int i=0;i<nStripsPerTower_;i++) bypasslin_[i] = new EcalFenixBypassLin();
@@ -25,9 +22,9 @@ namespace tpg {
   { 
 
     //call bypasslin
-    vector< vector<int> >  bypasslin_out;
+    std::vector< std::vector<int> >  bypasslin_out;
     for (unsigned int istrip=0;istrip<tpframetow.size();istrip ++){
-      vector<int> stripin= tpframetow[istrip];
+      std::vector<int> stripin= tpframetow[istrip];
       for (unsigned int is=0;is<stripin.size();is++){
 	//	std::cout<<stripin[is]<<" ";
       }
@@ -46,7 +43,7 @@ namespace tpg {
     
     
     //call adder
-    vector<int> adder_out;
+    std::vector<int> adder_out;
     adder_out = this->getAdder()->process(bypasslin_out);
     //this is a test:
 //     std::cout<< "output of adder is a vector of size: "<<adder_out.size()<<endl; 
@@ -57,7 +54,7 @@ namespace tpg {
 //     std::cout<<endl;
 
     //call maxof2
-    vector<int> maxof2_out;
+    std::vector<int> maxof2_out;
     maxof2_out = this->getMaxOf2()->process(bypasslin_out);
      //this is a test:
 //     std::cout<< "output of maxof2 is a vector of size: "<<adder_out.size()<<endl; 
@@ -93,5 +90,4 @@ namespace tpg {
       
 
   }
-} /* End of namespace tpg */
 

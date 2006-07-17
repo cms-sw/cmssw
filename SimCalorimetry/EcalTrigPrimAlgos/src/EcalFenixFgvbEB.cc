@@ -1,8 +1,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixFgvbEB.h>
 
 
-namespace tpg {
-
   std::vector<int> EcalFenixFgvbEB::process( std::vector<int> add_out, std::vector<int> maxof2_out) {
 
     std::vector<int> output(add_out.size());
@@ -12,5 +10,4 @@ namespace tpg {
     return output;
   }
 
-} /* End of namespace tpg */
 

@@ -1,8 +1,5 @@
-using namespace std;
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormat.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-namespace tpg {
 
   EcalFenixStripFormat::EcalFenixStripFormat() {
     shift_=2; 
@@ -29,9 +26,9 @@ namespace tpg {
     return output;    
   } 
 
-  vector<int> EcalFenixStripFormat::process(vector<int> peakout, vector<int> filtout)
+  std::vector<int> EcalFenixStripFormat::process(std::vector<int> peakout, std::vector<int> filtout)
   {
-    vector<int> output;
+    std::vector<int> output;
     if  (peakout.size()!=filtout.size()){
       edm::LogWarning("")<<" problem in EcalFenixStripFormat: peak_out and filt_out don't have the same size";
     }
@@ -42,10 +39,4 @@ namespace tpg {
     }
     return output;
   }
-
-
-// global type definitions for class implementation in source file defined by Tag entries in ArgoUML
-// Result: typedef <typedef_global_source> <tag_value>;
-
-} /* End of namespace tpg */
 

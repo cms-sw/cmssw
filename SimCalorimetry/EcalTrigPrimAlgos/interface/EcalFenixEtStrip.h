@@ -5,8 +5,6 @@
 
 class EBDataFrame;
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -34,9 +32,7 @@ class EcalFenixEtStrip : public EcalVAdder {
  public:
   EcalFenixEtStrip();
   virtual ~EcalFenixEtStrip();
-  virtual std::vector<int> process(const std::vector<EBDataFrame> &); 
+  virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
   };
-
-} /* End of namespace tpg */
 
 #endif

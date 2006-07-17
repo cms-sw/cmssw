@@ -1,8 +1,5 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 
-
-namespace tpg {
-
   EcalFenixTcpFormat::EcalFenixTcpFormat() { 
 
   }
@@ -41,7 +38,6 @@ namespace tpg {
       
       out.push_back(EcalTriggerPrimitiveSample( Et[i],fgvb[i],ttFlag)); 
     }
-		    
   }
-} /* End of namespace tpg */
+
 

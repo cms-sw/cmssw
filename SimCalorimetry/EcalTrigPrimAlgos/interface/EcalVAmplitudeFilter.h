@@ -4,17 +4,14 @@
 #include <vector>
 
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
 class EcalVAmplitudeFilter {
   /* {src_lang=Cpp}*/
  public:
-  virtual vector<int> process(vector<int>) =0;
+  virtual std::vector<int> process(std::vector<int>) =0;
 };
 
-} /* End of namespace tpg */
 
 #endif

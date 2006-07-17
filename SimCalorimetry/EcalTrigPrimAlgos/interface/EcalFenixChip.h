@@ -17,10 +17,6 @@
 #include <stdio.h>
 #include <vector>
 
-using namespace std;
-
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
   /** 
@@ -33,28 +29,21 @@ class EcalFenixChip {
 
 
  public:
-  virtual void process(std::vector<EBDataFrame>,EcalTriggerPrimitiveSample) {;}  //version strip
-  virtual void process(std::vector<EcalTriggerPrimitiveSample>,EcalTriggerPrimitiveSample) {;};  //version tcp
+  //  virtual void process(std::vector<EBDataFrame> &,EcalTriggerPrimitiveSample&) {;}  //version strip
+  //  virtual void process(std::vector<EcalTriggerPrimitiveSample>&,EcalTriggerPrimitiveSample&) {;};  //version tcp
 
  protected:
   enum {nCrystalsPerStrip_ = 5};
   enum {nStripsPerTower_ = 5};
 
-  EcalVLinearizer *linearizer_[nCrystalsPerStrip_];
-  /* {transient=false, volatile=false}*/
+  //  EcalVLinearizer *linearizer_[nCrystalsPerStrip_];
 
   EcalVAdder *adder_;
-  /* {transient=false, volatile=false}*/
 
   EcalVFormatter *formatter_;
-  /* {transient=false, volatile=false}*/
 
   EcalVFgvb *fgvb_;
-  /* {transient=false, volatile=false}*/
-
 
 };
-
-} /* End of namespace tpg */
 
 #endif

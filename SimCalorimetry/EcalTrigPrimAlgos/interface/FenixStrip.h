@@ -15,9 +15,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormat.h>
 
-
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -59,7 +56,5 @@ class FenixStrip : FenixChip {
 
   EcalFenixEtStrip myEcalFenixEtStrip;
 };
-
-} /* End of namespace tpg */
 
 #endif

@@ -1,15 +1,10 @@
-using namespace std; // necessary!
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
-//#include "Calorimetry/EcalEndcap/interface/EcalEndcapBase.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <iostream>
 
-namespace tpg {
-
-  EcalFenixLinearizer::EcalFenixLinearizer(EcalBarrelTopology *top): ebTopol_(top)
+EcalFenixLinearizer::EcalFenixLinearizer()
 {
     //UB FIXME : should come from a database!!!
     //FILE * fin=fopen("../data/FenixStripPedMult.txt","r");
@@ -27,36 +22,44 @@ namespace tpg {
       }
 
     fclose(fin);
+}
+
+EcalFenixLinearizer::~EcalFenixLinearizer(){
+}
+
+
+void EcalFenixLinearizer::process(const EBDataFrame &df,int stripnr, EBDataFrame *dfout)
+{
+
+
+//We know a tower numbering is:
+// S1 S2 S3 S4 S5
+//
+// 4  5  14 15 24
+// 3  6  13 16 23
+// 2  7  12 17 22
+// 1  8  11 18 21
+// 0  9  10 19 20
+
+  int crystalNumberInStrip=((df.id()).ic()-1)%numberOfCrystalsInStrip;
+  if ((df.id()).ieta()<0) crystalNumberInStrip=numberOfCrystalsInStrip - crystalNumberInStrip - 1;
+
+  dfout->setSize(SIZEMAX);
+  for (int i=0;i<df.size();i++) {
+    setInput(df[i],stripnr, crystalNumberInStrip);
+    dfout->setSample(i,EcalMGPASample(process(),gainID_)); 
   }
+  return;
+}	 
 
-  EcalFenixLinearizer::~EcalFenixLinearizer(){
-  }
-
-
-  EBDataFrame EcalFenixLinearizer::process(EBDataFrame df,int stripnr)
-  {
-    // find correct crystal index
-    // why not coded in CellID?
-
-    int crystalNumberInStrip=findCrystalNumber(df.id());
-
-    EBDataFrame frame(df.id());
-    frame.setSize(SIZEMAX);
-    for (int i=0;i<df.size();i++) {
-      setInput(df[i],stripnr, crystalNumberInStrip);
-      frame.setSample(i,EcalMGPASample(process(),gainID_)); 
-    }
-    return frame;
-  }	 
-
-  int EcalFenixLinearizer::process()
-  {
-    int output=(uncorrectedSample_-base_); //Substract base
-    if(output<0) return 0;
-    output=(output*mult_)>>shift_;        //Apply multiplicative factor
-    if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
-    return output;
-  }
+int EcalFenixLinearizer::process()
+{
+  int output=(uncorrectedSample_-base_); //Substract base
+  if(output<0) return 0;
+  output=(output*mult_)>>shift_;        //Apply multiplicative factor
+  if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
+  return output;
+}
 
 int EcalFenixLinearizer::setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip)
 {
@@ -84,9 +87,9 @@ int EcalFenixLinearizer::getBase(int XtalNumberInStrip) const
 }
 int EcalFenixLinearizer::getMult() const
 {
- //Mult values from ??? config file 2004
- if(gainID_==2) return 0X60;
- else  return 0XFF;
+  //Mult values from ??? config file 2004
+  if(gainID_==2) return 0X60;
+  else  return 0XFF;
 }
 
 int EcalFenixLinearizer::getShift() const
@@ -99,32 +102,3 @@ int EcalFenixLinearizer::getShift() const
 
   return shift+2; //to be consistant with the Test-Beam Data
 }
-
-//We know a tower numbering is:
-       // S1 S2 S3 S4 S5
-       //
-       // 4  5  14 15 24
-       // 3  6  13 16 23
-       // 2  7  12 17 22
-       // 1  8  11 18 21
-       // 0  9  10 19 20
-
-
-  int EcalFenixLinearizer::findCrystalNumber(const EBDetId &id) {
-  // finds crystal number inside the same strip (0-4)
-
-    int crystnr = numberOfCrystalsInStrip;
-    EBDetId tmp=id;
-    EcalBarrelNavigator nav(tmp,ebTopol_);
-    unsigned int  towernumber = tmp.tower().rawId();
-    while ( towernumber==tmp.tower().rawId()) {
-      --crystnr;
-      tmp=nav.south();
-      if (tmp.null()) {
-	break; //no cell south of this one
-      }
-    }
-    return  crystnr;
-  }
-} //End of namespace tpg
-

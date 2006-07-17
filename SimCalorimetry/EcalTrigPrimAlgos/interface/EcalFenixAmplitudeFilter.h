@@ -7,8 +7,6 @@
 
 class EcalVAmplitudeFilter;
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -46,13 +44,11 @@ class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
  public:
   EcalFenixAmplitudeFilter();
   virtual ~EcalFenixAmplitudeFilter();
-  virtual vector<int> process(vector<int>);
+  virtual std::vector<int> process(std::vector<int>);
 
 
   //  virtual EvalAmplitude evalAmplitude(const CaloTimeSample&) const {return EvalAmplitude();}
   
 };
-
-} /* End of namespace tpg */
 
 #endif

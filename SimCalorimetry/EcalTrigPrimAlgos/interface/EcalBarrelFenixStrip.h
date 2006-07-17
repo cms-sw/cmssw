@@ -15,8 +15,6 @@ class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
 
-namespace tpg {
-
   /** 
       \class EcalBarrelFenixStrip
       \brief class representing the Fenix chip, format strip, for the barrel
@@ -25,6 +23,8 @@ namespace tpg {
   class EcalBarrelFenixStrip : public EcalFenixChip {
 
   private:
+
+    EcalFenixLinearizer *linearizer_[nCrystalsPerStrip_];
 
     EcalFenixAmplitudeFilter *amplitude_filter_; 
 
@@ -35,22 +35,20 @@ namespace tpg {
   public:
 
     // constructor, destructor
-    EcalBarrelFenixStrip(EcalBarrelTopology *top, const TTree *tree);
+    EcalBarrelFenixStrip(const TTree *tree);
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods
-    std::vector<int> process(std::vector<EBDataFrame>, int stripnr);
+    std::vector<int> process(std::vector<const EBDataFrame *> &, int stripnr);
 
     // getters for the algorithms
-    EcalFenixLinearizer *getLinearizer (int i) const { return dynamic_cast<EcalFenixLinearizer *>(linearizer_[i]);}
+    EcalFenixLinearizer *getLinearizer (int i) const { return linearizer_[i];}
     EcalFenixEtStrip *getAdder() const { return  dynamic_cast<EcalFenixEtStrip *>(adder_);}
     EcalFenixAmplitudeFilter *getFilter() const { return amplitude_filter_;}
     EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_;}
     EcalFenixStripFormat *getFormatter() const { return dynamic_cast<EcalFenixStripFormat *> (formatter_);}
 
   };
-
-} /* End of namespace tpg */
 
 #endif
 

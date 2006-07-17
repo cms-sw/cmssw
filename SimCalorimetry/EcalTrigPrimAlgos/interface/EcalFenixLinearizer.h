@@ -5,9 +5,6 @@
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 
 class EBDetId;
-class EcalBarrelTopology;
-
-namespace tpg {
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -50,27 +47,21 @@ namespace tpg {
     int shift_;
     int baseLine_[5][5][3]; //to be changed
     int strip_;
-    EcalBarrelTopology *ebTopol_;
-    //    int setInput(int RawSam, int stripNum, int XtalNumberInStrip);
     int setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip);
     int getBase(int XtalNumberInTower) const;
     int getMult() const;
     int getShift() const;
     int process() ;
-    //UB??    int findCrystalNumber(const CellID&);
-   int findCrystalNumber(const EBDetId&);
-
-
 
   public:
-    EcalFenixLinearizer(EcalBarrelTopology *);
+    //    EcalFenixLinearizer(EcalBarrelTopology *);
+    EcalFenixLinearizer();
     virtual ~EcalFenixLinearizer();
-    // future version:
-    virtual EBDataFrame process(EBDataFrame) {EBDataFrame df;return df;}
-    virtual EBDataFrame process(EBDataFrame,int stripnr); 
+
+    virtual EBDataFrame process(EBDataFrame&) {EBDataFrame df;return df;} //for base class
+    virtual void  process(const EBDataFrame &,int stripnr, EBDataFrame *out); 
 
   };
 
-} /* End of namespace tpg */
 
 #endif

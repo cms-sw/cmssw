@@ -3,8 +3,6 @@
 #include <vector>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -22,9 +20,7 @@ class EcalVAdder {
 
 
  public:
-  virtual std::vector<int> process(const std::vector<EBDataFrame> &) =0;
+  virtual std::vector<int> process(const std::vector<EBDataFrame *> &) =0;
   };
-
-} /* End of namespace tpg */
 
 #endif

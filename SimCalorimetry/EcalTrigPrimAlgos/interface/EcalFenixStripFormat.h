@@ -1,13 +1,11 @@
-using namespace std;
 #ifndef ECAL_FENIX_STRIP_FORMAT_H
 #define ECAL_FENIX_STRIP_FORMAT_H
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFormatter.h>
-#include <stdio.h>
+#include <vector>
 #include <iostream>
 
 class EcalVFormatter;
-namespace tpg {
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -36,12 +34,10 @@ class EcalFenixStripFormat : public EcalVFormatter {
  public:
   EcalFenixStripFormat();
   virtual ~EcalFenixStripFormat();
-  virtual vector<int> process(vector<int> , vector<int>);
+  virtual std::vector<int> process(std::vector<int> , std::vector<int>);
 
  
 };
 
-
-} /* End of namespace tpg */
 
 #endif

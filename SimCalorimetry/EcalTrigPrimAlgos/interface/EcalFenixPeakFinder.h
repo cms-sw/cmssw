@@ -2,11 +2,9 @@
 #define ECAL_FENIX_PEAKFINDER_H
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVPeakFinder.h>
-//#include <Calorimetry/CaloReadout/interface/CaloVShape.h>
-#include <stdio.h>
+#include <vector>
 
 class  EcalVPeakFinder;
-namespace tpg {
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -41,12 +39,10 @@ class EcalFenixPeakFinder : public EcalVPeakFinder
 /*   void setTpeak (double value){tpeak_=value;} */
   EcalFenixPeakFinder();
   virtual ~EcalFenixPeakFinder();
-  virtual vector<int> process(vector<int>);
+  virtual std::vector<int> process(std::vector<int>);
   // from CaloVShape
   virtual double operator()(double) const {return 0.;}
   virtual double derivative(double) const {return 0.;}
  };
-
-} /* End of namespace tpg */
 
 #endif

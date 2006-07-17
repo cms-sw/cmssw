@@ -3,10 +3,7 @@
 
 #include <Calorimetry/CaloDetector/interface/CaloBase.h>
 #include <Calorimetry/CaloDetector/interface/CellProperties.h>
-//class CaloBase;
-//class CellProperties;
 
-namespace tpg {
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -24,6 +21,5 @@ class EcalStripBase : public CaloBase {
   CellProperties myCellProperties;
 };
 
-} /* End of namespace tpg */
 
 #endif

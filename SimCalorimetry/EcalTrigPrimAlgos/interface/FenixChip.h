@@ -9,9 +9,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFormatter.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFormatter.h>
 
-
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -37,6 +34,5 @@ class FenixChip {
   /* {transient=false, volatile=false}*/
 };
 
-} /* End of namespace tpg */
 
 #endif

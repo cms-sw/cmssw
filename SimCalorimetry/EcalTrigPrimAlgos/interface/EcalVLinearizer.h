@@ -3,8 +3,6 @@
 #include <stdio.h>
 
 class EBDataFrame;
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -20,9 +18,8 @@ class EcalVLinearizer {
 
 
  public:
-  virtual EBDataFrame  process(EBDataFrame) =0;
+  virtual EBDataFrame  process(EBDataFrame &) =0; //FIXME: efficiency!
 }; 
 
-} /* End of namespace tpg */
 
 #endif

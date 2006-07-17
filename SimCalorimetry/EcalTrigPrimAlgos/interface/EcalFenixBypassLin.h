@@ -4,8 +4,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVLinearizer.h>
 #include <vector>
 
-namespace tpg {
-
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -25,10 +23,9 @@ class EcalFenixBypassLin : public EcalVLinearizer {
   EcalFenixBypassLin();
   virtual ~EcalFenixBypassLin();
 
-  virtual EBDataFrame process(EBDataFrame);  //UB FIXME: used???
+  virtual EBDataFrame process(EBDataFrame &); //FIXME: efficiency.. 
   std::vector<int> process(std::vector<int>);
   };
 
-} /* End of namespace tpg */
 
 #endif
