@@ -42,7 +42,7 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   
   myte->DrawTextNDC(0.2,0.7, value.c_str());
 
-  std::cout << "[OVAL]  PV = " << mypv <<" of "<< myoldHisto1->GetName() <<" distribution."<<std::endl;
+  std::cout << "[OVAL] " << myoldHisto1->GetName() << " PV= "<< mypv <<std::endl;
   return;
 
 }
