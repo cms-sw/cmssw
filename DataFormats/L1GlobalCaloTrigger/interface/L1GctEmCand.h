@@ -3,9 +3,6 @@
 
 #include <boost/cstdint.hpp>
 #include <ostream>
-#include <string>
-
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
 
 /*! \class L1GctEmCand
  * \brief Level-1 Trigger EM candidate at output of GCT
@@ -17,7 +14,7 @@
  */
 
 
-class L1GctEmCand : public L1TriggerObject {
+class L1GctEmCand {
 public:
 
   /// default constructor (for vector initialisation etc.)
@@ -27,32 +24,25 @@ public:
   L1GctEmCand(uint16_t data, bool iso);
 
   /// construct from rank, eta, phi, isolation
-  /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-  L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
+  L1GctEmCand(unsigned rank, int phi, int eta, bool iso);
 
-   /// destructor (virtual to prevent compiler warnings)
-  virtual ~L1GctEmCand();
-  
-  /// name of object - inherited from L1TriggerObject
-  std::string name() const;
-
-  /// was an object really found? - inherited from L1TriggerObject
-  bool empty() const;
-  
+   /// destructor
+ ~L1GctEmCand();
+ 
   /// get the raw data
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
   unsigned rank() const { return m_data & 0x3f; }
 
-  /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
+  /// get eta bits
+  int level1EtaIndex() const { return (m_data>>6) & 0x7; } // fix sign!
 
-  /// get eta sign (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const { return (m_data>>9) & 0x1; }
+  /// get eta sign
+  int level1EtaSign() const { return (m_data>>7) & 0x1; }
 
-  /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  /// get phi bits
+  int level1PhiIndex() const { return (m_data>>10) & 0x1f; }
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }

@@ -4,21 +4,23 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:26:04 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/06/12 13:38:07 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-class Propagator;
+// FIXME tmp here!!
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
+//class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
 class Trajectory;
-class MuonDetLayerMeasurements;
-class MeasurementEstimator;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -33,7 +35,7 @@ public:
   // Operations
   
   /// Perform the inner-outward fitting
-  void refit(const TrajectoryStateOnSurface& initialState, const DetLayer*, Trajectory& trajectory);
+  void refit(TrajectoryStateOnSurface& initialState, const DetLayer*, Trajectory& trajectory);
 
   /// the last free trajectory state
   FreeTrajectoryState lastUpdatedFTS() const {return *theLastUpdatedTSOS.freeTrajectoryState();}
@@ -82,6 +84,13 @@ private:
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);
 
+  /// I have to use this method since I have to cope with two propagation direction
+  void vectorLimits(std::vector<const DetLayer*> &vect,
+		    std::vector<const DetLayer*>::const_iterator &vector_begin,
+		    std::vector<const DetLayer*>::const_iterator &vector_end) const;
+  /// I have to use this method since I have to cope with two propagation direction
+  void incrementIterator(std::vector<const DetLayer*>::const_iterator &iter) const;
+
   /// Extract the Event Setup info at each event. It is called by setES
   virtual void init(const edm::EventSetup& setup);
   
@@ -91,14 +100,19 @@ private:
   TrajectoryStateOnSurface theLastButOneUpdatedTSOS;
 
   /// The Measurement extractor
-  MuonDetLayerMeasurements *theMeasurementExtractor;
+  MuonDetLayerMeasurements theMeasurementExtractor;
   
   /// The propagator
-  Propagator *thePropagator;
-  
-  /// access at the propagator
-  Propagator *propagator() const {return thePropagator;}
+  //Propagator *thePropagator;
+  // FIXME
+  SteppingHelixPropagator *thePropagator;
 
+  /// access at the propagator
+  //  Propagator *propagator() const {return thePropagator;}
+
+  // FIXME
+  SteppingHelixPropagator *propagator() const {return thePropagator;}
+  
   /// The Estimator
   MeasurementEstimator *theEstimator;
 
@@ -124,9 +138,6 @@ private:
 
   /// the det layer used in the reconstruction
   std::vector<const DetLayer*> theDetLayers;
-
-  /// the propagator name
-  std::string thePropagatorName;
 
   int totalChambers;
   int dtChambers;

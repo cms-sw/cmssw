@@ -10,7 +10,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace reco {
 
@@ -18,8 +17,8 @@ namespace reco {
   public:
 
     // constructor from persistent track
-    TransientTrack( const Track & tk , const MagneticField* field); 
-    TransientTrack( const TrackRef & tk , const MagneticField* field); 
+    TransientTrack( const Track & tk ); 
+    TransientTrack( const TrackRef & tk ); 
 
     TransientTrack( const TransientTrack & tt );
     
@@ -37,7 +36,6 @@ namespace reco {
       {return originalTSCP;}
 
     TrajectoryStateOnSurface impactPointState() const;
-    bool impactPointStateAvailable() const {return  stateAtVertexAvailable;}
 
     // access to original persistent track
     //    const Track & persistentTrack() const { return *tk_; }
@@ -49,16 +47,12 @@ namespace reco {
     bool operator< (const TransientTrack & a) const 
       {return (originalTSCP.momentum().z()<a.impactPointTSCP().momentum().z());}
 
-    const MagneticField* field() const {return theField;}
-
-
   private:
 
     void calculateStateAtVertex() const;
 
     //    const Track * tk_;
     const TrackRef * tkr_;
-    const MagneticField* theField;
 
     TrajectoryStateClosestToPoint originalTSCP;
     mutable bool stateAtVertexAvailable;

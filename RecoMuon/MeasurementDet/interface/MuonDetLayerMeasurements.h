@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/06/14 17:53:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/07 14:07:07 $
+ *  $Revision: 1.6 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -28,46 +28,44 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
 
 class MuonDetLayerMeasurements {
- public:
-  
-  MuonDetLayerMeasurements(bool enableDT = true,
-			   bool enableCSC = true,
-			   std::string dtlabel = "DTSegment4DProducer", 
+public:
+
+  MuonDetLayerMeasurements(std::string dtlabel = "DTSegment4DProducer", 
 			   std::string csclabel = "CSCSegmentProducer");
 
-  virtual ~MuonDetLayerMeasurements();
-  
-  /// returns TMeasurements in a DetLayer compatible with the TSOS.
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est,
-		  const edm::Event& iEvent) const;
+   virtual ~MuonDetLayerMeasurements();
 
-  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
-  MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est,
-		      const edm::Event& iEvent) const;
+   /// returns TMeasurements in a DetLayer compatible with the TSOS.
+   MeasurementContainer
+   measurements( const DetLayer* layer,
+                 const TrajectoryStateOnSurface& startingState,
+                 const Propagator& prop,
+                 const MeasurementEstimator& est,
+                 const edm::Event& iEvent) const;
 
-  /// returns TMeasurements in a DetLayer compatible with the TSOS.
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est) const;
+ /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
+   MeasurementContainer
+   fastMeasurements( const DetLayer* layer,
+                     const TrajectoryStateOnSurface& theStateOnDet,
+                     const TrajectoryStateOnSurface& startingState,
+                     const Propagator& prop,
+                     const MeasurementEstimator& est,
+                     const edm::Event& iEvent) const;
 
-  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
-  MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est) const;
+   /// returns TMeasurements in a DetLayer compatible with the TSOS.
+   MeasurementContainer
+   measurements( const DetLayer* layer,
+                 const TrajectoryStateOnSurface& startingState,
+                 const Propagator& prop,
+                 const MeasurementEstimator& est) const;
+
+ /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
+   MeasurementContainer
+   fastMeasurements( const DetLayer* layer,
+                     const TrajectoryStateOnSurface& theStateOnDet,
+                     const TrajectoryStateOnSurface& startingState,
+                     const Propagator& prop,
+                     const MeasurementEstimator& est) const;
 
  
   void setEvent(const edm::Event &);  
@@ -75,20 +73,16 @@ class MuonDetLayerMeasurements {
   /// returns the rechits which are onto the layer
   RecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
 
- private:
+private:
 
-  /// obtain TrackingRecHits from a DetLayer
-  RecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
+   /// obtain TrackingRecHits from a DetLayer
+   RecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
 
 
-  bool enableDTMeasurement;
-  bool enableCSCMeasurement;
-
-  std::string theDTRecHitLabel;
-  std::string theCSCRecHitLabel;
-
-  bool theEventFlag;
-  const edm::Event* theEvent;   
+   std::string theDTRecHitLabel;
+   std::string theCSCRecHitLabel;
+   bool theEventFlag;
+   const edm::Event* theEvent;   
 };
 #endif
 

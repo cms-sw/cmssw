@@ -11,11 +11,13 @@
 #define _OPTICALOBJECT_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "stdint.h"
 
 class LightRay;
+//#include "Alignment/CocoaModel/interface/LightRay.h"
 class Measurement;
+//#include "Alignment/CocoaModel/interface/Measurement.h"
 class Entry;
+//#include "Alignment/CocoaModel/interface/Entry.h"
 class ALIFileIn;
 class Measurement;
 class ALIPlane;
@@ -27,8 +29,6 @@ class CocoaSolidShape;
 #include "CLHEP/Vector/Rotation.h"
 #include <fstream>
 #include <vector>
-class OpticalAlignInfo;
-class OpticalAlignParam;
 
 enum XYZcoor{XCoor, YCoor, ZCoor};
 
@@ -45,12 +45,8 @@ class OpticalObject
   //----- Steering function to read OptO data from SDF file (and also start component OptOs)
   void construct(); 
 
-  void constructFromOptAligInfo( const OpticalAlignInfo& oaInfo );
-  std::vector<ALIstring> getCoordinateFromOptAlignParam( const OpticalAlignParam& oaParam );
-  void createComponentOptOsFromOptAlignInfo();
-
-  virtual void constructMaterial(); 
-  virtual void constructSolidShape(); 
+ virtual void constructMaterial(); 
+ virtual void constructSolidShape(); 
 
   virtual void fillVRML(){ } ;
   virtual void fillIguana(){ };
@@ -101,9 +97,6 @@ class OpticalObject
   const HepRotation& rmGlob() const {
     return theRmGlob;
   }
-
-  const HepRotation rmLocal() const;
-
   const HepRotation& rmGlobOriginal() const {
     return theRmGlobOriginal;
   }
@@ -117,9 +110,6 @@ class OpticalObject
 
   const double getEntryRMangle( const XYZcoor coor ) const;
   const double getEntryRMangle( const ALIstring& coor ) const;
-
-  const uint32_t ID() const { return theCmsSwID; }
-  const uint32_t cmsSwID() const { return theCmsSwID; }
 
   // SET DATA METHODS
   void setRmGlobalOriginal( const HepRotation& rm ){
@@ -151,9 +141,6 @@ class OpticalObject
   void addExtraEntryValueOriginalOriginalToList( ALIdouble entry_value ) {
      theExtraEntryValueOriginalOriginalVector.push_back( entry_value );
   }
-
-  void setCmsSwID( uint32_t id ) { theCmsSwID = id; }
-  void setID( uint32_t id ) { theCmsSwID = id; }
 
   //-  void test(){};
   //@@@@@----- METHODS USED IN Fit
@@ -286,8 +273,6 @@ private:
   // start Optical Objects that are components of current 
   void createComponentOptOs( ALIFileIn& filein );
 
-  OpticalObject* createNewOptO( OpticalObject* parent, ALIstring optoType, ALIstring optoName, ALIbool fcopyComponents );
-
   // Set global centre and rotation matrix
   void setGlobalCentre();
   void setGlobalRM();
@@ -308,11 +293,6 @@ template<class T>
   void rotateItAroundGlobal( T& object, const XYZcoor coor, const double disp );
 
  Hep3Vector getDispVec( const XYZcoor coor, const ALIdouble disp);
-
- void SetCentreIsGlobal( ALIbool isG ) {
-   centreIsGlobal = isG; }
- void SetAnglesIsGlobal( ALIbool isG ) {
-   anglesIsGlobal = isG; }
 
 private:
   // private DATA MEMBERS 
@@ -353,7 +333,6 @@ private:
   CocoaMaterialElementary* theMaterial;
   CocoaSolidShape* theSolidShape;
 
-  uint32_t theCmsSwID;
  protected:
   ALIint verbose;
 };

@@ -31,18 +31,33 @@ void FedTimingTask::book() {
   string title;
   
   title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
-						sistrip::COMBINED, 
+						sistrip::SUM2, 
 						sistrip::FED, 
 						fedKey(),
 						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
-  timing_.histo_ = dqm()->bookProfile( title, title, 
-				       nbins, -0.5, nbins*1.-0.5,
-				       1024, 0., 1024. );
+  timing_.meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-  timing_.vNumOfEntries_.resize(nbins,0);
-  timing_.vSumOfContents_.resize(nbins,0);
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
+						sistrip::SUM, 
+						sistrip::FED, 
+						fedKey(),
+						sistrip::LLD_CHAN, 
+						connection().lldChannel() );
+  timing_.meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+  
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
+						sistrip::NUM, 
+						sistrip::FED, 
+						fedKey(),
+						sistrip::LLD_CHAN, 
+						connection().lldChannel() );
+  timing_.meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+  
   timing_.vSumOfSquares_.resize(nbins,0);
+  timing_.vSumOfSquaresOverflow_.resize(nbins,0);
+  timing_.vSumOfContents_.resize(nbins,0);
+  timing_.vNumOfEntries_.resize(nbins,0);
   
 }
 

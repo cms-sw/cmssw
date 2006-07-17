@@ -99,12 +99,6 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    } // end for
 
    dbe_->setCurrentFolder("recHitBPIX");
-   //RecHit X Resolution all barrel hits
-   recHitXResAllB = dbe_->book1D("RecHit_xres_b_All","RecHit X Res All Modules in Barrel", 100, -200., 200.);
-
-   //RecHit Y Resolution all barrel hits
-   recHitYResAllB = dbe_->book1D("RecHit_yres_b_All","RecHit Y Res All Modules in Barrel", 100, -200., 200.);
-
    //RecHit X distribution for full modules for barrel
    recHitXFullModules = dbe_->book1D("RecHit_x_FullModules", "RecHit X distribution for full modules", 100,-2., 2.);
 
@@ -141,12 +135,6 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
    } // end for
 
    dbe_->setCurrentFolder("recHitFPIX");
-   //RecHit X resolution all plaquettes
-   recHitXResAllF = dbe_->book1D("RecHit_xres_f_All", "RecHit X Res All in Forward", 100, -200., 200.);
-
-   //RecHit Y resolution all plaquettes
-   recHitYResAllF = dbe_->book1D("RecHit_yres_f_All", "RecHit Y Res All in Forward", 100, -200., 200.);
-
    //RecHit X distribution for plaquette with x-size 1 in forward
    recHitXPlaquetteSize1 = dbe_->book1D("RecHit_x_Plaquette_xsize1", "RecHit X Distribution for plaquette x-size1", 100, -2., 2.);
 
@@ -280,14 +268,10 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit 
    float sim_xpos = 0.5*(sim_x1 + sim_x2);
    float res_x = (lp.x() - sim_xpos)*cmtomicron;
 
-   recHitXResAllB->Fill(res_x);
-
    float sim_y1 = simHit.entryPoint().y();
    float sim_y2 = simHit.exitPoint().y();
    float sim_ypos = 0.5*(sim_y1 + sim_y2);
    float res_y = (lp.y() - sim_ypos)*cmtomicron;
-
-   recHitYResAllB->Fill(res_y);
 
    int rows = theGeomDet->specificTopology().nrows();
 
@@ -301,14 +285,14 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit 
    float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
  
    if (tmp2<tmp1) { // flipped
-	for (unsigned int i=0; i<3; i++) {
+	for (int i=0; i<3; i++) {
 	   if (PXBDetId::PXBDetId(detId).layer() == i+1) {
 		recHitXResFlippedLadderLayers[i]->Fill(res_x);
 	   }
 	}
    } 
    else {
-	for (unsigned int i=0; i<3; i++) {
+	for (int i=0; i<3; i++) {
 	   if (PXBDetId::PXBDetId(detId).layer() == i+1) {
 		recHitXResNonFlippedLadderLayers[i]->Fill(res_x);
 	   }
@@ -319,7 +303,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit & recHit,const PSimHit 
    edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill module dependent info
-   for (unsigned int i=0; i<8; i++) {
+   for (int i=0; i<8; i++) {
       if (PXBDetId::PXBDetId(detId).module() == i+1) {
 	int sizeY = (*clust).sizeY();
 	clustYSizeModule[i]->Fill(sizeY);
@@ -379,20 +363,16 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
    float sim_xpos = 0.5*(sim_x1 + sim_x2);
    float res_x = (lp.x() - sim_xpos)*cmtomicron;
 
-   recHitXResAllF->Fill(res_x);
-
    float sim_y1 = simHit.entryPoint().y();
    float sim_y2 = simHit.exitPoint().y();
    float sim_ypos = 0.5*(sim_y1 + sim_y2);
    float res_y = (lp.y() - sim_ypos)*cmtomicron;
 
-   recHitYResAllF->Fill(res_y);
-
    // get cluster
    edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
 
    // fill plaquette dependent info
-   for (unsigned int i=0; i<7; i++) {
+   for (int i=0; i<7; i++) {
      if (PXFDetId::PXFDetId(detId).module() == i+1) {
 	if (PXFDetId::PXFDetId(detId).disk() == 1) {
 

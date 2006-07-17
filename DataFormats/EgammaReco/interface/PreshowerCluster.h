@@ -1,11 +1,7 @@
 #ifndef DataFormats_EgammaReco_PreshowerCluster_h
 #define DataFormats_EgammaReco_PreshowerCluster_h
-/*
- * Preshower cluster class
- *
- * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
- */
-// $Id: PreshowerCluster.h,v 1.8 2006/06/11 17:59:41 rahatlou Exp $
+//
+// $Id: $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
@@ -17,65 +13,63 @@
 
 namespace reco {
 
-  class PreshowerCluster : public EcalCluster {
+  // should we inherit it from EcalCluster ???
+  class PreshowerCluster { // : public EcalCluster {
   public:
 
     typedef math::XYZPoint Point;
 
     // default constructor
-    PreshowerCluster() : EcalCluster(0., Point(0.,0.,0.)) { };
+    PreshowerCluster();
 
-    virtual ~PreshowerCluster();
+    ~PreshowerCluster();
 
     // Constructor from EcalRecHits
-    PreshowerCluster(const double E, const Point& pos, 
-                     const EcalRecHitCollection & rhits, 
-                     reco::BasicClusterRefVector::iterator BC_ref, 
-                     const int plane);
+    PreshowerCluster(const Point& position, const EcalRecHitCollection & rhits_, int layer_);
 
     // Constructor from cluster
     PreshowerCluster(const PreshowerCluster&);
 
-    //    Point Position() const {
-    //      return Point(radius_*cos(phi)*sin(theta),
-    //                   radius_*sin(phi)*sin(theta),
-    //                   radius_*cos(theta));
-    //    }
-
-    double ex() const {
-      return energy()*cos(phi_)*sin(theta_);
+    Point Position() const {
+      return Point(radius*cos(phi)*sin(theta),
+                   radius*sin(phi)*sin(theta),
+                   radius*cos(theta));
     }
 
-    double ey() const {
-      return energy()*sin(phi_)*sin(theta_);
+    double Ex() const {
+      return energy*cos(phi)*sin(theta);
     }
 
-    double ez() const {
-      return energy()*cos(theta_);
+    double Ey() const {
+      return energy*sin(phi)*sin(theta);
     }
 
-    double et() const {
-      return energy()*sin(theta_);
+    double Ez() const {
+      return energy*cos(theta);
+    }
+
+    double Et() const {
+      return energy*sin(theta);
     }
 
 // Methods that return information about the cluster
-//    double energy() const {return energy_;}
-    double radius() const {return radius_;}
-    double theta() const {return theta_;}
-    double eta() const {return eta_;}
-    double phi() const {return phi_;}
-    int nhits() const {return rhits_.size();}
+    double Energy() const {return energy;}
+    double Radius() const {return radius;}
+    double Theta() const {return theta;}
+    double Eta() const {return eta;}
+    double Phi() const {return phi;}
+    int Nhits() const {return rhits.size();}
 
-    EcalRecHitCollection::const_iterator firstRecHit() const {
-      return rhits_.begin();
+    EcalRecHitCollection::const_iterator RHBegin() const {
+      return rhits.begin();
     }
 
-    EcalRecHitCollection::const_iterator lastRecHit() const {
-      return rhits_.end();
+    EcalRecHitCollection::const_iterator RHEnd() const {
+      return rhits.end();
     }
 
-    int plane() {
-      return plane_;
+    int Plane() {
+      return layer;
     }
 
     static const char * name() {return "PreshowerCluster";}
@@ -84,32 +78,22 @@ namespace reco {
     bool operator==(const PreshowerCluster&) const;
     bool operator<(const PreshowerCluster&) const;
 
-    //Associated basic cluster;
-    BasicClusterRef getBC() {return bc_ref_;}
-
-    virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    reco::BasicCluster * getBCPtr() {return bc_ptr;}
 
   private:
 
-    //    double energy_;
-    double euncorrected_;
-    double et_;
+    double energy;
+    double euncorrected;
+    double et;
 
-    double radius_;
-    double theta_;
-    double eta_;
-    double phi_;
+    double radius;
+    double theta;
+    double eta;
+    double phi;
+    int layer;
 
-    int plane_;
-
-    //Associated basic cluster;
-    BasicClusterRef bc_ref_;
-
-    //Preshower cluster rec. hits
-    EcalRecHitCollection rhits_;
-
-    // used hits by detId
-    std::vector<DetId> usedHits_;
+    reco::BasicCluster *bc_ptr;
+    EcalRecHitCollection rhits;
   };
 }
 #endif

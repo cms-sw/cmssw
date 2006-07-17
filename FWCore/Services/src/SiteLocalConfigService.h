@@ -30,8 +30,7 @@ namespace edm
 	    
 	    const std::string dataCatalog (void) const;
 	    const std::string calibCatalog (void) const;
-	    FrontierProxies::const_iterator frontierProxyBegin (void) const;
-	    FrontierProxies::const_iterator frontierProxyEnd (void) const;
+	    const std::string frontierConnect (void) const;
 	    
 	    // implicit copy constructor
 	    // implicit assignment operator
@@ -41,7 +40,7 @@ namespace edm
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
 	    std::string 	m_calibCatalog;
-	    FrontierProxies	m_frontierProxies;	    
+	    std::string		m_frontierConnect;
 	    bool		m_connected;	    
 	};
     }

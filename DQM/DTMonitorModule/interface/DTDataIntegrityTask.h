@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/04/13 17:16:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/10 12:30:06 $
+ *  $Revision: 1.3 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -58,14 +58,11 @@ private:
 
   // Monitor Elements
   // <histoType, <index , histo> >    
-  map<string, map<int, MonitorElement*> > dduHistos;
-  // <histoType, <index , histo> >    
   map<string, map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
   map<string, map<int, MonitorElement*> > robHistos;
 
-  int neventsDDU;
-  int neventsROS25;
+  int nevents;
   string outputFile;
 
 };

@@ -3,17 +3,18 @@
 
 /** \class DTRecSegment4D
  *
- * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
+ * 4 parameters RecHits for MuonBarrel DT
  *
- * $Date: 2006/06/29 17:18:27 $
- * $Revision: 1.7 $
+ * $Date: 2006/05/02 07:08:42 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
 /* Base Class Headers */
-#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment4D.h"
+//#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 /* Collaborating Class Declarations */
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
@@ -22,104 +23,90 @@
 /* C++ Headers */
 #include <iosfwd>
 
-class DTRecSegment4D : public RecSegment {
+/* ====================================================================== */
+
+/* Class DTRecSegment4D Interface */
+
+class DTRecSegment4D : public RecSegment4D{
 
  public:
   friend class DTSegmentUpdator;
-  /// Empty constructor 
-  DTRecSegment4D() : theProjection(none), theDimension(0) {}
+  /// Constructor
+  /// empty constructor
+  DTRecSegment4D(){}
   
-  /// Construct from phi and Z projections
+  //FIXME do only one constructor!
   DTRecSegment4D(const DTChamberRecSegment2D& phiSeg, const DTSLRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
-
-  /// Construct from phi projection
   DTRecSegment4D(const DTChamberRecSegment2D& phiSeg);
-
-  /// Construct from Z projection
   DTRecSegment4D(const DTSLRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
+  //
+
 
   /// Destructor
   ~DTRecSegment4D() ;
 
-  //--- Base class interface
+  /* Operations */ 
 
   virtual DTRecSegment4D* clone() const { return new DTRecSegment4D(*this);}
 
-  /// Parameters of the segment, for the track fit. 
-  /// For a 4D segment: (x,y,dx/dy,dy/dz)
-  /// For a 2D, phi-only segment: (x,dx/dz)
-  /// For a 2D, Z-only segment: (y,dy/dz)
+  
   AlgebraicVector parameters() const ;
-
-  /// Covariance matrix fo parameters()
   AlgebraicSymMatrix parametersError() const ;
 
-  /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  virtual AlgebraicMatrix projectionMatrix() const;
 
-  /// Local position in Chamber frame
+  /// local position in Chamber frame
   virtual LocalPoint localPosition() const { return thePosition;}
 
-  /// Local position error in Chamber frame
+  /// local position error in Chamber frame
   virtual LocalError localPositionError() const ;
 
-  /// Local direction in Chamber frame
-  virtual LocalVector localDirection() const { return theDirection; }
+  /// the local direction in Chamber frame
+  virtual LocalVector localDirection() const { return theDirection;}
 
-  /// Local direction error in the Chamber frame
+  /// the local direction error (xx,xy,yy) in Chamber frame: only xx is not 0.
   virtual LocalError localDirectionError() const ;
 
-  // Chi2 of the segment fit
+  /// the chi2 of the fit
   virtual double chi2() const ;
   
-  // Degrees of freedom of the segment fit
+  /// return the DOF of the segment 
   virtual int degreesOfFreedom() const ;
 
-  // Dimension (in parameter space)
-  virtual int dimension() const { return theDimension; }
-
-  // Access to component RecHits (if any)
+  /// Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const ;
 
-  // Non-const access to component RecHits (if any)
+  /// Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
 
-  /// The chamber DetId 
+  /// the id 
   virtual DetId geographicalId() const { return theDetId; }
-
-
-  //--- Extension of the interface
-
   
-  /// Does it have the Phi projection?
-  bool hasPhi() const {return (theProjection==full | theProjection==phi);}
+  /// has the Phi projection? //FIXME, was right with the check on the pointers
+  bool hasPhi() const {return (thePhiSeg.specificRecHits().size()!=0);}
   
-  /// Does it have the Z projection?
-  bool hasZed() const {return (theProjection==full | theProjection==Z);}
+  /// has the Z projection? //FIXME, was right with the check on the pointers
+  bool hasZed() const {return (theZedSeg.specificRecHits().size()!=0);}
   
-  /// The superPhi segment 
+  /// the superPhi segment 
   const DTChamberRecSegment2D *phiSegment() const {return &thePhiSeg;}
     
-  /// The Z segment
+  /// the Z segment
   const DTSLRecSegment2D *zSegment() const {return &theZedSeg;}
     
-  /// Set position
+  /// set position
   void setPosition(LocalPoint pos) { thePosition = pos; }
 
-  /// Set direction
+  /// set direction
   void setDirection(LocalVector dir) { theDirection = dir; }
 
-  /// Set covariance matrix
+  /// set covariance matrix
   void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
 
-  /// The (specific) DetId of the chamber on which the segment resides 
+  /// The id of the chamber on which reside the segment
   virtual DTChamberId chamberId() const;
     
  private:
-  /// Which projections are actually there
-  enum Projection {full, phi, Z, none};
-  Projection theProjection;
-
+  
   /// the superPhi segment 
   DTChamberRecSegment2D *phiSegment() {return &thePhiSeg;}
     
@@ -131,21 +118,21 @@ class DTRecSegment4D : public RecSegment {
 
   void setCovMatrixForZed(const LocalPoint& posZInCh);
     
-  // the covariance matrix, has the following meaning
-  // mat[0][0]=sigma (dx/dz)
-  // mat[1][1]=sigma (dy/dz)
-  // mat[2][2]=sigma (x)
-  // mat[3][3]=sigma (y)
-  // mat[0][2]=cov(dx/dz,x)
-  // mat[1][3]=cov(dy/dz,y)
-  AlgebraicSymMatrix theCovMatrix; 
+  /// mat[0][0]=sigma (dx/dz)
+  /// mat[1][1]=sigma (dy/dz)
+  /// mat[2][2]=sigma (x)
+  /// mat[3][3]=sigma (y)
+  /// mat[0][2]=cov(dx/dz,x)
+  /// mat[1][3]=cov(dy/dz,y)
+  AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
   DTChamberRecSegment2D thePhiSeg;
   DTSLRecSegment2D theZedSeg;
 
+  AlgebraicMatrix theProjMatrix;  // the projection matrix
   int theDimension; // the dimension of this rechit
 
-  DetId theDetId;   // Id of the det this seg belongs
+  DetId theDetId;           // Id of the det this seg belongs
 
 };
 

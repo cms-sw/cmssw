@@ -23,8 +23,6 @@ namespace edm{
 
 }
 
-class RootMonitorThread;
-
 class TaskGroup;
 namespace evf
 {
@@ -87,7 +85,6 @@ namespace evf
       edm::ServiceToken serviceToken_;
       bool servicesDone_;
       ShutDownNotifier sdn_;
-      RootMonitorThread *rmt_p;
     };
 }
 

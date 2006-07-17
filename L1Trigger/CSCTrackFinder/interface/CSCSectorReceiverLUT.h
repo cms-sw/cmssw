@@ -11,7 +11,6 @@
 
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 class CSCLayer;
 
@@ -63,10 +62,7 @@ class CSCSectorReceiverLUT
 
   void fillLocalPhiLUT();
   
-  edm::FileInPath me_lcl_phi_file;
-  edm::FileInPath me_gbl_phi_file;
-  edm::FileInPath mb_gbl_phi_file;
-  edm::FileInPath me_gbl_eta_file;
+  std::string lut_path;
   bool LUTsFromFile;
   bool isBinary;
 

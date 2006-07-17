@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.41.2.8 2006/07/05 23:57:18 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.43 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -93,13 +93,19 @@ private:
     //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
-    BranchDict::iterator itFound = branchDict_.find(bk);
-    if (itFound != branchDict_.end()) {
-       if(!groups_[itFound->second]->product()) {
+    bool accessible = g->isAccessible();
+    BranchDict & branchDict = (accessible ? branchDict_ : inactiveBranchDict_ );
+    ProductDict & productDict = (accessible ? productDict_ : inactiveProductDict_ );
+    TypeDict & typeDict = (accessible ? typeDict_ : inactiveTypeDict_ );
+    GroupVec & groups = (accessible ? groups_ : inactiveGroups_ );
+
+    BranchDict::iterator itFound = branchDict.find(bk);
+    if (itFound != branchDict.end()) {
+       if(!groups[itFound->second]->product()) {
           //is null, so this new one must be the one generated 'unscheduled'
-          groups_[itFound->second]->swapProduct( *g );
+          groups[itFound->second]->swapProduct( *g );
           //NOTE: other API's of EventPrincipal give out the Provenance* so need to preserve the memory
-          groups_[itFound->second]->provenance() = g->provenance();
+          groups[itFound->second]->provenance() = g->provenance();
           return;
        } else {
           // the products are lost at this point!
@@ -119,16 +125,16 @@ private:
     // we do not have any rollback capabilities as products 
     // and the indices are updated
 
-    unsigned long slotNumber = groups_.size();
-    groups_.push_back(g);
+    unsigned long slotNumber = groups.size();
+    groups.push_back(g);
 
-    branchDict_[bk] = slotNumber;
+    branchDict[bk] = slotNumber;
 
-    productDict_[g->productDescription().productID()] = slotNumber;
+    productDict[g->productDescription().productID()] = slotNumber;
 
     //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
 
-    vector<int>& vint = typeDict_[bk.friendlyClassName_];
+    vector<int>& vint = typeDict[bk.friendlyClassName_];
 
     vint.push_back(slotNumber);
   }
@@ -187,7 +193,7 @@ private:
   EventPrincipal::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
-	return SharedGroupPtr();
+	return getInactiveGroup(oid);
     }
     unsigned long slotNumber = i->second;
     assert(slotNumber < groups_.size());
@@ -199,17 +205,35 @@ private:
     return g;
   }
 
+  EventPrincipal::SharedGroupPtr const
+  EventPrincipal::getInactiveGroup(ProductID const& oid) const {
+    ProductDict::const_iterator i = inactiveProductDict_.find(oid);
+    if (i == inactiveProductDict_.end()) {
+	return SharedGroupPtr();
+    }
+    unsigned long slotNumber = i->second;
+    assert(slotNumber < inactiveGroups_.size());
+
+    SharedGroupPtr const& g = inactiveGroups_[slotNumber];
+    return g;
+  }
+
   BasicHandle
   EventPrincipal::get(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: invalid ProductID supplied\n";
 
-    SharedGroupPtr const& g = getGroup(oid);
-    if (g == SharedGroupPtr()) {
+    ProductDict::const_iterator i = productDict_.find(oid);
+    if (i == productDict_.end()) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: no product with given id\n";
     }
+    unsigned long slotNumber = i->second;
+    assert(slotNumber < groups_.size());
+
+    SharedGroupPtr const& g = groups_[slotNumber];
+    this->resolve_(*g);
     return BasicHandle(g->product(), &g->provenance());
   }
 

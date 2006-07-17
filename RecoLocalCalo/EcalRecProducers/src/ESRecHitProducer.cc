@@ -7,9 +7,11 @@
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-    
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+// ESRecHitProducer author : Chia-Ming, Kuo
+
 ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
 {
   digiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
@@ -32,6 +34,8 @@ ESRecHitProducer::~ESRecHitProducer() {
 
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
+  checkGeometry(es);
+
   // Get input
    edm::Handle<ESDigiCollection> digiHandle;  
    const ESDigiCollection* digi=0;
@@ -53,10 +57,30 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
    // run the algorithm
    ESDigiCollection::const_iterator i;
    for (i=digi->begin(); i!=digi->end(); i++) {    
-     rec->push_back(algo_->reconstruct(*i));
+     rec->push_back(algo_->reconstruct(*i, true));
    }
   
   e.put(rec,rechitCollection_);
 } 
+
+void ESRecHitProducer::checkGeometry(const edm::EventSetup & es) 
+{
+  // TODO find a way to avoid doing this every event
+  edm::ESHandle<CaloGeometry> hGeometry;
+  es.get<IdealGeometryRecord>().get(hGeometry);
+  
+  const CaloGeometry *pGeometry = &*hGeometry;
+  
+  // see if we need to update
+  if(pGeometry != theGeometry) {
+    theGeometry = pGeometry;
+    updateGeometry();
+  }
+}
+
+void ESRecHitProducer::updateGeometry() 
+{
+  algo_->setGeometry(theGeometry);
+}
 
 

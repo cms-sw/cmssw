@@ -4,10 +4,7 @@
 
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/src/DTT0Calibration.h"
-#include "CalibMuon/DTCalibration/src/DTVDriftCalibration.h"
-
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTTTrigCalibration);
 DEFINE_ANOTHER_FWK_MODULE(DTT0Calibration);
-DEFINE_ANOTHER_FWK_MODULE(DTVDriftCalibration);

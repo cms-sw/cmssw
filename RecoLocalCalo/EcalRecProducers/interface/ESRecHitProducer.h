@@ -5,11 +5,12 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+// ESRecHitProducer author : Chia-Ming, Kuo
 
 class ESRecHitProducer : public edm::EDProducer {
 
@@ -20,6 +21,11 @@ class ESRecHitProducer : public edm::EDProducer {
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
  private:
+
+  void checkGeometry(const edm::EventSetup & es);
+  void updateGeometry();
+
+  const CaloGeometry * theGeometry;
 
   std::string digiProducer_; // name of module/plugin/producer making digis
   std::string digiCollection_; // secondary name given to collection of digis

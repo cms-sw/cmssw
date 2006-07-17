@@ -84,6 +84,7 @@ namespace edmtestp
     std::auto_ptr<SendJobHeader> p = readHeader();
     SendDescs & descs = p->descs_;
     edm::mergeWithRegistry(descs, productRegistry());
+    prods_ = productRegistry(); // is this the one I want? Or pre-merge?
 
     // next taken from IOPool/Streamer/EventStreamFileReader
     // jbk - the next line should not be needed
@@ -152,7 +153,7 @@ namespace edmtestp
     } else {
       events_read_++;
       edm::EventMsg msg(&buf_[0],len);
-      return decoder_.decodeEvent(msg,productRegistry());
+      return decoder_.decodeEvent(msg,prods_);
     }
   }
 
@@ -203,29 +204,7 @@ namespace edmtestp
     regdata.resize(len);
     for (int i=0; i<len ; i++) regdata[i] = data.d_[i];
     edm::InitMsg msg(&regdata[0],len);
-    // 21-Jun-2006, KAB:  catch (and re-throw) any exceptions decoding
-    // the job header so that we can display the returned HTML and
-    // (hopefully) give the user a hint as to the cause of the problem.
-    std::auto_ptr<SendJobHeader> p;
-    try {
-      p = hdecoder.decodeJobHeader(msg);
-    }
-    catch (cms::Exception excpt) {
-      const unsigned int MAX_DUMP_LENGTH = 1000;
-      std::cout << "========================================" << std::endl;
-      std::cout << "* Exception decoding the getregdata response from the storage manager!" << std::endl;
-      if (data.d_.length() <= MAX_DUMP_LENGTH) {
-        std::cout << "* Here is the raw text that was returned:" << std::endl;
-        std::cout << data.d_ << std::endl;
-      }
-      else {
-        std::cout << "* Here are the first " << MAX_DUMP_LENGTH <<
-          " characters of the raw text that was returned:" << std::endl;
-        std::cout << (data.d_.substr(0, MAX_DUMP_LENGTH)) << std::endl;
-      }
-      std::cout << "========================================" << std::endl;
-      throw excpt;
-    }
+    std::auto_ptr<SendJobHeader> p = hdecoder.decodeJobHeader(msg);
     return p;
   }
 }

@@ -20,25 +20,43 @@ namespace {
 
     edm::OwnVector<SiStripRecHit2DLocalPos,
       edm::ClonePolicy<SiStripRecHit2DLocalPos> > a6;
+    edm::OwnVector<SiStripRecHit2DLocalPos,
+      edm::ClonePolicy<SiStripRecHit2DLocalPos> >::const_iterator it6;
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
       edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > a7;
+    edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
+      edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >::const_iterator it7;
     edm::OwnVector<SiPixelRecHit,
       edm::ClonePolicy<SiPixelRecHit> > b3;
+    edm::OwnVector<SiPixelRecHit,
+      edm::ClonePolicy<SiPixelRecHit> >::const_iterator it3;
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2DLocalPos,
       edm::ClonePolicy<SiStripRecHit2DLocalPos> >, 
       edm::ClonePolicy<SiStripRecHit2DLocalPos> > >    siStripRecHit2DLocalPosCollectionWrapper;
+    edm::RangeMap<DetId,
+      edm::OwnVector<SiStripRecHit2DLocalPos,
+      edm::ClonePolicy<SiStripRecHit2DLocalPos> >, 
+      edm::ClonePolicy<SiStripRecHit2DLocalPos> >::id_iterator    it2d;
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
       edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, 
       edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > > siStripRecHit2DMatchedLocalPosCollectionWrapper;
+    edm::RangeMap<DetId,
+      edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
+      edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, 
+      edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >::id_iterator itmatch;
 
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiPixelRecHit,
       edm::ClonePolicy<SiPixelRecHit> >, 
       edm::ClonePolicy<SiPixelRecHit> > >  siPixelRecHitCollectionWrapper;
+    edm::RangeMap<DetId,
+      edm::OwnVector<SiPixelRecHit,
+      edm::ClonePolicy<SiPixelRecHit> >, 
+      edm::ClonePolicy<SiPixelRecHit> >::id_iterator itpix;
 
     edm::Ref<edm::DetSetVector<SiPixelCluster>, 
       SiPixelCluster, 

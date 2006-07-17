@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/06 07:11:06 $
- * $Revision: 1.163 $
+ * $Date: 2006/06/26 12:30:29 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -66,13 +66,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   runTypes_.resize( 13 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
-  runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAMH4";
-  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAMH2";
-  runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL_OFFSET_SCAN";
+  runTypes_[EcalDCCHeaderBlock::COSMIC]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]         = "BEAMH4";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]         = "BEAMH2";
+  runTypes_[EcalDCCHeaderBlock::LASER_STD]      = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]   = "PEDESTAL";
 
   clients_.clear();
   clientNames_.clear();
@@ -157,16 +156,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is OFF" << endl;
   }
 
-  // enableQT switch
-
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
-
-  if ( enableQT_ ) {
-    cout << " enableQT switch is ON" << endl;
-  } else {
-    cout << " enableQT switch is OFF" << endl;
-  }
-
   // enableExit switch
 
   enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
@@ -227,16 +216,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // Server switch
 
   enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
+  serverPort_   = ps.getUntrackedParameter<int>("serverPort_", 9900);
 
   if ( enableServer_ ) {
-    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
-      cout << " Forcing the same port for Collector and Server" << endl;
-      serverPort_ = hostPort_;
-    }
     cout << " Server on port '" << serverPort_ << "' is enabled" << endl;
-  } else {
-    cout << " Server is not enabled" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -246,13 +229,37 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_); 
 
-  cout << " Selected SMs:" << endl;
+  cout << " Selected Super Modules :" << endl;
 
   for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
     cout << " " << setw(2) << setfill('0') << superModules_[i];
   }
 
   cout << endl;
+
+  // start DQM user interface instance
+
+  if ( ! enableStateMachine_ ) {
+    if ( enableMonitorDaemon_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+    } else {
+      mui_ = new MonitorUIRoot();
+    }
+  }
+
+  if ( verbose_ ) {
+    mui_->setVerbose(1);
+  } else {
+    mui_->setVerbose(0);
+  }
+
+  if ( enableServer_ ) {
+    mui_->actAsServer(serverPort_, clientName_);
+  }
+
+  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
+
+  mui_->setReconnectDelay(5);
 
   // global ROOT style
 
@@ -294,32 +301,31 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.reserve(8);
   clientNames_.reserve(8);
 
-  clients_.push_back( new EBIntegrityClient(ps) );
+  clients_.push_back( new EBIntegrityClient(ps, mui_) );
   clientNames_.push_back( "Integrity" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back( new EBCosmicClient(ps) );
+  clients_.push_back( new EBCosmicClient(ps, mui_) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
 
-  clients_.push_back(  new EBLaserClient(ps) );
+  clients_.push_back(  new EBLaserClient(ps, mui_) );
   clientNames_.push_back( "Laser" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBPedestalClient(ps) );
+  clients_.push_back(  new EBPedestalClient(ps, mui_) );
   clientNames_.push_back( "Pedestal" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
-  clients_.push_back(  new EBPedestalOnlineClient(ps) );
+  clients_.push_back(  new EBPedestalOnlineClient(ps, mui_) );
   clientNames_.push_back( "PedestalOnLine" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
@@ -328,16 +334,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBTestPulseClient(ps) );
+  clients_.push_back(  new EBTestPulseClient(ps, mui_) );
   clientNames_.push_back( "TestPulse" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
-  clients_.push_back(  new EBBeamCaloClient(ps) );
+  clients_.push_back(  new EBBeamCaloClient(ps, mui_) );
   clientNames_.push_back( "BeamCalo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  clients_.push_back(  new EBBeamHodoClient(ps) );
+  clients_.push_back(  new EBBeamHodoClient(ps, mui_) );
   clientNames_.push_back( "BeamHodo" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
@@ -354,6 +360,10 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
     delete clients_[i];
   }
 
+  mui_->disconnect();
+
+  if ( mui_ ) delete mui_;
+
 }
 
 void EcalBarrelMonitorClient::beginJob(void){
@@ -363,32 +373,8 @@ void EcalBarrelMonitorClient::beginJob(void){
   ievt_ = 0;
   jevt_ = 0;
 
-  // start DQM user interface instance
-  // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
-
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      if ( enableServer_ ) {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-      } else {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-      }
-    } else {
-      mui_ = new MonitorUIRoot();
-      if ( enableServer_ ) {
-        mui_->actAsServer(serverPort_, clientName_);
-      }
-    }
-  }
-
-  if ( verbose_ ) {
-    mui_->setVerbose(1);
-  } else {
-    mui_->setVerbose(0);
-  }
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob(mui_);
+    clients_[i]->beginJob();
   }
 
   this->subscribe();
@@ -471,10 +457,6 @@ void EcalBarrelMonitorClient::endJob(void) {
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->endJob();
   }
-
-  mui_->disconnect();
-
-  delete mui_;
 
 }
 
@@ -584,7 +566,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] );
+  runtag.setGeneralTag(runTypes_[runtype_]);
 
   // fetch the RunIOV from the DB
 
@@ -874,21 +856,21 @@ void EcalBarrelMonitorClient::subscribe(void){
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
-  mui_->subscribe("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/RUN");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/EVT");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->subscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->subscribe("*/EcalBarrel/STATUS");
+  mui_->subscribe("*/EcalBarrel/RUN");
+  mui_->subscribe("*/EcalBarrel/EVT");
+  mui_->subscribe("*/EcalBarrel/EVTTYPE");
+  mui_->subscribe("*/EcalBarrel/RUNTYPE");
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: collate" << endl;
 
-    Char_t histo[200];
+    Char_t histo[80];
 
     sprintf(histo, "EVTTYPE");
-    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalInfo");
-    sprintf(histo, "*/EcalBarrel/EcalInfo/EVTTYPE");
+    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums");
+    sprintf(histo, "*/EcalBarrel/EVTTYPE");
     mui_->add(me_h_, histo);
 
   }
@@ -897,11 +879,11 @@ void EcalBarrelMonitorClient::subscribe(void){
 
 void EcalBarrelMonitorClient::subscribeNew(void){
 
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUN");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVT");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->subscribeNew("*/EcalBarrel/STATUS");
+  mui_->subscribeNew("*/EcalBarrel/RUN");
+  mui_->subscribeNew("*/EcalBarrel/EVT");
+  mui_->subscribeNew("*/EcalBarrel/EVTTYPE");
+  mui_->subscribeNew("*/EcalBarrel/RUNTYPE");
 
 }
 
@@ -921,11 +903,11 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
 
   }
 
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/STATUS");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUN");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVT");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
-  mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
+  mui_->unsubscribe("*/EcalBarrel/STATUS");
+  mui_->unsubscribe("*/EcalBarrel/RUN");
+  mui_->unsubscribe("*/EcalBarrel/EVT");
+  mui_->unsubscribe("*/EcalBarrel/EVTTYPE");
+  mui_->unsubscribe("*/EcalBarrel/RUNTYPE");
 
 }
 
@@ -944,13 +926,13 @@ void EcalBarrelMonitorClient::analyze(void){
   int updates = mui_->getNumUpdates();
 
   if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) mui_->runQTests();
+    mui_->runQTests();
     mui_->doMonitoring();
   }
 
   this->subscribeNew();
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
   string s;
@@ -959,7 +941,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/STATUS").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/STATUS").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -970,7 +952,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -978,7 +960,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVT").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -987,14 +969,14 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EcalInfo/EVTTYPE");
+      sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
+      sprintf(histo, (prefixME_+"EcalBarrel/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
     h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUNTYPE").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/RUNTYPE").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -1051,12 +1033,12 @@ void EcalBarrelMonitorClient::analyze(void){
     }
     
   }
-
+  
   if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && updates % 10 == 0 ) || ( updates == -1 && jevt_ % 10 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( update && updates % 10 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
@@ -1067,26 +1049,26 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
-          if ( enableQT_ ) {
+          // BEGIN: Quality Tests
 
-            cout << endl;
-            switch ( mui_->getSystemStatus() ) {
-              case dqm::qstatus::ERROR:
-                cout << " Error(s)";
-                break;
-              case dqm::qstatus::WARNING:
-                cout << " Warning(s)";
-                break;
-              case dqm::qstatus::OTHER:
-                cout << " Some tests did not run;";
-                break;
-              default:
-                cout << " No problems";
-            }
-            cout << " reported after running the quality tests" << endl;
-            cout << endl;
-
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
           }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+          // END: Quality Tests
 
         }
 
@@ -1210,7 +1192,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<"</span></h2> " << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << runTypes_[runtype_] <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<ul>" << endl;

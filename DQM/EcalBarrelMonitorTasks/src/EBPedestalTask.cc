@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/07/05 07:52:39 $
- * $Revision: 1.40 $
+ * $Date: 2006/06/17 13:46:21 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -37,23 +37,13 @@ void EBPedestalTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
-    dbe->rmdir("EcalBarrel/EBPedestalTask");
-  }
-
 }
 
 void EBPedestalTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  Char_t histo[20];
 
   DaqMonitorBEInterface* dbe = 0;
 
@@ -165,8 +155,6 @@ void EBPedestalTask::cleanup(void){
     }
 
   }
-
-  init_ = false;
 
 }
 

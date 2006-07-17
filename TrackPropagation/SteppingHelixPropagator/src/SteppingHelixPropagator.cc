@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/07/04 01:20:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/06 22:22:39 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.6 2006/07/04 01:20:21 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.4 2006/06/06 22:22:39 slava77 Exp $
 //
 //
 
@@ -63,19 +63,6 @@ SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cy
   return propagateWithPath(ftsStart, cDest).first;
 }
 
-FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const
-{
-  return propagateWithPath(ftsStart, pDest).first;
-}
-
-FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
-				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const
-{
-  return propagateWithPath(ftsStart, pDest1, pDest2).first;
-}
-
 
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
@@ -98,8 +85,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 	    (ftsStart.hasError() && !noErrorPropagation_) 
 	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0), 
 	    propagationDirection());
-  Result result = propagate(PLANE_DT, pars);
-  if (result != OK ) return TsosPP();
+  Result result = propagateToPlane(pars);
 
   Vector p3F;
   Point  r3F;
@@ -109,7 +95,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   getFState(p3F, r3F, covF); 
   GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
   GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  SurfaceSide side = atCenterOfSurface;
+  //how do I tell that I didn't reach the surface without throuwing an exception?
+  SurfaceSide side = result == OK ? atCenterOfSurface : beforeSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
@@ -129,8 +116,6 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   GlobalPoint r3GP = ftsStart.position();
   Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
   Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
-  double pars[6];
-  pars[RADIUS_P] = cDest.radius();
 
   int charge = ftsStart.charge();
 
@@ -138,9 +123,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 	    (ftsStart.hasError() && !noErrorPropagation_) 
 	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
 	    propagationDirection());
-  Result result = propagate(RADIUS_DT, pars);
-  if (result != OK) return TsosPP();
-
+  Result result = propagateToR(cDest.radius());
 
   Vector p3F;
   Point  r3F;
@@ -150,7 +133,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   getFState(p3F, r3F, covF); 
   GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
   GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  SurfaceSide side = atCenterOfSurface;
+  //how do I tell that I didn't reach the surface without throuwing an exception?
+  SurfaceSide side = result == OK ? atCenterOfSurface : beforeSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
@@ -160,87 +144,6 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
-}
-
-
-std::pair<FreeTrajectoryState, double> 
-SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const GlobalPoint& pDest) const {
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
-  double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
-
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
-	    propagationDirection());
-  Result result = propagate(POINT_PCA_DT, pars);
-  if (result != OK) return FtsPP();
-
-
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
-
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  int cInd = cIndex_(nPoints_-1);
-
-  return FtsPP(ftsDest, path_[cInd]);
-}
-
-std::pair<FreeTrajectoryState, double> 
-SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
-  if ((pDest1-pDest2).mag() < 1e-10) return FtsPP();
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
-  double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
-		    pDest2.x(), pDest2.y(), pDest2.z()};
-
-  int charge = ftsStart.charge();
-
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
-	    propagationDirection());
-  Result result = propagate(LINE_PCA_DT, pars);
-  if (result != OK) return FtsPP();
-
-
-  Vector p3F;
-  Point  r3F;
-  HepSymMatrix covF;
-
-  
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
-  CartesianTrajectoryError tCovDest(covF);
-
-  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  int cInd = cIndex_(nPoints_-1);
-
-  return FtsPP(ftsDest, path_[cInd]);
 }
 
 
@@ -260,6 +163,15 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3,
   r3 = r3_[cInd];
   //update Emat only if it's valid
   if (covLoc_[cInd].num_row() >=5){
+//     if (applyRadX0Correction_ && covLoc_[cInd].num_row()==6 && fabs(radPath_[cInd]) > 1){
+//       double radX0Corr = 1.0 + 0.036*log(fabs(radPath_[cInd]));
+//       for (int i = 1; i<= 6; i++){//it is for the cartesian cov
+// 	for (int j = i; j<= 6; j++){//it is for the cartesian cov
+// 	  if (i != 1 && i != 4) covLoc_[cInd](i,j)*= radX0Corr;
+// 	  if (j != 1 && j != 4) covLoc_[cInd](i,j)*= radX0Corr;
+// 	}
+//       }
+//     }
     Vector xRep(1., 0., 0.);
     Vector yRep(0., 1., 0.);
     Vector zRep(0., 0., 1.);
@@ -276,123 +188,193 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3,
 
 SteppingHelixPropagator::Result 
 SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
-				   const double pars[6], double epsilon)  const{
+				   const double pars[6])  const{
+  Result result = NOT_IMPLEMENTED;
+  switch (type) {
+  case RADIUS_DT:
+    result = propagateToR(pars[RADIUS_P]);
+    break;
+  case Z_DT:
+    result = propagateToZ(pars[Z_P]);
+    break;
+  case PATHL_DT:
+    result = propagateByPathLength(pars[PATHL_P]);
+    break;
+  case PLANE_DT:
+    result = propagateToPlane(pars);
+    break;
+  default:
+    break;
+  }
 
-  //check if it's going to work at all
-  double secTheta = 0;
-  double dist = 0;
-  bool isIncoming;
-  Result result = refToDest(type, nPoints_-1, pars, dist, secTheta, isIncoming);
-
-  if (result != OK ) return result;
-
-  result = UNDEFINED;
+  return FAULT;
+}
+  
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToR(double rDest, double epsilon) const{
+  Result result = OK;
   bool makeNextStep = true;
   double dStep = 1.;
-  PropagationDirection dir,oldDir;
-  dir = propagationDirection(); 
-  oldDir = dir;
+  PropagationDirection dir,oldDir=alongMomentum;
   int nOsc = 0;
-  int cInd = 0;
-
   while (makeNextStep){
-    cInd = cIndex_(nPoints_-1);
+    int cInd = cIndex_(nPoints_-1);
+    double curZ = r3_[cInd].z();
+    double curR = r3_[cInd].perp(); 
+    double cosDPhiPR = cos((r3_[cInd].deltaPhi(p3_[cInd])));
+    double cosecTheta = 1./p3_[cInd].perp()*p3_[cInd].mag();
+
+    dir = ((rDest-curR)*cosDPhiPR > 0 || curR < 2e-1)? alongMomentum : oppositeToMomentum;
+    if (oldDir != dir) nOsc++;
+    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) 
+      dStep = fabs((rDest-curR)*cosecTheta) -1e-9;
+    if (fabs((rDest-curR)*cosecTheta) < dStep){ //change this to "line distance" at some point
+      dStep = fabs((rDest-curR)*cosecTheta); 
+    }
+    makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+    nPoints_++;  cInd = cIndex_(nPoints_-1);
+    oldDir = dir;
+    if (nPoints_ > MAX_STEPS || nOsc > 6  || curR > 20000 
+	|| fabs(rDest-curR)<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
+      makeNextStep = false ;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
+      if (debug_){
+	std::cout<<"going to radius "<<rDest<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curR
+		 <<" now at"<<r3_[cInd].perp()<<std::endl;
+      }
+    }
+  }
+  return result;
+}
+
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToZ(double zDest, double epsilon)  const{
+  Result result = OK;
+  bool makeNextStep = true;
+  double dStep = 1.;
+  PropagationDirection dir,oldDir=alongMomentum;
+  int nOsc = 0;
+  while (makeNextStep){
+    int cInd = cIndex_(nPoints_-1);
     double curZ = r3_[cInd].z();
     double curR = r3_[cInd].perp();
-    refToDest(type, nPoints_-1, pars, dist, secTheta, isIncoming);
-
-    if (propagationDirection() == anyDirection){
-      dir = isIncoming ? alongMomentum : oppositeToMomentum;
-    } else {
-      dir = propagationDirection();
+    double secTheta = 1./p3_[cInd].z()*p3_[cInd].mag();
+    if (debug_){
+      std::cout<<" current z "<<curZ<<" and p_z "<<p3_[cInd].z()<<std::endl;
     }
-
+    dir = (zDest - curZ)*p3_[cInd].z() > 0.0 ? alongMomentum : oppositeToMomentum;    
+    if (oldDir != dir) nOsc++;
     if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) 
-      dStep = fabs(dist*secTheta) -1e-9;
-    if (fabs(dist*secTheta) < dStep){
-      dStep = fabs(dist*secTheta); 
+      dStep = fabs((zDest-curZ)*secTheta) -1e-9;
+    if (fabs((zDest-curZ)*secTheta) < dStep){
+      dStep = fabs((zDest-curZ)*secTheta); 
+    }
+    makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+    nPoints_++;  cInd = cIndex_(nPoints_-1);
+    oldDir = dir;
+    if (nPoints_ > MAX_STEPS || nOsc > 6 ||  fabs(curZ) > 20000 || fabs(zDest-curZ)<fabs(epsilon)  
+	|| p3_[cInd].mag() < 0.1){
+      makeNextStep = false ;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
+      if (debug_){
+	std::cout<<"going to z "<<zDest<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curZ
+		 <<" now at"<<r3_[cInd].z()<<std::endl;
+      }
+    }
+  }
+  return result;
+}
+
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateByPathLength(double sDest, double epsilon) const{
+  Result result = OK;
+  bool makeNextStep = true;
+  double dStep = 1.;
+  PropagationDirection dir = sDest > 0 ? alongMomentum : oppositeToMomentum;
+  sDest = fabs(sDest);
+  double curS = 0;
+  while (makeNextStep){
+    int cInd = cIndex_(nPoints_-1);
+    double curZ = r3_[cInd].z();
+    double curR = r3_[cInd].perp();
+    if ((fabs(curZ) > 1.5e3 || curR >800.)&& dir == alongMomentum) dStep = fabs(sDest-curS) -1e-9;
+    if (fabs(sDest-curS) < dStep){
+      dStep = sDest-curS; 
+    }
+    makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+    curS += dStep;
+    nPoints_++;  cInd = cIndex_(nPoints_-1);
+    if (nPoints_ > MAX_STEPS || fabs(curS) > 20000 || 
+	fabs(sDest-curS)<fabs(epsilon) || p3_[cInd].mag() < 0.1){
+      makeNextStep = false ;
+      if (nPoints_ > MAX_STEPS) result = FAULT;
+      if (debug_){
+	std::cout<<"going to pathL "<<sDest<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at "<<curS<<std::endl;
+      }
+    }
+  }
+  return result;
+}
+
+
+
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToPlane(const double pars[6], double epsilon) const{
+  Result result = OK;
+  bool makeNextStep = true;
+  double dStep = 1.;
+  PropagationDirection dir,oldDir=alongMomentum;
+  int nOsc = 0;
+  Point rPlane(pars[0], pars[1], pars[2]);
+  Vector nPlane(pars[3], pars[4], pars[5]);
+
+  while (makeNextStep){
+    int cInd = cIndex_(nPoints_-1);
+    double curZ = r3_[cInd].z();
+    double curR = r3_[cInd].perp();
+    double dist;
+    bool isIncoming;
+    refToPlane(nPoints_-1, pars, dist, isIncoming);
+    dir = isIncoming ? alongMomentum : oppositeToMomentum;
+    if (oldDir != dir) nOsc++;
+    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) dStep = dist -1e-9;
+    if (dist < dStep){
+      dStep = dist; 
     }
     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
     nPoints_++;   cInd = cIndex_(nPoints_-1);
-    if (oldDir != dir) nOsc++;
     oldDir = dir;
-
-    if (fabs(dist) < fabs(epsilon)  ) result = OK;
-
-    if ((type == POINT_PCA_DT || type == LINE_PCA_DT )
-	&& fabs(dStep) < fabs(epsilon)  ){
-      //now check if it's not a branch point (peek ahead at 1 cm)
-      double nextDist = 0;
-      double nextSecTheta = 0;
-      bool nextIsIncoming = false;
-      makeAtomStep(nPoints_-1, 1., dir, HEL_AS_F);
-      nPoints_++; cInd = cIndex_(nPoints_-1);
-      refToDest(type, nPoints_-1, pars, nextDist, nextSecTheta, nextIsIncoming);
-      if ( fabs(nextDist) > fabs(dist)){
-	nPoints_--;   cInd = cIndex_(nPoints_-1);
-	result = OK;
-	if (debug_){
-	  std::cout<<"Found real local minimum in PCA"<<std::endl;
-	}
-      } else {
-	//keep this trial point and continue
-	dStep = 1.;
-	if (debug_){
-	  std::cout<<"Found branch point in PCA"<<std::endl;
-	}
-      }
-    }
-
-    if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
-
-    if (p3_[cInd].mag() < 0.1 ) result = RANGEOUT;
-
-    if ( curR > 20000 || fabs(curZ) > 20000 ) result = INACC;
-
-    makeNextStep = result == UNDEFINED;
-  }
-
-  if (debug_){
-    switch (type) {
-    case RADIUS_DT:
-      std::cout<<"going to radius "<<pars[RADIUS_P]<<std::endl;
-      break;
-    case Z_DT:
-      std::cout<<"going to z "<<pars[Z_P]<<std::endl;
-      break;
-    case PATHL_DT:
-      std::cout<<"going to pathL "<<pars[PATHL_P]<<std::endl;
-      break;
-    case PLANE_DT:
-      {
-	Point rPlane(pars[0], pars[1], pars[2]);
-	Vector nPlane(pars[3], pars[4], pars[5]);
+    if (nPoints_ > MAX_STEPS || nOsc > 6 || fabs(curZ) > 20000 
+	|| dist<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
+      makeNextStep = false ;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
+      if (debug_){
 	std::cout<<"going to plane r0:"<<rPlane<<" n:"<<nPlane<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<r3_[cInd]<<std::endl;
       }
-      break;
-    case POINT_PCA_DT:
-      {
-	Point rDest(pars[0], pars[1], pars[2]);
-	std::cout<<"going to PCA to point "<<rDest<<std::endl;
-      }
-      break;
-    case LINE_PCA_DT:
-      {
-	Point rDest1(pars[0], pars[1], pars[2]);
-	Point rDest2(pars[3], pars[4], pars[5]);
-	std::cout<<"going to PCA to line "<<rDest1<<" - "<<rDest2<<std::endl;
-      }
-      break;
-    default:
-      std::cout<<"going to NOT IMPLEMENTED"<<std::endl;
-      break;
     }
-    std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<r3_[cInd]<<std::endl;
   }
-  
+
+//   dir = alongMomentum;
+//   for (int iPoint = 0; iPoint < 500; iPoint++){
+//     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+//     nPoints_++;
+//   }
+//   std::cout<<"Now reverse direction "<<std::endl;
+//   dir = oppositeToMomentum;
+//   for (int iPoint = 0; iPoint < 500; iPoint++){
+//     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+//     nPoints_++;
+//   }
+//   std::cout<<"did I get to the original point? "<<std::endl;
+
   return result;
 }
-  
+
+
 void SteppingHelixPropagator::loadState(int ind, 
 					const SteppingHelixPropagator::Vector& p3, 
 					const SteppingHelixPropagator::Point& r3, int charge,
@@ -818,98 +800,17 @@ int SteppingHelixPropagator::cIndex_(int ind) const{
   return result;
 }
 
-SteppingHelixPropagator::Result
-SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest, 
-				   int ind, const double pars[6], 
-				   double& dist, double& secTheta, bool& isIncoming) const{
-  Result result = NOT_IMPLEMENTED;
+void SteppingHelixPropagator::refToPlane(int ind, const double pars[6], double& dist, 
+					 bool& isIncoming) const{
   int cInd = cIndex_(ind);
-  double curZ = r3_[cInd].z();
-  double curR = r3_[cInd].perp();
-  
-  switch (dest){
-  case RADIUS_DT:
-    {
-      dist = pars[RADIUS_P] - curR;
-      double cosDPhiPR = cos((r3_[cInd].deltaPhi(p3_[cInd])));
-      secTheta = 1./p3_[cInd].perp()*p3_[cInd].mag();
-      isIncoming = (dist*cosDPhiPR > 0 || curR < 2e-1);
-      result = OK;
-    }
-    break;
-  case Z_DT:
-    {
-      dist = pars[Z_P] - curZ;
-      secTheta = 1./p3_[cInd].z()*p3_[cInd].mag();
-      isIncoming = p3_[cInd].z()*dist > 0.;
-      result = OK;
-    }
-    break;
-  case PLANE_DT:
-    {
-      Point rPlane(pars[0], pars[1], pars[2]);
-      Vector nPlane(pars[3], pars[4], pars[5]);
-      
-      double dRDotN = (r3_[cInd] - rPlane).dot(nPlane);
-      
-      dist = fabs(dRDotN);
-      secTheta = 1./p3_[cInd].dot(nPlane)*p3_[cInd].mag();
-      isIncoming = (p3_[cInd].dot(nPlane))*dRDotN < 0.;
-      result = OK;
-    }
-    break;
-//   case CONE_DT:
-//     break;
-//   case CYLINDER_DT:
-//     break;
-  case PATHL_DT:
-    {
-      double curS = fabs(path_[cInd]);
-      dist = pars[PATHL_P] - curS;
-      secTheta = 1.;
-      isIncoming = pars[PATHL_P] > 0 ? true : false;
-      result = OK;
-    }
-    break;
-  case POINT_PCA_DT:
-    {
-      Point pDest(pars[0], pars[1], pars[2]);
-      dist = (r3_[cInd] - pDest).mag();
-      secTheta = (r3_[cInd] - pDest).dot(p3_[cInd])/(dist*p3_[cInd].mag());
-      isIncoming = secTheta < 0;
-      result = OK;
-    }
-    break;
-  case LINE_PCA_DT:
-    {
-      Point rLine(pars[0], pars[1], pars[2]);
-      Vector dLine(pars[3], pars[4], pars[5]);
-      dLine = (dLine - rLine);
-      dLine /= dLine.mag();
+  Point rPlane(pars[0], pars[1], pars[2]);
+  Vector nPlane(pars[3], pars[4], pars[5]);
 
-      Vector dR = r3_[cInd] - rLine;
-      Vector dRPerp = dR - dLine*(dR.dot(dLine));
-      dist = dRPerp.mag();
-      secTheta = dRPerp.dot(p3_[cInd])/(dist*p3_[cInd].mag());
-      //angle wrt line
-      double cosAlpha = dLine.dot(p3_[cInd])/p3_[cInd].mag();
-      secTheta *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)));
-      isIncoming = secTheta < 0;
-      result = OK;
-    }
-    break;
-  default:
-    {
-      //some large number
-      dist = 1e12;
-      secTheta = 1e12;
-      isIncoming = true;
-      result = NOT_IMPLEMENTED;
-    }
-    break;
-  }
+  double dRDotN = (r3_[cInd] - rPlane).dot(nPlane);
 
-  return result;
+  dist = fabs(dRDotN);
+  isIncoming = (p3_[cInd].dot(nPlane))*dRDotN < 0.;
+
 }
 
 //transforms 6x6 "local" cov matrix (r_3x3, p_3x3)
