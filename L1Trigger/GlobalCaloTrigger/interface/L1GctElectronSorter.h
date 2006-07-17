@@ -53,8 +53,6 @@ class L1GctElectronSorter : public L1GctProcessor
   /// set input candidate
   void setInputEmCand(int i, L1CaloEmCand cand);
   ///	
-  /// converts from L1CaloEmCand to L1GctEmCand
-  std::vector<L1GctEmCand> convert(std::vector<L1CaloEmCand> cand);
   /// get input candidates
   inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
   ///
@@ -66,16 +64,19 @@ class L1GctElectronSorter : public L1GctProcessor
  private:
   /// comparison operator for sort
   struct rank_gt : public binary_function<L1GctEmCand, L1GctEmCand, bool> {
-    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { return x.rank() > y.rank(); }
+    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { if(x.rank()!=y.rank()){return x.rank() > 
+y.rank();}else{if(x.phiIndex()>y.phiIndex()){return y.rank() > x.rank();}else{return x.rank() > y.rank();}}}
   };
+  /// converts from L1CaloEmCand to L1GctEmCand
+  std::vector<L1GctEmCand> convertCaloToGct(std::vector<L1CaloEmCand> cand);
   
  private:
   ///
   /// algo ID (is it FPGA 1 or 2 processing)
   int m_id;
   ///
-  /// type of electrons to sort (isolated or non isolated)
-  bool m_emCandType;
+  /// type of electron to sort (isolated = 0 or non isolated = 1)
+  bool m_isolation;
   ///
   /// source card input
   std::vector<L1GctSourceCard*> m_theSCs;

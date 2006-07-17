@@ -10,7 +10,7 @@ using namespace std;
 
 L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1GctSourceCard*> sourceCards):
   m_id(nInputs),
-  m_emCandType(iso),
+  m_isolation(iso),
   m_theSCs(nInputs),
   m_inputCands(nInputs*4),
   m_outputCands(4)
@@ -24,14 +24,14 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
       m_theSCs[i] = sourceCards[i];
     }else{
       throw cms::Exception("L1GctSetupError")
-	<<"L1GctElectronSorter::L1GctElectronSorter() : Pointer to Source Card #"<<i<<" is zero";
+	<<"L1GctElectronSorter::L1GctElectronSorter() : Pointer to Source Card "<<i<<" is zero";
     }  
   }
 }
 
 L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso):
   m_id(nInputs),
-  m_emCandType(iso),
+  m_isolation(iso),
   m_theSCs(0),
   m_inputCands(nInputs),
   m_outputCands(4)
@@ -56,7 +56,7 @@ void L1GctElectronSorter::fetchInput() {
     // loop over 4 candidates per Source Card
     for (unsigned int j=0; j<4; j++) {
       // get EM candidates, depending on type
-      if (m_emCandType) {
+      if (m_isolation) {
 	setInputEmCand((j+i*4),m_theSCs[i]->getIsoElectrons()[j]);
       }else {
 	setInputEmCand((j+i*4),m_theSCs[i]->getNonIsoElectrons()[j]);
@@ -70,7 +70,7 @@ void L1GctElectronSorter::process() {
 
 
 //Convert from caloEmCand to gctEmCand and make temporary copy of data
-  std::vector<L1GctEmCand> data = this->convert(m_inputCands);
+  std::vector<L1GctEmCand> data = this->convertCaloToGct(m_inputCands);
  
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
@@ -88,7 +88,7 @@ void L1GctElectronSorter::setInputEmCand(int i, L1CaloEmCand cand){
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
   s << "===L1GctElectronSorter===" << std::endl;
-  s << "Algo type = " << ems.m_emCandType << std::endl;
+  s << "Algo type = " << ems.m_isolation << std::endl;
   s << "No of Source Cards = " << ems.m_theSCs.size() << std::endl;
   for (unsigned i=0; i<ems.m_theSCs.size(); i++) {
     s << "SourceCard* " << i << " = " << ems.m_theSCs[i]<<std::endl;
@@ -98,14 +98,80 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
   return s;
 }
 
-std::vector<L1GctEmCand> L1GctElectronSorter::convert(std::vector<L1CaloEmCand> cand){
+std::vector<L1GctEmCand> L1GctElectronSorter::convertCaloToGct(std::vector<L1CaloEmCand> cand){
   std::vector<L1GctEmCand> gctCand(cand.size());
+
   for(unsigned int i = 0;i!=cand.size();i++){
-    unsigned int rank = cand[i].rank();
-    int phi = 0;
-    int eta = 0;
-    bool iso = cand[i].isolated();
-    L1GctEmCand gctTemp(rank,phi,eta,iso);
+    unsigned rank = cand[i].rank();
+    unsigned card = cand[i].rctCard();
+    unsigned region = cand[i].rctRegion();
+    // unsigned crate = cand[i].rctCrate(); for now
+    //bool sign = (crate<9?1:0); for now
+    bool isolation = cand[i].isolated();
+    unsigned eta = 10; //initialisation value, outside eta range
+    unsigned phi = 50;
+    
+    switch(card){
+    case 0:
+      phi = 1;
+      if(region == 0){
+	eta = 0;
+      }else{
+	eta = 1;
+      }
+      break;
+    case 1:
+      phi = 1;
+      if(region == 0){
+	eta = 2;
+      }else{
+	eta = 3;
+      }	
+      break;
+    case 2:
+      phi = 1;
+      if(region == 0){
+	eta = 4;
+      }else{
+	eta = 5;
+      }	
+      break;
+    case 3:
+      phi = 0;
+      if(region == 0){
+	eta = 0;
+      }else{
+	eta = 1;
+      }	
+      break;
+    case 4:
+      phi = 0;
+      if(region == 0){
+	eta = 2;
+      }else{
+	eta = 3;
+      }	
+      break;
+    case 5:
+      phi = 0;
+      if(region == 0){
+	eta = 4;
+      }else{
+	eta = 5;
+      }	
+      break;
+    case 6:
+      if(region == 0){
+	eta = 6;
+	phi = 1;
+      }else{
+	eta = 6;
+	phi = 0;
+      }	
+      break;
+    }
+
+    L1GctEmCand gctTemp(rank,phi,eta,isolation);
     gctCand[i] = gctTemp;
   }
   return gctCand;
