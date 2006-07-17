@@ -49,7 +49,7 @@ namespace edm
       return ans;
     }
   }
-
+/*****************************************
 int serializeRegistry(Selections const& prods, InitMsgBuilder& init_message)
   {
 
@@ -321,7 +321,7 @@ std::auto_ptr<EventPrincipal> readEvent(const ProductRegistry& pr,
     return ep;
  } 
 
-
+*****************/
 
 
 
