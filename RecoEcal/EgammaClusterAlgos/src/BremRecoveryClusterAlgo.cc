@@ -72,6 +72,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 
       // and add the matching clusters:
       reco::BasicClusterRefVector constituentClusters;
+      constituentClusters.push_back(*currentSeed);
       reco::basicCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
