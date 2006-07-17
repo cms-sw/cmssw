@@ -12,7 +12,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
 {
   // Register my product
-  produces<reco::VertexCollection>("pixel");
+  produces<reco::VertexCollection>();
 
   // Setup shop
   verbose_           = conf.getParameter<int>("Verbosity"); // 0 silent, 1 chatty, 2 loud
@@ -79,5 +79,5 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // Finally, put them in the event if things look OK
-  if (ok) e.put(vertexes,"pixel");
+  if (ok) e.put(vertexes);
 }
