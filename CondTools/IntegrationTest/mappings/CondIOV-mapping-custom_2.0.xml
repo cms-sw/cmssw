@@ -3,7 +3,7 @@
 <Mapping version="CONDIOV-2.0" >
   <Class table="IOV" id_columns="ID" name="cond::IOV" >
     <Container table="IOV_DATA" id_columns="ID" name="iov" position_column="POS" >
-      <Primitive column="IOV_TOKEN" name="string" />
+      <Primitive column="IOV_TOKEN" name="mapped_type" />
       <Primitive column="IOV_TIME" name="key_type" />
     </Container >
   </Class >
