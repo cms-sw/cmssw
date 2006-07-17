@@ -71,7 +71,7 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
       }
     }
     algo_ = new EcalTrigPrimFunctionalAlgo(setup, valTree_,binOfMaximum_,nrSamples_,ttfThreshLow_,ttfThreshHigh_);
-    edm::LogInfo("constructor") <<" EcalTrigPrimProducer built with nrSamples: "<<nrSamples_<<" found binOfMaximum = "<<binOfMaximum_<<endl;
+    edm::LogInfo("constructor") <<"EcalTrigPrimProducer will write : "<<nrSamples_<<"samples for each digi,  binOfMaximum used ; "<<binOfMaximum_;
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -93,7 +93,6 @@ void
 EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
 
-  //  using namespace edm;
   edm::Handle<EBDigiCollection> ebDigis;
   e.getByLabel(label_,ebDigis);
   edm::Handle<EEDigiCollection> eeDigis;
@@ -111,6 +110,7 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
       if ((*pOut)[i][isam].raw()) LogDebug("Produced for ") <<" Tower "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();
     }
   }
+  edm::LogInfo("produce") <<"For Barrel + Endcap, "<<pOut->size()<<" TP Digis were produced";
 	
   // put result into the Event
   e.put(pOut);
