@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/08 09:27:40 $
- * $Revision: 1.165 $
+ * $Date: 2006/07/12 19:18:23 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -984,6 +984,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( me ) {
       s = me->valueString();
       runtype_ = atoi(s.substr(2,s.size()-2).c_str());
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
@@ -1083,8 +1084,8 @@ void EcalBarrelMonitorClient::analyze(void){
         time_t seconds = 15 * 60;
         if ( (current_time_ - last_time_) > seconds ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC || 
-              runtype_ == EcalDCCHeaderBlock::BEAMH2 || 
-              runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+               runtype_ == EcalDCCHeaderBlock::BEAMH2 || 
+               runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
         }
       }
 
