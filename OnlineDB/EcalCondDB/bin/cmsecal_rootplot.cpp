@@ -227,7 +227,7 @@ public:
     plot->GetXaxis()->SetTitle(m_xtitle.c_str());
     plot->GetYaxis()->SetTitle(m_ytitle.c_str());
     plot->SetMarkerStyle(21);
-    plot->Draw("APL");
+    plot->Draw("AP");
 
     c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
     plot->Write();
