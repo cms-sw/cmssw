@@ -18,7 +18,7 @@ int main() {
 
   // GCT region number
   ofstream gctRgnPlot("gctRgnPlot.txt", ios::out);
-  makePlot(gctRgnPlot, 0);
+  makePlot(gctRgnPlot, 1);
 
   // RCT crate number
   ofstream rctCratePlot("rctCratePlot.txt", ios::out);
@@ -89,7 +89,7 @@ void makePlot(ofstream &of, int plot) {
 	of << setw(2) << (rgn.isForward()?1:0) << " "; break;
 
 
-      deafult :
+      default :
 	break;
       }
 
