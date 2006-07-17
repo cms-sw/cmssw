@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.13 2006/06/30 13:26:24 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.14 2006/07/03 07:16:40 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2006/06/30 13:26:24 $
+  \version $Revision: 1.14 $
+  \date $Date: 2006/07/03 07:16:40 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -33,7 +33,7 @@ class EBMUtilsClient {
    */
   template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 ) {
     if( me ) {
-      LogDebug( "EBMUtilsClient" ) << "Found '" << me->getName() <<"'"; 
+      // cout << "Found '" << me->getName() <<"'"; 
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
       if( ob ) { 
         if( clone ) {
