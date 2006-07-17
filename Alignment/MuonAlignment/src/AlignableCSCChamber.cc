@@ -2,7 +2,10 @@
 
 
 /// The constructor gets all components and stores them as AlignableDets
-AlignableCSCChamber::AlignableCSCChamber( GeomDet* geomDet  ) : AlignableComposite( geomDet )
+AlignableCSCChamber::AlignableCSCChamber( const GeomDet* geomDet  ) : 
+  AlignableComposite( geomDet ),
+  theDetId( geomDet->geographicalId() ),
+  theAlignmentPositionError(0)
 {
 
   // Retrieve components
@@ -11,13 +14,12 @@ AlignableCSCChamber::AlignableCSCChamber( GeomDet* geomDet  ) : AlignableComposi
 	  std::vector<const GeomDet*> m_SuperLayers = geomDet->components();
 	  for ( std::vector<const GeomDet*>::iterator iGeomDet = m_SuperLayers.begin(); 
 			iGeomDet != m_SuperLayers.end(); iGeomDet++ )
-		{
-		  GeomDet* tmpGeomDet = const_cast<GeomDet*>(*iGeomDet);
-		  theDets.push_back( new AlignableDet(tmpGeomDet) );
-		}
+		theDets.push_back( new AlignableDet( *iGeomDet ) );
 	}
 
-  setSurface( computeSurface() );
+  // Also store width and length of geomdet surface
+  theWidth  = geomDet->surface().bounds().width();
+  theLength = geomDet->surface().bounds().length();
 
 }
 
@@ -33,6 +35,8 @@ AlignableCSCChamber::~AlignableCSCChamber()
 		iter != theDets.end(); iter++)
     delete *iter;
 
+  delete theAlignmentPositionError;
+
 }
 
 
@@ -47,11 +51,6 @@ std::vector<Alignable*> AlignableCSCChamber::components() const
   
 }
 
-
-
-
-
-
 /// Return Alignable CSC Chamber at given index
 AlignableDet& AlignableCSCChamber::det( int i )
 {
@@ -63,45 +62,124 @@ AlignableDet& AlignableCSCChamber::det( int i )
   
 }
 
-
-
-
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
-AlignableSurface AlignableCSCChamber::computeSurface()
+//__________________________________________________________________________________________________
+void AlignableCSCChamber::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
-  return AlignableSurface( computePosition(), computeOrientation() );
+  if ( !theAlignmentPositionError )
+	theAlignmentPositionError = new AlignmentPositionError( ape );
+  else 
+	*theAlignmentPositionError = ape;
+
+  AlignableComposite::setAlignmentPositionError( ape );
 
 }
 
 
-/// Compute average position from geomDet
-AlignableCSCChamber::PositionType AlignableCSCChamber::computePosition() 
+//__________________________________________________________________________________________________
+void AlignableCSCChamber::addAlignmentPositionError(const AlignmentPositionError& ape)
 {
+
+  if ( !theAlignmentPositionError ) this->setAlignmentPositionError( ape );
+  else 
+    this->setAlignmentPositionError( *theAlignmentPositionError += ape );
+
+  AlignableComposite::addAlignmentPositionError( ape );
+
+}
+
+//__________________________________________________________________________________________________
+void AlignableCSCChamber::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
+{
+
+  // average error calculated by movement of a local point at
+  // (xWidth/2,yLength/2,0) caused by the rotation rot
+  const GlobalVector localPositionVector = this->globalPosition()
+    - this->surface().toGlobal( Local3DPoint(theWidth/2.0, theLength/2.0, 0.) );
+
+  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
+
+  AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
+  this->addAlignmentPositionError( ape );
+
+  AlignableComposite::addAlignmentPositionErrorFromRotation( rot );
+
+}
+
+
+//__________________________________________________________________________________________________
+void AlignableCSCChamber::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot )
+{
+
+  RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
+  this->addAlignmentPositionErrorFromRotation(globalRot);
+
+  AlignableComposite::addAlignmentPositionErrorFromLocalRotation( rot );
+
+}
+
+
+//__________________________________________________________________________________________________
+Alignments* AlignableCSCChamber::alignments() const
+{
+
+  Alignments* m_alignments = new Alignments();
+  RotationType rot( this->globalRotation() );
+
+  // Get position, rotation, detId
+  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+										rot.yx(), rot.yy(), rot.yz(),
+										rot.zx(), rot.zy(), rot.zz() ) );
+  uint32_t detId = this->detId().rawId();
   
-  return theGeomDet->position();
-
-}
-
-
-/// Compute orientation from geomDet
-AlignableCSCChamber::RotationType AlignableCSCChamber::computeOrientation() 
-{
+  AlignTransform transform( clhepVector, clhepRotation, detId );
   
-  return theGeomDet->rotation();
+  // Add to alignments container
+  m_alignments->m_align.push_back( transform );
+
+  // Add components recursively
+  std::vector<Alignable*> comp = this->components();
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  Alignments* tmpAlignments = (*i)->alignments();
+	  std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				 std::back_inserter(m_alignments->m_align) );
+	}
+  
+  return m_alignments;
 
 }
 
 
-/// Return length from surface
-float AlignableCSCChamber::length() const 
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableCSCChamber::alignmentErrors( void ) const
 {
 
-  return theGeomDet->surface().bounds().length();
+
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add associated alignment position error
+  uint32_t detId = this->detId().rawId();
+  HepSymMatrix clhepSymMatrix(3,0);
+  if ( theAlignmentPositionError ) // Might not be set
+    clhepSymMatrix= theAlignmentPositionError->globalError().matrix();
+  AlignTransformError transformError( clhepSymMatrix, detId );
+  m_alignmentErrors->m_alignError.push_back( transformError );
+  
+  // Add components recursively (if it is not already an alignable det unit)
+  std::vector<Alignable*> comp = this->components();
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+	  std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				 std::back_inserter(m_alignmentErrors->m_alignError) );
+	}
+  
+  return m_alignmentErrors;
 
 }
-
 
 
 
@@ -124,14 +202,13 @@ std::ostream &operator << ( std::ostream &os, const AlignableCSCChamber & r )
 	  for ( int i=0; i<(*idet)->size();i++) 
 		{
 		  os << "     Det position, phi, r: " 
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position() << " , "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().phi() << " , "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().perp() << std::endl; 
+			 << (*idet)->detUnit(i).globalPosition() << " , "
+			 << (*idet)->detUnit(i).globalPosition().phi() << " , "
+			 << (*idet)->detUnit(i).globalPosition().perp() << std::endl; 
 		  os << "     local  position, phi, r: " 
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()) 
-			 << " , "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).phi() << " , "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).perp() << std::endl; 
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() )        << " , "
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).phi()  << " , "
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).perp() << std::endl; 
 		}
 	}
   return os;

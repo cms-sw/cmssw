@@ -1,8 +1,11 @@
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 
 
-/// The constructor gets all components and stores them as AlignableDets
-AlignableDTChamber::AlignableDTChamber( GeomDet* geomDet ) : AlignableComposite( geomDet )
+// The constructor gets all components and stores them as AlignableDets
+AlignableDTChamber::AlignableDTChamber( const GeomDet* geomDet ) : 
+  AlignableComposite( geomDet ),
+  theDetId( geomDet->geographicalId() ),
+  theAlignmentPositionError(0)
 {
 
   // Retrieve components
@@ -11,20 +14,17 @@ AlignableDTChamber::AlignableDTChamber( GeomDet* geomDet ) : AlignableComposite(
 	  std::vector<const GeomDet*> m_SuperLayers = geomDet->components();
 	  for ( std::vector<const GeomDet*>::iterator iGeomDet = m_SuperLayers.begin(); 
 			iGeomDet != m_SuperLayers.end(); iGeomDet++ )
-		{
-		  GeomDet* tmpGeomDet = const_cast<GeomDet*>(*iGeomDet);
-		  theDets.push_back( new AlignableDet(tmpGeomDet) );
-		}
+		theDets.push_back( new AlignableDet( *iGeomDet ) );
 	}
 
-  setSurface( computeSurface() );
+  // Also store width and length of geomdet surface
+  theWidth  = geomDet->surface().bounds().width();
+  theLength = geomDet->surface().bounds().length();
 
 }
 
 
-      
-
-/// Destructor: delete all AlignableDet objects
+// Destructor: delete all AlignableDet objects
 AlignableDTChamber::~AlignableDTChamber() 
 {
 
@@ -33,11 +33,13 @@ AlignableDTChamber::~AlignableDTChamber()
 		iter != theDets.end(); iter++)
     delete *iter;
 
+  delete theAlignmentPositionError;
+
 }
 
 
 
-/// Return all components of the chamber (as Alignables)
+// Return all components of the chamber (as Alignables)
 std::vector<Alignable*> AlignableDTChamber::components() const 
 {
 
@@ -48,11 +50,7 @@ std::vector<Alignable*> AlignableDTChamber::components() const
 }
 
 
-
-
-
-
-/// Return Alignable DT Chamber at given index
+// Return Alignable DT Chamber at given index
 AlignableDet& AlignableDTChamber::det( int i )
 {
 
@@ -64,43 +62,124 @@ AlignableDet& AlignableDTChamber::det( int i )
 }
 
 
-
-
-/// Returns surface corresponding to current position and orientation
-AlignableSurface AlignableDTChamber::computeSurface()
+//__________________________________________________________________________________________________
+void AlignableDTChamber::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
-  return AlignableSurface( computePosition(), computeOrientation() );
+  if ( !theAlignmentPositionError )
+	theAlignmentPositionError = new AlignmentPositionError( ape );
+  else 
+	*theAlignmentPositionError = ape;
+
+  AlignableComposite::setAlignmentPositionError( ape );
 
 }
 
 
-/// Compute average position from geomDet
-AlignableDTChamber::PositionType AlignableDTChamber::computePosition() 
+//__________________________________________________________________________________________________
+void AlignableDTChamber::addAlignmentPositionError(const AlignmentPositionError& ape)
 {
+
+  if ( !theAlignmentPositionError ) this->setAlignmentPositionError( ape );
+  else 
+    this->setAlignmentPositionError( *theAlignmentPositionError += ape );
+
+  AlignableComposite::addAlignmentPositionError( ape );
+
+}
+
+//__________________________________________________________________________________________________
+void AlignableDTChamber::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
+{
+
+  // average error calculated by movement of a local point at
+  // (xWidth/2,yLength/2,0) caused by the rotation rot
+  const GlobalVector localPositionVector = this->globalPosition()
+    - this->surface().toGlobal( Local3DPoint(theWidth/2.0, theLength/2.0, 0.) );
+
+  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
+
+  AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
+  this->addAlignmentPositionError( ape );
+
+  AlignableComposite::addAlignmentPositionErrorFromRotation( rot );
+
+}
+
+
+//__________________________________________________________________________________________________
+void AlignableDTChamber::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot )
+{
+
+  RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
+  this->addAlignmentPositionErrorFromRotation(globalRot);
+
+  AlignableComposite::addAlignmentPositionErrorFromLocalRotation( rot );
+
+}
+
+
+//__________________________________________________________________________________________________
+Alignments* AlignableDTChamber::alignments() const
+{
+
+  Alignments* m_alignments = new Alignments();
+  RotationType rot( this->globalRotation() );
+
+  // Get position, rotation, detId
+  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+  HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
+										rot.yx(), rot.yy(), rot.yz(),
+										rot.zx(), rot.zy(), rot.zz() ) );
+  uint32_t detId = this->detId().rawId();
   
-  return theGeomDet->position();
+  AlignTransform transform( clhepVector, clhepRotation, detId );
+  
+  // Add to alignments container
+  m_alignments->m_align.push_back( transform );
+
+  // Add components recursively
+  std::vector<Alignable*> comp = this->components();
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  Alignments* tmpAlignments = (*i)->alignments();
+	  std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				 std::back_inserter(m_alignments->m_align) );
+	}
+  
+  return m_alignments;
 
 }
 
 
-/// Compute orientation from geomDet
-AlignableDTChamber::RotationType AlignableDTChamber::computeOrientation() {
-
-  return theGeomDet->rotation();
-
-}
-
-
-
-/// Return length from surface
-float AlignableDTChamber::length() const 
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableDTChamber::alignmentErrors( void ) const
 {
 
-  return theGeomDet->surface().bounds().length();
+
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add associated alignment position error
+  uint32_t detId = this->detId().rawId();
+  HepSymMatrix clhepSymMatrix(3,0);
+  if ( theAlignmentPositionError ) // Might not be set
+    clhepSymMatrix= theAlignmentPositionError->globalError().matrix();
+  AlignTransformError transformError( clhepSymMatrix, detId );
+  m_alignmentErrors->m_alignError.push_back( transformError );
+  
+  // Add components recursively (if it is not already an alignable det unit)
+  std::vector<Alignable*> comp = this->components();
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+	  std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				 std::back_inserter(m_alignmentErrors->m_alignError) );
+	}
+  
+  return m_alignmentErrors;
 
 }
-
 
 
 /// Printout the Dets in the DT chamber
@@ -122,14 +201,13 @@ std::ostream &operator << ( std::ostream &os, const AlignableDTChamber & r )
 	  for ( int i=0; i<(*idet)->size();i++) 
 		{
 		  os << "     Det position, phi, r: " 
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position() << " , "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().phi() << " , "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().perp() << std::endl; 
+			 << (*idet)->detUnit(i).globalPosition() << " , "
+			 << (*idet)->detUnit(i).globalPosition().phi() << " , "
+			 << (*idet)->detUnit(i).globalPosition().perp() << std::endl; 
 		  os << "     local  position, phi, r: " 
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()) 
-			 << " , "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).phi() << " , "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).perp() << std::endl; 
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() )        << " , "
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).phi()  << " , "
+			 << r.surface().toLocal( (*idet)->detUnit(i).globalPosition() ).perp() << std::endl; 
 		}
 	}
   return os;

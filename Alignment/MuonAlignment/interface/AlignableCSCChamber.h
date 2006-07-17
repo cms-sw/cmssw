@@ -27,30 +27,56 @@ class AlignableCSCChamber: public AlignableComposite
   friend std::ostream& operator << ( std::ostream &, const AlignableCSCChamber & ); 
   
 
-  /// Constructor from geomdets of the CSCChamber components
-  AlignableCSCChamber( GeomDet* geomDet );
+  /// Constructor from geomdet corresponding to CSCChamber
+  AlignableCSCChamber( const GeomDet* geomDet );
   
+  /// Destructor
   ~AlignableCSCChamber();
   
+  /// Return all direct components (superlayers)
   virtual std::vector<Alignable*> components() const ;
 
+  /// Return component (superlayer) at given index
   AlignableDet &det(int i);
 
-  virtual float length() const;
+  /// Return corresponding GeomDet ID
+  virtual DetId geomDetId() const { return theDetId; }
+
+  /// Return length of alignable
+  virtual float length() const { return theLength; }
+
+  /// Set alignment position error of this and all components to given error
+  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the global reference frame
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the local reference frame
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
   virtual int alignableObjectId () const { return AlignableObjectId::AlignableCSCChamber; }
 
+  /// Return vector of alignment data
+  virtual Alignments* alignments() const;
+
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const;
+
  private:
-  // gets the global position as the average over all Dets in the Rod
-  PositionType computePosition(); 
-  // get the global orientation
-  RotationType computeOrientation(); //see explanation for "theOrientation"
-  // get the Surface
-  AlignableSurface computeSurface();
 
-  std::vector<AlignableDet*> theDets;
+  std::vector<AlignableDet*> theDets;      ///< Vector of components
 
+  DetId theDetId;                          ///< Associated GeomDet Id
+
+  float theWidth, theLength;
+
+  AlignmentPositionError* theAlignmentPositionError;
 
 };
 

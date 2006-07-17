@@ -14,7 +14,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
 
 //--------------------------------------------------------------------------------------------------
-AlignableMuon::AlignableMuon( DTGeometry* dtGeometry , CSCGeometry* cscGeometry )
+AlignableMuon::AlignableMuon( const DTGeometry* dtGeometry , const CSCGeometry* cscGeometry )
 {
 
   // Build the muon barrel
@@ -23,6 +23,8 @@ AlignableMuon::AlignableMuon( DTGeometry* dtGeometry , CSCGeometry* cscGeometry 
   // Build the muon end caps
   buildCSCEndcap( cscGeometry );
 
+  // Set links to mothers recursively
+  recursiveSetMothers( this );
 
   edm::LogInfo("AlignableMuon") << "Constructing alignable muon objects DONE";
 
@@ -34,7 +36,7 @@ AlignableMuon::~AlignableMuon()
 {
 
   for ( std::vector<Alignable*>::iterator iter=theMuonComponents.begin();
-	iter != theMuonComponents.end(); iter++){
+		iter != theMuonComponents.end(); iter++){
     delete *iter;
   }
       
@@ -43,7 +45,7 @@ AlignableMuon::~AlignableMuon()
 
 
 //--------------------------------------------------------------------------------------------------
-void AlignableMuon::buildDTBarrel( DTGeometry* pDT  )
+void AlignableMuon::buildDTBarrel( const DTGeometry* pDT  )
 {
   
  LogDebug("Position") << "Constructing AlignableDTBarrel"; 
@@ -137,7 +139,7 @@ void AlignableMuon::buildDTBarrel( DTGeometry* pDT  )
 //--------------------------------------------------------------------------------------------------
 
 
-void AlignableMuon::buildCSCEndcap( CSCGeometry* pCSC  )
+void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
 {
   
  LogDebug("Position") << "Constructing AlignableCSCBarrel"; 
@@ -164,7 +166,7 @@ void AlignableMuon::buildCSCEndcap( CSCGeometry* pCSC  )
 
         // Get chamber, station, ring, layer and endcap labels of the CSC chamber
         int ec = cscId.endcap();
-        int ch = cscId.chamber();
+        //int ch = cscId.chamber();
         int st = cscId.station();
 
         // Select the chambers in a given endcap in a given station
@@ -277,7 +279,16 @@ std::vector<Alignable*> AlignableMuon::CSCEndcaps()
 }
 
 
-//--------------------------------------------------------------------------------------------------
+//__________________________________________________________________________________________________
+void AlignableMuon::recursiveSetMothers( Alignable* alignable )
+{
+  
+  std::vector<Alignable*> components = alignable->components();
+  for ( std::vector<Alignable*>::iterator iter = components.begin();
+		iter != components.end(); iter++ )
+	{
+	  (*iter)->setMother( alignable );
+	  recursiveSetMothers( *iter );
+	}
 
-
-
+}

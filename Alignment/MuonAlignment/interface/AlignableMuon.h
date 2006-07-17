@@ -42,7 +42,7 @@ class AlignableMuon: public AlignableComposite
 public:
 
   /// Constructor from geometries
-  AlignableMuon( DTGeometry* , CSCGeometry* );
+  AlignableMuon( const DTGeometry* , const CSCGeometry* );
 
   /// Destructor
   ~AlignableMuon();
@@ -56,6 +56,9 @@ public:
   
   /// Return all components
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
+
+  /// Alignable tracker has no mother
+  virtual Alignable* mother() { return 0; }
 
   // Methods to return specific of components
   std::vector<Alignable*> DTChambers();
@@ -85,16 +88,13 @@ private:
 
 
    // Build muon barrel
-  void buildDTBarrel( DTGeometry*  );
+  void buildDTBarrel( const DTGeometry*  );
 
   // Build muon end caps
-  void buildCSCEndcap( CSCGeometry*  );
+  void buildCSCEndcap( const CSCGeometry*  );
 
-
-
-  /// Return all components of a given type
-//  std::vector<const GeometricDet*> getAllComponents( const GeometricDet* Det, const GeometricDet::GDEnumType type ) const;  
-
+  /// Set mothers recursively
+  void recursiveSetMothers( Alignable* alignable );
 
 
   // Containers of separate components
