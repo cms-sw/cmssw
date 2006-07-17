@@ -126,7 +126,7 @@ void DoCompare( char* Energy ){
    hpro1[i]  = dynamic_cast<TProfile*>(reffile->Get(label3[i]));
    hpro2[i]  = dynamic_cast<TProfile*>(curfile->Get(label3[i]));
    if (hpro1[i] == 0 || hpro2[i] == 0) continue ;
-   TF1 *f1 = new TF1("f1","pol1", 0.0, 150);
+   TF1 *f1 = new TF1("f1","pol1");
    c1.cd(1);
    hpro1[i]->Fit(f1,"Q");
    hpro1[i]->Draw();
