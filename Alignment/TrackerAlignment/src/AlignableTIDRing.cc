@@ -3,10 +3,10 @@
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
-AlignableTIDRing::AlignableTIDRing( std::vector<GeomDet*>& geomDets ) 
+AlignableTIDRing::AlignableTIDRing( GeomDetContainer& geomDets ) 
 {
 
-  for ( std::vector<GeomDet*>::iterator iGeomDet = geomDets.begin(); 
+  for ( GeomDetContainer::iterator iGeomDet = geomDets.begin(); 
 		iGeomDet != geomDets.end(); iGeomDet++ )
     theDets.push_back( new AlignableDet(*iGeomDet) );  
 
@@ -115,14 +115,14 @@ std::ostream &operator << ( std::ostream &os, const AlignableTIDRing & r )
 	  for (int i=0;i<(*idet)->size(); i++) 
 		{
 		  os << "      Det" << i << " position, phi, r: " 
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position() << ", "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().phi() << ", "
-			 << ((*idet)->geomDetUnit(i).geomDetUnit())->position().perp() << std::endl; 
+			 << ((*idet)->detUnit(i)).globalPosition() << ", "
+			 << ((*idet)->detUnit(i)).globalPosition().phi() << ", "
+			 << ((*idet)->detUnit(i)).globalPosition().perp() << std::endl; 
 		  
 		  os << "      local position, phi, r: " 
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()) << ", "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).phi() << ", "
-			 << r.surface().toLocal(((*idet)->geomDetUnit(i).geomDetUnit())->position()).perp() << std::endl; 
+			 << r.surface().toLocal(((*idet)->detUnit(i)).globalPosition()) << ", "
+			 << r.surface().toLocal(((*idet)->detUnit(i)).globalPosition()).phi() << ", "
+			 << r.surface().toLocal(((*idet)->detUnit(i)).globalPosition()).perp() << std::endl; 
 		}
 	}
   return os;

@@ -23,8 +23,8 @@ class AlignableTracker: public AlignableComposite
 
 public:
   
-  /// Constructor from record (builds the full hierarchy)
-  AlignableTracker( const GeometricDet* geometricDet, TrackerGeometry* trackerGeometry ); 
+  /// Constructor (builds the full hierarchy)
+  AlignableTracker( const GeometricDet* geometricDet, const TrackerGeometry* trackerGeometry ); 
 
   /// Destructor
   ~AlignableTracker();
@@ -41,6 +41,9 @@ public:
   
   /// Return all components
   virtual std::vector<Alignable*> components() const { return theTrackerComponents; }
+
+  /// Alignable tracker has no mother
+  virtual Alignable* mother() { return 0; }
 
   /// Return TOB half barrels
   std::vector<Alignable*> outerHalfBarrels();
@@ -135,9 +138,12 @@ private:
   std::vector<const GeometricDet*> getAllComponents( const GeometricDet* Det,
 													 const GeometricDet::GDEnumType type ) const;  
 
+  /// Set mothers recursively
+  void recursiveSetMothers( Alignable* alignable );
+
 private:
 
-  TrackerGeometry* theTrackerGeometry;   // To convert DetIds to GeomDets
+  const TrackerGeometry* theTrackerGeometry;   // To convert DetIds to GeomDets
   
   // Container of all components
   std::vector<Alignable*> theTrackerComponents;

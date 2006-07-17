@@ -18,12 +18,13 @@ public:
 
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
+  typedef std::vector<const GeomDet*> GeomDetContainer;
 
   /// Printout all DetUnits in the Petal
   friend std::ostream& operator << ( std::ostream &, const AlignableTrackerPetal & ); 
   
   /// Constructor from GeomDets
-  AlignableTrackerPetal( std::vector<GeomDet*>& geomDets );
+  AlignableTrackerPetal( GeomDetContainer& geomDets );
 
   /// Destructor
   ~AlignableTrackerPetal();

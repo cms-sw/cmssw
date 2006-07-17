@@ -20,7 +20,7 @@
 
 //--------------------------------------------------------------------------------------------------
 AlignableTracker::AlignableTracker( const GeometricDet* geometricDet, 
-									TrackerGeometry* trackerGeometry )
+									const TrackerGeometry* trackerGeometry )
 {
 
   // The XML geometry is accessed through the GeometricDet class.
@@ -63,6 +63,9 @@ AlignableTracker::AlignableTracker( const GeometricDet* geometricDet,
 		}
       
     }
+
+  // Set links to mothers recursively
+  recursiveSetMothers( this );
   
   edm::LogInfo("AlignableTracker") << "Constructing alignable objects DONE"; 
 
@@ -960,7 +963,19 @@ AlignableTracker::getAllComponents(
 }
 
 
+//__________________________________________________________________________________________________
+void AlignableTracker::recursiveSetMothers( Alignable* alignable )
+{
 
+  std::vector<Alignable*> components = alignable->components();
+  for ( std::vector<Alignable*>::iterator iter = components.begin();
+		iter != components.end(); iter++ )
+	{
+	  (*iter)->setMother( alignable );
+	  recursiveSetMothers( *iter );
+	}
+
+}
 
 
 

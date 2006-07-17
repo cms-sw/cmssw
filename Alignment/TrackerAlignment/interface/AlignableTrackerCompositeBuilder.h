@@ -34,7 +34,7 @@ public:
 
   /// Build alignable object from list of GeomDets
   C* buildAlignable( _DetContainer Dets,
-					 TrackerGeometry* geomDetGeometry
+					 const TrackerGeometry* geomDetGeometry
 					 ) const;
 
 private:
@@ -48,19 +48,18 @@ private:
 //--------------------------------------------------------------------------------------------------
 template<class C> 
 C* AlignableTrackerCompositeBuilder<C>::buildAlignable( _DetContainer Dets,
-														TrackerGeometry* geomDetGeometry
+														const TrackerGeometry* geomDetGeometry
 														) const
 {
   
-  std::vector<GeomDet*> geomDets;
+  std::vector<const GeomDet*> geomDets;
   
   _DetContainer m_Dets = extractGeomDets( Dets );
 
-  for ( _DetContainer::iterator iDet = m_Dets.begin();
-		iDet != m_Dets.end(); iDet++ )
+  for ( _DetContainer::iterator iDet = m_Dets.begin(); iDet != m_Dets.end(); iDet++ )
 	{
 	  // Cast away const here
-	  GeomDet* geomDet = const_cast<GeomDet*>( geomDetGeometry->idToDet((*iDet)->geographicalID()) );
+	  const GeomDet* geomDet = geomDetGeometry->idToDet((*iDet)->geographicalID());
 	  geomDets.push_back( geomDet );
 	}
   
@@ -79,8 +78,7 @@ _DetContainer AlignableTrackerCompositeBuilder<C>::extractGeomDets( _DetContaine
 
   _DetContainer result;
 
-  for ( _DetContainer::iterator iDet = Dets.begin();
-		iDet != Dets.end(); iDet++ )
+  for ( _DetContainer::iterator iDet = Dets.begin(); iDet != Dets.end(); iDet++ )
 	{
 	  if ( (*iDet)->type() == GeometricDet::mergedDet
 		   || (*iDet)->type() == GeometricDet::DetUnit )

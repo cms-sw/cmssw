@@ -27,7 +27,7 @@ class AlignableTrackerRod: public AlignableComposite
   
 
   /// Constructor from geomdets of the rod's components
-  AlignableTrackerRod( std::vector<GeomDet*>& geomDets );
+  AlignableTrackerRod( std::vector<const GeomDet*>& geomDets );
   
   /// Destructor
   ~AlignableTrackerRod();

@@ -58,9 +58,8 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alig
   if ( alignable ) 
 	{
 	  AlignableDet* alignableDet = firstDet(alignable);
-	  GeomDet* geomDet = alignableDet->geomDet();
 	  if ( alignableDet ) 
-		return typeAndLayerFromGeomDet( *geomDet );
+		return typeAndLayerFromDetId( alignableDet->geomDetId() );
 	}
 
   return std::make_pair(0,0);
@@ -73,39 +72,47 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alig
 std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& geomDet )
 {
 
+  return typeAndLayerFromDetId( geomDet.geographicalId() );
+
+}
+
+//__________________________________________________________________________________________________
+// Returns alignable object id and layer (or wheel, or disk) number from a DetId
+std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId )
+{
+
   int layerNumber = 0;
 
-  DetId id = geomDet.geographicalId();
-  unsigned int subdetId = static_cast<unsigned int>(id.subdetId());
+  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
   if ( subdetId == StripSubdetector::TIB) 
 	{ 
-	  TIBDetId tibid(id.rawId()); 
+	  TIBDetId tibid(detId.rawId()); 
 	  layerNumber = tibid.layer();
 	}
   else if ( subdetId ==  StripSubdetector::TOB )
 	{ 
-	  TOBDetId tobid(id.rawId()); 
+	  TOBDetId tobid(detId.rawId()); 
 	  layerNumber = tobid.layer();
 	}
   else if ( subdetId ==  StripSubdetector::TID) 
 	{ 
-	  TIDDetId tidid(id.rawId());
+	  TIDDetId tidid(detId.rawId());
 	  layerNumber = tidid.wheel();
 	}
   else if ( subdetId ==  StripSubdetector::TEC )
 	{ 
-	  TECDetId tecid(id.rawId()); 
+	  TECDetId tecid(detId.rawId()); 
 	  layerNumber = tecid.wheel(); 
 	}
   else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
 	{ 
-	  PXBDetId pxbid(id.rawId()); 
+	  PXBDetId pxbid(detId.rawId()); 
 	  layerNumber = pxbid.layer();  
 	}
   else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
 	{ 
-	  PXFDetId pxfid(id.rawId()); 
+	  PXFDetId pxfid(detId.rawId()); 
 	  layerNumber = pxfid.disk();  
 	}
   else
@@ -163,7 +170,7 @@ unsigned int TrackerAlignableId::firstDetId( Alignable* alignable )
   if ( alignable ) 
 	{
 	  AlignableDet* alignableDet = firstDet( alignable );
-	  if ( alignableDet ) geomDetId = alignableDet->geomDet()->geographicalId().rawId();
+	  if ( alignableDet ) geomDetId = alignableDet->geomDetId().rawId();
 	}
 
   return geomDetId;

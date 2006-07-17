@@ -59,35 +59,35 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
-
+  
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
-  
+
   // Dump alignments BEFORE
   Alignments* alignments;
   if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) )
-	{
-	  alignments = theAlignableTracker->alignments();
-	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
-			it != alignments->m_align.end(); it++ )
- 		edm::LogInfo("DumpPositions")  << std::endl
- 									   << (*it).rawId() << " " << (*it).translation();
-	}
-
+    {
+      alignments = theAlignableTracker->alignments();
+      for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
+	    it != alignments->m_align.end(); it++ )
+	edm::LogInfo("DumpPositions")  << std::endl
+				       << (*it).rawId() << " " << (*it).translation();
+    }
+  
   // Create misalignment scenario
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
   
   // Dump alignments AFTER
   if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
-	{
-	  alignments = theAlignableTracker->alignments();
-	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
-			it != alignments->m_align.end(); it++ )
-		edm::LogInfo("DumpPositions")  << std::endl
-									   << (*it).rawId() << " " << (*it).translation();
-	}
-
+    {
+      alignments = theAlignableTracker->alignments();
+      for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
+	    it != alignments->m_align.end(); it++ )
+	edm::LogInfo("DumpPositions")  << std::endl
+				       << (*it).rawId() << " " << (*it).translation();
+    }
+  
   // Write alignments to DB
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{

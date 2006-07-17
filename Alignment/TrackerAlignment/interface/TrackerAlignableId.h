@@ -43,6 +43,9 @@ public:
   /// Return type and layer of GeomDet
   std::pair<int,int> typeAndLayerFromGeomDet( const GeomDet& geomDet );
 
+  /// Return type and layer of DetId
+  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId );
+
   /// Return string corresponding to given Alignable
   const std::string alignableTypeName( const Alignable* alignable ) const;
 

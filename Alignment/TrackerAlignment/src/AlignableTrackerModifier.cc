@@ -289,7 +289,7 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
 /// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
 void 
 AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool gaussian,
-												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ )
+						float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ )
 {
 
   
@@ -298,24 +298,24 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   // Get rotation vector according to arguments
   GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
+    {
+      message << "random ";
+      if (gaussian)
 	{
-	  message << "random ";
-	  if (gaussian)
-		{
-		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
-		  message << "gaussian ";
-		}
-	  else 
-		{
-		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
-		  message << "flat ";
-		}
+	  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+	  message << "gaussian ";
 	}
+      else 
+	{
+	  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+	  message << "flat ";
+	}
+    }
   
   message << "local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
-
+  
   edm::LogInfo("PrintArgs") << message.str(); // Arguments
-
+  
   edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
   if ( fabs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
   if ( fabs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );

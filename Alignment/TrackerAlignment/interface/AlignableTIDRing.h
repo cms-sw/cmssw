@@ -17,9 +17,10 @@ public:
 
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
+  typedef std::vector<const GeomDet*> GeomDetContainer;
 
   /// Constructor from GeomDets
-  AlignableTIDRing( std::vector<GeomDet*>& geomDets );
+  AlignableTIDRing( GeomDetContainer& geomDets );
   
   /// Destructor
   ~AlignableTIDRing();
