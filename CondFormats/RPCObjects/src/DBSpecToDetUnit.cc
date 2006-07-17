@@ -1,9 +1,13 @@
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
 #include <iostream>
+#include <string>
 
-uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, const std::string & roll) 
+
+uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, 
+   const FebLocationSpec & feb)
 {
   //
   //FIXME !!!  semi-dummy and buggy method, check carefully !!!!
@@ -57,6 +61,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, const std::
 
 
   // ROLL
+  std::string roll = feb.cmsEtaPartition;
   int iroll=0;
   if (roll=="B") {
     iroll = 1;

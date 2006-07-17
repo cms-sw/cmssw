@@ -31,7 +31,8 @@
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/FebSpec.h"
+#include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 
 using namespace std;
@@ -145,17 +146,18 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
          LinkConnSpec  lc(idlc); 
          for (int idlb=0; idlb <=2; idlb++) {
            bool master = (idlb==0);
-           ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
-           LinkBoardSpec lb(master, idlb, chamber);
+           LinkBoardSpec lb(master, idlb);
            for (int ifeb=0; ifeb <= 5; ifeb++) {
-             FebSpec feb(ifeb,"F",2,"F",2);
+             FebLocationSpec febLocation = {"F",2,"F",2};
+             ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
+             FebConnectorSpec febConn(ifeb, chamber, febLocation);
              for (int istrip=0; istrip <= 15; istrip++) {
                int chamberStrip = ifeb*16+istrip;
                int cmsStrip = chamberStrip;
                ChamberStripSpec strip = {istrip, chamberStrip, cmsStrip};
-               feb.add( strip);
+               febConn.add( strip);
              }
-             lb.add(feb); 
+             lb.add(febConn); 
            }
            lc.add(lb);
          }

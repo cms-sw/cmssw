@@ -4,11 +4,6 @@
  *
  *  Description:
  *       Class to map read-out channels to physical RPC strips
- *
- *  $Date: 2006/07/02 00:08:55 $
- *  $Revision: 1.4 $
- *  \author Marcello Maggi -- INFN Bari
- *
  */
 
 #include <map>
@@ -18,7 +13,6 @@
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
 class LinkBoardSpec;
 
@@ -26,8 +20,8 @@ class LinkBoardSpec;
 class RPCReadOutMapping {
 public:
 
+  /// first member is DetUnit ID, second strip in DetUnit frame 
   typedef std::pair<uint32_t,int> StripInDetUnit;
-  typedef int ChamberLocationSepcReference;
 
   RPCReadOutMapping(const std::string & version = ""); 
 
@@ -46,8 +40,6 @@ public:
   /// attach FED to map
   void add(const DccSpec & dcc);
 
-  /// attach Chamber to map;
-  ChamberLocationSepcReference add(const ChamberLocationSpec & chamber);
   /// version as string
   const std::string & version() const { return theVersion; }
 
@@ -60,8 +52,6 @@ private:
    typedef std::map<int, DccSpec>::const_iterator IMAP;
    std::map<int, DccSpec> theFeds;
    std::string theVersion;
-
-   std::vector<ChamberLocationSpec> theChambers;
   
 };
 

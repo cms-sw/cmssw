@@ -1,8 +1,7 @@
 #ifndef CondFormatsRPCObjectsLinkBoardSpec_H
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/FebSpec.h"
+#include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 
 /** \class LinkBoardSpec
  * RPC LinkBoard Specification for readout decoding. Provide chamber location specification (as in DB throught FEBs) 
@@ -15,7 +14,7 @@ public:
 
   /// real ctor specifyig LB if this LB is master, 
   /// its number in link, and which chamber it is serving  
-  LinkBoardSpec(bool master, int linkBoardNumInLin, const ChamberLocationSpec & c);
+  LinkBoardSpec(bool master, int linkBoardNumInLin);
 
   /// true if master LB (is it of any use?)
   bool master() { return theMaster; }
@@ -24,14 +23,10 @@ public:
   int linkBoardNumInLink() const { return theLinkBoardNumInLink; }
 
   /// attache feb
-  void add(const FebSpec & feb); 
+  void add(const FebConnectorSpec & feb); 
 
   /// get Feb by its connection number to this board
-  const FebSpec * feb(int febInputNum) const;
-
-  /// serving chamber location info
-  const ChamberLocationSpec & chamberLocationSpec() const 
-      { return theChamberSpec; }
+  const FebConnectorSpec * feb(int febInputNum) const;
 
   /// debud printout
   void print(int depth=0) const;
@@ -39,7 +34,6 @@ public:
 private: 
   bool theMaster;
   int theLinkBoardNumInLink; 
-  ChamberLocationSpec theChamberSpec;
-  std::vector<FebSpec> theFebs;
+  std::vector<FebConnectorSpec> theFebs;
 };
 #endif

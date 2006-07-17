@@ -1,14 +1,16 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
-#include "CondFormats/RPCObjects/interface/FebSpec.h"
+#include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
+#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
+
+#include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 namespace{
   std::vector<ChamberStripSpec> theStrips;
 }
 
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 namespace{
-  std::vector<FebSpec> theFebs;
+  std::vector<FebConnectorSpec> theFebs;
 }
 
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"

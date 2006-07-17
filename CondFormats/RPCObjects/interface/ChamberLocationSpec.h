@@ -6,8 +6,6 @@
  * Chamber Location specification as in online DB
  */
 
-class FebSpec;
-
 struct ChamberLocationSpec {
   int diskOrWheel;
   int layer;

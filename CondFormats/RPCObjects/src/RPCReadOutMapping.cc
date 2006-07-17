@@ -2,7 +2,7 @@
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
-#include "CondFormats/RPCObjects/interface/FebSpec.h"
+#include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -57,7 +57,6 @@ const LinkBoardSpec*
       if (lc) {
         const LinkBoardSpec *lb = lc->linkBoard(ele.lbNumInLink);
         return lb;
-//        if (lb) return std::make_pair(lb, & lb->chamberLocationSpec());
       }
     }
   }
@@ -71,13 +70,13 @@ RPCReadOutMapping::StripInDetUnit
   uint32_t detUnit = 0;
   int stripInDU = 0;
 
-  const FebSpec * feb = location->feb(febInLB);
-  const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
-  int stripInDU = strip->cmsStripNumber;
-
-  const ChamberLocationSpec & chamber = 
-      theChamberSpecRef[feb->chamberLocationSpecReference()]; 
-  detUnit = chamber.detUnit(feb);
-
+  const FebConnectorSpec * feb = location->feb(febInLB);
+  if (feb) {
+    detUnit = feb->rawId();
+    const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
+    if (strip) {
+      stripInDU = strip->cmsStripNumber;
+    }
+  }
   return std::make_pair(detUnit,stripInDU);
 }

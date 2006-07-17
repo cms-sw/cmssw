@@ -1,15 +1,16 @@
 <lcgdict>
   <class name="ChamberStripSpec"/>
+  <class name="FebLocationSpec"/>
+  <class name="ChamberLocationSpec"/>
 
-  <class name="FebSpec">
+  <class name="FebConnectorSpec">
   <field name="theRawId" transient="true"/>
   </class>
   <class name="std::vector<ChamberStripSpec>"/>
 
-  <class name="ChamberLocationSpec"/>
 
   <class name="LinkBoardSpec"/>
-  <class name="std::vector<FebSpec>"/>
+  <class name="std::vector<FebConnectorSpec>"/>
 
   <class name="LinkConnSpec"/>
   <class name="std::vector<LinkBoardSpec>"/>

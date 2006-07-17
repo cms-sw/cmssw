@@ -50,32 +50,31 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
    cout <<" dcc range: " << dccRange.first <<" to "<<dccRange.second<<endl; 
    vector<const DccSpec *> dccs = map->dccList();
    typedef vector<const DccSpec *>::const_iterator IDCC;
-   for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) (**idcc).print(9);
+   for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) (**idcc).print(2);
 
    cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
-   ChamberRawDataSpec chamber;
-   chamber.dccId = 790;
-   chamber.dccInputChannelNum = 6;
-   chamber.tbLinkInputNum = 8;
-   chamber.lbNumInLink = 2;
+   cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
+   ChamberRawDataSpec linkboard;
+   linkboard.dccId = 790;
+   linkboard.dccInputChannelNum = 6;
+   linkboard.tbLinkInputNum = 8;
+   linkboard.lbNumInLink = 2;
 
    int febInputNum=3;
    int stripPinNum=5;
 
-   const ChamberLocationSpec *location = (map->location(chamber)).second;
+   const LinkBoardSpec *location = map->location(linkboard);
    if (location) {
      location->print();
-     const DccSpec *dcc = map->dcc(chamber.dccId);
-     const TriggerBoardSpec *tb = dcc->triggerBoard(chamber.dccInputChannelNum);
-     const LinkConnSpec *lc = tb->linkConn(chamber.tbLinkInputNum);
-     const LinkBoardSpec *lb = lc->linkBoard(chamber.lbNumInLink);
-     const FebSpec * feb = lb->feb( febInputNum);
+     const FebConnectorSpec * feb = location->feb( febInputNum);
      const ChamberStripSpec * strip = feb->strip(stripPinNum);
-     uint32_t id = feb->rawId(*location);
+     feb->print();
+     strip->print();
+     cout <<" DETID: " << endl;
+     uint32_t id = feb->rawId();
      cout << "uint32_t: " << id << endl;
      RPCDetId rpcDetId(id);
      cout << rpcDetId << endl;
-     strip->print();
   }
      
 
