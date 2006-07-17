@@ -101,14 +101,16 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
    const EEDigiCollection* EEdigis =0;
 
    try {//Barrel
-     evt.getByLabel( digiProducer_, pEBDigis);
+     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+     //     evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the EB product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size();
    } catch ( std::exception& ex ) {
      std::cerr << "Error! can't get the product for EB: " << EBdigiCollection_.c_str() << std::endl;
    }
    try {//Endcap
-     evt.getByLabel( digiProducer_, pEEDigis);
+     evt.getByLabel( digiProducer_, EEdigiCollection_, pEBDigis);
+     //     evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the EE product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {

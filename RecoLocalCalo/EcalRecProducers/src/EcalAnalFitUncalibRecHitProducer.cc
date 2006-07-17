@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.8 2006/06/24 13:30:53 meridian Exp $
-  *  $Date: 2006/06/24 13:30:53 $
-  *  $Revision: 1.8 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.9 2006/07/11 12:20:34 meridian Exp $
+  *  $Date: 2006/07/11 12:20:34 $
+  *  $Revision: 1.9 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -67,8 +67,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    const EEDigiCollection* EEdigis =0;
    
    try {
-     //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-     evt.getByLabel( digiProducer_, pEBDigis);
+     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+     //evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the produc
      edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
    } catch ( std::exception& ex ) {
@@ -76,8 +76,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    }
 
    try {
-     //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-     evt.getByLabel( digiProducer_, pEEDigis);
+     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
+     //evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the product
      edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {
