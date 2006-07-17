@@ -65,7 +65,8 @@ void DoCompare( char* Energy ){
    htemp2[i]->SetLineColor(4);
    htemp1[i]->SetLineStyle(3);
    htemp2[i]->SetLineStyle(5);
-  
+   if ( i>14 && i<19 || i>29 && i< 34 || i == 13) c1.SetLogy();
+
    htemp1[i]->Draw();
    htemp2[i]->Draw("Same"); 
    myPV->PVCompute(htemp1[i],htemp2[i], te);
@@ -125,11 +126,26 @@ void DoCompare( char* Energy ){
    hpro1[i]  = dynamic_cast<TProfile*>(reffile->Get(label3[i]));
    hpro2[i]  = dynamic_cast<TProfile*>(curfile->Get(label3[i]));
    if (hpro1[i] == 0 || hpro2[i] == 0) continue ;
+   TF1 *f1 = new TF1("f1","pol1", 0.0, 150);
    c1.cd(1);
+   hpro1[i]->Fit(f1,"Q");
    hpro1[i]->Draw();
+   double gradient_ref = f1->GetParameter(1);
+   std::strstream buf_ref;
+   std::string value_ref;
+   buf_ref<<"Gradient="<<gradient_ref<<std::endl;
+   buf_ref>>value_ref;
+   te->DrawTextNDC(0.1,0.2, value_ref.c_str());  
    c1.cd(2);
+   hpro2[i]->Fit(f1,"Q");
    hpro2[i]->Draw();
-   myPV->PVCompute(hpro1[i],hpro2[i], te);
+   double gradient_cur = f1->GetParameter(1);
+   std::strstream buf_cur;
+   std::string value_cur;
+   buf_cur<<"Gradient="<<gradient_cur<<std::endl;
+   buf_cur>>value_cur;
+   te->DrawTextNDC(0.1,0.2, value_cur.c_str());
+   //myPV->PVCompute(hpro1[i],hpro2[i], te);
    sprintf(title,"%s%s%s", Energy, label3[i],".eps");
    c1.Print(title);
  }
