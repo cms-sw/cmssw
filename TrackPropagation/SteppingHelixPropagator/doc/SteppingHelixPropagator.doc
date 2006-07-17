@@ -42,6 +42,16 @@ src/SteppingHelixPropagatorESProducer .. with module.cc -- provide a preconfigur
 S.H.Propagator through the event setup
 test/SteppingHelixPropagatorAnalyzer .. see below.
 
+To use a pre-configured extrapolator user is advised to access
+the propagator via event setup, e.g., 
+  ESHandle<Propagator> shPropAlong;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shPropAlong);
+which will provide a preconfigured propagator with propagation direction along momentum.
+The corresponding config include file is 
+TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAlong.cfi .
+The other (suffix) options are "Any" and "Opposite" (see above for definitions).
+
+
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 SteppingHelixPropagatorAnalyzer.cc can be used to produce ntuples of MC hit matching.
