@@ -2,7 +2,6 @@
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoLocalTrackerClusterParameterEstimator">
 <export>
 <lib name=RecoLocalTrackerClusterParameterEstimator>
 </export>
