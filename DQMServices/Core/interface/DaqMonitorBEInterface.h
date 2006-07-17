@@ -290,7 +290,7 @@ class DaqMonitorBEInterface: public StringUtil
 			     bool warning = true) = 0;
   // remove all monitoring elements from directory;
   // if warning = true, print message if element does not exist
-  virtual void removeContents(MonitorElement * dir, bool warning = true) = 0;
+  virtual void removeContents(MonitorElement * dir) = 0;
   
   // -------------------- Deleting ----------------------------------
   // delete directory and all contents;
