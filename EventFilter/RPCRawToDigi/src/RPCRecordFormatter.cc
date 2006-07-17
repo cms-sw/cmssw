@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/07/02 00:08:56 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/06 08:49:37 $
+ *  $Revision: 1.15 $
  *
  * \author Ilaria Segoni
  */
@@ -69,12 +69,11 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
       eleIndex.lbNumInLink = lbData.lbNumber();
 
 	rawData.addRMBData(currentRMB,currentTbLinkInputNumber, lbData);  
-      std::pair<const LinkBoardSpec*, const ChamberLocationSpec*> lbcls=
-         readoutMapping->location(eleIndex);
-      const LinkBoardSpec* linkBoard = lbcls.first;
-      const ChamberLocationSpec* location = lbcls.second;
-      if (!location) {
-         throw cms::Exception("Invalid Chamber Location !") 
+
+      const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
+
+      if (!linkBoard) {
+         throw cms::Exception("Invalid Linkboard location!") 
                   << "dccId: "<<eleIndex.dccId
                   << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
                   << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
@@ -92,30 +91,30 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             int febInLB = lbBit%6;
             int stripPinInFeb = lbBit/6;
 
+            uint32_t rawDetId;
+            int geomStrip;
+            try {
+              RPCReadOutMapping::StripInDetUnit stripInDetUnit= 
+                readoutMapping->detUnitFrame(linkBoard, febInLB, stripPinInFeb);
+
+               // DetUnit
+               rawDetId = stripInDetUnit.first;
+               // stip
+               geomStrip = stripInDetUnit.second;
+            } 
+            catch (cms::Exception & e) {
+              LogDebug("exception catched, skip digi")<<e.what(); 
+              continue;
+            }
+
 //          std::cout << " febInLB: " << febInLB 
 //                    << " stripPin: " << stripPinInFeb 
 //                    << " (partitionNumber: " <<lbData.partitionNumber()
 //                    <<" half: " << lbData.halfP()<< " rawBit: "<<rawBit
 //                    <<" )"<< std::endl;
 
-            // corresponfing FEB and strip
-            const FebSpec * feb = linkBoard->feb(febInLB);
-            if(!feb) throw cms::Exception("Invalid Feb pointer!");
-            const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
-            if(!strip)  throw cms::Exception("Invalid Strip pointer!");
-
-            // strip in chamber unmbering
-            int deteStrip = strip->chamberStripNumber;
-
-            // det unit to which feb is assigned
-            const uint32_t & rawDetId = feb->rawId(*location);
-            
-            // FIXME convert bits to DetUnitFrame, if necessary  
-            int geomStrip = deteStrip;
 
 		/// Creating RPC digi
-		/// When channel mapping available calculate strip
-		///and replace bit with strip
 		RPCDigi digi(geomStrip,currentBX);
 
 		/// Committing digi to the product
