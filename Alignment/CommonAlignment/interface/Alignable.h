@@ -48,6 +48,12 @@ public:
   /// Return number of direct components
   inline const int size() const { return components().size(); }
 
+  /// Return pointer to container alignable
+  virtual Alignable* mother() { return theMother; }
+
+  /// Assign mother to alignable
+  virtual void setMother( Alignable* mother ) { theMother = mother; }
+
   /// Movement with respect to the global reference frame
   virtual void move( const GlobalVector& displacement) = 0;
 
@@ -152,6 +158,8 @@ private:
   RotationType theRotation;
 
   AlignmentParameters* theAlignmentParameters;
+
+  Alignable* theMother;                ///< Pointer to container
 
 };
 

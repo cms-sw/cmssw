@@ -6,6 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 /// An AlignableComposite that has AlignableDetUnits as direct component.
 
@@ -15,7 +16,7 @@ class AlignableDet: public AlignableComposite
 public:
   
   /// Constructor (copies  GeomDetUnits of GeomDet)
-  AlignableDet( GeomDet* geomDet );
+  AlignableDet( const GeomDet* geomDet );
   
   /// Destructor
   ~AlignableDet();
@@ -23,11 +24,26 @@ public:
   /// Return vector of components
   virtual std::vector<Alignable*> components() const ;
 
-  /// Return given geomDetUnit
-  AlignableDetUnit &geomDetUnit(int i);
+  /// Return given AlignableDetUnit
+  AlignableDetUnit &detUnit(int i);
+
+  /// Return corresponding GeomDet ID
+  virtual DetId geomDetId() const { return theDetId; }
  
-  /// Set alignment position error of all components to given error
+  /// Set alignment position error of this and all components to given error
   virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the global reference frame
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the local reference frame
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
+
 
   /// Alignable object identifier
   virtual int alignableObjectId () const { return AlignableObjectId::AlignableDet; }
@@ -40,8 +56,14 @@ public:
 
 private:
 
+  DetId theDetId;             ///< Associated GeomDet Id
+
   /// Container of components
   std::vector<AlignableDetUnit*> theDetUnits ;
+
+  float theWidth, theLength;
+
+  AlignmentPositionError* theAlignmentPositionError;
 
 };
 

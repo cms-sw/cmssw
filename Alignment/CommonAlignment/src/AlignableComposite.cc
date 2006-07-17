@@ -11,13 +11,13 @@
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite() : 
-  theGeomDet(0),
+  theDetId(0),
   theSurface( PositionType(0,0,0), RotationType()) {}
 
 
 //__________________________________________________________________________________________________
-AlignableComposite::AlignableComposite( GeomDet* geomDet ) : 
-  theGeomDet( geomDet ),
+AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
+  theDetId( geomDet->geographicalId() ),
   theSurface( geomDet->surface().position(), geomDet->surface().rotation() ) 
 {}
 
@@ -26,13 +26,14 @@ AlignableComposite::AlignableComposite( GeomDet* geomDet ) :
 void AlignableComposite::move( const GlobalVector& displacement ) 
 {
   
-  // Move components and associated geomdet (if available)
+  // Move components
+  std::vector<Alignable*> comp = this->components();
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    (**i).move( displacement);
 
-  moveAlignableOnly( displacement );
-
-  // Movement is done through the DetPositioner interface
-  // If only one component, this is a detunit and the geomdet has been moved in components
-  if ( this->geomDet() && this->size()>1 ) this->moveGeomDet( *theGeomDet, displacement );
+  // Move surface
+  this->addDisplacement( displacement );
+  theSurface.move( displacement );
 
 }
 
@@ -66,12 +67,47 @@ void AlignableComposite::moveComponentLocal( const int i, const LocalVector& loc
 /// the Alignable-object 
 void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 {
+  
+  std::vector<Alignable*> comp = this->components();
+  
+  GlobalPoint  myPosition = this->globalPosition();
+  
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    {
+      
+      // It is much simpler to calculate the local position given in coordinates 
+      // of the GLOBAL frame and then just apply the rotation matrix given in the 
+      // GLOBAL frame as well. ONLY this is somewhat tricky... as Teddy's frames 
+      // don't like this kind of mixing...
+      
+      // Rotations are defined for "Basic3DVector" types, without any FrameTAG,
+      // because Rotations usually switch between different frames. You get
+      // this by using the method .basicVector()
+    
+      // localPosition = globalPosition (Component) - globalPosition(Composite)
+      // moveVector = rotated localPosition  - original localposition
+      // LocalVector localPositionVector = (**i).globalPosition()-myPosition;
+    
+    
+      // Local Position given in coordinates of the GLOBAL Frame
+      const GlobalVector localPositionVector = (**i).globalPosition() - myPosition;
+      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
 
-  rotateAlignableOnly( rotation );
+      // rotate with GLOBAL rotation matrix  and subtract => moveVector in 
+      // global Coordinates
+      // apparently... you have to use the inverse of the rotation here
+      // (rotate the VECTOR rather than the frame) 
+      GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );
+    
+    
+      (**i).move( moveVector );
+      (**i).rotateInGlobalFrame( rotation );
 
-  // Rotation is performed through the DetPositioner interface
-  // If only one component, this is a detunit and the geomdet has been rotated in components
-  if ( this->geomDet() && this->size()>1 )  this->rotateGeomDet( *theGeomDet, rotation );
+    }
+
+  this->addRotation( rotation );
+  
+  theSurface.rotate( rotation );
 
 }
 
@@ -82,6 +118,8 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape )
 {
 
+  // Since no geomDet is attached, alignable composites do not have an APE
+  // The APE is, therefore, just propagated down
   std::vector<Alignable*> comp = this->components();
   for ( std::vector<Alignable*>::const_iterator i=comp.begin(); i!=comp.end(); i++) 
     {
@@ -97,8 +135,7 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 {
 
   std::vector<Alignable*> comp = this->components();
-  for ( std::vector<Alignable*>::const_iterator i=comp.begin(); 
-	i!=comp.end(); i++) 
+  for ( std::vector<Alignable*>::const_iterator i=comp.begin(); i!=comp.end(); i++) 
     (*i)->addAlignmentPositionError(ape);
 
 }
@@ -164,12 +201,11 @@ void AlignableComposite::deactivateMisalignment ()
   
   // Forward to components
   std::vector<Alignable*> components(components());
-  for ( std::vector<Alignable*>::iterator i=components.begin();
-		i!=components.end(); i++ ) 
-	(**i).deactivateMisalignment();
+  for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ ) 
+    (**i).deactivateMisalignment();
   
   theMisalignmentActive = false;
-
+  
 }
 
 
@@ -186,77 +222,12 @@ void AlignableComposite::reactivateMisalignment ()
   
   // Forward to components
   std::vector<Alignable*> components(components());
-  for ( std::vector<Alignable*>::iterator i=components.begin();
-		i!=components.end(); i++ )  
+  for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ )  
     (**i).reactivateMisalignment();
 
   theMisalignmentActive = true;
 
 }
-
-//__________________________________________________________________________________________________
-void AlignableComposite::moveAlignableOnly( const GlobalVector& displacement ) 
-{
-
-  // Move components only 
-  std::vector<Alignable*> comp = this->components();
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-    (**i).move( displacement);
-
-  this->addDisplacement( displacement );
-  theSurface.move( displacement );
-
-}
-
-
-//__________________________________________________________________________________________________
-void AlignableComposite::rotateAlignableOnly( const RotationType& rotation )
-{
-
-  std::vector<Alignable*> comp = this->components();
-  
-  GlobalPoint  myPosition = this->globalPosition();
-  
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-    {
-    
-	  // It is much simpler to calculate the local position given in coordinates 
-	  // of the GLOBAL frame and then just apply the rotation matrix given in the 
-	  // GLOBAL frame as well. ONLY this is somewhat tricky... as Teddy's frames 
-	  // don't like this kind of mixing...
-    
-      // Rotations are defined for "Basic3DVector" types, without any FrameTAG,
-      // because Rotations usually switch between different frames. You get
-      // this by using the method .basicVector()
-    
-      // localPosition = globalPosition (Component) - globalPosition(Composite)
-      // moveVector = rotated localPosition  - original localposition
-      // LocalVector localPositionVector = (**i).globalPosition()-myPosition;
-    
-    
-      // Local Position given in coordinates of the GLOBAL Frame
-      const GlobalVector localPositionVector = (**i).globalPosition() - myPosition;
-      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
-
-      // rotate with GLOBAL rotation matrix  and subtract => moveVector in 
-      // global Coordinates
-      // apparently... you have to use the inverse of the rotation here
-      // (rotate the VECTOR rather than the frame) 
-      GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );
-    
-    
-      (**i).move( moveVector );
-      (**i).rotateInGlobalFrame( rotation );
-
-    }
-
-  this->addRotation( rotation );
-  
-  theSurface.rotate( rotation );
-
-}
-
-
 
 //__________________________________________________________________________________________________
 void AlignableComposite::dump( void ) const
@@ -268,14 +239,14 @@ void AlignableComposite::dump( void ) const
 
   // Dump this
   edm::LogInfo("AlignableDump") 
-	<< " Alignable of type " << this->alignableObjectId() 
-	<< " has " << comp.size() << " components" << std::endl
-	<< " position = " << this->globalPosition() << ", orientation:" << std::endl
-	<< this->globalRotation();
+    << " Alignable of type " << this->alignableObjectId() 
+    << " has " << comp.size() << " components" << std::endl
+    << " position = " << this->globalPosition() << ", orientation:" << std::endl
+    << this->globalRotation();
 
   // Dump components
   for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-	(*i)->dump();
+    (*i)->dump();
 
 }
 
@@ -292,11 +263,11 @@ Alignments* AlignableComposite::alignments( void ) const
 
   // Add components recursively
   for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-	{
-	  Alignments* tmpAlignments = (*i)->alignments();
-	  std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
-				 std::back_inserter(m_alignments->m_align) );
-	}
+    {
+      Alignments* tmpAlignments = (*i)->alignments();
+      std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+		 std::back_inserter(m_alignments->m_align) );
+    }
 
   
   return m_alignments;
@@ -315,11 +286,11 @@ AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
 
   // Add components recursively
   for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-	{
-	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
-	  std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
-				 std::back_inserter(m_alignmentErrors->m_alignError) );
-	}
+    {
+      AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+      std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+		 std::back_inserter(m_alignmentErrors->m_alignError) );
+    }
 
   
   return m_alignmentErrors;

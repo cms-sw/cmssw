@@ -16,7 +16,7 @@ AlignmentParameters::AlignmentParameters() :
 
 //__________________________________________________________________________________________________
 AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
-										 const AlgebraicSymMatrix& cov) :
+					 const AlgebraicSymMatrix& cov) :
   theAlignable(object),
   theParameters(par),
   theCovariance(cov),
