@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/05/26 22:07:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/10 20:58:31 $
+ *  $Revision: 1.9 $
  *  \author Julia Yarba
  */
 
@@ -78,7 +78,8 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
        double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
        double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
-       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
+       int PartID = fPartIDs[ip] ;
+       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
        double mass   = PData->mass().value() ;
        double theta  = 2.*atan(exp(-eta)) ;
        double mom    = pt/sin(theta) ;
@@ -89,14 +90,19 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double energy = sqrt(energy2) ; 
        CLHEP::Hep3Vector p(px,py,pz) ;
        HepMC::GenParticle* Part = 
-           new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
+           new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
        Vtx->add_particle_out(Part);
 
        if ( fAddAntiParticle )
        {
           CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+	  int APartID = -PartID ;
+	  if ( PartID == 22 || PartID == 23 )
+	  {
+	     APartID = PartID ;
+	  }	  
 	  HepMC::GenParticle* APart =
-	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),-(fPartIDs[ip]),1);
+	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
 	  Vtx->add_particle_out(APart) ;
        }
 
