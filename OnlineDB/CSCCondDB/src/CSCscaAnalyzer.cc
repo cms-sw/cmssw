@@ -116,9 +116,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		    std::vector<int> adc = digis[i].getADCCounts();
 		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
 		      value_adc[iDDU][chamber][layer][strip][scaNumber]=adc[itime];
-		   
-		      //std::cout <<" Cap "<<cap<<" CFEB "<<icfeb<<" Layer "<<layer<<" sca_block "<<scaBlock <<" trig_time "<<trigTime<<" lct_phase "<<lctPhase<<" sca_number "<<scaNumber<<" timeslice "<<itime<<" ADC "<<value_adc[iDDU][chamber][layer][strip][scaNumber]<< std::endl; 
-		   }
+		    }
 		  }
 
 		}//timeslice

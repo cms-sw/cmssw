@@ -21,6 +21,15 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 
+class TCalibSCAEvt {
+  public:
+  Int_t strip;
+  Int_t layer;
+  Int_t cham;
+  Int_t ddu;
+  Int_t sca;
+};
+
 class CSCscaAnalyzer : public edm::EDAnalyzer {
  public:
   explicit CSCscaAnalyzer(edm::ParameterSet const& conf);
@@ -51,18 +60,18 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
     }
     
     //get name of run file from .cfg and name root output after that
-    string::size_type runNameStart = name.find("06",0);
+    string::size_type runNameStart = name.find("\"",0);
     string::size_type runNameEnd   = name.find("bin",0);
     string::size_type rootStart    = name.find("Crosstalk",0);
     int nameSize = runNameEnd+3-runNameStart;
-    int myRootSize = rootStart-runNameStart+9;
-    std::string myname= name.substr(runNameStart,nameSize);
-    std::string myRootName= name.substr(runNameStart,myRootSize);
+    int myRootSize = rootStart-runNameStart+8;
+    std::string myname= name.substr(runNameStart+1,nameSize);
+    std::string myRootName= name.substr(runNameStart+1,myRootSize);
     std::string myRootType = "SCA";
-    std::string myRootEnd = ".root";
+    std::string myRootEnd = "_sca.root";
     std::string runFile= myRootName;
     std::string myRootFileName = myRootType+runFile+myRootEnd;
-    //const char *myNewName=myRootFileName.c_str();
+    const char *myNewName=myRootFileName.c_str();
     
     struct tm* clock;			    
     struct stat attrib;			    
@@ -70,6 +79,12 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
     clock = localtime(&(attrib.st_mtime));  
     std::string myTime=asctime(clock);
     
+    //root ntuple
+    TCalibSCAEvt calib_evt;
+    TFile calibfile(myNewName, "RECREATE");
+    TTree calibtree("Calibration","SCA");
+    calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:sca/I");
+
     //DB object and map
     //CSCobject *cn = new CSCobject();
     //CSCobject *cn1 = new CSCobject();
@@ -81,8 +96,8 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
 	
 	//get chamber ID from DB mapping
 	int new_crateID = crateID[cham];
-	
 	int new_dmbID   = dmbID[cham];
+	
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
 	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
 	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
@@ -93,11 +108,20 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
 	      my_scaValue= value_adc[dduiter][cham][layeriter][stripiter][k];
 	    
 	      std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" ADC "<<my_scaValue <<std::endl;
+	      calib_evt.strip=stripiter;
+	      calib_evt.layer=layeriter;
+	      calib_evt.cham=cham;
+	      calib_evt.ddu=dduiter;
+	      calib_evt.sca=my_scaValue;
+
+	       calibtree.Fill();
 	    }
 	  }
 	}
       }
     }
+    calibfile.Write();    
+    calibfile.Close(); 
   }
   
  private:
@@ -115,4 +139,10 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   int flag,my_scaValue;
   float pedMean;
   int scaBlock,trigTime,lctPhase,power,cap,scaNumber;
+
+  //root ntuple
+  TCalibSCAEvt calib_evt;
+  TBranch *calibevt;
+  TTree *calibtree;
+  TFile *calibfile;
 };
