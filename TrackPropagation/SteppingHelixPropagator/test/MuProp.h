@@ -61,7 +61,10 @@ public :
    Int_t idCSC(){return idCSC_EnStRi(0,0,0);}
 
    Int_t idDT_WhSt(Int_t wh, Int_t st) { 
-     return ((0x2<<28) | (0x1<<25) | ((wh&0x7)<<22) | ((st&0x7)<<19) );
+     //new format
+     return ((0x2<<28) | (0x1<<25) | ((wh&0x7)<<15) | ((st&0x7)<<22) );
+     //old format
+     //     return ((0x2<<28) | (0x1<<25) | ((wh&0x7)<<22) | ((st&0x7)<<19) );
    }
 
    Int_t idCSC_EnStRi(Int_t en, Int_t st, Int_t ri) { 
