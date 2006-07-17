@@ -12,26 +12,54 @@ class TrackCountingTagInfo
  {
   public:
 
+ TrackCountingTagInfo(
+   std::vector<double> significance2d,
+   std::vector<double> significance3d,
+   std::vector<int> trackOrder2d,
+   std::vector<int> trackOrder3d) :
+     m_significance2d(significance2d),
+     m_significance3d(significance3d),
+     m_trackOrder2d(trackOrder2d),
+     m_trackOrder3d(trackOrder3d)     {}
+
   TrackCountingTagInfo() {}
+  
   virtual ~TrackCountingTagInfo() {}
   
-  virtual float significance(size_t n) const 
+  virtual float significance(size_t n,int ip) const 
    {
-    if(n <m_significance.size())
-      return m_significance[n];  
+    if(ip == 0)
+    {
+     if(n <m_significance3d.size())
+      return m_significance3d[n];  
+    }
+    else
+    {
+     if(n <m_significance2d.size())
+      return m_significance2d[n];  
+    }
     return -10.; 
    }
- 
-  virtual float discriminator(size_t n) const { return significance(n); }
+
+ /**
+  Recompute discriminator using nth track i.p. significance.
+  ipType = 0 means 3d impact parameter
+  ipType = 1 means transverse impact parameter
+ */
+  virtual float discriminator(size_t nth,int ipType) const { return significance(nth,ipType); }
   
   virtual TrackCountingTagInfo* clone() const { return new TrackCountingTagInfo( * this ); }
   
-
+  void setJetTag(const JetTagRef ref) { 
+        m_jetTag = ref;
+   }
  
   private:
    edm::Ref<JetTagCollection> m_jetTag; 
-   std::vector<double> m_significance;  //create a smarter container instead of 
-   std::vector<int> m_trackOrder;       // this  pair of vectors. 
+   std::vector<double> m_significance2d;  //create a smarter container instead of 
+   std::vector<double> m_significance3d;  //create a smarter container instead of 
+   std::vector<int> m_trackOrder2d;       // this  pair of vectors. 
+   std::vector<int> m_trackOrder3d;       // this  pair of vectors. 
  };
 
 //typedef edm::ExtCollection< TrackCountingTagInfo,JetTagCollection> TrackCountingExtCollection;
