@@ -65,7 +65,7 @@ void DoCompare( char* Energy ){
    htemp2[i]->SetLineColor(4);
    htemp1[i]->SetLineStyle(3);
    htemp2[i]->SetLineStyle(5);
-   if ( i>14 && i<19 || i>29 && i< 34 || i == 13) c1.SetLogy();
+   if (i>14 && i<19 || i>29 && i< 34 || i == 13) c1.SetLogy();
 
    htemp1[i]->Draw();
    htemp2[i]->Draw("Same"); 
