@@ -32,6 +32,8 @@ positions of a muon in the detector.
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -126,11 +128,17 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   int run_;
   int event_;
 
+  int trkIndOffset_;
+
   bool doneMapping_;
 
   bool noMaterialMode_;
   bool noErrPropMode_;
   bool radX0CorrectionMode_;
+
+  bool convertFromOldDTDetId_;
+
+  bool testPCAPropagation_;
 };
 
 //
@@ -162,10 +170,15 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   tr_->Branch("run", &run_, "run/I");
   tr_->Branch("event_", &event_, "event/I");
 
+  trkIndOffset_ = iConfig.getParameter<int>("trkIndOffset");
   debug_ = iConfig.getParameter<bool>("debug");
   noMaterialMode_ = iConfig.getParameter<bool>("noMaterialMode");
   noErrPropMode_ = iConfig.getParameter<bool>("noErrorPropagationMode");
   radX0CorrectionMode_ = iConfig.getParameter<bool>("radX0CorrectionMode");
+
+  convertFromOldDTDetId_ = iConfig.getParameter<bool>("convertFromOldDTDetId");
+
+  testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
@@ -192,6 +205,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
   ESHandle<Propagator> shProp;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagator", shProp);
+  ESHandle<Propagator> shPropAny;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shPropAny);
 
   ESHandle<DTGeometry> dtGeomESH;
   iSetup.get<MuonGeometryRecord>().get(dtGeomESH);
@@ -285,7 +300,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
     TimeMe tProp("SteppingHelixPropagatorAnalyzer::analyze::propagate");
     int vtxInd = tracksCI->vertIndex();
-    uint trkInd = tracksCI->genpartIndex();
+    uint trkInd = tracksCI->genpartIndex() - trkIndOffset_;
     Hep3Vector r3T(0.,0.,0.);
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
@@ -308,10 +323,35 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     FreeTrajectoryState ftsStart = ftsTrack;
     TrajectoryStateOnSurface tSOSDest;
 
+    if (testPCAPropagation_){
+      FreeTrajectoryState ftsDest;
+      GlobalPoint pDest1(10., 10., 0.);
+      GlobalPoint pDest2(10., 10., 10.);
+      const SteppingHelixPropagator* shPropAnyCPtr = 
+	dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
+
+      ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1);
+      std::cout<<"----------------------------------------------"<<std::endl;
+      ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1, pDest2);
+      std::cout<<"----------------------------------------------"<<std::endl;
+    }
+
     PSimHitContainer::const_iterator muHitsDT_CI = simHitsDT->begin();
     for (; muHitsDT_CI != simHitsDT->end(); muHitsDT_CI++){
+//       if (abs(muHitsDT_CI->particleType())==13){
+//         std::cout<<abs(muHitsDT_CI->particleType())<<"\t"
+//                  <<muHitsDT_CI->trackId()<<"\t"<<trkInd<<std::endl;
+//       }
       if (muHitsDT_CI->trackId() != trkInd ) continue;
-      DTWireId wId(muHitsDT_CI->detUnitId());
+      int dtId = muHitsDT_CI->detUnitId();
+      if (convertFromOldDTDetId_){
+	int wh = ( (dtId>>22) & 0x7 );
+	int sec = ( (dtId>>15) & 0xF );
+	int sta = ( (dtId>>19) & 0x7 );
+	int newId = (dtId & ~0x1ff8000) | (wh<<15) | (sec<<18) | (sta<<22);
+	dtId = newId;
+      }
+      DTWireId wId(dtId);
       const DTLayer* layer = dtGeomESH->layer(wId);
       if (layer == 0){
 	std::cout<<"Failed to get detector unit"<<std::endl;
@@ -340,11 +380,12 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
       tSOSDest = shProp->propagate(ftsStart, surf);
-      ftsStart = *tSOSDest.freeState();
-      getFromFTS(ftsStart, p3F, r3F, charge, covF);
-
-      pStatus = tSOSDest.isValid() ? 0 : 1;
-      if ( (r3F-r3R).mag() > FPRP_MISMATCH){ 
+      if (tSOSDest.isValid()){
+	ftsStart = *tSOSDest.freeState();
+	getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	pStatus = 0;
+      } else pStatus = 1;
+      if ( pStatus == 1 || (r3F-r3R).mag() > FPRP_MISMATCH){ 
 	//start from the beginning if failed with previous
 	ftsStart = ftsTrack;
 	pStatus = 1;
@@ -403,11 +444,13 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	std::cout<<"Will propagate to surface:"<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
       tSOSDest = shProp->propagate(ftsStart, surf);
-      ftsStart = *tSOSDest.freeState();
-      getFromFTS(ftsStart, p3F, r3F, charge, covF);
+      if (tSOSDest.isValid()){      
+	ftsStart = *tSOSDest.freeState();
+	getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	pStatus = 0;
+      } else pStatus = 1;
 
-      pStatus = tSOSDest.isValid() ? 0 : 1;
-      if ( (r3F-r3R).mag() > FPRP_MISMATCH){ 
+      if ( pStatus == 1 || (r3F-r3R).mag() > FPRP_MISMATCH){ 
 	//start from the beginning if failed with previous
 	ftsStart = ftsTrack;
 	pStatus = 1;
@@ -458,11 +501,13 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
       }
       tSOSDest = shProp->propagate(ftsStart, surf);
-      ftsStart = *tSOSDest.freeState();
-      getFromFTS(ftsStart, p3F, r3F, charge, covF);
+      if (tSOSDest.isValid()){
+	ftsStart = *tSOSDest.freeState();
+	getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	pStatus = 0;
+      } else pStatus = 1;
 
-      pStatus = tSOSDest.isValid() ? 0 : 1;
-      if ( (r3F-r3R).mag() > FPRP_MISMATCH){ 
+      if (pStatus == 1 ||  (r3F-r3R).mag() > FPRP_MISMATCH){ 
 	//start from the beginning if failed with previous
 	ftsStart = ftsTrack;
 	pStatus = 1;
