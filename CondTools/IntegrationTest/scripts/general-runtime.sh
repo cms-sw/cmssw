@@ -1,7 +1,7 @@
 # Basic paths, files, and variables
 echo "[INFO]   Sourcing general-runtime.sh"
-O2ODIR=$HOME/scratch0/0_9_0
-CMSSW_VER=CMSSW_2006-07-10
+O2ODIR=__CHANGE_ME__
+CMSSW_VER=__CHANGE_ME__
 SCRAM_PATH=/afs/cern.ch/cms/utils
 SCRAM_ARCH=slc3_ia32_gcc323
 CMSSW_DIR=${O2ODIR}/${CMSSW_VER}
