@@ -58,7 +58,8 @@ class anlzrname : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-anlzrname::anlzrname(const edm::ParameterSet& iConfig):
+anlzrname::anlzrname(const edm::ParameterSet& iConfig)
+@example_track :
 @example_track  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
 {
    //now do what ever initialization is needed
