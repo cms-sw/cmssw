@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.10 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.11 2006/07/03 18:30:00 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -56,9 +56,32 @@ SiStripConfigDb::SiStripConfigDb( string user,
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
 			       << " Constructing object..."
 			       << " (Class instance: " << cntr_ << ")";
+
   partition_.name_ = partition;
   partition_.major_ = 0;
   partition_.minor_ = 0;
+
+
+  // If partition name is not set, attempt to use environmental variable
+  if ( partition == "" ) {
+    edm::LogWarning(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
+				    << " Database partition not specified!"
+				    << " Attempting to read 'ENV_CMS_TK_PARTITION' environmental variable...";
+    
+    char* cpath = getenv( "ENV_CMS_TK_PARTITION" );
+    if ( cpath == 0 ) { 
+      edm::LogError(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
+				    << " 'ENV_CMS_TK_PARTITION' environmental variable not specified!";
+      partition_.name_ = "UNKNOWN";
+    } else {
+      string confdb(cpath);
+      partition_.name_ = confdb;
+      edm::LogVerbatim(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
+				       << " Database partition set using 'ENV_CMS_TK_PARTITION' environmental variable: "
+				       << confdb;
+    }
+  }
+
 }
 
 // -----------------------------------------------------------------------------
