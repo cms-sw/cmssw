@@ -12,7 +12,6 @@
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/MessageLogger/data/MessageLogger.cfi"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -129,4 +128,116 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
       }
     }
   }
+}
+
+
+CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
+  //get time of Run file for DB transfer
+  filein.open("../test/CSCmatrix.cfg");
+  filein.ignore(1000,'\n');
+  
+  while(filein != NULL){
+    lines++;
+    getline(filein,PSet);
+    
+    if (lines==3){
+      name=PSet;  
+      cout<<name<<endl;
+    }
+  }
+  string::size_type runNameStart = name.find("06",0);
+  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type rootStart    = name.find("Gains",0);
+  int nameSize = runNameEnd+3-runNameStart;
+  int myRootSize = rootStart-runNameStart+5;
+  std::string myname= name.substr(runNameStart,nameSize);
+  std::string myRootName= name.substr(runNameStart,myRootSize);
+  std::string myRootEnd = ".root";
+  std::string runFile= myRootName;
+  std::string myRootFileName = runFile+myRootEnd;
+  const char *myNewName=myRootFileName.c_str();
+  
+  struct tm* clock;			    
+  struct stat attrib;			    
+  stat(myname.c_str(), &attrib);          
+  clock = localtime(&(attrib.st_mtime));  
+  std::string myTime=asctime(clock);
+    
+  //DB object and map
+  CSCobject *cn = new CSCobject();
+  cscmap *map = new cscmap();
+  condbon *dbon = new condbon();
+    
+  //root ntuple
+  TCalibNoiseMatrixEvt calib_evt;
+  TFile calibfile(myNewName, "RECREATE");
+  TTree calibtree("Calibration","NoiseMatrix");
+  calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I");
+  
+  //for (int myDDU; myDDU<Nddu; myDDU++){
+  for (int i=0; i<NChambers; i++){
+    
+    //get chamber ID from DB mapping        
+    int new_crateID = crateID[i];
+    int new_dmbID   = dmbID[i];
+    std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+    map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+    std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+       
+    for (int j=0; j<LAYERS_ma; j++){
+      int layer_id=chamber_num+j+1;
+      if(sector==-100)continue;
+      cn->obj[layer_id].resize(size[i]);
+      
+      for (int k=0; k<size[i]; k++){
+	for (int max=0; max<12;max++){
+	  tmp=cam[i].autocorrmat(j,k);
+	  calib_evt.elem[0] = tmp[0];
+	  calib_evt.elem[1] = tmp[1];
+	  calib_evt.elem[2] = tmp[2];
+	  calib_evt.elem[3] = tmp[3];
+	  calib_evt.elem[4] = tmp[4];
+	  calib_evt.elem[5] = tmp[5];
+	  calib_evt.elem[6] = tmp[6];
+	  calib_evt.elem[7] = tmp[7];
+	  calib_evt.elem[8] = tmp[8];
+	  calib_evt.elem[9] = tmp[9];
+	  calib_evt.elem[10] = tmp[10];
+	  calib_evt.elem[11] = tmp[11];
+	  calib_evt.strip   = k;
+	  calib_evt.layer   = j;
+	  calib_evt.cham    = i;
+	  
+	  calibtree.Fill();
+	  
+	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" strip "<<k<<" Matrix elements "<<tmp[max]<<std::endl;
+	  if(tmp[max]>100) std::cout<<"Matrix elements out of range!"<<std::endl;
+	  cn->obj[layer_id][k].resize(12);
+	  
+	  cn->obj[layer_id][k][0] = tmp[0];
+	  cn->obj[layer_id][k][1] = tmp[1];
+	  cn->obj[layer_id][k][2] = tmp[3];
+	  cn->obj[layer_id][k][3] = tmp[2];
+	  cn->obj[layer_id][k][4] = tmp[4];
+	  cn->obj[layer_id][k][5] = tmp[6];
+	  cn->obj[layer_id][k][6] = tmp[5];
+	  cn->obj[layer_id][k][7] = tmp[7];
+	  cn->obj[layer_id][k][8] = tmp[9];
+	  cn->obj[layer_id][k][9] = tmp[8];
+	  cn->obj[layer_id][k][10] = tmp[10];
+	  cn->obj[layer_id][k][11] = tmp[11];
+	     
+	}
+      }
+    }
+  }
+  //}//myDDU
+     
+  //send data to DB
+  dbon->cdbon_last_record("noisematrix",&record);
+  std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+  if(debug) dbon->cdbon_write(cn,"noisematrix",11,myTime);
+  
+  calibfile.Write();
+  calibfile.Close();
 }
