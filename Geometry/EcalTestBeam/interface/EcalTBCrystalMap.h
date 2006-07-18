@@ -3,7 +3,7 @@
 
 /*
  *
- * $Id: EcalTBCrystalMap.h,v 1.1 2006/05/29 08:30:19 fabiocos Exp $
+ * $Id: EcalTBCrystalMap.h,v 1.2 2006/05/30 14:14:45 fabiocos Exp $
  *
  */
 
@@ -27,6 +27,8 @@ class EcalTBCrystalMap {
 
   int CrystalIndex(double thisEta, double thisPhi);
   void findCrystalAngles(const int thisCrysIndex, double & thisEta, double & thisPhi);
+
+  static const int NCRYSTAL = 1700;
   
  private:
   
@@ -34,8 +36,6 @@ class EcalTBCrystalMap {
   int crysIndex;
 
   CrystalTBIndexMap map_;
-
-  static const int NCRYSTAL = 1700;
 
 };
 
