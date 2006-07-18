@@ -1,6 +1,5 @@
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
@@ -16,9 +15,9 @@ namespace {
 
 
 SequentialVertexFitter::SequentialVertexFitter(
-  const LinearizationPointFinder & linP, 
+  const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
   const VertexUpdator & updator, const VertexSmoother & smoother) : 
-  theLinP(linP.clone()), theUpdator(updator.clone()), 
+  thePSet(pSet), theLinP(linP.clone()), theUpdator(updator.clone()), 
   theSmoother(smoother.clone())
 {
   readParameters();
@@ -28,6 +27,7 @@ SequentialVertexFitter::SequentialVertexFitter(
 SequentialVertexFitter::SequentialVertexFitter(
   const SequentialVertexFitter & original)
 {
+  thePSet = original.parameterSet();
   theLinP = original.linearizationPointFinder()->clone();
   theUpdator = original.vertexUpdator()->clone();
   theSmoother = original.vertexSmoother()->clone();
@@ -46,19 +46,8 @@ SequentialVertexFitter::~SequentialVertexFitter()
 
 void SequentialVertexFitter::readParameters()
 {
-
-//   static SimpleConfigurable<float>
-//     maxShiftSimTrackConfigurable(0.01,"SequentialVertexFitter:maximumDistance");
-//   theMaxShift = maxShiftSimTrackConfigurable.value();
-// 
-//   static SimpleConfigurable<int>
-//     maxStepConfigurable(10,"SequentialVertexFitter:maximumNumberOfIterations");
-//   theMaxStep = maxStepConfigurable.value();
-
-// FIXME: configuration?
-
-   theMaxStep = 10;
-   theMaxShift = 0.01;
+  theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
+  theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
 }
 
 

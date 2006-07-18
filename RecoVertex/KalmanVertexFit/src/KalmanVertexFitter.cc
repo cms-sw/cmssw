@@ -8,7 +8,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
 
-KalmanVertexFitter::KalmanVertexFitter( bool useSmoothing )
+KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet,  bool useSmoothing )
 {
   if (useSmoothing) {
     KalmanVertexTrackUpdator vtu;
@@ -16,14 +16,14 @@ KalmanVertexFitter::KalmanVertexFitter( bool useSmoothing )
     KalmanTrackToTrackCovCalculator covCalc;
     SequentialVertexSmoother smoother(vtu, vse, covCalc);
     theSequentialFitter 
-      = new SequentialVertexFitter(FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new SequentialVertexFitter(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator(), 
 				   smoother);
   }
   else {
     DummyVertexSmoother smoother;
     theSequentialFitter 
-      = new SequentialVertexFitter(FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
+      = new SequentialVertexFitter(pSet, FsmwLinearizationPointFinder(20, -2., 0.4, 10.), 
 				   KalmanVertexUpdator(), 
 				   smoother);
   }

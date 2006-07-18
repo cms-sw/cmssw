@@ -7,6 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Vertex/VertexPrimitives/interface/VertexSeedFactory.h"
 
@@ -38,7 +39,8 @@ public:
    *   If no smoother is to be used, do not specify an instance for it.
    */
 
-  SequentialVertexFitter(const LinearizationPointFinder & linP, 
+  SequentialVertexFitter(const edm::ParameterSet& pSet,
+      const LinearizationPointFinder & linP, 
       const VertexUpdator & updator, const VertexSmoother & smoother);
 
   /**
@@ -142,6 +144,9 @@ public:
   const int maxStep() const
   {return theMaxStep;}
 
+  const edm::ParameterSet parameterSet() const 
+  {return thePSet;}
+
   SequentialVertexFitter * clone() const {
     return new SequentialVertexFitter(* this);
   }
@@ -208,6 +213,8 @@ private:
   VertexSmoother * theSmoother;
   LinearizedTrackStateFactory theLTrackFactory;
   VertexTrackFactory theVTrackFactory;
+  edm::ParameterSet thePSet;
+
   // VertexSeedFactory theVSeedFactory;
 };
 

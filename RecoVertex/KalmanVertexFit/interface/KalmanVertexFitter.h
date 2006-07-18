@@ -11,12 +11,10 @@
  *
  *  References: 
  *
- * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_032.pdf"> T.Speer, K.Prokofiev, R.Fruhwirth, W.Waltenberger, P.Vanlaer, "Vertex Fitting in the CMS Tracker", CMS Note 2006/032</a>
- *
- * P.Billoir, S.Qian, "Fast vertex fitting...", NIM A311 (1992) 139. 
- *
- * R.Fruhwirth, R.Kubinec, W.Mitaroff, M.Regler, Comp. Physics Comm. 96, 189 (1996)
- * 
+ * <a href="http://cmsdoc.cern.ch/documents/03/in/in03_008.pdf"> `Vertex fitting with the Kalman filter formalism', T.speer, K.Prokofiev, R.Fruehwirth, CMS IN 2003/008</a><br>
+ * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_032.pdf"> T.Speer, K.Prokofiev, R.Fruhwirth, W.Waltenberger, P.Vanlaer, "Vertex Fitting in the CMS Tracker", CMS Note 2006/032</a><br>
+ * P.Billoir, S.Qian, "Fast vertex fitting...", NIM A311 (1992) 139. <br>
+ * R.Fruhwirth, R.Kubinec, W.Mitaroff, M.Regler, Comp. Physics Comm. 96, 189 (1996)<br>
  * <a href="http://www.phys.ufl.edu/~avery/fitting.html"> P.Avery, lectures 
 on track and vertex fitting" </a>
  */
@@ -30,7 +28,7 @@ public:
    * \param useSmoothing Specifies whether the tracks should be refit or not.
    */
 
-  KalmanVertexFitter(bool useSmoothing = false);
+  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
   KalmanVertexFitter(const KalmanVertexFitter & other ) :
     theSequentialFitter ( other.theSequentialFitter->clone() ) {}
 
