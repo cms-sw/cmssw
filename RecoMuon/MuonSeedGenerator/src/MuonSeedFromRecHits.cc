@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/11 15:00:30 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/18 08:52:38 $
+ *  $Revision: 1.11 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -372,6 +372,10 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
     /// just one pt estimate:  use it.
     ptmean=pt[igood];
     sptmean=1/sqrt(spt[igood]);
+  } else if (nTotal==0) {
+    // No estimate (e.g. only one rechit!)
+    ptmean=50;
+    sptmean=30;
   } else {
     /// more than a pt estimate, do all the job.
     // calculate pt with vertex
