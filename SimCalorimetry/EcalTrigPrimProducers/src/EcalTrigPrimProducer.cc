@@ -67,7 +67,6 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     edm::BranchDescription desc = it->second;
     if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted") & desc.moduleLabel()=="ecaldigi" ) {
       edm::ParameterSet result = getParameterSet(desc.psetID());
-      std::cout << result <<std::endl;
       binOfMaximum_=result.getParameter<int>("binOfMaximum");
       break;
     }
