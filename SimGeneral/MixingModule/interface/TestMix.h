@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.h,v 1.1 2005/10/04 15:29:12 uberthon Exp $
+// $Id: TestMix.h,v 1.1 2005/10/10 16:32:04 uberthon Exp $
 //
 //
 
@@ -24,21 +24,26 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <vector>
+#include <string>
+
 namespace edm
 {
 
-//
-// class declaration
-//
+  //
+  // class declaration
+  //
 
-class TestMix : public edm::EDAnalyzer {
-   public:
-      explicit TestMix(const edm::ParameterSet&);
-      ~TestMix();
+  class TestMix : public edm::EDAnalyzer {
+  public:
+    explicit TestMix(const edm::ParameterSet&);
+    ~TestMix();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      int level_;
-};
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  private:
+    int level_;
+    std::vector<std::string> track_containers_;
+  };
 }//edm
