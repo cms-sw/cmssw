@@ -149,3 +149,85 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
   }
 }
 
+CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
+
+  //get time of Run file for DB transfer
+  filein.open("../test/CSCCFEBconnect.cfg");
+  filein.ignore(1000,'\n');
+  
+  while(filein != NULL){
+    lines++;
+    getline(filein,PSet);
+    
+    if (lines==3){
+      name=PSet;  
+    }
+  }
+  
+  //get name of run file from .cfg and name root output after that
+  string::size_type runNameStart = name.find("\"",0);
+  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type rootStart    = name.find("Crosstalk",0);
+  int nameSize = runNameEnd+2-runNameStart;
+  int myRootSize = rootStart-runNameStart+8;
+  std::string myname= name.substr(runNameStart+1,nameSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize);
+  std::string myRootEnd = "_conn.root";
+  std::string runFile= myRootName;
+  std::string myRootFileName = runFile+myRootEnd;
+  const char *myNewName=myRootFileName.c_str();
+  
+  struct tm* clock;			    
+  struct stat attrib;			    
+  stat(myname.c_str(), &attrib);          
+  clock = localtime(&(attrib.st_mtime));  
+  std::string myTime=asctime(clock);
+  
+  //DB object and map
+  //CSCobject *cn = new CSCobject();
+  cscmap *map = new cscmap();
+  //condbon *dbon = new condbon();
+  
+  
+  //root ntuple
+  TCalibCFEBConnectEvt calib_evt;
+  TFile calibfile(myNewName, "RECREATE");
+  TTree calibtree("Calibration","Connectivity");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F");
+  
+  for (int iii=0; iii<Nddu; iii++){
+    for (int i=0; i<NChambers; i++){
+      theRMS      =0.0;
+      my_diffSquare=0.0;
+      
+      //get chamber ID from DB mapping        
+      int new_crateID = crateID[i];
+      int new_dmbID   = dmbID[i];
+      std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+      
+      for (int j=0; j<LAYERS_con; j++){
+	for (int k=0; k<size[i]; k++){
+	  
+	  my_diff =  adcMean_max[iii][i][j][k]- adcMean_min[iii][i][j][k];
+	  my_diffSquare = my_diff*my_diff;
+	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<" RMS "<<theRMS<<std::endl;
+	  theRMS       = sqrt(abs(my_diffSquare - my_diff*my_diff));
+	  calib_evt.strip=k;
+	  calib_evt.layer=j;
+	  calib_evt.cham=i;
+	  calib_evt.ddu=iii;
+	  calib_evt.adcMin = adcMean_min[iii][i][j][k];
+	  calib_evt.adcMax = adcMean_max[iii][i][j][k];
+	  calib_evt.diff=my_diff;
+	  calib_evt.RMS=theRMS;
+	  
+	  calibtree.Fill();
+	}
+      }
+    }
+  }
+  calibfile.Write();    
+  calibfile.Close();  
+}

@@ -31,7 +31,7 @@
 #include "OnlineDB/CSCCondDB/interface/CSCCompThreshAnalyzer.h"
 
 CSCCompThreshAnalyzer::CSCCompThreshAnalyzer(edm::ParameterSet const& conf) {
-
+  debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber = 0;
   evt = 0,Nddu=0,misMatch=0,event=0;
   i_chamber=0,i_layer=0,reportedChambers =0;
@@ -162,4 +162,63 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
        }//end DDU loop
      }
    }
+}
+
+
+CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
+  //get time of Run file for DB transfer
+  filein.open("../test/CSCcomp.cfg");
+  filein.ignore(1000,'\n');
+  
+  while(filein != NULL){
+    lines++;
+    getline(filein,PSet);
+      
+    if (lines==3){
+      name=PSet;  
+      cout<<name<<endl;
+    }
+  }
+  string::size_type runNameStart = name.find("\"",0);
+  string::size_type runNameEnd   = name.find("bin",0);
+  string::size_type rootStart    = name.find("CFEBComparator",0);
+  int nameSize = runNameEnd+3-runNameStart;
+  int myRootSize = rootStart-runNameStart+8;
+  std::string myname= name.substr(runNameStart,nameSize);
+  std::string myRootName= name.substr(runNameStart,myRootSize);
+  std::string myRootEnd = ".root";
+  std::string runFile= myRootName;
+  std::string myRootFileName = runFile+myRootEnd;
+  const char *myNewName=myRootFileName.c_str();
+  
+  struct tm* clock;			    
+  struct stat attrib;			    
+  stat(myname.c_str(), &attrib);          
+  clock = localtime(&(attrib.st_mtime));  
+  std::string myTime=asctime(clock);
+  
+  //DB object and map
+  CSCobject *cn = new CSCobject();
+  cscmap *map = new cscmap();
+  condbon *dbon = new condbon();
+  
+  for(int myChamber=0; myChamber<NChambers; myChamber++){
+    
+    //float meanComp = 0.;
+
+    for (int i=0; i<CHAMBERS_ct; i++){
+      if (myChamber !=i) continue;
+      
+      for (int j=0; j<LAYERS_ct; j++){
+	for (int k=0; k<STRIPS_ct; k++){
+	  //arrayMeanThresh[i][j][k]= meanmod[tmp][i_chamber][i_layer-1][mycompstrip];
+	  fff = (j*80)+k;
+	  //theMeanThresh  = arrayMeanThresh[i][j][k];
+	  //newMeanThresh[fff]  = theRMS;
+	  
+	  //std::cout <<" chamber "<<i<<" layer "<<j<<" strip "<<fff<<"  ped "<<newPed[fff]<<" RMS "<<newRMS[fff]<<std::endl;
+	}
+      }
+    }
+  }
 }

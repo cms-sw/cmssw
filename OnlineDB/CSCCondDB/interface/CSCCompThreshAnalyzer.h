@@ -1,11 +1,17 @@
 /** 
  * Analyzer for reading CFEB comparator information
- * author O.Boeriu 9/05/06 
+ * author O.Boeriu 
  *   
  */
 
 #include <iostream>
+#include <time.h>
+#include <sys/stat.h>	
+#include <unistd.h>
+#include <fstream>
 #include "OnlineDB/CSCCondDB/interface/cscmap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
+#include "CondFormats/CSCObjects/interface/CSCobject.h"
 
 class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
  public:
@@ -20,40 +26,9 @@ class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
 #define NUMMOD_ct 875
 #define NUMBERPLOTTED_ct 25
 
-  ~CSCCompThreshAnalyzer(){
- 
-    //create array (480 entries) for database transfer
-    //condbc *cdb = new condbc();
-    //cscmap *map = new cscmap();
-
-    for(int myChamber=0; myChamber<NChambers; myChamber++){
-
-      //float meanComp = 0.;
-      std::string test1="CSC_slice";
-      std::string test2="comparator_threshold";
-      std::string answer;
-
-      //print out result here
-      for (int i=0; i<CHAMBERS_ct; i++){
-	if (myChamber !=i) continue;
-	
-	for (int j=0; j<LAYERS_ct; j++){
-	  for (int k=0; k<STRIPS_ct; k++){
-	    //arrayMeanThresh[i][j][k]= meanmod[tmp][i_chamber][i_layer-1][mycompstrip];
-	    fff = (j*80)+k;
-	    //theMeanThresh  = arrayMeanThresh[i][j][k];
-	    //newMeanThresh[fff]  = theRMS;
-	    
-	    //std::cout <<" chamber "<<i<<" layer "<<j<<" strip "<<fff<<"  ped "<<newPed[fff]<<" RMS "<<newRMS[fff]<<std::endl;
-	  }
-	}
-      }
-    }
-  }
-
-private:
-  // variables persistent across events should be declared here.
-  //
+  ~CSCCompThreshAnalyzer();
+  
+ private:
   
   std::string chamber_id;
   int eventNumber,evt,event,pedSum, strip, misMatch,fff,ret_code,NChambers,Nddu;
@@ -66,5 +41,8 @@ private:
   float	meanTot[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float meanmod[NUMMOD_ct][CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float newThresh[TOTALSTRIPS_ct];
-
+  int lines;
+  std::ifstream filein;
+  std::string PSet,name;
+  bool debug;
 };
