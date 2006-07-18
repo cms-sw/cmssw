@@ -13,13 +13,15 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.4 2005/11/14 13:57:46 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.5 2005/11/25 15:11:12 case Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iostream>
+#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,21 +35,28 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "DataSvc/RefException.h"
+#include "CoralBase/Exception.h"
+
 //
 // class decleration
 //
 
 class PerfectGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit PerfectGeometryAnalyzer( const edm::ParameterSet& );
-      ~PerfectGeometryAnalyzer();
+public:
+  explicit PerfectGeometryAnalyzer( const edm::ParameterSet& );
+  ~PerfectGeometryAnalyzer();
 
-
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
-      std::string label_;
+  
+  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+private:
+  // ----------member data ---------------------------
+  std::string label_;
+  bool dumpHistory_;
+  bool dumpSpecs_;
 };
 
 //
@@ -64,17 +73,14 @@ class PerfectGeometryAnalyzer : public edm::EDAnalyzer {
 PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
    label_(iConfig.getUntrackedParameter<std::string>("label",""))
 {
-   //now do what ever initialization is needed
-   
+  dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpGeoHistory");
+  dumpSpecs_=iConfig.getUntrackedParameter<bool>("dumpSpecs");
 }
 
 
 PerfectGeometryAnalyzer::~PerfectGeometryAnalyzer()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -94,17 +100,58 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    //
    edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get(label_, pDD );
-   //std::cout <<" got the geometry"<<std::endl;
+
    try {
-      DDExpandedView ex(*pDD);
-      //std::cout <<" made the expanded view"<<std::endl;
-      // ex.firstChild();
-      std::cout << " Top node is a "<< ex.logicalPart() << std::endl;
+      DDExpandedView epv(*pDD);
+      std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
+      if ( dumpHistory_ ) {
+	typedef DDExpandedView::nav_type nav_type;
+	typedef std::map<nav_type,int> id_type;
+	id_type idMap;
+	int id=0;
+	std::ofstream dump("dumpGeoHistoryOnRead");
+	do {
+	  nav_type pos = epv.navPos();
+	  idMap[pos]=id;
+	  dump << id << " - " << epv.geoHistory() << std::endl;
+	  ++id;
+	} while (epv.next());
+	dump.close();
+      }
+      if ( dumpSpecs_ ) {
+	DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
+	// ======= For each DDSpecific...
+	std::ofstream dump("dumpSpecsOnRead");
+	for (; spit != spend; ++spit) {
+	  if ( !spit->isDefined().second ) continue;  
+	  const DDSpecifics & sp = *spit;
+	  dump << sp << std::endl;
+	}
+	dump.close();
+      }
+      std::cout << "finished" << std::endl;
+     
    }catch(const DDLogicalPart& iException){
       throw cms::Exception("Geometry")
-      <<"A DDLogicalPart was thrown \""<<iException<<"\"";
+	<<"DDORAReader::readDB caught a DDLogicalPart exception: \""<<iException<<"\"";
+   } catch (const coral::Exception& e) {
+      throw cms::Exception("Geometry")
+	<<"DDORAReader::readDB caught coral::Exception: \""<<e.what()<<"\"";
+   } catch( const pool::RefException& er){
+      throw cms::Exception("Geometry")
+	<<"DDORAReader::readDB caught pool::RefException: \""<<er.what()<<"\"";
+   } catch ( pool::Exception& e ) {
+     throw cms::Exception("Geometry")
+       << "DDORAReader::readDB caught pool::Exception: \"" << e.what() << "\"";
+   } catch ( std::exception& e ) {
+     throw cms::Exception("Geometry")
+       <<  "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";
+   } catch ( ... ) {
+     throw cms::Exception("Geometry")
+       <<  "DDORAReader::readDB caught UNKNOWN!!! exception." << std::endl;
    }
 }
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PerfectGeometryAnalyzer)

@@ -7,8 +7,8 @@
 <use name=FWCore/Framework>
 <use name=DataSvc>
 <use name=RelationalAccess>
-<use name=Foundation/SealUtil>
- <use name=DetectorDescription/Parser>
+
+<use name=DetectorDescription/Parser>
 
 <export>
  <lib name=DetectorDescriptionOfflineDBLoader>
@@ -22,5 +22,4 @@
  <use name=FWCore/Framework>
  <use name=DataSvc>
  <use name=RelationalAccess>
- <use name=Foundation/SealUtil>
 </export>

@@ -9,6 +9,8 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "SealUtil/SealTimer.h"
+
 #include <memory>
 
 
@@ -29,6 +31,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 
     DDRootDef::instance().set(DDName(rootNodeName_));
     //    std::cout << "SET ROOT NODE TO: " << rootNodeName_ << std::endl;
+    seal::SealTimer txml("XMLIdealGeometryESSource");
 
     int result2 = parser->parse(cf);
 
