@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/14 16:30:41 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/07/17 14:53:42 $
+ *  $Revision: 1.21 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -216,7 +216,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
 	      DTLocalTriggerDataWord scDataWord(word);
 
-	      DTSectorCollectorData scData(scDataWord, bx_counter);
+	      DTSectorCollectorData scData(scDataWord, int(round(bx_counter/2.)));
 	      controlData.addSCData(scData);
 
 	      if (debug) {
