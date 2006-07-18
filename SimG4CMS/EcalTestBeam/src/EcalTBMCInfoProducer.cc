@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.2 2006/06/13 15:23:26 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.3 2006/06/15 12:42:41 fabiocos Exp $
  *
 */
 
@@ -25,7 +25,20 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
    
   string fullMapName = CrystalMapFile.fullPath();
   theTestMap = new EcalTBCrystalMap(fullMapName);
-  crysNumber = theTestMap->CrystalIndex(beamEta, beamPhi);
+  crysNumber = 0;
+
+  double deltaEta = 999.;
+  double deltaPhi = 999.;
+  for ( int cryIndex = 1; cryIndex <= EcalTBCrystalMap::NCRYSTAL; ++cryIndex) {
+    double eta = 0;
+    double phi = 0.;
+    theTestMap->findCrystalAngles(cryIndex, eta, phi);
+    if ( fabs(beamEta - eta) < deltaEta && fabs(beamPhi - phi) < deltaPhi ) {
+      deltaEta = fabs(beamEta - eta);
+      deltaPhi = fabs(beamPhi - phi);
+      crysNumber = cryIndex;
+    }
+  }
 
   edm::LogInfo("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
                              << "Crystal map file:  " << CrystalMapFile << "\n"
@@ -36,16 +49,24 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
                              << "Beam Y offset =    " << beamYoff;
 
   // rotation matrix to move from the CMS reference frame to the test beam one
-  // find the axis orthogonal to the plane spanned by z and the vector
 
-  double xx = sin(beamTheta)*cos(beamPhi);
-  double yy = sin(beamTheta)*sin(beamPhi);
+  fromCMStoTB = new HepRotation();
+
+  double xx = -cos(beamTheta)*cos(beamPhi);
+  double xy = -cos(beamTheta)*sin(beamPhi);
+  double xz = sin(beamTheta);
+  
+  double yx = sin(beamPhi);
+  double yy = -cos(beamPhi);
+  double yz = 0.;
+  
+  double zx = sin(beamTheta)*cos(beamPhi);
+  double zy = sin(beamTheta)*sin(beamPhi);
   double zz = cos(beamTheta);
-  Hep3Vector myDir(xx,yy,zz);
-  Hep3Vector zAxis(0.,0.,1.);
-  Hep3Vector ortho = myDir.cross(zAxis);
 
-  fromCMStoTB = new HepRotation(ortho, beamTheta);
+  const HepRep3x3 mCMStoTB(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+
+  fromCMStoTB->set(mCMStoTB);
 
 }
  

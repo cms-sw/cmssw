@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id:$
+ * $Id: EcalTBMCInfoProducer.h,v 1.1 2006/05/30 16:51:52 fabiocos Exp $
  *
 */
 
@@ -68,7 +68,7 @@ private:
 
   EcalTBCrystalMap * theTestMap;
 
-  const HepRotation * fromCMStoTB;
+  HepRotation * fromCMStoTB;
 
   string GenVtxLabel;
 
