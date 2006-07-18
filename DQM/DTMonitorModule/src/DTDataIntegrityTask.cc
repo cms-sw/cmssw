@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/06/27 16:37:18 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/12 17:07:38 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -187,11 +187,13 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "SCTriggerBX";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerBX";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,128,0,128,5,0,5);
+    string histoTitle = histoName + " (station vs BX)";
+    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoTitle,128,0,128,5,0,5);
 
     histoType = "SCTriggerQuality";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerQuality";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoName,5,0,5,7,0,7);
+    histoTitle = histoName + "(quality vs station)";
+    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoTitle,5,0,5,8,0,8);
 
   }
 
