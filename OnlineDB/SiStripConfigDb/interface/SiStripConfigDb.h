@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.8 2006/06/30 06:57:51 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripConfigDb.h,v 1.9 2006/07/03 18:29:59 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
 #ifndef SiStripConfigDb_H
@@ -36,7 +36,7 @@ class SiStripConfigDb {
   SiStripConfigDb( std::string db_user, 
 		   std::string db_passwd, 
 		   std::string db_path,
-		   std::string db_partition ); 
+		   std::string db_partition = "" ); 
 
   /** Constructor when using xml files, which takes as arguments the
       paths to the various input (and output) xml files. */
