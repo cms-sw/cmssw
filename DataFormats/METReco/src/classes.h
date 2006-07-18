@@ -3,6 +3,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
 
 namespace {
@@ -16,5 +17,7 @@ namespace {
     edm::Wrapper<reco::CaloMETCollection> dummy7;
     edm::Wrapper< std::vector<reco::CaloMET> > dummy8;
     std::vector<reco::CaloMET> dummy9;
+
+    edm::reftobase::Holder<reco::Candidate,reco::CaloMETRef> rtb1;
   }
 }

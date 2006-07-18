@@ -6,13 +6,16 @@
   <class name="SpecificCaloMETData"/>
 
   <class name="reco::MET"/>
-  <class name="edm::Wrapper<reco::MET>" id="2DA3B356-0899-4FB8-B17A-C795EB7FD2B4"/>
+  <class name="edm::Wrapper<reco::MET>"/>
   <class name="edm::Wrapper<std::vector<reco::MET> >"/>
   <class name="std::vector<reco::MET>"/>
 
   <class name="reco::CaloMET"/>
-  <class name="edm::Wrapper<reco::CaloMET>" id="582C0980-95EA-4E04-B604-684A3BDFA20B"/>
+  <class name="edm::Wrapper<reco::CaloMET>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
+
+  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>
