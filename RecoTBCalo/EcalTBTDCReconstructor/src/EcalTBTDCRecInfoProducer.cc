@@ -31,6 +31,8 @@ EcalTBTDCRecInfoProducer::EcalTBTDCRecInfoProducer(edm::ParameterSet const& ps)
 //   zPosition_def.push_back( -0.333 );
   std::vector<int> tdcMax = ps.getParameter< std::vector<int> >("tdcMax");
   
+  use2004OffsetConvention_ = ps.getUntrackedParameter< bool >("use2004OffsetConvention",false);
+
   produces<EcalTBTDCRecInfo>(recInfoCollection_);
   
   algo_ = new EcalTBTDCRecInfoAlgo(tdcMin,tdcMax);
@@ -62,7 +64,7 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
    }
 
   // Create empty output
-  std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(algo_->reconstruct(*ecalRawTDC,*tbEventHeader)));
+  std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(algo_->reconstruct(*ecalRawTDC,*tbEventHeader,use2004OffsetConvention_)));
   
   e.put(recInfo,recInfoCollection_);
 } 

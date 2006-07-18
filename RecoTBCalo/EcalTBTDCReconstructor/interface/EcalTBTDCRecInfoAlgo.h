@@ -19,7 +19,7 @@ class EcalTBTDCRecInfoAlgo {
     {
     };
 
-  EcalTBTDCRecInfo reconstruct(const EcalTBTDCRawInfo& TDCRawInfo,const EcalTBEventHeader& eventHeader) const;
+  EcalTBTDCRecInfo reconstruct(const EcalTBTDCRawInfo& TDCRawInfo,const EcalTBEventHeader& eventHeader, bool use2004OffsetConvention) const;
 
  private:
 
