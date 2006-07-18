@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.7 2006/03/16 13:47:27 llista Exp $
+ * \version $Id: TrackExtra.h,v 1.8 2006/04/19 13:35:05 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -28,12 +28,20 @@ namespace reco {
     TrackExtra() { }
     /// constructor from outermost position and momentum
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok );
+    TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
+		const Point & innerPosition, const Vector & innerMomentum, bool iok );
     /// outermost point
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost point
     const Vector & outerMomentum() const { return outerMomentum_; }
     /// returns true if the outermost point is valid
     bool outerOk() const { return outerOk_; }
+    /// innermost point
+    const Point & innerPosition() const { return innerPosition_; }
+    /// momentum vector at innermost point
+    const Vector & innerMomentum() const { return innerMomentum_; }
+    /// returns true if the innermost point is valid
+    bool innerOk() const { return innerOk_; }
     /// x coordinate of momentum vector at the outermost point    
     double outerPx() const { return outerMomentum_.X(); }
     /// y coordinate of momentum vector at the outermost point
@@ -66,6 +74,17 @@ namespace reco {
     Vector outerMomentum_;
     /// outermost point validity flag
     bool outerOk_;
+
+    /// innermost point
+    Point innerPosition_;
+    /// momentum vector at innermost point
+    Vector innerMomentum_;
+    /// innermost point validity flag
+    bool innerOk_;
+    
+
+    
+
   };
 
 }
