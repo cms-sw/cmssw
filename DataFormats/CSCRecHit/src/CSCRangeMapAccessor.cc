@@ -1,12 +1,14 @@
 /** \file CSCRangeMapAccessor.cc
  *
- *  $Date: 2006/05/09 08:38:57 $
+ *  $Date: 2006/07/10 09:35:44 $
  *  \author Matteo Sani
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
 
 CSCRangeMapAccessor::CSCRangeMapAccessor() {}
+
+CSCRangeMapAccessor::~CSCRangeMapAccessor() {}
 
 std::pair<CSCDetId,CSCDetIdSameChamberComparator> CSCRangeMapAccessor::cscChamber(CSCDetId id) {
   
