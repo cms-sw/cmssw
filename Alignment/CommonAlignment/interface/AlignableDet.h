@@ -27,9 +27,6 @@ public:
   /// Return given AlignableDetUnit
   AlignableDetUnit &detUnit(int i);
 
-  /// Return corresponding GeomDet ID
-  virtual DetId geomDetId() const { return theDetId; }
- 
   /// Set alignment position error of this and all components to given error
   virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
 
@@ -55,8 +52,6 @@ public:
   virtual AlignmentErrors* alignmentErrors() const;
 
 private:
-
-  DetId theDetId;             ///< Associated GeomDet Id
 
   /// Container of components
   std::vector<AlignableDetUnit*> theDetUnits ;

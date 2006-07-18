@@ -7,7 +7,6 @@
 //__________________________________________________________________________________________________
 AlignableDet::AlignableDet( const GeomDet* geomDet ) : 
   AlignableComposite( geomDet ), 
-  theDetId( geomDet->geographicalId() ),
   theAlignmentPositionError(0)
 {
   
@@ -140,7 +139,7 @@ Alignments* AlignableDet::alignments() const
   HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 										rot.yx(), rot.yy(), rot.yz(),
 										rot.zx(), rot.zy(), rot.zz() ) );
-  uint32_t detId = this->detId().rawId();
+  uint32_t detId = this->geomDetId().rawId();
   
   AlignTransform transform( clhepVector, clhepRotation, detId );
   
@@ -170,7 +169,7 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
 
   // Add associated alignment position error
-  uint32_t detId = this->detId().rawId();
+  uint32_t detId = this->geomDetId().rawId();
   HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
     clhepSymMatrix= theAlignmentPositionError->globalError().matrix();

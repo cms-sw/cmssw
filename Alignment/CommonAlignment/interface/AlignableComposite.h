@@ -83,7 +83,7 @@ public:
   virtual void reactivateMisalignment ();
 
   /// Return the DetId of the associated GeomDet
-  virtual const DetId detId() const { return theDetId; }
+  virtual const DetId geomDetId() const { return theDetId; }
 
   /// Recursive printout of alignable structure
   virtual void dump() const;
