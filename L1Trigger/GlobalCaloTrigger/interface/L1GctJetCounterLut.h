@@ -18,6 +18,18 @@
  * 
  * Different types of cut to be set up in the constructor
  *
+ * Available cut types:
+ * minRank : jet passes if its Rank is at least cutValue1
+ * maxRank : jet passes if its Rank is at most cutValue1
+ * centralEta : jet passes if its rctEta is at most cutValue1
+ * forwardEta : jet passes if its rctEta is at least cutValue1
+ * phiWindow : jet passes if its globalPhi is between cutValue1 and cutValue2 (inclusive)
+ *             NB if cutValue2<cutValue1 we wrap around phi=0/2pi
+ * nullCutType : jet never passes
+ *               (this is the default)
+ *
+ * If more than one cut is specified, a jet is required to pass all cuts in order to be accepted 
+ *
  */
 
 
