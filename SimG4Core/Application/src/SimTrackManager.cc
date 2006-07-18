@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.1 2005/11/27 22:03:53 chrjones Exp $
+// $Id: SimTrackManager.cc,v 1.2 2006/05/24 23:14:40 yarba Exp $
 //
 
 // system include files
@@ -119,13 +119,13 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 // At the moment, I'm not sure how to take the whole thing under MessageLogger
 //
     using namespace std;
-    cout << " SimTrackManager::storeTracks knows " << m_trksForThisEvent->size()
-	 << " tracks with history before branching" <<endl;
+    LogDebug("SimTrackManager") << " SimTrackManager::storeTracks knows " << m_trksForThisEvent->size()
+	 << " tracks with history before branching";
     for (unsigned int it =0;  it <(*m_trksForThisEvent).size(); it++)
-	cout << " 1 - Track in position " << it << " G4 track number "
+	LogDebug("SimTrackManager")  << " 1 - Track in position " << it << " G4 track number "
 	     << (*m_trksForThisEvent)[it]->trackID()
 	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " status " << (*m_trksForThisEvent)[it]->saved() << endl;
+	     << " status " << (*m_trksForThisEvent)[it]->saved();
 #endif
     for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++)
     {
@@ -135,13 +135,13 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 #ifdef DEBUG
 // ... and also this...
 //
-    cout << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
-	 << (*m_trksForThisEvent).size() << endl;
+    LogDebug("SimTrackManager")  << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
+	 << (*m_trksForThisEvent).size();
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-	cout << " 2 - Track in position " << it
+	LogDebug("SimTrackManager")  << " 2 - Track in position " << it
 	     << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
 	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " Status " << (*m_trksForThisEvent)[it]->saved() << endl;
+	     << " Status " << (*m_trksForThisEvent)[it]->saved();
 #endif
     // now eliminate from the vector the tracks with only history but not save
     int num = 0;
@@ -158,14 +158,15 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 #ifdef DEBUG
 // ...and this...
 //
-    cout << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
-	 << " tracks to be saved persistently" << endl;
-    cout << "SimTrackManager::storeTracks -  Tracks still alive " << (*m_trksForThisEvent).size() << endl;
+    LogDebug("SimTrackManager")  << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
+	 << " tracks to be saved persistently";
+    LogDebug("SimTrackManager")  << "SimTrackManager::storeTracks -  Tracks still alive " 
+         << (*m_trksForThisEvent).size();
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-	cout << " 3 - Track in position " << it
+	LogDebug("SimTrackManager")  << " 3 - Track in position " << it
 	     << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
 	     << " mother " << (*m_trksForThisEvent)[it]->parentID()
-	     << " status " << (*m_trksForThisEvent)[it]->saved() << endl;
+	     << " status " << (*m_trksForThisEvent)[it]->saved();
 #endif
     stable_sort(m_trksForThisEvent->begin(),m_trksForThisEvent->end(),trkIDLess());
     // reorder from 0 to max-1
@@ -177,9 +178,9 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
 // This I can take under MessageLogger but since other DEBUG blocks
 // are still plain cout's, I leave this as is for now
 //
-	cout << " g4ToSimMap filling "
+	LogDebug("SimTrackManager")  << " g4ToSimMap filling "
 	     << ((*m_trksForThisEvent)[i])->trackID() << " " << i
-	     << " mother " << ((*m_trksForThisEvent)[i])->parentID() << endl;
+	     << " mother " << ((*m_trksForThisEvent)[i])->parentID();
 #endif
 	int g4ID = (*m_trksForThisEvent)[i]->trackID();
 	m_g4ToSimMap[g4ID] = i;

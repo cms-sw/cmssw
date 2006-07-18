@@ -6,6 +6,8 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "PluginManager/PluginManager.h"
 #include "SealBase/StringOps.h"
+#include <boost/shared_ptr.hpp>
+
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -75,14 +77,18 @@ StorageFactory::getMaker (const std::string &url,
 seal::Storage *
 StorageFactory::open (const std::string &url, int mode, const std::string &tmpdir /* = "" */)
 { 
-    std::string protocol;
-    std::string rest;
-
-    if (StorageMaker *maker = getMaker (url, protocol, rest))
-	if (seal::Storage *storage = maker->open (protocol, rest, mode, tmpdir))
-	    return m_accounting ? new StorageAccountProxy (protocol, storage) : storage;
-
-    return 0;
+  std::string protocol;
+  std::string rest;
+  
+  boost::shared_ptr<StorageAccount::Stamp> stats;
+  seal::Storage * ret = 0;
+  if (StorageMaker *maker = getMaker (url, protocol, rest)) {
+    if (m_accounting) 
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));	if (seal::Storage *storage = maker->open (protocol, rest, mode, tmpdir))
+	ret = m_accounting ? new StorageAccountProxy (protocol, storage) : storage;
+    if (stats) stats->tick();
+  } 
+    return ret;
 }
 
 bool
@@ -91,8 +97,14 @@ StorageFactory::check (const std::string &url, seal::IOOffset *size /* = 0 */)
     std::string protocol;
     std::string rest;
 
-    if (StorageMaker *maker = getMaker (url, protocol, rest))
-	return maker->check (protocol, rest, size);
+    boost::shared_ptr<StorageAccount::Stamp> stats;
+    bool ret = false;
+    if (StorageMaker *maker = getMaker (url, protocol, rest)) {
+      if (m_accounting) 
+	stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "check")));
+      ret = maker->check (protocol, rest, size);
+      if (stats) stats->tick();
+    }
  
-    return false;
+    return ret;
 }

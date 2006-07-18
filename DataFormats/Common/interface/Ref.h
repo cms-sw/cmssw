@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.9 2006/06/15 20:17:29 wmtan Exp $
+$Id: Ref.h,v 1.10 2006/06/17 19:41:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -222,7 +222,8 @@ namespace edm {
     EDProductGetter const* productGetter() const {return ref_.product().productGetter();}
 
     /// Accessor for product collection
-    C const* product() const {return static_cast<C const *>(ref_.product().productPtr());}
+    // Accessor must get the product if necessary
+    C const* product() const {return getProduct<C>(ref_.product());}
 
     /// Accessor for product key.
     key_type key() const {return ref_.item().key();}

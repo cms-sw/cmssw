@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=Utilities/Timing>
@@ -18,7 +17,6 @@
 <export>
    <lib name=EventFilterSiStripRawToDigi>
    <use name=FWCore/Framework>
-   <use name=FWCore/Utilities>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=Utilities/Timing>

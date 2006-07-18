@@ -1,3 +1,4 @@
+#include <iterator>
 #include <sstream>
 #include <string>
 #include "SealZip/MD5Digest.h"
@@ -22,5 +23,12 @@ namespace edm {
     seal::MD5Digest md5alg;
     md5alg.update(stringrep.data(), stringrep.size());
     return ProcessHistoryID(md5alg.format());
+  }
+
+  std::ostream&
+  operator<<(std::ostream& ost, ProcessHistory const& ph) {
+    ost << "Process History = ";
+    std::copy(ph.begin(),ph.end(), std::ostream_iterator<ProcessHistory::value_type>(ost,";"));
+    return ost;
   }
 }

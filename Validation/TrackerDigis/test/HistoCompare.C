@@ -34,7 +34,7 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   mynewHisto1 = newHisto;
   myte = te;
 
-  Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
+  Double_t mypv = myoldHisto1->KolmogorovTest(mynewHisto1);
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -54,7 +54,7 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   mynewHisto2 = newHisto;
   myte = te;
 
-  Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
+  Double_t mypv = myoldHisto2->KolmogorovTest(mynewHisto2);
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -75,7 +75,7 @@ HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
   mynewProfile = newHisto;
   myte = te;
 
-  Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
+  Double_t mypv = myoldProfile->KolmogorovTest(mynewProfile);
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;

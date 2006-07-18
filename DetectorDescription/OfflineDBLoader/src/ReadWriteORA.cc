@@ -7,10 +7,6 @@
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/DBWriter.h"
-#include "CondCore/IOVService/interface/IOV.h"
-
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
@@ -21,26 +17,23 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 #include "POOLCore/POOLContext.h"
-// #include "PluginManager/PluginManager.h"
-// #include "FileCatalog/URIParser.h"
-// #include "FileCatalog/IFileCatalog.h"
-// #include "DataSvc/IDataSvc.h"
-// #include "DataSvc/DataSvcFactory.h"
-// #include "PersistencySvc/DatabaseConnectionPolicy.h"
-// #include "StorageSvc/DbType.h"
-// #include "PersistencySvc/ISession.h"
-// #include "PersistencySvc/ITransaction.h"
-// #include "DataSvc/Ref.h"
+#include "PluginManager/PluginManager.h"
+#include "FileCatalog/URIParser.h"
+#include "FileCatalog/IFileCatalog.h"
+#include "DataSvc/IDataSvc.h"
+#include "DataSvc/DataSvcFactory.h"
+#include "PersistencySvc/DatabaseConnectionPolicy.h"
+#include "StorageSvc/DbType.h"
+#include "PersistencySvc/ISession.h"
+#include "PersistencySvc/ITransaction.h"
+#include "DataSvc/Ref.h"
 
-// #include "SealUtil/SealTimer.h"
-// #include "SealBase/ShellEnvironment.h"
+#include "SealUtil/SealTimer.h"
+#include "SealBase/ShellEnvironment.h"
 
-// #include "Reflex/Type.h"
+#include "Reflex/Type.h"
 
 #include<string>
 
@@ -68,11 +61,10 @@ ReadWriteORA::~ReadWriteORA () { }
 /// Read from XML and write using POOL Object Relational Access
 bool ReadWriteORA::writeDB ( ) {
 
-//   seal::PluginManager::get()->initialise();
-//   seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB", false);
+  seal::PluginManager::get()->initialise();
+  seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB", false);
 
   std::string token;
-  PIdealGeometry* pgeom = new PIdealGeometry;
 
   try {
 
@@ -86,40 +78,39 @@ bool ReadWriteORA::writeDB ( ) {
     //       std::cout << "Connection String is: "  << dbConnectString_ << std::endl;
       
     // Loads the seal message stream
-//     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-//     pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+    pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+    pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
 
-//     // Parsing URI for catalog and opening the catalog
-//     pool::URIParser p;
-//     p.parse();
+    // Parsing URI for catalog and opening the catalog
+    pool::URIParser p;
+    p.parse();
 
-//     pool::IFileCatalog lcat;
-//     pool::IFileCatalog * cat = &lcat;
-//     cat->setWriteCatalog(p.contactstring());
-//     cat->connect();
-//     cat->start();
+    pool::IFileCatalog lcat;
+    pool::IFileCatalog * cat = &lcat;
+    cat->setWriteCatalog(p.contactstring());
+    cat->connect();
+    cat->start();
     
-//     pool::IDataSvc *svc = pool::DataSvcFactory::instance(cat);
+    pool::IDataSvc *svc = pool::DataSvcFactory::instance(cat);
 
-//     // Define the policy for the implicit file handling
-//     pool::DatabaseConnectionPolicy policy;
-//     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-//     policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-//     svc->session().setDefaultConnectionPolicy(policy);
+    // Define the policy for the implicit file handling
+    pool::DatabaseConnectionPolicy policy;
+    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+    svc->session().setDefaultConnectionPolicy(policy);
 
-//     long int tech(pool::POOL_RDBMS_StorageType.type()); // pool::ROOTKEY_StorageType.type()
-//     svc->transaction().start(pool::ITransaction::UPDATE);
+    long int tech(pool::POOL_RDBMS_StorageType.type()); // pool::ROOTKEY_StorageType.type()
+    svc->transaction().start(pool::ITransaction::UPDATE);
 
-//     pool::Ref<PIdealGeometry> pgeom(svc, new PIdealGeometry);
+    pool::Ref<PIdealGeometry> pgeom(svc, new PIdealGeometry);
 
-//     //    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, pool::Guid::null(), tech);
-//     pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, tech); //seal::reflex::Type(), tech);
+    //    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, pool::Guid::null(), tech);
+    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, tech); //seal::reflex::Type(), tech);
  
-//     // This will also register the file. For this to occur, the placement object must use a PFN.
-//     pgeom.markWrite(geomPlace);
+    // This will also register the file. For this to occur, the placement object must use a PFN.
+    pgeom.markWrite(geomPlace);
 
-//     token=pgeom.toString();
-
+    token=pgeom.toString();
 
     // Grab the DDD compact view that is in memory and write it on out!
     DDCompactView cpv;
@@ -226,165 +217,59 @@ bool ReadWriteORA::writeDB ( ) {
       delete ps;
     }
 
-    std::vector<std::string> partSelections;
-    std::map<std::string, std::vector<PValuePair> > values;
-    std::map<std::string, int> isEvaluated;
-    PSpecPar* psp;
-
-    DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
-    //  size_t no = dd_count(DDSpecifics());
-    //  std::cout << no << std::
-    for (; spit != spend; ++spit) {
-      if (! spit->isDefined().second) continue;  
-      const DDSpecifics & sp = *spit;
-      std::cout << "--Spec: @ ";
-      //    nameout(std::cout,sp.name());
-      std::cout << sp.name();
-      std::cout << ' ' << sp.selection().size() << std::endl;
-      std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
-      for (; sit != sed; ++sit) {
-	std::ostringstream selStringStream;
-	selStringStream << *sit;
-	//	std::cout << *sit << " =? " << selStringStream.str() << std::endl;
-	partSelections.push_back ( selStringStream.str() );
-      }
-      //      std::cout << sp.specifics().size() << std::endl;
-      DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
-      for (; vit != ved; ++vit) {
-	const DDValue & v = vit->second;
-	std::cout << ' ' << '"' << v.name() << '"' << ' ';
-	//	valueNames.push_back(v.name());
-// 	if (v.isEvaluated()) {
-// 	  std::cout << 1 << ' ';
-// 	}
-// 	else {
-// 	  std::cout << 0 << ' ';
-// 	}
-// 	std::cout << v.size() << ' ';
-	std::vector<PValuePair> vpvp;
-	if ( v.isEvaluated() ) {
-	  size_t s=v.size();
-	  size_t i=0;
-	  for (; i<s; ++i) {
-	    std::cout << '"' << v[i].first << '"' << ' ' << v[i].second << ' ';
-	    vpvp.push_back(PValuePair(v[i].first, v[i].second));
-	  }
-	  isEvaluated[v.name()] = 1;
-	}
-	else {
-	  size_t s=v.size();
-	  size_t i=0;
-	  const std::vector<std::string> & vs = v.strings();
-	  for (; i<s; ++i) {
-	    std::cout << '"' << vs[i] << '"' << ' ';
-	    vpvp.push_back(PValuePair(vs[i], 0.0));
-	  }
-	  isEvaluated[v.name()] = 0;
-	}
-	//	std::cout << std::endl;
-	values[v.name()] = vpvp;
-      }
-      psp = DDDToPersFactory::specpar( spit->toString()
-				       , partSelections
-				       , values
-				       , isEvaluated );
-
-      pgeom->pSpecPars.push_back( *psp );
-      values.clear();
-      partSelections.clear();
-      isEvaluated.clear();
-      delete psp;
-      std::cout << "*********** DONE writing one" << std::endl;
-    } 
-
-  
-
-
     pgeom->pStartNode = DDRootDef::instance().root().toString();
-//     std::cout << "commit catalog" << std::endl;
-//     cat->commit();
-//     svc->transaction().commit();
-//     std::cout << "committed" << std::endl;
-//     svc->session().disconnectAll();
-//     std::cout << "disconnected" << std::endl;
+    std::cout << "commit catalog" << std::endl;
+    cat->commit();
+    svc->transaction().commit();
+    std::cout << "committed" << std::endl;
+    svc->session().disconnectAll();
+    std::cout << "disconnected" << std::endl;
 
-//    delete svc;
-	      pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-	      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
-	      cond::ServiceLoader* loader=new cond::ServiceLoader;
-	      std::string usr = "CORAL_AUTH_USER="+userName_;
-	      std::string pass = "CORAL_AUTH_PASSWORD="+password_;
-	      ::putenv(usr.c_str());
-	      ::putenv(pass.c_str());
-	      loader->loadAuthenticationService( cond::Env );
-	      loader->loadMessageService( cond::Error );
-	      cond::DBSession* session=new cond::DBSession(dbConnectString_);
-	      session->setCatalog("file:PoolFileCatalog.xml");
-	      session->connect(cond::ReadWriteCreate);
-	      cond::DBWriter pw(*session, "PIdealGeometry");
-	      cond::DBWriter iovw(*session, "IOV");
-	      cond::IOV* initiov=new cond::IOV;
-	      session->startUpdateTransaction();
-	      std::string tok=pw.markWrite<PIdealGeometry>(pgeom);
-	      unsigned long myTime=(unsigned long)edm::IOVSyncValue::endOfTime().eventID().run();
-	      //	      myIov->iov[mytime]=tk.tokenAsString();
-	      std::cout << "The end-of-time is " << myTime << std::endl;
-	      initiov->iov.insert(std::make_pair(myTime,tok));
-	      std::string iovtok = iovw.markWrite<cond::IOV>(initiov);
-	      session->commit();
-	      session->disconnect();
-	      cond::MetaData metadata_svc(dbConnectString_, *loader);
-	      metadata_svc.connect();
-	      metadata_svc.addMapping(name_, iovtok);
-	      metadata_svc.disconnect();
-	      std::cout << "Done with save, token " << tok << " as name " << name_  << std::endl;
-	      delete session;
-	      delete loader;
+    delete svc;
 
-  } catch (DDException& e) {
-    std::cout << "DDException was caught: " << e.message() << std::endl;
-    return false;
-  } catch ( std::exception& e ) {
+  }
+  catch ( std::exception& e ) {
     std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
     return false;
-  } catch ( ... ) {
+  }
+  catch ( ... ) {
     std::cout << "ReadWriteORA::writeDB caught ( ... ) , i.e. unknown, exception -> " << "Funny error" << std::endl;
     return false;
   }
 
-//     // using MetaData to translate name to token.
-// 	      cond::ServiceLoader* loader=new cond::ServiceLoader;
-// 	      ::putenv("CORAL_AUTH_USER=me");
-// 	      ::putenv("CORAL_AUTH_PASSWORD=mypass");
-// 	      loader->loadAuthenticationService( cond::Env );
-// 	      loader->loadMessageService( cond::Error );
+    // using MetaData to translate name to token.
+	      cond::ServiceLoader* loader=new cond::ServiceLoader;
+	      ::putenv("CORAL_AUTH_USER=me");
+	      ::putenv("CORAL_AUTH_PASSWORD=mypass");
+	      loader->loadAuthenticationService( cond::Env );
+	      loader->loadMessageService( cond::Error );
 
-//     MetaData meta (dbConnectString_, *loader);
-//     std::cout << "Pool token = \"" << token << "\"" << std::endl;
-//     try {
-//       meta.connect();
-//       if ( meta.getToken(name_) != "" ) {
-// 	std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
-// 	std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
-//       }
-//     } catch ( cond::Exception& e ) {
-//       std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
-//       std::cout << "WILL ABORT!!!" << std::endl;
-//     } catch ( std::exception& e ) {
-//       std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
-//       std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
-//       meta.addMapping(name_, token);
-//     }
-//     try {
-//       std::cout << meta.getToken(name_) << std::endl;
-//       meta.disconnect();
-//     } catch ( cond::Exception& e ) {
-//       std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
-//       std::cout << "WILL ABORT!!!" << std::endl;
-//     } catch ( std::exception& e ) {
-//       std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
-//     }
-//     delete loader;
+    MetaData meta (dbConnectString_, *loader);
+    std::cout << "Pool token = \"" << token << "\"" << std::endl;
+    try {
+      meta.connect();
+      if ( meta.getToken(name_) != "" ) {
+	std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
+	std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
+      }
+    } catch ( cond::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+      std::cout << "WILL ABORT!!!" << std::endl;
+    } catch ( std::exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
+      std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
+      meta.addMapping(name_, token);
+    }
+    try {
+      std::cout << meta.getToken(name_) << std::endl;
+      meta.disconnect();
+    } catch ( cond::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+      std::cout << "WILL ABORT!!!" << std::endl;
+    } catch ( std::exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
+    }
+    delete loader;
   return true;
 }
 
@@ -407,16 +292,28 @@ bool ReadWriteORA::readFromXML ( ) {
 
 /// Read back from the persistent objects
 bool ReadWriteORA::readFromDB ( ) {
-	std::string aToken;
+  cond::ServiceLoader* loader=new cond::ServiceLoader;
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=mypass");
+  loader->loadAuthenticationService( cond::Env );
+  loader->loadMessageService( cond::Error );
   try {
+    MetaData meta(dbConnectString_, *loader);
+    meta.connect();
+    std::cout << "Looking for ..." << name_ << std::endl;
+    std::string aToken= meta.getToken(name_);
+    meta.disconnect();
+    delete loader;
+    seal::SealTimer timer("ReadWriteORA::readFromDB", false);
     DDORAReader ddorar( "cms:OCMS", 
 			aToken,
-			name_,
 			userName_, 
 			password_,
 			dbConnectString_ );
     ddorar.readDB();
     return true;
+  } catch ( cond::Exception& e ) {
+    std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
   } catch ( std::exception& e ) {
       std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
   }

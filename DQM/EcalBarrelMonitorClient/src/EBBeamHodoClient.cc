@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/04 19:53:07 $
- * $Revision: 1.18 $
+ * $Date: 2006/06/27 16:31:23 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,16 +31,15 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
+EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps, MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -96,18 +95,12 @@ EBBeamHodoClient::~EBBeamHodoClient(){
 
 }
 
-void EBBeamHodoClient::beginJob(MonitorUserInterface* mui){
-
-  mui_ = mui;
+void EBBeamHodoClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBBeamHodoClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-  }
 
 }
 
@@ -247,13 +240,13 @@ void EBBeamHodoClient::subscribe(void){
 
   int smId = 1;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for (int i=0; i<4; i++) {
 
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d %02d", smId, i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d %02d", smId, i+1);
+    sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d, %02d", smId, i+1);
     mui_->subscribe(histo);
 
   }
@@ -282,13 +275,13 @@ void EBBeamHodoClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -303,13 +296,13 @@ void EBBeamHodoClient::subscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
   mui_->subscribe(histo);
 
   if ( collateSources_ ) {
@@ -322,7 +315,7 @@ void EBBeamHodoClient::subscribe(void){
 
 void EBBeamHodoClient::subscribeNew(void){
 
-  Char_t histo[200];
+  Char_t histo[80];
   
   int smId = 1;
   
@@ -359,13 +352,13 @@ void EBBeamHodoClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -380,13 +373,13 @@ void EBBeamHodoClient::subscribeNew(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
   mui_->subscribeNew(histo);
 
 }
@@ -395,7 +388,7 @@ void EBBeamHodoClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBBeamHodoClient: unsubscribe" << endl;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   int smId = 1;
 
@@ -432,13 +425,13 @@ void EBBeamHodoClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC rec SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d", smId);
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
@@ -453,13 +446,13 @@ void EBBeamHodoClient::unsubscribe(void){
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d", smId);
+  sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
   if ( collateSources_ ) {
@@ -480,7 +473,7 @@ void EBBeamHodoClient::analyze(void){
 
   int smId = 1;
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
 
@@ -488,14 +481,14 @@ void EBBeamHodoClient::analyze(void){
 
     if ( collateSources_ ) {
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d %02d").c_str(), smId, i+1);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
     ho01_[i] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
 
     if ( collateSources_ ) {
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d %02d").c_str(), smId, i+1);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT raw SM%02d, %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
     hr01_[i] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
@@ -504,7 +497,7 @@ void EBBeamHodoClient::analyze(void){
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hp01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
@@ -560,21 +553,21 @@ void EBBeamHodoClient::analyze(void){
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)XVsCry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (Hodo-Calo)YVsCry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT (TDC-Calo)VsCry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
   hc01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
@@ -598,35 +591,35 @@ void EBBeamHodoClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[0] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
+  he02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, he02_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
+  he02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, he02_[1] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX: Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
+  he03_[0] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[0] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY: Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
+  he03_[1] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[1] );
 
   if ( collateSources_ ) {
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo SM%02d").c_str(), smId);
+    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax: TDC-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
+  he03_[2] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, he03_[2] );
 
 }
 
@@ -655,6 +648,10 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">BeamHodo</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
+//  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+//  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+//  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
+//  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -662,30 +659,12 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
 
-  htmlFile <<  "<a href=\"#Hodo_raw\"> Hodoscope raw </a>" << endl;
-  htmlFile << "<p>" << endl;
-  htmlFile <<  "<a href=\"#Hodo_reco\"> Hodoscope reco </a>" << endl;
-  htmlFile << "<p>" << endl;
-  htmlFile <<  "<a href=\"#Hodo-Calo\"> Hodo-Calo </a>" << endl;
-  htmlFile << "<p>" << endl;
-  htmlFile <<  "<a href=\"#eneVspos\"> Energy vs position </a>" << endl;
-  htmlFile << "<p>" << endl;
-
-  htmlFile << "<hr>" << endl;
-  htmlFile << "<p>" << endl;
-
-  htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"Hodo_raw\"> <B> Hodoscope raw plots </B> </a> " << endl;
-  htmlFile << "</br>" << endl;
-
-
   const int csize = 250;
   
   const double histMax = 1.e15;
- 
-  int pCol4[10];
-  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
- 
+  
+  int pCol3[3] = { 2, 3, 5 };
+  
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
@@ -698,9 +677,9 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TCanvas* cP = new TCanvas("cP", "Temp", csize, csize);
 
-  TH1F* obj1f;
   TH2F* obj2f;
-  TProfile* objp;
+  TH1F* obj1f;
+  TProfile2D* objp;
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -738,8 +717,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       gPad->SetLogy(0);
 
     }
-
-    imgNameR = "";
 
     obj1f = hr01_[i];
 
@@ -788,345 +765,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
 
-  htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"Hodo_reco\"> <B> Hodoscope reco plots </B> </a> " << endl;
-  htmlFile << "</br>" << endl;
-
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for (int i=0; i<2; i++) {
-
-    imgNameP = "";
-
-    obj1f = hp01_[i];
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP;
-
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  obj2f = hp02_;
-
-  imgNameP = "";
-
-  if ( obj2f ) {
-
-    meName = obj2f->GetName();
-
-    for ( unsigned int j = 0; j < meName.size(); j++ ) {
-      if ( meName.substr(j, 1) == " " )  {
-        meName.replace(j, 1, "_");
-      }
-    }
-    imgNameP = meName + ".png";
-    imgName = htmlDir + imgNameP;
-  
-    cP->cd();
-//    gStyle->SetOptStat("euomr");
-//    obj2f->SetStats(kTRUE);
-    obj2f->Draw("");
-    cP->Update();
-    cP->SaveAs(imgName.c_str());
-
-  }
-
-  if ( imgNameP.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for (int i=0; i<4; i++) {
-
-    imgNameP = "";
-
-    obj1f = 0;
-    switch ( i ) {
-    case 0:
-      obj1f = hs01_[0];
-      break;
-    case 1:
-      obj1f = hs01_[1];
-      break;
-    case 2:
-      obj1f = hq01_[0];
-      break;
-    case 3:
-      obj1f = hq01_[1];
-      break;
-    default:
-      break;
-    }
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP;
-
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-
-  htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"Hodo-Calo\"> <B> Hodo-Calo plots </B> </a> " << endl;
-  htmlFile << "</br>" << endl;
-
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for (int i=0; i<3; i++) { 
-
-    imgNameP = "";
-
-    obj1f = hc01_[i];
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP;
-
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-
-  for (int i=0; i<3; i++) {
-
-    imgNameP = "";
-
-    obj1f = he03_[i];
-
-    if ( obj1f ) {
-
-      meName = obj1f->GetName();
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP;
-
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE); 
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
-      obj1f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-
-      gPad->SetLogy(0);
-
-    }
-
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-
-  htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"eneVspos\"> <B> Energy vs position plots </B> </a> " << endl;
-  htmlFile << "</br>" << endl;
-
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  for (int i=0; i<2; i++) {
-
-    imgNameP = "";
-
-    objp = he01_[i];
-
-    if ( objp ) {
-
-      meName = objp->GetName();
-
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP; 
-    
-      cP->cd();
-      gStyle->SetOptStat("euomr");
-      objp->SetStats(kTRUE); 
-      objp->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    imgNameR = "";
-  
-    obj2f = he02_[i];
-  
-    if ( obj2f ) {
-  
-      meName = obj2f->GetName();
-
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
-      imgNameR = meName + ".png";
-      imgName = htmlDir + imgNameR;
-
-      cP->cd();
-//      gStyle->SetOptStat("euomr");
-//      obj2f->SetStats(kTRUE);
-      obj2f->Draw();
-      cP->Update();
-      cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
-    }
-
-    if ( imgNameP.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-    if ( imgNameR.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameR << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  }
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-
-
-  delete cP;
-
-  htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 

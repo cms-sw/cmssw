@@ -1,5 +1,6 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 #include <cmath>
 
 PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
@@ -11,7 +12,8 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
   double pt = originalFTS.momentum().perp();
-  double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
+//   double field = MagneticField::inInverseGeV(originalFTS.position()).z();
+  double field  = originalFTS.parameters().magneticField().inTesla(originalFTS.position()).z() * 2.99792458e-3;
 
   double positiveMomentumPhi = ( (phi>0) ? phi : (2*M_PI+phi) );
   double positionPhi = impactDistance.phi();
@@ -122,11 +124,13 @@ GlobalVector PerigeeConversions::momentumFromPerigee
 
 GlobalVector PerigeeConversions::momentumFromPerigee
   (const AlgebraicVector& momentum, const TrackCharge& charge, 
-   const GlobalPoint& referencePoint, const MagneticField* field) const
+   const GlobalPoint& referencePoint) const
 {
   double pt;
   if (charge!=0) {
-    pt = std::abs(field->inInverseGeV(referencePoint).z() / momentum[0]);
+//     pt = abs(MagneticField::inInverseGeV(referencePoint).z() / momentum[0]);
+//     pt = std::abs(magField.inTesla(referencePoint).z() * 2.99792458e-3 / momentum[0]);
+     pt = std::abs(TrackingTools::FakeField::Field::inTesla(referencePoint).z() * 2.99792458e-3 / momentum[0]);
   } else {
     pt = 1 / momentum[0];
   }
@@ -144,18 +148,17 @@ TrackCharge PerigeeConversions::chargeFromPerigee
 
 TrajectoryStateClosestToPoint PerigeeConversions::trajectoryStateClosestToPoint
 	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
-	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
-	 const MagneticField* field) const
+	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix) const
 {
   AlgebraicMatrix param2cart = jacobianParameters2Cartesian
-  	(momentum, referencePoint, charge, field);
+  	(momentum, referencePoint, charge);
   AlgebraicSymMatrix cartesianErrorMatrix(6,0);
   cartesianErrorMatrix.assign(param2cart*theCovarianceMatrix*param2cart.T());
   CartesianTrajectoryError cartesianTrajErr(cartesianErrorMatrix);
 
   FTS theFTS(GlobalTrajectoryParameters(referencePoint,
-	    momentumFromPerigee(momentum, charge, referencePoint, field), charge,
-	    field), cartesianTrajErr);
+	    momentumFromPerigee(momentum, charge, referencePoint), charge,
+	    TrackingTools::FakeField::Field::field()), cartesianTrajErr);
 
   return TrajectoryStateClosestToPoint(theFTS, referencePoint);
 }
@@ -164,12 +167,13 @@ TrajectoryStateClosestToPoint PerigeeConversions::trajectoryStateClosestToPoint
 AlgebraicMatrix
 PerigeeConversions::jacobianParameters2Cartesian(
 	const AlgebraicVector& momentum, const GlobalPoint& position,
-	const TrackCharge& charge, const MagneticField* field) const
+	const TrackCharge& charge) const
 {
   double factor = 1.;
   if (charge!=0) {
-    double bField = field->inInverseGeV(position).z();
-    factor = -bField*charge;
+    double field = TrackingTools::FakeField::Field::inTesla(position).z() * 2.99792458e-3;
+//     MagneticField::inInverseGeV(position).z();
+    factor = -field*charge;
   }
   AlgebraicMatrix frameTransJ(6, 6, 0);
   frameTransJ[0][0] = 1;
@@ -201,7 +205,8 @@ PerigeeConversions::jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) 
   GlobalVector J(-I.y(), I.x(),0.); //counterclockwise rotation
   GlobalVector K(Z);
   GlobalPoint x = fts.position();
-  GlobalVector B  = fts.parameters().magneticField().inInverseGeV(x);
+//   GlobalVector B = MagneticField::inInverseGeV(x);
+  GlobalVector B  = fts.parameters().magneticField().inTesla(x) * 2.99792458e-3;
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);
   GlobalVector N = HxT.unit();
@@ -266,7 +271,8 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
   GlobalVector J(-I.y(), I.x(),0.); //counterclockwise rotation
   GlobalVector K(Z);
   GlobalPoint x = gtp.position();
-  GlobalVector B  = gtp.magneticField().inInverseGeV(x);
+//   GlobalVector B = MagneticField::inInverseGeV(x);
+  GlobalVector B  = gtp.magneticField().inTesla(x) * 2.99792458e-3;
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);
   GlobalVector N = HxT.unit();
@@ -323,6 +329,6 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
 //   jac(1,3) = - 1. / (TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3);
 //   jac(5,4) = 1.;
 //   jac(2,5) = -(1. + helixPar.tanDip()*helixPar.tanDip());
-// std::std::cout << jac;
+// std::cout << jac;
 //   return jac;
 // }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.8 2006/07/07 08:22:52 gennai Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.6 2006/07/06 17:04:13 gennai Exp $
 //
 //
 
@@ -114,7 +114,6 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  // set appropriate folder using SiStripFolderOrganizer
 	  folder_organizer.setDetectorFolder(key_id); // pass the detid to this method
 	  int nStrip  = napvs*128;
-	  //Pedestals histos
 	  hid = hidmanager.createHistoId("PedsPerStrip","det", key_id);
 	  local_modmes.PedsPerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
 
@@ -124,25 +123,15 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 	  hid = hidmanager.createHistoId("PedsEvolution","det", key_id);
 	  local_modmes.PedsEvolution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
 
-
-	  //Noise histos
 	  hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", key_id);
-	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	  local_modmes.CMSubNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("RawNoisePerStrip","det", key_id);
-	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-
-	  hid = hidmanager.createHistoId("CMSubNoiseProfile","det", key_id);
-	  local_modmes.CMSubNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -100., 100.);
-
-	  hid = hidmanager.createHistoId("RawNoiseProfile","det", key_id);
-	  local_modmes.RawNoiseProfile = dbe_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, -0.5, 0.5);
-
+	  local_modmes.RawNoisePerStrip = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);//to modify the size binning 
 
 	  hid = hidmanager.createHistoId("NoisyStrips","det", key_id);
-	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	  local_modmes.NoisyStrips = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);//to modify the size binning 
 
-	  //Common Mode histos
 	  hid = hidmanager.createHistoId("CMDistribution","det", key_id);
 	  local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
     
@@ -241,14 +230,12 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    }
 	  }
 	  
-	  if(local_modmes.CMSubNoisePerStrip != NULL && local_modmes.CMSubNoiseProfile != NULL){ 
+	  if(local_modmes.CMSubNoisePerStrip != NULL){ 
 	    tmp.clear();
 	    apvFactory_->getNoise(id, tmp);
 	    int ibin=0;
 	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
 	      ibin++;
-		(local_modmes.CMSubNoiseProfile)->Fill(static_cast<double>(ibin*1.),static_cast<float>(*iped));
-
 	      float last_value = (local_modmes.CMSubNoisePerStrip)->getBinContent(ibin);
 	      if(last_value != 0.){
 		(local_modmes.CMSubNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);
@@ -257,15 +244,13 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	      }
 	    }
 	  }
-
 	  
-	  if(local_modmes.RawNoisePerStrip != NULL && local_modmes.RawNoiseProfile != NULL){ 
+	  if(local_modmes.RawNoisePerStrip != NULL){ 
 	    tmp.clear();
 	    apvFactory_->getRawNoise(id, tmp);
 	    int ibin=0;
 	    for (vector<float>::const_iterator iped=tmp.begin(); iped!=tmp.end();iped++) {
 	      ibin++;
-	      (local_modmes.RawNoiseProfile)->Fill(static_cast<double>(ibin*1.),static_cast<float>(*iped));
 	      float last_value = (local_modmes.RawNoisePerStrip)->getBinContent(ibin);
 	      if(last_value != 0.){
 		(local_modmes.RawNoisePerStrip)->setBinContent(ibin,(static_cast<float>(*iped)+last_value)/2.);

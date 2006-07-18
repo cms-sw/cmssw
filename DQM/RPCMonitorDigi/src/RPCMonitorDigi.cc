@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/06/27 08:01:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/16 08:20:28 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -22,7 +22,6 @@
 #include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
 #include <Geometry/Surface/interface/LocalError.h>
 #include <Geometry/Vector/interface/LocalPoint.h>
-
 
 ///Log messages
 #include <FWCore/ServiceRegistry/interface/Service.h>
@@ -60,7 +59,8 @@ void RPCMonitorDigi::endJob(void)
 
 void RPCMonitorDigi::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup ){
- edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
+ counter++;
+ edm::LogInfo (nameInLog) <<"Beginning analyzing event = " << counter;
 
  char detUnitLabel[128];
  char layerLabel[128];
@@ -71,18 +71,13 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  edm::Handle<RPCDigiCollection> rpcdigis;
  iEvent.getByLabel("rpcunpacker", rpcdigis);
 
-/// RecHits
- edm::Handle<RPCRecHitCollection> rpcHits;
- iEvent.getByType(rpcHits);
-
-
  RPCDigiCollection::DigiRangeIterator collectionItr;
  for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
  RPCDetId detId=(*collectionItr ).first; 
  uint32_t id=detId(); 
 
- 
+
  sprintf(detUnitLabel ,"%d",detId());
  sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
  
@@ -92,6 +87,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  }
  std::map<std::string, MonitorElement*> meMap=meCollection[id];
  	
+ int roll = detId.roll();
  
  int numberOfDigi= 0;
 	
@@ -115,68 +111,48 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
 	meMap[meId]->Fill(numberOfDigi);
 
-	typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
-	rangeRecHits recHitCollection =  rpcHits->get(detId);
-	
-	
-	if(recHitCollection.first==recHitCollection.second){
-		sprintf(meId,"MissingHits_%s",detUnitLabel);
-		meMap[meId]->Fill((int)(counter), 1.0);
-	
-	}else{
-		sprintf(meId,"MissingHits_%s",detUnitLabel);
-		meMap[meId]->Fill((int)(counter), 0.0);
-		
-		RPCRecHitCollection::const_iterator it;
-		int numberOfHits=0;
-
-	for (it = recHitCollection.first; it != recHitCollection.second ; it++){
- 
-		RPCDetId detIdRecHits=it->rpcId();
-		uint32_t idRecHits=detIdRecHits(); 
-		LocalError error=it->localPositionError();//plot of errors/roll => should be gaussian	
-		LocalPoint point=it->localPosition();	  //plot of coordinates/roll =>should be flat
-		int mult=it->clusterSize();		  //cluster size plot => should be within 3-4	
-		int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
-		float xposition=point.x();
-		float yposition=point.y();
-	
-		sprintf(meId,"ClusterSize_%s",detUnitLabel);
-		if(mult<=10) meMap[meId]->Fill(mult);
-		if(mult>10)  meMap[meId]->Fill(11);
-			
-		sprintf(meId,"RecHitX_%s",detUnitLabel);
-		meMap[meId]->Fill(xposition);
- 
-		sprintf(meId,"RecHitY_%s",detUnitLabel);
-		meMap[meId]->Fill(yposition);
- 
-		sprintf(meId,"RecHitDX_%s",detUnitLabel);
-		meMap[meId]->Fill(error.xx());
- 
-		sprintf(meId,"RecHitDY_%s",detUnitLabel);
-		meMap[meId]->Fill(error.yy());
- 
-		sprintf(meId,"RecHitDXDY_%s",detUnitLabel);
-		meMap[meId]->Fill(error.xy());
-
-		sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
-		meMap[meId]->Fill(xposition,error.xx());
-
-		sprintf(meId,"RecHitY_vs_dY_%s",detUnitLabel);
-		meMap[meId]->Fill(yposition,error.yy());
-		numberOfHits++;
-	
-	}/// loop on RPCRecHits
-	}
-	
+        
 
  }/// loop on RPC Det Unit
+
+ /// RPCRecHits/Clusters
 
 //	sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
 //	meMap[meId]->Fill(clusterMultiplicities.size());
 
+ edm::Handle<RPCRecHitCollection> rpcHits;
+ iEvent.getByType(rpcHits);
  
+ RPCRecHitCollection::const_iterator it;
+ int numberOfHits=0;
+     for (it = rpcHits->begin(); it != rpcHits->end(); it++)
+     {
+ 
+	RPCDetId detIdRecHits=it->rpcId();
+	uint32_t idRecHits=detIdRecHits(); 
+	LocalError error=it->localPositionError();//plot of errors/roll => should be gaussian	
+	LocalPoint point=it->localPosition();	  //plot of coordinates/roll =>should be flat
+	int mult=it->clusterSize();		  //cluster size plot => should be within 3-4	
+	int firstStrip=it->firstClusterStrip();    //plot first Strip => should be flat
+
+
+	sprintf(detUnitLabel ,"%d",idRecHits);
+	sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detIdRecHits.layer(),detIdRecHits.subsector(),detIdRecHits.roll());
+ 
+	std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItrRecHits = meCollection.find(idRecHits);
+	if (meItrRecHits == meCollection.end() || (meCollection.size()==0)) {
+		meCollection[idRecHits]=bookDetUnitME(detIdRecHits);
+	}
+	std::map<std::string, MonitorElement*> meMapRecHits=meCollection[idRecHits];
+ 	
+     
+	sprintf(meId,"ClusterSize_%s",detUnitLabel);
+			if(mult<=10) meMapRecHits[meId]->Fill(mult);
+			if(mult>10)  meMapRecHits[meId]->Fill(11);
+			
+	numberOfHits++;
+     }
+	
 	//sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
 	//meMap[meId]->Fill(clusterMultiplicities.size());
   
@@ -186,11 +162,14 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   }
   
   
-  counter++;
   //dbe->showDirStructure();
   //usleep(10000000);
 
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(RPCMonitorDigi)
+
  
  
 

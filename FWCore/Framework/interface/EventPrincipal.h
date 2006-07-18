@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.30.2.6 2006/07/05 23:57:17 wmtan Exp $
+$Id: EventPrincipal.h,v 1.32 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -145,6 +145,8 @@ namespace edm {
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
   private:
+    SharedGroupPtr const getInactiveGroup(ProductID const& oid) const;
+
     // Make my DelayedReader get the EDProduct for a Group.  The Group is
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of groups through this call, and so
@@ -155,7 +157,7 @@ namespace edm {
 
     EventAux aux_;	// persistent
 
-    // ProductID is the index into these vectors
+    // A vector of active groups.
     GroupVec groups_; // products and provenances are persistent
 
     // users need to vary the info in the BranchKey object
@@ -171,6 +173,14 @@ namespace edm {
 
     typedef std::map<std::string, std::vector<int> > TypeDict;
     TypeDict typeDict_; // 1->many
+
+    // A vector of inactive groups (product not present or inaccessible).
+    GroupVec inactiveGroups_; // products and provenances are persistent
+
+    // indices are to product/provenance slot
+    BranchDict inactiveBranchDict_; // 1->1
+    ProductDict inactiveProductDict_; // 1->1
+    TypeDict inactiveTypeDict_; // 1->many
 
     // it is probably straightforward to load the BranchKey
     // dictionary above with information from the input source - 

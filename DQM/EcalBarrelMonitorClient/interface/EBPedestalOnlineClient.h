@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/06/29 22:03:24 $
- * $Revision: 1.17 $
+ * $Date: 2006/06/18 12:58:33 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,7 +42,7 @@ class EBPedestalOnlineClient : public EBClient {
 public:
 
 /// Constructor
-EBPedestalOnlineClient(const ParameterSet& ps);
+EBPedestalOnlineClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBPedestalOnlineClient();
@@ -56,7 +56,7 @@ void unsubscribe(void);
 void analyze(void);
 
 /// BeginJob
-void beginJob(MonitorUserInterface* mui);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
@@ -86,7 +86,6 @@ int jevt_;
 
 bool collateSources_;
 bool cloneME_;
-bool enableQT_;
 
 bool verbose_;
 

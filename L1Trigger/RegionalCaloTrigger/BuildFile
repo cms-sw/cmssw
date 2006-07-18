@@ -1,7 +1,0 @@
-<use name=boost>
-<use name=FWCore/Framework>
-<export>
-<lib name=L1TriggerRegionalCaloTrigger>
-<use name=boost>
-<use name=FWCore/Framework>
-</export>

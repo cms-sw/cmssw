@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.56 $
+ * $Date: 2006/06/18 15:22:18 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,16 +32,15 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
+EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -77,9 +76,7 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(MonitorUserInterface* mui){
-
-  mui_ = mui;
+void EBCosmicClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 
@@ -240,7 +237,7 @@ void EBCosmicClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -286,7 +283,7 @@ void EBCosmicClient::subscribe(void){
 
 void EBCosmicClient::subscribeNew(void){
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -327,7 +324,7 @@ void EBCosmicClient::unsubscribe(void){
 
   }
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -352,7 +349,7 @@ void EBCosmicClient::analyze(void){
     if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
 

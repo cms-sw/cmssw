@@ -4,8 +4,6 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
-
 /*!
  * \author Jim Brooke
  * \date May 2006
@@ -15,7 +13,9 @@
  * \class L1CaloRegion
  * \brief A calorimeter trigger region (sum of 4x4 trigger towers)
  *
- * 
+ *  Note that geographical information is not currently stored,
+ *  awaiting advice on implementation.
+ *
  *
  */
 
@@ -27,20 +27,14 @@ public:
   /// default constructor
   L1CaloRegion();
 
-  /// constructor for RCT emulator (HB/HE regions)
+  /// constructor for emulation : HB/HE regions
   L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
-  /// constructor for RCT emulator (HF regions)
-  L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn);
+  /// constructor for emulation : HF regions
+  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn);
 
-  /// construct from GCT source card indices - note argument ordering!
-  L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
-
-  /// construct with GCT eta,phi indices, for testing GCT emulator - note argument ordering!
-  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
-
-  /// constructor from raw data and GCT indices for unpacking
-  L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi);
+  // constructor for unpacking
+  L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn);
 
   /// destructor
   ~L1CaloRegion();
@@ -48,20 +42,14 @@ public:
 
   // get/set methods for the data
 
-  /// reset the data content (not position id!)
-  void reset() { m_data = 0; }
-
   /// get Et
-  unsigned et() const { return (m_id.isForward() ? m_data&0xff : m_data&0x3ff); }
+  unsigned et() const { return (m_data & 0x3ff); }
 
   /// get overflow
   bool overFlow() const { return ((m_data>>10) & 0x1)!=0; }
 
   /// get tau veto bit
-  bool tauVeto() const { return (m_id.isForward() ? false : fineGrain()); }
-
-  /// get fine grain bit
-  bool fineGrain() const { return ((m_data>>11) & 0x1)!=0; }
+  bool tauVeto() const { return ((m_data>>11) & 0x1)!=0; }
 
   /// get MIP bit
   bool mip() const { return ((m_data>>12) & 0x1)!=0; }
@@ -79,57 +67,51 @@ public:
   // get methods for the geographical information
 
   /// get global region ID
-  L1CaloRegionDetId id() const { return m_id; }
+  unsigned id() const { return m_id; }
 
   /// get RCT crate ID
-  unsigned rctCrate() const { return m_id.rctCrate(); }
+  unsigned rctCrate() const ;
 
   /// get RCT reciever card ID (valid output for HB/HE)
-  unsigned rctCard() const { return m_id.rctCard(); }
+  unsigned rctCard() const ;
 
   /// get RCT region index
-  unsigned rctRegionIndex() const { return m_id.rctRegion(); }
+  unsigned rctRegionIndex() const ;
 
   /// get local eta index (within RCT crate)
-  unsigned rctEta() const { return m_id.rctEta(); }
+  unsigned rctEtaIndex() const ;
 
   /// get local phi index (within RCT crate)
-  unsigned rctPhi() const { return m_id.rctPhi(); } 
+  unsigned rctPhiIndex() const ; 
 
   /// get GCT source card ID
-  unsigned gctCard() const { return m_id.gctCard(); }
+  unsigned gctCard() const ;
 
-  /// get GCT source card region index
-  unsigned gctRegionIndex() const { return m_id.gctRegion(); }
+  /// get GCT eta index (global)
+  unsigned gctEtaIndex() const ;
 
-  /// get GCT eta index
-  unsigned gctEta() const { return m_id.ieta(); }
-
-  /// get GCT phi index
-  unsigned gctPhi() const { return m_id.iphi(); }
+  /// get GCT phi index (global)
+  unsigned gctPhiIndex() const ;
 
   /// get pseudorapidity
-  float pseudorapidity() const { return 0.; }
+  float pseudorapidity() const ;
 
   /// get phi in radians
-  float phi() const { return 0.; }
+  float phi() const ;
 
 
   /// print to stream
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
- private:
+private:
 
-  /// pack the raw data from arguments (used in constructors)
-  void pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
+  /// unique ID
+  unsigned m_id;
 
-  /// region id
-  L1CaloRegionDetId m_id;
-
-  /// region data : et, overflow, fine grain/tau veto, mip and quiet bits
+  /// region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
 
 };
 
 
-#endif /*L1CALOREGION_H*/
+#endif /*L1GCTREGION_H_*/

@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/04/19 20:12:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/20 15:30:51 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -64,7 +64,7 @@ namespace edm
     bool  error(const unsigned int i) const { return at(i).error() ; }
 
     hlt::HLTState state(const unsigned int i) const { return at(i).state(); }
-    unsigned int  abort(const unsigned int i) const { return at(i).abort(); }
+    unsigned int  index(const unsigned int i) const { return at(i).index(); }
 
   private:
 

@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/05/29 08:38:38 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/03 16:24:08 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -14,12 +14,11 @@
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCFEDData.h>
 
-class RPCReadOutMapping;
 
 class RPCRecordFormatter{
 	public:
 	   ///Creator 
-	   RPCRecordFormatter(int fedId, const RPCReadOutMapping * readoutMapping);
+	   RPCRecordFormatter();
 	   
 	   ///Destructor 
 	   ~RPCRecordFormatter();
@@ -45,12 +44,9 @@ class RPCRecordFormatter{
 
 
       private:    
-       int currentFED;
     	 int currentBX;
     	 int currentRMB;
     	 int currentTbLinkInputNumber;
-
-  const RPCReadOutMapping * readoutMapping;
 };
 
 #endif

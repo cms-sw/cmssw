@@ -197,7 +197,6 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
   int* ibuf = (int*) cbuf;
   // Check old data structure
   bool old = ( (unsigned int) ibuf[0] ==  (m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
-  // cout << ibuf[0] <<":"<<(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize) <<endl;
   bool slinkswap = false;
   if (old)
     {
@@ -224,11 +223,8 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
       else
 	{
 	  //copy data
-           
 	  memcpy(&dest[0],&ibuf[1],ibuf[0]-2*sizeof(int));
 	  int fed_len = (ibuf[0]-2*sizeof(int))/sizeof(int);
-	  //cout <<"FED Lenght" << fed_len <<endl;
-	  //cout <<hex<< dest[fed_len-1]<<":" << dest[fed_len-2]<<dec <<endl;
 	  int blen=fed_len*sizeof(int);
 	  if ( dest[fed_len-1] ==   (0xa0000000 | (blen>>3)) )
 	    slinkswap = true;
@@ -254,22 +250,16 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
       else
 	{
 
-	  unsigned char* fbuf = cbuf + sizeof(frlh_t);
-	  memcpy(&dest[0],fbuf,(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize)-sizeof(frlh_t));
+	  memcpy(&dest[0],cbuf,(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
 
-	  //int frl_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
-	  unsigned int* fedb = &dest[0];
-	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int)- sizeof(frlh_t)/sizeof(int);
-	  //	  cout <<hex<< dest[frl_len-1]<<":" << dest[frl_len-2]<<dec <<endl;
-	  int fedlen = (fed_len*sizeof(int))>>3;
-	  if ( fedb[fed_len-1] == (0xa0000000 | (fedlen) ))
+	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
+	  if ( dest[fed_len-1] == (0xa0000000 | fed_len) )
 	    slinkswap = true;
 	  else
-	    if ( fedb[fed_len-2] == (0xa0000000 | (fedlen) ))
+	    if ( dest[fed_len-2] == (0xa0000000 | fed_len) )
 	      slinkswap = false;
 	    else
 	      cout << " Not a FED structure " << i << endl;
-	  
 	  length =fed_len;
 	}
 
@@ -289,7 +279,6 @@ bool TBRUInputSource::produce(edm::Event& e) {
     	unsigned int fed_len;
      	bool slinkswap = checkFedStructure(i,output,fed_len);
 	int fed_id = getFedId(slinkswap,output);
-	cout <<fed_id << ":"<<fed_len <<endl;
       if (!m_quiet) {
 	stringstream ss;
 	ss << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec;
@@ -339,7 +328,7 @@ bool TBRUInputSource::produce(edm::Event& e) {
 
       if (id!=1023)
 	{
-	  const unsigned char* data=(const unsigned char*) &ibuf[1];
+	  const unsigned char* data=(const unsigned char*) &ibuf[1]
 	  FEDRawData& fed=bare_product->FEDData(id);
 	  int fulllen =(len%8)?len+8-len%8:len;
 	  fed.resize(fulllen);
@@ -348,19 +337,16 @@ bool TBRUInputSource::produce(edm::Event& e) {
       else
 	{
 	}
-
-      if (!m_quiet)
-	LogDebug("TBRU") << "Reading " << len << " bytes for FED " << id;
-    }
 #else
 	FEDRawData& fed=bare_product->FEDData(fed_id);
-	fed.resize(fed_len*sizeof(int));
-	memcpy(fed.data(),output,fed_len*sizeof(int));
-
-	if (!m_quiet)
-	  LogDebug("TBRU") << "Reading " << fed_len << " bytes for FED " << fed_id;
-    }
+	  fed.resize(fed_len*sizeof(int));
+	  memcpy(fed.data(),output,fed_len*sizeof(int));
 #endif
+      if (!m_quiet)
+	LogDebug("TBRU") << "Reading " << fed_len << " bytes for FED " << fed_id;
+    }
+
+
 
   e.put(bare_product);
 

@@ -9,16 +9,14 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/DetLayers>
 <use name=RecoTracker/TkDetLayers>
-<use name=RecoTracker/GeometryESProducer>	
-<use name=RecoTracker/TkNavigation>	
-<use name=RecoTracker/TkTrackingRegions>	
-<use name=RecoTracker/CkfPattern>	
+<use name=RecoTracker/GeometryESProducer>
+<use name=RecoTracker/TkNavigation>
+<use name=RecoTracker/TkTrackingRegions>
+<use name=RecoTracker/CkfPattern>
 <use name=MagneticField/Engine>
 <use name=Utilities/General>
 
 <use name=clhep>
-
-<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaPhotonAlgos">
 
 <export>
   <use name=FWCore/Framework>
@@ -34,9 +32,9 @@
   <use name=TrackingTools/DetLayers>
   <use name=RecoTracker/TkDetLayers>
   <use name=RecoTracker/GeometryESProducer>
-  <use name=RecoTracker/TkNavigation> 		
-  <use name=RecoTracker/TkTrackingRegions>	
-  <use name=RecoTracker/CkfPattern>	
+  <use name=RecoTracker/TkNavigation>
+  <use name=RecoTracker/TkTrackingRegions>
+  <use name=RecoTracker/CkfPattern>
   <use name=MagneticField/Engine>
   <use name=Utilities/General>
   <use name=clhep>

@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.1.2.4 2006/06/30 04:30:05 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.2 2006/07/06 18:34:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,11 @@ namespace edm {
   BranchEntryDescription::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
-    os << "BranchEntryDescription for: " << CreatorStatus();
+    os << "Product ID = " << productID_ << '\n';
+    os << "Conditions ID = " << conditionsID() << '\n';
+    os << "CreatorStatus = " << creatorStatus() << '\n';
+    os << "Module Description ID = " << moduleDescriptionID() << '\n';
+    os << "Is Present = " << isPresent() << std::endl;
   }
     
   bool

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.85 $
+ * $Date: 2006/06/20 08:25:05 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,16 +33,15 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
+EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui){
+
+  mui_ = mui;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -103,10 +102,6 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     met02_[ism-1] = 0;
     met03_[ism-1] = 0;
 
-    qth01_[ism-1] = 0;
-    qth02_[ism-1] = 0;
-    qth03_[ism-1] = 0;
-
   }
 
   expectedMean_[0] = 200.0;
@@ -121,57 +116,51 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
 
+  Char_t qtname[80];
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(qtname, "EBPT quality SM%02d G01", ism);
+    qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBPT quality SM%02d G06", ism);
+    qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBPT quality SM%02d G12", ism);
+    qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+  
+    qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
+    qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
+    qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
+
+    qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
+    qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
+    qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
+
+    qth01_[ism-1]->setMinimumEntries(10*1700);
+    qth02_[ism-1]->setMinimumEntries(10*1700);
+    qth03_[ism-1]->setMinimumEntries(10*1700);
+
+    qth01_[ism-1]->setErrorProb(1.00);
+    qth02_[ism-1]->setErrorProb(1.00);
+    qth03_[ism-1]->setErrorProb(1.00);
+
+  }
+
 }
 
 EBPedestalClient::~EBPedestalClient(){
 
 }
 
-void EBPedestalClient::beginJob(MonitorUserInterface* mui){
-
-  mui_ = mui;
+void EBPedestalClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
-
-  if ( enableQT_ ) {
-
-    Char_t qtname[200];
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(qtname, "EBPT quality SM%02d G01", ism);
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality SM%02d G06", ism);
-      qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-
-      sprintf(qtname, "EBPT quality SM%02d G12", ism);
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-  
-      qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
-      qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
-      qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
-
-      qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
-      qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
-      qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
-
-      qth01_[ism-1]->setMinimumEntries(10*1700);
-      qth02_[ism-1]->setMinimumEntries(10*1700);
-      qth03_[ism-1]->setMinimumEntries(10*1700);
-
-      qth01_[ism-1]->setErrorProb(1.00);
-      qth02_[ism-1]->setErrorProb(1.00);
-      qth03_[ism-1]->setErrorProb(1.00);
-
-    }
-
-  }
 
 }
 
@@ -209,7 +198,7 @@ void EBPedestalClient::endRun(void) {
 
 void EBPedestalClient::setup(void) {
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   mui_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -671,7 +660,7 @@ void EBPedestalClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -778,26 +767,26 @@ void EBPedestalClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      mui_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+      mui_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      mui_->useQTest(histo, qth03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        mui_->useQTest(histo, qth03_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName()); 
+        mui_->useQTest(histo, qth01_[ism-1]->getName()); 
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName()); 
+        mui_->useQTest(histo, qth02_[ism-1]->getName()); 
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName()); 
+        mui_->useQTest(histo, qth03_[ism-1]->getName()); 
       }
     }
 
@@ -807,7 +796,7 @@ void EBPedestalClient::subscribe(void){
 
 void EBPedestalClient::subscribeNew(void){
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -878,7 +867,7 @@ void EBPedestalClient::unsubscribe(void){
 
   }
 
-  Char_t histo[200];
+  Char_t histo[80];
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -922,7 +911,7 @@ void EBPedestalClient::analyze(void){
     if ( verbose_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  Char_t histo[150];
 
   MonitorElement* me;
 

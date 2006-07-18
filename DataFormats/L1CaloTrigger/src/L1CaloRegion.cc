@@ -8,40 +8,37 @@ using std::ostream;
 using std::endl;
 
 // default constructor
-L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
-
-
-// constructor for RCT emulator (HB/HE regions)
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
-  m_id(false, crate, card, rgn)
+L1CaloRegion::L1CaloRegion() :
+  m_data(0)
 {
-  pack(et, overFlow, tauVeto, mip, quiet);
 }
 
-// constructor for RCT emulator (HF regions)
-L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
-  m_id(false, crate, 0, rgn)
+// constructor for emulation : HB/HE regions
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn)
 {
-  pack(et, false, fineGrain, false, false);
+  bool checkOvF = overFlow || (et>=0x400);
+  m_data = 
+    (et & 0x3ff) | 
+    ((checkOvF) ? 0x400  : 0x0) |
+    ((tauVeto)  ? 0x800  : 0x0) |
+    ((mip)      ? 0x1000 : 0x0) |
+    ((quiet)    ? 0x2000 : 0x0);
 }
 
-// constructor from GCT card, region numbers
-L1CaloRegion::L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) :
-  m_id(false, card, input) // use constructor with dummy argument here (GCT card/input # NOT eta/phi!)
+// constructor for emulation : HF regions
+L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, unsigned crate, unsigned rgn)
 {
-  pack(et, overFlow, fineGrain, mip, quiet);
+  bool checkOvF = overFlow || (et>=0x400);
+  m_data = 
+    (et & 0x3ff) | 
+    ((checkOvF) ? 0x400  : 0x0) |
+    ((fineGrain)  ? 0x800  : 0x0);
 }
 
-// construct from global eta, phi indices
-L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
-  m_id(ieta, iphi)
-{
-  pack(et, overFlow, fineGrain, mip, quiet);
-}
+
 
 //constructor for unpacking
-L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi) :
-  m_id(ieta, iphi),
+L1CaloRegion::L1CaloRegion(uint16_t data, unsigned crate, unsigned card, unsigned rgn) :
   m_data(data)
 {
 
@@ -62,22 +59,43 @@ void L1CaloRegion::setQuiet(bool quiet) {
   else { m_data &= 0xdfff; }
 }
 
-void L1CaloRegion::pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) {
-  bool checkOvF = overFlow || (et>=0x400);
-  m_data = 
-    (et & 0x3ff) | 
-    ((checkOvF)  ? 0x400  : 0x0) |
-    ((fineGrain) ? 0x800  : 0x0) |
-    ((mip)       ? 0x1000 : 0x0) |
-    ((quiet)     ? 0x2000 : 0x0);
-}
+
+// get RCT crate ID
+unsigned L1CaloRegion::rctCrate() const { return 0; }
+
+// get RCT reciever card ID (valid output for HB/HE)
+unsigned L1CaloRegion::rctCard() const { return 0; }
+
+// get RCT region index
+unsigned L1CaloRegion::rctRegionIndex() const { return 0; }
+
+// get local eta index (within RCT crate)
+unsigned L1CaloRegion::rctEtaIndex() const { return 0; }
+
+// get local phi index (within RCT crate)
+unsigned L1CaloRegion::rctPhiIndex() const { return 0; } 
+
+// get GCT source card ID
+unsigned L1CaloRegion::gctCard() const { return 0; }
+
+// get GCT eta index (global)
+unsigned L1CaloRegion::gctEtaIndex() const { return 0; }
+
+// get GCT phi index (global)
+unsigned L1CaloRegion::gctPhiIndex() const { return 0; }
+
+// get pseudorapidity
+float L1CaloRegion::pseudorapidity() const { return 0.; }
+
+// get phi in radians
+float L1CaloRegion::phi() const { return 0.; }
+
 
 // print to stream
 ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << "L1CaloRegion:";
   os << " Et=" << reg.et();
   os << " o/f=" << reg.overFlow();
-  os << " f/g=" << reg.fineGrain();
   os << " tau=" << reg.tauVeto();
   os << " mip=" << reg.mip();
   os << " qt=" << reg.quiet();
@@ -86,17 +104,13 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << " RCT crate=" << reg.rctCrate();
   os << " RCT crad=" << reg.rctCard();
   os << " RCT rgn=" << reg.rctRegionIndex();
-  os << " RCT eta=" << reg.rctEta();
-  os << " RCT phi=" << reg.rctPhi();
+  os << " RCT eta=" << reg.rctEtaIndex();
+  os << " RCT phi=" << reg.rctPhiIndex();
   os << endl;
   os << "             ";
   os << " GCT card=" << reg.gctCard();
-  os << " GCT eta=" << reg.gctEta();
-  os << " GCT phi=" << reg.gctPhi();
-  os << endl;
-  os << "             ";
-  os << " pseudorapidity=" << reg.pseudorapidity();
-  os << " phi=" << reg.phi();
+  os << " GCT eta=" << reg.gctEtaIndex();
+  os << " GCT phi=" << reg.gctPhiIndex();
   os << endl;
   return os;
 }

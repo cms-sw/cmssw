@@ -22,13 +22,6 @@
 
 SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 {
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = BremRecoveryClusterAlgo::DEBUG;
-  else if (verbosityString == "WARNING") verbosity = BremRecoveryClusterAlgo::WARNING;
-  else if (verbosityString == "INFO")    verbosity = BremRecoveryClusterAlgo::INFO;
-  else                                   verbosity = BremRecoveryClusterAlgo::ERROR;
-
   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
 
@@ -46,7 +39,7 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 
   bremAlgo_p = new BremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedEnergyThreshold_, verbosity);
+					 seedEnergyThreshold_);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
@@ -60,11 +53,11 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 SuperClusterProducer::~SuperClusterProducer()
 {
   double averEnergy = totalE / noSuperClusters;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "average SuperCluster energy = " << averEnergy;
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
-  edm::LogInfo("SuperClusterProducerInfo") << "-------------------------------------------------------";
+  std::cout << "----------------------------------------------------------------------------" << std::endl;
+  std::cout << "----------------------------------------------------------------------------" << std::endl;
+  std::cout << "SuperClusterProducerInfo: " << "average SuperCluster energy = " << averEnergy << std::endl;
+  std::cout << "----------------------------------------------------------------------------" << std::endl;
+  std::cout << "----------------------------------------------------------------------------" << std::endl;
   delete bremAlgo_p;
 }
 
@@ -74,6 +67,25 @@ void SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
   produceSuperclustersForECALPart(evt, barrelClusterProducer_, barrelClusterCollection_, barrelSuperclusterCollection_);
 
+  /*
+  // get the cluster collections out and turn them to BasicClusterRefVectors:
+  reco::BasicClusterRefVector *endcapClusterRefVector = getClusterRefVector(evt, endcapClusterProducer_, endcapClusterCollection_);
+  reco::BasicClusterRefVector *barrelClusterRefVector = getClusterRefVector(evt, barrelClusterProducer_, barrelClusterCollection_);
+
+  // run the brem recovery and get the SC collections
+  reco::SuperClusterCollection *
+    endcapSCCollection_p = new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*endcapClusterRefVector));
+  reco::SuperClusterCollection *
+    barrelSCCollection_p = new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*barrelClusterRefVector));
+
+  std::auto_ptr<reco::SuperClusterCollection> endcapSuperclusters_ap(new reco::SuperClusterCollection);
+  endcapSuperclusters_ap->assign(endcapSCCollection_p->begin(), endcapSCCollection_p->end());
+  evt.put(endcapSuperclusters_ap, endcapSuperclusterCollection_);
+
+  std::auto_ptr<reco::SuperClusterCollection> barrelSuperclusters_ap(new reco::SuperClusterCollection);
+  barrelSuperclusters_ap->assign(barrelSCCollection_p->begin(), barrelSCCollection_p->end());
+  evt.put(barrelSuperclusters_ap, barrelSuperclusterCollection_);
+  */
   nEvt_++;
 }
 
@@ -111,13 +123,13 @@ SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterPr
       evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
       if (!(bccHandle.isValid()))
 	{
-	  edm::LogError("SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
+	  edm::LogError("SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!" << std::endl;
 	  return 0;
 	}
     } 
   catch ( cms::Exception& ex )
     {
-      edm::LogError("SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
+      edm::LogError("SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str() ; 
       return 0;
     }
 

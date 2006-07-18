@@ -46,7 +46,7 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   }
   
   if (pname == "Fake") {
-    pp = 0;
+    pe = 0;
   }else{
     iRecord.getRecord<TrackerCPERecord>().get( pname, pe );     
     pp = pe.product();

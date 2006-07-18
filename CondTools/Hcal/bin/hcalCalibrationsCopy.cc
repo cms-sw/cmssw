@@ -125,11 +125,7 @@ void fillDefaults (HcalGainWidths*& fGains) {
 }
 
 void fillDefaults (HcalElectronicsMap*& fMap) {
-  if (!fMap) {
-    fMap = new HcalElectronicsMap;
-    fMap->sort ();
-  }
-  std::cerr << "Warning: fillDefaults (HcalElectronicsMap* fMap) is not implemented. Ignore." << std::endl;
+  std::cerr << "ERROR: fillDefaults (HcalElectronicsMap* fMap) is not implemented. Ignore." << std::endl;
 }
 
 void fillDefaults (HcalQIEData*& fObject) {
@@ -217,8 +213,7 @@ template <class T> bool copyObject (T* fObject,
 				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
 				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun,
 				    unsigned fVersion, unsigned long fIovgmtbegin, unsigned long fIovgmtend,
-				    unsigned fNread, unsigned fNwrite, unsigned fNtrace,
-				    bool fVerbose
+				    unsigned fNread, unsigned fNwrite, unsigned fNtrace
 				    ) {
   bool result = false;
   time_t t0 = time (0);
@@ -250,7 +245,7 @@ template <class T> bool copyObject (T* fObject,
     }
     else if (onlineFile (fInput)) {
       if (!traceCounter) std::cout << "USE INPUT: Online" << std::endl;
-      if (!onlineDb) onlineDb = new HcalDbOnline (fInput, fVerbose);
+      if (!onlineDb) onlineDb = new HcalDbOnline (fInput);
       fObject = new T;
       result = onlineDb->getObject (fObject, fInputTag);
     }
@@ -328,8 +323,7 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-nwrite", "repeat output that many times with increasing run#");
   args.defineParameter ("-trace", "trace time every that many operations");
   args.defineOption ("-help", "this help");
-  args.defineOption ("-online", "interpret input DB as an online DB");
-  args.defineOption ("-verbose", "makes program verbose");
+  args.defineOption ("-online", "Interpret input DB as an online DB");
   
   args.parse (argn, argv);
   
@@ -356,38 +350,36 @@ int main (int argn, char* argv []) {
   unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
   unsigned trace = args.getParameter ("-trace").empty () ? 0 : atoi (args.getParameter ("-trace").c_str ());
 
-  bool verbose = args.optionIsSet ("-verbose");
-
 
   std::string what = arguments [0];
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "pwidths") {
     HcalPedestalWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "gwidths") {
     HcalGainWidths* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "calibqie") {
     HcalCalibrationQIEData* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace, verbose);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
 }
 
