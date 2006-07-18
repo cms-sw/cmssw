@@ -69,6 +69,8 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 uint16_t L1GctJetEtCalibrationLut::convertToSixBitRank(uint16_t jetEt, unsigned eta) const
 {
   double corrEt = 0;
+
+  if (eta>(NUMBER_ETA_VALUES-1)) eta=eta-NUMBER_ETA_VALUES; 
   
   if(eta>(NUMBER_ETA_VALUES-1))
     {
@@ -94,6 +96,8 @@ uint16_t L1GctJetEtCalibrationLut::convertToTenBitRank(uint16_t jetEt, unsigned 
 {
   double corrEt = 0;
   
+  if (eta>(NUMBER_ETA_VALUES-1)) eta=eta-NUMBER_ETA_VALUES; 
+
   if(eta>(NUMBER_ETA_VALUES-1))
     {
       throw cms::Exception("L1GctJetEtCalibraionLut")
