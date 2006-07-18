@@ -212,19 +212,30 @@ namespace edm
       // inside a module (maybe inside something inside of a
       // module). Otherwise, we're working on a top-level PSet (not
       // currently working), or on the process block itself.
-      assert( ! moduleStack_.empty() );
-      if(processingVPSet_ && nVPSetChildren_++) {
-        //if this is actually a PSet embedded in a VPSet then we will need
-        // to comma separate the children
-        moduleStack_.top()+= ",";
+      if(moduleStack_.empty() )
+      {
+         // we don't want commas between top-level nodes
+         n.acceptForChildren(*this);
       }
+      else 
+      {
+ 
+        if(processingVPSet_ && nVPSetChildren_++) {
+          //if this is actually a PSet embedded in a VPSet then we will need
+          // to comma separate the children
+          moduleStack_.top()+= ",";
+        }
          
-      moduleStack_.top() += "{";
+        moduleStack_.top() += "{";
+        writeCommaSeparated(n);
+        moduleStack_.top() += "}";
+      } 
+    }
 
-      // We can't just call acceptForChildren, because we need to
-      // do something between children.
-      //
-      //n.acceptForChildren(*this);
+    void
+    PythonFormWriter::writeCommaSeparated(const CompositeNode & n)
+    {
+      assert(!moduleStack_.empty());
       NodePtrList::const_iterator i = n.nodes()->begin();
       NodePtrList::const_iterator e = n.nodes()->end();
       for ( bool first = true; i != e; first = false, ++i)
@@ -233,22 +244,21 @@ namespace edm
         {
           moduleStack_.top() += ", ";
         }
-        (*i)->accept(*this);	      
+        (*i)->accept(*this);
       }
-
-      //moduleStack_.top() += "}\n";
-      moduleStack_.top() += "}";
     }
-
 
     void 
     PythonFormWriter::visitInclude(const IncludeNode &n)
     {
-      NodePtrList::const_iterator i = n.nodes()->begin();
-      NodePtrList::const_iterator e = n.nodes()->end();
-      for ( ; i != e; ++i)
+      if(moduleStack_.empty() )
       {
-        (*i)->accept(*this);
+         // we don't want commas between top-level nodes
+         n.acceptForChildren(*this);
+      }
+      else
+      {
+        writeCommaSeparated(n);
       }
     }
 
