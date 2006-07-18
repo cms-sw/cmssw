@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 09:27:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/04 16:55:38 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -207,7 +207,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   }
 
   // sort the container in agreement with the porpagation direction
-  sort(recHitsForFit,detLayer);
+  // FIXME NCA: to be debugged!
+  // sort(recHitsForFit,detLayer);
 
   TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
   
@@ -326,7 +327,7 @@ void MuonTrajectoryUpdator::sort(edm::OwnVector<const TransientTrackingRecHit>& 
     else if(propagator()->propagationDirection() == oppositeToMomentum)
       recHitsForFit.sort( RadiusComparatorOutIn() );
     else{
-      LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"Wrong propagation direction!!";
+      LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
   }
   else if(detLayer->module()==csc){
@@ -335,7 +336,7 @@ void MuonTrajectoryUpdator::sort(edm::OwnVector<const TransientTrackingRecHit>& 
     else if(propagator()->propagationDirection() == oppositeToMomentum)
       recHitsForFit.sort( ZedComparatorOutIn() );
     else{
-      LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"Wrong propagation direction!!";
+      LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
   }
 }
