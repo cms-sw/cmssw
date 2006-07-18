@@ -10,10 +10,10 @@ EcalTBTDCRecInfoAlgo::EcalTBTDCRecInfoAlgo(const std::vector<int>& tdcMin, const
   
 }
 
-EcalTBTDCRecInfo EcalTBTDCRecInfoAlgo::reconstruct(const EcalTBTDCRawInfo& TDCRawInfo,const EcalTBEventHeader& eventHeader) const 
+EcalTBTDCRecInfo EcalTBTDCRecInfoAlgo::reconstruct(const EcalTBTDCRawInfo& TDCRawInfo,const EcalTBEventHeader& eventHeader, bool use2004OffsetConvention) const 
 {
   int eventType;
-  eventType=eventHeader.dbEventType();
+  eventType=( (eventHeader.dbEventType() == 0) ? 0 : (eventHeader.dbEventType()-1));
 
   int tdcd = TDCRawInfo[0].tdcValue();
 
@@ -30,7 +30,8 @@ EcalTBTDCRecInfo EcalTBTDCRecInfoAlgo::reconstruct(const EcalTBTDCRawInfo& TDCRa
 
   double offset = ( (double)tdcd - (double)tdcMin_[eventType] )
     / ((double)tdcMax_[eventType]-(double)tdcMin_[eventType]);
-  offset = (1. - offset) ;
+  if (use2004OffsetConvention)
+    offset = (1. - offset) ;
   return EcalTBTDCRecInfo(offset); 
 }
 
