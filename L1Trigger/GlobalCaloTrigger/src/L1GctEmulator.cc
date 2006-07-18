@@ -32,8 +32,11 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
  {
 
   // list of products
-  produces<L1GctEmCandCollection>();
-  produces<L1GctJetCandCollection>();
+  produces<L1GctEmCandCollection>("isoEm");
+  produces<L1GctEmCandCollection>("nonIsoEm");
+  produces<L1GctJetCandCollection>("cenJets");
+  produces<L1GctJetCandCollection>("forJets");
+  produces<L1GctJetCandCollection>("tauJets");
   produces<L1GctEtTotal>();
   produces<L1GctEtHad>();
   produces<L1GctEtMiss>();
@@ -43,7 +46,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   edm::FileInPath fp = ps.getParameter<edm::FileInPath>("jetEtLutFile");
 
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(true,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
+  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
   // set parameters
   // m_gct->setVerbose(m_verbose);
@@ -98,11 +101,11 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss().value(), m_gct->getEtMissPhi().value(), false) );
 
   // put the collections into the event
-  e.put(isoEmResult);
-  e.put(nonIsoEmResult);
-  e.put(cenJetResult);
-  e.put(forJetResult);
-  e.put(tauJetResult);
+  e.put(isoEmResult,"isoEm");
+  e.put(nonIsoEmResult,"nonIsoEm");
+  e.put(cenJetResult,"cenJets");
+  e.put(forJetResult,"forJets");
+  e.put(tauJetResult,"tauJets");
   e.put(etTotResult);
   e.put(etHadResult);
   e.put(etMissResult);

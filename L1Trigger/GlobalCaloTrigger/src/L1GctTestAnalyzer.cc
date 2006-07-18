@@ -62,11 +62,11 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    L1GctJetCandCollection::const_iterator fj;
    L1GctJetCandCollection::const_iterator tj;
 
-   iEvent.getByType(isoEm);
-   iEvent.getByType(nonIsoEm);
-   iEvent.getByType(cenJets);
-   iEvent.getByType(forJets);
-   iEvent.getByType(tauJets);
+   iEvent.getByLabel("gct","isoEm",isoEm);
+   iEvent.getByLabel("gct","nonIsoEm",nonIsoEm);
+   iEvent.getByLabel("gct","cenJets",cenJets);
+   iEvent.getByLabel("gct","forJets",forJets);
+   iEvent.getByLabel("gct","tauJets",tauJets);
 
    cout << "Isolated EM objects :" << endl;
    for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
