@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/11 15:03:22 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/07/12 16:32:02 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -142,8 +142,9 @@ void StandAloneMuonRefitter::init(const EventSetup& setup){
   thePropagator = eshPropagator->clone();
 
   // Consistency check
-  if( propagator()->propagationDirection() != propagationDirection() )
-    propagator()->setPropagationDirection( propagationDirection() );
+  // FIXME NCA
+//   if( propagator()->propagationDirection() != propagationDirection() )
+//     propagator()->setPropagationDirection( propagationDirection() );
   
 
   // the muon updator (it doesn't inhert from an updator, but it has one!)
@@ -306,7 +307,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 		       <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
       LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;
-      debug.dumpTSOS(result.second);
+      debug.dumpTSOS(result.second,metname);
 
       if(result.first){ 
 	lastTSOS = result.second;
