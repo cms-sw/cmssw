@@ -5,6 +5,10 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/Utilities>
 <use name=DataFormats/L1CaloTrigger>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/HcalDetId>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
 
@@ -16,4 +20,8 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/Utilities>
 <use name=DataFormats/L1CaloTrigger>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/HcalDetId>
 </export>

@@ -5,14 +5,15 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-//#include "DataFormats/Common/" // not necessary?  I think this is for in build file
 
 //#include "DataFormats/RegionalCaloTrigger/interface/L1RCTEcal.h"
 //#include "DataFormats/RegionalCaloTrigger/interface/L1RCTHcal.h"
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,5 +31,6 @@ class L1RCTProducer : public edm::EDProducer
  private:
   L1RCT* rct;
   std::string src;
+  bool orcaFileInput;
 };
 #endif

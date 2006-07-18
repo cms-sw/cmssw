@@ -80,18 +80,21 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
   //cout << "L1RCT::input() called" << endl;
 }
 
-/*
-// also need hf input separately?
-void L1RCT::digiInput(EcalTrigPrimDigiCollecion ecalCollection, HcalTrigPrimDigiCollection hcalCollection){
+
+// takes hcal and ecal digi input, including HF
+void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection){
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  unsigned short x;
+  //unsigned short x;
 
   // ecal:
+  cout << "\n\nECAL" << endl;
+  cout << "Crate\tCard\tTower\tInput" << endl;
   for (int i = 0; i < 4032; i++){
-    short ieta = (short) ecalCollection.at(i)->id().ieta(); 
+    short ieta = (short) ecalCollection[i].id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
-    unsigned short iphi = (unsigned short) ecalCollection.at(i)->id.iphi();
+    unsigned short iphi = (unsigned short) ecalCollection[i].id().iphi();
+    iphi = (72 + 19 - iphi) % 72;             // transform TOWERS (not regions) into local rct (intuitive) phi bins
     unsigned short regionPhi = (iphi % 8)/4;
 
     //map digis to crates, cards, and towers
@@ -104,10 +107,10 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollecion ecalCollection, HcalTrigPrimDigi
     if (absIeta <= 24){
       card = (absIeta/8)*2 + regionPhi;          // slick integer division
       if ((iphi % 4) == 0){
-	tower = ((ieta % 8) -1)*4 + 4;
+	tower = ((absIeta % 8) -1)*4 + 4;        // changed from ieta
       }
       else {
-        tower = ((ieta % 8) -1)*4 + (iphi % 4);
+        tower = ((absIeta % 8) -1)*4 + (iphi % 4);  //cfieta
       }
     }
     // absIeta >= 25
@@ -115,110 +118,137 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollecion ecalCollection, HcalTrigPrimDigi
       card = 6;
       if (regionPhi == 0){
         if ((iphi % 4) == 0){
-	  tower = ((ieta % 8) -1)*4 + 4;
+	  tower = ((absIeta % 8) -1)*4 + 4;   //cfieta
 	}
 	else {
-	  tower = ((ieta % 8) -1)*4 + (iphi % 4);
+	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);   //cfieta
 	}
       }
       else {
         if ((iphi % 4) == 0){
-	  tower = 16 + (4 - (ieta % 4))*4 + 4;
+	  tower = 16 + (4 - (absIeta % 4))*4 + 4;            //cfieta
 	}
 	else {
-	  tower = 16 + (4 - (ieta % 4))*4 + (iphi % 4);
+	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);  //cfieta
 	}
       }
     }
 
-    unsigned short energy = ecalCollection.at(i).compressedEt();
-    unsigned short fineGrain = ecalCollection.at(i).fineGrain();  // 0 or 1
-    input = energy*2 + fineGrain;
+    unsigned short energy = ecalCollection[i].compressedEt();
+    unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
+    unsigned short ecalInput = energy*2 + fineGrain;
 
     // put input into correct crate/card/tower of barrel
-    barrel.at(crate).at(card).at(tower) = input;
+    barrel.at(crate).at(card).at(tower) = ecalInput;
+    cout << crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
   }
 
   //same for hcal, once we get the hcal digis, just need to add 32 to towers:
   // just copied and pasted and changed names where necessary
-  for (int i = 0; i < 4032; i++){                                          // ARE THERE 4032??
-    short ieta = (short) hcalCollection.at(i)->id().ieta(); 
+  cout << "\n\nHCAL" << endl;
+  cout << "Crate\tCard\tTower\tInput" << endl;
+  for (int i = 0; i < 4176; i++){                        // ARE THERE 4032?? think not -- incl HF 4032 + 144 = 4176
+    short ieta = (short) hcalCollection[i].id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
-    unsigned short iphi = (unsigned short) hcalCollection.at(i)->id.iphi();
+    unsigned short iphi = (unsigned short) hcalCollection[i].id().iphi();
+    if (absIeta <= 28){
+      iphi = (72 + 19 - iphi) % 72;      // transform HB/HE TOWERS into local rct (intuitive) phi bins (72 bins) 0-71
+    }
+    else {
+      iphi = (18 + 4 - iphi) % 18;           // transformation for HF, since HF regions have 18 phi bins still 0-17
+    }
     unsigned short regionPhi = (iphi % 8)/4;
 
     //map digis to crates, cards, and towers
-    unsigned short crate, card, tower;
+    unsigned short crate = 999, card = 999, tower = 999;
     crate = iphi/8;
     if (ieta > 0){
       crate = crate + 9;
     }
 
-    if (absIeta <= 24){                      // ARE INDICES SAME FOR HCAL???
+    if (absIeta <= 24){                      // ARE INDICES SAME FOR HCAL??? yes, plus more
       card = (absIeta/8)*2 + regionPhi;          // integer division again
       if ((iphi % 4) == 0){
-	tower = ((ieta % 8) -1)*4 + 4;
+	tower = ((absIeta % 8) -1)*4 + 4;              //cfieta
       }
       else {
-        tower = ((ieta % 8) -1)*4 + (iphi % 4);
+        tower = ((absIeta % 8) -1)*4 + (iphi % 4);       //cfieta
       }
     }
-    // absIeta >= 25
-    else {
+    // 25 <= absIeta <= 28 (card 6)
+    else if ((absIeta >= 25) && (absIeta <= 28)){
       card = 6;
       if (regionPhi == 0){
         if ((iphi % 4) == 0){
-	  tower = ((ieta % 8) -1)*4 + 4;
+	  tower = ((absIeta % 8) -1)*4 + 4;              //cfieta
 	}
 	else {
-	  tower = ((ieta % 8) -1)*4 + (iphi % 4);
+	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);     //cfieta
 	}
       }
       else {
         if ((iphi % 4) == 0){
-	  tower = 16 + (4 - (ieta % 4))*4 + 4;
+	  tower = 16 + (4 - (absIeta % 4))*4 + 4;          //cfieta
 	}
 	else {
-	  tower = 16 + (4 - (ieta % 4))*4 + (iphi % 4);
+	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);  //cfieta
 	}
       }
     }
+    // absIeta >= 29 (HF regions)
+    else if ((absIeta >= 29) && (absIeta <= 32)){
+      // HF MAPPING, just regions now, don't need to worry about towers -- just calling it "tower" for convenience
+      tower = (regionPhi) * 4 + absIeta - 7;
+    }
 
-    unsigned short energy = hcalCollection.at(i).compressedEt();  // NEED TO CHANGE??
-    unsigned short fineGrain = hcalCollection.at(i).fineGrain();  // 0 or 1  // SAME -- CHANGE??
-    input = energy*2 + fineGrain;
+    //unsigned short energy = hcalCollection[i].t0().compressedEt();  // CHANGED
+    unsigned short energy = hcalCollection[i].SOI_compressedEt();     // don't have to access sample
+    //unsigned short fineGrain = (unsigned short) hcalCollection[i].t0().fineGrain();  // 0 or 1  // CHANGED
+    unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();  // don't have to access sample
+    unsigned short hcalInput = energy*2 + fineGrain;
 
-    // put input into correct crate/card/tower of barrel
-    barrel.at(crate).at(card).at(tower + 32) = input;  // hcal towers are ecal + 32 see RC.cc
+    if (absIeta <= 28){
+      // put input into correct crate/card/tower of barrel
+      barrel.at(crate).at(card).at(tower + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
+      cout << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
+    }
+    else if ((absIeta >= 29) && (absIeta <= 32)){
+      // put input into correct crate/region of HF
+      hf.at(crate).at(tower) = hcalInput;
+      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
+    }
   }
 
 
-  also needs to include the hf input:
+  //  THIS HF STUFF WILL PROBABLY BE DELETED
+
+  //also needs to include the hf input:
   // for(int i = 0; i < 144; i++){              // PROBABLY NEED TO CHANGE.  also, 144=8*18
-    unsigned short crate, region;          // ALSO NEED TO FIGURE OUT REGION FROM ETA AND PHI
+    //unsigned short crate, region;          // ALSO NEED TO FIGURE OUT REGION FROM ETA AND PHI
     // crate = iphi/8;
     // if (ieta > 0){
     //   crate = crate + 9;
     // }
+    //}
 
-  for (crate = 0; crate < 18; crate++){         // WILL EVENTUALLY GET RID OF FOR 0->144
-    for (region = 0; region < 8; region++){     //
+ // for (crate = 0; crate < 18; crate++){         // WILL EVENTUALLY GET RID OF FOR 0->144
+   // for (region = 0; region < 8; region++){     //
 
     // FOR NOW USING RANDOM HF INPUT
-    unsigned short hfEnergy = rand()%256   // INPUT STUFF HERE!! // ;
-    unsigned short hfFineGrain = rand()%2  // SAME THING!!  // ;
-    hfinput = hfEnergy*2 + hfFineGrain;
-    hf.at(crate).at(region) = hfinput;  // CHANGE or something
+   // unsigned short hfEnergy = rand()%256   // INPUT STUFF HERE!! // ;
+   // unsigned short hfFineGrain = rand()%2  // SAME THING!!  // ;
+   // hfinput = hfEnergy*2 + hfFineGrain;
+   // hf.at(crate).at(region) = hfinput;  // CHANGE or something
 
-    }
-  }
+   // }
+ // }
 
   // }
 
   input(barrel,hf);
 
 }
- */
+
 
 
 //As the name implies, it will randomly generate input for the 
@@ -335,11 +365,13 @@ void L1RCT::print(){
 L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
   vector<unsigned short> isoEmObjects = crates.at(crate).getIsolatedEGObjects();
   L1CaloEmCollection isoEmCands;
+  // cout << "\nCrate " << crate << endl;
   for (int i = 0; i < 4; i++){
     unsigned short rgn = ((isoEmObjects.at(i)) & 1);
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
     L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
+    // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;

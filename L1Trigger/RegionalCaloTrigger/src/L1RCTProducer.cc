@@ -1,7 +1,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h"
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) 
-  : src(conf.getParameter<string>("src"))
+  : src(conf.getParameter<string>("src")), orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput"))
 {
   //produces<JSCOutput>();
 
@@ -37,20 +37,25 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
   e.getByLabel(hf,src);
   */
 
-  /*
-  // my try:
-  edm::Handle<EcalTrigPrimDigiCollection> ecal;
-  edm::Handle<HcalTrigPrimDigiCollection> hcal;
-  EcalTrigPrimDigiCollection ecalDigiCollection = e.getByType(ecal);
-  HcalTrigPrimDigiCollectoin hcalDigiCollection = e.getByType(hcal);
-  rct->digiInput(ecalDigiCollection, hcalDigiCollection); // also need hf input separately?
-  */
+  if (!orcaFileInput){
+    // my try:
+    edm::Handle<EcalTrigPrimDigiCollection> ecal;
+    edm::Handle<HcalTrigPrimDigiCollection> hcal;
+    /*EcalTrigPrimDigiCollection ecalDigiCollection = */e.getByType(ecal);
+    /*HcalTrigPrimDigiCollection hcalDigiCollection = */e.getByType(hcal);
+    //rct->digiInput(ecalDigiCollection, hcalDigiCollection); // also need hf input separately? no
+    rct->digiInput(*ecal, *hcal);
+  }
   
-  //rct->fileInput("../data/rct-input-1.dat");
-  //const char* filename = src.c_str();
-  //std::cout << "filename is " << filename << endl;
-  rct->fileInput(src.c_str()/*filename*/);
-  //std::cout << "file has been inputted" << std::endl;
+  else if (orcaFileInput){
+    // Only for inputting directly from file
+    //rct->fileInput("../data/rct-input-1.dat");
+    //const char* filename = src.c_str();
+    //std::cout << "filename is " << filename << endl;
+    rct->fileInput(src.c_str()/*filename*/);
+    //std::cout << "file has been inputted" << std::endl;
+  } 
+
   rct->processEvent();
   //std::cout << "event has been processed" << std::endl;
   //rct->printJSC();
@@ -67,11 +72,13 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
   //fill these above?  like gct:
   for (int j = 0; j<18; j++){
     for (int i = 0; i<4; i++) {
+      /*
       if (j == 0){
-	cout << "\n\nPrinting EGObjects " << i << " for crate " << j << endl;
+	cout << "\n\nPrinting EGObjects " << i << " for crate " << j <<endl;
 	cout << rct->getIsolatedEGObjects(j).at(i) << endl;
 	cout << rct->getNonisolatedEGObjects(j).at(i) << endl;
       }
+      */
       rctEmCands->push_back(rct->getIsolatedEGObjects(j).at(i));  // or something
       rctEmCands->push_back(rct->getNonisolatedEGObjects(j).at(i));
     }
@@ -87,10 +94,12 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
   for (int i = 0; i < 18; i++){
     vector<L1CaloRegion> regions = rct->getRegions(i);
     for (int j = 0; j < 22; j++){
+      /*
       if (i == 0){
-	cout << "\n\nPrinting region " << j << " for crate " << i << endl;
+        cout << "\n\nPrinting region " << j << " for crate " << i << endl;
 	cout << regions.at(j) << endl;
       }
+      */
       rctRegions->push_back(regions.at(j));
     }
   }
@@ -104,7 +113,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup&)
   
 }
 
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(L1RCTProducer);
+//#include "PluginManager/ModuleDef.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
+//DEFINE_SEAL_MODULE();
+//DEFINE_ANOTHER_FWK_MODULE(L1RCTProducer);
