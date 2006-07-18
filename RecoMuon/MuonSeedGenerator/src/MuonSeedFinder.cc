@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/27 13:42:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/05 09:32:45 $
+ *  $Revision: 1.10 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -311,9 +311,11 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me,
   ReferenceCountingPointer<BoundPlane> 
     surface(new BoundPlane(pos, rot, RectangularPlaneBounds(720.,720.,1.)));
 
-  // FIXME
-  Propagator* propagator= new SteppingHelixPropagator(&*field,oppositeToMomentum);
-  
+  // FIXME must get prop from ESSetup
+  // FIXME NCA: NCA: use anyDirection for the time being
+  //  Propagator* propagator= new SteppingHelixPropagator(&*field,oppositeToMomentum);
+  Propagator* propagator= new SteppingHelixPropagator(&*field,anyDirection);
+
   TrajectoryStateOnSurface trj =  propagator->propagate( state, *surface );
   if ( trj.isValid() ) {
     const FreeTrajectoryState e_state = *trj.freeTrajectoryState();

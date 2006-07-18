@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/06 08:06:31 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/11 15:00:30 $
+ *  $Revision: 1.10 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -490,7 +490,9 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   
   // FIXME: put it into a parameter set
   edm::ESHandle<Propagator> propagator;
-  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite",propagator);
+  //FIXME NCA: use anyDirection for the time being
+  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propagator);
+  // eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite",propagator); 
 
   // FIXME: put it into a parameter set!
   double theMinMomentum = 3.0;
