@@ -3,6 +3,7 @@
  <class name="edm::ProductID"/>
  <class name="edm::EventID"/>
  <class name="edm::Timestamp"/>
+ <class name="edm::EDProductGetter"/>
  <class name="edm::RefCore">
    <field name="prodGetter_" transient="true"/>
    <field name="prodPtr_" transient="true"/>
@@ -79,7 +80,6 @@
  <class name="edm::EventAux">
    <field name="processHistoryPtr_" transient="true"/>
  </class>
- <class name="edm::EventProvenance"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
  </class>
@@ -90,7 +90,6 @@
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
- <class name="std::vector<edm::BranchEntryDescription>"/>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
    <field name="produced_" transient="true"/>

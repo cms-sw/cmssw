@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/EventProvenance.h"
 #include "DataFormats/Common/interface/FileFormatVersion.h"
 #include "DataFormats/Common/interface/Hash.h"
 #include "DataFormats/Common/interface/HashedTypes.h"
