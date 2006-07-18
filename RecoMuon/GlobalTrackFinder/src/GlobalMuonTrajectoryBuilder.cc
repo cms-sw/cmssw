@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/18 05:57:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/18 19:21:55 $
+ *  $Revision: 1.7 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -116,6 +116,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
   thePtCut = par.getParameter<double>("ptCut");
+  theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
 }
 
 
@@ -125,19 +126,25 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
 GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() 
 {
-
+  delete theRefitter;
+  delete theUpdator;
+  delete theTrackMatcher;
+  delete theGTTrackingRecHitBuilder;
 }
 
 void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup)
 {
+
   setup.get<IdealMagneticFieldRecord>().get(theField);  
+  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
+  //setup.get<TransientTrackingRecHitBuilder>().get(theTransientHitBuilder); 
+
   theUpdator = new MuonUpdatorAtVertex(theVertexPos,theVertexErr,&*theField);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField);
   theRefitter = new GlobalMuonReFitter(&*theField);
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   theGTTrackingRecHitBuilder = new GenericTransientTrackingRecHitBuilder(&*theTrackingGeometry);
-  //setup.get<TransientTrackingRecHitBuilder>().get(theTransientHitBuilder); 
-  setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
+
 }
 
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& iEvent)
@@ -423,7 +430,7 @@ MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::build(con
   }
   //    int nRefitted = refittedResult.size();
   
-  // IMPLEMENT ME  
+  //FIXME: IMPLEMENT ME  
   //
   // muon trajectory cleaner
   //
@@ -442,9 +449,7 @@ MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::build(con
   //
   //Perform a ghost suppression on all candidates, not only on those coming
   //from the same seed (RecMuon)
-  // FIXME
-  //result = refittedResult;
-  //return result;
+  //FIXME: IMPLEMENT ME
   
   MuonTrajectoryBuilder::CandidateContainer result2;
   for(TC::iterator combTraj = refittedResult.begin();combTraj != refittedResult.end(); ++ combTraj){
@@ -651,7 +656,6 @@ GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::getTra
   TransientTrackingRecHit* ttrh;
   for(trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter){
     //use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
-    //ttrh = theGTTrackingRecHitBuilder.build(*&iter);
     //FIXME: is this the correct RecHitBuilder?
     //FIXME: bad pointer conversion
     ttrh = theGTTrackingRecHitBuilder->build(*&iter);
@@ -665,16 +669,74 @@ GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::getTra
 //  select muon hits compatible with trajectory; check hits in chambers with showers
 //
 GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& track, const std::vector<int>& hits) const {
-  //IMPLEMENT ME
+  //FIXME: IMPLEMENT ME
   RecHitContainer muonRecHits;
   
   return muonRecHits;
 }
 
 // choose final trajectory
-const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vector<Trajectory*>&) const
+const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vector<Trajectory*>& t) const
 {
-  //IMPLEMENT ME
-  Trajectory* result;
+  //FIXME: IMPLEMENT ME
+  //Trajectory* result;
+  //return result;
+
+  const Trajectory* result = 0;
+ 
+  double prob0 = ( t[0] ) ? trackProbability(*t[0]) : 0.0;
+  double prob1 = ( t[1] ) ? trackProbability(*t[1]) : 0.0;
+  double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
+  double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
+
+  //cout<< "Probabilities: " << prob0 << " " << prob1 << " " << prob2 << " " << prob3 << endl;
+
+  if ( t[1] ) result = t[1];
+  if ( (t[1] == 0) && t[3] ) result = t[3];
+  
+  if ( t[1] && t[3] && ( (prob1 - prob3) > 0.05 )  )  result = t[3];
+
+  if ( t[0] && t[2] && fabs(prob2 - prob0) > theProbCut ) {
+    cout<< "select Tracker only: -log(prob) = " << prob0 << endl;
+    result = t[0];
+    return result;
+  }
+
+  if ( (t[1] == 0) && (t[3] == 0) && t[2] ) result = t[2];
+
+  Trajectory* tmin = 0;
+  double probmin = 0.0;
+  if ( t[1] && t[3] ) {
+    probmin = prob3; tmin = t[3];
+    if ( prob1 < prob3 ) { probmin = prob1; tmin = t[1]; }
+  }
+  else if ( (t[3] == 0) && t[1] ) { 
+    probmin = prob1; tmin = t[1]; 
+  }
+  else if ( (t[1] == 0) && t[3] ) {
+    probmin = prob3; tmin = t[3]; 
+  }
+
+  if ( tmin && t[2] && ( (probmin - prob2) > 3.5 )  ) {
+    result = t[2];
+  }
+
   return result;
+
+
+}
+
+double GlobalMuonTrajectoryBuilder::trackProbability(const Trajectory& track) const {
+
+  int nDOF = 0;
+  RecHitContainer rechits = track.recHits();
+  for ( RecHitContainer::const_iterator i = rechits.begin(); i != rechits.end(); ++i ) {
+    if ((*i).isValid()) nDOF += (*i).dimension();
+  }
+  
+  nDOF = max(nDOF - 5, 0);
+  double prob = -LnChiSquaredProbability(track.chiSquared(), nDOF);
+  
+  return prob;
+
 }

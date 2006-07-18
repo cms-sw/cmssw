@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/18 05:57:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/18 19:21:55 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -90,6 +90,9 @@ public:
 
   // choose final trajectory
   const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
+
+  /// calculate chi2 probability (-ln(P))
+  double trackProbability(const Trajectory&) const;    
   
  private:
 
@@ -106,6 +109,7 @@ public:
   int   theMuonHitsOption;
   ReconstructionDirection theDirection;
   float thePtCut;
+  float theProbCut;
 
   std::string theSeedCollectionLabel;   
   edm::Handle<TrajectorySeedCollection> theSeeds; 
