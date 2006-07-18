@@ -58,7 +58,7 @@ public:
   bool overFlow() const { return ((m_data>>10) & 0x1)!=0; }
 
   /// get tau veto bit
-  bool tauVeto() const { return (m_id.isForward() ? false : fineGrain()); }
+  bool tauVeto() const { return (m_id.isForward() ? true : fineGrain()); }
 
   /// get fine grain bit
   bool fineGrain() const { return ((m_data>>11) & 0x1)!=0; }
