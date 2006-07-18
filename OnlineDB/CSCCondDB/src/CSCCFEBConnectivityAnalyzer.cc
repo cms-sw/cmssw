@@ -45,6 +45,8 @@ CSCCFEBConnectivityAnalyzer::CSCCFEBConnectivityAnalyzer(edm::ParameterSet const
 	for (int k=0; k<STRIPS_con;k++){
 	  adcMin[ii][i][j][k]    = 9999999.0;
 	  adcMax[ii][i][j][k]    = -9999999.0;
+	  adcMean_max[ii][i][j][k]=0.0;
+	  adcMean_min[ii][i][j][k]=0.0;
 	  diff[ii][i][j][k]      = 0.0;
 	}
       }
@@ -99,7 +101,7 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 	      
 	      dmbID[chamber]   = cscData[chamber].dmbHeader().dmbID(); //get DMB ID
 	      crateID[chamber] = cscData[chamber].dmbHeader().crateID(); //get crate ID
-	      if(crateID[chamber] == 255) continue; //255 is reserved for old crate, present only 0 and 1
+	      if(crateID[chamber] == 255) continue; //255 doesn't exist
 	      
 	      for (unsigned int i=0; i<digis.size(); i++){
 		size[chamber] = digis.size();
@@ -117,10 +119,27 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 		  }
 		  
 		}//end timebins loop
+
+		adcMean_max[iDDU][chamber][layer-1][strip-1] += adcMax[iDDU][chamber][layer-1][strip-1]/20.;
+		adcMean_min[iDDU][chamber][layer-1][strip-1] += adcMin[iDDU][chamber][layer-1][strip-1]/20.;
+	      
 	      }//end digis size
-            }//end if cfeb.available 
-          }//end loop over layers
+	    }//end if cfeb.available 
+	  }//end loop over layers
         }//end loop over chambers
+	
+	if((evt-1)%20==0){
+	  for(int iii=0;iii<DDU_con;iii++){
+	    for(int ii=0; ii<CHAMBERS_con; ii++){
+	      for(int jj=0; jj<LAYERS_con; jj++){
+		for(int kk=0; kk<STRIPS_con; kk++){
+		  adcMean_max[iii][ii][jj][kk]=0.0;
+		  adcMean_min[iii][ii][jj][kk]=0.0;
+		}
+	      }
+	    }
+	  }
+	}
 	
 	eventNumber++;
 	edm::LogInfo ("CSCCFEBConnectivityAnalyzer")  << "end of event number " << eventNumber;

@@ -30,6 +30,7 @@ class TCalibCFEBConnectEvt {
   Float_t adcMax;
   Float_t adcMin;
   Float_t diff;
+  Float_t RMS;
 };
 
 class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
@@ -48,7 +49,7 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
   ~CSCCFEBConnectivityAnalyzer(){
 
     //get time of Run file for DB transfer
-    filein.open("../test/CSCxtalk.cfg");
+    filein.open("../test/CSCCFEBconnect.cfg");
     filein.ignore(1000,'\n');
     
     while(filein != NULL){
@@ -89,11 +90,13 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
     TCalibCFEBConnectEvt calib_evt;
     TFile calibfile(myNewName, "RECREATE");
     TTree calibtree("Calibration","Connectivity");
-    calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F");
+    calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:adcMax/F:adcMin/F:diff/F:RMS/F");
    
     for (int iii=0; iii<Nddu; iii++){
       for (int i=0; i<NChambers; i++){
-	
+	theRMS      =0.0;
+	my_diffSquare=0.0;
+
 	//get chamber ID from DB mapping        
 	int new_crateID = crateID[i];
 	int new_dmbID   = dmbID[i];
@@ -103,19 +106,21 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
 	
 	for (int j=0; j<LAYERS_con; j++){
 	  for (int k=0; k<size[i]; k++){
-	   
-	    my_diff = adcMax[iii][i][j][k]-adcMin[iii][i][j][k];
-	    std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<std::endl;
-
-	    calib_evt.strip=k;
-	    calib_evt.layer=j;
-	    calib_evt.cham=i;
-	    calib_evt.ddu=iii;
-	    calib_evt.adcMin = adcMin[iii][i][j][k];
-	    calib_evt.adcMax = adcMax[iii][i][j][k];
-	    calib_evt.diff=my_diff;
-
-	    calibtree.Fill();
+	      
+	      my_diff =  adcMean_max[iii][i][j][k]- adcMean_min[iii][i][j][k];
+	      my_diffSquare = my_diff*my_diff;
+	      std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<" RMS "<<theRMS<<std::endl;
+	      theRMS       = sqrt(abs(my_diffSquare - my_diff*my_diff));
+	      calib_evt.strip=k;
+	      calib_evt.layer=j;
+	      calib_evt.cham=i;
+	      calib_evt.ddu=iii;
+	      calib_evt.adcMin = adcMean_min[iii][i][j][k];
+	      calib_evt.adcMax = adcMean_max[iii][i][j][k];
+	      calib_evt.diff=my_diff;
+	      calib_evt.RMS=theRMS;
+	      
+	      calibtree.Fill();
 	  }
 	}
       }
@@ -130,11 +135,13 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
   int dmbID[CHAMBERS_con],crateID[CHAMBERS_con],size[CHAMBERS_con];
   float adcMin[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
   float adcMax[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
+  float adcMean_max[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
+  float adcMean_min[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
   float diff[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
   std::vector<int> adc;
   std::string chamber_id;
   int lines;
-  float my_diff;
+  float my_diff,my_diffSquare,theRMS;
   std::ifstream filein;
   string PSet,name;
   bool debug;
