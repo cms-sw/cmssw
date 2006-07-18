@@ -90,6 +90,7 @@
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
+ <class name="std::vector<edm::BranchEntryDescription>"/>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
    <field name="produced_" transient="true"/>
