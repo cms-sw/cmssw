@@ -12,6 +12,6 @@
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/DataRecord/interface/mySiStripNoisesRcd.h"
 
-DEFINE_SEAL_MODULE();
-REGISTER_PLUGIN(PedestalsRcd,Pedestals);
-REGISTER_PLUGIN(mySiStripNoisesRcd,mySiStripNoises);
+DEFINE_SEAL_MODULE()
+REGISTER_PLUGIN(PedestalsRcd,Pedestals)
+REGISTER_PLUGIN(mySiStripNoisesRcd,mySiStripNoises)
