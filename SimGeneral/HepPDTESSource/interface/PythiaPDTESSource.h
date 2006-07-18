@@ -45,6 +45,6 @@ public:
 		       edm::ValidityInterval & );
 
 private:
-  std::string pdtFileName;
+  edm::FileInPath pdtFileName;
 };
 #endif

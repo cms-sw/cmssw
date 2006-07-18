@@ -15,7 +15,7 @@
 //
 // Original Author:  Luca Lista
 //         Created:  Fri Mar 10 15:58:18 CET 2006
-// $Id: HepPDTESSource.cc,v 1.2 2006/07/11 08:15:26 fmoortga Exp $
+// $Id: HepPDTESSource.h,v 1.1 2006/07/11 16:08:37 fmoortga Exp $
 //
 #include <memory>
 #include <fstream>
@@ -48,6 +48,6 @@ public:
 		       edm::ValidityInterval & );
 
 private:
-  std::string pdtFileName;
+  edm::FileInPath pdtFileName;
 };
 #endif
