@@ -168,7 +168,7 @@ std::vector<T> * MixCollection<T>::getNewSignal() {
   // gets the next signal collection with non-zero size
   //at the same time we verify that input is coherent
 
-  for (unsigned int i=iSignal_;i<nrDets_;i++) {
+  for (int i=iSignal_;i<nrDets_;i++) {
 
     //verify whether detector is known
     if ( strstr(typeid(T).name(),"Hit")  && !cf_->knownDetector(subdets_[iSignal_]))
@@ -192,7 +192,7 @@ std::vector<T> * MixCollection<T>::getNewSignal() {
 template <class T>
  std::vector<std::vector<T> > * MixCollection<T>::getNewPileups() {
   // gets the next pileup collection with non-zero size
-  for (unsigned int i=iPileup_;i<nrDets_;i++) {
+  for (int i=iPileup_;i<nrDets_;i++) {
     cf_->getPileups(subdets_[iPileup_++],pileups_);
     if (pileups_->size()) return pileups_;
   }
