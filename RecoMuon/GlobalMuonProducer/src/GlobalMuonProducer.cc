@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/07/06 12:52:08 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/07/06 13:16:44 $
+ *   $Revision: 1.8 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -48,7 +48,8 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   theSTACollectionLabel = parameterSet.getParameter<string>("MuonCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet);
+  theTrackFinder = new MuonTrackFinder(gmtb);
   
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -73,15 +74,22 @@ GlobalMuonProducer::~GlobalMuonProducer() {
 //
 // reconstruct muons
 //
-void GlobalMuonProducer::produce(Event& event, const EventSetup& setup) {
+void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
+  std::string metname = "Muon|RecoMuon|GlobalMuonProducer";  
+  LogDebug(metname)<<endl<<endl<<endl;
+  LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
   
-  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "Global Muon Reconstruction started" << endl;  
-
   // Take the STA muon container
+  LogDebug(metname)<<"Taking the Stans Alone Muons: "<<theSTACollectionLabel<<endl; 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
-
+  
   // Reconstruct the tracks in the tracker+muon system
-  theTrackFinder->reconstruct(staMuons,event,setup);
-
+  LogDebug(metname)<<"Track Reconstruction"<<endl;
+  theTrackFinder->reconstruct(staMuons,event,eventSetup);
+  
+  LogDebug(metname)<<"Event loaded"
+                   <<"================================"
+                   <<endl<<endl;
+    
 }

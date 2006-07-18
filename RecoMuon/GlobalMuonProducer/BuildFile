@@ -1,8 +1,12 @@
-<use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
 <use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/GlobalTrackFinder>
 
 <use name=CLHEP>
 <use name=root>
@@ -12,11 +16,15 @@
 <export>
    <lib name=RecoMuonGlobalMuonProducer>
 
-   <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
+   <use name=FWCore/MessageLogger>
    <use name=DataFormats/Common>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/MuonReco>
    <use name=RecoMuon/TrackingTools>
+   <use name=RecoMuon/GlobalTrackFinder>
 
    <use name=CLHEP>
    <use name=root>
