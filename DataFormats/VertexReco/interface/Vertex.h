@@ -7,14 +7,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.13 2006/04/28 15:48:45 vanlaer Exp $
+ * \version $Id: Vertex.h,v 1.14 2006/06/22 18:53:54 llista Exp $
  *
  */
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <vector>
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace reco {
@@ -34,7 +33,7 @@ namespace reco {
     /// index type
     typedef unsigned int index;
     /// default constructor
-    Vertex() : error_( size ) { }
+    Vertex() { }
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
@@ -81,7 +80,7 @@ namespace reco {
     /// position
     Point position_;
     /// covariance matrix (3x3) as vector
-    std::vector<Double32_t> error_;
+    Double32_t error_[ size ];
     /// reference to tracks
     TrackRefVector tracks_;
     /// position index
