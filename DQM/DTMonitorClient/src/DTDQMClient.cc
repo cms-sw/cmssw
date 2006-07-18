@@ -2,8 +2,8 @@
  *
  *  Implementation of  DTDQMClient
  *
- *  $Date: 2006/06/28 11:15:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/30 15:31:06 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 
@@ -106,6 +106,9 @@ void DTDQMClient::onUpdate() const{
       noiseClient->performCheck(mui_);
 
     }
+
+    // saving the ME
+    if ( mui_->getNumUpdates()%100 == 0)   mui_->save("Sources.root");
 
     if (!webInterface_p->noiseStatus()) cout<<"[DTDQMClient]: I stopped the noiseCheck"<<endl;
 	  
