@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.14 2006/07/07 14:00:09 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.15 2006/07/12 14:49:44 goitom Exp $
 //
 //
 
@@ -54,6 +54,8 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "Geometry/CommonDetAlgo/interface/MeasurementVector.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
 {
@@ -192,45 +194,61 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 	if (trajVec.size() != 0)
 	{
 		const Trajectory& theTraj = trajVec.front();
+		
 	    Trajectory::DataContainer fits = theTraj.measurements();
-
 	    for (Trajectory::DataContainer::iterator fit=fits.begin(); fit != fits.end(); fit++)
 	    {
-	    		const TransientTrackingRecHit* hit = 	fit->recHit();
-			const LocalPoint & LocalHitPos = hit->localPosition();
-		
-			const LocalPoint& LocalTrajPos = fit->updatedState().localPosition();
-			const DetId & detId = hit->geographicalId();
-			const GeomDetUnit *detUnit = theG->idToDetUnit(detId);
-			const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
-			const StripTopology& topology = stripDet->specificTopology();
-		
-			const float hitPositionInStrips = topology.strip(LocalHitPos);
-			const float trackPositionInStrips = topology.strip(LocalTrajPos);
-		
-			double residual = trackPositionInStrips - hitPositionInStrips;
+			const TrajectoryMeasurement tm = *fit;
+			TrajectoryStateOnSurface theCombinedPredictedState = TrajectoryStateCombiner().combine( tm.forwardPredictedState(),
+				tm.backwardPredictedState());
+			const TransientTrackingRecHit* hit = tm.recHit();
+			const GeomDet* det = hit->det();
 			
-			//if (hit->detUnit() == NULL) { std::cout<<"STEREO HIT!"<<std::endl;}
+			 if (det->components().empty())
+			 {
+				const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
+				const Topology* theTopol = &(du->topology());
+				// residual in the measurement frame 
+				MeasurementPoint theMeasHitPos = theTopol->measurementPosition(hit->localPosition());
+				MeasurementPoint theMeasStatePos =
+					theTopol->measurementPosition( theCombinedPredictedState.localPosition());
+				Measurement2DVector residual = theMeasHitPos - theMeasStatePos;
+				
+				/*const LocalPoint & LocalHitPos = hit->localPosition();
+		
+				const LocalPoint& LocalTrajPos = fit->updatedState().localPosition();
+				const DetId & detId = hit->geographicalId();
+				const GeomDetUnit *detUnit = theG->idToDetUnit(detId);
+				const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
+				const StripTopology& topology = stripDet->specificTopology();
+		
+				const float hitPositionInStrips = topology.strip(LocalHitPos);
+				const float trackPositionInStrips = topology.strip(LocalTrajPos);
+		
+				double residual = trackPositionInStrips - hitPositionInStrips;
+			
+				//if (hit->detUnit() == NULL) { std::cout<<"STEREO HIT!"<<std::endl;}*/
 
-			DetId hit_detId = hit->geographicalId();
-			int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
-			switch(hit_detId.subdetId())
-		  	{
-		  		case StripSubdetector::TIB :
-		      	HitResidual["TIB"]->Fill(CutRawDetId, residual);
-		      	break;
-		  		case StripSubdetector::TOB :
-		    		HitResidual["TOB"]->Fill(CutRawDetId, residual);
+				DetId hit_detId = hit->geographicalId();
+				int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
+				switch(hit_detId.subdetId())
+				{
+					case StripSubdetector::TIB :
+					HitResidual["TIB"]->Fill(CutRawDetId, residual.x());
+					break;
+					case StripSubdetector::TOB :
+					HitResidual["TOB"]->Fill(CutRawDetId, residual.x());
 		    		break;
-		  		case StripSubdetector::TID :
-		    		HitResidual["TID"]->Fill(CutRawDetId, residual);
+					case StripSubdetector::TID :
+		    		HitResidual["TID"]->Fill(CutRawDetId, residual.x());
 		    		break;
-		  		case StripSubdetector::TEC :
-		    		HitResidual["TEC"]->Fill(CutRawDetId, residual);
+					case StripSubdetector::TEC :
+		    		HitResidual["TEC"]->Fill(CutRawDetId, residual.x());
 		    		break;
-		  		default:
-		   		break;
+					default:
+					break;
 		  	}
+			}
 	    }
 	}
   }
