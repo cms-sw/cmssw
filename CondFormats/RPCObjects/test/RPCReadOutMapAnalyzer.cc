@@ -56,8 +56,8 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
    cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
    ChamberRawDataSpec linkboard;
    linkboard.dccId = 790;
-   linkboard.dccInputChannelNum = 6;
-   linkboard.tbLinkInputNum = 8;
+   linkboard.dccInputChannelNum = 1;
+   linkboard.tbLinkInputNum = 1;
    linkboard.lbNumInLink = 2;
 
    int febInputNum=3;

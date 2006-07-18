@@ -63,20 +63,10 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
   // ROLL
   std::string roll = feb.cmsEtaPartition;
   int iroll=0;
-  if (roll=="B") {
-    iroll = 1;
-  }
-  else if (region==0 && layer==3 && (ring==0 || ring==1 || ring==-1) ) {
-    if (roll=="C" || roll=="M") iroll = 2;
-    if (roll=="F") iroll = 3;
-  }
-  else if (region==0 && layer==4 && (ring==0 || ring==1)) {
-    if (roll=="C" || roll=="M") iroll = 2;
-    if (roll=="F") iroll = 3;
-  }
-  else if (roll=="F") {
-    iroll = 2; 
-  }
+  if      (roll=="1" || roll=="A") iroll = 1;
+  else if (roll=="2" || roll=="B") iroll = 2;
+  else if (roll=="3" || roll=="C") iroll = 3;
+  else if (roll=="D") iroll = 4;
   else {
     std::cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
                <<roll<<" ???" << std::endl;

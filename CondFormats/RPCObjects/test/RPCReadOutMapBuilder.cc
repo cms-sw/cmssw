@@ -148,7 +148,7 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) {
            bool master = (idlb==0);
            LinkBoardSpec lb(master, idlb);
            for (int ifeb=0; ifeb <= 5; ifeb++) {
-             FebLocationSpec febLocation = {"F",2,"F",2};
+             FebLocationSpec febLocation = {"Forward",2,"3",2};
              ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};
              FebConnectorSpec febConn(ifeb, chamber, febLocation);
              for (int istrip=0; istrip <= 15; istrip++) {
