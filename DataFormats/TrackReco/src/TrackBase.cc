@@ -4,9 +4,8 @@ using namespace reco;
 
 TrackBase::TrackBase( double chi2, double ndof,
 		      const ParameterVector & par, double pt, const CovarianceMatrix & cov ) :
-  chi2_( chi2 ), ndof_( ndof ), 
-  parameters_( dimension ), pt_( pt ), covariance_( covarianceSize ) {
-  std::copy( par.begin(), par.end(), parameters_.begin() );
+  chi2_( chi2 ), ndof_( ndof ), pt_( pt ) {
+  std::copy( par.begin(), par.end(), parameters_ );
   index idx = 0;
   for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
@@ -14,7 +13,7 @@ TrackBase::TrackBase( double chi2, double ndof,
 }
 
 TrackBase::ParameterVector & TrackBase::fill( ParameterVector & v ) const {
-  std::copy( parameters_.begin(), parameters_.end(), v.begin() );
+  std::copy( parameters_, parameters_ + dimension, v.begin() );
   return v;
 }
 

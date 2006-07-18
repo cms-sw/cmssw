@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.18 2006/06/26 09:47:48 llista Exp $
+ * \version $Id: TrackBase.h,v 1.19 2006/06/26 12:16:03 llista Exp $
  *
  */
 
@@ -122,7 +122,7 @@ namespace reco {
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
-   CovarianceMatrix & fill( CovarianceMatrix & v ) const;
+    CovarianceMatrix & fill( CovarianceMatrix & v ) const;
     
     /// momentum vector magnitude
     double p() const { return momentum().R(); }
@@ -158,11 +158,11 @@ namespace reco {
     /// number of degrees of freedom
     Double32_t ndof_;
     // perigee 5 parameters
-    std::vector<Double32_t> parameters_;
+    Double32_t parameters_[ dimension ];
     /// transverse momentum
     Double32_t pt_;
     /// perigee 5x5 covariance matrix
-    std::vector<Double32_t> covariance_;
+    Double32_t covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
     /// position index
