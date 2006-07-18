@@ -40,9 +40,6 @@ class AlignableDTChamber: public AlignableComposite
   /// Return component (superlayer) at given index
   AlignableDet &det(int i);
 
-  /// Return corresponding GeomDet ID
-  virtual DetId geomDetId() const { return theDetId; }
-
   /// Return length of alignable
   virtual float length() const { return theLength; }
 
@@ -74,8 +71,6 @@ class AlignableDTChamber: public AlignableComposite
  private:
 
   std::vector<AlignableDet*> theDets;
-
-  DetId theDetId;                          ///< Associated GeomDet Id
 
   float theWidth, theLength;
 

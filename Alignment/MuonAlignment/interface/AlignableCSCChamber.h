@@ -39,9 +39,6 @@ class AlignableCSCChamber: public AlignableComposite
   /// Return component (superlayer) at given index
   AlignableDet &det(int i);
 
-  /// Return corresponding GeomDet ID
-  virtual DetId geomDetId() const { return theDetId; }
-
   /// Return length of alignable
   virtual float length() const { return theLength; }
 
@@ -71,8 +68,6 @@ class AlignableCSCChamber: public AlignableComposite
  private:
 
   std::vector<AlignableDet*> theDets;      ///< Vector of components
-
-  DetId theDetId;                          ///< Associated GeomDet Id
 
   float theWidth, theLength;
 
