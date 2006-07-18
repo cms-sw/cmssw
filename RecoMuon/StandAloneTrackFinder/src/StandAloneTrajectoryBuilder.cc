@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/11 15:02:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/07/13 22:55:54 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -132,7 +132,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
 
   LogDebug(metname)<< "Seed id in: "<< endl ;
-  debug.dumpMuonId(seedDetId);
+  debug.dumpMuonId(seedDetId,metname);
   
   // Get the layer from which start the trajectory building
   const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
