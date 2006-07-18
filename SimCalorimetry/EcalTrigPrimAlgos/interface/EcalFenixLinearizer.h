@@ -45,21 +45,31 @@ class EBDetId;
     int base_;
     int mult_;
     int shift_;
-    int baseLine_[5][5][3]; //to be changed
+    int tow_;
+    int baseLine_[68][5][5][3]; //to be changed
+    int multLine_[68][5][5][3]; //to be changed
+    int shiftLine_[68][5][5][3]; //to be changed
     int strip_;
-    int setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip);
+
+    int setInput(EcalMGPASample RawSam, int stripNum, int towNum, int XtalNumberInStrip);
+
     int getBase(int XtalNumberInTower) const;
-    int getMult() const;
-    int getShift() const;
+    //    int getMult() const;
+    //    int getShift() const;
+    int getMult(int XtalnumberInTower) const;
+    int getShift(int XtalnumberInTower) const; 
     int process() ;
+
 
   public:
     //    EcalFenixLinearizer(EcalBarrelTopology *);
     EcalFenixLinearizer();
     virtual ~EcalFenixLinearizer();
 
+
     virtual EBDataFrame process(EBDataFrame&) {EBDataFrame df;return df;} //for base class
-    virtual void  process(const EBDataFrame &,int stripnr, EBDataFrame *out); 
+    virtual void  process(const EBDataFrame &,int stripnr, int townr,EBDataFrame *out); 
+
 
   };
 

@@ -56,12 +56,13 @@ int EcalFenixAmplitudeFilter::setInput(int input)
       output.push_back(outone);
     }
     // shift the result by 1!
-    for (int i=0 ; i<(output.size());i++){
+    for (unsigned int i=0 ; i<(output.size());i++){
       if (i!=output.size()-1) output[i]=output[i+1];
       else output[i]=0;
     }  
     return output;
   }
+  
 int EcalFenixAmplitudeFilter::process()
 {
   //UB FIXME: 5

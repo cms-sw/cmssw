@@ -64,12 +64,10 @@ class EcalTrigPrimFunctionalAlgo
 
   void fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame);
 
-  // create stripnr
-  //  int createStripNr(const EBDetId& cryst);
+  int findTowerNrInSM(const EcalTrigTowerDetId &id);
 
   int calculateTTF(const int en);
 
-  //--------------------
 
 
   typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<const EBDataFrame * > >,std::less<EcalTrigTowerDetId> > SUMVB;

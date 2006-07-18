@@ -22,7 +22,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -129,6 +129,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
     {
       itow++;
       const EcalTrigTowerDetId & thisTower =(*it).first;
+      int townr = findTowerNrInSM ( thisTower);
       // loop over all strips assigned to this trigger tower
       std::vector<std::vector<int> > striptp;
       for(unsigned int i = 0; i < TMath::Min(it->second.size(),size_t(ecal_barrel_strips_per_trigger_tower)) ; ++i) 
@@ -137,7 +138,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  std::vector<const EBDataFrame *> df=it->second[i];
 
 	  if (df.size()>0) {
-	    tp=ebstrip_->process(df,i);
+	    tp=ebstrip_->process(df,i,townr);
 	    striptp.push_back(tp);
 	  }
 	}
@@ -213,13 +214,16 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	for (int ii=0;ii<nrFrames;++ii) {
 	  int en=(mapEndcap_[thisTower][ii])[i].adc();
           int et0 = TMath::Max(en- thresholds[ii],0);
+	  float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
+	  et0 =(int) (et0*sin(theta));
+
 	  et += et0;
 	  if (et0 > etmax) etmax=et0;
 	}
 
 	int fgvb=0;
 	if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
-	//       	et=et>>4;
+	et=et>>4;
 	int ttf=calculateTTF(et);
         if (et>0xFF) et=0xFF;
 	for (int nrt=0;nrt<nrTowers;++nrt) {
@@ -299,3 +303,14 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
   else if (ttf<high && ttf >low ) ttf=2;
   return ttf;
 }
+//----------------------------------------------------------------------
+ int EcalTrigPrimFunctionalAlgo::findTowerNrInSM(const EcalTrigTowerDetId &id) {
+ // finds towr nr in supermodule in Barrel(from 1 to 68)
+   const int nrphis=4;
+
+   int ieta=id.ietaAbs();
+   int iphi=id.iphi();
+   int basenr=(ieta-1)*nrphis +1;
+   int towernr=basenr+(iphi-1)%nrphis;
+   return  towernr;
+ }

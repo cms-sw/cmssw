@@ -17,9 +17,9 @@
   
   int EcalFenixStripFormat::process()
   {
-    //    buffer_[0]=buffer_[1];
-    //    buffer_[1]=input_>>shift_;
+
     buffer_[0]=input_>>shift_;
+
     if(inputPeak_==0) return 0;
     int output=buffer_[0];
     if(output>0XFFF) output=0XFFF;

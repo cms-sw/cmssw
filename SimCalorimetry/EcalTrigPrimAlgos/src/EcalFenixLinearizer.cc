@@ -7,18 +7,22 @@
 EcalFenixLinearizer::EcalFenixLinearizer()
 {
     //UB FIXME : should come from a database!!!
-    //FILE * fin=fopen("../data/FenixStripPedMult.txt","r");
     edm::FileInPath fileInPath("SimCalorimetry/EcalTrigPrimProducers/data/FenixStripPedMult.txt");
     FILE * fin=fopen(fileInPath.fullPath().c_str(), "r");
     //    if (!fin) throw an exception
-    unsigned int tow, str, strXtal, gain, ped, bid1, bid2;
-    for(int i=0; i<75; i++)
+    unsigned int tow, str, strXtal, gain, ped, mult,shift;
+    for(int i=0; i<5100; i++)
       {
 	//	fscanf(fin,"%x %d %d %d %x %x %x\n",&tow, &str, &strXtal, &gain, &ped, &bid1, &bid2);
-	fscanf(fin,"%x %u %u %u %x %x %x\n",&tow, &str, &strXtal, &gain, &ped, &bid1, &bid2);
+	fscanf(fin,"%u %u %u %u %x %x %u\n",&tow, &str, &strXtal, &gain, &ped, &mult, &shift);
+	if(gain==12) gain=1;
+	else if(gain==6) gain=2;
+	else if(gain==1) gain=3;
+	baseLine_[tow-1][str-1][strXtal-1][gain-1]=ped;
+	multLine_[tow-1][str-1][strXtal-1][gain-1]=mult;
+	shiftLine_[tow-1][str-1][strXtal-1][gain-1]=shift;
 
-	baseLine_[str-1][strXtal-1][gain-1]=ped;
-	//	cout<<"read in FenixStripPedMult.txt: "<<tow<<" "<<str<<" "<<strXtal<<" "<<gain<<" "<<ped<<endl;
+
       }
 
     fclose(fin);
@@ -28,7 +32,7 @@ EcalFenixLinearizer::~EcalFenixLinearizer(){
 }
 
 
-void EcalFenixLinearizer::process(const EBDataFrame &df,int stripnr, EBDataFrame *dfout)
+void EcalFenixLinearizer::process(const EBDataFrame &df,int stripnr, int townr, EBDataFrame *dfout)
 {
 
 
@@ -46,7 +50,7 @@ void EcalFenixLinearizer::process(const EBDataFrame &df,int stripnr, EBDataFrame
 
   dfout->setSize(SIZEMAX);
   for (int i=0;i<df.size();i++) {
-    setInput(df[i],stripnr, crystalNumberInStrip);
+    setInput(df[i],stripnr, townr,crystalNumberInStrip);
     dfout->setSample(i,EcalMGPASample(process(),gainID_)); 
   }
   return;
@@ -61,9 +65,10 @@ int EcalFenixLinearizer::process()
   return output;
 }
 
-int EcalFenixLinearizer::setInput(EcalMGPASample RawSam, int stripNum, int XtalNumberInStrip)
+int EcalFenixLinearizer::setInput(EcalMGPASample RawSam, int stripNum, int towNum,int XtalNumberInStrip)
 {
   strip_=stripNum;
+  tow_=towNum-1;
   if(RawSam.raw()>0X3FFF)
     {
       std::cout<<"ERROR IN INPUT SAMPLE OF FENIX LINEARIZER"<<std::endl;
@@ -74,31 +79,26 @@ int EcalFenixLinearizer::setInput(EcalMGPASample RawSam, int stripNum, int XtalN
   gainID_--;       //To have gainID_ in the range [0; 2] and not [1;3]!! 
 
   base_=getBase(XtalNumberInStrip);
-  mult_=getMult();
-  shift_=getShift();
+  mult_=getMult(XtalNumberInStrip);
+  shift_=getShift(XtalNumberInStrip);
+
   return 1;
 }
 
 int EcalFenixLinearizer::getBase(int XtalNumberInStrip) const
 {
   
-  return baseLine_[strip_][XtalNumberInStrip][gainID_];
+
+  return baseLine_[tow_][strip_][XtalNumberInStrip][gainID_];
   
 }
-int EcalFenixLinearizer::getMult() const
+int EcalFenixLinearizer::getMult(int XtalNumberInStrip) const
 {
-  //Mult values from ??? config file 2004
-  if(gainID_==2) return 0X60;
-  else  return 0XFF;
+  return multLine_[tow_][strip_][XtalNumberInStrip][gainID_];
 }
 
-int EcalFenixLinearizer::getShift() const
+int EcalFenixLinearizer::getShift(int XtalNumberInStrip) const
 {
-  //shift values from ??? config File 2004
-  int shift=99;
-  if(gainID_==0) shift=5;
-  if(gainID_==1) shift=4;
-  if(gainID_==2) shift=0;
-
-  return shift+2; //to be consistant with the Test-Beam Data
+ 
+  return shiftLine_[tow_][strip_][XtalNumberInStrip][gainID_]+2;
 }

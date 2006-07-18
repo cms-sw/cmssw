@@ -39,7 +39,7 @@ class EcalTriggerPrimitiveSample;
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods
-    std::vector<int> process(std::vector<const EBDataFrame *> &, int stripnr);
+    std::vector<int> process(std::vector<const EBDataFrame *> &, int stripnr,int townr);
 
     // getters for the algorithms
     EcalFenixLinearizer *getLinearizer (int i) const { return linearizer_[i];}

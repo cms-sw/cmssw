@@ -21,7 +21,7 @@ EcalBarrelFenixStrip::~EcalBarrelFenixStrip() {
 }
 
 
-std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *> & df, int stripnr)
+std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *> & df, int stripnr, int townr)
 { 
 
   // call linearizer
@@ -38,7 +38,7 @@ std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *>
     //       }
     //       cout<<endl;
     EBDataFrame *ebdfp= new EBDataFrame(df[cryst]->id());
-    this->getLinearizer(cryst)->process(*(df[cryst]),stripnr,ebdfp);
+    this->getLinearizer(cryst)->process(*(df[cryst]),stripnr,townr,ebdfp);
     lin_out.push_back(ebdfp);
   }
 
