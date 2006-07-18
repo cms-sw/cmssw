@@ -16,7 +16,7 @@
 using namespace std;
 using namespace reco;
 
-pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack, 
+pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & transientTrack, 
                  const GlobalVector & direction, const  Vertex & vertex)
  const {
 
@@ -24,7 +24,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack,
   double theError=0.;
   bool   theIsValid;
 
-  TrajectoryStateOnSurface TSOS = TransientTrack(aRecTrack).impactPointState();
+  TrajectoryStateOnSurface TSOS = transientTrack.impactPointState();
   
   if ( !TSOS.isValid() ) {
     cout << "====>>>> SignedImpactParameter3D::apply : TSOS not valid = " << TSOS.isValid() << endl ;
@@ -35,7 +35,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack,
 
   GlobalVector JetDirection(direction);
   
-  TrajectoryStateOnSurface theTSOS = closestApproachToJet(*FTS, vertex, JetDirection);
+  TrajectoryStateOnSurface theTSOS = closestApproachToJet(*FTS, vertex, JetDirection,transientTrack.field());
   theIsValid= theTSOS.isValid();
 
   if(theIsValid){
@@ -84,7 +84,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack,
 
 
 
-TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection) const {
+TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const FreeTrajectoryState & aFTS,const Vertex & vertex, const GlobalVector& aJetDirection,const MagneticField * field) const {
   
   GlobalVector J =aJetDirection.unit();
   
@@ -92,7 +92,7 @@ TrajectoryStateOnSurface SignedImpactParameter3D::closestApproachToJet(const Fre
   Line::DirectionType dir(J);
   Line Jet(pos,dir);
   
-  AnalyticalTrajectoryExtrapolatorToLine TETL(m_field);
+  AnalyticalTrajectoryExtrapolatorToLine TETL(field);
 
   return TETL.extrapolate(aFTS, Jet);
 }
@@ -110,12 +110,11 @@ GlobalVector SignedImpactParameter3D::distance(const TrajectoryStateOnSurface & 
   return D;
 }
 
-pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Track & track, const GlobalVector & direction, const Vertex & vertex) const {
-  TransientTrack aRecTrack(track);
+pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const TransientTrack & track, const GlobalVector & direction, const Vertex & vertex) const {
   double theDistanceAlongJetAxis(0.);
   double theDistanceToJetAxis(0.);
   double  theLDist_err(0.);
-  TrajectoryStateOnSurface TSOS = (aRecTrack).impactPointState();
+  TrajectoryStateOnSurface TSOS = track.impactPointState();
 
   if ( !TSOS.isValid() ) {
     cout << "====>>>> SignedImpactParameter3D::distanceWithJetAxis : TSOS not valid = " << TSOS.isValid() << endl ;
@@ -133,8 +132,8 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
   //FIXME
   float weight=0;//vertex.trackWeight(aRecTrack);
 
-  TrajectoryStateOnSurface stateAtOrigin = (aRecTrack).impactPointState(); 
-  TrajectoryStateOnSurface aTSOS = closestApproachToJet(*FTS, vertex, jetDirection);
+  TrajectoryStateOnSurface stateAtOrigin = track.impactPointState(); 
+  TrajectoryStateOnSurface aTSOS = closestApproachToJet(*FTS, vertex, jetDirection, track.field());
   bool isValid= stateAtOrigin.isValid();
   //  bool IsValid= aTSOS.isValid();
 

@@ -16,11 +16,11 @@
 using namespace std;
 using namespace reco;
 
-pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const Track & aRecTrack,
+pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientTrack & track,
  const GlobalVector & direction, const  Vertex & vertex)
  const {
 
-  TrajectoryStateOnSurface stateOnSurface = TransientTrack(aRecTrack).impactPointState();
+  TrajectoryStateOnSurface stateOnSurface = track.impactPointState();
 
   FreeTrajectoryState * FTS =  stateOnSurface.freeState(); //aRecTrack.stateAtFirstPoint().freeTrajectoryState());
 
@@ -28,7 +28,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const Track & aR
  
   double theValue;
   double theError;
-  TransverseImpactPointExtrapolator TIPE;
+  TransverseImpactPointExtrapolator TIPE(track.field());
   TrajectoryStateOnSurface TSOS = TIPE.extrapolate(*FTS, vertexPosition);
 
   if(!TSOS.isValid()){
@@ -77,11 +77,11 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const Track & aR
 
 
 
-pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( const Track & aRecTrack, 
+pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( const TransientTrack & track, 
        const GlobalVector & direction, const  Vertex & vertex) const {
   
-  TransverseImpactPointExtrapolator TIPE ;
-  TrajectoryStateOnSurface TSOS  = TransientTrack(aRecTrack).impactPointState();
+  TransverseImpactPointExtrapolator TIPE(track.field()) ;
+  TrajectoryStateOnSurface TSOS  = track.impactPointState();
 
   if ( !TSOS.isValid() ) {
     cout << "====>>>> SignedTransverseImpactParameter::zImpactParameter : TSOS not valid" << endl ;
