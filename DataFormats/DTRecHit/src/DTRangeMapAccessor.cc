@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/04 13:59:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/29 17:18:27 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -41,4 +41,10 @@ DTRangeMapAccessor::superLayersByChamber(DTChamberId chamberId) {
   return make_pair(DTSuperLayerId(chamberId,0), DTChamberIdComparator());
 }
 
+
+// Access by chamber objects written into a RangeMap by DetLayer.
+pair<DTChamberId, DTChamberIdDetLayerComparator>
+DTRangeMapAccessor::chambersByDetLayer(DTChamberId chamberId) {
+  return make_pair(DTChamberId(chamberId), DTChamberIdDetLayerComparator());
+}
 

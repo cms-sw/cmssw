@@ -8,7 +8,7 @@
 /** \class DTSuperLayerIdComparator
  *  Comparator to retrieve by SL objects written into a RangeMap by layer.
  *
- *  $Date: 2006/04/27 10:52:26 $
+ *  $Date: 2006/05/04 13:59:34 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -21,7 +21,7 @@ public:
     if (sl1 == sl2) return false;
     return (sl1 < sl2);
   }
-
+  
 private:
 
 };
@@ -31,7 +31,7 @@ private:
 /** \class DTChamberIdComparator
  *  Comparator to retrieve  by chamber objects written into a RangeMap by layer or by SL.
  *
- *  $Date: 2006/04/27 10:52:26 $
+ *  $Date: 2006/05/04 13:59:34 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -49,12 +49,30 @@ private:
 
 };
 
+/** \class DTChamberIdDetLayerComparator
+ *  Comparator to retrieve by chamber objects written into a RangeMap by DetLayer.
+ *
+ *  $Date: 2006/07/17 11:00:00 $
+ *  $Revision: 1.1 $
+ *  \author M. Sani 
+ */
+
+class DTChamberIdDetLayerComparator {
+ public:
+  bool operator() (DTChamberId ch1, DTChamberId ch2) const {
+
+    if (ch1.station() == ch2.station())
+      return false;
+    
+    return (ch1.station() < ch2.station());
+  }
+};
 
 
 /** \class DTRangeMapAccessor
  *  Utility class for access to objects in a RangeMap with needed granularity.
  *
- *  $Date: 2006/04/27 10:52:26 $
+ *  $Date: 2006/05/04 13:59:34 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -80,15 +98,14 @@ public:
   /// Access by chamber objects written into a RangeMap by SL.
   static std::pair<DTSuperLayerId, DTChamberIdComparator>
   superLayersByChamber(DTChamberId chamberId);
-
+  
+  /// Access chambers in a RangeMap by DetLayer.
+  static std::pair<DTChamberId, DTChamberIdDetLayerComparator>
+    chambersByDetLayer(DTChamberId id);
 
 private:
 
 };
-
-
-
-
 
 #endif
 
