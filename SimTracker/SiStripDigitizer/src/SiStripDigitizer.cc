@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.21 2006/05/23 08:43:16 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.22 2006/07/19 18:03:43 fambrogl Exp $
 //
 //
 
@@ -61,7 +61,6 @@ namespace cms
 {
 
   SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
-    //   stripDigitizer_(conf) ,
     conf_(conf)
   {
     produces<edm::DetSetVector<SiStripDigi> >();
