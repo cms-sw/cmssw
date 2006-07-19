@@ -128,7 +128,8 @@ void DoCompare( char* Energy ){
    if (hpro1[i] == 0 || hpro2[i] == 0) continue ;
    TF1 *f1 = new TF1("f1","pol1");
    c1.cd(1);
-   hpro1[i]->Fit(f1,"Q");
+   hpro1[i]->Fit(f1,"Q","",0.0, 200);
+   hpro1[i]->SetLineColor(2);
    hpro1[i]->Draw();
    double gradient_ref = f1->GetParameter(1);
    std::strstream buf_ref;
@@ -137,7 +138,8 @@ void DoCompare( char* Energy ){
    buf_ref>>value_ref;
    te->DrawTextNDC(0.1,0.2, value_ref.c_str());  
    c1.cd(2);
-   hpro2[i]->Fit(f1,"Q");
+   hpro2[i]->Fit(f1,"Q","", 0.0, 200);
+   hpro2[i]->SetLineColor(4);
    hpro2[i]->Draw();
    double gradient_cur = f1->GetParameter(1);
    std::strstream buf_cur;
