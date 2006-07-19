@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/08 16:29:05 $
- * $Revision: 1.14 $
+ * $Date: 2006/07/19 06:52:43 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -270,6 +270,15 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
       }
 
       mean01 = 0.;
+      //int cry = ip+20*(ie-1);
+      int ic = (ip-1) + 20*(ie-1) + 1;
+      int step = 0;
+      if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
+      if( step > 0 && step < 86){
+	//if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
+	if( hBE1vsCry_){mean01 = hBE1vsCry_->GetBinContent(step);} // E1
+      }
+      //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
       if ( update_channel ) {
 
@@ -279,6 +288,7 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
           cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
           cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
+	  cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
 
         }
 
@@ -287,7 +297,7 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
 
         o.setAvgEnergy(mean01);
 
-        int ic = (ip-1) + 20*(ie-1) + 1;
+       
 
         if ( econn ) {
           try {
