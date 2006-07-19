@@ -296,52 +296,69 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
 /** */
 void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 				   auto_ptr< SiStripEventSummary >& summary ) {
+  static const string method = "SiStripRawToDigi::triggerFed"; 
 
-  if ( trigger_fed.data() &&
-       trigger_fed.size() > sizeof(fedh_t)  ) {
+  if ( !trigger_fed.data() ) { 
+    stringstream ss;
+    ss << "["<<method<<"]"
+       << " NULL pointer to buffer for FED id " << triggerFedId_ << "!";
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    //throw cms::Exception("SiStripRawToDigi") << ss.str();
+    return;
+  }
+  
+  if ( trigger_fed.size() < sizeof(fedh_t)  ) {
+    stringstream ss;
+    ss << "["<<method<<"]"
+       << " Buffer for FED id " << triggerFedId_ 
+       << " has size " << trigger_fed.size() << "!";
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    //throw cms::Exception("SiStripRawToDigi") << ss.str();
+    return;
+  }
+  
+  // Recast pointers and buffer size
+  uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
+  uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
+  uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
+  
+  // Check whether buffer is really "trigger FED" (and not a FED buffer)
+  fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
+  fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
+  if ( fed_trailer->conscheck != 0xDEADFACE ) {
+    stringstream ss;
+    ss << "["<<method<<"]"
+       << " Buffer does not appear to contain 'Trigger FED' information!"
+       << " Trigger FED id: " << triggerFedId_
+       << " Source id: " << hex <<setw(8) << setfill('0') << "0x" << fed_header->sourceid << dec;
+    edm::LogError("SiStripRawToDigi") << ss.str();
+    //throw cms::Exception("SiStripRawToDigi") << ss.str();
+    return;
+  } //@@ if not trigger FED, perform search?...
+  
+  if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
-    uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-
-    // Check whether buffer is really "trigger FED" (and not a FED buffer)
-    fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
-    fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-    if ( fed_trailer->conscheck != 0xDEADFACE ) {
-      stringstream ss;
-      ss << "[SiStripRawToDigi::triggerFed]"
-	 << " Buffer does not appear to contain 'Trigger FED' information!"
-	 << " Trigger FED id: " << triggerFedId_
-	 << " Source id: " << fed_header->sourceid;
-      edm::LogError("SiStripRawToDigi") << ss.str();
-      throw cms::Exception("SiStripRawToDigi") << ss.str();
-      return;
-    } //@@ if not trigger FED, perform search?...
-    
-    if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
-    
-      TFHeaderDescription* header = (TFHeaderDescription*) data_u32;
-      stringstream ss;
-      ss << "[SiStripRawToDigi::triggerFed]"
-	 << "  getBunchCrossing: " << header->getBunchCrossing()
-	 << "  getNumberOfChannels: " << header->getNumberOfChannels() 
-	 << "  getNumberOfSamples: " << header->getNumberOfSamples()
-	 << "  getFedType: 0x" 
-	 << hex << setw(8) << setfill('0') << header->getFedType() << dec
-	 << "  getFedId: " << header->getFedId()
-	 << "  getFedEventNumber: " << header->getFedEventNumber();
-      LogDebug("RawToDigi") << ss.str();
-
-      // Write event-specific data to event
-      summary->event( static_cast<uint32_t>( header->getFedEventNumber()) );
-      summary->bx( static_cast<uint32_t>( header->getBunchCrossing()) );
+    TFHeaderDescription* header = (TFHeaderDescription*) data_u32;
+    stringstream ss;
+    ss << "["<<method<<"]"
+       << "  getBunchCrossing: " << header->getBunchCrossing()
+       << "  getNumberOfChannels: " << header->getNumberOfChannels() 
+       << "  getNumberOfSamples: " << header->getNumberOfSamples()
+       << "  getFedType: 0x" 
+       << hex << setw(8) << setfill('0') << header->getFedType() << dec
+       << "  getFedId: " << header->getFedId()
+       << "  getFedEventNumber: " << header->getFedEventNumber();
+    LogDebug("RawToDigi") << ss.str();
       
-      // Write commissioning information to event 
-      uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
-      uint32_t* head = &data_u32[hsize];
-      summary->commissioningInfo( head );
+    // Write event-specific data to event
+    summary->event( static_cast<uint32_t>( header->getFedEventNumber()) );
+    summary->bx( static_cast<uint32_t>( header->getBunchCrossing()) );
       
-    }
+    // Write commissioning information to event 
+    uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
+    uint32_t* head = &data_u32[hsize];
+    //summary->commissioningInfo( head );
+      
   }
   
 }
