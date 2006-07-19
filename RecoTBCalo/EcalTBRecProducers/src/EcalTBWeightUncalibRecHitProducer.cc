@@ -1,9 +1,9 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.1 2006/04/21 09:56:52 meridian Exp $
-  *  $Date: 2006/04/21 09:56:52 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.2 2006/06/25 10:51:52 meridian Exp $
+  *  $Date: 2006/06/25 10:51:52 $
+  *  $Revision: 1.2 $
   *
   */
 #include "RecoTBCalo/EcalTBRecProducers/interface/EcalTBWeightUncalibRecHitProducer.h"
@@ -153,7 +153,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      }
 
      std::vector<double> pedVec;
-     pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+     pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
 
      // lookup group ID for this channel
      EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
@@ -180,7 +180,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      }
      
      std::vector<double> gainRatios;
-     gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+     gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 
      //Getting the TDC bin
      EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
