@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/06 09:19:05 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/17 13:29:16 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -27,6 +27,8 @@ class MuonTrackFinder {
   public:
 
     typedef std::vector<Trajectory> TrajectoryContainer;
+    typedef std::pair<Trajectory, reco::TrackRef> MuonCandidate; 
+    typedef std::vector<MuonCandidate> CandidateContainer;
 
   public:
   
@@ -54,7 +56,7 @@ class MuonTrackFinder {
     void setEvent(const edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const TrajectoryContainer &trajectories, edm::Event &event);
+    void load(const TrajectoryContainer& trajectories, edm::Event& event);
 
   private:
 
@@ -62,7 +64,7 @@ class MuonTrackFinder {
 
     MuonTrajectoryCleaner* theTrajCleaner;
 
-    MuonTrackLoader *theTrackLoader;
+    MuonTrackLoader* theTrackLoader;
   
 };
 #endif 
