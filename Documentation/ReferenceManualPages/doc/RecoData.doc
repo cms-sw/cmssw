@@ -22,7 +22,7 @@ The Data Format is defined in the following package sets:
 \htmlinclude CaloTowerRecoCollections.doi
 \htmlinclude GenJetRecoCollections.doi
 \htmlinclude MuonRecoCollections.doi
-
+\htmlinclude BTauRecoCollections.doi
 
 \htmlinclude datatable_end.doi
 
