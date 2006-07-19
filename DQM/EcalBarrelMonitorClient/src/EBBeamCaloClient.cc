@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/08 15:31:37 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/08 16:29:05 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -242,6 +242,66 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
   EcalLogicID ecid;
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
+
+// hBCryOnBeam_
+// hBMaxEneCry_
+
+  const float n_min_tot = 1000.;
+
+  float num01, num02;
+  float mean01;
+
+  for ( int ie = 1; ie <= 85; ie++ ) {
+    for ( int ip = 1; ip <= 20; ip++ ) {
+
+      num01 = num02 = -1.;
+      mean01 = -1.;
+
+      bool update_channel = false;
+
+      if ( hBCryOnBeam_ && hBCryOnBeam_->GetEntries() >= n_min_tot ) {
+        num01 = hBCryOnBeam_->GetBinContent(hBCryOnBeam_->GetBin(ie, ip));
+        update_channel = true;
+      }
+
+      if ( hBMaxEneCry_ && hBMaxEneCry_->GetEntries() >= n_min_tot ) {
+        num02 = hBMaxEneCry_->GetBinContent(hBMaxEneCry_->GetBin(ie, ip));
+        update_channel = true;
+      }
+
+      mean01 = 0.;
+
+      if ( update_channel ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
+          cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
+
+        }
+
+        o.setEventsOverHighThreshold(int(num01));
+        o.setEventsOverLowThreshold(int(num02));
+
+        o.setAvgEnergy(mean01);
+
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset[ecid] = o;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+    }
+  }
 
   if ( econn ) {
     try {
