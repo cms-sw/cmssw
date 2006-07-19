@@ -103,7 +103,7 @@
   // Special : timing in the cluster (7x7) enery-weighted
   TH1F *h1[16] = new TH1F("h16",label1[16],60,0.,60.);  
   // Special : number of HCAL hits
-  TH1F *h1[17] = new TH1F("h17",label1[17],60,0.,300.);  
+  TH1F *h1[17] = new TH1F("h17",label1[17],50,0.,50.);  
   // Special : signal in long fibers
   TH1F *h1[18] = new TH1F("h18",label1[18],50,0.,50.);
   // Special : signal in short fibers
