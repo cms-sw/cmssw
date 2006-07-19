@@ -6,6 +6,8 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/TrackerDigiSimLink>
+<use name=Mixing/Base>
+<use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=SimTracker/Common>
 <use name=SimGeneral/NoiseGenerators>
@@ -25,6 +27,8 @@
    <use name=SimDataFormats/TrackingHit>
    <use name=DataFormats/SiStripDigi>
    <use name=SimDataFormats/TrackerDigiSimLink>
+   <use name=Mixing/Base>
+   <use name=SimDataFormats/CrossingFrame>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=SimTracker/Common>
    <use name=SimGeneral/Generators>

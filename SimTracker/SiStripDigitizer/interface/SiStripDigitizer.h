@@ -21,7 +21,11 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
+
+#include <string>
+#include <vector>
 
 namespace cms
 {
@@ -44,7 +48,8 @@ namespace cms
     std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
 
     edm::ParameterSet conf_;
-    std::vector<PSimHit> theStripHits;
+    typedef std::vector<std::string> vstring;
+    vstring trackerContainers;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;

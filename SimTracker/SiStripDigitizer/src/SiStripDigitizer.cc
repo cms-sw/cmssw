@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.19 2006/05/16 09:26:43 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.21 2006/05/23 08:43:16 fambrogl Exp $
 //
 //
 
@@ -37,7 +37,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <cstdlib> // I need it for random numbers
 
 //needed for the geometry:
@@ -65,6 +66,8 @@ namespace cms
   {
     produces<edm::DetSetVector<SiStripDigi> >();
     produces<edm::DetSetVector<StripDigiSimLink> >();
+    trackerContainers.clear();
+    trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
   }
 
   // Virtual destructor needed.
@@ -74,39 +77,16 @@ namespace cms
   void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     // Step A: Get Inputs
-    theStripHits.clear();
-    edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-    edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-    edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-    edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
+    edm::Handle<CrossingFrame> cf;
+    iEvent.getByType(cf);
 
-    iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
-    
-    theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
-    theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
-    theStripHits.insert(theStripHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
-    theStripHits.insert(theStripHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
-    theStripHits.insert(theStripHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
-    theStripHits.insert(theStripHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
-    theStripHits.insert(theStripHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
-    theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
+    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
 
     //Loop on PSimHit
     SimHitMap.clear();
     
-    for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
-	 isim != theStripHits.end(); ++isim){
+    MixCollection<PSimHit>::iterator isim;
+    for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
       SimHitMap[(*isim).detUnitId()].push_back((*isim));
     }
     

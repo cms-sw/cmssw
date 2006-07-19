@@ -171,9 +171,9 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 	  //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
 	  if(fraction >1.) fraction = 1.;
 	  
-	  link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
+	  link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
 						     ((*iter).first)->trackId(), //simhit
-						     fraction));    //fraction
+						     fraction)); //fraction
 	}
       }
     }
