@@ -20,10 +20,9 @@ public:
   /// Should be changed to return a ReferenceCountingPointer<BoundPlane>
   typedef ReferenceCountingPointer<BoundPlane>  ResultType;
 
-  ResultType plane( const std::vector<const GeomDetUnit*> & dets, std::string part) const;
+  ResultType plane( const std::vector<const GeomDetUnit*> & dets) const;
 
   std::pair<RectangularPlaneBounds, GlobalVector> computeRectBounds( const std::vector<const GeomDetUnit*> & dets, const BoundPlane& plane) const;
-  std::pair<TrapezoidalPlaneBounds, GlobalVector> computeTrapBounds( const std::vector<const GeomDetUnit*> & dets, const BoundPlane& plane) const;
 
   Surface::RotationType 
   computeRotation( const std::vector<GeomDetUnit*> & dets, 

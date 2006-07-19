@@ -166,9 +166,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
       glued.clear();
       glued.push_back(dum);
       glued.push_back(dus);
-      std::string part = "barrel";
-      if(subdet_id==StripSubdetector::TEC||subdet_id==StripSubdetector::TID) part = "endcap";
-      PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued,part);
+      PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
       GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
       tracker->addDet((GeomDet*) gluedDet);
       tracker->addDetId(DetId(sidet.glued()));

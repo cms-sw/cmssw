@@ -11,7 +11,7 @@
 
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
-PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets,std::string part) const {
+PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets) const {
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum(0,0,0);
@@ -29,56 +29,10 @@ PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::v
   MediumProperties* newmp = 0; 
   if (mp != 0) newmp = new MediumProperties( *mp);
 
-  if(part=="barrel"){
-    std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, tmpPlane);
-    return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
-  }else{
-    std::pair<TrapezoidalPlaneBounds,GlobalVector> bo = computeTrapBounds( dets, tmpPlane);
-    return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
-  }
+  std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, tmpPlane);
+  return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
 }
 
-std::pair<TrapezoidalPlaneBounds, GlobalVector> PlaneBuilderForGluedDet::computeTrapBounds( const std::vector<const GeomDetUnit*>& dets, const BoundPlane& plane) const {
-  std::vector<GlobalPoint> corners;
-  for (std::vector<const GeomDetUnit*>::const_iterator idet=dets.begin();
-       idet != dets.end(); idet++) {
-    const BoundPlane& plane = dynamic_cast<const BoundPlane&>(dets.front()->surface());
-    std::vector<GlobalPoint> dc = BoundingBox().corners(plane);
-    corners.insert( corners.end(), dc.begin(), dc.end());
-  }
-  
-  float xmin(0), xmax(0), ymin(0), ymax(0), zmin(0), zmax(0),xlowmin(0),xlowmax(0),xhighmin(0),xhighmax(0),bottomedge(0),topedge(0);
-  for (std::vector<GlobalPoint>::const_iterator i=corners.begin();
-       i!=corners.end(); i++) {
-    LocalPoint p = plane.toLocal(*i);
-    if (p.x()<xlowmin&& p.y()<0) xlowmin = p.x();
-    if (p.x()>xlowmax&& p.y()<0) xlowmax = p.x();
-    if (p.x()<xhighmin&& p.y()>0) xhighmin = p.x();
-    if (p.x()>xhighmax&& p.y()>0) xhighmax = p.x();
-    if (p.x() < xmin) xmin = p.x();
-    if (p.x() > xmax) xmax = p.x();
-    if (p.y() < ymin) ymin = p.y();
-    if (p.y() > ymax) ymax = p.y();
-    if (p.z() < zmin) zmin = p.z();
-    if (p.z() > zmax) zmax = p.z();
-  }
-
-  LocalVector localOffset( (xmin+xmax)/2., (ymin+ymax)/2., (zmin+zmax)/2.);
-  GlobalVector offset( plane.toGlobal(localOffset));
-  
-  if((xlowmax-xlowmin)/2 < (xhighmax-xhighmin)/2 ){
-    bottomedge = (xlowmax-xlowmin)/2; 
-    topedge = (xhighmax-xhighmin)/2;
-  }else{
-    topedge = (xlowmax-xlowmin)/2; 
-    bottomedge = (xhighmax-xhighmin)/2;
-  }
-
-  std::pair<TrapezoidalPlaneBounds, GlobalVector> result(TrapezoidalPlaneBounds(bottomedge,topedge,(ymax-ymin)/2, (zmax-zmin)/2), offset);
-
-  return result;
-
-}
 
 std::pair<RectangularPlaneBounds, GlobalVector> PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*>& dets, const BoundPlane& plane) const {
   // go over all corners and compute maximum deviations from mean pos.
