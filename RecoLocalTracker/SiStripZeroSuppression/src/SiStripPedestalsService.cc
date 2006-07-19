@@ -39,7 +39,7 @@ void SiStripPedestalsService::setESObjects( const edm::EventSetup& es ) {
 	SiStripPedestals::Range range=ped->getRange(detid[id]);
 	
 	int strip=0;
-	for(int it=0;it<range.second-range.first;it++){
+	for(int it=0;it<(range.second-range.first)/3;it++){
 	  edm::LogInfo("SiStripPedestalservice") << "[SiStripPedestalservice::setESObjects]"  
 						 << "detid " << detid[id] << " \t"
 						 << " strip " << strip++ << " \t"
