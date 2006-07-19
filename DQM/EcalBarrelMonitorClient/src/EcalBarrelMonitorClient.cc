@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/12 19:18:23 $
- * $Revision: 1.166 $
+ * $Date: 2006/07/17 21:41:23 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1111,7 +1111,7 @@ void EcalBarrelMonitorClient::analyze(void){
     
     if ( update ) unknowns_++;
     
-    if ( unknowns_ >= 10 ) {
+    if ( unknowns_ >= 50 ) {
       
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
