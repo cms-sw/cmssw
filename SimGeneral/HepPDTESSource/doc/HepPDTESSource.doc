@@ -13,11 +13,8 @@ Classes defining the Particle Data Table Event Setup Source.
 \subsection interface Configurations
 - <b>pdt.cfi</b>: configuration file to configure Event Setup Source.
 Including this file is equivalent to use the following configuration:
-<pre>
- es_source = HepPDTESSource {
-   string pdtFileName = "/afs/cern.ch/cms/.../data/PDG_mass_width_2004.mc"
- }
-</pre>
+
+\htmlinclude pdt.cfi
 
 \subsection tests Unit tests and examples
 - <b>testPDT.cfg</b>: example of how to retrieve PDT from the Event Setup using
