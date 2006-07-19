@@ -9,7 +9,7 @@
 #include <sys/stat.h>	
 #include <unistd.h>
 #include <fstream>
-#include "OnlineDB/CSCCondDB/interface/cscmap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 
@@ -34,13 +34,12 @@ class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
   int eventNumber,evt,event,pedSum, strip, misMatch,fff,ret_code,NChambers,Nddu;
   int length,i_chamber,i_layer,reportedChambers,chamber_num,sector; 
   int timebin,mycompstrip,comparator,compstrip;
-  int dmbID[CHAMBERS_ct],crateID[CHAMBERS_ct]; 
+  int dmbID[CHAMBERS_ct],crateID[CHAMBERS_ct],size[CHAMBERS_ct]; 
   float theMeanThresh[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float	arrayMeanThresh[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float	mean[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float	meanTot[CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
   float meanmod[NUMMOD_ct][CHAMBERS_ct][LAYERS_ct][STRIPS_ct];
-  float newThresh[TOTALSTRIPS_ct];
   int lines;
   std::ifstream filein;
   std::string PSet,name;

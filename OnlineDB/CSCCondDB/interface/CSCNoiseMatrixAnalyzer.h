@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <fstream>
 
-#include "OnlineDB/CSCCondDB/interface/cscmap.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/AutoCorrMat.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"

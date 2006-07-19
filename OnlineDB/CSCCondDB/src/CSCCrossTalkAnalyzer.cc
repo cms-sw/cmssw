@@ -23,12 +23,12 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCrossTalkAnalyzer.h"
-#include "OnlineDB/CSCCondDB/interface/cscmap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "OnlineDB/CSCCondDB/interface/CSCxTalk.h"
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
+#include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
