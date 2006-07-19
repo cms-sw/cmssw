@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.2 2006/05/29 22:31:15 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.2 2006/05/29 22:31:15 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -163,7 +163,8 @@ namespace edm
     if (node->type()=="operand"){
       SeqMap::iterator seqIt = sequences.find(node->name); 
       if (seqIt!= sequences.end()){
-	node = seqIt->second->wrapped_;
+        node = seqIt->second->wrapped_;
+        sequenceSubstitution(node, sequences);
       }
     } // if operator
     else {
@@ -172,13 +173,13 @@ namespace edm
     
       SeqMap::iterator seqIt = sequences.find(onode->left_->name); 
       if (seqIt!= sequences.end()) {
-	onode->left_= seqIt->second->wrapped_;
-	onode->left_->setParent(onode);
+        onode->left_= seqIt->second->wrapped_;
+        onode->left_->setParent(onode);
       }
       seqIt = sequences.find(onode->right_->name); 
       if (seqIt!= sequences.end()){
-	onode->right_= seqIt->second->wrapped_; 
-	onode->right_->setParent(onode);
+        onode->right_= seqIt->second->wrapped_; 
+        onode->right_->setParent(onode);
       }
       sequenceSubstitution(onode->left_, sequences);
       sequenceSubstitution(onode->right_,sequences);
