@@ -62,6 +62,16 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
       if ( PhiLess()( phi, phimin)) phimin = phi;
       if ( PhiLess()( phimax, phi)) phimax = phi;
     }
+    // in addition to the corners we have to check the middle of the 
+    // det +/- length/2, since the min (max) radius for typical fw
+    // dets is reached there
+        
+    float rdet = (*it)->position().perp();
+    float height  = (*it)->surface().bounds().width();
+    rmin = min( rmin, rdet-height/2.F);
+    rmax = max( rmax, rdet+height/2.F);  
+    
+
   }
 
   if (!PhiLess()(phimin, phimax)) 
@@ -98,38 +108,32 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
 
 Surface::RotationType 
 BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
-					   const Surface::PositionType& meanPos) const {
+					   const Surface::PositionType& meanPos) const
+{
   const BoundPlane& plane = dets.front()->surface();
   
   GlobalVector xAxis;
   GlobalVector yAxis;
+  GlobalVector zAxis;
   
-  GlobalVector planeXAxis = plane.toGlobal( LocalVector( 1, 0, 0));
-  yAxis = planeXAxis;
+  GlobalVector planeXAxis    = plane.toGlobal( LocalVector( 1, 0, 0));
+  GlobalPoint  planePosition = plane.position();
 
-  /*
-  if ( planeXAxis.x() * meanPos.x() + planeXAxis.y() * meanPos.y() > 0) {
+  if(planePosition.x()*planeXAxis.x()+planePosition.y()*planeXAxis.y() > 0.){
     yAxis = planeXAxis;
+  }else{
+    yAxis = -planeXAxis;
   }
-  else {
-    edm::LogInfo(TkDetLayers) << "something weird in BladeShapeBuilderFromDet::computeRotation." 
-	 << "planeXAxis points inward.." ;
-    yAxis =  -planeXAxis;
-  }
-  */
 
-  GlobalVector planeYAxis = plane.toGlobal( LocalVector( 0, 1, 0));
-  GlobalVector n = planeYAxis.cross( yAxis);
-  
-  if (n.z() > 0) {
-    xAxis = planeYAxis;
+  GlobalVector planeZAxis = plane.toGlobal( LocalVector( 0, 0, 1));
+  if(planeZAxis.z()*planePosition.z() > 0.){
+    zAxis = planeZAxis;
+  }else{
+    zAxis = -planeZAxis;
   }
-  else {
-    xAxis = -planeYAxis;
-  }
+
+  xAxis = yAxis.cross( zAxis);
   
-  //   edm::LogInfo(TkDetLayers) << "Creating rotation with x,y axis " 
-  //        << xAxis << ", " << yAxis ;
   return Surface::RotationType( xAxis, yAxis);
 }
 
