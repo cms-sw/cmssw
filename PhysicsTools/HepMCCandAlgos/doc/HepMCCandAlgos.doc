@@ -24,16 +24,9 @@ with the string list parameter <tt>excludeList</tt>. Charge conjugate particles
 will be excluded as well.
 <br><br>
 Examples of configuration for the modules is the following:
-\htmlonly
 <pre>
-  module genCandidates = HepMCCandidateProducer {
-    string src = "MCFileSource"
-    string pdtFileName = "/afs/cern.ch/cms/external/lcg/external/HepPDT/2.02.02/slc3_ia32_gcc323/data/PDG_mass_width_2004.mc"
-    bool stableOnly = true
-    vstring excludeList = { "nu(e)0", "nu(mu)0", "nu(tau)0", "mu-", "K(L)0", "n0" }
-  }
+\htmlinclude getCandidates.cfi
 </pre>
-\endhtmlonly
 
 \subsection tests Unit tests and examples
 None.
