@@ -223,9 +223,9 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
 	int fgvb=0;
 	if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
-	et=et>>4;
 	int ttf=calculateTTF(et);
-        if (et>0xFF) et=0xFF;
+ 	et=et>>4;
+	if (et>0xFF) et=0xFF;
 	for (int nrt=0;nrt<nrTowers;++nrt) {
 	  if (nrTowers==2)   primitives[nrt].push_back(EcalTriggerPrimitiveSample(et/2,fgvb,ttf));
 	  else{
@@ -293,7 +293,7 @@ void EcalTrigPrimFunctionalAlgo::fillEndcap(const EcalTrigTowerDetId & coarser, 
 
 //----------------------------------------------------------------------
 int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
-  //temporary version of TTF calculation
+  //temporary version of TTF calculation for Endcap
   //  int high=83; // adc value corresponding to 5 GeV, factor 0.06
   //  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
   int high=int(threshHigh_/0.06);
