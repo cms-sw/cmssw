@@ -9,7 +9,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: TrackSelector.h,v 1.1 2006/06/27 08:37:19 llista Exp $
+ * $Id: TrackSelector.h,v 1.1 2006/06/27 09:22:49 llista Exp $
  *
  */
 
@@ -33,8 +33,6 @@ private:
   virtual bool select( const reco::Track& ) const;
   /// source collection label
   std::string src_;
-  /// output branch label
-  std::string alias_;
 };
 
 template<typename S>

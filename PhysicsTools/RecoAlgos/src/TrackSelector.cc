@@ -1,4 +1,5 @@
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -11,11 +12,11 @@ using namespace std;
 using namespace edm;
 
 TrackSelectorBase::TrackSelectorBase( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<std::string>( "src" ) ),
-  alias_( cfg.getParameter<std::string>( "alias" ) ) {
-  produces<TrackCollection>().setBranchAlias( alias_ + "Tracks" );
-  produces<TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
-  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+  src_( cfg.getParameter<std::string>( "src" ) ) {
+  string alias( cfg.getParameter<std::string>( "@module_label" ) );
+  produces<TrackCollection>().setBranchAlias( alias + "Tracks" );
+  produces<TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
+  produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits" );
 }
  
 TrackSelectorBase::~TrackSelectorBase() {
@@ -27,41 +28,31 @@ bool TrackSelectorBase::select( const Track & ) const {
 
 void TrackSelectorBase::produce( Event& evt, const EventSetup& ) {
   Handle<TrackCollection> tracks;
-  Handle<TrackExtraCollection> trackExtras;
   evt.getByLabel( src_, tracks );
-  evt.getByLabel( src_, trackExtras );
-  vector<pair<size_t, size_t> > ti;
-  size_t idx;
 
+  auto_ptr<TrackCollection> selTracks( new TrackCollection );
+  auto_ptr<TrackExtraCollection> selTrackExtras( new TrackExtraCollection );
   auto_ptr<TrackingRecHitCollection> selHits( new TrackingRecHitCollection );
-  idx = 0;
-  for( TrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk, ++ idx ) {
+
+  TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
+  TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<TrackExtraCollection>();
+  TrackRefProd rTracks = evt.getRefBeforePut<TrackCollection>();
+
+  size_t idx = 0, hidx = 0;
+  for( TrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
     if( select( * trk ) ) {
-      ti.push_back( make_pair( idx, trk->recHitsSize() ) );
+      selTracks->push_back( Track( *trk ) );
+      selTracks->back().setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
+      selTrackExtras->push_back( TrackExtra ( trk->outerPosition(), trk->outerMomentum(), trk->outerOk() ) );
+      TrackExtra & tx = selTrackExtras->back();
       for( trackingRecHit_iterator hit = trk->recHitsBegin(); hit != trk->recHitsEnd(); ++ hit ) {
 	selHits->push_back( (*hit)->clone() );
+	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
       }
     }
   }
-  edm::OrphanHandle<TrackingRecHitCollection> hHits = evt.put( selHits );
 
-  auto_ptr<TrackExtraCollection> selTrackExtras( new TrackExtraCollection );
-  idx = 0;
-  for( vector<pair<size_t, size_t> >::const_iterator t = ti.begin(); t != ti.end(); ++t  ) {
-    const TrackExtra & x = (*trackExtras)[ t->first ];
-    selTrackExtras->push_back( TrackExtra ( x.outerPosition(), x.outerMomentum(), x.outerOk() ) );
-    TrackExtra & tx = selTrackExtras->back();
-    for( size_t i = 0; i < t->second; ++i )
-      tx.add( TrackingRecHitRef( hHits, idx++ ) );
-  }
-  edm::OrphanHandle<TrackExtraCollection> hTrackExtras = evt.put( selTrackExtras );
-
-  auto_ptr<TrackCollection> selTracks( new TrackCollection );
-  idx = 0;
-  for( vector<pair<size_t, size_t> >::const_iterator t = ti.begin(); t != ti.end(); ++t  ) {
-    Track tk( (*tracks)[ t->first ] );
-    tk.setExtra( TrackExtraRef( hTrackExtras, idx ++ ) );
-    selTracks->push_back( tk );
-  }
   evt.put( selTracks );
+  evt.put( selTrackExtras );
+  evt.put( selHits );
 }
