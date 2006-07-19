@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/18 20:13:12 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/19 00:46:03 $
+ *  $Revision: 1.9 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -196,7 +196,8 @@ MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::trajector
   // -- done in GlobalTrackMatcher (4d)
  
   //(4d) match tracker tracks to muon track
-  std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, regionalTkTracks);
+  //std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, regionalTkTracks);
+  std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, allTrackerTracks);
 
   //(5) cleaning cut on tracker tracks
   // -- done in build (7)
@@ -320,13 +321,13 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   return rectRegion;
 }
 
-MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco::TrackRef& staTrack, std::vector<reco::TrackRef> tkMatchedTracks)
+MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco::TrackRef& staTrack, const std::vector<reco::TrackRef> tkMatchedTracks)
 {
   //
   // turn tkMatchedTracks into tkTrajs
   //
   TC tkTrajs;
-  for(std::vector<reco::TrackRef>::const_iterator tkt = tkMatchedTracks.begin();tkt = tkMatchedTracks.end(); tkt++) {
+  for(std::vector<reco::TrackRef>::const_iterator tkt = tkMatchedTracks.begin();tkt == tkMatchedTracks.end(); tkt++) {
     TC tkTrajs_tmp = getTkTrajFromTrack(*tkt);
     if (tkTrajs_tmp.size()>0) {
       tkTrajs.push_back(tkTrajs_tmp.front());
@@ -692,7 +693,6 @@ GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::getTra
   for(trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter){
     //use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
     //FIXME: is this the correct RecHitBuilder?
-    //FIXME: bad pointer conversion
     ttrh = theGTTrackingRecHitBuilder->build((*iter).get());
     result.push_back(ttrh);
   }
@@ -812,4 +812,35 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTkTrajsFromTrack
   
   edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"FITTER FOUND "<<result.size()<<" TRAJECTORIES";
   return result;
+}
+
+//
+// print RecHits
+//
+void GlobalMuonTrajectoryBuilder::printHits(const RecHitContainer& hits) const {
+
+  MuonPatternRecoDumper debug;
+  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"Used RecHits : ";
+  for (RecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
+    if ( !(*ir).isValid() ) {
+      edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"invalid recHit";
+      continue; 
+    }
+
+    edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"r = "
+                  << sqrt((*ir).globalPosition().x() * (*ir).globalPosition().x() +
+                         (*ir).globalPosition().y() * (*ir).globalPosition().y())
+                  << "  z = " 
+                  << (*ir).globalPosition().z()
+                  << "  dimension = " << (*ir).dimension();
+   debug.dumpMuonId(ir->geographicalId()); 
+//                  << "  " << (*ir).det().detUnits().front()->type().module()
+//                  << "  " << (*ir).det().detUnits().front()->type().part();
+  }
+
+}
+
+// return the TrackRef of tracker that is used in the final combined Trajectory
+std::vector<reco::TrackRef*> GlobalMuonTrajectoryBuilder::chosenTrackerTrackRef() const{
+  return theTkTrackRef;
 }

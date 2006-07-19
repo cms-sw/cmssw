@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/18 20:13:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/19 00:46:03 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -62,6 +62,8 @@ public:
   CandidateContainer trajectories(const reco::TrackRef&);
   TrajectoryContainer trajectories(const TrajectorySeed&) {TrajectoryContainer result; return result;}
   
+  std::vector<reco::TrackRef*> chosenTrackerTrackRef() const;
+
  private:
    
   // Pass the Event Setup to the algo at each event
@@ -105,6 +107,9 @@ public:
 			 TrajectoryStateOnSurface&,
 			 const edm::Handle<TrajectorySeedCollection>&) const;
   
+  // print all RecHits of a trajectory
+  void printHits(const RecHitContainer&) const;
+
  private:
 
   edm::ParameterSet par_;
