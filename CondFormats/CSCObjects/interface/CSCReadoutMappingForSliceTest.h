@@ -27,9 +27,9 @@ class CSCReadoutMappingForSliceTest : public CSCReadoutMapping {
      * In general this must depend on endcap and station, as well as
      * vme crate number and dmb slot number. In principle perhaps tmb slot
      * number might not be neighbour of dmb?
-     * But for slice test (Nov-2005) only relevant labels are vme and dmb.
+     * But for slice test (Nov-2005 on) only relevant labels are vme and dmb.
      */
-    int hwId( int endcap, int station, int vme, int dmb, int tmb ) const;
+   int hwId( int endcap, int station, int vme, int dmb, int tmb ) const;
 
 };
 
