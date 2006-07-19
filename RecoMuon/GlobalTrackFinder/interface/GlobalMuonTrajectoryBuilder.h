@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/18 19:21:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/18 20:13:11 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -28,11 +28,13 @@ class MuonUpdatorAtVertex;
 class MagneticField;
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
-//class TransientTrackingRecHitBuilder;
+//class TransientTrackBuilder;
 class GenericTransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
 class GlobalMuonReFitter;
+class Propagator;
+class TrajectoryFitter;
 
 namespace edm {class ParameterSet;}
 
@@ -70,12 +72,12 @@ public:
 
   //TrajectoryStateOnSurface muonToSurface(const reco::TrackRef&);
 
-  edm::Handle<reco::TrackCollection> chooseRegionalTrackerTracks(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>& );
+  std::vector<reco::TrackRef> chooseRegionalTrackerTracks(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>& );
 
   RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&);
   //  build combined trajectory from sta Track and tracker RecHits, 
   //  common for both options
-  MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, std::vector<reco::TrackRef>);
+  MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, const std::vector<reco::TrackRef>);
   
   //  check muon RecHits, calculate chamber occupancy and select hits to be 
   //  used in the final fit
@@ -91,8 +93,17 @@ public:
   // choose final trajectory
   const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
 
-  /// calculate chi2 probability (-ln(P))
+  // calculate chi2 probability (-ln(P))
   double trackProbability(const Trajectory&) const;    
+
+  // get silicon tracker Trajectories from track Track and Seed directly
+  TC getTkTrajFromTrack(const reco::TrackRef&) const;
+
+  TC getTkTrajsFromTrack(const edm::ESHandle<TrajectoryFitter>&,
+			 const edm::ESHandle<Propagator>&,
+			 const RecHitContainer&,
+			 TrajectoryStateOnSurface&,
+			 const edm::Handle<TrajectorySeedCollection>&) const;
   
  private:
 
@@ -111,15 +122,23 @@ public:
   float thePtCut;
   float theProbCut;
 
+  std::string theFitterLabel;
+  std::string thePropagatorLabel;
   std::string theSeedCollectionLabel;   
-  edm::Handle<TrajectorySeedCollection> theSeeds; 
+  //std::string theTransTrackBuilderLabel;   
 
   std::string theTkTrackLabel;
-  edm::Handle<reco::TrackCollection> allTrackerTracks;
 
+  edm::ESHandle<TrajectoryFitter> theFitter;
+  edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<MagneticField> theField;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
+  //edm::ESHandle<TransientTrackBuilder> theTransTrackBuilder;
+
+  edm::Handle<TrajectorySeedCollection> theSeeds; 
+  edm::Handle<reco::TrackCollection> allTrackerTracks;
+
   //edm::ESHandle<TransientTrackingRecHitBuilder> theTransientHitBuilder;
   std::vector<reco::TrackRef*> theTkTrackRef; 
 
