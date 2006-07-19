@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/07/04 18:48:17 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/08 13:15:13 $
+ * $Revision: 1.10 $
  * \author A. Ghezzi
  *
 */
@@ -120,15 +120,17 @@ MonitorElement* meEBBCaloBeamCentered_;
 bool init_; 
 
 int PreviousTableStatus_[2];
-// int PreviousCrystalinBeam_[3];
+int PreviousCrystalinBeam_[3];
 
  int cib_[12];// used 10
 bool changed_tb_status_;
 int evt_after_change_ ;
 bool  wasFakeChange_;
 int lastStableStatus_ ;
- int table_step_, crystal_step_;
-//0=stable, 1=moving, 
+int table_step_, crystal_step_;
+int event_last_reset_;
+ int last_cry_in_beam_;
+// 0=stable, 1=moving, 
 // PreviousTableStatus_[0]-> event=current -2
 // PreviousTableStatus_[1]-> event=current -1
 
