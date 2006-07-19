@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/19 07:34:07 $
- * $Revision: 1.168 $
+ * $Date: 2006/07/19 17:54:59 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -424,24 +424,20 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   if ( ! end_run_ ) {
 
-    if ( ! enableMonitorDaemon_ ) {
+    cout << endl;
+    cout << "Checking last event at endJob() ... " << endl;
+    cout << endl;
 
+    forced_update_ = true;
+    this->analyze();
+
+    if ( ! end_run_ ) {
+
+      cout << "Forcing endRun() ... " << endl;
       cout << endl;
-      cout << "Checking last event at endJob() ... " << endl;
-      cout << endl;
 
-      forced_update_ = true;
-      this->analyze();
-
-      if ( ! end_run_ ) {
-
-        cout << "Forcing endRun() ... " << endl;
-        cout << endl;
-
-        forced_status_ = true;
-        this->endRun();
-
-      }
+      forced_status_ = true;
+      this->endRun();
 
     }
 
