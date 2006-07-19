@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/19 06:52:43 $
- * $Revision: 1.15 $
+ * $Date: 2006/07/19 18:19:21 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -243,9 +243,6 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
 
-// hBCryOnBeam_
-// hBMaxEneCry_
-
   const float n_min_tot = 1000.;
 
   float num01, num02;
@@ -296,8 +293,6 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
         o.setEventsOverLowThreshold(int(num02));
 
         o.setAvgEnergy(mean01);
-
-       
 
         if ( econn ) {
           try {
