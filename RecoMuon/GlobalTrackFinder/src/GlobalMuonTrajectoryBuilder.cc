@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/19 00:46:03 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/19 02:05:19 $
+ *  $Revision: 1.10 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -121,6 +121,10 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
   thePtCut = par.getParameter<double>("ptCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
+  theHitThreshold = par.getParameter<int>("HitThreshold");
+  theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
+  theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
+  theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
 }
 
 
@@ -241,6 +245,7 @@ std::vector<reco::TrackRef> GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTr
   //FIXME: turn tracks into TSOS -- the next four lines are wrong?
   reco::TrackCollection::const_iterator is;
   for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
+    //reco::TransientTrack tTrack(*is,&*theField);
     reco::TransientTrack tTrack(*is);
     TrajectoryStateOnSurface tsos = tTrack.impactPointState();
     position++;
@@ -264,8 +269,9 @@ std::vector<reco::TrackRef> GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTr
 RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack)
 {
   // track at innermost muon station
+  //reco::TransientTrack staTT(staTrack,&*theField);
   reco::TransientTrack staTT(staTrack);
-  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState(); 
   MuonVertexMeasurement vm = theUpdator->update(innerMuTsos);
   TrajectoryStateOnSurface tkTsosFromMu = vm.stateAtTracker();
 
@@ -701,13 +707,89 @@ GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::getTra
 }
 
 //
-//  select muon hits compatible with trajectory; check hits in chambers with showers
+//  select muon hits compatible with trajectory; 
+//  check hits in chambers with showers
 //
-GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& track, const std::vector<int>& hits) const {
-  //FIXME: IMPLEMENT ME
+GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& track, const std::vector<int>& hits) const 
+{
+
   RecHitContainer muonRecHits;
+
+  const double globalChi2Cut = 200.0;
+
+  std::vector<TrajectoryMeasurement> muonMeasurements = track.measurements(); 
   
+  // loop through all muon hits and skip hits with bad chi2 in chambers with high occupancy      
+  for ( std::vector<TrajectoryMeasurement>::const_iterator im = muonMeasurements.begin(); im != muonMeasurements.end(); im++ ) {
+  
+    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>(((*im).recHit()));  
+    if ( !(*im).recHit()->isValid() ) continue;
+
+    DetId id = (*im).recHit()->geographicalId();//det().detUnits().front();
+    //Module module = curDet->type().module();
+    int station = 0;
+    int threshold = 0;
+    double chi2Cut = 0.0;
+  
+    // get station of hit if it is in DT
+    if ( immrh->isDT() ) {
+      DTChamberId did(id.rawId());
+      station = did.station();
+      //MuBarLayer* tmp = dynamic_cast<MuBarLayer*>(curDet);
+      //if ( tmp ) station = tmp->id().station();
+      threshold = theHitThreshold;
+      chi2Cut = theDTChi2Cut;
+    } 
+    // get station of hit if it is in CSC
+    else if ( immrh->isCSC() ) {
+      CSCDetId did(id.rawId());
+      station = did.station();
+      //MuEndLayer* tmp = dynamic_cast<MuEndLayer*>(curDet);
+      //if ( tmp ) station = tmp->station();
+      threshold = theHitThreshold;
+      chi2Cut = theCSCChi2Cut;
+    }
+    // get station of hit if it is in RPC
+    else if ( immrh->isRPC() ) {
+      RPCDetId rpcid(id.rawId());
+      station = rpcid.station();
+      //MRpcDetUnit* tmp = dynamic_cast<MRpcDetUnit*>(curDet);
+      //if ( tmp ) station = tmp->station();
+      threshold = theHitThreshold;
+      chi2Cut = theRPCChi2Cut;
+    }
+    else {
+      continue;
+    }
+    
+    double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
+    
+    //cout.debugOut << "hit: " << module << " " << station << " " << chi2ndf << " " << hits[station-1] << endl;
+    
+    bool keep = true;
+    if ( (station > 0) && (station < 5) ) {
+      if ( hits[station-1] > threshold ) keep = false;
+    }   
+    
+    if ( (keep || ( chi2ndf < chi2Cut )) && ( chi2ndf < globalChi2Cut ) ) {
+      muonRecHits.push_back((*im).recHit());
+    } else {
+      LogDebug("GlobalMuonTrajectoryBuilder")
+	<< "Skip hit: " << id.det() << " " << station << ", " 
+	<< chi2ndf << " (" << chi2Cut << " chi2 threshold) " 
+	<< hits[station-1] << endl;
+    }
+
+  }
+  
+  //
+  // check order of rechits
+  //
+  //FIXME: reverse the rechits
+  //std::reverse(muonRecHits.begin(),muonRecHits.end());
+    
   return muonRecHits;
+
 }
 
 // choose final trajectory
@@ -789,6 +871,7 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTkTrajFromTrack(
 
   //use TransientTrackBuilder to get a starting TSOS
   //FIXME: do we need the field?
+  //reco::TransientTrack tkTransTrack(tkTrack,&*theField);
   reco::TransientTrack tkTransTrack(tkTrack);
   //FIXME?
   TrajectoryStateOnSurface theTSOS = tkTransTrack.innermostMeasurementState();

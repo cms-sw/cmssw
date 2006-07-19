@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/19 00:46:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/19 02:05:18 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -126,7 +126,11 @@ public:
   ReconstructionDirection theDirection;
   float thePtCut;
   float theProbCut;
-
+  int   theHitThreshold;
+  float theDTChi2Cut;
+  float theCSCChi2Cut;
+  float theRPCChi2Cut;
+  
   std::string theFitterLabel;
   std::string thePropagatorLabel;
   std::string theSeedCollectionLabel;   
