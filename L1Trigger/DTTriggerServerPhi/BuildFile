@@ -1,0 +1,33 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=Geometry/Records>
+<use name=Geometry/DTGeometry>
+<use name=L1Trigger/DTUtilities>
+<use name=L1Trigger/DTTraco>
+<use name=VisFramework/VisUtilities>
+<use name=Utilities/General>
+
+<use name=CLHEP>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="L1TriggerDTTriggerServerPhi">
+
+<export>
+   <lib name=L1TriggerDTTriggerServerPhi>
+
+   <use name=L1Trigger/DTTraco>	
+   <use name=L1Trigger/DTUtilities>
+   <use name=FWCore/Framework>
+   <use name=VisFramework/VisUtilities>
+   <use name=Utilities/General>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Common>
+   <use name=Geometry/Records>
+   <use name=Geometry/DTGeometry>
+   <use name=CLHEP>
+   <use name=root>	
+
+</export>
