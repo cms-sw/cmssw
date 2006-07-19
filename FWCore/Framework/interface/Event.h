@@ -70,7 +70,7 @@ Getting a reference to an event product before that product is put into the even
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.36 2006/06/15 23:41:04 rpw Exp $
+$Id: Event.h,v 1.37 2006/06/24 01:46:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -172,6 +172,7 @@ namespace edm {
     getBranchDescription(std::string const& friendlyClassName, std::string const& productInstanceName) const;
 
   private:
+
     typedef std::vector<ProductID>       ProductIDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
     typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
@@ -216,6 +217,9 @@ namespace edm {
     getManyByType_(TypeID const& id, 
 	     BasicHandleVec& results) const;
 
+    // Also isolates the Event class
+    // from the EventPrincipal class.
+    EDProductGetter * prodGetter() const;
     //------------------------------------------------------------
     // Copying and assignment of Events is disallowed
     //
@@ -398,7 +402,7 @@ namespace edm {
     getBranchDescription(TypeID(*p).friendlyClassName(), iProductInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(desc.productID(),&ep_);
+    return RefProd<PROD>(desc.productID(),prodGetter());
   }
   
   template <typename PROD>

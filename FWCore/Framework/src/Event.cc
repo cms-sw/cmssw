@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.24.2.2 2006/07/05 23:57:18 wmtan Exp $
+$Id: Event.cc,v 1.25 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -142,5 +142,10 @@ namespace edm {
           << ")\n";
     }
     return it->second;
+  }
+
+  EDProductGetter *
+  Event::prodGetter() const{
+    return &ep_;
   }
 }
