@@ -8,8 +8,9 @@
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "DataFormats/TrackReco/interface/PerigeeParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/Error.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
@@ -22,6 +23,13 @@ class TrajectoryStateClosestToPoint
 {
   typedef TrajectoryStateOnSurface	TSOS;
   typedef FreeTrajectoryState		FTS;
+  /// parameter dimension
+  enum { dimension = 5 };
+  /// parameter vector
+  typedef math::Vector<dimension>::type ParameterVector;
+  /// 5 parameter covariance matrix
+  typedef math::Error<dimension>::type CovarianceMatrix;
+
 
 public:
 
@@ -33,8 +41,8 @@ public:
    * no error is provided.
    */
 
-  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-    const GlobalPoint& referencePoint, const MagneticField* field);
+  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
+				const GlobalPoint& referencePoint, const MagneticField* field);
 
   /**
    * Public constructor, which is used to convert perigee 
@@ -42,17 +50,17 @@ public:
    * an error is provided.
    */
 
-  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
+  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
     const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
     const MagneticField* field);
 
 
-  TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
+  TrajectoryStateClosestToPoint(const ParameterVector &, double pt,
 	const GlobalPoint& referencePoint, const MagneticField* field);
 
 
-  TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
-	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint,
+  TrajectoryStateClosestToPoint(const ParameterVector &, double pt,
+	const CovarianceMatrix &, const GlobalPoint& referencePoint,
 	const MagneticField* field);
 
 
@@ -75,7 +83,12 @@ public:
   const PerigeeTrajectoryParameters & perigeeParameters() const {
     return theParameters;
   }
-  
+
+  /**
+   * returns the transverse momentum magnitude
+   */
+
+  double pt() const { return thePt; }
 
   /**
    * returns the error of the perigee parameters if it is 
@@ -99,7 +112,7 @@ public:
 
 
   GlobalVector momentum() const {
-    return perigeeConversions.momentumFromPerigee(theParameters, theRefPoint);
+    return perigeeConversions.momentumFromPerigee(theParameters, thePt, theRefPoint);
   }
 
 
@@ -145,6 +158,7 @@ private:
   
   GlobalPoint theRefPoint;
   PerigeeTrajectoryParameters theParameters;
+  double thePt;
   PerigeeTrajectoryError thePerigeeError;
   bool errorIsAvailable;
   PerigeeConversions perigeeConversions;

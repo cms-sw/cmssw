@@ -11,7 +11,7 @@ TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) :
   Track(tk), tkr_(0), theField(field), stateAtVertexAvailable(false) 
 {
   originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), covariance(), GlobalPoint(0.,0.,0.), theField);
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 
@@ -20,7 +20,7 @@ TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field
   Track(*tk), tkr_(&tk), theField(field), stateAtVertexAvailable(false) 
 {
   originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), covariance(), GlobalPoint(0.,0.,0.), theField);
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 

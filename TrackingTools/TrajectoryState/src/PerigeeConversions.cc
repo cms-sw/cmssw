@@ -40,7 +40,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   theTrackParameters[2] = phi;
   theTrackParameters[3] = epsilon;
   theTrackParameters[4] = impactDistance.z();
-  return PerigeeTrajectoryParameters(theTrackParameters, pt, isCharged);
+  return PerigeeTrajectoryParameters(theTrackParameters, isCharged);
 }
 
 // PerigeeTrajectoryParameters PerigeeConversions::helixToPerigeeParameters
@@ -113,11 +113,11 @@ GlobalPoint PerigeeConversions::positionFromPerigee
 
 
 GlobalVector PerigeeConversions::momentumFromPerigee
-  (const PerigeeTrajectoryParameters& parameters, const GlobalPoint& referencePoint) const
+  (const PerigeeTrajectoryParameters& parameters, double pt, const GlobalPoint& referencePoint) const
 {
-  return GlobalVector(cos(parameters.phi()) * parameters.pt(),
-  		      sin(parameters.phi()) * parameters.pt(),
-   		      parameters.pt()/tan(parameters.theta()));
+  return GlobalVector(cos(parameters.phi()) * pt,
+  		      sin(parameters.phi()) * pt,
+   		      pt / tan(parameters.theta()));
 }
 
 GlobalVector PerigeeConversions::momentumFromPerigee

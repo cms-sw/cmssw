@@ -3,7 +3,7 @@
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "DataFormats/TrackReco/interface/PerigeeCovariance.h"
+#include "DataFormats/Math/interface/Error.h"
 
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.
@@ -16,13 +16,17 @@ class PerigeeTrajectoryError
 {
 
 public:
+  /// parameter dimension
+  enum { dimension = 5 };
+  /// 5 parameter covariance matrix
+  typedef math::Error<dimension>::type CovarianceMatrix;
 
   PerigeeTrajectoryError() {}
 
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(aPerigeeError), weightIsAvailable(false) {}
 
-  PerigeeTrajectoryError(const reco::perigee::Covariance & perigeeCov);
+  PerigeeTrajectoryError(const CovarianceMatrix & perigeeCov);
 
   /**
    * The covariance matrix
@@ -46,7 +50,7 @@ public:
     return thePerigeeWeight;
   }
 
-  operator reco::perigee::Covariance() const;
+  operator CovarianceMatrix() const;
 
 
 private:

@@ -62,7 +62,8 @@ public:
    */
 
   GlobalVector momentumFromPerigee (const PerigeeTrajectoryParameters& parameters,
-    const GlobalPoint& referencePoint) const;
+				    double pt,
+				    const GlobalPoint& referencePoint) const;
 
   /**
    * This method returns the charge.

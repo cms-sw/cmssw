@@ -8,6 +8,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
 <use name=TrackingTools/Records>
+<use name=DataFormats/Common>
 
 <export>
   <lib name=TrackingToolsTransientTrack>
@@ -21,6 +22,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Math>
   <use name=TrackingTools/Records>
+<use name=DataFormats/Common>
 </export>
 
 <flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">
