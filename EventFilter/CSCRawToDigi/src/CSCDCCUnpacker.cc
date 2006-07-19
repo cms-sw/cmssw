@@ -54,23 +54,15 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
 
   PrintEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
   debug = pset.getUntrackedParameter<bool>("Debug", false);
-  std::string mappingFileName = pset.getUntrackedParameter<std::string>("theMappingFile",
-								  "csc_slice_test_map.txt");
-  
   useExaminer = pset.getUntrackedParameter<bool>("UseExaminer", true);
   examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
 					       
-
-
-  if(instatiateDQM){
-   
+  if(instatiateDQM){   
    monitor = edm::Service<CSCMonitorInterface>().operator->(); 
-  
   }
   
-
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");  
@@ -78,7 +70,6 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
-
  
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -92,7 +83,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
 
   CSCDDUEventData::setErrorMask(errorMask);
 
-  theMapping  = CSCReadoutMappingFromFile( mappingFileName );
+  theMapping  = CSCReadoutMappingFromFile(pset);
   
 }
 
@@ -187,6 +178,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    int tmb = 1;
 	    int vmecrate = cscData[iCSC].dmbHeader().crateID();
 	    int dmb = cscData[iCSC].dmbHeader().dmbID();
+	    int icfeb = 0; ///default value for all digis not related to cfebs
 	    int ilayer = 0; /// zeroth layer indicates whole chamber          
 
 	    if (debug)
@@ -200,7 +192,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			   1); //layer       
 		
 	    if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
-	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
+	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	    } else {
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 	      edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
@@ -254,13 +246,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       
 	    }	
 
+	    
+	    //this loop stores wire strip and comparator digis:
 
-
-	    //this loop stores strip and wire and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) { 
  
 	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
-		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
+		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	      } else {
 		edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 		edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
@@ -272,27 +264,37 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		wireProduct->insertDigi(layer, wireDigis[i]);
 	      }
 
-	      std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer);
-	      for (unsigned int i=0; i<stripDigis.size() ; i++) {
-		stripProduct->insertDigi(layer, stripDigis[i]);
-	      }
-	    
 
-	      int nclct = cscData[iCSC].dmbHeader().nclct();
-	      if (nclct) {
-		if (cscData[iCSC].clctData().check()) {
-		  std::vector <CSCComparatorDigi> comparatorDigis =
-		    cscData[iCSC].clctData().comparatorDigis(ilayer);
-		  for (unsigned int i=0; i<comparatorDigis.size() ; i++) {
-		    comparatorProduct->insertDigi(layer, comparatorDigis[i]);
+	      for ( icfeb = 0; icfeb < 5; ++icfeb ) { 
+
+		if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+		  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
+		} else {
+		  edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
+		  edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
+		}
+
+		std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer, icfeb);
+		for (unsigned int i=0; i<stripDigis.size() ; i++) {
+		  stripProduct->insertDigi(layer, stripDigis[i]);
+		}
+	    
+		int nclct = cscData[iCSC].dmbHeader().nclct();
+		if (nclct) {
+		  if (cscData[iCSC].clctData().check()) {
+		    std::vector <CSCComparatorDigi> comparatorDigis =
+		      cscData[iCSC].clctData().comparatorDigis(ilayer, icfeb);
+		    for (unsigned int i=0; i<comparatorDigis.size() ; i++) {
+		      comparatorProduct->insertDigi(layer, comparatorDigis[i]);
+		    }
 		  }
 		}
-	      }
 
-	    }//end of loop over layers
-	  }//end of loop over chambers
-	}//endof loop over DDUs 
-      }//end of good event
+	      }///end of loop over cfebs
+	    }///end of loop over layers
+	  }///end of loop over chambers
+	}///endof loop over DDUs 
+      }///end of good event
       else {
 	edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!"; 
       }

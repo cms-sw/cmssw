@@ -57,7 +57,12 @@ class CSCEventData {
 
   /// returns all the strip digis in the chamber, with the comparator information.
   std::vector<CSCStripDigi> stripDigis(unsigned ilayer) const;
-  /// deprecated.  Use the above method instead
+
+  /// returns all the strip digis in the chamber's cfeb
+  std::vector<CSCStripDigi> stripDigis(unsigned ilayer, unsigned icfeb) const;
+
+
+  /// deprecated.  Use the above methods instead
   std::vector< std::vector<CSCStripDigi> > stripDigis() const;
   
 

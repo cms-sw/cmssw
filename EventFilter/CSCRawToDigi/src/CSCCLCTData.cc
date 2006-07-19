@@ -35,6 +35,76 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
   
 }
 
+std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer, unsigned cfeb) {
+  //looking for comp output on layer
+  std::vector<CSCComparatorDigi> result;
+  assert(layer>0 && layer<= 6);
+  // this is pretty sparse data, so I wish we could check the
+  // data word by word, not bit by bit, but I don't see how to
+  // do the time sequencing that way.
+
+  for(int distrip = 0; distrip < 8; ++distrip) {
+    for(int tbin = 0; tbin < ntbins_-2; ++tbin) {
+      if(bitValue(cfeb, tbin, layer, distrip)) {
+	/// first do some checks
+	CSCCLCTDataWord word = dataWord(cfeb, tbin, layer);
+	assert(word.tbin_ == tbin);
+	assert(word.cfeb_ == cfeb);
+	// we have a hit.  The next two time samples
+	// are the other two bits in the triad
+	int bit2 = bitValue(cfeb, tbin+1, layer, distrip);
+	int bit3 = bitValue(cfeb, tbin+2, layer, distrip);
+	// should count from zero
+	int chamberDistrip = distrip + cfeb*8;
+	int HalfStrip = 4*chamberDistrip + bit2*2 + bit3;
+	int output = 4 + bit2*2 + bit3;
+	
+	/*
+	 * Handles distrip logic; comparator output is for pairs of strips:
+	 * hit  bin  dec
+	 * x--- 100   4
+	 * -x-- 101   5
+	 * --x- 110   6
+	 * ---x 111   7
+	 *
+	 */
+
+
+	if (debug)
+	  edm::LogInfo ("CSCCLCTData")
+	    << "fillComparatorOutputs: layer = "
+	    << layer << " timebin = " << tbin
+	    << " cfeb = " << cfeb << " distrip = " << chamberDistrip
+	    << " HalfStrip = " << HalfStrip
+	    << " Output " << output;
+
+          ///what is actually stored in comparator digis are 0/1 for left/right halfstrip for each strip
+
+	result.push_back(
+			 CSCComparatorDigi(16*cfeb+1+distrip*2+((output&2)>>1), output&1, tbin)
+			 );
+
+	tbin += 2;
+
+      }
+
+
+    }//end of loop over time bins
+    //we do not have to check over the last couple of time bins if there are no hits since
+    //comparators take 3 time bins
+
+  }//end of loop over distrips
+
+  return result;
+}
+
+ 
+    
+
+  
+
+
+
 std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
   //looking for comp output on layer
   std::vector<CSCComparatorDigi> result;

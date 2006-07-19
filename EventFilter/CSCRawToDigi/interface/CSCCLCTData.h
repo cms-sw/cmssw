@@ -29,6 +29,9 @@ public:
   /// layers count from one
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
 
+  /// layers count from one
+  std::vector<CSCComparatorDigi> comparatorDigis(int layer, unsigned icfeb);
+
 
   unsigned short * data() {return theData;}
   /// in 16-bit words

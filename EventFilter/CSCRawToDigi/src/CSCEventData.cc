@@ -199,6 +199,20 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer) const {
   return result;
 }
 
+
+std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer, unsigned icfeb) const {
+  assert(ilayer > 0 && ilayer <= 6);
+  std::vector<CSCStripDigi> result;
+  if(theCFEBData[icfeb] != NULL) {
+    std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(ilayer);
+    result.insert(result.end(), newDigis.begin(), newDigis.end());
+  }
+  
+
+  return result;
+}
+
+
 std::vector<CSCWireDigi> CSCEventData::wireDigis(unsigned ilayer) const {
   if(theAnodeData == 0) {
     return std::vector<CSCWireDigi>();
