@@ -43,7 +43,7 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet& iConfig)
 
   histfile_=new TFile("histos.root","RECREATE");
   for (unsigned int i=0;i<2;++i) {
-    ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",100,0,500);
+    ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",255,0,255);
     char title[30];
     sprintf(title,"%s_ttf",ecal_parts_[i].c_str());
     ecal_tt_[i]=new TH1I(title,"TTF",10,0,10);
