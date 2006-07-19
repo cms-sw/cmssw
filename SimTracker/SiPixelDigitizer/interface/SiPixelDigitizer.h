@@ -24,6 +24,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 //#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
 namespace cms
@@ -41,8 +42,8 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     SiPixelDigitizerAlgorithm  _pixeldigialgo;
-    std::vector<PSimHit> thePixelHits;
-    //  std::vector<PixelDigi> collector;
+    typedef std::vector<std::string> vstring;
+    vstring trackerContainers;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;

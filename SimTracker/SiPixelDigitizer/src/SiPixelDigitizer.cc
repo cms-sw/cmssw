@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.17 2006/05/04 16:31:45 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.18 2006/05/26 08:36:21 pioppi Exp $
 //
 //
 
@@ -57,6 +57,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 //
 // constants, enums and typedefs
@@ -82,6 +84,8 @@ namespace cms
     
     produces<edm::DetSetVector<PixelDigi> >();
     produces<edm::DetSetVector<PixelDigiSimLink> >();
+    trackerContainers.clear();
+    trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
   }
 
   
@@ -98,25 +102,10 @@ namespace cms
   SiPixelDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     // Step A: Get Inputs
-    thePixelHits.clear();
+    edm::Handle<CrossingFrame> cf;
+    iEvent.getByType(cf);
 
-    cout<<"EVENTO "<<iEvent.id()<<endl;
-    edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-    edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
-    edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-
-    iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-    iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
-
-    thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
-    thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
-    thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
-    thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
- 
- 
+    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
 
     edm::ESHandle<TrackerGeometry> pDD;
     
@@ -128,8 +117,8 @@ namespace cms
     //Loop on PSimHit
     SimHitMap.clear();
 
-    for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
-	 isim != thePixelHits.end(); ++isim){
+    MixCollection<PSimHit>::iterator isim;
+    for (isim=allPixelTrackerHits->begin(); isim!= allPixelTrackerHits->end();isim++) {
       DetId detid=DetId((*isim).detUnitId());
       unsigned int subid=detid.subdetId();
       if ((subid==  PixelSubdetector::PixelBarrel) || (subid== PixelSubdetector::PixelEndcap)) {
