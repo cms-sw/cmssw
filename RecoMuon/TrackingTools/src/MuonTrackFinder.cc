@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/06 09:19:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/17 13:29:33 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -126,7 +126,34 @@ void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& s
 //
 void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& seeds,
 				  edm::Event& event,
-				  const edm::EventSetup& eSetup) {
+				  const edm::EventSetup& eSetup) {                       
+
+  std::string metname = "Muon|RecoMuon|MuonTrackFinder";
+
+  // percolate the event 
+  setEvent(event);
+
+  // percolate the event setup
+  setES(eSetup);
+  
+  // Muon Candidate container
+  CandidateContainer muonCandidates;
+
+  // reconstruct the muon candidates
+  for (reco::TrackCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed) {
+    LogDebug(metname)<<"+++ New Track +++"<<endl;
+    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(*seed);
+    for (CandidateContainer::const_iterator it = muonCands_temp.begin(); it != muonCands_temp.end(); it++) 
+      muonCandidates.push_back(*it); 
+  }                                  
+  
+  // clean the cloned candidates
+  //IMPLEMENT ME
+
+  // convert the trajectories into tracks and load them into the event
+  LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
+  //FIXME -- must be implemented in MuonTrackLoader
+  load(muonCandidates,event);
                                   
-                                  
+
 }
