@@ -70,16 +70,13 @@ protected:
   std::auto_ptr<sim::FieldBuilder> theFieldBuilder;
   edm::ParameterSet theMagneticFieldPSet;
 
-  bool executedBeginJob;
-
 };
 
 
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& p):
   theRun(-1),
   theEvent(-1),
-  thePropagator(0),
-  executedBeginJob(false) {
+  thePropagator(0) {
 
   //debug_ = iConfig.getParameter<bool>("debug");
   theMagneticFieldPSet = p.getParameter<edm::ParameterSet>("MagneticField");
@@ -87,35 +84,7 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& p)
 }
 
 void Geant4ePropagatorAnalyzer::beginJob(edm::EventSetup const & iSetup) {
-  using namespace edm;
-
-  //- DDDWorld: get the DDCV from the ES and use it to build the World
-  ESHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
-  new DDDWorld(&(*pDD));
-  LogDebug("Geant4e") << "DDDWorld volume created in DDCompactView: " 
-		      << &(*pDD);
-
-  // setup the magnetic field
-  ESHandle<MagneticField> pMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(pMF);
-  LogDebug("Geant4e") << "B-field(T) at (0,0,0)(cm): " 
-		      << pMF->inTesla(GlobalPoint(0,0,0));
-  
-  theFieldBuilder = 
-    std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), 
-							   theMagneticFieldPSet));
-  G4TransportationManager* tM = 
-    G4TransportationManager::GetTransportationManager();
-  theFieldBuilder->configure("MagneticFieldType",
-			     tM->GetFieldManager(),
-			     tM->GetPropagatorInField());
-  
-  //  G4eManager::GetG4eManager();
-  //  G4TransportationManager::GetTransportationManager();
-
-  LogDebug("Geant4e") << "Exiting beginJob.";
-  executedBeginJob = true;
+  LogDebug("Geant4e") << "Nothing done in beginJob...";
 }
 
 void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent, 
@@ -123,17 +92,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
   using namespace edm;
 
-//   if (!executedBeginJob) {
-//     LogWarning("Geant4e") << "beginJob was not executed!!!";
-//     //cout << "beginJob was not executed!!!";
-//     beginJob(iSetup);
-//   }
-//   else {
-//     //cout << "beginJob was already executed!!!";
-//     LogDebug("Geant4e") << "beginJob was already executed!!!";
-//   }
-
-//   //cout << "beginJob=" << executedBeginJob << ".";
+  LogDebug("Geant4e") << "Starting analyze...";
 
   ///////////////////////////////////////
   //Construct Magnetic Field
@@ -171,6 +130,11 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   //Initialise the propagator
   if (! thePropagator) 
     thePropagator = new Geant4ePropagator(&*bField);
+
+  if (thePropagator)
+    LogDebug("Geant4e") << "Propagator built!";
+  else
+    LogError("Geant4e") << "Could not build propagator!";
 
 
 
@@ -227,25 +191,42 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   ///////////////////////////////////////
   // Iterate over sim tracks to build the FreeTrajectoryState for
   // for the initial position.
+  //DEBUG
+  unsigned int counter = 0;
+  //DEBUG
   for(SimTrackContainer::const_iterator simTracksIt = simTracks->begin(); 
       simTracksIt != simTracks->end(); 
       simTracksIt++){
 
+    //DEBUG
+    counter++;
+    LogDebug("Geant4e") << "Iterating over " << counter << " track. Number: " 
+			<< simTracksIt->genpartIndex();
+    //DEBUG
+
     //- Timing
     TimeMe tProp("Geant4ePropagatorAnalyzer::analyze::propagate");
-    
+   
     //- Check if the track corresponds to a muon
     int trkPDG = simTracksIt->type();
     if (abs(trkPDG) != 13 ) {
-      LogDebug("Geant4e") << "Track is not a muon: " << trkPDG << std::endl;
+      LogDebug("Geant4e") << "Track is not a muon: " << trkPDG;
       continue;
     }
+    else
+      LogDebug("Geant4e") << "Found a muon track " << trkPDG;
+      
     
     //- Get momentum, but only use tracks with P > 2 GeV
     GlobalVector p3T = 
       TrackPropagation::hep3VectorToGlobalVector(simTracksIt->momentum().vect());
-    if (p3T.mag() < 2.) 
+    if (p3T.mag() < 2.) {
+      LogDebug("Geant4e") << "Track PT is too low: " << p3T.mag();
       continue;
+    }
+    else
+      LogDebug("Geant4e") << "Track PT is enough: " << p3T.mag();
+      
 
     //- Get index of generated particle. Used further down
     uint trkInd = simTracksIt->genpartIndex();
@@ -254,7 +235,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     int vtxInd = simTracksIt->vertIndex();
     GlobalPoint r3T(0.,0.,0.);
     if (vtxInd < 0)
-      LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)" << std::endl;
+      LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
     else {
       //seems to be stored in mm --> convert to cm
       r3T = TrackPropagation::hep3VectorToGlobalPoint((*simVertices)[vtxInd].position().vect()*0.1);
@@ -279,11 +260,20 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 	 simHitDTIt++){
 
       //+ Skip if this hit does not belong to the track
-      if (simHitDTIt->trackId() != trkInd ) 
-	continue;
+//       if (simHitDTIt->trackId() != trkInd ) {
+// 	LogDebug("Geant4e") << "Hit (in tr " << simHitDTIt->trackId()
+// 			    << ") does not belong to track "<< trkInd;
+// 	continue;
+//       }
+
+//       LogDebug("Geant4e") << "Hit belongs to track";
+
       //+ Skip if it is not a muon (this is checked before also)
-      if (abs(simHitDTIt->particleType()) != 13) 
+      if (abs(simHitDTIt->particleType()) != 13) {
+	LogDebug("Geant4e") << "Associated track is not a muon: " << trkPDG;
 	continue;
+      }
+      LogDebug("Geant4e") << "Found a hit corresponding to a muon " << trkPDG;
 
       //+ Build the surface
       DTWireId wId(simHitDTIt->detUnitId());
