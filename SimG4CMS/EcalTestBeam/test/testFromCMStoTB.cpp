@@ -135,6 +135,7 @@ int main() {
   
   cout << "\n===========================================\n" << endl;
   cout << "Input theta = " << myTheta << " phi = " << myPhi << endl;
+  cout << "\n===========================================\n" << endl;
   
   HepRotation * CMStoTB = new HepRotation();
   HepRotation * TBtoCMS = new HepRotation();
@@ -149,7 +150,6 @@ int main() {
   double newTheta = myTheta;
   double newPhi = myPhi;
 
-  cout << "\n From CMS to TB \n" << endl;
 
   for ( int ieta = -1; ieta <= 1; ++ieta ) {
     for ( int iphi = -1; iphi <= 1; ++iphi ) {
@@ -163,6 +163,7 @@ int main() {
       test.set(xx,yy,zz);
   
       cout << "\n ieta = " << ieta << " iphi = " << iphi << endl;
+      cout << "\n From CMS to TB \n" << endl;
       cout << "Input vector  = " << test 
            << " corresponding to theta = " 
            << newTheta << " phi = " << newPhi << endl;
@@ -173,31 +174,45 @@ int main() {
            << " corresponding to theta = " 
            << testrot.theta() << " phi = " << testrot.phi() << endl; 
       
-
+      cout << "\n From TB to CMS \n" << endl;
+      
+      Hep3Vector thistest = (*TBtoCMS)*testrot;
+      
+      cout << "Output vector = " << thistest 
+           << " corresponding to theta = " 
+           << thistest.theta() << " phi = " << thistest.phi() << endl; 
+      cout << "\n===========================================\n" << endl;
+  
     }
   }
 
   cout << "\n===========================================\n" << endl;
-  cout << "\n From TB to CMS \n" << endl;
 
   for ( int ix = -1; ix <= 1; ++ix ) {
     for ( int iy = -1; iy <= 1; ++iy ) {
-      
-      xx = (double)ix;
-      yy = (double)iy;
-      zz = 0.;
-      test.set(xx, yy, zz);
-      Hep3Vector thistest = test.unit();
-  
+
+      xx = (double)ix * 0.01;
+      yy = (double)iy * 0.01;
+      zz = 1.;
+      test.set(xx,yy,zz);
+
       cout << "\n ix = " << ix << " iy = " << iy << endl;
-      cout << "Input vector  = " << thistest << endl;
+      cout << "\n From TB to CMS \n" << endl;
+      cout << "Input vector  = " << test << endl;
       
-      Hep3Vector testrot = (*TBtoCMS)*thistest;
+      Hep3Vector testrot = (*TBtoCMS)*test;
   
       cout << "Output vector = " << testrot 
            << " corresponding to theta = " 
-           << testrot.theta() << " phi = " << testrot.phi() << endl;
-
+           << testrot.theta() << " phi = " << testrot.phi() << endl; 
+      
+      cout << "\n From CMS to TB \n" << endl;
+      
+      Hep3Vector thistest = (*CMStoTB)*testrot;
+      
+      cout << "Output vector = " << thistest << endl;
+      cout << "\n===========================================\n" << endl;
+  
     }
   }
 
