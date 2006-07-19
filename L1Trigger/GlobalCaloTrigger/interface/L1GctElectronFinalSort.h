@@ -65,8 +65,11 @@ public:
 
   /// comparison operator for sort
   struct rank_gt : public binary_function<L1GctEmCand, L1GctEmCand, bool> {
-    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { return x.rank() > y.rank(); }
-  };
+    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
+      if(x.rank()!=y.rank()){return x.rank() > y.rank();
+      }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
+      }else{ return x.phiIndex() > y.phiIndex();}}}};
+
   
  private:
   ///

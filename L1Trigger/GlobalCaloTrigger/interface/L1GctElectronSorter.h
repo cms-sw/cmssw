@@ -64,9 +64,11 @@ class L1GctElectronSorter : public L1GctProcessor
  private:
   /// comparison operator for sort
   struct rank_gt : public binary_function<L1GctEmCand, L1GctEmCand, bool> {
-    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { if(x.rank()!=y.rank()){return x.rank() > 
-y.rank();}else{if(x.phiIndex()>y.phiIndex()){return y.rank() > x.rank();}else{return x.rank() > y.rank();}}}
-  };
+    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
+      if(x.rank()!=y.rank()){return x.rank() > y.rank();
+      }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
+	}else{ return x.phiIndex() > y.phiIndex();}}}};
+
   /// converts from L1CaloEmCand to L1GctEmCand
   std::vector<L1GctEmCand> convertCaloToGct(std::vector<L1CaloEmCand> cand);
   
