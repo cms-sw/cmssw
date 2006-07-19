@@ -1,0 +1,25 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=Geometry/Records>
+<use name=Geometry/DTGeometry>
+<use name=CLHEP>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="L1TriggerDTUtilities">
+
+<export>
+   <lib name=L1TriggerDTUtilities>
+
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=VisFramework/VisUtilities>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Common>
+   <use name=Geometry/Records>
+   <use name=Geometry/DTGeometry>
+   <use name=CLHEP>
+   <use name=root>	
+
+</export>

@@ -1,0 +1,855 @@
+//-------------------------------------------------
+//
+//   Class: DTBtiChip
+//
+//   Description: Implementation of DTBtiChip 
+//                trigger algorithm
+//
+//
+//   Author List:
+//   C. Grandi
+//   Modifications: 
+//   S. Vanini
+//   30/IX/03 SV : wire dead time = ST added
+//   22/VI/04 SV: last trigger code update
+//--------------------------------------------------
+
+//-----------------------
+// This Class's Header --
+//-----------------------
+#include "L1Trigger/DTBti/interface/DTBtiChip.h"
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+#include "L1Trigger/DTBti/interface/DTBtiHit.h"
+#include "L1Trigger/DTBti/interface/DTBtiTrig.h"
+
+#include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include <DataFormats/MuonDetId/interface/DTLayerId.h>
+#include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+//---------------
+// C++ Headers --
+//---------------
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+//----------------
+// Constructors --
+//----------------
+
+DTBtiChip::DTBtiChip(DTTrigGeom* geom, int supl, int n):
+_geom(geom) {
+ // original constructor
+ setSnap();
+ reSumSet(); 
+ // Debugging...
+  if(config()->debug()>2){
+    cout << "DTBtiChip constructor called for BTI number " << n;
+    cout << " in superlayer " << supl << endl;
+  }
+
+  // reserve the appropriate amount of space for vectors
+  int i=0;
+  for(i=0;i<DTConfig::NSTEPL - DTConfig::NSTEPF;i++) {
+    _trigs[i].reserve(2);
+  }
+  for(i=0;i<9;i++) {
+    _digis[i].reserve(10);
+    _hits[i].reserve(10);
+  }
+
+  //SV wire dead time init
+  int DEAD = config()->DEADpar();
+  for(int cell=1; cell<=9; cell++){
+    _busyStart_clock[cell-1] = - DEAD -1;
+  }
+
+  // Identifier
+  DTChamberId sid = _geom->statId();
+  _id = DTBtiId(sid, supl, n);
+
+  if(config()->trigSetupGeom()){
+    //set K acceptance for each bti! SV
+    _MinKleftTraco = config()->LL_bti(n,supl);
+    _MaxKleftTraco = config()->LH_bti(n,supl);
+    _MinKcenterTraco = config()->CL_bti(n,supl);
+    _MaxKcenterTraco = config()->CH_bti(n,supl);
+    _MinKrightTraco = config()->RL_bti(n,supl);
+    _MaxKrightTraco = config()->RH_bti(n,supl);
+
+    if(config()->debug()>2){
+      cout << "K acceptance:" << endl;
+      cout << "  for left traco "<<_MinKleftTraco<<"<K<"<<_MaxKleftTraco<<endl;
+      cout << "  for center traco "<<_MinKcenterTraco<<"<K<"<<_MaxKcenterTraco<<endl;
+      cout << "  for right traco "<<_MinKrightTraco<<"<K<"<<_MaxKrightTraco<<endl;
+    }
+    // end debugging
+  }
+
+
+  if(config()->trigSetupGeom() == 0){
+    // set K acceptance for this BTI: 6 bit resolution....  
+    _MinKAcc = 0;
+    _MaxKAcc = 63;
+	
+/*	   DTBtiId _id1 = DTBtiId(sid,supl,1);
+	   
+	   cout <<"superlayer" << _id.superlayer()<< "BTI1   " <<  _id1.bti()  << " BTICur " << _id.bti()<< endl;
+	   cout <<endl;
+	   GlobalPoint gp1 = _geom->CMSPosition(_id1);
+	   cout << "pos of BTI "<<  _id1.bti()  << gp1 <<endl;
+	   // K of tracks from vertex
+	   GlobalPoint gp = CMSPosition();
+	   cout << "pos of BTI" << _id.bti()  << gp <<endl;	   
+	   cout << endl ; */
+	   
+	   
+    // theta bti acceptance cut is in bti chip (no traco in theta!)
+    // acceptance from orca geom: bti theta angle in CMS frame +-2 in K units 
+    if(_id.superlayer()==2){
+      float distp2 = (int)(2*_geom->cellH()*config()->lstep()/_geom->cellPitch());
+      float K0 = config()->ST();
+
+/*      DTBtiId _id1 = DTBtiId(sid,supl,1);
+      
+      cout << "BTI1   " <<  _id1.bti() << endl;
+      cout << "BTICur " << _id.bti() <<endl;
+      GlobalPoint gp1 = _geom->CMSPosition(_id1);
+      cout << "pos of BTI 1 " << gp1 <<endl;*/
+	  
+      // K of tracks from vertex
+      GlobalPoint gp = CMSPosition();
+      if(config()->debug()>3){
+        cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
+        cout << " deg, Z=" << gp.z() << " cm" << endl;
+      }
+// new geometry: modified wrt old due to specularity of theta SLs (still to understand on wheel zero) 19/06/06
+      float theta = atan( fabs(gp.z())/gp.perp() );
+      // .11 =TAN(6.3 deg) ==> k=2 (e' ancora vero? forse questa parte va aggiornata sena ripassare per gli angoli) 19/6/06
+      float thetamin = theta-config()->KAccTheta()*0.055;
+      float thetamax = theta+config()->KAccTheta()*0.055;
+
+      float fktmin = tan(thetamin)*distp2 + K0;
+      int ktmin = (fktmin>0) ? (int)(fktmin+0.5) : (int)(fktmin-0.5);
+
+      float fktmax = tan(thetamax)*distp2 + K0;
+      int ktmax = (fktmax>0) ? (int)(fktmax+0.5) : (int)(fktmax-0.5);
+//      float fkbti = -gp.z()/gp.perp()*distp2;
+//      int kbti = (fkbti>0) ? (int)(fkbti+0.5) : (int)(fkbti-0.5);
+//      // K acceptance to point to vertex
+//      int ktmin = kbti-config()->KAccTheta();  // minimum
+//      int ktmax = kbti+config()->KAccTheta();  // maximum
+      if(ktmin>_MinKAcc)_MinKAcc=ktmin;
+      if(ktmax<_MaxKAcc)_MaxKAcc=ktmax;
+    }
+
+    // debugging
+    if(config()->debug()>2){
+      cout << "CMS position:" << CMSPosition() << endl;
+      cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc << endl;
+    }
+    // end debugging
+  }
+
+
+  //SV flag for initialization....
+  init_done = 0; 
+
+}
+
+
+DTBtiChip::DTBtiChip(const DTBtiChip& bti) :
+  _geom(bti._geom), _id(bti._id),
+  _curStep(bti._curStep), _nStepUsedHits(bti._nStepUsedHits){
+
+  setSnap();
+  reSumSet();
+
+  int i=0;
+  for(i=0;i<DTConfig::NSTEPL - DTConfig::NSTEPF;i++) {
+    _trigs[i].reserve(2);
+    vector<DTBtiTrig*>::const_iterator p;
+    for(p=bti._trigs[i].begin();p<bti._trigs[i].end();p++){
+      _trigs[i].push_back(*p);
+    }
+  }
+  for(i=0;i<9;i++) {
+    _digis[i].reserve(10);
+    vector<const DTDigi*>::const_iterator p;
+    for(p=bti._digis[i].begin();p<bti._digis[i].end();p++){
+      _digis[i].push_back(*p);
+    }
+    _hits[i].reserve(10);
+    vector<DTBtiHit*>::const_iterator p1;
+    for(p1=bti._hits[i].begin();p1<bti._hits[i].end();p1++){
+      _hits[i].push_back(*p1);
+    }
+    _thisStepUsedTimes[i] = bti._thisStepUsedTimes[i];
+    _thisStepUsedHit[i] = _thisStepUsedHit[i];
+  }
+  for(i=0;i<25;i++){
+    _sums[i] = bti._sums[i];
+    _difs[i] = bti._difs[i];
+  }
+  for(i=0;i<26;i++){
+    int j = 0;
+    for(j=0;j<6;j++){
+      _Keq[i][j] = bti._Keq[i][j];
+    }
+    for(j=0;j<3;j++){
+      _JTR[i][j] = bti._JTR[i][j];
+    }
+    for(j=0;j<2;j++){
+      _Xeq[i][j] = bti._Xeq[i][j];
+      _KTR[i][j] = bti._KTR[i][j];
+    }
+  }
+  _MinKAcc = bti._MinKAcc;
+  _MaxKAcc = bti._MaxKAcc;
+
+
+
+}
+//--------------
+// Destructor --
+//--------------
+DTBtiChip::~DTBtiChip(){
+  clear();
+}
+
+//--------------
+// Operations --
+//--------------
+DTBtiChip& 
+DTBtiChip::operator=(const DTBtiChip& bti) {
+  if(this != &bti){
+    _geom = bti._geom;
+    _id = bti._id;
+    _curStep = bti._curStep;
+    _nStepUsedHits = bti._nStepUsedHits;
+    int i=0;
+    for(i=0;i<DTConfig::NSTEPL - DTConfig::NSTEPF;i++) {
+      _trigs[i].reserve(2);
+      vector<DTBtiTrig*>::const_iterator p;
+      for(p=bti._trigs[i].begin();p<bti._trigs[i].end();p++){
+	_trigs[i].push_back(*p);
+      }
+    }
+    for(i=0;i<9;i++) {
+      _digis[i].reserve(10);
+      vector<const DTDigi*>::const_iterator p;
+      for(p=bti._digis[i].begin();p<bti._digis[i].end();p++){
+	_digis[i].push_back(*p);
+      }
+      _hits[i].reserve(10);
+      vector<DTBtiHit*>::const_iterator p1;
+      for(p1=bti._hits[i].begin();p1<bti._hits[i].end();p1++){
+	_hits[i].push_back(*p1);
+      }
+      _thisStepUsedTimes[i] = bti._thisStepUsedTimes[i];
+      _thisStepUsedHit[i] = _thisStepUsedHit[i];
+    }
+    for(i=0;i<25;i++){
+      _sums[i] = bti._sums[i];
+      _difs[i] = bti._difs[i];
+    }
+    for(i=0;i<26;i++){
+      int j = 0;
+      for(j=0;j<6;j++){
+	_Keq[i][j] = bti._Keq[i][j];
+      }
+      for(j=0;j<3;j++){
+	_JTR[i][j] = bti._JTR[i][j];
+      }
+      for(j=0;j<2;j++){
+	_Xeq[i][j] = bti._Xeq[i][j];
+	_KTR[i][j] = bti._KTR[i][j];
+      }
+    }
+    _MinKAcc = bti._MinKAcc;
+    _MaxKAcc = bti._MaxKAcc;
+  }
+  return *this;
+}
+
+void 
+DTBtiChip::add_digi(int cell, const DTDigi* digi) {
+
+  if(_id.bti()<1 || _id.bti() >_geom->nCell(superlayer()))return;
+  if(cell<1 || cell>9){
+    cout << "DTBtiChip::add_digi : wrong cell number: " << cell;
+    cout << ". Digi not added!" << endl;
+    return;
+  }
+
+  int DEAD = config()->DEADpar();
+  float stepTimeTdc = DTBtiHit::_stepTimeTdc;
+
+
+  if( int(digi->countsTDC()/stepTimeTdc) - _busyStart_clock[cell-1] > DEAD ){
+    _busyStart_clock[cell-1] = int(digi->countsTDC()/stepTimeTdc);
+    _digis[cell-1].push_back(digi);
+
+    // debugging
+    if(config()->debug()>1){
+    cout << "DTBtiChip::add_digi: DTBtiChip # " <<_id.bti() <<
+    " cell " << cell << " --> drift time (tdc units)= " << digi->countsTDC()<< endl;
+    digi->print();
+    }
+  }
+  else {
+  // debugging
+  if(config()->debug()>1)
+    cout << "DTBtiChip::add_digi: DTBtiChip # " <<_id.bti() <<
+     " cell " << cell << " in dead time -> digi not added! " << endl;
+  }
+
+}
+
+
+void 
+DTBtiChip::add_digi_clock(int cell, int digi) {
+
+  if(cell<1 || cell>9){
+    cout << "DTBtiChip::add_digi_clock : wrong cell number: " << cell;
+    cout << ". Digi not added!" << endl;
+    return;
+  }
+
+  int DEAD = config()->DEADpar();
+
+  if( digi - _busyStart_clock[cell-1] > DEAD ){
+    _busyStart_clock[cell-1] = digi;
+    _digis_clock[cell-1].push_back(digi);
+    // debugging
+    if(config()->debug()>1)
+      cout << "DTBtiChip::add_digi_clock: DTBtiChip # " <<number() <<
+      " cell " << cell << " --> clock time = " << digi << endl;
+  }
+  else{
+  // debugging
+  if(config()->debug()>1)
+    cout << "DTBtiChip::add_digi_clock: DTBtiChip # " << number() <<
+     " cell " << cell << " in dead time -> digi not added! " << endl;
+  }
+}
+
+
+int
+DTBtiChip::nCellHit() const {
+  int n=0;
+  int i=0;
+  for(i=0;i<9;i++) {
+    if( _digis[i].size() >0 ) n++;
+  }
+  if(config()->debug()>2) {
+    cout << n << " cells with hits found:" << endl;
+  }
+  if(config()->debug()>2) {
+    for(i=0;i<9;i++) {
+      vector<const DTDigi*>::const_iterator p;
+      for(p=_digis[i].begin();p<_digis[i].end();p++) {
+        cout << "DTBtiChip # " << 
+        _id.bti() << 
+        " cell " << i+1;
+        cout << " --> drift time (tdc units): " << (*p)->countsTDC() << endl;
+        (*p)->print();
+      }
+    }
+  }
+  return n;
+/*
+ //SV 2/IV/03 counting hits from _hits
+  int n=0;
+  int i=0;
+  for(i=0;i<9;i++) {
+    if( _hits[i].size() >0 ) n++;
+  }
+  if(config()->debug()>2) {
+    cout << n << " cells with hits found:" << endl;
+  }
+  if(config()->debug()>2) {
+    for(i=0;i<9;i++) {
+      vector<const DTBtiHit*>::const_iterator p;
+      for(p=_hits[i].begin();p<_hits[i].end();p++) {
+        cout << "DTBtiChip # " << 
+        number() << 
+        " cell " << i+1;
+        if((*p)->curTime()!=4000)
+          cout << " --> drift time: " << (*p)->curTime() << endl;
+        else
+          cout << " --> clock time: " << (*p)->clockTime() << endl;
+      }
+    }
+  }
+  return n;
+*/
+}
+
+void 
+DTBtiChip::addTrig(int step, DTBtiTrig* btitrig) { 
+  if(step>=DTConfig::NSTEPF&&step<=DTConfig::NSTEPL){
+    if(config()->debug()>3) 
+      cout << "DTBtiChip: adding trigger..." <<endl;
+    _trigs[step-DTConfig::NSTEPF].push_back(btitrig);
+  } else {
+    if(config()->debug()>3){    
+      cout << "DTBtiChip::addTrig: step " << step ;
+      cout << " outside range. Trigger not added" << endl;
+    }
+  } 
+}
+
+int
+DTBtiChip::nTrig(int step) const {
+  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+    cout << "DTBtiChip::nTrig: step out of range: " << step ;
+    cout << " 0 returned" << endl;
+    return 0;
+  }
+  return _trigs[step-DTConfig::NSTEPF].size(); 
+}
+
+vector<DTBtiTrig*>
+DTBtiChip::trigList(int step) const {
+  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+    cout << "DTBtiChip::trigList: step out of range: " << step ;
+    cout << " empty pointer returned" << endl;
+    //return 0;
+  } 
+  return _trigs[step-DTConfig::NSTEPF]; 
+}
+
+DTBtiTrig*
+DTBtiChip::trigger(int step, unsigned n) const {
+  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+    cout << "DTBtiChip::trigger: step out of range: " << step ;
+    cout << " empty pointer returned" << endl;
+    return 0;
+  } 
+  if(n<1 || n>_trigs[step-DTConfig::NSTEPF].size()) {
+    cout << "DTBtiChip::trigger: requested trigger does not exist: " << n;
+    cout << " empty pointer returned!" << endl;
+    return 0;
+  }
+  vector<DTBtiTrig*>::const_iterator p = _trigs[step-DTConfig::NSTEPF].begin();
+  return (*(p+n-1));
+}
+
+DTBtiTrigData
+DTBtiChip::triggerData(int step, unsigned n) const {
+  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+    cout << "DTBtiChip::triggerData: step out of range: " << step ;
+    cout << " dummy trigger returned" << endl;
+    return DTBtiTrigData();
+  } 
+  if(n<1 || n>_trigs[step-DTConfig::NSTEPF].size()) {
+    cout << "DTBtiChip::triggerData: requested trig. doesn't exist: " << n;
+    cout << " dummy trigger returned!" << endl;
+    return DTBtiTrigData();
+  }
+  vector<DTBtiTrig*>::const_iterator p = _trigs[step-DTConfig::NSTEPF].begin();
+  return (*(p+n-1))->data();
+}
+
+void
+DTBtiChip::eraseTrigger(int step, unsigned n) {
+  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+    cout << "DTBtiChip::eraseTrigger: step out of range: " << step ;
+    cout << " trigger not deleted!" << endl;
+  } 
+  if(n<1 || n>_trigs[step-DTConfig::NSTEPF].size()) {
+    cout << "DTBtiChip::trigger: requested trigger does not exist: " << n;
+    cout << " trigger not deleted!" << endl;
+  }
+  vector<DTBtiTrig*>::iterator p = _trigs[step-DTConfig::NSTEPF].begin()+n-1;
+  if(&(*p))delete (*p);
+  _trigs[step-DTConfig::NSTEPF].erase(p);
+}
+
+void
+DTBtiChip::clear() {
+
+  if(config()->debug()>3)
+    cout << "DTBtiChip::clear()" << endl;
+
+  for(int c=0;c<9;c++) {
+
+    _digis[c].clear();
+    _digis_clock[c].clear();
+
+    vector<DTBtiHit*>::iterator p;
+    for(p=_hits[c].begin();p<_hits[c].end();p++){
+      delete (*p);
+    }
+    _hits[c].clear();
+  }
+
+  vector<DTBtiTrig*>::iterator p1;
+  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++){
+    for(p1=_trigs[is].begin();p1<_trigs[is].end();p1++){
+      delete (*p1);
+    }
+    _trigs[is].clear();
+  }
+}
+
+void
+DTBtiChip::init() {
+
+  if(config()->debug()>3)
+    cout << "DTBtiChip::init() -> initializing bti chip" << endl;
+
+  _curStep=0;
+  for(int i=0;i<25;i++) {
+    _sums[i] = 1000;
+    _difs[i] = 1000;
+  } 
+
+  for(int cell=0;cell<9;cell++) {
+    int WEN = config()->WENflag(cell+1);
+    if( WEN==1 ){
+      _thisStepUsedHit[cell]=0;
+      vector<const DTDigi*>::const_iterator p;
+      for(p=_digis[cell].begin();p<_digis[cell].end();p++){
+        DTBtiHit* hit = new DTBtiHit(*p,config());
+        //int clockTime = (int)(fabs(((*p)->time()+config()->SetupTime())/12.5));
+        //DTBtiHit* hit = new DTBtiHit(clockTime,config());
+        _hits[cell].push_back(hit);
+      }
+
+      //debugging
+      if(config()->debug()>2){
+        vector<DTBtiHit*>::const_iterator p1;
+        for(p1=_hits[cell].begin();p1<_hits[cell].end();p1++){
+        	cout << " Filling hit in cell " << cell+1;
+                if((*p1)->curTime()!=4000) 
+                  cout << " raw time in trigger: " << (*p1)->curTime() << endl;
+                cout << " time (clock units): " << (*p1)->clockTime() << endl; 
+        }
+      }
+      // end debugging
+    }
+  }
+}
+
+
+void
+DTBtiChip::init_clock() {
+
+  if(config()->debug()>3)
+    cout << "DTBtiChip::init_clock() -> initializing bti chip" << endl;
+
+  init_done = 1;
+  _curStep=0;
+
+  for(int i=0;i<25;i++) {
+    _sums[i] = 1000;
+    _difs[i] = 1000;
+  } 
+
+  for(int cell=0;cell<9;cell++) {
+    int WEN = config()->WENflag(cell+1);
+    if( WEN==1 ){
+      _thisStepUsedHit[cell]=0;
+    for(int i=0; i<_digis_clock[cell].size(); i++){
+      const int clockTime = (_digis_clock[cell])[i];
+      DTBtiHit* hit = new DTBtiHit(clockTime,config());
+      _hits[cell].push_back(hit);
+    }
+	
+    //debugging
+    if(config()->debug()>2){
+      vector<DTBtiHit*>::const_iterator p1;
+      for(p1=_hits[cell].begin();p1<_hits[cell].end();p1++){
+      	cout << " Filling hit in cell " << cell+1;
+        if((*p1)->curTime()!=4000) 
+          cout << " time: " << (*p1)->curTime() << endl;
+        else
+          cout << " time (clock units): " << (*p1)->clockTime() << endl; 
+        }
+      }
+      // end debugging
+    }
+  }
+}
+
+
+void 
+DTBtiChip::run() {
+
+  // Debugging...
+  if(config()->debug()>2){
+    cout << "DTBtiChip::run: Processing BTI " << _id.bti() << endl;
+    cout << " in SL " << _id.superlayer() << endl;
+  }
+  // End debugging
+
+  if(_id.bti()<1 || _id.bti() >_geom->nCell(superlayer())) {
+    if(config()->debug()>1)
+      cout << "DTBtiChip::run : wrong BTI number: " << _id.bti() << endl;
+    return;
+  }
+
+  // run algorithm
+  if(!init_done)
+    init();
+  if( nCellHit()<3 ) return;   // check that at least 3 cell have hits
+
+  for(int ints=0; ints<2*DTConfig::NSTEPL; ints++) { // 80 MHz 
+    tick(); // Do a 12.5 ns step
+
+    // In electronics equations are computed every 12.5 ns
+    // but since triggers are searched for only every 25 ns, skip
+    // also equation's computing at odd values of internal step
+    if((currentIntStep()/2)*2!=currentIntStep())continue;
+    //if((currentIntStep()/2)*2==currentIntStep())continue; 
+
+
+    if(config()->debug()>2){
+      cout << "DTBtiChip::run : internal step " << currentIntStep();
+      cout << " number of JTRIG hits is " << _nStepUsedHits << endl;
+    }
+    if(currentStep()>=DTConfig::NSTEPF && _nStepUsedHits>2) { 
+      // at least 3 good hits in this step -> run algorithm
+      computeSums();
+      computeEqs();
+      findTrig();
+    }
+  }
+  if( config()->slLTS()>0 ) doLTS(); // low trigger suppression
+}
+
+void
+DTBtiChip::tick() {
+  //
+  // fills the DTBtiChip registers ( _thisStepUsedHit[cell] )
+  // for a given clock (Syncronizer and Shaper functionalities)
+  //
+
+  _curStep++; // increase internal step (12.5 ns --> 80 MHz)
+
+  // debugging
+  if(config()->debug()>2){
+    cout << "DTBtiChip::tick: internal step is now " << currentIntStep()<< endl; 
+  }
+  // end debugging
+
+  // Loop on cells
+  _nStepUsedHits=0;
+  for(int cell=0;cell<9;cell++) {
+
+    // decrease drift time by 12.5 ns for each hit
+    vector<DTBtiHit*>::const_iterator p;
+    for(p=_hits[cell].begin();p<_hits[cell].end();p++){
+      (*p)->stepDownTime();
+    }
+
+    // loop on hits
+    _thisStepUsedHit[cell]=0;
+    for(p=_hits[cell].begin();p<_hits[cell].end();p++){
+      if       ( (*p)->isDrifting() ) { // hit is drifting
+        break;                          //   --> don't consider others
+      } else if( (*p)->isInsideReg() ) {  // hit is already in registers
+	_thisStepUsedHit[cell]=(*p);
+	_nStepUsedHits++;
+	// debugging
+	if(config()->debug()>2){
+          if((*p)->curTime() != 4000)
+            cout << "DTBtiChip::tick: hit in register: time=" << (*p)->curTime();
+          else
+            cout << "DTBtiChip::tick: hit in register! " << endl;
+          cout <<                           " jtrig=" << (*p)->jtrig() << endl;
+
+	}
+	// end debugging
+        break;                          //   --> don't consider other triggers
+      }
+      // hit is not drifting and not in registers: it is gone out of register, but
+      // jtrig value is still=ST ; save in array and consider next one if exists
+    } // end loop on cell hits
+
+    // debugging...
+    if(config()->debug()>2){
+      if(_thisStepUsedHit[cell]!=0){
+	cout << "int. step=" << currentIntStep() << " cell=" << cell+1;
+	cout << " jtrig=" << _thisStepUsedHit[cell]->jtrig();
+        if( _thisStepUsedHit[cell]->curTime() != 4000 )  
+	  cout << " (time=" << _thisStepUsedHit[cell]->curTime() << ")" << endl;
+        else 
+          cout << endl;
+      }
+    } 
+    // end debugging
+
+  } // end loop on cells
+
+}
+
+void
+DTBtiChip::doLTS() {
+ 
+  if(config()->debug()>2)
+    cout<<"Do LTS"<<endl;
+  int ltsfl = config()->slLTS();
+  int slts = config()->sideLTS();
+  int nbxlts = config()->nbxLTS(superlayer()-1);
+
+  // Do LTS only on the requested SL
+  if (superlayer()==2 && ltsfl==1) return;
+  if (superlayer()!=2 && ltsfl==2) return;
+
+  // loop on steps
+  for(int is=DTConfig::NSTEPF; is<=DTConfig::NSTEPL; is++) {
+    if(nTrig(is)>0) { // non empty step
+      if( trigger(is,1)->code()==8 ) { // HTRIG at this step
+        // do LTS on nbxLTS[superlayer] following steps
+        for(int js=is+1;(js<=is+nbxlts&&js<=DTConfig::NSTEPL);js++){
+          if(nTrig(js)>0) { // non empty step
+            DTBtiTrig* tr = trigger(js,1);
+            if( tr->code()<8 && slts>=0 ) {
+              if(config()->debug()>3)
+                cout<<"LTS: erasing trigger!"<<endl; 
+              eraseTrigger(js,1); // delete trigger
+            }
+          }
+        }
+        // do LTS on previous step
+        if(slts!=2 || superlayer()==2) {
+          if(is>DTConfig::NSTEPF && nTrig(is-1)>0) { // non empty step
+            DTBtiTrig* tr = trigger(is-1,1);
+            if( tr->code()<8 && (slts<=0||slts==2) ) {
+              if(config()->debug()>3)
+                cout<<"LTS: erasing trigger!"<<endl;                                
+              eraseTrigger(is-1,1); // delete trigger
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+int
+DTBtiChip::store(const int eq, const int code, const int K, const int X, 
+                     float KeqAB, float KeqBC, float KeqCD, 
+                     float KeqAC, float KeqBD, float KeqAD) {
+
+  // remove negative position triggers
+  if(X<0)return 0;
+
+  
+  // accept in range triggers (acceptances defined in constructor)
+  if(  ( config()->trigSetupGeom()==0  &&  (K>=_MinKAcc && K<=_MaxKAcc) )
+                                   ||
+       ( config()->trigSetupGeom()==1  &&  ((K>=_MinKleftTraco && K<=_MaxKleftTraco)
+                                                              ||
+                                           (K>=_MinKcenterTraco && K<=_MaxKcenterTraco)
+                                                              ||
+                                           (K>=_MinKrightTraco && K<=_MaxKrightTraco)) )  ){
+    int trig_step = currentStep();
+
+/*
+    //SV test 27/I/2003 1-clock delay for critical patterns in default ACx configuration 
+    int AC1 = config()->AccPattAC1(); //default 0
+    int AC2 = config()->AccPattAC2(); //default 3
+    int ACH = config()->AccPattACH(); //default 1
+    int ACL = config()->AccPattACL(); //default 2     
+
+    if(AC1==0 && AC2==3 && ACH==1 && ACL==2){
+      if(eq==1 || eq==4 || eq==7 || eq==8 || eq==9 || eq==12 || eq==15
+	|| eq==19 || eq==22 || eq==23 || eq==24 || eq==25 || eq==27 )
+	   trig_step = currentStep()+1;
+    }
+*/     
+    //store strobe
+    int strobe=-1;
+    if(config()->trigSetupGeom()==1){ 
+      if(K>=_MinKleftTraco && K<=_MaxKleftTraco)
+	strobe = 0;
+      if(K>=_MinKcenterTraco && K<=_MaxKcenterTraco)
+	strobe = 1;
+      if(K>=_MinKrightTraco && K<=_MaxKrightTraco)
+	strobe = 2;
+    }
+
+    // create a new trigger
+    float Keq[6] = {KeqAB,KeqBC,KeqCD,KeqAC,KeqBD,KeqAD};
+    //DTBtiTrig* trg = new DTBtiTrig(this,code,K,X,currentStep(),eq);
+    DTBtiTrig* trg = new DTBtiTrig(this,code,K,X,trig_step,eq,strobe,Keq);
+
+    // store also the digis
+    for(int c=0; c<9; c++) {
+      if(_thisStepUsedHit[c]) {
+        const DTDigi* digi = _thisStepUsedHit[c]->hitDigi();
+        if(digi)
+          trg->addDigi(digi);
+      }
+    }
+
+    //addTrig(currentStep(),trg);
+    addTrig(trig_step,trg);
+
+    // Debugging...
+    if(config()->debug()>1)
+      trg->print();
+    // end debugging
+    
+    return 1;
+  }
+  else{
+    // remove out of range triggers (acceptances defined in constructor)
+    if(config()->debug()>2){
+      cout << "DTBtiChip::store, at step "<< currentStep();
+      cout << " allowed K range is: [";
+      if(config()->trigSetupGeom()==0)
+        cout << _MinKAcc << ","<< _MaxKAcc << "]";
+      else
+ 	cout <<_MinKleftTraco<<","<<_MaxKleftTraco<<"] and [" 
+  	     <<_MinKcenterTraco<<","<<_MaxKcenterTraco<<"] and [" 
+	     <<_MinKrightTraco<<","<<_MaxKrightTraco<<"]" << endl;
+      cout << "K value is " << K << endl; 
+    }
+    return 0;
+  }//end else
+}//end store
+
+
+void
+DTBtiChip::setSnap(){
+
+ //set the internally calculated drift velocity parameters
+  ST43 = config()->ST43();
+  RE43 = config()->RE43();
+  ST23 = int(double(ST43)/2.);
+  RE23 = (RE43==1) ? 2 : int(double(RE43)/2.);
+
+
+  ST =  int(  double(ST43) * 3./4. + double(RE43) * 1./4.     );
+  ST2 = int( (double(ST43) * 3./4. + double(RE43) * 1./4.)*2. );
+  ST3 = int( (double(ST43) * 3./4. + double(RE43) * 1./4.)*3. );
+  ST4 = int( (double(ST43) * 3./4. + double(RE43) * 1./4.)*4. );
+  ST5 = int( (double(ST43) * 3./4. + double(RE43) * 1./4.)*5. );
+  ST7 = int( (double(ST43) * 3./4. + double(RE43) * 1./4.)*7. );
+
+  if(config()->debug()>3){
+    cout << "Snap register dump: " << endl;
+    cout << "ST43 = " << ST43 << endl;
+    cout << "RE43 = " << RE43 << endl;
+    cout << "ST23 = " << ST23 << endl;
+    cout << "RE23 = " << RE23 << endl;
+    cout << "ST = " << ST << endl;
+    cout << "ST2 = " << ST2 << endl;
+    cout << "ST3 = " << ST3 << endl;
+    cout << "ST4 = " << ST4 << endl;
+    cout << "ST5 = " << ST5 << endl;
+    cout << "ST7 = " << ST7 << endl;
+  }
+}
+
