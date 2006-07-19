@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.9 2006/06/30 22:24:18 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.10 2006/07/11 23:10:01 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -149,106 +149,153 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
 
 bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
   if (!fObject) return false;
-  std::string sql_query ("");
-  sql_query += "SELECT";         
-  sql_query += " DAT2.SIDE, DAT2.ETA, DAT2.PHI, DAT2.DEPTH, DAT2.SUBDETECTOR," ;
-  sql_query += " DAT.CAP0_RANGE0_OFFSET, DAT.CAP0_RANGE0_SLOPE," ;
-  sql_query += " DAT.CAP0_RANGE1_OFFSET, DAT.CAP1_RANGE0_SLOPE," ;
-  sql_query += " DAT.CAP0_RANGE2_OFFSET, DAT.CAP2_RANGE0_SLOPE," ;
-  sql_query += " DAT.CAP0_RANGE3_OFFSET, DAT.CAP3_RANGE0_SLOPE," ;
-  sql_query += " DAT.CAP1_RANGE0_OFFSET, DAT.CAP0_RANGE1_SLOPE," ;
-  sql_query += " DAT.CAP1_RANGE1_OFFSET, DAT.CAP1_RANGE1_SLOPE," ;
-  sql_query += " DAT.CAP1_RANGE2_OFFSET, DAT.CAP2_RANGE1_SLOPE," ;
-  sql_query += " DAT.CAP1_RANGE3_OFFSET, DAT.CAP3_RANGE1_SLOPE," ;
-  sql_query += " DAT.CAP2_RANGE0_OFFSET, DAT.CAP0_RANGE2_SLOPE," ;
-  sql_query += " DAT.CAP2_RANGE1_OFFSET, DAT.CAP1_RANGE2_SLOPE," ;
-  sql_query += " DAT.CAP2_RANGE2_OFFSET, DAT.CAP2_RANGE2_SLOPE," ;
-  sql_query += " DAT.CAP2_RANGE3_OFFSET, DAT.CAP3_RANGE2_SLOPE," ;
-  sql_query += " DAT.CAP3_RANGE0_OFFSET, DAT.CAP0_RANGE3_SLOPE," ;
-  sql_query += " DAT.CAP3_RANGE1_OFFSET, DAT.CAP1_RANGE3_SLOPE," ;
-  sql_query += " DAT.CAP3_RANGE2_OFFSET, DAT.CAP2_RANGE3_SLOPE," ;
-  sql_query += " DAT.CAP3_RANGE3_OFFSET, DAT.CAP3_RANGE3_SLOPE," ;
-  sql_query += " SLOT.NAME_LABEL, RM.RM_SLOT, QIE.QIE_SLOT, ADC.ADC_POSITION" ;
-  sql_query += " FROM " ;
-  sql_query += " CMS_HCL_HCAL_CONDITION_OWNER.QIECARD_ADC_NORMMODE DAT," ;
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS," ;
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC," ;
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN,";
-  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_ADCS ADC,";
-  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_QIECARDS QIE,";
-  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTMODULES RM,";
-  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOXS RBX,";
-  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOX_SLOTS SLOT,";
-  sql_query += " CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS DAT2,";
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS2,";
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC2,";
-  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN2";
-  sql_query += " WHERE";
-  sql_query += " DS.CONDITION_DATA_SET_ID=DAT.CONDITION_DATA_SET_ID ";
-  sql_query += " AND DS.PART_ID=ADC.PART_ID";
-  sql_query += " AND ADC.PART_PARENT_ID=QIE.PART_ID";
-  sql_query += " AND QIE.PART_PARENT_ID=RM.PART_ID";
-  sql_query += " AND RM.PART_PARENT_ID=RBX.PART_ID";
-  sql_query += " AND RBX.PART_PARENT_ID=SLOT.PART_ID";
-  sql_query += " AND KOC.KIND_OF_CONDITION_ID = DS.KIND_OF_CONDITION_ID " ;       
-  sql_query += " AND RN.COND_RUN_ID=DS.COND_RUN_ID";
-  sql_query += " AND KOC.IS_RECORD_DELETED='F' AND DS.IS_RECORD_DELETED='F'";
-  sql_query += " AND KOC.NAME='QIE Responce Normal Mode' and DS.VERSION='2'";
-  sql_query += " AND";
-  sql_query += " DS2.CONDITION_DATA_SET_ID=DAT2.CONDITION_DATA_SET_ID AND";
-  sql_query += " KOC2.KIND_OF_CONDITION_ID=DS2.KIND_OF_CONDITION_ID AND";
-  sql_query += " RN2.COND_RUN_ID=DS2.COND_RUN_ID AND";
-  sql_query += " KOC2.IS_RECORD_DELETED='F' AND DS2.IS_RECORD_DELETED='F' AND";
-  sql_query += " KOC2.EXTENSION_TABLE_NAME='HCAL_HARDWARE_LOGICAL_MAPS' AND";
-  sql_query += " RN2.RUN_NAME='HCAL-LOGICAL-MAP-27APR06' AND";
-  sql_query += " DS2.VERSION='5'";
-  sql_query += " AND        ";
-  sql_query += " SLOT.NAME_LABEL=DAT2.RBX_SLOT AND";
-  sql_query += " RM.RM_SLOT=DAT2.RM_SLOT AND";
-  sql_query += " QIE.QIE_SLOT=DAT2.QIE_SLOT AND";
-  sql_query += " ADC.ADC_POSITION=DAT2.ADC";
+  std::string sql_what ("");
+  sql_what += " ADC_CH.SIDE, ADC_CH.ETA, ADC_CH.PHI, ADC_CH.DEPTH, ADC_CH.SUBDETECTOR,\n" ;
+  sql_what += " DAT.CAP0_RANGE0_OFFSET, DAT.CAP0_RANGE0_SLOPE,\n" ;
+  sql_what += " DAT.CAP0_RANGE1_OFFSET, DAT.CAP1_RANGE0_SLOPE,\n" ;
+  sql_what += " DAT.CAP0_RANGE2_OFFSET, DAT.CAP2_RANGE0_SLOPE,\n" ;
+  sql_what += " DAT.CAP0_RANGE3_OFFSET, DAT.CAP3_RANGE0_SLOPE,\n" ;
+  sql_what += " DAT.CAP1_RANGE0_OFFSET, DAT.CAP0_RANGE1_SLOPE,\n" ;
+  sql_what += " DAT.CAP1_RANGE1_OFFSET, DAT.CAP1_RANGE1_SLOPE,\n" ;
+  sql_what += " DAT.CAP1_RANGE2_OFFSET, DAT.CAP2_RANGE1_SLOPE,\n" ;
+  sql_what += " DAT.CAP1_RANGE3_OFFSET, DAT.CAP3_RANGE1_SLOPE,\n" ;
+  sql_what += " DAT.CAP2_RANGE0_OFFSET, DAT.CAP0_RANGE2_SLOPE,\n" ;
+  sql_what += " DAT.CAP2_RANGE1_OFFSET, DAT.CAP1_RANGE2_SLOPE,\n" ;
+  sql_what += " DAT.CAP2_RANGE2_OFFSET, DAT.CAP2_RANGE2_SLOPE,\n" ;
+  sql_what += " DAT.CAP2_RANGE3_OFFSET, DAT.CAP3_RANGE2_SLOPE,\n" ;
+  sql_what += " DAT.CAP3_RANGE0_OFFSET, DAT.CAP0_RANGE3_SLOPE,\n" ;
+  sql_what += " DAT.CAP3_RANGE1_OFFSET, DAT.CAP1_RANGE3_SLOPE,\n" ;
+  sql_what += " DAT.CAP3_RANGE2_OFFSET, DAT.CAP2_RANGE3_SLOPE,\n" ;
+  sql_what += " DAT.CAP3_RANGE3_OFFSET, DAT.CAP3_RANGE3_SLOPE \n" ;
+
+  // HB/HE/HO
+  std::string sql_hbheho ("");
+  sql_hbheho += " FROM  \n";
+  sql_hbheho += "  CMS_HCL_HCAL_CONDITION_OWNER.QIECARD_ADC_NORMMODE DAT\n";
+  sql_hbheho += "  inner join CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS\n";
+  sql_hbheho += "  on DAT.CONDITION_DATA_SET_ID=DS.CONDITION_DATA_SET_ID\n";
+  sql_hbheho += "  inner join     \n";
+  sql_hbheho += "  (  \n";
+  sql_hbheho += "  select\n";
+  sql_hbheho += "       LOGMAP.SIDE,\n";
+  sql_hbheho += "       LOGMAP.ETA,\n";
+  sql_hbheho += "       LOGMAP.PHI,\n";
+  sql_hbheho += "       LOGMAP.DEPTH,\n";
+  sql_hbheho += "       LOGMAP.SUBDETECTOR,\n";
+  sql_hbheho += "       ADC_CHAIN.ADC_PART_ID\n";
+  sql_hbheho += "      from\n";
+  sql_hbheho += "       CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS LOGMAP\n";
+  sql_hbheho += "       inner join CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS LOGMAP_DS\n";
+  sql_hbheho += "       on LOGMAP_DS.CONDITION_DATA_SET_ID=LOGMAP.CONDITION_DATA_SET_ID\n";
+  sql_hbheho += "       inner join\n";
+  sql_hbheho += "       (\n";
+  sql_hbheho += "            select ADC.PART_ID as ADC_PART_ID, \n";
+  sql_hbheho += "            SLOT.NAME_LABEL    as RBX_SLOT,\n";
+  sql_hbheho += "            RM.RM_SLOT         as RM_SLOT,\n";
+  sql_hbheho += "            QIE.QIE_SLOT       as QIE_SLOT,\n";
+  sql_hbheho += "            ADC.ADC_POSITION   as ADC\n";
+  sql_hbheho += "            from CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOX_SLOTS SLOT\n";
+  sql_hbheho += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOXS RBX\n";
+  sql_hbheho += "            on RBX.PART_PARENT_ID=SLOT.PART_ID\n";
+  sql_hbheho += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTMODULES RM\n";
+  sql_hbheho += "            on RM.PART_PARENT_ID=RBX.PART_ID\n";
+  sql_hbheho += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_QIECARDS QIE\n";
+  sql_hbheho += "            on QIE.PART_PARENT_ID=RM.PART_ID\n";
+  sql_hbheho += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_ADCS ADC\n";
+  sql_hbheho += "            on ADC.PART_PARENT_ID=QIE.PART_ID \n";
+  sql_hbheho += "       ) ADC_CHAIN\n";
+  sql_hbheho += "       on ADC_CHAIN.RBX_SLOT = LOGMAP.RBX_SLOT and\n";
+  sql_hbheho += "          ADC_CHAIN.RM_SLOT = LOGMAP.RM_SLOT and\n";
+  sql_hbheho += "          ADC_CHAIN.QIE_SLOT = LOGMAP.QIE_SLOT and\n";
+  sql_hbheho += "          ADC_CHAIN.ADC = LOGMAP.ADC\n";
+  sql_hbheho += "          where LOGMAP_DS.VERSION='9'\n";
+  sql_hbheho += "      ) ADC_CH\n";
+  sql_hbheho += "      on DS.PART_ID=ADC_CH.ADC_PART_ID\n";
+  sql_hbheho += "    where DS.VERSION='2'\n";
+
+
+  // HF
+  std::string sql_hf ("");
+  sql_hf += " FROM  \n";
+  sql_hf += "  CMS_HCL_HCAL_CONDITION_OWNER.QIECARD_ADC_NORMMODE DAT\n";
+  sql_hf += "  inner join CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS\n";
+  sql_hf += "  on DAT.CONDITION_DATA_SET_ID=DS.CONDITION_DATA_SET_ID\n";
+  sql_hf += "  inner join     \n";
+  sql_hf += "  (  \n";
+  sql_hf += "  select\n";
+  sql_hf += "       LOGMAP.SIDE,\n";
+  sql_hf += "       LOGMAP.ETA,\n";
+  sql_hf += "       LOGMAP.PHI,\n";
+  sql_hf += "       LOGMAP.DEPTH,\n";
+  sql_hf += "       LOGMAP.SUBDETECTOR,\n";
+  sql_hf += "       ADC_CHAIN.ADC_PART_ID\n";
+  sql_hf += "      from\n";
+  sql_hf += "       CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS LOGMAP\n";
+  sql_hf += "       inner join CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS LOGMAP_DS\n";
+  sql_hf += "       on LOGMAP_DS.CONDITION_DATA_SET_ID=LOGMAP.CONDITION_DATA_SET_ID\n";
+  sql_hf += "       inner join\n";
+  sql_hf += "       (\n";
+  sql_hf += "            select ADC.PART_ID as ADC_PART_ID, \n";
+  sql_hf += "            SLOT.NAME_LABEL      as CRATE_SLOT,\n";
+  sql_hf += "            QIE.QIE_SLOT       as QIE_SLOT,\n";
+  sql_hf += "            ADC.ADC_POSITION   as ADC\n";
+  sql_hf += "            from CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_WEDGE_SLOTS SLOT\n";
+  sql_hf += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_HF_FE_CRATE CR\n";
+  sql_hf += "            on CR.PART_PARENT_ID=SLOT.PART_ID\n";
+  sql_hf += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_QIECARDS QIE\n";
+  sql_hf += "            on QIE.PART_PARENT_ID=CR.PART_ID\n";
+  sql_hf += "            inner join CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_ADCS ADC\n";
+  sql_hf += "            on ADC.PART_PARENT_ID=QIE.PART_ID \n";
+  sql_hf += "         ) ADC_CHAIN\n";
+  sql_hf += "       on ADC_CHAIN.CRATE_SLOT = LOGMAP.RBX_SLOT and\n";
+  sql_hf += "          ADC_CHAIN.QIE_SLOT = LOGMAP.QIE_SLOT and\n";
+  sql_hf += "          ADC_CHAIN.ADC = LOGMAP.ADC\n";
+  sql_hf += "          where LOGMAP_DS.VERSION='9'\n";
+  sql_hf += "      ) ADC_CH\n";
+  sql_hf += "      on DS.PART_ID=ADC_CH.ADC_PART_ID\n";
+  sql_hf += "    where DS.VERSION='2'\n";
   
+  std::string sql_query [2];
+  sql_query [0] = " SELECT \n" + sql_what + sql_hbheho;
+  sql_query [1] = " SELECT \n" + sql_what + sql_hf;
+
   try {
-    if (mVerbose) std::cout << "executing query: \n" << sql_query << std::endl;
-    //    oracle::occi::Statement* stmt = mConnect->createStatement ();
-    mStatement->setPrefetchRowCount (100);
-    mStatement->setSQL (sql_query);
-    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
-    while (rset->next ()) {
-      int index = 1;
-      int z = rset->getInt (index++);
-      int eta = rset->getInt (index++);
-      int phi = rset->getInt (index++);
-      int depth = rset->getInt (index++);
-      std::string subdet = rset->getString (index++);
-      float offset [4][4];
-      float slope [4][4];
-      for (int capId = 0; capId < 4; capId++) {
-	for (int range = 0; range < 4; range++) {
-	  offset [capId][range] = rset->getFloat (index++);
-	  slope [capId][range] = rset->getFloat (index++);
+    for (int i = 0; i < 2; i++) {
+      if (mVerbose) std::cout << "executing query: \n" << sql_query[i] << std::endl;
+      mStatement->setPrefetchRowCount (100);
+      mStatement->setSQL (sql_query [i]);
+      oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+      while (rset->next ()) {
+	int index = 1;
+	int z = rset->getInt (index++);
+	int eta = rset->getInt (index++);
+	int phi = rset->getInt (index++);
+	int depth = rset->getInt (index++);
+	std::string subdet = rset->getString (index++);
+	float offset [4][4];
+	float slope [4][4];
+	for (int capId = 0; capId < 4; capId++) {
+	  for (int range = 0; range < 4; range++) {
+	    offset [capId][range] = rset->getFloat (index++);
+	    slope [capId][range] = rset->getFloat (index++);
+	  }
 	}
-      }
-      std::string slot = rset->getString (index++);
-      int rm = rset->getInt (index++);
-      int qie = rset->getInt (index++);
-      int adc = rset->getInt (index++);
-
-      HcalQIECoder coder;
-      for (int capId = 0; capId < 4; capId++) {
-	for (int range = 0; range < 4; range++) {
-	  coder.setOffset (capId, range, offset [capId][range]);
-	  coder.setSlope (capId, range, slope [capId][range]);	   
+	
+	HcalQIECoder coder;
+	for (int capId = 0; capId < 4; capId++) {
+	  for (int range = 0; range < 4; range++) {
+	    coder.setOffset (capId, range, offset [capId][range]);
+	    coder.setSlope (capId, range, slope [capId][range]);	   
+	  }
 	}
+	
+	HcalSubdetector sub = hcalSubdet (subdet);
+	HcalDetId id (sub, z * eta, phi, depth);
+	
+	fObject->addCoder (id, coder);
       }
-
-      HcalSubdetector sub = hcalSubdet (subdet);
-      HcalDetId id (sub, z * eta, phi, depth);
-
-      fObject->addCoder (id, coder);
+      delete rset;
     }
-    delete rset;
-    //    delete stmt;
   }
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
