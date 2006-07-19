@@ -48,7 +48,7 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 
   RefCountedLinearizedTrackState linTrack = 
   			lTrackFactory.linearizedTrackState(linP, track);
-  GlobalError err(RecoVertex::convertError(vertex.error()));
+  GlobalError err(RecoVertex::convertError(vertex.covariance()));
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 

@@ -20,9 +20,9 @@ Measurement1D
 VertexDistance3D::distance(const Vertex & vtx1, const Vertex & vtx2) const
 {
   return distance(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
-		  RecoVertex::convertError(vtx1.error()),
+		  RecoVertex::convertError(vtx1.covariance()),
   		  GlobalPoint(Basic3DVector<float> (vtx2.position())), 
-		  RecoVertex::convertError(vtx2.error()));
+		  RecoVertex::convertError(vtx2.covariance()));
 }
 
 Measurement1D
@@ -75,9 +75,9 @@ float VertexDistance3D::compatibility(const Vertex & vtx1,
 				      const Vertex & vtx2) const
 {
   return compatibility(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
-		       RecoVertex::convertError(vtx1.error()),
+		       RecoVertex::convertError(vtx1.covariance()),
 		       GlobalPoint(Basic3DVector<float> (vtx2.position())), 
-		       RecoVertex::convertError(vtx2.error()));
+		       RecoVertex::convertError(vtx2.covariance()));
 }
 
 

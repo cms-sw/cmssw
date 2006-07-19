@@ -42,7 +42,7 @@ VertexCompatibleWithBeam::operator=(const VertexCompatibleWithBeam & other)
 bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v) const 
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.error()));
+  VertexState vs(p, RecoVertex::convertError(v.covariance()));
   return (theDistance->distance(vs, theBeam).value() < theCut);
 }
 
@@ -50,6 +50,6 @@ bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v) const
 float VertexCompatibleWithBeam::distanceToBeam(const reco::Vertex & v) const
 {
   GlobalPoint p(Basic3DVector<float> (v.position()));
-  VertexState vs(p, RecoVertex::convertError(v.error()));
+  VertexState vs(p, RecoVertex::convertError(v.covariance()));
   return theDistance->distance(vs, theBeam).value();
 }
