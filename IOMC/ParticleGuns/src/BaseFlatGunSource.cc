@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/05/26 22:07:49 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/10 20:58:31 $
+ *  $Revision: 1.13 $
  *  \author Julia Yarba
  */
 
@@ -15,6 +15,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+// #include "FWCore/Framework/intercface/ESHandle.h"
+// #include "FWCore/Framework/interface/EventSetup.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -26,8 +30,8 @@ using namespace CLHEP;
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
    GeneratedInputSource (pset, desc),
-   fEvt(0),
-   fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
+   fEvt(0)
+   // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
    ParameterSet defpset ;
@@ -49,6 +53,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
 
   //
   //fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
+/*
   string HepPDTBase( getenv("HEPPDT_PARAM_PATH") ) ; 
   fPDGTablePath = HepPDTBase + "/data/" ;
   fPDGTableName = "PDG_mass_width_2004.mc"; // should it be 2004 table ?
@@ -64,6 +69,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   HepPDT::TableBuilder tb(*fPDGTable) ;
   if ( !addPDGParticles( PDFile, tb ) ) { cout << " Error reading PDG !" << endl; }
   // the tb dtor fills fPDGTable
+*/
 
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
@@ -74,8 +80,8 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
    fRandomGenerator = new RandFlat(fRandomEngine) ;
    
    fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
- 
-  cout << "Internal BaseFlatGunSource is initialzed" << endl ;
+   
+   cout << "Internal BaseFlatGunSource is initialzed" << endl ;
    
 }
 
@@ -87,6 +93,16 @@ BaseFlatGunSource::~BaseFlatGunSource()
   
   // no need to cleanup GenEvent memory - done in HepMCProduct
   // if (fEvt != NULL) delete fEvt ; // double check
-  delete fPDGTable;
+  // delete fPDGTable;
   
+}
+
+
+void BaseFlatGunSource::beginJob( const EventSetup& es )
+{
+
+   es.getData( fPDGTable ) ;
+
+   return ;
+
 }

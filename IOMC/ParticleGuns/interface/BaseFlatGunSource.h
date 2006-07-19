@@ -16,6 +16,8 @@
 #include "CLHEP/HepMC/GenEvent.h"
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -33,7 +35,7 @@ namespace edm
     BaseFlatGunSource(const ParameterSet &, const InputSourceDescription&  );
     // BaseFlatGunSource( const ParameterSet& ) ;
     virtual ~BaseFlatGunSource();
-    
+    void beginJob( const edm::EventSetup& ) ;
   private:
    
   protected :
@@ -54,13 +56,15 @@ namespace edm
 
     // HepMC/HepPDT related things 
     // (for particle/event construction)
-    std::string      fPDGTablePath ;
-    std::string      fPDGTableName ; 
-    DefaultConfig::ParticleDataTable* fPDGTable;
-        	    	
+    //std::string      fPDGTablePath ;
+    //std::string      fPDGTableName ; 
+    // DefaultConfig::ParticleDataTable* fPDGTable;
+    // DefaultConfig::ParticleDataTable* fTestTable ;
+    ESHandle<DefaultConfig::ParticleDataTable> fPDGTable ;
+            	    	
     int              fVerbosity ;
-    
-    HepRandomEngine* fRandomEngine;
+
+    HepRandomEngine* fRandomEngine ;
     RandFlat*        fRandomGenerator; 
     
     bool             fAddAntiParticle;
