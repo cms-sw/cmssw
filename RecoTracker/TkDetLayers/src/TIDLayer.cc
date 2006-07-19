@@ -298,17 +298,20 @@ TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
 int
 TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) const
 {
-  int theBin = 0;
- const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
+
+  int firstIndexToCheck = (closest != 0)? 0 : 1; 
+  const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[firstIndexToCheck]);
   float initialR = ( theFrontRing->specificSurface().innerRadius() +
 		     theFrontRing->specificSurface().outerRadius())/2.;	     
+
   float rDiff = fabs( ringCrossing.front().perp() - initialR);
-  for (int i = 0; i < 3 ; i++){
+  int theBin = firstIndexToCheck;
+  for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
       const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
       float ringR = ( theRing->specificSurface().innerRadius() + theRing->specificSurface().outerRadius())/2.;
       float testDiff = fabs( ringCrossing[i].perp() - ringR);
-      if ( theBin<0 || testDiff<rDiff ) {
+      if ( testDiff<rDiff ) {
 	rDiff = testDiff;
 	theBin = i;
       }
