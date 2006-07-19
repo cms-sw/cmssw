@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 18:04:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/12 13:45:00 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -11,7 +11,6 @@
 // This Class' Header --
 //----------------------
 #include "CondFormats/DTObjects/interface/DTRangeT0.h"
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -35,35 +34,54 @@ DTRangeT0::DTRangeT0():
   dataVersion( " " ) {
 }
 
+
 DTRangeT0::DTRangeT0( const std::string& version ):
   dataVersion( version ) {
 }
 
-DTSLRangeT0Data::DTSLRangeT0Data() :
+
+DTRangeT0Id::DTRangeT0Id() :
     wheelId( 0 ),
   stationId( 0 ),
    sectorId( 0 ),
-       slId( 0 ),
-      t0min( 0 ),
-      t0max( 0 ) {
+       slId( 0 ) {
 }
+
+
+DTRangeT0Data::DTRangeT0Data() :
+  t0min( 0 ),
+  t0max( 0 ) {
+}
+
 
 //--------------
 // Destructor --
 //--------------
 DTRangeT0::~DTRangeT0() {
-  std::string rangeT0VersionMin = dataVersion + "_rangeT0Min";
-  std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
-  DTDataBuffer<int,int>::dropBuffer( rangeT0VersionMin );
-  DTDataBuffer<int,int>::dropBuffer( rangeT0VersionMax );
 }
 
-DTSLRangeT0Data::~DTSLRangeT0Data() {
+
+DTRangeT0Id::~DTRangeT0Id() {
 }
+
+
+DTRangeT0Data::~DTRangeT0Data() {
+}
+
 
 //--------------
 // Operations --
 //--------------
+bool DTRangeT0Compare::operator()( const DTRangeT0Id& idl,
+                                   const DTRangeT0Id& idr ) const {
+  if ( idl.  wheelId < idr.  wheelId ) return true;
+  if ( idl.stationId < idr.stationId ) return true;
+  if ( idl. sectorId < idr. sectorId ) return true;
+  if ( idl.     slId < idr.     slId ) return true;
+  return false;
+}
+
+
 int DTRangeT0::slRangeT0( int   wheelId,
                           int stationId,
                           int  sectorId,
@@ -74,35 +92,22 @@ int DTRangeT0::slRangeT0( int   wheelId,
   t0min = 0;
   t0max = 0;
 
-  std::string rangeT0VersionMin = dataVersion + "_rangeT0Min";
-  std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
-  DTBufferTree<int,int>* minT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMin );
-  DTBufferTree<int,int>* maxT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMax );
+  DTRangeT0Id key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
+  std::map<DTRangeT0Id,
+           DTRangeT0Data,
+           DTRangeT0Compare>::const_iterator iter = slData.find( key );
 
-  if ( minT0Buf == 0 ) {
-    initSetup();
-    minT0Buf = DTDataBuffer<int,int>::findBuffer( rangeT0VersionMin );
+  if ( iter != slData.end() ) {
+    const DTRangeT0Data& data = iter->second;
+    t0min = data.t0min;
+    t0max = data.t0max;
+    return 0;
   }
-
-  if ( maxT0Buf == 0 ) {
-    initSetup();
-    maxT0Buf = DTDataBuffer<int,int>::findBuffer( rangeT0VersionMax );
-  }
-
-  std::vector<int> slKey;
-  slKey.push_back(   wheelId );
-  slKey.push_back( stationId );
-  slKey.push_back(  sectorId );
-  slKey.push_back(      slId );
-//  t0min = minT0Buf->find( slKey.begin(), slKey.end() );
-//  t0max = maxT0Buf->find( slKey.begin(), slKey.end() );
-  int searchStatusMin = minT0Buf->find( slKey.begin(), slKey.end(), t0min );
-  int searchStatusMax = maxT0Buf->find( slKey.begin(), slKey.end(), t0max );
-
-//  return 1;
-  return ( searchStatusMin || searchStatusMax );
+  return 1;
 
 }
 
@@ -142,32 +147,26 @@ int DTRangeT0::setSLRangeT0( int   wheelId,
                              int     t0min,
                              int     t0max ) {
 
-  DTSLRangeT0Data data;
-  data.  wheelId =   wheelId;
-  data.stationId = stationId;
-  data. sectorId =  sectorId;
-  data.     slId =      slId;
-  data.    t0min =     t0min;
-  data.    t0max =     t0max;
+  DTRangeT0Id key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
 
-  slData.push_back( data );
-
-  std::string rangeT0VersionMin = dataVersion + "_rangeT0Min";
-  std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
-
-  DTBufferTree<int,int>* minT0Buf =
-  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMin );
-  DTBufferTree<int,int>* maxT0Buf =
-  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMax );
-
-  std::vector<int> slKey;
-  slKey.push_back(   wheelId );
-  slKey.push_back( stationId );
-  slKey.push_back(  sectorId );
-  slKey.push_back(      slId );
-
-  minT0Buf->insert( slKey.begin(), slKey.end(), t0min );
-  maxT0Buf->insert( slKey.begin(), slKey.end(), t0max );
+  std::map<DTRangeT0Id,
+           DTRangeT0Data,
+           DTRangeT0Compare>::iterator iter = slData.find( key );
+  if ( iter != slData.end() ) {
+    DTRangeT0Data& data = iter->second;
+    data.t0min = t0min;
+    data.t0max = t0max;
+  }
+  else {
+    DTRangeT0Data data;
+    data.t0min = t0min;
+    data.t0max = t0max;
+    slData.insert( std::pair<const DTRangeT0Id,DTRangeT0Data>( key, data ) );
+  }
 
   return 0;
 
@@ -194,47 +193,4 @@ DTRangeT0::const_iterator DTRangeT0::end() const {
   return slData.end();
 }
 
-
-void DTRangeT0::initSetup() const {
-
-  std::string rangeT0VersionMin = dataVersion + "_rangeT0Min";
-  std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
-
-  DTBufferTree<int,int>* minT0Buf =
-  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMin );
-  DTBufferTree<int,int>* maxT0Buf =
-  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMax );
-
-  std::vector<DTSLRangeT0Data>::const_iterator iter = slData.begin();
-  std::vector<DTSLRangeT0Data>::const_iterator iend = slData.end();
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int     t0min;
-  int     t0max;
-  while ( iter != iend ) {
-
-    const DTSLRangeT0Data& data = *iter++;
-      wheelId = data.  wheelId;
-    stationId = data.stationId;
-     sectorId = data. sectorId;
-         slId = data.     slId;
-
-    std::vector<int> slKey;
-    slKey.push_back(   wheelId );
-    slKey.push_back( stationId );
-    slKey.push_back(  sectorId );
-    slKey.push_back(      slId );
-
-    t0min = data.t0min;
-    t0max = data.t0max;
-    minT0Buf->insert( slKey.begin(), slKey.end(), t0min );
-    maxT0Buf->insert( slKey.begin(), slKey.end(), t0max );
-
-  }
-
-  return;
-
-}
 

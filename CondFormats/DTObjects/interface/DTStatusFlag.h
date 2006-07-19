@@ -3,11 +3,11 @@
 /** \class DTStatusFlag
  *
  *  Description:
- *       Class to hold drift tubes status ( noise and masks )
- *             ( cell by cell time offsets )
+ *       Class to hold drift tubes status
+ *             ( cell by cell noise and masks )
  *
- *  $Date: 2006/05/17 10:33:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/12 13:45:12 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,18 +26,18 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTCellStatusFlagData {
+class DTStatusFlagId {
 
  public:
 
-  DTCellStatusFlagData();
-  ~DTCellStatusFlagData();
+  DTStatusFlagId();
+  ~DTStatusFlagId();
 
   int   wheelId;
   int stationId;
@@ -45,6 +45,17 @@ class DTCellStatusFlagData {
   int      slId;
   int   layerId;
   int    cellId;
+
+};
+
+
+class DTStatusFlagData {
+
+ public:
+
+  DTStatusFlagData();
+  ~DTStatusFlagData();
+
   bool noiseFlag;
   bool    feMask;
   bool   tdcMask;
@@ -52,6 +63,13 @@ class DTCellStatusFlagData {
   bool  deadFlag;
   bool  nohvFlag;
 
+};
+
+
+class DTStatusFlagCompare {
+ public:
+  bool operator()( const DTStatusFlagId& idl,
+                   const DTStatusFlagId& idr ) const;
 };
 
 
@@ -180,18 +198,17 @@ class DTStatusFlag {
                    bool flag );
 
   /// Access methods to data
-  typedef std::vector<DTCellStatusFlagData>::const_iterator const_iterator;
+  typedef std::map<DTStatusFlagId,
+                   DTStatusFlagData,
+                   DTStatusFlagCompare>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
  private:
 
-  /// read and store full content
-  void initSetup() const;
-
   std::string dataVersion;
 
-  std::vector<DTCellStatusFlagData> cellData;
+  std::map<DTStatusFlagId,DTStatusFlagData,DTStatusFlagCompare> cellData;
 
 };
 

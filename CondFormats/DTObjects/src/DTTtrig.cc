@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/19 17:09:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/12 13:45:00 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -11,7 +11,6 @@
 // This Class' Header --
 //----------------------
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -36,36 +35,55 @@ DTTtrig::DTTtrig():
   nsPerCount( 25.0 / 32.0 ) {
 }
 
+
 DTTtrig::DTTtrig( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
 }
 
-DTSLTtrigData::DTSLTtrigData() :
+
+DTTtrigId::DTTtrigId() :
     wheelId( 0 ),
   stationId( 0 ),
    sectorId( 0 ),
-       slId( 0 ),
-      tTrig( 0.0 ),
-      tTrms( 0.0 ) {
+       slId( 0 ) {
 }
+
+
+DTTtrigData::DTTtrigData() :
+  tTrig( 0.0 ),
+  tTrms( 0.0 ) {
+}
+
 
 //--------------
 // Destructor --
 //--------------
 DTTtrig::~DTTtrig() {
-  std::string tTrigVersionM = dataVersion + "_tTrigM";
-  std::string tTrigVersionR = dataVersion + "_tTrigR";
-  DTDataBuffer<int,float>::dropBuffer( tTrigVersionM );
-  DTDataBuffer<int,float>::dropBuffer( tTrigVersionR );
 }
 
-DTSLTtrigData::~DTSLTtrigData() {
+
+DTTtrigId::~DTTtrigId() {
 }
+
+
+DTTtrigData::~DTTtrigData() {
+}
+
 
 //--------------
 // Operations --
 //--------------
+bool DTTtrigCompare::operator()( const DTTtrigId& idl,
+                                 const DTTtrigId& idr ) const {
+  if ( idl.  wheelId < idr.  wheelId ) return true;
+  if ( idl.stationId < idr.stationId ) return true;
+  if ( idl. sectorId < idr. sectorId ) return true;
+  if ( idl.     slId < idr.     slId ) return true;
+  return false;
+}
+
+
 int DTTtrig::slTtrig( int   wheelId,
                       int stationId,
                       int  sectorId,
@@ -77,40 +95,26 @@ int DTTtrig::slTtrig( int   wheelId,
   tTrig = 0.0;
   tTrms = 0.0;
 
-  std::string tTrigVersionM = dataVersion + "_tTrigM";
-  std::string tTrigVersionR = dataVersion + "_tTrigR";
-  DTBufferTree<int,float>* dataBuf =
-  DTDataBuffer<int,float>::findBuffer( tTrigVersionM );
-  DTBufferTree<int,float>* drmsBuf =
-  DTDataBuffer<int,float>::findBuffer( tTrigVersionR );
+  DTTtrigId key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
+  std::map<DTTtrigId,
+           DTTtrigData,
+           DTTtrigCompare>::const_iterator iter = slData.find( key );
 
-  if ( dataBuf == 0 ) {
-    initSetup();
-    dataBuf = DTDataBuffer<int,float>::findBuffer( tTrigVersionM );
+  if ( iter != slData.end() ) {
+    const DTTtrigData& data = iter->second;
+    tTrig = data.tTrig;
+    tTrms = data.tTrms;
+    if ( unit == DTTimeUnits::ns ) {
+      tTrig *= nsPerCount;
+      tTrms *= nsPerCount;
+    }
+    return 0;
   }
-
-  if ( drmsBuf == 0 ) {
-    initSetup();
-    drmsBuf = DTDataBuffer<int,float>::findBuffer( tTrigVersionR );
-  }
-
-  std::vector<int> slKey;
-  slKey.push_back(   wheelId );
-  slKey.push_back( stationId );
-  slKey.push_back(  sectorId );
-  slKey.push_back(      slId );
-//  tTrig = dataBuf->find( slKey.begin(), slKey.end() );
-//  tTrms = drmsBuf->find( slKey.begin(), slKey.end() );
-  int searchStatusM = dataBuf->find( slKey.begin(), slKey.end(), tTrig );
-  int searchStatusR = drmsBuf->find( slKey.begin(), slKey.end(), tTrms );
-
-  if ( unit == DTTimeUnits::ns ) {
-    tTrig *= nsPerCount;
-    tTrms *= nsPerCount;
-  }
-
-//  return 1;
-  return ( searchStatusM || searchStatusR );
+  return 1;
 
 }
 
@@ -162,32 +166,26 @@ int DTTtrig::setSLTtrig( int   wheelId,
     tTrms /= nsPerCount;
   }
 
-  DTSLTtrigData data;
-  data.  wheelId =   wheelId;
-  data.stationId = stationId;
-  data. sectorId =  sectorId;
-  data.     slId =      slId;
-  data.    tTrig =     tTrig;
-  data.    tTrms =     tTrms;
+  DTTtrigId key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
 
-  slData.push_back( data );
-
-  std::string tTrigVersionM = dataVersion + "_tTrigM";
-  std::string tTrigVersionR = dataVersion + "_tTrigR";
-
-  DTBufferTree<int,float>* dataBuf =
-  DTDataBuffer<int,float>::openBuffer( tTrigVersionM );
-  DTBufferTree<int,float>* drmsBuf =
-  DTDataBuffer<int,float>::openBuffer( tTrigVersionR );
-
-  std::vector<int> slKey;
-  slKey.push_back(   wheelId );
-  slKey.push_back( stationId );
-  slKey.push_back(  sectorId );
-  slKey.push_back(      slId );
-
-  dataBuf->insert( slKey.begin(), slKey.end(), tTrig );
-  drmsBuf->insert( slKey.begin(), slKey.end(), tTrms );
+  std::map<DTTtrigId,
+           DTTtrigData,
+           DTTtrigCompare>::iterator iter = slData.find( key );
+  if ( iter != slData.end() ) {
+    DTTtrigData& data = iter->second;
+    data.tTrig = tTrig;
+    data.tTrms = tTrms;
+  }
+  else {
+    DTTtrigData data;
+    data.tTrig = tTrig;
+    data.tTrms = tTrms;
+    slData.insert( std::pair<const DTTtrigId,DTTtrigData>( key, data ) );
+  }
 
   return 0;
 
@@ -220,47 +218,4 @@ DTTtrig::const_iterator DTTtrig::end() const {
   return slData.end();
 }
 
-
-void DTTtrig::initSetup() const {
-
-  std::string tTrigVersionM = dataVersion + "_tTrigM";
-  std::string tTrigVersionR = dataVersion + "_tTrigR";
-
-  DTBufferTree<int,float>* dataBuf =
-  DTDataBuffer<int,float>::openBuffer( tTrigVersionM );
-  DTBufferTree<int,float>* drmsBuf =
-  DTDataBuffer<int,float>::openBuffer( tTrigVersionR );
-
-  std::vector<DTSLTtrigData>::const_iterator iter = slData.begin();
-  std::vector<DTSLTtrigData>::const_iterator iend = slData.end();
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  float tTrig;
-  float tTrms;
-  while ( iter != iend ) {
-
-    const DTSLTtrigData& data = *iter++;
-      wheelId = data.  wheelId;
-    stationId = data.stationId;
-     sectorId = data. sectorId;
-         slId = data.     slId;
-
-    std::vector<int> slKey;
-    slKey.push_back(   wheelId );
-    slKey.push_back( stationId );
-    slKey.push_back(  sectorId );
-    slKey.push_back(      slId );
-
-    tTrig = data.tTrig;
-    tTrms = data.tTrms;
-    dataBuf->insert( slKey.begin(), slKey.end(), tTrig );
-    drmsBuf->insert( slKey.begin(), slKey.end(), tTrms );
-
-  }
-
-  return;
-
-}
 

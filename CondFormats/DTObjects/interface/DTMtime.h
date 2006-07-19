@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2006/05/04 06:54:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/17 10:33:51 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,26 +27,44 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTSLMtimeData {
+class DTMtimeId {
 
  public:
 
-  DTSLMtimeData();
-  ~DTSLMtimeData();
+  DTMtimeId();
+  ~DTMtimeId();
 
   int   wheelId;
   int stationId;
   int  sectorId;
   int      slId;
+
+};
+
+
+class DTMtimeData {
+
+ public:
+
+  DTMtimeData();
+  ~DTMtimeData();
+
   float mTime;
   float mTrms;
 
+};
+
+
+class DTMtimeCompare {
+ public:
+  bool operator()( const DTMtimeId& idl,
+                   const DTMtimeId& idr ) const;
 };
 
 
@@ -101,19 +119,18 @@ class DTMtime {
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::vector<DTSLMtimeData>::const_iterator const_iterator;
+  typedef std::map<DTMtimeId,
+                   DTMtimeData,
+                   DTMtimeCompare>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
  private:
 
-  /// read and store full content
-  void initSetup() const;
-
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector<DTSLMtimeData> slData;
+  std::map<DTMtimeId,DTMtimeData,DTMtimeCompare> slData;
 
 };
 

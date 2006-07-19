@@ -103,7 +103,6 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
                                      layerId,
                                       cellId );
 
-  if ( !status )
   wireId = DTWireId( wheelId, stationId, sectorId, slId, layerId, cellId );
   return status;
 
@@ -142,8 +141,6 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   chanKey.push_back(     robId );
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
-//  int geometryId = rgBuf->find( chanKey.begin(), chanKey.end() );
-//  if ( geometryId <= 0 ) return;
   int geometryId = 0;
   int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), geometryId );
   if ( !searchStatus ) {
@@ -198,8 +195,6 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
-//  int readoutId = grBuf->find( cellKey.begin(), cellKey.end() );
-//  if ( readoutId <= 0 ) return;
   int readoutId = 0;
   int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), readoutId );
   if ( !searchStatus ) {

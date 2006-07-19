@@ -6,8 +6,8 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2006/02/28 18:06:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/04 06:54:02 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,26 +27,45 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <vector>
+//#include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTSLTtrigData {
+class DTTtrigId   {
 
  public:
 
-  DTSLTtrigData();
-  ~DTSLTtrigData();
+  DTTtrigId();
+  ~DTTtrigId();
 
   int   wheelId;
   int stationId;
   int  sectorId;
   int      slId;
-  float   tTrig;
-  float   tTrms;
 
+};
+
+
+class DTTtrigData {
+
+ public:
+
+  DTTtrigData();
+  ~DTTtrigData();
+
+  float tTrig;
+  float tTrms;
+
+};
+
+
+class DTTtrigCompare {
+ public:
+  bool operator()( const DTTtrigId& idl,
+                   const DTTtrigId& idr ) const;
 };
 
 
@@ -101,19 +120,18 @@ class DTTtrig {
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::vector<DTSLTtrigData>::const_iterator const_iterator;
+  typedef std::map<DTTtrigId,
+                   DTTtrigData,
+                   DTTtrigCompare>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
  private:
 
-  /// read and store full content
-  void initSetup() const;
-
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector<DTSLTtrigData> slData;
+  std::map<DTTtrigId,DTTtrigData,DTTtrigCompare> slData;
 
 };
 

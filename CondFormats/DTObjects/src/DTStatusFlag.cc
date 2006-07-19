@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 18:04:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/12 13:45:00 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -11,7 +11,6 @@
 // This Class' Header --
 //----------------------
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -23,10 +22,6 @@
 //---------------
 #include <iostream>
 
-//-------------------
-// Initializations --
-//-------------------
-
 //----------------
 // Constructors --
 //----------------
@@ -34,17 +29,23 @@ DTStatusFlag::DTStatusFlag():
   dataVersion( " " ) {
 }
 
+
 DTStatusFlag::DTStatusFlag( const std::string& version ):
   dataVersion( version ) {
 }
 
-DTCellStatusFlagData::DTCellStatusFlagData() :
+
+DTStatusFlagId::DTStatusFlagId() :
     wheelId( 0 ),
   stationId( 0 ),
    sectorId( 0 ),
        slId( 0 ),
     layerId( 0 ),
-     cellId( 0 ),
+     cellId( 0 ) {
+}
+
+
+DTStatusFlagData::DTStatusFlagData() :
   noiseFlag( false ),
      feMask( false ),
     tdcMask( false ),
@@ -53,30 +54,37 @@ DTCellStatusFlagData::DTCellStatusFlagData() :
    nohvFlag( false ) {
 }
 
+
 //--------------
 // Destructor --
 //--------------
 DTStatusFlag::~DTStatusFlag() {
-  std::string statusVersionN = dataVersion + "_StatusN";
-  std::string statusVersionF = dataVersion + "_StatusF";
-  std::string statusVersionT = dataVersion + "_StatusT";
-  std::string statusVersionR = dataVersion + "_StatusR";
-  std::string statusVersionD = dataVersion + "_StatusD";
-  std::string statusVersionH = dataVersion + "_StatusH";
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionN );
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionF );
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionT );
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionR );
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionD );
-  DTDataBuffer<int,bool>::dropBuffer( statusVersionH );
 }
 
-DTCellStatusFlagData::~DTCellStatusFlagData() {
+
+DTStatusFlagId::~DTStatusFlagId() {
 }
+
+
+DTStatusFlagData::~DTStatusFlagData() {
+}
+
 
 //--------------
 // Operations --
 //--------------
+bool DTStatusFlagCompare::operator()( const DTStatusFlagId& idl,
+                                      const DTStatusFlagId& idr ) const {
+  if ( idl.  wheelId < idr.  wheelId ) return true;
+  if ( idl.stationId < idr.stationId ) return true;
+  if ( idl. sectorId < idr. sectorId ) return true;
+  if ( idl.     slId < idr.     slId ) return true;
+  if ( idl.  layerId < idr.  layerId ) return true;
+  if ( idl.   cellId < idr.   cellId ) return true;
+  return false;
+}
+
+
 int DTStatusFlag::cellStatus( int   wheelId,
                               int stationId,
                               int  sectorId,
@@ -96,85 +104,27 @@ int DTStatusFlag::cellStatus( int   wheelId,
    deadFlag = false;
    nohvFlag = false;
 
-  std::string statusVersionN = dataVersion + "_StatusN";
-  std::string statusVersionF = dataVersion + "_StatusF";
-  std::string statusVersionT = dataVersion + "_StatusT";
-  std::string statusVersionR = dataVersion + "_StatusR";
-  std::string statusVersionD = dataVersion + "_StatusD";
-  std::string statusVersionH = dataVersion + "_StatusH";
-  DTBufferTree<int,bool>* dataNBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionN );
-  DTBufferTree<int,bool>* dataFBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionF );
-  DTBufferTree<int,bool>* dataTBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionT );
-  DTBufferTree<int,bool>* dataRBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionR );
-  DTBufferTree<int,bool>* dataDBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionD );
-  DTBufferTree<int,bool>* dataHBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionH );
+  DTStatusFlagId key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
+  key.  layerId =   layerId;
+  key.   cellId =    cellId;
+  std::map<DTStatusFlagId,
+           DTStatusFlagData,
+           DTStatusFlagCompare>::const_iterator iter = cellData.find( key );
 
-  if ( dataNBuf == 0 ) {
-    initSetup();
-    dataNBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionN );
+  if ( iter != cellData.end() ) {
+    const DTStatusFlagData& data = iter->second;
+    noiseFlag = data.noiseFlag;
+       feMask = data.   feMask;
+      tdcMask = data.  tdcMask;
+     deadFlag = data. deadFlag;
+     nohvFlag = data. nohvFlag;
+    return 0;
   }
-
-  if ( dataFBuf == 0 ) {
-    initSetup();
-    dataFBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionF );
-  }
-
-  if ( dataTBuf == 0 ) {
-    initSetup();
-    dataTBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionT );
-  }
-
-  if ( dataRBuf == 0 ) {
-    initSetup();
-    dataRBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionR );
-  }
-
-  if ( dataDBuf == 0 ) {
-    initSetup();
-    dataDBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionD );
-  }
-
-  if ( dataHBuf == 0 ) {
-    initSetup();
-    dataHBuf = DTDataBuffer<int,bool>::findBuffer( statusVersionH );
-  }
-
-  std::vector<int> cellKey;
-  cellKey.push_back(   wheelId );
-  cellKey.push_back( stationId );
-  cellKey.push_back(  sectorId );
-  cellKey.push_back(      slId );
-  cellKey.push_back(   layerId );
-  cellKey.push_back(    cellId );
-//  noiseFlag = dataNBuf->find( cellKey.begin(), cellKey.end() );
-//     feMask = dataFBuf->find( cellKey.begin(), cellKey.end() );
-//    tdcMask = dataTBuf->find( cellKey.begin(), cellKey.end() );
-  int searchStatusN =
-      dataNBuf->find( cellKey.begin(), cellKey.end(), noiseFlag );
-  int searchStatusF =
-      dataFBuf->find( cellKey.begin(), cellKey.end(),    feMask );
-  int searchStatusT =
-      dataTBuf->find( cellKey.begin(), cellKey.end(),   tdcMask );
-  int searchStatusR =
-      dataTBuf->find( cellKey.begin(), cellKey.end(),  trigMask );
-  int searchStatusD =
-      dataFBuf->find( cellKey.begin(), cellKey.end(),  deadFlag );
-  int searchStatusH =
-      dataTBuf->find( cellKey.begin(), cellKey.end(),  nohvFlag );
-
-//  return 1;
-  return ( searchStatusN ||
-           searchStatusF ||
-           searchStatusT ||
-           searchStatusR ||
-           searchStatusD ||
-           searchStatusH );
+  return 1;
 
 }
 
@@ -227,56 +177,37 @@ int DTStatusFlag::setCellStatus( int   wheelId,
                                  bool  deadFlag,
                                  bool  nohvFlag ) {
 
-  DTCellStatusFlagData data;
-  data.  wheelId =   wheelId;
-  data.stationId = stationId;
-  data. sectorId =  sectorId;
-  data.     slId =      slId;
-  data.  layerId =   layerId;
-  data.   cellId =    cellId;
-  data.noiseFlag = noiseFlag;
-  data.   feMask =    feMask;
-  data.  tdcMask =   tdcMask;
-  data. trigMask =  trigMask;
-  data. deadFlag =  deadFlag;
-  data. nohvFlag =  nohvFlag;
+  DTStatusFlagId key;
+  key.  wheelId =   wheelId;
+  key.stationId = stationId;
+  key. sectorId =  sectorId;
+  key.     slId =      slId;
+  key.  layerId =   layerId;
+  key.   cellId =    cellId;
 
-  cellData.push_back( data );
-
-  std::string statusVersionN = dataVersion + "_StatusN";
-  std::string statusVersionF = dataVersion + "_StatusF";
-  std::string statusVersionT = dataVersion + "_StatusT";
-  std::string statusVersionR = dataVersion + "_StatusR";
-  std::string statusVersionD = dataVersion + "_StatusD";
-  std::string statusVersionH = dataVersion + "_StatusH";
-
-  DTBufferTree<int,bool>* dataNBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionN );
-  DTBufferTree<int,bool>* dataFBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionF );
-  DTBufferTree<int,bool>* dataTBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionT );
-  DTBufferTree<int,bool>* dataRBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionR );
-  DTBufferTree<int,bool>* dataDBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionD );
-  DTBufferTree<int,bool>* dataHBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionH );
-
-  std::vector<int> cellKey;
-  cellKey.push_back(   wheelId );
-  cellKey.push_back( stationId );
-  cellKey.push_back(  sectorId );
-  cellKey.push_back(      slId );
-  cellKey.push_back(   layerId );
-  cellKey.push_back(    cellId );
-
-  dataNBuf->insert( cellKey.begin(), cellKey.end(), noiseFlag );
-  dataFBuf->insert( cellKey.begin(), cellKey.end(),    feMask );
-  dataTBuf->insert( cellKey.begin(), cellKey.end(),   tdcMask );
-  dataRBuf->insert( cellKey.begin(), cellKey.end(),  trigMask );
-  dataDBuf->insert( cellKey.begin(), cellKey.end(),  deadFlag );
-  dataHBuf->insert( cellKey.begin(), cellKey.end(),  nohvFlag );
+  std::map<DTStatusFlagId,
+           DTStatusFlagData,
+           DTStatusFlagCompare>::iterator iter = cellData.find( key );
+  if ( iter != cellData.end() ) {
+    DTStatusFlagData& data = iter->second;
+    data.noiseFlag = noiseFlag;
+    data.   feMask =    feMask;
+    data.  tdcMask =   tdcMask;
+    data. trigMask =  trigMask;
+    data. deadFlag =  deadFlag;
+    data. nohvFlag =  nohvFlag;
+  }
+  else {
+    DTStatusFlagData data;
+    data.noiseFlag = noiseFlag;
+    data.   feMask =    feMask;
+    data.  tdcMask =   tdcMask;
+    data. trigMask =  trigMask;
+    data. deadFlag =  deadFlag;
+    data. nohvFlag =  nohvFlag;
+    cellData.insert( std::pair<const DTStatusFlagId,
+                                     DTStatusFlagData>( key, data ) );
+  }
 
   return 0;
 
@@ -640,71 +571,4 @@ DTStatusFlag::const_iterator DTStatusFlag::end() const {
   return cellData.end();
 }
 
-
-void DTStatusFlag::initSetup() const {
-
-  std::string statusVersionN = dataVersion + "_StatusN";
-  std::string statusVersionF = dataVersion + "_StatusF";
-  std::string statusVersionT = dataVersion + "_StatusT";
-  std::string statusVersionD = dataVersion + "_StatusD";
-  std::string statusVersionH = dataVersion + "_StatusH";
-
-  DTBufferTree<int,bool>* dataNBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionN );
-  DTBufferTree<int,bool>* dataFBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionF );
-  DTBufferTree<int,bool>* dataTBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionT );
-  DTBufferTree<int,bool>* dataDBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionD );
-  DTBufferTree<int,bool>* dataHBuf =
-  DTDataBuffer<int,bool>::openBuffer( statusVersionH );
-
-  std::vector<DTCellStatusFlagData>::const_iterator iter = cellData.begin();
-  std::vector<DTCellStatusFlagData>::const_iterator iend = cellData.end();
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
-  bool noiseFlag;
-  bool    feMask;
-  bool   tdcMask;
-  bool  deadFlag;
-  bool  nohvFlag;
-  while ( iter != iend ) {
-
-    const DTCellStatusFlagData& data = *iter++;
-      wheelId = data.  wheelId;
-    stationId = data.stationId;
-     sectorId = data. sectorId;
-         slId = data.     slId;
-      layerId = data.  layerId;
-       cellId = data.   cellId;
-
-    std::vector<int> cellKey;
-    cellKey.push_back(   wheelId );
-    cellKey.push_back( stationId );
-    cellKey.push_back(  sectorId );
-    cellKey.push_back(      slId );
-    cellKey.push_back(   layerId );
-    cellKey.push_back(    cellId );
-
-    noiseFlag = data.noiseFlag;
-    dataNBuf->insert( cellKey.begin(), cellKey.end(), noiseFlag );
-       feMask = data.   feMask;
-    dataFBuf->insert( cellKey.begin(), cellKey.end(),    feMask );
-      tdcMask = data.  tdcMask;
-    dataTBuf->insert( cellKey.begin(), cellKey.end(),   tdcMask );
-     deadFlag = data. deadFlag;
-    dataDBuf->insert( cellKey.begin(), cellKey.end(),  deadFlag );
-     nohvFlag = data. nohvFlag;
-    dataHBuf->insert( cellKey.begin(), cellKey.end(),  nohvFlag );
-
-  }
-
-  return;
-
-}
 

@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2006/02/28 18:06:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/29 14:20:02 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,18 +27,18 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTCellT0Data {
+class DTT0Id {
 
  public:
 
-  DTCellT0Data();
-  ~DTCellT0Data();
+  DTT0Id();
+  ~DTT0Id();
 
   int   wheelId;
   int stationId;
@@ -46,9 +46,27 @@ class DTCellT0Data {
   int      slId;
   int   layerId;
   int    cellId;
+
+};
+
+
+class DTT0Data {
+
+ public:
+
+  DTT0Data();
+  ~DTT0Data();
+
   float t0mean;
   float t0rms;
 
+};
+
+
+class DTT0Compare {
+ public:
+  bool operator()( const DTT0Id& idl,
+                   const DTT0Id& idr ) const;
 };
 
 
@@ -107,19 +125,18 @@ class DTT0 {
   void setUnit( float unit );
 
   /// Access methods to data
-  typedef std::vector<DTCellT0Data>::const_iterator const_iterator;
+  typedef std::map<DTT0Id,
+                   DTT0Data,
+                   DTT0Compare>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
  private:
 
-  /// read and store full content
-  void initSetup() const;
-
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector<DTCellT0Data> cellData;
+  std::map<DTT0Id,DTT0Data,DTT0Compare> cellData;
 
 };
 

@@ -6,7 +6,7 @@
  *       Class to hold drift tubes T0 range
  *             ( SL by SL time offsets )
  *
- *  $Date: 2006/02/28 16:00:00 $
+ *  $Date: 2006/05/11 08:31:30 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -26,26 +26,44 @@
 // C++ Headers --
 //---------------
 #include <string>
-#include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTSLRangeT0Data {
+class DTRangeT0Id {
 
  public:
 
-  DTSLRangeT0Data();
-  ~DTSLRangeT0Data();
+  DTRangeT0Id();
+  ~DTRangeT0Id();
 
   int   wheelId;
   int stationId;
   int  sectorId;
   int      slId;
-  int     t0min;
-  int     t0max;
 
+};
+
+
+class DTRangeT0Data {
+
+ public:
+
+  DTRangeT0Data();
+  ~DTRangeT0Data();
+
+  int t0min;
+  int t0max;
+
+};
+
+
+class DTRangeT0Compare {
+ public:
+  bool operator()( const DTRangeT0Id& idl,
+                   const DTRangeT0Id& idr ) const;
 };
 
 
@@ -94,18 +112,17 @@ class DTRangeT0 {
                     int     t0max );
 
   /// Access methods to data
-  typedef std::vector<DTSLRangeT0Data>::const_iterator const_iterator;
+  typedef std::map<DTRangeT0Id,
+                   DTRangeT0Data,
+                   DTRangeT0Compare>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
  private:
 
-  /// read and store full content
-  void initSetup() const;
-
   std::string dataVersion;
 
-  std::vector<DTSLRangeT0Data> slData;
+  std::map<DTRangeT0Id,DTRangeT0Data,DTRangeT0Compare> slData;
 
 };
 
