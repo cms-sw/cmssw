@@ -33,17 +33,17 @@ void ForwardDetLayer::initialize() {
 
 
 BoundDisk* ForwardDetLayer::computeSurface() {
-  vector<const GeometricSearchDet*> comps= components();
+  vector<const GeomDet*> comps= basicComponents();
 
-  vector<const GeometricSearchDet*>::const_iterator ifirst = comps.begin();
-  vector<const GeometricSearchDet*>::const_iterator ilast  = comps.end();
+  vector<const GeomDet*>::const_iterator ifirst = comps.begin();
+  vector<const GeomDet*>::const_iterator ilast  = comps.end();
 
   // Find extension in R
   float theRmin = components().front()->position().perp(); 
   float theRmax = theRmin;
   float theZmin = components().back()->position().z();
   float theZmax = theZmin;
-  for ( vector<const GeometricSearchDet*>::const_iterator deti = ifirst;
+  for ( vector<const GeomDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 
       BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));
