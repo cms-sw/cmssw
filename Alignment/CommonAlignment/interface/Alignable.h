@@ -6,6 +6,7 @@
 #include "Geometry/Surface/interface/Surface.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -33,6 +34,7 @@ public:
   
   /// Default constructor
   Alignable() : theMisalignmentActive(true), 
+				theDetId(0),
 				theAlignmentParameters(0) {}
 
   /// Destructor
@@ -135,6 +137,9 @@ public:
   /// Return the alignable type identifier
   virtual int alignableObjectId() const = 0;
 
+  /// Return the DetId of the associated GeomDet (0 by default)
+  virtual const DetId geomDetId() const { return theDetId; }
+
   /// Recursive printout of alignable information
   virtual void dump() const = 0;
 
@@ -148,9 +153,11 @@ protected:
 
   virtual void addDisplacement( const GlobalVector& displacement );
   virtual void addRotation( const RotationType& rotation );
+  virtual void setDetId( DetId detid ) { theDetId = detid; }
 
 protected:
   bool theMisalignmentActive;           ///< (de)activation flag
+  DetId theDetId;
 
 private:
 

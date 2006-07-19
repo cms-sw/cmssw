@@ -11,15 +11,17 @@
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite() : 
-  theDetId(0),
   theSurface( PositionType(0,0,0), RotationType()) {}
 
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
-  theDetId( geomDet->geographicalId() ),
   theSurface( geomDet->surface().position(), geomDet->surface().rotation() ) 
-{}
+{
+  
+  this->setDetId( geomDet->geographicalId() );
+
+}
 
 
 //__________________________________________________________________________________________________

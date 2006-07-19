@@ -9,7 +9,6 @@
 
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
-  theDetUnitId( geomDetUnit->geographicalId() ),
   theOriginalSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
   theSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
   theSavedSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
@@ -19,7 +18,9 @@ AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
   // Also store width and length of geomdet surface
   theWidth  = geomDetUnit->surface().bounds().width();
   theLength = geomDetUnit->surface().bounds().length();
-  
+
+  this->setDetId( geomDetUnit->geographicalId() );
+
 }
 
 //__________________________________________________________________________________________________
@@ -183,7 +184,7 @@ Alignments* AlignableDetUnit::alignments() const
   HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 										rot.yx(), rot.yy(), rot.yz(),
 										rot.zx(), rot.zy(), rot.zz() ) );
-  uint32_t detId = theDetUnitId.rawId();
+  uint32_t detId = this->geomDetId().rawId();
   
   AlignTransform transform( clhepVector, clhepRotation, detId );
 
@@ -201,7 +202,7 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
   
-  uint32_t detId = theDetUnitId.rawId();
+  uint32_t detId = this->geomDetId().rawId();
  
   HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set

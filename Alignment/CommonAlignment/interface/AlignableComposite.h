@@ -1,7 +1,6 @@
 #ifndef Alignment_CommonAlignment_AlignableComposite_H
 #define Alignment_CommonAlignment_AlignableComposite_H
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
@@ -82,9 +81,6 @@ public:
   /// Restore misaligned position
   virtual void reactivateMisalignment ();
 
-  /// Return the DetId of the associated GeomDet
-  virtual const DetId geomDetId() const { return theDetId; }
-
   /// Recursive printout of alignable structure
   virtual void dump() const;
 
@@ -97,9 +93,6 @@ public:
 protected:
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   
-protected:
-  DetId theDetId;
-
 private:
   AlignableSurface  theSurface;   // Global position and orientation of the composite
 
