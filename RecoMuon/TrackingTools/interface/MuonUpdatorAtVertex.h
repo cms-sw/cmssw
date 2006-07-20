@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/05/26 00:44:04 $
-  *   $Revision: 1.1 $
+  *   $Date: 2006/06/10 19:53:14 $
+  *   $Revision: 1.2 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -20,45 +20,50 @@
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoMuon/TrackingTools/interface/MuonVertexMeasurement.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 class TrajectoryStateOnSurface;
-class SteppingHelixPropagator;
 class TransverseImpactPointExtrapolator;
 class KFUpdator;
 class MeasurementEstimator;
-class Vertex;
-class MagneticField;
+
+namespace edm {class ParameterSet; class EventSetup;}
 
 class MuonUpdatorAtVertex {
 
   public:
  
+    /// constructor from parameter set
+    MuonUpdatorAtVertex(const edm::ParameterSet&);
+
     /// default constructor
-    MuonUpdatorAtVertex(const MagneticField*);
+    MuonUpdatorAtVertex();
 
     /// constructor
 //    MuonUpdatorAtVertex(const Vertex&); 
 
-    /// constructor
-    MuonUpdatorAtVertex(const GlobalPoint, 
-                        const GlobalError,const MagneticField*);
-  
     /// destructor
     virtual ~MuonUpdatorAtVertex();
 
+    void init(const edm::EventSetup&);
+
     /// return vertex measurement
-//    MuonVertexMeasurement update(const RecTrack&) const;
     MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
+
+    void setVertex(const GlobalPoint, const GlobalError);
+
     
   private:
  
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
 
-    SteppingHelixPropagator* thePropagator;
+    Propagator* thePropagator;
     TransverseImpactPointExtrapolator* theExtrapolator;
     KFUpdator* theUpdator;
     MeasurementEstimator* theEstimator;
+    std::string thePropagatorName;
 
 };
 
