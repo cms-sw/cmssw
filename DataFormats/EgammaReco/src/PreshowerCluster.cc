@@ -26,12 +26,9 @@ PreshowerCluster::PreshowerCluster(const double E, const Point& pos, const EcalR
      for (it=rhits_.begin(); it != rhits_.end(); it++) {
         usedHits_.push_back(it->id());
      }
-     // cluster calibration?
-     euncorrected_ = energy();
      et_ = energy()*sin(theta());
   }
   else {
-     euncorrected_ = 0.;
      et_ = 0.;
      eta_ = -999.;
   }
