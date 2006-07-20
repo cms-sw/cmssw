@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/20 09:39:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/20 09:41:09 $
+ *  $Revision: 1.14 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -66,7 +66,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
@@ -164,7 +163,8 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   
   //setup.get<TransientTrackingRecHitBuilder>().get(theTransientHitBuilder); 
 
-  theUpdator = new MuonUpdatorAtVertex(theVertexPos,theVertexErr,&*theField);
+  theUpdator = new MuonUpdatorAtVertex(&*thePropagator);
+  // theUpdator->init(setup);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField);
   theRefitter = new GlobalMuonReFitter(&*theField);
   theGTTrackingRecHitBuilder = new GenericTransientTrackingRecHitBuilder(&*theTrackingGeometry);
@@ -191,7 +191,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 //
 //
-MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const reco::TrackRef& staTrack) const
+MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const reco::TrackRef& staTrack) 
 {
 
   MuonTrajectoryBuilder::CandidateContainer result;
@@ -210,8 +210,8 @@ MuonTrajectoryBuilder::CandidateContainer GlobalMuonTrajectoryBuilder::trajector
   // -- done in GlobalTrackMatcher (4d)
  
   //(4d) match tracker tracks to muon track
-  //std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, regionalTkTracks);
-  std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, allTrackerTracks);
+  std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, regionalTkTracks);
+  //std::vector<reco::TrackRef> trackerTracks = theTrackMatcher->match(staTrack, allTrackerTracks);
 
   //(5) cleaning cut on tracker tracks
   // -- done in build (7)
@@ -245,8 +245,7 @@ std::vector<reco::TrackRef> GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTr
   //FIXME: turn tracks into TSOS -- the next four lines are wrong?
   reco::TrackCollection::const_iterator is;
   for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
-    //reco::TransientTrack tTrack(*is,&*theField);
-    reco::TransientTrack tTrack(*is);
+    reco::TransientTrack tTrack(*is,&*theField);
     TrajectoryStateOnSurface tsos = tTrack.impactPointState();
     position++;
 
@@ -275,8 +274,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
 {
 
   // track at innermost muon station
-  //reco::TransientTrack staTT(staTrack,&*theField);
-  reco::TransientTrack staTT(staTrack);
+  reco::TransientTrack staTT(staTrack,&*theField);
   TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState(); 
   MuonVertexMeasurement vm = theUpdator->update(innerMuTsos);
   TrajectoryStateOnSurface tkTsosFromMu = vm.stateAtTracker();
@@ -890,9 +888,7 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
   RecHitContainer tkHits = getTransientHits((*tkTrack));
 
   //use TransientTrackBuilder to get a starting TSOS
-  //FIXME: do we need the field?
-  //reco::TransientTrack tkTransTrack(tkTrack,&*theField);
-  reco::TransientTrack tkTransTrack(tkTrack);
+  reco::TransientTrack tkTransTrack(tkTrack,&*theField);
   //FIXME?
   TrajectoryStateOnSurface theTSOS = tkTransTrack.innermostMeasurementState();
 

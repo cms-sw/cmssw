@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/19 20:06:54 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/20 09:31:08 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -55,7 +55,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     ~GlobalMuonTrajectoryBuilder();
 
     /// reconstruct trajectories from standalone and tracker only Tracks
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&) const;
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&) ;
+
+    /// reconstruct trajectories from trajectory seed -- method for stand alone trajectory building
+    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) {TC result; return result;}
 
     /// pass the Event Setup to the algo at each event
     virtual void setES(const edm::EventSetup&);
