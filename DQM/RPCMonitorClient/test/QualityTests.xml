@@ -1,14 +1,37 @@
 <TESTSCONFIGURATION>
-<QTEST name="XRangeBelow10">
+<QTEST name="XRangeBelow5" activate="true">
 	<TYPE>ContentsXRangeROOT</TYPE>	
 	<PARAM name="error">0.80</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="xmin">0.0</PARAM>
+	<PARAM name="xmax">5.0</PARAM>
+</QTEST>
+
+<QTEST name="XRangeBelow3" activate="true">
+	<TYPE>ContentsXRangeROOT</TYPE>	
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="xmin">0.0</PARAM>
+	<PARAM name="xmax">3.0</PARAM>
+</QTEST>
+
+<QTEST name="XRangeBetween10and20" activate="false">
+	<TYPE>ContentsXRangeROOT</TYPE>	
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="xmin">10.0</PARAM>
+	<PARAM name="xmax">20.0</PARAM>
+</QTEST>
+
+<QTEST name="XRangeBetween5and10" activate="true">
+	<TYPE>ContentsXRangeROOT</TYPE>	
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="xmin">5.0</PARAM>
 	<PARAM name="xmax">10.0</PARAM>
 </QTEST>
 
-
-<QTEST name="MeanWithinExpected:RMS">
+<QTEST name="MeanWithinExpected:RMS" activate="true">
 	<TYPE>MeanWithinExpectedROOT</TYPE>
 	<PARAM name="error">0.05</PARAM>
 	<PARAM name="warning">0.5</PARAM>
@@ -21,7 +44,7 @@
 </QTEST>
 
 
-<QTEST name="yRangeBetween0and10">
+<QTEST name="yRangeBetween0and10" activate="false">
 	<TYPE>ContentsYRangeROOT</TYPE>	
 	<PARAM name="error">0.99</PARAM>
 	<PARAM name="warning">0.80</PARAM>
@@ -29,7 +52,7 @@
 	<PARAM name="ymax">10.0</PARAM>
 </QTEST>
 
-<QTEST name="YRangeBetween1000and1002">
+<QTEST name="YRangeBetween1000and1002" activate="false">
 	<TYPE>ContentsYRangeROOT</TYPE>	
 	<PARAM name="error">0.99</PARAM>
 	<PARAM name="warning">0.80</PARAM>
@@ -37,37 +60,64 @@
 	<PARAM name="ymax">1002</PARAM>
 </QTEST>
 
-<QTEST name="DeadChannel_0">
+<QTEST name="DeadChannel_0" activate="true">
 	<TYPE>DeadChannelROOT</TYPE>	
 	<PARAM name="error">0.99</PARAM>
 	<PARAM name="warning">0.80</PARAM>
 	<PARAM name="threshold">0</PARAM>
 </QTEST>
 
-<QTEST name="NoisyChannel_30">
+<QTEST name="NoisyChannel_20" activate="true">
 	<TYPE>NoisyChannelROOT</TYPE>	
 	<PARAM name="error">0.80</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="tolerance">30</PARAM>
+	<PARAM name="tolerance">20</PARAM>
 	<PARAM name="neighbours">10</PARAM>
 </QTEST>
 
 
 
-<LINK name="*BXN_FED*">
-	<TestName activate="true">yRangeBetween0and10</TestName>
-	<TestName activate="false">YRangeBetween1000and1002</TestName>
-	<TestName activate="true">NoisyChannel_30</TestName>
-</LINK>
-
-
-<LINK name="*BitNumber_FED*">
+<LINK name="*Occupancy_*">
 	<TestName activate="true">DeadChannel_0</TestName>
-	<TestName activate="true">NoisyChannel_30</TestName>
+	<TestName activate="true">NoisyChannel_20</TestName>
 </LINK>
-<LINK name="*NumberOfLBs_FED*">
-	<TestName activate="true">MeanWithinExpected:RMS</TestName>
-	<TestName activate="true">XRangeBelow10</TestName>
+<LINK name="*BXN_*">
+	<TestName activate="true">XRangeBelow3</TestName>
+</LINK>
+<LINK name="*ClusterSize_*">
+	<TestName activate="false">XRangeBetween10and20</TestName>
+</LINK>
+<LINK name="*NumberOfClusters_*">
+	<TestName activate="true">XRangeBelow3</TestName>
 </LINK>
 
+
+<LINK name="*NumberOfDigi_*">
+	<TestName activate="false"></TestName>
+</LINK>
+<LINK name="*MissingHits_*">
+	<TestName activate="false"></TestName>
+</LINK>
+
+ <LINK name="*RecHitXPosition*">
+	<TestName activate="true">XRangeBetween10and20</TestName>
+</LINK>
+
+ <LINK name="*RecHitYPosition*">
+	<TestName activate="true">XRangeBetween10and20</TestName>
+</LINK>
+<LINK name="*RecHitDX_*">
+	<TestName activate="false">XRangeBetween5and10</TestName>
+</LINK>
+<LINK name="*RecHitDY_*">
+	<TestName activate="false"></TestName>
+</LINK>
+<LINK name="*RecHitDXDY_*">
+	<TestName activate="false"></TestName>
+</LINK>
+<LINK name="*RecHitX_vs_dx_*">
+	<TestName activate="false"></TestName>
+</LINK>
+
+ 
 </TESTSCONFIGURATION>

@@ -4,8 +4,8 @@
 /** \class  MuonWebInterface
  *  Class that creates the web interface to control the MuonDQMClient
  *  
- *  $Date: 2006/04/05 15:45:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/24 09:57:38 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -33,10 +33,12 @@ class MuonWebInterface : public WebInterface
 
 	bool globalQTStatusRequest(){return checkQTGlobalStatus;}
 	bool detailedQTStatusRequest(){return checkQTDetailedStatus;}
+	std::string requestType(){return request;}
 private:
 
 	bool checkQTGlobalStatus;
 	bool checkQTDetailedStatus;
+	std::string request;
 };
 
 #endif
