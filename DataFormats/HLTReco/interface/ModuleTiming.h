@@ -28,7 +28,6 @@ namespace edm
   class EventTime
   {
   private:
-   void check(unsigned i) const {assert(i < size());}
     std::vector<ModuleTime> moduleSet;    
     double tot_time_; // total time in event for all modules (in secs)
 
@@ -41,22 +40,19 @@ namespace edm
     // get hold of ModuleTime structure for module #i, where 0 <= i < size() 
     const ModuleTime & moduleTime(unsigned i)
       {
-	check(i);
-	return moduleSet[i];
+	return moduleSet.at(i);
       }
     // get total processing time for event (secs)
     double tot_time() const {return tot_time_;}
     // get name for module #i, where 0 <= i < size() 
     std::string name(unsigned i) const
     {
-      check(i);
-      return moduleSet[i].name();
+      return moduleSet.at(i).name();
     }
     // get processing time for module #i (secs), where 0 <= i < size() 
     double time(unsigned i) const
     {
-      check(i);
-      return moduleSet[i].time();
+      return moduleSet.at(i).time();
     }
     // add module structure to event
     void addModuleTime(const ModuleTime & m)
