@@ -70,6 +70,9 @@ class L1GctTwosComplement {
   /// add two numbers of the same size
   L1GctTwosComplement operator+ (const L1GctTwosComplement &rhs) const;
 
+  /// overload unary - (negation) operator
+  L1GctTwosComplement operator- () const;
+
   /// overload = operator
   L1GctTwosComplement& operator= (int value);
 
@@ -192,6 +195,16 @@ L1GctTwosComplement<nBits>::operator+ (const L1GctTwosComplement<nBits> &rhs) co
   // return the temporary
   return temp;
 
+}
+
+// overload unary - (negation) operator
+template <int nBits>
+L1GctTwosComplement<nBits> L1GctTwosComplement<nBits>::operator- () const {
+
+  L1GctTwosComplement<nBits> temp;
+  temp.setValue(-this->value());
+  temp.setOverFlow(temp.overFlow() || this->overFlow());
+  return temp;
 }
 
 // overload assignment by int
