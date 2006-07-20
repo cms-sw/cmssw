@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/06/15 15:17:12 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/07/15 18:43:50 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -36,17 +36,24 @@
 #include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
+using namespace edm;
+using namespace std;
 
 //----------------
 // Constructors --
 //----------------
 
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const MagneticField* field) : 
-         thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator()),
-         theUpdator(new KFUpdator()),
-         theEstimator(new Chi2MeasurementEstimator(150.)) {
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) : 
+         thePropagator(0), 
+         theExtrapolator(0),
+         theUpdator(0),
+         theEstimator(0) {
 
+  thePropagatorName = par.getParameter<string>("Propagator");
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
@@ -55,29 +62,59 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const MagneticField* field) :
   
 }
 
+//
+// default constructor, set propagator name as SteppingHelixPropagator
+//
+MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
+         thePropagator(0),
+         theExtrapolator(0),
+         theUpdator(0),
+         theEstimator(0) {
 
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const GlobalPoint p, const GlobalError e, const MagneticField* field) :
-         theVertexPos(p),
-         theVertexErr(e),
-         thePropagator(new SteppingHelixPropagator(field, oppositeToMomentum)), 
-         theExtrapolator(new TransverseImpactPointExtrapolator()),
-         theUpdator(new KFUpdator()),
-         theEstimator(new Chi2MeasurementEstimator(150.))
-{ }
+  thePropagatorName = "SteppingHelixPropagator";
+  // assume beam spot position with nominal errors
+  // sigma(x) = sigma(y) = 15 microns
+  // sigma(z) = 5.3 cm
+  theVertexPos = GlobalPoint(0.0,0.0,0.0);
+  theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
 
+}
 
 //---------------
 // Destructor  --
 //---------------
 MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
    
-  delete theEstimator;
-  delete theUpdator;
-  delete theExtrapolator;
-  delete thePropagator;
+  if (theEstimator) delete theEstimator;
+  if (theUpdator) delete theUpdator;
+  if (theExtrapolator) delete theExtrapolator;
+  if (thePropagator) delete thePropagator;
 
 }
 
+
+void MuonUpdatorAtVertex::init(const edm::EventSetup& iSetup) {
+
+  edm::ESHandle<Propagator> eshPropagator;
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, eshPropagator);
+
+  if(thePropagator) delete thePropagator;
+
+  thePropagator = eshPropagator->clone();
+  theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
+
+  theUpdator = new KFUpdator();
+  theEstimator = new Chi2MeasurementEstimator(150.);
+
+}
+
+
+
+void MuonUpdatorAtVertex::setVertex(const GlobalPoint p, const GlobalError e)
+{
+  theVertexPos = p;
+  theVertexErr = e;
+}
 
 //
 //
@@ -85,11 +122,11 @@ MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
 MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface& tsos) const {
   
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
+    edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
     return MuonVertexMeasurement();
   }
   
-  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm
+  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
   Cylinder surface = TrackerBounds::barrelBound(); 
   FreeTrajectoryState* ftsOftsos =tsos.freeState();
   std::pair<TrajectoryStateOnSurface, double> tsosAtBarrelTrackerPair =
@@ -107,7 +144,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
   if ( tsosAtBarrelTrackerPair.second == 0. && 
        tsosAtBarrelTrackerPair.second == 0. &&
        tsosAtBarrelTrackerPair.second == 0. ) {
-    edm::LogInfo("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
+    edm::LogError("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
     return MuonVertexMeasurement();
   }
   TrajectoryStateOnSurface tsosAtTracker;
