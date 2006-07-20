@@ -80,7 +80,7 @@ void MinBias::endJob()
       mom2 = theFillDetMap2[*id]/theFillDetMap0[*id]-(mom1*mom1);
       mom3 = theFillDetMap3[*id]/theFillDetMap0[*id]-3.*mom1*theFillDetMap2[*id]/theFillDetMap0[*id]+
              2.*pow(mom2,3);
-      mom4 = (theFillDetMap4[*id]-4.*mom1*theFillDetMap3[*id]+6.*pow((mom1),2.)*theFillDetMap2[*id])/theFillDetMap0[*id]-3.*pow(mom1,4.);
+      mom4 = (theFillDetMap4[*id]-4.*mom1*theFillDetMap3[*id]+6.*pow(mom1,2)*theFillDetMap2[*id])/theFillDetMap0[*id]-3.*pow(mom1,4);
         
       }	else
       {
