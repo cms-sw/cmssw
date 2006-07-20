@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/19 17:11:41 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/19 20:06:54 $
+ *  $Revision: 1.13 $
  *  \author Chang Liu - Purdue University
  */
 
@@ -38,73 +38,70 @@ class TrajectoryFitter;
 
 namespace edm {class ParameterSet;}
 
-class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
+class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
-public:
+  public:
 
-  typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
-  typedef std::vector<Trajectory> TC;
-  typedef TC::const_iterator TI;
+    typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
+    typedef std::vector<Trajectory> TC;
+    typedef TC::const_iterator TI;
  
-  /** Constructor with Parameter Set */
-  GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par);
+  public:
+
+    /// constructor with Parameter Set
+    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&);
           
-  /** Destructor */
-  ~GlobalMuonTrajectoryBuilder();
+    /// destructor
+    ~GlobalMuonTrajectoryBuilder();
 
-  /**reconstruct trajectories from standalone and tracker only Tracks
-   */
-  MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&) const;
+    /// reconstruct trajectories from standalone and tracker only Tracks
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const reco::TrackRef&) const;
 
-  // Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+    /// pass the Event Setup to the algo at each event
+    virtual void setES(const edm::EventSetup&);
   
-  /// Pass the Event to the algo at each event
-  virtual void setEvent(const edm::Event& event);
+    /// pass the Event to the algo at each event
+    virtual void setEvent(const edm::Event&);
 
- private:
+  private:
 
-  std::vector<reco::TrackRef> chooseRegionalTrackerTracks(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>& ) const;
+    std::vector<reco::TrackRef> chooseRegionalTrackerTracks(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>& ) const;
 
-  RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
+    RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
 
-  //  build combined trajectory from sta Track and tracker RecHits, 
-  //  common for both options
-  MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, const std::vector<reco::TrackRef>&) const;
+    /// build combined trajectory from sta Track and tracker RecHits
+    MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, const std::vector<reco::TrackRef>&) const;
   
-  //  check muon RecHits, calculate chamber occupancy and select hits to be 
-  //  used in the final fit
-  void checkMuonHits(const reco::Track&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
+    /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
+    void checkMuonHits(const reco::Track&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
  
-//  select muon hits compatible with trajectory; check hits in 
-//  chambers with showers
+    /// select muon hits compatible with trajectory; check hits in chambers with showers
     RecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
  
-  // get TransientTrackingRecHits from Track
-  RecHitContainer getTransientHits(const reco::Track&) const;
+    /// get TransientTrackingRecHits from Track
+    RecHitContainer getTransientHits(const reco::Track&) const;
 
-  // choose final trajectory
-  const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
+    /// choose final trajectory
+    const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
 
-  // calculate chi2 probability (-ln(P))
-  double trackProbability(const Trajectory&) const;    
+    /// calculate chi2 probability (-ln(P))
+    double trackProbability(const Trajectory&) const;    
 
-  // get silicon tracker Trajectories from track Track and Seed directly
-  TC getTrajFromTrack(const reco::TrackRef&) const;
+    /// get silicon tracker Trajectories from track Track and Seed directly
+    TC getTrajFromTrack(const reco::TrackRef&) const;
 
-  TC getTrajsFromTrack(const edm::ESHandle<TrajectoryFitter>&,
+    ///
+    TC getTrajsFromTrack(const edm::ESHandle<TrajectoryFitter>&,
 			 const edm::ESHandle<Propagator>&,
 			 const RecHitContainer&,
 			 TrajectoryStateOnSurface&,
 			 const edm::Handle<TrajectorySeedCollection>&) const;
   
-  // print all RecHits of a trajectory
-  void printHits(const RecHitContainer&) const;
+    //// print all RecHits of a trajectory
+    void printHits(const RecHitContainer&) const;
 
- private:
+  private:
 
-  edm::ParameterSet par_;
-  
   GlobalPoint theVertexPos;
   GlobalError theVertexErr;
   MuonUpdatorAtVertex* theUpdator;
