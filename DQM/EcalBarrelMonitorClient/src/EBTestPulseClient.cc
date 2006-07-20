@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.85 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -897,32 +897,32 @@ void EBTestPulseClient::unsubscribe(void){
     int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
 
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-    mui_->subscribe(histo);
+    mui_->unsubscribe(histo);
  
   }
 
