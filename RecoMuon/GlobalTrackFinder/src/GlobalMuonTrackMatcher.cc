@@ -3,8 +3,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/04 15:55:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/16 01:48:48 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -70,6 +70,20 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const edm::Handle<reco
   return result;
 }
 
+
+std::vector<reco::TrackRef>
+GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const std::vector<reco::TrackRef>& tkTs) const {
+
+  std::vector<reco::TrackRef> result;
+
+  for (std::vector<reco::TrackRef>::const_iterator tkTRef = tkTs.begin();
+       tkTRef != tkTs.end(); tkTRef++) {
+    std::pair<bool,double> check = match(*staT,**tkTRef);
+    if (check.first)
+      result.push_back(*tkTRef);
+  }
+  return result;
+}
 
 //
 // determine if two Tracks are compatible
