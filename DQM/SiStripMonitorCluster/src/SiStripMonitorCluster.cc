@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.15 2006/06/16 12:44:53 pioppi Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.16 2006/06/27 07:52:09 dkcira Exp $
 //
 //
 
@@ -198,7 +198,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         for(int iamp=0; iamp<ampls.size(); iamp++){
           if(ampls[iamp]>0){ // nonzero amplitude
             clusterSignal += ampls[iamp];
-            float clusterNoise; // = SiStripNoiseService_.getNoise(detid,clusterIter->firstStrip()+iamp);
+            float clusterNoise = 0.;
+            try{
+              clusterNoise = SiStripNoiseService_.getNoise(detid,clusterIter->firstStrip()+iamp);
+            }catch(cms::Exception& e){
+              edm::LogError("SiStripTkDQM|SiStripMonitorCluster|DB") << " cms::Exception:  detid "<<detid<<" "<< e.what();
+            }
             clusterNoise2 += clusterNoise*clusterNoise;
             nrnonzeroamplitudes++;
           }
