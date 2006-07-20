@@ -7,7 +7,7 @@ EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
                    uint64 first_event_offset,
                    uint64 last_event_offset)
 {
-  uint32 buf_size = ((sizeof(uint32)) * 8) + sizeof(hltStats);
+  uint32 buf_size = 1 + ((sizeof(uint32)) * 8) + sizeof(hltStats);
   buf_.resize(buf_size);
 
   uint8* pos = (uint8*)&buf_[0];
@@ -34,7 +34,8 @@ EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
   memcpy(pos, v, sizeof(char_uint64));
   pos += sizeof(char_uint64);  /** Bring the Pos at enof of Message */ 
                                /** pos -  &buf_ gives legth of message */
+  uint32 calculatedSize = (uint8*)pos - (uint8*)&buf_[0];
+  assert(calculatedSize = buf_.size());
   /** Code is 4 for EOF */ 
-  new (&h->header_) Header(4, (uint8*)pos - (uint8*)&buf_);  
+  new (&h->header_) Header(4, calculatedSize);
 }
-
