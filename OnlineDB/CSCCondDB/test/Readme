@@ -8,14 +8,12 @@
 
 0.1 Source files are in /src and header files in /interface. 
 
-0.2 Copy .so files for ORACLE database transfer from:
-      
-    http://cmsdoc.cern.ch/CSC/CERN/cscmap_library/    (copy: libcscmap.so)
+    Have to set up environmental variables now:
 
-    to your /CMSSW_x_x_x/lib/slc3_ia32_gcc323/ area. Have to set up environmental variables now:
     setenv CONDBON_AUTH_USER xxx
     setenv CONDBON_AUTH_PASSWORD xxx
-
+    setenv CSCMAP_AUTH_USER xxx
+    setenv CSCMAP_AUTH_PASSWORD xxx
 (    Ask Igor Vorobiev, Oana Boeriu for the username and password ! )
 
 

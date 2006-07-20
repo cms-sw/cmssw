@@ -13,7 +13,6 @@
 <use name=root>
 <use name=oracle>
 <lib name=occi>
-<lib name=cscmap>
 <lib name=Minuit2>
 <flags SEAL_PLUGIN_NAME="OnlineDBCSCCondDB">
 <export>
@@ -28,7 +27,6 @@
    <use name=clhep>
    <use name=root>
    <lib name=occi>
-   <lib name=cscmap>
    <lib name=Minuit2>
 </export>
 

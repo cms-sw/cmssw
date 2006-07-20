@@ -49,10 +49,10 @@ CSCCompThreshAnalyzer::CSCCompThreshAnalyzer(edm::ParameterSet const& conf) {
     }
   }
 
-  for (int i=0;i<480;i++){
-    newThresh[i]=0;
+  for (int i=0; i<CHAMBERS_ct; i++){
+    size[i]  = 0;
   }
-  
+
 }
 
 void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -70,7 +70,7 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
    e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
 
    edm::Handle<FEDRawDataCollection> rawdata;
-   e.getByLabel("DaqSource" , rawdata);
+   e.getByType(rawdata);
    event =e.id().event();
    for (int id=FEDNumbering::getCSCFEDIds().first;
 	id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -117,6 +117,7 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	       if(crateID[i_chamber] == 255) continue; //255 is reserved for old crate, present only 0 and 1
 	       
 	       for (unsigned int i=0; i<comp.size(); i++){//loop over CFEB comparator digis
+		 size[i_chamber] = comp.size();
 		 comparator = comp[i].getComparator();
 		 timebin = comp[i].getTimeBin() ;
 		 compstrip =  comp[i].getStrip();
@@ -203,20 +204,14 @@ CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
   condbon *dbon = new condbon();
   
   for(int myChamber=0; myChamber<NChambers; myChamber++){
-    
-    //float meanComp = 0.;
 
-    for (int i=0; i<CHAMBERS_ct; i++){
+    for (int i=0; i<NChambers; i++){
       if (myChamber !=i) continue;
       
       for (int j=0; j<LAYERS_ct; j++){
-	for (int k=0; k<STRIPS_ct; k++){
-	  //arrayMeanThresh[i][j][k]= meanmod[tmp][i_chamber][i_layer-1][mycompstrip];
-	  fff = (j*80)+k;
-	  //theMeanThresh  = arrayMeanThresh[i][j][k];
-	  //newMeanThresh[fff]  = theRMS;
-	  
-	  //std::cout <<" chamber "<<i<<" layer "<<j<<" strip "<<fff<<"  ped "<<newPed[fff]<<" RMS "<<newRMS[fff]<<std::endl;
+	for (int k=0; k<size[i]; k++){
+	  float meanThresh= meanTot[i][j][k];
+	  std::cout<<"Ch "<<i<<" Layer "<<j<<" strip "<<k<<" comparator threshold "<<meanThresh<<std::endl;	 	 
 	}
       }
     }
