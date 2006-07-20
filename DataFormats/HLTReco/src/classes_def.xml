@@ -37,4 +37,9 @@
   <class name="edm::Wrapper<reco::HLTPathObject>" />
   <class name="edm::Wrapper<reco::HLTGlobalObject>" />
 
+  <class name="edm::ModuleTime"/>
+  <class name="std::vector<edm::ModuleTime>"/>
+  <class name="edm::EventTime"/>
+  <class name="edm::Wrapper<edm::EventTime>"/>
+
 </lcgdict>
