@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:23 EDT 2005
-// $Id: candidateMethods.cc,v 1.3 2006/02/28 11:29:19 llista Exp $
+// $Id: candidateMethods.cc,v 1.4 2006/05/04 10:23:09 llista Exp $
 //
 
 // system include files
@@ -30,15 +30,18 @@ reco::candidateMethods() {
     s_methods[ "massSqr" ] = &Candidate::massSqr;
     s_methods[ "mt" ] = &Candidate::mt;
     s_methods[ "mtSqr" ] = &Candidate::mtSqr;
+    s_methods[ "p" ] = &Candidate::p;
     s_methods[ "px" ] = &Candidate::px;
     s_methods[ "py" ] = &Candidate::py;
     s_methods[ "pz" ] = &Candidate::pz;
     s_methods[ "pt" ] = &Candidate::pt;
     s_methods[ "phi" ] = &Candidate::phi;
+    s_methods[ "eta" ] = &Candidate::eta;
     s_methods[ "theta" ] = &Candidate::theta;
-    s_methods[ "x" ] = &Candidate::x;
     s_methods[ "y" ] = &Candidate::y;
-    s_methods[ "z" ] = &Candidate::z;
+    s_methods[ "vX" ] = &Candidate::vx;
+    s_methods[ "vy" ] = &Candidate::vy;
+    s_methods[ "vz" ] = &Candidate::vz;
   }
   return s_methods;
 }
