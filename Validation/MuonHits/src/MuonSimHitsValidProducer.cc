@@ -4,7 +4,6 @@ MuonSimHitsValidProducer::MuonSimHitsValidProducer(const edm::ParameterSet& iPSe
   fName(""), verbosity(0), label(""), getAllProvenances(false),
   printProvenanceInfo(false), nRawGenPart(0), count(0)
 {
-
   /// get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
