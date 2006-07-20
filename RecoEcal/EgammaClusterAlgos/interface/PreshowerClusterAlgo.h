@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.4 2006/07/05 18:13:19 dbanduri Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.7 2006/07/14 17:45:49 dbanduri Exp $
 //
 
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
@@ -47,7 +47,7 @@ class PreshowerClusterAlgo {
                                          const CaloSubdetectorGeometry*& geometry_p,
 					 CaloSubdetectorTopology*& topology_p);
 
-   bool goodStrip(RecHitsMap::iterator candidate_it, ESDetId ID);
+   bool goodStrip(RecHitsMap::iterator candidate_it);
 
    void findRoad(ESDetId strip, EcalPreshowerNavigator theESNav, int plane);
 
