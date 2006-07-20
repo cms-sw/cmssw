@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/20 02:36:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/20 12:57:38 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -70,8 +70,7 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
   for (unsigned int position = 0; position < tkTs->size(); position++) {
     reco::TrackRef tkTRef(tkTs,position);
     std::pair<bool,double> check = match(*staT,*tkTRef);
-    if (check.first) 
-      result.push_back(tkTRef);
+    if ( check.first ) result.push_back(tkTRef);
   }
 
   return result;
@@ -91,8 +90,7 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
   for (std::vector<reco::TrackRef>::const_iterator tkTRef = tkTs.begin();
        tkTRef != tkTs.end(); tkTRef++) {
     std::pair<bool,double> check = match(*staT,**tkTRef);
-    if (check.first)
-      result.push_back(*tkTRef);
+    if ( check.first ) result.push_back(*tkTRef);
   }
 
   return result;

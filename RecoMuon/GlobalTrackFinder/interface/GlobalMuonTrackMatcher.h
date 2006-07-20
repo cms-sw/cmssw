@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/16 01:48:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/20 02:36:28 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  - Purdue University
  */
 
@@ -22,36 +22,44 @@ class MagneticField;
 //              ---------------------
 
 class GlobalMuonTrackMatcher {
-public:
-  /// constructor
-  GlobalMuonTrackMatcher(double chi2, const MagneticField*);
 
-  /// destructor
-  virtual ~GlobalMuonTrackMatcher() {};
+  public:
 
-  /// choose one that with smallest chi2
-  std::pair<bool, reco::TrackRef> matchOne(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>&) const;
+    /// constructor
+    GlobalMuonTrackMatcher(double chi2, const MagneticField*);
 
-  /// choose all that has chi2 less than MaxChi2
-  std::vector<reco::TrackRef> match(const reco::TrackRef&, const edm::Handle<reco::TrackCollection>&) const;
+    /// destructor
+    virtual ~GlobalMuonTrackMatcher() {}
 
-  /// choose all that has chi2 less than MaxChi2
-  std::vector<reco::TrackRef> match(const reco::TrackRef&, const std::vector<reco::TrackRef>&) const;
+    /// choose one that with smallest chi2
+    std::pair<bool, reco::TrackRef> matchOne(const reco::TrackRef&, 
+                                             const edm::Handle<reco::TrackCollection>&) const;
 
-  /// check if two tracks are match
-  std::pair<bool,double> match(const reco::Track&, const reco::Track&) const; 
+    /// choose all that has chi2 less than MaxChi2
+    std::vector<reco::TrackRef> match(const reco::TrackRef&, 
+                                      const edm::Handle<reco::TrackCollection>&) const;
 
-  /// check if two TSOS are match
-  std::pair<bool,double> match(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+    /// choose all that has chi2 less than MaxChi2
+    std::vector<reco::TrackRef> match(const reco::TrackRef&, 
+                                      const std::vector<reco::TrackRef>&) const;
 
-private:
-  double theMaxChi2;
-  double theMinP;
-  double theMinPt;
-  GlobalPoint theVertexPos;
-  GlobalError theVertexErr;
-  MuonUpdatorAtVertex* theUpdator;
-  const MagneticField* theField;
+    /// check if two tracks are match
+    std::pair<bool,double> match(const reco::Track&, 
+                                 const reco::Track&) const; 
+
+    /// check if two TSOS are match
+    std::pair<bool,double> match(const TrajectoryStateOnSurface&, 
+                                 const TrajectoryStateOnSurface&) const;
+
+  private:
+
+    double theMaxChi2;
+    double theMinP;
+    double theMinPt;
+    GlobalPoint theVertexPos;
+    GlobalError theVertexErr;
+    MuonUpdatorAtVertex* theUpdator;
+    const MagneticField* theField;
 
 };
 
