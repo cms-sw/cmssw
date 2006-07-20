@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.4 2006/03/30 17:50:52 dkcira Exp $
+// $Id: SiStripMonitorCluster.h,v 1.5 2006/06/27 07:52:08 dkcira Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
         MonitorElement* ClusterWidth;
         MonitorElement* ClusterCharge;
         MonitorElement* ClusterSignal;
+        MonitorElement* ClusterNoise;
         MonitorElement* ClusterSignalOverNoise;
 	MonitorElement* ModuleLocalOccupancy;
 	MonitorElement* NrOfClusterizedStrips; // can be used at client level for occupancy calculations
