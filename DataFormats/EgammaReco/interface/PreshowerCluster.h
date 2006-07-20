@@ -85,14 +85,13 @@ namespace reco {
     bool operator<(const PreshowerCluster&) const;
 
     //Associated basic cluster;
-    BasicClusterRef getBC() {return bc_ref_;}
+    BasicClusterRef getBC() const {return bc_ref_;}
 
     virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
   private:
 
     //    double energy_;
-    double euncorrected_;
     double et_;
 
     double radius_;
