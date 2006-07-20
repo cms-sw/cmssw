@@ -25,7 +25,7 @@ will be excluded as well.
 <br><br>
 Examples of configuration for the modules is the following:
 <pre>
-\htmlinclude getCandidates.cfi
+\htmlinclude genCandidates.cfi
 </pre>
 
 \subsection tests Unit tests and examples
