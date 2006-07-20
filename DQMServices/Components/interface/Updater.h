@@ -27,6 +27,9 @@ namespace dqm
       
       ~Updater()
 	{
+	  // recommended by Benigno Gobbo to fix crash for following sequence:
+	  // Configure/Enable/Halt + Configure/Enable
+	  pthread_cancel( worker );
 	}
       
       void registerObserver(dqm::UpdateObserver *);
