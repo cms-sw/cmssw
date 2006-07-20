@@ -29,7 +29,9 @@ std::vector<DetId> CaloSubdetectorGeometry::getValidDetIds(DetId::Detector det, 
 }
 
 double CaloSubdetectorGeometry::deltaR(const GlobalPoint& p1, const GlobalPoint& p2) {
-  return sqrt(pow(p1.phi()-p2.phi(),2)+pow(p1.eta()-p2.eta(),2));
+  double dp=p1.phi()-p2.phi();
+  double de=p1.eta()-p2.eta();
+  return sqrt(dp*dp+de*de);
 }
 
 const DetId CaloSubdetectorGeometry::getClosestCell(const GlobalPoint& r) const 
