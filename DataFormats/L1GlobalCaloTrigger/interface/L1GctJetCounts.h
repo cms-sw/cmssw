@@ -5,7 +5,18 @@
 #include <vector>
 #include <ostream>
 
-class L1GctJetCounts {
+#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
+
+///
+/// \class L1GctJetCounts
+/// 
+/// \author: Jim Brooke
+///
+/// Class to store the GCT jet count output
+/// 
+
+
+class L1GctJetCounts : public L1TriggerObject {
 
  public:
 
@@ -20,6 +31,12 @@ class L1GctJetCounts {
 
   /// destructor
   ~L1GctJetCounts();
+
+  /// name method
+  std::string name() const { return "JetCounts"; }
+
+  /// empty method
+  bool empty() const { return false; }
 
   /// get raw word 0
   uint32_t raw0() const { return m_data0; }
