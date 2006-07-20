@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/19 20:01:38 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/20 09:39:45 $
+ *  $Revision: 1.13 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -767,7 +767,7 @@ GlobalMuonTrajectoryBuilder::RecHitContainer GlobalMuonTrajectoryBuilder::select
 
     double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
   
-    LogDebug("GlobalMuonTrajectoryBuilder") << "hit: " << module << " " << station << " " << chi2ndf << " " << hits[station-1] << endl;
+    //LogDebug("GlobalMuonTrajectoryBuilder") << "hit: " << module << " " << station << " " << chi2ndf << " " << hits[station-1] << endl;
 
     bool keep = true;
     if ( (station > 0) && (station < 5) ) {
