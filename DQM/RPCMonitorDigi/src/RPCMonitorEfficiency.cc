@@ -3,8 +3,8 @@
  *
  *  implementation of RPCMonitorEfficiency class
  *
- *  $Date: 2006/06/26 13:25:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/15 09:29:50 $
+ *  $Revision: 1.2 $
  *
  * \author  Camilo Carrillo
  */
@@ -27,7 +27,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 
-/// for DQM ILA
+/// for DQM
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -37,6 +37,10 @@
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 
 RPCMonitorEfficiency::RPCMonitorEfficiency( const edm::ParameterSet& pset ):counter(0){
+
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = pset.getParameter<std::string>("recHits4DLabel");
+
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPCEfficiency");
   saveRootFile  = pset.getUntrackedParameter<bool>("EfficDQMSaveRootFile", false); 
   saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("EfficEventsInterval", 100000); 
@@ -69,7 +73,7 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
   
   for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){
     //std::cout<<"Chamber ID= "<<(*segment).chamberId()<<std::endl;
-    hPositionX->Fill( (*segment).localPosition().x());
+    //hPositionX->Fill( (*segment).localPosition().x());
     LocalTrajectoryParameters localTrajectParameters=this->makeLocalTrajectory(*segment);
     LocalTrajectoryError localError;
     const BoundPlane  theSurface= this->makeSurface(iSetup,*segment);
@@ -78,8 +82,10 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
     iSetup.get<IdealMagneticFieldRecord>().get(magfield);
     const MagneticField *field = magfield.product();
     TrajectoryStateOnSurface*tsos=new TrajectoryStateOnSurface(localTrajectParameters,localError,theSurface,field,1);
+    
+    
   }
-  //std::cout<<"---"<<std::endl;
+
   counter++;
 }
 
