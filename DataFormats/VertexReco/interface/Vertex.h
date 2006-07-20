@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.14 2006/06/22 18:53:54 llista Exp $
+ * \version $Id: Vertex.h,v 1.15 2006/07/18 15:56:54 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -28,6 +28,8 @@ namespace reco {
     enum { dimension = 3 };
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type Error;
+    /// covariance error matrix (3x3)
+    typedef math::Error<dimension>::type CovarianceMatrix;
     /// matix size
     enum { size = Error::kSize };
     /// index type
@@ -64,13 +66,17 @@ namespace reco {
     /// y coordinate 
     double z() const { return position_.Z(); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const { return error_[ idx( i, j ) ]; }
+    double error( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double & error( int i, int j ) { return error_[ idx( i, j ) ]; }
+    double & error( int i, int j ) { return covariance_[ idx( i, j ) ]; }
+    /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    double & covariance( int i, int j ) { return covariance_[ idx( i, j ) ]; }
     /// return SMatrix
-    Error covariance() const { Error m; fill( m ); return m; }
+    CovarianceMatrix covariance() const { Error m; fill( m ); return m; }
+    /// return SMatrix
+    Error error() const { Error m; fill( m ); return m; }
     /// fill SMatrix
-    void fill( Error & v ) const;
+    void fill( CovarianceMatrix & v ) const;
 
   private:
     /// chi-sqared
@@ -80,7 +86,7 @@ namespace reco {
     /// position
     Point position_;
     /// covariance matrix (3x3) as vector
-    Double32_t error_[ size ];
+    Double32_t covariance_[ size ];
     /// reference to tracks
     TrackRefVector tracks_;
     /// position index
