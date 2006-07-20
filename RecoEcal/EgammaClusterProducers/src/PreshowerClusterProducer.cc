@@ -101,8 +101,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
 
-//   const CaloSubdetectorGeometry *geometry_p;
-//   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
 
@@ -110,33 +108,18 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   CaloSubdetectorTopology *& topology_p = topology;
 
  // fetch the product (pSuperClusters)
-  try {
-    evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);   
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("PreshowerClusterProducerError ") << "Error! can't get the product " << endcapSClusterCollection_.c_str();
-  }
-  // pointer to the object in the product
+  evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);   
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout <<"### Total # Endcap Superclusters: " << SClusts->size() << std::endl;
 
-  // loop over the super clusters and fill the histogram
-  for(reco::SuperClusterCollection::const_iterator aClus = SClusts->begin(); aClus != SClusts->end(); aClus++) {
-    if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << "PreshowerClusterProducerInfo: superEenergy = " 
-                                                            << aClus->energy() << std::endl;
-  }
-
   // fetch the product (RecHits)
-  try {
-    evt.getByLabel( preshHitProducer_, preshHitCollection_, pRecHits);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("PreshowerClusterProducerError ") << "Error! can't get the product " << preshHitCollection_.c_str();
-  }
+  evt.getByLabel( preshHitProducer_, preshHitCollection_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); // EcalRecHitCollection hit_collection = *rhcHandle;
   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: " 
                                                           << rechits->size() << std::endl;
+  if ( rechits->size() <= 0 ) return;
 
- 
   // make the map of rechits:
   std::map<DetId, EcalRecHit> rechits_map;
   EcalRecHitCollection::const_iterator it;
@@ -144,7 +127,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
      //Make the map of DetID, EcalRecHit pairs
      rechits_map.insert(std::make_pair(it->id(), *it));   
   }
-
   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "PreshowerClusterProducerInfo: ### rechits_map of size " 
                                          << rechits_map.size() <<" was created!" << std::endl;   
 
@@ -168,14 +150,16 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        reco::BasicClusterRefVector::iterator b_iter = it_super->clustersBegin();
        for ( ; b_iter !=it_super->clustersEnd(); ++b_iter ) {  
 
-          // Get strip position at intersection point of the line EE - Vertex:
+       // Get strip position at intersection point of the line EE - Vertex:
          double X = (*b_iter)->x();
 	 double Y = (*b_iter)->y();
          double Z = (*b_iter)->z();
 	 const GlobalPoint point(X,Y,Z);         
 
-	 ESDetId strip1((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1)); 
-         ESDetId strip2((dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2));
+         DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1);
+         DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2);
+	 ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
+	 ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
 
          if ( debugL <= PreshowerClusterAlgo::pINFO ) {
 	    if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
