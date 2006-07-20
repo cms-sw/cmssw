@@ -1,24 +1,25 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.7 2006/07/14 17:45:49 dbanduri Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.8 2006/07/20 14:51:50 dbanduri Exp $
 //
 
+//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-//#include "RecoEcal/EgammaClusterAlgos/interface/LogPositionCalc.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
 #include <set>
-//#include <fstream>
+
+class CaloSubdetectorGeometry;
+class CaloSubdetectorTopology;
+
 
 class PreshowerClusterAlgo {
 
@@ -43,9 +44,9 @@ class PreshowerClusterAlgo {
 
    reco::PreshowerCluster makeOneCluster(ESDetId strip, 
                                          RecHitsMap *rechits_map,
-				         reco::BasicClusterRefVector::iterator basicClust_ref,
+                                         reco::BasicClusterRefVector::iterator basicClust_ref,
                                          const CaloSubdetectorGeometry*& geometry_p,
-					 CaloSubdetectorTopology*& topology_p);
+                                         CaloSubdetectorTopology*& topology_p);
 
    bool goodStrip(RecHitsMap::iterator candidate_it);
 

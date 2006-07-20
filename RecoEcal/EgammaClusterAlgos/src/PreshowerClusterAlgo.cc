@@ -3,7 +3,6 @@
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
-//#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
