@@ -157,7 +157,7 @@ void L1GctGlobalEnergyAlgos::process()
   ExSum = m_exValPlusWheel + m_exVlMinusWheel;
   EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
   // Execute the missing Et algorithm
-  EtMissing = calculate_etmiss_vec(ExSum, EySum);
+  EtMissing = calculate_etmiss_vec(-ExSum, -EySum);
   //
   m_outputEtMiss    = EtMissing.mag;
   m_outputEtMissPhi = EtMissing.phi;
