@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/03 06:26:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/20 16:02:42 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -72,7 +72,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    LogDebug("") << "Number of HepMC products found: " << hepmcs.size();
 
-   ParticleKinematics p4;
+   math::XYZTLorentzVector p4;
    if (hepmcs.size()>0) {
      hepmc=hepmcs[0];
      const HepMC::GenEvent* evt = hepmc->GetEvent();
@@ -81,7 +81,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                pitr!=(*vitr)->particles_end(HepMC::children); pitr++) {
 	 if ( (*pitr)->status()==1) {
 	   HepLorentzVector p = (*pitr)->momentum() ;
-           p4=ParticleKinematics(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
+           p4=math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t());
            int ipdg = (*pitr)->pdg_id();
            if (abs(ipdg)==11) {
              elec->push_back(Electron(0,p4));
@@ -91,7 +91,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              phot->push_back(Photon(0,p4));
            } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16) {
 	     SpecificCaloMETData specific;
-             mets->push_back(CaloMET(specific,p4.et(),p4,Point(0,0,0)));
+             mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
 	   } else { 
 	     CaloJet::Specific specific;
              vector<CaloTowerDetId> ctdi(0);
