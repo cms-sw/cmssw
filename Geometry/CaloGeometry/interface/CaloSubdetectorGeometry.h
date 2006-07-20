@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <set>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
@@ -14,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2006/04/04 15:34:34 $
-$Revision: 1.3 $
+$Date: 2006/05/17 09:27:05 $
+$Revision: 1.4 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -38,7 +39,18 @@ public:
   // Get closest cell, etc...
   virtual const DetId getClosestCell(const GlobalPoint& r) const ;
 
+  typedef std::set<DetId> DetIdSet;
+
+  /** \brief Get a list of all cells within a dR of the given cell
+
+      The default implementation makes a loop over all cell geometries.
+      Cleverer implementations are suggested to use rough conversions between
+      eta/phi and ieta/iphi and test on the boundaries.
+  */
+  virtual DetIdSet getCells(const GlobalPoint& r, double dR) const;
+
 protected:
+  static double deltaR(const GlobalPoint& p1, const GlobalPoint& p2);
   mutable std::vector<DetId> validIds_;
   std::map<DetId, const CaloCellGeometry*> cellGeometries_;    
 };
