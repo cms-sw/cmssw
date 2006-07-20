@@ -19,8 +19,9 @@ public:
   void setDescLength(uint32 registry_length);
   uint8* dataAddress() { return desc_addr_; }
   uint32 headerSize() const {return desc_addr_-buf_;}
-  uint32 size() const ;//{return size_;}
+  uint32 size() const ;
   uint32 run() const;  /** Required by EOF Record Builder */  
+  uint32 bufferSize() const {return size_;}
 
 private:
   uint8* fillNames(const Strings& names, uint8* pos);

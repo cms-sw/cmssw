@@ -21,6 +21,7 @@ public:
   uint8* eventAddr() { return event_addr_; }
   uint32 headerSize() const {return event_addr_-buf_;} 
   uint32 size() const;
+  uint32 bufferSize() const {return size_;}
 
 private:
   uint8* buf_;
