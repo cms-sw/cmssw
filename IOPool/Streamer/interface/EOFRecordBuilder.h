@@ -19,7 +19,7 @@ public:
                    uint64 first_event_offset,
                    uint64 last_event_offset);
 
-  uint8* recAddress() const { return (uint8*) &buf_; }
+  uint8* recAddress() const { return (uint8*) &buf_[0]; }
   uint32 size() const {return (uint32) buf_.size(); }
 
 private:
