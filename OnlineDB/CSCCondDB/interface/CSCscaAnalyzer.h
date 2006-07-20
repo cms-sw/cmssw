@@ -27,7 +27,7 @@ class TCalibSCAEvt {
   Int_t layer;
   Int_t cham;
   Int_t ddu;
-  Int_t sca;
+  Float_t scaMeanVal;
 };
 
 class CSCscaAnalyzer : public edm::EDAnalyzer {
@@ -53,6 +53,7 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   int chamber,layer,reportedChambers,chamber_num,sector,run,NChambers ;
   int dmbID[CHAMBERS_sca],crateID[CHAMBERS_sca],size[CHAMBERS_sca];
   int value_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
+  float value_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   std::vector<int> adc;
   std::string chamber_id;
   int lines;
@@ -60,7 +61,7 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   std::string PSet,name;
   bool debug;
   int flag,my_scaValue;
-  float pedMean;
+  float pedMean,my_scaValueMean;
   int scaBlock,trigTime,lctPhase,power,cap,scaNumber;
 
   //root ntuple

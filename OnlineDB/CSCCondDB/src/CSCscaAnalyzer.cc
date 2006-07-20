@@ -40,6 +40,7 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
 	for (int l=0;l<STRIPS_sca;l++){
 	  for (int m=0;m<Number_sca;m++){
 	    value_adc[i][j][k][l][m]=0;
+	    value_adc_mean[i][j][k][l][m]=0.0;
 	  }
 	}
       }
@@ -113,18 +114,32 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		  		  
 		  for (unsigned int i=0; i<digis.size(); i++){
 		    int strip = digis[i].getStrip();
-		    std::vector<int> adc = digis[i].getADCCounts();
+		    adc = digis[i].getADCCounts();
 		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
-		      value_adc[iDDU][chamber][layer][strip][scaNumber]=adc[itime];
+		      value_adc[iDDU][chamber][layer][strip][scaNumber] = adc[itime];
 		    }
+		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/20. ;		 
 		  }
-
-		}//timeslice
+		}//8 timeslice
 	      }//layer
 	    }//CFEBs
 	  }//CFEB available
 	}//chamber
 	
+	if((evt-1)%20==0){
+	  for(int iii=0;iii<DDU_sca;iii++){
+	    for(int ii=0; ii<CHAMBERS_sca; ii++){
+	      for(int jj=0; jj<LAYERS_sca; jj++){
+		for(int kk=0; kk<STRIPS_sca; kk++){
+		  for (int m=0;m<Number_sca;m++){
+		    value_adc_mean[iii][ii][jj][kk][m]=0.0;
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+
 	eventNumber++;
 	edm::LogInfo ("CSCscaAnalyzer")  << "end of event number " << eventNumber;
 	
@@ -156,10 +171,9 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
-  std::string myRootType = "SCA";
   std::string myRootEnd = "_sca.root";
   std::string runFile= myRootName;
-  std::string myRootFileName = myRootType+runFile+myRootEnd;
+  std::string myRootFileName = runFile+myRootEnd;
   const char *myNewName=myRootFileName.c_str();
   
   struct tm* clock;			    
@@ -172,7 +186,7 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   TCalibSCAEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","SCA");
-  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:sca/I");
+  calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F");
   
   //DB object and map
   //CSCobject *cn = new CSCobject();
@@ -194,14 +208,15 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
       for (int layeriter=0; layeriter<LAYERS_sca; layeriter++){
 	for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
 	  for (int k=0;k<Number_sca;k++){
-	    my_scaValue= value_adc[dduiter][cham][layeriter][stripiter][k];
+	    my_scaValue = value_adc[dduiter][cham][layeriter][stripiter][k];
+	    my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
 	    
-	    std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" ADC "<<my_scaValue <<std::endl;
+	    std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
 	    calib_evt.strip=stripiter;
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;
 	    calib_evt.ddu=dduiter;
-	    calib_evt.sca=my_scaValue;
+	    calib_evt.scaMeanVal=my_scaValueMean;
 	    
 	    calibtree.Fill();
 	  }
