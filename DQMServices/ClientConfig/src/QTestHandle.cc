@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2006/05/09 21:28:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/22 10:20:35 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 
@@ -19,6 +19,8 @@ QTestHandle::QTestHandle(){
 	qtParser     = new QTestConfigurationParser();
 	qtConfigurer = new QTestConfigure();
 	qtChecker    = new QTestStatusChecker();
+	
+	testsConfigured = false;
 }
 
 QTestHandle::~QTestHandle(){
@@ -30,10 +32,18 @@ QTestHandle::~QTestHandle(){
 
 bool QTestHandle::configureTests(std::string configFile, MonitorUserInterface * mui){
 	
-	qtParser->getDocument(configFile);
+	if(testsConfigured) {
+		qtParser->getNewDocument(configFile);
+	}else{	
+		qtParser->getDocument(configFile);
+		testsConfigured=true;
+	}
+
 	if(! qtParser->parseQTestsConfiguration() ){
-	      std::map<std::string, std::map<std::string, std::string> > testsList=qtParser->testsList();
-	      if(qtConfigurer->enableTests(testsList,mui)) return true;
+	      std::map<std::string, std::map<std::string, std::string> > testsONList=qtParser->testsList();
+	      std::vector<std::string> testsOFFList=qtParser->testsOff();
+	      qtConfigurer->desableTests(testsOFFList,mui);
+	      if(qtConfigurer->enableTests(testsONList,mui)) return true;
 	
 	}else{
 	      return true;

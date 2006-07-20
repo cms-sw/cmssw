@@ -8,22 +8,28 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2006/05/04 10:27:06 $
+ *  $Date: 2006/05/09 21:28:37 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 
 
 DQMParserBase::DQMParserBase(){
+	parser=0; 
+	doc=0; 
 }
 
 DQMParserBase::~DQMParserBase(){
+	delete parser;
+	parser=0; 
+	delete doc;
+	doc=0; 
 }
 
 
 void DQMParserBase::getDocument(std::string configFile){
 	
-	XercesDOMParser* parser = new XercesDOMParser;     
+	parser = new XercesDOMParser;     
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 	parser->parse(configFile.c_str()); 
@@ -32,6 +38,15 @@ void DQMParserBase::getDocument(std::string configFile){
 
 }
 
+void DQMParserBase::getNewDocument(std::string configFile){
+	//delete doc;
+	//doc =0;
+	parser->resetDocumentPool();
+	parser->parse(configFile.c_str()); 
+	doc = parser->getDocument();
+	assert(doc);
+
+}
 int DQMParserBase::countNodes(std::string tagName){
 	unsigned int tagsNum  = 
  	   doc->getElementsByTagName(qtxml::_toDOMS(tagName))->getLength();

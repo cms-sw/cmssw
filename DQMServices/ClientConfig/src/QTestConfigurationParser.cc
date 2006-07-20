@@ -8,8 +8,8 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2006/05/04 10:27:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/09 21:28:37 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 
@@ -37,7 +37,9 @@ QTestConfigurationParser::~QTestConfigurationParser(){
 }
 
 bool QTestConfigurationParser::parseQTestsConfiguration(){
-	
+	testsToDisable.clear();
+	testsRequested.clear();
+	mapMonitorElementTests.clear();
 	bool qtErrors= this->qtestsConfig();
 	bool meErrors= this->monitorElementTestsMap();
 	return (qtErrors||meErrors);
@@ -46,6 +48,7 @@ bool QTestConfigurationParser::parseQTestsConfiguration(){
 
 bool QTestConfigurationParser::qtestsConfig(){
 	
+	std::string testActivationOFF="false";
 
 	unsigned int qtestTagsNum  = 
  	   doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
@@ -65,31 +68,30 @@ bool QTestConfigurationParser::qtestsConfig(){
 			return true;		 
 		}
 		std::string qtestName = qtxml::_toString (qtestElement->getAttribute (qtxml::_toDOMS ("name"))); 
-	
-		///Get Qtest TYPE
-		DOMNodeList *typeNodePrefix 
-		  = qtestElement->getElementsByTagName (qtxml::_toDOMS ("TYPE"));
+		std::string activate = qtxml::_toString (qtestElement->getAttribute (qtxml::_toDOMS ("activate"))); 
+		if(!std::strcmp(activate.c_str(),testActivationOFF.c_str())) {
+			testsToDisable.push_back(qtestName);
+		}else{	
+							
+			///Get Qtest TYPE
+			DOMNodeList *typeNodePrefix 
+		  	= qtestElement->getElementsByTagName (qtxml::_toDOMS ("TYPE"));
 	     	     
-		if (typeNodePrefix->getLength () != 1){
-			return true;
-		}       
+			if (typeNodePrefix->getLength () != 1)return true;
+			       
 	     
-		DOMElement *prefixNode = dynamic_cast <DOMElement *> (typeNodePrefix->item (0));
-		if (!prefixNode){
-			return true;
-		}
- 
-	     
-		DOMText *prefixText = dynamic_cast <DOMText *> (prefixNode->getFirstChild());
-		if (!prefixText){	
-			return true;
-		}
-	
-		std::string qtestType = qtxml::_toString (prefixText->getData ());
+			DOMElement *prefixNode = dynamic_cast <DOMElement *> (typeNodePrefix->item (0));
+			if (!prefixNode)return true;
 
-		testsRequested[qtestName]=  this->getParams(qtestElement, qtestType);
+			DOMText *prefixText = dynamic_cast <DOMText *> (prefixNode->getFirstChild());
+			if (!prefixText)return true;			
+	
+			std::string qtestType = qtxml::_toString (prefixText->getData ());
+
+			testsRequested[qtestName]=  this->getParams(qtestElement, qtestType);
 		
-		if( this->checkParameters(qtestName, qtestType)) return true;
+			if( this->checkParameters(qtestName, qtestType)) return true;
+		}
 	
  	} //loop on qtestTagsNum
  
@@ -124,6 +126,7 @@ bool QTestConfigurationParser::checkParameters(std::string qtestName, std::strin
 	
 	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(qtestType);
 	if(paramNames.size() == 0) {
+
 		return true;
 	}
 	paramNames.push_back("error");
@@ -143,6 +146,7 @@ bool QTestConfigurationParser::checkParameters(std::string qtestName, std::strin
 bool QTestConfigurationParser::monitorElementTestsMap(){
 	
 	std::string testON="true";
+	std::string testOFF="false";
 	
 	unsigned int linkTagsNum  = 
  	   doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
@@ -173,16 +177,24 @@ bool QTestConfigurationParser::monitorElementTestsMap(){
 			}
 		
 			std::string activate = qtxml::_toString (testElement ->getAttribute (qtxml::_toDOMS ("activate"))); 
-			if(!std::strcmp(activate.c_str(),testON.c_str())) {
 				
 				DOMText *argText = dynamic_cast <DOMText *> (testElement ->getFirstChild());
-				if (!argText){
-					return true;
-				}
 	   
-				std::string regExpValue = qtxml::_toString (argText->getData());
-				qualityTestList.push_back(regExpValue);
-			}
+				if(!std::strcmp(activate.c_str(),testON.c_str()))  {				
+					if (!argText){
+						return true;
+					}else{
+						std::string regExpValue = qtxml::_toString (argText->getData());
+						qualityTestList.push_back(regExpValue);		
+					}		
+				}				
+				if(!std::strcmp(activate.c_str(),testOFF.c_str())) {
+					if (argText) {
+						std::string regExpValue = qtxml::_toString (argText->getData());						
+						// Create List of QTests to unattach from current ME
+					}				
+				}
+			
 		}
 	
 	
