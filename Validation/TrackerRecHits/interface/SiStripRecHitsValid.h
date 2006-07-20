@@ -91,68 +91,81 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxRphiTIB[4];
   MonitorElement* meErrxRphiTIB[4];
   MonitorElement* meResRphiTIB[4];
+  MonitorElement* meChi2RphiTIB[4];
   MonitorElement* meNstpSasTIB[4];
   MonitorElement* meAdcSasTIB[4];
   MonitorElement* mePosxSasTIB[4];
   MonitorElement* meErrxSasTIB[4];
   MonitorElement* meResSasTIB[4];
+  MonitorElement* meChi2SasTIB[4];
   MonitorElement* mePosxMatchedTIB[2];
   MonitorElement* mePosyMatchedTIB[2];
   MonitorElement* meErrxMatchedTIB[2];
   MonitorElement* meErryMatchedTIB[2];
   MonitorElement* meResxMatchedTIB[2];
   MonitorElement* meResyMatchedTIB[2];
+  MonitorElement* meChi2MatchedTIB[2];
   //TOB
   MonitorElement* meNstpRphiTOB[6];
   MonitorElement* meAdcRphiTOB[6];
   MonitorElement* mePosxRphiTOB[6];
   MonitorElement* meErrxRphiTOB[6];
   MonitorElement* meResRphiTOB[6];
+  MonitorElement* meChi2RphiTOB[6];
   MonitorElement* meNstpSasTOB[2];
   MonitorElement* meAdcSasTOB[2];
   MonitorElement* mePosxSasTOB[2];
   MonitorElement* meErrxSasTOB[2];
   MonitorElement* meResSasTOB[2];
+  MonitorElement* meChi2SasTOB[2];
   MonitorElement* mePosxMatchedTOB[2];
   MonitorElement* mePosyMatchedTOB[2];
   MonitorElement* meErrxMatchedTOB[2];
   MonitorElement* meErryMatchedTOB[2];
   MonitorElement* meResxMatchedTOB[2];
   MonitorElement* meResyMatchedTOB[2];
+  MonitorElement* meChi2MatchedTOB[2];
   //TID
   MonitorElement* meNstpRphiTID[3];
   MonitorElement* meAdcRphiTID[3];
   MonitorElement* mePosxRphiTID[3];
   MonitorElement* meErrxRphiTID[3];
   MonitorElement* meResRphiTID[3];
+  MonitorElement* meChi2RphiTID[3];
   MonitorElement* meNstpSasTID[2];
   MonitorElement* meAdcSasTID[2];
   MonitorElement* mePosxSasTID[2];
   MonitorElement* meErrxSasTID[2];
   MonitorElement* meResSasTID[2];
+  MonitorElement* meChi2SasTID[2];
+
   MonitorElement* mePosxMatchedTID[2];
   MonitorElement* mePosyMatchedTID[2];
   MonitorElement* meErrxMatchedTID[2];
   MonitorElement* meErryMatchedTID[2];
   MonitorElement* meResxMatchedTID[2];
   MonitorElement* meResyMatchedTID[2];
+  MonitorElement* meChi2MatchedTID[2];
   //TEC
   MonitorElement* meNstpRphiTEC[7];
   MonitorElement* meAdcRphiTEC[7];
   MonitorElement* mePosxRphiTEC[7];
   MonitorElement* meErrxRphiTEC[7];
   MonitorElement* meResRphiTEC[7];
+  MonitorElement* meChi2RphiTEC[7];
   MonitorElement* meNstpSasTEC[5];
   MonitorElement* meAdcSasTEC[5];
   MonitorElement* mePosxSasTEC[5];
   MonitorElement* meErrxSasTEC[5];
   MonitorElement* meResSasTEC[5];
+  MonitorElement* meChi2SasTEC[5];
   MonitorElement* mePosxMatchedTEC[5];
   MonitorElement* mePosyMatchedTEC[5];
   MonitorElement* meErrxMatchedTEC[5];
   MonitorElement* meErryMatchedTEC[5];
   MonitorElement* meResxMatchedTEC[5];
   MonitorElement* meResyMatchedTEC[5];
+  MonitorElement* meChi2MatchedTEC[5];
 
   std::vector<PSimHit> matched;
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
@@ -177,6 +190,9 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitsasres[MAXHIT];
   int   clusizsas[MAXHIT];
   float cluchgsas[MAXHIT];
+  float chi2rphi[MAXHIT];
+  float chi2sas[MAXHIT];
+  float chi2matched[MAXHIT];
   float rechitmatchedx[MAXHIT];
   float rechitmatchedy[MAXHIT];
   float rechitmatchedz[MAXHIT];
@@ -186,7 +202,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitmatchedphi[MAXHIT];
   float rechitmatchedresx[MAXHIT];
   float rechitmatchedresy[MAXHIT];
-
+  float rechitmatchedchi2[MAXHIT];
 };
 
 #endif

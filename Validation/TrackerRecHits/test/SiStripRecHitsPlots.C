@@ -14,6 +14,11 @@ void SiStripRecHitsPlots()
  rfile->cd("DQMData");
  gDirectory->ls();
 
+ //reference files here
+ // rfile->cd("")
+
+
+
 ////////////////////////////////////
 //            TIB                 //
 ////////////////////////////////////
@@ -108,7 +113,25 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTIB.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
- SiStrip->Divide(4,3);
+
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Chi2_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Chi2_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Chi2_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Chi2_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Chi2_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Chi2_sas_layer2tib->Draw();
+ 
+ SiStrip->Print("Chi2OfTIB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
  SiStrip->cd(1);
  Posx_matched_layer1tib->Draw();
  SiStrip->cd(2);
@@ -125,16 +148,27 @@ void SiStripRecHitsPlots()
  Errx_matched_layer2tib->Draw();
  SiStrip->cd(8);
  Erry_matched_layer2tib->Draw();
- SiStrip->cd(9);
- Resx_matched_layer1tib->Draw();
- SiStrip->cd(10);
- Resy_matched_layer1tib->Draw();
- SiStrip->cd(11);
- Resx_matched_layer2tib->Draw();
- SiStrip->cd(12);
- Resy_matched_layer2tib->Draw();
    
  SiStrip->Print("MatchedOfTIB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+
+ SiStrip->cd(1);
+ Resx_matched_layer1tib->Draw();
+ SiStrip->cd(2);
+ Resy_matched_layer1tib->Draw();
+ SiStrip->cd(3);
+ Chi2_matched_layer1tib->Draw();
+ SiStrip->cd(4);
+ Resx_matched_layer2tib->Draw();
+ SiStrip->cd(5);
+ Resy_matched_layer2tib->Draw();
+ SiStrip->cd(6);
+ Chi2_matched_layer2tib->Draw();
+
+ SiStrip->Print("MatchedResOfTIB.eps");
+
 
 ////////////////////////////////////
 //            TOB                 //
@@ -251,7 +285,29 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTOB.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
- SiStrip->Divide(4,3);
+
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Chi2_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Chi2_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Chi2_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Chi2_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Chi2_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Chi2_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Chi2_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Chi2_sas_layer2tob->Draw();
+ 
+ SiStrip->Print("Chi2OfTOB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
  SiStrip->cd(1);
  Posx_matched_layer1tob->Draw();
  SiStrip->cd(2);
@@ -268,16 +324,25 @@ void SiStripRecHitsPlots()
  Errx_matched_layer2tob->Draw();
  SiStrip->cd(8);
  Erry_matched_layer2tob->Draw();
- SiStrip->cd(9);
- Resx_matched_layer1tob->Draw();
- SiStrip->cd(10);
- Resy_matched_layer1tob->Draw();
- SiStrip->cd(11);
- Resx_matched_layer2tob->Draw();
- SiStrip->cd(12);
- Resy_matched_layer2tob->Draw();
    
  SiStrip->Print("MatchedOfTOB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Resx_matched_layer1tob->Draw();
+ SiStrip->cd(2);
+ Resy_matched_layer1tob->Draw();
+ SiStrip->cd(3);
+ Chi2_matched_layer1tob->Draw();
+ SiStrip->cd(4);
+ Resx_matched_layer2tob->Draw();
+ SiStrip->cd(5);
+ Resy_matched_layer2tob->Draw();
+ SiStrip->cd(6);
+ Chi2_matched_layer2tob->Draw();
+ 
+ SiStrip->Print("MatcheResdOfTOB.eps");
 
 ////////////////////////////////////
 //            TID                 //
@@ -363,7 +428,23 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTID.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
- SiStrip->Divide(4,3);
+
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Chi2_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Chi2_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Chi2_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Chi2_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Chi2_sas_layer2tid->Draw();
+ 
+ SiStrip->Print("Chi2OfTID.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
  SiStrip->cd(1);
  Posx_matched_layer1tid->Draw();
  SiStrip->cd(2);
@@ -380,16 +461,25 @@ void SiStripRecHitsPlots()
  Errx_matched_layer2tid->Draw();
  SiStrip->cd(8);
  Erry_matched_layer2tid->Draw();
- SiStrip->cd(9);
- Resx_matched_layer1tid->Draw();
- SiStrip->cd(10);
- Resy_matched_layer1tid->Draw();
- SiStrip->cd(11);
- Resx_matched_layer2tid->Draw();
- SiStrip->cd(12);
- Resy_matched_layer2tid->Draw();
    
  SiStrip->Print("MatchedOfTID.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Resx_matched_layer1tid->Draw();
+ SiStrip->cd(2);
+ Resy_matched_layer1tid->Draw();
+ SiStrip->cd(3);
+ Chi2_matched_layer1tid->Draw();
+ SiStrip->cd(4);
+ Resx_matched_layer2tid->Draw();
+ SiStrip->cd(5);
+ Resy_matched_layer2tid->Draw();
+ SiStrip->cd(6);
+ Chi2_matched_layer2tid->Draw();
+   
+ SiStrip->Print("MatchedResOfTID.eps");
 
 ////////////////////////////////////
 //            TEC                 //
@@ -525,6 +615,31 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTEC.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Chi2_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Chi2_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Chi2_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Chi2_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Chi2_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Chi2_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Chi2_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Chi2_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Chi2_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Chi2_sas_layer5tec->Draw();
+ 
+ SiStrip->Print("Chi2OfTEC.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(4,3);
  SiStrip->cd(1);
  Posx_matched_layer1tec->Draw();
@@ -554,19 +669,25 @@ void SiStripRecHitsPlots()
  SiStrip->Print("MatchedOfTEC.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
- SiStrip->Divide(2,3);
+ SiStrip->Divide(3,3);
  SiStrip->cd(1);
  Resx_matched_layer1tec->Draw();
  SiStrip->cd(2);
  Resy_matched_layer1tec->Draw();
  SiStrip->cd(3);
- Resx_matched_layer2tec->Draw();
+ Chi2_matched_layer1tec->Draw();
  SiStrip->cd(4);
- Resy_matched_layer2tec->Draw();
+ Resx_matched_layer2tec->Draw();
  SiStrip->cd(5);
- Resx_matched_layer5tec->Draw();
+ Resy_matched_layer2tec->Draw();
  SiStrip->cd(6);
+ Chi2_matched_layer2tec->Draw();
+ SiStrip->cd(7);
+ Resx_matched_layer5tec->Draw();
+ SiStrip->cd(8);
  Resy_matched_layer5tec->Draw();
+ SiStrip->cd(9);
+ Chi2_matched_layer5tec->Draw();
    
  SiStrip->Print("MatchedResOfTEC.eps");
 }

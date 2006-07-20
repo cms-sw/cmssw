@@ -30,12 +30,14 @@ void SiStripRecHitsCompare()
  TH1F* postib[6];
  TH1F* errxtib[6];
  TH1F* restib[6];
+ TH1F* chi2tib[6];
  TH1F* matchedtib[12];
  TH1F* newadctib[6];
  TH1F* newnstptib[6];
  TH1F* newpostib[6];
  TH1F* newerrxtib[6];
  TH1F* newrestib[6];
+ TH1F* newchi2tib[6];
  TH1F* newmatchedtib[12];
  
  rfile->GetObject("DQMData/TIB/Adc_rphi_layer1tib",adctib[0]);
@@ -174,6 +176,34 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTIBCompare.eps");
+
+ rfile->GetObject("DQMData/TIB/Chi2_rphi_layer1tib",chi2tib[0]);
+ rfile->GetObject("DQMData/TIB/Chi2_rphi_layer2tib",chi2tib[1]);
+ rfile->GetObject("DQMData/TIB/Chi2_rphi_layer3tib",chi2tib[2]);
+ rfile->GetObject("DQMData/TIB/Chi2_rphi_layer4tib",chi2tib[3]);
+ rfile->GetObject("DQMData/TIB/Chi2_sas_layer1tib",chi2tib[4]);
+ rfile->GetObject("DQMData/TIB/Chi2_sas_layer2tib",chi2tib[5]);
+ sfile->GetObject("DQMData/TIB/Chi2_rphi_layer1tib",newchi2tib[0]);
+ sfile->GetObject("DQMData/TIB/Chi2_rphi_layer2tib",newchi2tib[1]);
+ sfile->GetObject("DQMData/TIB/Chi2_rphi_layer3tib",newchi2tib[2]);
+ sfile->GetObject("DQMData/TIB/Chi2_rphi_layer4tib",newchi2tib[3]);
+ sfile->GetObject("DQMData/TIB/Chi2_sas_layer1tib",newchi2tib[4]);
+ sfile->GetObject("DQMData/TIB/Chi2_sas_layer2tib",newchi2tib[5]);
+
+  Strip = new TCanvas("Strip","Strip",1000,1000);
+  Strip->Divide(2,3);
+  for (Int_t i=0; i<6; i++) {
+    Strip->cd(i+1);
+    chi2tib[i]->SetLineColor(2);
+    newchi2tib[i]->SetLineColor(4);
+    newchi2tib[i]->SetLineStyle(2);
+    chi2tib[i]->Draw();
+    newchi2tib[i]->Draw("sames");
+    myPV->PVCompute(chi2tib[i] , newchi2tib[i] , te );
+  }
+  
+  Strip->Print("Chi2TIBCompare.eps");
+
   
  rfile->GetObject("DQMData/TIB/Posx_matched_layer1tib",matchedtib[0]);
  rfile->GetObject("DQMData/TIB/Posy_matched_layer1tib",matchedtib[1]);
@@ -201,7 +231,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TIB/Resy_matched_layer2tib",newmatchedtib[11]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(3,4);
  for (Int_t i=0; i<12; i++) {
    Strip->cd(i+1);
    matchedtib[i]->SetLineColor(2);
@@ -213,6 +243,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedTIBCompare.eps");
+
  
  //======================================================================================================
 // TOB
@@ -248,7 +279,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TOB/Adc_sas_layer2tob",newadctob[7]);
  
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(3,3);
  for (Int_t i=0; i<8; i++) {
    Strip->cd(i+1);
    adctob[i]->SetLineColor(2);
@@ -279,7 +310,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TOB/Nstp_sas_layer2tob",newnstptob[7]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(3,3);
  for (Int_t i=0; i<8; i++) {
    Strip->cd(i+1);
    nstptob[i]->SetLineColor(2);
@@ -310,7 +341,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TOB/Posx_sas_layer2tob",newpostob[7]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
-  Strip->Divide(2,3);
+  Strip->Divide(3,3);
   for (Int_t i=0; i<8; i++) {
     Strip->cd(i+1);
     postob[i]->SetLineColor(2);
@@ -374,7 +405,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TOB/Res_sas_layer2tob",newrestob[7]);
 
   Strip = new TCanvas("Strip","Strip",1000,1000);
-  Strip->Divide(2,3);
+  Strip->Divide(3,3);
   for (Int_t i=0; i<8; i++) {
     Strip->cd(i+1);
     restob[i]->SetLineColor(2);
@@ -386,6 +417,39 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTOBCompare.eps");
+
+
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer1tob",chi2tob[0]);
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer2tob",chi2tob[1]);
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer3tob",chi2tob[2]);
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer4tob",chi2tob[3]);
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer5tob",chi2tob[4]);
+ rfile->GetObject("DQMData/TOB/Chi2_rphi_layer6tob",chi2tob[5]);
+ rfile->GetObject("DQMData/TOB/Chi2_sas_layer1tob",chi2tob[6]);
+ rfile->GetObject("DQMData/TOB/Chi2_sas_layer2tob",chi2tob[7]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer1tob",newchi2tob[0]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer2tob",newchi2tob[1]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer3tob",newchi2tob[2]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer4tob",newchi2tob[3]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer5tob",newchi2tob[4]);
+ sfile->GetObject("DQMData/TOB/Chi2_rphi_layer6tob",newchi2tob[5]);
+ sfile->GetObject("DQMData/TOB/Chi2_sas_layer1tob",newchi2tob[6]);
+ sfile->GetObject("DQMData/TOB/Chi2_sas_layer2tob",newchi2tob[7]);
+
+  Strip = new TCanvas("Strip","Strip",1000,1000);
+  Strip->Divide(3,3);
+  for (Int_t i=0; i<8; i++) {
+    Strip->cd(i+1);
+    chi2tob[i]->SetLineColor(2);
+    newchi2tob[i]->SetLineColor(4);
+    newchi2tob[i]->SetLineStyle(2);
+    chi2tob[i]->Draw();
+    newchi2tob[i]->Draw("sames");
+    myPV->PVCompute(chi2tob[i] , newchi2tob[i] , te );
+  }
+  
+  Strip->Print("Chi2TOBCompare.eps");
+
   
  rfile->GetObject("DQMData/TOB/Posx_matched_layer1tob",matchedtob[0]);
  rfile->GetObject("DQMData/TOB/Posy_matched_layer1tob",matchedtob[1]);
@@ -413,7 +477,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TOB/Resy_matched_layer2tob",newmatchedtob[11]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(3,4);
  for (Int_t i=0; i<12; i++) {
    Strip->cd(i+1);
    matchedtob[i]->SetLineColor(2);
@@ -569,6 +633,31 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTIDCompare.eps");
+
+ rfile->GetObject("DQMData/TID/Chi2_rphi_layer1tid",chi2tid[0]);
+ rfile->GetObject("DQMData/TID/Chi2_rphi_layer2tid",chi2tid[1]);
+ rfile->GetObject("DQMData/TID/Chi2_rphi_layer3tid",chi2tid[2]);
+ rfile->GetObject("DQMData/TID/Chi2_sas_layer1tid",chi2tid[3]);
+ rfile->GetObject("DQMData/TID/Chi2_sas_layer2tid",chi2tid[4]);
+ sfile->GetObject("DQMData/TID/Chi2_rphi_layer1tid",newchi2tid[0]);
+ sfile->GetObject("DQMData/TID/Chi2_rphi_layer2tid",newchi2tid[1]);
+ sfile->GetObject("DQMData/TID/Chi2_rphi_layer3tid",newchi2tid[2]);
+ sfile->GetObject("DQMData/TID/Chi2_sas_layer1tid",newchi2tid[3]);
+ sfile->GetObject("DQMData/TID/Chi2_sas_layer2tid",newchi2tid[4]);
+
+  Strip = new TCanvas("Strip","Strip",1000,1000);
+  Strip->Divide(2,3);
+  for (Int_t i=0; i<5; i++) {
+    Strip->cd(i+1);
+    chi2tid[i]->SetLineColor(2);
+    newchi2tid[i]->SetLineColor(4);
+    newchi2tid[i]->SetLineStyle(2);
+    chi2tid[i]->Draw();
+    newchi2tid[i]->Draw("sames");
+    myPV->PVCompute(chi2tid[i] , newchi2tid[i] , te );
+  }
+  
+  Strip->Print("Chi2TIDCompare.eps");
   
  rfile->GetObject("DQMData/TID/Posx_matched_layer1tid",matchedtid[0]);
  rfile->GetObject("DQMData/TID/Posy_matched_layer1tid",matchedtid[1]);
@@ -596,7 +685,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TID/Resy_matched_layer2tid",newmatchedtid[11]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip->cd(i+1);
    matchedtid[i]->SetLineColor(2);
@@ -650,7 +739,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Adc_sas_layer5tec",newadctec[9]);
  
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
    adctec[i]->SetLineColor(2);
@@ -685,7 +774,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Nstp_sas_layer5tec",newnstptec[9]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
    nstptec[i]->SetLineColor(2);
@@ -720,7 +809,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Posx_sas_layer5tec",newpostec[9]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
-  Strip->Divide(2,3);
+  Strip->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip->cd(i+1);
     postec[i]->SetLineColor(2);
@@ -756,7 +845,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Errx_sas_layer5tec",newerrxtec[9]);
 
   Strip = new TCanvas("Strip","Strip",1000,1000);
-  Strip->Divide(2,3);
+  Strip->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip->cd(i+1);
     errxtec[i]->SetLineColor(2);
@@ -792,7 +881,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Res_sas_layer5tec",newrestec[9]);
 
   Strip = new TCanvas("Strip","Strip",1000,1000);
-  Strip->Divide(2,3);
+  Strip->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip->cd(i+1);
     restec[i]->SetLineColor(2);
@@ -804,6 +893,41 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTECCompare.eps");
+
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer1tec",chi2tec[0]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer2tec",chi2tec[1]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer3tec",chi2tec[2]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer4tec",chi2tec[3]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer5tec",chi2tec[4]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer6tec",chi2tec[5]);
+ rfile->GetObject("DQMData/TEC/Chi2_rphi_layer7tec",chi2tec[6]);
+ rfile->GetObject("DQMData/TEC/Chi2_sas_layer1tec",chi2tec[7]);
+ rfile->GetObject("DQMData/TEC/Chi2_sas_layer2tec",chi2tec[8]);
+ rfile->GetObject("DQMData/TEC/Chi2_sas_layer5tec",chi2tec[9]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer1tec",newchi2tec[0]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer2tec",newchi2tec[1]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer3tec",newchi2tec[2]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer4tec",newchi2tec[3]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer5tec",newchi2tec[4]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer6tec",newchi2tec[5]);
+ sfile->GetObject("DQMData/TEC/Chi2_rphi_layer7tec",newchi2tec[6]);
+ sfile->GetObject("DQMData/TEC/Chi2_sas_layer1tec",newchi2tec[7]);
+ sfile->GetObject("DQMData/TEC/Chi2_sas_layer2tec",newchi2tec[8]);
+ sfile->GetObject("DQMData/TEC/Chi2_sas_layer5tec",newchi2tec[9]);
+
+  Strip = new TCanvas("Strip","Strip",1000,1000);
+  Strip->Divide(4,3);
+  for (Int_t i=0; i<10; i++) {
+    Strip->cd(i+1);
+    chi2tec[i]->SetLineColor(2);
+    newchi2tec[i]->SetLineColor(4);
+    newchi2tec[i]->SetLineStyle(2);
+    chi2tec[i]->Draw();
+    newchi2tec[i]->Draw("sames");
+    myPV->PVCompute(chi2tec[i] , newchi2tec[i] , te );
+  }
+  
+  Strip->Print("Chi2TECCompare.eps");
   
  rfile->GetObject("DQMData/TEC/Posx_matched_layer1tec",matchedtec[0]);
  rfile->GetObject("DQMData/TEC/Posy_matched_layer1tec",matchedtec[1]);
@@ -831,7 +955,7 @@ void SiStripRecHitsCompare()
  sfile->GetObject("DQMData/TEC/Erry_matched_layer5tec",newmatchedtec[11]);
 
  Strip = new TCanvas("Strip","Strip",1000,1000);
- Strip->Divide(2,3);
+ Strip->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip->cd(i+1);
    matchedtec[i]->SetLineColor(2);
@@ -870,6 +994,27 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedResTECCompare.eps");
+
+ rfile->GetObject("DQMData/TEC/Chi2_matched_layer1tec",matchedchi2tec[0]);
+ rfile->GetObject("DQMData/TEC/Chi2_matched_layer2tec",matchedchi2tec[1]);
+ rfile->GetObject("DQMData/TEC/Chi2_matched_layer5tec",matchedchi2tec[2]);
+ sfile->GetObject("DQMData/TEC/Chi2_matched_layer1tec",newmatchedchi2tec[0]);
+ sfile->GetObject("DQMData/TEC/Chi2_matched_layer2tec",newmatchedchi2tec[1]);
+ sfile->GetObject("DQMData/TEC/Chi2_matched_layer5tec",newmatchedchi2tec[2]);
+
+ Strip = new TCanvas("Strip","Strip",1000,1000);
+ Strip->Divide(2,3);
+ for (Int_t i=0; i<6; i++) {
+   Strip->cd(i+1);
+   matchedchi2tec[i]->SetLineColor(2);
+   newmatchedchi2tec[i]->SetLineColor(4);
+   newmatchedchi2tec[i]->SetLineStyle(2);
+   matchedchi2tec[i]->Draw();
+   newmatchedchi2tec[i]->Draw("sames");
+   myPV->PVCompute(matchedchi2tec[i] , newmatchedchi2tec[i] , te );
+ }
+ 
+ Strip->Print("MatchedChi2TECCompare.eps");
  
 }
 
