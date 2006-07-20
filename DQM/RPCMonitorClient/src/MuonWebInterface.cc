@@ -25,6 +25,8 @@ MuonWebInterface::MuonWebInterface(std::string theContextURL, std::string theApp
 
   	Button * butQTDetailed = new Button(getApplicationURL(), "390px", "10px", "QTDetailedStatus ", "Check Quality Tests Detailed Status");
   	Button * butQTDetailedStop = new Button(getApplicationURL(), "420px", "10px", "QTDetailedStatusStop", "Stop Checking QT Detailed Status");
+  	
+	Button * butNewQTConfig = new Button(getApplicationURL(), "450px", "10px", "QTestConfigure", "Configure Quality Tests");
 
 	GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","630px", "500px", "800px", "MyGifDisplay");
 	GifDisplay * dis2 = new GifDisplay(getApplicationURL(), "650px", "10px", "500px", "800px", "MyOtherGifDisplay");
@@ -39,6 +41,7 @@ MuonWebInterface::MuonWebInterface(std::string theContextURL, std::string theApp
         page_p->add("QTDetailedStatusStop", butQTDetailedStop);
         page_p->add("gifDisplay", dis);
         page_p->add("otherGifDisplay", dis2);
+        page_p->add("QTestConfigure", butNewQTConfig);
 }
 
 /*
@@ -53,7 +56,7 @@ void MuonWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out ) 
   CgiReader reader(in);
   reader.read_form(request_multimap);
   std::string requestID = get_from_multimap(request_multimap, "RequestID");
-
+  request=requestID;
   // if you have more than one custom requests, add 'if' statements accordingly:
   if (requestID == "QTGlobalStatus")       this->CheckQTGlobalStatus(in, out,true);
   if (requestID == "QTDetailedStatus")     this->CheckQTDetailedStatus(in, out,true);

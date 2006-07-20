@@ -2,8 +2,8 @@
  *
  *  Implementation of  MuonDQMClient
  *
- *  $Date: 2006/05/04 10:27:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 22:10:12 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 
@@ -19,7 +19,7 @@
 MuonDQMClient::MuonDQMClient(xdaq::ApplicationStub *stub) 
   : DQMBaseClient(
 		  stub,       // the application stub - do not change
-		  "test",     // the name by which the collector identifies the client
+		  "MuonClient",// the name by which the collector identifies the client
 		  "localhost",// the name of the computer hosting the collector
 		  9090        // the port at which the collector listens
 		  ),QTFailed(0),QTCritical(0)
@@ -47,6 +47,14 @@ void MuonDQMClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
 
 void MuonDQMClient::handleWebRequest(xgi::Input * in, xgi::Output * out){
 	webInterface_p->handleRequest(in, out);
+	logFile <<"request: "<<webInterface_p->requestType() <<std::endl;
+	if (webInterface_p->requestType() == "QTestConfigure")   {
+		qtestsConfigured=false;
+		if(!qtHandler->configureTests("QualityTests.xml",mui_)){
+			qtestsConfigured=true;
+			qtHandler->attachTests(mui_);			
+		}
+	}		
 }
 
 
@@ -56,10 +64,6 @@ void MuonDQMClient::configure(){
 	meListConfigured=false;
 	qtestsConfigured=false;
 
-	//#ifdef RPC_CLIENT_DEBUG
-	//logFile << "Configuring MuonDQMClient" << std::endl;
-	//#endif
-	
 	if(!subscriber->getMEList("MESubscriptionList.xml")) meListConfigured=true; 
 	if(!qtHandler->configureTests("QualityTests.xml",mui_)) qtestsConfigured=true; 
 }
@@ -95,7 +99,17 @@ void MuonDQMClient::onUpdate() const{
 	if(qtestsConfigured){	
 		
 		if(webInterface_p->globalQTStatusRequest()) qtHandler->checkGolbalQTStatus(mui_);
-		if(webInterface_p->detailedQTStatusRequest()) qtHandler->checkDetailedQTStatus(mui_);
+		if(webInterface_p->detailedQTStatusRequest()) {
+			 std::map< std::string, std::vector<std::string> > theAlarms=qtHandler->checkDetailedQTStatus(mui_);
+			 for(std::map<std::string,std::vector<std::string> >::iterator itr=theAlarms.begin();itr!=theAlarms.end();++itr){
+			 	std::string alarmType=	itr->first;
+				std::vector<std::string> messages=itr->second;
+				logFile <<"Error Type: "<<alarmType<<std::endl;
+				for(std::vector<std::string>::iterator message=messages.begin();message!=messages.end();++message ){
+					logFile <<*message<<std::endl;
+				}
+			 }
+		}
 		
 	}
 }
