@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/19 14:06:51 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/20 15:41:55 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -85,7 +85,7 @@ void MuonTrackFinder::load(const TrajectoryContainer& trajectories,
 void MuonTrackFinder::load(const CandidateContainer& muons, 
 			   edm::Event& event) {
                            
-  theTrackLoader->loadTracks(muons, event);
+  //  theTrackLoader->loadTracks(muons, event);
 
 }
 

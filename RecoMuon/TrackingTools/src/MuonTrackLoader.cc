@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/10 16:35:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/12 16:33:05 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -185,26 +185,22 @@ reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
     edm::LogWarning("RecoMuon") << "Funny error" << std::endl;
     return reco::Track(); 
   }
-  
-  reco::perigee::Parameters param = tscp.perigeeParameters();
-  reco::perigee::Covariance covar = tscp.perigeeError();
-
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
-  int dof=0;
+  float dof=0.;
 
   for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
       rechit != transRecHits.end(); ++rechit)
     if ((*rechit).isValid()) dof += (*rechit).dimension();
   
-  unsigned short int ndof = std::max(dof - 5, 0);
-  
+  float ndof = std::max(dof - 5., 0.);
+
   reco::Track track(trajectory.chiSquared(), 
-		    trajectory.foundHits(),//FIXME to be fixed in Trajectory.h
-		    0, //FIXME no corresponding method in trajectory.h
-		    trajectory.lostHits(),//FIXME to be fixed in Trajectory.h
-		    ndof, param, covar);
+		    ndof,
+		    tscp.perigeeParameters(), 
+		    tscp.pt(),
+		    tscp.perigeeError());
   return track;
 }
 
@@ -235,10 +231,15 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   //build the TrackExtra
   GlobalPoint v = outerTSOS.globalParameters().position();
   GlobalVector p = outerTSOS.globalParameters().momentum();
-  math::XYZVector outmom( p.x(), p.y(), p.z() );
   math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+  math::XYZVector outmom( p.x(), p.y(), p.z() );
 
-  reco::TrackExtra trackExtra(outpos, outmom, true);
+  v = innerTSOS.globalParameters().position();
+  p = innerTSOS.globalParameters().momentum();
+  math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
+  math::XYZVector inmom( p.x(), p.y(), p.z() );
+
+  reco::TrackExtra trackExtra(outpos, outmom, true, inpos, inmom, true);
   
   return trackExtra;
  
