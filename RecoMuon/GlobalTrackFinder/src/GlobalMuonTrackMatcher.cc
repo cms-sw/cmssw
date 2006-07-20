@@ -1,21 +1,22 @@
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
-
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/16 01:48:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/20 02:36:21 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
 
+#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 //#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
-
+//
+//
+//
 GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2, const MagneticField* field) {
 
   theMaxChi2 = chi2;
@@ -29,12 +30,14 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2, const MagneticField*
 
 }
 
-//
-/// choose the tk Track from a TrackCollection which has smallest Chi2 with
-//   a given standalone Track
 
+//
+// choose the tk Track from a TrackCollection which has smallest chi2 with
+// a given standalone Track
 std::pair<bool, reco::TrackRef> 
-GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
+GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, 
+                                 const edm::Handle<reco::TrackCollection>& tkTs) const {
+
   bool hasMatchTk = false;
   reco::TrackRef* result = 0;
   double minChi2 = theMaxChi2;
@@ -48,16 +51,19 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, const edm::Handle<r
       result = &tkTRef;
     }
   } 
+
   return(std::pair<bool, reco::TrackRef>(hasMatchTk, *result));
 
 }
 
+
 //
-// choose a vector of tk Tracks from a TrackCollection that has Chi2 less than
-//    theMaxChi2, for a given standalone Track
+// choose a vector of tracker Tracks from a TrackCollection that has Chi2 less than
+// theMaxChi2, for a given standalone Track
 //
 std::vector<reco::TrackRef>
-GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const edm::Handle<reco::TrackCollection>& tkTs) const {
+GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, 
+                              const edm::Handle<reco::TrackCollection>& tkTs) const {
 
   std::vector<reco::TrackRef> result;
 
@@ -67,12 +73,18 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const edm::Handle<reco
     if (check.first) 
       result.push_back(tkTRef);
   }
+
   return result;
+
 }
 
 
+//
+//
+//
 std::vector<reco::TrackRef>
-GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const std::vector<reco::TrackRef>& tkTs) const {
+GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, 
+                              const std::vector<reco::TrackRef>& tkTs) const {
 
   std::vector<reco::TrackRef> result;
 
@@ -82,39 +94,44 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT, const std::vector<reco
     if (check.first)
       result.push_back(*tkTRef);
   }
+
   return result;
+
 }
+
 
 //
 // determine if two Tracks are compatible
 // by comparing their TSOSs on the outer Tracker surface
 //
 std::pair<bool,double> 
-GlobalMuonTrackMatcher::match(const reco::Track& staTR, const reco::Track& tkTR) const {
+GlobalMuonTrackMatcher::match(const reco::Track& sta, 
+                              const reco::Track& tk) const {
 
-  reco::TransientTrack staTT(staTR);  
-  reco::TransientTrack tkTT(tkTR);
+  reco::TransientTrack staT(sta);  
+  reco::TransientTrack tkT(tk);
 
-  TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
-  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+  TrajectoryStateOnSurface outerTkTsos = tkT.outermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staT.innermostMeasurementState();
 
-// make sure the tk Track has enough momentum to reach muon chambers
+  // make sure the tracker Track has enough momentum to reach muon chambers
   const GlobalVector& mom = outerTkTsos.globalMomentum();
-   if ( mom.mag() < theMinP || mom.perp() < theMinPt ) 
-     return std::pair<bool,double>(false,0);
+  if ( mom.mag() < theMinP || mom.perp() < theMinPt ) 
+    return std::pair<bool,double>(false,0);
 
-// extrapolate innermost standalone TSOS to outer tk surface
+  // extrapolate innermost standalone TSOS to outer tracker surface
   MuonVertexMeasurement vm = theUpdator->update(innerMuTsos);
   TrajectoryStateOnSurface tkTsosFromMu = vm.stateAtTracker();
 
-// compare the TSOSs on outer tk surface
+  // compare the TSOSs on outer tk surface
   return match(tkTsosFromMu,outerTkTsos);
 
 }
 
+
 //
 // determine if two TSOSs are compatible, they should be on same surface,
-//    usually the outer tk surface
+// usually the outer tk surface
 // 
 std::pair<bool,double> 
 GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1, 
