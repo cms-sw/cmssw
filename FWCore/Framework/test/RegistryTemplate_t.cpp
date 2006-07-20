@@ -1,6 +1,6 @@
 #include <cassert>
-#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
-#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 
 int main()
 {

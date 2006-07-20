@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
-#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.2 2006/07/06 18:34:06 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.3 2006/07/18 01:47:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

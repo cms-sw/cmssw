@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: ProductRegistryHelper.cc,v 1.9 2006/07/06 19:11:43 wmtan Exp $
+$Id: ProductRegistryHelper.cc,v 1.10 2006/07/07 21:43:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/BranchDescription.h"

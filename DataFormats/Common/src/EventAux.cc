@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/EventAux.h"
-#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 
 /*----------------------------------------------------------------------
 
-$Id: EventAux.cc,v 1.2 2006/07/06 18:34:06 wmtan Exp $
+$Id: EventAux.cc,v 1.3 2006/07/14 23:00:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
