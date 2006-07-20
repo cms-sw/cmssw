@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/17 13:29:33 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/19 14:06:51 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -80,6 +80,17 @@ void MuonTrackFinder::load(const TrajectoryContainer& trajectories,
 
 
 //
+// convert the trajectories into tracks and load them in to the event
+//
+void MuonTrackFinder::load(const CandidateContainer& muons, 
+			   edm::Event& event) {
+                           
+  theTrackLoader->loadTracks(muons, event);
+
+}
+
+
+//
 // reconstruct trajectories
 //
 void MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
@@ -152,8 +163,6 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& seed
 
   // convert the trajectories into tracks and load them into the event
   LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
-  //FIXME -- must be implemented in MuonTrackLoader
-  load(muonCandidates,event);
-                                  
+  load(muonCandidates,event);                              
 
 }

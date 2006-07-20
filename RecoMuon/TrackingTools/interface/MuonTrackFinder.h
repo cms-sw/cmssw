@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/17 13:29:16 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/19 14:00:12 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -56,7 +56,10 @@ class MuonTrackFinder {
     void setEvent(const edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const TrajectoryContainer& trajectories, edm::Event& event);
+    void load(const TrajectoryContainer&, edm::Event&);
+
+    /// convert the trajectories into tracks and load them in to the event
+    void load(const CandidateContainer&, edm::Event&);
 
   private:
 
