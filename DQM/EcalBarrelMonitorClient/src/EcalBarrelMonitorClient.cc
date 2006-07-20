@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/19 21:42:59 $
- * $Revision: 1.170 $
+ * $Date: 2006/07/20 08:17:58 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -438,6 +438,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
     if ( ! end_run_ ) {
 
+      cout << endl;
       cout << "Forcing endRun() ... " << endl;
       cout << endl;
 
