@@ -35,7 +35,6 @@ class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetEtCalibrationLut;
-class L1GctJetCounterLut;
 
 
 class L1GlobalCaloTrigger {
@@ -191,12 +190,6 @@ public:
   /// Jet Et calibraion LUT
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
   
-  /// Jet Counter LUT (Minus Wheel)
-  std::vector<L1GctJetCounterLut*> m_minusWheelJetCounterLuts;
-
-  /// Jet Counter LUT (Plus Wheel)
-  std::vector<L1GctJetCounterLut*> m_plusWheelJetCounterLuts;
-
 };
 
 #endif /*L1GLOBALCALOTRIGGER_H_*/

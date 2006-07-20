@@ -46,14 +46,32 @@ public:
   L1GctJetCounterLut(std::vector<validCutType> cutType, std::vector<unsigned> cutValue1, std::vector<unsigned> cutValue2);
   /// Construct with just one cut (includes default constructor)
   L1GctJetCounterLut(validCutType cutType=nullCutType, unsigned cutValue1=0, unsigned cutValue2=0);
+  /// Copy constructor
+  L1GctJetCounterLut(const L1GctJetCounterLut& lut);
+  /// Destructor
   ~L1GctJetCounterLut();
   
+  /// Overload = operator
+  L1GctJetCounterLut operator= (const L1GctJetCounterLut& lut);
+
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetCounterLut& lut);
 
   /// Checks whether jet passes the cut
   bool passesCut(const L1GctJet jet) const;
   
+  /// Return the number of cuts
+  unsigned nCuts() const { return m_nCuts; }
+
+  /// Return the cut types
+  std::vector<validCutType> cutType() const { return m_cutType; }
+
+  /// Return the first cut values
+  std::vector<unsigned> cutValue1() const { return m_cutValue1; }
+
+  /// Return the second cut values
+  std::vector<unsigned> cutValue2() const { return m_cutValue2; }
+
 private:
 
   unsigned m_nCuts;

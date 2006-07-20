@@ -17,7 +17,6 @@ L1GctJetCounter::L1GctJetCounter(int id, vector<L1GctJetLeafCard*> leafCards,
                                L1GctJetCounterLut* jetCounterLut):
   m_id(id),
   m_jetLeafCards(leafCards),
-  m_jetCounterLut(jetCounterLut),
   m_jets(MAX_JETS_TO_COUNT)
 {
   //Check jetfinder setup
@@ -46,16 +45,17 @@ L1GctJetCounter::L1GctJetCounter(int id, vector<L1GctJetLeafCard*> leafCards,
     }
   }
   
-  if(m_jetCounterLut == 0)
+  if(jetCounterLut == 0)
   {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetCounter::L1GctJetCounter() : Jet Counter ID " << m_id << " has been incorrectly constructed!\n"
-    << "The jet counter LUT pointer has not been set!\n";  
+    m_jetCounterLut = new L1GctJetCounterLut();
+  } else {
+    m_jetCounterLut = new L1GctJetCounterLut(*jetCounterLut);
   }
 }
 
 L1GctJetCounter::~L1GctJetCounter()
 {
+  delete m_jetCounterLut;
 }
 
 ostream& operator << (ostream& os, const L1GctJetCounter& algo)
@@ -112,6 +112,22 @@ void L1GctJetCounter::fetchInput()
       m_jets.at(jetnum++) = jlc->getOutputJetsC().at(j);
     }
   }
+}
+
+/// set a new lut for this counter
+void L1GctJetCounter::setLut(L1GctJetCounterLut& lut)
+{
+  // Get rid of the old one
+  delete m_jetCounterLut;
+  m_jetCounterLut = new L1GctJetCounterLut(lut);
+}
+
+/// set a new lut for this counter by specifying the cuts
+void L1GctJetCounter::setLut(L1GctJetCounterLut::validCutType cutType, unsigned cutValue1, unsigned cutValue2)
+{
+  // Get rid of the old one
+  delete m_jetCounterLut;
+  m_jetCounterLut = new L1GctJetCounterLut(cutType, cutValue1, cutValue2);
 }
 
 /// set the m_jets vector for test purposes

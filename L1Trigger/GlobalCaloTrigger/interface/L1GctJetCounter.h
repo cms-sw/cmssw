@@ -36,7 +36,7 @@ public:
     
   /// id needs to encode Wheel and jet count numbers
   L1GctJetCounter(int id, std::vector<L1GctJetLeafCard*> leafCards,
-                  L1GctJetCounterLut* jetCounterLut);
+                  L1GctJetCounterLut* jetCounterLut=0);
                  
   ~L1GctJetCounter();
    
@@ -51,6 +51,12 @@ public:
 
   /// process the data, fill output buffers
   virtual void process();
+
+  /// set a new lut for this counter
+  void setLut(L1GctJetCounterLut& lut);
+
+  /// set a new lut for this counter by specifying the cuts
+  void setLut(L1GctJetCounterLut::validCutType cutType, unsigned cutValue1=0, unsigned cutValue2=0);
 
   /// set the input jets (for test purposes)
   void setJets(JetVector jets);

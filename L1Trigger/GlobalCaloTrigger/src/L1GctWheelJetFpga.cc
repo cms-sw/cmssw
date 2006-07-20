@@ -30,6 +30,44 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_tauJets(MAX_JETS_OUT),
   m_outputJc(N_JET_COUNTERS)
 {
+  checkSetup();
+
+  // Initalise the jetCounters using the jetCounterLuts supplied
+  if (jetCounterLuts.size() != N_JET_COUNTERS) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
+      << "size of jetCounterLut vector should be " << N_JET_COUNTERS << ", but is in fact " << jetCounterLuts.size() << "!\n";
+  }
+
+  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
+    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards, jetCounterLuts.at(i));
+  }
+}
+
+L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
+				     std::vector<L1GctJetLeafCard*> inputLeafCards) :
+  m_id(id),
+  m_inputLeafCards(inputLeafCards),
+  m_jetCounters(N_JET_COUNTERS),
+  m_inputJets(MAX_JETS_IN),
+  m_rawCentralJets(MAX_RAW_CJETS),
+  m_rawForwardJets(MAX_RAW_FJETS),
+  m_inputHt(MAX_LEAF_CARDS),
+  m_centralJets(MAX_JETS_OUT),
+  m_forwardJets(MAX_JETS_OUT),
+  m_tauJets(MAX_JETS_OUT),
+  m_outputJc(N_JET_COUNTERS)
+{
+  checkSetup();
+
+  // Initalise the jetCounters with null jetCounterLuts
+  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
+    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards);
+  }
+}
+
+void L1GctWheelJetFpga::checkSetup()
+{
   setupRawTauJetsVec();  //sets up tau jet vector, but with tau-veto bits set to false.
   
   //Check object construction is ok
@@ -56,15 +94,6 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
       << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
       << "Leaf card pointer " << i << " has not been set!\n";
     }
-  }
-  if (jetCounterLuts.size() != N_JET_COUNTERS) {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
-      << "size of jetCounterLut vector should be " << N_JET_COUNTERS << ", but is in fact " << jetCounterLuts.size() << "!\n";
-  }
-
-  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
-    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards, jetCounterLuts.at(i));
   }
 }
 

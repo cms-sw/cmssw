@@ -39,8 +39,22 @@ L1GctJetCounterLut::L1GctJetCounterLut(validCutType cutType, unsigned cutValue1,
   checkCut(cutType, cutValue1, cutValue2);
 }
 
+L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterLut& lut) :
+  m_nCuts(lut.nCuts()),
+  m_cutType(lut.cutType()),
+  m_cutValue1(lut.cutValue1()),
+  m_cutValue2(lut.cutValue2())
+{
+}
+
 L1GctJetCounterLut::~L1GctJetCounterLut()
 {
+}
+
+L1GctJetCounterLut L1GctJetCounterLut::operator= (const L1GctJetCounterLut& lut)
+{
+  L1GctJetCounterLut temp(lut);
+  return temp;
 }
 
 ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)

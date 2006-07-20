@@ -36,20 +36,18 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
   theWheelJetFpgas(N_WHEEL_CARDS),
-  theWheelEnergyFpgas(N_WHEEL_CARDS),
-  m_minusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL),
-  m_plusWheelJetCounterLuts(N_JET_COUNTERS_PER_WHEEL)
+  theWheelEnergyFpgas(N_WHEEL_CARDS)// ,
 {
 
   // Jet Et LUT
   m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile);
 
-  // jet counter LUT
-  setupJetCounterLuts();
-
   // construct hardware
   build(jfType);
   
+  // jet counter LUT
+  setupJetCounterLuts();
+
 }
 
 L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
@@ -436,11 +434,7 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
        wheelJetLeafCards.at(j)=theJetLeafCards.at(i*3+j);
        wheelEnergyLeafCards.at(j)=theJetLeafCards.at(i*3+j);
      }
-     if (i==0) { 
-       theWheelJetFpgas.at(i) = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_minusWheelJetCounterLuts);
-     } else { 
-       theWheelJetFpgas.at(i) = new L1GctWheelJetFpga(i,wheelJetLeafCards,m_plusWheelJetCounterLuts);
-     } 
+     theWheelJetFpgas.at(i)    = new L1GctWheelJetFpga   (i,wheelJetLeafCards);
      theWheelEnergyFpgas.at(i) = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
    }
   
@@ -459,31 +453,27 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 void L1GlobalCaloTrigger::setupJetCounterLuts() {
 
   // Initialise look-up tables for Minus and Plus wheels
-  unsigned j=0;
-  // Setup the first counters in the list for some arbitrary conditions
-  // Energy cut
-  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::minRank, 5);
-  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::minRank, 5);
-  j++;
+  for (unsigned wheel=0; wheel<2; ++wheel) {
+    unsigned j=0;
+    // Setup the first counters in the list for some arbitrary conditions
+    // Energy cut
+    theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::minRank, 5);
+    j++;
 
-  // Eta cuts
-  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::centralEta, 5);
-  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::centralEta, 5);
-  j++;
+    // Eta cuts
+    theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::centralEta, 5);
+    j++;
 
-  // Some one-sided eta cuts
-  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::forwardEta, 6);
-  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
-  j++;
+    // Some one-sided eta cuts
+    if (wheel==0) {
+      theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::forwardEta, 6);
+    }
+    j++;
 
-  m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
-  m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut(L1GctJetCounterLut::forwardEta, 6);
-  j++;
+    if (wheel==1) {
+      theWheelJetFpgas.at(wheel)->getJetCounter(j)->setLut(L1GctJetCounterLut::forwardEta, 6);
+    }
+    j++;
 
-
-  // Set the remainder to null counters
-  for (; j<N_JET_COUNTERS_PER_WHEEL; j++) {
-    m_minusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
-    m_plusWheelJetCounterLuts.at(j) = new L1GctJetCounterLut();
   }
 }

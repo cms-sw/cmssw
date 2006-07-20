@@ -45,6 +45,10 @@ public:
 		    std::vector<L1GctJetLeafCard*> inputLeafCards,
 		    std::vector<L1GctJetCounterLut*> jetCounterLuts);
 
+  /// id must be 0 / 1 for -ve/+ve eta halves of CMS
+  L1GctWheelJetFpga(int id,
+		    std::vector<L1GctJetLeafCard*> inputLeafCards);
+
   /// destructor
   ~L1GctWheelJetFpga();
 
@@ -85,6 +89,9 @@ public:
   /// get the output jet counts
   L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc.at(jcnum); }
 
+  /// Get the jet counters
+  L1GctJetCounter* getJetCounter(unsigned jcnum) const { return m_jetCounters.at(jcnum); }
+
 private:
 
   static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
@@ -122,6 +129,8 @@ private:
   std::vector<L1GctJcWheelType> m_outputJc;
       
   //PRIVATE METHODS
+  /// Check the setup, independently of how we have been constructed
+  void checkSetup();
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
   void storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset);
   /// Classifies jets into central, forward or tau, and re-addresses them using global co-ords.
