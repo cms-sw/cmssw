@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2006/05/04 10:27:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:24 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -29,6 +29,8 @@ class QTestConfigure{
   ~QTestConfigure(){}
   ///Creates and defines quality tests
   bool enableTests(std::map<std::string, std::map<std::string, std::string> > tests, MonitorUserInterface * mui); 
+  ///Desables the Quality Tests in the string list
+  void desableTests(std::vector<std::string> testsOFFList, MonitorUserInterface * mui);
   ///Returns the vector containing the names of the quality tests that have been created
   std::vector<std::string> testsReady(){return testsConfigured;}
  

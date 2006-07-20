@@ -6,7 +6,7 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2006/05/04 10:26:52 $
+ *  $Date: 2006/05/09 21:28:24 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
@@ -41,9 +41,11 @@ class DQMParserBase{
 	void getDocument(std::string configFile);
 	///Returns the number of nodes with given name
 	int countNodes(std::string tagName);
+	///Parses a new Document
+	void getNewDocument(std::string configFile);
 
  protected:	 
-	 
+	XercesDOMParser* parser; 
 	DOMDocument* doc;
 	 
 	 

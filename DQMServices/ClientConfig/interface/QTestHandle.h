@@ -6,8 +6,8 @@
  *  Handles quality tests (configuring, attaching to ME's, 
  *  subscribing to the ME's for which quality tests are requested).
  *
- *  $Date: 2006/05/09 21:28:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/22 10:20:33 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
   */
   
@@ -40,6 +40,7 @@ class QTestHandle{
 	QTestConfigurationParser * qtParser;
 	QTestConfigure * qtConfigurer;
 	QTestStatusChecker * qtChecker;
+	bool testsConfigured;
 
 
 };
