@@ -1,5 +1,7 @@
 <export>
 <lib name=SimDataFormatsTrackingHit>
 <use name=DataFormats/Common>
+<use name=SimDataFormats/EncodedEventId>
 </export>
 <use name=DataFormats/Common>
+<use name=SimDataFormats/EncodedEventId>

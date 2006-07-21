@@ -2,22 +2,26 @@
 #define TRACKINGOBJECTS_PIXELDIGISIMLINK_H
 
 #include "boost/cstdint.hpp"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 //typedef std::pair<unsigned int ,unsigned int > PixelDigiSimLink;
 class PixelDigiSimLink {
 public:
-  PixelDigiSimLink(unsigned int ch, unsigned int tkId, float a ){
+  PixelDigiSimLink(unsigned int ch, unsigned int tkId, EncodedEventId e, float a ){
     chan=ch;
     simTkId=tkId;
     fract=a;
+    eId=e;
   };
-  PixelDigiSimLink(){
-   chan=0;
-   simTkId=0;
-   fract=0;};
+  PixelDigiSimLink():eId(0){
+    chan=0;
+    simTkId=0;
+    fract=0;
+  };
   ~PixelDigiSimLink(){};
   unsigned int channel() const{return chan;};
   unsigned int SimTrackId() const{return simTkId;};
+  EncodedEventId eventId() const{return eId;}
   float fraction() const{return fract;};
 
 
@@ -26,6 +30,7 @@ public:
  private:
   unsigned int chan;
   unsigned int simTkId;
+  EncodedEventId eId;
   float fract;
   };
 #endif 

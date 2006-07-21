@@ -2,25 +2,31 @@
 #define TRACKINGOBJECTS_STRIPDIGISIMLINK_H
 
 #include "boost/cstdint.hpp"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 class StripDigiSimLink {
  public:
-  StripDigiSimLink(const uint16_t& ch, const uint16_t& tkId, const float& a ):chan(ch),simTkId(tkId),fract(a){;}
-  
-  StripDigiSimLink():chan(0),simTkId(0),fract(0){;}
+  StripDigiSimLink(unsigned int ch, unsigned int tkId, EncodedEventId e,float a ):
+    chan(ch),simTkId(tkId),fract(a),eId(e){;}
+
+  StripDigiSimLink():chan(0),simTkId(0),fract(0),eId(0){;}
 
   ~StripDigiSimLink(){;}
 
-  inline const uint16_t&  channel()     const {return chan;}
-  inline const uint16_t&  SimTrackId()  const {return simTkId;}
-  inline const float&   fraction()    const {return fract;}
+  unsigned int  channel()     const {return chan;}
+  unsigned int  SimTrackId()  const {return simTkId;}
+  EncodedEventId  eventId()  const {return eId;}
+  float   fraction()    const {return fract;}
 
   inline bool operator< ( const StripDigiSimLink& other ) const { return channel() < other.channel(); }
 
  private:
-  uint16_t chan;
-  uint16_t simTkId;
+  unsigned int chan;
+  unsigned int simTkId;
   float    fract;
+  EncodedEventId eId;
 };
-#endif 
+#endif
+
+
   

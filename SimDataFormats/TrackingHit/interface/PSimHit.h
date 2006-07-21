@@ -3,6 +3,7 @@
 
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 class TrackingSlaveSD; // for friend declaration only
 
@@ -100,6 +101,12 @@ public:
    */
   unsigned int trackId()      const {return theTrackId;}
 
+
+  EncodedEventId eventId()      const {return theEventId;}
+
+
+  void setEventId(EncodedEventId e) { theEventId = e; }
+
   /** The ID of the physics process that created the track that produced 
    *  the hit. This is useful for identifying hits from secondary interactions,
    *  especially in the case when the track that produced the hit was not saved 
@@ -128,6 +135,7 @@ protected:
   // association
   unsigned int    theDetUnitId;
   unsigned int    theTrackId;
+  EncodedEventId  theEventId;
 
   friend class TrackingSlaveSD;
 };

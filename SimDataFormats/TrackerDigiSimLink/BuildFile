@@ -1,9 +1,11 @@
 <use name=clhep>
 <use name=boost>
 <use name=DataFormats/Common>
+<use name=SimDataFormats/EncodedEventId>
 <export>
  <lib name=SimDataFormatsTrackerDigiSimLink>
  <use name=clhep>
  <use name=boost>	
  <use name=DataFormats/Common>
+ <use name=SimDataFormats/EncodedEventId>
 </export>
