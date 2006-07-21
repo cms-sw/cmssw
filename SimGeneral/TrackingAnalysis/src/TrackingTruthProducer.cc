@@ -114,8 +114,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 	   time = v.t(); 
        }
        TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, theSource, theCrossing);
-       tp.addG4Track(SimTrackRef(G4VtxContainer,iG4Track));
-       tp.addGenParticle(GenParticleRef(hepMC,genPart));
+       tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
+       if (genPart >= 0) {
+         tp.addGenParticle(GenParticleRef(hepMC,genPart));
+       }
        productionVertex.insert(pair<int,int>(tPC->size(),genVert));
        tPC -> push_back(tp);
        ++iG4Track;
@@ -217,14 +219,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
   edm::OrphanHandle<TrackingVertexCollection> tvcHandle = event.put(tVC);
 //  TrackingVertexCollection vertexCollection = *tvcHandle;
-  
+  cout << "Multimap dump: " << endl;
   for (multimap<int,int>::const_iterator a = tmpTrackVertexMap.begin();
       a !=   tmpTrackVertexMap.end(); ++a) {
-        
-    (*trackVertexMap).insert(TrackingParticleRef(tpcHandle,a -> first),
-                          TrackingVertexRef(tvcHandle,a -> second));
-    (*vertexTrackMap).insert(TrackingVertexRef(tvcHandle,a -> second),
-                             TrackingParticleRef(tpcHandle,a -> first));
+     int iVertex = a -> second;
+     int iTrack  = a -> first;
+    (*trackVertexMap).insert(TrackingParticleRef(tpcHandle,iTrack),
+                             TrackingVertexRef(tvcHandle,iVertex));
+    (*vertexTrackMap).insert(TrackingVertexRef(tvcHandle,iVertex),
+                             TrackingParticleRef(tpcHandle,iTrack));
   }
   
   event.put(trackVertexMap); 
