@@ -62,6 +62,6 @@ int EcalTBEventHeader::dbEventType() const{
 }
 
 std::ostream& operator<<(std::ostream& s, const EcalTBEventHeader& eventHeader) {
-  s << "Event Number " << eventHeader.eventNumber() << " Burst Number " << eventHeader.burstNumber() ;
+  s << "Run Number " << eventHeader.runNumber() << " Event Number " << eventHeader.eventNumber() << " Burst Number " << eventHeader.burstNumber() ;
   return s;
 }
