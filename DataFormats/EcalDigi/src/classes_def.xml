@@ -1,6 +1,7 @@
 <lcgdict>
    <class name="EcalMGPASample"/>
    <class name="EcalFEMSample"/>
+   <class name="EcalMatacqSample"/>
    <class name="ESSample"/>
    <class name="EcalDataFrame"/>
    <class name="EBDataFrame"/>
@@ -9,8 +10,10 @@
    <class name="EcalTriggerPrimitiveSample"/>
    <class name="EcalTriggerPrimitiveDigi"/>
    <class name="EcalPnDiodeDigi"/>
+   <class name="EcalMatacqDigi"/>
    <class name="std::vector<EcalMGPASample>"/>
    <class name="std::vector<EcalFEMSample>"/>
+   <class name="std::vector<EcalMatacqSample>"/>
    <class name="std::vector<ESSample>"/>
    <class name="std::vector<EcalTriggerPrimitiveSample>"/>
    <class name="std::vector<EBDataFrame>"/>
@@ -28,4 +31,5 @@
    <class name="edm::Wrapper<edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> > >" id="C3D41492-2914-2291-7C22-BBE6D77043F7"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > > " id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
+   <class name="edm::Wrapper< EcalMatacqDigi > " id="5C983665-5751-EEAD-05A5-84AF4838C6F"/>
 </lcgdict>

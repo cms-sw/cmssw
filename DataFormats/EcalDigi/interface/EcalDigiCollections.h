@@ -6,6 +6,7 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalPnDiodeDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 
 typedef edm::SortedCollection<EBDataFrame> EBDigiCollection;
