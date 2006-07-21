@@ -170,17 +170,17 @@ namespace edm
    * (which is related to the product registry).
    */
   std::auto_ptr<SendJobHeader>
-  StreamTranslator::deserializeRegistry(std::auto_ptr<InitMsgView> initView)
+  StreamTranslator::deserializeRegistry(InitMsgView const& initView)
   {
-    if(initView->code() != Header::INIT)
+    if(initView.code() != Header::INIT)
       throw cms::Exception("StreamTranslation","Registry deserialization error")
         << "received wrong message type: expected INIT, got "
-        << initView->code() << "\n";
+        << initView.code() << "\n";
 
     TClass* desc = getTClass(typeid(SendJobHeader));
 
-    TBuffer xbuf(TBuffer::kRead, initView->descLength(),
-                 (char*)initView->descData(),kFALSE);
+    TBuffer xbuf(TBuffer::kRead, initView.descLength(),
+                 (char*)initView.descData(),kFALSE);
     RootDebug tracer(10,10);
     auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
@@ -197,22 +197,22 @@ namespace edm
    * Deserializes the specified event message into an EventPrincipal object.
    */
   std::auto_ptr<EventPrincipal>
-  StreamTranslator::deserializeEvent(std::auto_ptr<EventMsgView> eventView,
+  StreamTranslator::deserializeEvent(EventMsgView const& eventView,
                                      const ProductRegistry& productRegistry)
   {
-    if(eventView->code() != Header::EVENT)
+    if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
         << "received wrong message type: expected EVENT, got "
-        << eventView->code() << "\n";
+        << eventView.code() << "\n";
     cout << "Decode event: "
-         << eventView->event() << " "
-         << eventView->run() << " "
-         << eventView->size() << " "
-         << eventView->eventLength() << " "
-         << eventView->eventData()
+         << eventView.event() << " "
+         << eventView.run() << " "
+         << eventView.size() << " "
+         << eventView.eventLength() << " "
+         << eventView.eventData()
          << endl;
-    TBuffer xbuf(TBuffer::kRead, eventView->eventLength(),
-                 (char*) eventView->eventData(),kFALSE);
+    TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
+                 (char*) eventView.eventData(),kFALSE);
     RootDebug tracer(10,10);
     TClass* tc = getTClass(typeid(SendEvent));
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(tc));

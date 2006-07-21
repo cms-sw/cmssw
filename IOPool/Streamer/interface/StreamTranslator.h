@@ -31,9 +31,9 @@ namespace edm
                        EventMsgBuilder& eventMessage);
 
     static std::auto_ptr<SendJobHeader>
-        deserializeRegistry(std::auto_ptr<InitMsgView> initView);
+        deserializeRegistry(InitMsgView const& initView);
     static std::auto_ptr<EventPrincipal>
-        deserializeEvent(std::auto_ptr<EventMsgView> eventView,
+        deserializeEvent(EventMsgView const& eventView,
                          const ProductRegistry& productRegistry);
 
   private:
