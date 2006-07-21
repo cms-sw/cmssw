@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/13 12:17:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 14:27:42 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -209,4 +209,9 @@ TCanvas * DTTimeBoxPlotter::newCanvas(TString name, int form, int w)
 void DTTimeBoxPlotter::setVerbosity(unsigned int lvl) {
   theVerbosityLevel = lvl;
   theFitter->setVerbosity(lvl);
+}
+
+// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
+void DTTimeBoxPlotter::setInteractiveFit(bool isInteractive) {
+  theFitter->setInteractiveFit(isInteractive);
 }

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/05 10:03:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/03 13:13:09 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -21,6 +21,7 @@ using namespace std;
 
 DTTimeBoxFitter::DTTimeBoxFitter() : theVerbosityLevel(0) {
   hDebugFile = new TFile("DTTimeBoxFitter.root", "RECREATE");
+  interactiveFit = false;
 }
 
 
@@ -50,8 +51,13 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
   double tBoxMax=0;     // The max of the time box, it is used as seed for gaussian integral
 
   //hTimeBox->Rebin(2); //FIXME: Temporary for low statistics
+
   TH1F *hTimeBoxForSeed = (TH1F*) hTimeBox->Clone(); //FIXME: test
+  if(!interactiveFit) {
   getFitSeeds(hTimeBoxForSeed, xValue, xFitSigma, tBoxMax, xFitMin, xFitMax);
+  } else {
+    getInteractiveFitSeeds(hTimeBoxForSeed, xValue, xFitSigma, tBoxMax, xFitMin, xFitMax);
+  }
 
   // Define the fitting function and use fit seeds
   TF1 *fIntGaus = new TF1("IntGauss", intGauss, xFitMin, xFitMax, 3); 
@@ -86,6 +92,36 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
   return make_pair(mean, sigma);
 }
 
+
+
+// Get the seeds for the fit as input from user!It is used if interactiveFit == true
+void DTTimeBoxFitter::getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& sigma, double& tBoxMax,
+				    double& xFitMin, double& xFitMax) {
+  if(theVerbosityLevel >= 1)
+    cout << " === Insert seeds for the Time Box fit:" << endl;
+  
+  cout << "Inser the fit mean:" << endl;
+  cin >> mean;
+
+
+
+
+  sigma = 10; //FIXME: estimate it!
+
+  tBoxMax = hTBox->GetMaximum();
+
+  // Define the fit range
+  xFitMin = mean-5.*sigma;
+  xFitMax = mean+5.*sigma;
+
+  if(theVerbosityLevel >= 1) {
+    cout << "      Time Box Rising edge: " << mean << endl;
+    cout << "    = Seeds and range for fit:" << endl;
+    cout << "       Seed mean = " << mean << endl;
+    cout << "       Seed sigma = " << sigma << endl;
+    cout << "       Fitting from = " << xFitMin << " to " << xFitMax << endl << endl;
+  }
+}
 
 
 // Automatically compute the seeds the range to be used for time box fit
@@ -194,6 +230,8 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     cout << "       Fitting from = " << xFitMin << " to " << xFitMax << endl << endl;
   }
 }
+
+
 
 double intGauss(double *x, double *par) {
   double media = par[1];
