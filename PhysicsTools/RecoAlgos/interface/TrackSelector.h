@@ -7,19 +7,19 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: TrackSelector.h,v 1.1 2006/06/27 09:22:49 llista Exp $
+ * $Id: TrackSelector.h,v 1.2 2006/07/19 14:56:05 llista Exp $
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 namespace reco {
   class Track;
 }
 
-class TrackSelectorBase : public edm::EDProducer {
+class TrackSelectorBase : public edm::EDFilter {
 public:
   /// constructor 
   explicit TrackSelectorBase( const edm::ParameterSet & );
@@ -28,11 +28,13 @@ public:
   
 private:
   /// process one event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual bool filter( edm::Event&, const edm::EventSetup& );
   /// select one track
   virtual bool select( const reco::Track& ) const;
   /// source collection label
   std::string src_;
+  /// filter event
+  bool filter_;
 };
 
 template<typename S>

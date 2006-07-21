@@ -12,7 +12,8 @@ using namespace std;
 using namespace edm;
 
 TrackSelectorBase::TrackSelectorBase( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<std::string>( "src" ) ) {
+  src_( cfg.getParameter<std::string>( "src" ) ),
+  filter_( cfg.getParameter<bool>( "filter" ) ) {
   string alias( cfg.getParameter<std::string>( "@module_label" ) );
   produces<TrackCollection>().setBranchAlias( alias + "Tracks" );
   produces<TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
@@ -26,7 +27,7 @@ bool TrackSelectorBase::select( const Track & ) const {
   return true;
 }
 
-void TrackSelectorBase::produce( Event& evt, const EventSetup& ) {
+bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
   Handle<TrackCollection> tracks;
   evt.getByLabel( src_, tracks );
 
@@ -55,4 +56,5 @@ void TrackSelectorBase::produce( Event& evt, const EventSetup& ) {
   evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
+  return ( selTracks->size() > 0 || ! filter_ );
 }
