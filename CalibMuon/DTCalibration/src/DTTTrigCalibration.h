@@ -6,18 +6,19 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/06/07 16:02:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/14 12:15:36 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <string>
 #include <map>
-
+#include <set>
 
 namespace edm {
   class ParameterSet;
@@ -30,6 +31,8 @@ class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
 class DTTtrig;
+class DTStatusFlag;
+
 
 class DTTTrigCalibration : public edm::EDAnalyzer {
 public:
@@ -40,6 +43,7 @@ public:
   virtual ~DTTTrigCalibration();
 
   // Operations
+  void beginJob(const edm::EventSetup& eventSetup);
 
   /// Fill the time boxes
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
@@ -81,7 +85,8 @@ private:
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
   std::string theTag;
-
+  const DTStatusFlag* theStatusMap;
+  std::set<DTWireId> setOfNoisy;
 };
 #endif
 
