@@ -1,5 +1,5 @@
-#ifndef FWCoreFrameworkModuleDescriptionRegistry_h
-#define FWCoreFrameworkModuleDescriptionRegistry_h
+#ifndef DataFormats_Common_ModuleDescriptionRegistry_h
+#define DataFormats_Common_ModuleDescriptionRegistry_h
 
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
