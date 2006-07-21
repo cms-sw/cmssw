@@ -74,8 +74,7 @@ StreamerInputModule<Producer>::StreamerInputModule(
     {
       //Get header/init from Producer
       std::auto_ptr<InitMsgView> header = pr_->getHeader();
-      std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(header); 
-      //header cannot be used anymore beyond this point
+      std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header); 
       SendDescs & descs = p->descs_;
       mergeWithRegistry(descs, productRegistry());
 
@@ -94,7 +93,7 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
                           cout<<"Empty event........"<<endl; 
                           return  std::auto_ptr<edm::EventPrincipal>();
                           }
-     return StreamTranslator::deserializeEvent(eview, productRegistry());
+     return StreamTranslator::deserializeEvent(*eview, productRegistry());
   }
 
 template <class Producer>
