@@ -1,16 +1,31 @@
 
-module   HLTMuonLoosePrescale= Prescaler { int32 prescaleFactor = 20 }
-path     MuonLoose ={HLTMuonLoosePrescale}
+module   HLTElectronLoosePrescale= HLTPrescaler { 
+   uint32 prescaleFactor = 10
+   bool makeFilterObject = true 
+ }
+path     ElectronLoose ={HLTElectronLoosePrescale}
 
-module   HLTPassThroughPrescale= Prescaler { int32 prescaleFactor = 4000 }
-path     PassThrough ={HLTPassThroughPrescale}
-
-module   HLTMuonTightPrescale= Prescaler { int32 prescaleFactor = 30 }
-path     MuonTight ={HLTMuonTightPrescale}
-
-module   HLTElectronTightPrescale= Prescaler { int32 prescaleFactor = 11 }
+module   HLTElectronTightPrescale= HLTPrescaler { 
+   uint32 prescaleFactor = 11
+   bool makeFilterObject = true 
+ }
 path     ElectronTight ={HLTElectronTightPrescale}
 
-module   HLTElectronLoosePrescale= Prescaler { int32 prescaleFactor = 10 }
-path     ElectronLoose ={HLTElectronLoosePrescale}
+module   HLTMuonLoosePrescale= HLTPrescaler { 
+   uint32 prescaleFactor = 20
+   bool makeFilterObject = true 
+ }
+path     MuonLoose ={HLTMuonLoosePrescale}
+
+module   HLTMuonTightPrescale= HLTPrescaler { 
+   uint32 prescaleFactor = 30
+   bool makeFilterObject = true 
+ }
+path     MuonTight ={HLTMuonTightPrescale}
+
+module   HLTPassThroughPrescale= HLTPrescaler { 
+   uint32 prescaleFactor = 4000
+   bool makeFilterObject = true 
+ }
+path     PassThrough ={HLTPassThroughPrescale}
 

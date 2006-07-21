@@ -8,17 +8,17 @@
 import os,sys,commands,re
 
 #
-#....global variable
+#....global variables
 #
-hlt = {} #....trigger list dictionary (i.e., a hash table)
+list = [] #....trigger list dictionary 
 hlt_file_dir = "HLTrigger/HLTfilters/utilities"  #....location of hlt config files
 
 #
 #....Add trigger to the list, check that trigger name is unique
 #
 def trig(name,prescale):
- if name not in hlt:
-    hlt[name] = prescale
+ if not_in_list(name):
+    list.append( (name,prescale) )
  else:
     print "Error:", name,\
           "is already defined! Did not change prescale to", prescale
@@ -30,8 +30,9 @@ def trig(name,prescale):
 def make_cfg_file(file):
   print "Creating file:",file,"with trigger definition."
   f = open(file,'w')
-  for name in hlt.keys():
-    prescale=str(hlt[name])
+  for trig in list:
+    name = trig[0]
+    prescale = str( trig[1] )
     name_prescale = "HLT" + name + "Prescale"
     name_sequence = "HLT" + name + "Sequence"
     name_path     = hlt_file_dir + "/" + name_sequence + ".cfi"
@@ -65,3 +66,13 @@ def findInc(name):
     else:
         print 'CMSSW_SEARCH_PATH is not defined.'
     return False
+
+#
+#....Return True if the named trigger is not in the list
+#
+def not_in_list(name):
+    for trig in list:
+        if trig[0] == name : return False
+    return True
+
+      
