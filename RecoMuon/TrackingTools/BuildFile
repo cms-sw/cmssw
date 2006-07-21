@@ -5,6 +5,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=DataFormats/DetId>
 <use name=DataFormats/MuonDetId>
+<use name=DataFormats/MuonReco>
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackPropagation/SteppingHelixPropagator>
@@ -22,6 +23,7 @@
    <use name=TrackingTools/GeomPropagators>
    <use name=DataFormats/DetId>
    <use name=DataFormats/MuonDetId>
+   <use name=DataFormats/MuonReco>
    <use name=TrackingTools/KalmanUpdators>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=TrackPropagation/SteppingHelixPropagator>
