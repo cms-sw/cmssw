@@ -50,7 +50,7 @@ void InitMsgBuilder::setDescLength(uint32 len)
 {
   convert(len,desc_addr_-sizeof(char_uint32));
   InitHeader* h = (InitHeader*)buf_;
-  new (&h->header_) Header(0,desc_addr_-buf_+len);
+  new (&h->header_) Header(Header::INIT,desc_addr_-buf_+len);
 }
 
 

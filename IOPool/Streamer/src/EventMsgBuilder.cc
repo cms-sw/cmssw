@@ -39,7 +39,7 @@ void EventMsgBuilder::setEventLength(uint32 len)
 {
   convert(len,event_addr_-sizeof(char_uint32));
   EventHeader* h = (EventHeader*)buf_;
-  new (&h->header_) Header(1,event_addr_-buf_+len);
+  new (&h->header_) Header(Header::EVENT,event_addr_-buf_+len);
 }
 
 uint32 EventMsgBuilder::size() const

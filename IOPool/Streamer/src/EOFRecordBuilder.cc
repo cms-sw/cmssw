@@ -37,5 +37,5 @@ EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
   uint32 calculatedSize = (uint8*)pos - (uint8*)&buf_[0];
   assert(calculatedSize = buf_.size());
   /** Code is 4 for EOF */ 
-  new (&h->header_) Header(4, calculatedSize);
+  new (&h->header_) Header(Header::EOFRECORD, calculatedSize);
 }

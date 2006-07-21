@@ -24,7 +24,7 @@ namespace edm
  
   std::auto_ptr<InitMsgView> header ( (InitMsgView*) stream_reader_->startMessage() );
   
-  if(header->code() != 0) //INIT Msg
+  if(header->code() != Header::INIT) //INIT Msg
       throw cms::Exception("readHeader","StreamerFileReader")
         << "received wrong message type: expected INIT, got "
         << header->code() << "\n";
