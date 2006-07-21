@@ -1,4 +1,4 @@
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelectorBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,17 +16,11 @@ TrackSelectorBase::TrackSelectorBase( const ParameterSet & cfg ) :
   filter_( cfg.getParameter<bool>( "filter" ) ) {
   string alias( cfg.getParameter<std::string>( "@module_label" ) );
   produces<TrackCollection>().setBranchAlias( alias + "Tracks" );
-  /*
   produces<TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits" );
-  */
 }
  
 TrackSelectorBase::~TrackSelectorBase() {
-}
-
-bool TrackSelectorBase::select( const Track & ) const {
-  return true;
 }
 
 bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
@@ -40,22 +34,24 @@ bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
   TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<TrackExtraCollection>();
   TrackRefProd rTracks = evt.getRefBeforePut<TrackCollection>();
   size_t idx = 0, hidx = 0;
-  for( TrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
-    if( select( * trk ) ) {
-      selTracks->push_back( Track( *trk ) );
-      selTracks->back().setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
-      selTrackExtras->push_back( TrackExtra ( trk->outerPosition(), trk->outerMomentum(), trk->outerOk() ) );
-      TrackExtra & tx = selTrackExtras->back();
-      for( trackingRecHit_iterator hit = trk->recHitsBegin(); hit != trk->recHitsEnd(); ++ hit ) {
-	selHits->push_back( (*hit)->clone() );
-	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-      }
+  vector<const Track *> sel;
+  select( * tracks, sel );
+  for( vector<const Track *>::const_iterator i = sel.begin(); i != sel.end(); ++ i ) {
+    const Track & trk = * * i;
+    selTracks->push_back( Track( trk ) );
+    selTracks->back().setExtra( TrackExtraRef( rTrackExtras, idx ++ ) );
+    selTrackExtras->push_back( TrackExtra ( trk.outerPosition(), trk.outerMomentum(), trk.outerOk() ) );
+    TrackExtra & tx = selTrackExtras->back();
+    for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
+      selHits->push_back( (*hit)->clone() );
+      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
   }
-
+  
   if ( filter_ && selTracks->empty() ) return false;
   evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
   return true;
 }
+
