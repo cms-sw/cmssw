@@ -8,7 +8,7 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: PreshowerAnalyzer.h,v 1.5 2006/06/18 18:21:12 rahatlou Exp $
+// $Id: PreshowerAnalyzer.h,v 1.1 2006/07/20 18:31:22 dbanduri Exp $
 //
 
 
@@ -77,6 +77,8 @@ public:
   TH1F* h1_esNhits_x;
   TH1F* h1_esNhits_y;
   TH1F* h1_esDeltaE;
+  TH1F* h1_nclu_x;
+  TH1F* h1_nclu_y;
   TH1F* h1_islandEESCEnergy1;
   TH1F* h1_islandEESCEnergy2;
 
