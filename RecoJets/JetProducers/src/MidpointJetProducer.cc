@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.13 2006/06/30 23:35:44 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.14 2006/07/13 23:25:49 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -12,6 +12,7 @@
 #include "RecoJets/JetProducers/interface/MidpointJetProducer.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -27,6 +28,9 @@ namespace {
   }
   bool makeGenJet (const string& fTag) {
     return fTag == "GenJet";
+  }
+  bool makeBasicJet (const string& fTag) {
+    return fTag == "BasicJet";
   }
 }
 
@@ -54,6 +58,7 @@ namespace cms
 	     jetType_.c_str());
     if (makeCaloJet (jetType_)) produces<CaloJetCollection>().setBranchAlias (label);
     if (makeGenJet (jetType_)) produces<GenJetCollection>().setBranchAlias (label);
+    if (makeBasicJet (jetType_)) produces<BasicJetCollection>().setBranchAlias (label);
   }
 
   // Virtual destructor needed.
@@ -95,6 +100,8 @@ namespace cms
     if (makeCaloJet (jetType_)) caloJets.reset (new CaloJetCollection);
     auto_ptr<GenJetCollection> genJets;
     if (makeGenJet (jetType_)) genJets.reset (new GenJetCollection);
+    auto_ptr<BasicJetCollection> basicJets;
+    if (makeBasicJet (jetType_)) basicJets.reset (new BasicJetCollection);
 
     vector <ProtoJet>::const_iterator protojet = output.begin ();
     JetMaker jetMaker;
@@ -107,10 +114,15 @@ namespace cms
 	genJets->push_back (jetMaker.makeGenJet (*protojet));
 	if (debug) std::cout << "MidpointJetProducer::produce-> add protojet to GenJets." << std::endl;
       }
+      if (basicJets.get ()) { 
+	basicJets->push_back (jetMaker.makeBasicJet (*protojet));
+	if (debug) std::cout << "IterativeConeJetProducer::produce-> add protojet to BasicJets." << std::endl;
+      }
     }
     // store output
     if (caloJets.get ()) e.put(caloJets);  //Puts Jet Collection into event
     if (genJets.get ()) e.put(genJets);  //Puts Jet Collection into event
+    if (basicJets.get ()) e.put(basicJets);  //Puts Jet Collection into event
   }
 
 }

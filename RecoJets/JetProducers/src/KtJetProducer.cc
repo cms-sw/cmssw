@@ -4,13 +4,14 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: KtJetProducer.cc,v 1.14 2006/05/23 01:14:34 fedor Exp $
+// $Id: KtJetProducer.cc,v 1.15 2006/06/30 23:35:44 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -26,6 +27,9 @@ namespace {
   }
   bool makeGenJet (const string& fTag) {
     return fTag == "GenJet";
+  }
+  bool makeBasicJet (const string& fTag) {
+    return fTag == "BasicJet";
   }
 }
 
@@ -48,6 +52,7 @@ namespace cms
 	     jetType_.c_str());
     if (makeCaloJet (jetType_)) produces<CaloJetCollection>().setBranchAlias (label);
     if (makeGenJet (jetType_)) produces<GenJetCollection>().setBranchAlias (label);
+    if (makeBasicJet (jetType_)) produces<BasicJetCollection>().setBranchAlias (label);
   }
 
   // Virtual destructor needed.
@@ -74,6 +79,8 @@ namespace cms
     if (makeCaloJet (jetType_)) caloJets.reset (new CaloJetCollection);
     auto_ptr<GenJetCollection> genJets;
     if (makeGenJet (jetType_)) genJets.reset (new GenJetCollection);
+    auto_ptr<BasicJetCollection> basicJets;
+    if (makeBasicJet (jetType_)) basicJets.reset (new BasicJetCollection);
     vector <ProtoJet>::const_iterator protojet = output.begin ();
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
@@ -83,9 +90,13 @@ namespace cms
       if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));
       }
+      if (basicJets.get ()) { 
+	basicJets->push_back (jetMaker.makeBasicJet (*protojet));
+      }
     }
     // store output
     if (caloJets.get ()) e.put(caloJets);  //Puts Jet Collection into event
     if (genJets.get ()) e.put(genJets);  //Puts Jet Collection into event
+    if (basicJets.get ()) e.put(basicJets);  //Puts Jet Collection into event
   }
 }
