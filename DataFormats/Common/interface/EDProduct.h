@@ -6,7 +6,7 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.6 2005/10/11 21:32:24 wmtan Exp $
+$Id: EDProduct.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,6 +16,9 @@ namespace edm {
   public:
     EDProduct();
     virtual ~EDProduct();
+    bool isPresent() const {return isPresent_();}
+  private:
+    virtual bool isPresent_() const = 0;
   };
 }
 #endif

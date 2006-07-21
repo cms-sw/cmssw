@@ -5,13 +5,15 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: Wrapper.h,v 1.2 2006/06/14 23:23:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <memory>
 #include <string>
+
+#include <iostream>
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -23,10 +25,11 @@ namespace edm {
     Wrapper() : EDProduct(), present(false), obj() {}
     explicit Wrapper(std::auto_ptr<T> ptr) :
       EDProduct(), present(ptr.get() != 0), obj(present ? *ptr : T()) {}
-    ~Wrapper() {}
+    virtual ~Wrapper() {}
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
   private:
+    virtual bool isPresent_() const {return present;}
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
     Wrapper(Wrapper<T> const& rh); // disallow copy construction
