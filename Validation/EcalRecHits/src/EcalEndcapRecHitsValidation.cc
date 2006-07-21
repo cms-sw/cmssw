@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2006/06/29 11:07:41 $
+ * $Date: 2006/07/07 16:06:47 $
  * \author C. Rovelli
  *
  */
@@ -75,7 +75,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
       meEEUncalibRecHitsOccupancyMinus_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
       
       sprintf (histo, "EE Amplitude" );
-      meEEUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
+      meEEUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 201, -20., 4000.);
       
       sprintf (histo, "EE Pedestal" );
       meEEUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
@@ -87,7 +87,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
       meEEUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
       sprintf (histo, "EE RecHit Max Sample Ratio"); 
-      meEEUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 80, 0.95, 1.05);
+      meEEUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
       
       sprintf (histo, "EE+ Occupancy gt 60 adc counts" );  
       meEEUncalibRecHitsOccupancyPlusGt60adc_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -108,7 +108,7 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
       meEEUncalibRecHitsChi2Gt60adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
       sprintf (histo, "EE RecHit Max Sample Ratio gt 60 adc counts"); 
-      meEEUncalibRecHitMaxSampleRatioGt60adc_ = dbe_->book1D(histo, histo, 80, 0.95, 1.05);
+      meEEUncalibRecHitMaxSampleRatioGt60adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
 
       sprintf (histo, "EE Amplitude Full Map");
       meEEUncalibRecHitsAmpFullMap_ = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 200, 0., 4000.);
@@ -134,7 +134,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   Handle< EEDigiCollection > EcalDigiEE;
   try {
-    e.getByLabel( digiProducer_, EcalDigiEE);
+    e.getByLabel( digiProducer_, EEdigiCollection_, EcalDigiEE);
   } catch ( std::exception& ex ) {
     edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
   }
@@ -219,7 +219,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	      if ( meEEUncalibRecHitMaxSampleRatioGt60adc_ && (uncalibRecHit->amplitude() > 60) ) 
 		{ meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
 
-	      LogInfo("EcalRecHitsTaskInfo") << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	      LogDebug("EcalRecHitsTaskInfo") << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
 	    }
 	  else
 	    continue;

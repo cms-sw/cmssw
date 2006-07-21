@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2006/06/29 11:07:41 $
+ * $Date: 2006/07/07 16:06:47 $
  * \author C. Rovelli
  *
  */
@@ -75,7 +75,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsOccupancy_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
       
       sprintf (histo, "EB Amplitude" );
-      meEBUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
+      meEBUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 201, -20., 4000.);
       
       sprintf (histo, "EB Pedestal" );
       meEBUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
@@ -87,7 +87,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
       sprintf (histo, "EB RecHit Max Sample Ratio"); 
-      meEBUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 80, 0.95, 1.05);
+      meEBUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
 
       sprintf (histo, "EB Occupancy gt 100 adc counts" );
       meEBUncalibRecHitsOccupancyGt100adc_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
@@ -105,7 +105,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
     
       sprintf (histo, "EB RecHit Max Sample Ratio gt 100 adc counts"); 
-      meEBUncalibRecHitMaxSampleRatioGt100adc_ = dbe_->book1D(histo, histo, 80, 0.95, 1.05);
+      meEBUncalibRecHitMaxSampleRatioGt100adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
       
       sprintf (histo, "EB Amplitude Full Map");
       meEBUncalibRecHitsAmpFullMap_ = dbe_->bookProfile2D(histo, histo, 170, -85., 85., 360, 0., 360., 200, 0., 4000.);
@@ -140,7 +140,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle< EBDigiCollection > EcalDigiEB;
   try {
-    e.getByLabel( digiProducer_, EcalDigiEB);
+    e.getByLabel( digiProducer_, EBdigiCollection_, EcalDigiEB);
   } catch ( std::exception& ex ) {
     edm::LogError("EcalRecHitsTaskError") << "Error! can't get the Digis " << std::endl;
   }
@@ -227,7 +227,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	    {
 	      if ( meEBUncalibRecHitMaxSampleRatio_ ) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
 	      if ( meEBUncalibRecHitMaxSampleRatioGt100adc_ && (uncalibRecHit->amplitude()>100) ) meEBUncalibRecHitMaxSampleRatioGt100adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax);
-	      LogInfo("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	      LogDebug("EcalRecHitsTaskInfo") << "barrel, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
 	    }
 	  else
 	    continue;
