@@ -1,4 +1,6 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 using namespace std;
@@ -74,11 +76,12 @@ void CrossingFrame::addSignalVertices(const SimVertexContainer *simvertices) {
 }
 
 
-void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int trackoffset, bool checkTof) { 
+void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int evtId, bool checkTof) { 
   // add individual PSimHits to this bunchcrossing
   // eliminate those which a TOF outside of the bounds to be considered for corresponding detectors only
 
   int count=0;
+  EncodedEventId id(bcr,evtId);
   for (unsigned int i=0;i<simhits->size();++i) {
     bool accept=true;
     float newtof;
@@ -90,43 +93,60 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
       PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),
 		  (*simhits)[i].timeOfFlight() + bcr*bunchSpace_, 
 		  (*simhits)[i].energyLoss(), (*simhits)[i].particleType(),
-		  (*simhits)[i].detUnitId(), (*simhits)[i].trackId()+trackoffset,
+		  (*simhits)[i].detUnitId(), (*simhits)[i].trackId(),
 		  (*simhits)[i].thetaAtEntry(),  (*simhits)[i].phiAtEntry(),  (*simhits)[i].processType());
+      hit.setEventId(id);
       (pileupSimHits_[subdet])[bcr-firstCrossing_].push_back(hit);
       count++;
     }  
   }
 }
 
-  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
+//shifted version:  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
+ void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits) { 
     for (unsigned int i=0;i<calohits->size();++i) {
-    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
+      //shifted version:    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
+    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
     (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
   }
 }
 
-void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simtracks, int vertexoffset) { 
-  for (unsigned int i=0;i<simtracks->size();++i) 
-    if ((*simtracks)[i].noVertex()) 
-      //      pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
-      pileupTracks_[bcr-firstCrossing_].push_back((*simtracks)[i]);
+void CrossingFrame::addPileupTracks(const int bcr, const SimTrackContainer *simtracks, int evtId, int vertexoffset) { 
+  EncodedEventId id(bcr,evtId);
+  for (unsigned int i=0;i<simtracks->size();++i)
+    if ((*simtracks)[i].noVertex()) {
+      SimTrack track((*simtracks)[i]);
+      track.setEventId(id);
+      pileupTracks_[bcr-firstCrossing_].push_back(track);
+    }
     else {
       SimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
-      //      pileupTracks_[bcr-firstCrossing_].insertTrack(track);
+      track.setEventId(id);
       pileupTracks_[bcr-firstCrossing_].push_back(track);
     }
 }
 
-void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int trackoffset) { 
-  for (unsigned int i=0;i<simvertices->size();++i) 
-    if ((*simvertices)[i].noParent()) 
-      //      pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
-      pileupVertices_[bcr-firstCrossing_].push_back((*simvertices)[i]);
-    else {
-      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
-      //      pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
+void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId,  int trackoffset) { 
+    for (unsigned int i=0;i<simvertices->size();++i) 
+    if ((*simvertices)[i].noParent()) {
+      SimVertex vertex((*simvertices)[i]);
+      vertex.setEventId(EncodedEventId(bcr,evtId));
       pileupVertices_[bcr-firstCrossing_].push_back(vertex);
     }
+    else {
+      SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
+      vertex.setEventId(EncodedEventId(bcr,evtId));
+      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
+    }
+}
+
+// version without shift
+void CrossingFrame::addPileupVertices(const int bcr, const SimVertexContainer *simvertices, int evtId) { 
+  for (unsigned int i=0;i<simvertices->size();++i){ 
+      SimVertex vertex((*simvertices)[i]);
+      vertex.setEventId(EncodedEventId(bcr,evtId));
+      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
+  }
 }
 
 void CrossingFrame::print(int level) const {

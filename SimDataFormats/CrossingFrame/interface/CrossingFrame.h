@@ -45,10 +45,12 @@ using namespace edm;
       void addSignalCaloHits(const std::string subdet, const edm::PCaloHitContainer *);
       void addSignalTracks(const edm::SimTrackContainer *);
       void addSignalVertices(const edm::SimVertexContainer *);
-      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int trackoffset, bool checkTof);
-      void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int trackoffset=0);
-      void addPileupTracks(const int bcr, const edm::SimTrackContainer *, int vertexoffset=0);
-      void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int trackoffset=0);      
+      //      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int evtId, int trackoffset, bool checkTof);
+      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int evtId, bool checkTof);
+      void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *);
+      void addPileupTracks(const int bcr, const edm::SimTrackContainer *,  int evtId, int vertexoffset);
+      void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int evtId, int trackoffset);      
+      void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int evtId);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
 

@@ -32,8 +32,8 @@ private:
   public:
 
     /** constructors */
-    MixItr() {;}
-    MixItr(typename std::vector<T>::iterator it) :    pMixItr_(it) {;}
+    MixItr():first_(true) {;}
+    MixItr(typename std::vector<T>::iterator it) :    pMixItr_(it),first_(true) {;}
     MixItr(MixCollection *shc, int firstcr,int lastcr) :     
       mixCol_(shc),curBunchCrossing_(firstcr),lastBunchCrossing_(lastcr),first_(true) {;}
 
@@ -146,7 +146,7 @@ template <class T>  int  MixCollection<T>::sizePileup() {
   for (int i=0;i<nrDets_;++i) {
     cf_->getPileups(subdets_[i],pils);
     for (unsigned int j=0;j<pils->size();++j) {
-      s+=(*pils)[j].size(); //FIXME: test in constructor?
+      s+=(*pils)[j].size(); 
     }
   }
   return s;
@@ -167,30 +167,29 @@ template <class T>
 std::vector<T> * MixCollection<T>::getNewSignal() {
   // gets the next signal collection with non-zero size
   //at the same time we verify that input is coherent
-
   for (int i=iSignal_;i<nrDets_;i++) {
 
     //verify whether detector is known
     if ( strstr(typeid(T).name(),"Hit")  && !cf_->knownDetector(subdets_[iSignal_]))
       throw cms::Exception("UnknownSubdetector")<< " No detector '"<<subdets_[iSignal_]<<"' for hits known in CrossingFrame (must be non-blank)\n";
 
-
     //verify whether detector/T type correspond
     std::string type=cf_->getType(subdets_[iSignal_]);
     if (!type.empty()) { //test only for SimHits and CaloHits
       if (!strstr(typeid(T).name(),type.c_str()))
 	throw cms::Exception("TypeMismatch")<< "Given template type "<<type<<" does not correspond to detecetor "<<subdets_[iSignal_]<<"\n";
-
-      //everything ok
-      cf_->getSignal(subdets_[iSignal_++],signals_);
-      if (signals_->size()) return signals_;
     }
+
+    //everything ok
+    cf_->getSignal(subdets_[iSignal_++],signals_);
+    if (signals_->size()) return signals_;
   }
+  
   return NULL;
 }
 
 template <class T>
- std::vector<std::vector<T> > * MixCollection<T>::getNewPileups() {
+std::vector<std::vector<T> > * MixCollection<T>::getNewPileups() {
   // gets the next pileup collection with non-zero size
   for (int i=iPileup_;i<nrDets_;i++) {
     cf_->getPileups(subdets_[iPileup_++],pileups_);
@@ -202,7 +201,7 @@ template <class T>
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
- // initialisation
+  // initialisation
   if (first_) {
     first_=false;
     trigger_=true;
