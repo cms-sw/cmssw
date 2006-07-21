@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="EncodedEventId"/>
+  <class name="std::vector<EncodedEventId>"/>
+</lcgdict>
