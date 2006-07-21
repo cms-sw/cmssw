@@ -7,30 +7,22 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: SingleTrackSelector.h,v 1.1 2006/07/21 10:27:05 llista Exp $
+ * $Id: SingleTrackSelector.h,v 1.2 2006/07/21 12:38:50 llista Exp $
  *
  */
 
-#include "PhysicsTools/RecoAlgos/interface/SingleTrackSelectorBase.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/SingleElementCollectionSelector.h"
 
 template<typename S>
-class SingleTrackSelector : public SingleTrackSelectorBase {
+class SingleTrackSelector : 
+  public TrackSelector<SingleElementCollectionSelector<reco::TrackCollection, S> > {
 public:
-  /// constructor 
-  explicit SingleTrackSelector( const edm::ParameterSet & cfg ) :
-    SingleTrackSelectorBase( cfg ), select_( cfg ) { }
-  /// destructor
-  virtual ~SingleTrackSelector() { }
-  
-private:
-  /// select one track
-  virtual bool select( const reco::Track& t ) const {
-    return select_( t );
-  }
-  /// actual selector object
-  S select_;
+  SingleTrackSelector( const edm::ParameterSet & cfg ) : 
+    TrackSelector<SingleElementCollectionSelector<reco::TrackCollection, S> >( cfg ) { }
+  ~SingleTrackSelector() { }
 };
 
 #endif
