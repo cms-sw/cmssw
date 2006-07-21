@@ -108,9 +108,9 @@ void EcalDigisPlotCompare()
 
    if ( meEBDigiOccupancy_ && newmeEBDigiOccupancy_ ) {
      Ecal->cd(1);
-     meEBDigiOccupancy_->Draw();
+     meEBDigiOccupancy_->Draw("colz");
      Ecal->cd(2);
-     newmeEBDigiOccupancy_->Draw();
+     newmeEBDigiOccupancy_->Draw("colz");
      myPV->PVCompute(meEBDigiOccupancy_ , newmeEBDigiOccupancy_ , te);
    }
    Ecal->Print("Barrel_Occupancy_compare.eps");
@@ -145,14 +145,14 @@ void EcalDigisPlotCompare()
 
    if ( meEEDigiOccupancyzp_ && newmeEEDigiOccupancyzp_ && meEEDigiOccupancyzm_ && newmeEEDigiOccupancyzm_ ) {
      Ecal->cd(1);
-     meEEDigiOccupancyzp_->Draw();
+     meEEDigiOccupancyzp_->Draw("colz");
      Ecal->cd(3);
-     newmeEEDigiOccupancyzp_->Draw();
+     newmeEEDigiOccupancyzp_->Draw("colz");
      myPV->PVCompute(meEEDigiOccupancyzp_ , newmeEEDigiOccupancyzp_ , te);
      Ecal->cd(2);
-     meEEDigiOccupancyzm_->Draw();
+     meEEDigiOccupancyzm_->Draw("colz");
      Ecal->cd(4);
-     newmeEEDigiOccupancyzm_->Draw();
+     newmeEEDigiOccupancyzm_->Draw("colz");
      myPV->PVCompute(meEEDigiOccupancyzm_ , newmeEEDigiOccupancyzm_ , te);
    }
    Ecal->Print("Endcap_Occupancy_compare.eps");

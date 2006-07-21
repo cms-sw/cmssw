@@ -60,7 +60,7 @@ void EcalDigisPlots()
    meEBDigiOccupancy_;
 
    Ecal->cd(1);
-   if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Draw();
+   if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Draw("colz");
    Ecal->Print("Barrel_Occupancy.eps");
  }
 
@@ -80,9 +80,9 @@ void EcalDigisPlots()
    meEEDigiOccupancyzm_;
 
    Ecal->cd(1);
-   if ( meEEDigiOccupancyzp_ ) meEEDigiOccupancyzp_->Draw();
+   if ( meEEDigiOccupancyzp_ ) meEEDigiOccupancyzp_->Draw("colz");
    Ecal->cd(2);
-   if ( meEEDigiOccupancyzm_ ) meEEDigiOccupancyzm_->Draw();
+   if ( meEEDigiOccupancyzm_ ) meEEDigiOccupancyzm_->Draw("colz");
    Ecal->Print("Endcap_Occupancy.eps");
  }
 
