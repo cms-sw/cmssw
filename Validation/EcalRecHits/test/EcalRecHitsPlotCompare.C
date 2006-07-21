@@ -6,8 +6,8 @@ void EcalRecHitsPlotCompare()
 {
 
  gROOT ->Reset();
- char*  rfilename = "EcalRecHitsValidation1.root";
- char*  sfilename = "EcalRecHitsValidation2.root";
+ char*  rfilename = "EcalRecHitsValidation_new.root";
+ char*  sfilename = "EcalRecHitsValidation_old.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
