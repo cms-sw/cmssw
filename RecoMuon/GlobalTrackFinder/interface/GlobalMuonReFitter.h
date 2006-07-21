@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/06/03 15:55:15 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/06/15 15:00:58 $
+ *   $Revision: 1.4 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -22,9 +22,13 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Propagator;
 class KFUpdator;
+class MuonTrajectoryUpdator;
 class MagneticField;
 class MeasurementEstimator;
  
@@ -37,10 +41,13 @@ class GlobalMuonReFitter : public TrajectorySmoother {
   public:
   
     /// default constructor
-    GlobalMuonReFitter(const MagneticField *);
+    GlobalMuonReFitter(const edm::ParameterSet&);
 
     /// destructor
     virtual ~GlobalMuonReFitter();
+
+    /// initialize propagators
+    void setES(const edm::EventSetup& iSetup);
 
     ///
     virtual TrajectoryContainer trajectories(const Trajectory& t) const;
@@ -52,7 +59,7 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 
     ///
     GlobalMuonReFitter* clone() const {
-      return new GlobalMuonReFitter(theField);
+      return new GlobalMuonReFitter(*this);
     }
 
   private:    
@@ -71,13 +78,19 @@ class GlobalMuonReFitter : public TrajectorySmoother {
     typedef TrajectoryMeasurement TM;
 
   private:
-    const MagneticField* theField;
     const Propagator* thePropagator1;
     const Propagator* thePropagator2;
     const KFUpdator* theUpdator;
+    const MuonTrajectoryUpdator* theTrajectoryUpdator;
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
-    float theMass;
+
+    std::string theInPropagatorAlongMom;
+    std::string theOutPropagatorAlongMom;
+    std::string theInPropagatorOppositeToMom;
+    std::string theOutPropagatorOppositeToMom;
+    edm::ESHandle<MagneticField> theField;
+
   
 };
 

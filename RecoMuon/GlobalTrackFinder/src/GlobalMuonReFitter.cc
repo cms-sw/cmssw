@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/06/03 02:58:57 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/06/15 15:00:43 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
@@ -19,8 +19,10 @@
 #include <iostream>
                                                                                 
 
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
@@ -29,36 +31,62 @@
 #include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace edm;
+using namespace std;
 ///constructor
-GlobalMuonReFitter::GlobalMuonReFitter(const MagneticField * field) {
+GlobalMuonReFitter::GlobalMuonReFitter(const ParameterSet& par) {
 
   theErrorRescaling = 100.0;
-  theMass = 0.1057; //FIXME
  
-  thePropagator1 = new SmartPropagator(PropagatorWithMaterial(alongMomentum, theMass, field), SteppingHelixPropagator(field), field,alongMomentum);
-
-  thePropagator2 = new SmartPropagator(PropagatorWithMaterial(oppositeToMomentum, theMass, field), SteppingHelixPropagator(field,oppositeToMomentum),field,oppositeToMomentum);
-  
   theUpdator     = new KFUpdator;
   theEstimator   = new Chi2MeasurementEstimator(200.0);
+  theInPropagatorAlongMom = par.getParameter<string>("InPropagatorAlongMom");
+  theOutPropagatorAlongMom = par.getParameter<string>("OutPropagatorAlongMom");
+  theInPropagatorOppositeToMom = par.getParameter<string>("InPropagatorOppositeToMom");
+  theOutPropagatorOppositeToMom = par.getParameter<string>("OutPropagatorOppositeToMom");
+
 
 }
 
 ///destructor
 GlobalMuonReFitter::~GlobalMuonReFitter() {
-  delete thePropagator2;
-  delete thePropagator1;
-  delete theUpdator;
-  delete theEstimator;
+  if (thePropagator2) delete thePropagator2;
+  if (thePropagator1) delete thePropagator1;
+  if (theUpdator) delete theUpdator;
+  if (theEstimator) delete theEstimator;
+
+}
+
+void GlobalMuonReFitter::setES(const edm::EventSetup& iSetup) {
+
+  ESHandle<Propagator> eshPropagator1;
+  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorAlongMom, eshPropagator1);
+
+  ESHandle<Propagator> eshPropagator2;
+  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorAlongMom, eshPropagator2);
+
+  ESHandle<Propagator> eshPropagator3;
+  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorOppositeToMom, eshPropagator3);
+
+  ESHandle<Propagator> eshPropagator4;
+  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorOppositeToMom, eshPropagator4);
+
+  iSetup.get<IdealMagneticFieldRecord>().get(theField);
+
+  thePropagator1 = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
+  thePropagator2 = new SmartPropagator(*eshPropagator4,*eshPropagator3, &*theField,oppositeToMomentum);
 
 }
 
 
 vector<Trajectory> GlobalMuonReFitter::trajectories(const Trajectory& t) const {
   if ( !t.isValid() ) return vector<Trajectory>();
-  const vector<Trajectory>& fitted = fit(t);
+  vector<Trajectory> fitted = fit(t);
   return smooth(fitted);
 
 }
@@ -156,7 +184,7 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
   if ( t.empty() ) return vector<Trajectory>();
 
   Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
-  const vector<TM>& avtm = t.measurements();
+  vector<TM> avtm = t.measurements();
   if ( avtm.size() <= 2 ) return vector<Trajectory>(); 
 
   TSOS predTsos = avtm.back().forwardPredictedState();
@@ -190,7 +218,7 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
 
   TrajectoryStateCombiner combiner;
 
-  for ( vector<TM>::const_reverse_iterator itm = avtm.rbegin() + 1; 
+  for ( vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
     predTsos = thePropagator2->propagate(currTsos,(*itm).recHit()->det()->surface());
 
