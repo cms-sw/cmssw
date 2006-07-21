@@ -36,6 +36,8 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
 
   if (selOnDigiCharge) {
 
+    //   std::cout<<"DIGIIII"<<std::endl;
+
     unsigned int digiadc=0;
 
     for (std::vector< edm::Handle< edm::DetSetVector<SiStripDigi> > >::const_iterator mi = di.begin(); mi!=di.end(); mi++){
@@ -63,12 +65,19 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
   
       for(std::vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
 	
-	for(std::vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) amplclus+=(*ia);
-	
+	for(std::vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+{
+  if  ((*ia)>0){	  
+        amplclus+=(*ia);
+	//	std::cout<<"ia:"<<*ia<<std::endl;
+	}
+       }
       }
     }
 
     bool decision= (amplclus>ChargeThreshold) ? true : false;
+
+    std::cout<<"ampl:"<<amplclus<<std::endl;
 
     std::auto_ptr< unsigned int > 
       output( new unsigned int(amplclus) );
