@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: EgammaSimpleAnalyzer.cc,v 1.6 2006/06/18 18:21:12 rahatlou Exp $
+// $Id: PreshowerAnalyzer.cc,v 1.1 2006/07/20 18:30:08 dbanduri Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
@@ -80,6 +80,8 @@ void PreshowerAnalyzer::beginJob(edm::EventSetup const&) {
   h1_esNhits_x = new TH1F("esNhits_x"," ES cluster Nhits in  X-plane",10, 0, 10);
   h1_esNhits_y = new TH1F("esNhits_y"," ES cluster Nhits in  Y-plane",10, 0, 10);
   h1_esDeltaE = new TH1F("esDeltaE"," DeltaE", nBinDE_, EminDE_, EmaxDE_); 
+  h1_nclu_x = new TH1F("esNclu_x"," number of ES clusters (for one SC) in X-plane",20, 0, 80);
+  h1_nclu_y = new TH1F("esNclu_y"," number of ES clusters (for one SC) in Y-plane",20, 0, 80);
 
   h1_islandEESCEnergy1 = new TH1F("islandEESCEnergy1","Energy of super clusters with island algo - endcap1",nBinSC_,EminSC_,EmaxSC_);
   h1_islandEESCEnergy2 = new TH1F("islandEESCEnergy2","Energy of super clusters with island algo - endcap2",nBinSC_,EminSC_,EmaxSC_);
@@ -124,11 +126,13 @@ PreshowerAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   Handle<reco::PreshowerClusterCollection> pPreshowerClustersX;
   evt.getByLabel(preshClusterProducer_, preshClusterCollectionX_, pPreshowerClustersX);
   const reco::PreshowerClusterCollection *clustersX = pPreshowerClustersX.product();
+  h1_nclu_x->Fill( clustersX->size() );
   //std::cout << "\n pPreshowerClustersX->size() = " << clustersX->size() << std::endl;
 
   Handle<reco::PreshowerClusterCollection> pPreshowerClustersY;
   evt.getByLabel(preshClusterProducer_, preshClusterCollectionY_, pPreshowerClustersY);
   const reco::PreshowerClusterCollection *clustersY = pPreshowerClustersY.product();
+  h1_nclu_y->Fill( clustersY->size() );
   //std::cout << "\n pPreshowerClustersY->size() = " << clustersY->size() << std::endl;
 
 
@@ -178,6 +182,8 @@ void PreshowerAnalyzer::endJob() {
    h1_esNhits_x->Write();
    h1_esNhits_y->Write();          
    h1_esDeltaE->Write();
+   h1_nclu_x->Write();
+   h1_nclu_y->Write();
 
    h1_islandEESCEnergy1->Write();
    h1_islandEESCEnergy2->Write();
