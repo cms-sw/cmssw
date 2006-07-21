@@ -12,18 +12,18 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.5 2006/06/01 19:23:50 fedor Exp $
+ * \version   $Id: Jet.h,v 1.6 2006/06/27 23:15:06 fedor Exp $
  ************************************************************/
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
 namespace reco {
-  class Jet : public RecoCandidate {
+  class Jet : public CompositeRefCandidate {
   public:
     /// Default constructor
     Jet () : mNumberOfConstituents (0) {}
     /// Initiator
     Jet (const LorentzVector& fP4, const Point& fVertex, int fNumberOfConstituents)
-      :  RecoCandidate (0, fP4, fVertex),
+      :  CompositeRefCandidate (0, fP4, fVertex),
       mNumberOfConstituents (fNumberOfConstituents) {}
     /// Destructor
     virtual ~Jet () {}
