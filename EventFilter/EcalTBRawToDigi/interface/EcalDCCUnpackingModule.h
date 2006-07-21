@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/12/12 07:25:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/12/22 08:29:39 $
+ *  $Revision: 1.7 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -19,7 +19,10 @@
 using namespace std;
 
 class EcalTBDaqFormatter;
-
+class EcalSupervisorDataFormatter;
+class CamacTBDataFormatter;
+class TableDataFormatter;
+class MatacqDataFormatter;
 
   class EcalDCCUnpackingModule: public edm::EDProducer {
   public:
@@ -39,7 +42,12 @@ class EcalTBDaqFormatter;
     void endJob(void);
 
   private:
-    EcalTBDaqFormatter* formatter;
+
+    EcalTBDaqFormatter* formatter_;
+    EcalSupervisorDataFormatter* ecalSupervisorFormatter_;
+    CamacTBDataFormatter* camacTBformatter_;
+    TableDataFormatter* tableFormatter_;
+    MatacqDataFormatter* matacqFormatter_;
 
   };
 
