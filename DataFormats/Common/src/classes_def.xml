@@ -1,4 +1,6 @@
 <lcgdict>
+ <class name="edm::EventProvenance"/>
+ <class name="std::vector<edm::BranchEntryDescription>"/> 
  <class name="edm::EDProduct"/>
  <class name="edm::ProductID"/>
  <class name="edm::EventID"/>
