@@ -3,12 +3,10 @@
 
 /** \class ReadRecHit
  *
- * ReadRecHit is the EDProducer subclass which finds seeds
+ * ReadRecHit is a analyzer which reads rechits
  *
- * \author Oliver Gutsche, Fermilab
+ * \author C. Genta
  *
- * \version   1st Version Aug. 01, 2005  
-
  *
  ************************************************************/
 

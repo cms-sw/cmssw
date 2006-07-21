@@ -1,7 +1,6 @@
 // File: ReadRecHit.cc
 // Description:  see ReadRecHit.h
-// Author:  O. Gutsche
-// Creation Date:  OGU Aug. 1 2005 Initial version.
+// Author:  C.Genta
 //
 //--------------------------------------------
 #include <memory>
@@ -10,8 +9,8 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHit.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,7 +22,7 @@ namespace cms
     readRecHitAlgorithm_(conf) ,
     conf_(conf)
   {
-    //    produces<SiStripRecHit2DLocalPosCollection>();
+    //    produces<SiStripRecHit2DCollection>();
   }
 
 
@@ -37,9 +36,9 @@ namespace cms
     std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> rechitsmatched;
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
+    edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
+    edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+    edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);

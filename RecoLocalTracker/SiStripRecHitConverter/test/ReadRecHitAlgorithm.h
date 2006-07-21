@@ -3,9 +3,9 @@
 # // -*-C++-*-
 /** \class ReadRecHitAlgorithm
  *
- * ReadRecHitAlgorithm finds seeds
+ * ReadRecHitAlgorithm reads rechits
  *
- * \author Oliver Gutsche, Fermilab
+ * \author Chiara Genta
  *
  * \version   1st Version Aug. 1, 2005
  *
@@ -15,8 +15,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
 class ReadRecHitAlgorithm 
 {
@@ -27,8 +27,8 @@ class ReadRecHitAlgorithm
   
 
   /// Runs the algorithm
-    void run(const SiStripRecHit2DLocalPosCollection* input);
-    void run(const SiStripRecHit2DMatchedLocalPosCollection* input);
+    void run(const SiStripRecHit2DCollection* input);
+    void run(const SiStripMatchedRecHit2DCollection* input);
 
  private:
 

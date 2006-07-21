@@ -1,6 +1,6 @@
-// File: SiStripDetHitConverterAlgorithm.cc
-// Description:  An algorithm for CMS track reconstruction.
-// Author:  O/ Gutsche
+// File: ReadRecHitAlgorithm.cc
+// Description:  Analyzer that reads rechits
+// Author:  C. Genta
 // Creation Date:  OGU Aug. 1, 2005   
 
 #include <vector>
@@ -25,7 +25,7 @@ ReadRecHitAlgorithm::~ReadRecHitAlgorithm() {
 }
 
 
-void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
+void ReadRecHitAlgorithm::run(const SiStripRecHit2DCollection* input)
 {
   
   // get vector of detunit ids
@@ -34,14 +34,14 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
     // loop over detunits
   for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     unsigned int id = (*detunit_iterator).rawId();
-    edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
+    edm::OwnVector<SiStripRecHit2D> collector; 
     if(id!=999999999){ //if is valid detector
-      SiStripRecHit2DLocalPosCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DLocalPosCollection::const_iterator iter=rechitRangeIteratorBegin;
+      SiStripRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
+      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
+      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
+      SiStripRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripRecHit2DLocalPos const rechit=*iter;
+	  SiStripRecHit2D const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
 	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
@@ -62,7 +62,7 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
 };
 
 
-void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* input)
+void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 {
   
   // get vector of detunit ids
@@ -71,14 +71,14 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* in
     // loop over detunits
   for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     unsigned int id = (*detunit_iterator).rawId();
-    edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
+    edm::OwnVector<SiStripRecHit2D> collector; 
     if(id!=999999999){ //if is valid detector
-      SiStripRecHit2DMatchedLocalPosCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripRecHit2DMatchedLocalPosCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DMatchedLocalPosCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DMatchedLocalPosCollection::const_iterator iter=rechitRangeIteratorBegin;
+      SiStripMatchedRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
+      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
+      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
+      SiStripMatchedRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripRecHit2DMatchedLocalPos const rechit=*iter;
+	  SiStripMatchedRecHit2D const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
 	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();

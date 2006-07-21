@@ -3,12 +3,10 @@
 
 /** \class SiStripRecHitConverter
  *
- * SiStripRecHitConverter is the EDProducer subclass which finds seeds
+ * SiStripRecHitConverter is the EDProducer subclass which convets clusters into rechits
  *
- * \author Oliver Gutsche, Fermilab
+ * \author C. Genta
  *
- * \version   1st Version Aug. 01, 2005  
-
  *
  ************************************************************/
 

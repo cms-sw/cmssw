@@ -1,3 +1,7 @@
+// File: SiStripRecHitMatcher.cc
+// Description:  Matches into rechits
+// Author:  C.Genta
+
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
@@ -10,15 +14,15 @@
 
 
 //match a single hit
-const SiStripRecHit2DMatchedLocalPos& SiStripRecHitMatcher::match(const SiStripRecHit2DLocalPos *monoRH, 
-					    const SiStripRecHit2DLocalPos *stereoRH,
+const SiStripMatchedRecHit2D& SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
+					    const SiStripRecHit2D *stereoRH,
 					    const GluedGeomDet* gluedDet,
 					    LocalVector trackdirection) const{
   SimpleHitCollection stereoHits;
   stereoHits.push_back(stereoRH);
   //const StripGeomDetUnit* monoDet = dynamic_cast< const StripGeomDetUnit*>(gluedDet->monoDet());
   //  const GeomDetUnit* stereoDet = gluedDet->stereoDet();
-  edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collection;
+  edm::OwnVector<SiStripMatchedRecHit2D> collection;
   collection= match( monoRH,
 		     stereoHits.begin(), stereoHits.end(), 
 		     gluedDet,trackdirection);
@@ -26,8 +30,8 @@ const SiStripRecHit2DMatchedLocalPos& SiStripRecHitMatcher::match(const SiStripR
 }
 
 
-edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
-SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
+edm::OwnVector<SiStripMatchedRecHit2D> 
+SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 			     RecHitIterator &begin, RecHitIterator &end, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const
@@ -41,8 +45,8 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
 		gluedDet,trackdirection);
 }
 
-edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
-SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
+edm::OwnVector<SiStripMatchedRecHit2D> 
+SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const
@@ -52,7 +56,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
   const GeomDetUnit* stripdet = gluedDet->monoDet();
   const GeomDetUnit* partnerstripdet = gluedDet->stereoDet();
   const StripTopology& topol=(const StripTopology&)stripdet->topology();
-  edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collector;
+  edm::OwnVector<SiStripMatchedRecHit2D> collector;
   LocalPoint position;    
 
   // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
@@ -120,8 +124,8 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
       //Change NSigmaInside in the configuration file to accept more hits
       //...and add it to the Rechit collection 
 
-      const SiStripRecHit2DLocalPos* secondHit = *seconditer;
-      collector.push_back(new SiStripRecHit2DMatchedLocalPos(position, error,gluedDet->geographicalId() ,
+      const SiStripRecHit2D* secondHit = *seconditer;
+      collector.push_back(new SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
 							     monoRH,secondHit));
     }
   }

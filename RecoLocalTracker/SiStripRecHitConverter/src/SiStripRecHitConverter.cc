@@ -1,6 +1,6 @@
 // File: SiStripRecHitConverter.cc
 // Description:  see SiStripRecHitConverter.h
-// Author:  O. Gutsche
+// Author:  C.Genta
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 //
 //--------------------------------------------
@@ -8,8 +8,8 @@
 #include <string>
 #include <iostream>
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -34,9 +34,9 @@ namespace cms
     recHitConverterAlgorithm_(conf) ,
     conf_(conf)
   {
-    produces<SiStripRecHit2DMatchedLocalPosCollection>("matchedRecHit");
-    produces<SiStripRecHit2DLocalPosCollection>("rphiRecHit");
-    produces<SiStripRecHit2DLocalPosCollection>("stereoRecHit");
+    produces<SiStripMatchedRecHit2DCollection>("matchedRecHit");
+    produces<SiStripRecHit2DCollection>("rphiRecHit");
+    produces<SiStripRecHit2DCollection>("stereoRecHit");
   }
 
 
@@ -70,9 +70,9 @@ namespace cms
     e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
-    std::auto_ptr<SiStripRecHit2DMatchedLocalPosCollection> outputmatched(new SiStripRecHit2DMatchedLocalPosCollection);
-    std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputrphi(new SiStripRecHit2DLocalPosCollection);
-    std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
+    std::auto_ptr<SiStripMatchedRecHit2DCollection> outputmatched(new SiStripMatchedRecHit2DCollection);
+    std::auto_ptr<SiStripRecHit2DCollection> outputrphi(new SiStripRecHit2DCollection);
+    std::auto_ptr<SiStripRecHit2DCollection> outputstereo(new SiStripRecHit2DCollection);
 
     // Step C: Invoke the seed finding algorithm
     recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
