@@ -13,6 +13,9 @@ namespace {
     edm::Wrapper< std::vector<reco::MET> > dummy3;
     std::vector<reco::MET> dummy4;
 
+    CaloMETRef r1;
+    CaloMETRefProd rp1;
+    CaloMETRefVector rv1;
     edm::Wrapper<reco::CaloMET> dummy5;
     edm::Wrapper<reco::CaloMETCollection> dummy7;
     edm::Wrapper< std::vector<reco::CaloMET> > dummy8;

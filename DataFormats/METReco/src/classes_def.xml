@@ -15,6 +15,10 @@
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
+  <class name="edm::RefProd<std::vector<reco::CaloMET> >"/>
+  <class name="edm::RefVector<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> >"/>
+  <class name="edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> >"/>
+
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
 
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
