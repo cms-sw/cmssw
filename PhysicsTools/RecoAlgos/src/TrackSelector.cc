@@ -16,8 +16,10 @@ TrackSelectorBase::TrackSelectorBase( const ParameterSet & cfg ) :
   filter_( cfg.getParameter<bool>( "filter" ) ) {
   string alias( cfg.getParameter<std::string>( "@module_label" ) );
   produces<TrackCollection>().setBranchAlias( alias + "Tracks" );
+  /*
   produces<TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias + "RecHits" );
+  */
 }
  
 TrackSelectorBase::~TrackSelectorBase() {
@@ -30,7 +32,6 @@ bool TrackSelectorBase::select( const Track & ) const {
 bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
   Handle<TrackCollection> tracks;
   evt.getByLabel( src_, tracks );
-
   auto_ptr<TrackCollection> selTracks( new TrackCollection );
   auto_ptr<TrackExtraCollection> selTrackExtras( new TrackExtraCollection );
   auto_ptr<TrackingRecHitCollection> selHits( new TrackingRecHitCollection );
@@ -38,7 +39,6 @@ bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<TrackExtraCollection>();
   TrackRefProd rTracks = evt.getRefBeforePut<TrackCollection>();
-
   size_t idx = 0, hidx = 0;
   for( TrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
     if( select( * trk ) ) {
@@ -53,8 +53,9 @@ bool TrackSelectorBase::filter( Event& evt, const EventSetup& ) {
     }
   }
 
+  if ( filter_ && selTracks->empty() ) return false;
   evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
-  return ( selTracks->size() > 0 || ! filter_ );
+  return true;
 }
