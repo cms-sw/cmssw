@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    SiPixelDigitizer
-// Class:      SiPixelDigitizer
+B// Class:      SiPixelDigitizer
 // 
 /**\class SiPixelDigitizer SiPixelDigitizer.cc SimTracker/SiPixelDigitizer/src/SiPixelDigitizer.cc
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.18 2006/05/26 08:36:21 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.19 2006/07/19 19:43:12 fambrogl Exp $
 //
 //
 

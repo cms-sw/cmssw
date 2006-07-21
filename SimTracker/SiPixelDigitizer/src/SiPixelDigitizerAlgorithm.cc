@@ -723,7 +723,7 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 	  }
 	  float fraction=sum_samechannel/(*i).second;
 	  if (fraction>1.) fraction=1.;
-	  link_coll.push_back(PixelDigiSimLink((*i).first,(*simiiter).first,fraction));
+	  link_coll.push_back(PixelDigiSimLink((*i).first,(*simiiter).first,((*i).second.hits().front())->eventId(),fraction));
 	}
 	
       }

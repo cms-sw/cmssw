@@ -172,7 +172,8 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 	  if(fraction >1.) fraction = 1.;
 	  
 	  link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
-						     ((*iter).first)->trackId(), //simhit
+						     ((*iter).first)->trackId(), //simhit trackId
+						     ((*iter).first)->eventId(), //simhit eventId
 						     fraction)); //fraction
 	}
       }
