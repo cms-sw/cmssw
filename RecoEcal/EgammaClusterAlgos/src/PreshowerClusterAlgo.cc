@@ -222,7 +222,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
      std::cout << " nhits = " << cluster.nhits() << std::endl;
      std::cout << " radius = " << cluster.radius() << std::endl; 
      std::cout << " (x,y,z) = " << "(" << cluster.x() <<", "<< cluster.y() <<", "<< cluster.z()<<")"<< std::endl;
-     reco::BasicClusterRef bc_ref = cluster.getBC();
+     reco::BasicClusterRef bc_ref = cluster.basicCluster();
      std::cout << " and is caused by BasicCluster with energy = " << bc_ref->energy() <<" and (eta,phi) =("
 	       << bc_ref->eta()<<", "<< bc_ref->phi()<< ")" << std::endl;
   }

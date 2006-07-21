@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.8 2006/06/11 17:59:41 rahatlou Exp $
+// $Id: PreshowerCluster.h,v 1.10 2006/07/20 18:34:36 dbanduri Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
@@ -85,7 +85,7 @@ namespace reco {
     bool operator<(const PreshowerCluster&) const;
 
     //Associated basic cluster;
-    BasicClusterRef getBC() const {return bc_ref_;}
+    BasicClusterRef basicCluster() const {return bc_ref_;}
 
     virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
