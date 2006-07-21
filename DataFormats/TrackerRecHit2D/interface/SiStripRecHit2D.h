@@ -1,23 +1,23 @@
-#ifndef SiStripRecHit2DLocalPos_H
-#define SiStripRecHit2DLocalPos_H
+#ifndef SiStripRecHit2D_H
+#define SiStripRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-class SiStripRecHit2DLocalPos : public  BaseSiTrackerRecHit2DLocalPos{
+class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2DLocalPos(): BaseSiTrackerRecHit2DLocalPos(),cluster_() {}
+  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_() {}
 
-  ~SiStripRecHit2DLocalPos() {}
+  ~SiStripRecHit2D() {}
 
-  SiStripRecHit2DLocalPos( const LocalPoint&, const LocalError&,
+  SiStripRecHit2D( const LocalPoint&, const LocalError&,
 			 const DetId&, 
 			   edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  > const&  cluster);  
 
-  virtual SiStripRecHit2DLocalPos * clone() const {return new SiStripRecHit2DLocalPos( * this); }
+  virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
 
   edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
   
@@ -28,7 +28,7 @@ private:
 };
 
 // Comparison operators
-inline bool operator<( const SiStripRecHit2DLocalPos& one, const SiStripRecHit2DLocalPos& other) {
+inline bool operator<( const SiStripRecHit2D& one, const SiStripRecHit2D& other) {
   if ( one.geographicalId() < other.geographicalId() ) {
     return true;
   } else {
