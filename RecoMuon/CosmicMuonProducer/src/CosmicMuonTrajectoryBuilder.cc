@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/07/08 18:33:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/15 18:42:58 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -20,7 +20,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -40,12 +41,16 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+using namespace edm;
 
 CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par) 
 {
   edm::LogInfo ("CosmicMuonTrajectoryBuilder")<< "CosmicMuonTrajectoryBuilder begin";
   theMaxChi2 = par.getParameter<double>("MaxChi2");;
+  thePropagatorName = par.getParameter<string>("Propagator");
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
   theLayerMeasurements = new MuonDetLayerMeasurements(true, true, false, "DTSegment4DProducer","CSCSegmentProducer");
 
@@ -66,7 +71,14 @@ void CosmicMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theField);
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
 
-  thePropagator = new SteppingHelixPropagator(&*theField, alongMomentum);
+  //get Propagator 
+  ESHandle<Propagator> eshPropagator;
+  setup.get<TrackingComponentsRecord>().get(thePropagatorName, eshPropagator);
+
+  if(thePropagator) delete thePropagator;
+
+  thePropagator = eshPropagator->clone();
+
   theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator);
   theUpdator = new MuonTrajectoryUpdator(thePropagator, theMaxChi2, 0);
 

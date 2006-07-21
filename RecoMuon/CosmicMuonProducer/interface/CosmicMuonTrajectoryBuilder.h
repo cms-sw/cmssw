@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/06/14 00:05:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/03 01:10:14 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -11,7 +11,6 @@
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -42,6 +41,12 @@ public:
 
   std::vector<Trajectory> trajectories(const TrajectorySeed&);
 
+   // fake implementation 
+   // return a container reconstructed muons starting from a given track
+  virtual CandidateContainer trajectories(const reco::TrackRef&) {
+    return CandidateContainer();
+  }
+
   virtual void setES(const edm::EventSetup&);
 
   virtual void setEvent(const edm::Event&);
@@ -60,6 +65,7 @@ private:
   MuonBestMeasurementFinder *theBestMeasurementFinder;
   MuonTrajectoryUpdator* theUpdator;
   MuonDetLayerMeasurements* theLayerMeasurements;
+  std::string thePropagatorName;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theField;
