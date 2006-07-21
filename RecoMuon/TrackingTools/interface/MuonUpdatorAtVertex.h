@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/07/20 19:15:29 $
-  *   $Revision: 1.3 $
+  *   $Date: 2006/07/21 04:02:43 $
+  *   $Revision: 1.4 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -46,10 +46,23 @@ class MuonUpdatorAtVertex {
     /// destructor
     virtual ~MuonUpdatorAtVertex();
 
-    void init(const edm::EventSetup&);
+    /// initialize propagator EventSetup
+    void setES(const edm::EventSetup&);
+
+    /// set Propagator directly
+    void setPropagator(Propagator*);
+
+    /// set Propagator from 2 propagators, tk & gen
+    void setPropagator(Propagator*,Propagator*,const MagneticField*);
+
+    void setPropagator(const Propagator&,const Propagator&, const MagneticField*);
+
 
     /// return vertex measurement
     MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
+
+    /// only return the state on outer tracker surface
+    TrajectoryStateOnSurface stateAtTracker(const TrajectoryStateOnSurface&) const;
 
     void setVertex(const GlobalPoint, const GlobalError);
 
@@ -63,8 +76,8 @@ class MuonUpdatorAtVertex {
     TransverseImpactPointExtrapolator* theExtrapolator;
     KFUpdator* theUpdator;
     MeasurementEstimator* theEstimator;
-    std::string thePropagatorName;
-    bool theInitFlag;
+    std::string theOutPropagatorName;
+    std::string theInPropagatorName;
 
 };
 

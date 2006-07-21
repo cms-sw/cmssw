@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/20 19:12:34 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/07/21 04:02:23 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 
 using namespace edm;
 using namespace std;
@@ -53,8 +54,9 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) :
          theUpdator(0),
          theEstimator(0) {
 
-  theInitFlag = false;
-  thePropagatorName = par.getParameter<string>("Propagator");
+  theOutPropagatorName = par.getParameter<string>("OutPropagator");
+  theInPropagatorName = par.getParameter<string>("InPropagator");
+
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
@@ -72,8 +74,9 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
          theUpdator(0),
          theEstimator(0) {
 
-  theInitFlag = false;
-  thePropagatorName = "SteppingHelixPropagator";
+  theOutPropagatorName = "SteppingHelixPropagatorAny";
+  theInPropagatorName = "MaterialPropagator";
+
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
@@ -88,7 +91,6 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator* prop) :
          theEstimator(new Chi2MeasurementEstimator(150.)) {
 
   thePropagator = const_cast<Propagator *>(prop);
-  theInitFlag = true;
 //  thePropagatorName = "NOUSE";
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
@@ -111,22 +113,46 @@ MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
 }
 
 
-void MuonUpdatorAtVertex::init(const edm::EventSetup& iSetup) {
+void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
 
-  edm::ESHandle<Propagator> eshPropagator;
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, eshPropagator);
+  // get Propagator for outside tracker, SteppingHelixPropagator as default
+  // anyDirection
+  edm::ESHandle<Propagator> eshPropagator1;
+  iSetup.get<TrackingComponentsRecord>().get(theOutPropagatorName, eshPropagator1);
 
-  if(thePropagator) delete thePropagator;
+  // get Propagator for inside tracker, PropagatorWithMaterial as default
+  edm::ESHandle<Propagator> eshPropagator2;
+  iSetup.get<TrackingComponentsRecord>().get(theInPropagatorName, eshPropagator2);
 
-  thePropagator = eshPropagator->clone();
+  edm::ESHandle<MagneticField> theField;
+  iSetup.get<IdealMagneticFieldRecord>().get(theField);
+
+  if (thePropagator) delete thePropagator;
+
+  thePropagator = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
   theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
 
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(150.);
 
-  theInitFlag = false;
 }
 
+//
+/// set Propagator directly
+//
+void MuonUpdatorAtVertex::setPropagator(Propagator* prop){
+  thePropagator = prop;
+}
+//
+/// set Propagator from 2 propagators, tk & gen
+//
+void MuonUpdatorAtVertex::setPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field){
+  thePropagator = new SmartPropagator(aTkProp,aGenProp,field);
+}
+
+void MuonUpdatorAtVertex::setPropagator(const Propagator& aTkProp, const Propagator& aGenProp, const MagneticField* field){
+  thePropagator = new SmartPropagator(aTkProp,aGenProp,field);
+}
 
 
 void MuonUpdatorAtVertex::setVertex(const GlobalPoint p, const GlobalError e)
@@ -140,8 +166,8 @@ void MuonUpdatorAtVertex::setVertex(const GlobalPoint p, const GlobalError e)
 //
 MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface& tsos) const {
   
-  if ( !theInitFlag ) {
-    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize before using ";
+  if ( !thePropagator ) {
+    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize Propagator before using ";
     return MuonVertexMeasurement();
   }
 
@@ -228,3 +254,48 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
 
 }
 
+TrajectoryStateOnSurface MuonUpdatorAtVertex::stateAtTracker(const TrajectoryStateOnSurface& tsos) const {
+  if ( !thePropagator ) {
+    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize before using ";
+    return TrajectoryStateOnSurface();
+  }
+
+  if ( !tsos.isValid() ) {
+    edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
+    return TrajectoryStateOnSurface();
+  }
+  
+  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
+  Cylinder surface = TrackerBounds::barrelBound(); 
+  FreeTrajectoryState* ftsOftsos =tsos.freeState();
+  std::pair<TrajectoryStateOnSurface, double> tsosAtBarrelTrackerPair =
+  thePropagator->propagateWithPath(*ftsOftsos,surface);
+    
+  Plane negDisk = TrackerBounds::negativeEndcapDisk();
+  std::pair<TrajectoryStateOnSurface, double> tsosAtNegTrackerPair =
+  thePropagator->propagateWithPath(*ftsOftsos,negDisk);
+
+  Plane posDisk = TrackerBounds::positiveEndcapDisk();
+  std::pair<TrajectoryStateOnSurface, double> tsosAtPosTrackerPair =
+  thePropagator->propagateWithPath(*ftsOftsos,posDisk);
+
+
+  if ( tsosAtBarrelTrackerPair.second == 0. && 
+       tsosAtBarrelTrackerPair.second == 0. &&
+       tsosAtBarrelTrackerPair.second == 0. ) {
+    edm::LogError("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
+    return TrajectoryStateOnSurface();
+  }
+  TrajectoryStateOnSurface tsosAtTracker;
+  if ( tsosAtNegTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtNegTrackerPair.first;
+  if ( tsosAtPosTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtPosTrackerPair.first;
+  if ( tsosAtBarrelTrackerPair.second != 0.)
+     tsosAtTracker = tsosAtBarrelTrackerPair.first;
+    
+  // get state at outer tracker surface
+  StateOnTrackerBound tracker(thePropagator);
+  return tracker(*tsosAtTracker.freeState());
+
+}
