@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/07/06 13:16:44 $
- *   $Revision: 1.8 $
+ *   $Date: 2006/07/18 05:57:28 $
+ *   $Revision: 1.9 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -45,7 +45,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
 
   // STA Muon Collection Label
-  theSTACollectionLabel = parameterSet.getParameter<string>("MuonCollectionLabel");
+  theSTACollectionLabel = parameterSet.getUntrackedParameter<string>("MuonCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(GLB_pSet);
