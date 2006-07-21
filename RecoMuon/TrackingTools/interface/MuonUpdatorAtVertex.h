@@ -7,8 +7,8 @@
   *   a given vertex and 
   *   apply a vertex constraint
   *
-  *   $Date: 2006/06/10 19:53:14 $
-  *   $Revision: 1.2 $
+  *   $Date: 2006/07/20 19:15:29 $
+  *   $Revision: 1.3 $
   *
   *   \author   N. Neumeister            Purdue University
   *
@@ -40,8 +40,8 @@ class MuonUpdatorAtVertex {
     /// default constructor
     MuonUpdatorAtVertex();
 
-    /// constructor
-//    MuonUpdatorAtVertex(const Vertex&); 
+    /// constructor from propagator
+    MuonUpdatorAtVertex(const Propagator*);
 
     /// destructor
     virtual ~MuonUpdatorAtVertex();
@@ -64,6 +64,7 @@ class MuonUpdatorAtVertex {
     KFUpdator* theUpdator;
     MeasurementEstimator* theEstimator;
     std::string thePropagatorName;
+    bool theInitFlag;
 
 };
 

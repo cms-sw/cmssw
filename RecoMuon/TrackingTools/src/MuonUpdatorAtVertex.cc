@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/15 18:43:50 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/07/20 19:12:34 $
+ *   $Revision: 1.4 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -53,6 +53,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par) :
          theUpdator(0),
          theEstimator(0) {
 
+  theInitFlag = false;
   thePropagatorName = par.getParameter<string>("Propagator");
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
@@ -71,7 +72,24 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
          theUpdator(0),
          theEstimator(0) {
 
+  theInitFlag = false;
   thePropagatorName = "SteppingHelixPropagator";
+  // assume beam spot position with nominal errors
+  // sigma(x) = sigma(y) = 15 microns
+  // sigma(z) = 5.3 cm
+  theVertexPos = GlobalPoint(0.0,0.0,0.0);
+  theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
+
+}
+
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const Propagator* prop) :
+         theExtrapolator(new TransverseImpactPointExtrapolator(*prop)),
+         theUpdator(new KFUpdator()),
+         theEstimator(new Chi2MeasurementEstimator(150.)) {
+
+  thePropagator = const_cast<Propagator *>(prop);
+  theInitFlag = true;
+//  thePropagatorName = "NOUSE";
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
@@ -106,6 +124,7 @@ void MuonUpdatorAtVertex::init(const edm::EventSetup& iSetup) {
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(150.);
 
+  theInitFlag = false;
 }
 
 
@@ -121,6 +140,11 @@ void MuonUpdatorAtVertex::setVertex(const GlobalPoint p, const GlobalError e)
 //
 MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface& tsos) const {
   
+  if ( !theInitFlag ) {
+    edm::LogError("MuonUpdatorAtVertex") << "Error please initialize before using ";
+    return MuonVertexMeasurement();
+  }
+
   if ( !tsos.isValid() ) {
     edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
     return MuonVertexMeasurement();
