@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/12 16:33:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/20 16:54:49 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -143,6 +143,39 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
       delete datum->recHit();
   }  
   return orphanHandleTrack;
+}
+
+//
+//
+//
+edm::OrphanHandle<reco::MuonCollection> 
+MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
+                            const reco::MuonCollection& muonResult,
+			    edm::Event& event){
+  
+  std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  
+ // the muon collection, it will be loaded in the event  
+  std::auto_ptr<reco::MuonCollection> muonCollection(const_cast<reco::MuonCollection *>(&muonResult));
+
+  // get combined Trajectories
+  TrajectoryContainer combinedTrajs;
+  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++)
+   combinedTrajs.push_back((*it).first);
+
+  // create the TrackCollection of combined Trajectories
+  edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+  reco::MuonCollection::iterator muon = muonCollection->begin();
+  for (unsigned int position = 0; position != combinedTracks->size(); position++) {
+    reco::TrackRef combinedTR(combinedTracks, position);
+    muon->setCombined(combinedTR);
+    muon++;
+  }
+
+  // put the MuonCollection in the event
+  LogDebug(metname) << "put the MuonCollection in the event" << "\n";
+  edm::OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
+  return orphanHandleMuon;
 }
 
 reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {

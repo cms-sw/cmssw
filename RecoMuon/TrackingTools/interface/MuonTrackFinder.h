@@ -4,13 +4,14 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/19 14:00:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/20 15:41:32 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -59,7 +60,7 @@ class MuonTrackFinder {
     void load(const TrajectoryContainer&, edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const CandidateContainer&, edm::Event&);
+    void load(const CandidateContainer&, const reco::MuonCollection&, edm::Event&);
 
   private:
 
