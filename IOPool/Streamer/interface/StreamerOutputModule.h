@@ -19,6 +19,7 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/StreamTranslator.h"
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -26,7 +27,6 @@
 
 
 #include "TBuffer.h"
-#include "TClass.h"
 
 #include <memory>
 #include <string>
@@ -68,10 +68,10 @@ namespace edm
     SBuffer prod_reg_buf_;
     SBuffer bufs_;
 
-    TClass* tc_;  //for SendEvent
     int maxEventSize_;
 
     Consumer* c_;
+    StreamTranslator* translator_;
   }; //end-of-class-def
 
  
@@ -82,17 +82,18 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   selections_(&descVec_),
   prod_reg_buf_(100 * 1000),
   maxEventSize_(ps.template getParameter<int>("max_event_size")),
-  c_(new Consumer(ps))   //Try auto_ptr with this ?
+  c_(new Consumer(ps)),   //Try auto_ptr with this ?
+  translator_(new StreamTranslator(selections_))
   {
     bufs_.resize(maxEventSize_);
     edm::loadExtraClasses();
-    tc_ = getTClass(typeid(SendEvent));
   }
 
 template <class Consumer>
 StreamerOutputModule<Consumer>::~StreamerOutputModule()
   {
     delete c_;
+    delete translator_;
   }
 
 template <class Consumer>
@@ -157,57 +158,10 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
                                       run, v, release_tag, hlt_names,
                                       l1_names));
 
-    TClass* prog_reg = getTClass(typeid(SendJobHeader));
-    SendJobHeader sd;
+    // the translator already has the product registry (selections_),
+    // so it just needs to serialize it to the init message.
+    translator_->serializeRegistry(*init_message);
 
-    Selections::const_iterator i(selections_->begin()),e(selections_->end());
-
-    FDEBUG(9) << "Product List: " << endl;
-    cout << "Product List: " << endl;
-
-    for(;i!=e;++i)  
-      {
-        sd.descs_.push_back(**i);
-        FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
-                  << endl;
-        cout << "StreamOutput got product = " << (*i)->className() <<endl;
-      }
-
-    TBuffer rootbuf(TBuffer::kWrite, prod_reg_buf_.size(),
-                               init_message->dataAddress(),kFALSE);
-    RootDebug tracer(10,10);
-
-    int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
-
-    switch(bres)
-      {
-      case 0: // failure
-        {
-          throw cms::Exception("Output","SerializationReg")
-            << "EventStreamOutput module could not serialize event\n";
-          break;
-        }
-      case 1: // succcess
-        break;
-      case 2: // truncated result
-        {
-          throw cms::Exception("Output","SerializationReg")
-            << "EventStreamOutput module attempted to serialize the registry\n"
-            << "that is to big for the allocated buffers\n";
-          break;
-        }
-      default: // unknown
-        {
-          throw cms::Exception("Output","SerializationReg")
-            << "EventStreamOutput module got an unknown error code\n"
-            << " while attempting to serialize registry\n";
-          break;
-        }
-      }
-
-    cout<<"rootbuf.Length()"<<rootbuf.Length()<<endl;
-   
-    init_message->setDescLength(rootbuf.Length());
     return init_message;
 }
 
@@ -235,87 +189,8 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
                            l1bit, hltbits, hltsize) );
     msg->setReserved(reserved);
 
-    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
-    // all provenance data needs to be transferred, including the
-    // indirect stuff referenced from the product provenance structure.
-    SendEvent se(e.id(),e.time());
+    translator_->serializeEvent(e, *msg);
 
-    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
-    // Loop over EDProducts, fill the provenance, and write.
-
-    cout<<"Loop over EDProducts, fill the provenance, and write"<<endl;
-
-    for(; i != ie; ++i) {
-      BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID();
-
-      if (id == ProductID()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-          << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
-      }
-      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
-      if (group.get() == 0) {
-        std::string const& name = desc.className();
-        std::string const className = wrappedClassName(name);
-        TClass *cp = gROOT->GetClass(className.c_str());
-	if (cp == 0) {
-          throw edm::Exception(errors::ProductNotFound,"NoMatch")
-            << "TypeID::className: No dictionary for class " << className << '\n'
-            << "Add an entry for this class\n"
-            << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-	}
-
-        EDProduct *p = static_cast<EDProduct *>(cp->New());
-        se.prods_.push_back(ProdPair(p, &group->provenance()));
-      } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
-      }
-     }
-
-#if 0
-    FDEBUG(11) << "-----Dump start" << endl;
-    for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
-      std::cout << "Prov:"
-	   << " " << pii->desc()->className()
-	   << " " << pii->desc()->productID_
-	   << endl;      
-    FDEBUG(11) << "-----Dump end" << endl;
-#endif
-
-    TBuffer rootbuf(TBuffer::kWrite,maxEventSize_, msg->eventAddr(), kFALSE);
-    RootDebug tracer(10,10);
-
-    int bres = rootbuf.WriteObjectAny(&se,tc_);
-   switch(bres)
-      {
-      case 0: // failure
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module could not serialize event: "
-	    << e.id();
-	  break;
-	}
-      case 1: // succcess
-	break;
-      case 2: // truncated result
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module attempted to serialize an event\n"
-	    << "that is to big for the allocated buffers: "
-	    << e.id();
-	  break;
-	}
-    default: // unknown
-	{
-	  throw cms::Exception("Output","Serialization")
-	    << "EventStreamOutput module got an unknown error code\n"
-	    << " while attempting to serialize event: "
-	    << e.id();
-	  break;
-	}
-      }
-    
-    msg->setEventLength(rootbuf.Length()); 
     return msg;
 }
 
