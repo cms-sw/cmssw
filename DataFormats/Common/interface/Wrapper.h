@@ -5,15 +5,13 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.2 2006/06/14 23:23:53 wmtan Exp $
+$Id: Wrapper.h,v 1.3 2006/07/21 21:55:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <memory>
 #include <string>
-
-#include <iostream>
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
