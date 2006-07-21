@@ -111,5 +111,17 @@ namespace edm {
     }
 
 
+    void VPSetNode::replaceWith(const ReplaceNode * replaceNode)
+    {
+      assertNotModified();
+      NodePtr replacementPtr = replaceNode->value_;
+      VPSetNode * replacement = dynamic_cast<VPSetNode*>(replacementPtr.get());
+      assert(replacement != 0);
+
+      nodes_ = replacement->nodes_;
+      setModified(true);
+
+    }
+
   }
 }

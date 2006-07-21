@@ -36,6 +36,7 @@ namespace edm {
       virtual void insertInto(edm::ParameterSet & pset) const;
       /// makes a ParameterSet Entry for this Node
       virtual edm::Entry makeEntry() const;
+      virtual void replaceWith(const ReplaceNode * replaceNode);
 
       std::string type_;
       bool tracked_;
