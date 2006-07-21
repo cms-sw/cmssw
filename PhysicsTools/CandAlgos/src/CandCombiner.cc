@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.6 2006/02/21 10:37:28 llista Exp $
+// $Id: CandCombiner.cc,v 1.7 2006/04/04 11:12:48 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,14 +13,21 @@ using namespace cand::parser;
 using namespace cand::modules;
 
 CandCombiner::CandCombiner( const ParameterSet & cfg ) :
-  combiner_( 0 ) {
+  combiner2_( 0 ), combiner3_( 0 ) {
   string decay ( cfg.getParameter<std::string>( "decay" ) );
   int charge = 0;
+  vector<int> dauCharge;
   if( decayParser( decay, labels_ ) ) {
     for( vector<ConjInfo>::iterator label = labels_.begin();
          label != labels_.end(); ++label ) {
-      if( label->mode_ == ConjInfo::kPlus ) charge += 1;
-      else if ( label->mode_ == ConjInfo::kMinus ) charge -= 1;
+      if( label->mode_ == ConjInfo::kPlus ){
+	charge += 1;
+	dauCharge.push_back( 1 );
+      }
+      else if ( label->mode_ == ConjInfo::kMinus ) {
+	charge -= 1;
+	dauCharge.push_back( -1 );
+      }
     }
   } else {
     throw edm::Exception( edm::errors::Configuration,
@@ -37,12 +44,15 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
   }
 
   int lists = labels_.size();
-  if ( lists != 1 && lists != 2 ) {
+  if ( lists != 2 && lists != 3 ) {
     throw edm::Exception( edm::errors::LogicError,
 			  "invalid number of collections" );
   }
 
-  combiner_.reset( new TwoBodyCombiner( select, true, charge ) );
+  if( lists == 2 )
+    combiner2_.reset( new TwoBodyCombiner( select, true, charge ) );
+  else if( lists == 3 )
+    combiner3_.reset( new ThreeBodyCombiner( select, true, dauCharge, charge ) );
 
   produces<CandidateCollection>();
 }
@@ -52,11 +62,18 @@ CandCombiner::~CandCombiner() {
 
 void CandCombiner::produce( Event& evt, const EventSetup& ) {
   int n = labels_.size();
-  assert( n == 1 || n == 2 );
+  assert( n == 2 || n == 3 );
   std::vector<Handle<CandidateCollection> > colls( n );
   for( int i = 0; i < n; ++i ) {
     evt.getByLabel( labels_[ i ].label_, colls[ i ] );
   }
-  const CandidateCollection * c1 = & * colls[ 0 ], * c2 = & * colls[ n - 1 ];
-  evt.put( combiner_->combine( c1, c2 ) );
+
+  if( n == 2 ) {
+    const CandidateCollection * c1 = & * colls[ 0 ], * c2 = & * colls[ 1 ];
+    evt.put( combiner2_->combine( c1, c2 ) );
+  } else if( n == 3 ) {
+    const CandidateCollection * c1 = & * colls[ 0 ],
+      * c2 = & * colls[ 1 ], * c3 = & * colls[ 2 ];
+    evt.put( combiner3_->combine( c1, c2, c3 ) );
+  }
 }

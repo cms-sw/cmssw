@@ -3,18 +3,20 @@
 /** \class cand::modules::CandCombiner
  *
  * performs all possible and selected combinations
- * of particle pairs using the TwoBoddyCombiner utility
+ * of particle pairs using the TwoBodyCombiner 
+ * or ThreeBodyCombiner utility
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: CandCombiner.h,v 1.6 2006/04/04 11:12:48 llista Exp $
+ * $Id: CandCombiner.h,v 1.7 2006/04/10 08:28:01 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
+#include "PhysicsTools/CandUtils/interface/ThreeBodyCombiner.h"
 #include "PhysicsTools/CandAlgos/src/decayParser.h"
 #include <string>
 
@@ -37,10 +39,9 @@ namespace cand {
       void produce( edm::Event& e, const edm::EventSetup& );
       /// label vector
       std::vector<cand::parser::ConjInfo> labels_;
-      /// combiner utility
-      std::auto_ptr<TwoBodyCombiner> combiner_;
-      /// labels of the two source candidate collections
-      std::string source1_, source2_;
+      /// combiner utilities
+      std::auto_ptr<TwoBodyCombiner> combiner2_;
+      std::auto_ptr<ThreeBodyCombiner> combiner3_;
     };
   }
 }
