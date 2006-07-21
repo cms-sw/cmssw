@@ -55,7 +55,7 @@ namespace edm {
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
       void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
-      virtual void addPileups(const int bcr, edm::Event*) {;}
+      virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId) {;}
       virtual void put(edm::Event &e) {;}
 
     protected:
@@ -67,6 +67,7 @@ namespace edm {
     private:
       boost::shared_ptr<PileUp> input_;
       ModuleDescription md_;
+      unsigned int eventId_;
     };
 }//edm
 

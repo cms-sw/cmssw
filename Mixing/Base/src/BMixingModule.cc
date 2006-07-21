@@ -95,13 +95,14 @@ namespace edm {
     //
     // main loop: loop over events and merge 
     //
+    eventId_=0;
     LogDebug("merge") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
     trackoffset=0;
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
       LogDebug("merge") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e);
+      addPileups(bcr, &e, ++eventId_);
     }// end main loop
   }
 
