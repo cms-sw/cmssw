@@ -85,7 +85,7 @@ int StreamerInputIndexFile::readEventMessage()  {
  
   HeaderView head_(&eventBuf_[eventBufPtr_+1]);
   uint32 code = head_.code();
-  if (code != 1) /** Not an event message should return */
+  if (code != Header::EVENT) /** Not an event message should return */
      return 0;
 
   uint32 eventSize =  head_.size();
