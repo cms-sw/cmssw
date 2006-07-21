@@ -19,7 +19,7 @@ class L1GctEtTotal : public L1TriggerObject {
   L1GctEtTotal();
   L1GctEtTotal(uint16_t data);
   L1GctEtTotal(unsigned et, bool oflow);
-  ~L1GctEtTotal();
+  virtual ~L1GctEtTotal();
 
   /// name method
   std::string name() const { return "EtTotal"; }
@@ -47,7 +47,7 @@ class L1GctEtHad : public L1TriggerObject {
   L1GctEtHad();
   L1GctEtHad(uint16_t data);
   L1GctEtHad(unsigned et, bool oflow);
-  ~L1GctEtHad();
+  virtual ~L1GctEtHad();
 
   /// name method
   std::string name() const { return "EtHad"; }
@@ -75,7 +75,7 @@ class L1GctEtMiss : public L1TriggerObject {
   L1GctEtMiss();
   L1GctEtMiss(uint32_t data);
   L1GctEtMiss(unsigned et, unsigned phi, bool oflow);
-  ~L1GctEtMiss();
+  virtual ~L1GctEtMiss();
 
   /// name method
   std::string name() const { return "EtMiss"; }

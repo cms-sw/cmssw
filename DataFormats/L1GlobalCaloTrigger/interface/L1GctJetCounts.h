@@ -30,7 +30,7 @@ class L1GctJetCounts : public L1TriggerObject {
   L1GctJetCounts(std::vector<unsigned> counts);
 
   /// destructor
-  ~L1GctJetCounts();
+  virtual ~L1GctJetCounts();
 
   /// name method
   std::string name() const { return "JetCounts"; }
