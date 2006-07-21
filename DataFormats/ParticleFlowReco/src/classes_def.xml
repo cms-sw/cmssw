@@ -1,0 +1,15 @@
+<lcgdict>
+  <class name="reco::PFCluster"/>
+  <class name="std::vector<reco::PFCluster>"/>
+  <class name="reco::PFRecHit">
+    <field name="posrep_" transient="true"/>
+    <field name="isSeed_" transient="true"/>
+    <field name="neighbours4_" transient="true"/>
+    <field name="neighbours8_" transient="true"/>
+    <field name="nNeighbours_" transient="true"/>
+    <field name="nCorners_" transient="true"/>
+  </class>
+  <class name="std::vector<reco::PFRecHit>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
+</lcgdict>
+

@@ -1,0 +1,10 @@
+<flags LCGDICT_ARGS="--deep">
+<use name=DataFormats/DetId>
+<use name=DataFormats/Math>
+<use name=DataFormats/Common>
+<export>
+ <lib name=DataFormatsParticleFlowReco>
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/Math>
+ <use name=DataFormats/Common>
+</export>
