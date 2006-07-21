@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.32 2006/07/01 00:08:13 rpw Exp $
+ * $Id: pset_parse.y,v 1.33 2006/07/11 22:19:31 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -422,7 +422,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                    $<_NodePtrList>$ = p;
                  }
                |
-                 nodesarray COMMA_tok any
+                 nodesarray COMMA_tok LETTERSTART_tok
                  {
                    NodePtrList* p = $<_NodePtrList>1;
                    string word(toString($<str>3));
@@ -440,7 +440,7 @@ nodesarray:      nodesarray COMMA_tok scoped
                    $<_NodePtrList>$ = p;
                  }
                |
-                 any
+                 LETTERSTART_tok
                  {
                    string word(toString($<str>1));
                    NodePtr n(new StringNode(word,lines));
@@ -800,6 +800,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: REPLACE_VPSET");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>5);
+                   VPSetNode* en(new VPSetNode("VPSet",name,value,false,lines));
+                   NodePtr vpsetNodePtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replace", name, vpsetNodePtr, lines));
                    $<_Node>$ = wn;
                  }
                |
