@@ -1,0 +1,204 @@
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
+
+
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::frameToFrameDerivative( AlignableDet* object,
+												Alignable* composedObject )
+{
+ 
+  AlignmentTransformations transform;
+  AlgebraicMatrix objectRot = transform.algebraicMatrix( object->globalRotation() );
+  AlgebraicMatrix composedObjectRot = transform.algebraicMatrix( composedObject->globalRotation() );
+  AlgebraicVector diffGl = 
+	transform.algebraicVector( composedObject->globalPosition() - object->globalPosition() );
+
+  return getDerivative( objectRot, composedObjectRot, diffGl );
+
+}
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::frameToFrameDerivative( const GeomDet* object,
+												Alignable* composedObject )
+{
+ 
+  AlignmentTransformations transform;
+  AlgebraicMatrix objectRot = transform.algebraicMatrix( object->rotation() );
+  AlgebraicMatrix composedObjectRot = transform.algebraicMatrix( composedObject->globalRotation() );
+  AlgebraicVector diffGl = 
+	transform.algebraicVector( composedObject->globalPosition() - object->position() );
+
+  return getDerivative( objectRot, composedObjectRot, diffGl );
+
+}
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::getDerivative( AlgebraicMatrix rotDet,
+									   AlgebraicMatrix rotCompO, AlgebraicVector diffVec )
+{
+
+  AlgebraicMatrix derivative(6,6);
+
+  AlgebraicMatrix derivAA(3,3);
+  AlgebraicMatrix derivAB(3,3);
+  AlgebraicMatrix derivBB(3,3);
+  
+  derivAA = derivativePosPos( rotDet, rotCompO );
+  derivAB = derivativePosRot( rotDet, rotCompO, diffVec );
+  derivBB = derivativeRotRot( rotDet, rotCompO );
+
+  derivative[0][0] = derivAA[0][0];
+  derivative[0][1] = derivAA[0][1];
+  derivative[0][2] = derivAA[0][2];
+  derivative[0][3] = derivAB[0][0];                                
+  derivative[0][4] = derivAB[0][1];                               
+  derivative[0][5] = derivAB[0][2];                             
+  derivative[1][0] = derivAA[1][0];
+  derivative[1][1] = derivAA[1][1];
+  derivative[1][2] = derivAA[1][2];
+  derivative[1][3] = derivAB[1][0];                                 
+  derivative[1][4] = derivAB[1][1];                             
+  derivative[1][5] = derivAB[1][2];                           
+  derivative[2][0] = derivAA[2][0];
+  derivative[2][1] = derivAA[2][1];
+  derivative[2][2] = derivAA[2][2];
+  derivative[2][3] = derivAB[2][0];            
+  derivative[2][4] = derivAB[2][1];
+  derivative[2][5] = derivAB[2][2];
+  derivative[3][0] = 0;
+  derivative[3][1] = 0;
+  derivative[3][2] = 0;
+  derivative[3][3] = derivBB[0][0];
+  derivative[3][4] = derivBB[0][1];
+  derivative[3][5] = derivBB[0][2];
+  derivative[4][0] = 0;
+  derivative[4][1] = 0;
+  derivative[4][2] = 0;
+  derivative[4][3] = derivBB[1][0];
+  derivative[4][4] = derivBB[1][1];
+  derivative[4][5] = derivBB[1][2];
+  derivative[5][0] = 0;
+  derivative[5][1] = 0;
+  derivative[5][2] = 0;
+  derivative[5][3] = derivBB[2][0];
+  derivative[5][4] = derivBB[2][1];
+  derivative[5][5] = derivBB[2][2];
+  
+  return(derivative.T());
+
+}
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::derivativePosPos( AlgebraicMatrix RotDet, AlgebraicMatrix RotRot )
+{
+
+  return RotDet * RotRot.T();
+
+}
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::derivativePosRot( AlgebraicMatrix RotDet,
+										  AlgebraicMatrix RotRot, AlgebraicVector S )
+{
+
+ AlgebraicVector dEulerA(3);
+ AlgebraicVector dEulerB(3);
+ AlgebraicVector dEulerC(3);
+ AlgebraicMatrix RotDa(3,3);
+ AlgebraicMatrix RotDb(3,3);
+ AlgebraicMatrix RotDc(3,3);
+ 
+ RotDa[1][2] = 1; RotDa[2][1] = -1;
+ RotDb[0][2] = 1; RotDb[2][0] = -1;
+ RotDc[0][1] = 1; RotDc[1][0] = -1;
+ 
+ dEulerA = RotDet*( RotRot.T()*RotDa*RotRot*S );
+ dEulerB = RotDet*( RotRot.T()*RotDb*RotRot*S );
+ dEulerC = RotDet*( RotRot.T()*RotDc*RotRot*S );
+
+ AlgebraicMatrix eulerDeriv(3,3);
+ eulerDeriv[0][0] = dEulerA[0];
+ eulerDeriv[1][0] = dEulerA[1];
+ eulerDeriv[2][0] = dEulerA[2];
+ eulerDeriv[0][1] = dEulerB[0];
+ eulerDeriv[1][1] = dEulerB[1];
+ eulerDeriv[2][1] = dEulerB[2];
+ eulerDeriv[0][2] = dEulerC[0];
+ eulerDeriv[1][2] = dEulerC[1];
+ eulerDeriv[2][2] = dEulerC[2];
+
+ return eulerDeriv;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlgebraicMatrix 
+FrameToFrameDerivative::derivativeRotRot( AlgebraicMatrix RotDet, AlgebraicMatrix RotRot )
+{
+
+ AlgebraicVector dEulerA(3);
+ AlgebraicVector dEulerB(3);
+ AlgebraicVector dEulerC(3);
+ AlgebraicMatrix RotDa(3,3);
+ AlgebraicMatrix RotDb(3,3);
+ AlgebraicMatrix RotDc(3,3);
+
+ RotDa[1][2] = 1; RotDa[2][1] = -1;
+ RotDb[0][2] = 1; RotDb[2][0] = -1;
+ RotDc[0][1] = 1; RotDc[1][0] = -1;
+
+ dEulerA = linearEulerAngles( RotDet*RotRot.T()*RotDa*RotRot*RotDet.T() );
+ dEulerB = linearEulerAngles( RotDet*RotRot.T()*RotDb*RotRot*RotDet.T() );
+ dEulerC = linearEulerAngles( RotDet*RotRot.T()*RotDc*RotRot*RotDet.T() );
+
+ AlgebraicMatrix eulerDeriv(3,3);
+
+ eulerDeriv[0][0] = dEulerA[0];
+ eulerDeriv[1][0] = dEulerA[1];
+ eulerDeriv[2][0] = dEulerA[2];
+ eulerDeriv[0][1] = dEulerB[0];
+ eulerDeriv[1][1] = dEulerB[1];
+ eulerDeriv[2][1] = dEulerB[2];
+ eulerDeriv[0][2] = dEulerC[0];
+ eulerDeriv[1][2] = dEulerC[1];
+ eulerDeriv[2][2] = dEulerC[2];
+
+ return eulerDeriv;
+
+}
+
+
+
+//__________________________________________________________________________________________________
+AlgebraicVector 
+FrameToFrameDerivative::linearEulerAngles( AlgebraicMatrix rotDelta )
+{
+  
+  AlgebraicMatrix eulerAB(3,3);
+  AlgebraicVector aB(3);
+  eulerAB[0][1] = 1; 
+  eulerAB[1][0] = 1;
+  aB[2] = 1;
+
+  AlgebraicMatrix eulerC(3,3);
+  AlgebraicVector C(3);
+  eulerC[2][0] = 1;
+  C[1] = 1;
+
+  AlgebraicVector eulerAngles(3);
+  eulerAngles = eulerAB*rotDelta*aB + eulerC*rotDelta*C;
+  return eulerAngles;
+
+}
+
