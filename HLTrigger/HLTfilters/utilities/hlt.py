@@ -33,22 +33,27 @@ def make_cfg_file(file):
   for trig in list:
     name = trig[0]
     prescale = str( trig[1] )
-    name_prescale = "HLT" + name + "Prescale"
-    name_sequence = "HLT" + name + "Sequence"
+    name_prescale = "HLT%sPrescale" % name
+    name_sequence = "HLT%sSequence" % name
     name_path     = hlt_file_dir + "/" + name_sequence + ".cfi"
     sequence = name_prescale
     
     f.write("\n")
-    #....Add include statement if name.cfg file exists
+
+    #....Setup prescale module
+    f.write("module %s= HLTPrescaler { \n" % name_prescale)
+    f.write("   uint32 prescaleFactor = %s\n" % prescale)
+    f.write("   bool makeFilterObject = true \n }\n")
+
+    #...Add include statement if name.cfg file exists
     if findInc(name_path):
-        f.write("include \"" + name_path + "\"\n")
+        f.write("include \"%s\"\n" % name_path)
         sequence += ", " + name_sequence
     else:
         print "Skipping missing include " +name_path
-    
-    f.write("module   " + name_prescale +"= HLTPrescaler { \n   uint32 prescaleFactor = " + prescale + "\n   bool makeFilterObject = true \n }\n")
-    f.write("path     " + name + " =")
-    f.write("{" + sequence + "}\n")
+
+    #....Add trigger path
+    f.write("path %s ={%s}\n"  %  (name,sequence) )
         
   f.write("\n")
   f.close()
