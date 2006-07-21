@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/20 09:41:09 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/20 21:00:22 $
+ *  $Revision: 1.15 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -99,7 +99,12 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par) {
-
+  LogDebug("Muon|RecoMuon|GlobalMuonTrajectoryBuilder") 
+    << "constructor called" << endl;
+  
+  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
+  theRefitter = new GlobalMuonReFitter(refitterPSet);
+  
   theFitterLabel = par.getParameter<std::string>("Fitter");
   thePropagatorLabel = par.getParameter<std::string>("Propagator");
   theSeedCollectionLabel = par.getParameter<std::string>("SeedCollectionTrackLabel");  
@@ -120,6 +125,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
 
+
 }
 
 
@@ -129,10 +135,10 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
 GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 
-  delete theRefitter;
-  delete theUpdator;
-  delete theTrackMatcher;
-  delete theGTTrackingRecHitBuilder;
+  if(theRefitter) delete theRefitter;
+  if(theUpdator) delete theUpdator;
+  if(theTrackMatcher) delete theTrackMatcher;
+  if(theGTTrackingRecHitBuilder) delete theGTTrackingRecHitBuilder;
 
 }
 
@@ -165,8 +171,9 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
 
   theUpdator = new MuonUpdatorAtVertex(&*thePropagator);
   // theUpdator->init(setup);
-  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField);
-  theRefitter = new GlobalMuonReFitter(&*theField);
+  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+  //theRefitter = new GlobalMuonReFitter(&*theField);
+  theRefitter->setES(setup);
   theGTTrackingRecHitBuilder = new GenericTransientTrackingRecHitBuilder(&*theTrackingGeometry);
 
 }
@@ -176,7 +183,6 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
 //
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-
   // take the seeds container
   cout<<"Taking the seeds"<<endl;
   event.getByLabel(theSeedCollectionLabel,theSeeds);
