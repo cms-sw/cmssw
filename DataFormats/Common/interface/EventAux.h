@@ -1,6 +1,7 @@
 #ifndef Common_EventAux_h
 #define Common_EventAux_h
 
+#include <iostream>
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"
@@ -35,6 +36,7 @@ namespace edm
 	luminosityBlockID_(lb) {}
     ~EventAux() {}
     void init() const;
+    void write(std::ostream& os) const;
     ProcessHistory& processHistory() const {init(); return *processHistoryPtr_;}
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     EventID const& id() const {return id_;}
@@ -52,6 +54,14 @@ namespace edm
     // Associated Luminosity Block identifier.
     LuminosityBlockID luminosityBlockID_;
   };
+
+  inline
+  std::ostream&
+  operator<<(std::ostream& os, const EventAux& p) {
+    p.write(os);
+    return os;
+  }
+
 }
 
 #endif

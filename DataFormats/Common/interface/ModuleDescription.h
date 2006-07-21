@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.3 2006/07/06 18:34:05 wmtan Exp $
+$Id: ModuleDescription.h,v 1.4 2006/07/07 21:39:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
@@ -25,6 +25,8 @@ namespace edm {
   struct ModuleDescription {
 
     ModuleDescription();
+
+    void write(std::ostream& os) const;
 
     ParameterSetID const& parameterSetID() const {return parameterSetID_;}
     std::string const& moduleName() const {return moduleName_;}
@@ -61,11 +63,11 @@ namespace edm {
   };
 
   inline
-  std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md) {
-    ost << "Module type=" << md.moduleName() << ", "
-	<< "Module label=" << md.moduleLabel() << ", "
-	<< "Process name=" << md.processConfiguration().processName();
-    return ost;
+  std::ostream&
+  operator<<(std::ostream& os, const ModuleDescription& p) {
+    p.write(os);
+    return os;
   }
+
 }
 #endif

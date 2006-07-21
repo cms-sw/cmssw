@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.1.2.4 2006/07/05 23:55:14 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.2 2006/07/06 18:34:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,6 +43,17 @@ namespace edm {
   bool
   ModuleDescription::operator!=(ModuleDescription const& rh) const {
     return !((*this) == rh);
+  }
+
+  void
+  ModuleDescription::write(std::ostream& os) const {
+    os  << "Module type=" << moduleName() << ", "
+	<< "Module label=" << moduleLabel() << ", "
+	<< "Parameter Set ID=" << parameterSetID() << ", "
+	<< "Process name=" << processName() << ", "
+	<< "Release Version=" << releaseVersion() << ", "
+	<< "Pass ID=" << passID() << ", "
+	<< "Main Parameter Set ID=" << mainParameterSetID();
   }
 
   ModuleDescriptionID

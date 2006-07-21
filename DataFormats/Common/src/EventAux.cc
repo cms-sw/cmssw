@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: EventAux.cc,v 1.3 2006/07/14 23:00:55 wmtan Exp $
+$Id: EventAux.cc,v 1.4 2006/07/20 23:43:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,5 +18,13 @@ namespace edm {
         assert(found);
       }
     }
+  }
+
+  void
+  EventAux::write(std::ostream& os) const {
+    os << "Process History ID = " <<  processHistoryID_ << std::endl;
+    os << id_ << std::endl;
+    //os << "TimeStamp = " << time_ << std::endl;
+    os << "LuminosityBlockID = " << luminosityBlockID_ << std::endl;
   }
 }
