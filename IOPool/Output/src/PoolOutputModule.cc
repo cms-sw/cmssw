@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.35 2006/07/14 03:52:45 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.36 2006/07/20 23:43:37 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -265,7 +265,7 @@ namespace edm {
 	      << "No group in event " << aux.id_ << "\nfor branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	if (!i->selected_) {
+	if (!i->selected_ || !g->product()  || !g->product()->isPresent()) {
 	  g->provenance().event.isPresent_ = false;
 	}
 	pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
