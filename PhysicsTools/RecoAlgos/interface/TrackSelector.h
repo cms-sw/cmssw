@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.5 $
  *
- * $Id: TrackSelector.h,v 1.1 2006/07/21 10:27:05 llista Exp $
+ * $Id: TrackSelector.h,v 1.5 2006/07/21 14:11:26 llista Exp $
  *
  */
 
@@ -73,7 +73,7 @@ bool TrackSelector<S>::filter( edm::Event& evt, const edm::EventSetup& ) {
   TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>();
   TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();
   size_t idx = 0, hidx = 0;
-  selector_.select( * tracks );
+  selector_.select( * tracks, evt );
   for( typename S::const_iterator i = selector_.begin(); i != selector_.end(); ++ i ) {
     const Track & trk = * * i;
     selTracks->push_back( Track( trk ) );

@@ -7,15 +7,16 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SingleTrackSelector.h,v 1.2 2006/07/21 12:38:50 llista Exp $
+ * $Id: WindowCollectionSelector.h,v 1.1 2006/07/21 15:14:27 llista Exp $
  *
  */
 
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
+namespace edm { class Event; }
 
 template<typename C, typename M>
 struct WindowCollectionSelector {
@@ -26,7 +27,7 @@ struct WindowCollectionSelector {
     max_( cfg.template getParameter<double>( "max" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const reco::TrackCollection & c ) {
+  void select( const reco::TrackCollection & c, const edm::Event & ) {
     unsigned int s = c.size();
     std::vector<bool> v( s, false );
     for( unsigned int i = 0; i < s; ++ i )
