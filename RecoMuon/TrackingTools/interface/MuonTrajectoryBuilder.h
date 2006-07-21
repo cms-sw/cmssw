@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/06/21 17:36:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/19 14:00:04 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -41,7 +41,7 @@ class MuonTrajectoryBuilder {
    virtual TrajectoryContainer trajectories(const TrajectorySeed&) = 0;
 
    // return a container reconstructed muons starting from a given track
-   virtual CandidateContainer trajectories(const reco::Track&) = 0;
+   virtual CandidateContainer trajectories(const reco::TrackRef&) = 0;
 
    /// pass the Event Setup to the algo at each event
    virtual void setES(const edm::EventSetup& setup) = 0;
