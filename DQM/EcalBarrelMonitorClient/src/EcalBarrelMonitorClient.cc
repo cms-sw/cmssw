@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/20 08:17:58 $
- * $Revision: 1.171 $
+ * $Date: 2006/07/20 08:32:00 $
+ * $Revision: 1.172 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -67,12 +67,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_.resize( 13 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAMH4";
-  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAMH2";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL_OFFSET_SCAN";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
 
   clients_.clear();
   clientNames_.clear();
