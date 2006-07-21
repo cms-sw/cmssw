@@ -4,13 +4,15 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/20 02:36:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/20 13:00:29 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  - Purdue University
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
@@ -26,10 +28,17 @@ class GlobalMuonTrackMatcher {
   public:
 
     /// constructor
-    GlobalMuonTrackMatcher(double chi2, const MagneticField*);
+    GlobalMuonTrackMatcher(double chi2,
+                           const edm::ESHandle<MagneticField>,
+                           MuonUpdatorAtVertex*);
+
+    GlobalMuonTrackMatcher(double chi2);
 
     /// destructor
     virtual ~GlobalMuonTrackMatcher() {}
+
+    /// set eventsetup
+    void setES(const edm::EventSetup&);
 
     /// choose one that with smallest chi2
     std::pair<bool, reco::TrackRef> matchOne(const reco::TrackRef&, 
@@ -59,7 +68,7 @@ class GlobalMuonTrackMatcher {
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
-    const MagneticField* theField;
+    edm::ESHandle<MagneticField> theField;
 
 };
 
