@@ -2,14 +2,14 @@
 #define RecoAlgos_SingleTrackSelector_h
 /** \class SingleTrackSelector
  *
- * selects a subset of a track collection. Also clones
- * TrackExtra part and RecHits collection
+ * selects a subset of a track collection based
+ * on single track selection done via functor
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: TrackSelector.h,v 1.3 2006/07/21 06:20:45 llista Exp $
+ * $Id: SingleTrackSelector.h,v 1.1 2006/07/21 10:27:05 llista Exp $
  *
  */
 

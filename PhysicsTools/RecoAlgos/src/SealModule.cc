@@ -1,10 +1,12 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/RecoAlgos/interface/SingleTrackSelectorBase.h"
+#include "PhysicsTools/RecoAlgos/src/LargestPtTrackSelector.h"
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( SingleTrackSelectorBase );
+DEFINE_ANOTHER_FWK_MODULE( LargestPtTrackSelector )
 namespace reco {
   namespace modules {
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
