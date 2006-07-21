@@ -17,8 +17,8 @@
 //--- for Strip RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 //--- for Pixel RecHit
@@ -70,11 +70,11 @@ using namespace edm;
     //std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
     
     // Step A: Get Inputs 
-    edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> rechitsmatched;
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
+    edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
+    edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+    edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
     edm::Handle<SiPixelRecHitCollection> pixelrechits;
-    std::string  rechitProducer = "LocalMeasurementConverter";
+    std::string  rechitProducer = "SiStripRecHits2D";
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
@@ -93,13 +93,13 @@ using namespace edm;
       //construct the associator object
       TrackerHitAssociator  associate(e);
       
-      edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
+      edm::OwnVector<SiStripRecHit2D> collector; 
       if(myid!=999999999){ //if is valid detector
 
-	SiStripRecHit2DLocalPosCollection::range rechitRange = (rechitsrphi.product())->get((detid));
-	SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-	SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-	SiStripRecHit2DLocalPosCollection::const_iterator iter=rechitRangeIteratorBegin;
+	SiStripRecHit2DCollection::range rechitRange = (rechitsrphi.product())->get((detid));
+	SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
+	SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
+	SiStripRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
 
 	SiPixelRecHitCollection::range pixelrechitRange = (pixelrechits.product())->get((detid));
 	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
@@ -125,7 +125,7 @@ using namespace edm;
 
 	// Do the strips
 	for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripRecHit2DLocalPos const rechit=*iter;
+	  SiStripRecHit2D const rechit=*iter;
 	  int i=0;
 	  stripcounter++;
 	  cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;

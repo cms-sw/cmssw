@@ -35,15 +35,15 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
      detid.subdetId() == StripSubdetector::TID ||
      detid.subdetId() == StripSubdetector::TEC) 
     {
-      //check if it is a simple SiStripRecHit2DLocalPos
-      if(const SiStripRecHit2DLocalPos * rechit = 
-	 dynamic_cast<const SiStripRecHit2DLocalPos *>(&thit))
+      //check if it is a simple SiStripRecHit2D
+      if(const SiStripRecHit2D * rechit = 
+	 dynamic_cast<const SiStripRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateSimpleRecHit(rechit);
 	}
       //check if it is a matched SiStripRecHit2DMatchedLocalpos
-      if(const SiStripRecHit2DMatchedLocalPos * rechit = 
-	 dynamic_cast<const SiStripRecHit2DMatchedLocalPos *>(&thit))
+      if(const SiStripMatchedRecHit2D * rechit = 
+	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateMatchedRecHit(rechit);
 	}
@@ -101,15 +101,15 @@ std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRec
      detid.subdetId() == StripSubdetector::TID ||
      detid.subdetId() == StripSubdetector::TEC) 
     {
-      //check if it is a simple SiStripRecHit2DLocalPos
-      if(const SiStripRecHit2DLocalPos * rechit = 
-	 dynamic_cast<const SiStripRecHit2DLocalPos *>(&thit))
+      //check if it is a simple SiStripRecHit2D
+      if(const SiStripRecHit2D * rechit = 
+	 dynamic_cast<const SiStripRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateSimpleRecHit(rechit);
 	}
       //check if it is a matched SiStripRecHit2DMatchedLocalpos
-      if(const SiStripRecHit2DMatchedLocalPos * rechit = 
-	 dynamic_cast<const SiStripRecHit2DMatchedLocalPos *>(&thit))
+      if(const SiStripMatchedRecHit2D * rechit = 
+	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
 	  simtrackid = associateMatchedRecHit(rechit);
 	}
@@ -128,7 +128,7 @@ std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRec
 }
 
 
-std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit)
+std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit)
 {
   DetId detid=  simplerechit->geographicalId();
   uint32_t detID = detid.rawId();
@@ -198,7 +198,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 }
 
 
-std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const SiStripRecHit2DMatchedLocalPos * matchedrechit)
+std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
 {
   //to be written
   return simtrackid;

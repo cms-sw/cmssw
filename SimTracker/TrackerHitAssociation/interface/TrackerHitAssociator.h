@@ -36,8 +36,8 @@
 //--- for RecHit
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
 class TrackerHitAssociator {
@@ -50,8 +50,8 @@ class TrackerHitAssociator {
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
   std::vector<unsigned int> associateHitId(const TrackingRecHit & thit);
   
-  std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit);
-  std::vector<unsigned int> associateMatchedRecHit(const SiStripRecHit2DMatchedLocalPos * matchedrechit);
+  std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
+  std::vector<unsigned int> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
   std::vector<unsigned int> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
   
   //will do next
