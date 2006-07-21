@@ -1,0 +1,9 @@
+<export>
+ <lib name=AlignmentCommonAlignmentParametrization>
+</export>
+
+<use name=FWCore/Framework>
+<use name=Geometry/CommonDetUnit>
+<use name=Alignment/CommonAlignment>
+<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentParametrization">
+
