@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/08 13:18:56 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/10 12:40:04 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -128,9 +128,9 @@ TH2F* hBMaxEneCry_;
 
 TH1F* hBReadCryErrors_;
 
-TH1F* hBE1vsCry_;
+TProfile* hBE1vsCry_;
 
-TH1F* hBE3x3vsCry_;
+TProfile* hBE3x3vsCry_;
 
 TH1F* hBEntriesvsCry_;
 

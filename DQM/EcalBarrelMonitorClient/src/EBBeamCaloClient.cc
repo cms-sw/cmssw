@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/19 18:19:21 $
- * $Revision: 1.16 $
+ * $Date: 2006/07/19 21:30:41 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -602,12 +602,12 @@ void EBBeamCaloClient::analyze(void){
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array").c_str() ); }
   me = mui_->get(histo);
-  hBE3x3vsCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3vsCry_);
+  hBE3x3vsCry_ = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal").c_str() ); }
   me = mui_->get(histo);
-  hBE1vsCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBE1vsCry_);
+  hBE1vsCry_ = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT number of entries").c_str() ); }
@@ -645,21 +645,16 @@ void EBBeamCaloClient::analyze(void){
     }
   }
   
-  int DoneCry = 0;//if it stays 0 the run is not an autoscan
+  int DoneCry = 0;//if it stays 1 the run is not an autoscan
   if (hBcryDone_){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
-      if( step>0 ){//this crystal has been scanned 
+      if( step>0 ){//this crystal has been scanned or is being scanned
 	DoneCry++;
-	//cout<<"cry: " <<cry<<"  step: "<< step<<endl;
-	//activate check for this crystal int the step
-	if ( find(checkedSteps_.begin(), checkedSteps_.end(), step ) != checkedSteps_.end() ) {continue;}//already checked
-	if(step > 86){continue;}
-	//cout<<"Checking cry: " <<cry<<"  step: "<< step<<endl;
 	float E3x3RMS = -1, E3x3 =-1, E1=-1;
 	if(hBE3x3vsCry_){
-	   E3x3RMS = hBE3x3vsCry_->GetBinError(step);
-	   E3x3 = hBE3x3vsCry_->GetBinContent(step);
+	  E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+	  E3x3 = hBE3x3vsCry_->GetBinContent(step);
 	}
 	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
 	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
@@ -691,18 +686,14 @@ void EBBeamCaloClient::analyze(void){
 
 	if(Nent && readCryOk ){ meEBBCaloRedGreenSteps_->setBinContent(step,1,1.);}
 	else{ meEBBCaloRedGreenSteps_->setBinContent(step,1,0.);}
-
+	
 	if (readCryOk &&  meEBBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
 	else if ( !readCryOk ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
-	//if(readCryOk){cout<<"cry: "<<cry<< " is ok" <<endl;}
-	//else {cout<<"cry: "<<cry<< " is not ok" <<endl;}
-	checkedSteps_.push_back(step); 
-      }
-     
-    }
-  }
-
-  if(DoneCry == 0){//this is probably not an auotscan or it is the first crystal
+      }// end of if (step>0)
+    }//end of loop over cry 
+  }//end of if(hBcryDone_)
+  
+  if(DoneCry == 1){//this is probably not an auotscan or it is the first crystal
     float nEvt = 0;
     if(hBE3x3_){nEvt = hBE3x3_->GetEntries();}
     if(nEvt > 1*prescaling_ && hBE3x3_ && hBEne1_ && hBCryOnBeam_ && meEBBCaloRedGreen_){//check for mean and RMS
@@ -1390,10 +1381,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
  ////////////////////////////////////////////////////////////////////////////////
   htmlFile << "<tr align=\"center\">" << endl;
   //E1vsCryImg
- obj1f = hBE1vsCry_ ;
-  if ( obj1f ) {
+ objp1 = hBE1vsCry_ ;
+  if ( objp1 ) {
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
-    meName = obj1f->GetName();
+    meName = objp1->GetName();
     
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1404,10 +1395,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgName1 = htmlDir +  E1vsCryImg;
       
     can->cd();
-    obj1f->SetStats(kTRUE);
+    objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    AdjustRange(obj1f);
-    obj1f->Draw("e");
+    AdjustRange(objp1);
+    objp1->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
     delete can;
@@ -1418,10 +1409,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
  //E3x3vsCryImg
- obj1f = hBE3x3vsCry_ ;
-  if ( obj1f ) {
+ objp1 = hBE3x3vsCry_ ;
+  if ( objp1 ) {
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
-    meName = obj1f->GetName();
+    meName = objp1->GetName();
     
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
@@ -1432,10 +1423,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgName1 = htmlDir +  E3x3vsCryImg;
       
     can->cd();
-    obj1f->SetStats(kTRUE);
+    objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
-    AdjustRange(obj1f);
-    obj1f->Draw("e");
+    AdjustRange(objp1);
+    objp1->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
     delete can;
