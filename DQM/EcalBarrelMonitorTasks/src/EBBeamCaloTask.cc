@@ -55,7 +55,6 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 //     meBBCaloE3x3Cry_[u]=0;
 //     meBBCaloE1Cry_[u]=0;
 //   }
-  // LogDebug("EBBeamCaloTask") << " 2 construct  ";
   
 
 }
@@ -96,6 +95,7 @@ void EBBeamCaloTask::setup(void){
   lastStableStatus_=0;
   for(int u=0;u<10;u++){cib_[u]=0;}
   changed_tb_status_= false;
+  changed_cry_in_beam_ = false;
   evt_after_change_ =0;
   wasFakeChange_= false;
   table_step_=1;
@@ -197,17 +197,19 @@ void EBBeamCaloTask::setup(void){
     CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.,"s");
     // 1 bin each 10 events
     // when table is moving for just one events fill with -100
-    // when table is constantely moving do not fill...
+    
 
     sprintf(histo, "EBBCT readout crystals errors");
     meEBBCaloReadCryErrors_ = dbe->book1D(histo, histo, 425,1.,86.);
 
     sprintf(histo, "EBBCT average rec energy in the single crystal");
-    meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
+    //meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
+    meEBBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,9000,0.,9000.,"s");
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
-    meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
-    
+    //meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
+    meEBBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,9000,0.,9000.,"s");
+
     sprintf(histo, "EBBCT number of entries");
     meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,85,1.,86.);
     
@@ -296,8 +298,8 @@ void EBBeamCaloTask::cleanup(void){
 
 void EBBeamCaloTask::endJob(void){
 
-  //  LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
-  cout<<"EBBeamCaloTask : analyzed " << ievt_ << " events"<<endl;
+  LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
+  //cout<<"EBBeamCaloTask : analyzed " << ievt_ << " events"<<endl;
 
   this->cleanup();
 
@@ -312,8 +314,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   try{
     e.getByLabel("ecalEBunpacker", dcchs);
   
-    //int nebc = dcchs->size();
-    //LogDebug("EBBeamCaloTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
+    int nebc = dcchs->size();
+    LogDebug("EBBeamCaloTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
     
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
       
@@ -325,15 +327,15 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     
   }
   catch ( std::exception& ex) {
-    // LogDebug("EBBeamCaloTask") << " EcalRawDataCollection not in event. Trying EcalTBEventHeader (2004 data)." << std::endl;
+     LogDebug("EBBeamCaloTask") << " EcalRawDataCollection not in event. Trying EcalTBEventHeader (2004 data)." << std::endl;
     
     try {
       e.getByType(pEvH);
       enable = true;
-      //LogDebug("EBBeamCaloTask") << " EcalTBEventHeader found, instead." << std::endl;
+      LogDebug("EBBeamCaloTask") << " EcalTBEventHeader found, instead." << std::endl;
     } 
     catch ( std::exception& ex ) {
-      //LogError("EBBeamCaloTask") << "EcalTBEventHeader not present in event TOO! Returning." << std::endl;
+      LogError("EBBeamCaloTask") << "EcalTBEventHeader not present in event TOO! Returning." << std::endl;
     }
     
   }
@@ -352,38 +354,40 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   bool tb_moving = false;//just for test, to be filled with info from the event
   bool skip_this_event = false;
 
-//   //if(ievt_ > 500){tb_moving=true; }
-//   if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
-//   //if(ievt_ > 2000){tb_moving=true; }
-//   if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
-//   if(ievt_ == 3000){cry_in_beam = 702;}
-//   if(ievt_ == 3001){cry_in_beam = 703;}
-//   //if(ievt_ > 3500){tb_moving=true; }
+  if(ievt_ > 500){tb_moving=true; }
+  if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
+  if(ievt_ > 2000){tb_moving=true; }
+  if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
+  if(ievt_ == 3000){cry_in_beam = 702;}
+  if(ievt_ == 3001){cry_in_beam = 703;}
+  if(ievt_ > 3500){tb_moving=true; }
 
-// //  if(ievt_ > 3300){tb_moving=true; }
-//   if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
-//   //if(ievt_ == 6201){tb_moving=true; }
-//   //if(ievt_ > 9000){tb_moving=true; }
-//   //if(ievt_ == 11021){tb_moving=false; }
-//   if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
-//   //if(ievt_ > 15320){tb_moving=true; }
-//   if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
+  if(ievt_ > 3300){tb_moving=true; }
+  if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
+  if(ievt_ == 6201){tb_moving=true; }
+  if(ievt_ > 9000){tb_moving=true; }
+  if(ievt_ == 11021){tb_moving=false; }
+  if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
+  if(ievt_ > 15320){tb_moving=true; }
+  if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
 
 
-  //if(ievt_ > 20){tb_moving=true; }
-  //  if(ievt_ == 23){tb_moving=true; }
-  if(ievt_ > 50){tb_moving=false; cry_in_beam = 705;}
-  //if(ievt_ > 90 ){tb_moving=true; }
-  if(ievt_ == 65){tb_moving=false; }
-  if(ievt_ > 110){tb_moving=false; cry_in_beam = 706;}
-  //if(ievt_ > 115){tb_moving=true; }
-  if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
+ //  //if(ievt_ > 20){tb_moving=true; }
+//   //  if(ievt_ == 23){tb_moving=true; }
+//   if(ievt_ > 50){tb_moving=false; cry_in_beam = 705;}
+//   //if(ievt_ > 90 ){tb_moving=true; }
+//   if(ievt_ == 65){tb_moving=false; }
+//   if(ievt_ > 110){tb_moving=false; cry_in_beam = 706;}
+//   if(ievt_ == 116){cry_in_beam = 709;}
+//   //if(ievt_ > 115){tb_moving=true; }
+//   if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
   
+  //   #include <DQM/EcalBarrelMonitorTasks/interface/cry_in_beam_run_ecs73214.h>
+
   if(ievt_ < 10){last_cry_in_beam_ = cry_in_beam;}
-  //if(tb_moving) {CrystalInBeam_vs_Event_->Fill(ievt_,-100.);}
-  //else{CrystalInBeam_vs_Event_->Fill(ievt_,float(cry_in_beam));}
-  
+    
   if(tb_moving){
+
     TableMoving_->Fill(1);
     if( PreviousTableStatus_[0] == 0 &&  PreviousTableStatus_[1] == 1 && lastStableStatus_ == 0){
       reset_histos_moving=true;
@@ -394,7 +398,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       lastStableStatus_ = 1;
       
     }
-    else if(PreviousTableStatus_[1] == 0) {
+    else if( PreviousTableStatus_[1] == 0) {
       skip_this_event=true;
       changed_tb_status_ = true;
       wasFakeChange_ = true;
@@ -402,32 +406,34 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     // just skip the first event when the table change status
     PreviousTableStatus_[0] = PreviousTableStatus_[1];
     PreviousTableStatus_[1] = 1;
-  }
-  else {
+  }//end of if(tb_moving)
+
+  else {// table is not moving
+
     TableMoving_->Fill(0);
     if( PreviousTableStatus_[0] == 1 &&  PreviousTableStatus_[1] == 0 && lastStableStatus_ == 1){
       reset_histos_stable = true;
       wasFakeChange_ = false;
       lastStableStatus_ = 0;
-      // CrystalsDone_->Fill(float(cry_in_beam)-0.5,crystal_step_); 
     }
     else if(PreviousTableStatus_[1] == 1) {
       skip_this_event=true;
       changed_tb_status_ = true;
-      //      evt_after_change_ =0;
       wasFakeChange_ = true;
     }
     // just skip the first event when the table change status
     PreviousTableStatus_[0]=PreviousTableStatus_[1];
     PreviousTableStatus_[1]=0;
-
-    // check the change of cry in beam only if the table is not moving
-    //    if( TableMoving_->getBinContent(2) < 1 && ievt_ > 5){// just to avoid few erroneous entries    
+    
+    // check also whether cry in beam  has changed
     if(  PreviousCrystalinBeam_[0] == PreviousCrystalinBeam_[1]  &&   PreviousCrystalinBeam_[1] != PreviousCrystalinBeam_[2] && PreviousCrystalinBeam_[2] == cry_in_beam ){
       reset_histos_stable=true;
+      wasFakeChange_ = false;
     }
     else if (PreviousCrystalinBeam_[2] != cry_in_beam){
+      changed_cry_in_beam_ = true;
       skip_this_event=true;
+      wasFakeChange_ = true;
     }
     // }
   }
@@ -435,41 +441,41 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   PreviousCrystalinBeam_[1] = PreviousCrystalinBeam_[2];
   PreviousCrystalinBeam_[2] =  cry_in_beam;
 
-  if (! changed_tb_status_){
-
+  if (! changed_tb_status_ && ! changed_cry_in_beam_ ){// standard data taking
+    
     if( !tb_moving ) {CrystalInBeam_vs_Event_->Fill(ievt_,float(cry_in_beam));}
     else{CrystalInBeam_vs_Event_->Fill(ievt_,-100); }
+    
   }
-  else{
-       if(tb_moving){cib_[evt_after_change_]=-100;}
+  else{ // here there is either a step or a daq error
+    // keep 10 events in a buffer waiting to decide for the step or the error
+    if(tb_moving){cib_[evt_after_change_]=-100;}
     else {cib_[evt_after_change_]=cry_in_beam;}
     
     if(evt_after_change_ >= 9){
       evt_after_change_ =0;
-      if(wasFakeChange_){
+      if(wasFakeChange_){// here is an error: put the 10 events in the profile
 	for(int u=0; u<10; u++){
-	  //if( cib_[u] > 0){CrystalInBeam_vs_Event_->Fill(ievt_-9+u , cib_[u]);}
 	  CrystalInBeam_vs_Event_->Fill(ievt_-9+u , cib_[u]);
 	}
       }
-      changed_tb_status_=false;//for a real change just skip the first 10 events after change
+      //for a real change just skip the first 10 events after change
+      changed_tb_status_=false;
+      changed_cry_in_beam_ = false;
     }
     else{evt_after_change_ ++;}
   }
   
- //  if(skip_this_event){
-//     LogInfo("EBBeamCaloTask") << "event " << ievt_ << " : skipping this event!! ";
-//     return;}
- 
   if(reset_histos_moving){
-    //LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
-    cout <<" EBBeamCaloTask: event " << ievt_ << " resetting histos for moving table!! "<<endl;
-    meEBBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
-    meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
-    meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
-    meEBBCaloE3x3vsCry_->setBinError(crystal_step_ , meBBCaloE3x3_->getRMS() );
+    LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
     
-    meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
+    //cout <<" EBBeamCaloTask: event " << ievt_ << " resetting histos for moving table!! "<<endl;
+    //     meEBBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
+    //     meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
+    //     meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
+    //     meEBBCaloE3x3vsCry_->setBinError(crystal_step_ , meBBCaloE3x3_->getRMS() );
+    
+    //     meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
     
     table_step_++;
     
@@ -488,19 +494,25 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   
   
   if(reset_histos_stable){
-    if( ievt_ - event_last_reset_ > 30){//to be tuned
-      //LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
-      cout<<" EBBeamCaloTask: event " << ievt_ << " resetting histos for stable table!! "<<endl;
-      meEBBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
-      meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
-      meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
-      meEBBCaloE3x3vsCry_->setBinError(crystal_step_ , meBBCaloE3x3_->getRMS() );
-      //
-      meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
+    if( ievt_ - event_last_reset_ > 30){//to be tuned, to avoid a double reset for the change in the table status and
+                                        //in the crystal in beam. This works ONLY if the crystal in beam stay the same 
+                                        // while the table is moving. 
+                                        //One can also think to remove the reset of the histograms when the table change 
+                                        // status from moving to stable, and to leave the reset only if the cry_in_beam changes.
+  
+      LogInfo("EBBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
+
+      // cout<<" EBBeamCaloTask: event " << ievt_ << " resetting histos for stable table!! "<<endl;
+      //       meEBBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
+      //       meEBBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
+      //       meEBBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
+      //       meEBBCaloE3x3vsCry_->setBinError(crystal_step_ , meBBCaloE3x3_->getRMS() );
+      //       //
+      //       meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
       
       event_last_reset_ = ievt_;
-      cout<<" EBBeamCaloTask: event " << ievt_ << " setting crystal "<<last_cry_in_beam_<<" as done, for the step: "<<crystal_step_<<endl;
-      CrystalsDone_->Fill(float(last_cry_in_beam_)-0.5,crystal_step_); 
+      //cout<<" EBBeamCaloTask: event " << ievt_ << " setting crystal "<<last_cry_in_beam_<<" as done, for the step: "<<crystal_step_<<endl;
+
       last_cry_in_beam_ = cry_in_beam;
       crystal_step_++;
 
@@ -518,9 +530,13 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
   
  if(skip_this_event){
-   //   LogInfo("EBBeamCaloTask") << "event " << ievt_ << " : skipping this event!! ";
-   cout<<"EBBeamCaloTask: event " << ievt_ << " : changing status, skipping this event!! "<<endl;
+   LogInfo("EBBeamCaloTask") << "event " << ievt_ << " : skipping this event!! ";
+   //cout<<"EBBeamCaloTask: event " << ievt_ << " : changing status, skipping this event!! "<<endl;
    return;}
+ 
+ // now CrystalsDone_ contains the crystal on beam at the beginning fo a new step, and not when it has finished !!
+ // <5 just to avoid that we skip the event just after the reset and we do not set CrystalsDone_ . 
+ if( ievt_ - event_last_reset_ < 5){ CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );}
  
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
@@ -550,6 +566,9 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     }
   }
   
+
+  meEBBCaloEntriesVsCry_->Fill(crystal_step_ );
+
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
     EBDataFrame dataframe = (*digiItr);
@@ -631,6 +650,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   
   //now  if everything was correct cry_to_beRead should be filled with 1 or -1 but not 0
   bool all_cry_readout = true;
+
   //cout<<"AAAAAAAAAAAA"<<endl;
   //for(int u =0; u<49;u++){if(cry_to_beRead[u]==0){all_cry_readout = false; cout<<"U: "<<u <<endl; }}
   //cout<<"BBBBBBBBBBBB"<<endl;
@@ -638,17 +658,17 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   // if( ievt_ == 4000 || ievt_ == 13000 || ievt_ == 13002 ) {all_cry_readout = false;}
   if(all_cry_readout){ meBBCaloAllNeededCry_->Fill(1.5);}//bin3
   else {
-    meBBCaloAllNeededCry_->Fill(-0.5);
+    meBBCaloAllNeededCry_->Fill(-0.5);//bin1
     if( tb_moving ) {meEBBCaloReadCryErrors_->Fill( crystal_step_+0.5 );}
     else {meEBBCaloReadCryErrors_->Fill( crystal_step_ );}
-  }//bin1
+  }
 
   //the part involving rechits
 
   Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
-  //int neh = hits->size();
-  // LogDebug("EBBeamCaloTask") << "event " << ievt_ << " hits collection size " << neh;
+  int neh = hits->size();
+  LogDebug("EBBeamCaloTask") << "event " << ievt_ << " hits collection size " << neh;
   float ene3x3=0;
   float maxEne = 0; 
   int ieM =-1, ipM = -1;//for the crystal with maximum energy deposition
@@ -695,10 +715,12 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   if (!tb_moving){
     meBBCaloE3x3_->Fill(ene3x3);
-//     if( cry_in_beam > 0 && cry_in_beam < 1701){
-//       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
-//       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
-//     }
+    meEBBCaloE1vsCry_->Fill(crystal_step_ , cryInBeamEne );
+    meEBBCaloE3x3vsCry_->Fill(crystal_step_, ene3x3 );
+    //     if( cry_in_beam > 0 && cry_in_beam < 1701){
+    //       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
+    //       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
+    //     }
     meBBCaloMaxEneCry_->Fill(ieM,ipM);
   }
   else{meBBCaloE3x3Moving_->Fill(ene3x3);}
