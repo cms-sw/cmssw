@@ -1,4 +1,5 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 class IdSort{
 public:
@@ -64,6 +65,7 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
 	// ig = corresponding GenParticle index
 	SimTrack t = SimTrack(ip,p,iv,ig);
 	t.setTrackId(id);
+	t.setEventId(EncodedEventId(0));
 	c.push_back(t);
     }
     std::stable_sort(c.begin(),c.end(),IdSort());
@@ -82,6 +84,7 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	// t  = global time
 	// iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
 	SimVertex v = SimVertex(v3,t,iv);
+	v.setEventId(EncodedEventId(0));
 	c.push_back(v);
     }
 }
