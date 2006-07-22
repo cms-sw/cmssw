@@ -1,5 +1,6 @@
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
- 
+
+/* 
 #include "HepPDT/defs.h"
 #include "HepPDT/TableBuilder.hh"
 
@@ -18,10 +19,10 @@ const HepPDT::ParticleData * CoreSimTrack::particleInfo() const
     HepPDT::ParticleData * pd = pdt.particle(HepPDT::ParticleID(type()));
     return pd; 
 }
- 
+
 float CoreSimTrack::charge() const 
 { return particleInfo()->charge(); }
- 
+*/
 std::ostream & operator <<(std::ostream & o , const CoreSimTrack& t) 
 {
     o << t.type() << ", ";

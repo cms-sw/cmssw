@@ -2,7 +2,7 @@
 #define CoreSimTrack_H
  
 #include <CLHEP/Vector/LorentzVector.h>
-#include "HepPDT/ParticleDataTable.hh"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
   
 #include <cmath>
  
@@ -20,15 +20,21 @@ public:
     { theMomentum[0] = ip.x(); theMomentum[1] = ip.y(); 
       theMomentum[2] = ip.z(); theMomentum[3] = ie; }
     /// particle info...
-    const HepPDT::ParticleData * particleInfo() const;
+    //    const HepPDT::ParticleData * particleInfo() const;
     /// four momentum
     const HepLorentzVector & momentum() const 
     { return theMomentum; }
     /// particle type (HEP PDT convension)
     int type() const { return thePID;}
     /// charge
-    float charge() const;
+    //    float charge() const;
+    void setEventId(EncodedEventId e) {eId=e;}
+    EncodedEventId eventId() const {return eId;}
+    void setTrackId(unsigned int t) {tId=t;}
+    unsigned int trackId() const {return tId;}
 private:
+    EncodedEventId eId;
+    unsigned int tId;
     int thePID;
     HepLorentzVector theMomentum;
 };

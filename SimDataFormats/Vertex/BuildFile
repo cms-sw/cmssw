@@ -1,8 +1,10 @@
 <export>
  <lib name=SimDataFormatsVertex>
  <use name=DataFormats/Common>
+ <use name=SimDataFormats/EncodedEventId>
  <use name=clhep>
 </export>
 
 <use name=clhep>
 <use name=DataFormats/Common>
+<use name=SimDataFormats/EncodedEventId>

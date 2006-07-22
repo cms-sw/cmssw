@@ -2,6 +2,7 @@
 #define CoreSimVertex_H
  
 #include <CLHEP/Vector/LorentzVector.h>
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
  
 #include <cmath>
  
@@ -17,7 +18,10 @@ public:
     explicit CoreSimVertex(const HepLorentzVector & v) 
     { theVertex[0] = v.x(); theVertex[1] = v.y(); theVertex[2] = v.z(); theVertex[3] = v.t(); }
     const HepLorentzVector & position() const { return theVertex; }
+    void setEventId(EncodedEventId e) {eId=e;}
+    EncodedEventId eventId() const {return eId;}
 private:
+    EncodedEventId eId;
     HepLorentzVector theVertex;
 };
 

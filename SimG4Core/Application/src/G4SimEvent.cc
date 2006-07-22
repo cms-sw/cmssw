@@ -1,5 +1,13 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
+class IdSort{
+public:
+  bool operator()(const SimTrack& a, const SimTrack& b) {
+    return a.trackId() < b.trackId();
+  }
+};
+
+
 G4SimEvent::G4SimEvent() : hepMCEvent(0),weight_(0),collisionPoint_(0),
 			   nparam_(0),param_(0) {}
 
@@ -49,13 +57,17 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
 	HepLorentzVector p  = HepLorentzVector(trk->momentum()/GeV,trk->energy()/GeV);
 	int iv              = trk->ivert();
 	int ig              = trk->igenpart();
+	int id              = trk->id();
 	// ip = particle ID as PDG
 	// pp = 4-momentum
 	// iv = corresponding G4SimVertex index
 	// ig = corresponding GenParticle index
 	SimTrack t = SimTrack(ip,p,iv,ig);
+	t.setTrackId(id);
 	c.push_back(t);
     }
+    std::stable_sort(c.begin(),c.end(),IdSort());
+    
 }
 
 void G4SimEvent::load(edm::SimVertexContainer & c) const
