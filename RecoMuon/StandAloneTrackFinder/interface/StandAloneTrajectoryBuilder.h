@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/13 23:10:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/20 17:08:39 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -38,7 +38,7 @@ public:
   TrajectoryContainer trajectories(const TrajectorySeed&);
 
   // FIXME: not relevant here?
-  virtual CandidateContainer trajectories(const reco::Track&) {return CandidateContainer();}
+  virtual CandidateContainer trajectories(const reco::TrackRef&) {return CandidateContainer();}
 
 
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
