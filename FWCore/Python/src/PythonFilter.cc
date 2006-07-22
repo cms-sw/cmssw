@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Mar 23 21:53:03 EST 2006
-// $Id: PythonFilter.cc,v 1.1 2006/07/18 12:17:07 chrjones Exp $
+// $Id: PythonFilter.cc,v 1.2 2006/07/22 12:47:06 hegner Exp $
 //
 //
 
@@ -25,87 +25,22 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/python.hpp"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/Python/src/EventWrapper.h"
+#include "FWCore/Python/src/PythonFilter.h"
+#include "FWCore/Python/src/PythonManager.h"
 //
 // class decleration
 //
-namespace {
-   class PythonManagerHandle;
-   class PythonManager {
-      public:
-	 friend class PythonManagerHandle;
-	 static PythonManagerHandle handle();
-
-      private:
-	 PythonManager() : refCount_(0) {
-	    //deactivate use of signal handling
-	    Py_InitializeEx(0);
-	 }
-	 ~PythonManager() {
-	    Py_Finalize();
-	 }
-	 void increment() {
-	    ++refCount_;
-	 }
-
-	 void decrement() {
-	    --refCount_;
-	    if(0==refCount_) {
-	       delete this;
-	    }
-	 }
-	 unsigned long refCount_;
-   };
-   class PythonManagerHandle {
-      public:
-	 ~PythonManagerHandle() { manager_.decrement(); }
-
-	 PythonManagerHandle(PythonManager& iM):
-	    manager_(iM) {
-	    manager_.increment();
-	 }
-
-	 PythonManagerHandle(const PythonManagerHandle& iRHS) :
-	    manager_(iRHS.manager_) {
-	    manager_.increment();
-	 }
-      private:
-	 const PythonManagerHandle& operator=(const PythonManagerHandle&);
-
-	 PythonManager& manager_;
-   };
-
-   PythonManagerHandle PythonManager::handle() {
-      static PythonManager* s_manager( new PythonManager() );
-      return PythonManagerHandle( *s_manager);
-   }
-}
 
 
-class PythonFilter : public edm::EDFilter {
-   public:
-      explicit PythonFilter(const edm::ParameterSet&);
-      ~PythonFilter();
 
-
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-      std::string command_; 
-      //have this first to guarantee that Py_Finalize not called
-      // until the object's destructor is called
-      PythonManagerHandle handle_;
-      boost::python::object filter_;
-};
 
 //
 // constants, enums and typedefs
