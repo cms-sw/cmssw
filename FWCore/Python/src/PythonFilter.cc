@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Mar 23 21:53:03 EST 2006
-// $Id$
+// $Id: PythonFilter.cc,v 1.1 2006/07/18 12:17:07 chrjones Exp $
 //
 //
 
@@ -161,7 +161,7 @@ PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
 	    "if os.environ.has_key('ROOTSYS'):\n" //ROOT module is in $ROOTSYS/lib
 	    "  sys.path.append(os.environ['ROOTSYS']+'/lib')\n"
 	    "import ROOT\n"
-	    "ROOT.gSystem.Load(\"libPhysicsToolsFWLite\")\n"
+	    "ROOT.gSystem.Load(\"libFWCoreFWLite\")\n"
 	    "ROOT.AutoLibraryLoader.enable()\n"
 	    "import libFWCorePython as edm\n"),
    handle_(PythonManager::handle())
