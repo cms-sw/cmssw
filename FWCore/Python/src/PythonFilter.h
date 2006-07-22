@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones & Benedikt Hegner
 //         Created:  Sun Jul 22 10:50:17 EST 2006
-// $Id: PythonFilter.cc,v 1.2 2006/07/22 12:47:06 hegner Exp $
+// $Id: PythonFilter.h,v 1.1 2006/07/22 13:17:19 hegner Exp $
 //
 //
 #ifndef PythonFilter_h
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Python/src/PythonManager.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 
 class PythonFilter : public edm::EDFilter {

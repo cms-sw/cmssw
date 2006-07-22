@@ -13,81 +13,28 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Mar 23 21:53:03 EST 2006
-// $Id: PythonFilter.cc,v 1.2 2006/07/22 12:47:06 hegner Exp $
+// $Id: PythonFilter.cc,v 1.3 2006/07/22 13:17:19 hegner Exp $
 //
 //
-
 
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/python.hpp"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
+// subpackage specific includes
 #include "FWCore/Python/src/EventWrapper.h"
 #include "FWCore/Python/src/PythonFilter.h"
 #include "FWCore/Python/src/PythonManager.h"
-//
-// class decleration
-//
 
-
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-extern "C" {
-   //this is the entry point into the libFWCorePython python module
-   void initlibFWCorePython();
-   //void initROOT();
-}
-
-static
-void
-pythonToCppException(const std::string& iType)
-{
-   using namespace boost::python;
-   PyObject *exc, *val, *trace;
-   PyErr_Fetch(&exc,&val,&trace);
-   handle<> hExc(allow_null(exc));
-   if(hExc) {
-      object oExc(hExc);
-   }
-   handle<> hVal(allow_null(val));
-   handle<> hTrace(allow_null(trace));
-   if(hTrace) {
-      object oTrace(hTrace);
-   }
-   
-   if(hVal) {
-      object oVal(hVal);
-      handle<> hStringVal(PyObject_Str(oVal.ptr()));
-      object stringVal( hStringVal );
-      
-      //PyErr_Print();
-      throw cms::Exception(iType) <<"python encountered the error: "<< PyString_AsString(stringVal.ptr())<<"\n";
-   } else {
-      throw cms::Exception(iType)<<" unknown python problem occurred.\n";
-   }
-}
 //
 // constructors and destructor
 //
-
-//NOTE: need to add ROOTSYS/lib to PYTHONPATH
 
 PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
    command_("import sys\n"
@@ -109,8 +56,6 @@ PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
       command_ += *itLine;
       command_ += "\n";
    }
-   //now do what ever initialization is needed
-   //Py_Initialize();
 
    using namespace boost::python;
    //make sure our custom module gets loaded
@@ -181,5 +126,3 @@ PythonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return false;
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(PythonFilter)
