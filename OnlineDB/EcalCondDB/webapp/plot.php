@@ -3,12 +3,27 @@
  * plot.php
  * 
  * Plot selection and display page
- * $Id$
+ * $Id: plot.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
  */
 
 
 require_once 'common.php';
 require_once 'db_functions.php';
+
+function input_errors() {
+  $error = "";
+  foreach (array('run', 'datatype', 'iov_id', 'exists_str') as $input) {
+    if (!isset($input)) { $error .= "<h1>ERROR:  Missing input parameter '$input'</h1>"; }
+  }
+}
+
+function get_plottypes() {
+  return array('histo_all' => 'Histogram (All Channels)',
+	       'histo_grp' => 'Histogram (Group Channels)',
+	       'graph_all' => 'Graph (All Channels)',
+	       'graph_grp' => 'Graph (Group Channels)');
+	       /*'map'       => 'Map (Group Channels)');*/
+}
 
 function draw_plotselect_form() {
   echo "<div class='plot'>";
@@ -16,8 +31,9 @@ function draw_plotselect_form() {
   echo "Variable:  ";
   draw_plotselect();
   echo "<input type='submit' name='' value='Plot' />";
-  foreach ($_GET as $name => $value) {
-    if ($name == "tablefield") { continue; }
+  // Variable to pass on to next load
+  foreach (array('run', 'datatype', 'iov_id', 'exists_str') as $name) {
+    $value = $_GET[$name];
     echo "<input type='hidden' name='$name' value='$value' />";
   }
   echo "</form>";
@@ -54,6 +70,15 @@ function draw_plotselect() {
       }
     }
     echo "</select>";
+    echo "<select name='plottype'>";
+    foreach (get_plottypes() as $value => $label) {
+      if (isset($_GET['plottype']) &&
+	    $_GET['plottype'] == $value) {
+	  $selected = "selected='selected'";
+	} else { $selected = ""; }
+      echo "<option value='$value' $selected>$label</option>";
+    }
+    echo "</select>";
   } else {
     echo "No Data Available";
   }
@@ -62,25 +87,39 @@ function draw_plotselect() {
 function draw_plot() {
   if ( !isset($_GET['tablefield']) ||
        !isset($_GET['iov_id']    ) ||
-       !isset($_GET['run'])      ) { return 0; }
+       !isset($_GET['run'])        ||
+       !isset($_GET['plottype'])    ) { return 0; }
   
   echo "<div class='plot'>";
   
   list($table, $field) = split('\.', $_GET['tablefield']);
   $iov_id = $_GET['iov_id'];
   $run = $_GET['run'];
+  $plottype = $_GET['plottype'];
   
-  $plottype = "TH1F";
   $name = "plotcache/run$run.$table.$field.$iov_id.$plottype";
 
-  if ( db_make_rootplot($table, $field,  $iov_id, $plottype, $name) ) {
-    $img = $name.'.png';
-    $root = 'download.php?file='.$name.'.root';
-    echo "<a href='$root' type='application/octet-stream'><img src='$img' /><br />Click to download ROOT file</a>";
-  } else { 
+  $names = array();
+  if ($img_files = glob($name.'*.png')) { // Check cache
+    foreach ($img_files as $img) {
+      array_push($names, preg_replace('/\.png/', '', $img));
+    }
+  } elseif ( $names = db_make_rootplot($table, $field,  $iov_id, $plottype, $name) ) { // Draw Plots
+  } else { // Error
     echo "<h1>ERROR</h1>";
     $error_msg = get_rootplot_error();
     echo "<p>", $error_msg, "</p>";
+  }
+
+  if ($names == 0) {
+    echo "Names is zero.";
+  }
+
+  foreach ($names as $name) {
+    $img = $name.'.png';
+    $root = 'download.php?file='.$name.'.root';
+    echo "<a href='$root' type='application/octet-stream'><img src='$img' /><br />Click to download ROOT file</a>";
+    echo "   Cached on ". date("Y-m-d H:i:s", filemtime($img)). "<br />";
   }
 
   echo "</div>";
@@ -116,15 +155,15 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
 <body>
 
-<h1><?php echo $title ?></h1>
-<?php draw_plotselect_form() ?>
-<?php draw_plot() ?>
-<pre>
 <?php
-
-#echo "INPUT:\n", var_dump($_GET);
+if ($errors = input_errors()) {
+  echo $errors;
+} else {
+  echo "<h1>$title</h1>";
+  draw_plotselect_form();
+  draw_plot();
+}
 ?>
-</pre>
 
 </body>
 </html>

@@ -4,17 +4,22 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id: common.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
+ * $Id$
  */
 
 function get_conn_params() {
-  return array('user' => "__CHANGE_ME__",
-	       'pass' => "__CHANGE_ME__",
-	       'sid'  => "__CHANGE_ME__");
+  return array('user' => "cond01",
+	       'pass' => "oracond01",
+	       'sid'  => "ecalh4db");
 }
 
-function get_dqm_url($run) {
-    return "http://lxcms201.cern.ch/html/".str_pad($run, 9, '0', STR_PAD_LEFT);
+function get_dqm_url($location, $run) {
+  if ($location && $location == 'H4B') {
+    $url = "http://pctorino1.cern.ch/html/";
+  } else {
+    $url = "http://lxcms201.cern.ch/html/";
+  }
+  return $url.str_pad($run, 9, '0', STR_PAD_LEFT);
 }
 
 function get_rootplot_path() {

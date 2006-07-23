@@ -303,7 +303,7 @@ function fetch_plot_data($table, $field, $iov_id) {
 function db_fetch_plot_params($table, $field) {
   global $conn;
   
-  $sql = "select t.filled_by, t.content_explanation table_content, t.logic_id_name, t.logic_id_explanation, 
+  $sql = "select t.filled_by, t.content_explanation table_content, t.logic_id_name, t.map_by_logic_id_name, t.logic_id_explanation, 
                 f.is_plottable, f.field_type, f.content_explanation field_content, f.label
            from cond_table_meta t join cond_field_meta f on t.def_id = f.tab_id 
           where t.table_name = :1 and f.field_name = :2";
@@ -322,44 +322,124 @@ function db_fetch_plot_params($table, $field) {
   }
 }
 
-// XXX hardcoded cache
+
 function db_make_rootplot($table, $field, $iov_id, $plottype, $name) {
   global $conn;
 
-  $fmt = "png";
-  
-  if (file_exists($name.'.'.$fmt)) { return $name; }
-  
   $plot_params = db_fetch_plot_params($table, $field);
+  $fmt = "png";
+  $title = $plot_params['FIELD_CONTENT'];
+  $chan_name = $plot_params['LOGIC_ID_NAME'];
+  $map_name = $plot_params['MAP_BY_LOGIC_ID_NAME'];
 
-  $sql = "select $field from $table where iov_id = :iov_id";
+  if ($plottype == 'histo_all') { 
+    $type = 'TH1F'; $grp = 0;
+    $sql = "select $field from $table where iov_id = :iov_id";
+    $xtitle = $plot_params['LABEL'];
+    $ytitle = "";
+  } elseif ($plottype == 'histo_grp') {
+    $type = 'TH1F'; $grp = 1;
+    $sql = "select vd.id1name, cv.id1, d.$field from $table d, channelview cv, viewdescription vd
+             where d.iov_id = :iov_id 
+               and d.logic_id = cv.logic_id
+               and cv.name = cv.maps_to
+               and cv.name = vd.name
+             order by cv.id1, cv.id2, cv.id3";
+    $xtitle = $plot_params['LABEL'];
+    $ytitle = "";
+  } elseif ($plottype == 'graph_all') {
+    $type = 'TGraph'; $grp = 0;
+    $sql = "select rownum, $field
+              from (select d.$field from $table d, channelview cv
+                     where d.iov_id = :iov_id 
+                       and d.logic_id = cv.logic_id
+                       and cv.name = cv.maps_to
+                     order by cv.id1, cv.id2, cv.id3)";
+    $xtitle = $plot_params['LOGIC_ID_EXPLANATION'];
+    $ytitle = $plot_params['LABEL'];
+  } elseif ($plottype == 'graph_grp') { 
+    $type = 'TGraph'; $grp = 1;
+    $sql = "select id1name, id1, rownum, $field
+              from (select vd.id1name, cv.id1, d.$field from $table d, channelview cv, viewdescription vd
+                     where d.iov_id = :iov_id 
+                       and d.logic_id = cv.logic_id
+                       and cv.name = cv.maps_to
+                       and cv.name = vd.name
+                     order by cv.id1, cv.id2, cv.id3)";
+    $xtitle = $plot_params['LOGIC_ID_EXPLANATION'];
+    $ytitle = $plot_params['LABEL'];
+  } elseif ($plottype == 'map') {
+    if (!$map_name) { echo "No map_name.";  return 0; } // Cannot map without an _index type mapping
+    $type = 'Map'; $grp = 1;
+    $sql = "select id1name, id1, i, j, $field
+              from (select vd.id1name, cv.id1, cv.id2 i, cv.id3 j, d.$field from $table d, channelview cv, viewdescription vd
+                     where d.iov_id = :iov_id 
+                       and d.logic_id = cv.logic_id
+                       and cv.name = '$map_name'
+                       and cv.maps_to = '$chan_name'
+                       and cv.name = vd.name
+                     order by cv.id1, cv.id2, cv.id3)";
+    echo "SQL:  $sql";
+    $xtitle = "";
+    $ytitle = "";
+  } else { die("Unknown plottype"); }
 
   $stmt = oci_parse($conn, $sql);
   
   oci_bind_by_name($stmt, ':iov_id', $iov_id);
   oci_execute($stmt);
   
-  $title = $plot_params['FIELD_CONTENT'];
-  $xtitle = $plot_params['LABEL'];
-  
-  $rootplot = get_rootplot_handle("-T \"$title\" -X \"$xtitle\" $plottype $fmt $name");
-  if ( ! $rootplot || get_rootplot_error() ) { 
-    return 0;
-  }
-
   $n = 0;
+  $names = array();
+  $rptitle = $title;
+  $rpname = $name;
   while ($row = oci_fetch_row($stmt)) {
-    $n++;
-    $dataline = $row[0]."\n";
+    // Augment titles and file names if there is grouping
+    if ($grp) {
+      $grp_name = array_shift($row);
+      $curr_grp = array_shift($row);
+    }
+
+    // If the group is over add finish the last plot
+    if ($n != 0 && $grp && ($last_grp != $curr_grp)) {
+      array_push($names, $rpname);
+      pclose($rootplot);
+    }
+
+    // Open a rootplot handle if it is the first row or the group changed
+    if ($n == 0 ||
+	($grp && ($last_grp != $curr_grp))) {
+
+      if ($grp) {
+	$rptitle = $title." ($grp_name $curr_grp)";
+	$rpname = $name.".$grp_name$curr_grp";
+      }
+
+      $rootplot = get_rootplot_handle("-T \"$rptitle\" -X \"$xtitle\" -Y \"$ytitle\" $type $fmt $rpname");
+      if ( ! $rootplot || get_rootplot_error() ) { return 0; }
+    }
+
+    // Write a row of data to the rootplot handle
+    $dataline = join(' ', $row)."\n";
     fwrite($rootplot, $dataline);
+
+    // Increment
+    $n++;
+    if ($grp) { $last_grp = $curr_grp; }
   }
+  // Close the last plot
+  array_push($names, $rpname);
   pclose($rootplot);
   
-  if (get_rootplot_error()) {
+  if ($n == 0) {
+    echo "N is zero";
+  }
+
+  if (get_rootplot_error() || $n == 0) {
     return 0;
   }
 
-  return $name;
+  return $names;
 }
 
 ?>

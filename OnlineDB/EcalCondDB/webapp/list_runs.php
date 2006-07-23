@@ -3,7 +3,7 @@
  * list_runs.php
  *
  * List a page of runs and subtables for various data categories
- * $Id$
+ * $Id: list_runs.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
  */
 
 require_once 'common.php';
@@ -75,7 +75,8 @@ function fill_monitoring_table($run, $run_iov_id) {
       }
       $exists_str = $monresults['DAT_EXISTS'][$i];
       $iov_id = $monresults['IOV_ID'][$i];
-      $dqm_url = htmlentities(get_dqm_url($run));
+      $loc = $_GET['location']; // XXX function argument?
+      $dqm_url = htmlentities(get_dqm_url($loc, $run));
       $list_bits = $monresults['TASK_LIST'][$i];
       $outcome_bits = $monresults['TASK_OUTCOME'][$i];
       echo "<td>", draw_tasklist($list_bits, $outcome_bits), "</td>";
@@ -175,7 +176,7 @@ function popup(mylink, windowname)
   href=mylink;
   else
   href=mylink.href;
-  window.open(href, windowname, 'width=700,height=600,scrollbars=no');
+  window.open(href, windowname, 'width=700,height=600,scrollbars=on');
   return false;
 }
 //-->
