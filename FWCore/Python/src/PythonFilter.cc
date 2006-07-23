@@ -12,8 +12,8 @@
 */
 //
 // Original Author:  Chris D Jones
-//         Created:  Thu Mar 23 21:53:03 EST 2006
-// $Id: PythonFilter.cc,v 1.3 2006/07/22 13:17:19 hegner Exp $
+//         Created:  Thu Mar 23 21:53:03 CEST 2006
+// $Id: PythonFilter.cc,v 1.4 2006/07/22 13:47:13 hegner Exp $
 //
 //
 
@@ -29,23 +29,21 @@
 
 // subpackage specific includes
 #include "FWCore/Python/src/EventWrapper.h"
-#include "FWCore/Python/src/PythonFilter.h"
 #include "FWCore/Python/src/PythonManager.h"
+#include "FWCore/Python/src/PythonFilter.h"
+
 
 //
 // constructors and destructor
 //
 
 PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
-   command_("import sys\n"
-	    "sys.argv=['']\n"  //ROOT module uses this so must be set
-	    "import os\n"
-	    "if os.environ.has_key('ROOTSYS'):\n" //ROOT module is in $ROOTSYS/lib
-	    "  sys.path.append(os.environ['ROOTSYS']+'/lib')\n"
-	    "import ROOT\n"
-	    "ROOT.gSystem.Load(\"libFWCoreFWLite\")\n"
-	    "ROOT.AutoLibraryLoader.enable()\n"
-	    "import libFWCorePython as edm\n"),
+ //  command_("import sys\n"
+//	    "sys.argv=['']\n"  //ROOT module uses this so must be set
+//	    "import ROOT\n"
+//	    "ROOT.gSystem.Load(\"libFWCoreFWLite\")\n"
+//	    "ROOT.AutoLibraryLoader.enable()\n"
+//	    "import libFWCorePython as edm\n"),
    handle_(PythonManager::handle())
 {
    const std::vector<std::string> commandLines = iConfig.getParameter<std::vector<std::string> >("command");
@@ -59,10 +57,10 @@ PythonFilter::PythonFilter(const edm::ParameterSet& iConfig) :
 
    using namespace boost::python;
    //make sure our custom module gets loaded
-   if(PyImport_AppendInittab("libFWCorePython",initlibFWCorePython)==-1) {
-      throw cms::Exception("InitializationFailure" )
-	 <<"failed to add libFWCorePython python module to python interpreter";
-   }
+   //if(PyImport_AppendInittab("libFWCorePython",initlibFWCorePython)==-1) {
+   //   throw cms::Exception("InitializationFailure" )
+   //<<"failed to add libFWCorePython python module to python interpreter";
+   //}
 
    object main_module((
 			 handle<>(borrowed(PyImport_AddModule("__main__")))));

@@ -3,14 +3,16 @@
 //
 //
 // Original Author:  Chris D Jones & Benedikt Hegner
-//         Created:  Sun Jul 22 11:03:53 EST 2006
+//         Created:  Sun Jul 22 11:03:53 CEST 2006
 //
-// $Id: PythonManager.h,v 1.1 2006/07/22 13:17:19 hegner Exp $
+// $Id: PythonManager.h,v 1.2 2006/07/22 13:47:13 hegner Exp $
 
-#ifndef Python_Manager_h
-#define Python_Manager_h
+#ifndef Python_PythonManager_h
+#define Python_PythonManager_h
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "boost/python.hpp"
+
 
 extern "C" {
    //this is the entry point into the libFWCorePython python module
@@ -49,57 +51,81 @@ pythonToCppException(const std::string& iType)
 
 
 namespace {
-   class PythonManagerHandle;
-   class PythonManager {
+    class PythonManagerHandle;
+	
+    class PythonManager {
       public:
-	 friend class PythonManagerHandle;
-	 static PythonManagerHandle handle();
+	    friend class PythonManagerHandle;
+	    static PythonManagerHandle handle();
 
       private:
-	 PythonManager() : refCount_(0) {
-	    //deactivate use of signal handling
-	    Py_InitializeEx(0);
-	 }
-	 ~PythonManager() {
-	    Py_Finalize();
-	 }
-	 void increment() {
-	    ++refCount_;
-	 }
+	     PythonManager();
+	     ~PythonManager() { Py_Finalize(); }
+	     void increment() { ++refCount_; }
+         void decrement() { --refCount_; if(0==refCount_) delete this; }
+	     unsigned long refCount_;
+	     std::string initCommand_;
+    };
+   
+   
+    class PythonManagerHandle {
+      public:
+	    ~PythonManagerHandle() { manager_.decrement(); }
 
-	 void decrement() {
-	    --refCount_;
-	    if(0==refCount_) {
-	       delete this;
+	    PythonManagerHandle(PythonManager& iM):
+	      manager_(iM) {
+	      manager_.increment();
 	    }
-	 }
-	 unsigned long refCount_;
-   };
-   
-   
-   class PythonManagerHandle {
-      public:
-	 ~PythonManagerHandle() { manager_.decrement(); }
 
-	 PythonManagerHandle(PythonManager& iM):
-	    manager_(iM) {
-	    manager_.increment();
-	 }
-
-	 PythonManagerHandle(const PythonManagerHandle& iRHS) :
-	    manager_(iRHS.manager_) {
-	    manager_.increment();
-	 }
+	    PythonManagerHandle(const PythonManagerHandle& iRHS) :
+	      manager_(iRHS.manager_) {
+	      manager_.increment();
+	    }
+		
       private:
-	 const PythonManagerHandle& operator=(const PythonManagerHandle&);
+	    const PythonManagerHandle& operator=(const PythonManagerHandle&);
+	    PythonManager& manager_;
+    };
 
-	 PythonManager& manager_;
-   };
 
-   PythonManagerHandle PythonManager::handle() {
-      static PythonManager* s_manager( new PythonManager() );
-      return PythonManagerHandle( *s_manager);
-   }
+
+    PythonManagerHandle PythonManager::handle() {
+	    static PythonManager* s_manager( new PythonManager() );
+        return PythonManagerHandle( *s_manager);
+    }
+   
+   
+   
+   
+    PythonManager::PythonManager() : 
+	    refCount_(0),
+        initCommand_("import ROOT\n"
+            "ROOT.gSystem.Load(\"libFWCoreFWLite\")\n"
+            "ROOT.AutoLibraryLoader.enable()\n"
+            "import libFWCorePython as edm\n")
+    {
+       Py_InitializeEx(0);
+       using namespace boost::python;
+
+
+       if(PyImport_AppendInittab("libFWCorePython",initlibFWCorePython)==-1) {
+         throw cms::Exception("InitializationFailure" )
+	  <<"failed to add libFWCorePython python module to python interpreter";
+       }    
+       object main_module((
+                           boost::python::handle<PyObject>(borrowed(PyImport_AddModule("__main__")))));
+       object main_namespace = main_module.attr("__dict__");
+       try {
+           object result((boost::python::handle<>(PyRun_String(initCommand_.c_str(),
+		    			   Py_file_input,
+					   main_namespace.ptr(),
+					   main_namespace.ptr()))));
+      
+       } catch(...  ) {
+	 throw cms::Exception("Configuration") << "test";
+       }
+
+    }
 }
 
-#endif //Python_Manager_h
+#endif //Python_PythonManager_h
