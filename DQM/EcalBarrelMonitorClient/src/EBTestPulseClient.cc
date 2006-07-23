@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.86 $
+ * $Date: 2006/07/20 16:34:33 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1249,6 +1249,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameQual[3], imgNameAmp[3], imgNameShape[3], imgNameMEPn[2], imgNameMEPnPed[2], imgName, meName;
 

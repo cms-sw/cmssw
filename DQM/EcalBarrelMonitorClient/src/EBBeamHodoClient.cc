@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.19 $
+ * $Date: 2006/07/08 16:34:48 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -697,6 +697,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   } 
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameP, imgNameR, imgName, meName;
 

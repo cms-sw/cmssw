@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.85 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1350,6 +1350,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnPed[2], imgName, meName;
 

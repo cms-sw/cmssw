@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/07/08 15:31:37 $
- * $Revision: 1.105 $
+ * $Date: 2006/07/08 17:07:14 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1591,6 +1591,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy1.Fill( a, b, i+1 );
   }
   dummy1.SetMarkerSize(2);
+  dummy1.SetMinimum(0.1);
 
   TH2C dummy2( "dummy2", "dummy2 for sm", 17, 0, 17, 4, 0, 4 );
   for ( short i=0; i<68; i++ ) {
@@ -1599,6 +1600,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy2.Fill( a, b, i+1 );
   }
   dummy2.SetMarkerSize(2);
+  dummy2.SetMinimum(0.1);
 
   TH2C dummy3( "dummy3", "dummy3 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
@@ -1607,6 +1609,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy3.Fill( a, b, i+1+68 );
   }
   dummy3.SetMarkerSize(2);
+  dummy3.SetMinimum(0.1);
 
   TH2C dummy4 ("dummy4", "dummy4 for sm mem", 2, 0, 2, 1, 0, 1 );
   for ( short i=0; i<2; i++ ) {
@@ -1615,6 +1618,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy4.Fill( a, b, i+1+68 );
   }
   dummy4.SetMarkerSize(2);
+  dummy4.SetMinimum(0.1);
 
   string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
 

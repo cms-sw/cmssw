@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/19 21:30:41 $
- * $Revision: 1.17 $
+ * $Date: 2006/07/22 10:11:08 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -810,7 +810,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
-  
+  dummy.SetMinimum(0.1);
+
   TH2I dummyStep( "dummyStep", "dummy2 for sm", 86, 1., 87., 1, 0., 1. );
   if(hBcryDone_){
     for(int cry=1 ; cry<1701 ; cry ++){
@@ -822,7 +823,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   //dummyStep.SetBinContent( 6, 1, 1699 );
   //dummyStep.SetBinContent( 85, 1, 1698 );
   dummyStep.SetMarkerSize(2);
-  
+  dummyStep.SetMinimum(0.1);
 
   //useful for both autoscan and non autoscan
   string RedGreenSMImg,RedGreenImg,RedGreenAutoImg, numCryReadImg, cryReadErrImg;

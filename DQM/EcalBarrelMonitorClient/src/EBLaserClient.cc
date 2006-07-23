@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.82 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -2207,6 +2207,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameQual[4], imgNameAmp[4], imgNameTim[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
 

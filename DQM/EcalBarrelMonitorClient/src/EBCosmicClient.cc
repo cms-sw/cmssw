@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.56 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -437,6 +437,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameME[3], imgName, meName;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/07/03 14:15:04 $
- * $Revision: 1.37 $
+ * $Date: 2006/07/05 07:52:38 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -580,6 +580,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     dummy.Fill( a, b, i+1 );
   }
   dummy.SetMarkerSize(2);
+  dummy.SetMinimum(0.1);
 
   string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
 
