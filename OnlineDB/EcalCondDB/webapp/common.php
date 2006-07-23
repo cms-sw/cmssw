@@ -4,13 +4,13 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id: common.php,v 1.3 2006/07/23 16:47:58 egeland Exp $
+ * $Id: common.php,v 1.4 2006/07/23 16:53:18 egeland Exp $
  */
 
 function get_conn_params() {
-  return array('user' => "cond01",
-	       'pass' => "oracond01",
-	       'sid'  => "ecalh4db");
+  return array('user' => "__CHANGE_ME__",
+	       'pass' => "__CHANGE_ME__",
+	       'sid'  => "__CHANGE_ME__");
 }
 
 function get_dqm_url($location, $run) {
@@ -39,8 +39,8 @@ function get_datatype_array() {
 }
 
 function get_rootplot_handle($args) {
-  putenv('ROOTSYS=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root');
-  putenv('LD_LIBRARY_PATH=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root/lib:/afs/cern.ch/cms/external/lcg/external/Boost/1.33.1/slc3_ia32_gcc323/lib:$LD_LIBRARY_PATH');
+  putenv('ROOTSYS=/afs/cern.ch/cms/external/lcg/external/root/5.12.00/slc3_ia32_gcc323/root');
+  putenv('LD_LIBRARY_PATH=/afs/cern.ch/cms/external/lcg/external/root/5.12.00/slc3_ia32_gcc323/root/lib:/afs/cern.ch/cms/external/lcg/external/Boost/1.33.1/slc3_ia32_gcc323/lib:$LD_LIBRARY_PATH');
   putenv('ROOTPLOT=CMSSW_0_8_0/bin/slc3_ia32_gcc323/cmsecal_rootplot');
 
   @system('rm rootplot_error.log');
