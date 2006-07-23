@@ -10,7 +10,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.4 2006/02/21 10:37:28 llista Exp $
+// $Id: cutParser.cc,v 1.5 2006/04/04 11:12:48 llista Exp $
 //
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
@@ -49,7 +49,7 @@ namespace cand {
       }
     
       virtual double value(const Candidate& iCand) const {
-	return (iCand.*m_method)();
+	return m_method(iCand);
       }
       PCandMethod m_method;
     };

@@ -16,11 +16,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:51 EDT 2005
-// $Id: cutParser.h,v 1.4 2006/02/21 10:37:28 llista Exp $
+// $Id: cutParser.h,v 1.5 2006/04/04 11:12:48 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.h,v $
+// Revision 1.5  2006/04/04 11:12:48  llista
+// rationalized namespaces
+//
 // Revision 1.4  2006/02/21 10:37:28  llista
 // namespace change: aod:: -> reco::
 //
@@ -38,12 +41,13 @@
 //
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include  <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 #include <map>
 
 namespace cand {
   namespace parser {
-    typedef double ( reco::Candidate::* PCandMethod )() const;
+    typedef boost::function<double ( reco::Candidate const& )> PCandMethod;
     typedef std::map<std::string, PCandMethod> CandidateMethods;
     
     bool cutParser( const std::string & iString,

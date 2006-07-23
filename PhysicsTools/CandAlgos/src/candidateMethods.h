@@ -16,17 +16,18 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:27 EDT 2005
-// $Id: candidateMethods.h,v 1.1 2005/10/24 12:59:52 llista Exp $
+// $Id: candidateMethods.h,v 1.2 2006/02/21 10:37:28 llista Exp $
 //
 
 #include <map>
+#include <boost/function.hpp>
 
 namespace reco {
   class Candidate;
 }
 
 namespace reco {
-  typedef double (Candidate::* PCandMethod)() const;
+  typedef boost::function<double ( reco::Candidate const& )> PCandMethod;
   typedef std::map<std::string, PCandMethod> CandidateMethods;
   const CandidateMethods& candidateMethods() ;
 }
