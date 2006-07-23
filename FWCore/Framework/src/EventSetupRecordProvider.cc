@@ -131,10 +131,19 @@ EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
                 ++itProvider) {
                (*itProvider)->newInterval(key_, validityInterval_);
             }
+            cacheReset();
          }
       }
    }
    return returnValue;
+}
+
+void 
+EventSetupRecordProvider::resetProxies()
+{
+  cacheReset();
+  std::for_each(providers_.begin(),providers_.end(),
+                boost::bind(&DataProxyProvider::resetProxies,_1,key_) );
 }
 
 

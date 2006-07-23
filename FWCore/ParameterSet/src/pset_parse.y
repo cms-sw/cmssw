@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.33 2006/07/11 22:19:31 rpw Exp $
+ * $Id: pset_parse.y,v 1.34 2006/07/21 18:30:29 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -132,6 +132,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 
 %left  AND_tok
 %token SOURCE_tok
+%token LOOPER_tok
 %token SECSOURCE_tok
 %token ES_SOURCE_tok
 %token PATH_tok
@@ -451,41 +452,15 @@ nodesarray:      nodesarray COMMA_tok scoped
                ;
 
 
-/* ReplaceNodes probably need to accept any slop */
-entryarray:      SCOPE_START_tok entrylist SCOPE_END_tok
-                 {
-                   DBPRINT("entryarray: not empty");
-                   $<_StringList>$ = $<_StringList>2;
-                 }
+/* Return a StringList pointer */
+anyarray:        array
+               |
+                 strarray
                |
                  blankarray
-               ;
-
-entrylist:        entrylist COMMA_tok entry 
-                 {
-                   DBPRINT("entrylist COMMA_tok entry");
-                   StringList* p = $<_StringList>1;
-                   string s(toString($<str>3));
-                   p->push_back(s);
-                   $<_StringList>$ = p;
-                 }
-               |
-                 entry
-                 {
-                   DBPRINT("entrylist");
-                   string s(toString($<str>1));
-                   StringList* p(new StringList);
-                   p->push_back(s);
-                   $<_StringList>$ = p;
-                 }
-               ;
-
-entry:           any
-               |
-                 anyquote
-               |
-                 PRODUCTTAG_tok
-               ;
+/*               |
+                 producttagarray
+*/               ;
 
 possiblyblankstrarray: strarray
                |
@@ -639,6 +614,7 @@ anyquote:        SQWORD_tok
                  DQWORD_tok
                  {
                    DBPRINT("anyquote: DQWORD");
+ DBPRINT($<str>1);
                    $<str>$ = $<str>1;
                  }
                ;
@@ -723,6 +699,15 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
+                 LOOPER_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: initLOOPER");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("looper", "" ,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+|
                  ES_SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: initES_SOURCE");
@@ -769,7 +754,7 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
-                 REPLACE_tok LETTERSTART_tok EQUAL_tok entryarray
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
                  {
                    DBPRINT("node: REPLACEARRAY");
                    string name(toString($<str>2));

@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ESProxyFactoryProducer.h,v 1.8 2005/09/29 21:06:50 chrjones Exp $
+// $Id: ESProxyFactoryProducer.h,v 1.1 2005/10/03 23:07:37 chrjones Exp $
 //
 
 // system include files
@@ -124,14 +124,15 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
             registerFactory(temp,iLabel);
          }
       
+      virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
+                                          std::auto_ptr<eventsetup::ProxyFactoryBase>& iFactory,
+                                          const std::string& iLabel= std::string() );
+
    private:
       ESProxyFactoryProducer(const ESProxyFactoryProducer&); // stop default
 
       const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&); // stop default
 
-      virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                          std::auto_ptr<eventsetup::ProxyFactoryBase>& iFactory,
-                                          const std::string& iLabel= std::string() );
       
       // ---------- member data --------------------------------
       std::multimap< eventsetup::EventSetupRecordKey, eventsetup::FactoryInfo > record2Factories_;

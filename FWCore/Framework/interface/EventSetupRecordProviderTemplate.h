@@ -51,7 +51,8 @@ template<class T>
       //virtual ~EventSetupRecordProviderTemplate();
 
       // ---------- const member functions ---------------------
-
+      const T& record() const {return record_;}
+   
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -83,6 +84,9 @@ protected:
          }
       }
    private:
+      virtual void cacheReset() {
+        record_.cacheReset();
+      }
       EventSetupRecordProviderTemplate(const EventSetupRecordProviderTemplate&); // stop default
 
       const EventSetupRecordProviderTemplate& operator=(const EventSetupRecordProviderTemplate&); // stop default

@@ -101,6 +101,14 @@ namespace edm {
           pset->insert(true, "@module_type", Entry(tmpClass,true));
           bookkeepingIndex = "@all_sources";
         }
+        else if(type() =="looper")
+        {
+          label = name;
+          if (label.empty()) label = "@main_looper";
+          pset->insert(true, "@module_label", Entry(label, true));
+          pset->insert(true, "@module_type", Entry(class_,true));
+          bookkeepingIndex = "@all_loopers";
+        }
         else if(type() =="es_module")
         {
           string sublabel = (name == "nameless") ? "" : name;

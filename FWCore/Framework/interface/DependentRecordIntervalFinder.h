@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.5 2005/09/01 05:40:41 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -41,12 +41,14 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       virtual ~DependentRecordIntervalFinder();
 
       // ---------- const member functions ---------------------
+      bool haveProviders() const {
+        return !providers_.empty();
+      }
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider>);
-      
    protected:
       virtual void setIntervalFor(const EventSetupRecordKey&,
                                    const IOVSyncValue& , 

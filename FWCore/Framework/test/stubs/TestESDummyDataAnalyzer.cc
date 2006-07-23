@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 22 11:02:00 EST 2005
-// $Id$
+// $Id: TestESDummyDataAnalyzer.cc,v 1.1 2005/12/22 20:29:28 chrjones Exp $
 //
 //
 
@@ -48,6 +48,8 @@ class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
          int m_expectedValue;
+         int m_nEventsValue;
+         int m_counter;
       // ----------member data ---------------------------
 };
 
@@ -63,7 +65,9 @@ class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 TestESDummyDataAnalyzer::TestESDummyDataAnalyzer(const edm::ParameterSet& iConfig) :
-m_expectedValue(iConfig.getParameter<int>("expected"))
+m_expectedValue(iConfig.getParameter<int>("expected")),
+m_nEventsValue(iConfig.getUntrackedParameter<int>("nEvents",0)),
+m_counter(0)
 {
    //now do what ever initialization is needed
 
@@ -89,12 +93,23 @@ TestESDummyDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 {
    using namespace edm;
 
+//   std::cout<<"before "<<m_expectedValue<<std::endl;
+   if(m_nEventsValue) {
+      ++m_counter;
+      if(m_nEventsValue<m_counter) {
+         ++m_expectedValue;
+         m_counter=0;
+      }
+   }
+   
    ESHandle<edm::eventsetup::test::DummyData> pData;
    iSetup.getData(pData);
+//   std::cout<<"after "<<m_expectedValue<<" pData "<<pData->value_<<std::endl;
 
    if(m_expectedValue != pData->value_) {
       throw cms::Exception("WrongValue")<<"got value "<<pData->value_<<" but expected "<<m_expectedValue;
    }
+   
 }
 
 //define this as a plug-in

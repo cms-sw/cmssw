@@ -67,6 +67,8 @@ class DataProxyProvider
       void setDescription(const ComponentDescription& iDescription) {
          description_ = iDescription;
       }
+      
+      void resetProxies(const EventSetupRecordKey& iRecordType);
 
    protected:
       template< class T>

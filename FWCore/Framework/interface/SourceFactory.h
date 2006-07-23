@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.12 2005/12/16 00:29:28 chrjones Exp $
+// $Id: SourceFactory.h,v 1.13 2005/12/16 01:48:50 chrjones Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@ namespace edm {
       }
       
       struct SourceMakerTraits {
+         typedef EventSetupRecordIntervalFinder base_type;
          static std::string name();
          template<class T>
             static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)

@@ -76,6 +76,18 @@ class EventSetupRecord
       virtual bool doGet(const DataKey& aKey) const = 0;
 
       virtual EventSetupRecordKey key() const = 0;
+      
+      /**If you are caching data from the Record, you should also keep
+         this number.  If this number changes then you know that
+         the data you have cached is invalid. This is NOT true if
+         if the validityInterval() hasn't changed since it is possible that
+         the job has gone to a new Record and then come back to the
+         previous SyncValue and your algorithm didn't see the intervening
+         Record.
+        */
+        unsigned long long cacheIdentifier() const {
+        return cacheIdentifier_;
+      }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -83,7 +95,7 @@ class EventSetupRecord
       // The following member functions should only be used by EventSetupRecordProvider
       bool add(const DataKey& iKey ,
                 const DataProxy* iProxy) ;      
-      void removeAll() ;
+      void cacheReset() ;
       void set(const ValidityInterval&);
       void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
    protected:
@@ -102,6 +114,7 @@ class EventSetupRecord
       ValidityInterval validity_;
       std::map< DataKey , const DataProxy* > proxies_ ;
       const EventSetup* eventSetup_;
+      unsigned long long cacheIdentifier_;
 };
 
    }

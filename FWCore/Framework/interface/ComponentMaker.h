@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.10.2.1 2006/07/04 14:03:42 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.11 2006/07/06 19:11:42 wmtan Exp $
 //
 
 // system include files
@@ -37,7 +37,8 @@ namespace edm {
 template <class T>
       class ComponentMakerBase {
 public:
-         virtual void addTo(EventSetupProvider& iProvider,
+         typedef typename T::base_type base_type;
+         virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
                      ParameterSet const& iConfiguration,
                      std::string const& iProcessName,
                      ReleaseVersion const& iVersion,
@@ -51,9 +52,10 @@ template <class T, class TComponent>
    public:
    ComponentMaker() {}
       //virtual ~ComponentMaker();
+   typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   virtual void addTo(EventSetupProvider& iProvider,
+   virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
                        ParameterSet const& iConfiguration,
                        std::string const& iProcessName,
                        ReleaseVersion const& iVersion,
@@ -78,7 +80,7 @@ template <class T, class TComponent>
 };
 
 template< class T, class TComponent>
-void
+boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
 ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
                                         ParameterSet const& iConfiguration,
                                         std::string const& iProcessName,
@@ -98,6 +100,7 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
       
    setDescription(component.get(),description);
    T::addTo(iProvider, component);
+   return component;
 }
    }
 }

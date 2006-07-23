@@ -70,6 +70,9 @@ class EventSetupProvider
       void add(boost::shared_ptr<EventSetupRecordIntervalFinder>);
       
       void finishConfiguration();
+      
+      ///Used when we need to force a Record to reset all its proxies
+      void resetRecordPlusDependentRecords(const EventSetupRecordKey& );
    protected:
 
       template <class T>

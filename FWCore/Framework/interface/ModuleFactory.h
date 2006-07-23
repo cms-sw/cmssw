@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.6 2005/09/01 05:14:38 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -32,6 +32,8 @@ namespace edm {
       class DataProxyProvider;
 
       struct ModuleMakerTraits {
+         typedef DataProxyProvider base_type;
+        
          static std::string name();
          static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) ;
       };

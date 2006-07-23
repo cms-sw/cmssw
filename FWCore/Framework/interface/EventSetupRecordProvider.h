@@ -83,9 +83,15 @@ class EventSetupRecordProvider
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
       void usePreferred(const DataToPreferredProviderMap&);
+      
+      ///This will clear the cache's of all the Proxies so that next time they are called they will run
+      void resetProxies();
+      
    protected:
       virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
                                       const DataToPreferredProviderMap& ) = 0;
+      virtual void cacheReset()  = 0;
+
    private:
       EventSetupRecordProvider(const EventSetupRecordProvider&); // stop default
 

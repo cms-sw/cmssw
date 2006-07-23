@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -45,6 +46,8 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/EDLooperHelper.h"
+#include "FWCore/Framework/interface/EDLooper.h"
 
 using namespace std;
 using boost::shared_ptr;
@@ -112,7 +115,8 @@ namespace edm {
       "Finished",
       "Any",
       "dtor",
-      "Exception"
+      "Exception",
+      "Rewind"
     };
 
     // IMPORTANT NOTE:
@@ -172,6 +176,7 @@ namespace edm {
       { sRunning,       mShutdownSignal, sShuttingDown },
       { sRunning,       mCountComplete,  sStopping }, // sJobReady },
       { sRunning,       mInputExhausted, sStopping }, // sJobReady },
+      { sStopping,       mInputRewind, sJobReady },
       { sStopping,      mException,      sError },
       { sStopping,      mFinished,       sJobReady },
       { sStopping,      mShutdownSignal, sShuttingDown },
@@ -211,7 +216,12 @@ namespace edm {
     }
 
     boost::mutex signum_lock;
-    volatile int signum_value = SIGRTMIN;
+    volatile int signum_value = 
+#if defined(__linux__)
+      SIGRTMIN;
+#else
+    0;
+#endif
 
     int getSigNum()
     {
@@ -234,6 +244,7 @@ namespace edm {
 
     void disableRTSigs()
     {
+#if defined(__linux__)
       // ignore all the RT signals
       sigset_t myset;
       MUST_BE_ZERO(sigemptyset(&myset));
@@ -241,7 +252,7 @@ namespace edm {
       struct sigaction tmpact;
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
-      
+
       for(int num=SIGRTMIN;num<SIGRTMAX;++num)
 	{
 	  MUST_BE_ZERO(sigaddset(&myset,num));
@@ -249,6 +260,7 @@ namespace edm {
 	}
       
       MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
+#endif
     }
 
     void reenableSigs(sigset_t* oldset)
@@ -515,6 +527,42 @@ namespace edm {
 
 
   // ---------------------------------------------------------------
+  boost::shared_ptr<edm::EDLooper> 
+  fillLooper(edm::eventsetup::EventSetupProvider& cp,
+			 ParameterSet const& params,
+			 const EventProcessor::CommonParams& common)
+  {
+    using namespace std;
+    using namespace edm::eventsetup;
+    boost::shared_ptr<edm::EDLooper> vLooper;
+    
+    vector<string> loopers =
+      params.getParameter<vector<string> >("@all_loopers");
+
+    if(loopers.size()==0) {
+       return vLooper;
+    }
+   
+    assert(1==loopers.size());
+
+    for(vector<string>::iterator itName = loopers.begin();
+	itName != loopers.end();
+	++itName) 
+      {
+	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+	vLooper = LooperFactory::get()->addTo(cp, 
+				    providerPSet, 
+				    common.processName_, 
+				    common.releaseVersion_, 
+				    common.passID_);
+        vLooper->setLooperName(common.processName_);
+        vLooper->setLooperPassID(common.passID_);
+      }
+      return vLooper;
+    
+  }
+
+  // ---------------------------------------------------------------
 
   EventProcessor::EventProcessor(const string& config,
 				const ServiceToken& iToken, 
@@ -532,7 +580,8 @@ namespace edm {
     stop_count_(),
     last_rc_(epSuccess),
     id_set_(false),
-    my_sig_num_(getSigNum())
+    my_sig_num_(getSigNum()),
+    looper_()
   {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
@@ -574,7 +623,7 @@ namespace edm {
 						    kOverlapIsError);
 
     //make the services available
-  ServiceRegistry::Operate operate(serviceToken_);
+    ServiceRegistry::Operate operate(serviceToken_);
      
     //processParamsPtr = builder.getProcessPSet();
     act_table_ = ActionTable(*processParamsPtr);
@@ -584,6 +633,7 @@ namespace edm {
 
     esp_ = makeEventSetupProvider(*processParamsPtr);
     fillEventSetupProvider(*esp_, *processParamsPtr, common_);
+    looper_ = fillLooper(*esp_, *processParamsPtr, common_);
      
     input_= makeInput(*processParamsPtr, common_, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
@@ -634,6 +684,62 @@ namespace edm {
       ActivityRegistry* a_;
     };
   }  
+
+  void
+  EventProcessor::rewind()
+  {
+    changeState(mInputRewind);
+    input_->repeat();
+    input_->rewind();
+    return;
+  }
+  
+  EventHelperDescription
+  EventProcessor::runOnce(unsigned long numberToProcess)
+  {
+    try {
+       // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
+       if(state_==sJobReady) {
+          changeState(mRunCount);
+       }
+    } catch(...) {
+       actReg_->postEndJobSignal_();
+       throw;
+    }
+    EventHelperDescription evtDesc;
+    if(state_!=sRunning) {
+       return evtDesc;
+    }
+    StateSentry toerror(this);
+
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    if(shutdown_flag)
+    {
+       changeState(mShutdownSignal);
+       toerror.succeeded();
+       return evtDesc;
+    }
+
+    auto_ptr<EventPrincipal> pep;
+    CallPrePost holder(*actReg_);
+    pep = input_->readEvent();
+    
+    if(pep.get()==0)
+    {
+       changeState(mInputExhausted);
+       toerror.succeeded();
+       return evtDesc;
+    }
+
+    IOVSyncValue ts(pep->id(), pep->time());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    
+    schedule_->runOneEvent(*pep.get(),es);
+    toerror.succeeded();
+    return EventHelperDescription(pep,&es);
+  }
   
   EventProcessor::StatusCode
   EventProcessor::run_p(unsigned long numberToProcess, Msg m)
@@ -702,7 +808,13 @@ namespace edm {
   EventProcessor::run(unsigned long numberToProcess)
   {
     beginJob(); //make sure this was called
-    StatusCode rc = run_p(numberToProcess,mRunCount);
+    StatusCode rc = epInputComplete;
+    if(looper_) {
+       EDLooperHelper looperHelper(this);
+       looper_->loop(looperHelper,numberToProcess);
+    } else {
+       rc = run_p(numberToProcess,mRunCount);
+    }
     changeState(mFinished);
     return rc;
   }
@@ -1108,8 +1220,9 @@ namespace edm {
   {
     sigset_t oldset;
     disableAllSigs(&oldset);
+#if defined(__linux__)
     disableRTSigs();
     installSig(my_sig_num_,ep_sigusr2);
-    
+#endif
   }
 }

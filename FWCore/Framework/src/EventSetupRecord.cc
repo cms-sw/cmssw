@@ -33,7 +33,8 @@ namespace edm {
 // constructors and destructor
 //
 EventSetupRecord::EventSetupRecord():
-eventSetup_(0)
+eventSetup_(0),
+cacheIdentifier_(1) //start with 1 since 0 means we haven't checked yet
 {
 }
 
@@ -108,8 +109,9 @@ EventSetupRecord::add(const DataKey& iKey ,
 }
 
 void 
-EventSetupRecord::removeAll() 
+EventSetupRecord::cacheReset() 
 {
+  ++cacheIdentifier_;
 }
 
 //

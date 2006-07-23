@@ -81,6 +81,12 @@ DataProxyProvider::invalidateProxies(const EventSetupRecordKey& iRecordKey)
    
 }
 
+void 
+DataProxyProvider::resetProxies(const EventSetupRecordKey& iRecordKey)
+{
+  invalidateProxies(iRecordKey);
+}
+
 //
 // const member functions
 //

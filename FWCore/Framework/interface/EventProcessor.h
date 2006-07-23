@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.21.2.1 2006/07/04 14:03:43 wmtan Exp $
+$Id: EventProcessor.h,v 1.22 2006/07/06 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -53,8 +53,11 @@ $Id: EventProcessor.h,v 1.21.2.1 2006/07/04 14:03:43 wmtan Exp $
 #include "DataFormats/Common/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventHelperDescription.h"
 
 namespace edm {
+class EDLooper;
+class EDLooperHelper;
 
   namespace event_processor
   {  
@@ -72,13 +75,16 @@ namespace edm {
     enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
 	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
 	       mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-	       mAny, mDtor, mException };
+	       mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
   }
     
   class EventProcessor
   {
+    // ------------ friend classes and functions ----------------
+    friend class edm::EDLooperHelper;
+
   public:
 
     // Eventually, we might replace StatusCode with a class. This
@@ -242,12 +248,15 @@ namespace edm {
     ServiceToken getToken();
 
   private:
-
+  
     StatusCode run_p(unsigned long numberToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
+    EventHelperDescription runOnce(unsigned long numberToProcess);
+    
+    void rewind();
 
-    void           connectSigs(EventProcessor* ep);
+    void connectSigs(EventProcessor* ep);
 
     struct DoPluginInit
     {
@@ -288,6 +297,7 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
+    boost::shared_ptr<edm::EDLooper>              looper_;
 
     friend class event_processor::StateSentry;
   }; // class EventProcessor

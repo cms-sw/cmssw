@@ -2,12 +2,14 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Modules/src/AsciiOutputModule.h"
 #include "FWCore/Modules/src/EmptyESSource.h"
 #include "FWCore/Modules/src/EmptySource.h"
 #include "FWCore/Modules/src/EventContentAnalyzer.h"
 #include "FWCore/Modules/src/EventSetupRecordDataGetter.h"
 #include "FWCore/Modules/src/Prescaler.h"
+#include "FWCore/Modules/src/IterateNTimesLooper.h"
 
 using edm::AsciiOutputModule;
 using edm::EventSetupRecordDataGetter;
@@ -21,3 +23,4 @@ DEFINE_ANOTHER_FWK_MODULE(EventSetupRecordDataGetter)
 DEFINE_ANOTHER_FWK_MODULE(Prescaler)
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EmptyESSource)
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(EmptySource)
+DEFINE_ANOTHER_FWK_LOOPER(IterateNTimesLooper)

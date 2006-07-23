@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.2 2006/05/29 22:31:15 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.3 2006/07/19 21:49:20 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.2 2006/05/29 22:31:15 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.3 2006/07/19 21:49:20 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -57,6 +57,7 @@ namespace edm
 
     writeBookkeeping("@all_modules");
     writeBookkeeping("@all_sources");
+    writeBookkeeping("@all_loopers");
     writeBookkeeping("@all_esmodules");
     writeBookkeeping("@all_essources");
     writeBookkeeping("@all_esprefers");

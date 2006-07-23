@@ -319,6 +319,47 @@ EventSetupProvider::finishConfiguration()
    mustFinishConfiguration_ = false;
    
 }
+typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
+typedef Providers::iterator Itr;
+static
+void
+findDependents(const EventSetupRecordKey& iKey,
+               Itr itBegin,
+               Itr itEnd,
+               std::vector<boost::shared_ptr<EventSetupRecordProvider> >& oDependents)
+{
+  
+  for(Itr it = itBegin; it != itEnd; ++it ) {
+    //does it depend on the record in question?
+    const std::set<EventSetupRecordKey>& deps = it->second->dependentRecords();
+    if(deps.end() != deps.find(iKey)) {
+      oDependents.push_back(it->second);
+      //now see who is dependent on this record since they will be indirectly dependent on iKey
+      findDependents(it->first, itBegin, itEnd, oDependents);
+    }
+  }
+}
+               
+void 
+EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& iKey)
+{
+  Providers::iterator itFind = providers_.find(iKey);
+  if( itFind == providers_.end()) {
+    return;
+  }
+
+  
+  std::vector<boost::shared_ptr<EventSetupRecordProvider> > dependents;
+  findDependents( iKey, providers_.begin(), providers_.end(), dependents);
+
+  dependents.erase(std::unique(dependents.begin(),dependents.end()), dependents.end());
+  
+  itFind->second->resetProxies();
+  std::for_each(dependents.begin(), dependents.end(), 
+                boost::bind(&EventSetupRecordProvider::resetProxies,
+                            _1));
+}
+
 //
 // const member functions
 //

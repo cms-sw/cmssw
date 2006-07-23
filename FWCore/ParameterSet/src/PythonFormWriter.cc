@@ -105,6 +105,7 @@ namespace edm
       modules_.insert(make_pair(string("es_prefer"), emptylist));
       modules_.insert(make_pair(string("module"), emptylist));
       modules_.insert(make_pair(string("source"), emptylist));
+      modules_.insert(make_pair(string("looper"), emptylist));
       modules_.insert(make_pair(string("sequence"),emptylist));
       modules_.insert(make_pair(string("path"),emptylist));
       modules_.insert(make_pair(string("endpath"),emptylist));
@@ -383,6 +384,10 @@ namespace edm
 	{
 	  // no header to write...
 	}
+      else if (n.type() == "looper" && n.name.empty())
+      {
+        // no header to write...
+      }
       else if(n.type()=="service") 
         {
           header<<"'"<<n.class_<<"': {";
@@ -532,6 +537,21 @@ namespace edm
       //NOTE: no extra '}' added since it is added in the previous printing
       out << " # end of main_input\n";
 
+      out << ", 'looper': {\n";
+      {
+        list<string> const& input = modules_["looper"];
+        if(input.empty()){
+          out << "}";
+        }
+        else {
+          out << *(input.begin()) << '\n';
+        }
+        // print guts of main input here
+      }
+      //NOTE: no extra '}' added since it is added in the previous printing
+      out << " # end of looper\n";
+      
+      
       writeType("pset", out);
       writeType("module", out);
       writeType("es_module", out);
@@ -568,7 +588,6 @@ namespace edm
       writeType("path", out);
       writeType("endpath", out);
       writeType("service", out);
-
       
       out << '}';
     }
