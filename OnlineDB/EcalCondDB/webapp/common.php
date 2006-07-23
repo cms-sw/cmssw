@@ -4,7 +4,7 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id$
+ * $Id: common.php,v 1.3 2006/07/23 16:47:58 egeland Exp $
  */
 
 function get_conn_params() {
@@ -41,7 +41,7 @@ function get_datatype_array() {
 function get_rootplot_handle($args) {
   putenv('ROOTSYS=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root');
   putenv('LD_LIBRARY_PATH=/afs/cern.ch/cms/external/lcg/external/root/5.11.02/slc3_ia32_gcc323/root/lib:/afs/cern.ch/cms/external/lcg/external/Boost/1.33.1/slc3_ia32_gcc323/lib:$LD_LIBRARY_PATH');
-  putenv('ROOTPLOT=CMSSW_0_7_0/bin/slc3_ia32_gcc323/cmsecal_rootplot');
+  putenv('ROOTPLOT=CMSSW_0_8_0/bin/slc3_ia32_gcc323/cmsecal_rootplot');
 
   @system('rm rootplot_error.log');
   $handle = popen("\$ROOTPLOT $args > rootplot_error.log 2>&1", "w") or die('Failed to open rootplot program');
