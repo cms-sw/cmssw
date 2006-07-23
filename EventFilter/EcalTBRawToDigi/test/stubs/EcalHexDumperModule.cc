@@ -18,6 +18,8 @@
 #include <iostream>
 #include <vector>
 
+#include <iomanip> 
+
 using namespace cms;
 using namespace std;
 
@@ -61,10 +63,10 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
 	   << " fed: " << id 
 	   << " size_fed: " << data.size() << "\n"<< endl;
       
-      if ( ( data.size() %8 ) !=0)
+      if ( ( data.size() %16 ) !=0)
 	{
 	  cout << "***********************************************" << endl;
-	  cout<< "Fed size in bytes not multiple of 8 - strange." << endl;
+	  cout<< "Fed size in bits not multiple of 64, strange." << endl;
 	  cout << "***********************************************" << endl;
 	}
 
@@ -72,9 +74,12 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
       int length = data.size();
       const ulong * pData = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( data.data())));
 
-      for (int words=0; words < length/8; words++)
+
+      cout << setfill('0');
+      for (int words=0; words < length/8; (words+=2)  )
 	{
-	  cout <<  hex << pData[words] << endl;
+	  cout << setw(8)   << hex << pData[words+1] << " ";
+	  cout << setw(8)   << hex << pData[words] << endl;
 	}
 
       cout << "\n";
