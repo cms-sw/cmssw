@@ -21,8 +21,8 @@
 //--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
 #include "DataFormats/Common/interface/OwnVector.h" 
 
 
@@ -278,12 +278,12 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   //--- get RecHits
   
   //  std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
-  std::string rechitProducer = "LocalMeasurementConverter";
+  std::string rechitProducer = "SiStripRecHits2D";
   
   // Step A: Get Inputs 
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> rechitsmatched;
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
+  edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
+  edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+  edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
   e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
   e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
   e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
@@ -350,10 +350,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     numrechitrphi =0;
     //loop over rechits-rphi in the same subdetector
-    SiStripRecHit2DLocalPosCollection::range          rechitrphiRange = rechitsrphi->get(detid);
-    SiStripRecHit2DLocalPosCollection::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
-    SiStripRecHit2DLocalPosCollection::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
-    SiStripRecHit2DLocalPosCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
+    SiStripRecHit2DCollection::range          rechitrphiRange = rechitsrphi->get(detid);
+    SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
+    SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
+    SiStripRecHit2DCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
     
     numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
          
@@ -361,7 +361,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       totrechitrphi+=numrechitrphi;
       int i=0;
       for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
-	SiStripRecHit2DLocalPos const rechit=*iterrphi;
+	SiStripRecHit2D const rechit=*iterrphi;
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
@@ -404,11 +404,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
-	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-	  std::cout << "RecHit errors = " << R << std::endl;
-	  std::cout << "SimHit param. = " << shparameters << std::endl;
-	  std::cout << " chi2  = " << est << std::endl;
+// 	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
+// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+// 	  std::cout << "RecHit errors = " << R << std::endl;
+// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+// 	  std::cout << " chi2  = " << est << std::endl;
 	  chi2rphi[i] = est;
 	}
 	i++;
@@ -417,16 +417,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     //loop over rechits-sas in the same subdetector
     numrechitsas=0;
-    SiStripRecHit2DLocalPosCollection::range rechitsasRange = rechitsstereo->get(detid);
-    SiStripRecHit2DLocalPosCollection::const_iterator rechitsasRangeIteratorBegin = rechitsasRange.first;
-    SiStripRecHit2DLocalPosCollection::const_iterator rechitsasRangeIteratorEnd   = rechitsasRange.second;
-    SiStripRecHit2DLocalPosCollection::const_iterator itersas=rechitsasRangeIteratorBegin;
+    SiStripRecHit2DCollection::range rechitsasRange = rechitsstereo->get(detid);
+    SiStripRecHit2DCollection::const_iterator rechitsasRangeIteratorBegin = rechitsasRange.first;
+    SiStripRecHit2DCollection::const_iterator rechitsasRangeIteratorEnd   = rechitsasRange.second;
+    SiStripRecHit2DCollection::const_iterator itersas=rechitsasRangeIteratorBegin;
     numrechitsas = rechitsasRangeIteratorEnd - rechitsasRangeIteratorBegin;   
     if(numrechitsas > 0){
       totrechitsas+=numrechitsas;
       int j=0;
       for(itersas=rechitsasRangeIteratorBegin; itersas!=rechitsasRangeIteratorEnd;++itersas){
-	SiStripRecHit2DLocalPos const rechit=*itersas;
+	SiStripRecHit2D const rechit=*itersas;
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();	int clusiz=0;
@@ -469,11 +469,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-	  std::cout << " ====== Chi2 test sas hits ====== " << std::endl;
-	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-	  std::cout << "RecHit errors = " << R << std::endl;
-	  std::cout << "SimHit param. = " << shparameters << std::endl;
-	  std::cout << " chi2  = " << est << std::endl;
+// 	  std::cout << " ====== Chi2 test sas hits ====== " << std::endl;
+// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+// 	  std::cout << "RecHit errors = " << R << std::endl;
+// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+// 	  std::cout << " chi2  = " << est << std::endl;
 	  chi2sas[j] = est;
 	}
 	j++;
@@ -484,16 +484,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     //loop over rechits-matched in the same subdetector
     numrechitmatched=0;
-    SiStripRecHit2DMatchedLocalPosCollection::range rechitmatchedRange = rechitsmatched->get(detid);
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripRecHit2DMatchedLocalPosCollection::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
+    SiStripMatchedRecHit2DCollection::range rechitmatchedRange = rechitsmatched->get(detid);
+    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
+    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
+    SiStripMatchedRecHit2DCollection::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
     numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
     if(numrechitmatched > 0){
       totrechitmatched +=numrechitmatched;
       int j=0;
       for(itermatched=rechitmatchedRangeIteratorBegin; itermatched!=rechitmatchedRangeIteratorEnd;++itermatched){
-	SiStripRecHit2DMatchedLocalPos const rechit=*itermatched;
+	SiStripMatchedRecHit2D const rechit=*itermatched;
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
 	
@@ -501,8 +501,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	float distx, disty, dist;
 	std::pair<LocalPoint,LocalVector> closestPair;
 	matched.clear();
-	const SiStripRecHit2DLocalPos *mono = rechit.monoHit();
-	const SiStripRecHit2DLocalPos *st = rechit.stereoHit();
+	const SiStripRecHit2D *mono = rechit.monoHit();
+	const SiStripRecHit2D *st = rechit.stereoHit();
 	LocalPoint monopos = mono->localPosition();
 	LocalPoint stpos   = st->localPosition();
 	
@@ -548,11 +548,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
-	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-	  std::cout << "RecHit errors = " << R << std::endl;
-	  std::cout << "SimHit param. = " << shparameters << std::endl;
-	  std::cout << " chi2  = " << est << std::endl;
+// 	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
+// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+// 	  std::cout << "RecHit errors = " << R << std::endl;
+// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+// 	  std::cout << " chi2  = " << est << std::endl;
 	  chi2matched[j] = est;
 	}
 	
