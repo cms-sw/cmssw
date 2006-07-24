@@ -130,6 +130,8 @@ class MonitorElement
   virtual void setBinLabel(int bin, std::string label, int axis = 1) = 0;
   // set x-, y- or z-axis range (axis=1, 2, 3 respectively)
   virtual void setAxisRange(float xmin, float xmax, int axis = 1) = 0;
+  // set (ie. change) histogram/profile title
+  virtual void setTitle(std::string new_title) = 0;
 
   LockMutex::Mutex mutex;
 
