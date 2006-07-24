@@ -5,7 +5,7 @@
  * \class CSCReadoutMappingForSliceTest
  * \author Tim Cox
  * A CSCReadoutMapping using encoding of hardware labels
- * appropriate for CSC Slice Test Winter 2005-6.
+ * appropriate for CSC Slice Test from Winter 2005 to Summer 2006 (at least).
  */
 
 #include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
