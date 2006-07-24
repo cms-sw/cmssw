@@ -7,8 +7,8 @@
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrackFinder.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,11 +48,11 @@ namespace cms
     edm::Handle<SiPixelRecHitCollection> pixelHits;
     if (geometry!="MTCC")  e.getByType(pixelHits);
     //retrieve StripRecHits
-    edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+    edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
     e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+    edm::Handle<SiStripRecHit2DCollection> rphirecHits;
     e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
-    edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+    edm::Handle<SiStripRecHit2DCollection> stereorecHits;
     e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
 
     // Step B: create empty output collection
@@ -115,17 +115,15 @@ namespace cms
 	TSCPBuilderNoMaterial tscpBuilder;
 	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(UpState.freeState()),
 						       UpState.globalPosition());
-	reco::perigee::Parameters param = tscp.perigeeParameters();
-  
-	reco::perigee::Covariance covar = tscp.perigeeError();
-  
+	PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
+	
+	PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
+
+
 	
 	reco::Track theTrack(theTraj.chiSquared(),
 			     int(ndof),
-			     theTraj.foundHits(),
-			     0,
-			     theTraj.lostHits(),
-			     param,
+			     param,tscp.pt(),
 			     covar);
 
 
@@ -146,6 +144,8 @@ namespace cms
 
 	reco::TrackExtraRef  theTrackExtraRef(ohTE,0);
 	theTrack.setExtra(theTrackExtraRef);
+	theTrack.setHitPattern((*theTrackExtraRef).recHits());
+
 	output->push_back(theTrack);
 	e.put(output);
 

@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:56:54 $
-// $Revision: 1.4 $
+// $Date: 2006/03/28 22:54:07 $
+// $Revision: 1.5 $
 //
 
 #include <iostream>
@@ -19,8 +19,8 @@
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinder.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/Framework/interface/Handle.h"
@@ -43,13 +43,13 @@ RoadSearchSeedFinder::~RoadSearchSeedFinder() { }
 void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
 {
 
-  // retrieve producer name of input SiStripRecHit2DLocalPosCollection
+  // retrieve producer name of input SiStripRecHit2DCollection
   std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
   // get Inputs
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   e.getByLabel(recHitProducer,"matchedRecHit" ,matchedrecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   e.getByLabel(recHitProducer,"rphiRecHit" ,rphirecHits);
 
   // create empty output collection

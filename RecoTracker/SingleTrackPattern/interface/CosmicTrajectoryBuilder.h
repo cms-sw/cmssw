@@ -13,8 +13,8 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -77,9 +77,9 @@ class CosmicTrajectoryBuilder
   /// Runs the algorithm
     
     void run(const TrajectorySeedCollection &collseed,
-	     const SiStripRecHit2DLocalPosCollection &collstereo,
-	     const SiStripRecHit2DLocalPosCollection &collrphi ,
-	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+	     const SiStripRecHit2DCollection &collstereo,
+	     const SiStripRecHit2DCollection &collrphi ,
+	     const SiStripMatchedRecHit2DCollection &collmatched,
 	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
 	     edm::Event& e,
@@ -91,9 +91,9 @@ class CosmicTrajectoryBuilder
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
  
-    vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
-					   const SiStripRecHit2DLocalPosCollection &collrphi ,
-					   const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+    vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DCollection &collstereo,
+					   const SiStripRecHit2DCollection &collrphi ,
+					   const SiStripMatchedRecHit2DCollection &collmatched,
 					   const SiPixelRecHitCollection &collpixel,
 					   const TrajectorySeedCollection &collseed);
 

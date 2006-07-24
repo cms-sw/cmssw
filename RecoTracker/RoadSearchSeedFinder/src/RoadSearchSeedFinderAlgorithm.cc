@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/04/25 16:12:55 $
-// $Revision: 1.9 $
+// $Author: stevew $
+// $Date: 2006/07/10 22:08:37 $
+// $Revision: 1.10 $
 //
 
 #include <vector>
@@ -29,8 +29,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
@@ -56,14 +56,14 @@ RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
 }
 
 
-void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
-                                        const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
+void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2DCollection> &handle,
+                                        const edm::Handle<SiStripRecHit2DCollection> &handle2,
 			      const edm::EventSetup& es,
 			      TrajectorySeedCollection &output)
 {
 
-  const SiStripRecHit2DMatchedLocalPosCollection* input = handle.product();
-  const SiStripRecHit2DLocalPosCollection* input2 = handle2.product();
+  const SiStripMatchedRecHit2DCollection* input = handle.product();
+  const SiStripRecHit2DCollection* input2 = handle2.product();
 
   const std::vector<DetId> availableIDs = input->ids();
   const std::vector<DetId> availableIDs2 = input2->ids();
@@ -96,15 +96,15 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 
 	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 
-	    SiStripRecHit2DMatchedLocalPosCollection::range innerSeedDetHits = input->get(innerRingDetId->second);
+	    SiStripMatchedRecHit2DCollection::range innerSeedDetHits = input->get(innerRingDetId->second);
       
 	    // loop over inner dethits
-	    for ( SiStripRecHit2DMatchedLocalPosCollection::const_iterator innerSeedDetHit = innerSeedDetHits.first;
+	    for ( SiStripMatchedRecHit2DCollection::const_iterator innerSeedDetHit = innerSeedDetHits.first;
 		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
 
-	      SiStripRecHit2DLocalPosCollection::range outerSeedDetHits = input2->get(outerRingDetId->second);
+	      SiStripRecHit2DCollection::range outerSeedDetHits = input2->get(outerRingDetId->second);
 
-	      for ( SiStripRecHit2DLocalPosCollection::const_iterator outerSeedDetHit = outerSeedDetHits.first;
+	      for ( SiStripRecHit2DCollection::const_iterator outerSeedDetHit = outerSeedDetHits.first;
 		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
 
 		// get tracker geometry

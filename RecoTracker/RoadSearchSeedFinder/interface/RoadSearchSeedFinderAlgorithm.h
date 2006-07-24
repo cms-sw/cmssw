@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 22:54:06 $
-// $Revision: 1.3 $
+// $Date: 2006/04/03 22:33:37 $
+// $Revision: 1.4 $
 //
 
 #include <string>
@@ -25,8 +25,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -43,8 +43,8 @@ class RoadSearchSeedFinderAlgorithm
   ~RoadSearchSeedFinderAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
-           const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
+  void run(const edm::Handle<SiStripMatchedRecHit2DCollection> &handle,
+           const edm::Handle<SiStripRecHit2DCollection> &handle2,
 	   const edm::EventSetup& es,
 	   TrajectorySeedCollection &output);
 

@@ -76,9 +76,9 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 }
 
 void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
-				  const SiStripRecHit2DLocalPosCollection &collstereo,
-				  const SiStripRecHit2DLocalPosCollection &collrphi ,
-				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+				  const SiStripRecHit2DCollection &collstereo,
+				  const SiStripRecHit2DCollection &collrphi ,
+				  const SiStripMatchedRecHit2DCollection &collmatched,
 				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
 				  edm::Event& e,
@@ -162,9 +162,9 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 
 
 vector<const TrackingRecHit*> 
-CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
-				  const SiStripRecHit2DLocalPosCollection &collrphi ,
-				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
+				  const SiStripRecHit2DCollection &collrphi ,
+				  const SiStripMatchedRecHit2DCollection &collmatched,
 				  const SiPixelRecHitCollection &collpixel,
 				  const TrajectorySeedCollection &collseed){
 
@@ -174,7 +174,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
 
-  SiStripRecHit2DLocalPosCollection::const_iterator istrip;
+  SiStripRecHit2DCollection::const_iterator istrip;
   TrajectorySeedCollection::const_iterator seedbegin=collseed.begin();
   TrajectorySeed::range hRange= (*seedbegin).recHits();
   TrajectorySeed::const_iterator ihit;
@@ -217,7 +217,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
     }
   }
 
-  SiStripRecHit2DMatchedLocalPosCollection::const_iterator istripm;
+  SiStripMatchedRecHit2DCollection::const_iterator istripm;
   if ((&collmatched)!=0){
     for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
