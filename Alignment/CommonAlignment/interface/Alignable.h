@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
