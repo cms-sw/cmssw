@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.3 2006/03/08 12:57:07 llista Exp $
  *
  */
 namespace reco {
@@ -19,6 +19,9 @@ namespace reco {
     typedef CandidateCollection daughters;
     /// default constructor
     CompositeCandidate() : Candidate() { }
+    /// constructor from values
+    CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
+      Candidate( q, p4, vtx ) { }
     /// destructor
     virtual ~CompositeCandidate();
     /// returns a clone of the candidate

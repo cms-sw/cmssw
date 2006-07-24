@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: LeafCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -23,7 +23,7 @@ namespace reco {
     /// constructor from Particle
     explicit LeafCandidate( const Particle & p ) : Candidate( p ) { }
     /// constructor from values
-    explicit LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+    LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Candidate( q, p4, vtx ) { }
     /// destructor
     virtual ~LeafCandidate();

@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.3 2006/03/29 13:42:46 llista Exp $
  *
  */
 namespace reco {
@@ -20,6 +20,9 @@ namespace reco {
     typedef CandidateRefVector daughters;
     /// default constructor
     CompositeRefCandidate() : Candidate() { }
+    /// constructor from values
+    CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
+      Candidate( q, p4, vtx ) { }
     /// destructor
     virtual ~CompositeRefCandidate();
     /// returns a clone of the candidate

@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.6 2006/06/20 11:27:05 llista Exp $
+ * \version $Id: Candidate.h,v 1.7 2006/06/20 14:54:25 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -30,7 +30,7 @@ namespace reco {
     /// constructor from a Particle
     explicit Candidate( const Particle & p ) : Particle( p ) { }
     /// constructor from values
-    explicit Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+    Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Particle( q, p4, vtx ) { }
     /// destructor
     virtual ~Candidate();
