@@ -34,8 +34,9 @@ CPPUNIT_TEST(dependentConstructorTest);
 CPPUNIT_TEST(dependentFinder1Test);
 CPPUNIT_TEST(dependentFinder2Test);
 CPPUNIT_TEST(dependentSetproviderTest);
-CPPUNIT_TEST_EXCEPTION(getTest,edm::eventsetup::NoRecordException<DepRecord>);
+CPPUNIT_TEST(getTest);
 CPPUNIT_TEST(oneOfTwoRecordTest);
+CPPUNIT_TEST(resetTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -49,7 +50,8 @@ public:
   void dependentSetproviderTest();
   void getTest();
   void oneOfTwoRecordTest();
-
+  void resetTest();
+  
 }; //Cppunit class declaration over
 
 ///registration of the test so that the runner can find it
@@ -224,7 +226,7 @@ void testdependentrecord::getTest()
    }
    {
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(4)));
-      eventSetup.get<DepRecord>();
+      CPPUNIT_ASSERT_THROW(eventSetup.get<DepRecord>(),edm::eventsetup::NoRecordException<DepRecord>);
    }
    
 }
@@ -248,6 +250,33 @@ void testdependentrecord::oneOfTwoRecordTest()
     
     depRecord.getRecord<DummyRecord>();
     CPPUNIT_ASSERT_THROW(depRecord.getRecord<Dummy2Record>(),edm::eventsetup::NoRecordException<Dummy2Record>);
+  }
+  
+}
+
+void testdependentrecord::resetTest()
+{
+  edm::eventsetup::EventSetupProvider provider;
+  boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+  provider.add(dummyProv);
+  
+  boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+  dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1)), 
+                                                 edm::IOVSyncValue(edm::EventID(3))));
+  provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+  
+  boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
+  provider.add(depProv);
+  {
+    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1)));
+    const DepRecord& depRecord = eventSetup.get<DepRecord>();
+    unsigned long long depCacheID = depRecord.cacheIdentifier();
+    const DummyRecord& dummyRecord = depRecord.getRecord<DummyRecord>();
+    unsigned long long dummyCacheID = dummyRecord.cacheIdentifier();
+    
+    provider.resetRecordPlusDependentRecords(dummyRecord.key());
+    CPPUNIT_ASSERT(dummyCacheID != dummyRecord.cacheIdentifier());
+    CPPUNIT_ASSERT(depCacheID != depRecord.cacheIdentifier());
   }
   
 }
