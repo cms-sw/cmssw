@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 23:08:40 $
-// $Revision: 1.4 $
+// $Author: stevew $
+// $Date: 2006/07/14 01:02:22 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -20,8 +20,8 @@
 
 #include "RecoTracker/RoadSearchHelixMaker/interface/RoadSearchTrackListCleaner.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
@@ -57,7 +57,7 @@ namespace cms
   // Functions that gets called by framework every event
   void RoadSearchTrackListCleaner::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input SiStripRecHit2DLocalPosCollection
+    // retrieve producer name of input SiStripRecHit2DCollection
     std::string trackProducer = conf_.getParameter<std::string>("TrackProducer");
   
     //
@@ -71,11 +71,11 @@ namespace cms
     // get Inputs 
     edm::Handle<reco::TrackCollection> trackCollection;
     e.getByLabel(trackProducer, trackCollection);
-//    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+//    edm::Handle<SiStripRecHit2DCollection> rphirecHits;
 //    e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
-//    edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+//    edm::Handle<SiStripRecHit2DCollection> stereorecHits;
 //    e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
-//    edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+//    edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
 //    e.getByLabel(recHitProducer, "matchedRecHit", matchedrecHits);
 
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -101,7 +101,7 @@ namespace cms
 
     if ( 1==tC.size() ){
       for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-        reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->found(),track->lost(),track->invalid(),track->parameters(),track->covariance());    
+        reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->parameters(),track->pt(),track->covariance());    
 //        reco::TrackExtra * theTrackExtra = new reco::TrackExtra(track->outerPosition(), track->outerMomentum(), true);
         //create a TrackExtraRef
 //        reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);    
@@ -110,6 +110,7 @@ namespace cms
         //fill the TrackCollection
         reco::TrackExtraRef theTrackExtraRef=track->extra();    
         theTrack->setExtra(theTrackExtraRef);    
+	theTrack->setHitPattern((*theTrackExtraRef).recHits());
         output->push_back(*theTrack);
         delete theTrack;
       }//end faux loop over tracks
@@ -159,7 +160,7 @@ namespace cms
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
       i++;  if (!not_dup[i])continue;
-      reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->found(),track->lost(),track->invalid(),track->parameters(),track->covariance());    
+      reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->parameters(),track->pt(),track->covariance());    
 //      reco::TrackExtra * theTrackExtra = new reco::TrackExtra(track->outerPosition(), track->outerMomentum(), true);
       //create a TrackExtraRef
 //      reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);    
@@ -168,6 +169,7 @@ namespace cms
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
+      theTrack->setHitPattern((*theTrackExtraRef).recHits());
       output->push_back(*theTrack);
       delete theTrack;
     }//end faux loop over tracks
