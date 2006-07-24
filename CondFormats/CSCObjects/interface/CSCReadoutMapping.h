@@ -6,7 +6,7 @@
  * \author Tim Cox
  * Abstract class to define mapping between CSC readout hardware ids and other labels.
  *
- * Defines the ids and labels in the mapping and supplies tramslation interface.
+ * Defines the ids and labels in the mapping and supplies translation interface.
  * A derived class must define how hardware labels map to a unique integer.
  * A derived, concrete, class must define from where the mapping information comes.
  */
