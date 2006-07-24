@@ -14,6 +14,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 
 using namespace std;
 
@@ -282,33 +283,42 @@ CompositeTECWedge::calculatePhiWindow( const MeasurementEstimator::Local2DVector
 
 pair<float, float>
 CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const 
-{
-  const TrapezoidalPlaneBounds* myBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+{  
+  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));  
+
+  vector<GlobalPoint> corners;
+  if (trapezoidalBounds) {
+    vector<float> parameters = (*trapezoidalBounds).parameters();
+    if ( parameters[0] == 0 ) 
+      edm::LogError("TkDetLayers") << "CompositeTkPetalWedge: something weird going on with trapezoidal Plane Bounds!" ;
+    // edm::LogInfo(TkDetLayers) << " Parameters of DetUnit (L2/L1/T/H): " ;
+    // for (int i = 0; i < 4; i++ ) { edm::LogInfo(TkDetLayers) << "  " << 2.*parameters[i]; }
+    // edm::LogInfo(TkDetLayers) ;
+    
+    float hbotedge = parameters[0];
+    float htopedge = parameters[1];
+    float hapothem = parameters[3];   
+
+    corners.push_back( plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)));
+
+  }else if(rectangularBounds) {
+    float length = rectangularBounds->length();
+    float width  = rectangularBounds->width();   
   
-  if (myBounds == 0) {
-    string errmsg="CompositeTkPetalWedge: problems with dynamic cast to trapezoidal bounds for Det";
+    corners.push_back( plane.toGlobal( LocalPoint( -length/2, -width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -length/2, +width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +length/2, -width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +length/2, +width/2, 0.)));
+  }else{  
+    string errmsg="TkForwardRing: problems with dynamic cast to rectangular or trapezoidal bounds for Det";
     throw DetLayerException(errmsg);
     edm::LogError("TkDetLayers") << errmsg ;
   }
-  vector<float> parameters = (*myBounds).parameters();
-  if ( parameters[0] == 0 ) 
-    edm::LogError("TkDetLayers") << "CompositeTkPetalWedge: something weird going on with trapezoidal Plane Bounds!" ;
-  // edm::LogInfo(TkDetLayers) << " Parameters of DetUnit (L2/L1/T/H): " ;
-  // for (int i = 0; i < 4; i++ ) { edm::LogInfo(TkDetLayers) << "  " << 2.*parameters[i]; }
-  // edm::LogInfo(TkDetLayers) ;
-
-  float hbotedge = parameters[0];
-  float htopedge = parameters[1];
-  float hapothem = parameters[3];
-
-
-  vector<GlobalPoint> corners;
-
-  corners.push_back( plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)));
-
+ 
   float phimin = corners[0].phi();
   float phimax = phimin;
   for ( int i = 1; i < 4; i++ ) {
@@ -317,6 +327,7 @@ CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const
     if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
   }
   return make_pair( phimin, phimax);
+  
 }
 
 

@@ -2,6 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
@@ -310,36 +311,50 @@ TIDRing::calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDista
 pair<float, float>
 TIDRing::computeDetPhiRange( const BoundPlane& plane) const 
 {
-  const TrapezoidalPlaneBounds* myBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  
-  if (myBounds == 0) {
-    string errmsg="TkForwardRing: problems with dynamic cast to trapezoidal bounds for Det";
+
+  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+
+  vector<GlobalPoint> corners;
+  if (trapezoidalBounds) {  
+    vector<float> parameters = (*trapezoidalBounds).parameters();
+    if ( parameters[0] == 0 ) 
+      edm::LogError("TkDetLayers") << "TkForwardRing: something weird going on with trapezoidal Plane Bounds!" ;
+    
+    float hbotedge = parameters[0];
+    float htopedge = parameters[1];
+    float hapothem = parameters[3];
+    // float hthick   = parameters[2];   
+    
+    corners.push_back( plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)));
+    
+  }else if(rectangularBounds){     
+    float length = rectangularBounds->length();
+    float width  = rectangularBounds->width();
+    //cout << "in TIDRing, length and width: " << length << " , " << width << endl;
+    
+    corners.push_back( plane.toGlobal( LocalPoint( -length/2, -width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -length/2, +width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +length/2, -width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +length/2, +width/2, 0.)));
+    
+  } else{
+    string errmsg="TkForwardRing: problems with dynamic cast to rectangular or trapezoidal bounds for Det";
     throw DetLayerException(errmsg);
     edm::LogError("TkDetLayers") << errmsg ;
   }
-  vector<float> parameters = (*myBounds).parameters();
-  if ( parameters[0] == 0 ) 
-    edm::LogError("TkDetLayers") << "TkForwardRing: something weird going on with trapezoidal Plane Bounds!" ;
-  
-  float hbotedge = parameters[0];
-  float htopedge = parameters[1];
-  float hapothem = parameters[3];
-  // float hthick   = parameters[2];
-  
-  vector<GlobalPoint> corners;
-  
-  corners.push_back( plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)));
-  corners.push_back( plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)));
-  
+ 
   float phimin = corners[0].phi();
   float phimax = phimin;
   for ( int i = 1; i < 4; i++ ) {
     float cPhi = corners[i].phi();
     if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
-    if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
+      if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
   }
   return make_pair( phimin, phimax);
+
 }
 
