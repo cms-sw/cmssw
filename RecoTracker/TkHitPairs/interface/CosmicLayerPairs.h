@@ -6,7 +6,7 @@
  */
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -31,16 +31,16 @@ private:
   //definition of the map 
  
 
-  SiStripRecHit2DLocalPosCollection::range rphi_range1;
-  SiStripRecHit2DLocalPosCollection::range rphi_range2;
-  SiStripRecHit2DLocalPosCollection::range rphi_range3;
+  SiStripRecHit2DCollection::range rphi_range1;
+  SiStripRecHit2DCollection::range rphi_range2;
+  SiStripRecHit2DCollection::range rphi_range3;
 
-  SiStripRecHit2DLocalPosCollection::range stereo_range1;
-  SiStripRecHit2DLocalPosCollection::range stereo_range2;
-  SiStripRecHit2DLocalPosCollection::range stereo_range3;
+  SiStripRecHit2DCollection::range stereo_range1;
+  SiStripRecHit2DCollection::range stereo_range2;
+  SiStripRecHit2DCollection::range stereo_range3;
 
-  SiStripRecHit2DMatchedLocalPosCollection::range match_range1;
-  SiStripRecHit2DMatchedLocalPosCollection::range match_range2;
+  SiStripMatchedRecHit2DCollection::range match_range1;
+  SiStripMatchedRecHit2DCollection::range match_range2;
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
@@ -53,9 +53,9 @@ private:
    vector<ForwardDetLayer*> fneg;
  public:
  
-   void init(const SiStripRecHit2DLocalPosCollection &collstereo,
-	     const SiStripRecHit2DLocalPosCollection &collrphi,
-	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+   void init(const SiStripRecHit2DCollection &collstereo,
+	     const SiStripRecHit2DCollection &collrphi,
+	     const SiStripMatchedRecHit2DCollection &collmatched,
 	     std::string geometry,
 	     const edm::EventSetup& iSetup);
 

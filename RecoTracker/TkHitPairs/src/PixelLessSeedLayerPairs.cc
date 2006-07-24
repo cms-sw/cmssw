@@ -49,9 +49,9 @@ vector<SeedLayerPairs::LayerPair> PixelLessSeedLayerPairs::operator()()
 }
 
 
-void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-				   const SiStripRecHit2DLocalPosCollection &collstereo, 
-				   const SiStripRecHit2DLocalPosCollection &collrphi, 
+void PixelLessSeedLayerPairs::init(const SiStripMatchedRecHit2DCollection &collmatch,
+				   const SiStripRecHit2DCollection &collstereo, 
+				   const SiStripRecHit2DCollection &collrphi, 
 				   const edm::EventSetup& iSetup)
 {
   for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); it!=allLayersWithHits.end();it++){
@@ -141,31 +141,31 @@ void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollectio
 
 
 vector<const TrackingRecHit*> 
-PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-				      const SiStripRecHit2DLocalPosCollection &collstereo, 
-				      const SiStripRecHit2DLocalPosCollection &collrphi,
+PixelLessSeedLayerPairs::selectHitTIB(const SiStripMatchedRecHit2DCollection &collmatch,
+				      const SiStripRecHit2DCollection &collstereo, 
+				      const SiStripRecHit2DCollection &collrphi,
 				      int tibNumber) {  
   vector<const TrackingRecHit*> theChoosedHits;
 
   
-  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTIBLayer(tibNumber));
-  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+  SiStripMatchedRecHit2DCollection::range range2D = collmatch.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripMatchedRecHit2DCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
     theChoosedHits.push_back( &(*it) );
   }
   
   
   /*  
-  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+  SiStripRecHit2DCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
   }
 
 
-  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+  SiStripRecHit2DCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
     //add a filter to avoid double counting stereo hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
@@ -178,9 +178,9 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollec
 
 
 vector<const TrackingRecHit*> 
-PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-				      const SiStripRecHit2DLocalPosCollection &collstereo, 
-				      const SiStripRecHit2DLocalPosCollection &collrphi,
+PixelLessSeedLayerPairs::selectHitTID(const SiStripMatchedRecHit2DCollection &collmatch,
+				      const SiStripRecHit2DCollection &collstereo, 
+				      const SiStripRecHit2DCollection &collrphi,
 				      int side,
 				      int disk,
 				      int firstRing,
@@ -188,8 +188,8 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
 {
   vector<const TrackingRecHit*> theChoosedHits;
   
-  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTIDDisk(side,disk));
-  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+  SiStripMatchedRecHit2DCollection::range range2D = collmatch.get(acc.stripTIDDisk(side,disk));
+  for(SiStripMatchedRecHit2DCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
     int ring = TIDDetId( it->geographicalId() ).ring();
     cout << "TIDDetId( it->geographicalId() ).ring(): " << ring << endl;
@@ -197,8 +197,8 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
   }
   
   
-  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTIDDisk(side,disk));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+  SiStripRecHit2DCollection::range rangeRphi = collrphi.get(acc.stripTIDDisk(side,disk));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
     int ring = TIDDetId( it->geographicalId() ).ring();
@@ -210,8 +210,8 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
   }
 
   /*
-  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTIDDisk(side,disk));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+  SiStripRecHit2DCollection::range rangeStereo = collstereo.get(acc.stripTIDDisk(side,disk));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
     //add a filter to avoid double counting stereo hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
@@ -224,9 +224,9 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripRecHit2DMatchedLocalPosCollec
 
 
 vector<const TrackingRecHit*> 
-PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-				      const SiStripRecHit2DLocalPosCollection &collstereo, 
-				      const SiStripRecHit2DLocalPosCollection &collrphi,
+PixelLessSeedLayerPairs::selectHitTEC(const SiStripMatchedRecHit2DCollection &collmatch,
+				      const SiStripRecHit2DCollection &collstereo, 
+				      const SiStripRecHit2DCollection &collrphi,
 				      int side,
 				      int disk,
 				      int firstRing,
@@ -235,8 +235,8 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   vector<const TrackingRecHit*> theChoosedHits;
   
   
-  SiStripRecHit2DMatchedLocalPosCollection::range range2D = collmatch.get(acc.stripTECDisk(side,disk));
-  for(SiStripRecHit2DMatchedLocalPosCollection::const_iterator it = range2D.first;
+  SiStripMatchedRecHit2DCollection::range range2D = collmatch.get(acc.stripTECDisk(side,disk));
+  for(SiStripMatchedRecHit2DCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
     int ring = TECDetId( it->geographicalId() ).ring();
     if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
@@ -245,8 +245,8 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   
   
   /*
-  SiStripRecHit2DLocalPosCollection::range rangeRphi = collrphi.get(acc.stripTECDisk(side,disk));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeRphi.first;
+  SiStripRecHit2DCollection::range rangeRphi = collrphi.get(acc.stripTECDisk(side,disk));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
@@ -254,8 +254,8 @@ PixelLessSeedLayerPairs::selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollec
   
 
   
-  SiStripRecHit2DLocalPosCollection::range rangeStereo = collstereo.get(acc.stripTECDisk(side,disk));
-  for(SiStripRecHit2DLocalPosCollection::const_iterator it = rangeStereo.first;
+  SiStripRecHit2DCollection::range rangeStereo = collstereo.get(acc.stripTECDisk(side,disk));
+  for(SiStripRecHit2DCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
     //add a filter to avoid double counting stereo hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );

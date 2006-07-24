@@ -30,9 +30,9 @@ vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
   return result;
 }
 
-void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
-			    const SiStripRecHit2DLocalPosCollection &collrphi, 
-			    const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
+			    const SiStripRecHit2DCollection &collrphi, 
+			    const SiStripMatchedRecHit2DCollection &collmatched,
 			    std::string geometry,
 			    const edm::EventSetup& iSetup){
   _geometry=geometry;

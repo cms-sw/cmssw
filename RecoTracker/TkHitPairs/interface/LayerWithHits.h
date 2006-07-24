@@ -3,8 +3,8 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
@@ -15,8 +15,8 @@ class LayerWithHits
     theDetLayer(dl),theHits(theInputHits){}
   
   LayerWithHits( const DetLayer *dl,const SiPixelRecHitCollection::range range);
-  LayerWithHits( const DetLayer *dl,const SiStripRecHit2DLocalPosCollection::range range);
-  LayerWithHits( const DetLayer *dl,const SiStripRecHit2DMatchedLocalPosCollection::range range);
+  LayerWithHits( const DetLayer *dl,const SiStripRecHit2DCollection::range range);
+  LayerWithHits( const DetLayer *dl,const SiStripMatchedRecHit2DCollection::range range);
 
   //destructor
   ~LayerWithHits(){}

@@ -7,8 +7,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -30,9 +30,9 @@ public:
   vector<LayerPair> operator()() ;
   
   void init(const SiPixelRecHitCollection &collpxl,
-	    const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-	    const SiStripRecHit2DLocalPosCollection &collstereo, 
-	    const SiStripRecHit2DLocalPosCollection &collrphi,
+	    const SiStripMatchedRecHit2DCollection &collmatch,
+	    const SiStripRecHit2DCollection &collstereo, 
+	    const SiStripRecHit2DCollection &collrphi,
 	    const edm::EventSetup& iSetup);
   
 private:
@@ -59,22 +59,22 @@ private:
  
   
  private:
-  vector<const TrackingRecHit*> selectHitTIB(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-					     const SiStripRecHit2DLocalPosCollection &collstereo, 
-					     const SiStripRecHit2DLocalPosCollection &collrphi,
+  vector<const TrackingRecHit*> selectHitTIB(const SiStripMatchedRecHit2DCollection &collmatch,
+					     const SiStripRecHit2DCollection &collstereo, 
+					     const SiStripRecHit2DCollection &collrphi,
 					     int tibNumber);
   
-  vector<const TrackingRecHit*> selectHitTID(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-					     const SiStripRecHit2DLocalPosCollection &collstereo, 
-					     const SiStripRecHit2DLocalPosCollection &collrphi,
+  vector<const TrackingRecHit*> selectHitTID(const SiStripMatchedRecHit2DCollection &collmatch,
+					     const SiStripRecHit2DCollection &collstereo, 
+					     const SiStripRecHit2DCollection &collrphi,
 					     int side,
 					     int disk,
 					     int firstRing,
 					     int lastRing);
 
-  vector<const TrackingRecHit*> selectHitTEC(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-					     const SiStripRecHit2DLocalPosCollection &collstereo, 
-					     const SiStripRecHit2DLocalPosCollection &collrphi,
+  vector<const TrackingRecHit*> selectHitTEC(const SiStripMatchedRecHit2DCollection &collmatch,
+					     const SiStripRecHit2DCollection &collstereo, 
+					     const SiStripRecHit2DCollection &collrphi,
 					     int side,
 					     int disk,
 					     int firstRing,
