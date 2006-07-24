@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing a very basic HLT
  *  EDProduct analysis
  *
- *  $Date: 2006/05/22 22:04:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/24 21:04:46 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *

@@ -7,8 +7,8 @@
  *  This class is a EDProducer producing some collections of
  *  reconstructed objetcs based on the Candidate model
  *
- *  $Date: 2006/06/17 00:18:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/24 21:04:46 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
