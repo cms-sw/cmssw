@@ -31,6 +31,7 @@ namespace edm {
       
 class EventSetupRecordProviderFactoryManager
 {
+   friend class NonExistentClassToSuppressStupidCompilerWarning;
 
    public:
       virtual ~EventSetupRecordProviderFactoryManager();
