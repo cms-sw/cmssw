@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/06/15 15:00:58 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/07/21 19:15:18 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -78,10 +78,10 @@ class GlobalMuonReFitter : public TrajectorySmoother {
     typedef TrajectoryMeasurement TM;
 
   private:
-    const Propagator* thePropagator1;
-    const Propagator* thePropagator2;
+    Propagator* thePropagator1;
+    Propagator* thePropagator2;
     const KFUpdator* theUpdator;
-    const MuonTrajectoryUpdator* theTrajectoryUpdator;
+    MuonTrajectoryUpdator* theTrajectoryUpdator;
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
 
@@ -90,7 +90,6 @@ class GlobalMuonReFitter : public TrajectorySmoother {
     std::string theInPropagatorOppositeToMom;
     std::string theOutPropagatorOppositeToMom;
     edm::ESHandle<MagneticField> theField;
-
   
 };
 
