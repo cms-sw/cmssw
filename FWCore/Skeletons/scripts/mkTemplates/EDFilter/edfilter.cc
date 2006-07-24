@@ -39,9 +39,11 @@ class fltrname : public edm::EDFilter {
       explicit fltrname(const edm::ParameterSet&);
       ~fltrname();
 
-
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+      
       // ----------member data ---------------------------
 };
 
@@ -76,9 +78,9 @@ fltrname::~fltrname()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ method called on each new Event  ------------
 bool
-fltrname::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+fltrname::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -91,6 +93,17 @@ fltrname::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
    return true;
+}
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+fltrname::beginJob(const edm::EventSetup&)
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+fltrname::endJob() {
 }
 
 //define this as a plug-in
