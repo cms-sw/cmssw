@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.21 2006/06/26 09:15:56 llista Exp $
+ * \version $Id: Track.h,v 1.22 2006/07/20 16:45:56 namapane Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -78,6 +78,11 @@ namespace reco {
     /// reference to "extra" object
     const TrackExtraRef & extra() const { return extra_; }
 
+    unsigned short found() const { return  numberOfValidHits(); }
+   /// number of hits lost
+    unsigned short lost() const {return  numberOfLostHits();  }
+    /// number of invalid hits
+    //    unsigned short invalid() const { return invalid_; }
   private:
     /// reference to "extra" extension
     TrackExtraRef extra_;
