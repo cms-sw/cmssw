@@ -12,7 +12,7 @@
 
   //This makes sure the TSelector library and dictionary are properly
   // installed in the remote PROOF servers
-  gProof->Exec( ".x Pthing_sel_Remote.C" );
+  gProof->Exec( ".x proof_remote.C" );
 
   //This creates the 'data set' which defines what files we need to process
   // NOTE: the files given must be accessible by the remote systems
