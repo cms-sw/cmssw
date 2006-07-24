@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.10 2006/06/27 21:02:23 fischler Exp $
+// $Id: MessageLogger.cc,v 1.11 2006/07/06 14:53:14 lsexton Exp $
 //
 // Change log
 //
@@ -35,6 +35,7 @@
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -42,6 +43,12 @@
 #include "DataFormats/Common/interface/Timestamp.h"
 
 #include <sstream>
+
+//#define JMM
+
+#ifdef JMM
+#include <iostream>		// JMM debugging
+#endif
 
 using namespace edm;
 using namespace edm::service;
@@ -71,10 +78,79 @@ MessageLogger( ParameterSet const & iPS
     debugModules = 
     	iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
   } catch (...) {
+// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
     debugModules = 
     	iPS.getParameter<vString>("debugModules");
   }
-  // set up for tracking whether current module is debug-enabled
+
+  // grab lists of suppressLEVEL modules
+  vString suppressDebug;
+  try {
+    suppressDebug = 
+    	iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
+  } catch (...) {
+// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
+    suppressDebug = 
+    	iPS.getParameter<vString>("suppressDebug");
+  }
+
+  vString suppressInfo;
+  try {
+    suppressInfo = 
+    	iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
+  } catch (...) {
+// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
+    suppressInfo = 
+    	iPS.getParameter<vString>("suppressInfo");
+  }
+
+  vString suppressWarning;
+  try {
+    suppressWarning = 
+    	iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
+  } catch (...) {
+// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
+    suppressWarning = 
+    	iPS.getParameter<vString>("suppressWarning");
+  }
+
+  // Use these lists to prepare a map to use in tracking suppression 
+
+// Do suppressDebug first and suppressWarning last to get proper order
+  for( vString::const_iterator it  = suppressDebug.begin();
+                               it != suppressDebug.end(); ++it ) {
+    suppression_levels_[*it] = ELseverityLevel::ELsev_success;
+
+#ifdef JMM
+    std::cout << "suppression_levels_ for module " << *it
+              << " set to " << ELseverityLevel::ELsev_success << std::endl; 
+#endif
+  }
+  
+  for( vString::const_iterator it  = suppressInfo.begin();
+                               it != suppressInfo.end(); ++it ) {
+    suppression_levels_[*it] = ELseverityLevel::ELsev_info;
+
+#ifdef JMM
+    std::cout << "suppression_levels_ for module " << *it
+              << " set to " << ELseverityLevel::ELsev_info << std::endl; 
+#endif
+  }
+  
+  for( vString::const_iterator it  = suppressWarning.begin();
+                               it != suppressWarning.end(); ++it ) {
+    suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
+
+#ifdef JMM
+    std::cout << "suppression_levels_ for module " << *it
+              << " set to " << ELseverityLevel::ELsev_warning << std::endl; 
+#endif
+  }
+  
+
+
+  // set up for tracking whether current module is debug-enabled 
+  // (and info-enabled and warning-enabled)
   if ( debugModules.empty()) {
     MessageDrop::instance()->debugEnabled = false;	// change log 2
   } else {
@@ -82,6 +158,17 @@ MessageLogger( ParameterSet const & iPS
     MessageDrop::instance()->debugEnabled = true;
     // this will be over-ridden when specific modules are entered
   }
+
+
+#ifdef NEVER
+// JMM testing 						17 July 2006
+// For lowest order testing, unconditionally set infoEnabled and
+// warningEnabled to false
+  MessageDrop::instance()->infoEnabled = false;	
+  MessageDrop::instance()->warningEnabled = false;	
+// End JMM testing 					17 July 2006
+#endif
+
   if ( debugModules.empty()) anyDebugEnabled_ = true;
   for( vString::const_iterator it  = debugModules.begin();
                                it != debugModules.end(); ++it ) {
@@ -242,6 +329,30 @@ MessageLogger::preModule(const ModuleDescription& desc)
     MessageDrop::instance()->debugEnabled = 
     			debugEnabledModules_.count(desc.moduleLabel_);
   }
+
+#ifdef JMM
+  std::cout << "Searching map for " << desc.moduleLabel_ << std::endl;
+#endif
+
+  std::map<const std::string,ELseverityLevel>::const_iterator it =
+       suppression_levels_.find(desc.moduleLabel_);
+  if ( it != suppression_levels_.end() ) {
+    MessageDrop::instance()->debugEnabled  = MessageDrop::instance()->debugEnabled 
+                                           && (it->second < ELseverityLevel::ELsev_success );
+    MessageDrop::instance()->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+    MessageDrop::instance()->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+  } else {
+    MessageDrop::instance()->infoEnabled    = true;
+    MessageDrop::instance()->warningEnabled = true;
+  }
+#ifdef JMM
+  std::cout << "Setting MessageDrop::debugEnabled to "
+            << MessageDrop::instance()->debugEnabled << std::endl;
+  std::cout << "Setting MessageDrop::infoEnabled to "
+            << MessageDrop::instance()->infoEnabled << std::endl;
+  std::cout << "Setting MessageDrop::warningEnabled to " 
+            << MessageDrop::instance()->warningEnabled << std::endl;
+#endif
 }
 
 void

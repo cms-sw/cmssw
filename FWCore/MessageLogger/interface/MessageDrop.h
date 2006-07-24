@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.3 2006/02/17 22:52:57 wmtan Exp $
+// $Id: MessageDrop.h,v 1.4 2006/05/12 20:49:18 fischler Exp $
 //
 
 // system include files
@@ -39,15 +39,19 @@ namespace edm {
 struct MessageDrop {
 private:
   MessageDrop() 
-  :  moduleName ("")
+  : moduleName ("")
   , runEvent("pre-events")
   , debugEnabled(true) 					// change log 1
+  , infoEnabled(true) 					// change log 3
+  , warningEnabled(true)				// change log 3
   {  } 
 public:
   static MessageDrop * instance ();
   std::string moduleName;
   std::string runEvent;
   bool debugEnabled;
+  bool infoEnabled;
+  bool warningEnabled;
 };
 
 
