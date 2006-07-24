@@ -102,7 +102,7 @@ void testEventsetup::getTest()
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(&eventSetup != 0);
    //eventSetup.get<DummyRecord>();
-   //BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    
    DummyRecord dummyRecord;
    provider.addRecordToEventSetup(dummyRecord);
@@ -117,7 +117,7 @@ void testEventsetup::getExcTest()
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(&eventSetup != 0);
    eventSetup.get<DummyRecord>();
-   //BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
 }
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
@@ -188,7 +188,7 @@ void testEventsetup::recordValidityTest()
    {
       Timestamp time_1(1);
       /*EventSetup const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue(time_1));
-   // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   // CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    //eventSetup.get<DummyRecord>();
    }
 
@@ -204,7 +204,7 @@ void testEventsetup::recordValidityTest()
    }
    {
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(4)));
-   //   BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   //   CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }
    
@@ -224,7 +224,7 @@ void testEventsetup::recordValidityExcTest()
    
    {
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(1)));
-   // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   // CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }
 
