@@ -13,7 +13,9 @@ Common utilities to manipulate and analyze particle candidates
 \subsection interface Public interface
 - AddFourMomenta: set up a composite reco::Candidate adding its daughters four-momenta and electric charge.
 - Booster: boost a reco::Candidate by a specified boost vector. 
+- ApplyEnergyCorrection: scale particle 4-momentum by a specified correction factor.
 - TwoBodyCombiner: produces all possible candidate pairs specifying a configurable selection criteria, checking 
+
 for overlaps, and avoiding double-counting.
 - CenterOfMassBooster: boost a reco::Candidate to its center-of-mass reference frame.
 - CandSelector: base class for all reco::Candidate selectors.
