@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=DataFormats/EgammaCandidates>
+<flags SEAL_PLUGIN_NAME="CalibrationEcalAlCaRecoProducers">
+<export>
+   <lib name=CalibrationEcalAlCaRecoProducers>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/EgammaCandidates>
+</export>
