@@ -2,12 +2,12 @@
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
-#include "DataFormats/PFReco/interface/PFRecHit.h"
-#include "DataFormats/PFReco/interface/PFLayer.h"
-#include "DataFormats/PFReco/interface/PFClusterFwd.h"
-#include "DataFormats/PFReco/interface/PFCluster.h"
-#include "DataFormats/PFReco/interface/PFRecHitFwd.h"
-#include "DataFormats/PFReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"

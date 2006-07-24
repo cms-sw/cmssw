@@ -1,4 +1,5 @@
-#include "DataFormats/PFReco/interface/PFLayer.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
@@ -12,23 +13,47 @@
 #include <TCutG.h>
 #include <TPolyLine.h>
 #include <TColor.h>
+#include "TGraph.h"
+#include "TMath.h"
+#include "TLine.h"
+#include "TLatex.h"
+#include "TVector3.h"
 
 #include <iostream>
 
 using namespace std;
 
-PFRootEventManager::PFRootEventManager() {}
+PFRootEventManager::PFRootEventManager() 
+{
+  graphTrack_.resize(NViews);
+}
 
-PFRootEventManager::~PFRootEventManager() {}
+PFRootEventManager::~PFRootEventManager() 
+{
+  // Clear TGraph if needed
+  for (unsigned iView = 0; iView < graphTrack_.size(); iView++) {
+    if (graphTrack_[iView].size()) {
+      for (unsigned iGraph = 0; iGraph < graphTrack_[iView].size(); iGraph++)
+	delete graphTrack_[iView][iGraph];
+      graphTrack_[iView].clear();
+    }
+  }
+}
 
 PFRootEventManager::PFRootEventManager(const char* file) {  
   options_ = 0;
   ReadOptions(file);
   iEvent_=0;
   displayHistEtaPhi_=0;
+  displayView_.resize(NViews);
+  displayHist_.resize(NViews);
+  for (unsigned iView = 0; iView < NViews; iView++) {
+    displayView_[iView] = 0;
+    displayHist_[iView] = 0;
+  }
+  graphTrack_.resize(NViews);
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;
-  
 }
 
 void PFRootEventManager::Reset() { 
@@ -36,6 +61,7 @@ void PFRootEventManager::Reset() {
   maxERecHitHcal_ = -1;  
   clusters_.clear();
   rechits_.clear();
+  recTracks_.clear();
 }
 
 void PFRootEventManager::ReadOptions(const char* file, bool refresh) {
@@ -63,11 +89,24 @@ void PFRootEventManager::ReadOptions(const char* file, bool refresh) {
   if(!hitsBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : branch not found : "
 	<<hitbranchname<<endl;
-    return;
+  }
+  else {
+    hitsBranch_->SetAddress(&rechits_);
+    // cout << "Set branch " << hitbranchname << endl;
   }
 
-  hitsBranch_->SetAddress(&rechits_);
+  string recTracksbranchname;
+  options_->GetOpt("root","recTracks_branch", recTracksbranchname);
 
+  recTracksBranch_ = tree_->GetBranch(recTracksbranchname.c_str());
+  if(!recTracksBranch_) {
+    cerr <<"PFRootEventManager::ReadOptions : branch not found : "
+	 << recTracksbranchname << endl;
+  }
+  else {
+    recTracksBranch_->SetAddress(&recTracks_);
+    // cout << "Set branch " << recTracksbranchname << " " << recTracksBranch_->GetEntries() << endl;
+  }    
 
   vector<int> algos;
   options_->GetOpt("display", "algos", algos);
@@ -86,21 +125,21 @@ void PFRootEventManager::ReadOptions(const char* file, bool refresh) {
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
   if(viewSizeEtaPhi_.size() != 2) {
-    cerr<<"EventEF::ReadOptions, bad display/viewsize_etaphi tag...using 700/350"
+    cerr<<"PFRootEventManager::ReadOptions, bad display/viewsize_etaphi tag...using 700/350"
 	<<endl;
     viewSizeEtaPhi_.clear();
     viewSizeEtaPhi_.push_back(700); 
     viewSizeEtaPhi_.push_back(350); 
   }
 
-  viewSizeXY_.clear();
-  options_->GetOpt("display", "viewsize_etaphi", viewSizeXY_);
-  if(viewSizeXY_.size() != 2) {
-    cerr<<"EventEF::ReadOptions, bad display/viewsize_xy tag...using 700/350"
+  viewSize_.clear();
+  options_->GetOpt("display", "viewsize_xy", viewSize_);
+  if(viewSize_.size() != 2) {
+    cerr<<"PFRootEventManager::ReadOptions, bad display/viewsize_xy tag...using 700/350"
 	<<endl;
-    viewSizeXY_.clear();
-    viewSizeXY_.push_back(600); 
-    viewSizeXY_.push_back(600); 
+    viewSize_.clear();
+    viewSize_.push_back(600); 
+    viewSize_.push_back(600); 
   }
 
   threshEcalBarrel_ = 0.1;
@@ -120,14 +159,6 @@ void PFRootEventManager::ReadOptions(const char* file, bool refresh) {
 
   nNeighboursEcal_ = 4;
   options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal_);
-
-
-  threshPS_ = 0.0001;
-  options_->GetOpt("clustering", "thresh_PS", threshPS_);
-  
-  threshSeedPS_ = 0.001;
-  options_->GetOpt("clustering", "thresh_Seed_PS", 
-		   threshSeedPS_);
 
 
   threshHcalBarrel_ = 0.1;
@@ -153,11 +184,13 @@ bool PFRootEventManager::ProcessEntry(int entry) {
 
   Reset();
 
-  cout<<"process entry"<<endl;
+  cout<<"process entry "<< entry << endl;
   
-  hitsBranch_->GetEntry(entry);
+  if(hitsBranch_) hitsBranch_->GetEntry(entry);
+  if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
 
-  cout<<"numer of rechits : "<<rechits_.size()<<endl;
+  cout<<"number of rechits : "<<rechits_.size()<<endl;
+  cout<<"number of recTracks : "<<recTracks_.size()<<endl;
 //   for(unsigned i=0; i<rechits_.size(); i++) {
 //     cout<<rechits_[i]<<endl;
 //   }
@@ -188,6 +221,17 @@ void PFRootEventManager::Clustering() {
   clusteralgo.SetThreshEcalEndcap( threshEcalEndcap_ );
   clusteralgo.SetThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
 
+  clusteralgo.SetNNeighboursEcal( nNeighboursEcal_  );
+  
+  clusteralgo.SetThreshHcalBarrel( threshHcalBarrel_ );
+  clusteralgo.SetThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+  
+  clusteralgo.SetThreshHcalEndcap( threshHcalEndcap_ );
+  clusteralgo.SetThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+
+  clusteralgo.SetNNeighboursHcal( nNeighboursHcal_ );
+
+
   clusteralgo.Init( rechits ); 
   clusteralgo.AllClusters();
 
@@ -199,7 +243,8 @@ void PFRootEventManager::Display(int ientry) {
   
   ProcessEntry(ientry);
   DisplayEtaPhi();
-  DisplayXY();
+  DisplayView(RZ);
+  DisplayView(XY);
 }
 
 
@@ -376,6 +421,139 @@ void PFRootEventManager::DisplayEtaPhi() {
 //   delete next;
 // }
 
+void PFRootEventManager::DisplayView(unsigned viewType) 
+{
+  // Clear TGraph if needed
+  if (graphTrack_[viewType].size()) {
+    for (unsigned iGraph = 0; iGraph < graphTrack_[viewType].size(); iGraph++)
+      delete graphTrack_[viewType][iGraph];
+    graphTrack_[viewType].clear();
+  }
+
+  // Display or clear canvas
+  if(!displayView_[viewType] || !gROOT->GetListOfCanvases()->FindObject(displayView_[viewType]) ) {
+    assert(viewSize_.size() == 2);
+    switch(viewType) {
+    case XY:
+      displayView_[viewType] = new TCanvas("displayXY_", "XY view",
+					   viewSize_[0], viewSize_[1]);
+      break;
+    case RZ:
+      displayView_[viewType] = new TCanvas("displayRZ_", "RZ view",
+					   viewSize_[0], viewSize_[1]);
+      break;
+    }
+    displayView_[viewType]->SetGrid(0, 0);
+    displayView_[viewType]->SetLeftMargin(0.12);
+    displayView_[viewType]->SetBottomMargin(0.12);
+    displayView_[viewType]->Draw();  
+  } else 
+    displayView_[viewType]->Clear();
+  displayView_[viewType]->cd();
+
+  // Draw support histogram
+  double zLow = -500.;
+  double zUp  = +500.;
+  double rLow = -300.;
+  double rUp  = +300.;
+  if(!displayHist_[viewType]) {
+    switch(viewType) {
+    case XY:
+      displayHist_[viewType] = new TH2F("hdisplayHist_XY", "", 
+					500, rLow, rUp, 500, rLow, rUp);
+      displayHist_[viewType]->SetXTitle("X");
+      displayHist_[viewType]->SetYTitle("Y");
+      break;
+    case RZ:
+      displayHist_[viewType] = new TH2F("hdisplayHist_RZ", "", 
+					500, zLow, zUp, 500, rLow, rUp);
+      displayHist_[viewType]->SetXTitle("Z");
+      displayHist_[viewType]->SetYTitle("R");
+      break;
+    default:
+      std::cerr << "This kind of view is not implemented" << std::endl;
+      break;
+    }
+    displayHist_[viewType]->SetStats(kFALSE);
+  }
+  displayHist_[viewType]->Draw();
+
+  if (viewType == XY) {
+    // Draw ECAL front face
+    frontFaceECALXY_.SetX1(0);
+    frontFaceECALXY_.SetY1(0);
+    frontFaceECALXY_.SetR1(129); // <==== BE CAREFUL, ECAL size is hardcoded !!!!
+    frontFaceECALXY_.SetR2(129);
+    frontFaceECALXY_.SetFillStyle(0);
+    frontFaceECALXY_.Draw();
+
+    // Draw HCAL front face
+    frontFaceHCALXY_.SetX1(0);
+    frontFaceHCALXY_.SetY1(0);
+    frontFaceHCALXY_.SetR1(183); // <==== BE CAREFUL, HCAL size is hardcoded !!!!
+    frontFaceHCALXY_.SetR2(183);
+    frontFaceHCALXY_.SetFillStyle(0);
+    frontFaceHCALXY_.Draw();
+  } else if (viewType == RZ) {
+    // Draw lines at different etas
+    TLine l;
+    l.SetLineColor(1);
+    l.SetLineStyle(3);
+    TLatex etaLeg;
+    etaLeg.SetTextSize(0.02);
+    float etaMin = -3.;
+    float etaMax = +3.;
+    float etaBin = 0.2;
+    int nEtas = int((etaMax - etaMin)/0.2) + 1;
+    for (int iEta = 0; iEta <= nEtas; iEta++) {
+      float eta = etaMin + iEta*etaBin;
+      float r = 0.9*rUp;
+      TVector3 etaImpact;
+      etaImpact.SetPtEtaPhi(r, eta, 0.);
+      etaLeg.SetTextAlign(21);
+      if (eta <= -1.39) {
+	etaImpact.SetXYZ(0.,0.85*zLow*tan(etaImpact.Theta()),0.85*zLow);
+	etaLeg.SetTextAlign(31);
+      } else if (eta >= 1.39) {
+	etaImpact.SetXYZ(0.,0.85*zUp*tan(etaImpact.Theta()),0.85*zUp);
+	etaLeg.SetTextAlign(11);
+      }
+      l.DrawLine(0., 0., etaImpact.Z(), etaImpact.Perp());
+      etaLeg.DrawLatex(etaImpact.Z(), etaImpact.Perp(), Form("%2.1f", eta));
+    }
+    
+    frontFaceECALRZ_.SetX1(-303.16);
+    frontFaceECALRZ_.SetY1(-129.);
+    frontFaceECALRZ_.SetX2(303.16);
+    frontFaceECALRZ_.SetY2(129.);
+    frontFaceECALRZ_.SetFillStyle(0);
+    frontFaceECALRZ_.Draw();
+  }
+
+  // Put highest Pt reconstructed track along phi = pi/2
+  double phi0 = 0.;
+//   double ptMax = 0.;
+//   double pxMax = 0.;
+//   double pyMax = 0.;
+//   std::vector<reco::PFRecTrack>::iterator itRecTrack;
+//   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
+//        itRecTrack++) {
+//     double pt = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Pt();
+//     if (pt > ptMax) {
+//       ptMax = pt;
+//       phi0 = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Phi();
+//       pxMax = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Px();
+//       pyMax = itRecTrack->trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach).momentum().Py();
+//     }
+//   }
+
+
+  // Display reconstructed objects
+  displayView_[viewType]->cd();
+  DisplayRecHits(viewType, phi0);
+  DisplayRecTracks(viewType, phi0);
+  DisplayClusters(viewType, phi0);
+}
 
 void PFRootEventManager::DisplayRecHitsEtaPhi() {
   
@@ -402,12 +580,6 @@ void PFRootEventManager::DisplayRecHitsEtaPhi() {
       thresh = threshEcalEndcap_;
       canvas->cd(1);
       break;     
-    case PFLayer::PS1:
-    case PFLayer::PS2:
-      maxe = -1;
-      thresh = threshPS_;
-      canvas->cd(1);
-      break;
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
     case PFLayer::HCAL_ENDCAP:
@@ -449,17 +621,18 @@ void   PFRootEventManager::DisplayRecHitEtaPhi(reco::PFRecHit& rh,
     if( !cutg->IsInside(eta, phi) ) return;
   }
 
+
   int color = TColor::GetColor(220, 220, 255);
-  bool isseed = false;
-  if(isseed) {
-    color = TColor::GetColor(150, 200, 255);
+  if(rh.IsSeed() == 1) {
+//     color = TColor::GetColor(150, 200, 255);
+    color = TColor::GetColor(100, 150, 255);
   }
   
   // preshower rechits are drawn in a different color
   if(rh.GetLayer() == PFLayer::PS1 ||
      rh.GetLayer() == PFLayer::PS2 ) {
     color = 6;
-    if(isseed) color = 41;
+    if(rh.IsSeed() == 1) color = 41;
   }
 
 
@@ -483,16 +656,6 @@ void   PFRootEventManager::DisplayRecHitEtaPhi(reco::PFRecHit& rh,
   
   double propfact = 0.95; // so that the cells don't overlap ? 
   for ( unsigned jc=0; jc<4; ++jc ) { 
-//     TMarker m;
-//     m.SetMarkerColor(4);
-//     m.SetMarkerStyle(20);
-    
-//     double xm = corners[jc].Eta();
-//     double ym = corners[jc].Phi();
-    
-//     m.DrawMarker(xm,ym);
-
-
     phiSize[jc] = phi-corners[jc].Phi();
     etaSize[jc] = eta-corners[jc].Eta();
     if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
@@ -521,23 +684,19 @@ void   PFRootEventManager::DisplayRecHitEtaPhi(reco::PFRecHit& rh,
   // in addition,
   // log weighting of the polyline sides w/r to the max energy 
   // in the detector
-
-  if(maxe>0) {
-    
-    double etaAmpl = (log(rh.GetEnergy()+1.)/log(maxe+1.));
-    double phiAmpl = (log(rh.GetEnergy()+1.)/log(maxe+1.));
-    for ( unsigned jc=0; jc<4; ++jc ) { 
-      x[jc] = eta + etaSize[jc]*etaAmpl;
-      y[jc] = phi + phiSize[jc]*phiAmpl;
-    }
-    x[4]=x[0];
-    y[4]=y[0];
-    
-    
-    lineprop.SetLineColor(color);
-    lineprop.SetFillColor(color);
-    lineprop.DrawPolyLine(5,x,y,"f");
+  double etaAmpl = (log(rh.GetEnergy()+1.)/log(maxe+1.));
+  double phiAmpl = (log(rh.GetEnergy()+1.)/log(maxe+1.));
+  for ( unsigned jc=0; jc<4; ++jc ) { 
+    x[jc] = eta + etaSize[jc]*etaAmpl;
+    y[jc] = phi + phiSize[jc]*phiAmpl;
   }
+  x[4]=x[0];
+  y[4]=y[0];
+  
+  
+  lineprop.SetLineColor(color);
+  lineprop.SetFillColor(color);
+  lineprop.DrawPolyLine(5,x,y,"f");
 
 //   if(fDrawID) {
 //     char id[10];
@@ -556,7 +715,7 @@ void PFRootEventManager::DisplayClustersEtaPhi() {
 
   
   for( unsigned i=0; i<clusters_.size(); i++) {
-    cout<<"displaying "<<clusters_[i]<<" "<<clusters_[i].GetLayer()<<endl;
+    // cout<<"displaying "<<clusters_[i]<<" "<<clusters_[i].GetLayer()<<endl;
     
     if( clusters_[i].GetLayer() < 0 ) { // ECAL
       canvas->cd(1);
@@ -580,158 +739,269 @@ void PFRootEventManager::DisplayClusterEtaPhi(const reco::PFCluster& cluster) {
   m.DrawMarker(eta, phi);
 }
 
-
-void PFRootEventManager::DisplayXY() {
-
-  if(!displayHistXY_) {
-    displayHistXY_ = new TH2F("fHistXY","",100,-300,300,100,-300,300);
-    displayHistXY_->SetXTitle("X");
-    displayHistXY_->SetYTitle("Y");
-    displayHistXY_->SetStats(0);
-  }
-
-  if(displayXY_) 
-    displayXY_->Clear();
-  else 
-    displayXY_ = new TCanvas("xy", 
-			     "X/Y view",
-			     viewSizeXY_[0], viewSizeXY_[1]);
-
-
-
-  displayHistXY_->Draw();
-
-  TPad *canvas = dynamic_cast<TPad*>( TPad::Pad() ); 
-  if(! canvas ) return;
-
+void PFRootEventManager::DisplayRecHits(unsigned viewType, double phi0) 
+{
   double maxee = GetMaxEEcal();
   double maxeh = GetMaxEHcal();
   
-  for( unsigned i=0; i<rechits_.size(); i++) {
-    reco::PFRecHit& rh = rechits_[i];
-    
-    double maxe = -1;
+  std::vector<reco::PFRecHit>::iterator itRecHit;
+  for (itRecHit = rechits_.begin(); itRecHit != rechits_.end(); 
+       itRecHit++) {
+    double maxe = 0;
     double thresh = 0;
-    switch( rh.GetLayer() ) {
+    switch(itRecHit->GetLayer()) {
     case PFLayer::ECAL_BARREL:
       maxe = maxee;
       thresh = threshEcalBarrel_;
-      canvas->cd(1);
       break;     
     case PFLayer::ECAL_ENDCAP:
       maxe = maxee;
       thresh = threshEcalEndcap_;
-      canvas->cd(1);
       break;     
-    case PFLayer::PS1:
-    case PFLayer::PS2:
-      maxe = -1;
-      thresh = threshPS_;
-      canvas->cd(1);
-      break;
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
+      maxe = maxeh;
+      thresh = threshHcalBarrel_;
+      break;           
     case PFLayer::HCAL_ENDCAP:
       maxe = maxeh;
-      thresh = 0;
-      canvas->cd(2);
-      break;     
+      thresh = threshHcalEndcap_;
+      break;           
     default:
       cerr<<"manage other layers"<<endl;
       continue;
     }
-    DisplayRecHitXY(rh, maxe, thresh);
+
+    if(itRecHit->GetEnergy() > thresh )
+      DisplayRecHit(*itRecHit, viewType, maxe, thresh, phi0);
   }
 }
 
+void PFRootEventManager::DisplayRecHit(reco::PFRecHit& rh, unsigned viewType,
+				       double maxe, double thresh,
+				       double phi0) 
+{
+  math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
+  if (rh.GetEnergy() < thresh ) return;
 
-void PFRootEventManager::DisplayRecHitXY(reco::PFRecHit& rh,
-					 double maxe, double thresh) {
-  
-  if ( rh.GetEnergy() < thresh ) return;
-  
-  double xpos = rh.GetPositionXYZ().X();
-  double ypos = rh.GetPositionXYZ().Y();
-  
-  cout<<"display rechit "<<xpos<<" "<<ypos<<endl;
+  double eta = rh.GetPositionXYZ().Eta();
+  double phi = rh.GetPositionXYZ().Phi();
+  double sign = 1.;
+  if (cos(phi0 - phi) < 0.) sign = -1.;
 
-  // is there a cutg defined ? if yes, draw only if the rechit is inside
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-  if(cutg) {
-    if( !cutg->IsInside(xpos, ypos) ) return;
+  if (cutg) {
+    if( !cutg->IsInside(eta, phi) ) return;
   }
 
-  int color = TColor::GetColor(220, 220, 255);
-  bool isseed = false;
-  if(isseed) {
-    color = TColor::GetColor(150, 200, 255);
-  }
-  
-  // preshower rechits are drawn in a different color
-  if(rh.GetLayer() == PFLayer::PS1 ||
-     rh.GetLayer() == PFLayer::PS2 ) {
-    color = 6;
-    if(isseed) color = 41;
-  }
-
-
-  TPolyLine linesize;
-  TPolyLine lineprop;
-  
-  double xSize[4];
-  double ySize[4];
+  double etaSize[4];
+  double phiSize[4];
   double x[5];
   double y[5];
-
+  double z[5];
+  double r[5];
+  double xprop[5];
+  double yprop[5];
+  
   const std::vector< math::XYZPoint >& corners = rh.GetCornersXYZ();
   
   assert(corners.size() == 4);
-
-//   vector<TVector3*> corners; // just for easy manipulation of the corners.
-//   corners.push_back( &fCorner1 );
-//   corners.push_back( &fCorner2 );
-//   corners.push_back( &fCorner3 );
-//   corners.push_back( &fCorner4 );
   
   double propfact = 0.95; // so that the cells don't overlap ? 
-  for ( unsigned jc=0; jc<4; ++jc ) { 
-//     cout<<"  corner : "<<corners[jc].X()<<" "<<corners[jc].Y()<<endl;
-
-//     TMarker m;
-//     m.SetMarkerColor(4);
-//     m.SetMarkerStyle(20);
-    
-//     double xm = corners[jc].X();
-//     double ym = corners[jc].Y();
-  
-//     m.DrawMarker(xm,ym);
-
-
-    ySize[jc] = ypos-corners[jc].Y();
-    xSize[jc] = xpos-corners[jc].X();
-    if ( ySize[jc] > 1. ) ySize[jc] -= 2.*TMath::Pi();  // this is strange...
-    if ( ySize[jc] < -1. ) ySize[jc]+= 2.*TMath::Pi();
-    ySize[jc] *= propfact;
-    xSize[jc] *= propfact;
-  }
+  double ampl = (log(rh.GetEnergy() + 1.)/log(maxe + 1.));
   
   for ( unsigned jc=0; jc<4; ++jc ) { 
-    x[jc] = xpos + xSize[jc];
-    y[jc] = ypos + ySize[jc];
+    phiSize[jc] = phi-corners[jc].Phi();
+    etaSize[jc] = eta-corners[jc].Eta();
+    if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
+    if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
+    phiSize[jc] *= propfact;
+    etaSize[jc] *= propfact;
 
-    // if( fLayer==-1 ) cout<<"DEBUG "<<jc<<" "<<x<<" "<<y<<" "<<x Size[jc]<<" "<<ySize[jc]<<endl;
+    math::XYZPoint cornerposxyz(corners[jc].X()*vPhi0.Y() - corners[jc].Y()*vPhi0.X(), corners[jc].X()*vPhi0.X() + corners[jc].Y()*vPhi0.Y(), corners[jc].Z());
+    // cornerposxyz.SetPhi( corners[jc]->Y() - phi0 );
+
+    x[jc] = cornerposxyz.X();
+    y[jc] = cornerposxyz.Y();
+    z[jc] = cornerposxyz.Z();
+    r[jc] = sign*cornerposxyz.Rho();
+
+    // cell area is prop to log(E)
+    if(!(rh.GetLayer() == PFLayer::ECAL_BARREL || 
+	 rh.GetLayer() == PFLayer::HCAL_BARREL1 || 
+	 rh.GetLayer() == PFLayer::HCAL_BARREL2)) {
+      
+      math::XYZPoint centreXYZrot(rh.GetPositionXYZ().X()*vPhi0.Y() - rh.GetPositionXYZ().Y()*vPhi0.X(), rh.GetPositionXYZ().X()*vPhi0.X() + rh.GetPositionXYZ().Y()*vPhi0.Y(), rh.GetPositionXYZ().Z());
+      // centreXYZrot.SetPhi( fCentre.Y() - phi0 );
+
+      math::XYZPoint centertocorner(x[jc] - centreXYZrot.X(), 
+				    y[jc] - centreXYZrot.Y(), 0.);
+      // centertocorner -= centreXYZrot;
+      xprop[jc] = centreXYZrot.X() + centertocorner.X()*ampl;
+      yprop[jc] = centreXYZrot.Y() + centertocorner.Y()*ampl;
+    }
   }
+
+  if(rh.GetLayer() == PFLayer::ECAL_BARREL || 
+     rh.GetLayer() == PFLayer::HCAL_BARREL1 || 
+     rh.GetLayer() == PFLayer::HCAL_BARREL2 || viewType == RZ) {
+
+    // we are in the barrel. Determining which corners to shift 
+    // away from the center to represent the cell energy
+    int i1 = -1;
+    int i2 = -1;
+
+    if(fabs(phiSize[1]-phiSize[0]) > 0.0001) {
+      if (viewType == XY) {
+	i1 = 2;
+	i2 = 3;
+      } else if (viewType == RZ) {
+	i1 = 1;
+	i2 = 2;
+      }
+    } else {
+      if (viewType == XY) {
+	i1 = 1;
+	i2 = 2;
+      } else if (viewType == RZ) {
+	i1 = 2;
+	i2 = 3;
+      }
+    }
+
+    x[i1] *= 1+ampl/2.;
+    x[i2] *= 1+ampl/2.;
+    y[i1] *= 1+ampl/2.;
+    y[i2] *= 1+ampl/2.;
+    z[i1] *= 1+ampl/2.;
+    z[i2] *= 1+ampl/2.;
+    r[i1] *= 1+ampl/2.;
+    r[i2] *= 1+ampl/2.;
+  }
+
+  
   x[4]=x[0];
   y[4]=y[0]; // closing the polycell
-
-  linesize.SetLineColor(color);
-  linesize.DrawPolyLine(5, x, y);
-
-  // we do not draw area prop to energy for preshower rechits
-  if(rh.GetLayer() == PFLayer::PS1 || 
-     rh.GetLayer() == PFLayer::PS2) 
-    return;
+  z[4]=z[0];
+  r[4]=r[0]; // closing the polycell
   
+
+  int color = TColor::GetColor(220, 220, 255);
+  if(rh.IsSeed() == 1) {
+    color = TColor::GetColor(100, 150, 255);
+  }
+
+  if (viewType == XY) {
+    TPolyLine lineSizeXY;
+    TPolyLine linePropXY;          
+    if(rh.GetLayer() == PFLayer::ECAL_BARREL || 
+       rh.GetLayer() == PFLayer::HCAL_BARREL1 || 
+       rh.GetLayer() == PFLayer::HCAL_BARREL2) {
+      lineSizeXY.SetLineColor(color);
+      //cout << "x,y " << x[0] << " " << y[0] << endl;
+      lineSizeXY.SetFillColor(color);
+      lineSizeXY.DrawPolyLine(5,x,y,"f");
+    } else {
+      //cout << "x,y " << x[0] << " " << y[0] << endl;
+      lineSizeXY.SetLineColor(color);
+      lineSizeXY.DrawPolyLine(5,x,y);
+      
+      xprop[4]=xprop[0];
+      yprop[4]=yprop[0]; // closing the polycell    
+      linePropXY.SetLineColor(color);
+      linePropXY.SetFillColor(color);
+      linePropXY.DrawPolyLine(5,xprop,yprop,"F");
+    }
+  } else if (viewType == RZ) {
+    TPolyLine lineSizeRZ;
+    lineSizeRZ.SetLineColor(color);
+    lineSizeRZ.SetFillColor(color);
+    // cout << "z,r " << z[0] << " " << r[0] << endl;
+    lineSizeRZ.DrawPolyLine(5,z,r,"f");
+  }
+}
+
+void PFRootEventManager::DisplayClusters(unsigned viewType, double phi0)
+{
+  math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
+  std::vector<reco::PFCluster>::iterator itCluster;
+  for (itCluster = clusters_.begin(); itCluster != clusters_.end(); 
+       itCluster++) {
+    TMarker m;
+    m.SetMarkerColor(4);
+    m.SetMarkerStyle(20);
+
+    math::XYZPoint xyzPos(itCluster->GetPositionXYZ().X()*vPhi0.Y() - itCluster->GetPositionXYZ().Y()*vPhi0.X(), itCluster->GetPositionXYZ().X()*vPhi0.X() + itCluster->GetPositionXYZ().Y()*vPhi0.Y(), itCluster->GetPositionXYZ().Z());
+
+    switch(viewType) {
+    case XY:
+      m.DrawMarker(xyzPos.X(), xyzPos.Y());
+      break;
+    case RZ:
+      double sign = 1.;
+      if (cos(phi0 - itCluster->GetPositionXYZ().Phi()) < 0.)
+	sign = -1.;
+      m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
+      break;
+    }      
+  }
+}
+
+void PFRootEventManager::DisplayRecTracks(unsigned viewType, double phi0) 
+{
+  math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
+  std::vector<reco::PFRecTrack>::iterator itRecTrack;
+  for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
+       itRecTrack++) {
+    double sign = 1.;
+    if (cos(phi0 - itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() + reco::PFTrajectoryPoint::ECALEntrance).momentum().Phi()) < 0.)
+      sign = -1.;
+
+    // Check number of measurements with non-zero momentum
+    std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
+      itRecTrack->trajectoryPoints();
+    std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
+    unsigned nValidPts = 0;
+    for (itTrajPt = trajectoryPoints.begin(); 
+	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
+      if (itTrajPt->momentum().P() > 0.) nValidPts++;
+    if (!nValidPts) continue;
+    double* xPos = new double[nValidPts];
+    double* yPos = new double[nValidPts];
+    unsigned iValid = 0;
+    // cout << "Draw a new track " << nValidPts << endl;
+    for (itTrajPt = trajectoryPoints.begin(); 
+	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
+      if (itTrajPt->momentum().P() > 0.) {
+	math::XYZPoint xyzPos(itTrajPt->xyzPosition().X()*vPhi0.Y() - itTrajPt->xyzPosition().Y()*vPhi0.X(), itTrajPt->xyzPosition().X()*vPhi0.X() + itTrajPt->xyzPosition().Y()*vPhi0.Y(), itTrajPt->xyzPosition().Z());
+	// xyzPos.SetPhi(xyzPos.Phi()); // <=== Does not work ??? why ???
+	switch(viewType) {
+	case XY:
+	  xPos[iValid] = xyzPos.X();
+	  yPos[iValid] = xyzPos.Y();
+	  // cout << "\t" << itTrajPt->xyzPosition().X() << " " 
+	  //     << itTrajPt->xyzPosition().Y() << endl;
+	  break;
+	case RZ:
+	  xPos[iValid] = xyzPos.Z();
+	  yPos[iValid] = sign*xyzPos.Rho();
+	  break;
+	}
+	iValid++;
+      }
+    graphTrack_[viewType].push_back(new TGraph(nValidPts, xPos, yPos));
+    int color = 103;
+    unsigned lastHisto = graphTrack_[viewType].size() - 1;
+    graphTrack_[viewType][lastHisto]->SetMarkerColor(color);
+    graphTrack_[viewType][lastHisto]->SetMarkerStyle(8);
+    graphTrack_[viewType][lastHisto]->SetMarkerSize(0.5);
+    graphTrack_[viewType][lastHisto]->SetLineColor(color);
+    graphTrack_[viewType][lastHisto]->SetLineStyle(itRecTrack->algoType());
+    graphTrack_[viewType][lastHisto]->Draw("pl");
+    delete[] xPos;
+    delete[] yPos;
+  }
+  return;
 }
 
 double PFRootEventManager::GetMaxEEcal() {

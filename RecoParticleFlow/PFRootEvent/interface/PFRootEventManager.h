@@ -1,10 +1,14 @@
-#ifndef RecoParticleFlow_PFRootEvent_PFRootEventManager_h
-#define RecoParticleFlow_PFRootEvent_PFRootEventManager_h
+#ifndef Demo_PFRootEvent_PFRootEventManager_h
+#define Demo_PFRootEvent_PFRootEventManager_h
 
-#include "DataFormats/PFReco/interface/PFRecHit.h"
-#include "DataFormats/PFReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 
 #include <TObject.h>
+#include "TEllipse.h"
+#include "TBox.h"
 
 #include <string>
 #include <map>
@@ -16,11 +20,14 @@ class TBranch;
 class TFile;
 class TCanvas;
 class TH2F;
+class TGraph;
 class IO;
 
 class PFRootEventManager {
 
  public:
+  enum View_t { XY = 0, RZ = 1, NViews = 2 };
+
   PFRootEventManager();
   PFRootEventManager(const char* file);
   virtual ~PFRootEventManager();
@@ -46,6 +53,9 @@ class PFRootEventManager {
   /// display eta/phi
   void DisplayEtaPhi();
 
+  /// display x/y or r/z
+  void DisplayView(unsigned viewType);
+
   /// display rechits
   void DisplayRecHitsEtaPhi();
 
@@ -57,14 +67,20 @@ class PFRootEventManager {
 
   void DisplayClusterEtaPhi(const reco::PFCluster& cluster);
 
+  /// display x/y or r/z
 
-  /// display x/y
-  void DisplayXY();
+  /// display reconstructed calorimeter hits in x/y or r/z view
+  void DisplayRecHits(unsigned viewType, double phi0 = 0.);
 
-  /// display rechit
-  void DisplayRecHitXY(reco::PFRecHit& rh,
-		       double maxe, double thresh);
+  /// display a reconstructed calorimeter hit in x/y or r/z view
+  void DisplayRecHit(reco::PFRecHit& rh, unsigned viewType,
+		     double maxe, double thresh, double phi0 = 0.);
 
+  /// display clusters in x/y or r/z view
+  void DisplayClusters(unsigned viewType, double phi0 = 0.);
+
+  /// display reconstructed tracks in x/y or r/z view
+  void DisplayRecTracks(unsigned viewType, double phi0 = 0.);
 
   /// finds max rechit energy in a given layer 
   double GetMaxE(int layer) const;
@@ -90,11 +106,17 @@ class PFRootEventManager {
   /// cluster branch  
   TBranch*   hitsBranch_;          
   
+  /// reconstructed tracks branch  
+  TBranch*   recTracksBranch_;          
+  
   // rechits
   std::vector<reco::PFRecHit> rechits_;
 
-  // rechits
+  // clusters
   std::vector<reco::PFCluster> clusters_;
+
+  // reconstructed tracks
+  std::vector<reco::PFRecTrack> recTracks_;
 
   /// input file
   TFile*     file_; 
@@ -122,14 +144,26 @@ class PFRootEventManager {
   /// support histogram for eta/phi display
   TH2F*                    displayHistEtaPhi_;
 
-  /// canvas for xy display
-  TCanvas                 *displayXY_;
+  /// vector of canvas for x/y or r/z display
+  std::vector<TCanvas*> displayView_;
 
-  /// display pad xy size for (x,y) display
-  std::vector<int>         viewSizeXY_;     
+  /// display pad xy size for (x,y) or (r,z) display
+  std::vector<int>      viewSize_;     
 
-  /// support histogram for xy display
-  TH2F*                    displayHistXY_;
+  /// support histogram for x/y or r/z display
+  std::vector<TH2F*>    displayHist_;
+
+  /// ECAL in XY view
+  TEllipse frontFaceECALXY_;
+
+  /// ECAL in RZ view
+  TBox     frontFaceECALRZ_;
+
+  /// HCAL in XY view
+  TEllipse frontFaceHCALXY_;
+
+  /// vector of TGraph used to represent the track in XY or RZ view
+  std::vector< std::vector<TGraph*> > graphTrack_;
 
   /// max rechit energy in ecal
   double                   maxERecHitEcal_;
@@ -155,11 +189,6 @@ class PFRootEventManager {
   /// ecal number of neighbours
   int    nNeighboursEcal_;
 
-  /// ecal barrel threshold
-  double threshPS_;
-
-  /// ecal barrel seed threshold
-  double threshSeedPS_;
 
   /// hcal barrel threshold
   double threshHcalBarrel_;

@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/PFReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 // #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
@@ -31,7 +31,7 @@ Implementation:
 //
 // Original Author:  Colin Bernet
 //         Created:  Tue Jun 27 14:35:24 CEST 2006
-// $Id$
+// $Id: PFClusterProducer.h,v 1.1 2006/07/21 16:22:51 cbern Exp $
 //
 //
 
