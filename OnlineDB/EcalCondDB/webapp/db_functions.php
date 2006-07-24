@@ -3,7 +3,7 @@
  * db_functions.php
  *
  * All the functions used to connect to and query the DB
- * $Id$
+ * $Id: db_functions.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 require_once 'common.php';
@@ -134,7 +134,7 @@ function get_runselect_headers() {
   input $params is a set of options from the selection page
   returns array("sql" => The sql of the query, "binds" => a list of bind parameters) */
 function build_runselect_sql($params) {
-  $selectfrom = "select loc.location, rtype.run_type, rtype.config_tag, rtype.config_ver, rtag.gen_tag run_gen_tag,
+  $selectfrom = "select loc.location, rtype.run_type, rconfig.config_tag, rconfig.config_ver, rtag.gen_tag run_gen_tag,
                         riov.iov_id run_iov_id, riov.run_num, riov.run_start, riov.run_end, riov.db_timestamp run_db_timestamp, 
                         rdat.num_events, cv.id1 SM
                    from location_def loc
@@ -142,6 +142,7 @@ function build_runselect_sql($params) {
                    join run_type_def rtype on rtype.def_id = rtag.run_type_id
                    join run_iov riov on riov.tag_id = rtag.tag_id 
                    left join run_dat rdat on rdat.iov_id = riov.iov_id 
+                   left join run_config_dat rconfig on rconfig.iov_id = riov.iov_id
                    left join channelview cv on rdat.logic_id = cv.logic_id 
                         and cv.name = 'EB_supermodule'
                         and cv.name = cv.maps_to";
@@ -178,7 +179,7 @@ function build_runselect_sql($params) {
   }
 
   $run_order = $params['run_order'];
-  $orderby = " order by riov.run_num $run_order, rtype.run_type asc, rtype.config_tag asc, rtag.gen_tag asc";
+  $orderby = " order by riov.run_num $run_order, rtype.run_type asc, rconfig.config_tag asc, rtag.gen_tag asc";
 
   $sql = $selectfrom.$where.$orderby;
 
