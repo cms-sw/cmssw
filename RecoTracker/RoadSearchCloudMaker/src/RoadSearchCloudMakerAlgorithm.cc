@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/05/19 15:33:08 $
-// $Revision: 1.14 $
+// $Author: stevew $
+// $Date: 2006/07/11 04:13:58 $
+// $Revision: 1.15 $
 //
 
 #include <vector>
@@ -67,7 +67,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -119,8 +119,8 @@ double RoadSearchCloudMakerAlgorithm::map_phi2(double phi) {
 }
 
 void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> input,
-					const SiStripRecHit2DLocalPosCollection* rphiRecHits,
-					const SiStripRecHit2DLocalPosCollection* stereoRecHits,
+					const SiStripRecHit2DCollection* rphiRecHits,
+					const SiStripRecHit2DCollection* stereoRecHits,
 					const edm::EventSetup& es,
 					RoadSearchCloudCollection &output)
 {
@@ -154,7 +154,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
     ++seedCounter;
 
-    // get DetIds of SiStripRecHit2DLocalPos of Seed, assuming first is hit from inner SeedRing, second is hit from outer SeedRing
+    // get DetIds of SiStripRecHit2D of Seed, assuming first is hit from inner SeedRing, second is hit from outer SeedRing
     if ( seed->nHits() < 2 ) {
       edm::LogError("RoadWarning") << "Seed has less then two linked TrackingRecHit, do not consider this seed.";
     } else {
@@ -336,16 +336,16 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
 };
 
-void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
+void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 							 double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 							 const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 							 const TrackerGeometry *tracker, RoadSearchCloud &cloud) {
-  // retrieve vector<SiStripRecHit2DLocalPos> for id, loop over SiStripRecHit2DLocalPos, check if compatible with cloud, fill into cloud
+  // retrieve vector<SiStripRecHit2D> for id, loop over SiStripRecHit2D, check if compatible with cloud, fill into cloud
 
-  const SiStripRecHit2DLocalPosCollection::range recHitRange = inputRecHits->get(id);
+  const SiStripRecHit2DCollection::range recHitRange = inputRecHits->get(id);
 
-  for ( SiStripRecHit2DLocalPosCollection::const_iterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
-    const SiStripRecHit2DLocalPos * recHit = &(*recHitIterator);
+  for ( SiStripRecHit2DCollection::const_iterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
+    const SiStripRecHit2D * recHit = &(*recHitIterator);
 
     unsigned int maxDetHitsInCloudPerDetId = conf_.getParameter<int>("MaxDetHitsInCloudPerDetId");
 

@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:08:40 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -49,13 +49,13 @@ namespace cms
     edm::Handle<TrajectorySeedCollection> seeds;
     e.getByLabel(seedProducer, seeds);
 
-    // retrieve producer name of input SiStripRecHit2DLocalPosCollection
+    // retrieve producer name of input SiStripRecHit2DCollection
     std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
     // get Inputs 
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+    edm::Handle<SiStripRecHit2DCollection> rphirecHits;
     e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
-    edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+    edm::Handle<SiStripRecHit2DCollection> stereorecHits;
     e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
 
     // Step B: create empty output collection

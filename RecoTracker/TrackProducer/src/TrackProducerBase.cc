@@ -174,6 +174,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     
     //create a TrackExtraRef
     reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
+    theTrack->setHitPattern((*theTrackExtraRef).recHits());
     
     //use the TrackExtraRef to assign the TrackExtra to the Track
     theTrack->setExtra(theTrackExtraRef);
