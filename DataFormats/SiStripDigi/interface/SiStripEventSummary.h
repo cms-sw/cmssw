@@ -16,8 +16,8 @@ class SiStripEventSummary {
   /** Default constructor. */
   SiStripEventSummary() : 
     event_(0), bx_(0),
-    task_(sistrip::UNKNOWN_TASK), 
-    fedReadoutMode_(sistrip::UNKNOWN_FED_MODE),
+    task_(sistrip::UNDEFINED_TASK), 
+    fedReadoutMode_(sistrip::UNDEFINED_FED_READOUT_MODE),
     param0_(0), param1_(0), param2_(0), param3_(0),
     apveAddress_(0),
     nApvsInSync_(0),
@@ -28,7 +28,7 @@ class SiStripEventSummary {
   ~SiStripEventSummary() {;}
   
   // ----- Event-related -----
-
+  
   /** Sets event number. */
   inline void event( const uint32_t& event ) { event_ = event; }
   /** Sets bunch crossing number. */
