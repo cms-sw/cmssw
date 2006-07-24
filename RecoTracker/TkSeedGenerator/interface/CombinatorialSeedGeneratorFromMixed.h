@@ -12,8 +12,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 
 class CombinatorialSeedGeneratorFromMixed : public SeedGeneratorFromLayerPairs {
@@ -23,9 +23,9 @@ class CombinatorialSeedGeneratorFromMixed : public SeedGeneratorFromLayerPairs {
   ~CombinatorialSeedGeneratorFromMixed(){delete stripLayers;}
 
   void init(const SiPixelRecHitCollection &collpxl,
-	    const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-	    const SiStripRecHit2DLocalPosCollection &collstereo ,
-	    const SiStripRecHit2DLocalPosCollection &collrphi,
+	    const SiStripMatchedRecHit2DCollection &collmatch,
+	    const SiStripRecHit2DCollection &collstereo ,
+	    const SiStripRecHit2DCollection &collrphi,
 	    const edm::EventSetup& c);
   void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
  private:

@@ -9,9 +9,9 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 void 
-SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstereo,
-			      const SiStripRecHit2DLocalPosCollection &collrphi ,
-			      const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
+			      const SiStripRecHit2DCollection &collrphi ,
+			      const SiStripMatchedRecHit2DCollection &collmatched,
 			      const edm::EventSetup& iSetup)
 {
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);

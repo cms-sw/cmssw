@@ -6,9 +6,9 @@
 
 void 
 CombinatorialSeedGeneratorFromMixed::init(const SiPixelRecHitCollection &collpxl,
-					  const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-					  const SiStripRecHit2DLocalPosCollection &collstereo ,
-					  const SiStripRecHit2DLocalPosCollection &collrphi ,
+					  const SiStripMatchedRecHit2DCollection &collmatch,
+					  const SiStripRecHit2DCollection &collstereo ,
+					  const SiStripRecHit2DCollection &collrphi ,
 					  const edm::EventSetup& iSetup)
 {
   stripLayers->init(collpxl,collmatch,collstereo,collrphi,iSetup);

@@ -10,8 +10,8 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromLayerPairs.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGenerator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -27,9 +27,9 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   typedef TrajectoryStateOnSurface TSOS;
   SeedGeneratorForCosmics(const edm::ParameterSet& conf);
   virtual ~SeedGeneratorForCosmics(){};
-  void init(const SiStripRecHit2DLocalPosCollection &collstereo,
-	    const SiStripRecHit2DLocalPosCollection &collrphi,
-	    const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
+  void init(const SiStripRecHit2DCollection &collstereo,
+	    const SiStripRecHit2DCollection &collrphi,
+	    const SiStripMatchedRecHit2DCollection &collmatched,
 	    const edm::EventSetup& c);
 
 

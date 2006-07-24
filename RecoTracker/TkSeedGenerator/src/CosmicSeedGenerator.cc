@@ -8,7 +8,7 @@
 #include <string>
 
 #include "RecoTracker/TkSeedGenerator/interface/CosmicSeedGenerator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,11 +37,11 @@ void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 
   
   // get Inputs
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+  edm::Handle<SiStripRecHit2DCollection> stereorecHits;
   e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits; 	 
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits; 	 
   e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
  
 

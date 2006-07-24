@@ -8,8 +8,8 @@
 #include <string>
 
 #include "RecoTracker/TkSeedGenerator/interface/GlobalMixedSeedGenerator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,11 +39,11 @@ void GlobalMixedSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   e.getByLabel(pxlHitProducer, pixelHits);
 
   std::string stripHitProducer = conf_.getParameter<std::string>("StripHitProducer");
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   e.getByLabel(stripHitProducer,"matchedRecHit" ,matchedrecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   e.getByLabel(stripHitProducer,"rphiRecHit" ,rphirecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+  edm::Handle<SiStripRecHit2DCollection> stereorecHits;
   e.getByLabel(stripHitProducer,"stereoRecHit" ,stereorecHits);
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);

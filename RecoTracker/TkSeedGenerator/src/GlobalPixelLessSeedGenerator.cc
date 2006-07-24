@@ -8,8 +8,8 @@
 #include <string>
 
 #include "RecoTracker/TkSeedGenerator/interface/GlobalPixelLessSeedGenerator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -35,11 +35,11 @@ void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup&
 {  
   // get Inputs
   std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
-  edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+  edm::Handle<SiStripRecHit2DCollection> stereorecHits;
   e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
