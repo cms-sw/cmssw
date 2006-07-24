@@ -1,5 +1,5 @@
-#ifndef PFReco_PFRecHitFwd_h
-#define PFReco_PFRecHitFwd_h
+#ifndef ParticleFlowReco_PFRecHitFwd_h
+#define ParticleFlowReco_PFRecHitFwd_h
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"

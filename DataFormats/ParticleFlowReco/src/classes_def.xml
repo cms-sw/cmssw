@@ -1,6 +1,13 @@
 <lcgdict>
-  <class name="reco::PFCluster"/>
   <class name="std::vector<reco::PFCluster>"/>
+    <field name="posrep_" transient="true"/>
+    <field name="depthCorMode_" transient="true"/>
+    <field name="depthCorA_" transient="true"/>
+    <field name="depthCorB_" transient="true"/>
+    <field name="depthCorAp_" transient="true"/>
+    <field name="depthCorBp_" transient="true"/>
+    <field name="rechits_" transient="true"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
   <class name="reco::PFRecHit">
     <field name="posrep_" transient="true"/>
     <field name="isSeed_" transient="true"/>
@@ -11,5 +18,15 @@
   </class>
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
+  <class name="reco::PFRecTrack">
+    <field name="doPropagation_" transient="true"/>
+  </class>
+  <class name="std::vector<reco::PFRecTrack>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
+  <class name="reco::PFTrajectoryPoint">
+    <field name="posrep_" transient="true"/>
+  </class>
+  <class name="std::vector<reco::PFTrajectoryPoint>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 </lcgdict>
 

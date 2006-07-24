@@ -1,5 +1,5 @@
-#ifndef PFReco_PFRecHit_h
-#define PFReco_PFRecHit_h
+#ifndef ParticleFlowReco_PFRecHit_h
+#define ParticleFlowReco_PFRecHit_h
 /** 
  */
 #include <vector>

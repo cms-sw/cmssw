@@ -1,4 +1,4 @@
-#include "DataFormats/PFReco/interface/PFRecHitFraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 // #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;

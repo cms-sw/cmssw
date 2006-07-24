@@ -1,5 +1,5 @@
-#ifndef Demo_PFClusterAlgo_PFRecHitFraction_h
-#define Demo_PFClusterAlgo_PFRecHitFraction_h
+#ifndef DataFormats_ParticleFlowReco_PFRecHitFraction_h
+#define DataFormats_ParticleFlowReco_PFRecHitFraction_h
 
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 
-#include "DataFormats/PFReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 
 /* class PFRecHit { */

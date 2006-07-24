@@ -1,10 +1,10 @@
-#ifndef Demo_PFClusterAlgo_PFCluster_h
-#define Demo_PFClusterAlgo_PFCluster_h
+#ifndef DataFormats_ParticleFlowReco_PFCluster_h
+#define DataFormats_ParticleFlowReco_PFCluster_h
 
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/PFReco/interface/PFRecHit.h"
-#include "DataFormats/PFReco/interface/PFRecHitFraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
 #include <iostream>
 #include <vector>
