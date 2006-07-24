@@ -7,16 +7,29 @@
 void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 
   // Set commissioning task
-  task_ = static_cast<sistrip::Task>( buffer[10] );
+  if      ( buffer[10] == 13 ) { task_ = sistrip::FED_CABLING; }
+  else if ( buffer[10] ==  5 ) { task_ = sistrip::APV_TIMING; }
+  else if ( buffer[10] == 12 ) { task_ = sistrip::FED_TIMING; }
+  else if ( buffer[10] ==  4 ) { task_ = sistrip::OPTO_SCAN; }
+  else if ( buffer[10] == 14 ) { task_ = sistrip::VPSP_SCAN; }
+  else if ( buffer[10] ==  2 ) { task_ = sistrip::PEDESTALS; }
+  else if ( buffer[10] ==  6 ) { task_ = sistrip::APV_LATENCY; }
+  else if ( buffer[10] ==  1 ) { task_ = sistrip::PHYSICS; }
+  else if ( buffer[10] ==  0 ) { task_ = sistrip::UNDEFINED_TASK; }
+  else {
+    task_ = sistrip::UNKNOWN_TASK;
+    edm::LogError("Commissioning") << "[SiStripEventSummary::commissioningInfo]"
+				   << " Unknown commissioning task! " 
+				   << buffer[10];
+  }
 
   // Set FED readout mode
-  if ( buffer[15] == 0 || 
-       buffer[15] == 1 || 
-       buffer[15] == 2 || 
-       buffer[15] == 3 ) {
-    fedReadoutMode_ = static_cast<sistrip::FedReadoutMode>( buffer[15] );
-  } else {
-    fedReadoutMode_ = sistrip::UNKNOWN_FED_MODE;
+  if      ( buffer[15] == 0 ) { fedReadoutMode_ = sistrip::SCOPE_MODE; }
+  else if ( buffer[15] == 1 ) { fedReadoutMode_ = sistrip::VIRGIN_RAW; }
+  else if ( buffer[15] == 2 ) { fedReadoutMode_ = sistrip::PROC_RAW; }
+  else if ( buffer[15] == 3 ) { fedReadoutMode_ = sistrip::ZERO_SUPPR; }
+  else {
+    fedReadoutMode_ = sistrip::UNKNOWN_FED_READOUT_MODE;
     edm::LogError("Commissioning") << "[SiStripEventSummary::commissioningInfo]"
 				   << " Unknown FED readout mode! " 
 				   << buffer[15];
