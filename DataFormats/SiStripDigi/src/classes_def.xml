@@ -17,17 +17,17 @@
  <class name="edm::Wrapper< edm::DetSet<SiStripRawDigi> >"/>
  <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripRawDigi> > >"/>
  <class name="edm::Wrapper< edm::DetSetVector<SiStripRawDigi> >"/>
+ <class name="edm::DoNotSortUponInsertion"/>
+ <class name="edm::Wrapper< edm::DoNotSortUponInsertion >"/>
 
  <class name="SiStripDigis"/>
+ <class name="edm::Wrapper< SiStripDigis >"/> 
  <class name="FEDRawDataCollection"/>
- <class name="edm::RefProd<FEDRawDataCollection>"/>
-<!--
- <class name="unsigned long"/>
- <class name="unsigned short"/>
- <class name="std::vector< unsigned long >"/>
- <class name="std::vector< unsigned short >"/>
- <class name="std::string"/>
--->
+ <class name="edm::RefProd<FEDRawDataCollection>"/> 
+ <class name="std::vector<sistrip::FedReadoutMode>"/>
+ <class name="edm::Wrapper< std::vector<sistrip::FedReadoutMode> >"/>
+ <class name="std::vector<sistrip::FedReadoutPath>"/>
+ <class name="edm::Wrapper< std::vector<sistrip::FedReadoutPath> >"/>
 
   <class name="SiStripEventSummary"/>
   <class name="edm::Wrapper< SiStripEventSummary >"/>
