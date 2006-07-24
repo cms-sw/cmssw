@@ -1,6 +1,6 @@
 void DoCompare( char* Energy ){
 
- static const int NHisto = 34;
+ static const int NHisto = 38;
  static const int NHisto2 = 4;
  static const int NHisto3 = 2;
 
@@ -52,6 +52,11 @@ void DoCompare( char* Energy ){
  label[31] = "PreShower_EHit_L2zm";
  label[32] = "Preshower_NHit_L1zm";
  label[33] = "Preshower_NHit_L2zm";
+ label[34] = "Preshower_E1alphaE2_zm";
+ label[35] = "Preshower_E1alphaE2_zp";
+ label[36] = "Preshower_E2OverE1_zm";
+ label[37] = "Preshower_E2OverE1_zp";
+
 
  TH1F* htemp1[NHisto];
  TH1F* htemp2[NHisto];
