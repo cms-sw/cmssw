@@ -41,8 +41,11 @@ class anlzrname : public edm::EDAnalyzer {
       ~anlzrname();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+
       // ----------member data ---------------------------
 @example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 };
@@ -80,7 +83,7 @@ anlzrname::~anlzrname()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ method called to for each event  ------------
 void
 anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -103,6 +106,18 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
+}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+anlzrname::beginJob(const edm::EventSetup&)
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+anlzrname::endJob() {
 }
 
 //define this as a plug-in

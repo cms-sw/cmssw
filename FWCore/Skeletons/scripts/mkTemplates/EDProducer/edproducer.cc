@@ -39,9 +39,11 @@ class prodname : public edm::EDProducer {
       explicit prodname(const edm::ParameterSet&);
       ~prodname();
 
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+      
       // ----------member data ---------------------------
 };
 
@@ -104,6 +106,17 @@ prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 */
+}
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+prodname::beginJob(const edm::EventSetup&)
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+prodname::endJob() {
 }
 
 //define this as a plug-in
