@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -14,10 +15,13 @@
 class SiStripDigis {
   
  public:
-
-  SiStripDigis( const edm::Handle<FEDRawDataCollection>& raw_data,
+  
+  SiStripDigis( const edm::Handle<FEDRawDataCollection>&,
 		const std::vector<uint16_t>& fed_ids, 
-		const uint32_t& appended_bytes = 0 );
+		const std::vector<sistrip::FedBufferFormat>&,
+		const std::vector<sistrip::FedReadoutMode>&,
+		const std::vector<uint8_t>& fe_enable_bits,
+		const std::vector<uint16_t>& appended_bytes );
   
   SiStripDigis() {;}
   ~SiStripDigis() {;}
@@ -26,48 +30,46 @@ class SiStripDigis {
       retrieving the ADC value for a given FED id/chan and sample. */
   static const uint16_t invalid_;
   
-  static const uint16_t stripPerFedChannel_;
-  
   const uint16_t& adc( const uint16_t& fed_id, 
 		       const uint16_t& fed_ch, 
 		       const uint16_t& sample ) const;
   
  private:
 
-  /** Position of DAQ trailer. */
-  inline const uint16_t& daqTrailer() { static uint16_t tmp = 0; return tmp; } 
-
-  /** */
+  /** Returns iterator. */
+  inline uint16_t swap32( const uint16_t& byte ) const; 
+  
+  /** Reference to collection of FEDRawData objects. */
   edm::RefProd<FEDRawDataCollection> buffers_;
-
-  /** */
+  
+  /** FED ids of FEDRawData objects that have data. */
   std::vector<bool> feds_;
+    
+  /** Pointer to data of FEDRawData object. */
+  std::vector<uint8_t*> data_;
   
-  /** Number of appended bytes prior to each FED buffer. */
-  const uint32_t appendedBytes_;
+  /** Number of bytes within FEDRawData object. */
+  std::vector<uint32_t> size_;
   
-  /** Position of DAQ header. */
-  const uint32_t daqHdrPos_;
+  /** Readout mode for all FED ids. */
+  std::vector<sistrip::FedReadoutMode> readoutMode_;
   
-  /** Position of tracker-specific "special" header. */
-  const uint32_t trkHdrPos_;
+  /** Readout path for all FED ids. */
+  std::vector<sistrip::FedReadoutPath> readoutPath_; 
   
-  /** Position of payload when operating in "APV error" mode. */
-  const uint32_t apvErrorHdrPos_;
+  /** Payload position for individual FE units within a FED buffer. */
+  std::vector< std::vector<uint16_t> > payload_;
   
-  /** Position of payload when operating in "full debug" mode. */
-  const uint32_t fullDebugHdrPos_; 
-
-  const uint16_t apvErrorHdrSize_;
-  const uint16_t fullDebugHdrSize_; 
-
-/*   unsigned char* data_; */
-/*   uint32_t size_; */
-/*   uint32_t iterator_; */
-
+  /** String defining error category. */
   const std::string error_;
-
+  
 };
+
+// ---------- inline methods ----------
+
+uint16_t SiStripDigis::swap32( const uint16_t& byte ) const { 
+  return ( ((byte/8)*8) + (((7-(byte%8))+4)%8) ); // ((byte+4)%8) ); 
+}
 
 #endif // DataFormats_SiStripDigi_SiStripDigis_H
 
