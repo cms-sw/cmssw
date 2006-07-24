@@ -37,7 +37,7 @@ BATCH_USER_NAME=`whoami`
 # for copying the output files to castor
 OUTPUT_CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/initial_runs";
 # for testing, if 0 no limit is set
-MAX_FILES_TO_RUN_OVER=2;
+MAX_FILES_TO_RUN_OVER=0;
 
 ###############################################################################################################
 # definition of functions
