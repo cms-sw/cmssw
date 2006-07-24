@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/06/15 15:00:43 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/07/21 19:16:41 $
+ *   $Revision: 1.4 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
@@ -38,13 +38,14 @@
 
 using namespace edm;
 using namespace std;
+
 ///constructor
 GlobalMuonReFitter::GlobalMuonReFitter(const ParameterSet& par) {
 
   theErrorRescaling = 100.0;
  
   theUpdator     = new KFUpdator;
-  theEstimator   = new Chi2MeasurementEstimator(200.0);
+  theEstimator   = new Chi2MeasurementEstimator(20000.0);
   theInPropagatorAlongMom = par.getParameter<string>("InPropagatorAlongMom");
   theOutPropagatorAlongMom = par.getParameter<string>("OutPropagatorAlongMom");
   theInPropagatorOppositeToMom = par.getParameter<string>("InPropagatorOppositeToMom");
@@ -81,6 +82,8 @@ void GlobalMuonReFitter::setES(const edm::EventSetup& iSetup) {
   thePropagator1 = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
   thePropagator2 = new SmartPropagator(*eshPropagator4,*eshPropagator3, &*theField,oppositeToMomentum);
 
+  theTrajectoryUpdator = new MuonTrajectoryUpdator(thePropagator1, 1000.0, 0);
+
 }
 
 
@@ -94,7 +97,7 @@ vector<Trajectory> GlobalMuonReFitter::trajectories(const Trajectory& t) const {
 
 vector<Trajectory> GlobalMuonReFitter::trajectories(const TrajectorySeed& seed,
 	                                      const edm::OwnVector<const TransientTrackingRecHit>& hits, 
-	                                      const TrajectoryStateOnSurface& firstPredTsos) const  {
+	                                      const TrajectoryStateOnSurface& firstPredTsos) const {
 
   if ( hits.empty() ) return vector<Trajectory>();
 
@@ -108,10 +111,9 @@ vector<Trajectory> GlobalMuonReFitter::trajectories(const TrajectorySeed& seed,
 vector<Trajectory> GlobalMuonReFitter::fit(const Trajectory& t) const {
 
   if ( t.empty() ) return vector<Trajectory>();
- 
+
   TM firstTM = t.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
-  
   return fit(t.seed(), t.recHits(), firstTsos);
 
 }
@@ -122,42 +124,22 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
 				     const TSOS& firstPredTsos) const {
 
   if ( hits.empty() ) return vector<Trajectory>();
-
   Trajectory myTraj(seed, thePropagator1->propagationDirection());
 
   TSOS predTsos(firstPredTsos);
   if ( !predTsos.isValid() ) return vector<Trajectory>();
  
-  TSOS currTsos;
-
-  if ( hits.begin()->isValid() ) {
-    // update
-    currTsos = theUpdator->update(predTsos, (*hits.begin()));
-    myTraj.push(TM(predTsos, currTsos, &(*hits.begin()),
-		   theEstimator->estimate(predTsos, (*hits.begin())).second));
-
-  } else {
-    currTsos = predTsos;
-    myTraj.push(TM(predTsos, &(*hits.begin())));
-  }
-  
-  for ( edm::OwnVector<const TransientTrackingRecHit>::const_iterator ihit = hits.begin() + 1; 
+  for ( edm::OwnVector<const TransientTrackingRecHit>::const_iterator ihit = hits.begin(); 
         ihit != hits.end(); ++ihit ) {
 
-    predTsos = thePropagator1->propagate(currTsos, (*ihit).det()->surface());
 
-    if ( !predTsos.isValid() ) {
-      return vector<Trajectory>();
-    } else if ( (*ihit).isValid() ) {
+    const TM* theMeas = new TM(predTsos,(&*ihit)); 
       // update
-      currTsos = theUpdator->update(predTsos, *ihit);
+    pair<bool,TrajectoryStateOnSurface> result = theTrajectoryUpdator->update(theMeas,myTraj);
+      if(result.first){ 
+	predTsos = result.second;
+      }else predTsos = thePropagator1->propagate(predTsos, (*ihit).det()->surface());
 
-      myTraj.push(TM(predTsos, currTsos, &(*ihit),
-		     theEstimator->estimate(predTsos, *ihit).second));
-    } else {
-      currTsos = predTsos;
-      myTraj.push(TM(predTsos, &(*ihit)));
-    }
   }
   if ( !myTraj.isValid() ) return vector<Trajectory>();
 
@@ -185,7 +167,8 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
 
   Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
   vector<TM> avtm = t.measurements();
-  if ( avtm.size() <= 2 ) return vector<Trajectory>(); 
+
+  if ( avtm.size() < 2 ) return vector<Trajectory>(); 
 
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
@@ -233,7 +216,6 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
       TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
 
       if ( !smooTsos.isValid() ) return vector<Trajectory>();
-      
       myTraj.push(TM((*itm).forwardPredictedState(),
 		     predTsos,
 		     smooTsos,
@@ -246,7 +228,6 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
       TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       
       if ( !combTsos.isValid() ) return vector<Trajectory>();
-
       myTraj.push(TM((*itm).forwardPredictedState(),
 		     predTsos,
 		     combTsos,
@@ -260,7 +241,6 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
   predTsos = thePropagator2->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
   if ( !predTsos.isValid() ) return vector<Trajectory>();
-  
   if ( avtm.front().recHit()->isValid() ) {
     //update
     currTsos = theUpdator->update(predTsos, (*avtm.front().recHit()));
