@@ -38,11 +38,11 @@ void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   
   // get Inputs
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
+  e.getByLabel("SiStripRecHits2D","rphiRecHit" ,rphirecHits);
   edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-  e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
+  e.getByLabel("SiStripRecHits2D","stereoRecHit" ,stereorecHits);
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits; 	 
-  e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
+  e.getByLabel("SiStripRecHits2D","matchedRecHit" ,matchedrecHits);
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
