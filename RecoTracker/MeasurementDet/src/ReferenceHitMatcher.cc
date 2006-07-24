@@ -2,8 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -57,11 +57,11 @@ ReferenceHitMatcher::match( const TransientTrackingRecHit& monoHit,
 
     // RecHit matchedHit( new MatchedRecHit( gdet, monoHit, stereoHit, crossingPoint, matchedError));
 
-    SiStripRecHit2DMatchedLocalPos* hitData = 
-      new SiStripRecHit2DMatchedLocalPos( crossingPoint, matchedError, 
-					  gdet.geographicalId(),
-					  dynamic_cast<const SiStripRecHit2DLocalPos*>(monoHit.hit()), 
-					  dynamic_cast<const SiStripRecHit2DLocalPos*>(stereoHit.hit()));
+    SiStripMatchedRecHit2D* hitData = 
+      new SiStripMatchedRecHit2D( crossingPoint, matchedError, 
+				  gdet.geographicalId(),
+				  dynamic_cast<const SiStripRecHit2D*>(monoHit.hit()), 
+				  dynamic_cast<const SiStripRecHit2D*>(stereoHit.hit()));
     TSiStripMatchedRecHit* matchedHit = new TSiStripMatchedRecHit( &gdet, hitData);
 
     return ReturnType( true, matchedHit);

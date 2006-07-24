@@ -5,7 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoTracker/MeasurementDet/interface/StripClusterAboveU.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
@@ -94,9 +94,9 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
   return new TSiStripRecHit2DLocalPos( lv.first, lv.second, &geomDet(), cluster, theCPE);
 
 //   return new TSiStripRecHit2DLocalPos( &geomDet(), 
-// 				       new SiStripRecHit2DLocalPos( lv.first, lv.second,
-// 								    geomDet().geographicalId(),
-// 								    clustvec));
+// 				       new SiStripRecHit2D( lv.first, lv.second,
+// 							    geomDet().geographicalId(),
+// 							    clustvec));
 								    
 }
 
