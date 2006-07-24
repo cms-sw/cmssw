@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/07/20 15:53:08 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/21 20:27:36 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -58,7 +58,8 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT,
 
   reco::TransientTrack staTT(staT,&*theField);
 
-  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+ // TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staTT.impactPointState(); //FIXME
 
 // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
@@ -70,7 +71,9 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT,
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
 
-    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+//    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+    TrajectoryStateOnSurface outerTkTsos = tkTT.impactPointState(); //FIXME
+
 
     // extrapolate outermost tracker measurement TSOS to outer tracker surface
     TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
@@ -102,7 +105,8 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
   reco::TransientTrack staTT(staT,&*theField);
 
-  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+//  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staTT.impactPointState(); //FIXME
 
 // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
@@ -114,7 +118,9 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
 
-    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+//    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+    TrajectoryStateOnSurface outerTkTsos = tkTT.impactPointState(); //FIXME
+
 
     // extrapolate outermost tracker measurement TSOS to outer tracker surface
     TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
@@ -139,7 +145,9 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
   reco::TransientTrack staTT(staT,&*theField);
 
-  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+//  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staTT.impactPointState(); //FIXME
+
 
 // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
@@ -151,7 +159,9 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
 
-    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+//    TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
+    TrajectoryStateOnSurface outerTkTsos = tkTT.impactPointState(); //FIXME
+
 
     // extrapolate outermost tracker measurement TSOS to outer tracker surface
     TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
@@ -183,8 +193,12 @@ GlobalMuonTrackMatcher::match(const reco::Track& sta,
    if ( mom.mag() < theMinP || mom.perp() < theMinPt )
      return std::pair<bool,double>(false,0);
 
-  TrajectoryStateOnSurface outerTkTsos = tkT.outermostMeasurementState();
-  TrajectoryStateOnSurface innerMuTsos = staT.innermostMeasurementState();
+//  TrajectoryStateOnSurface outerTkTsos = tkT.outermostMeasurementState();
+  TrajectoryStateOnSurface outerTkTsos = tkT.impactPointState(); //FIXME
+
+//  TrajectoryStateOnSurface innerMuTsos = staT.innermostMeasurementState();
+  TrajectoryStateOnSurface innerMuTsos = staT.impactPointState(); //FIXME
+
 
   // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
