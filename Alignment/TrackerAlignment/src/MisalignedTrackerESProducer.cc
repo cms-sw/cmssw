@@ -12,6 +12,7 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -74,18 +75,20 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 				       << (*it).rawId() << " " << (*it).translation();
     }
   
-  // Create misalignment scenario
+  // Create misalignment scenario, apply to geometry
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
+  alignments = theAlignableTracker->alignments();
+  TrackerGeometryAligner aligner;
+  aligner.applyAlignments( theTracker, alignments );
   
   // Dump alignments AFTER
   if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
     {
-      alignments = theAlignableTracker->alignments();
       for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
-	    it != alignments->m_align.end(); it++ )
-	edm::LogInfo("DumpPositions")  << std::endl
-				       << (*it).rawId() << " " << (*it).translation();
+			it != alignments->m_align.end(); it++ )
+		edm::LogInfo("DumpPositions")  << std::endl
+									   << (*it).rawId() << " " << (*it).translation();
     }
   
   // Write alignments to DB
@@ -96,19 +99,18 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	  if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
-
+	  
 	  // Define callback tokens for the two records
 	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
 	  
 	  // Retrieve, sort and store
-	  alignments = theAlignableTracker->alignments();
 	  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 	  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
 				 lessAlignmentDetId<AlignTransform>() );
 	  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
 				 lessAlignmentDetId<AlignTransformError>() );
-
+	  
 	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
 														   poolDbService->endOfTime(),
 														   alignmentsToken );
