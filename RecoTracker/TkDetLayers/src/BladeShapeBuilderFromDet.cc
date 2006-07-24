@@ -75,7 +75,7 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
   }
 
   if (!PhiLess()(phimin, phimax)) 
-    edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet : " 
+    edm::LogError("TkDetLayers") << " BladeShapeBuilderFromDet : " 
 				 << "Something went wrong with Phi Sorting !" ;
   float zPos = (zmax+zmin)/2.;
   float phiWin = phimax - phimin;
