@@ -15,7 +15,7 @@ int CSCReadoutMapping::chamber( int endcap, int station, int vme, int dmb, int t
   std::map<int,int>::const_iterator it = hw2sw_.find( hid );
   if ( it != hw2sw_.end() ) {
     cid = it->second;
-    std::cout << "hwid = " << hid << ", swid = " << cid << std::endl;
+    //    std::cout << "hwid = " << hid << ", swid = " << cid << std::endl;
     //    LogDebug("CSC") << " for requested hw id = " << hid << ", found sw id = " << cid;
   }
   else {
