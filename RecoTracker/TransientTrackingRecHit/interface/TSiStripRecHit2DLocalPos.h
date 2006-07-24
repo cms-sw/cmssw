@@ -1,14 +1,14 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit2DLocalPos_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit2DLocalPos_H
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
 public:
 
-  TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2DLocalPos* rh,
+  TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe) : 
     TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) 
   {}
@@ -58,12 +58,12 @@ public:
 
   // Extension of the TransientTrackingRecHit interface
 
-  const SiStripRecHit2DLocalPos* specificHit() const {return theHitData;};
+  const SiStripRecHit2D* specificHit() const {return theHitData;};
   const StripClusterParameterEstimator* cpe() const {return theCPE;}
 
 private:
 
-  SiStripRecHit2DLocalPos*              theHitData;
+  SiStripRecHit2D*              theHitData;
   const StripClusterParameterEstimator* theCPE;
 
 };

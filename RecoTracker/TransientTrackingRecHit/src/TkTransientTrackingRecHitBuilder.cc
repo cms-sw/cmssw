@@ -7,7 +7,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
 TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry, 
@@ -19,9 +19,9 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const Tracki
   
 TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const {
 
-  if ( const SiStripRecHit2DLocalPos* sh = dynamic_cast<const SiStripRecHit2DLocalPos*>(p)) { 
+  if ( const SiStripRecHit2D* sh = dynamic_cast<const SiStripRecHit2D*>(p)) { 
     return ( new TSiStripRecHit2DLocalPos(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE ) ); 
-  } else if ( const SiStripRecHit2DMatchedLocalPos* mh = dynamic_cast<const SiStripRecHit2DMatchedLocalPos*>(p)) {
+  } else if ( const SiStripMatchedRecHit2D* mh = dynamic_cast<const SiStripMatchedRecHit2D*>(p)) {
     return ( new TSiStripMatchedRecHit(tGeometry_->idToDet(p->geographicalId()), mh )); 
   } else if ( const SiPixelRecHit* ph = dynamic_cast<const SiPixelRecHit*>(p)) {
     return ( new TSiPixelRecHit(tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE) ); 

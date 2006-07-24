@@ -2,7 +2,7 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit2DMatchedLocalPos_H
 
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 

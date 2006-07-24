@@ -11,7 +11,7 @@ TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 			  const StripClusterParameterEstimator* cpe) :
   TransientTrackingRecHit(det), theCPE(cpe)
 {
-  theHitData = new SiStripRecHit2DLocalPos( pos, err, det->geographicalId(), clust);
+  theHitData = new SiStripRecHit2D( pos, err, det->geographicalId(), clust);
 }
 
 TSiStripRecHit2DLocalPos* 
