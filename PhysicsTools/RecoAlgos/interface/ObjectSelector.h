@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectSelector.h,v 1.6 2006/07/21 16:58:23 llista Exp $
+ * $Id: ObjectSelector.h,v 1.1 2006/07/24 10:09:08 llista Exp $
  *
  */
 
@@ -53,9 +53,9 @@ namespace helper {
   };
 }
 
-template<typename C, typename S, 
-	 typename M = typename helper::CollectionStoreManager<C>::type, 
-	 typename B = typename helper::CollectionStoreManager<C>::base>
+template<typename S, 
+	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
+	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
 class ObjectSelector : public B {
 public:
   /// constructor 
@@ -71,7 +71,7 @@ public:
 private:
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
-    edm::Handle<C> source;
+    edm::Handle<typename S::collection> source;
     evt.getByLabel( src_, source );
     M manager;
     selector_.select( * source, evt );

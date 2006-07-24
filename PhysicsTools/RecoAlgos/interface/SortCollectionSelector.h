@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: SortCollectionSelector.h,v 1.1 2006/07/21 15:14:27 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.2 2006/07/21 16:58:23 llista Exp $
  *
  */
 
@@ -20,6 +20,7 @@ namespace edm { class Event; }
 
 template<typename C, typename CMP>
 struct SortCollectionSelector {
+  typedef C collection;
   typedef std::vector<const typename C::value_type *> container;
   typedef typename container::const_iterator const_iterator;
   SortCollectionSelector( const edm::ParameterSet & cfg ) : 

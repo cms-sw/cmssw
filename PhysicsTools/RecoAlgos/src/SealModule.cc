@@ -1,7 +1,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/SingleObjectSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/AnySelector.h"
 #include "PhysicsTools/RecoAlgos/interface/PtMinSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/SortCollectionSelector.h"
@@ -10,16 +10,16 @@
 #include "PhysicsTools/RecoAlgos/interface/MasslessInvariantMass.h"
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
 
-typedef SingleObjectSelector<reco::TrackCollection, 
-			     AnySelector<reco::Track> > AnyTrackSelector;
-typedef SingleObjectSelector<reco::TrackCollection, 
-			     PtMinSelector<reco::Track> > PtMinTrackSelector;
-typedef ObjectSelector<reco::TrackCollection,
-		       SortCollectionSelector<reco::TrackCollection, 
+typedef ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection, 
+						       AnySelector<reco::Track> > 
+                      > AnyTrackSelector;
+typedef ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,
+						       PtMinSelector<reco::Track> >
+                      > PtMinTrackSelector;
+typedef ObjectSelector<SortCollectionSelector<reco::TrackCollection, 
 					      PtInverseComparator<reco::Track> > 
                      > LargestPtTrackSelector;
-typedef ObjectSelector<reco::TrackCollection,
-		       WindowCollectionSelector<reco::TrackCollection, 
+typedef ObjectSelector<WindowCollectionSelector<reco::TrackCollection, 
 						MasslessInvariantMass<reco::Track> >
                       > MassWindowTrackSelector;
 

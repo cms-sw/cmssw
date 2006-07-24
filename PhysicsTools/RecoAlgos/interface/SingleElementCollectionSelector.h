@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.2 2006/07/21 14:33:55 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.3 2006/07/21 16:58:23 llista Exp $
  *
  */
 
@@ -19,6 +19,7 @@ namespace edm { class Event; }
 
 template<typename C, typename S>
 struct SingleElementCollectionSelector {
+  typedef C collection;
   typedef std::vector<const typename C::value_type *> container;
   typedef typename container::const_iterator const_iterator;
   SingleElementCollectionSelector( const edm::ParameterSet & cfg ) : 
