@@ -50,6 +50,7 @@ CPPUNIT_TEST(factoryTest);
 CPPUNIT_TEST(proxyTest);
 CPPUNIT_TEST(getTest);
 CPPUNIT_TEST(doGetTest);
+CPPUNIT_TEST(proxyResetTest);
 
 CPPUNIT_TEST_EXCEPTION(getNodataExpTest,NoDataExceptionType);
 CPPUNIT_TEST_EXCEPTION(getExepTest,ExceptionType);
@@ -64,6 +65,7 @@ public:
   void proxyTest();
   void getTest();
   void doGetTest();
+  void proxyResetTest();
 
   void getNodataExpTest();
   void getExepTest();
@@ -104,15 +106,41 @@ class WorkingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dumm
 public:
    WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy) {}
 
+  void set(Dummy* iDummy) {
+    data_ = iDummy;
+  }
 protected:
    
    const value_type* make(const record_type&, const DataKey&) {
       return data_ ;
    }
    void invalidateCache() {
-   }   
+   }
+  
 private:
    const Dummy* data_;
+};
+
+class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
+public:
+  WorkingDummyProvider( const edm::eventsetup::DataKey& iKey, boost::shared_ptr<WorkingDummyProxy> iProxy) :
+  m_key(iKey),
+  m_proxy(iProxy) {
+    usingRecord<DummyRecord>();
+  }
+  
+  virtual void newInterval(const EventSetupRecordKey& iRecordType,
+                           const ValidityInterval& iInterval) {}
+
+protected:
+  virtual void registerProxies(const EventSetupRecordKey& iRecordKey ,
+                               KeyedProxies& aProxyList) {
+    aProxyList.push_back(std::make_pair(m_key, m_proxy));
+  }
+private:
+  edm::eventsetup::DataKey m_key;
+  boost::shared_ptr<WorkingDummyProxy> m_proxy;
+
 };
 
 void testEventsetupRecord::proxyTest()
@@ -149,16 +177,18 @@ void testEventsetupRecord::getTest()
                               "");
 
    ESHandle<Dummy> dummyPtr;
-   //typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
+   typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
    //dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
-   
+   CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
+   //CDJ do this replace
+   //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr),NoDataExceptionType);
+
    dummyRecord.add(dummyDataKey,
                     &dummyProxy);
 
-   //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    //dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), ExceptionType);
+   CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 
    Dummy myDummy;
    WorkingDummyProxy workingProxy(&myDummy);
@@ -189,7 +219,7 @@ void testEventsetupRecord::getNodataExpTest()
    ESHandle<Dummy> dummyPtr;
    typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
    dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
+   //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
 
 }
 
@@ -206,7 +236,7 @@ void testEventsetupRecord::getExepTest()
 
    typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), ExceptionType);
+   //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 }
 
 void testEventsetupRecord::doGetTest()
@@ -222,9 +252,9 @@ void testEventsetupRecord::doGetTest()
    dummyRecord.add(dummyDataKey,
                    &dummyProxy);
    
-   //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    //dummyRecord.doGet(dummyDataKey);
-   //BOOST_CHECK_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
+   CPPUNIT_ASSERT_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
    
    Dummy myDummy;
    WorkingDummyProxy workingProxy(&myDummy);
@@ -252,8 +282,55 @@ void testEventsetupRecord::doGetExepTest()
    dummyRecord.add(dummyDataKey,
                    &dummyProxy);
    
-   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+   //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    dummyRecord.doGet(dummyDataKey);
-   //BOOST_CHECK_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
+   //CPPUNIT_ASSERT_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
    
+}
+
+void testEventsetupRecord::proxyResetTest()
+{
+  std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+  EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
+                                                                        EventSetupRecordKey::makeKey<DummyRecord>());
+  
+  EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
+  CPPUNIT_ASSERT(0 !=prov);
+  
+  const DummyRecord& dummyRecord = prov->record();
+
+  unsigned long long cacheID = dummyRecord.cacheIdentifier();
+  Dummy myDummy;
+  boost::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+  
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                               "");
+
+  boost::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+  prov->add( wdProv );
+
+  //this causes the proxies to actually be placed in the Record
+  edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
+  prov->usePreferred(pref);
+  
+  CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
+
+  edm::ESHandle<Dummy> hDummy;
+  dummyRecord.get(hDummy);
+
+  CPPUNIT_ASSERT(&myDummy == &(*hDummy));
+  CPPUNIT_ASSERT(cacheID == dummyRecord.cacheIdentifier());
+  
+  Dummy myDummy2;
+  workingProxy->set(&myDummy2);
+
+  //should not change
+  dummyRecord.get(hDummy);
+  CPPUNIT_ASSERT(&myDummy == &(*hDummy));
+  CPPUNIT_ASSERT(cacheID == dummyRecord.cacheIdentifier());
+
+  prov->resetProxies();
+  dummyRecord.get(hDummy);
+  CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
+  CPPUNIT_ASSERT(cacheID != dummyRecord.cacheIdentifier());
 }
