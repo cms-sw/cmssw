@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/25 13:21:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/25 13:28:24 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -166,18 +166,18 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
-  // the muon collection, it will be loaded in the event  
-  std::auto_ptr<reco::MuonCollection> muonCollection(reco::MuonCollection);
+  // the muon collection, it will be loaded in the event
+  std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
 
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-    combinedTrajs.push_back((*it).first);
+    combinedTrajs.push_back((*it)->trajectory());
     
     // Create the reco::muon
     reco::Muon muon;
-    muon.setMuonTrack((*it)->muonTrack());
-    muon.setTrackerTrack((*it)->trackerTrack());
+    muon.setStandAlone((*it)->muonTrack());
+    muon.setTrack((*it)->trackerTrack());
     muonCollection.push_back(muon);
   }
 
