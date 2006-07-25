@@ -1,4 +1,5 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBQADCUnpacker.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // QADC channels
 static const int N_QADCS_ALLOWED = 6;
@@ -42,6 +43,10 @@ struct ClassicQADCDataFormat {
 
 void HcalTBQADCUnpacker::unpack(const FEDRawData& raw,
   			       HcalTBBeamCounters& beamadc, bool is04) const {
+
+  if (raw.size()<3*8) {
+    throw cms::Exception("Missing Data") << "No data in the QDC block";
+  }
 
   const ClassicQADCDataFormat* qadc=(const ClassicQADCDataFormat*)raw.data();
   
