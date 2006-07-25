@@ -33,6 +33,8 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   myoldHisto1 = oldHisto;
   mynewHisto1 = newHisto;
   myte = te;
+ // myoldHisto1->Sumw2();
+ // mynewHisto1->Sumw2();
 
   Double_t mypv = myoldHisto1->KolmogorovTest(mynewHisto1);
   std::strstream buf;
