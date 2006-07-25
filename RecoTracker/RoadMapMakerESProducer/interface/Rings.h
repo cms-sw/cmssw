@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2006/03/23 01:55:47 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -104,11 +104,13 @@ class Rings {
   Ring constructTrackerPXFRing(const TrackerGeometry &tracker,
 			       unsigned int fw_bw,
 			       unsigned int disk,
+			       unsigned int panel,
 			       unsigned int detector);
 
   DetId constructTrackerPXFDetId(unsigned int fw_bw,
 				 unsigned int disk,
 				 unsigned int blade,
+				 unsigned int panel,
 				 unsigned int detector);
 
   Ring* getTrackerRing(DetId id);
@@ -135,7 +137,8 @@ class Rings {
 
   Ring* getTrackerPXFRing(unsigned int fw_bw,
 			  unsigned int disk,
-			  unsigned int detector);
+			  unsigned int panel,
+			  unsigned int module);
 
   inline std::vector<Ring>* getRings() { return &rings_; }
 
@@ -160,6 +163,7 @@ class Rings {
   std::string dumpOldStylePXF(unsigned int &nLayer);
 
   void fillTECGeometryArray(const TrackerGeometry &tracker);
+  void fillPXFGeometryArray(const TrackerGeometry &tracker);
 
  private:
   
@@ -168,6 +172,8 @@ class Rings {
   std::vector<Ring> rings_;
 
   int tec_[2][9][2][8][7][20][3];
+  int pxf_[2][2][24][2][4];       // pxf[side][disk][blade][panel][module]
+
 
 };
 

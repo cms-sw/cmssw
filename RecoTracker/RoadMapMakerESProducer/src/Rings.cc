@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 14:12:24 $
-// $Revision: 1.6 $
+// $Date: 2006/03/28 22:48:06 $
+// $Revision: 1.7 $
 //
 
 #include <iostream>
@@ -39,6 +39,7 @@
 Rings::Rings(const TrackerGeometry &tracker, unsigned int verbosity) : verbosity_(verbosity) {
 
   fillTECGeometryArray(tracker);
+  fillPXFGeometryArray(tracker);
 
   constructTrackerRings(tracker);
 
@@ -58,7 +59,7 @@ void Rings::constructTrackerRings(const TrackerGeometry &tracker) {
   constructTrackerTIDRings(tracker);
   constructTrackerTECRings(tracker);
   constructTrackerPXBRings(tracker);
-  //   constructTrackerPXFRings(tracker);
+  constructTrackerPXFRings(tracker);
 
   edm::LogInfo("RoadSearch") << "constructed " << rings_.size() << " rings"; 
 
@@ -535,29 +536,33 @@ void Rings::constructTrackerPXFRings(const TrackerGeometry &tracker) {
   unsigned int index = 206;
 
   unsigned int fw_bw_max   = 2;
-  unsigned int disk_max    = 2;
-  unsigned int detector_max  = 7;
+  unsigned int disk_max    = 2; // 2 disks
+  unsigned int panel_max   = 2; // 2 sided panel on each blade
+  unsigned int module_max  = 4; // 3-4 sensor arrays on each panel
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int disk = 0; disk < disk_max; ++disk ) {
-      for ( unsigned int detector = 0; detector < detector_max; ++detector ) {
-	Ring ring = constructTrackerPXFRing(tracker,fw_bw,disk,detector);
-	ring.setindex(index++);
-	rings_.push_back(ring);
-	++counter;
-	LogDebug("RoadSearch") << "constructed PXF ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds"; 
+      for ( unsigned int panel = 0; panel < panel_max; ++panel ) {
+	if (panel==0) module_max = 3;
+	for ( unsigned int module = 0; module < module_max; ++module ) {
+	  Ring ring = constructTrackerPXFRing(tracker,fw_bw,disk,panel,module);
+	  ring.setindex(index++);
+	  rings_.push_back(ring);
+	  ++counter;
+	}
       }
-    }    
-  }    
+    }
+  }
 
-  LogDebug("RoadSearch") << "constructed " << counter << " PXF rings"; 
+  LogDebug("RoadSearch") << "constructed " << counter << " PXF rings";
   
 }
 
 Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
-				    unsigned int fw_bw,
-				    unsigned int disk,
-				    unsigned int detector) {
+                                    unsigned int fw_bw,
+                                    unsigned int disk,
+                                    unsigned int panel,
+                                    unsigned int module) {
 
   // variables for determinaton of rmin, rmax, zmin, zmax
   float rmin = 1200.;
@@ -570,43 +575,53 @@ Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
   Ring ring(Ring::PXFRing);
 
   for ( unsigned int blade = 0; blade < blade_max; ++blade ) {
-    DetId id = constructTrackerPXFDetId(fw_bw,disk,blade,detector);
-    double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::PXFRing);
-    ring.addId(phi,id);
+    if ( pxf_[fw_bw][disk][blade][panel][module] > 0 ) {
+      DetId id = constructTrackerPXFDetId(fw_bw,disk,blade,panel,module);
+      double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::PXFRing);
+      ring.addId(phi,id);
+    }
   }
 
   LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
-    
+
   ring.initialize(rmin,rmax,zmin,zmax);
+
+
+
+  //  std::cout << "Done TrackerPXFRing " << std::endl;
 
   return ring;
 }
 
 DetId Rings::constructTrackerPXFDetId(unsigned int fw_bw,
-				      unsigned int disk,
-				      unsigned int blade,
-				      unsigned int detector) {
+                                      unsigned int disk,
+                                      unsigned int blade,
+                                      unsigned int panel,
+                                      unsigned int module) {
 
-  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1,0);
 
-  LogDebug("RoadSearch") << "constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk() 
-			 << " blade: " << id.blade() << " detector: " << id.det(); 
-	
+  PXFDetId id(fw_bw+1,disk+1,blade+1,panel+1,module+1);
+
+  LogDebug("RoadSearch") << "constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk()
+                         << " blade: " << id.blade() << " panel: " << id.panel() << " module: " << id.module();
+
   return DetId(id.rawId());
 }
 
+
 Ring* Rings::getTrackerRing(DetId id) {
-  
+
   for ( iterator ring = rings_.begin(); ring != rings_.end(); ++ring ) {
     Ring *temp = &*ring;
     if ( temp->containsDetId(id)) {
       return temp;
     }
   }
-  
+
   edm::LogError("RoadSearch") << "could not find Ring with DetId: " << id.rawId();
   return 0;
 }
+
 
 Ring* Rings::getTrackerTIBRing(unsigned int layer,
 			       unsigned int fw_bw,
@@ -713,14 +728,19 @@ Ring* Rings::getTrackerPXBRing(unsigned int layer,
 
 Ring* Rings::getTrackerPXFRing(unsigned int fw_bw,
 			       unsigned int disk,
-			       unsigned int detector) {
+			       unsigned int panel,
+			       unsigned int module) {
 
   // construct DetID from info using else the first of all entities and return Ring
-  unsigned int blade = 0;
+  unsigned int detector = 0;
 
-  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1,0);
+  PXFDetId id(fw_bw+1,disk+1,detector+1,panel+1,module+1);
 
   return getTrackerRing(DetId(id.rawId()));
+
+  
+  std::cout << "Done getTrackerPXFRing" << std::endl;
+
 }
 
 void Rings::fixIndexNumberingScheme() {
@@ -1153,7 +1173,7 @@ std::vector<unsigned int> Rings::dumpOldStyle(std::string ascii_filename, bool w
   std::string tid = dumpOldStyleTID(layersTID);
   std::string tec = dumpOldStyleTEC(layersTEC);
   std::string pxb = dumpOldStylePXB(layersPXB);
-  //   std::string pxf = dumpOldStylePXF(layersPXF);
+  std::string pxf = dumpOldStylePXF(layersPXF);
 
   unsigned int nLayers = layersTIB + layersTOB +
     layersTID + layersTEC +
@@ -1170,7 +1190,7 @@ std::vector<unsigned int> Rings::dumpOldStyle(std::string ascii_filename, bool w
     stream << tid;
     stream << tec;
     stream << pxb;
-    //   stream << pxf;
+    stream << pxf;
 
     edm::LogInfo("RoadSearch") << "wrote out rings for " << nLayers << " layers in old style."; 
   }
@@ -1313,19 +1333,19 @@ std::string Rings::dumpOldStyleTEC(unsigned int &nLayers) {
   // TEC WHEEL 4
   ring_min[3] = 1;
   ring_max[3] = 7;
-  // TEC WHEEL 5
+  // TEC WHEEL 5 
   ring_min[4] = 1;
   ring_max[4] = 7;
-  // TEC WHEEL 6
+  // TEC WHEEL 6 
   ring_min[5] = 1;
   ring_max[5] = 7;
-  // TEC WHEEL 7
+  // TEC WHEEL 7 
   ring_min[6] = 2;
   ring_max[6] = 7;
-  // TEC WHEEL 8
+  // TEC WHEEL 8 
   ring_min[7] = 2;
   ring_max[7] = 7;
-  // TEC WHEEL 9
+  // TEC WHEEL 9 
   ring_min[8] = 3;
   ring_max[8] = 7;
 
@@ -1392,27 +1412,30 @@ std::string Rings::dumpOldStylePXF(unsigned int &nLayers) {
 
   unsigned int fw_bw_max   = 2;
   unsigned int disk_max    = 2;
-  unsigned int detector_max  = 7;
-
+  unsigned int panel_max   = 2;
+  unsigned int module_max  = 4;
+  
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int disk = 0; disk < disk_max; ++disk ) {
-      ++nLayers;
-      std::ostringstream tempstream;
-      unsigned int nRings = 0;
-      for ( unsigned int detector = 0; detector < detector_max; ++detector ) {
-	++nRings;
-	Ring *ring = getTrackerPXFRing(fw_bw,disk,detector);
-	tempstream << ring->getrmin() << " "
-		   << ring->getrmax() << " "
-		   << ring->getzmin() << " "
-		   << ring->getzmax() << " ";
-      }
-      stream << "0 0.0";
-      stream << nRings;
-      stream << tempstream.str();
-
-      LogDebug("RoadSearch") << "wrote out " << nRings << " PXF rings in old style."; 
-    
+	++nLayers;
+	std::ostringstream tempstream;
+	unsigned int nRings = 0;
+	for ( unsigned int panel = 0; panel < panel_max; ++panel ) {
+	  if (panel==0) module_max = 3;
+	  for ( unsigned int module = 0; module < module_max; ++module ) {
+	    ++nRings;
+	    Ring *ring = getTrackerPXFRing(fw_bw,disk,panel,module);
+	    tempstream << ring->getrmin() << " "
+		       << ring->getrmax() << " "
+		       << ring->getzmin() << " "
+		       << ring->getzmax() << " ";
+	  }
+	}
+	stream << "0 0.0";
+	stream << nRings;
+	stream << tempstream.str();
+	
+	LogDebug("RoadSearch") << "wrote out " << nRings << " PXF rings in old style."; 
     }
   }
   
@@ -1462,4 +1485,43 @@ void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
 
     }
   }
+}
+
+
+void Rings::fillPXFGeometryArray(const TrackerGeometry &tracker) {
+  // fills hardcoded PXF geometry array: pxf[side][disk][blade][panel][module]
+  // module gives the int of the last constructor parameter
+  // content of [module] indicates if module with combination exists (>0) or not (==0)
+
+  for (int i = 0; i < 2; i++ ) {
+    for (int j = 0; j < 2; j++ ) {
+      for (int k = 0; k < 24; k++ ) {
+        for (int l = 0; l < 2; l++ ) {
+          for (int m = 0; m < 4; m++ ) {
+            pxf_[i][j][k][l][m] = 0;
+          }
+        }
+      }
+    }
+  }
+
+  //  std::cout << "Done with INITIALIZATION " << std::endl;
+
+  std::vector<DetId> detIds = tracker.detUnitIds();
+
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
+      PXFDetId pxfid(id.rawId());
+      
+      //      std::cout << "FPIXELS " << pxfid.side()-1 << " " << pxfid.disk()-1 << " " << pxfid.blade()-1 << " " << pxfid.panel()-1 << " " << pxfid.module()-1 << std::endl;
+      //sanity check with partner ID not possible
+      pxf_[pxfid.side()-1][pxfid.disk()-1][pxfid.blade()-1][pxfid.panel()-1][pxfid.module()-1] += 1;
+
+
+    }
+  }
+
+  std::cout << "Constructed pXF detids" << std::endl;
 }
