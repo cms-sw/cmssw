@@ -16,8 +16,8 @@
 /** */
 SiStripDigiToRaw::SiStripDigiToRaw( string mode, int16_t nbytes ) : 
   readoutMode_(mode),
-  nAppendedBytes_(nbytes),
-  anal_("SiStripDigiToRaw")
+  nAppendedBytes_(nbytes)
+  //anal_("SiStripDigiToRaw")
 {
   edm::LogInfo("DigiToRaw") << "[SiStripDigiToRaw::SiStripDigiToRaw] Constructing object...";
 }
@@ -40,24 +40,24 @@ SiStripDigiToRaw::~SiStripDigiToRaw() {
 void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabling,
 					 edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
 					 auto_ptr<FEDRawDataCollection>& buffers ) {
-  anal_.addEvent();
+  //anal_.addEvent();
 
   try {
     
     const uint16_t strips_per_fed = 96 * 256; 
     vector<uint16_t> raw_data; 
     raw_data.reserve(strips_per_fed);
-
+    
     const vector<uint16_t>& fed_ids = cabling->feds();
     vector<uint16_t>::const_iterator ifed;
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-      anal_.addFed();
+      //anal_.addFed();
       LogDebug("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Processing FED id " << *ifed;
       
       raw_data.clear(); raw_data.resize( strips_per_fed, 0 );
 
       for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-	anal_.addChan();
+	//anal_.addChan();
 	
 	const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
 	if ( !conn.detId() ) { continue; } // Check DetID is non-zero
@@ -98,13 +98,13 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	  // Add digi to buffer
 	  raw_data[strip] = (*idigi).adc();
 	  if ( readoutMode_ == "SCOPE_MODE" ) { 
-	    anal_.smDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    //anal_.smDigi( (*idigi).strip(), (*idigi).adc() ); 
 	  } else if ( readoutMode_ == "VIRGIN_RAW" ) {
-	    anal_.vrDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    //anal_.vrDigi( (*idigi).strip(), (*idigi).adc() ); 
 	  } else if ( readoutMode_ == "PROCESSED_RAW" ) {
-	    anal_.prDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    //anal_.prDigi( (*idigi).strip(), (*idigi).adc() ); 
 	  } else if ( readoutMode_ == "ZERO_SUPPRESSED" ) {
-	    anal_.zsDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    //anal_.zsDigi( (*idigi).strip(), (*idigi).adc() ); 
 	  }
 	}
 	// if ((*idigi).strip() >= (conn.apvPairNumber()+1)*256) break;

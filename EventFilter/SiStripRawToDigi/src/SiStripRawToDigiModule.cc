@@ -1,46 +1,51 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
-// edm
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
+// 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// data formats
+// 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
-// cabling
+//
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-// std
+//
+#include "boost/cstdint.hpp"
 #include <cstdlib>
 
+using namespace std;
+
 // -----------------------------------------------------------------------------
-/** 
-    Creates instance of RawToDigi converter, defines EDProduct type.
-*/
+//
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
-  inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
-  rawToDigi_(0)
+  rawToDigi_(0),
+  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
 {
-  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
-  int16_t bytes  = pset.getUntrackedParameter<int>("AppendedBytes",0);
-  int16_t freq   = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
-  bool    fedkey = pset.getUntrackedParameter<bool>("UseFedKey",false);
-  int16_t fedid  = pset.getUntrackedParameter<int>("TriggerFedId",1023);
-  rawToDigi_ = new SiStripRawToDigi( bytes, freq, fedkey, fedid );
+  edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
   
-  produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
-  produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
-  produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
-  produces< edm::DetSetVector<SiStripDigi> >   ("ZeroSuppressed");
-  produces<SiStripDigis>("SiStripDigis");
-  produces<SiStripEventSummary>();
+  int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
+  int16_t dump_frequency = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
+  int16_t trigger_fed_id = pset.getUntrackedParameter<int>("TriggerFedId",1023);
+  bool    using_fed_key  = pset.getUntrackedParameter<bool>("UseFedKey",false);
+  rawToDigi_ = new SiStripRawToDigiUnpacker( appended_bytes, 
+					     dump_frequency,
+					     trigger_fed_id,
+					     using_fed_key );
+  
+  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripScopeModeDigis");
+  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripVirginRawDigis");
+  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripProcRawDigis");
+  produces< edm::DetSetVector<SiStripDigi> >("SiStripDigis");
+  produces< SiStripDigis >("SiStripDigis");
+  produces< SiStripEventSummary >();
   
 }
 
@@ -61,30 +66,31 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
   
-  if ( !(iEvent.id().event()%10) ) {
-    edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::produce]"
-			      << " Processing event number: " << iEvent.id().event();
-  }
-  
+  // Retrieve FED cabling
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
-  
+
+  // Retrieve FED raw data ("source" label is now fixed by fwk)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByLabel( inputModuleLabel_, buffers );
+  iEvent.getByLabel( "source", buffers ); 
   
+  // Create auto pointers for products
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  auto_ptr<SiStripDigis> digis;
+  auto_ptr<SiStripDigis> digis( new SiStripDigis() );
+
+  // Create "real" or "pseudo" digis
+  if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
+  else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
   
-  rawToDigi_->createDigis( iEvent.id().event(), 
-			   cabling, 
-			   buffers, 
-			   sm, vr, pr, zs, 
-			   summary, 
-			   digis );
+//   rawToDigi_->createDigis( cabling, buffers, digis );
+//   rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); 
+  
+  // Populate SiStripEventSummary object with "trigger FED" info
+  rawToDigi_->triggerFed( buffers, summary ); 
   
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );

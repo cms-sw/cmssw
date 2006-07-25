@@ -35,7 +35,7 @@ SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pse
   testDistr_( pset.getUntrackedParameter<bool>("TestDistribution",false) ),
   meanOcc_( pset.getUntrackedParameter<double>("MeanOccupancy",1.0) ),
   rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) ),
-  anal_("SiStripTrivialDigiSource")
+  anal_()
 {
   edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource] Constructing object...";
   
@@ -56,7 +56,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
   
   eventCounter_++; 
   edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce] Event: " << eventCounter_;
-  anal_.addEvent();
+  //anal_.addEvent();
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
@@ -68,7 +68,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
   const vector<uint16_t>& fed_ids = cabling->feds(); 
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-    anal_.addFed();
+    //anal_.addFed();
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
       if ( !conn.detId() ) { // Check DetID is non-zero
@@ -77,7 +77,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
 					   << " and channel " << ichan;
 	continue; 
       }
-      anal_.addChan(); nchans++;
+      //anal_.addChan(); nchans++;
       edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
       uint16_t ngroups = 1;
       uint16_t ndigi;
@@ -102,7 +102,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
 	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
 	  digis.data.push_back( SiStripDigi( str+conn.apvPairNumber()*256, adc ) );
 	  used_strips.push_back( str ); 
-	  anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
+	  //anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
 	  ndigis++;
 	  idigi++;
 	}

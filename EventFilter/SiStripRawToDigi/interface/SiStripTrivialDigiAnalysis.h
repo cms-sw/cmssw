@@ -2,58 +2,74 @@
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiAnalysis_H
 
 #include "boost/cstdint.hpp"
+#include <sstream>
 #include <vector>
-#include <string>
-
-using namespace std;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h
    @class SiStripTrivialDigiAnalysis 
-   
    @brief Very simple utility class for analyzing Digis 
 */
 class SiStripTrivialDigiAnalysis {
   
  public:
-  
-  SiStripTrivialDigiAnalysis( string class_name );
-  ~SiStripTrivialDigiAnalysis();
-  
-  inline void addEvent()  { nEvents_++; }
-  inline void addFed( uint32_t nfeds = 1 )  { nFeds_  += nfeds; }
-  inline void addChan( uint32_t nchans = 1) { nChans_ += nchans; }
-  inline void addDet( uint32_t ndets = 1)   { nDets_  += ndets; }
 
-  void zsDigi( uint16_t strip, uint16_t adc );
-  void vrDigi( uint16_t strip, uint16_t adc );
-  void prDigi( uint16_t strip, uint16_t adc );
-  void smDigi( uint16_t strip, uint16_t adc );
+  
 
-  void print();
+  /** Default constructor. */  
+  SiStripTrivialDigiAnalysis() : 
+    events_(0), 
+    feds_(0), 
+    channels_(0), 
+    strips_(0),
+    digis_(0), 
+    size_(1024), 
+    pos_(size_+1,0), 
+    adc_(size_+1,0) {;}
+  
+  /** Pipes collected statistics to stringstream. */
+  void print( std::stringstream& );
+
+  // setters
+  inline void pos( const uint16_t& pos );
+  inline void adc( const uint16_t& adc );
+  
+  // getters
+  inline const std::vector<uint16_t>& pos();
+  inline const std::vector<uint16_t>& adc();
+  
+ public:
+
+  uint32_t events_;
+  uint32_t feds_;
+  uint32_t channels_;
+  uint32_t strips_;
+  uint32_t digis_;
+  
+  const uint16_t size_;
   
  private:
-
-  SiStripTrivialDigiAnalysis();
-
-  string name_;
-
-  vector<uint32_t> zsPos_, zsAdc_;
-  vector<uint32_t> vrPos_, vrAdc_;
-  vector<uint32_t> prPos_, prAdc_;
-  vector<uint32_t> smPos_, smAdc_;
-
-  uint32_t nEvents_;
-  uint32_t nFeds_;
-  uint32_t nChans_;
-  uint32_t nDets_;
-
-  uint32_t zsDigis_;
-  uint32_t vrDigis_;
-  uint32_t prDigis_;
-  uint32_t smDigis_;
   
+  std::vector<uint16_t> pos_;
+  std::vector<uint16_t> adc_;
+
 };
+
+// ---------- inline methods ----------
+
+void SiStripTrivialDigiAnalysis::pos( const uint16_t& pos ) {
+  if ( pos < size_ ) { pos_[pos]++; }
+  else { pos_[size_]++; } 
+}
+
+void SiStripTrivialDigiAnalysis::adc( const uint16_t& adc ) {
+  if ( adc < size_ ) { adc_[adc]++; }
+  else { adc_[size_]++; } 
+}
+
+const std::vector<uint16_t>& SiStripTrivialDigiAnalysis::pos() { return pos_; }
+
+const std::vector<uint16_t>& SiStripTrivialDigiAnalysis::adc() { return adc_; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripTrivialDigiAnalysis_H
 

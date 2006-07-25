@@ -2,19 +2,16 @@
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "boost/cstdint.hpp"
 #include <string>
 
-class SiStripRawToDigi;
-
-using namespace std;
+class SiStripRawToDigiUnpacker;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h
    @class SiStripRawToDigiModule 
    
    @brief A plug-in module that takes a FEDRawDataCollection as input
-   from the Event and creates an EDProduct comprising StripDigis.
+   from the Event and creates EDProducts containing StripDigis.
 */
 class SiStripRawToDigiModule : public edm::EDProducer {
   
@@ -30,9 +27,10 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   
  private: 
   
-  string inputModuleLabel_;
-  SiStripRawToDigi* rawToDigi_;
+  SiStripRawToDigiUnpacker* rawToDigi_;
 
+  bool createDigis_;
+  
 };
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
