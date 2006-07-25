@@ -7,15 +7,15 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: TrackSelector.h,v 1.6 2006/07/21 16:58:23 llista Exp $
+ * $Id: TrackSelector.h,v 1.7 2006/07/24 10:09:08 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "PhysicsTools/RecoAlgos/interface/ObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 namespace helper {
   template<typename C>

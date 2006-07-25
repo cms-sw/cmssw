@@ -1,14 +1,14 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/SingleElementCollectionSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/AnySelector.h"
-#include "PhysicsTools/RecoAlgos/interface/PtMinSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/SortCollectionSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/WindowCollectionSelector.h"
-#include "PhysicsTools/RecoAlgos/interface/PtComparator.h"
-#include "PhysicsTools/RecoAlgos/interface/MasslessInvariantMass.h"
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/WindowCollectionSelector.h"
+#include "PhysicsTools/Utilities/interface/MasslessInvariantMass.h"
+#include "PhysicsTools/Utilities/interface/AnySelector.h"
+#include "PhysicsTools/Utilities/interface/PtMinSelector.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 typedef ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection, 
 						       AnySelector<reco::Track> > 

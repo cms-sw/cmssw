@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="PhysicsToolsRecoAlgos">
 <use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/Utilities>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
@@ -11,6 +12,7 @@
 <export>
   <lib name=PhysicsToolsRecoAlgos>
   <use name=PhysicsTools/UtilAlgos> 
+  <use name=PhysicsTools/Utilities>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/VertexReco>
