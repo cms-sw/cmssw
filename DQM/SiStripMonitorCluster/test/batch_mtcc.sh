@@ -3,6 +3,8 @@
 ###############################################################################################################
 # general
 
+set 
+
 USAGE="Usage: `basename $0` mtcc-runnumber";
 case $# in
 1)
@@ -17,14 +19,17 @@ esac
 # this directory must be visible from remote batch machine
 #DIR_WHERE_TO_EVAL="/afs/cern.ch/user/g/giordano/scratch0/CMSSW/TUTORIAL/CMSSW_0_8_0/" # Domenico's space
 DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/" # Dorian's space
-# directory where the job is run
-WORKDIR=`pwd`
+# directory where the job is run or submitted
+if [ "${LS_SUBCWD+set}" = set ]; then
+  LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
+else
+  LK_WKDIR=`pwd`          # directory where you run locally otherwise
+fi
 #
-#TEMPLATE_CMSSW_CFG="${WORKDIR}/template_mtccoffline.cfg"
-TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
+#TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
+TEMPLATE_CMSSW_CFG="${LK_WKDIR}/template_mtccoffline.cfg"
 # this directory will be created, use '/pool' for production and '/tmp' for testing
-#DIR_WHERE_TO_PUT_LARGE_FILES="/tmp/dkcira/dk_mtcc_${RUNNR}"
-DIR_WHERE_TO_PUT_LARGE_FILES="${WORKDIR}/mtcc_${RUNNR}"
+DIR_WHERE_TO_PUT_LARGE_FILES="./mtcc_${RUNNR}"
 # files
 CMSSW_CFG="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtccoffline_${RUNNR}.cfg";
 LOG_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_${RUNNR}.log";
@@ -34,10 +39,13 @@ DQM_OUTPUT_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_dqm_${RUNNR}.root"
 CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${RUNNR}/A"
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
 BATCH_USER_NAME=`whoami`
-# for copying the output files to castor
-OUTPUT_CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/initial_runs";
 # for testing, if 0 no limit is set
 MAX_FILES_TO_RUN_OVER=0;
+
+# echo '###########################################################'
+# echo 'SHELL VARIABLES'
+# set
+# echo '###########################################################'
 
 ###############################################################################################################
 # definition of functions
@@ -116,8 +124,8 @@ create_cmssw_config_file(){
   LIST_WITH_PATH="";
   for rfile in $LIST_OF_DATA_FILES
   do
-#    echo "\"rfio:${CASTOR_DIR}/${rfile}\"," >> ${CMSSW_CFG};
-    LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${DIR_WHERE_TO_PUT_LARGE_FILES}/${rfile}\""
+    LIST_WITH_PATH="${LIST_WITH_PATH},\"castor:${CASTOR_DIR}/${rfile}\""
+#    LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${DIR_WHERE_TO_PUT_LARGE_FILES}/${rfile}\""
   done
   # remove first comma
   LIST_WITH_PATH=`echo $LIST_WITH_PATH | sed 's/\,//'`;
@@ -140,8 +148,17 @@ runcms(){
   ls -lh
 }
 
+#---
 copy_output_to_castor(){
- # copy some output files to castor
+case $# in
+1)
+	OUTPUT_CASTOR_DIR="$1"
+        ;;
+*)
+        echo "No output castor directory given, not performing copy_output_to_castor."
+        ;;
+esac
+ # copy (some) output files to castor
  if [ $? ]; then # if above commands were successful
    echo "copying output files to $OUTPUT_CASTOR_DIR"
    rfcp $LOG_FILE ${OUTPUT_CASTOR_DIR}/.
@@ -158,8 +175,9 @@ create_large_directory;
 get_list_of_castor_files;
 create_cmssw_config_file;
 copy_pedestal_files;
-copy_castor_files_locally;
+# copy_castor_files_locally;
+echo "Running cmsRun. Log file: ${LOG_FILE}";
 time runcms > ${LOG_FILE} 2>&1 ;
-copy_output_to_castor;
+copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/test/"
 
 ###############################################################################################################
