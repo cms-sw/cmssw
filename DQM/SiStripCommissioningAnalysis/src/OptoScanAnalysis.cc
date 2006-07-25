@@ -4,6 +4,8 @@
 #include <vector>
 #include <cmath>
 
+using namespace std;
+
 // ----------------------------------------------------------------------------
 
 void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos, 

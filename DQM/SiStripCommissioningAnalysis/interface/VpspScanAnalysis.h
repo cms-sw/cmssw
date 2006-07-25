@@ -4,6 +4,8 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include <vector>
 
+class TProfile;
+
 /** 
    @class : VpspScanAnalysis
    @author : M. Wingham
@@ -20,8 +22,8 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   virtual ~VpspScanAnalysis() {;}
   
   /** Takes a vector containing one TProfile of APV baseline measurements vs. VPSP setting and fills the monitorables vector with the optimum VPSP setting for this device. */
-  virtual void analysis(const vector<const TProfile*>& histos, 
-			      vector<unsigned short>& monitorables);
+  virtual void analysis(const std::vector<const TProfile*>& histos, 
+			std::vector<unsigned short>& monitorables);
   
 };
 

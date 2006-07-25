@@ -4,6 +4,8 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include <vector>
 
+class TProfile;
+
 /** 
    @class FedTimingAnalysis
    @author : M. Wingham
@@ -21,8 +23,8 @@ class FedTimingAnalysis : public CommissioningAnalysis {
   virtual ~FedTimingAnalysis() {;}
   
   /** Takes a vector containing one TProfile of a tick mark and returns a vector of 2 unsigned shorts representing the rise time of the tick. The first is a coarse-time measurement (units of 25ns), the second a fine-time (units of 1ns). */
-  virtual void analysis( const vector<const TProfile*>& histos, 
-			      vector<unsigned short>& monitorables);
+  virtual void analysis( const std::vector<const TProfile*>& histos, 
+			 std::vector<unsigned short>& monitorables);
   
 };
 
