@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.22 2006/07/20 16:45:56 namapane Exp $
+ * \version $Id: Track.h,v 1.23 2006/07/24 19:33:39 tboccali Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -32,11 +32,9 @@ namespace reco {
     /// return true if the innermost point is valid
     bool innerOk() const { return extra_->innerOk(); }
     /// position of the innermost point
-    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition
-(); }
+    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition(); }
     /// momentum vector at the innermost point
-    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum
-(); }
+    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum(); }
     /// position of the outermost point
     const math::XYZPoint & outerPosition()  const { return extra_->outerPosition(); }
     /// momentum vector at the outermost point

@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.19 2006/06/26 12:16:03 llista Exp $
+ * \version $Id: TrackBase.h,v 1.20 2006/07/18 15:41:17 llista Exp $
  *
  */
 
@@ -66,10 +66,6 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
-    /// set hit pattern from vector of hit references
-    void setHitPattern( const TrackingRecHitRefVector & hitlist ) {
-      hitPattern_.set( hitlist );
-    }
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
@@ -145,6 +141,8 @@ namespace reco {
     /// z coordinate of point of closest approach to the beamline
     double z() const { return vertex().Z(); }
     
+    //  hit pattern
+    HitPattern & hitPattern() { return hitPattern_; }
     //  hit pattern
     const HitPattern & hitPattern() const { return hitPattern_; }
     /// number of hits found 
