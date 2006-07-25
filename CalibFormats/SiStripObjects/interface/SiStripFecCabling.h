@@ -4,10 +4,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
+#include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <boost/cstdint.hpp>
 #include <vector>
-
-class NumberOfDevices;
 
 /* 
    @class SiStripFecCabling
@@ -37,9 +36,9 @@ class SiStripFecCabling {
   /** */
   inline const std::vector<SiStripFecCrate>& crates() const;
   
-  /** TEMPORARY method to maintain backward compatibility! */
+  /** TEMPORARY: to maintain backward compatibility! */
   inline const std::vector<SiStripFec>& fecs() const;
-
+  
   /** */
   void connections( std::vector<FedChannelConnection>& ) const;
   
@@ -98,54 +97,15 @@ void SiStripFecCabling::nApvPairs( const FedChannelConnection& conn ) {
   const_cast<SiStripModule&>(module(conn)).nApvPairs(conn.nApvPairs()); 
 }
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-#include <sstream>
-
-/** 
-    @class NumberOfDevices
-    @author R.Bainbridge
-    @brief Simple container class for counting devices.
-*/
-class NumberOfDevices {
-  
- public:
-  
-  NumberOfDevices() { clear(); }
-  
-  void clear();
-  void print( std::stringstream& );
-  
- public: // ----- Public member data -----
-  
-  uint32_t nFecCrates_, nFecSlots_, nFecRings_;      // FECs and rings
-  uint32_t nCcuAddrs_, nCcuChans_, nApvs_, nDcuIds_; // CCUs and modules
-  uint32_t nDetIds_, nApvPairs_;                     // Geometry
-  uint32_t nFedIds_, nFedChans_;                     // FED
-  uint32_t nDcus_, nMuxes_, nPlls_, nLlds_;          // Ancilliary devices
-
-}; 
-
 #endif // CalibTracker_SiStripObjects_SiStripFecCabling_H
 
+/*
 
+inline void fedCh( const FedChannelConnection& conn ); //@@ needs to be implemented
 
+void SiStripFecCabling::fedCh( const FedChannelConnection& conn ) {  
+  module(conn).detId(conn.fedId());  
+  module(conn).detId(conn.fedCh());  
+}
 
-
-
-
-
-
-
-
-
-
-//inline void fedCh( const FedChannelConnection& conn ); //@@ needs to be implemented
-
-/* void SiStripFecCabling::fedCh( const FedChannelConnection& conn ) {  */
-/*   module(conn).detId(conn.fedId());  */
-/*   module(conn).detId(conn.fedCh());  */
-/* } */
-
-
+*/
