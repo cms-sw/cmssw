@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/21 02:44:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/25 12:22:29 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,10 +20,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
-
+//
+//
+//
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 			    edm::Event& event){
@@ -80,10 +85,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
       trajectory != trajectories.end(); ++trajectory){
     
     // build the "bare" track extra from the trajectory
-    reco::TrackExtra trackExtra = buildTrackExtra( *trajectory );
+    reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
 
     // get (again!) the transient rechit from the trajectory	
-    const Trajectory::RecHitContainer transHits = trajectory->recHits();
+    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
 
     // Fill the track extra with the rec hit (persistent-)reference
     for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
@@ -111,7 +116,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
       trajectory != trajectories.end(); ++trajectory){
     
     // build the "bare" track from the trajectory
-    reco::Track track = buildTrack( *trajectory );
+    reco::Track track = buildTrack( **trajectory );
     
     // get the TrackExtraRef (persitent reference of the track extra)
     reco::TrackExtraRef trackExtraRef(orphanHandleTrackExtra,position);
@@ -141,7 +146,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
       trajectory != trajectories.end(); ++trajectory){
     
-    Trajectory::DataContainer dataContainer = trajectory->measurements();
+    Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
     for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
