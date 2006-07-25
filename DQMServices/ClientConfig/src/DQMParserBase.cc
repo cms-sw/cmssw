@@ -8,8 +8,8 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2006/05/09 21:28:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:59 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 
@@ -22,8 +22,6 @@ DQMParserBase::DQMParserBase(){
 DQMParserBase::~DQMParserBase(){
 	delete parser;
 	parser=0; 
-	delete doc;
-	doc=0; 
 }
 
 

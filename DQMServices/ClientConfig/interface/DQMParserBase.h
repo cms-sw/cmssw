@@ -6,8 +6,8 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2006/05/09 21:28:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:05 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
   */
 
@@ -36,7 +36,7 @@ class DQMParserBase{
 	///Creator
 	DQMParserBase();
 	///Destructor
-	~DQMParserBase();
+	virtual ~DQMParserBase();
 	///Methor that parses the xml file configFile
 	void getDocument(std::string configFile);
 	///Returns the number of nodes with given name
