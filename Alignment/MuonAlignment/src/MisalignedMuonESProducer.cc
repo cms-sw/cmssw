@@ -99,25 +99,65 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 	  if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
+          // Retrieve muon barrel alignments and errors
+          Alignments*      dtAlignments       = theAlignableMuon->DTBarrel().front()->alignments();
+          AlignmentErrors* dtAlignmentErrors = theAlignableMuon->DTBarrel().front()->alignmentErrors();
+
+          // Retrieve muon endcaps alignments and errors
+          Alignments* cscEndCap1    = theAlignableMuon->CSCEndcaps().front()->alignments();
+          Alignments* cscEndCap2    = theAlignableMuon->CSCEndcaps().back()->alignments();
+          Alignments* cscAlignments = new Alignments();
+          std::copy( cscEndCap1->m_align.begin(), cscEndCap1->m_align.end(), back_inserter( cscAlignments->m_align ) );
+          std::copy( cscEndCap2->m_align.begin(), cscEndCap2->m_align.end(), back_inserter( cscAlignments->m_align ) );
+
+          AlignmentErrors* cscEndCap1Errors = theAlignableMuon->CSCEndcaps().front()->alignmentErrors();
+          AlignmentErrors* cscEndCap2Errors = theAlignableMuon->CSCEndcaps().back()->alignmentErrors();
+          AlignmentErrors* cscAlignmentErrors    = new AlignmentErrors();
+          std::copy(cscEndCap1Errors->m_alignError.begin(), cscEndCap1Errors->m_alignError.end(), 
+                     back_inserter(cscAlignmentErrors->m_alignError) );
+          std::copy(cscEndCap2Errors->m_alignError.begin(), cscEndCap2Errors->m_alignError.end(),
+                     back_inserter(cscAlignmentErrors->m_alignError) );
+
+          // Define callback tokens for the records 
+          size_t dtAlignmentsToken = poolDbService->callbackToken("dtAlignments");
+          size_t dtAlignmentErrorsToken  = poolDbService->callbackToken("dtAlignmentErrors");
+
+          size_t cscAlignmentsToken = poolDbService->callbackToken("cscAlignments");
+          size_t cscAlignmentErrorsToken = poolDbService->callbackToken("cscAlignmentErrors");
+
+          // Sort by DetID
+          std::sort( dtAlignments->m_align.begin(),  dtAlignments->m_align.end(),  lessAlignmentDetId<AlignTransform>() );
+          std::sort( dtAlignmentErrors->m_alignError.begin(),  dtAlignmentErrors->m_alignError.end(),  lessAlignmentDetId<AlignTransformError>() );
+
+          std::sort( cscAlignments->m_align.begin(), cscAlignments->m_align.end(), lessAlignmentDetId<AlignTransform>() );
+          std::sort( cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+
+          // Store in the database
+          poolDbService->newValidityForNewPayload<Alignments>( dtAlignments, poolDbService->endOfTime(), dtAlignmentsToken );
+          poolDbService->newValidityForNewPayload<AlignmentErrors>( dtAlignmentErrors, poolDbService->endOfTime(), dtAlignmentErrorsToken );
+
+          poolDbService->newValidityForNewPayload<Alignments>( cscAlignments, poolDbService->endOfTime(), cscAlignmentsToken );
+          poolDbService->newValidityForNewPayload<AlignmentErrors>( cscAlignmentErrors, poolDbService->endOfTime(), cscAlignmentErrorsToken );
+
+
+/*	  
 	  // Define callback tokens for the two records
 	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
-	  
+
 	  // Retrieve and sort
-	  alignments = theAlignableMuon->alignments();
+	  Alignments = theAlignableMuon->alignments();
 	  AlignmentErrors* alignmentErrors = theAlignableMuon->alignmentErrors();
 	  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
 				 lessAlignmentDetId<AlignTransform>() );
 	  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
 				 lessAlignmentDetId<AlignTransformError>() );
-
 	  // Store
-	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
-														   poolDbService->endOfTime(),
-														   alignmentsToken );
-	  poolDbService->newValidityForNewPayload<AlignmentErrors>( alignmentErrors, 
-																poolDbService->endOfTime(),
-																alignmentErrorsToken );
+	  poolDbService->newValidityForNewPayload<Alignments>( alignments, poolDbService->endOfTime(), alignmentsToken );
+	  poolDbService->newValidityForNewPayload<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(),alignmentErrorsToken );
+*/
+
+
 	}
 
   edm::LogInfo("MisalignedMuon") << "Producer done";

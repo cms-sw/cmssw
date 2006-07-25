@@ -39,8 +39,7 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
 
 //__________________________________________________________________________________________________
 // Gets the level name from the first alignable and hands over to the more general version
-void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-												   std::vector<Alignable*> alignables )
+void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables )
 {
 
   // Get name from first element
@@ -53,9 +52,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 
 //__________________________________________________________________________________________________
 // Decode nested parameter sets: this is the tricky part... Recursively called on components
-void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-													std::vector<Alignable*> alignables,
-													std::string levelName )
+void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables, std::string levelName )
 {
 
   indent += " "; // For indented output!
@@ -113,8 +110,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 //__________________________________________________________________________________________________
 // Merge two sets of parameters into one. The local set overrides the global one
 // A recursive merging is done on parameter sets.
-void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet, 
-													const edm::ParameterSet& globalSet ) const
+void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet, const edm::ParameterSet& globalSet ) const
 {
 
   // Loop on globalSet. Add to localSet all non-existing parameters
@@ -150,9 +146,7 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
 //__________________________________________________________________________________________________
 // Propagates some parameters from upper level.
 // Parameter sets are also propagated down (if name different from global name) or merged down.
-void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet& pSet, 
-														const std::string& globalName,
-														edm::ParameterSet& subSet ) const
+void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet& pSet, const std::string& globalName, edm::ParameterSet& subSet ) const
 {
 
   // Propagate some given parameters
@@ -199,8 +193,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
 //__________________________________________________________________________________________________
 // Get parameter set corresponding to given name.
 // Return empty parameter set if does not exist.
-edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::string& name,
-																 const edm::ParameterSet& pSet ) const
+edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::string& name, const edm::ParameterSet& pSet ) const
 {
 
   edm::ParameterSet result;
@@ -217,8 +210,7 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::stri
 
 
 //__________________________________________________________________________________________________
-bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name,
-												 const edm::ParameterSet& pSet ) const
+bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name, const edm::ParameterSet& pSet ) const
 {
 
   // Get list of parameter set names and look for requested one
@@ -230,8 +222,7 @@ bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name,
 
 //__________________________________________________________________________________________________
 // Print parameter set. If showPsets is 'false', do not print PSets
-void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSet, 
-													const bool showPsets ) const
+void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSet, const bool showPsets ) const
 {
 
   std::vector<std::string> parameterNames = pSet.getParameterNames();
