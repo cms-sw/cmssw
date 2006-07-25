@@ -56,8 +56,10 @@ include "Geometry/CommonDetUnit/data/bareGlobalTrackingGeometry.cfi"
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-- testDetSort.cpp
-- testGlobalTrackingGeometry.cfg : a test and example of GlobalTrackingGeometry.
+- testDetSort.cpp : example and test for DetSorting helper classes.
+
+A test and example application for GlobalTrackingGeometry can be found in 
+package \ref Geometry_GlobalTrackingGeometryBuilder .
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->

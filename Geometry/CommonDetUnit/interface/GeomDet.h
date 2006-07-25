@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/06/14 13:03:30 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/06 18:32:17 $
+ *  $Revision: 1.9 $
  */
 
 
@@ -17,6 +17,7 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 #include <vector>
 
@@ -24,7 +25,8 @@ class AlignmentPositionError;
 
 class GeomDet {
 public:
-  
+  typedef GeomDetEnumerators::SubDetector SubDetector;
+
   explicit GeomDet(BoundPlane* plane);
 
   explicit GeomDet(const ReferenceCountingPointer<BoundPlane>& plane);
@@ -70,6 +72,9 @@ public:
 
   /// The label of this GeomDet
   virtual DetId geographicalId() const = 0;
+
+  /// Which subdetector
+  virtual SubDetector subDetector() const = 0;  
 
   /// Return pointer to alignment errors. 
   /// Defaults to "null" if not reimplemented in the derived classes.

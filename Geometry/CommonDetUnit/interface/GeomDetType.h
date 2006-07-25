@@ -2,16 +2,16 @@
 #define GeomDetType_H
 
 #include <string>
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+
 
 class Topology;
 
 class GeomDetType {
 public:
-
-  enum SubDetector {PixelBarrel, TIB, TOB, PixelEndcap, TID, TEC, 
-     CSC, DT, RPCBarrel, RPCEndcap};
-
-    GeomDetType( const std::string&, SubDetector);
+    typedef GeomDetEnumerators::SubDetector SubDetector;
+  
+    GeomDetType( const std::string& name, SubDetector subdet);
 
     virtual ~GeomDetType();
 
@@ -21,9 +21,14 @@ public:
 
     SubDetector subDetector() const {return theSubDet;}
 
+    bool isBarrel() const;
+    bool isEndcap() const;
+
     bool isTrackerStrip() const;
     bool isTrackerPixel() const;
     bool isTracker()      const;
+    bool isDT()           const;
+    bool isCSC()          const;
     bool isRPC()          const;
     bool isMuon()         const;
 
@@ -31,7 +36,6 @@ private:
 
     std::string theName;
     SubDetector theSubDet;
-
 };
 
 #endif

@@ -28,6 +28,9 @@ public:
 
   virtual const GeomDet* component(DetId id) const {return 0;}
 
+  // Which subdetector
+  virtual SubDetector subDetector() const;
+
 };
   
 #endif
