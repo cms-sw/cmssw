@@ -336,10 +336,10 @@ TIDRing::computeDetPhiRange( const BoundPlane& plane) const
     float width  = rectangularBounds->width();
     //cout << "in TIDRing, length and width: " << length << " , " << width << endl;
     
-    corners.push_back( plane.toGlobal( LocalPoint( -length/2, -width/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( -length/2, +width/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( +length/2, -width/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( +length/2, +width/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -width/2, -length/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( -width/2, +length/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +width/2, -length/2, 0.)));
+    corners.push_back( plane.toGlobal( LocalPoint( +width/2, +length/2, 0.)));
     
   } else{
     string errmsg="TkForwardRing: problems with dynamic cast to rectangular or trapezoidal bounds for Det";
