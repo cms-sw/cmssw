@@ -12,6 +12,12 @@ using namespace std;
 #include <iostream>
 
 
+// pro-memo:
+// "ff" = 1 Byte
+// 64 bits = 8 Bytes = 16 hex carachters
+// for now: event is  ( 114 words x 32 bits ) = 448 Bytes
+// size of ulong = 4 Bytes. Thus, 1 (32 bit) word = 1 (ulong) 
+
 struct hodo_fibre_index 
 {
   int nfiber;
@@ -86,16 +92,16 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 {
   
 
-  // to do: introduce here checks on fed size!
-  //  const ulong * buffer 
-  const unsigned char*  buffer= fedData.data();
-  int fedLenght                        = fedData.size();
+  const ulong * buffer = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( fedData.data())));
+  int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer
-  if (fedLenght != 114)
+  if (fedLenght != (nWordsPerEvent *4) )
     {
       LogError("CamacTBDataFormatter") << "CamacTBData has size "  <<  fedLenght
-				       <<" as opposed to expected 114. Returning."<< endl;
+				       <<" Bytes as opposed to expected " 
+				       << (nWordsPerEvent *4)
+				       << ". Returning."<< endl;
       return;
     }
 
