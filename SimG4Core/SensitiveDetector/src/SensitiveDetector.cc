@@ -6,6 +6,8 @@
 #include "G4Transform3D.hh"
 #include "G4LogicalVolumeStore.hh"
 
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+
 using std::string;
 
 SensitiveDetector::SensitiveDetector(string & iname, const DDCompactView & cpv,
@@ -69,6 +71,54 @@ Local3DPoint SensitiveDetector::ConvertToLocal3DPoint(G4ThreeVector p)
     return Local3DPoint(p.x(),p.y(),p.z());
 }
 
+void SensitiveDetector::NaNTrap( G4Step* aStep )
+{
+
+    if ( aStep == NULL ) return ;
+    
+    G4Track* CurrentTrk = aStep->GetTrack() ;
+    G4ThreeVector CurrentPos = CurrentTrk->GetPosition() ;
+    G4ThreeVector CurrentMom = CurrentTrk->GetMomentum() ;
+    G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
+    G4String NameOfVol ;
+    if ( pCurrentVol != NULL )
+    {
+       NameOfVol = pCurrentVol->GetName() ;
+    }
+    else
+    {
+       NameOfVol = "CorruptedVolumeInfo" ;
+    }
+    
+    // for simplicity... maybe isnan() will work on the 3-vector directly...
+    //
+    double xyz[3] ;
+    xyz[0] = CurrentPos.x() ;
+    xyz[1] = CurrentPos.y() ;
+    xyz[2] = CurrentPos.z() ;
+    
+    // double protection (in principal, just isnan() should do the job...)
+    //
+    if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
+         isnan(xyz[0]) != 0 || isnan(xyz[1]) != 0 || isnan(xyz[2]) != 0 )
+    {
+       std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
+       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position)" ) ;
+    }
+
+    xyz[0] = CurrentMom.x() ;
+    xyz[1] = CurrentMom.y() ;
+    xyz[2] = CurrentMom.z() ;
+    if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
+         isnan(xyz[0]) != 0 || isnan(xyz[1]) != 0 || isnan(xyz[2]) != 0 )
+    {
+       std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
+       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum)" ) ;
+    }
+
+   return ;
+
+}
 
 
 

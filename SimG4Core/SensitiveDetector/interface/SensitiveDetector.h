@@ -42,6 +42,9 @@ public:
 	temp.push_back(nameOfSD());
 	return temp;
     }
+    
+    void NaNTrap( G4Step* step ) ;
+    
 private:
     std::string name;
     G4Step * currentStep;
