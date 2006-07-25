@@ -1,5 +1,5 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.2 2006/07/03 18:30:00 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.3 2006/07/13 14:11:26 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -16,7 +16,6 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
   
   try {
-    deviceFactory(method)->addDetIdPartition( partition_.name_ );
     dcuDetIdMap_ = deviceFactory(method)->getInfos(); 
     resetDcuDetIdMap_ = false;
   }
