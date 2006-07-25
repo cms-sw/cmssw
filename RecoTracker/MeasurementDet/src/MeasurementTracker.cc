@@ -75,8 +75,10 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
     LogDebug("MeasurementDet") << "Got a stripCPE " << typeid(*stripCPEHandle).name() ;
     stripCPE = &(*stripCPEHandle);
 
-   
-    theHitMatcher = new SiStripRecHitMatcher(conf);
+    // --- get the HitMatcher
+    edm::ESHandle<SiStripRecHitMatcher> hitMatcherHandle;
+    setup.get<TrackerCPERecord>().get("StandardMatcher",hitMatcherHandle);
+    theHitMatcher = &(*hitMatcherHandle);
 
     addPixelDets( tracker.detsPXB());
     addPixelDets( tracker.detsPXF());
@@ -146,7 +148,7 @@ void MeasurementTracker::addPixelDet( const GeomDet* gd,
 }
 
 void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
-				      SiStripRecHitMatcher* matcher)
+				      const SiStripRecHitMatcher* matcher)
 {
   const MeasurementDet* monoDet = idToDet( gd->monoDet()->geographicalId());
   if (monoDet == 0) {

@@ -60,7 +60,7 @@ private:
 
   const StripClusterParameterEstimator* stripCPE;
   const PixelClusterParameterEstimator* pixelCPE;
-  SiStripRecHitMatcher*           theHitMatcher;
+  const SiStripRecHitMatcher*           theHitMatcher;
 
   void initialize(const edm::EventSetup&, const edm::ParameterSet&);
 
@@ -69,7 +69,7 @@ private:
   void addPixelDet( const GeomDet* gd,
 		    const PixelClusterParameterEstimator* cpe);
 
-  void addGluedDet( const GluedGeomDet* gd, SiStripRecHitMatcher* matcher);
+  void addGluedDet( const GluedGeomDet* gd, const SiStripRecHitMatcher* matcher);
 
   void addPixelDets( const TrackingGeometry::DetContainer& dets);
 

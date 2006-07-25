@@ -8,7 +8,7 @@
 #include "RecoTracker/MeasurementDet/interface/ReferenceHitMatcher.h"
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
-					      SiStripRecHitMatcher* matcher,
+					      const SiStripRecHitMatcher* matcher,
 					      const MeasurementDet* monoDet,
 					      const MeasurementDet* stereoDet) :
   MeasurementDet(gdet), theGeomDet(gdet), 

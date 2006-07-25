@@ -9,7 +9,7 @@ class SiStripRecHitMatcher;
 class TkGluedMeasurementDet : public MeasurementDet {
 public:
 
-  TkGluedMeasurementDet( const GluedGeomDet* gdet, SiStripRecHitMatcher* matcher,
+  TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher,
 			 const MeasurementDet* monoDet,
 			 const MeasurementDet* stereoDet);
 
@@ -26,7 +26,7 @@ public:
 private:
 
   const GluedGeomDet*         theGeomDet;
-  SiStripRecHitMatcher*       theMatcher;
+  const SiStripRecHitMatcher*       theMatcher;
   const MeasurementDet*       theMonoDet;
   const MeasurementDet*       theStereoDet;
 
