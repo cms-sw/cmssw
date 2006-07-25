@@ -92,7 +92,7 @@ void CommissioningHistograms::createSummaryHistos( const vector<SummaryFactory::
   CommissioningSummary* summary;
   vector<SummaryFactory::Histo>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
-    summary = CommissioningSummaryFactory::book( *ihis, directory );
+    summary = SummaryFactory::book( *ihis, directory );
     //if ( summary ) { insertIntoDqm( summary ); }
   }
   
@@ -113,9 +113,6 @@ void CommissioningHistograms::createSummaryHistos( const vector<SummaryFactory::
   
 }
 
-
-}
-
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createTrackerMap() {
@@ -130,23 +127,23 @@ void CommissioningHistograms::uploadToConfigDb() {
        << " (Derived) implementation to come..." << endl;
 }
 
-// -----------------------------------------------------------------------------
-/** */
-void CommissioningHistograms::bookDqmHisto( vector<TH1F*>& dqm_histos ) {
-  static const string method = "CommissioningHistograms::bookDqmHistos";
+// // -----------------------------------------------------------------------------
+// /** */
+// void CommissioningHistograms::bookDqmHisto( vector<TH1F*>& dqm_histos ) {
+//   static const string method = "CommissioningHistograms::bookDqmHistos";
   
-  // Book 1D histo using DQM fwk 
-  MonitorElement* me = mui()->getBEInterface()->book1D( "name", "title", 1, 0., 1. );
+//   // Book 1D histo using DQM fwk 
+//   MonitorElement* me = mui()->getBEInterface()->book1D( "name", "title", 1, 0., 1. );
   
-  // Extract TH1F
-  TH1F* his = ExtractTObject<TH1F>().extract( me );
-  if ( his ) { 
-    dqm_histos.push_back( his ); 
-  } else {
-    cerr << "["<<method<<"] NULL pointer to TH1F!" << endl; 
-    return; 
-  }
+//   // Extract TH1F
+//   TH1F* his = ExtractTObject<TH1F>().extract( me );
+//   if ( his ) { 
+//     dqm_histos.push_back( his ); 
+//   } else {
+//     cerr << "["<<method<<"] NULL pointer to TH1F!" << endl; 
+//     return; 
+//   }
   
-}
+// }
 
 

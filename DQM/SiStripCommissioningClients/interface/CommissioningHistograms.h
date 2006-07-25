@@ -8,6 +8,7 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummary.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryFactory.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1F.h"
