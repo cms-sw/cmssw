@@ -79,8 +79,6 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
   alignments = theAlignableTracker->alignments();
-  TrackerGeometryAligner aligner;
-  aligner.applyAlignments( theTracker, alignments );
   
   // Dump alignments AFTER
   if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
@@ -122,6 +120,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::LogInfo("MisalignedTracker") << "Producer done";
 
   // Store result to EventSetup
+  TrackerGeometryAligner aligner;
+  aligner.applyAlignments( &(*theTracker), alignments );
   return theTracker;
   
 }
