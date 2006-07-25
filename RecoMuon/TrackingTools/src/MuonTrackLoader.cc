@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/25 13:28:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/25 13:49:21 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -30,7 +30,7 @@
 //
 //
 edm::OrphanHandle<reco::TrackCollection> 
-MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
+MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -102,7 +102,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
     trackExtraCollection ->push_back(trackExtra);
   }
 
-  //put the collection of TrackExtra in the event
+  // put the collection of TrackExtra in the event
   LogDebug(metname) <<  "put the collection of TrackExtra in the event" << "\n";
   edm::OrphanHandle<reco::TrackExtraCollection> orphanHandleTrackExtra = event.put(trackExtraCollection);
   
@@ -178,21 +178,21 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     reco::Muon muon;
     muon.setStandAlone((*it)->muonTrack());
     muon.setTrack((*it)->trackerTrack());
-    muonCollection.push_back(muon);
+    muonCollection->push_back(muon);
   }
 
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
   edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+
   reco::MuonCollection::iterator muon = muonCollection->begin();
-  for (unsigned int position = 0; position != combinedTracks->size(); position++) {
+  for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
     reco::TrackRef combinedTR(combinedTracks, position);
     // fill the combined information.
     // FIXME: can this break in case combined info cannot be added to some tracks?
-    muon.setCombined(combinedTR);
+    (*muon).setCombined(combinedTR);
     muon++;
   }
-
 
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
