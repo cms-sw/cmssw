@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.16 2006/07/25 10:16:10 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.17 2006/07/25 15:20:59 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -40,8 +40,8 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
 			       pset.getUntrackedParameter< vector<string> >( "InputFedXml", vector<string>(1,"") ), 
 			       pset.getUntrackedParameter<string>("OutputModuleXml","/tmp/module.xml"),
 			       pset.getUntrackedParameter<string>("OutputDcuInfoXml","/tmp/dcuinfo.xml"),
-			       pset.getUntrackedParameter< vector<string> >( "OutputFecXml", vector<string>(1,"/tmp/fec.xml") ),
-			       pset.getUntrackedParameter< vector<string> >( "OutputFedXml", vector<string>(1,"/tmp/fed.xml") ) );
+			       pset.getUntrackedParameter<string>( "OutputFecXml", "/tmp/fec.xml" ),
+			       pset.getUntrackedParameter<string>( "OutputFedXml", "/tmp/fed.xml" ) );
   }
   
   // Establish connection
