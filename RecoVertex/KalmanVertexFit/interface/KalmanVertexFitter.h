@@ -28,6 +28,12 @@ public:
    * \param useSmoothing Specifies whether the tracks should be refit or not.
    */
 
+  KalmanVertexFitter(bool useSmoothing = false);
+
+  /**
+   * Same as above, using a ParameterSet to set the convergence criteria
+   */
+
   KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
   KalmanVertexFitter(const KalmanVertexFitter & other ) :
     theSequentialFitter ( other.theSequentialFitter->clone() ) {}
@@ -94,8 +100,13 @@ public:
   {
     return theSequentialFitter->vertex(tracks, priorPos, priorError);
   }
+  
+  /** Default convergence criteria
+   */
+  edm::ParameterSet defaultParameters() const;
 
 private:
+
 
   const SequentialVertexFitter * theSequentialFitter;
 };
