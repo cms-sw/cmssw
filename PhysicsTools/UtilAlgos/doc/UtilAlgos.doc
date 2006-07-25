@@ -25,7 +25,7 @@ Framework generic utility modules
     MySelection( const edm::ParameterSet & );
     // select object from a collection and 
     // possibly event content
-    void select( const reco::TrackCollection &, const edm::Event & );
+    void select( const collection &, const edm::Event & );
     // iterators over selected objects: collection begin
     const_iterator begin() const;
     // iterators over selected objects: collection end
