@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/07/21 08:06:31 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/25 12:22:29 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -26,15 +26,15 @@ class MuonTrajectoryBuilder {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// constructor
-    MuonTrajectoryBuilder() {};
+    MuonTrajectoryBuilder() {}
   
     /// constructor with Parameter set
-    MuonTrajectoryBuilder(const edm::ParameterSet&) {};
+    MuonTrajectoryBuilder(const edm::ParameterSet&) {}
 
     /// destructor
-    virtual ~MuonTrajectoryBuilder() {};
+    virtual ~MuonTrajectoryBuilder() {}
 
-    /// return a container of the reconstructed trajectories compatible with a given seed      
+    /// return a container of the reconstructed trajectories compatible with a given seed
     virtual TrajectoryContainer trajectories(const TrajectorySeed&) = 0;
 
     /// return a container reconstructed muons starting from a given track
