@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.3 2006/06/21 17:01:20 pivarski Exp $
+// $Id: SiStripElectronProducer.cc,v 1.4 2006/06/21 22:49:08 pivarski Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -103,10 +103,10 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::ESHandle<TrackerGeometry> trackerHandle;
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> rphiHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> stereoHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
    iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;

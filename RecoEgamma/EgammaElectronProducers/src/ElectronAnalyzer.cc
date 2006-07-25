@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: ElectronAnalyzer.cc,v 1.2 2006/06/21 17:02:05 pivarski Exp $
+// $Id: ElectronAnalyzer.cc,v 1.3 2006/06/21 22:49:28 pivarski Exp $
 //
 
 // system include files
@@ -28,8 +28,8 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 
 // for Si hits
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -158,10 +158,10 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::ESHandle<TrackerGeometry> trackerHandle;
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> rphiHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> stereoHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
    iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
 
    // Loop over the detector ids
@@ -169,11 +169,11 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
 
       // Get the hits on this detector id
-      SiStripRecHit2DLocalPosCollection::range hits = stereoHitsHandle->get(*id);
+      SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
 
       // Count the number of hits on this detector id
       unsigned int numberOfHits = 0;
-      for (SiStripRecHit2DLocalPosCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+      for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
 	 numberOfHits++;
       }
       
@@ -181,7 +181,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       // (Would it be better to loop only once, fill a temporary list,
       // and copy that if numberOfHits <= maxHitsOnDetId_?)
       if (numberOfHits <= 5) {
-	 for (SiStripRecHit2DLocalPosCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
 	    if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TIB  ||
 		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TOB    ) {
 
