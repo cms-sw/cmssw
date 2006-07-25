@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.5 2006/07/25 10:56:39 rahatlou Exp $
+// $Id: SiStripElectronAlgo.h,v 1.6 2006/07/25 22:32:32 pivarski Exp $
 //
 
 // system include files
@@ -32,8 +32,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -72,8 +72,8 @@ class SiStripElectronAlgo
       // ---------- member functions ---------------------------
 
       void prepareEvent(const edm::ESHandle<TrackerGeometry>& tracker,
-			const edm::Handle<SiStripRecHit2DLocalPosCollection>& rphiHits,
-			const edm::Handle<SiStripRecHit2DLocalPosCollection>& stereoHits,
+			const edm::Handle<SiStripRecHit2DCollection>& rphiHits,
+			const edm::Handle<SiStripRecHit2DCollection>& stereoHits,
 			const edm::ESHandle<MagneticField>& magneticField);
 
       // returns true iff an electron/positron was found
@@ -91,7 +91,7 @@ class SiStripElectronAlgo
       // selects hits on DetIds that have no more than maxHitsOnDetId_
       // selects from stereo if stereo == true, rphi otherwise
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
-      void coarseHitSelection(std::vector<const SiStripRecHit2DLocalPos*>& hitPointersOut,
+      void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
 			      bool stereo, bool endcap);
 
       // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
@@ -116,20 +116,20 @@ class SiStripElectronAlgo
 
       // changes with each event
       const TrackerGeometry* tracker_p_;
-      const SiStripRecHit2DLocalPosCollection* rphiHits_p_;
-      const SiStripRecHit2DLocalPosCollection* stereoHits_p_;
+      const SiStripRecHit2DCollection* rphiHits_p_;
+      const SiStripRecHit2DCollection* stereoHits_p_;
       const MagneticField* magneticField_p_;
 
-      const edm::Handle<SiStripRecHit2DLocalPosCollection>* rphiHits_hp_;
-      const edm::Handle<SiStripRecHit2DLocalPosCollection>* stereoHits_hp_;
-      std::map<const SiStripRecHit2DLocalPos*, unsigned int> rphiKey_;
-      std::map<const SiStripRecHit2DLocalPos*, unsigned int> stereoKey_;
+      const edm::Handle<SiStripRecHit2DCollection>* rphiHits_hp_;
+      const edm::Handle<SiStripRecHit2DCollection>* stereoHits_hp_;
+      std::map<const SiStripRecHit2D*, unsigned int> rphiKey_;
+      std::map<const SiStripRecHit2D*, unsigned int> stereoKey_;
       std::map<const TrackingRecHit*, bool> hitUsed_;
 
       double redchi2_pos_;
       GlobalPoint position_pos_;
       GlobalVector momentum_pos_;
-      const SiStripRecHit2DLocalPos* innerhit_pos_;
+      const SiStripRecHit2D* innerhit_pos_;
       edm::OwnVector<TrackingRecHit> outputHits_pos_;
       edm::RefVector<TrackingRecHitCollection> outputRphiHits_pos_;
       edm::RefVector<TrackingRecHitCollection> outputStereoHits_pos_;
@@ -148,7 +148,7 @@ class SiStripElectronAlgo
       double redchi2_neg_;
       GlobalPoint position_neg_;
       GlobalVector momentum_neg_;
-      const SiStripRecHit2DLocalPos* innerhit_neg_;
+      const SiStripRecHit2D* innerhit_neg_;
       edm::OwnVector<TrackingRecHit> outputHits_neg_;
       edm::RefVector<TrackingRecHitCollection> outputRphiHits_neg_;
       edm::RefVector<TrackingRecHitCollection> outputStereoHits_neg_;

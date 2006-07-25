@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.7 2006/07/25 10:59:59 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.8 2006/07/25 22:33:02 pivarski Exp $
 //
 
 // system include files
@@ -79,8 +79,8 @@ SiStripElectronAlgo::~SiStripElectronAlgo()
 //
 
 void SiStripElectronAlgo::prepareEvent(const edm::ESHandle<TrackerGeometry>& tracker,
-				       const edm::Handle<SiStripRecHit2DLocalPosCollection>& rphiHits,
-				       const edm::Handle<SiStripRecHit2DLocalPosCollection>& stereoHits,
+				       const edm::Handle<SiStripRecHit2DCollection>& rphiHits,
+				       const edm::Handle<SiStripRecHit2DCollection>& stereoHits,
 				       const edm::ESHandle<MagneticField>& magneticField)
 {
    tracker_p_ = tracker.product();
@@ -98,14 +98,14 @@ void SiStripElectronAlgo::prepareEvent(const edm::ESHandle<TrackerGeometry>& tra
    hitUsed_.clear();
 
    unsigned int counter = 0;
-   for (SiStripRecHit2DLocalPosCollection::const_iterator it = rphiHits_p_->begin();  it != rphiHits_p_->end();  ++it) {
+   for (SiStripRecHit2DCollection::const_iterator it = rphiHits_p_->begin();  it != rphiHits_p_->end();  ++it) {
       rphiKey_[&(*it)] = counter;
       hitUsed_[(const TrackingRecHit*)(&(*it))] = false;
       counter++;
    }
 
    counter = 0;
-   for (SiStripRecHit2DLocalPosCollection::const_iterator it = stereoHits_p_->begin();  it != stereoHits_p_->end();  ++it) {
+   for (SiStripRecHit2DCollection::const_iterator it = stereoHits_p_->begin();  it != stereoHits_p_->end();  ++it) {
       stereoKey_[&(*it)] = counter;
       hitUsed_[(const TrackingRecHit*)(&(*it))] = false;
       counter++;
@@ -222,7 +222,7 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 // selects hits on DetIds that have no more than maxHitsOnDetId_
 // selects from stereo if stereo == true, rphi otherwise
 // selects from TID or TEC if endcap == true, TIB or TOB otherwise
-void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2DLocalPos*>& hitPointersOut,
+void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
 					     bool stereo, bool endcap)
 {
    // This function is not time-efficient.  If you want to improve the
@@ -238,11 +238,11 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2DLo
    for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
 
       // Get the hits on this detector id
-      SiStripRecHit2DLocalPosCollection::range hits = (stereo ? stereoHits_p_->get(*id) : rphiHits_p_->get(*id));
+      SiStripRecHit2DCollection::range hits = (stereo ? stereoHits_p_->get(*id) : rphiHits_p_->get(*id));
 
       // Count the number of hits on this detector id
       unsigned int numberOfHits = 0;
-      for (SiStripRecHit2DLocalPosCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+      for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
 	 numberOfHits++;
 	 if (numberOfHits > maxHitsOnDetId_) { break; }
       }
@@ -251,7 +251,7 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2DLo
       // (Would it be better to loop only once, fill a temporary list,
       // and copy that if numberOfHits <= maxHitsOnDetId_?)
       if (numberOfHits <= maxHitsOnDetId_) {
-	 for (SiStripRecHit2DLocalPosCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
 	    if ((endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TID  ||
 			      tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TEC    ))    ||
 		(!endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TIB  ||
@@ -286,9 +286,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
    // candidate.
 
    // Create and fill vectors of pointers to hits
-   std::vector<const SiStripRecHit2DLocalPos*> stereoHits;
-   std::vector<const SiStripRecHit2DLocalPos*> rphiBarrelHits;
-   std::vector<const SiStripRecHit2DLocalPos*> zphiEndcapHits;
+   std::vector<const SiStripRecHit2D*> stereoHits;
+   std::vector<const SiStripRecHit2D*> rphiBarrelHits;
+   std::vector<const SiStripRecHit2D*> zphiEndcapHits;
    //                                 stereo? endcap?
    coarseHitSelection(stereoHits,     true,   false);
    coarseHitSelection(stereoHits,     true,   true);
@@ -309,7 +309,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
    const double scz = superclusterIn->position().z();
 
    // Identify the innermost hit
-   const SiStripRecHit2DLocalPos* innerhit = (SiStripRecHit2DLocalPos*)(0);
+   const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)(0);
    double innerhitRadius = -1.;  // meaningless until innerhit is defined
 
    // Copy hits into an OwnVector, which we put in the TrackCandidate
@@ -333,7 +333,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
    // Loop over all stereo hits
    unsigned int numberOfStereoHits = 0;
-   for (std::vector<const SiStripRecHit2DLocalPos*>::const_iterator hit = stereoHits.begin();  hit != stereoHits.end();  ++hit) {
+   for (std::vector<const SiStripRecHit2D*>::const_iterator hit = stereoHits.begin();  hit != stereoHits.end();  ++hit) {
       if (!hitUsed_[(TrackingRecHit*)(&(*hit))]) {
 	 // Calculate the 3-D position of this hit
 	 GlobalPoint position = tracker_p_->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
@@ -367,7 +367,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	       zSlopeFitDenom += (scr - r) * (scr - r);
 	    
 	       // Keep track of the innermost hit
-	       if (innerhit == (SiStripRecHit2DLocalPos*)(0)  ||  r < innerhitRadius) {
+	       if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
 		  innerhit = *hit;
 		  innerhitRadius = r;
 	       }
@@ -393,7 +393,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
    // Loop over barrel rphi hits
    unsigned int numberOfBarrelRphiHits = 0;
-   for (std::vector<const SiStripRecHit2DLocalPos*>::const_iterator hit = rphiBarrelHits.begin();  hit != rphiBarrelHits.end();  ++hit) {
+   for (std::vector<const SiStripRecHit2D*>::const_iterator hit = rphiBarrelHits.begin();  hit != rphiBarrelHits.end();  ++hit) {
       if (!hitUsed_[(TrackingRecHit*)(&(*hit))]) {
 	 // Calculate the 2.5-D position of this hit
 	 GlobalPoint position = tracker_p_->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
@@ -428,7 +428,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	       w2list.push_back(weight2);
 
 	       // Keep track of the innermost hit
-	       if (innerhit == (SiStripRecHit2DLocalPos*)(0)  ||  r < innerhitRadius) {
+	       if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
 		  innerhit = *hit;
 		  innerhitRadius = r;
 	       }
@@ -444,7 +444,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
    
    // Loop over endcap zphi hits
    unsigned int numberOfEndcapZphiHits = 0;
-   for (std::vector<const SiStripRecHit2DLocalPos*>::const_iterator hit = zphiEndcapHits.begin();  hit != zphiEndcapHits.end();  ++hit) {
+   for (std::vector<const SiStripRecHit2D*>::const_iterator hit = zphiEndcapHits.begin();  hit != zphiEndcapHits.end();  ++hit) {
       if (!hitUsed_[(TrackingRecHit*)(&(*hit))]) {
 	 // Calculate the 2.5-D position of this hit
 	 GlobalPoint position = tracker_p_->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
@@ -477,7 +477,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	    w2list.push_back(weight2);
 
 	    // Keep track of the innermost hit
-	    if (innerhit == (SiStripRecHit2DLocalPos*)(0)  ||  rFit < innerhitRadius) {
+	    if (innerhit == (SiStripRecHit2D*)(0)  ||  rFit < innerhitRadius) {
 	       innerhit = *hit;
 	       innerhitRadius = rFit;
 	    }

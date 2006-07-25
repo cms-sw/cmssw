@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.5 2006/07/25 10:43:54 rahatlou Exp $
+// $Id: SiStripElectronProducer.cc,v 1.6 2006/07/25 22:37:00 pivarski Exp $
 //
 
 // system include files
@@ -105,10 +105,10 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::ESHandle<TrackerGeometry> trackerHandle;
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> rphiHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
 
-   edm::Handle<SiStripRecHit2DLocalPosCollection> stereoHitsHandle;
+   edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
    iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;
