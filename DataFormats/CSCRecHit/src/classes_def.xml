@@ -8,6 +8,12 @@
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
 
+  <class name="CSCRecHit1D"/>
+  <class name="std::vector<CSCRecHit1D*>"/>
+  <class name="edm::OwnVector<CSCRecHit1D,edm::ClonePolicy<CSCRecHit1D> >"/>
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit1D,edm::ClonePolicy<CSCRecHit1D> >,edm::ClonePolicy<CSCRecHit1D> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit1D,edm::ClonePolicy<CSCRecHit1D> >,edm::ClonePolicy<CSCRecHit1D> > >"/>
+
   <class name="RecSegment"/>
   <class name="std::vector<CSCSegment*>"/>
   <class name="CLHEP::HepSymMatrix"/>
@@ -20,6 +26,9 @@
 
 <exclusion>
   <class name="edm::OwnVector<CSCRecHit2D, edm::ClonePolicy<CSCRecHit2D> >">
+    <method name="sort"/>
+  </class>
+  <class name="edm::OwnVector<CSCRecHit1D, edm::ClonePolicy<CSCRecHit1D> >">
     <method name="sort"/>
   </class>
   <class name="edm::OwnVector<CSCSegment, edm::ClonePolicy<CSCSegment> >">
