@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.3 2006/06/21 17:00:53 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.4 2006/06/21 22:47:25 pivarski Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -68,8 +68,8 @@ class SiStripElectronAlgo
       // ---------- member functions ---------------------------
 
       void prepareEvent(const TrackerGeometry* tracker,
-			const SiStripRecHit2DLocalPosCollection* rphiHits,
-			const SiStripRecHit2DLocalPosCollection* stereoHits,
+			const SiStripRecHit2DCollection* rphiHits,
+			const SiStripRecHit2DCollection* stereoHits,
 			const MagneticField* magneticField);
 
       // returns number of electrons found (0, 1, or 2),
@@ -87,7 +87,7 @@ class SiStripElectronAlgo
       // selects hits on DetIds that have no more than maxHitsOnDetId_
       // selects from stereo if stereo == true, rphi otherwise
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
-      void coarseHitSelection(std::vector<const SiStripRecHit2DLocalPos*>& hitPointersOut,
+      void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
 			      bool stereo, bool endcap);
 
      // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
@@ -115,8 +115,8 @@ class SiStripElectronAlgo
 
       // changes with each event
       const TrackerGeometry* tracker_p;
-      const SiStripRecHit2DLocalPosCollection* rphiHits_p;
-      const SiStripRecHit2DLocalPosCollection* stereoHits_p;
+      const SiStripRecHit2DCollection* rphiHits_p;
+      const SiStripRecHit2DCollection* stereoHits_p;
       const MagneticField* magneticField_p;
 };
 

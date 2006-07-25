@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.6 2006/06/30 14:10:34 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.1 2006/07/12 15:10:47 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -189,16 +189,20 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
     
       TrajectoryStateClosestToPoint tscp = tscpBuilder(*(initState.first.freeState()), Global3DPoint(0,0,0) );
 
-      reco::perigee::Parameters param = tscp.perigeeParameters();
-      reco::perigee::Covariance covar = tscp.perigeeError();
+      //reco::perigee::Parameters param = tscp.perigeeParameters();
+      //reco::perigee::Covariance covar = tscp.perigeeError();
+
+      PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
+      PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
+
+
 
       Track aTrack(it->chiSquared(),
        int(ndof), //FIXME fix weight() in TrackingRecHit
-       it->foundHits(),
-       0, //FIXME no corresponding method in trajectory.h
-       it->lostHits(),//FIXME to be fixed in Trajectory.h
-       param,
-       covar);
+       //it->foundHits(),
+       //0, //FIXME no corresponding method in trajectory.h
+       //it->lostHits(),//FIXME to be fixed in Trajectory.h
+       param, tscp.pt(), covar);
       cout << "New track created" << std::endl;
       LogDebug("") << "New track created";
       cout << "n valid and invalid hit, chi2 : " 
