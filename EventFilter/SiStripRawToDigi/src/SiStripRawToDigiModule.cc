@@ -40,10 +40,10 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 					     trigger_fed_id,
 					     using_fed_key );
   
-  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripScopeModeDigis");
-  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripVirginRawDigis");
-  produces< edm::DetSetVector<SiStripRawDigi> >("SiStripProcRawDigis");
-  produces< edm::DetSetVector<SiStripDigi> >("SiStripDigis");
+  produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
+  produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
+  produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
+  produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
   produces< SiStripDigis >("SiStripDigis");
   produces< SiStripEventSummary >();
   
@@ -85,9 +85,6 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   // Create "real" or "pseudo" digis
   if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
   else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
-  
-//   rawToDigi_->createDigis( cabling, buffers, digis );
-//   rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); 
   
   // Populate SiStripEventSummary object with "trigger FED" info
   rawToDigi_->triggerFed( buffers, summary ); 

@@ -79,34 +79,55 @@ void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling,
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     
     // Locate start of FED buffer within raw data
-    FEDRawData output; 
-    locateStartOfFedBuffer( *ifed, input, output );
-    
-    Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
-    Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-    
+    Fed9U::u32* data_u32 = 0;
+    Fed9U::u32  size_u32 = 0;
+    if ( headerBytes_ != 0 ) {
+      FEDRawData output; 
+      locateStartOfFedBuffer( *ifed, input, output );
+      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+      size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
+      appended_bytes[*ifed] = input.size() - output.size();
+    } else {
+      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
+      size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+    }
+      
+    // Check on FEDRawData pointer
+    if ( !data_u32 ) {
+      edm::LogError("SiStripRawToDigi") << "["<<method<<"] NULL pointer to FEDRawData!";
+      continue;
+    }	
+
+    // Check on FEDRawData size
+    if ( !size_u32 ) {
+      edm::LogError("SiStripRawToDigi") << "["<<method<<"] FEDRawData has zero size!";
+      continue;
+    }	
+
+    // Initialise Fed9UEvent using present FED buffer and retrive readout mode
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
       fedEvent_->checkEvent();
     } catch(...) { handleException( method, "Problem when creating and checking Fed9UEvent" ); } 
     
     // Information for the pseudo-digis object
-    formats[*ifed] = fedBufferFormat( static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() ) ); 
-    modes[*ifed] = fedReadoutMode( static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() ) );
-    fe_enable_bits[*ifed] = fedEvent_->getSpecialFeEnableReg();
-    appended_bytes[*ifed] = input.size() - output.size();
+    try {
+      formats[*ifed] = fedBufferFormat( static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() ) ); 
+      modes[*ifed] = fedReadoutMode( static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() ) );
+      fe_enable_bits[*ifed] = fedEvent_->getSpecialFeEnableReg();
+    } catch(...) { handleException( method, "Problem when using Fed9UEvent" ); } 
     
-    cout << " FedId: " << *ifed
-	 << " BufferSize: " << ( 4 * size_u32 )
-	 << hex
-	 << " BufferFormat: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() )
-	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedBufferFormat( fedEvent_->getSpecialHeaderFormat() ) )
-	 << " ReadoutMode: 0x"  << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() )
-	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedReadoutMode( fedEvent_->getSpecialTrackerEventType() ) )
-	 << " FeEnableBits: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialFeEnableReg() )
-	 << dec
-	 << " AppendedBytes: " << ( input.size() - output.size() )
-	 << endl;
+//     cout << " FedId: " << *ifed
+// 	 << " BufferSize: " << ( 4 * size_u32 )
+// 	 << hex
+// 	 << " BufferFormat: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() )
+// 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedBufferFormat( fedEvent_->getSpecialHeaderFormat() ) )
+// 	 << " ReadoutMode: 0x"  << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() )
+// 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedReadoutMode( fedEvent_->getSpecialTrackerEventType() ) )
+// 	 << " FeEnableBits: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialFeEnableReg() )
+// 	 << dec
+// 	 << " AppendedBytes: " << ( input.size() - output.size() )
+// 	 << endl;
     
   }
   
@@ -137,32 +158,58 @@ void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling,
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
+
+    // Dump of FEDRawData to stdout
+    if ( dumpFrequency_ && !(event_%dumpFrequency_) ) {
+      stringstream ss;
+      dumpRawData( *ifed, input, ss );
+      LogTrace("RawToDigi") << ss.str();
+    }
     
     // Locate start of FED buffer within raw data
-    FEDRawData output; 
-    locateStartOfFedBuffer( *ifed, input, output );
-    Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
-    Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-    
-    // Initialise Fed9UEvent using present FED buffer and retrive readout mode
+    Fed9U::u32* data_u32 = 0;
+    Fed9U::u32  size_u32 = 0;
+    if ( headerBytes_ != 0 ) {
+      FEDRawData output; 
+      locateStartOfFedBuffer( *ifed, input, output );
+      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+      size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
+    } else {
+      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
+      size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+    }
+
+    // Check on FEDRawData pointer
+    if ( !data_u32 ) {
+      edm::LogError("SiStripRawToDigi") << "["<<method<<"] NULL pointer to FEDRawData!";
+      continue;
+    }	
+
+    // Check on FEDRawData size
+    if ( !size_u32 ) {
+      edm::LogError("SiStripRawToDigi") << "["<<method<<"] FEDRawData has zero size!";
+      continue;
+    }	
+
+    // Initialise Fed9UEvent using present FED buffer
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
       fedEvent_->checkEvent();
-      mode = fedReadoutMode( static_cast<unsigned int>( fedEvent_->getSpecialTrackerEventType() ) );
     } catch(...) { handleException( method, "Problem unpacking FED buffer" ); } 
+
+    // Retrive readout mode
+    try {
+      mode = fedReadoutMode( static_cast<unsigned int>( fedEvent_->getSpecialTrackerEventType() ) );
+    } catch(...) { handleException( method, "Problem when using Fed9UEvent" ); } 
     
-    // Dump of FED buffer to stdout
+    // Dump of FED buffer
     if ( dumpFrequency_ && !(event_%dumpFrequency_) ) {
       stringstream ss;
-      dumpRawData( *ifed, input, ss );
-      ss << "\n";
       fedEvent_->dump( ss );
-      cout << ss.str() << endl;
-      //LogTrace("RawToDigi") << ss.str();
+      LogTrace("RawToDigi") << ss.str();
     }
-    event_++;
-    
+
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
     for ( uint16_t channel = 0; channel < 96; channel++ ) {
@@ -295,7 +342,10 @@ void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling,
 
     } // channel loop
   } // fed loop
-
+  
+  // Incrememt event counter
+  event_++;
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -320,12 +370,28 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
 	//fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
 	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-	if ( fed_trailer->conscheck == 0xDEADFACE ) { triggerFedId_ = ifed; }
+	if ( fed_trailer->conscheck == 0xDEADFACE ) { 
+	  triggerFedId_ = ifed; 
+	  stringstream ss;
+	  ss << "["<<method<<"]"
+	     << " Search mode for 'trigger FED' activated!"
+	     << " Found 'trigger FED' info with id " << triggerFedId_;
+	  edm::LogVerbatim("RawToDigi") << ss.str();
+	}
       }
+      ifed++;
     }
-
+    if ( triggerFedId_ < 0 ) {
+      triggerFedId_ = 0;
+      stringstream ss;
+      ss << "["<<method<<"]"
+	 << " Search mode for 'trigger FED' activated!"
+	 << " 'Trigger FED' info not found!";
+      edm::LogWarning("RawToDigi") << ss.str();
+    }
+    
   } else if ( triggerFedId_ > 0 ) { // "Trigger FED" id given in .cfg file
-
+    
     const FEDRawData& trigger_fed = buffers->FEDData( triggerFedId_ );
       if ( trigger_fed.data() && trigger_fed.size() ) {
 	uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
@@ -380,16 +446,17 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
     DAQ header,  4 LSB, Hx$$, with value 0x8 (or 0x0)
     DAQ trailer, 4 MSB, EOE,  with value 0xA
 */
-  void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( uint16_t fed_id,
-							 const FEDRawData& input,
-							 FEDRawData& output ) {
+void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
+						       const FEDRawData& input,
+						       FEDRawData& output ) {
+  static const string method = "SiStripRawToDigiUnpacker::locateStartOfFedBuffer";
   
   // Check size of input buffer
   if ( input.size() < 24 ) { 
     output.resize( input.size() ); // Return UNadjusted buffer start position and size
     memcpy( output.data(), input.data(), input.size() );
     stringstream ss; 
-    ss << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer] "
+    ss << "["<<method<<"] "
        << "Input FEDRawData with FED id " << fed_id 
        << " has size " << input.size() << "\n";
     edm::LogError("SiStripRawToDigiUnpacker") << ss.str();
@@ -404,17 +471,7 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
     uint16_t offset = headerBytes_ < 0 ? ichar : headerBytes_; // Negative value means use "search mode" to find DAQ header
     uint32_t* input_u32   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + offset );
     uint32_t* fed_trailer = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 8 );
-    //     cout << "FED trailer" 
-    // 	 << ":" << hex << setfill('0') << setw(0) << fed_trailer[0] << dec
-    // 	 << ":" << hex << setfill('0') << setw(0) << fed_trailer[1] << dec
-    // 	 << ":" << hex << setfill('0') << setw(0) << ((fed_trailer[0] & 0x00FFFFFF) * 0x8) << dec
-    // 	 << ":" << hex << setfill('0') << setw(0) << ((fed_trailer[1] & 0x00FFFFFF) * 0x8) << dec
-    // 	 << ":" << (input.size() - offset) 
-    // 	 << ":" << (((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset)) 
-    // 	 << ":" << (((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset)) << endl;
     if ( (input_u32[0]    & 0xF0000000) == 0x50000000 &&
-	 //(input_u32[1]    & 0x0000000F) == 0x00000008 && 
-	 //(input_u32[2]    & 0xFF000000) == 0xED000000 &&
 	 (fed_trailer[0]  & 0xF0000000) == 0xA0000000 && 
 	 ((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
       // Found DAQ header at byte position 'offset'
@@ -424,15 +481,15 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	      input.data()+offset,   // source
 	      input.size()-offset ); // nbytes
       if ( headerBytes_ < 0 ) {
-	edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]" 
-				      << " FED buffer has been found at byte position " 
-				      << offset << " with a size of " << input.size()-offset << " bytes";
-	edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]" 
-				      << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
+	stringstream ss;
+	ss << "["<<method<<"]" 
+	   << " Buffer for FED id " << fed_id 
+	   << " has been found at byte position " << offset
+	   << " with a size of " << input.size()-offset << " bytes."
+	   << " Adjust the configurable 'AppendedBytes' to " << offset;
+	edm::LogVerbatim("RawToDigi") << ss.str();
       }
     } else if ( (input_u32[1]    & 0xF0000000) == 0x50000000 &&
-		//(input_u32[0]    & 0x0000000F) == 0x00000008 && 
-		//(input_u32[3]    & 0xFF000000) == 0xED000000 &&
 		(fed_trailer[1]  & 0xF0000000) == 0xA0000000 &&
 		((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
       // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
@@ -446,11 +503,13 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	iter+=2;
       }
       if ( headerBytes_ < 0 ) {
-	edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]" 
-				      << " FED buffer (with MSB and LSB 32-bit words swapped) has been found at byte position " 
-				      << offset << " with a size of " << input.size()-offset << " bytes";
-	edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]" 
-				      << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
+	stringstream ss;
+	ss << "["<<method<<"]" 
+	   << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
+	   << " has been found at byte position " << offset
+	   << " with a size of " << input.size()-offset << " bytes."
+	   << " Adjust the configurable 'AppendedBytes' to " << offset;
+	edm::LogVerbatim("RawToDigi") << ss.str();
       }
     } else { headerBytes_ < 0 ? found = false : found = true; }
     ichar++;
@@ -462,29 +521,29 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
     memcpy( output.data(), input.data(), input.size() );
     stringstream ss;
     if ( headerBytes_ < 0 ) {
-      ss << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]"
-	 << " DAQ header not found within data buffer!";
+      ss << "["<<method<<"]"
+	 << " DAQ header not found within buffer for FED id " << fed_id << "!";
     } else {
       uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) );
-      ss << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]"
-	 << " DAQ header not found at expected location!"
+      ss << "["<<method<<"]"
+	 << " DAQ header not found at expected location for FED id " << fed_id << "!"
 	 << " First 64-bit word of buffer is 0x"
 	 << hex 
 	 << setfill('0') << setw(8) << input_u32[0] 
 	 << setfill('0') << setw(8) << input_u32[1] 
 	 << dec
-	 << ". Adjust 'AppendedHeaderBytes' configurable"
+	 << ". Adjust 'AppendedBytes' configurable"
 	 << " to negative value to activate 'search mode'";
     }
     edm::LogError("SiStripRawToDigiUnpacker") << ss.str();
-    throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
+    //throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
   } else if ( output.size() < 24 ) { // Found DAQ header after search, but too few words
     stringstream ss; 
-    ss << "[SiStripRawToDigiUnpacker::locateStartOfFedBuffer]"
+    ss << "["<<method<<"]"
        << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
        << " has size " << output.size();
     edm::LogError("RawToDigi") << ss.str();
-    throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
+    //throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
   } 
   
 }
