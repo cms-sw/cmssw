@@ -6,14 +6,14 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 // Constructors
 
 TrackingVertex::TrackingVertex() : 
-    position_(HepLorentzVector(0,0,0,0)), inVolume_(false), signalSource_(0) {}
+    position_(HepLorentzVector(0,0,0,0)), eId_(0) {}
 
 TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, 
-                               const int source,          const int  crossing) : 
-    position_(p), inVolume_(inVolume), signalSource_(crossing*4+source)  {}
+                               const EncodedEventId eId) : 
+    position_(p), inVolume_(inVolume), eId_(eId)  {}
 
 /// add a reference to a Track
-void TrackingVertex::add( const TrackingParticleRef & r ) { tracks_.push_back( r ); }
+//void TrackingVertex::add( const TrackingParticleRef & r ) { tracks_.push_back( r ); }
 
 /// add a reference to a vertex
 
@@ -26,15 +26,14 @@ void TrackingVertex::addGenVertex(const GenVertexRef &ref){
 }
     
 /// Iterators over tracks and vertices
-TrackingVertex::track_iterator TrackingVertex::tracks_begin()      const { return      tracks_.begin(); }
-TrackingVertex::track_iterator TrackingVertex::tracks_end()        const { return      tracks_.end();   }
+//TrackingVertex::track_iterator TrackingVertex::tracks_begin()      const { return      tracks_.begin(); }
+//TrackingVertex::track_iterator TrackingVertex::tracks_end()        const { return      tracks_.end();   }
 TrackingVertex::genv_iterator  TrackingVertex::genVertices_begin() const { return genVertices_.begin(); }
 TrackingVertex::genv_iterator  TrackingVertex::genVertices_end()   const { return genVertices_.end();   }
 TrackingVertex::g4v_iterator   TrackingVertex::g4Vertices_begin()  const { return  g4Vertices_.begin(); }
 TrackingVertex::g4v_iterator   TrackingVertex::g4Vertices_end()    const { return  g4Vertices_.end();   }
 
 /// position 
-const HepLorentzVector & TrackingVertex::position() const { return position_; }
 
 const SimVertexRefVector TrackingVertex::g4Vertices() const {
   return  g4Vertices_;
@@ -44,11 +43,7 @@ const GenVertexRefVector TrackingVertex::genVertices() const {
   return  genVertices_;
 };
 
-const TrackingParticleRefVector TrackingVertex::trackingParticles() const {
-  return  tracks_;
-};
+//const TrackingParticleRefVector TrackingVertex::trackingParticles() const {
+//  return  tracks_;
+//};
 
-const bool TrackingVertex::isSignal() const { return (signalSource_%4 == 0); }; 
-const int  TrackingVertex::source()   const { return (signalSource_ % 4);    }; 
-const int  TrackingVertex::crossing() const { return (signalSource_ / 4);    }; 
-const bool TrackingVertex::inVolume() const { return (inVolume_);            }; 

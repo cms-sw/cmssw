@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackVertexMap.h"
@@ -141,8 +142,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
     
-    int crossing = 0;
-    int source   = 0;
+    EncodedEventId vertEvtId = itVtx -> eventId();     // May not be right one, get from HepMC?
     
 // Figure out the barcode of the HepMC Vertex if there is one
     
@@ -160,14 +160,14 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }  
     }  
 
-// Find closest vertex to this one, save in nearestVertex
+// Find closest vertex to this one in same sub-event, save in nearestVertex
 
     double closest = 9e99;
     TrackingVertexCollection::iterator nearestVertex;
 
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
       double distance = HepLorentzVector(iTrkVtx -> position() - position).v().mag();
-      if (distance <= closest) { // flag which one so we can associate them
+      if (distance <= closest && vertEvtId == iTrkVtx -> eventId()) { // flag which one so we can associate them
         closest = distance;
         nearestVertex = iTrkVtx; 
       }   
@@ -176,7 +176,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // If outside cutoff, create another TrackingVertex, set nearest to it
     
     if (closest > distanceCut_) {
-      tVC -> push_back(TrackingVertex(position,inVolume,source,crossing));
+      tVC -> push_back(TrackingVertex(position,inVolume,vertEvtId));
       nearestVertex = --(tVC -> end());  // Last entry of vector
     } 
      
@@ -193,7 +193,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
          mapIndex != productionVertex.end();
          ++mapIndex) {
       if (mapIndex -> second == index) {
-        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
+//        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
         tmpTrackVertexMap.insert(pair<int,int>(mapIndex -> first,tVC->size()-1));
       }
     }
@@ -210,8 +210,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        v != tVC ->end(); ++v) {
     edm::LogInfo (MessageCategory) << "TrackingVertex " << index << " has " 
       << (v -> g4Vertices()).size()  << " G4 vertices, " 
-      << (v -> genVertices()).size() << " HepMC vertices and " 
-      << (v -> trackingParticles()).size() << " tracks";
+      << (v -> genVertices()).size() << " HepMC vertices";
     ++index;  
   }        
   
