@@ -1,6 +1,8 @@
 #ifndef DQM_SiStripCommissioningSummary_SummaryFactory_H
 #define DQM_SiStripCommissioningSummary_SummaryFactory_H
 
+#include <string>
+
 class CommissioningSummary;
 
 class SummaryFactory {

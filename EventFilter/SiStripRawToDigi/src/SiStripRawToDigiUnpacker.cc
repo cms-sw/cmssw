@@ -305,8 +305,8 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
   static const string method = "SiStripRawToDigiUnpacker::triggerFed"; 
 
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
-  uint32_t* data_u32;
-  uint32_t  size_u32;
+  uint32_t* data_u32 = 0;
+  uint32_t  size_u32 = 0;
   
   if ( triggerFedId_ < 0 ) { // Search mode
     
@@ -336,10 +336,15 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	if ( fed_trailer->conscheck != 0xDEADFACE ) { triggerFedId_ = 0; }
       }
       
-  } else { triggerFedId_ = 0; }
+  } else { 
+    triggerFedId_ = 0; 
+    data_u32 = 0;
+    size_u32 = 0;
+  }
   
   // Populate summary object with commissioning information
   if ( triggerFedId_ > 0 &&
+       data_u32 &&
        size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
     // Write event-specific data to event
