@@ -212,15 +212,15 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   stringstream title;
 
   stringstream task;
-  if      ( histo_task == sistrip::PEDESTALS )     { task << sistrip::pedestals_; }
-  else if ( histo_task == sistrip::OPTO_SCAN )     { task << sistrip::optoScan_; }
-  else if ( histo_task == sistrip::APV_TIMING )    { task << sistrip::apvTiming_; }
-  else if ( histo_task == sistrip::APV_LATENCY )   { task << sistrip::apvLatency_; }
-  else if ( histo_task == sistrip::FED_TIMING )    { task << sistrip::fedTiming_; }
-  else if ( histo_task == sistrip::FED_CABLING )   { task << sistrip::fedCabling_; }
-  else if ( histo_task == sistrip::VPSP_SCAN )     { task << sistrip::vpspScan_; }
-  else if ( histo_task == sistrip::NO_TASK )       { /* add nothing */ }
-  else if ( histo_task == sistrip::UNKNOWN_TASK )  { task << sistrip::sep_ << sistrip::unknownTask_; }
+  if      ( histo_task == sistrip::PEDESTALS )      { task << sistrip::pedestals_; }
+  else if ( histo_task == sistrip::OPTO_SCAN )      { task << sistrip::optoScan_; }
+  else if ( histo_task == sistrip::APV_TIMING )     { task << sistrip::apvTiming_; }
+  else if ( histo_task == sistrip::APV_LATENCY )    { task << sistrip::apvLatency_; }
+  else if ( histo_task == sistrip::FED_TIMING )     { task << sistrip::fedTiming_; }
+  else if ( histo_task == sistrip::FED_CABLING )    { task << sistrip::fedCabling_; }
+  else if ( histo_task == sistrip::VPSP_SCAN )      { task << sistrip::vpspScan_; }
+  else if ( histo_task == sistrip::UNDEFINED_TASK ) { /* add nothing */ }
+  else if ( histo_task == sistrip::UNKNOWN_TASK )   { task << sistrip::sep_ << sistrip::unknownTask_; }
   else { edm::LogError("DQM") << "[SiStripHistoNamingScheme::histoTitle]"
 			      << " Unexpected histogram task!"; }
   title << task.str();
@@ -303,7 +303,7 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
     title.task_ = sistrip::UNKNOWN_TASK;
     position = histo_title.find( sistrip::unknownTask_, position ) + sistrip::unknownTask_.size();
   } else { 
-    title.task_ = sistrip::NO_TASK; 
+    title.task_ = sistrip::UNDEFINED_TASK; 
   } 
 
   // Extract contents
@@ -383,15 +383,15 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
 // -----------------------------------------------------------------------------
 // 
 string SiStripHistoNamingScheme::task( sistrip::Task task ) {
-  if      ( task == sistrip::PEDESTALS )     { return sistrip::pedestals_; }
-  else if ( task == sistrip::OPTO_SCAN )     { return sistrip::optoScan_; }
-  else if ( task == sistrip::APV_TIMING )    { return sistrip::apvTiming_; }
-  else if ( task == sistrip::APV_LATENCY )   { return sistrip::apvLatency_; }
-  else if ( task == sistrip::FED_TIMING )    { return sistrip::fedTiming_; }
-  else if ( task == sistrip::FED_CABLING )   { return sistrip::fedCabling_; }
-  else if ( task == sistrip::VPSP_SCAN )     { return sistrip::vpspScan_; }
-  else if ( task == sistrip::NO_TASK )       { return ""; }
-  else if ( task == sistrip::UNKNOWN_TASK )  { return sistrip::unknownTask_; }
+  if      ( task == sistrip::PEDESTALS )      { return sistrip::pedestals_; }
+  else if ( task == sistrip::OPTO_SCAN )      { return sistrip::optoScan_; }
+  else if ( task == sistrip::APV_TIMING )     { return sistrip::apvTiming_; }
+  else if ( task == sistrip::APV_LATENCY )    { return sistrip::apvLatency_; }
+  else if ( task == sistrip::FED_TIMING )     { return sistrip::fedTiming_; }
+  else if ( task == sistrip::FED_CABLING )    { return sistrip::fedCabling_; }
+  else if ( task == sistrip::VPSP_SCAN )      { return sistrip::vpspScan_; }
+  else if ( task == sistrip::UNDEFINED_TASK ) { return ""; }
+  else if ( task == sistrip::UNKNOWN_TASK )   { return sistrip::unknownTask_; }
   else { 
     edm::LogError("DQM") << "[SiStripHistoNamingScheme::task]"
 			 << " Unexpected histogram task!"; 
@@ -402,7 +402,7 @@ string SiStripHistoNamingScheme::task( sistrip::Task task ) {
 // -----------------------------------------------------------------------------
 // 
 sistrip::Task SiStripHistoNamingScheme::task( string task ) {
-  if      ( task == "" )                   { return sistrip::NO_TASK; }
+  if      ( task == "" )                   { return sistrip::UNDEFINED_TASK; }
   else if ( task == sistrip::fedCabling_ ) { return sistrip::FED_CABLING; }
   else if ( task == sistrip::apvTiming_ )  { return sistrip::APV_TIMING; }
   else if ( task == sistrip::fedTiming_ )  { return sistrip::FED_TIMING; }
