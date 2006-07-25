@@ -31,7 +31,7 @@ public:
 	      const MeasurementEstimator&) const;
 
   // DetLayer interface
-  virtual Part   part()   const { return forward;}
+  virtual Location   location()   const {return GeomDetEnumerators::endcap;}
 
   // Extension of the interface
   virtual const BoundDisk&    specificSurface() const { return *theDisk;}

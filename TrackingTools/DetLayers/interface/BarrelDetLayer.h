@@ -33,7 +33,7 @@ class BarrelDetLayer : public DetLayer {
 	      const MeasurementEstimator&) const;
 
   // DetLayer interface
-  virtual Part   part()   const { return barrel;}
+  virtual Location location()   const {return GeomDetEnumerators::barrel;}
 
 
   // Extension of the interface

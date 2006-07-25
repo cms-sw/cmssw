@@ -1,7 +1,6 @@
 #ifndef DetLayers_DetLayer_h
 #define DetLayers_DetLayer_h
 
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -23,9 +22,11 @@
  * 
  */
 
-class DetLayer : public GeometricSearchDet {
-  
+class DetLayer : public GeometricSearchDet {  
  public:
+
+  typedef GeomDetEnumerators::SubDetector SubDetector;
+  typedef GeomDetEnumerators::Location Location;
 
   DetLayer() : theNavigableLayer(0){};
 
@@ -33,10 +34,11 @@ class DetLayer : public GeometricSearchDet {
 
   // Extension of the interface 
 
-  /// The type of detector (pixel, silicon, dt, csc, rpc)
-  virtual Module module() const = 0;
-  /// Which part of the detector (barrel, forward)
-  virtual Part   part()   const = 0;
+  /// The type of detector (PixelBarrel, PixelEndcap, TIB, TOB, TID, TEC, CSC, DT, RPCBarrel, RPCEndcap)
+  virtual SubDetector subDetector() const = 0;
+
+  /// Which part of the detector (barrel, endcap)
+  virtual Location location() const = 0;
 
   /// Return the NavigableLayer associated with this DetLayer
   NavigableLayer* navigableLayer() const { return theNavigableLayer;}
