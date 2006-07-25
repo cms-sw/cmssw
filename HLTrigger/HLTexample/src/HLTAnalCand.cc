@@ -2,14 +2,14 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/24 21:04:47 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/24 09:53:00 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTAnalCand.h"
+#include "HLTrigger/HLTexample/interface/HLTAnalCand.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
