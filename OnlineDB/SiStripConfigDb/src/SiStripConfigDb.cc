@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.11 2006/07/03 18:30:00 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.12 2006/07/18 15:45:07 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -16,7 +16,9 @@ uint32_t SiStripConfigDb::cntr_ = 0;
 SiStripConfigDb::SiStripConfigDb( string user, 
 				  string passwd, 
 				  string path,
-				  string partition ) : 
+				  string partition,
+				  uint32_t major,
+				  uint32_t minor ) :
   factory_(0), 
   usingDb_(true), 
   // Database connection params
@@ -56,11 +58,10 @@ SiStripConfigDb::SiStripConfigDb( string user,
   edm::LogInfo(errorCategory_) << "[SiStripConfigDb::SiStripConfigDb]"
 			       << " Constructing object..."
 			       << " (Class instance: " << cntr_ << ")";
-
+  
   partition_.name_ = partition;
-  partition_.major_ = 0;
-  partition_.minor_ = 0;
-
+  partition_.major_ = major;
+  partition_.minor_ = minor;
 
   // If partition name is not set, attempt to use environmental variable
   if ( partition == "" ) {
@@ -236,14 +237,15 @@ void SiStripConfigDb::usingDatabase() {
     handleException( method, ss.str() );
   }
 
-//   // DCU-DetId 
-//   try { 
-//     deviceFactory(method)->addAllDetId();
-//   } catch (...) { 
-//     stringstream ss; 
-//     ss << "DCU-DetId map!"; 
-//     handleException( method, ss.str() );
-//   }
+  // DCU-DetId 
+  try { 
+    deviceFactory(method)->addDetIdPartition( partition_.name_ );
+    //deviceFactory(method)->addAllDetId();
+  } catch (...) { 
+    stringstream ss; 
+    ss << "DCU-DetId map!"; 
+    handleException( method, ss.str() );
+  }
   
   stringstream ss;
   ss << "["<<method<<"]"
