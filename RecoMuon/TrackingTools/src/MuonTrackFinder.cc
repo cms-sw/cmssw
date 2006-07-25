@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/20 16:54:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/21 02:45:52 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -22,6 +22,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+
 
 using namespace std;
 
@@ -84,11 +85,10 @@ void MuonTrackFinder::load(const TrajectoryContainer& trajectories,
 //
 // convert the trajectories into tracks and load them in to the event
 //
-void MuonTrackFinder::load(const CandidateContainer& muonCands, 
-                           const reco::MuonCollection& muonResult,
+void MuonTrackFinder::load(const CandidateContainer& muonCands,
 			   edm::Event& event) {
                            
-    theTrackLoader->loadTracks(muonCands, muonResult,event);
+    theTrackLoader->loadTracks(muonCands, event);
 
 }
 
@@ -154,7 +154,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& trac
   CandidateContainer muonCandidates;
 
   // 
-  reco::MuonCollection muonResult;
+  // reco::MuonCollection muonResult;
 
   // reconstruct the muon candidates
   for (unsigned int position = 0; position != tracks->size(); ++position) {
@@ -163,10 +163,6 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& trac
 
     CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staTrack);
     for (CandidateContainer::const_iterator it = muonCands_temp.begin(); it != muonCands_temp.end(); it++) {
-      reco::Muon muon;
-      muon.setStandAlone(staTrack);
-      muon.setTrack((*it).second);
-      muonResult.push_back(muon);
       muonCandidates.push_back(*it); 
    }
   }                                  
@@ -176,6 +172,7 @@ void MuonTrackFinder::reconstruct(const edm::Handle<reco::TrackCollection>& trac
 
   // convert the trajectories into tracks and load them into the event
   LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;
-  load(muonCandidates,muonResult,event);            
+  //  load(muonCandidates,muonResult,event);            
+  load(muonCandidates,event);
 
 }

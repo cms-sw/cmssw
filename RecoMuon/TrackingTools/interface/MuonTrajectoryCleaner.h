@@ -4,21 +4,21 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2006/03/23 15:15:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/26 06:54:15 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
 class MuonTrajectoryCleaner {
+ public:
+  typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+  typedef MuonCandidate::CandidateContainer CandidateContainer;
+  
 
- public:
-  
-  typedef std::vector<Trajectory> TrajectoryContainer;
-  
- public:
   /// Constructor
   MuonTrajectoryCleaner(){};
 

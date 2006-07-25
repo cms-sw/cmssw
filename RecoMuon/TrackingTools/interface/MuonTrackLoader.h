@@ -5,15 +5,16 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/07/20 16:43:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/21 02:41:34 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <vector>
 
@@ -22,14 +23,10 @@ namespace edm {class Event;}
 class Trajectory;
 
 class MuonTrackLoader {
-
   public:
 
-    typedef std::vector<Trajectory> TrajectoryContainer;
-    typedef std::pair<Trajectory, reco::TrackRef> MuonCandidate;
-    typedef std::vector<MuonCandidate> CandidateContainer;
-
-  public:
+    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+    typedef MuonCandidate::CandidateContainer CandidateContainer;
     
     /// Constructor
     MuonTrackLoader() {}
@@ -42,8 +39,7 @@ class MuonTrackLoader {
                                                         edm::Event&);
 
     /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&, 
-                                                       const reco::MuonCollection&,
+    edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
                                                        edm::Event&); 
   
   private:

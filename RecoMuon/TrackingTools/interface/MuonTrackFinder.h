@@ -4,17 +4,17 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/20 15:41:32 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/21 02:42:31 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+
 #include <vector>
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
@@ -23,16 +23,13 @@ class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
 class MuonTrackLoader;
 
-class MuonTrackFinder { 
-  
+class MuonTrackFinder {
   public:
 
-    typedef std::vector<Trajectory> TrajectoryContainer;
-    typedef std::pair<Trajectory, reco::TrackRef> MuonCandidate; 
-    typedef std::vector<MuonCandidate> CandidateContainer;
-
-  public:
+    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+    typedef MuonCandidate::CandidateContainer CandidateContainer;
   
+
     /// constructor
     MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder); 
   
@@ -60,7 +57,7 @@ class MuonTrackFinder {
     void load(const TrajectoryContainer&, edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const CandidateContainer&, const reco::MuonCollection&, edm::Event&);
+    void load(const CandidateContainer&,  edm::Event&);
 
   private:
 

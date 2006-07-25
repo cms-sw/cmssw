@@ -4,14 +4,14 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/07/21 02:43:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/21 08:06:31 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
@@ -21,13 +21,10 @@ class TrajectorySeed;
 class MuonTrajectoryBuilder {
 
   public:
-
-    typedef std::vector<Trajectory> TrajectoryContainer;
-    typedef std::pair<Trajectory, reco::TrackRef> MuonCandidate;
-    typedef std::vector<MuonCandidate> CandidateContainer;
-
-  public:
   
+    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+    typedef MuonCandidate::CandidateContainer CandidateContainer;
+
     /// constructor
     MuonTrajectoryBuilder() {};
   

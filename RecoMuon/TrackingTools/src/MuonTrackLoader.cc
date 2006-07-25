@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/20 16:54:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/21 02:44:57 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,11 +20,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+
+
+
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 			    edm::Event& event){
   
-  std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // *** first loop: create the full collection of TrackingRecHit ***
   
@@ -49,7 +53,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
       trajectory != trajectories.end(); ++trajectory){
     
     // get the transient rechit from the trajectory
-    const Trajectory::RecHitContainer transHits = trajectory->recHits();
+    const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
 
     // fill the rechit collection
     for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
@@ -150,27 +154,37 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 //
 edm::OrphanHandle<reco::MuonCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
-                            const reco::MuonCollection& muonResult,
 			    edm::Event& event){
+
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
-  std::string metname = "Muon|RecoMuon|MuonTrackLoader";
-  
- // the muon collection, it will be loaded in the event  
-  std::auto_ptr<reco::MuonCollection> muonCollection(const_cast<reco::MuonCollection *>(&muonResult));
+  // the muon collection, it will be loaded in the event  
+  std::auto_ptr<reco::MuonCollection> muonCollection(MuonCollection);
 
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++)
-   combinedTrajs.push_back((*it).first);
+  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
+    combinedTrajs.push_back((*it).first);
+    
+    // Create the reco::muon and fill STA
+    reco::Muon muon;
+//     muon.setMuonTrack(...);
+//     muon.setTrackerTrack(...);
+//     muonCollection.push_back(muon);
+  }
 
   // create the TrackCollection of combined Trajectories
+  // FIXME: could this be done one track at a time in the previous loop?
   edm::OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
   reco::MuonCollection::iterator muon = muonCollection->begin();
   for (unsigned int position = 0; position != combinedTracks->size(); position++) {
     reco::TrackRef combinedTR(combinedTracks, position);
-    muon->setCombined(combinedTR);
+    // fill the combined information.
+    // FIXME: can this break in case combined info cannot be added to some tracks?
+    muon.setCombined(combinedTR);
     muon++;
   }
+
 
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
