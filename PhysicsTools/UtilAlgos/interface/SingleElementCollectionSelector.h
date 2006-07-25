@@ -7,14 +7,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.4 2006/07/24 13:23:12 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
  *
  */
-
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include <vector>
+
 namespace edm { class Event; }
 
 template<typename C, typename S>
@@ -26,7 +25,7 @@ struct SingleElementCollectionSelector {
     select_( cfg ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const reco::TrackCollection & c, const edm::Event & ) {
+  void select( const C & c, const edm::Event & ) {
     selected_.clear();
     for( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
       if ( select_( * i ) ) selected_.push_back( & * i );

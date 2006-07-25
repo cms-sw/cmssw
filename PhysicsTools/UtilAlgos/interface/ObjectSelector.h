@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectSelector.h,v 1.2 2006/07/24 13:23:12 llista Exp $
+ * $Id: ObjectSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
  *
  */
 
@@ -28,19 +28,19 @@ namespace helper {
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
-      for( I i = begin(); i != end; ++ i ) 
-        selected_->push_back( P::clone( obj ) );
+      for( I i = begin; i != end; ++ i ) 
+        selected_->push_back( P::clone( * * i ) );
     }
     void put( edm::Event & evt ) {
       evt.put( selected_ );
     }
-    bool empty() const { return selected_.empty(); }
+    bool empty() const { return selected_->empty(); }
   private:
     std::auto_ptr<C> selected_;
   };
 
   template<typename C>
-    class ObjectSelectorBase : public edm::EDFilter {
+    struct ObjectSelectorBase : public edm::EDFilter {
       ObjectSelectorBase( const edm::ParameterSet & ) {
 	produces<C>();
       }

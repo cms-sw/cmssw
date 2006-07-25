@@ -36,9 +36,6 @@ Framework generic utility modules
   };
 </pre>
 \endhtmlonly
-- SelectorProducer: selects objects from a collection according to a criterion  
-  specified by a functor class and saves their clones in a new collection.<br>
-  <b>This module will become obsolete, in favor of ObjectSelector.</b> 
 
 \subsection sel_utilities Selector module utilities 
 - SingleElementCollectionSelector<b><C, S></b>: model of <a href="#sel_algo">Selection Algorithm</a> that selects
