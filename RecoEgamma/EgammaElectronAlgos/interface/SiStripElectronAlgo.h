@@ -16,10 +16,12 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.4 2006/06/21 22:47:25 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.5 2006/07/25 10:56:39 rahatlou Exp $
 //
 
 // system include files
+
+#include <map>
 
 // user include files
 
@@ -30,10 +32,12 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -67,16 +71,16 @@ class SiStripElectronAlgo
 
       // ---------- member functions ---------------------------
 
-      void prepareEvent(const TrackerGeometry* tracker,
-			const SiStripRecHit2DCollection* rphiHits,
-			const SiStripRecHit2DCollection* stereoHits,
-			const MagneticField* magneticField);
+      void prepareEvent(const edm::ESHandle<TrackerGeometry>& tracker,
+			const edm::Handle<SiStripRecHit2DLocalPosCollection>& rphiHits,
+			const edm::Handle<SiStripRecHit2DLocalPosCollection>& stereoHits,
+			const edm::ESHandle<MagneticField>& magneticField);
 
-      // returns number of electrons found (0, 1, or 2),
-      // inserts electrons and trajectories into electronOut and trajectoryOut
-      int findElectron(reco::SiStripElectronCollection& electronOut,
-		       TrackCandidateCollection& trackCandidateOut,
-		       const reco::SuperClusterRef& superclusterIn);
+      // returns true iff an electron/positron was found
+      // and inserts SiStripElectron and trackCandidate into electronOut and trackCandidateOut
+      bool findElectron(reco::SiStripElectronCollection& electronOut,
+			TrackCandidateCollection& trackCandidateOut,
+			const reco::SuperClusterRef& superclusterIn);
 
    private:
       SiStripElectronAlgo(const SiStripElectronAlgo&); // stop default
@@ -87,16 +91,13 @@ class SiStripElectronAlgo
       // selects hits on DetIds that have no more than maxHitsOnDetId_
       // selects from stereo if stereo == true, rphi otherwise
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
-      void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
+      void coarseHitSelection(std::vector<const SiStripRecHit2DLocalPos*>& hitPointersOut,
 			      bool stereo, bool endcap);
 
-     // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
-     // copies and inserts passing hits into a TrackCandidate, which it puts into trackCandidateOut if passes cuts
-     // returns true iff the electron/positron passes cuts
-      bool projectPhiBand(reco::SiStripElectronCollection& electronOut,
-			  TrackCandidateCollection& trackCandidateOut,
-			  float chargeHypothesis,
-			  const reco::SuperClusterRef& superclusterIn);
+      // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
+      // fills *_pos_ or *_neg_ member data with the results
+      // returns true iff the electron/positron passes cuts
+      bool projectPhiBand(float chargeHypothesis, const reco::SuperClusterRef& superclusterIn);
 
       double unwrapPhi(double phi) const {
 	 while (phi > M_PI) { phi -= 2.*M_PI; }
@@ -114,10 +115,54 @@ class SiStripElectronAlgo
       double maxReducedChi2_;
 
       // changes with each event
-      const TrackerGeometry* tracker_p;
-      const SiStripRecHit2DCollection* rphiHits_p;
-      const SiStripRecHit2DCollection* stereoHits_p;
-      const MagneticField* magneticField_p;
+      const TrackerGeometry* tracker_p_;
+      const SiStripRecHit2DLocalPosCollection* rphiHits_p_;
+      const SiStripRecHit2DLocalPosCollection* stereoHits_p_;
+      const MagneticField* magneticField_p_;
+
+      const edm::Handle<SiStripRecHit2DLocalPosCollection>* rphiHits_hp_;
+      const edm::Handle<SiStripRecHit2DLocalPosCollection>* stereoHits_hp_;
+      std::map<const SiStripRecHit2DLocalPos*, unsigned int> rphiKey_;
+      std::map<const SiStripRecHit2DLocalPos*, unsigned int> stereoKey_;
+      std::map<const TrackingRecHit*, bool> hitUsed_;
+
+      double redchi2_pos_;
+      GlobalPoint position_pos_;
+      GlobalVector momentum_pos_;
+      const SiStripRecHit2DLocalPos* innerhit_pos_;
+      edm::OwnVector<TrackingRecHit> outputHits_pos_;
+      edm::RefVector<TrackingRecHitCollection> outputRphiHits_pos_;
+      edm::RefVector<TrackingRecHitCollection> outputStereoHits_pos_;
+      double phiVsRSlope_pos_;
+      double slope_pos_;
+      double intercept_pos_;
+      double chi2_pos_;
+      int ndof_pos_;
+      double correct_pT_pos_;
+      double pZ_pos_;
+      double zVsRSlope_pos_;
+      unsigned int numberOfStereoHits_pos_;
+      unsigned int numberOfBarrelRphiHits_pos_;
+      unsigned int numberOfEndcapZphiHits_pos_;
+      
+      double redchi2_neg_;
+      GlobalPoint position_neg_;
+      GlobalVector momentum_neg_;
+      const SiStripRecHit2DLocalPos* innerhit_neg_;
+      edm::OwnVector<TrackingRecHit> outputHits_neg_;
+      edm::RefVector<TrackingRecHitCollection> outputRphiHits_neg_;
+      edm::RefVector<TrackingRecHitCollection> outputStereoHits_neg_;
+      double phiVsRSlope_neg_;
+      double slope_neg_;
+      double intercept_neg_;
+      double chi2_neg_;
+      int ndof_neg_;
+      double correct_pT_neg_;
+      double pZ_neg_;
+      double zVsRSlope_neg_;
+      unsigned numberOfStereoHits_neg_;
+      unsigned numberOfBarrelRphiHits_neg_;
+      unsigned numberOfEndcapZphiHits_neg_;
 };
 
 
