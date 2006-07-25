@@ -64,7 +64,7 @@ void TrackParameterAnalyzer::endJob() {
 }
 
 // helper function
-bool TrackParameterAnalyzer::match(const reco::perigee::Parameters *a, const reco::perigee::Parameters *b){
+bool TrackParameterAnalyzer::match(const PerigeeTrajectoryParameters::ParameterVector  *a, const PerigeeTrajectoryParameters::ParameterVector  *b){
   if(    (fabs((*a)(1)-(*b)(1))<0.1)
       && (fabs((*a)(1)-(*b)(1))<0.1)
       && (fabs((*a)(2)-(*b)(2))<0.1)
@@ -99,7 +99,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    // get the simulated tracks, extract perigee parameters
    Handle<SimTrackContainer> simTrks;
    iEvent.getByLabel("SimG4Object", simTrks);
-   std::vector<reco::perigee::Parameters> tsim;
+   std::vector<PerigeeTrajectoryParameters::ParameterVector > tsim;
    for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
        t!=simTrks->end(); ++t){
      if (t->noVertex()){
@@ -136,8 +136,16 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }else{
 	 double ks02=(kappa*s0)*(kappa*s0);
 	 s1=s0*(1.+ks02/6.+3./40.*ks02*ks02+5./112.*pow(ks02,3));
-       }       
-       tsim.push_back(reco::perigee::Parameters(
+       }
+       PerigeeTrajectoryParameters::ParameterVector par;
+       par[reco::TrackBase::i_transverseCurvature] = kappa;
+       par[reco::TrackBase::i_theta] = p.theta();
+       par[reco::TrackBase::i_phi0] = p.phi()-asin(kappa*s0);
+       par[reco::TrackBase::i_d0] = 2.*D0/(1.+q);
+       par[reco::TrackBase::i_dz] = v.z()-s1/tan(p.theta());
+       tsim.push_back(par);
+       /*
+       tsim.push_back(PerigeeTrajectoryParameters::ParameterVector (
 						kappa, 
 						p.theta(), 
 						p.phi()-asin(kappa*s0),
@@ -146,6 +154,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 						p.perp() 
 						)
 		      );
+       */
      }
    }
 
@@ -158,9 +167,9 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByLabel(recoTrackProducer_, recTracks);
    for(reco::TrackCollection::const_iterator t=recTracks->begin();
        t!=recTracks->end(); ++t){
-     reco::perigee::Parameters p = t->parameters();
-     reco::perigee::Covariance c = t->covariance();
-     for(std::vector<reco::perigee::Parameters>::const_iterator s=tsim.begin();
+     PerigeeTrajectoryParameters::ParameterVector  p = t->parameters();
+     PerigeeTrajectoryError::CovarianceMatrix c = t->covariance();
+     for(std::vector<PerigeeTrajectoryParameters::ParameterVector>::const_iterator s=tsim.begin();
 	 s!=tsim.end(); ++s){
        if (match(&(*s),&p)){
 	 std::cout << "match found" << std::endl;
