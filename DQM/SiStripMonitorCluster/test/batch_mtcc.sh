@@ -20,8 +20,8 @@ DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSS
 # directory where the job is run
 WORKDIR=`pwd`
 #
-#TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/src/DQM/SiStripMonitorCluster/test/template_mtccoffline.cfg"
-TEMPLATE_CMSSW_CFG="${WORKDIR}/template_mtccoffline.cfg"
+#TEMPLATE_CMSSW_CFG="${WORKDIR}/template_mtccoffline.cfg"
+TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
 # this directory will be created, use '/pool' for production and '/tmp' for testing
 #DIR_WHERE_TO_PUT_LARGE_FILES="/tmp/dkcira/dk_mtcc_${RUNNR}"
 DIR_WHERE_TO_PUT_LARGE_FILES="${WORKDIR}/mtcc_${RUNNR}"
@@ -153,12 +153,13 @@ copy_output_to_castor(){
 
 ###############################################################################################################
 # actual execution
+ls -lh
 create_large_directory;
 get_list_of_castor_files;
 create_cmssw_config_file;
 copy_pedestal_files;
 copy_castor_files_locally;
 time runcms > ${LOG_FILE} 2>&1 ;
-#copy_output_to_castor;
+copy_output_to_castor;
 
 ###############################################################################################################
