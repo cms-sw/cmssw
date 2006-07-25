@@ -1,14 +1,45 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
-#include <vector>
-#include <cmath>
+#include <iostream>
+#include <iomanip>
 #include <sstream>
+#include <cmath>
+
+using namespace std;
+
+// ----------------------------------------------------------------------------
+// temporarily is wrapping orginal analysis() method
+void ApvTimingAnalysis::analysis( const TProfile* const histo, 
+				  ApvTimingAnalysis::Monitorables& mons ) { 
+  vector<const TProfile*> histos; 
+  histos.push_back( const_cast<const TProfile*>(histo) );
+  vector<unsigned short> monitorables;
+  analysis( histos, monitorables );
+  mons.coarse_ = monitorables[0];
+  mons.fine_   = monitorables[1];
+  mons.delay_  = 24*monitorables[0] + monitorables[0];
+}
+
+// ----------------------------------------------------------------------------
+// temporarily is wrapping orginal analysis() method
+void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) { 
+  ss << " PLL coarse/fine delays:  " 
+     << coarse_ << "/" 
+     << fine_ << "\n"
+     << " Timing delay/error [ns]: " 
+     << setprecision(1) << delay_ << "+/-" 
+     << setprecision(1) << error_ << "\n"
+     << " Base/Peak/Height [adc]:  " 
+     << setprecision(1) << base_ << "/" 
+     << setprecision(1) << peak_ << "/" 
+     << setprecision(1) << height_ << "\n";
+}
 
 // ----------------------------------------------------------------------------
 
 void ApvTimingAnalysis::analysis( const vector<const TProfile*>& histos, vector<unsigned short>& monitorables ) {
- 
+  
    edm::LogInfo("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]";
 
   //extract root histogram
