@@ -23,19 +23,19 @@ class ExtractTObject {
     } else { return 0; }
   }
   
-  T* insert( MonitorElement* me, T* new_histo, std::string new_name = "" ) { 
-    if ( me ) {
-      MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me );
-      if ( tnamed ) {
-	T* old_histo = dynamic_cast<T*>( tnamed->operator->() );
-	if ( old_histo ) { 
-	  tnamed->insert( new_histo, new_name );
-	  return tnamed->operator->(); 
-	}
-	else { return 0; }
-      } else { return 0; }
-    } else { return 0; }
-  }
+/*   T* insert( MonitorElement* me, T* new_histo, std::string new_name = "" ) {  */
+/*     if ( me ) { */
+/*       MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me ); */
+/*       if ( tnamed ) { */
+/* 	T* old_histo = dynamic_cast<T*>( tnamed->operator->() ); */
+/* 	if ( old_histo ) {  */
+/* 	  tnamed->insert( new_histo, new_name ); */
+/* 	  return tnamed->operator->();  */
+/* 	} */
+/* 	else { return 0; } */
+/*       } else { return 0; } */
+/*     } else { return 0; } */
+/*   } */
   
 };
 
