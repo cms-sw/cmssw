@@ -17,8 +17,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/01/14 00:42:12 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/24 01:00:15 $
+ * $Revision: 1.2 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -118,7 +118,7 @@ HcalPedestalAnalyzer::HcalPedestalAnalyzer(const edm::ParameterSet& ps){
 }
 
 HcalPedestalAnalyzer::~HcalPedestalAnalyzer(){
-  delete m_pedAnal;
+//  delete m_pedAnal;
 }
 
 void HcalPedestalAnalyzer::beginJob(const edm::EventSetup& c){
@@ -148,19 +148,20 @@ void HcalPedestalAnalyzer::endJob(void) {
   HcalPedestalWidths* outputPedWids = m_outputPedestalWidths_dest.empty () ? 0 : new HcalPedestalWidths ();
 
   // run algorithm
-  m_pedAnal->done(inputPeds, inputPedWids, outputPeds, outputPedWids);
+  int Flag=m_pedAnal->done(inputPeds, inputPedWids, outputPeds, outputPedWids);
 
   delete inputPeds;
   delete inputPedWids;
 
   // store new objects
-  if (outputPeds) {
+// Flag=-2 indicates there were less than 100 events and output is meaningless
+  if (outputPeds && Flag>-2) {
     if (!putObject (&outputPeds, m_outputPedestals_dest, m_outputPedestals_tag, m_outputPedestals_run)) {
       std::cerr << "HcalPedestalAnalyzer-> Failed to put output Pedestals" << std::endl;
     }
     delete outputPeds;
   }
-  if (outputPedWids) {
+  if (outputPedWids && Flag>-2) {
     if (!putObject (&outputPedWids, m_outputPedestalWidths_dest, m_outputPedestalWidths_tag, m_outputPedestalWidths_run)) {
       std::cerr << "HcalPedestalAnalyzer-> Failed to put output PedestalWidths" << std::endl;
     }

@@ -26,8 +26,10 @@
 //   nevtsample - number of events per sample in which data will be divided
 //                for stability checks (default: 9999999),
 //   hiSaveflag - flag to save histos of charge per cap-id (default: 0),
-//   pedValflag - pedestal validation flag: 1 - compare with nominal
-//                0 - do not compare, just write down new values (default)
+//   pedValflag - pedestal validation flag:
+//                1 - write new constants and compare with nominal,
+//                0 - do not compare, just calculate new constants,
+//                2 - compare with nominal, update only if changed.
 
 class HcalPedestals;
 class HcalPedestalWidths;
@@ -79,6 +81,7 @@ private:
   void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
   void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
   int PedValidtn(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, int nTS);
+  void AllChanHists(const HcalDetId detid, const HcalQIESample& qie0, const HcalQIESample& qie1, const HcalQIESample& qie2, const HcalQIESample& qie3, const HcalQIESample& qie4, const HcalQIESample& qie5, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
   std::string m_outputFileROOT;
   std::string m_outputFileMean;
   std::string m_outputFileWidth;
@@ -91,7 +94,10 @@ private:
   int m_pedValflag;
 
 // m_AllPedsOK says whether all new pedestals are consistent with nominal
-// values (e.g. from DB): m_AllPedsOK=0 if not consistent or not checked.
+// values (e.g. from DB): m_AllPedsOK = 1 everything consistent,
+//                                      0 some inconsistencies found,
+//                                     -1 validation not requested,
+//                                     -2 no data to validate.
   int m_AllPedsOK;
   
   const HcalQIEShape* m_shape;
@@ -118,7 +124,7 @@ private:
   std::vector<bool> state;
 
 // flag to make gaussian fits to charge dists
-  static const int fitflag=1;
+  static const int fitflag=0;
 };
 
 #endif
