@@ -1,9 +1,16 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.2 2006/06/25 10:51:52 meridian Exp $
-  *  $Date: 2006/06/25 10:51:52 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.3 2006/07/19 08:43:51 meridian Exp $
+  *  $Date: 2006/07/19 08:43:51 $
+  *  $Revision: 1.3 $
+  *
+  *  $Alex Zabi$
+  *  $Date: $
+  *  $Revision: $
+  *  Modification to detect first sample to switch gain.
+  *  used for amplitude recontruction at high energy
+  *  Add TDC convention option (P. Meridiani)
   *
   */
 #include "RecoTBCalo/EcalTBRecProducers/interface/EcalTBWeightUncalibRecHitProducer.h"
@@ -53,6 +60,7 @@ EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::
    tdcRecInfoProducer_   = ps.getParameter<std::string>("tdcRecInfoProducer");
    EBhitCollection_  = ps.getParameter<std::string>("EBhitCollection");
    nbTimeBin_  = ps.getParameter<int>("nbTimeBin");
+   use2004OffsetConvention_ = ps.getUntrackedParameter< bool >("use2004OffsetConvention",false);
    produces< EBUncalibratedRecHitCollection >(EBhitCollection_);
 }
 
@@ -182,6 +190,16 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      std::vector<double> gainRatios;
      gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 
+     //GAIN SWITCHING DETECTION ///////////////////////////////////////////////////////////////////////////////////////////////////     
+     double sampleGainRef = itdg->sample(0).gainId();
+     int    sampleSwitch  = 999;
+     for (int sample = 0; sample < itdg->size(); ++sample)
+       {
+	 double gainSample = itdg->sample(sample).gainId();
+	 if(gainSample != sampleGainRef) {sampleGainRef = gainSample; sampleSwitch = sample;}
+       }//loop sample
+     ///////////////////////////////////////////////////////////////////////////////////////////////////
+
      //Getting the TDC bin
      EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
 
@@ -200,8 +218,17 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	     edm::LogError("EcalUncalibRecHitError") << "TDC bin out of range " << tdcBin << " offset " << recTDC->offset();
 	     continue;
 	   }
-	 tdcid=EcalTBWeights::EcalTDCId(tdcBin);
-       }
+	 // In case gain switching happens at the sample 4 (5th sample) 
+	 // (sample 5 (6th sample) in 2004 TDC convention) an extra
+	 // set of weights has to be used. This set of weights is assigned to 
+	 // TDC values going from 25 and up.
+	 if (use2004OffsetConvention_ && sampleSwitch == 5)
+	   tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
+	 else if (!use2004OffsetConvention_ && sampleSwitch == 4)
+	   tdcid=EcalTBWeights::EcalTDCId(tdcBin+25);
+	 else 
+	   tdcid=EcalTBWeights::EcalTDCId(tdcBin);
+       }//check TDC
      
      // now lookup the correct weights in the map
      EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
@@ -248,8 +275,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
        EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
      EBuncalibRechits->push_back( aHit );
 
-
-     if(aHit.amplitude()>0.) {
+      if(aHit.amplitude()>0.) {
        LogDebug("EcalUncalibRecHitDebug") << "processed EBDataFrame with id: "
 					  << EBDetId(itdg->id()) << "\n"
 					  << "uncalib rechit amplitude: " << aHit.amplitude()

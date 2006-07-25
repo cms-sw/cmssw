@@ -35,6 +35,10 @@ class EcalTBWeightUncalibRecHitProducer : public edm::EDProducer {
     HepMatrix makeDummySymMatrix(int size);
 
     int nbTimeBin_;
+
+    //use 2004 convention for the TDC
+    bool use2004OffsetConvention_; 
+
 /*     int nMaxPrintout_; // max # of printouts */
 /*     int counter_; // internal verbosity counter */
 
