@@ -1,0 +1,37 @@
+/*!
+\page PhysicsTools_Utilities Package PhysicsTools/Utilities
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/Utilities/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/Utilities/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Framework generic utility classes
+
+\subsection selectors Selectors
+- PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
+  that have <tt>pt()</tt> greater than a specified cut. The cut can be specified via edm::ParameterSet or via constructor 
+  parameter.
+- AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
+  It is a trivial selector to be used mainly for tests.
+
+\subsection comparators Comparators
+- PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
+  objects by smallest <tt>pt()</tt>.
+- PtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
+  objects by largest <tt>pt()</tt>.
+
+\subsection functions Functions
+- MasslessInvariantMass: <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> that computes
+  invariant mass of a pair of objects assuming they are massless using the method <tt>momentum()</tt> to retrieve
+  their spatial momentum vector.
+
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/
