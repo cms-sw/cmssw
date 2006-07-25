@@ -1,39 +1,49 @@
-#ifndef MuonCandidate_h
-#define MuonCandidate_h
+#ifndef RecoMuon_TrackingTools_MuonCandidate_H
+#define RecoMuon_TrackingTools_MuonCandidate_H
 
 /** \class MuonCandidate
+ *  Auxiliary class for muon candidates
  *
- *  No description available.
- *
- *  $Date: $
- *  $Revision: $
- *  \author N. Amapane - CERN
+ *  $Date:  $
+ *  $Revision:  $
+ *  \author N. Neumeister	Purdue University 
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include <vector>
 
-class MuonCandidate {
- public:
 
-  typedef std::vector<Trajectory* > TrajectoryContainer;
-  typedef std::vector<MuonCandidate* > CandidateContainer;
+class MuonCandidate { 
+  
+  public:
 
-  /// Constructor
-  MuonCandidate();
+    typedef std::vector<Trajectory*> TrajectoryContainer; 
+    typedef std::vector<MuonCandidate*> CandidateContainer;
 
-  /// Destructor
-  virtual ~MuonCandidate();
+  public:
+  
+    /// constructor
+    MuonCandidate(Trajectory* traj, const reco::TrackRef& muon, const reco::TrackRef& tracker) :
+    theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker) {} 
+  
+    /// destructor
+    virtual ~MuonCandidate();
+  
+    /// return trajectory
+    const Trajectory& trajectory() const { return theTrajectory; }
 
-  const Trajectory& trajectory() {return theTrajectory;}
-  const reco::TrackRef trackerTrack() {return theTrackerTrack;}
-  const reco::TrackRef muonTrack() {return theMuonTrack;}
+    /// return muon track
+    const reco::TrackRef muonTrack() const { return theMuonTrack; }
 
- private:
-  Trajectory theTrajectory;
-  reco::TrackRef theTrackerTrack;
-  reco::TrackRef theMuonTrack;
+    /// return tracker track
+    const reco::TrackRef trackerTrack() const { return theTrackerTrack; }
+                     
+  private:
+
+    Trajectory* theTrajectory
+    reco::TrackRef theMuonTrack;
+    reco::TrackRef theTrackerTrack;
 
 };
-#endif
-
+#endif 

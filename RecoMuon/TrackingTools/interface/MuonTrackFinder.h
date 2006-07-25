@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/07/21 02:42:31 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/25 12:22:29 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -24,12 +24,14 @@ class MuonTrajectoryCleaner;
 class MuonTrackLoader;
 
 class MuonTrackFinder {
+
   public:
 
     typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
     typedef MuonCandidate::CandidateContainer CandidateContainer;
   
-
+  public:
+  
     /// constructor
     MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder); 
   
@@ -57,11 +59,11 @@ class MuonTrackFinder {
     void load(const TrajectoryContainer&, edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const CandidateContainer&,  edm::Event&);
+    void load(const CandidateContainer&, edm::Event&);
 
   private:
 
-    MuonTrajectoryBuilder* theTrajBuilder; // it is a base class
+    MuonTrajectoryBuilder* theTrajBuilder;
 
     MuonTrajectoryCleaner* theTrajCleaner;
 
