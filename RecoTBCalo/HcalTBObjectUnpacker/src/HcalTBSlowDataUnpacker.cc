@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
@@ -27,6 +28,10 @@ namespace hcaltb {
   void HcalTBSlowDataUnpacker::unpack(const FEDRawData&  raw,
 				      HcalTBRunData&          htbrd,
 				      HcalTBEventPosition&    htbep) {
+
+  if (raw.size()<3*8) {
+    throw cms::Exception("Missing Data") << "No data in the slow data block";
+  }
 
     const struct xdaqSlowDataFormat *sd =
       (const struct xdaqSlowDataFormat *)(raw.data());
