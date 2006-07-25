@@ -1,5 +1,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 
+using namespace GeomDetEnumerators;
+
 
 GeomDetTypeIdToEnum::GeomDetTypeIdToEnum(){
   _map.clear();
@@ -8,24 +10,24 @@ GeomDetTypeIdToEnum::GeomDetTypeIdToEnum(){
   // Insert !
   //
 
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(1,GeomDetType::PixelBarrel));
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(2,GeomDetType::PixelEndcap));
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(3,GeomDetType::TIB));
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(4,GeomDetType::TID));
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(5,GeomDetType::TOB));
-  _map.insert(std::pair<int, GeomDetType::SubDetector>(6,GeomDetType::TEC));
+  _map.insert(std::pair<int, SubDetector>(1,PixelBarrel));
+  _map.insert(std::pair<int, SubDetector>(2,PixelEndcap));
+  _map.insert(std::pair<int, SubDetector>(3,TIB));
+  _map.insert(std::pair<int, SubDetector>(4,TID));
+  _map.insert(std::pair<int, SubDetector>(5,TOB));
+  _map.insert(std::pair<int, SubDetector>(6,TEC));
 
 
   //
   // build reverse map
   //
 
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::PixelBarrel,1));
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::PixelEndcap,2));
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::TIB,3));
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::TID,4));
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::TOB,5));
-  _reverseMap.insert(std::pair<GeomDetType::SubDetector, int>(GeomDetType::TEC,6));
+  _reverseMap.insert(std::pair<SubDetector, int>(PixelBarrel,1));
+  _reverseMap.insert(std::pair<SubDetector, int>(PixelEndcap,2));
+  _reverseMap.insert(std::pair<SubDetector, int>(TIB,3));
+  _reverseMap.insert(std::pair<SubDetector, int>(TID,4));
+  _reverseMap.insert(std::pair<SubDetector, int>(TOB,5));
+  _reverseMap.insert(std::pair<SubDetector, int>(TEC,6));
 
   //
   // done

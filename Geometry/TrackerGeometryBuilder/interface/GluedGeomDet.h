@@ -15,6 +15,9 @@ public:
   virtual DetId geographicalId() const;
   virtual std::vector<const GeomDet*> components() const;
 
+  // Which subdetector
+  virtual SubDetector subDetector() const {return theMonoDet->subDetector();}
+
   const GeomDetUnit* monoDet() const { return theMonoDet;}
   const GeomDetUnit* stereoDet() const { return theStereoDet;}
 
