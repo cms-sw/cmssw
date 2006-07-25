@@ -138,6 +138,9 @@ HCalSD::~HCalSD() {
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   //  TimeMe t1( theHitTimer, false);
   
+  
+  NaNTrap( aStep ) ;
+  
   if (aStep == NULL) {
     return true;
   } else {
