@@ -5,6 +5,7 @@ using namespace std;
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBBeamCounters.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBObjectUnpacker.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -17,8 +18,9 @@ using namespace std;
     sdFed_(conf.getUntrackedParameter<int>("HcalSlowDataFED",-1)),
     spdFed_(conf.getUntrackedParameter<int>("HcalSourcePositionFED",-1)),
     tdcFed_(conf.getUntrackedParameter<int>("HcalTDCFED",-1)),
+    qadcFed_(conf.getUntrackedParameter<int>("HcalQADCFED",-1)),
     tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false)),
-    doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false)
+    doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false),doBeamADC_(false)
   {
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack FED ";
@@ -40,6 +42,12 @@ using namespace std;
       doEventPosition_=true; // at least the WC
     }
 
+    if (qadcFed_ >=0) {
+      std::cout << "HcalTBObjectUnpacker will unpack QADC FED ";
+      std::cout << qadcFed_ << endl;
+      doBeamADC_=true;
+    }
+
     if (spdFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack Source Position Data FED ";
       std::cout << spdFed_ << endl;
@@ -50,6 +58,7 @@ using namespace std;
     if (doRunData_) produces<HcalTBRunData>();
     if (doEventPosition_) produces<HcalTBEventPosition>();
     if (doTiming_) produces<HcalTBTiming>();
+    if (doBeamADC_) produces<HcalTBBeamCounters>();
     if (doSourcePos_) produces<HcalSourcePositionData>();
   }
 
@@ -77,6 +86,9 @@ using namespace std;
     std::auto_ptr<HcalTBTiming>
       tmgd(new HcalTBTiming);
 
+    std::auto_ptr<HcalTBBeamCounters>
+      bcntd(new HcalTBBeamCounters);
+
     std::auto_ptr<HcalSourcePositionData>
       spd(new HcalSourcePositionData);
     
@@ -98,6 +110,14 @@ using namespace std;
       tdcUnpacker_.unpack(fed, *epd, *tmgd);
     }
 
+    if (qadcFed_ >=0) {
+      // Step C: unpack all requested FEDs
+      const FEDRawData& fed = rawraw->FEDData(qadcFed_);
+      bool is04 = true;
+      if(qadcFed_==8) is04=true;
+      qadcUnpacker_.unpack(fed, *bcntd,is04);
+    }
+
     if (spdFed_ >=0) {      
       // Step C: unpack all requested FEDs
       const FEDRawData& fed = rawraw->FEDData(spdFed_);
@@ -109,5 +129,6 @@ using namespace std;
     if (doRunData_) e.put(rund);
     if (doEventPosition_) e.put(epd);
     if (doTiming_) e.put(tmgd);
+    if (doBeamADC_) e.put(bcntd);
     if (doSourcePos_) e.put(spd);
   }

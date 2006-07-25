@@ -25,6 +25,7 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTriggerDataUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSlowDataUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
+#include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBQADCUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSourcePositionDataUnpacker.h"
 
 
@@ -39,11 +40,13 @@
     int sdFed_;
     int spdFed_;
     int tdcFed_;
+    int qadcFed_;
     hcaltb::HcalTBTriggerDataUnpacker tdUnpacker_;
     hcaltb::HcalTBSlowDataUnpacker    sdUnpacker_;
     hcaltb::HcalTBTDCUnpacker         tdcUnpacker_;
+    hcaltb::HcalTBQADCUnpacker        qadcUnpacker_;
     hcaltb::HcalTBSourcePositionDataUnpacker         spdUnpacker_;
-    bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_;
+    bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_,doBeamADC_;
   };
 
 

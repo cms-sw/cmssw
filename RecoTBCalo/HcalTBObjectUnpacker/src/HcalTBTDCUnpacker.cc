@@ -64,7 +64,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     totalhits=qdctdc->n_tdc_hits&0xFFFF; // mask off high bits
 
-    for (int i=0; i<qdctdc->n_qdc_hits; i++)
+    for (unsigned int i=0; i<qdctdc->n_qdc_hits; i++)
       printf(" %02d %04x\n",i,qdctdc->qdc_values[i]);
 
   } else {
@@ -73,8 +73,23 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   }
 
   for (unsigned int i=0; i<totalhits; i++) {
-    Hit h;
-    
+    Hit h;    
+    h.time=(hitbase[i]&0xFFFFF) * CONVERSION_FACTOR;
+    h.channel=(hitbase[i]&0x7FC00000)>>22;
+    hits.push_back(h);
+  }
+
+  if (tdc->n_max_hits!=192) {
+    const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
+    hitbase=(unsigned int*)(qdctdc);
+    hitbase+=6; // header
+    hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
+    hitbase+=(qdctdc->n_tdc_hits&0xFFFF)/2; // two unsigned short per unsigned long
+    totalhits=qdctdc->n_tdc_hits&0xFFFF0000; // mask off high bits    
+  }
+  
+  for (unsigned int i=0; i<totalhits; i++) {
+    Hit h;    
     h.time=(hitbase[i]&0xFFFFF) * CONVERSION_FACTOR;
     h.channel=(hitbase[i]&0x7FC00000)>>22;
     hits.push_back(h);
