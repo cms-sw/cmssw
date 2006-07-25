@@ -8,7 +8,6 @@
 <use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommon>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningSummary">
 
 <export>
    <lib name=DQMSiStripCommissioningSummary>
