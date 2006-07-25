@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/25 12:22:29 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/25 13:21:19 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -31,7 +31,7 @@
 //
 edm::OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
-			    edm::Event& event){
+			    edm::Event& event) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
@@ -151,31 +151,34 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer &trajectories,
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
   }  
+
   return orphanHandleTrack;
+
 }
+
 
 //
 //
 //
 edm::OrphanHandle<reco::MuonCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
-			    edm::Event& event){
+			    edm::Event& event) {
 
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event  
-  std::auto_ptr<reco::MuonCollection> muonCollection(MuonCollection);
+  std::auto_ptr<reco::MuonCollection> muonCollection(reco::MuonCollection);
 
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
     combinedTrajs.push_back((*it).first);
     
-    // Create the reco::muon and fill STA
+    // Create the reco::muon
     reco::Muon muon;
-//     muon.setMuonTrack(...);
-//     muon.setTrackerTrack(...);
-//     muonCollection.push_back(muon);
+    muon.setMuonTrack((*it)->muonTrack());
+    muon.setTrackerTrack((*it)->trackerTrack());
+    muonCollection.push_back(muon);
   }
 
   // create the TrackCollection of combined Trajectories
@@ -194,9 +197,15 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   // put the MuonCollection in the event
   LogDebug(metname) << "put the MuonCollection in the event" << "\n";
   edm::OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
+
   return orphanHandleMuon;
+
 }
 
+
+//
+//
+//
 reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
 
   MuonPatternRecoDumper debug;
@@ -257,7 +266,10 @@ reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
 }
 
 
-reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const{
+//
+//
+//
+reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const {
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -296,5 +308,3 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   return trackExtra;
  
 }
-
-
