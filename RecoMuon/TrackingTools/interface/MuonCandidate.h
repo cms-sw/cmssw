@@ -4,8 +4,8 @@
 /** \class MuonCandidate
  *  Auxiliary class for muon candidates
  *
- *  $Date: 2006/07/25 13:01:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/25 13:10:47 $
+ *  $Revision: 1.3 $
  *  \author N. Neumeister	Purdue University 
  */
 
@@ -30,10 +30,10 @@ class MuonCandidate {
       theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker) {} 
   
     /// destructor
-    virtual ~MuonCandidate();
+    virtual ~MuonCandidate() {}
   
     /// return trajectory
-    const Trajectory* trajectory() const { return theTrajectory; }
+    Trajectory* trajectory() const { return theTrajectory; }
 
     /// return muon track
     const reco::TrackRef muonTrack() const { return theMuonTrack; }
