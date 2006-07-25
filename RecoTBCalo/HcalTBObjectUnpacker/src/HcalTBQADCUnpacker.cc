@@ -3,6 +3,7 @@
 
 // QADC channels
 static const int N_QADCS_ALLOWED = 6;
+
 // Trigger Channels
 static const int aScint1          = 52;  // 14x14 cm
 static const int aScint2          = 53;  // 4x4 cm
@@ -49,8 +50,6 @@ void HcalTBQADCUnpacker::unpack(const FEDRawData& raw,
   }
 
   const ClassicQADCDataFormat* qadc=(const ClassicQADCDataFormat*)raw.data();
-  
-  uint16_t dat0 = qadc->data[0] +qadc->data[1];
 
   if(is04){ ///this is TB04
     beamadc.setADCs(qadc->data[aMuonV],qadc->data[aMuonV3],qadc->data[aMuonV6],

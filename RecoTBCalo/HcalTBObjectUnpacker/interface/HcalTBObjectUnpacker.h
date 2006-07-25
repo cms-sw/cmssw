@@ -28,6 +28,7 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBQADCUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSourcePositionDataUnpacker.h"
 
+using namespace std;
 
   class HcalTBObjectUnpacker : public edm::EDProducer
   {
@@ -41,12 +42,19 @@
     int spdFed_;
     int tdcFed_;
     int qadcFed_;
+    string calibFile_;
     hcaltb::HcalTBTriggerDataUnpacker tdUnpacker_;
     hcaltb::HcalTBSlowDataUnpacker    sdUnpacker_;
     hcaltb::HcalTBTDCUnpacker         tdcUnpacker_;
     hcaltb::HcalTBQADCUnpacker        qadcUnpacker_;
     hcaltb::HcalTBSourcePositionDataUnpacker         spdUnpacker_;
     bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_,doBeamADC_;
+
+    vector<vector<string> > calibLines_;
+    void parseCalib();
+
+
+    
   };
 
 

@@ -11,6 +11,7 @@ using namespace std;
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
+#include <fstream>
 
 
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):
@@ -19,9 +20,21 @@ using namespace std;
     spdFed_(conf.getUntrackedParameter<int>("HcalSourcePositionFED",-1)),
     tdcFed_(conf.getUntrackedParameter<int>("HcalTDCFED",-1)),
     qadcFed_(conf.getUntrackedParameter<int>("HcalQADCFED",-1)),
+    calibFile_(conf.getUntrackedParameter<string>("ConfigurationFile","")),
     tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false)),
     doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false),doBeamADC_(false)
   {
+
+    calibLines_.clear();
+    if(calibFile_.size()>0){
+      parseCalib();
+      printf("I got %d lines!\n",calibLines_.size());
+    }
+    else{
+      printf("HcalTBObjectUnpacker thinks your calibration file stinks....\n");
+      ///throw an exception here when we're ready with the calib file..
+    }
+
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack FED ";
       std::cout << triggerFed_ << endl;
@@ -132,3 +145,45 @@ using namespace std;
     if (doBeamADC_) e.put(bcntd);
     if (doSourcePos_) e.put(spd);
   }
+
+
+void HcalTBObjectUnpacker::parseCalib(){
+  
+  if(calibFile_.size()==0){
+    printf("HcalTBObjectUnpacker cowardly refuses to parse a NULL file...\n"); 
+    return;
+  }
+ 
+  ifstream infile(calibFile_.c_str());
+
+  char buffer [1024];
+  string tmpStr;
+  
+  while (infile.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    if (buffer [0] == '/' && buffer [1] == '/') continue; //ignore comment
+    tmpStr = string(buffer);
+    vector<string> lineVect;
+    
+    int start = 0; bool empty = true;
+    for (unsigned i=0; i<=tmpStr.size(); i++) {
+      if (tmpStr[i] == ' ' || i==tmpStr.size()) {
+	if (!empty) {
+	  std::string item(tmpStr, start, i-start);
+	  lineVect.push_back(item);
+	  empty = true;
+	  printf("Got: %s\n",item.c_str());
+	}
+	start = i+1;
+      }
+      else {
+	if (empty) empty = false;	
+      }
+    }  
+    
+    if(lineVect.size()>0) calibLines_.push_back(lineVect);    
+  }
+
+  infile.close();
+  return;
+}
