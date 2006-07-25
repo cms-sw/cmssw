@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+using namespace GeomDetEnumerators;
+
 CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
       const TrapezoidalPlaneBounds& bounds,
       const CSCSpecsParcel& fupar,

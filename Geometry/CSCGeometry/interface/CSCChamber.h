@@ -36,6 +36,9 @@ public:
   /// Get the (concrete) DetId.
   CSCDetId id() const { return theId; }
 
+  // Which subdetector
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::CSC;}
+
   const CSCChamberSpecs* specs() const { return theChamberSpecs; }
 
   /// Return the layers in this chamber

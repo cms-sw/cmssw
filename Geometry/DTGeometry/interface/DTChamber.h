@@ -10,8 +10,8 @@
  *  The chamber is composed by 2 or three DTSuperLayer, which in turn are 
  *  composed by four DTLayer each.
  *
- *  $Date: 2006/06/22 14:40:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/14 14:45:16 $
+ *  $Revision: 1.5 $
  *  \author S. Lacaprara, N. Amapane
  */
 
@@ -37,6 +37,9 @@ class DTChamber : public GeomDet {
 
     /// Return the DTChamberId of this chamber
     DTChamberId id() const;
+
+    // Which subdetector
+    virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
 
     /// equal if the id is the same
     bool operator==(const DTChamber& ch) const;

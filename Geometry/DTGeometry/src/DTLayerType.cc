@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Revision: $
+ *  $Revision: 1.1 $
  *  $date   : 23/01/2006 18:24:56 CET $
  *  \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -12,18 +12,11 @@
 /* Collaborating Class Header */
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
-/* Base Class Headers */
-
-/* C++ Headers */
-
-/* ====================================================================== */
 
 /* Constructor */ 
 DTLayerType::DTLayerType() :
-  GeomDetType("DT",DT){
+  GeomDetType("DT",GeomDetEnumerators::DT){
   }
-
-/* Destructor */ 
 
 /* Operations */ 
 const Topology& DTLayerType::topology() const {

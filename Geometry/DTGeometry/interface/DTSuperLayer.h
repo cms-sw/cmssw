@@ -8,7 +8,7 @@
  *  A superlayer is composed by 4 staggered DTLayer s.
  *
  *  $date   : 13/01/2006 11:47:03 CET $
- *  $Revision: 1.3 $
+ *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -23,11 +23,6 @@
 class DTLayer;
 class DTChamber;
 
-/* C++ Headers */
-
-/* ====================================================================== */
-
-/* Class DTSuperLayer Interface */
 
 class DTSuperLayer : public GeomDet {
 
@@ -47,6 +42,9 @@ class DTSuperLayer : public GeomDet {
 
     /// Return the DetId of this SL
     DTSuperLayerId id() const;
+
+    // Which subdetector
+    virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
 
     /// True if id are the same
     bool operator==(const DTSuperLayer& sl) const ;
