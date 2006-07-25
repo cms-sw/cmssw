@@ -178,6 +178,6 @@ copy_pedestal_files;
 # copy_castor_files_locally;
 echo "Running cmsRun. Log file: ${LOG_FILE}";
 time runcms > ${LOG_FILE} 2>&1 ;
-copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/test/"
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/test/"
 
 ###############################################################################################################
