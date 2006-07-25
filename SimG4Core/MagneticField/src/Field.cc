@@ -28,7 +28,7 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
     if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
          isnan(xyz[0]) != 0 || isnan(xyz[1]) != 0 || isnan(xyz[2]) != 0 )
     {
-       throw SimG4Exception( "Corrupted Event - NaN detected" ) ;
+       throw SimG4Exception( "SimG4CoreMagneticField: Corrupted Event - NaN detected (position)" ) ;
     }
     
     double delta = 1.;
