@@ -3,8 +3,6 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -15,19 +13,17 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 
-
-TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es)
+TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
+								const edm::ParameterSet& conf)
 {
-  edm::ESHandle<MagneticField>                theMagField;
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
+  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
+  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
 
-  theReversePropagator = new  PropagatorWithMaterial( oppositeToMomentum, 0.105,  
-						      &(*theMagField));
-
-  theForwardPropagator = new  PropagatorWithMaterial( alongMomentum, 0.105,  
-						      &(*theMagField));
+  es.get<TrackingComponentsRecord>().get(propagatorAlongName,theForwardPropagator);
+  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,theReversePropagator);
 }
 
 

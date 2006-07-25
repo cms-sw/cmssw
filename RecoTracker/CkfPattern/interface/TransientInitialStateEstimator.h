@@ -1,6 +1,9 @@
 #ifndef TransientInitialStateEstimator_H
 #define TransientInitialStateEstimator_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -20,17 +23,15 @@ public:
 
   typedef TrajectoryStateOnSurface TSOS;
 
-  TransientInitialStateEstimator( const edm::EventSetup& es);
+  TransientInitialStateEstimator( const edm::EventSetup& es, const edm::ParameterSet& conf);
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
   innerState( const Trajectory& traj) const;
 
 
 private:
-
-  Propagator* theReversePropagator;
-  Propagator* theForwardPropagator;
-
+  edm::ESHandle<Propagator>  theReversePropagator;
+  edm::ESHandle<Propagator>  theForwardPropagator;
 
 };
 

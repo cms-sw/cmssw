@@ -42,10 +42,15 @@ CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
 
   //trackingtools
-  es.get<TrackingComponentsRecord>().get("KFUpdator",theUpdator);
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagator);
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",thePropagatorOpposite);
-  es.get<TrackingComponentsRecord>().get("Chi2",theEstimator);  
+  std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlong");   
+  std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOpposite");   
+  std::string updatorName            = conf.getParameter<std::string>("updator");   
+  std::string estimatorName          = conf.getParameter<std::string>("estimator");   
+
+  es.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
+  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagator);
+  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
+  es.get<TrackingComponentsRecord>().get(estimatorName,theEstimator);  
 
   
   //
