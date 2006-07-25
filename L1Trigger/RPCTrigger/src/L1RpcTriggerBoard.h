@@ -23,34 +23,14 @@
 //---------------------------------------------------------------------------
 class L1RpcTriggerBoard {
 public:
-  L1RpcTriggerBoard(L1RpcTBGhostBuster* tbGhostBuster, L1RpcTriggerConfiguration* triggerConfig, int tbNum) {
-    TBGhostBuster = tbGhostBuster;
-    TriggerConfig = triggerConfig;
-    TBNumber = tbNum;
-  };
+  L1RpcTriggerBoard(L1RpcTBGhostBuster* tbGhostBuster,
+                    L1RpcTriggerConfiguration* triggerConfig,
+                    int tbNum);
 
   /** Runs L1RpcPac::Run() for cone. Converts L1RpcPacMuon to L1RpcTBMuon
     * and puts it to the PacsMuonsVec. @return true if non-empty muon was return
     * by PAC*/
-  bool RunCone(const L1RpcLogCone& cone)  {
-    L1RpcTBMuon tbMuon(TriggerConfig->GetPac(cone.GetConeCrdnts())->Run(cone) );
-
-    /* XXX - debug to improve
-    #ifndef _STAND_ALONE
-    if(TriggerConfig->GetDebugLevel() > 6) {
-      cone.Print();
-    edm::LogError("RPCTrigger")<<"Pac "<<tbMuon.ToString();
-    }  
-    #endif
-    */
-    
-    if(tbMuon.GetCode() > 0) {
-      PacsMuonsVec.push_back(tbMuon);
-      return true;
-    }
-    else
-      return false;
-  };
+  bool RunCone(const L1RpcLogCone& cone);
 
   /** Creates L1RpcTBMuonsVec2 from muons from PacsMuonsVec.
     * Then runs L1RpcTBGhostBuster::Run().

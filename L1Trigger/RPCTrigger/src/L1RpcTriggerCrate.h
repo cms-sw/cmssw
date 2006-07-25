@@ -25,21 +25,13 @@
 //---------------------------------------------------------------------------
 class L1RpcTriggerCrate {
 public:
-  L1RpcTriggerCrate(L1RpcTCGhostBusterSorter* tcGhostBusterSorter, L1RpcTBGhostBuster* tbGhostBuster, L1RpcTriggerConfiguration* triggerConfig, int tcNum);
+  L1RpcTriggerCrate(L1RpcTCGhostBusterSorter* tcGhostBusterSorter, 
+                    L1RpcTBGhostBuster* tbGhostBuster,
+                    L1RpcTriggerConfiguration* triggerConfig,
+                    int tcNum);
 
   /** Runs L1RpcTriggerBoard::RunCone() for every TB. Cheks, if any non empty muons were found*/
-  void RunCone(const L1RpcLogCone& cone) {
-    
-    /*
-    RPCParam::L1RpcConeCrdnts ConeCrdnts = cone.GetConeCrdnts();
-    LogDebug("RPCTrigger") << " Tower: " << ConeCrdnts.Tower
-        << " LSector" << ConeCrdnts.LogSector
-        << " LSegment" << ConeCrdnts.LogSegment
-        << " TBNum:" << TriggerConfig->GetTBNum(cone.GetConeCrdnts())<< std::endl;
-    */
-    if(TBsVec[TriggerConfig->GetTBNum(cone.GetConeCrdnts())].RunCone(cone) )
-      WasMuon = true;
-  };
+  void RunCone(const L1RpcLogCone& cone);
 
   /** If in RunCone() any muons were found,
     * runs L1RpcTriggerBoard::RunTBGB() for every TB.

@@ -10,7 +10,129 @@
 
 using namespace std;
 //---------------------------------------------------------------------------
+L1RpcTBMuon::L1RpcTBMuon(): L1RpcMuon() {
+    Killed = false;
 
+    GBData = 0;
+
+    EtaAddress = 0;
+    PhiAddress = 0;
+}
+//---------------------------------------------------------------------------
+L1RpcTBMuon::L1RpcTBMuon(int ptCode, int quality, int sign,
+                         int patternNum, unsigned short firedPlanes):
+    L1RpcMuon(ptCode, quality, sign, patternNum, firedPlanes) 
+{
+    Killed = false;
+
+    GBData = 0;
+
+    EtaAddress = 0;
+    PhiAddress = 0;
+}
+
+//---------------------------------------------------------------------------
+// Simple setters and getters
+
+///Combined quality and ptCode, 8 bits [7...5 Quality, 4...0 PtCode], used in GhoustBusters
+int L1RpcTBMuon::GetCode() const {  return (Quality<<5 | PtCode); }
+
+///Sets combined code: 8 bits [7...5 Quality, 4...0 PtCode].
+void L1RpcTBMuon::SetCode(int code) {
+    Quality = (code & (3<<5))>>5;
+    PtCode = code & 31;
+}
+
+
+void L1RpcTBMuon::SetPhiAddr(int phiAddr) { PhiAddress = phiAddr;}
+
+void L1RpcTBMuon::SetSectorAddr(int sectorAddr){ PhiAddress = PhiAddress | sectorAddr<<4;}
+
+void L1RpcTBMuon::SetEtaAddr(int etaAddr) { EtaAddress = etaAddr;}
+  
+void L1RpcTBMuon::SetAddress(int etaAddr, int phiAddr) { 
+     EtaAddress = etaAddr;
+     PhiAddress = phiAddr;
+}
+
+void L1RpcTBMuon::SetAddress(int tbNumber, int tbTower, int phiAddr) {
+    EtaAddress = (tbNumber<<2) | tbTower;
+    PhiAddress = phiAddr;
+}
+
+int L1RpcTBMuon::GetEtaAddr() const { return EtaAddress; }
+
+int L1RpcTBMuon::GetPhiAddr() const { return PhiAddress; }
+
+int L1RpcTBMuon::GetSegmentAddr() const { return PhiAddress & 15; }
+
+int L1RpcTBMuon::GetSectorAddr() const { return (PhiAddress & 0xF0)>>4; }
+
+int L1RpcTBMuon::GetContinSegmAddr() const { return GetSectorAddr()*12 + GetSegmentAddr();}
+
+void L1RpcTBMuon::SetCodeAndPhiAddr(int code, int phiAddr) {
+    SetCode(code);
+    PhiAddress = phiAddr;
+}
+
+void L1RpcTBMuon::SetCodeAndEtaAddr(int code, int etaAddr) {
+    SetCode(code);
+    EtaAddress = etaAddr;
+}
+  
+int L1RpcTBMuon::GetGBData() const { return GBData;}
+
+std::string L1RpcTBMuon::GetGBDataBitStr() const {
+    std::string str = "00";
+    if (GBData == 1)
+      str = "01";
+    else if (GBData == 2)
+      str = "10";
+    else if (GBData == 3)
+      str = "11";
+    return str;  
+}
+
+void L1RpcTBMuon::SetGBDataKilledFirst() { GBData = GBData | 1;}
+
+void L1RpcTBMuon::SetGBDataKilledLast() { GBData = GBData | 2; }
+
+bool L1RpcTBMuon::GBDataKilledFirst() const { return (GBData & 1);}
+
+bool L1RpcTBMuon::GBDataKilledLast() const { return (GBData & 2);}
+
+
+//---------------------------------------------------------------------------
+void L1RpcTBMuon::Kill() { Killed = true; }
+
+/** @return true = was non-empty muon and was killed
+  * false = was not killed or is zero */
+bool L1RpcTBMuon::WasKilled() const {
+    if(PtCode > 0 && Killed)
+      return true;
+    else return false;
+}
+
+/** @return true = was no-zero muon and was not killed
+  * false = is killed or is zero */
+bool L1RpcTBMuon::IsLive() const {
+    if(PtCode > 0 && !Killed)
+      return true;
+    else return false;
+}
+
+//---------------------------------------------------------------------------
+L1RpcTBMuon::L1RpcTBMuon(const L1RpcPacMuon& pacMuon):
+    L1RpcMuon(pacMuon) 
+{
+    Killed = false;
+
+    GBData = 0;
+
+    EtaAddress = 0;
+    PhiAddress = 0;
+}
+//---------------------------------------------------------------------------
 unsigned int L1RpcTBMuon::ToBits(std::string where) const {
   if (where == "fsbIn") {
     return FSBIn::toBits(*this);

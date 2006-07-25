@@ -6,6 +6,9 @@
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 /** 
  *
@@ -48,6 +51,38 @@ L1RpcLogCone::L1RpcLogCone(const L1RpcLogHit &logHit)
 
   SetLogStrip(logHit.getlogPlaneNumber() -1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
 }
+
+string L1RpcLogCone::toString() const {
+  std::ostringstream ostr;
+  ostr << "\n       ======================> TOWER = ";
+  ostr<<setw(2)<<ConeCrdnts.Tower<<", LogSector = "<<ConeCrdnts.LogSector<<",  LogSegment = "<<ConeCrdnts.LogSegment;
+  ostr <<" <======================="<<endl;
+
+  std::string spacer;
+
+  for (int logPlane = RPCParam::LAST_PLANE; logPlane >= RPCParam::FIRST_PLANE; logPlane--) {
+    ostr<<RPCParam::LOGPLANE_STR[logPlane]<<" ";
+    spacer.assign((72 - RPCParam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane])/2, ' ');
+    ostr<<spacer;
+  
+    for(int i = RPCParam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane]-1; i >=0; i--) {
+      if(GetLogStripState(logPlane, i))
+         ostr<<"X";
+      else {
+        if(i%8 == 0)
+          ostr<<i%10;
+        else
+    ostr<<"."; 
+      }  
+    }  
+
+    ostr<<endl;
+  }
+ 
+  ostr<<endl;
+  return ostr.str();
+}
+// 
 //#############################################################################################
 //
 //  Simple getters and setters

@@ -22,6 +22,8 @@
 #include <set>
 #include <map>
 
+
+
 #include "L1Trigger/RPCTrigger/src/L1RpcLogHit.h"
 
 #include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
@@ -116,6 +118,8 @@ public:
   void SetIdx(int index);
 	
   int GetIdx() const;
+  
+  std::string toString() const;
   
 };
 

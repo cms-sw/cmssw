@@ -27,3 +27,10 @@ L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
   WasMuon = false;
   return TCGhostBusterSorter->Run(tbMuonsVec2);
 }
+
+
+/** Runs L1RpcTriggerBoard::RunCone() for every TB. Cheks, if any non empty muons were found*/
+void L1RpcTriggerCrate::RunCone(const L1RpcLogCone& cone) {
+  if(TBsVec[TriggerConfig->GetTBNum(cone.GetConeCrdnts())].RunCone(cone) )
+    WasMuon = true;
+};

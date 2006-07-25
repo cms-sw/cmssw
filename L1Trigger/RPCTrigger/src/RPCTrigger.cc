@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/22 14:29:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/06/22 15:24:25 $
+ *  $Revision: 1.12 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -59,9 +59,18 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);
 
+  int maxFiredPlanes = 0;
+  
+  for (unsigned int i=0;i<ActiveCones.size();i++){
+      int fpCnt = ActiveCones[i].GetFiredPlanesCnt();
+      if (fpCnt > maxFiredPlanes)
+         maxFiredPlanes = fpCnt;
+  }
+
   // Fill out the products
   // finalMuons[0]=barell, finalMuons[1]=endcap
-  LogDebug("RPCTrigger") << "---Filling candindates in new event---" << std::endl;
+  LogDebug("RPCTrigger") << "---Filling candindates in new event--- " 
+                         << maxFiredPlanes << std::endl;
   
   std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1);
   std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3);;
@@ -126,6 +135,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].GetPtCode()
         << " L1Charge " << l1Cand.charge_packed()
         << " ql " << l1Cand.quality()
+        << " fp " << finalMuons[iMu].GetFiredPlanes()
         << " b/f " << l1Cand.type_idx()
         << " phi " << phi
         << " eta " << eta

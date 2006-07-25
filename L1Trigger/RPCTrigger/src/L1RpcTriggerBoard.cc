@@ -31,3 +31,32 @@ L1RpcTBMuonsVec L1RpcTriggerBoard::RunTBGB() { //4 muons or empty vector
   PacsMuonsVec.clear();
   return TBGhostBuster->Run(gbMuons);
 }
+//---------------------------------------------------------------------------
+L1RpcTriggerBoard::L1RpcTriggerBoard(L1RpcTBGhostBuster* tbGhostBuster,
+                L1RpcTriggerConfiguration* triggerConfig,
+                int tbNum) {
+    TBGhostBuster = tbGhostBuster;
+    TriggerConfig = triggerConfig;
+    TBNumber = tbNum;
+}
+
+//---------------------------------------------------------------------------
+bool L1RpcTriggerBoard::RunCone(const L1RpcLogCone& cone)  {
+    L1RpcTBMuon tbMuon(TriggerConfig->GetPac(cone.GetConeCrdnts())->Run(cone) );
+    
+    /* XXX - debug to improve
+    #ifndef _STAND_ALONE
+    if(TriggerConfig->GetDebugLevel() > 6) {
+      cone.Print();
+    edm::LogError("RPCTrigger")<<"Pac "<<tbMuon.ToString();
+    }  
+    #endif
+    */
+    
+    if(tbMuon.GetCode() > 0) {
+      PacsMuonsVec.push_back(tbMuon);
+      return true;
+    }
+    else
+      return false;
+}

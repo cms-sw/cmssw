@@ -19,9 +19,7 @@
 //---------------------------------------------------------------------------
 class L1RpcTCGhostBusterSorter {
 public:
-  L1RpcTCGhostBusterSorter(L1RpcTriggerConfiguration* triggerConfig) {
-    TriggerConfig = triggerConfig;
-  }
+  L1RpcTCGhostBusterSorter(L1RpcTriggerConfiguration* triggerConfig);
 
   /** Peformes the Trigger Crate Ghost Buster and sorter algorithm -
     * in eta between TB of one TC.

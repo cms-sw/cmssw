@@ -21,9 +21,12 @@ L1RpcPacTrigger::L1RpcPacTrigger(L1RpcTriggerConfiguration* triggerConfig):
 
 L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) {
   GBFinalMuons.clear();
+  //std::cout<< "------------" << std::endl;         
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
-    if(logConesVec[iLC].GetFiredPlanesCnt() >= 3)
+    if(logConesVec[iLC].GetFiredPlanesCnt() >= 3) {
       TriggerCratesVec[TrigCnfg->GetTCNum(logConesVec[iLC].GetConeCrdnts())].RunCone(logConesVec[iLC]);
+      //std::cout<< logConesVec[iLC].toString();
+    }
   }
 
   L1RpcTBMuonsVec2 tcsMuonsVec2;

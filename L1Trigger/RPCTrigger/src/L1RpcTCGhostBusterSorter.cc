@@ -7,6 +7,10 @@
 using namespace std;
 
 //---------------------------------------------------------------------------
+L1RpcTCGhostBusterSorter::L1RpcTCGhostBusterSorter(L1RpcTriggerConfiguration* triggerConfig) {
+  TriggerConfig = triggerConfig;
+}
+//---------------------------------------------------------------------------
 L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
   for (unsigned int iTB = 0; iTB < tbMuonsVec2.size()-1; iTB++) {
     for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++) {
