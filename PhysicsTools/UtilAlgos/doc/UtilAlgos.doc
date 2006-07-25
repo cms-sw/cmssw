@@ -11,7 +11,8 @@
 Framework generic utility modules
 
 \subsection selectors Selector modules
-- ObjectSelector<S>: generic object selection module. The <a name="sel_algo"><b>Selection Algorithm</b></a> <tt>S</tt> should
+- ObjectSelector<b><S></b>: generic object selection module. <br>
+  The <a name="sel_algo"><b>Selection Algorithm</b></a> <tt>S</tt> should
   define the following interface:
 \htmlonly
 <pre>
@@ -36,11 +37,11 @@ Framework generic utility modules
 </pre>
 \endhtmlonly
 - SelectorProducer: selects objects from a collection according to a criterion  
-  specified by a functor class and saves their clones in a new collection. 
+  specified by a functor class and saves their clones in a new collection.<br>
   <b>This module will become obsolete, in favor of ObjectSelector.</b> 
 
 \subsection sel_utilities Selector module utilities 
-- SingleElementCollectionSelector<C, S>: model of <a href="#sel_algo">Selection Algorithm</a> that selects
+- SingleElementCollectionSelector<b><C, S></b>: model of <a href="#sel_algo">Selection Algorithm</a> that selects
   objects one by one from a collection of type <tt>C</tt> based on a <a href="http://www.sgi.com/tech/stl/Predicate.html">predicate
   object</a> of type <tt>S</tt>.
   For instance, to select all tracks with <i>p<sub>t</sub></i> larger than a specified
@@ -56,7 +57,7 @@ Framework generic utility modules
 </pre>
 \endhtmlonly
 
-- SortCollectionSelector<C, S>: model of <a href="#sel_algo>Selection Algorithm</a> that takes the
+- SortCollectionSelector<b><C, S></b>: model of <a href="#sel_algo>Selection Algorithm</a> that takes the
   first N objects of a collection of type <tt>C</tt> sorting them according to the
   http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> <tt>S</tt>.
   The parameter <tt>max</tt> can be used via configuration file.
@@ -73,7 +74,7 @@ Framework generic utility modules
 </pre>
 \endhtmlonly
 
-- WindowCollectionSelector<C, M>: model of <a href="#sel_algo>Selection Algorithm</a> that
+- WindowCollectionSelector<b><C, M></b>: model of <a href="#sel_algo>Selection Algorithm</a> that
   selects object pairs whose combination, according to the 
   <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> <tt>M</tt>,
   lies within a specified window. The window range aqre specified with the parameters
@@ -108,5 +109,5 @@ None.
 To be reviewed.
 
 <hr>
-Last updated: @DATE@ L. Lista
+Last updated: 2006-07-25 L. Lista
 */
