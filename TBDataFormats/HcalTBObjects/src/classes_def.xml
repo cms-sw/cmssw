@@ -3,8 +3,10 @@
    <class name="HcalTBRunData"/>
    <class name="HcalTBEventPosition"/>
    <class name="HcalTBTiming"/>
+   <class name="HcalTBBeamCounters"/>
    <class name="edm::Wrapper<HcalTBTriggerData>"/>
    <class name="edm::Wrapper<HcalTBRunData>"/>
    <class name="edm::Wrapper<HcalTBEventPosition>"/>
    <class name="edm::Wrapper<HcalTBTiming>"/>
+   <class name="edm::Wrapper<HcalTBBeamCounters>"/>
 </lcgdict>
