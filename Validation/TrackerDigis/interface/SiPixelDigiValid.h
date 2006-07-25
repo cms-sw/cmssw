@@ -150,6 +150,11 @@ class  SiPixelDigiValid: public EDAnalyzer {
   MonitorElement* meDigiMultiLayer3Ring6_;
   MonitorElement* meDigiMultiLayer3Ring7_;
   MonitorElement* meDigiMultiLayer3Ring8_;
+ 
+  /*Number of digi versus ladder number */
+  MonitorElement* meDigiMultiLayer1Ladders_;
+  MonitorElement* meDigiMultiLayer2Ladders_;
+  MonitorElement* meDigiMultiLayer3Ladders_;
 
 
 ///Forwar Pixel
