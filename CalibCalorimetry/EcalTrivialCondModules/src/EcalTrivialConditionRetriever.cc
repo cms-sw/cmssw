@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.9 2006/06/30 08:18:58 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.10 2006/07/10 16:07:48 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -55,7 +55,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if (weightsForAsynchronousRunning_)
     {
       getWeightsFromFile_ = true; //override user request 
-      nTDCbins_ = 25;
+      //nTDCbins_ = 25;
+      nTDCbins_ = 50; //modif Alex-21-07-2006
     }
   
   std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
