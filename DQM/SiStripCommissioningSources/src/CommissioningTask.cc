@@ -150,7 +150,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   static UpdateTProfile profile;
   
   // Extract TProfile object
-  TProfile* prof = ExtractTObject<TProfile>()( histo_set.histo_ );
+  TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo_ );
   // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
   
   // Update TProfile histo
