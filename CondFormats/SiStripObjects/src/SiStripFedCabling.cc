@@ -38,11 +38,12 @@ SiStripFedCabling::~SiStripFedCabling() {
 // -----------------------------------------------------------------------------
 //
 void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& input ) {
-  edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]"
-			     << " Building FED cabling...";
+  static const string method = "SiStripFedCabling::buildFedCabling";
+  edm::LogVerbatim("FedCabling") << "["<<method<<"] Building FED cabling...";
+  
   // Check input
   if ( input.empty() ) {
-    edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Input vector of zero size!"; 
+    edm::LogError("FedCabling") << "["<<method<<"] Input vector of zero size!"; 
   }
   
   static const uint16_t MaxFedId = 1024;
@@ -61,10 +62,10 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
 
     // Check on FED ids and channels
     if ( fed_id >= MaxFedId ) {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Unexpected FED id! " << fed_id; 
+      edm::LogError("FedCabling") << "["<<method<<"] Unexpected FED id! " << fed_id; 
     } 
     if ( fed_ch >= MaxFedCh ) {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Unexpected FED channel! " << fed_ch;
+      edm::LogError("FedCabling") << "["<<method<<"] Unexpected FED channel! " << fed_ch;
     } 
     
     // Resize container to accommodate all FED channels
@@ -72,7 +73,7 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     if ( connected_[fed_id].size() != 96 ) { connected_[fed_id].resize(96); }
     
     // Fill appropriate container
-    bool detected  = 1; //@@ input[iconn].i2cAddr0() || input[iconn].i2cAddr1();
+    bool detected  = true; //@@ input[iconn].i2cAddr0() || input[iconn].i2cAddr1();
     bool connected = input[iconn].fedId();
     if ( detected && connected ) {
       connected_[fed_id][fed_ch] = input[iconn];
@@ -86,24 +87,24 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     //       }
     
   }
-
-  LogDebug("Cabling") << "[SiStripFedCabling::buildFedCabling] Printing FedChannelConnections: ";
+  
+  edm::LogVerbatim("Cabling") << "["<<method<<"] Printing FedChannelConnections: ";
   vector<uint16_t>::const_iterator ifed;
-  for ( ifed = (*this).feds().begin(); ifed != (*this).feds().end(); ifed++ ) {
+  for ( ifed = feds().begin(); ifed != feds().end(); ifed++ ) {
     uint16_t connected = 0;
     vector<FedChannelConnection>::const_iterator ichan = connections(*ifed).begin();
     for ( ; ichan != connections(*ifed).end(); ichan++ ) { 
       if ( ichan->fedId() ) { 
-	// 	stringstream ss;
-	// 	ichan->print(ss); 
-	// 	edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]" << ss.str();
+	stringstream ss;
+	ichan->print(ss); 
+	LogTrace("FedCabling") << "["<<method<<"]" << ss.str();
 	connected++; 
       }
     }
-    edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]"
-			       << " Found FED with id " << *ifed
-			       << " that has " << connected
-			       << " connected channels";
+    edm::LogVerbatim("FedCabling") << "["<<method<<"]"
+				   << " Found FED with id " << *ifed
+				   << " that has " << connected
+				   << " connected channels";
   }
   
 }
