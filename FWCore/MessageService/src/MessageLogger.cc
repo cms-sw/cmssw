@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.11 2006/07/06 14:53:14 lsexton Exp $
+// $Id: MessageLogger.cc,v 1.12 2006/07/24 21:50:53 marafino Exp $
 //
 // Change log
 //
@@ -337,6 +337,10 @@ MessageLogger::preModule(const ModuleDescription& desc)
   std::map<const std::string,ELseverityLevel>::const_iterator it =
        suppression_levels_.find(desc.moduleLabel_);
   if ( it != suppression_levels_.end() ) {
+#ifdef JMM
+    std::cout << "Module name found.  Selected severity level = " 
+                    << it->second << std::endl;
+#endif
     MessageDrop::instance()->debugEnabled  = MessageDrop::instance()->debugEnabled 
                                            && (it->second < ELseverityLevel::ELsev_success );
     MessageDrop::instance()->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
@@ -346,11 +350,11 @@ MessageLogger::preModule(const ModuleDescription& desc)
     MessageDrop::instance()->warningEnabled = true;
   }
 #ifdef JMM
-  std::cout << "Setting MessageDrop::debugEnabled to "
+  std::cout << "MessageDrop::debugEnabled = "
             << MessageDrop::instance()->debugEnabled << std::endl;
-  std::cout << "Setting MessageDrop::infoEnabled to "
+  std::cout << "MessageDrop::infoEnabled = "
             << MessageDrop::instance()->infoEnabled << std::endl;
-  std::cout << "Setting MessageDrop::warningEnabled to " 
+  std::cout << "MessageDrop::warningEnabled = " 
             << MessageDrop::instance()->warningEnabled << std::endl;
 #endif
 }
