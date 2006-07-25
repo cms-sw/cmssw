@@ -35,6 +35,13 @@ namespace sistrip {
   static const uint16_t STRIPS_PER_FEDCH  = STRIPS_PER_APV * APVS_PER_FEDCH;
   static const uint16_t STRIPS_PER_FEUNIT = STRIPS_PER_FEDCH * FEDCH_PER_FEUNIT; // 3072
   static const uint16_t STRIPS_PER_FED    = STRIPS_PER_FEUNIT * FEUNITS_PER_FED; // 24576
+
+  // 
+  static const uint16_t DAQ_HDR_SIZE        = 8;
+  static const uint16_t TRK_HDR_SIZE        = 8;
+  static const uint16_t FE_HDR_SIZE         = 16;
+  static const uint16_t APV_ERROR_HDR_SIZE  = 24;
+  static const uint16_t FULL_DEBUG_HDR_SIZE = 8 * FE_HDR_SIZE;
   
 }
 

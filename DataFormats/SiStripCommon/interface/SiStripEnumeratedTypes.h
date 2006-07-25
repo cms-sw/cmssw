@@ -2,17 +2,37 @@
 #define DataFormats_SiStripCommon_SiStripEnumeratedTypes_H
 
 #include "boost/cstdint.hpp"
+#include <vector>
 
 namespace sistrip { 
 
   /** */
-  enum FedReadoutMode { SCOPE_MODE = 0, 
-			VIRGIN_RAW = 1, 
-			PROC_RAW   = 2, 
-			ZERO_SUPPR = 3, 
-			UNKNOWN_FED_MODE = 99 };
+  enum FedReadoutMode { UNKNOWN_FED_READOUT_MODE,
+			UNDEFINED_FED_READOUT_MODE,
+			SCOPE_MODE, 
+			VIRGIN_RAW, 
+			PROC_RAW, 
+			ZERO_SUPPR,
+			ZERO_SUPPR_LITE };
 
-
+  /** */
+  enum FedReadoutPath { UNKNOWN_FED_READOUT_PATH,
+			UNDEFINED_FED_READOUT_PATH,
+			VME_READOUT, 
+			SLINK_READOUT };
+  
+  /** */
+  enum FedBufferFormat { UNKNOWN_FED_BUFFER_FORMAT,
+			 UNDEFINED_FED_BUFFER_FORMAT,
+			 FULL_DEBUG_FORMAT, 
+			 APV_ERROR_FORMAT };
+  
+  /** */
+  enum FedSuperMode { UNKNOWN_FED_SUPER_MODE,
+		      UNDEFINED_FED_SUPER_MODE,
+		      REAL, 
+		      FAKE };
+  
   /** Detector views. */
   enum View { UNKNOWN_VIEW, 
 	      NO_VIEW, 
@@ -22,6 +42,8 @@ namespace sistrip {
   
   /** 
    * Commissioning Tasks (equivalent "TrackerSupervisor" enums in brackets): 
+   * unknown commissioning task,
+   * undefined commissioning task,
    * physics run (PHYSIC = 1), 
    * calibration run (PEDESTAL = 2), 
    * pulse shape tuning (CALIBRATION = 3), 
@@ -37,19 +59,17 @@ namespace sistrip {
    * connection of apv pairs to fed channels (BARE_CONNECTION = 13), 
    * apv baseline scan (VPSPSCAN = 14), 
    * scope mode readout (SCOPE = 15), 
-   * unknown commissioning task (UNKNOWN_TASK = 0),
-   * no commissioning task (NO_TASK = 99),
    */
-  enum Task { UNKNOWN_TASK =  0,   
-	      NO_TASK      = 99, 
-	      PHYSICS      =  1, 
-	      FED_CABLING  = 13, 
-	      APV_TIMING   =  5, 
-	      FED_TIMING   = 12, 
-	      OPTO_SCAN    =  4, 
-	      VPSP_SCAN    = 14, 
-	      PEDESTALS    =  2, 
-	      APV_LATENCY  =  6 };
+  enum Task { UNKNOWN_TASK,
+	      UNDEFINED_TASK,
+	      FED_CABLING,
+	      APV_TIMING,
+	      FED_TIMING,
+	      OPTO_SCAN,
+	      VPSP_SCAN,
+	      PEDESTALS,
+	      APV_LATENCY,
+	      PHYSICS };
   
   /** 
    * Histogram contents:
@@ -58,15 +78,14 @@ namespace sistrip {
 
   /**
    * Key type used as an identifier:
-   * 
-   *
-   *
    */
   enum KeyType { UNKNOWN_KEY, NO_KEY, FED, FEC, DET };
-
   
+  /**
+   * Histogram granularity
+   */
   enum Granularity { UNKNOWN_GRAN, MODULE, LLD_CHAN, APV_PAIR, APV };
-  
+
 }
 
 #endif // DataFormats_SiStripCommon_SiStripEnumeratedTypes_H
