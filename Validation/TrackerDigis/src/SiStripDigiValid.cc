@@ -20,25 +20,28 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "stripdigihisto.root");
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
+if ( dbe_ ) {
+    dbe_->setCurrentFolder("Strip");
+
    for(int i = 0 ;i<3 ; i++) {
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tib_layer1_extmodule%d_zp",i+1);
-     meAdcTIBLayer1Extzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer1Extzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer1_intmodule%d_zp",i+1);
-     meAdcTIBLayer1Intzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer1Intzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer2_extmodule%d_zp",i+1);
-     meAdcTIBLayer2Extzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer2Extzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer2_intmodule%d_zp",i+1);
-     meAdcTIBLayer2Intzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer2Intzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer3_extmodule%d_zp",i+1);
-     meAdcTIBLayer3Extzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer3Extzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer3_intmodule%d_zp",i+1);
-     meAdcTIBLayer3Intzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer3Intzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer4_extmodule%d_zp",i+1);
-     meAdcTIBLayer4Extzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer4Extzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer4_intmodule%d_zp",i+1);
-     meAdcTIBLayer4Intzp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer4Intzp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tib_layer1_extmodule%d_zp",i+1);
      meStripTIBLayer1Extzp_[i] =  dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tib_layer1_intmodule%d_zp",i+1);
@@ -57,21 +60,21 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      meStripTIBLayer4Intzp_[i] =  dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      //  Z Minus Side
      sprintf(histo,"adc_tib_layer1_extmodule%d_zm",i+1);
-     meAdcTIBLayer1Extzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer1Extzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer1_intmodule%d_zm",i+1);
-     meAdcTIBLayer1Intzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer1Intzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer2_extmodule%d_zm",i+1);
-     meAdcTIBLayer2Extzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer2Extzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer2_intmodule%d_zm",i+1);
-     meAdcTIBLayer2Intzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer2Intzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer3_extmodule%d_zm",i+1);
-     meAdcTIBLayer3Extzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer3Extzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer3_intmodule%d_zm",i+1);
-     meAdcTIBLayer3Intzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer3Intzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer4_extmodule%d_zm",i+1);
-     meAdcTIBLayer4Extzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer4Extzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tib_layer4_intmodule%d_zm",i+1);
-     meAdcTIBLayer4Intzm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIBLayer4Intzm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tib_layer1_extmodule%d_zm",i+1);
      meStripTIBLayer1Extzm_[i] =  dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tib_layer1_intmodule%d_zm",i+1);
@@ -95,52 +98,52 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tob_layer1_module%d_zp",i+1);
-     meAdcTOBLayer1zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer1zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer1_module%d_zp",i+1);
      meStripTOBLayer1zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer2_module%d_zp",i+1);
-     meAdcTOBLayer2zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer2zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer2_module%d_zp",i+1);
      meStripTOBLayer2zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer3_module%d_zp",i+1);
-     meAdcTOBLayer3zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer3zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer3_module%d_zp",i+1);
      meStripTOBLayer3zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer4_module%d_zp",i+1);
-     meAdcTOBLayer4zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer4zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer4_module%d_zp",i+1);
      meStripTOBLayer4zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer5_module%d_zp",i+1);
-     meAdcTOBLayer5zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer5zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer5_module%d_zp",i+1);
      meStripTOBLayer5zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer6_module%d_zp",i+1);
-     meAdcTOBLayer6zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer6zp_[i] = dbe_->book1D(histo,"Digis ADC",10,0.,300.);
      sprintf(histo,"strip_tob_layer6_module%d_zp",i+1);
      meStripTOBLayer6zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      // Z Minus Side
      sprintf(histo,"adc_tob_layer1_module%d_zm",i+1);
-     meAdcTOBLayer1zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer1zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer1_module%d_zm",i+1);
      meStripTOBLayer1zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer2_module%d_zm",i+1);
-     meAdcTOBLayer2zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer2zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer2_module%d_zm",i+1);
      meStripTOBLayer2zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer3_module%d_zm",i+1);
-     meAdcTOBLayer3zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer3zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer3_module%d_zm",i+1);
      meStripTOBLayer3zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer4_module%d_zm",i+1);
-     meAdcTOBLayer4zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer4zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer4_module%d_zm",i+1);
      meStripTOBLayer4zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer5_module%d_zm",i+1);
-     meAdcTOBLayer5zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer5zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer5_module%d_zm",i+1);
      meStripTOBLayer5zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"adc_tob_layer6_module%d_zm",i+1);
-     meAdcTOBLayer6zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTOBLayer6zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tob_layer6_module%d_zm",i+1);
      meStripTOBLayer6zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
    }           
@@ -149,11 +152,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tid_wheel1_ring%d_zp",i+1);
-     meAdcTIDWheel1zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel1zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tid_wheel2_ring%d_zp",i+1);
-     meAdcTIDWheel2zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel2zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tid_wheel3_ring%d_zp",i+1);
-     meAdcTIDWheel3zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel3zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tid_wheel1_ring%d_zp",i+1);
      meStripTIDWheel1zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.); 
      sprintf(histo,"strip_tid_wheel2_ring%d_zp",i+1);
@@ -162,11 +165,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      meStripTIDWheel3zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      // Z minus Side
      sprintf(histo,"adc_tid_wheel1_ring%d_zm",i+1);
-     meAdcTIDWheel1zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel1zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tid_wheel2_ring%d_zm",i+1);
-     meAdcTIDWheel2zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel2zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tid_wheel3_ring%d_zm",i+1);
-     meAdcTIDWheel3zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTIDWheel3zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tid_wheel1_ring%d_zm",i+1);
      meStripTIDWheel1zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tid_wheel2_ring%d_zm",i+1);
@@ -180,11 +183,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tec_wheel1_ring%d_zp",i+1);
-     meAdcTECWheel1zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel1zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel2_ring%d_zp",i+1);
-     meAdcTECWheel2zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel2zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel3_ring%d_zp",i+1);
-     meAdcTECWheel3zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel3zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel1_ring%d_zp",i+1);
      meStripTECWheel1zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel2_ring%d_zp",i+1);
@@ -194,11 +197,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
      // Z Minus Side
      sprintf(histo,"adc_tec_wheel1_ring%d_zm",i+1);
-     meAdcTECWheel1zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel1zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel2_ring%d_zm",i+1);
-     meAdcTECWheel2zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel2zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel3_ring%d_zm",i+1);
-     meAdcTECWheel3zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel3zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel1_ring%d_zm",i+1);
      meStripTECWheel1zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel2_ring%d_zm",i+1);
@@ -211,11 +214,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tec_wheel4_ring%d_zp",i+1);
-     meAdcTECWheel4zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel4zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel5_ring%d_zp",i+1);
-     meAdcTECWheel5zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel5zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel6_ring%d_zp",i+1);
-     meAdcTECWheel6zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel6zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel4_ring%d_zp",i+1);
      meStripTECWheel4zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel5_ring%d_zp",i+1);
@@ -225,11 +228,11 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
      // Z Minus Side
      sprintf(histo,"adc_tec_wheel4_ring%d_zm",i+1);
-     meAdcTECWheel4zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel4zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel5_ring%d_zm",i+1);
-     meAdcTECWheel5zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel5zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel6_ring%d_zm",i+1);
-     meAdcTECWheel6zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel6zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel4_ring%d_zm",i+1);
      meStripTECWheel4zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel5_ring%d_zm",i+1);
@@ -242,9 +245,9 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tec_wheel7_ring%d_zp",i+1);
-     meAdcTECWheel7zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel7zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel8_ring%d_zp",i+1);
-     meAdcTECWheel8zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel8zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel7_ring%d_zp",i+1);
      meStripTECWheel7zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel8_ring%d_zp",i+1);
@@ -252,9 +255,9 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
      // Z Minus Side
      sprintf(histo,"adc_tec_wheel7_ring%d_zm",i+1);
-     meAdcTECWheel7zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel7zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"adc_tec_wheel8_ring%d_zm",i+1);
-     meAdcTECWheel8zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel8zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel7_ring%d_zm",i+1);
      meStripTECWheel7zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
      sprintf(histo,"strip_tec_wheel8_ring%d_zm",i+1);
@@ -265,13 +268,13 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
      Char_t histo[200];
      // Z Plus Side
      sprintf(histo,"adc_tec_wheel9_ring%d_zp",i+1);
-     meAdcTECWheel9zp_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel9zp_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel9_ring%d_zp",i+1);
      meStripTECWheel9zp_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
 
      // Z Minus Side
      sprintf(histo,"adc_tec_wheel9_ring%d_zm",i+1);
-     meAdcTECWheel9zm_[i] = dbe_->book1D(histo,"Digis ADC",100,0.,300.);
+     meAdcTECWheel9zm_[i] = dbe_->book1D(histo,"Digis ADC",50,0.,300.);
      sprintf(histo,"strip_tec_wheel9_ring%d_zm",i+1);
      meStripTECWheel9zm_[i] = dbe_->book1D(histo,"Digis Strip Num.",200,0.,800.);
    }
@@ -280,37 +283,37 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    for(int i = 0 ;i<4 ; i++) {
       Char_t histo[200];
       sprintf(histo,"ndigi_tib_layer_%d_zm",i+1);
-      meNDigiTIBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTIBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
       sprintf(histo,"ndigi_tib_layer_%d_zp",i+1); 
-      meNDigiTIBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTIBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
    }
 
    for(int i = 0 ;i<6 ; i++) {
       Char_t histo[200];
       sprintf(histo,"ndigi_tob_layer_%d_zm",i+1);
-      meNDigiTOBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTOBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
       sprintf(histo,"ndigi_tob_layer_%d_zp",i+1);
-      meNDigiTOBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTOBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
 
    }
 
    for(int i = 0 ;i<3 ; i++) {
       Char_t histo[200];
       sprintf(histo,"ndigi_tid_wheel_%d_zm",i+1);
-      meNDigiTIDWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTIDWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
       sprintf(histo,"ndigi_tid_wheel_%d_zp",i+1);
-      meNDigiTIDWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTIDWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
    }
 
   for(int i = 0 ;i<9 ; i++) {
       Char_t histo[200];
       sprintf(histo,"ndigi_tec_wheel_%d_zm",i+1);
-      meNDigiTECWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTECWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
       sprintf(histo,"ndigi_tec_wheel_%d_zp",i+1);
-      meNDigiTECWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      meNDigiTECWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",100,0.,500.);
 
    }
-
+ }
 
 }
 
