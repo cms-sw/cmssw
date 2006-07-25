@@ -8,23 +8,38 @@
 
 //-----------------------------------------------------------------------------
 
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "PhysicsTools/RecoAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentTrackSelector.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
 struct TrackConfigSelector {
 
-  explicit TrackConfigSelector( const edm::ParameterSet & cfg ) :
+  typedef std::vector<const reco::Track*> container;
+  typedef container::const_iterator const_iterator;
+  typedef reco::TrackCollection collection; 
+
+  TrackConfigSelector( const edm::ParameterSet & cfg ) :
     theSelector(cfg) {}
 
-  bool operator()( const reco::Track & trk ) const {
-    return theSelector(trk);
+  const_iterator begin() const { return selected_.begin(); }
+  const_iterator end() const { return selected_.end(); }
+  bool empty() const { return selected_.empty(); }
+
+  void select( const reco::TrackCollection & c,  const edm::Event & evt) {
+    all_.clear();
+    selected_.clear();
+    for( reco::TrackCollection::const_iterator i=c.begin();i!=c.end();++i){
+      all_.push_back(& * i );
+    }
+    selected_=theSelector.select(all_,evt);
   }
 
+private:
+  container all_,selected_;
   AlignmentTrackSelector theSelector;
 };
 
-typedef TrackSelector<TrackConfigSelector> AlignmentTrackSelectorModule;
+typedef ObjectSelector<TrackConfigSelector>  AlignmentTrackSelectorModule;
 
 //-----------------------------------------------------------------------------
 
