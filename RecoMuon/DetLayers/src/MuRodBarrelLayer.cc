@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/07 14:17:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/13 08:46:03 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -192,9 +192,8 @@ bool MuRodBarrelLayer::hasGroups() const {
 }
 
 
-Module MuRodBarrelLayer::module() const {
-  // FIXME! will be used also for RPC
-  return dt;
+GeomDetEnumerators::SubDetector MuRodBarrelLayer::subDetector() const {
+  return theBasicComps.front()->subDetector();
 }
 
 const vector<const GeometricSearchDet*>&

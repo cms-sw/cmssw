@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/23 11:01:36 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/23 12:36:32 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -63,11 +63,11 @@ void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
 
 DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
 
-  if(detLayer->module() ==  csc){
+  if(detLayer->subDetector() ==  GeomDetEnumerators::CSC){
     CSCDetId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
     return CSCDetId(id.endcap(),id.station(),0,0,0);
   }
-  else if(detLayer->module() == dt){
+  else if(detLayer->subDetector() == GeomDetEnumerators::DT){
     DTChamberId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
     return  DTChamberId(0,id.station(),0);
   }

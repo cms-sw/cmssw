@@ -4,8 +4,8 @@
 /** \class MuRingForwardLayer
  *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/07 14:17:03 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -48,8 +48,7 @@ class MuRingForwardLayer : public RingedForwardLayer {
 
 
   // DetLayer interface
-
-  virtual Module module() const;
+  virtual SubDetector subDetector() const;
 
 
   // Extension of the interface
