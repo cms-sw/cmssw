@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.4 2006/06/21 22:46:54 pivarski Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.5 2006/07/07 23:17:42 pivarski Exp $
 //
 
 // system include files
@@ -17,6 +17,14 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
 
 //
 // constants, enums and typedefs
@@ -426,23 +434,74 @@ bool SiStripElectronAlgo::projectPhiBand(reco::SiStripElectronCollection& electr
       TrajectoryStateTransform transformer;
       PTrajectoryStateOnDet* PTraj = transformer.persistentState(state, innerhit->geographicalId().rawId());
       TrajectorySeed trajectorySeed(*PTraj, outputHits, alongMomentum);
+      TrackCandidate trackcand(outputHits, trajectorySeed, *PTraj);
+      trackCandidateOut.push_back(trackcand);
 
-//      trackCandidateOut.push_back(TrackCandidate(outputHits));
-      trackCandidateOut.push_back(TrackCandidate(outputHits, trajectorySeed, *PTraj));
+      TrackCandidate::range recHitRange = trackcand.recHits();
 
-      electronOut.push_back(reco::SiStripElectron(superclusterIn,
-						  (chargeHypothesis > 0. ? 1 : -1),
-						  phiVsRSlope,
-						  slope,
-						  intercept,
-						  chi2,
-						  (xlist.size() - 2),
-						  correct_pT,
-						  pZ,
-						  zVsRSlope,
-						  numberOfStereoHits,
-						  numberOfBarrelRphiHits,
-						  numberOfEndcapZphiHits));
+      std::vector<DcxHit*> dcxhits;
+      for (TrackCandidate::const_iterator recHit = recHitRange.first;  recHit != recHitRange.second;  ++recHit) {
+	 const TrackingRecHit* temp_hit = &(*recHit);
+	 GlobalPoint hit_global_pos = tracker_p->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_hit->localPosition());
+	 DetId idi = temp_hit->geographicalId();
+	 const RectangularStripTopology* topi = dynamic_cast<const RectangularStripTopology*>(&(tracker_p->idToDetUnit(idi)->topology()));
+	 double iLength = topi->stripLength();
+	 LocalPoint temp_lpos = temp_hit->localPosition();
+	 LocalPoint temp_lpos_f(temp_lpos.x(), temp_lpos.y()+iLength/2., temp_lpos.z());
+	 LocalPoint temp_lpos_b(temp_lpos.x(), temp_lpos.y()-iLength/2., temp_lpos.z());
+	 GlobalPoint temp_gpos_f = tracker_p->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
+	 GlobalPoint temp_gpos_b = tracker_p->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
+	 GlobalVector fir_uvec((temp_gpos_f.x() - temp_gpos_b.x())/iLength,
+			       (temp_gpos_f.y() - temp_gpos_b.y())/iLength,
+			       (temp_gpos_f.z() - temp_gpos_b.z())/iLength);
+	 dcxhits.push_back(new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), fir_uvec.x(), fir_uvec.y(), fir_uvec.z()));
+      }
+      reco::TrackCollection fittedTracks;
+      DcxTrackCandidatesToTracks make_tracks(dcxhits, fittedTracks);
+
+      reco::TrackCollection::const_iterator bestFit = fittedTracks.end();
+      for (reco::TrackCollection::const_iterator fitIter = fittedTracks.begin();  fitIter != fittedTracks.end();  ++fitIter) {
+	 if (fitIter->ndof() < 1.) { continue; }
+
+	 if (bestFit == fittedTracks.end()  ||  fitIter->normalizedChi2() < bestFit->normalizedChi2()) {
+	    bestFit = fitIter;
+	 }
+      }
+
+      if (bestFit != fittedTracks.end()) {
+	 edm::LogInfo("SiStripElectronAlgo") << "Successfully fit the track: chi2/ndof = " << bestFit->chi2() << "/" << bestFit->ndof() << std::endl;
+	 electronOut.push_back(reco::SiStripElectron(superclusterIn,
+						     (chargeHypothesis > 0. ? 1 : -1),
+						     phiVsRSlope,
+						     slope,
+						     intercept,
+						     chi2,
+						     (xlist.size() - 2),
+						     correct_pT,
+						     pZ,
+						     zVsRSlope,
+						     numberOfStereoHits,
+						     numberOfBarrelRphiHits,
+						     numberOfEndcapZphiHits,
+						     *bestFit));
+      }
+      else {
+	 edm::LogInfo("SiStripElectronAlgo") << "Failed to fit the track." << std::endl;
+	 electronOut.push_back(reco::SiStripElectron(superclusterIn,
+						     (chargeHypothesis > 0. ? 1 : -1),
+						     phiVsRSlope,
+						     slope,
+						     intercept,
+						     chi2,
+						     (xlist.size() - 2),
+						     correct_pT,
+						     pZ,
+						     zVsRSlope,
+						     numberOfStereoHits,
+						     numberOfBarrelRphiHits,
+						     numberOfEndcapZphiHits));
+      }
+
       return true;
 
    } // end if this is a good electron candidate
