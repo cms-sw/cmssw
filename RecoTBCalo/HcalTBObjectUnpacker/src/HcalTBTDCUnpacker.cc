@@ -1,4 +1,5 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Timing channels
 static const int lcTriggerTime     = 1;
@@ -54,6 +55,10 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
 				   std::vector<Hit>& hits) const {
   const ClassicTDCDataFormat* tdc=(const ClassicTDCDataFormat*)raw.data();
 
+  if (raw.size()<3*8) {
+    throw cms::Exception("Missing Data") << "No data in the TDC block";
+  }
+
   const unsigned int* hitbase=0;
   unsigned int totalhits=0;
 
@@ -64,8 +69,8 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     totalhits=qdctdc->n_tdc_hits&0xFFFF; // mask off high bits
 
-    for (unsigned int i=0; i<qdctdc->n_qdc_hits; i++)
-      printf(" %02d %04x\n",i,qdctdc->qdc_values[i]);
+    //    for (unsigned int i=0; i<qdctdc->n_qdc_hits; i++)
+    //      printf(" %02d %04x\n",i,qdctdc->qdc_values[i]);
 
   } else {
     hitbase=&(tdc->hits[0]);
@@ -79,20 +84,22 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     hits.push_back(h);
   }
 
+  // new TDC (775)
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
     hitbase=(unsigned int*)(qdctdc);
     hitbase+=6; // header
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
-    hitbase+=(qdctdc->n_tdc_hits&0xFFFF)/2; // two unsigned short per unsigned long
-    totalhits=qdctdc->n_tdc_hits&0xFFFF0000; // mask off high bits    
-  }
-  
-  for (unsigned int i=0; i<totalhits; i++) {
-    Hit h;    
-    h.time=(hitbase[i]&0xFFFFF) * CONVERSION_FACTOR;
-    h.channel=(hitbase[i]&0x7FC00000)>>22;
-    hits.push_back(h);
+    hitbase+=(qdctdc->n_tdc_hits&0xFFFF); // same length
+    totalhits=(qdctdc->n_tdc_hits&0xFFFF0000)>>16; // mask off high bits    
+    
+    for (unsigned int i=0; i<totalhits; i++) {
+      Hit h;    
+      h.time=(hitbase[i]&0xFFFFF); // conversion is currently unknown
+      h.channel=128+i; // hardcode channel assignment
+      hits.push_back(h);
+      //      printf("775: %d %d\n",h.channel,h.time);
+    }
   }
 
 }
