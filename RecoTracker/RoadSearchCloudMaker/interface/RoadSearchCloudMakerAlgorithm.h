@@ -64,7 +64,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 
@@ -81,15 +83,24 @@ class RoadSearchCloudMakerAlgorithm
 
   /// Runs the algorithm
   void run(edm::Handle<TrajectorySeedCollection> input,
-	   const SiStripRecHit2DCollection* rphiRecHits,
-	   const SiStripRecHit2DCollection* stereoRecHits,
+	   const SiStripRecHit2DLocalPosCollection* rphiRecHits,
+	   const SiStripRecHit2DLocalPosCollection* stereoRecHits,
+	   const SiPixelRecHitCollection *pixRecHits,
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
 
-  void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
+  void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
 			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 			    const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
+
+
+  void FillPixRecHitsIntoCloud(DetId id, 
+			       const SiPixelRecHitCollection *inputRecHits, 
+			       double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+			       const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, 
+			       Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
+			       const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   bool isSingleLayer(DetId id);
 
@@ -119,6 +130,7 @@ class RoadSearchCloudMakerAlgorithm
   double d0h, phi0h, omegah;
   double rphicsq;
   int rphinhits;
+ const SiPixelRecHitCollection thePixRecHits;
 
 };
 

@@ -49,21 +49,30 @@ namespace cms
     edm::Handle<TrajectorySeedCollection> seeds;
     e.getByLabel(seedProducer, seeds);
 
-    // retrieve producer name of input SiStripRecHit2DCollection
+    // retrieve producer name of input SiStripRecHit2DLocalPosCollection
     std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
-  
+     // retrieve producer name of input SiPixelRecHitCollection - TMoulik
+    std::string recHitProducer1 = conf_.getParameter<std::string>("RecHitProducer1");
+ 
     // get Inputs 
-    edm::Handle<SiStripRecHit2DCollection> rphirecHits;
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
     e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
-    edm::Handle<SiStripRecHit2DCollection> stereorecHits;
+    edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
     e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
+
+    edm::Handle<SiPixelRecHitCollection> pixRecHits; // TMoulik
+    std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");
+    // e.getByLabel(recHitCollLabel, pixRecHits);
+    e.getByLabel(recHitProducer1,pixRecHits); // TMoulik
+    std::cout <<" FOUND "<< (pixRecHits.product())->size()<<" Pixel Hits"<<std::endl;
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
 
     // Step C: Invoke the seed finding algorithm
     roadSearchCloudMakerAlgorithm_.run(seeds,rphirecHits.product(),
-				       stereorecHits.product(),es,*output);
+				       stereorecHits.product(),pixRecHits.product(),
+				       es,*output);
 
     // Step D: write output to file
     e.put(output);
