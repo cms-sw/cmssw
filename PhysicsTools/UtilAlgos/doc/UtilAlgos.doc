@@ -10,12 +10,85 @@
 \section desc Description
 Framework generic utility modules
 
+\subsection selectors Selector modules
+- ObjectSelector<S>: generic object selection module. The <a name="sel_algo"><b>Selection Algorithm</b></a> <tt>S</tt> should
+  define the following interface:
+\htmlonly
+<pre>
+  class MySelection {
+    // collection type
+    typedef [...] collection;
+    // terator over result type. 
+    // could be std::vector<collection::value_type>::const_iterator
+    typedef [...] const_iterator;
+    // constructor from parameter set configurability
+    MySelection( const edm::ParameterSet & );
+    // select object from a collection and 
+    // possibly event content
+    void select( const reco::TrackCollection &, const edm::Event & );
+    // iterators over selected objects: collection begin
+    const_iterator begin() const;
+    // iterators over selected objects: collection end
+    const_iterator end() const;
+    // true if no object has been selected
+    bool empty() const;
+  };
+</pre>
+\endhtmlonly
+- SelectorProducer: selects objects from a collection according to a criterion  
+  specified by a functor class and saves their clones in a new collection. 
+  <b>This module will become obsolete, in favor of ObjectSelector.</b> 
+
+\subsection sel_utilities Selector module utilities 
+- SingleElementCollectionSelector<C, S>: model of <a href="#sel_algo">Selection Algorithm</a> that selects
+  objects one by one from a collection of type <tt>C</tt> based on a <a href="http://www.sgi.com/tech/stl/Predicate.html">predicate
+  object</a> of type <tt>S</tt>.
+  For instance, to select all tracks with <i>p<sub>t</sub></i> larger than a specified
+  cut, it is possible to use the following module:
+\htmlonly
+  typedef ObjectSelector<
+            SingleElementCollectionSelector<
+              reco::TrackCollection,
+              PtMinSelector<reco::Track> 
+            >
+          > PtMinTrackSelector;
+\endhtmlonly
+
+- SortCollectionSelector<C, S>: model of <a href="#sel_algo>Selection Algorithm</a> that takes the
+  first N objects of a collection of type <tt>C</tt> sorting them according to the
+  http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> <tt>S</tt>.
+  The parameter <tt>max</tt> can be used via configuration file.
+  For instance, to select the N tracks with the largest <i>p<sub>t</sub></i>, it is possible
+  to use the following module:
+\htmlonly
+  typedef ObjectSelector<
+            SortCollectionSelector<
+              reco::TrackCollection,
+              PtInverseComparator<reco::Track> 
+            >
+          > LargestPtTrackSelector;
+\endhtmlonly
+
+- WindowCollectionSelector<C, M>: model of <a href="#sel_algo>Selection Algorithm</a> that
+  selects object pairs whose combination, according to the 
+  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> <tt>M</tt>,
+  lies within a specified window. The window range aqre specified with the parameters
+  <tt>min</tt> and <tt>max</tt> via configuration file.
+  For instance, to select track pairs with invariant mass within a specified range, 
+  it is possible to use the following module:
+\htmlonly
+  typedef ObjectSelector<
+            WindowCollectionSelector<
+              reco::TrackCollection,
+              MasslessInvariantMass<reco::Track> 
+            >
+          > MassWindowTrackSelector;
+\endhtmlonly
+
 \subsection interface Public interface
 - Merger: merges an arbitrary number of collections into a single collection. 
 No overlap is checked, so if the same object appears in more than one collection
 it is saved more than once in the output collection.
-- SelectorProducer: selects objects from a collection according to a criterion 
-specified by a functor class and saves their clones in a new collection. 
 - ObjectCounter: counts the number of objects in a collection and prints a
 summary report at the end of a job.
 
@@ -30,5 +103,5 @@ To be reviewed.
 
 <hr>
 Last updated:
-$Date: 2006/03/03 10:45:47 $ L. Lista
+$Date: 2006/03/03 13:11:14 $ L. Lista
 */
