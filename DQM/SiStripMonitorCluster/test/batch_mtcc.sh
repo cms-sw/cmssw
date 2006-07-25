@@ -7,15 +7,16 @@
 
 USAGE="Usage: `basename $0` mtcc-runnumber";
 case $# in
-1)
-	RUNNR=$1;
+0)
+	echo $USAGE; exit 1;
 	;;
 *)
-	echo $USAGE; exit 1;
+	RUNNR=$1;
 	;;
 esac
 
 #--- definition of shell variables 
+RUN_ON_DISK0='cmsdisk0'
 # this directory must be visible from remote batch machine
 #DIR_WHERE_TO_EVAL="/afs/cern.ch/user/g/giordano/scratch0/CMSSW/TUTORIAL/CMSSW_0_8_0/" # Domenico's space
 DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/" # Dorian's space
@@ -28,15 +29,18 @@ else
   WWDIR=`pwd`
 fi
 #
+# this directory will be created, use '/pool' for production and '/tmp' for testing
+MTCC_OUTPUT_DIR="${WWDIR}/mtcc_${RUNNR}"
+# directory where to copy locally input files, separate from above as this does not necessarely need to be recreated each time
+MTCC_INPUT_DIR="${WWDIR}/InputFiles"
+# files
+CMSSW_CFG="${MTCC_OUTPUT_DIR}/mtccoffline_${RUNNR}.cfg";
+LOG_FILE="${MTCC_OUTPUT_DIR}/mtcc_${RUNNR}.log";
+POOL_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_rec_${RUNNR}.root";
+DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_dqm_${RUNNR}.root"
+# template
 #TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
 TEMPLATE_CMSSW_CFG="${LK_WKDIR}/template_mtccoffline.cfg"
-# this directory will be created, use '/pool' for production and '/tmp' for testing
-DIR_WHERE_TO_PUT_LARGE_FILES="${WWDIR}/mtcc_${RUNNR}"
-# files
-CMSSW_CFG="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtccoffline_${RUNNR}.cfg";
-LOG_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_${RUNNR}.log";
-POOL_OUTPUT_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_rec_${RUNNR}.root";
-DQM_OUTPUT_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_dqm_${RUNNR}.root"
 # have to find smth. more clever for below
 CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${RUNNR}/A"
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
@@ -52,20 +56,32 @@ MAX_FILES_TO_RUN_OVER=0;
 ###############################################################################################################
 # definition of functions
 
+#--- first general tests
+general_checks(){
+  if [ ! -f "$TEMPLATE_CMSSW_CFG" ]; then
+    echo "file ${TEMPLATE_CMSSW_CFG} does not exist, stopping here";
+    exit 1;
+  fi
+  if [ -f "$CMSSW_CFG" ]; then
+    echo "file ${CMSSW_CFG} already exists, stopping here";
+    exit 1;
+  fi
+}
+
 #---
-create_large_directory(){
-  if [ -d "$DIR_WHERE_TO_PUT_LARGE_FILES" ]; then
-    echo "directory ${DIR_WHERE_TO_PUT_LARGE_FILES} already exists, stopping here";
+create_output_directory(){
+  if [ -d "$MTCC_OUTPUT_DIR" ]; then
+    echo "directory ${MTCC_OUTPUT_DIR} already exists, stopping here";
     exit 1;
   else
-    echo "creating directory ${DIR_WHERE_TO_PUT_LARGE_FILES}"
-    mkdir $DIR_WHERE_TO_PUT_LARGE_FILES;
+    echo "creating directory ${MTCC_OUTPUT_DIR}"
+    mkdir $MTCC_OUTPUT_DIR;
   fi
 }
 
 #---
 get_list_of_castor_files(){
- echo "getting list of files corresponding to run ${RUNNR}";
+ echo "getting from CASTOR the list of files corresponding to run ${RUNNR}";
  if [ $MAX_FILES_TO_RUN_OVER -eq 0 ]
  then
    LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
@@ -77,6 +93,7 @@ get_list_of_castor_files(){
 
 #---
 get_list_of_cmsdisk0_files(){
+ echo "getting from cmsdisk0.cern.ch the list of files corresponding to run ${RUNNR}";
  if [ $MAX_FILES_TO_RUN_OVER -eq 0 ]
  then
    LIST_OF_DATA_FILES=`ssh ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root'`
@@ -88,46 +105,65 @@ get_list_of_cmsdisk0_files(){
 
 #---
 copy_cmsdisk0_files_locally(){
-echo "copying locally the cmsdisk0.cern.ch files";
-      for rfile in $LIST_OF_DATA_FILES
-      do
-        scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} ${DIR_WHERE_TO_PUT_LARGE_FILES}/${rfile}
-      done
+  echo "copying locally the cmsdisk0.cern.ch files";
+  #
+  if [ -d "$MTCC_INPUT_DIR" ]; then
+    echo "directory ${MTCC_INPUT_DIR} already exists. copying files there";
+  else
+    echo "creating directory ${MTCC_INPUT_DIR}"
+    mkdir $MTCC_INPUT_DIR;
+  fi
+  #
+  for rfile in $LIST_OF_DATA_FILES
+  do
+    if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
+      echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
+    else
+      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+    fi
+  done
 }
 
 #---
 copy_castor_files_locally(){ # this might not be necessary, if rfio: in poolsource works
-echo "copying locally the castor files";
-      for rfile in $LIST_OF_DATA_FILES
-      do
-        rfcp $CASTOR_DIR/${rfile} ${DIR_WHERE_TO_PUT_LARGE_FILES}/${rfile}
-      done
+  echo "copying locally the castor files";
+  #
+  if [ -d "$MTCC_INPUT_DIR" ]; then
+    echo "directory ${MTCC_INPUT_DIR} already exists. copying files there";
+  else
+    echo "creating directory ${MTCC_INPUT_DIR}"
+    mkdir $MTCC_INPUT_DIR;
+  fi
+  #
+  for rfile in $LIST_OF_DATA_FILES
+  do
+    if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
+      echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
+    else
+      rfcp $CASTOR_DIR/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+    fi
+  done
 }
 
 #---
 copy_pedestal_files(){
-echo "copying pedestals";
-PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/src/DQM/SiStripMonitorCluster/test";
-cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesDB ${DIR_WHERE_TO_PUT_LARGE_FILES}/.
-cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesCatalog ${DIR_WHERE_TO_PUT_LARGE_FILES}/.
+  echo "copying pedestals";
+  PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/src/DQM/SiStripMonitorCluster/test";
+  cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesDB ${MTCC_OUTPUT_DIR}/.
+  cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesCatalog ${MTCC_OUTPUT_DIR}/.
 }
 
 #---
 create_cmssw_config_file(){
-  if [ ! -f "$TEMPLATE_CMSSW_CFG" ]; then
-    echo "file ${TEMPLATE_CMSSW_CFG} does not exist, stopping here";
-    exit 1;
-  fi
-  if [ -f "$CMSSW_CFG" ]; then
-    echo "file ${CMSSW_CFG} already exists, stopping here";
-    exit 1;
-  fi
 # create list with full paths
   LIST_WITH_PATH="";
   for rfile in $LIST_OF_DATA_FILES
   do
-    LIST_WITH_PATH="${LIST_WITH_PATH},\"castor:${CASTOR_DIR}/${rfile}\""
-#    LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${DIR_WHERE_TO_PUT_LARGE_FILES}/${rfile}\""
+    if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
+       LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
+    else
+       LIST_WITH_PATH="${LIST_WITH_PATH},\"castor:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
+    fi
   done
   # remove first comma
   LIST_WITH_PATH=`echo $LIST_WITH_PATH | sed 's/\,//'`;
@@ -139,7 +175,7 @@ create_cmssw_config_file(){
 #---
 runcms(){
   cd ${DIR_WHERE_TO_EVAL}; eval `scramv1 runtime -sh`;
-  cd ${DIR_WHERE_TO_PUT_LARGE_FILES};
+  cd ${MTCC_OUTPUT_DIR};
   touch
   echo "# *************** THE CFG FILE ${CMSSW_CFG}"
   cat ${CMSSW_CFG}
@@ -173,13 +209,18 @@ esac
 ###############################################################################################################
 # actual execution
 ls -lh
-create_large_directory;
-get_list_of_castor_files;
+general_checks;
+create_output_directory;
+if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
+   get_list_of_cmsdisk0_files;  
+   copy_cmsdisk0_files_locally;
+else
+   get_list_of_castor_files;
+fi
 create_cmssw_config_file;
 copy_pedestal_files;
 # copy_castor_files_locally;
 echo "Running cmsRun. Log file: ${LOG_FILE}";
 time runcms > ${LOG_FILE} 2>&1 ;
-#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/test/"
-
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/cmsdisk0/"
 ###############################################################################################################
