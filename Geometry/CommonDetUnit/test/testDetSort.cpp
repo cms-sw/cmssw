@@ -25,6 +25,10 @@ class MyDet : public GeomDet {
   virtual std::vector< const GeomDet*> components() const {
     return std::vector< const GeomDet*>();
   }
+
+  /// Which subdetector
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+
 };  
 
 
