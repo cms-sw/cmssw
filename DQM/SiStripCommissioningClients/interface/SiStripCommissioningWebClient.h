@@ -22,11 +22,14 @@ class SiStripCommissioningWebClient : public WebInterface {
   void createSummaryHistos( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );  
   void createTrackerMap( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
   void uploadToConfigDb( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
-  
+
  private: // ----- private data members -----
   
+  /** */
   SiStripCommissioningClient* client_;
-  
+  /** */
+  MonitorUserInterface* mui_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningWebClient_H

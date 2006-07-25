@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
+#include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummary.h"
 #include <iostream>
 
 using namespace std;
@@ -18,3 +19,64 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
 ApvTimingHistograms::~ApvTimingHistograms() {
   cout << "[ApvTimingHistograms::~ApvTimingHistograms]" << endl;
 }
+
+// -----------------------------------------------------------------------------	 
+/** */	 
+void ApvTimingHistograms::histoAnalysis() {
+  static const string method = "ApvTimingHistograms::histoAnalysis";
+  
+  uint32_t cntr = 0;	 
+  uint32_t nhis = collations().size();	 
+  
+  // Iterate through profile histograms in order to to fill delay map 
+  std::vector<std::string>::const_iterator ihis = collations().begin();
+  for ( ; ihis != collations().end(); ihis++ ) {	 
+    cntr++;
+    if ( !((cntr-1)%10) ) { 
+      cout << "["<<method<<"]"
+	   << " Analyzing " << cntr << " of " 
+	   << nhis << " histograms..." << endl;
+    }
+    
+    // Extract profile histo from map	 
+    MonitorElement* me = mui()->get( *ihis );
+    TProfile* prof = ExtractTObject<TProfile>().extract( me );
+    if ( !prof ) { 
+      cerr << "["<<method<<"] NULL pointer to MonitorElement!" << endl; 
+      continue; 
+    }
+
+    // Perform histo analysis
+    ApvTimingAnalysis::Monitorables mons;
+    ApvTimingAnalysis::analysis( prof, mons );
+    
+    // Retrieve control key
+    SiStripHistoNamingScheme::HistoTitle title = SiStripHistoNamingScheme::histoTitle( prof->GetName() );
+    if ( title.task_ != sistrip::APV_TIMING ) {
+      cerr << "["<<method<<"]"
+	   << " Unexpected commissioning task!"
+	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
+	   << endl;
+    }
+    
+    // Store delay in map
+    if ( data_.find( title.keyValue_ ) == data_.end() ) {
+      data_[title.keyValue_] = mons; 
+    } else { 
+      if ( mons.delay_ != data_[title.keyValue_].delay_ ) {
+	stringstream ss;
+	ss << "["<<method<<"]"
+	   << " Monitorable data already exist!" << "\n";
+	ss << "Existing Monitorable data:" << "\n";
+	data_[title.keyValue_].print( ss );
+	ss << "New Monitorable data:" << "\n";
+	mons.print( ss );
+	cerr << ss.str();
+      }
+    }
+    
+  }
+  
+}
+
+

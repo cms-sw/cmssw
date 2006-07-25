@@ -28,18 +28,20 @@ class SiStripCommissioningClient : public DQMBaseClient,
   void endRun();
   void onUpdate() const;
   
+  /** */
   sistrip::Task extractTask( const std::vector<std::string>& added_contents ) const;
+
+  /** */
   void createTaskHistograms( const sistrip::Task& task ) const;
-  void createCollations( const std::vector<std::string>& added_contents ) const;
+
+  /** Friend method to allow web interface access to commissioning histos. */
+  friend CommissioningHistograms* histos( const SiStripCommissioningClient& );
   
   /** Answers all HTTP requests of the form ".../Request?RequestID=..." */
   void handleWebRequest( xgi::Input*, xgi::Output* );
   
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
-  
-  /** Friend method to allow web interface access to commissioning histos. */
-  friend CommissioningHistograms* histos( const SiStripCommissioningClient& );
   
  private:
   
@@ -49,10 +51,6 @@ class SiStripCommissioningClient : public DQMBaseClient,
   /** Object holding commissioning histograms (mutable as used in
       const onUpdate() method). */
   mutable CommissioningHistograms* histos_;
-
-  /** Record of collation histos that have been created (mutable as
-      used in const onUpdate() method). */
-  mutable std::vector<std::string> collations_;
   
 };
 

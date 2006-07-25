@@ -22,7 +22,8 @@ SiStripCommissioningWebClient::SiStripCommissioningWebClient( SiStripCommissioni
 							      string application_url, 
 							      MonitorUserInterface** mui ) 
   : WebInterface( context_url, application_url, mui ),
-    client_(client)
+    client_(client),
+    mui_(*mui)
 {
   
   // Define web page
@@ -71,17 +72,29 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
 /** */
 void SiStripCommissioningWebClient::createSummaryHistos( xgi::Input* in, 
 							 xgi::Output* out ) throw ( xgi::exception::Exception ) {
-  cout << "[SiStripCommissioningWebClient::createSummaryHistos]"
-       << " Creating summary histograms..." << endl;
+  static const string method = "SiStripCommissioningWebClient::createSummaryHistos";
+  cout << "["<<method<<"] Creating summary histograms..." << endl;
+  
+  // Retrieve pointer to commissioning histogram object
   CommissioningHistograms* his = histos( *client_ );
-  if ( his ) {
-    his->createSummaryHistos();
-    cout << "[SiStripCommissioningWebClient::createSummary]"
-	 << " Created summary histograms!" << endl;
-  } else {
-    cerr << "[SiStripCommissioningWebClient::createSummary]"
-	 << " NULL pointer to 'commissioning histograms' object!" << endl;
+  if ( !his ) {
+    cerr << "["<<method<<"] NULL pointer to CommissioningHistograms!" << endl;
+    return;
   }
+  
+  // Summary histogram type and its directory
+  vector<SummaryFactory::Histo> histos( 1, SummaryFactory::APV_TIMING_DELAY ); 
+  string directory = "SiStrip/ControlView/FecCrate0/"; //@@ example
+  
+  // Extract view and directory level
+  //   sistrip::View view = SiStripHistoNamingScheme::view( directory );
+  //   SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( directory ); 
+  //   string summary_dir = SiStripHistoNamingScheme::controlPath( path ); 
+  
+  // Create summary histogram
+  his->createSummaryHistos( histos, directory );
+  
+  cout << "["<<method<<"] Created summary histograms!" << endl;
 }
 
 // -----------------------------------------------------------------------------

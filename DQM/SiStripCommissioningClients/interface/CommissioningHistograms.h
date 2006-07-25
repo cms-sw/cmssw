@@ -17,6 +17,7 @@
 #include <map>
 
 class MonitorUserInterface;
+class SiStripSummary;
 
 class CommissioningHistograms {
 
@@ -27,10 +28,13 @@ class CommissioningHistograms {
   /** */
   virtual ~CommissioningHistograms();
 
-  // ----- "Actions" -----
-  
   /** */
-  virtual void createSummaryHistos();
+  void createCollations( const std::vector<std::string>& added_contents );
+  /** */
+  virtual void histoAnalysis();
+  /** */
+  virtual void createSummaryHistos( const std::vector<SummaryFactory::Histo>&, 
+				    const std::string& directory );
   /** */
   virtual void createTrackerMap();
   /** */
@@ -40,17 +44,22 @@ class CommissioningHistograms {
   
   /** */
   inline MonitorUserInterface* const mui() const;
+  /** */
+  inline const std::vector<std::string>& collations() const;
   
  private:
   
   /** */
   MonitorUserInterface* mui_;
+  /** Record of collation histos that have been created. */
+  std::vector<std::string> collations_;
   
 };
 
 // ----- inline methods -----
 
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
+const std::vector<std::string>& CommissioningHistograms::collations() const { return collations_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
