@@ -46,12 +46,14 @@ Framework generic utility modules
   For instance, to select all tracks with <i>p<sub>t</sub></i> larger than a specified
   cut, it is possible to use the following module:
 \htmlonly
+<pre>
   typedef ObjectSelector<
             SingleElementCollectionSelector<
               reco::TrackCollection,
               PtMinSelector<reco::Track> 
             >
           > PtMinTrackSelector;
+</pre>
 \endhtmlonly
 
 - SortCollectionSelector<C, S>: model of <a href="#sel_algo>Selection Algorithm</a> that takes the
@@ -61,12 +63,14 @@ Framework generic utility modules
   For instance, to select the N tracks with the largest <i>p<sub>t</sub></i>, it is possible
   to use the following module:
 \htmlonly
+<pre>
   typedef ObjectSelector<
             SortCollectionSelector<
               reco::TrackCollection,
               PtInverseComparator<reco::Track> 
             >
           > LargestPtTrackSelector;
+</pre>
 \endhtmlonly
 
 - WindowCollectionSelector<C, M>: model of <a href="#sel_algo>Selection Algorithm</a> that
@@ -77,15 +81,17 @@ Framework generic utility modules
   For instance, to select track pairs with invariant mass within a specified range, 
   it is possible to use the following module:
 \htmlonly
+<pre>
   typedef ObjectSelector<
             WindowCollectionSelector<
               reco::TrackCollection,
               MasslessInvariantMass<reco::Track> 
             >
           > MassWindowTrackSelector;
+</pre>
 \endhtmlonly
 
-\subsection interface Public interface
+\subsection other Other utility modules
 - Merger: merges an arbitrary number of collections into a single collection. 
 No overlap is checked, so if the same object appears in more than one collection
 it is saved more than once in the output collection.
