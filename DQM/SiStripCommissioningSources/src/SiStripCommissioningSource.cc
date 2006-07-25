@@ -50,7 +50,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   updateFreq_( pset.getUntrackedParameter<int>("HistoUpdateFreq",100) ),
   filename_( pset.getUntrackedParameter<string>("RootFileName","Source") ),
   run_(0),
-  firstEvent_(true),
+  createTask_(true),
   fecCabling_(0),
   cablingTask_(false)
 {
@@ -134,7 +134,10 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   if ( event.id().run() != run_ ) { run_ = event.id().run(); }
   
   // Create commissioning task objects 
-  if ( firstEvent_ ) { createTask( summary->task() ); firstEvent_ = false; }
+  if ( createTask_ ) { 
+    createTask( summary.product() ); 
+    createTask_ = false; 
+  }
   
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   //edm::Handle< edm::DetSetVector<SiStripDigi> > zs;
@@ -190,14 +193,18 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fedCabling_->feds().begin(); ifed != fedCabling_->feds().end(); ifed++ ) {
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
+
       // Create FED key and check if non-zero
       uint32_t fed_key = SiStripReadoutKey::key( *ifed, ichan );
       if ( fed_key ) { 
+
 	// Retrieve digis for given FED key and check if found
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw->find( fed_key );
 	if ( digis != raw->end() ) { 
+
 	  // Fill histograms for given FEC or FED key, depending on commissioning task
 	  if ( cablingTask_ ) {
+
 	    if ( tasks_.find(fec_key) != tasks_.end() ) { 
 	      tasks_[fec_key]->fedChannel( fed_key );
 	      tasks_[fec_key]->fillHistograms( *summary, *digis );
@@ -217,7 +224,9 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
+
 	  } else {
+
 	    if ( tasks_.find(fed_key) != tasks_.end() ) { 
 	      tasks_[fed_key]->fillHistograms( *summary, *digis );
 	    } else {
@@ -232,6 +241,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
+
 	  }
 	}
       }
@@ -242,16 +252,22 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::createTask( sistrip::Task task ) {
-  static string method_create_task = "SiStripCommissioningSource::createTask";
-  LogDebug("Commissioning") << "["<<method_create_task<<"]";
+void SiStripCommissioningSource::createTask( const SiStripEventSummary* const summary ) {
+  static string method = "SiStripCommissioningSource::createTask";
+  LogDebug("Commissioning") << "["<<method<<"]";
+  
+  // Check if summary information is available
+  cout << "["<<method<<"] ptr: " << summary << endl;
+  sistrip::Task task = sistrip::UNKNOWN_TASK;
+  if ( summary ) { task = summary->task(); } // Retrieve commissioning task 
+  else { task = sistrip::PHYSICS; }          // Otherwise, assume "physics" run
   
   // Check commissioning task is known
   if ( task == sistrip::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
-    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask] Unknown commissioning task!"; 
+    edm::LogError("Commissioning") << "["<<method<<"] Unknown commissioning task!"; 
     return; 
   }
-
+  
   // Check if commissioning task is FED cabling 
   if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == sistrip::FED_CABLING ) ) { cablingTask_ = true; }
   else { cablingTask_ = false; }
@@ -311,18 +327,18 @@ void SiStripCommissioningSource::createTask( sistrip::Task task ) {
 		  else if ( task == sistrip::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm(), conn ); }
 		  else if ( task == sistrip::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm(), conn ); }
 		  else if ( task == sistrip::UNKNOWN_TASK ) {
-		    edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask]"
+		    edm::LogError("Commissioning") << "["<<method<<"]"
 						   << " Unknown commissioning task in data stream! " << task_;
 		  }
 		} else {
-		  edm::LogError("Commissioning") << "[SiStripCommissioningSource::createTask]"
-						 << " Unknown commissioning task in .cfg file! " << task_;
+		  edm::LogError("Commissioning") << "["<<method<<"]"
+						 << " Unable to handle this commissioning task! " << task_;
 		}
 		
 		// Check if key is found and, if so, book histos and set update freq
 		if ( tasks_.find( key ) != tasks_.end() ) {
 		  stringstream ss;
-		  ss << "[SiStripCommissioningSource::createTask]"
+		  ss << "["<<method<<"]"
 		     << " Created task '" << tasks_[key]->myName() << "' for key "
 		     << hex << setfill('0') << setw(8) << key << dec 
 		     << " in directory " << dir; 
@@ -331,7 +347,7 @@ void SiStripCommissioningSource::createTask( sistrip::Task task ) {
 		  tasks_[key]->updateFreq( updateFreq_ ); 
 		} else {
 		  stringstream ss;
-		  ss << "[SiStripCommissioningSource::createTask]"
+		  ss << "["<<method<<"]"
 		     << " Commissioning task with key " 
 		     << hex << setfill('0') << setw(8) << key << dec
 		     << " not found in list!"; 
@@ -340,7 +356,7 @@ void SiStripCommissioningSource::createTask( sistrip::Task task ) {
 		
 	      } else {
 		stringstream ss;
-		ss << "[SiStripCommissioningSource::createTask]"
+		ss << "["<<method<<"]"
 		   << " Task '" << tasks_[key]->myName()
 		   << "' already exists for key "
 		   << hex << setfill('0') << setw(8) << key << dec; 

@@ -11,6 +11,7 @@
 class DaqMonitorBEInterface;
 class CommissioningTask;
 class FedChannelConnection;
+class SiStripEventSummary;
 
 /**
    @class SiStripCommissioningSource
@@ -35,7 +36,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripCommissioningSource();
   
   /** */
-  void createTask( sistrip::Task task );
+  void createTask( const SiStripEventSummary* const );
   
   /** */
   DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
@@ -58,7 +59,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   /** */
   uint32_t run_;
   /** */
-  bool firstEvent_;
+  bool createTask_;
 
   /** */
   SiStripFedCabling* fedCabling_;
