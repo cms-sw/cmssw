@@ -2,7 +2,7 @@
 #define CamacTBDataFormatter_H
 /** \class CamacTBDataFormatter
  *
- *  $Id: CamacTBDataFormatter.h,v 1.1 2006/07/21 12:36:25 meridian Exp $
+ *  $Id: CamacTBDataFormatter.h,v 1.2 2006/07/22 10:12:05 franzoni Exp $
  *
  *  \author G. Franzoni
  */
@@ -19,6 +19,8 @@
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
+
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 
 using namespace edm;
 using namespace std;
@@ -46,7 +48,7 @@ class CamacTBDataFormatter   {
 
  private:
 
-  void checkStatus(ulong word, int wordNumber);
+  bool checkStatus(ulong word, int wordNumber);
 
   int nWordsPerEvent;    // Number of fibers per hodoscope plane   
   

@@ -75,7 +75,7 @@ const static struct hodo_fibre_index hodoFiberMap[2][64] = {
 
 
 CamacTBDataFormatter::CamacTBDataFormatter () {
-  nWordsPerEvent = 114;
+  nWordsPerEvent = 142;
 }
 
 
@@ -106,8 +106,10 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
     }
 
   
-  ulong a=1;
-  ulong b=1;
+  ulong a=1; // used to extract an 8 Bytes word from fed 
+  ulong b=1; // used to manipulate the 8 Bytes word and get what needed
+
+  // initializing array of statuses
   for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
     { statusWords[wordNumber -1] = true;}
 
@@ -124,12 +126,12 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   
 
 
-
+  int wordCounter =0;
 
 
 
   // read first word
-  a = buffer[0];
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\nword:\t" << a << endl;
   
   b = (a& 0xff000000);
@@ -144,47 +146,72 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = b >> 8;
   LogDebug("CamacTBDataFormatter") << "minor:\t" << b << endl;
 
-  a = buffer[1];
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   LogDebug("CamacTBDataFormatter") << "time stamp secs: "<<a << endl;
 
-  a = buffer[2];
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   LogDebug("CamacTBDataFormatter") << "time stamp musecs: " <<a << endl;
 
 
-  a = buffer[3];
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   b = (a& 0xffffff);
   LogDebug("CamacTBDataFormatter") << "LV1A: "<< b << endl;
+  int lv1 = b;
 
-  a = buffer[4];
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   b = (a& 0xffff0000);
   b = b >> 16;
   LogDebug("CamacTBDataFormatter") << "run number: "<< b << endl;
+  int run = b;
   b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "spill number: "<< b << endl;
+  int spill = b;
 
-  a = buffer[5];
+  a = buffer[wordCounter];wordCounter++;
+  b = (a& 0xffff);
+  LogDebug("CamacTBDataFormatter") << "event number in spill: "<< b << endl;
+
+  a = buffer[wordCounter];wordCounter++;
+  b = (a& 0xffffff);
+  LogDebug("CamacTBDataFormatter") << "internal event number: "<< b << endl;
+
+  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   b = (a& 0xffff0000);
   b = b >> 16;
   LogDebug("CamacTBDataFormatter") << "vme errors: "<< b << endl;
   b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "camac errors: "<< b << endl;
+  // if any of these numbers >~50% raise alarm
 
 
-  ulong bufferHodo[16];
+
+
+  /**********************************
+  // acessing the hodoscope block
+  **********************************/
+
+  // getting 16 words buffer and checking words statuses
+  ulong bufferHodo[16]; 
+  bool hodoAreGood = true;
   for (int hodo=0; hodo<16; hodo++)
     {
-      a = buffer[6+hodo];
-      bufferHodo[hodo]  = buffer[6+hodo];
+      a                 = buffer[wordCounter];
+      bufferHodo[hodo]  = buffer[wordCounter];
+      wordCounter++;
+      
+      hodoAreGood = hodoAreGood && checkStatus(buffer[wordCounter], wordCounter);
+      
       b =a;
       LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b << endl;
     }
 
-
+  // unpacking the hodo data
+  if (hodoAreGood){
   for (int iplane=0; iplane<nHodoPlanes; iplane++) 
     {         
       int detType = 1;       // new mapping for electronics channels  
@@ -219,44 +246,168 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       for (int fib = 0; fib < nHodoFibers; fib++){ theHodoPlane.setHit((unsigned int)fib, (bool)hodoHits[ipl][fib]); }
       hodoRaw.setPlane((unsigned int)ipl, theHodoPlane);
     }
+  }
+  else
+    {
+      LogWarning("CamacTBDataFormatter") << "hodoscope block has hardware problems or is partly unused at LV1: "
+					 << lv1 << " spill: " << spill 
+					 << "run: " << run 
+					 << ". Skipping digi." << endl;
+    }
   
   
+
+
+
+  /**********************************
+  // acessing the scalers block
+  **********************************/
+
+  // getting 72 words buffer and checking words statuses
+
+  bool scalersAreGood = true;
   for (int scaler=0; scaler<72; scaler++)
     {
-      a = buffer[22+scaler];
+      a = buffer[wordCounter];      wordCounter++;
       b =a;
       LogDebug("CamacTBDataFormatter") << "scaler: " << scaler << "\t: " << b << endl;
+      scalersAreGood = scalersAreGood && checkStatus(buffer[wordCounter], wordCounter);
     }
-      
-  LogDebug("CamacTBDataFormatter") <<"\n";
-  for (int finger=0; finger<2; finger++)
+  if (scalersAreGood){
+    ;  }
+  else
     {
-      a = buffer[94+finger];
-      b =a;
-      LogDebug("CamacTBDataFormatter") << "finger: " << finger << "\t: " << b << endl;
+      LogWarning("CamacTBDataFormatter") << "scalers block has hardware problems  or is partly unused at LV1: "
+					 << lv1 << " spill: " << spill 
+					 << "run: " << run << endl;
     }
   
 
-  a = buffer[97];
+
+
+
+  /**********************************
+  // acessing the fingers block
+  **********************************/
+
+  LogDebug("CamacTBDataFormatter") <<"\n";
+  bool fingersAreGood = true;
+  for (int finger=0; finger<2; finger++)
+    {
+      a = buffer[wordCounter];      wordCounter++;
+      b =a;
+      LogDebug("CamacTBDataFormatter") << "finger: " << finger << "\t: " << b << endl;
+      fingersAreGood = fingersAreGood && checkStatus(buffer[wordCounter], wordCounter);
+    }
+  if (fingersAreGood){
+    ;  }
+  else
+    {
+      LogWarning("CamacTBDataFormatter") << "fingers block has hardware problems  or is partly unused at LV1: "
+					 << lv1 << " spill: " << spill 
+					 << "run: " << run << endl;
+    }
+  
+
+
+
+  /**********************************
+  // acessing the multi stop TDC block
+  **********************************/
+
+  a = buffer[wordCounter];      wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   b = (a& 0xff);
   b = a;
-  LogDebug("CamacTBDataFormatter") << "number TDC words: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "number of used multi stop TDC words: "<< b << endl;
   
   int numberTDCwords = b;
   numberTDCwords = 16;
+  bool multiStopTDCIsGood = true;
   for (int tdc=0; tdc< numberTDCwords ; tdc++)
     {
-      a = buffer[98+tdc];
+      a = buffer[wordCounter];      wordCounter++;
       b =a;
       LogDebug("CamacTBDataFormatter") << "tdc: " << tdc << "\t: " << b << endl;
+      multiStopTDCIsGood =  multiStopTDCIsGood && checkStatus(buffer[wordCounter], wordCounter);
     }
+  if ( multiStopTDCIsGood ){
+    ;  }
+  else
+    {
+      LogWarning("CamacTBDataFormatter") << "multi stop TDC block has hardware problems or is partly unused at LV1: "
+					 << lv1 << " spill: " << spill 
+					 << "run: " << run << endl;
+    }
+  
+  // skip the unused words in multi stop TDC block
+  wordCounter += (16 - numberTDCwords);
 
-  a = buffer[114];
+  
+
+  
+  /**********************************
+  // acessing table in position bit
+  **********************************/
+  a = buffer[wordCounter];      wordCounter++;
+  b = (a & 0x00000001);
+  if ( b ){
+    LogWarning("CamacTBDataFormatter") << " table is not in position."  << endl;
+  }
+  else
+    {
+    LogWarning("CamacTBDataFormatter") << " table is in position."  << endl;
+    }
+  // skip 3 reserved words
+  wordCounter += 3;
+
+  
+  
+  /**********************************
+   // acessing ADC block
+   **********************************/
+  // skip 10 reserved words
+  wordCounter += 10;
+  bool ADCIsGood = true;
+  a = buffer[wordCounter];      wordCounter++;
+  b =a;
+  LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << endl;
+  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  a = buffer[wordCounter];      wordCounter++;
+  b =a;
+  LogDebug("CamacTBDataFormatter") << "ADC word2: " << a << "\t ADC2: " << b << endl;
+  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+
+
+  
+  /**********************************
+   // acessing TDC block
+   **********************************/
+  // skip 6 reserved words
+  wordCounter += 6;
+  bool TDCIsGood = true;
+  a = buffer[wordCounter];      wordCounter++;
+  b = (a & 0xfffff);
+  LogDebug("CamacTBDataFormatter") << "TDC word1: " << a << "\t TDC2: " << b << endl;
+  TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  a = buffer[wordCounter];      wordCounter++;
+  b = (a & 0xfffff);
+  LogDebug("CamacTBDataFormatter") << "TDC word2: (ext_val_trig - LHC_clock) " 
+				   << a << "\t (ext_val_trig - LHC_clock): "
+				   << b << endl;
+  TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  
+  tdcRawInfo.setSize(1);
+  int sampleNumber =1;
+  EcalTBTDCSample theTdc(sampleNumber, b);
+  tdcRawInfo.setSample(0, theTdc);
+
+
+  a = buffer[wordCounter];      wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
   b = a;
   LogDebug("CamacTBDataFormatter") << "last word of event: "<< b << endl;
-  //    }
+
 
 }
 
@@ -267,9 +418,11 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
 
 
+// given a data word with 8 msb as status, checks status
 
-void CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
+bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
   
+
   if ( wordNumber > nWordsPerEvent)
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "checking word number: "
@@ -277,41 +430,50 @@ void CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
 						    << nWordsPerEvent << ")" << endl;
     }
 
+  bool isOk = true;
 
   if  (word & 0x80000000) // daq item not used
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "daq item not used at word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
   
   if (word & 0x40000000) // vme error on data
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "vme error on word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
     
   if (word & 0x20000000) // vme error on status
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "vme status error at word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
     
   if (word & 0x10000000) // camac error (no X)
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "camac error (no X) at word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
     
   if (word & 0x08000000) // camac error (no Q)
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "camac error (no Q) at word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
  
   if (word & 0x04000000) // no camac check error
     { 
       LogError("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
       statusWords[wordNumber -1] = false;      
+      isOk = false;
     }
+
+  return isOk;
 
 }

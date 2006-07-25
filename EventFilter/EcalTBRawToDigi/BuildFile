@@ -6,6 +6,7 @@
 <use name=DataFormats/EcalRawData>
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
+<use name=TBDataFormats/EcalTBObjects>	
 <use name=boost>
 <use name=root>
 
@@ -18,6 +19,7 @@
  <use name=DataFormats/EcalRawData>	
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		
+ <use name=TBDataFormats/EcalTBObjects>	
  <use name=boost>	
  <use name=root>
 </export>
