@@ -43,7 +43,7 @@ public:
       const VertexUpdator & updator, const VertexSmoother & smoother);
 
   /**
-   *   Same as above, with parameters configured by a ParameterSet
+   *   Same as above, using a ParameterSet to set the convergence criteria
    */
 
   SequentialVertexFitter(const edm::ParameterSet& pSet,
