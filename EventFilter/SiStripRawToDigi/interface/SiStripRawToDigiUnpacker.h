@@ -69,7 +69,7 @@ class SiStripRawToDigiUnpacker {
   inline sistrip::FedBufferFormat fedBufferFormat( const uint16_t& register_value );
   inline sistrip::FedReadoutMode fedReadoutMode( const uint16_t& register_value );
   
-  void locateStartOfFedBuffer( uint16_t fed_id, const FEDRawData& input, FEDRawData& output );
+  void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
   void dumpRawData( uint16_t fed_id, const FEDRawData&, std::stringstream& );
   
   /** Catches all possible exceptions and rethrows them as
