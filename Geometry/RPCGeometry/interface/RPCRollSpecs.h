@@ -20,11 +20,13 @@ class RPCRollSpecs : public GeomDetType {
   typedef std::vector<float> RPCSpecs;
 
   RPCRollSpecs( SubDetector rss, const std::string& name, const RPCSpecs& pars);
+
   ~RPCRollSpecs();
 
   const Topology& topology() const;
-  const GeomDetType& type() const;
+
   const std::string& detName() const;
+
  private:
   Topology* _top;
   std::vector<float> _p;

@@ -3,7 +3,7 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
-
+using namespace GeomDetEnumerators;
 
 
 RPCRollSpecs::RPCRollSpecs( SubDetector rss, const std::string& name, const RPCSpecs& pars)
@@ -28,11 +28,6 @@ RPCRollSpecs::RPCRollSpecs( SubDetector rss, const std::string& name, const RPCS
   } else {
     _top = 0;
   }
-    
-  // if (rss == RPCBarrel)
-  //  GeomDetType("RPCBarrel",rss);
-  // else if (rss == RPCEndcap)
-  //  GeomDetType("RPCEndcap",rss);
 }
 
 

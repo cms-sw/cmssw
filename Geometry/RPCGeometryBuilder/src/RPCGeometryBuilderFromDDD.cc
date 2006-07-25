@@ -177,7 +177,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       pars.push_back(width);
       pars.push_back(length);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
-      rollspecs = new RPCRollSpecs(GeomDetType::RPCBarrel,name,pars);
+      rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
 #ifdef LOCAL_DEBUG  
       std::cout <<"Barrel "<<name
 		<<" par "<<width
@@ -203,7 +203,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
 		<<dpar[0];
 #endif      
 
-      rollspecs = new RPCRollSpecs(GeomDetType::RPCEndcap,name,pars);
+      rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap,name,pars);
 
       //Change of axes for the forward
       Basic3DVector<float> newX(1.,0.,0.);
