@@ -15,6 +15,16 @@ namespace {
 
 
 SequentialVertexFitter::SequentialVertexFitter(
+  const LinearizationPointFinder & linP, 
+  const VertexUpdator & updator, const VertexSmoother & smoother) : 
+  theLinP(linP.clone()), theUpdator(updator.clone()), 
+  theSmoother(smoother.clone())
+{
+  setDefaultParameters();
+}
+
+
+SequentialVertexFitter::SequentialVertexFitter(
   const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
   const VertexUpdator & updator, const VertexSmoother & smoother) : 
   thePSet(pSet), theLinP(linP.clone()), theUpdator(updator.clone()), 
@@ -48,6 +58,16 @@ void SequentialVertexFitter::readParameters()
 {
   theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
   theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
+}
+
+
+void SequentialVertexFitter::setDefaultParameters()
+{
+  thePSet.addParameter<double>("maxDistance", 0.01);
+  thePSet.addParameter<int>("maxNbrOfIterations", 10); //10
+  readParameters();
+  cout << "theMaxShift " << theMaxShift << endl;
+  cout << "theMaxStep " << theMaxStep << endl;
 }
 
 

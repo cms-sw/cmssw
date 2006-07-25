@@ -39,6 +39,13 @@ public:
    *   If no smoother is to be used, do not specify an instance for it.
    */
 
+  SequentialVertexFitter(const LinearizationPointFinder & linP, 
+      const VertexUpdator & updator, const VertexSmoother & smoother);
+
+  /**
+   *   Same as above, with parameters configured by a ParameterSet
+   */
+
   SequentialVertexFitter(const edm::ParameterSet& pSet,
       const LinearizationPointFinder & linP, 
       const VertexUpdator & updator, const VertexSmoother & smoother);
@@ -203,6 +210,7 @@ private:
    */
 
   void readParameters();
+  void setDefaultParameters();
 
 
   float theMaxShift;
