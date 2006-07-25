@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/06/27 13:45:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/11 15:01:43 $
+ *  $Revision: 1.4 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -33,12 +33,12 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
-    const Trajectory::DataContainer& meas1 = (*iter).measurements();
+    const Trajectory::DataContainer& meas1 = (*iter)->measurements();
     j = i+1;
     bool skipnext=false;
     for ( jter = iter+1; jter != trajC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
-      const Trajectory::DataContainer& meas2 = (*jter).measurements();
+      const Trajectory::DataContainer& meas2 = (*jter)->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
         for ( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
@@ -48,21 +48,21 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       
       LogDebug(metname) 
 	<< " MuonTrajSelector: trajC " << i << " chi2/nRH = " 
-	<< (*iter).chiSquared() << "/" << (*iter).foundHits() <<
-	" vs trajC " << j << " chi2/nRH = " << (*jter).chiSquared() <<
-	"/" << (*jter).foundHits() << " Shared RecHits: " << match;
+	<< (*iter)->chiSquared() << "/" << (*iter)->foundHits() <<
+	" vs trajC " << j << " chi2/nRH = " << (*jter)->chiSquared() <<
+	"/" << (*jter)->foundHits() << " Shared RecHits: " << match;
        
       // If there are matches, reject the worst track
       if ( match > 0 ) {
-        if (  (*iter).foundHits() == (*jter).foundHits() ) {
-          if ( (*iter).chiSquared() > (*jter).chiSquared() ) {
+        if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
+          if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
             mask[i] = false;
             skipnext=true;
           }
           else mask[j] = false;
         }
         else { // different number of hits
-          if ( (*iter).foundHits() < (*jter).foundHits() ) {
+          if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
 	    mask[i] = false;
             skipnext=true;
           }
