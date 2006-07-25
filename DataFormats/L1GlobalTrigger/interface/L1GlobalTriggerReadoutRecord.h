@@ -76,7 +76,7 @@ public:
 
     /// typedefs          
 
-    typedef std::bitset<NumberPhysTriggers> DecisionWord;
+    typedef std::vector<bool> DecisionWord;
     // TODO what about 192 bits: extended decision word?
 
     // muons are represented as 32 bits (actually 26 bits)     

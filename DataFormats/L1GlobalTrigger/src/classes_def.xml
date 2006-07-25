@@ -1,5 +1,8 @@
 <lcgdict>
-  
+
+  <class name="std::vector<bool>"/>
+  <class name="edm::Wrapper<std::vector<bool> >"/>
+
   <class name="L1GlobalTriggerReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
   

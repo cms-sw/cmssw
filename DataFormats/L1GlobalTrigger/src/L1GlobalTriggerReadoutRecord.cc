@@ -10,8 +10,8 @@
  * \author: N. Neumeister        - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -30,14 +30,15 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
-// forward declarations
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructors
 L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord() 
     : m_gtBxId(0), m_bxInEvent(0), m_gtGlobalDecision(false) {
-        
-    m_gtDecision.reset();
+
+    // decision word  std::vector<bool>      
+    m_gtDecision.reserve(NumberPhysTriggers);
+    m_gtDecision.assign(NumberPhysTriggers, false);
 
     for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
         m_gtMuon[indexCand] = 0;		
@@ -68,7 +69,7 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord()
     m_gtTotalHt = 0;
   
     m_gtJetNr.reserve(NumberL1JetCounts);
-//    m_gtJetNr = 0;
+    m_gtJetNr.assign(NumberL1JetCounts, 0);
                   
 }
 
@@ -797,13 +798,20 @@ void L1GlobalTriggerReadoutRecord::print() const {
 
     std::cout << "\nL1 Global Trigger Record : " << std::endl
         << "\t Global Decision = " << std::setw(5) << m_gtGlobalDecision << std::endl 
-        << "Decision word = "; 
-    std::cout << m_gtDecision;
+        << "\t Decision word = "; 
+
+    for (std::vector<bool>::const_iterator itBit = m_gtDecision.begin(); 
+        itBit != m_gtDecision.end(); ++itBit) {
+        
+        std::cout << (*itBit ? '1' : '0');
+                
+    }      
+
     std::cout << std::endl;
     
 }
 
-// print all L1 Trigger Objects
+// print all L1 Trigger Objects (use int to bitset conversion) 
 void L1GlobalTriggerReadoutRecord::printL1Objects() const {
 
     std::cout << "\nL1GlobalTriggerReadoutRecord: L1 Trigger Objects \n" << std::endl;
@@ -936,8 +944,11 @@ void L1GlobalTriggerReadoutRecord::reset() {
     m_gtBxId = 0;
     m_bxInEvent = 0;
         
-    m_gtDecision = false;
-    m_gtDecision.reset();
+    m_gtGlobalDecision = false;
+
+    for (unsigned int iBit = 0; iBit < m_gtDecision.size(); ++iBit) {
+		m_gtDecision[iBit] = false;
+	}
 
     for (unsigned int indexCand = 0; indexCand < NumberL1Muons; ++indexCand) {
         m_gtMuon[indexCand] = 0;        
@@ -976,7 +987,15 @@ void L1GlobalTriggerReadoutRecord::reset() {
 // output stream operator
 std::ostream& operator<<(std::ostream& s, const L1GlobalTriggerReadoutRecord& result) {
     s << "Global Decision = " << std::setw(5) << result.decision() << std::endl
-      << "Decision = " << result.m_gtDecision;
+      << "Decision = ";
+          
+    for (std::vector<bool>::const_iterator itBit = result.m_gtDecision.begin(); 
+        itBit != result.m_gtDecision.end(); ++itBit) {
+        
+        s << (*itBit ? '1' : '0');
+        		
+	}      
+    
   return s;
     
 }
