@@ -3,7 +3,7 @@
 ###############################################################################################################
 # general
 
-set 
+#set 
 
 USAGE="Usage: `basename $0` mtcc-runnumber";
 case $# in
@@ -22,14 +22,16 @@ DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSS
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
+  WWDIR="${WORKDIR}"
 else
   LK_WKDIR=`pwd`          # directory where you run locally otherwise
+  WWDIR=`pwd`
 fi
 #
 #TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
 TEMPLATE_CMSSW_CFG="${LK_WKDIR}/template_mtccoffline.cfg"
 # this directory will be created, use '/pool' for production and '/tmp' for testing
-DIR_WHERE_TO_PUT_LARGE_FILES="./mtcc_${RUNNR}"
+DIR_WHERE_TO_PUT_LARGE_FILES="${WWDIR}/mtcc_${RUNNR}"
 # files
 CMSSW_CFG="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtccoffline_${RUNNR}.cfg";
 LOG_FILE="${DIR_WHERE_TO_PUT_LARGE_FILES}/mtcc_${RUNNR}.log";
