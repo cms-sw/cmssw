@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 16:55:38 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/18 09:04:49 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -134,7 +134,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
     }
   case 1:
     {
-      if (detLayer->module()==dt ) {
+      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
 	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
 	OwnVector<const TransientTrackingRecHit> segments2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
@@ -144,10 +144,10 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	insert(recHitsForFit,segments2D);
       }
       
-      else if(detLayer->module()==rpc )
+      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
 	recHitsForFit.push_back( muonRecHit->clone() );
       
-      else if(detLayer->module()==csc) {
+      else if(detLayer->subDetector()==GeomDetEnumerators::CSC) {
 	// Asking for 2D points. theMeas->recHit() returns a 4D segment
 	OwnVector<const TransientTrackingRecHit> rechit2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
@@ -161,7 +161,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
     
   case 2:
     {
-      if (detLayer->module()==dt ) {
+      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
 	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
 	// I have to use OwnVector, since this container must be passed to the
 	// KFUpdator, which takes TransientTrackingRecHits...
@@ -181,10 +181,10 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 	  insert(recHitsForFit,rechit1D);	  
 	}
       }
-      else if(detLayer->module()==rpc )
+      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
 	recHitsForFit.push_back( muonRecHit->clone() );
       
-      else if(detLayer->module()==csc) {
+      else if(detLayer->subDetector()==GeomDetEnumerators::CSC) {
 	// Asking for 2D points. theMeas->recHit() returns a 4D segment
 	OwnVector<const TransientTrackingRecHit> rechit2D = muonRecHit->transientHits();
 
@@ -321,7 +321,7 @@ void MuonTrajectoryUpdator::insert(OwnVector<const TransientTrackingRecHit> & to
 
 void MuonTrajectoryUpdator::sort(edm::OwnVector<const TransientTrackingRecHit>& recHitsForFit, const DetLayer* detLayer){
   
-  if(detLayer->module()==dt){
+  if(detLayer->subDetector()==GeomDetEnumerators::DT){
     if(propagator()->propagationDirection() == alongMomentum)
       recHitsForFit.sort( RadiusComparatorInOut() );
     else if(propagator()->propagationDirection() == oppositeToMomentum)
@@ -330,7 +330,7 @@ void MuonTrajectoryUpdator::sort(edm::OwnVector<const TransientTrackingRecHit>& 
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
   }
-  else if(detLayer->module()==csc){
+  else if(detLayer->subDetector()==GeomDetEnumerators::CSC){
     if(propagator()->propagationDirection() == alongMomentum)
       recHitsForFit.sort( ZedComparatorInOut() );
     else if(propagator()->propagationDirection() == oppositeToMomentum)

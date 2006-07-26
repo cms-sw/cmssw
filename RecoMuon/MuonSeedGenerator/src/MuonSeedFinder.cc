@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/05 09:32:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/18 08:52:38 $
+ *  $Revision: 1.11 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -23,7 +23,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"

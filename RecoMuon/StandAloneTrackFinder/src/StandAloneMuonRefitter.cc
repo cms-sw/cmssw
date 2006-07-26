@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/12 16:32:02 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/07/18 09:07:47 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -34,7 +34,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -163,9 +162,9 @@ void StandAloneMuonRefitter::init(const EventSetup& setup){
 
 void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
 
-  if(layer->module()==dt) dtChambers++; 
-  else if(layer->module()==csc) cscChambers++; 
-  else if(layer->module()==rpc) rpcChambers++; 
+  if(layer->subDetector()==GeomDetEnumerators::DT) dtChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::CSC) cscChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::RPCBarrel || layer->subDetector()==GeomDetEnumerators::RPCEndcap) rpcChambers++; 
   else 
     LogError("Muon|RecoMuon|StandAloneMuonRefitter")
       << "Unrecognized module type in incrementChamberCounters";
