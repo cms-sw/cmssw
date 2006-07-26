@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/07/11 04:13:57 $
-// $Revision: 1.7 $
+// $Author: tmoulik $
+// $Date: 2006/07/25 20:25:16 $
+// $Revision: 1.9 $
 //
 
 #include <string>
@@ -64,7 +64,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
@@ -83,13 +83,13 @@ class RoadSearchCloudMakerAlgorithm
 
   /// Runs the algorithm
   void run(edm::Handle<TrajectorySeedCollection> input,
-	   const SiStripRecHit2DLocalPosCollection* rphiRecHits,
-	   const SiStripRecHit2DLocalPosCollection* stereoRecHits,
+	   const SiStripRecHit2DCollection* rphiRecHits,
+	   const SiStripRecHit2DCollection* stereoRecHits,
 	   const SiPixelRecHitCollection *pixRecHits,
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
 
-  void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
+  void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 			    const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
