@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.2 2006/07/10 18:01:13 nancy Exp $ 
- **  $Date: 2006/07/10 18:01:13 $ 
- **  $Revision: 1.2 $
+ **  $Id: PhotonProducer.h,v 1.3 2006/07/14 15:31:37 nancy Exp $ 
+ **  $Date: 2006/07/14 15:31:37 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -38,10 +38,10 @@ class PhotonProducer : public edm::EDProducer {
 
   
   std::string PhotonCollection_;
-  std::string scBarrelProducer_;
-  std::string scEndcapProducer_;
-  std::string scBarrelCollection_;
-  std::string scEndcapCollection_;
+  std::string scHybridBarrelProducer_;
+  std::string scIslandEndcapProducer_;
+  std::string scHybridBarrelCollection_;
+  std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
 
 
