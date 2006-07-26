@@ -3,12 +3,12 @@
 
 CSCStripHit::CSCStripHit() :
   theDetId(),
-  theStripHitPosition()     
+  theHalfStripHitPosition()     
 {}
 
-CSCStripHit::CSCStripHit( const CSCDetId& id, const float& strip_pos) :
+CSCStripHit::CSCStripHit( const CSCDetId& id, const float& halfStripPos) :
   theDetId( id ), 
-  theStripHitPosition( strip_pos )
+  theHalfStripHitPosition( halfStripPos )
 {}
 
 CSCStripHit::~CSCStripHit() {}

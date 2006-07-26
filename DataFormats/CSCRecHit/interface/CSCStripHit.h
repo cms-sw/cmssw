@@ -22,7 +22,7 @@ class CSCStripHit
 public:
 
   CSCStripHit();
-  CSCStripHit( const CSCDetId& id, const float& strip_pos );
+  CSCStripHit( const CSCDetId& id, const float& halfStripPos );
 
   ~CSCStripHit();
 
@@ -34,11 +34,11 @@ public:
     CSCDetId cscDetId() const { return theDetId; }
 
   /// Container 1-D strip hit position expressed in terms of strip #
-  float strip_pos() const { return theStripHitPosition; }
+  float halfStripPos() const { return theHalfStripHitPosition; }
 
 private:
   CSCDetId theDetId;
-  float theStripHitPosition;
+  float theHalfStripHitPosition;
 };
 
 
