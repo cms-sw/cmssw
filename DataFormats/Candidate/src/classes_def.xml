@@ -22,6 +22,10 @@
   <class name="reco::CompositeRefCandidate::const_iterator_comp">
     <field name="i" transient="true" />
   </class>
+  <class name="reco::CompositeRefBaseCandidate" />
+  <class name="reco::CompositeRefBaseCandidate::const_iterator_comp">
+    <field name="i" transient="true" />
+  </class>
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
   <class name="edm::Wrapper<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >" />
