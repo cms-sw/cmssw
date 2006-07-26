@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/06/12 02:18:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/10 13:20:35 $
+ *  $Revision: 1.4 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -114,7 +114,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const edm::Event& i
   if ( !traj.isValid() ) return;
 
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  MuonUpdatorAtVertex updator(theVertexPos,theVertexErr,&*theField);
+  MuonUpdatorAtVertex updator(theStepPropagator);
   MuonVertexMeasurement vm = updator.update(traj);
   TrajectoryStateOnSurface traj_trak = vm.stateAtTracker();
 
