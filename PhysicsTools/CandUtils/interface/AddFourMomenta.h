@@ -7,18 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: AddFourMomenta.h,v 1.5 2006/03/03 10:09:18 llista Exp $
+ * $Id: AddFourMomenta.h,v 1.6 2006/06/21 09:36:47 llista Exp $
  *
  */
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-struct AddFourMomenta : public reco::Candidate::setup {
-  /// default constructor
-  AddFourMomenta() : reco::Candidate::setup( setupCharge( true ), setupP4( true ), setupVertex( false ) ) { }
-  /// destructor
-  virtual ~AddFourMomenta();
+struct AddFourMomenta {
   /// set up a candidate
   void set( reco::Candidate& c );
 };

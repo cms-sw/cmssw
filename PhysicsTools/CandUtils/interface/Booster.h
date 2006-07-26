@@ -6,28 +6,21 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: Booster.h,v 1.8 2006/03/03 10:09:18 llista Exp $
+ * $Id: Booster.h,v 1.9 2006/06/21 09:36:47 llista Exp $
  *
  */
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
-struct Booster : public reco::Candidate::setup {
-  /// spatial vector
-  typedef reco::Candidate::Vector Vector;
+struct Booster {
   /// constructor from a boost vector
-  Booster( const Vector & b ) : 
-    reco::Candidate::setup( setupCharge( false ), setupP4( true ), setupVertex( false ) ), 
-    boost( b ) { }
-  /// destructor
-  virtual ~Booster();
+  Booster( const math::XYZVector & b ) : boost( b ) { }
   /// set up a candidate kinematics according to the boost
   virtual void set( reco::Candidate& c );
-  /// the boost vector
-  const Vector & boostVector() { return boost; }
 private:
-  const Vector boost;
+  const math::XYZVector boost;
 };
 
 #endif

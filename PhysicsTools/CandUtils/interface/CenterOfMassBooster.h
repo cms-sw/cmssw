@@ -6,19 +6,20 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.1 $
  *
- * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * $Id: CenterOfMassBooster.h,v 1.1 2006/03/03 10:09:18 llista Exp $
  *
  */
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 
-struct CenterOfMassBooster : public Booster {
+struct CenterOfMassBooster {
   /// constructor from a candidate
-  CenterOfMassBooster( const reco::Candidate & c ) : Booster( c.boostToCM() ) {
-  }
-  /// destructor
-  ~CenterOfMassBooster();
+  CenterOfMassBooster( const reco::Candidate & c );
+  /// set up a candidate kinematics according to the boost
+  void set( reco::Candidate& c ) { booster.set( c ); }
+private:
+  Booster booster;
 };
 
 #endif

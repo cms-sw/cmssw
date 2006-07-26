@@ -1,10 +1,11 @@
-// $Id: CandCombiner.cc,v 1.7 2006/04/04 11:12:48 llista Exp $
+// $Id: CandCombiner.cc,v 1.8 2006/07/21 10:35:14 fabozzi Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/CandAlgos/src/cutParser.h"
 #include "PhysicsTools/CandAlgos/src/candidateMethods.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
 using namespace edm;

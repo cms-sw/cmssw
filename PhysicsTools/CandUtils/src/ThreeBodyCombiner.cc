@@ -29,7 +29,7 @@ Candidate * ThreeBodyCombiner::combine( const Candidate & c1, const Candidate & 
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
   cmp->addDaughter( c3 );
-  cmp->set( addp4 );
+  addp4.set( * cmp );
   return cmp;
 }
 

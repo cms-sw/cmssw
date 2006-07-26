@@ -7,22 +7,18 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ApplyEnergyCorrection.h,v 1.6 2006/06/21 09:36:47 llista Exp $
+ * $Id: ApplyEnergyCorrection.h,v 1.1 2006/07/24 06:44:17 llista Exp $
  *
  */
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-struct ApplyEnergyCorrection : public reco::Candidate::setup {
-  /// default constructor
-  ApplyEnergyCorrection( double correction ) : 
-    reco::Candidate::setup( setupCharge( false ), setupP4( true ), setupVertex( false ) ),
-    correction_( correction ) { }
-  /// destructor
-  virtual ~ApplyEnergyCorrection();
+struct ApplyEnergyCorrection {
+  ApplyEnergyCorrection( double correction ) : correction_( correction ) { }
   /// set up a candidate
   void set( reco::Candidate& c );
+  
 private:
   double correction_;
 };

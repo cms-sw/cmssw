@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.11 2006/02/27 16:24:28 fabozzi Exp $
+// $Id: TwoBodyCombiner.cc,v 1.12 2006/02/28 11:20:21 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 using namespace reco;
@@ -22,7 +22,7 @@ Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
-  cmp->set( addp4 );
+  addp4.set( * cmp );
   return cmp;
 }
 
