@@ -16,7 +16,7 @@
 //
 // Original Author:  Benedikt Hegner
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
-// $Id$
+// $Id: PythonService.h,v 1.1 2006/07/23 15:41:54 hegner Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,6 +34,7 @@
 class PythonService {
     public:
         PythonService(const edm::ParameterSet&,edm::ActivityRegistry&);
+        ~PythonService();
         void postBeginJob();
         void postEndJob();
         void preProcessEvent(const edm::EventID&, const edm::Timestamp&);

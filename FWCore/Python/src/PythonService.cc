@@ -8,7 +8,7 @@
 //
 // Original Author:  Benedikt Hegner
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
-// $Id$
+// $Id: PythonService.cc,v 1.1 2006/07/23 15:41:54 hegner Exp $
 //
 
 // system include files
@@ -23,19 +23,18 @@
 #include "DataFormats/Common/interface/Timestamp.h"
 
 //
-// Constructor
+// constructor
 //
 PythonService::PythonService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iRegistry):
     handle_(PythonManager::handle())
 {
     
-	std::cout << "Start preparing PythonService" << std::endl;
-	const std::string fileName = iConfig.getParameter<std::string>("fileName");
+    std::cout << "Start preparing PythonService" << std::endl;
+    const std::string fileName = iConfig.getParameter<std::string>("fileName");
 	
-	using namespace boost::python;
+    using namespace boost::python;
 	
-	command_ = "from "+fileName + " import *";
-	std::cout << command_ << std::endl;
+    command_ = "from "+fileName + " import *\n";
     object main_module(( boost::python::handle<>(borrowed(PyImport_AddModule("__main__"))) ));
     object main_namespace = main_module.attr("__dict__");
     try {
@@ -43,19 +42,25 @@ PythonService::PythonService(const edm::ParameterSet& iConfig, edm::ActivityRegi
                                            Py_file_input,
                                            main_namespace.ptr(),
                                            main_namespace.ptr()))));
+      service_ = main_namespace["service"];
     } catch( ... ) {
-	  service_ = main_namespace["service"];
       throw cms::Exception("Configuration") <<"No 'service' python variable defined in given fileName parameter.\n Please create an instance of the python class you want to use and pass that instance to the variable named 'service'.";
     }
 	
-	// connect methods and signals
-	// later on here will be a check what python methods are present
-	// for now we expect postBeginJob, postEndJob and postProcessEvent
+    // connect methods and signals
+    // later on here will be a check what python methods are present
+    // for now we expect postBeginJob, postEndJob and postProcessEvent
 	
     iRegistry.watchPostBeginJob(this,&PythonService::postBeginJob);
     iRegistry.watchPostEndJob(this,&PythonService::postEndJob);
-	iRegistry.watchPostProcessEvent(this,&PythonService::postProcessEvent);
-	
+    iRegistry.watchPostProcessEvent(this,&PythonService::postProcessEvent);
+}
+
+//
+// destructor
+//
+PythonService::~PythonService()
+{
 }
 
 
@@ -121,5 +126,3 @@ void PythonService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
     }
 
 }
-
-
