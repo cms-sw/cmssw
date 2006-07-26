@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.7 2006/06/20 14:54:25 llista Exp $
+ * \version $Id: Candidate.h,v 1.8 2006/07/24 06:33:58 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -68,6 +68,7 @@ namespace reco {
     /// number of component
     template<typename T, typename Tag>
     size_t numberOf() const { return reco::numberOf<T, Tag>( * this ); }
+
   public:
     /// implementation of const_iterator. 
     /// should be private; declared public only 
@@ -183,49 +184,6 @@ namespace reco {
       friend const_iterator::const_iterator( const iterator & );
     };
 
-    /// helper class to setup Candidate kinematics
-    class setup {
-    private:
-      struct setupFlag {
-	setupFlag( bool f = true ) : value( f ) { }
-	bool value;
-      };
-      
-    public:
-      /// helper class to setup Candidate charge
-      struct setupCharge : public setupFlag {
-	setupCharge( bool f = true ) : setupFlag( f ) { }
-      };
-      
-      /// helper class to setup Candidate four-momentum
-      struct setupP4 : public setupFlag {
-	setupP4( bool f = true ) : setupFlag( f ) { }
-      };
-
-      /// helper class to setup Candidate vertex
-      struct setupVertex : public setupFlag {
-	setupVertex( bool f = true ) : setupFlag( f ) { }
-      };
-      
-    public:
-      setup( setupCharge q, setupP4 p, setupVertex v ) : 
-	modifyP4( p.value ), modifyCharge( q.value ), modifyVertex( v.value ) { }
-      virtual ~setup();
-      virtual void set( Candidate & c ) = 0;
-      void setP4( LorentzVector & p ) const;
-      void setCharge( Charge & q ) const;
-      void setVertex( Point & p ) const;
-      
-    protected:
-      LorentzVector p4;
-      Charge charge;
-      Point vertex;
-      bool modifyP4, modifyCharge, modifyVertex;
-    };
-
-    /// set up Candidate from setup object
-    void set( setup & s );
-
   private:
     template<typename T, typename Tag> friend struct component; 
     friend class OverlapChecker;
@@ -233,13 +191,6 @@ namespace reco {
     virtual bool overlap( const Candidate & ) const = 0;
   };
 
-  inline void Candidate::set( setup & s ) {
-    s.set( * this );
-    s.setP4( p4_ );
-    s.setCharge( q_ );
-    s.setVertex( vertex_ );
-  }
-  
 }
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

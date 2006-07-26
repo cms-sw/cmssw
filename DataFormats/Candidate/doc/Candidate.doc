@@ -64,29 +64,6 @@ are owned by the composite candidate.
 - reco::CompositeRefCandidate: a reco::Candidate composed of daughters. The daughters
 has persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
 a separate collection.
-- reco::Candidate::setup: base class for other helper classes that can modify
-  a Candidate kinematics (momentum, vertex, charge). An object of a reco::Candidate::setup subclass can be
-  passed to the Candidate method reco::Candidate::set( setup & ) to modify
-  that Candidate's kinematics.
-\htmlonly
-<pre>
-  Candidate::setup * s = new MySetup();
-  Candidate * c = ...;
-  c->set( s );
-</pre>
-\endhtmlonly
-  Different setup subclasses are provided in different packages; users can also
-  create their own setup class if special features are required.
-- OverlapChecker: helper class to check overlap between two candidates. 
-Recursively scans a decay chain, if necessary.
-  Example of usage is below:
-\htmlonly
-<pre>
-  OverlapChecker overlap;
-  const Candidate & c1 = ..., & c2 = ...;
-  if ( overlap( c1, c2 ) ) { /* .... */ }
-</pre>
-\endhtmlonly
 
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
