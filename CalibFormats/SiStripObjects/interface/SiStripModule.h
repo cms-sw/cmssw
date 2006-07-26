@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripModule.h,v 1.1 2006/06/02 13:16:28 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripModule.h,v 1.2 2006/06/09 13:09:19 bainbrid Exp $
+// Latest tag:  $Name: V01-03-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
@@ -155,6 +155,9 @@ class SiStripModule {
   // FED cabling: KEY = APV pair footprint position, DATA = FedId + FedCh
   FedCabling cabling_;
   uint16_t length_;
+
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
   
 };
 

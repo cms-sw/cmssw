@@ -8,15 +8,19 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 //
+const string SiStripFecCabling::logCategory_ = "SiStrip|Cabling";
+
+// -----------------------------------------------------------------------------
+//
 SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& fed_cabling ) : crates_() {
-  edm::LogInfo("FecCabling") << "[SiStripFecCabling::SiStripFecCabling] Constructing object...";
+  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::SiStripFecCabling] Constructing object...";
   buildFecCabling( fed_cabling );
 }
 
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) {
-  edm::LogInfo("FecCabling") << "[SiStripFecCabling::buildFecCabling]";
+  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::buildFecCabling]";
   // Retrieve and iterate through FED ids
   const vector<uint16_t>& feds = fed_cabling.feds();
   vector<uint16_t>::const_iterator ifed;
@@ -47,24 +51,11 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
-  //   LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-  // 			 << " Adding new Device with following I2C addresses. " 
-  // 			 << " FEC crate: " << conn.fecCrate()
-  // 			 << " FEC slot: " << conn.fecSlot()
-  // 			 << " FEC ring: " << conn.fecRing()
-  // 			 << " CCU addr: " << conn.ccuAddr()
-  // 			 << " CCU chan: " << conn.ccuChan();
   vector<SiStripFecCrate>::const_iterator icrate = crates().begin();
   while ( icrate != crates().end() && (*icrate).fecCrate() != conn.fecCrate() ) { icrate++; }
   if ( icrate == crates().end() ) { 
-    //     LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-    // 			   << " Adding new FEC crate with address " 
-    // 			   << conn.fecCrate();
     crates_.push_back( SiStripFecCrate( conn ) ); 
   } else { 
-    //     LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
-    // 			   << " FEC crate already exists with address " 
-    // 			   << icrate->fecCrate();
     const_cast<SiStripFecCrate&>(*icrate).addDevices( conn ); 
   }
 }
@@ -91,8 +82,8 @@ void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) const
       }
     }
   }
-  edm::LogInfo("FecCabling") << "[SiStripFecCabling::connections]" 
-			     << " Found " << conns.size() << " FED channel connection objects";
+  edm::LogVerbatim(logCategory_) << "[SiStripFecCabling::connections]" 
+				 << " Found " << conns.size() << " FED channel connection objects";
 }
 
 // -----------------------------------------------------------------------------
@@ -114,19 +105,19 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 	  while ( imod != iccu->modules().end() && imod->ccuChan() != conn.ccuChan() ) { imod++; }
 	  if ( imod != iccu->modules().end() ) { 
 	    return *imod;
-	  } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+	  } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
 					       << " CCU channel " << conn.ccuChan() 
 					       << " not found!"; }
-	} else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+	} else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
 					     << " CCU address " << conn.ccuAddr() 
 					     << " not found!"; }
-      } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+      } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
 					   << " FEC ring " << conn.fecRing() 
 					   << " not found!"; }
-    } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+    } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
 					 << " FEC slot " << conn.fecSlot() 
 					 << " not found!"; }
-  } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+  } else { edm::LogError(logCategory_) << "[SiStripFecCabling::module]"
 				       << " FEC crate " << conn.fecCrate() 
 				       << " not found!"; }
   static FedChannelConnection temp;

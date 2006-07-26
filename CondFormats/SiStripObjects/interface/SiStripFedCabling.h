@@ -4,6 +4,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
 #include <vector>
+#include <string>
 
 /** 
     \class SiStripFedCabling 
@@ -63,6 +64,9 @@ class SiStripFedCabling {
       the configuration database.
   */
   std::vector<FedChannelConnection> undetected_;
+
+  /** */
+  static const std::string logCategory_;
 
 };
 

@@ -4,6 +4,7 @@
 #include <boost/cstdint.hpp>
 #include <vector>
 #include <sstream>
+#include <string>
 
 /** 
     @class FedChannelConnection 
@@ -117,6 +118,8 @@ class FedChannelConnection {
   bool mux0x43_; 
   bool pll0x44_; 
   bool lld0x60_; 
+
+  static const std::string logCategory_;
   
 };
 

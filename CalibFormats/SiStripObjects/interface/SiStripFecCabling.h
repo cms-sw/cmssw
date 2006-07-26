@@ -30,7 +30,7 @@ class SiStripFecCabling {
   
   /** */
   void buildFecCabling( const SiStripFedCabling& ); 
-  
+
   // ----- Getters -----
   
   /** */
@@ -71,6 +71,9 @@ class SiStripFecCabling {
 
   /** */
   std::vector<SiStripFecCrate> crates_;
+
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
   
 };
 

@@ -27,21 +27,20 @@ void NumberOfDevices::clear() {
 // -----------------------------------------------------------------------------
 //
 void NumberOfDevices::print( stringstream& ss ) const {
-  ss.str("");
-  ss << "[NumberOfDevices::print] Number of devices found: " 
-     << "  FEC crates: " << nFecCrates_
-     << "  FEC slots: " << nFecSlots_
-     << "  FEC rings: " << nFecRings_
-     << "  CCU addrs: " << nCcuAddrs_
-     << "  CCU chans: " << nCcuChans_
-     << "  APVs: " << nApvs_
-     << "  DCU ids: " << nDcuIds_
-     << "  DET ids: " << nDetIds_
-     << "  APV pairs: " << nApvPairs_
-     << "  FED channels: " << nFedChans_
-     << "  DCUs: " << nDcus_
-     << "  MUXes: " << nMuxes_
-     << "  PLLs: " << nPlls_
-     << "  LLDs: " << nLlds_;
+  ss << "Summary of devices found: " 
+     << ", FEC crates: " << nFecCrates_
+     << ", FEC slots: " << nFecSlots_
+     << ", FEC rings: " << nFecRings_
+     << ", CCU addrs: " << nCcuAddrs_
+     << ", CCU chans: " << nCcuChans_
+     << ", APVs: " << nApvs_
+     << ", DCU ids: " << nDcuIds_
+     << ", DET ids: " << nDetIds_
+     << ", APV pairs: " << nApvPairs_
+     << ", FED channels: " << nFedChans_
+     << ", DCUs: " << nDcus_
+     << ", MUXes: " << nMuxes_
+     << ", PLLs: " << nPlls_
+     << ", LLDs: " << nLlds_;
 }
 

@@ -2,9 +2,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
-#include <string>
 
 using namespace std;
+
+// -----------------------------------------------------------------------------
+//
+const string SiStripFedCabling::logCategory_ = "SiStrip|Cabling";
 
 // -----------------------------------------------------------------------------
 //
@@ -14,7 +17,7 @@ SiStripFedCabling::SiStripFedCabling( const vector<FedChannelConnection>& input 
     detected_(),
     undetected_()
 {
-  edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
+  edm::LogInfo(logCategory_) << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
   buildFedCabling( input );
 }
 
@@ -26,24 +29,24 @@ SiStripFedCabling::SiStripFedCabling()
     detected_(),
     undetected_()
 {
-  edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
+  edm::LogInfo(logCategory_) << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 SiStripFedCabling::~SiStripFedCabling() {
-  edm::LogInfo("FedCabling") << "[SiStripFedCabling::~SiStripFedCabling] Destructing object...";
+  edm::LogInfo(logCategory_) << "[SiStripFedCabling::~SiStripFedCabling] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& input ) {
   static const string method = "SiStripFedCabling::buildFedCabling";
-  edm::LogVerbatim("FedCabling") << "["<<method<<"] Building FED cabling...";
+  edm::LogVerbatim(logCategory_) << "["<<method<<"] Building FED cabling...";
   
   // Check input
   if ( input.empty() ) {
-    edm::LogError("FedCabling") << "["<<method<<"] Input vector of zero size!"; 
+    edm::LogError(logCategory_) << "["<<method<<"] Input vector of zero size!"; 
   }
   
   static const uint16_t MaxFedId = 1024;
@@ -62,10 +65,10 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
 
     // Check on FED ids and channels
     if ( fed_id >= MaxFedId ) {
-      edm::LogError("FedCabling") << "["<<method<<"] Unexpected FED id! " << fed_id; 
+      edm::LogError(logCategory_) << "["<<method<<"] Unexpected FED id! " << fed_id; 
     } 
     if ( fed_ch >= MaxFedCh ) {
-      edm::LogError("FedCabling") << "["<<method<<"] Unexpected FED channel! " << fed_ch;
+      edm::LogError(logCategory_) << "["<<method<<"] Unexpected FED channel! " << fed_ch;
     } 
     
     // Resize container to accommodate all FED channels
@@ -88,24 +91,35 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     
   }
   
-  edm::LogVerbatim("Cabling") << "["<<method<<"] Printing FedChannelConnections: ";
+  edm::LogVerbatim(logCategory_) << "["<<method<<"]"
+				 << " Printing FED channel connection information...";
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = feds().begin(); ifed != feds().end(); ifed++ ) {
+    
+    // Count number of connected channels 
     uint16_t connected = 0;
-    vector<FedChannelConnection>::const_iterator ichan = connections(*ifed).begin();
-    for ( ; ichan != connections(*ifed).end(); ichan++ ) { 
+    vector<FedChannelConnection>::const_iterator ichan;
+    for ( ichan = connections(*ifed).begin(); 
+	  ichan != connections(*ifed).end(); 
+	  ichan++ ) { if ( ichan->fedId() ) { connected++; } }
+    stringstream ss;
+    ss << " Found FED with id " << *ifed
+       << " that has " << connected
+       << " connected channels";
+    edm::LogVerbatim(logCategory_) << ss.str();
+    
+    // Print info from individual connections
+    for ( ichan = connections(*ifed).begin(); 
+	  ichan != connections(*ifed).end(); 
+	  ichan++ ) { 
       if ( ichan->fedId() ) { 
-	stringstream ss;
-	ichan->print(ss); 
-	LogTrace("FedCabling") << "["<<method<<"]" << ss.str();
-	connected++; 
+	stringstream sss;
+	ichan->print(sss); 
+	LogTrace(logCategory_) << " " << sss.str();
       }
     }
-    edm::LogVerbatim("FedCabling") << "["<<method<<"]"
-				   << " Found FED with id " << *ifed
-				   << " that has " << connected
-				   << " connected channels";
-  }
+
+  } // fed loop
   
 }
 
@@ -125,24 +139,24 @@ const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id,
 	if ( fed_chan < connected_[fed_id].size() ) {
 	  return connected_[fed_id][fed_chan];
 	} else {
-	  edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+	  edm::LogError(logCategory_) << "[SiStripFedCabling::connection]" 
 				      << " FED channel (" << fed_chan
 				      << ") is greater than or equal to vector size (" 
 				      << connected_[fed_chan].size() << ")!";
 	}
       } else {
-	edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+	edm::LogError(logCategory_) << "[SiStripFedCabling::connection]" 
 				    << " Cabling map is empty for FED id "
 				    << fed_id;
       }
     } else {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+      edm::LogError(logCategory_) << "[SiStripFedCabling::connection]" 
 				  << " FED id (" << fed_id
 				  << ") is greater than or equal to vector size (" 
 				  << connected_.size() << ")!";
     }
   } else {
-    edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+    edm::LogError(logCategory_) << "[SiStripFedCabling::connection]" 
 				<< " Cabling map is empty!";
   }
   
@@ -160,18 +174,18 @@ const vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_t fed
       if ( !connected_[fed_id].empty() ) {
 	return connected_[fed_id];
       } else {
-	edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+	edm::LogError(logCategory_) << "[SiStripFedCabling::connections]" 
 				    << " Cabling map is empty for FED id "
 				    << fed_id;
       }
     } else {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+      edm::LogError(logCategory_) << "[SiStripFedCabling::connections]" 
 				  << " FED id (" << fed_id
 				  << ") is greater than or equal to vector size (" 
 				  << connected_.size() << ")!";
     }
   } else {
-    edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+    edm::LogError(logCategory_) << "[SiStripFedCabling::connections]" 
 				<< " Cabling map is empty!";
   }
   
