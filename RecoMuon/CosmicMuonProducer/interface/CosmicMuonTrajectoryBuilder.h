@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/07/03 01:10:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/21 03:13:19 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -39,7 +39,7 @@ public:
   CosmicMuonTrajectoryBuilder(const edm::ParameterSet&);
   virtual ~CosmicMuonTrajectoryBuilder();
 
-  std::vector<Trajectory> trajectories(const TrajectorySeed&);
+  std::vector<Trajectory*> trajectories(const TrajectorySeed&);
 
    // fake implementation 
    // return a container reconstructed muons starting from a given track
