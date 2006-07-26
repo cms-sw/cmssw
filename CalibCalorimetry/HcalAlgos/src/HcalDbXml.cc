@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.8 2006/02/22 19:51:38 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.9 2006/04/13 22:40:39 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -22,7 +22,8 @@ namespace {
 
   void dumpRun (std::ostream& fOutput, unsigned fRun) {
     fOutput << "<RUN>";
-    fOutput << "<RUN_NAME>" << fRun << "</RUN_NAME>";
+    fOutput << "<RUN_TYPE>" << "HcalDbXml" << "</RUN_TYPE>";
+    fOutput << "<RUN_NUMBER>" << fRun << "</RUN_NUMBER>";
     fOutput << "</RUN>" << std::endl;
   }
 
@@ -47,7 +48,7 @@ namespace {
     fOutput << "<ETA>" << fChannel.ietaAbs() << "</ETA>";
     fOutput << "<PHI>" << fChannel.iphi() << "</PHI> ";
     fOutput << "<DEPTH>" << fChannel.depth() << "</DEPTH> ";
-    fOutput << "<Z>" << (fChannel.zside() > 0 ? '+' : '-') << "</Z> ";
+    fOutput << "<Z>" << (fChannel.zside() > 0 ? "1" : "-1") << "</Z> ";
     fOutput << "<DETECTOR_NAME>" << (fChannel.subdet() == HcalBarrel ? "HB" : fChannel.subdet() == HcalEndcap ? "HE" : "HF") << "</DETECTOR_NAME> ";
     fOutput << "<HCAL_CHANNEL_ID>" << fChannel.rawId () << "</HCAL_CHANNEL_ID> ";
     fOutput << "</CHANNEL>";
@@ -74,6 +75,20 @@ namespace {
     fOutput << "</DATA> " << std::endl;
   }
 
+  void dumpData (std::ostream& fOutput, const float* fValues, const float* fErrors) {
+    fOutput << "      ";
+    fOutput << "<DATA> ";
+    fOutput << "<CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> ";
+    fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
+    fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
+    fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
+    fOutput << "<CAPACITOR_0_ERROR>" << fErrors [0] << "</CAPACITOR_0_ERROR> ";
+    fOutput << "<CAPACITOR_1_ERROR>" << fErrors [1] << "</CAPACITOR_1_ERROR> ";
+    fOutput << "<CAPACITOR_2_ERROR>" << fErrors [2] << "</CAPACITOR_2_ERROR> ";	
+    fOutput << "<CAPACITOR_3_ERROR>" << fErrors [3] << "</CAPACITOR_3_ERROR> ";
+    fOutput << "</DATA> " << std::endl;
+  }
+
   void dumpDataset (std::ostream& fOutput, unsigned fVersion = 0, const std::string& fFileName = "", const std::string& fDescription = "") {
     fOutput << "    <DATA_SET>" << std::endl;
     fOutput << "      <VERSION>" << fVersion << "</VERSION>" << std::endl;
@@ -96,12 +111,12 @@ namespace {
     // set channels affected
     int i = fChannels.size ();
     while (--i >= 0) {
-      fOutput << "<DATASET id=\"" << i << "\">" << std::endl;
+      fOutput << "<DATA_SET id=\"" << i << "\">" << std::endl;
       dumpRun (fOutput, fRun);
       fOutput << "<KIND_OF_CONDITION><NAME>" << fKind << "</NAME></KIND_OF_CONDITION>" << std::endl;
       dumpChannelId (fOutput, fChannels[i]);
       fOutput << "<VERSION>" << fVersion << "</VERSION>" << std::endl;
-      fOutput << "</DATASET>" << std::endl;
+      fOutput << "</DATA_SET>" << std::endl;
     }
     // set IOV
     fOutput << "<IOV id=\"" << IOV_ID << "\">";
@@ -123,7 +138,7 @@ namespace {
     fOutput << "<IOV idref=\"" << IOV_ID << "\">" << std::endl;
     i = fChannels.size ();
     while (--i >= 0) {
-      fOutput << "<DATASET idref=\"" << i << "\"/>" << std::endl;
+      fOutput << "<DATA_SET idref=\"" << i << "\"/>" << std::endl;
     }
     fOutput << "</IOV>" << std::endl;
     fOutput << "</TAG>" << std::endl;
@@ -189,8 +204,8 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
 			    const HcalGains& fObject) {
-  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
-  std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
+  float dummyErrors [4] = {0., 0., 0., 0.};
+  std::cout << "HcalDbXml::dumpObject-> set default errors: 4 x 0.0" << std::endl;
   HcalGainWidths widths;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
@@ -205,6 +220,34 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
 			    const HcalGains& fObject, const HcalGainWidths& fError) {
-  std::cerr << "HcalDbXml::dumpObject (..., HcalGains, ...) is not implemented" << std::endl;
-  return false;
+  const std::string KIND = "HCAL Gains";
+  const std::string TABLE = "HCAL_GAIN_PEDSTL_CALIBRATIONS";
+
+  dumpProlog (fOutput);
+  dumpHeader (fOutput, fRun, TABLE, KIND);
+
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    HcalDetId chId = *channel;
+    const float* values = fObject.getValues (chId)->getValues ();
+    const float* errors = fError.getValues (chId)->getValues ();
+    if (!values) {
+      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
+      continue;
+    }
+    if (!errors) {
+      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << chId <<  ". Use defaults" << std::endl;
+      continue;
+    }
+    dumpDataset (fOutput, fVersion, "", "");
+    dumpChannelId (fOutput,chId.rawId ()); 
+    dumpData (fOutput, values, errors);
+    endDataset (fOutput);
+  }
+  dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
+
+  dumpFooter (fOutput);
+  return true;
 }
