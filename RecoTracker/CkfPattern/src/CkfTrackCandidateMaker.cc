@@ -50,9 +50,7 @@ namespace cms{
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
     es.get<IdealMagneticFieldRecord>().get(theMagField);
       
-    // get nested parameter set for the TransientInitialStateEstimator
-    ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-    theInitialState          = new TransientInitialStateEstimator( es,tise_params);
+    theInitialState       = new TransientInitialStateEstimator( es);
     
     // get nested parameter set for the MeasurementTracker
     ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
@@ -182,9 +180,9 @@ namespace cms{
       
 
       
-      // Step G: write output to file
-      e.put(output);
     }
+    // Step G: write output to file
+    e.put(output);
   }
 }
 
