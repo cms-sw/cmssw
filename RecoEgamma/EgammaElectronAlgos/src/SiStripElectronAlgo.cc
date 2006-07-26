@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.8 2006/07/25 22:33:02 pivarski Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.9 2006/07/25 23:29:19 pivarski Exp $
 //
 
 // system include files
@@ -252,10 +252,10 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
       // and copy that if numberOfHits <= maxHitsOnDetId_?)
       if (numberOfHits <= maxHitsOnDetId_) {
 	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	    if ((endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TID  ||
-			      tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TEC    ))    ||
-		(!endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TIB  ||
-			       tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TOB    ))      ) {
+	    if ((endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID  ||
+			      tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC    ))    ||
+		(!endcap  &&  (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
+			       tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ))      ) {
 
 	       hitPointersOut.push_back(&(*hit));
 
@@ -407,8 +407,8 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
 	 // Cut on the Z of the strip
 	 // TIB strips are 11 cm long, TOB strips are 19 cm long (can I get these from a function?)
-	 if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetType::TIB  &&  fabs(z - zFit) < 12.)  ||
-	     (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetType::TOB  &&  fabs(z - zFit) < 20.)    ) {
+	 if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  &&  fabs(z - zFit) < 12.)  ||
+	     (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  &&  fabs(z - zFit) < 20.)    ) {
 	 
 	    // Cut a narrow band around the supercluster's projection in phi
 	    if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {
