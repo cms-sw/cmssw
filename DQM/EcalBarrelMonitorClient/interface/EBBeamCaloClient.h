@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/10 12:40:04 $
- * $Revision: 1.10 $
+ * $Date: 2006/07/22 10:11:09 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -139,6 +139,8 @@ TH1F* hBcryDone_;
 TH2F* hBBeamCentered_;
 
 TH1F* hbTBmoving_;
+
+TH1F* hbE1MaxCry_;
 
 TProfile* pBCriInBeamEvents_;
 

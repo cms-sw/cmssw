@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/22 10:11:08 $
- * $Revision: 1.18 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -89,6 +89,7 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   hBcryDone_ = 0;
   hBBeamCentered_ = 0;
   hbTBmoving_ = 0;
+  hbE1MaxCry_ = 0;
   pBCriInBeamEvents_ = 0;
 
   meEBBCaloRedGreen_ = 0;
@@ -202,6 +203,7 @@ void EBBeamCaloClient::cleanup(void) {
     if(hBcryDone_) delete hBcryDone_;
     if(hBBeamCentered_) delete hBBeamCentered_;
     if(hbTBmoving_) delete hbTBmoving_;
+    if(hbE1MaxCry_) delete hbE1MaxCry_;
     if(pBCriInBeamEvents_) delete pBCriInBeamEvents_;
   }
   
@@ -224,6 +226,8 @@ void EBBeamCaloClient::cleanup(void) {
   hBcryDone_ = 0;
   hBBeamCentered_ = 0;
   hbTBmoving_ = 0;
+  hbE1MaxCry_ = 0;
+  hbE1MaxCry_ = 0;
   pBCriInBeamEvents_ =0;
 
   mui_->setCurrentFolder( "EcalBarrel/EBBeamCaloClient" );
@@ -385,6 +389,8 @@ void EBBeamCaloClient::subscribe(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
   mui_->subscribe(histo);
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
+  mui_->subscribe(histo);
 
   if ( collateSources_ ) {
 
@@ -457,6 +463,8 @@ void EBBeamCaloClient::subscribeNew(void){
   mui_->subscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
   mui_->subscribe(histo);
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
+  mui_->subscribe(histo);
 }
 
 void EBBeamCaloClient::unsubscribe(void){
@@ -524,7 +532,8 @@ void EBBeamCaloClient::unsubscribe(void){
   mui_->unsubscribe(histo);
   sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
   mui_->unsubscribe(histo);
-
+  sprintf(histo, "*/EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
+  mui_->unsubscribe(histo);
 
   if ( collateSources_ ) {
 
@@ -628,7 +637,13 @@ void EBBeamCaloClient::analyze(void){
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event").c_str() );}
   me = mui_->get(histo);
   pBCriInBeamEvents_ =  EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
+
+  if ( collateSources_ ) {;}
+  else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry").c_str() );}
+  me = mui_->get(histo);
+  hbE1MaxCry_ =  EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
   
+
   if ( collateSources_ ){;}
   else {
     char me_name[200];
@@ -826,7 +841,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummyStep.SetMinimum(0.1);
 
   //useful for both autoscan and non autoscan
-  string RedGreenSMImg,RedGreenImg,RedGreenAutoImg, numCryReadImg, cryReadErrImg;
+  string RedGreenSMImg,RedGreenImg,RedGreenAutoImg, numCryReadImg, cryReadErrImg, E1MaxCryImg;
   string cryOnBeamImg, cryMaxEneImg, ratioImg;
   // useful for non autoscan
   string ene1Img, ene3x3Img, EBBeamCentered;
@@ -1032,6 +1047,36 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   
+ // E1 of the max cry: cryReadErrImg;
+  obj1f = hbE1MaxCry_;
+  if ( obj1f ) {
+    TCanvas* can = new TCanvas("can", "Temp", csize, csize);
+    meName = obj1f->GetName();
+    
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+	meName.replace(i, 1, "_");
+      }
+    }
+    E1MaxCryImg = meName + ".png";
+    imgName1 = htmlDir +  E1MaxCryImg;
+      
+    can->cd();
+    obj1f->SetStats(kTRUE);
+    gStyle->SetOptStat("e");
+    AdjustRange(obj1f);
+    obj1f->Draw();
+    can->Update();
+    can->SaveAs(imgName1.c_str());
+    delete can;
+  }
+  if ( imgName1.size() != 0 )
+    htmlFile << "<td><img src=\"" <<  E1MaxCryImg << "\"></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
