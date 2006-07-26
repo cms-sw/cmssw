@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: 2006/06/19 19:00:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/26 10:31:31 $
+ *  $Revision: 1.2 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -359,7 +359,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
                                                               allInnerBackward, 
                                                               allInnerForward));
     }                                                          
-    else if ( mbp->subDetector() == GeomDetEnumerators::PIXEL || mbp->subDetector() == GeomDetEnumerators::SILICON ) {
+    else if ( mbp->subDetector() == GeomDetEnumerators::PixelBarrel || mbp->subDetector() == GeomDetEnumerators::TIB || mbp->subDetector() == GeomDetEnumerators::TOB ) {
       BDLC outerBarrelLayers;
       BDLC innerBarrelLayers;
       BDLC allOuterBarrelLayers;
@@ -664,7 +664,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
                                                       allOuterELayers, 
                                                       allInnerELayers));
     }
-    else if ( mbp->subDetector() == GeomDetEnumerators::PIXEL || mbp->subDetector() == GeomDetEnumerators::SILICON ) {
+    else if ( mbp->subDetector() == GeomDetEnumerators::PixelEndcap || mbp->subDetector() == GeomDetEnumerators::TEC || mbp->subDetector() ==  GeomDetEnumerators::TID ) {
       BDLC outerBarrelLayers;
       FDLC outerForwardLayers;
       BDLC allOuterBarrelLayers;
@@ -679,49 +679,49 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
      unsigned int m = 0;
 
      for (MapBI ib = outerBLayers.begin(); ib != outerBLayers.end(); ib++) {
-         BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
-         outerBarrelLayers.push_back(ibdl);
+       BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
+       outerBarrelLayers.push_back(ibdl);
      }
 
      for (MapEI ie = outerELayers.begin(); ie != outerELayers.end(); ie++) {
-         j++;
-         if ( hasOverlap && j==outerELayers.size() ) break; 
-         ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         outerForwardLayers.push_back(ifdl);
+       j++;
+       if ( hasOverlap && j==outerELayers.size() ) break; 
+       ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
+       outerForwardLayers.push_back(ifdl);
      }
 
      for (MapBI ib = allOuterBLayers.begin(); ib != allOuterBLayers.end(); ib++) {
-         BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
-         allOuterBarrelLayers.push_back(ibdl);
+       BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
+       allOuterBarrelLayers.push_back(ibdl);
      }
 
      for (MapEI ie = allOuterELayers.begin(); ie != allOuterELayers.end(); ie++) {
-         ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         allOuterForwardLayers.push_back(ifdl);
+       ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
+       allOuterForwardLayers.push_back(ifdl);
      }
 
      for (MapBI ib = innerBLayers.begin(); ib != innerBLayers.end(); ib++) {
-         l++;
-         if (hasOverlap2 && l==innerBLayers.size() ) continue;
-         BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
-         innerBarrelLayers.push_back(ibdl);
+       l++;
+       if (hasOverlap2 && l==innerBLayers.size() ) continue;
+       BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
+       innerBarrelLayers.push_back(ibdl);
      }
 
      for (MapEI ie = innerELayers.begin(); ie != innerELayers.end(); ie++) {
-         m++;
-         if (hasInsideE && m==innerELayers.size()-2 ) continue;
-         ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         innerForwardLayers.push_back(ifdl);
+       m++;
+       if (hasInsideE && m==innerELayers.size()-2 ) continue;
+       ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
+       innerForwardLayers.push_back(ifdl);
      }
 
      for (MapBI ib = allInnerBLayers.begin(); ib != allInnerBLayers.end(); ib++) {
-         BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
-         allInnerBarrelLayers.push_back(ibdl);
+       BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
+       allInnerBarrelLayers.push_back(ibdl);
      }
 
      for (MapEI ie = allInnerELayers.begin(); ie != allInnerELayers.end(); ie++) {
-         ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         allInnerForwardLayers.push_back(ifdl);
+       ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
+       allInnerForwardLayers.push_back(ifdl);
      }
 
      resultT.push_back(new SimpleForwardNavigableLayer(mbp, 
@@ -748,7 +748,7 @@ float MuonTkNavigationSchool::barrelLength() {
 
   if ( theBarrelLength < 1.) {
   for (MapBI i= theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
-     if ((*i).first->subDetector() != GeomDetEnumerators::PIXEL && (*i).first->subDetector() != GeomDetEnumerators::SILICON) continue;
+     if ((*i).first->subDetector() != GeomDetEnumerators::PixelBarrel && (*i).first->subDetector() != GeomDetEnumerators::TIB && (*i).first->subDetector() != GeomDetEnumerators::TOB) continue;
      theBarrelLength = max(theBarrelLength,(*i).first->surface().bounds().length()/2.f);
     }
   }
