@@ -1,5 +1,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 CaloTowerGeometry::CaloTowerGeometry() {
 }
@@ -12,3 +13,10 @@ CaloTowerGeometry::~CaloTowerGeometry() {
   cellGeometries_.clear();
 }
 
+bool CaloTowerGeometry::present(const DetId& id) const {
+  return CaloSubdetectorGeometry::present(CaloTowerDetId(id)); // handle conversion if needed
+}
+
+const CaloCellGeometry* CaloTowerGeometry::getGeometry(const DetId& id) const {
+  return CaloSubdetectorGeometry::getGeometry(CaloTowerDetId(id)); // handle conversion if needed
+}

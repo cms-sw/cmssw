@@ -49,7 +49,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   double dphi_nominal = 2.0*M_PI / limits.nPhiBins(1); // always the same
   double dphi_half = M_PI / limits.nPhiBins(etaRing); // half-width
   
-  double phi_low = dphi_nominal*(iphi-1); // low-edge boundaries are constant...
+  double phi_low = dphi_nominal*(iphi-3); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
 
   double x,y,z,thickness;
