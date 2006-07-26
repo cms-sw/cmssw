@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2006/06/28 15:41:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/07 14:30:35 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -14,7 +14,6 @@
 #include "Geometry/Surface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "Utilities/General/interface/CMSexception.h"
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"

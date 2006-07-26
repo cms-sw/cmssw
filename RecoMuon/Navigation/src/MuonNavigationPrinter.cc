@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/05/20 01:44:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/21 03:45:08 $
+ * $Revision: 1.5 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -92,7 +92,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
   vector<const DetLayer*> compatibleLayers = layer->compatibleLayers(alongMomentum);
   if (BarrelDetLayer* bdl = dynamic_cast<BarrelDetLayer*>(layer)) {
     edm::LogInfo ("MuonNavigationPrinter") 
-         << layerPart(layer) << " " << layerModule(layer) << " layer at R: "
+         << layer->location() << " " << layer->subDetector() << " layer at R: "
          << setiosflags(ios::showpoint | ios::fixed)
          << setw(8) << setprecision(2)
          << bdl->specificSurface().radius() << "  length: "
@@ -102,7 +102,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
   }
   else if (ForwardDetLayer* fdl = dynamic_cast<ForwardDetLayer*>(layer)) {
     edm::LogInfo ("MuonNavigationPrinter") << endl
-         << layerPart(layer) << " " << layerModule(layer) << "layer at z: "
+         << layer->location() << " " << layer->subDetector() << "layer at z: "
          << setiosflags(ios::showpoint | ios::fixed)
          << setw(8) << setprecision(2)
          << layer->surface().position().z() << "  inner r: "
@@ -137,10 +137,10 @@ void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) 
       inext != nextLayers.end(); inext++ ) {
 
      edm::LogInfo ("MuonNavigationPrinter") << " --> "; 
-    if ( (*inext)->part() == barrel ) {
+     if ( (*inext)->location() == GeomDetEnumerators::barrel ) {
       const BarrelDetLayer* l = dynamic_cast<const BarrelDetLayer*>(&(**inext));
-       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << " "
-           << layerModule(*inext)
+      edm::LogInfo ("MuonNavigationPrinter") << (*inext)->location() << " "
+           << (*inext)->subDetector()
            << " layer at R: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
@@ -148,8 +148,8 @@ void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) 
     }
     else {
       const ForwardDetLayer* l = dynamic_cast<const ForwardDetLayer*>(&(**inext));
-       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << " "
-           << layerModule(*inext)
+       edm::LogInfo ("MuonNavigationPrinter") << (*inext)->location() << " "
+           << (*inext)->subDetector()
            << " layer at z: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
@@ -166,36 +166,40 @@ void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) 
 }
 
 
-/// determine whether the layer is forward or backward 
-string MuonNavigationPrinter::layerPart(const DetLayer* layer) const {
+/// These should not be useful anymore as SubDetector and Location enums now have << operators
 
-  string result = "unknown";
+// /// determine whether the layer is forward or backward 
+// string MuonNavigationPrinter::layerPart(const DetLayer* layer) const {
+
+//   string result = "unknown";
   
-  if ( layer->part() == barrel ) return "barrel";
-  if ( layer->part() == forward && layer->surface().position().z() < 0 ) {
-    result = "backward"; 
-  }
-  if ( layer->part() == forward && layer->surface().position().z() >= 0 ) {
-    result = "forward";
-  }
+//   if ( layer->part() == barrel ) return "barrel";
+//   if ( layer->part() == forward && layer->surface().position().z() < 0 ) {
+//     result = "backward"; 
+//   }
+//   if ( layer->part() == forward && layer->surface().position().z() >= 0 ) {
+//     result = "forward";
+//   }
   
-  return result;    
+//   return result;    
 
-}
+// }
 
-/// determine the module (pixel, sililcon, msgc, dt, csc, rpc)
-string MuonNavigationPrinter::layerModule(const DetLayer* layer) const {
+// /// determine the module (pixel, sililcon, msgc, dt, csc, rpc)
+// string MuonNavigationPrinter::layerModule(const DetLayer* layer) const {
 
-  string result = "unknown";
+//   string result = "unknown";
 
-  if ( layer->module() == pixel ) return "pixel";
-  if ( layer->module() == silicon ) return "silicon";
-  if ( layer->module() == msgc ) return "msgc";
-  if ( layer->module() == dt ) return "dt";
-  if ( layer->module() == csc ) return "csc";
-  if ( layer->module() == rpc ) return "rpc";
+//   GeomDetEnumerators::SubDetector det = layer->subDetector();
 
-  return result;
+//   if ( det == Pixel ) return "Pixel";
+//   if ( det == TIB || det == TOB
+//        || det == TID || det == TEC ) return "silicon";
+//   if ( det == DT ) return "DT";
+//   if ( det == CSC ) return "CSC";
+//   if ( det == RPC ) return "RPC";
 
-}
+//   return result;
+
+// }
 

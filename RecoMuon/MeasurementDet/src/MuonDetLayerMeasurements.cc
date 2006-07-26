@@ -1,9 +1,9 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/12 15:39:25 $
- *  $Revision: 1.14 $
- *  \author C. Liu - Purdue University
+ *  $Date: 2006/07/12 16:28:42 $
+ *  $Revision: 1.15 $
+ *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
 
@@ -193,9 +193,9 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
 {
   RecHitContainer rhs;
   
-  Module mtype = layer->module();
+  GeomDetEnumerators::SubDetector mtype = layer->subDetector();
 
-  if (mtype == dt ) {
+  if (mtype == GeomDetEnumerators::DT ) {
     if(!enableDTMeasurement) return rhs;
 
     // Get the DT-Segment collection from the event
@@ -219,7 +219,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
       }
     }
   }
-  else if (mtype == csc ) {
+  else if (mtype == GeomDetEnumerators::CSC ) {
     if(!enableCSCMeasurement) return rhs;
     
     // Get the CSC-Segment collection from the event
@@ -243,7 +243,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
       }
     }
   }
-  else if (mtype == rpc ) {
+  else if (mtype == GeomDetEnumerators::RPCBarrel || GeomDetEnumerators::RPCEndcap) {
     if(!enableRPCMeasurement) return rhs;
     
     edm::Handle<RPCRecHitCollection> rpcRecHits;
