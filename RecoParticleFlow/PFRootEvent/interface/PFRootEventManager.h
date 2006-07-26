@@ -23,76 +23,125 @@ class TH2F;
 class TGraph;
 class IO;
 
+
+/// \brief ROOT interface to particle flow package
+/*!
+  This base class allows to perform clustering and particle flow from 
+  ROOT CINT (or any program). It is designed to support analysis and 
+  developpement. Users should feel free to create their own PFRootEventManager,
+  inheriting from this base class. Just reimplement the ProcessEntry function
+
+  An example:
+
+  \code
+  gSystem->Load("libFWCoreFWLite.so");
+  gSystem->Load("libRecoParticleFlowPFRootEvent.so");
+  AutoLibraryLoader::enable();
+  gSystem->Load("libCintex.so");
+  ROOT::Cintex::Cintex::Enable();
+
+  PFRootEventManager em("pfRootEvent.opt");
+  int i=0;
+  em.display(i++);
+  \endcode
+  
+  pfRootEvent.opt is an option file (see IO class):
+  \verbatim
+  root file test.root
+
+  root hits_branch  recoPFRecHits_pfcluster__Demo.obj
+  root recTracks_branch  recoPFRecTracks_pf_PFRecTrackCollection_Demo.obj
+
+  display algos 1 
+
+  display  viewsize_etaphi 600 400
+  display  viewsize_xy     400 400
+
+  display  color_clusters		1
+
+  clustering thresh_Ecal_Barrel           0.2
+  clustering thresh_Seed_Ecal_Barrel      0.3
+  clustering thresh_Ecal_Endcap           0.2
+  clustering thresh_Seed_Ecal_Endcap      0.9
+  clustering neighbours_Ecal		4
+
+  clustering depthCor_Mode          1
+  clustering depthCor_A 		  0.89
+  clustering depthCor_B 		  7.3
+  clustering depthCor_A_preshower   0.89
+  clustering depthCor_B_preshower   4.0
+
+  clustering thresh_Hcal_Barrel           1.0
+  clustering thresh_Seed_Hcal_Barrel      1.4
+  clustering thresh_Hcal_Endcap           1.0
+  clustering thresh_Seed_Hcal_Endcap      1.4
+  clustering neighbours_Hcal		4
+  \endverbatim
+  
+  \author Colin Bernet, Renaud Bruneliere
+  \date July 2006
+*/
 class PFRootEventManager {
 
  public:
-  enum View_t { XY = 0, RZ = 1, NViews = 2 };
 
+  /// viewport definition
+  enum View_t { XY = 0, RZ = 1, EPE = 2, EPH = 3, NViews = 4 };
+
+  /// default constructor
   PFRootEventManager();
+
+  /// \param is an option file, see IO
   PFRootEventManager(const char* file);
+
+  /// destructor
   virtual ~PFRootEventManager();
   
   /// reset before next event
-  void Reset();
+  void reset();
 
-  /// parse options
-  void ReadOptions(const char* file, bool refresh=true);
+  /// parse option file
+  void readOptions(const char* file, bool refresh=true);
 
   /// process one entry 
-  virtual bool ProcessEntry(int entry);
+  virtual bool processEntry(int entry);
 
   /// performs clustering 
-  void Clustering();
-
-/*   /// display rechit  */
-/*   void DisplayRecHit( const reco::PFRecHit& rh ); */
+  void clustering();
 
   /// display one entry 
-  void Display(int ientry);
-
-  /// display eta/phi
-  void DisplayEtaPhi();
+  void display(int ientry);
 
   /// display x/y or r/z
-  void DisplayView(unsigned viewType);
-
-  /// display rechits
-  void DisplayRecHitsEtaPhi();
-
-  /// display rechit
-  void DisplayRecHitEtaPhi(reco::PFRecHit& rh,
-			   double maxe, double thresh);
-
-  void DisplayClustersEtaPhi();
-
-  void DisplayClusterEtaPhi(const reco::PFCluster& cluster);
-
-  /// display x/y or r/z
+  void displayView(unsigned viewType);
 
   /// display reconstructed calorimeter hits in x/y or r/z view
-  void DisplayRecHits(unsigned viewType, double phi0 = 0.);
+  void displayRecHits(unsigned viewType, double phi0 = 0.);
 
   /// display a reconstructed calorimeter hit in x/y or r/z view
-  void DisplayRecHit(reco::PFRecHit& rh, unsigned viewType,
+  void displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 		     double maxe, double thresh, double phi0 = 0.);
 
   /// display clusters in x/y or r/z view
-  void DisplayClusters(unsigned viewType, double phi0 = 0.);
+  void displayClusters(unsigned viewType, double phi0 = 0.);
 
   /// display reconstructed tracks in x/y or r/z view
-  void DisplayRecTracks(unsigned viewType, double phi0 = 0.);
+  void displayRecTracks(unsigned viewType, double phi0 = 0.);
+
+  /// unzooms all support histograms
+  void unZoom();
+
+  /// updates all displays
+  void updateDisplay();
 
   /// finds max rechit energy in a given layer 
-  double GetMaxE(int layer) const;
+  double getMaxE(int layer) const;
 
   /// max rechit energy in ecal 
-  double GetMaxEEcal();
+  double getMaxEEcal();
 
   /// max rechit energy in hcal 
-  double GetMaxEHcal();
-
-
-  
+  double getMaxEHcal();
 
   /// current event
   int        iEvent_;
@@ -141,6 +190,9 @@ class PFRootEventManager {
   /// display pad xy size for eta/phi view
   std::vector<int>         viewSizeEtaPhi_;        
 
+  /// display cluster color ? (then color = cluster type )
+  bool displayColorClusters_;
+
   /// support histogram for eta/phi display
   TH2F*                    displayHistEtaPhi_;
 
@@ -149,20 +201,20 @@ class PFRootEventManager {
 
   /// display pad xy size for (x,y) or (r,z) display
   std::vector<int>      viewSize_;     
-
-  /// support histogram for x/y or r/z display
+ 
+  /// support histogram for x/y or r/z display. COLIN: why a vector ?
   std::vector<TH2F*>    displayHist_;
 
-  /// ECAL in XY view
+  /// ECAL in XY view. COLIN: should be attribute ?
   TEllipse frontFaceECALXY_;
 
-  /// ECAL in RZ view
+  /// ECAL in RZ view. COLIN: should be attribute ?
   TBox     frontFaceECALRZ_;
 
-  /// HCAL in XY view
+  /// HCAL in XY view. COLIN: should be attribute ?
   TEllipse frontFaceHCALXY_;
 
-  /// vector of TGraph used to represent the track in XY or RZ view
+  /// vector of TGraph used to represent the track in XY or RZ view. COLIN: should be attribute ?  
   std::vector< std::vector<TGraph*> > graphTrack_;
 
   /// max rechit energy in ecal

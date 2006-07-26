@@ -122,7 +122,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
       dcorb > -0.5 && 
       dcorap > -0.5 && 
       dcorbp > -0.5 )
-    reco::PFCluster::SetDepthCorParameters( dcormode, dcora, dcorb, dcorap, dcorbp);
+    reco::PFCluster::setDepthCorParameters( dcormode, dcora, dcorb, dcorap, dcorbp);
 }
 
 
@@ -277,7 +277,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     // cout<<"find rechits neighbours"<<endl;
     for( PFClusterAlgo::IDH ih = ecalrechits.begin(); ih != ecalrechits.end(); ih++) {
-      FindRecHitNeighbours( ih->second, ecalrechits, 
+      findRecHitNeighbours( ih->second, ecalrechits, 
 			    ecalBarrelTopology, 
 			    *ecalBarrelGeometry, 
 			    endcapTopology,
@@ -287,16 +287,16 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // cout<<"perform clustering"<<endl;
     PFClusterAlgo clusteralgo; 
     
-    clusteralgo.SetThreshEcalBarrel( threshEcalBarrel_ );
-    clusteralgo.SetThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
+    clusteralgo.setThreshEcalBarrel( threshEcalBarrel_ );
+    clusteralgo.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
     
-    clusteralgo.SetThreshEcalEndcap( threshEcalEndcap_ );
-    clusteralgo.SetThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
+    clusteralgo.setThreshEcalEndcap( threshEcalEndcap_ );
+    clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
     
-    clusteralgo.Init( ecalrechits ); 
-    clusteralgo.AllClusters();
+    clusteralgo.init( ecalrechits ); 
+    clusteralgo.allClusters();
     
-    const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.GetIdRecHits();
+    const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
     for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
       result->push_back( reco::PFRecHit( *(ih->second) ) );    
     }
@@ -350,7 +350,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	switch( detid.subdet() ) {
 	case HcalBarrel:
 	  if(energy > threshHcalBarrel_){
-	    pfrechit = CreateHcalRecHit(detid, 
+	    pfrechit = createHcalRecHit(detid, 
 					energy, 
 					PFLayer::HCAL_BARREL1, 
 					hcalBarrelGeometry );
@@ -358,7 +358,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  break;
 	case HcalEndcap:
 	  if(energy > threshHcalEndcap_){
-	    pfrechit = CreateHcalRecHit(detid, 
+	    pfrechit = createHcalRecHit(detid, 
 					energy, 
 					PFLayer::HCAL_ENDCAP, 
 					hcalEndcapGeometry );
@@ -372,7 +372,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(pfrechit) {
 	  // cout<<(*pfrechit)<<endl;
 
-	  //	  const math::XYZPoint& cpos = pfrechit->GetPositionXYZ();
+	  //	  const math::XYZPoint& cpos = pfrechit->getPositionXYZ();
 	  // if( fabs(cpos.Eta() )< 0.06  )
 	    hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
 	}
@@ -380,7 +380,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   
       cout<<"find HCAL neighbours"<<endl;
       for( PFClusterAlgo::IDH ih = hcalrechits.begin(); ih != hcalrechits.end(); ih++) {
-	FindRecHitNeighbours( ih->second, hcalrechits, 
+	findRecHitNeighbours( ih->second, hcalrechits, 
 			      hcalTopology, 
 			      *hcalBarrelGeometry, 
 			      hcalTopology,
@@ -391,17 +391,17 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       // cout<<"perform clustering"<<endl;
       PFClusterAlgo clusteralgo; 
       
-      clusteralgo.SetThreshHcalBarrel( threshHcalBarrel_ );
-      clusteralgo.SetThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+      clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
+      clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
       
-      clusteralgo.SetThreshHcalEndcap( threshHcalEndcap_ );
-      clusteralgo.SetThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+      clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
+      clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
     
-      clusteralgo.Init( hcalrechits ); 
-      clusteralgo.AllClusters();
+      clusteralgo.init( hcalrechits ); 
+      clusteralgo.allClusters();
 
       cout<<"store hcal rechits"<<endl;
-      const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.GetIdRecHits();
+      const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
       for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
 	result->push_back( reco::PFRecHit( *(ih->second) ) );    
       }
@@ -509,7 +509,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     // cout<<"find rechits neighbours"<<endl;
     for( PFClusterAlgo::IDH ih = psrechits.begin(); ih != psrechits.end(); ih++) {
-      FindRecHitNeighbours( ih->second, psrechits, 
+      findRecHitNeighbours( ih->second, psrechits, 
 			    psTopology, 
 			    *psGeometry, 
 			    psTopology,
@@ -519,14 +519,14 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // cout<<"perform clustering"<<endl;
     PFClusterAlgo clusteralgo; 
     
-    clusteralgo.SetThreshPS( threshPS_ );
-    clusteralgo.SetThreshSeedPS( threshSeedPS_ );
+    clusteralgo.setThreshPS( threshPS_ );
+    clusteralgo.setThreshSeedPS( threshSeedPS_ );
        
-    clusteralgo.Init( psrechits ); 
-    clusteralgo.AllClusters();
+    clusteralgo.init( psrechits ); 
+    clusteralgo.allClusters();
     
     cout<<"store hcal rechits"<<endl;
-    const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.GetIdRecHits();
+    const map<unsigned, reco::PFRecHit* >& algohits = clusteralgo.getIdRecHits();
     for(PFClusterAlgo::IDH ih=algohits.begin(); ih!=algohits.end(); ih++) {
       result->push_back( reco::PFRecHit( *(ih->second) ) );    
     }
@@ -561,8 +561,9 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void 
-PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh, 
-					 const map<unsigned,  reco::PFRecHit* >& rechits, 
+PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh, 
+					 const map<unsigned,  
+					 reco::PFRecHit* >& rechits, 
 					 const CaloSubdetectorTopology& barrelTopology, 
 					 const CaloSubdetectorGeometry& barrelGeometry, 
 					 const CaloSubdetectorTopology& endcapTopology, 
@@ -571,17 +572,17 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
   
   // cerr<<"find neighbours "<<endl;
 
-  const math::XYZPoint& cpos = rh->GetPositionXYZ();
+  const math::XYZPoint& cpos = rh->getPositionXYZ();
   double posx = cpos.X();
   double posy = cpos.Y();
   double posz = cpos.Z();
 
   bool debug = false;
-  if( rh->GetLayer() == PFLayer::PS1 ||
-      rh->GetLayer() == PFLayer::PS2 ) debug = true;
+  if( rh->getLayer() == PFLayer::PS1 ||
+      rh->getLayer() == PFLayer::PS2 ) debug = true;
   
 
-  DetId detid( rh->GetDetId() );
+  DetId detid( rh->getDetId() );
   // if(debug) cerr<<"detid created "<<endl;
 
   CaloNavigator<DetId>* navigator = 0;
@@ -590,9 +591,9 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
 
 
 
-  if(debug) cerr<<"find hcal neighbours "<<rh->GetLayer()<<endl;
+  if(debug) cerr<<"find hcal neighbours "<<rh->getLayer()<<endl;
   
-  switch( rh->GetLayer()  ) {
+  switch( rh->getLayer()  ) {
   case PFLayer::ECAL_ENDCAP: 
     // if(debug) cerr<<"ec cell"<<endl;
     navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
@@ -654,7 +655,7 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
 	cposz += posz; 
 	cposz /= 2.;
 	
-	rh->SetNECorner( cposx, cposy, cposz );
+	rh->setNECorner( cposx, cposy, cposz );
       }
       else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			 <<"geometry not found for detid "<<northeast.rawId()
@@ -700,7 +701,7 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
 	cposz += posz; 
 	cposz /= 2.;
 	
-	rh->SetSWCorner( cposx, cposy, cposz );
+	rh->setSWCorner( cposx, cposy, cposz );
       }
       else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			 <<"geometry not found for detid "<<southwest.rawId()
@@ -735,7 +736,7 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
 	cposz += posz; 
 	cposz /= 2.;
       
-	rh->SetSECorner( cposx, cposy, cposz );
+	rh->setSECorner( cposx, cposy, cposz );
       }
       else  if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			  <<"geometry not found for detid "<<southeast.rawId()
@@ -768,7 +769,7 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
 	cposz += posz; 
 	cposz /= 2.;
       
-	rh->SetNWCorner( cposx, cposy, cposz );
+	rh->setNWCorner( cposx, cposy, cposz );
       }
       else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
 			 <<"geometry not found for detid "<<northwest.rawId()
@@ -831,14 +832,14 @@ PFClusterProducer::FindRecHitNeighbours( reco::PFRecHit* rh,
   neighbours.push_back( rheast );
   neighbours.push_back( rhnortheast );
     
-  rh->SetNeighbours( neighbours );
+  rh->setNeighbours( neighbours );
 
   cout<<(*rh)<<endl;
 
 }
 
 
-reco::PFRecHit* PFClusterProducer::CreateHcalRecHit( const DetId& detid,
+reco::PFRecHit* PFClusterProducer::createHcalRecHit( const DetId& detid,
 						     double energy,
 						     int layer,
 						     const CaloSubdetectorGeometry* geom ) {

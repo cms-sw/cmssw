@@ -17,27 +17,15 @@
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
-// #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-// -*- C++ -*-
-//
-// Package:    PFProducer
-// Class:      PFProducer
-// 
-/**\class PFProducer PFProducer.cc Demo/PFProducer/src/PFProducer.cc
+/**\class PFProducer 
+\brief Producer for particle flow tracks, particles and reconstructed particles 
 
-Description: <one line class summary>
+This producer makes use of PFAlgo, the particle flow algorithm.
 
-Implementation:
-<Notes on implementation>
+\author Colin Bernet, Renaud Bruneliere
+\date   July 2006
 */
-//
-// Original Author:  Colin Bernet
-//         Created:  Tue Jun 27 14:35:24 CEST 2006
-// $Id$
-//
-//
-
 
 
 class PFProducer : public edm::EDProducer {

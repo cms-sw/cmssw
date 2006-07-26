@@ -14,26 +14,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-// #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-// -*- C++ -*-
-//
-// Package:    PFClusterProducer
-// Class:      PFClusterProducer
-// 
-/**\class PFClusterProducer PFClusterProducer.cc RecoParticleFlow/PFClusterProducer/src/PFClusterProducer.cc
 
-Description: <one line class summary>
+/**\class PFClusterProducer 
+\brief Producer for particle flow rechits (PFRecHit) and clusters (PFCluster). 
 
-Implementation:
-<Notes on implementation>
+This producer makes use of PFClusterAlgo, the clustering algorithm for particle flow clusters.
+
+\author Colin Bernet
+\date   July 2006
 */
-//
-// Original Author:  Colin Bernet
-//         Created:  Tue Jun 27 14:35:24 CEST 2006
-// $Id: PFClusterProducer.h,v 1.1 2006/07/21 16:22:51 cbern Exp $
-//
-//
+
 
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
@@ -47,8 +38,11 @@ class PFClusterProducer : public edm::EDProducer {
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
+
+ private:
+
   /// find and set the neighbours to a given rechit
-  void FindRecHitNeighbours( reco::PFRecHit* rh, 
+  void findRecHitNeighbours( reco::PFRecHit* rh, 
 			     const std::map<unsigned,  reco::PFRecHit* >& rechits, 
 			     const CaloSubdetectorTopology& barrelTopology,
 			     const CaloSubdetectorGeometry& barrelGeometry, 
@@ -59,12 +53,11 @@ class PFClusterProducer : public edm::EDProducer {
 /* 			     const CaloSubdetectorGeometry& hcalBarrelGeometry, */
 /* 			     const CaloSubdetectorGeometry& hcalEndcapGeometry ); */
   
-  reco::PFRecHit*  CreateHcalRecHit( const DetId& detid, 
+  reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
 				     double energy,
 				     int layer,
 				     const CaloSubdetectorGeometry* geom );
 
- private:
   // ----------member data ---------------------------
 
   /// process Ecal ? 

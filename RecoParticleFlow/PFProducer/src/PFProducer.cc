@@ -72,6 +72,7 @@ void PFProducer::produce(edm::Event& iEvent,
   //
   // Create empty output collections
   //
+  // COLIN : the second line should be enough ? 
   reco::PFRecTrackCollection outputPFRecTrackCollection;
   std::auto_ptr< reco::PFRecTrackCollection > pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
   
@@ -81,20 +82,30 @@ void PFProducer::produce(edm::Event& iEvent,
   LogDebug("PFProducer") << "get tracker geometry" << "\n";
   edm::ESHandle<TrackerGeometry> theG;
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
+
   LogDebug("PFProducer") << "get magnetic field" << "\n";
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+
   LogDebug("PFProducer") << "get the trajectory fitter from the ES" << "\n";
   edm::ESHandle<TrajectoryFitter> theFitter;
+
+  // COLIN: fitterName should be an attribute. No need to look for Fitter in 
+  // the parameters at each event
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
   iSetup.get<TrackingComponentsRecord>().get(fitterName, theFitter);
+
   LogDebug("PFProducer") << "get the trajectory propagator from the ES" 
 			 << "\n";
   edm::ESHandle<Propagator> thePropagator;
+
+  // COLIN : propagatorName should be an attribute
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");
   iSetup.get<TrackingComponentsRecord>().get(propagatorName, thePropagator);
+
   LogDebug("PFProducer") << "get the TransientTrackingRecHitBuilder" << "\n";
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  // COLIN : builderName should be an attribute  
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
 
@@ -103,7 +114,10 @@ void PFProducer::produce(edm::Event& iEvent,
   //
   const MagneticField * magField = theMF.product();
   AnalyticalPropagator propagator(magField, alongMomentum);
-  ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(130., 130., -500., 500.)));
+  // COLIN:  ecal wall at 129, 317
+//   ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(130., 130., -500., 500.)));
+  ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(129., 129., -317., 317.)));
+  ReferenceCountingPointer<Surface> hcalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(183., 183., -388., 388.)));
 
   //
   // Get track candidates and create smoothed tracks
@@ -193,10 +207,29 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pECAL.mag());
     reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				   posECAL, momECAL);
-    track.setPoint(track.nTrajectoryMeasurements() +
+    track.setPoint(track.getNTrajectoryMeasurements() +
 		   reco::PFTrajectoryPoint::ECALEntrance, ecalPt);
-
+    
+    // Propage track to ECAL shower max TODO
+    
+    // Propagate track to HCAL
+    TrajectoryStateOnSurface hcalTSOS = 
+      propagator.propagate(outerTSOS, *hcalWall);
+    GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
+    GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
+    math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
+    math::XYZTLorentzVector momHCAL(pHCAL.x(), pHCAL.y(), pHCAL.z(), 
+				    pHCAL.mag());
+    reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
+				   posHCAL, momHCAL);
+    track.setPoint(track.getNTrajectoryMeasurements() +
+		   reco::PFTrajectoryPoint::HCALEntrance, hcalPt);
+    
+    
+    
     outputPFRecTrackCollection.push_back(track);
+    
+   
     LogDebug("PFProducer") << "Add a new PFRecTrack " << track << "\n";
   }
 
