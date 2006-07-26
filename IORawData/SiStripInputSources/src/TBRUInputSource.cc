@@ -260,7 +260,7 @@ bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &
 	  //int frl_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
 	  unsigned int* fedb = &dest[0];
 	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int)- sizeof(frlh_t)/sizeof(int);
-	  //	  cout <<hex<< dest[frl_len-1]<<":" << dest[frl_len-2]<<dec <<endl;
+	  //cout <<hex<< dest[frl_len-1]<<":" << dest[frl_len-2]<<dec <<endl;
 	  int fedlen = (fed_len*sizeof(int))>>3;
 	  if ( fedb[fed_len-1] == (0xa0000000 | (fedlen) ))
 	    slinkswap = true;
@@ -289,7 +289,7 @@ bool TBRUInputSource::produce(edm::Event& e) {
     	unsigned int fed_len;
      	bool slinkswap = checkFedStructure(i,output,fed_len);
 	int fed_id = getFedId(slinkswap,output);
-	cout <<fed_id << ":"<<fed_len <<endl;
+	//cout <<fed_id << ":"<<fed_len <<endl;
       if (!m_quiet) {
 	stringstream ss;
 	ss << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec;
