@@ -14,6 +14,12 @@
 
 namespace reco {
 
+  /**\class PFTrajectoryPoint
+     \brief Trajectory point (a PFRecTrack holds several trajectory points)
+          
+     \author Renaud Bruneliere
+     \date   July 2006
+  */
   class PFTrajectoryPoint {
 
   public:
@@ -51,19 +57,19 @@ namespace reco {
     bool isTrackerLayer() const { return isTrackerLayer_; }
 
     /// measurement detId
-    unsigned detId() const    { return detId_; }
+    unsigned getDetId() const    { return detId_; }
 
     /// trajectory point layer
-    unsigned layer() const    { return layer_; }
+    unsigned getLayer() const    { return layer_; }
 
     /// cartesian position (x, y, z)
-    const math::XYZPoint& xyzPosition() const { return posxyz_; }
+    const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
 
     /// trajectory position in (rho, eta, phi) base
-    const REPPoint& repPosition();
+    const REPPoint& getPositionREP();
 
     /// 4-momenta quadrivector
-    const math::XYZTLorentzVector& momentum() const    { return momentum_; }
+    const math::XYZTLorentzVector& getMomentum() const    { return momentum_; }
 
     friend std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint);
 

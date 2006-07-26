@@ -1,8 +1,12 @@
 #ifndef Demo_PFClusterAlgo_PFLayer_h
 #define Demo_PFClusterAlgo_PFLayer_h
 
+/**\class PFLayer
+\brief layer definition for PFRecHit and PFCluster
 
-
+\author Colin Bernet
+\date   July 2006
+*/
 class PFLayer {
 
  public:

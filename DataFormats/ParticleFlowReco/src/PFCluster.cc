@@ -47,13 +47,13 @@ PFCluster::PFCluster(const PFCluster& other) :
 {}
 
 
-void PFCluster::AddRecHit( const reco::PFRecHit& rechit, double fraction) {
+void PFCluster::addRecHit( const reco::PFRecHit& rechit, double fraction) {
 
   rechits_.push_back( reco::PFRecHitFraction(&rechit, fraction) );
 }
 
 
-void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
+void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 
   if( rechits_.empty() ) {
     cerr<<"PFCluster::CalculatePosition: empty cluster!!!"<<endl; 
@@ -77,24 +77,24 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
   double layer = 0;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
 
-    const reco::PFRecHit* rechit = rechits_[ic].GetRecHit();
+    const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
 
-    double frac =  rechits_[ic].GetFraction();
-    double theRecHitEnergy = rechit->GetEnergy() * frac;
+    double frac =  rechits_[ic].getFraction();
+    double theRecHitEnergy = rechit->getEnergy() * frac;
 
     energy_ += theRecHitEnergy;
-//     if ( rechit->GetLayer() == LAYER_ECAL_BARREL ||
-// 	 rechit->GetLayer() == LAYER_ECAL_ENDCAP ) 
+//     if ( rechit->getLayer() == LAYER_ECAL_BARREL ||
+// 	 rechit->getLayer() == LAYER_ECAL_ENDCAP ) 
 //       fEecal += theRecHitEnergy;
-//     else if ( rechit->GetLayer() == LAYER_HCAL_BARREL_1 ||
-// 	      rechit->GetLayer() == LAYER_HCAL_BARREL_2 ||
-// 	      rechit->GetLayer() == LAYER_HCAL_ENDCAP_1 ||
-// 	      rechit->GetLayer() == LAYER_HCAL_ENDCAP_2 || 
-// 	      rechit->GetLayer() == LAYER_VFCAL	      
+//     else if ( rechit->getLayer() == LAYER_HCAL_BARREL_1 ||
+// 	      rechit->getLayer() == LAYER_HCAL_BARREL_2 ||
+// 	      rechit->getLayer() == LAYER_HCAL_ENDCAP_1 ||
+// 	      rechit->getLayer() == LAYER_HCAL_ENDCAP_2 || 
+// 	      rechit->getLayer() == LAYER_VFCAL	      
 // 	      ) 
 //       fEhcal += theRecHitEnergy;
 
-    layer += rechit->GetLayer() * theRecHitEnergy;
+    layer += rechit->getLayer() * theRecHitEnergy;
   }  
   layer /= energy_;
   layer_ = lrintf(layer); // nearest integer
@@ -151,9 +151,9 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
   double z = 0;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
     
-    const reco::PFRecHit* rechit = rechits_[ic].GetRecHit();
-    double fraction =  rechits_[ic].GetFraction();  
-    double theRecHitEnergy = rechit->GetEnergy() * fraction;
+    const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
+    double fraction =  rechits_[ic].getFraction();  
+    double theRecHitEnergy = rechit->getEnergy() * fraction;
 
     double norm=0;
     
@@ -170,7 +170,7 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
     }
     
     
-    const math::XYZPoint& rechitposxyz = rechit->GetPositionXYZ();
+    const math::XYZPoint& rechitposxyz = rechit->getPositionXYZ();
     
     if( theRecHitEnergy > maxe ) {
       firstrechitposxyz = rechitposxyz;
@@ -211,7 +211,7 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
 
 
   if( depthCorMode_ &&   // correction activated
-      depcor &&       // correction requested
+      depcor &&          // correction requested
       ( layer_ == PFLayer::ECAL_BARREL ||       
 	layer_ == PFLayer::ECAL_ENDCAP ) ) {
 
@@ -273,13 +273,13 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
     y = 0;
     z = 0;
     for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
-      const reco::PFRecHit* rechit = rechits_[ic].GetRecHit();
-      double fraction =  rechits_[ic].GetFraction();
+      const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
+      double fraction =  rechits_[ic].getFraction();
       
-      double theRecHitEnergy = rechit->GetEnergy() * fraction;
+      double theRecHitEnergy = rechit->getEnergy() * fraction;
 
-      const math::XYZPoint&  rechitposxyz = rechit->GetPositionXYZ();
-      const math::XYZVector& rechitaxis = rechit->GetAxisXYZ();
+      const math::XYZPoint&  rechitposxyz = rechit->getPositionXYZ();
+      const math::XYZVector& rechitaxis = rechit->getAxisXYZ();
 
 
 //       // corrected rechit position:
@@ -360,7 +360,7 @@ void PFCluster::CalculatePosition( int algo, double p1, bool depcor) {
 //   // calculate the distance between the cluster and each rechit
 
 //   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
-//     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].GetRecHit()->GetPositionXYZ() ).Mag() );
+//     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].getRecHit()->getPositionXYZ() ).Mag() );
 //   }
 
 }
@@ -372,13 +372,13 @@ std::ostream& reco::operator<<(std::ostream& out,
   
   if(!out) return out;
   
-  const PFCluster::REPPoint&  pos = cluster.GetPositionREP();
+  const PFCluster::REPPoint&  pos = cluster.getPositionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
-    cluster.GetRecHitFractions();
+    cluster.getRecHitFractions();
 
-  out<<"cluster "<<cluster.GetId()
-     <<"\ttype: "<<cluster.GetType()
-     <<"\tenergy: "<<cluster.GetEnergy()
+  out<<"cluster "<<cluster.getId()
+     <<"\ttype: "<<cluster.getType()
+     <<"\tenergy: "<<cluster.getEnergy()
      <<"\tposition: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<endl;
   out<<"\t"<<fracs.size()<<" rechits: "<<endl;

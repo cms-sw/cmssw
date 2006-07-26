@@ -115,8 +115,8 @@ ostream& reco::operator<<(std::ostream& out,
 
   if(!out) return out;
 
-  const reco::PFRecHit* rechit = hit.GetRecHit();
-  out<<hit.GetEnergy()<<"\t"<<(*rechit);
+  const reco::PFRecHit* rechit = hit.getRecHit();
+  out<<hit.getEnergy()<<"\t"<<(*rechit);
 
   return out;
 }

@@ -83,7 +83,7 @@ PFRecHit::~PFRecHit()
 {}
 
 
-const PFRecHit::REPPoint& PFRecHit::GetPositionREP() {
+const PFRecHit::REPPoint& PFRecHit::getPositionREP() {
   if( posrep_ == REPPoint() ) {
     posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
   }
@@ -91,7 +91,7 @@ const PFRecHit::REPPoint& PFRecHit::GetPositionREP() {
 }
 
 
-void PFRecHit::SetNeighbours( const vector<PFRecHit*>& neighbours ) {
+void PFRecHit::setNeighbours( const vector<PFRecHit*>& neighbours ) {
   if( neighbours.size() != nNeighbours_ ) 
     throw cms::Exception("CellNeighbourVector") 
       << "number of neighbours must be nNeighbours_";
@@ -110,17 +110,17 @@ void PFRecHit::SetNeighbours( const vector<PFRecHit*>& neighbours ) {
   for(unsigned i=0; i<neighbours.size(); i++) {
     if( neighbours[i] ) {
       neighbours8_.push_back( neighbours[i] );      
-      neighboursIds8_.push_back( neighbours[i]->GetDetId() );  
+      neighboursIds8_.push_back( neighbours[i]->getDetId() );  
       if( !(i%2) ) {
 	neighbours4_.push_back( neighbours[i] );
-	neighboursIds4_.push_back( neighbours[i]->GetDetId() );  
+	neighboursIds4_.push_back( neighbours[i]->getDetId() );  
       }
     }
   }
 }
 
 
-void PFRecHit::FindPtrsToNeighbours( const std::map<unsigned,  
+void PFRecHit::findPtrsToNeighbours( const std::map<unsigned,  
 				     reco::PFRecHit* >& allhits ) {
 
   neighbours4_.clear();
@@ -148,27 +148,27 @@ void PFRecHit::FindPtrsToNeighbours( const std::map<unsigned,
 }
 
 
-void PFRecHit::SetNWCorner( double posx, double posy, double posz ) {
-  SetCorner(0, posx, posy, posz);
+void PFRecHit::setNWCorner( double posx, double posy, double posz ) {
+  setCorner(0, posx, posy, posz);
 }
 
 
-void PFRecHit::SetSWCorner( double posx, double posy, double posz ) {
-  SetCorner(1, posx, posy, posz);
+void PFRecHit::setSWCorner( double posx, double posy, double posz ) {
+  setCorner(1, posx, posy, posz);
 }
 
 
-void PFRecHit::SetSECorner( double posx, double posy, double posz ) {
-  SetCorner(2, posx, posy, posz);
+void PFRecHit::setSECorner( double posx, double posy, double posz ) {
+  setCorner(2, posx, posy, posz);
 }
 
 
-void PFRecHit::SetNECorner( double posx, double posy, double posz ) {
-  SetCorner(3, posx, posy, posz);
+void PFRecHit::setNECorner( double posx, double posy, double posz ) {
+  setCorner(3, posx, posy, posz);
 }
 
 
-void PFRecHit::SetCorner( unsigned i, double posx, double posy, double posz ) {
+void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
   assert( cornersxyz_.size() == nCorners_);
   assert( i<cornersxyz_.size() );
 
@@ -181,34 +181,38 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
   if(!out) return out;
 
 //   reco::PFRecHit& nshit = const_cast<reco::PFRecHit& >(hit);
-//   const reco::PFRecHit::REPPoint& posrep = nshit.GetPositionREP();
+//   const reco::PFRecHit::REPPoint& posrep = nshit.getPositionREP();
   
-  const  math::XYZPoint& posxyz = hit.GetPositionXYZ();
+  const  math::XYZPoint& posxyz = hit.getPositionXYZ();
 
-  out<<"hit id:"<<hit.GetDetId()
-     <<" layer:"<<hit.GetLayer()
-     <<" energy:"<<hit.GetEnergy()
+  out<<"hit id:"<<hit.getDetId()
+     <<" layer:"<<hit.getLayer()
+     <<" energy:"<<hit.getEnergy()
      <<" position: "
      <<" / "<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()
      <<" / "<<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()
-     <<" SEED: "<<hit.isSeed_<<endl;
+     <<" SEED: "<<hit.isSeed_;
   
 //   out<<endl;
 //   out<<"neighbours "<<endl;
 //   for(unsigned i=0; i<hit.neighbours8_.size(); i++ ) {
-//     out<<"\t"<< hit.neighbours8_[i]->GetDetId()<<endl;
+//     out<<"\t"<< hit.neighbours8_[i]->getDetId()<<endl;
 //   }
 //   out<<"--"<<endl;
 //   for(unsigned i=0; i<hit.neighboursIds8_.size(); i++ ) {
 //     out<<"\t"<< (hit.neighboursIds8_[i])<<endl;
 //   }
   
+  bool printcorners = false;
 
-  out<<"corners : "<<endl;
-  const std::vector< math::XYZPoint >& corners = hit.GetCornersXYZ();
-  for(unsigned i=0; i<corners.size(); i++) {
-    out<<"\t"<<corners[i].X()<<","<<corners[i].Y()<<","<<corners[i].Z()<<endl;
-  }
-  
+  if(printcorners) {
+    
+    out<<endl<<"corners : "<<endl;
+    const std::vector< math::XYZPoint >& corners = hit.getCornersXYZ();
+    for(unsigned i=0; i<corners.size(); i++) {
+      out<<"\t"<<corners[i].X()<<","<<corners[i].Y()<<","<<corners[i].Z()<<endl;
+    }
+  }  
+
   return out;
 }

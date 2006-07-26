@@ -11,6 +11,12 @@
 
 namespace reco {
 
+  /**\class PFCluster
+     \brief Particle flow cluster, see clustering algorithm in PFClusterAlgo
+          
+     \author Colin Bernet
+     \date   July 2006
+  */
   class PFCluster {
   public:
 
@@ -35,35 +41,35 @@ namespace reco {
     PFCluster(const PFCluster& other);
    
     /// add a given fraction of the rechit
-    void AddRecHit( const reco::PFRecHit& rechit, double fraction);
+    void addRecHit( const reco::PFRecHit& rechit, double fraction);
 
     /// updates cluster info from rechit
-    void CalculatePosition( int algo, double p1 = 0, bool depcor = true);
+    void calculatePosition( int algo, double p1 = 0, bool depcor = true);
 
     /// vector of rechit fractions
-    const std::vector< reco::PFRecHitFraction >& GetRecHitFractions() const 
+    const std::vector< reco::PFRecHitFraction >& getRecHitFractions() const 
       { return rechits_; }
   
     /// cluster id
-    unsigned      GetId() const {return id_;}
+    unsigned      getId() const {return id_;}
   
     /// cluster type
-    int           GetType() const {return type_;}
+    int           getType() const {return type_;}
 
     /// cluster layer, see PFClusterLayer.h
-    int           GetLayer() const {return layer_;}          
+    int           getLayer() const {return layer_;}          
 
     /// cluster energy
-    double        GetEnergy() const {return energy_;}
+    double        getEnergy() const {return energy_;}
 
     /// cluster position: cartesian
-    const math::XYZPoint& GetPositionXYZ() const {return posxyz_;}
+    const math::XYZPoint& getPositionXYZ() const {return posxyz_;}
 
     /// cluster position: rho, eta, phi
-    const REPPoint&       GetPositionREP() const {return posrep_;}
+    const REPPoint&       getPositionREP() const {return posrep_;}
 
     /// set parameters for depth correction
-    static void SetDepthCorParameters( int    mode,
+    static void setDepthCorParameters( int    mode,
 				       double a, 
 				       double b, 
 				       double ap, 
@@ -111,6 +117,8 @@ namespace reco {
 
     /// keep track of whether depth correction was required or not
     bool                posCalcDepthCor_;
+
+    // the following parameters should maybe be moved to PFClusterAlgo
 
     /// mode for depth correction (e/gamma or hadron)
     static int          depthCorMode_;

@@ -13,6 +13,12 @@
 
 namespace reco {
 
+  /**\class PFRecHit
+     \brief Particle flow rechit (rechit + geometry and topology information). See clustering algorithm in PFClusterAlgo
+          
+     \author Colin Bernet
+     \date   July 2006
+  */
   class PFRecHit {
 
   public:
@@ -41,56 +47,62 @@ namespace reco {
     /// destructor
     virtual ~PFRecHit();
 
-    void      SetNeighbours( const std::vector<PFRecHit*>& neighbours );
+    void      setNeighbours( const std::vector<PFRecHit*>& neighbours );
     
-    void      FindPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
+    /// \brief search for pointers to neighbours, using neighbours' DetId.
+    /// 
+    /// pointers to neighbours are not persistent, in contrary to the DetId's 
+    /// of the neighbours. This function searches a map of rechits 
+    /// for the DetId's stored in neighboursIds4_ and  neighboursIds8_. 
+    /// The corresponding pointers are stored in neighbours4_ and neighbours8_. 
+    void      findPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
 
-    void      SetNWCorner( double posx, double posy, double posz );
-    void      SetSWCorner( double posx, double posy, double posz );
-    void      SetSECorner( double posx, double posy, double posz );
-    void      SetNECorner( double posx, double posy, double posz );
+    void      setNWCorner( double posx, double posy, double posz );
+    void      setSWCorner( double posx, double posy, double posz );
+    void      setSECorner( double posx, double posy, double posz );
+    void      setNECorner( double posx, double posy, double posz );
 
     /// rechit detId
-    unsigned GetDetId() const {return detId_;}
+    unsigned getDetId() const {return detId_;}
 
     /// rechit layer
-    int GetLayer() const { return layer_; }
+    int getLayer() const { return layer_; }
 
     /// rechit energy
-    double GetEnergy() const { return energy_; }
+    double getEnergy() const { return energy_; }
 
     /// is seed ? (-1:unknown, 0:no, 1 yes)
-    int  IsSeed() const { return isSeed_; }
+    int  isSeed() const { return isSeed_; }
     
     /// set seed status
-    void YouAreSeed(int seedstate=1) {isSeed_ = seedstate;} 
+    void youAreSeed(int seedstate=1) {isSeed_ = seedstate;} 
 
     /// rechit cell centre x, y, z
-    const math::XYZPoint& GetPositionXYZ() const { return posxyz_; }
+    const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
 
     /// rechit cell centre rho, eta, phi
-    const REPPoint& GetPositionREP();
+    const REPPoint& getPositionREP();
 
     /// rechit cell axis x, y, z
-    const math::XYZVector& GetAxisXYZ() const { return axisxyz_; }    
+    const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
 
     /// rechit corners
-    const std::vector< math::XYZPoint >& GetCornersXYZ() const 
+    const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
 
-/*     const std::vector< PFRecHit* >& GetNeighbours() const  */
+/*     const std::vector< PFRecHit* >& getNeighbours() const  */
 /*       {return neighbours_;}   */
     
-    const std::vector< PFRecHit* >& GetNeighbours4() const 
+    const std::vector< PFRecHit* >& getNeighbours4() const 
       {return neighbours4_;}  
 
-    const std::vector< PFRecHit* >& GetNeighbours8() const 
+    const std::vector< PFRecHit* >& getNeighbours8() const 
       {return neighbours8_;}  
 
-    const std::vector< unsigned >& GetNeighboursIds4() const 
+    const std::vector< unsigned >& getNeighboursIds4() const 
       {return neighboursIds4_;}  
 
-    const std::vector< unsigned >& GetNeighboursIds8() const 
+    const std::vector< unsigned >& getNeighboursIds8() const 
       {return neighboursIds8_;}  
 
     /// comparison >= operator
@@ -154,7 +166,8 @@ namespace reco {
     /// number of corners
     static const unsigned    nCorners_;
 
-    void      SetCorner( unsigned i, double posx, double posy, double posz );
+    /// set position of one of the corners
+    void      setCorner( unsigned i, double posx, double posy, double posz );
   };
   
 }

@@ -37,8 +37,7 @@ PFTrajectoryPoint::~PFTrajectoryPoint()
 {}
 
 
-const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::repPosition() 
-{
+const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::getPositionREP() {
   if(posrep_ == REPPoint())
     posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi());
   return posrep_;
@@ -46,15 +45,14 @@ const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::repPosition()
 
 
 std::ostream& reco::operator<<(std::ostream& out, 
-			       const reco::PFTrajectoryPoint& trajPoint) 
-{
+			       const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
 
-  const math::XYZPoint& posxyz = trajPoint.xyzPosition();
+  const math::XYZPoint& posxyz = trajPoint.getPositionXYZ();
 
-  out << "Trajectory point id = " << trajPoint.detId()
-      << ", layer = " << trajPoint.layer()
-      << ", Pt = " << trajPoint.momentum().Pt() 
+  out << "Trajectory point id = " << trajPoint.getDetId()
+      << ", layer = " << trajPoint.getLayer()
+      << ", Pt = " << trajPoint.getMomentum().Pt() 
       << ", Eta = " << posxyz.Eta()
       << ", R = " << posxyz.Rho() << ", Z = " << posxyz.Z() << std::endl;
   

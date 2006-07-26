@@ -10,6 +10,12 @@
 
 namespace reco {
 
+  /**\class PFRecTrack
+     \brief reconstructed track for particle flow
+          
+     \author Renaud Bruneliere
+     \date   July 2006
+  */
   class PFRecTrack
   {
   public:
@@ -36,33 +42,33 @@ namespace reco {
     { trajectoryPoints_[index] = measurement; }
 
     /// get electric charge
-    double charge() const    { return charge_; }
+    double getCharge() const    { return charge_; }
 
     /// get type of algorithm
-    unsigned int algoType() const    { return algoType_; }
+    unsigned int getAlgoType() const    { return algoType_; }
 
     /// get number of trajectory points
-    unsigned int nTrajectoryPoints() const 
+    unsigned int getNTrajectoryPoints() const 
     { return trajectoryPoints_.size(); }
 
     /// get number of trajectory measurements in tracker
-    unsigned int nTrajectoryMeasurements() const 
+    unsigned int getNTrajectoryMeasurements() const 
     { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
 
     /// vector of trajectory points
-    const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
+    const std::vector< reco::PFTrajectoryPoint >& getTrajectoryPoints() const 
     { return trajectoryPoints_; }
 
     /// get a trajectory point
-    const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
+    const reco::PFTrajectoryPoint& getTrajectoryPoint(unsigned index) const 
     { return trajectoryPoints_[index]; }
 
     /// iterator on innermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator innermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator getInnermostMeasurement() const
     { return trajectoryPoints_.begin() + indexInnermost_; }
 
     /// iterator on outermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator outermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator getOutermostMeasurement() const
     { return trajectoryPoints_.begin() + indexOutermost_; }
   
     bool isPropagated() { return (!doPropagation_); }

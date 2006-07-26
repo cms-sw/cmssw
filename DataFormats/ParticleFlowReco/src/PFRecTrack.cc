@@ -54,18 +54,16 @@ std::ostream& reco::operator<<(std::ostream& out,
 //   if (!track.IsPropagated()) track.Propagate();
 
   const reco::PFTrajectoryPoint& closestApproach = 
-    track.trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
+    track.getTrajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
-  out << "Track charge = " << track.charge() 
-      << ", type = " << track.algoType()
-      << ", Pt = " << closestApproach.momentum().Pt() 
-      << ", P = " << closestApproach.momentum().P() << std::endl
-      << "\tEta = " << closestApproach.momentum().Eta()
-      << ", Phi = " << closestApproach.momentum().Phi() << std::endl
-      << "\tR0 = " << closestApproach.xyzPosition().Rho()
-      <<" Z0 = " << closestApproach.xyzPosition().Z() << std::endl
+  out << "Track charge = " << track.getCharge() 
+      << ", type = " << track.getAlgoType()
+      << ", Pt = " << closestApproach.getMomentum().Pt() 
+      << ", P = " << closestApproach.getMomentum().P() << std::endl
+      << "\tR0 = " << closestApproach.getPositionXYZ().Rho()
+      <<" Z0 = " << closestApproach.getPositionXYZ().Z() << std::endl
       << "\tnumber of tracker measurements = " 
-      << track.nTrajectoryMeasurements() << std::endl;
+      << track.getNTrajectoryMeasurements() << std::endl;
 
   return out;
 }
