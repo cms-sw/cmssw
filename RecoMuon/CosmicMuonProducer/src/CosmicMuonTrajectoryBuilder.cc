@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/07/15 18:42:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/21 03:13:27 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -93,7 +93,7 @@ void CosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonTrajectoryBuilder::TrajectoryContainer 
 CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
-  std::vector<Trajectory> trajL;
+  std::vector<Trajectory*> trajL;
   TrajectoryStateTransform tsTransform;
 
   DirectMuonNavigation navigation(&*theDetLayerGeometry);
@@ -106,9 +106,9 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
    vector<const DetLayer*> navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
   edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"found "<<navLayerCBack.size()<<" compatible DetLayers for the Seed";
   if (navLayerCBack.size() == 0) {
-    return std::vector<Trajectory>();
+    return std::vector<Trajectory*>();
   }  
-  Trajectory theTraj(seed);
+  Trajectory* theTraj = new Trajectory(seed);
 
   int DTChamberUsedBack = 0;
   int CSCChamberUsedBack = 0;
@@ -127,22 +127,22 @@ edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"measurements in DetLayer "<<measL.
       if ( theMeas ) {
 
         pair<bool,TrajectoryStateOnSurface> result
-            = updator()->update(theMeas, theTraj);
+            = updator()->update(theMeas, *theTraj);
 
         if (result.first) {
    edm::LogInfo("CosmicMuonTrajectoryBuilder")<< "update successfully";
-          if((*rnxtlayer)->module()==dt) DTChamberUsedBack++;
-          else if((*rnxtlayer)->module()==csc) CSCChamberUsedBack++;
-          else if((*rnxtlayer)->module()==rpc) RPCChamberUsedBack++;
+          if((*rnxtlayer)-> subDetector() == GeomDetEnumerators::DT) DTChamberUsedBack++;
+          else if((*rnxtlayer)->subDetector() == GeomDetEnumerators::CSC) CSCChamberUsedBack++;
+          else if((*rnxtlayer)->subDetector() == GeomDetEnumerators::RPCBarrel || (*rnxtlayer)->subDetector() == GeomDetEnumerators::RPCEndcap) RPCChamberUsedBack++;
           TotalChamberUsedBack++;
 
-          if ( !theTraj.empty() ) lastTsos = result.second;
+          if ( !theTraj->empty() ) lastTsos = result.second;
           else lastTsos = theMeas->predictedState();
         }
       }
   } 
 
-  if (theTraj.isValid() && TotalChamberUsedBack >= 2 && (DTChamberUsedBack+CSCChamberUsedBack) > 0){
+  if (theTraj->isValid() && TotalChamberUsedBack >= 2 && (DTChamberUsedBack+CSCChamberUsedBack) > 0){
      trajL.push_back(theTraj);
     } 
 
