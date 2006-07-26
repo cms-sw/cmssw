@@ -1,8 +1,8 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2006/07/12 11:01:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/25 09:47:59 $
+ *  $Revision: 1.1 $
  *  \author M. Sani
  */
 
@@ -16,7 +16,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <Geometry/CommonDetUnit/test/GlobalTrackingGeometryTest.h>
+#include <Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h>
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 
