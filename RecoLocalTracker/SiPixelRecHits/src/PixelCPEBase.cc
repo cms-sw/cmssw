@@ -68,10 +68,10 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det )const
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
   switch (thePart) {
-  case GeomDetType::PixelBarrel:
+  case GeomDetEnumerators::PixelBarrel:
     // A barrel!  A barrel!
     break;
-  case GeomDetType::PixelEndcap:
+  case GeomDetEnumerators::PixelEndcap:
     // A forward!  A forward!
     break;
   default:
@@ -267,7 +267,7 @@ bool PixelCPEBase::isFlipped() const {
 //{ 
 //  //@@ the geometrical correction are calculated only
 //  //@@ for the barrel part (am I right?)  &&& ??????????????????
-//  if (thePart == GeomDetType::PixelEndcap) return 0;
+//  if (thePart == GeomDetEnumerators::PixelEndcap) return 0;
 //  else return theThickness / theDetR;
 //}
 

@@ -253,7 +253,7 @@ PixelCPEParmError::chargeWidthX() const
 // &&& Commented out: the version from FromDetPosition:
 //   float chargeW = 0;
 //   float lorentzWidth = 2 * theLShift;
-//   if (thePart == GeomDetType::PixelBarrel) {
+//   if (thePart == GeomDetEnumerators::PixelBarrel) {
 //     // Redefine the charge width to include the offset
 //     chargeW = lorentzWidth - theSign * geomCorrection() * theOffsetX;
 //   } else { // forward
@@ -263,7 +263,7 @@ PixelCPEParmError::chargeWidthX() const
 //   return chargeW;
 
   float geomWidthX = theThickness * tan(PI/2 - alpha_)/thePitchX;
-  if (thePart == GeomDetType::PixelBarrel){
+  if (thePart == GeomDetEnumerators::PixelBarrel){
     return (geomWidthX) + (2 * theLShift);
   } else {
     return fabs(geomWidthX) + (2 * fabs(theLShift)); 
@@ -279,7 +279,7 @@ PixelCPEParmError::chargeWidthY() const
 {
 // &&& Commented out: the version from FromDetPosition:
 //   float chargeW = 0;  
-//   if (thePart == GeomDetType::PixelBarrel) {
+//   if (thePart == GeomDetEnumerators::PixelBarrel) {
 //     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
 //     chargeW -= (geomCorrection() * theOffsetY);
 //   } else { //forward
@@ -289,7 +289,7 @@ PixelCPEParmError::chargeWidthY() const
 //   return chargeW;
 
   float geomWidthY = theThickness * tan(PI/2 - beta_)/thePitchY;
-  if (thePart == GeomDetType::PixelBarrel) {
+  if (thePart == GeomDetEnumerators::PixelBarrel) {
     return geomWidthY;
   } else {
     return fabs(geomWidthY);

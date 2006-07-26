@@ -112,7 +112,7 @@ PixelCPEInitial::err2X(bool& edgex, int& sizex) const
   //
   if (!edgex){
     //    if (fabs(thePitchX-0.010)<0.001){   // 100um pixel size
-      if (thePart == GeomDetType::PixelBarrel) {
+      if (thePart == GeomDetEnumerators::PixelBarrel) {
 	if ( sizex == 1) xerr = 0.00115;      // Size = 1 -> Sigma = 11.5 um 
 	else if ( sizex == 2) xerr = 0.0012;  // Size = 2 -> Sigma = 12 um      
 	else if ( sizex == 3) xerr = 0.00088; // Size = 3 -> Sigma = 8.8 um
@@ -130,7 +130,7 @@ PixelCPEInitial::err2X(bool& edgex, int& sizex) const
       }
       //    }
 //     }else if (fabs(thePitchX-0.015)<0.001){  // 150 um pixel size
-//       if (thePart == GeomDetType::PixelBarrel) {
+//       if (thePart == GeomDetEnumerators::PixelBarrel) {
 // 	if ( sizex == 1) xerr = 0.0014;     // 14um 
 // 	else xerr = 0.0008;   // 8um      
 //       } else { //forward
@@ -158,7 +158,7 @@ PixelCPEInitial::err2Y(bool& edgey, int& sizey) const
 //  float yerr = 0.0043;
   float yerr = thePitchY/3.464; 
   if (!edgey){
-    if (thePart == GeomDetType::PixelBarrel) { // Barrel
+    if (thePart == GeomDetEnumerators::PixelBarrel) { // Barrel
       if ( sizey == 1) {
 	yerr = 0.00375;     // 37.5um 
       } else if ( sizey == 2) {
@@ -303,7 +303,7 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
 float PixelCPEInitial::chargeWidthX() const { 
   float chargeW = 0;
   float lorentzWidth = 2 * theLShift;
-  if (thePart == GeomDetType::PixelBarrel) {
+  if (thePart == GeomDetEnumerators::PixelBarrel) {
     chargeW = lorentzWidth; //  width from Lorentz shift
   } else { // forward
     chargeW = fabs(lorentzWidth) +                      // Lorentz shift
@@ -317,7 +317,7 @@ float PixelCPEInitial::chargeWidthX() const {
 //-----------------------------------------------------------------------------
 float PixelCPEInitial::chargeWidthY() const {
   float chargeW = 0;  
-  if (thePart == GeomDetType::PixelBarrel) {
+  if (thePart == GeomDetEnumerators::PixelBarrel) {
    // Charge width comes from the geometry (inclined angles)
     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
   } else { //forward
@@ -336,7 +336,7 @@ float PixelCPEInitial::chargeWidthY() const {
 // Correction for the X-direction
 // This is better defined as the IP is well localized in the x-y plane.
 float PixelCPEInitial::geomCorrectionX(float xcenter) const {
-  if (thePart == GeomDetType::PixelEndcap) return 0;
+  if (thePart == GeomDetEnumerators::PixelEndcap) return 0;
   else {
     float tmp = theSign * (theThickness / theDetR) * (xcenter-theOffsetX);
     return tmp;
@@ -345,7 +345,7 @@ float PixelCPEInitial::geomCorrectionX(float xcenter) const {
 // Correction for the Y-direction
 // This is poorly defined becouse the IP is very smeared along the z direction.
 float PixelCPEInitial::geomCorrectionY(float ycenter) const {
-  if (thePart == GeomDetType::PixelEndcap) return 0;
+  if (thePart == GeomDetEnumerators::PixelEndcap) return 0;
   else {
     float tmp = (ycenter - theOffsetY) * theThickness / theDetR;
     if(theDetZ>0.) tmp = -tmp; // it is the opposite for Z>0 and Z<0

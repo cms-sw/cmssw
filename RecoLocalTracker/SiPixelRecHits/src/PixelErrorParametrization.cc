@@ -133,11 +133,11 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 {
   pair<float,float> element;
   switch (pixelPart) {
-  case GeomDetType::PixelBarrel:
+  case GeomDetEnumerators::PixelBarrel:
     element = pair<float,float>(error_XB(sizex, alpha, beta), 
 				error_YB(sizey, alpha, beta));
     break;
-  case GeomDetType::PixelEndcap:
+  case GeomDetEnumerators::PixelEndcap:
     element =  pair<float,float>(error_XF(sizex, alpha, beta),
 				 error_YF(sizey, alpha, beta));
     break;
