@@ -3,8 +3,8 @@
 /** \class PhotonCorrectionProducer
  **  
  **
- **  $Id: PhotonCorrectionProducer.h,v 1.1 2006/06/09 15:55:49 nancy Exp $ 
- **  $Date: 2006/06/09 15:55:49 $ 
+ **  $Id: PhotonCorrectionProducer.h,v 1.1 2006/06/27 14:03:29 nancy Exp $ 
+ **  $Date: 2006/06/27 14:03:29 $ 
  **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
@@ -42,9 +42,11 @@ class PhotonCorrectionProducer : public edm::EDProducer {
   std::string phoCollection_;
   edm::ParameterSet conf_;
 
+  bool applyDummyCorrection_;
+
   edm::ESHandle<MagneticField> theMF_;
 
-  PhotonCorrectionAlgo* theCorrections_;
+  PhotonCorrectionAlgo* theDummyCorrection_;
 
 
 };
