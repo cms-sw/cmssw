@@ -25,7 +25,7 @@ void MSLayersKeeperX0Averaged::init(const edm::EventSetup &iSetup)
   
 
 for (it = allLayers.begin(); it != allLayers.end(); it++) {
-    float cotTheta = (it->face()==barrel) ?
+    float cotTheta = (it->face()==GeomDetEnumerators::barrel) ?
         it->range().mean()/it->position()
       : it->position()/it->range().mean();
 
@@ -40,7 +40,7 @@ for (it = allLayers.begin(); it != allLayers.end(); it++) {
 
     float hrange= (it->range().max()-it->range().min())/2.;
     DataX0 dataX0;
-    if (it->face()==forward) {
+    if (it->face()==GeomDetEnumerators::endcap) {
       float cot1 = it->position()/(it->range().mean()-hrange/2); 
       float cot2 = it->position()/(it->range().mean()+hrange/2); 
       const MSLayer * aLayer1 = layersX0Eta.layers(cot1).findLayer(*it);

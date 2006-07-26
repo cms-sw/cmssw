@@ -21,7 +21,7 @@ InnerDeltaPhi::InnerDeltaPhi( const DetLayer& layer,
 
   theVtxZ = (zMinOrigin + zMaxOrigin)/2.;
 
-  if (layer.part() == barrel){
+  if (layer.location() == GeomDetEnumerators::barrel){
 
 
     initBarrelLayer( layer);

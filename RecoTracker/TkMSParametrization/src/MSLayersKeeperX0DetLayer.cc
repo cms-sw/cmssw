@@ -22,7 +22,7 @@ void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
   vector<MSLayer>::iterator it;
   PixelRecoPointRZ zero(0.,0.); 
   for (it = allLayers.begin(); it != allLayers.end(); it++) {
-    PixelRecoPointRZ middle = it->face()== barrel ?
+    PixelRecoPointRZ middle = it->face()== GeomDetEnumerators::barrel ?
         PixelRecoPointRZ(it->position(), it->range().mean())
       : PixelRecoPointRZ(it->range().mean(), it->position());
 
@@ -30,7 +30,7 @@ void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
     float x0 =  getDataX0(*it).x0;
 
     DataX0 dataX0;
-    if (it->face()==barrel) {
+    if (it->face()== GeomDetEnumerators::barrel) {
       float sumX0D = theLayersData.sumX0D(zero, middle);
       dataX0 = DataX0(x0, sumX0D, cotTheta);      
     } else {

@@ -37,7 +37,7 @@ checkRZ(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSe
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  bool isBarrel = (layer->part() == barrel);
+  bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
    GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
   PixelRecoPointRZ outer(ohit.perp(), ohit.z());
   
@@ -59,7 +59,7 @@ checkRZ(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSe
   float hitRErr = hitErrR(layer);
 
   PixelRecoPointRZ  outerL, outerR;
-  if (layer->part() == barrel) {
+  if (layer->location() == GeomDetEnumerators::barrel) {
     outerL = PixelRecoPointRZ(outer.r(), outer.z()-hitZErr);
     outerR = PixelRecoPointRZ(outer.r(), outer.z()+hitZErr);
   } else if (outer.z() > 0) {

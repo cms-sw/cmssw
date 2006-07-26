@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 template <class T> T sqr( T t) {return t*t;}
 
-
+using namespace GeomDetEnumerators;
 
 HitRZCompatibility* GlobalTrackingRegion::
 checkRZ(const DetLayer* layer, 
@@ -25,8 +25,8 @@ checkRZ(const DetLayer* layer,
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   //MP
-  bool isBarrel = (layer->part() == barrel);
-  bool isPixel = (layer->module() == pixel);
+  bool isBarrel = (layer->location() == barrel);
+  bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
 
   
 
@@ -51,7 +51,7 @@ checkRZ(const DetLayer* layer,
 
   PixelRecoPointRZ  outerL, outerR;
 
-  if (layer->part() == barrel) {
+  if (layer->location() == barrel) {
 
     outerL = PixelRecoPointRZ(outer.r(), outer.z()-errZ);
     outerR = PixelRecoPointRZ(outer.r(), outer.z()+errZ);

@@ -130,7 +130,7 @@ void MSLayersKeeperX0AtEta::setX0(
     float rBound = (rL+rN)/2.;
     float sumX0atAngle = sumX0.sumX0atEta(eta,rBound);
    
-    float dX0 = (il->face() == barrel) ?
+    float dX0 = (il->face() == GeomDetEnumerators::barrel) ?
       (sumX0atAngle - sumX0atAngleLast)*sinTheta
       : (sumX0atAngle - sumX0atAngleLast)* fabs(cosTheta);
    

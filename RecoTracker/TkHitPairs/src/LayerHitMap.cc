@@ -23,7 +23,7 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
   
   theLayerPhimin = -M_PI;
   theCellDeltaPhi = 2*M_PI/theNbinsPhi;
-  if (layerhits->layer()->part() == barrel) {
+  if (layerhits->layer()->location() == GeomDetEnumerators::barrel) {
       float z0=layerhits->layer()->surface().position().z();
     float length =layerhits->layer()->surface().bounds().length();
     theLayerRZmin = z0 - length/2.;

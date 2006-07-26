@@ -115,12 +115,12 @@ StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
   const DetLayer* hit2Layer = theMeasurementTracker->geometricSearchTracker()->detLayer(recHit2->geographicalId());
 
   
-  Part p1 =  hit1Layer->part();
-  Part p2 =  hit2Layer->part();
+  GeomDetEnumerators::Location p1 =  hit1Layer->location();
+  GeomDetEnumerators::Location p2 =  hit2Layer->location();
 
-  if(p1 == barrel && p2 == barrel) {
+  if(p1 == GeomDetEnumerators::barrel && p2 == GeomDetEnumerators::barrel) {
     dr = 0.1; dz = 5.;
-  } else if(p1 == forward && p2 == forward) {
+  } else if(p1 == GeomDetEnumerators::endcap && p2 == GeomDetEnumerators::endcap) {
     dr = 5.; dz = 0.1;
   } else {
     dr = 0.1; dz = 0.1;

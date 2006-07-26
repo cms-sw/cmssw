@@ -132,7 +132,7 @@ SimpleBarrelNavigableLayer::nextLayers( PropagationDirection dir) const
     for ( DLC::const_iterator i=thePosOuterLayers.begin();
 	  i!=thePosOuterLayers.end(); i++) {
       // avoid duplication of barrel layers
-      if ((**i).part() == forward) result.push_back(*i);
+      if ((**i).location() == GeomDetEnumerators::endcap) result.push_back(*i);
     }
   }
   else {
@@ -140,7 +140,7 @@ SimpleBarrelNavigableLayer::nextLayers( PropagationDirection dir) const
     for ( DLC::const_iterator i=thePosInnerLayers.begin();
 	  i!=thePosInnerLayers.end(); i++) {
       // avoid duplication of barrel layers
-      if ((**i).part() == forward) result.push_back(*i);
+      if ((**i).location() == GeomDetEnumerators::endcap) result.push_back(*i);
     }
   }
   return result;

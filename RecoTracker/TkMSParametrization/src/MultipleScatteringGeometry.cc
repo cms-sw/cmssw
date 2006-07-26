@@ -11,6 +11,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+using namespace GeomDetEnumerators;
+
 //------------------------------------------------------------------------------
 const float MultipleScatteringGeometry::beamPipeR =  2.94;
 const float MultipleScatteringGeometry::endflangesZ = 30;
@@ -67,8 +70,8 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z,const e
   TrajectoryStateOnSurface tsos;
   for (il = theLayers.begin(); il != theLayers.end(); il++) {
     bool contains=false;
-    if ((*il)->module() != pixel) continue;
-    if ( (*il)->part() == barrel ) {
+    if ((*il)->subDetector() != PixelBarrel && (*il)->subDetector()!= PixelEndcap) continue;
+    if ( (*il)->location() == barrel ) {
       const BarrelDetLayer * bl =
           dynamic_cast<const BarrelDetLayer*>(*il);
       if (!bl) continue;
@@ -78,7 +81,7 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z,const e
       //MP
       contains=true;
     }
-    else if ((*il)->part() == forward) {
+    else if ((*il)->location() == endcap) {
       const ForwardDetLayer * fl =
            dynamic_cast<const ForwardDetLayer*>(*il);
       if (!fl) continue;
@@ -112,7 +115,7 @@ vector<MSLayer> MultipleScatteringGeometry::otherLayers(float eta,const edm::Eve
       PixelRecoPointRZ(endflangesZ/sinh(eta), endflangesZ)
     : PixelRecoPointRZ(-endflangesZ/sinh(eta), -endflangesZ);
   if (0 < endfPoint.r() && endfPoint.r() < supportR) {
-    MSLayer endflanges(forward,endfPoint.z(),MSLayer::Range(0.1,supportR-0.1));
+    MSLayer endflanges(endcap,endfPoint.z(),MSLayer::Range(0.1,supportR-0.1));
     result.push_back(endflanges);
   }
 

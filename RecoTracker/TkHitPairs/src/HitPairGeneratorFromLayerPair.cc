@@ -14,6 +14,8 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
+using namespace GeomDetEnumerators;
+
 typedef PixelRecoRange<float> Range;
 
 
@@ -37,8 +39,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
   const edm::EventSetup& iSetup)
 {
-  if (theInnerLayer->layer()->module() != pixel &&
-      theInnerLayer->layer()->part() == barrel ){
+  if (theInnerLayer->layer()->subDetector() != PixelBarrel &&
+      theInnerLayer->layer()->location() == barrel ){
     hitPairsWithErrors(region,result,iSetup);
     return;
   }
@@ -58,7 +60,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   outerlay=theOuterLayer->layer();
 
   
-  float outerHitErrorRPhi = (outerlay->part() == barrel) ?
+  float outerHitErrorRPhi = (outerlay->location() == barrel) ?
       TrackingRegionBase::hitErrRPhi(
 	  dynamic_cast<const BarrelDetLayer*>(outerlay) )
     : TrackingRegionBase::hitErrRPhi(
@@ -75,7 +77,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   float rzLayer1, rzLayer2;
 
   
-  if (innerlay->part() == barrel) {
+  if (innerlay->location() == barrel) {
     const BarrelDetLayer& bl = 
         dynamic_cast<const BarrelDetLayer&>(*innerlay);
     float halfThickness  = bl.surface().bounds().thickness()/2;
@@ -207,7 +209,7 @@ void HitPairGeneratorFromLayerPair::
       GlobalPoint innPos = recHit->globalPosition();
       Range allowed = checkRZ->range(innPos.perp());
       Range hitRZ;
-      if (theInnerLayer->layer()->part() == barrel) {
+      if (theInnerLayer->layer()->location() == barrel) {
         float zErr = nSigmaRZ * sqrt(recHit->globalPositionError().czz());
         hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
       } else {

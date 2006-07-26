@@ -1,7 +1,6 @@
 #ifndef MSLayer_H
 #define MSLayer_H
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-//#include "CommonDet/BasicDet/interface/Enumerators.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
@@ -31,13 +30,13 @@ public:
   MSLayer(const DetLayer* layer, DataX0 dataX0 = DataX0(0) );
   MSLayer() { }
 
-   MSLayer(Part part, float position, Range range, 
+  MSLayer(GeomDetEnumerators::Location part, float position, Range range, 
 	   float halfThickness = 0., 
 	   DataX0 dataX0 = DataX0(0) );
 
   const Range & range() const  { return theRange; }
  
-  const Part & face() const  { return theFace; }
+  const GeomDetEnumerators::Location & face() const  { return theFace; }
   float position() const { return thePosition; }
   float halfThickness() const { return theHalfThickness; }
 
@@ -52,7 +51,7 @@ public:
 
 private:
 
-  Part theFace;
+  GeomDetEnumerators::Location theFace;
   float thePosition;
   Range theRange;
   float theHalfThickness;

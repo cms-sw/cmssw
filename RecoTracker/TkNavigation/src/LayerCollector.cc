@@ -35,7 +35,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
 
      
 
-	if((**ilay).part() == barrel) {
+	if((**ilay).location() == GeomDetEnumerators::barrel) {
 
 	  Range barrZRange((**ilay).position().z() - 
 			   0.5*((**ilay).surface().bounds().length()),
@@ -47,7 +47,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
 	  if(rangesIntersect(trajZRange, barrZRange)) 
 	    myLayers.push_back(*ilay);
 
-	} else if((**ilay).part() == forward) {
+	} else if((**ilay).location() == GeomDetEnumerators::endcap) {
 
 	  const ForwardDetLayer* fwd = 
 	    dynamic_cast<const ForwardDetLayer*>(*ilay);

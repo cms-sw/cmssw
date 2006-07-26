@@ -4,6 +4,8 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 
+using namespace GeomDetEnumerators;
+
 template <class T> T sqr( T t) {return t*t;}
 
 //----------------------------------------------------------------------
@@ -27,7 +29,7 @@ ostream& operator<<( ostream& s, const MSLayer::DataX0 & d)
 //----------------------------------------------------------------------
 //MP
 MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
- : theFace(layer->part()), theX0Data(dataX0) 
+ : theFace(layer->location()), theX0Data(dataX0) 
 {
   const BarrelDetLayer* bl; const ForwardDetLayer * fl;
   theHalfThickness = layer->surface().bounds().thickness()/2;  
@@ -39,7 +41,7 @@ MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
     theRange = Range(-bl->surface().bounds().length()/2,
 		     bl->surface().bounds().length()/2);
     break;
-  case forward : 
+  case endcap : 
     fl = dynamic_cast<const ForwardDetLayer* >(layer);
     thePosition = fl->position().z(); 
     theRange = Range(fl->specificSurface().innerRadius(),
@@ -51,7 +53,7 @@ MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
   } 
 }
 //----------------------------------------------------------------------
-MSLayer::MSLayer(Part part, float position, Range range, float halfThickness,
+MSLayer::MSLayer(Location part, float position, Range range, float halfThickness,
     DataX0 dataX0)
   : theFace(part), 
     thePosition(position), 
@@ -118,7 +120,7 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
           point.z()-theRange.max() : theRange.min() - point.z();
     }
     break;
-  case forward:
+  case endcap:
     dz = fabs(point.z()-thePosition);
     if (theRange.inside(point.r())) {
       return (dz < theHalfThickness) ? 0. : dz;
@@ -138,9 +140,9 @@ bool MSLayer::operator< (const MSLayer & o) const
 
   if (theFace==barrel && o.theFace==barrel) 
     return thePosition < o.thePosition;
-  else if (theFace==barrel && o.theFace==forward)
+  else if (theFace==barrel && o.theFace==endcap)
     return thePosition < o.range().max(); 
-  else if (theFace==forward && o.theFace==forward ) 
+  else if (theFace==endcap && o.theFace==endcap ) 
     return fabs(thePosition) < fabs(o.thePosition);
   else 
     return range().max() < o.thePosition; 
@@ -152,7 +154,7 @@ float MSLayer::x0(float cotTheta) const
     float sinTheta = 1/sqrt(1+cotTheta*cotTheta);
     switch(theFace) {
     case barrel:  return theX0Data.x0/sinTheta;
-    case forward: return theX0Data.x0/fabs(cotTheta*sinTheta);
+    case endcap: return theX0Data.x0/fabs(cotTheta*sinTheta);
     }
   } else if (theX0Data.allLayers) {
     const MSLayer * dataLayer =
@@ -172,7 +174,7 @@ if (theX0Data.hasX0) {
           *sqrt(sqrt(   (1+cotTheta*cotTheta)
                       / (1+theX0Data.cotTheta*theX0Data.cotTheta)));
         return theX0Data.sumX0D;
-    case forward: 
+    case endcap: 
       return (theX0Data.hasFSlope) ?  
          theX0Data.sumX0D 
              + theX0Data.slopeSumX0D * (1/cotTheta-1/theX0Data.cotTheta)
