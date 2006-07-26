@@ -452,22 +452,36 @@ DaqMonitorBEInterface::~DaqMonitorBEInterface(void)
 	delete it->second;
     }
   qtests_.clear();
+
+  if(dqm_locker)delete dqm_locker;
 }
 
 
 // acquire lock
 void DaqMonitorBEInterface::lock()
 {
-  //  cout << "Called lock " << endl;
-  pthread_mutex_lock(&mutex_);  
+  // cout << " Called lock " << endl;
+  // mutex is not released till previous lock has been deleted in unlock()
+  dqm_locker = 
+    new boost::mutex::scoped_lock(*edm::rootfix::getGlobalMutex());
 }
 
 // release lock
 void DaqMonitorBEInterface::unlock()
 {
-  //  cout << "Called unlock " << endl;
-  pthread_mutex_unlock(&mutex_);
+  //  cout << " Called unlock " << endl;
+  if(dqm_locker)
+    {
+      // use local stack pointer to release memory, so we do not set
+      // dqm_locker to zero AFTER lock has been released
+      // (dangerous, as another thread may have acquired lock in the meantime)
+      boost::mutex::scoped_lock * tmp_lock = dqm_locker;
+      dqm_locker = 0;
+      delete tmp_lock;
+    }
+  //  
 }
+
 
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
 const string DaqMonitorBEInterface::subscriberDirName = "Subscribers";

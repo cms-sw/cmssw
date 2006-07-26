@@ -2,13 +2,12 @@
 #define DaqMonitorBEInterface_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/GlobalMutex.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/QCriterion.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
-
-#include <pthread.h>
-#include <semaphore.h>
 
 #include <iostream>
 #include <vector>
@@ -25,8 +24,9 @@ class DaqMonitorBEInterface: public StringUtil
   
   DaqMonitorBEInterface(edm::ParameterSet const &pset)
   {
-    pthread_mutex_init(&mutex_,0); DQM_VERBOSE = 1;
-    resetStuff();
+    //pthread_mutex_init(&mutex_,0); 
+    dqm_locker = 0;
+    DQM_VERBOSE = 1; resetStuff();
   }  
   virtual ~DaqMonitorBEInterface();
  
@@ -319,8 +319,7 @@ class DaqMonitorBEInterface: public StringUtil
   // (b) reset sets of added/removed/updated contents and updated QReports
   void resetStuff(void);
 
-  pthread_mutex_t mutex_;
-
+  boost::mutex::scoped_lock * dqm_locker;
   // ------------------- data structures -----------------------------
   
   // directory structure of "this"
