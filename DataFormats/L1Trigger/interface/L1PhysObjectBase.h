@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:09:21 EDT 2006
-// $Id$
-// $Log$
+// $Id: L1PhysObjectBase.h,v 1.1 2006/07/26 00:05:39 wsun Exp $
+// $Log: L1PhysObjectBase.h,v $
+// Revision 1.1  2006/07/26 00:05:39  wsun
+// Structural mods for HLT use.
+//
 //
 
 // system include files
@@ -40,7 +43,7 @@ namespace l1extra {
 	    kMuon,
 	    kEtMiss,
 	    kEtSum,
-	    kNumberPhysObjectTypes
+	    kNumOfPhysObjectTypes
 	 } ;
 
 	 typedef edm::RefToBase< L1TriggerObject > L1Ref ;

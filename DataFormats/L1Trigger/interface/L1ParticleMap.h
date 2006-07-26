@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.2  2006/07/26 00:05:39  wsun
+// Structural mods for HLT use.
+//
 // Revision 1.1  2006/07/17 20:35:19  wsun
 // First draft.
 //
@@ -26,181 +29,146 @@
 // system include files
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtTotalPhys.h"
 #include "DataFormats/L1Trigger/interface/L1EtHadPhys.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 // forward declarations
 
-namespace level1 {
+namespace l1extra {
 
    class L1ParticleMap
    {
 
       public:
-	 typedef std::vector< const ParticleKinematics* >
-	 L1ParticleCombination ;
-	 typedef std::vector< L1ParticleCombination >
-	 L1ParticleCombinationVector ;
+	 enum L1TriggerType
+	 {
+	    kSingleElectron,
+	    kSingleJet,
+	    kSingleTau,
+	    kSingleMuon,
+	    kNumOfL1TriggerTypes
+	 } ;
+
+	 typedef std::vector< unsigned int > L1IndexCombo ;
+	 typedef std::vector< L1IndexCombo > L1IndexComboVector ;
+	 typedef L1PhysObjectBase::L1PhysObjectType L1ParticleType ;
 
 	 L1ParticleMap();
 	 virtual ~L1ParticleMap();
 
 	 // ---------- const member functions ---------------------
-	 int triggerIndex() const
-	 { return m_triggerIndex ; }
+	 L1TriggerType triggerType() const
+	 { return triggerType_ ; }
 
-	 // Number of particles, excluding global quantities, that
-	 // participated in this trigger.
-	 int numberOfTriggerParticles() const
-	 { return m_particleTypes.size() ; }
+	 // Indices of particle types (e/gamma, jets, and muons), excluding
+	 // global quantities, that participated in this trigger.  The order
+	 // of these type indices corresponds to the particles listed in each
+	 // L1IndexCombo.
+	 const std::vector< L1ParticleType >& nonGlobalParticleTypes() const
+	 { return particleTypes_ ; }
+
+	 // Number of particles (e/gamma, jets, and muons), excluding global
+	 // quantities, that participated in this trigger.
+	 int numOfNonGlobalParticles() const
+	 { return particleTypes_.size() ; }
 
 	 const L1EmParticleRefVector& emParticles() const
-	 { return m_emParticles ; }
+	 { return emParticles_ ; }
 
 	 const L1JetParticleRefVector& jetParticles() const
-	 { return m_jetParticles ; }
+	 { return jetParticles_ ; }
 
 	 const L1MuonParticleRefVector& muonParticles() const
-	 { return m_muonParticles ; }
+	 { return muonParticles_ ; }
 
 	 const edm::RefProd< L1EtTotalPhys >& etTotalPhys() const
-	 { return m_etTotalPhys ; }
+	 { return etTotalPhys_ ; }
 
 	 const edm::RefProd< L1EtHadPhys >& etHadPhys() const
-	 { return m_etHadPhys ; }
+	 { return etHadPhys_ ; }
 
 	 const edm::RefProd< L1EtMissParticle >& etMissParticle() const
-	 { return m_etMissParticle ; }
-
-	 const std::vector< L1ParticleType >& particleTypes() const
-	 { return m_particleTypes ; }
+	 { return etMissParticle_ ; }
 
 	 // If numberOfTriggerParticles() is 1, then there is no need to
 	 // store the particle combinations.  In this case, the stored
 	 // vector m_particleCombinations will be empty, and it will be
 	 // filled upon request at analysis time.
-	 const L1ParticleCombinationVector& particleCombinations() const
-	 {
-	    if( m_particleCombinations.size() == 0 &&
-		numberOfTriggerParticles() == 1 )
-	    {
-	       if( *( particleTypes().begin() ) == kEM )
-	       {
-		  L1EmParticleRefVector::const_iterator itr =
-		     m_emParticles.begin() ;
-		  L1EmParticleRefVector::const_iterator end =
-		     m_emParticles.end() ;
+	 const L1IndexComboVector& indexCombos() const ;
 
-		  for( ; itr != end ; itr )
-		  {
-		     L1ParticleCombination tmpCombo ;
-		     tmpCombo.push_back(
-			dynamic_cast< const ParticleKinematics* >(
-			   &( *itr ) ) ) ;
-		     m_particleCombinations.push_back( tmpCombo ) ;
-		  }
-	       }
-	       else if( *( particleTypes().begin() ) == kJet )
-	       {
-		  L1JetParticleRefVector::const_iterator itr =
-		     m_jetParticles.begin() ;
-		  L1JetParticleRefVector::const_iterator end =
-		     m_jetParticles.end() ;
+	 // These functions retrieve the particle corresponding to a
+	 // particular entry in a given combination.  The pointer is null
+	 // if an error occurs (e.g. the particle requested does not match
+	 // the type of the function).
+	 const reco::ParticleKinematics* particleInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
-		  for( ; itr != end ; itr )
-		  {
-		     L1ParticleCombination tmpCombo ;
-		     tmpCombo.push_back(
-			dynamic_cast< const ParticleKinematics* >(
-			   &( *itr ) ) ) ;
-		     m_particleCombinations.push_back( tmpCombo ) ;
-		  }
-	       }
-	       else if( *( particleTypes().begin() ) == kMuon )
-	       {
-		  L1MuonParticleRefVector::const_iterator itr =
-		     m_muonParticles.begin() ;
-		  L1MuonParticleRefVector::const_iterator end =
-		     m_muonParticles.end() ;
+	 const L1PhysObjectBase* physObjectInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
-		  for( ; itr != end ; itr )
-		  {
-		     L1ParticleCombination tmpCombo ;
-		     tmpCombo.push_back(
-			dynamic_cast< const ParticleKinematics* >(
-			   &( *itr ) ) ) ;
-		     m_particleCombinations.push_back( tmpCombo ) ;
-		  }
-	       }
-	    }
-	    else
-	    {
-	       return m_particleCombinations ;
-	    }
-	 }
+	 const L1EmParticle* emParticleInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
+
+	 const L1JetParticle* jetParticleInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
+
+	 const L1MuonParticle* muonParticleInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
+
+	 // For a given particle combination, convert all the particles to
+	 // ParticleKinematics pointers.
+	 std::vector< const reco::ParticleKinematics* > particleCombo(
+	    const L1IndexCombo& aCombo ) const ;
+
+	 // For a given particle combination, convert all the particles to
+	 // L1PhysObjectBase pointers.
+	 std::vector< const L1PhysObjectBase* > physObjectCombo(
+	    const L1IndexCombo& aCombo ) const ;
 
 	 // ---------- static member functions --------------------
-
-	 // These static functions convert a pointer of type
-	 // ParticleKinematics into a subclass pointer (using a
-	 // dynamic_cast).  If the dynamic_cast fails (i.e. the object types
-	 // do not match), a null pointer will be returned.
-	 static const L1EmParticle* emParticle(
-	    const ParticleKinematics* ptr )
-	 {
-	    return dynamic_cast< const L1EmParticle* >( ptr ) ;
-	 }
-
-	 static const L1JetParticle* jetParticle(
-	    const ParticleKinematics* ptr )
-	 {
-	    return dynamic_cast< const L1JetParticle* >( ptr ) ;
-	 }
-
-	 static const L1MuonParticle* muonParticle(
-	    const ParticleKinematics* ptr )
-	 {
-	    return dynamic_cast< const L1MuonParticle* >( ptr ) ;
-	 }
 
 	 // ---------- member functions ---------------------------
 
       private:
-	 L1ParticleMap(const L1ParticleMap&); // stop default
+	 // L1ParticleMap(const L1ParticleMap&); // stop default
 
-	 const L1ParticleMap& operator=(const L1ParticleMap&); // stop default
+	 // const L1ParticleMap& operator=(const L1ParticleMap&); // stop default
 
 	 // ---------- member data --------------------------------
 
 	 // Index into trigger menu.
-	 int m_triggerIndex ;
+	 L1TriggerType triggerType_ ;
 
 	 // Lists of particles that fired this trigger, perhaps in combination
 	 // with another particle.
-	 L1EmParticleRefVector m_emParticles ;
-	 L1JetParticleRefVector m_jetParticles ;
-	 L1MuonParticleRefVector m_muonParticles ;
+	 L1EmParticleRefVector emParticles_ ;
+	 L1JetParticleRefVector jetParticles_ ;
+	 L1MuonParticleRefVector muonParticles_ ;
 
 	 // Global (event-wide) objects.  The Ref is null if the object
 	 // was not used in this trigger.
-	 edm::RefProd< L1EtTotalPhys > m_etTotalPhys ;
-	 edm::RefProd< L1EtHadPhys > m_etHadPhys ;
-	 edm::RefProd< L1EtMissParticle > m_etMissParticle ;
+	 edm::RefProd< L1EtTotalPhys > etTotalPhys_ ;
+	 edm::RefProd< L1EtHadPhys > etHadPhys_ ;
+	 edm::RefProd< L1EtMissParticle > etMissParticle_ ;
 
 	 // Vector of length numberOfTriggerParticles that gives the
 	 // type of each particle.
-	 std::vector< L1ParticleType > m_particleTypes ;
+	 std::vector< L1ParticleType > particleTypes_ ;
 
 	 // Particle combinations that fired this trigger.  The inner
 	 // vector< int > has length numberOfTriggerParticles and contains
-	 // references to the elements in m_emParticles, m_jetParticles, and
-	 // m_muonParticles for a successful combination.  The particle type
-	 // of each entry is given by m_particleTypes.
-	 L1ParticleCombinationVector m_particleCombinations ;
+	 // references to the elements in emParticles_, jetParticles_, and
+	 // muonParticles_ for a successful combination.  The particle type
+	 // of each entry is given by particleTypes_.
+	 //
+	 // This data member is mutable because if #particles = 1, then this
+	 // vector is empty and is filled on request.
+	 mutable L1IndexComboVector indexCombos_ ;
    };
 
 }
