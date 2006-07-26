@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2006/05/17 09:27:05 $
-$Revision: 1.4 $
+$Date: 2006/07/20 01:49:01 $
+$Revision: 1.5 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -27,9 +27,9 @@ public:
   /// Add a cell to the geometry
   void addCell(const DetId& id, const CaloCellGeometry* ccg);
   /// is this detid present in the geometry?
-  bool present(const DetId& id) const;
+  virtual bool present(const DetId& id) const;
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  const CaloCellGeometry* getGeometry(const DetId& id) const;
+  virtual const CaloCellGeometry* getGeometry(const DetId& id) const;
   /** \brief Get a list of valid detector ids (for the given subdetector)
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only
       a single subdetector at a time.  It does not look at the det and subdet arguments.
