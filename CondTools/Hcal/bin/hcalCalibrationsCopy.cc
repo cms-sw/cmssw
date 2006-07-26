@@ -236,20 +236,20 @@ template <class T> bool copyObject (T* fObject,
       result = true;
     }
     else if (asciiFile (fInput)) {
-      if (!traceCounter) std::cout << "USE INPUT: ASCII" << std::endl;
+      if (!traceCounter) std::cout << "USE INPUT: ASCII: " << fInput << std::endl;
       std::ifstream inStream (fInput.c_str ());
       fObject = new T;
       HcalDbASCIIIO::getObject (inStream, fObject); 
       result = true;
     }
     else if (dbFile (fInput)) {
-      if (!traceCounter) std::cout << "USE INPUT: Pool" << std::endl;
+      if (!traceCounter) std::cout << "USE INPUT: Pool: " << fInput << std::endl;
       if (!poolDb) poolDb = new HcalDbPool (fInput, fVerbose);
       fObject = new T;
       result = poolDb->getObject (fObject, fInputTag, fInputRun);
     }
     else if (onlineFile (fInput)) {
-      if (!traceCounter) std::cout << "USE INPUT: Online" << std::endl;
+      if (!traceCounter) std::cout << "USE INPUT: Online: " << fInput << std::endl;
       if (!onlineDb) onlineDb = new HcalDbOnline (fInput, fVerbose);
       fObject = new T;
       result = onlineDb->getObject (fObject, fInputTag);
@@ -281,19 +281,19 @@ template <class T> bool copyObject (T* fObject,
       delete object;
       object = new T (*fObject); // copy original object
       if (asciiFile (fOutput)) {
-	if (!traceCounter) std::cout << "USE OUTPUT: ASCII" << std::endl;
+	if (!traceCounter) std::cout << "USE OUTPUT: ASCII: " << fOutput << std::endl;
 	std::ofstream outStream (fOutput.c_str ());
 	HcalDbASCIIIO::dumpObject (outStream, *object);
       }
       else if (xmlFile (fOutput)) {
-	if (!traceCounter) std::cout << "USE OUTPUT: XML" << std::endl;
+	if (!traceCounter) std::cout << "USE OUTPUT: XML: " << fOutput << std::endl;
 	std::ofstream outStream (fOutput.c_str ());
 	HcalDbXml::dumpObject (outStream, fOutputRun, fIovgmtbegin, fIovgmtend, fOutputTag, fVersion, *object);
 	outStream.close ();
 	std::cout << "close file\n";
       }
       else if (dbFile (fOutput)) { //POOL
-	if (!traceCounter) std::cout << "USE OUTPUT: Pool" << std::endl;
+	if (!traceCounter) std::cout << "USE OUTPUT: Pool: " << fOutput << std::endl;
 	if (!poolDb) poolDb = new HcalDbPool (fOutput, fVerbose);
 	poolDb->putObject (object, fOutputTag, fOutputRun);
 	object = 0; // owned by POOL

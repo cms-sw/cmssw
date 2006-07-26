@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.10 2006/07/11 23:10:01 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.11 2006/07/19 21:47:19 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -211,7 +211,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
   sql_hbheho += "          where LOGMAP_DS.VERSION='9'\n";
   sql_hbheho += "      ) ADC_CH\n";
   sql_hbheho += "      on DS.PART_ID=ADC_CH.ADC_PART_ID\n";
-  sql_hbheho += "    where DS.VERSION='2'\n";
+  sql_hbheho += "    where DS.VERSION='3'\n";
 
 
   // HF
@@ -253,7 +253,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
   sql_hf += "          where LOGMAP_DS.VERSION='9'\n";
   sql_hf += "      ) ADC_CH\n";
   sql_hf += "      on DS.PART_ID=ADC_CH.ADC_PART_ID\n";
-  sql_hf += "    where DS.VERSION='2'\n";
+  sql_hf += "    where DS.VERSION='3'\n";
   
   std::string sql_query [2];
   sql_query [0] = " SELECT \n" + sql_what + sql_hbheho;
