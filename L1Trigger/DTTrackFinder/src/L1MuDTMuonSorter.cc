@@ -97,7 +97,7 @@ void L1MuDTMuonSorter::run() {
   }
  
   // run Cancel Out Logic
-  // runCOL(mycands);
+  runCOL(mycands);
 
   // remove disabled candidates
   vector<L1MuDTTrack*>::iterator it = mycands.begin();
@@ -110,7 +110,7 @@ void L1MuDTMuonSorter::run() {
   } 
 
   // sort pt and quality
-  //  stable_sort( mycands.begin(), mycands.end(), L1MuDTTrack::Rank() );
+  stable_sort( mycands.begin(), mycands.end(), L1MuDTTrack::Rank() );
 
   // copy the best 4 candidates
   int number_of_tracks = 0;

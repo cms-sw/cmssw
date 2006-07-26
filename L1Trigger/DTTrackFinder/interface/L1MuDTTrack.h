@@ -185,8 +185,8 @@ class L1MuDTTrack : public L1MuRegionalCand {
         bool operator()( const L1MuDTTrack* first, const L1MuDTTrack* second ) const {
          unsigned short int rank_f = 0;  // rank of first
          unsigned short int rank_s = 0;  // rank of second
-         if ( first )  rank_f = first->quality(); 
-         if ( second ) rank_s = second->quality(); 
+         if ( first )  rank_f = 10 * first->pt()  + first->quality(); 
+         if ( second ) rank_s = 10 * second->pt() + second->quality(); 
          return rank_f > rank_s;
        }
     };

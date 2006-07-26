@@ -54,7 +54,7 @@ L1MuDTExtLut::L1MuDTExtLut() {
     cout << "Can not open files to load  extrapolation look-up tables for DTTrackFinder!" << endl;
   }
 
-  print();
+  if ( L1MuDTTFConfig::Debug(6) ) print();
 
 }
 

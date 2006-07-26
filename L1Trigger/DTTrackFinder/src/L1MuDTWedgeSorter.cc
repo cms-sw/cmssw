@@ -112,7 +112,7 @@ void L1MuDTWedgeSorter::run() {
   }
 
   // print input data
-  //  runCOL(wedgecands);
+  runCOL(wedgecands);
 
   // remove disabled candidates
   vector<L1MuDTTrack*>::iterator it = wedgecands.begin();

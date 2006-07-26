@@ -1,6 +1,6 @@
 <export>
- <lib name=DataFormatsDTTFData>
- <use name=FWCore/EDProduct>
+ <lib name=DataFormatsL1DTTrackFinder>
+ <use name=DataFormats/Common>
 </export>
 
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>

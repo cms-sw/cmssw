@@ -4,7 +4,7 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include <DataFormats/Common/interface/Wrapper.h>
 
 namespace{ 
   namespace {

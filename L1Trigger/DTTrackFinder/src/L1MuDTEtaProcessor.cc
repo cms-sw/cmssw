@@ -221,7 +221,7 @@ void L1MuDTEtaProcessor::print() const {
 void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e) {
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
-  e.getByLabel("DTTFSource", dttrig);
+  e.getByType(dttrig);
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;

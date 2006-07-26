@@ -99,7 +99,7 @@ void L1MuDTSectorReceiver::reset() {
 void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByLabel("DTTFSource", dttrig);
+  e.getByType(dttrig);
 
   L1MuDTChambPhDigi* ts=0;
 
