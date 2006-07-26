@@ -76,7 +76,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
 
 
       cout << setfill('0');
-      for (int words=0; words < length/8; (words+=2)  )
+      for (int words=0; words < length/4; (words+=2)  )
 	{
 	  cout << setw(8)   << hex << pData[words+1] << " ";
 	  cout << setw(8)   << hex << pData[words] << endl;
