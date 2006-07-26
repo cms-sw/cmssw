@@ -1,0 +1,150 @@
+To get use proof from root:
+
+REFERENCE MATERIAL
+==================
+The twiki might prove useful if you have difficulties below:
+
+  http://higweb.lns.mit.edu/twikis/proof/bin/view/Proof/ProofDocs
+  $ROOTSYS/README/README.PROOF
+
+ON INSTALLING PROOF
+===================
+
+Install proof according to the instructions in
+
+$ROOTSYS/README/README.PROOF
+
+One problem we had was that we needed to give the proofd the LD_LIBRARY_PATH
+where it can find the library with our TSelector that we were testing.
+For example,
+  export LD_LIBRARY_PATH=/mylogin/CMSSW_0_9_0/lib:$LD_LIBRARY_PATH
+The best way to determine the proper LD_LIBRARY_PATH is to look for LD_LIBRARY_PATH
+issued by the command 'scramv1 run -csh'.
+
+This is unfortunate for several reasons:
+1) Once you start the proofd, it will only use libraries for the software
+   release pointed to by that LD_LIBRARY_PATH.
+2) There isn't a way to ensure that the release used by proofd is consistent
+   with the release you are using.
+3) Anyone making a new shared library for the release used by proofd has to
+   install it somewhere in the LD_LIBRARY_PATH used to start all the proofd daemons.
+
+If you want reasonably open access, make a suitably writable directory for people to
+install their shared libraries and add it to the LD_LIBRARY_PATH of proofd.
+
+Proofd also needs access (e.g., via NFS or AFS) to the binary you
+want to run. So when setting up your proof.conf file, make sure it
+has access to your binaries. We did this by configuring the proofd
+machines with NFS images.
+
+There may be some other way of getting the binaries and libraries to the
+proof daemons for execution, but we haven't found it yet.
+
+For our simple test setup, we used the same host for master and workers.
+It has 2 CPUs, so we set up two workers.
+Our $ROOTSYS/proof/etc/proof.conf file contains:
+
+master hostie.lns.cornell.edu image=nfs
+worker hostie.lns.cornell.edu perf=100 image=nfs
+worker hostie.lns.cornell.edu perf=100 image=nfs
+
+Note, you don't need to start the proofd from /etc/inetd.conf for an
+initial test.  You can just log in to the master proof server and run
+
+$ROOTSYS/bin/proofd $ROOTSYS &
+
+The output will be logged to the screen where you started it, which is
+what you probably want for a quick test.
+
+You need a password to access proof. Create that as follows, replacing
+the string secret_passwd with the password that you want.
+
+$ROOTSYS/proof/utils/crypt secret_passwd > $HOME/.rootdpass
+chmod 0600 $HOME/.rootdpass
+
+Note: this appears to provides no security of any value.Anybody who can
+      access your master proofd host can issue themselves a password and
+      start using your system.
+
+Now you can start root.
+
+$ROOTSYS/bin/root
+
+At the root prompt, issue the following command, replacing proof-master-host
+with the fully qualified name of the host running the proofd master.
+
+  gROOT->Proof("proof-master-host")
+
+for example,
+
+  gROOT->Proof("hostie.lns.cornell.edu");
+
+You will get a pop-up dialog asking for your password. It is really
+annoying that it doesn't ask for the password at the CLI where you
+were already typing.
+If all went well, type
+
+  gProof->print()
+
+This will print 20-30 lines of helpful information that will enlighten you.
+
+RUNNING A ROOT JOB USING PROOF
+==============================
+
+Now you will want to do something useful, like run a TSelector.
+This turned out to be quite tricky. Here is an example.
+We made a ThingsTSelector, which we put into libFWCoreTFWLiteSelectorTest.
+To ensure that our TSelector was auto-loaded we loaded libFWCoreFWLite
+and then enabled the AutoLibraryLoader.
+NOTE WELL: libFWCoreTFWLiteSelectorTest.so must be in the LD_LIBRARY_PATH
+for all the proofd's you are running.
+
+After that, our library was correctly loaded. Next we made a TDSet.
+In non-proof code you would make a TChain, but for proof you make a TDSet.
+We added a file to the TDSet and were able to read in our data. The sequence
+of root commands is as follows.
+
+First make a file called proof_remote.C with the following code to make
+everything load properly on the remote proof host(s).
+
+  {
+    // This makes the TSelectors in the library available to the
+    // remote proof session
+    gSystem->Load("libFWCoreFWLite");
+    AutoLibraryLoader::enable();
+    gSystem->Load("libFWCoreTFWLiteSelectorTest");
+  }
+
+Now make proof_local.C
+
+  {
+    // Setup the connection to the proof server
+    gROOT->Proof( "lnx7108.lns.cornell.edu" );
+
+    // You need this to allow ROOT to be able to use a ThingsTSelector
+    gSystem->Load("libFWCoreFWLite");
+    AutoLibraryLoader::enable();
+
+    // Have to load library manually since Proof does not use the 
+    // mechanism used by TFile to find class dictionaries and therefore
+    // the AutoLibraryLoader cannot help
+    gSystem->Load("libFWCoreTFWLiteSelectorTest");
+
+    // This makes sure the TSelector library and dictionary are properly
+    // installed in the remote PROOF servers
+    gProof->Exec( ".x proof_remote.C" );
+
+    // This creates the 'data set' which defines what files we need to process
+    // NOTE: the files given must be accessible by the remote systems.
+    TDSet c( "TTree", "Events");
+    c.Add("/mylogin/CMSSW_0_9_0/src/FWCore/TFWLiteSelector/test/test.root");
+
+    //This makes the actual processing happen
+    c.Process( "ThingsTSelector" );
+  }
+
+Start root and at the root command prompt run the command
+
+  .x proof_local.C
+
+This should execute on several proof hosts.
