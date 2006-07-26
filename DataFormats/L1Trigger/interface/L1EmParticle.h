@@ -16,42 +16,44 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id$
+// $Id: L1EmParticle.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Candidate/interface/ParticleKinematics.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
 // forward declarations
-class L1GctEmCandCollection ;
+class L1GctEmCand ;
 
-namespace level1 {
+namespace l1extra {
 
-   class L1EmParticle : public ParticleKinematics
+   class L1EmParticle : public reco::ParticleKinematics,
+			public L1PhysObjectBase
    {
 
       public:
 	 L1EmParticle();
+	 L1EmParticle( const LorentzVector& p4,
+		       const L1Ref& aRef ) ;
 	 virtual ~L1EmParticle();
 
 	 // ---------- const member functions ---------------------
-	 const edm::Ref< L1GctEmCand >& gctEmCand() const
-	 { return m_gctEmCand ; }
+	 const L1GctEmCand* gctEmCand() const ;
 
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
 
       private:
-	 L1EmParticle(const L1EmParticle&); // stop default
+	 // L1EmParticle(const L1EmParticle&); // stop default
 
-	 const L1EmParticle& operator=(const L1EmParticle&); // stop default
+	 // const L1EmParticle& operator=(const L1EmParticle&); // stop default
 
 	 // ---------- member data --------------------------------
-	 edm::Ref< L1GctEmCandCollection > m_gctEmCand ;
    };
 }
 

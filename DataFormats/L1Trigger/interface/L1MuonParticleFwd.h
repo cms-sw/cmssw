@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id$
+// $Id: L1MuonParticleFwd.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 
-namespace level1 {
+namespace l1extra {
 
    class L1MuonParticle ;
 

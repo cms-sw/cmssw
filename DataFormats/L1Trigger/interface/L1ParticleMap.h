@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id$
-// $Log$
+// $Id: L1ParticleMap.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Log: L1ParticleMap.h,v $
+// Revision 1.1  2006/07/17 20:35:19  wsun
+// First draft.
+//
 //
 
 // system include files
@@ -38,13 +41,6 @@ namespace level1 {
    {
 
       public:
-	 enum L1ParticleType {
-	    kEM,
-	    kJet,
-	    kMuon,
-	    kNumberParticleTypes
-	 } ;
-
 	 typedef std::vector< const ParticleKinematics* >
 	 L1ParticleCombination ;
 	 typedef std::vector< L1ParticleCombination >

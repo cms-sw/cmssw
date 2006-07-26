@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="l1extra::L1EmParticle"/>
+  <class name="l1extra::L1JetParticle"/>
+  <class name="l1extra::L1MuonParticle"/>
+  <class name="l1extra::L1EtMissParticle"/>
+  <class name="l1extra::L1EtTotalPhys"/>
+  <class name="l1extra::L1EtHadPhys"/>
+  <class name="std::vector<l1extra::L1EmParticle>"/>
+  <class name="std::vector<l1extra::L1JetParticle>"/>
+  <class name="std::vector<l1extra::L1MuonParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1EmParticle>>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1JetParticle>>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1MuonParticle>>"/>
+  <class name="edm::Wrapper<l1extra::L1EtMissParticle>"/>
+  <class name="edm::Wrapper<l1extra::L1EtTotalPhys>"/>
+  <class name="edm::Wrapper<l1extra::L1EtHadPhys>"/>
+</lcgdict>
