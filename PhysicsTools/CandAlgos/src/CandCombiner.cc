@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.8 2006/07/21 10:35:14 fabozzi Exp $
+// $Id: CandCombiner.cc,v 1.9 2006/07/26 08:48:05 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -66,7 +66,7 @@ void CandCombiner::produce( Event& evt, const EventSetup& ) {
   assert( n == 2 || n == 3 );
   std::vector<Handle<CandidateCollection> > colls( n );
   for( int i = 0; i < n; ++i ) {
-    evt.getByLabel( labels_[ i ].label_, colls[ i ] );
+    evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
   }
 
   if( n == 2 ) {
