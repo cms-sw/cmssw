@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/08 15:31:38 $
- * $Revision: 1.22 $
+ * $Date: 2006/07/22 10:09:33 $
+ * $Revision: 1.24 $
  * \author A. Ghezzi
  *
  */
@@ -51,6 +51,7 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   meEBBCaloEntriesVsCry_ = 0;
   meEBBCaloBeamCentered_ = 0;
 
+  meEBBCaloE1MaxCry_ = 0;
 //   for(int u=0;u<1701;u++){
 //     meBBCaloE3x3Cry_[u]=0;
 //     meBBCaloE1Cry_[u]=0;
@@ -216,6 +217,8 @@ void EBBeamCaloTask::setup(void){
     sprintf(histo, "EBBCT energy deposition in the 3x3");
     meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
 
+    sprintf(histo, "EBBCT E1 in the max cry");
+    meEBBCaloE1MaxCry_= dbe->book1D(histo,histo,9000,0.,9000.);
   }
   
 }
@@ -289,7 +292,9 @@ void EBBeamCaloTask::cleanup(void){
     if( meEBBCaloEntriesVsCry_ )  dbe->removeElement( meEBBCaloEntriesVsCry_->getName() );
     meEBBCaloEntriesVsCry_ = 0;
     if( meEBBCaloBeamCentered_ ) dbe->removeElement( meEBBCaloBeamCentered_->getName() );
-    meEBBCaloBeamCentered_= 0;
+    meEBBCaloBeamCentered_ = 0;
+    if( meEBBCaloE1MaxCry_ ) dbe->removeElement(meEBBCaloE1MaxCry_->getName() );
+    meEBBCaloE1MaxCry_ = 0;
   }
 
   init_ = false;
@@ -310,7 +315,6 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
   
   Handle<EcalRawDataCollection> dcchs;
-  Handle<EcalTBEventHeader> pEvH;
   try{
     e.getByLabel("ecalEBunpacker", dcchs);
   
@@ -321,32 +325,31 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       
       EcalDCCHeaderBlock dcch = (*dcchItr);
       
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
-	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) {enable = true;}
     }
     
   }
   catch ( std::exception& ex) {
-     LogDebug("EBBeamCaloTask") << " EcalRawDataCollection not in event. Trying EcalTBEventHeader (2004 data)." << std::endl;
-    
-    try {
-      e.getByType(pEvH);
-      enable = true;
-      LogDebug("EBBeamCaloTask") << " EcalTBEventHeader found, instead." << std::endl;
-    } 
-    catch ( std::exception& ex ) {
-      LogError("EBBeamCaloTask") << "EcalTBEventHeader not present in event TOO! Returning." << std::endl;
-    }
-    
+    LogDebug("EBBeamCaloTask") << " EcalRawDataCollection not in event." << std::endl;
   }
   
   if ( ! enable ) return;
   if ( ! init_ ) this->setup();
-
   ievt_++; 
+  
+//   Handle<EcalTBEventHeader> pEvH;
+//   try {
+//     e.getByType(pEvH);
+//   } 
+//   catch ( std::exception& ex ) {
+//     LogError("EBBeamCaloTask") << "EcalTBEventHeader not present in event." << std::endl;
+//     return;
+//   }
 
-//FIX ME, in the task we should use LV1 instead of ievt_ (prescaling)
+  //FIX ME, in the task we should use LV1 instead of ievt_ (prescaling)
   int cry_in_beam = 0; 
+ //  cry_in_beam = pEvH->nominalCrystalInBeam();
+  //int LV1 = pEvH->
   cry_in_beam = 702;//just for test, to be filled with info from the event
   
   bool reset_histos_stable = false;
@@ -354,22 +357,22 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   bool tb_moving = false;//just for test, to be filled with info from the event
   bool skip_this_event = false;
 
-  if(ievt_ > 500){tb_moving=true; }
-  if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
-  if(ievt_ > 2000){tb_moving=true; }
-  if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
-  if(ievt_ == 3000){cry_in_beam = 702;}
-  if(ievt_ == 3001){cry_in_beam = 703;}
-  if(ievt_ > 3500){tb_moving=true; }
+//   if(ievt_ > 500){tb_moving=true; }
+//   if(ievt_ > 1000){tb_moving=false; cry_in_beam = 703;}
+//   if(ievt_ > 2000){tb_moving=true; }
+//   if(ievt_ > 2500){tb_moving=false; cry_in_beam = 704;}
+//   if(ievt_ == 3000){cry_in_beam = 702;}
+//   if(ievt_ == 3001){cry_in_beam = 703;}
+//   if(ievt_ > 3500){tb_moving=true; }
 
-  if(ievt_ > 3300){tb_moving=true; }
-  if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
-  if(ievt_ == 6201){tb_moving=true; }
-  if(ievt_ > 9000){tb_moving=true; }
-  if(ievt_ == 11021){tb_moving=false; }
-  if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
-  if(ievt_ > 15320){tb_moving=true; }
-  if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
+//   if(ievt_ > 3300){tb_moving=true; }
+//   if(ievt_ > 6100){tb_moving=false; cry_in_beam = 705;}
+//   if(ievt_ == 6201){tb_moving=true; }
+//   if(ievt_ > 9000){tb_moving=true; }
+//   if(ievt_ == 11021){tb_moving=false; }
+//   if(ievt_ > 12100){tb_moving=false; cry_in_beam = 706;}
+//   if(ievt_ > 15320){tb_moving=true; }
+//   if(ievt_ > 15500){tb_moving=false; cry_in_beam = 707;}
 
 
  //  //if(ievt_ > 20){tb_moving=true; }
@@ -722,6 +725,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
     //     }
     meBBCaloMaxEneCry_->Fill(ieM,ipM);
+    meEBBCaloE1MaxCry_->Fill(maxEne);
   }
   else{meBBCaloE3x3Moving_->Fill(ene3x3);}
   /////////////
