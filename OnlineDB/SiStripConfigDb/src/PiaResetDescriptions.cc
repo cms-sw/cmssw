@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: PiaResetDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/PiaResetDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -83,7 +83,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
 	  piaResetDescription* pia = new piaResetDescription( index, 10, 10000, 0xFF );
 	  pia->setFecHardwareId( fec_hardware_id.str() );
 	  static_pia_resets.push_back( pia );
-	  edm::LogInfo(errorCategory_)
+	  edm::LogInfo(logCategory_)
 	    << "[SiStripConfigDb::createPartition]" 
 	    << " Added PIA reset at 'CCU level', with address 0x" 
 	    << hex << setw(8) << setfill('0') << index << dec;
@@ -97,7 +97,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::createPiaResetDesc
     stringstream ss;
     ss << "["<<method<<"]"
        << " No PIA reset descriptions created!";
-    edm::LogError(errorCategory_) << ss.str() << "\n";
+    edm::LogError(logCategory_) << ss.str() << "\n";
   }
   
   return static_pia_resets;

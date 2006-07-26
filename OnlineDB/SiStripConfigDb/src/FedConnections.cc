@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: FedConnections.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -42,14 +42,14 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
     ss << "["<<method<<"] No FED connections found";
     if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(errorCategory_) << ss.str();
-    throw cms::Exception(errorCategory_) << ss.str();
+    edm::LogError(logCategory_) << ss.str();
+    throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "["<<method<<"]"
        << " Found " << connections_.size() << " FED connections";
     if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputModuleXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(errorCategory_) << ss.str();
+    edm::LogInfo(logCategory_) << ss.str();
   }
   
   return connections_;
@@ -131,8 +131,8 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::createFedConnections( co
   if ( static_fed_connections.empty() ) {
     stringstream ss;
     ss << "["<<method<<"] No FED connections created!";
-    edm::LogError(errorCategory_) << ss.str() << "\n";
-    //throw cms::Exception(errorCategory_) << ss.str() << "\n";
+    edm::LogError(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   
   return static_fed_connections;

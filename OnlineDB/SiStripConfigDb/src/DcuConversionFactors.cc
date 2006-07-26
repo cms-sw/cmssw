@@ -1,5 +1,5 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.2 2006/07/03 18:30:00 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -39,14 +39,14 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::getDcuConversionFa
        << " No DCU conversion factors found";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(errorCategory_) << ss.str();
-    throw cms::Exception(errorCategory_) << ss.str();
+    edm::LogError(logCategory_) << ss.str();
+    throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "["<<method<<"]"
        << " Found " << dcuConversionFactors_.size() << " DCU conversion factors";
     if ( !usingDb_ ) { ss << " in input 'dcuconv.xml' file " << inputDcuConvXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(errorCategory_) << ss.str();
+    edm::LogInfo(logCategory_) << ss.str();
   }
   
   return dcuConversionFactors_;
@@ -143,10 +143,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	  stringstream ss;
 	  ss << "["<<method<<"]" << " DCU id " << dcu_id
 	     << " already exists within map of DCU conversion factors!";
-	  edm::LogError(errorCategory_) << ss.str() << "\n";
-	  //throw cms::Exception(errorCategory_) << ss.str();
+	  edm::LogError(logCategory_) << ss.str() << "\n";
+	  //throw cms::Exception(logCategory_) << ss.str();
 	}
-	edm::LogInfo(errorCategory_)
+	edm::LogInfo(logCategory_)
 	  << "[SiStripConfigDb::createPartition]" 
 	  << " Added conversion factors for DCU with address 0x"
 	  << hex << setw(8) << setfill('0') << index << dec;
@@ -176,10 +176,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	    stringstream ss;
 	    ss << "["<<method<<"]" << " DCU id " << dcu_id
 	       << " already exists within map of DCU conversion factors!";
-	    edm::LogError(errorCategory_) << ss.str() << "\n";
-	    //throw cms::Exception(errorCategory_) << ss.str();
+	    edm::LogError(logCategory_) << ss.str() << "\n";
+	    //throw cms::Exception(logCategory_) << ss.str();
 	  }
-	  edm::LogInfo(errorCategory_)
+	  edm::LogInfo(logCategory_)
 	    << "[SiStripConfigDb::createPartition]" 
 	    << " Added conversion factors for DCU at address 0x"
 	    << hex << setw(8) << setfill('0') << index << dec;
@@ -209,10 +209,10 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 	      stringstream ss;
 	      ss << "["<<method<<"]" << " DCU id " << dcu_id
 		 << " already exists within map of DCU conversion factors!";
-	      edm::LogError(errorCategory_) << ss.str() << "\n";
-	      //throw cms::Exception(errorCategory_) << ss.str();
+	      edm::LogError(logCategory_) << ss.str() << "\n";
+	      //throw cms::Exception(logCategory_) << ss.str();
 	    }
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "[SiStripConfigDb::createPartition]" 
 	      << " Added conversion factors for DCU with address 0x"
 	      << hex << setw(8) << setfill('0') << index << dec;
@@ -226,8 +226,8 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
   if ( static_dcu_conversions.empty() ) {
     stringstream ss;
     ss << "["<<method<<"] No DCU conversion factors created!";
-    edm::LogError(errorCategory_) << ss.str() << "\n";
-    //throw cms::Exception(errorCategory_) << ss.str() << "\n";
+    edm::LogError(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
 
   return static_dcu_conversions;

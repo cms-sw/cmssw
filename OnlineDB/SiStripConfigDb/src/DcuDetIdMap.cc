@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.3 2006/07/13 14:11:26 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.4 2006/07/25 10:18:30 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
@@ -9,8 +9,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
-  edm::LogInfo(errorCategory_) << "[SiStripConfigDb::getDcuDetIdMap]"
-			       << " Retrieving DetId-DCU mapping...";
+  edm::LogInfo(logCategory_) << "[SiStripConfigDb::getDcuDetIdMap]"
+			     << " Retrieving DetId-DCU mapping...";
   string method = "SiStripConfigDb::getDcuDetIdMap";
   
   if ( !resetDcuDetIdMap_ ) { return dcuDetIdMap_; }
@@ -29,14 +29,14 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
        << " No DCU-DetId map found";
     if ( !usingDb_ ) { ss << " in input 'dcuinfo.xml' file " << inputDcuInfoXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogWarning(errorCategory_) << ss.str();
-    //throw cms::Exception(errorCategory_) << ss.str();
+    edm::LogWarning(logCategory_) << ss.str();
+    //throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "[SiStripConfigDb::getFedConnections]"
        << " Found " << dcuDetIdMap_.size() << " entries in DCU-DetId map";
     if ( !usingDb_ ) { ss << " in input 'module.xml' file " << inputDcuInfoXml_; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(errorCategory_) << ss.str();
+    edm::LogInfo(logCategory_) << ss.str();
   }
 
   return dcuDetIdMap_;
@@ -44,8 +44,8 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::setDcuDetIdMap( const SiStripConfigDb::DcuDetIdMap& dcu_detid_map ) {
-  edm::LogInfo(errorCategory_) << "[SiStripConfigDb::setDcuDetIdMap]"
-				  << " Setting DetId-DCU mapping...";
+  edm::LogInfo(logCategory_) << "[SiStripConfigDb::setDcuDetIdMap]"
+			     << " Setting DetId-DCU mapping...";
   resetDcuDetIdMap();
   dcuDetIdMap_ = dcu_detid_map;
   resetDcuDetIdMap_ = false;

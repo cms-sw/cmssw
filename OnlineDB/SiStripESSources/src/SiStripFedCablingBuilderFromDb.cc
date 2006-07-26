@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.17 2006/07/25 15:20:59 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.18 2006/07/25 18:33:39 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -16,14 +16,18 @@
 using namespace std;
 
 // -----------------------------------------------------------------------------
+// 
+const string SiStripFedCablingBuilderFromDb::logCategory_ = "SiStrip|Cabling";
+
+// -----------------------------------------------------------------------------
 /** */
 SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::ParameterSet& pset ) 
   : SiStripFedCablingESSource( pset ),
     db_(0),
     partitions_( pset.getUntrackedParameter< vector<string> >( "Partitions", vector<string>() ) ) //@@@ use this????
 {
-  edm::LogVerbatim("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb]"
-				     << " Constructing object...";
+  edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb]"
+				 << " Constructing object...";
   if ( pset.getUntrackedParameter<bool>( "UsingDb", true ) ) {
     // Using database 
     db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("User",""),
@@ -52,8 +56,8 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
 // -----------------------------------------------------------------------------
 /** */
 SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb() {
-  edm::LogVerbatim("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb]"
-				     << " Destructing object...";
+  edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb]"
+				 << " Destructing object...";
   if ( db_ ) { 
     db_->closeDbConnection();
     delete db_;
@@ -64,7 +68,7 @@ SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb() {
 /** */
 SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   static const string method = "SiStripFedCablingBuilderFromDb::makeFedCabling";
-  edm::LogVerbatim("SiStripCabling") << "["<<method<<"]";
+  edm::LogVerbatim(logCategory_) << "["<<method<<"]";
   
   // Create FED cabling object 
   //SiStripFedCabling* fed_cabling = 0; // TEMP!
@@ -75,7 +79,6 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   
   // Populate FED cabling object
   buildFedCabling( db_, *fed_cabling, dcu_detid_map ); 
-  //buildFedCablingFromFedConnections( db_, *fed_cabling, dcu_detid_map ); 
   
   // Call virtual method that writes FED cabling object to conditions DB
   writeFedCablingToCondDb();
@@ -90,7 +93,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCabling( SiStripConfigDb* const db,
 						      SiStripFedCabling& fed_cabling,
 						      SiStripConfigDb::DcuDetIdMap& new_map ) {
   static const string method = "SiStripFedCablingBuilderFromDb::buildFedCabling";
-  edm::LogVerbatim("SiStripCabling") << "["<<method<<"]";
+  edm::LogVerbatim(logCategory_) << "["<<method<<"]";
 
   if ( !db->getFedConnections().empty() ) {
     
@@ -105,8 +108,8 @@ void SiStripFedCablingBuilderFromDb::buildFedCabling( SiStripConfigDb* const db,
     buildFedCablingFromDetIds( db, fed_cabling, new_map ); 
     
   } else {
-    edm::LogError("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCabling]"
-				    << " FedConnections, DeviceDescriptions and DcuDetIdMap are all empty!";
+    edm::LogError(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCabling]"
+				<< " FedConnections, DeviceDescriptions and DcuDetIdMap are all empty!";
   }
        
 }
@@ -146,7 +149,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 									SiStripFedCabling& fed_cabling,
 									SiStripConfigDb::DcuDetIdMap& new_map ) {
   static const string method = "SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections"; 
-  edm::LogVerbatim("SiStripCabling") << "["<<method<<"]";
+  edm::LogVerbatim(logCategory_) << "["<<method<<"]";
   
   // Clear new Dcu-DetId map
   new_map.clear();
@@ -154,14 +157,14 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
   // Retrieve FED connections and check if any exist
   SiStripConfigDb::FedConnections conns = db->getFedConnections();
   if ( conns.empty() ) { 
-    edm::LogError("ConfigDb") << "["<<method<<"] No FedConnection objects found!";
+    edm::LogError(logCategory_) << "["<<method<<"] No FedConnection objects found!";
     return;
   }
 
   // Retrieve cached Dcu-DetId map
   SiStripConfigDb::DcuDetIdMap cached_map = db->getDcuDetIdMap();
   if ( cached_map.empty() ) { 
-    edm::LogError("ConfigDb") << "["<<method<<"] No entries in DCU-DetId map!";
+    edm::LogError(logCategory_) << "["<<method<<"] No entries in DCU-DetId map!";
   }
   
   // Create FEC cabling object to be populated
@@ -190,8 +193,6 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 			       apv0, apv1,
 			       dcu_id, det_id, npairs,
 			       fed_id, fed_ch );
-    // stringstream ss;
-    // conn.print(ss);
     
     // Add object to FEC cabling
     fec_cabling.addDevices( conn );
@@ -217,10 +218,10 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 	      module.dcuId( module_key );
 	      stringstream ss;
 	      ss << "["<<method<<"]"
-		 << " Null DcuId found for module with control key 0x"
+		 << " NULL DcuId found for module with control key 0x"
 		 << hex << setw(8) << setfill('0') << module_key << dec
 		 << ". Providing 'dummy' DcuId based on control key...";
-	      edm::LogWarning("SiStripCabling") << ss.str();
+	      edm::LogWarning(logCategory_) << ss.str();
 	    }
 	    
 	    // Check for null DetId
@@ -228,10 +229,10 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 	      
 	      stringstream ss;
 	      ss << "["<<method<<"]"
-		 << " Null DetId found for module with DCU id 0x"
+		 << " NULL DetId found for module with DCU id 0x"
 		 << hex << setw(8) << setfill('0') << module.dcuId() << dec 
 		 << ". Attempting to map DCU id to DetID using static table...";
-	      edm::LogWarning("SiStripCabling") << ss.str();
+	      LogTrace(logCategory_) << ss.str();
 	      
 	      // Search for DcuId in map
 	      SiStripConfigDb::DcuDetIdMap::iterator iter = cached_map.find( module.dcuId() );
@@ -241,28 +242,30 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 		module.detId( iter->second->getDetId() );
 		module.nApvPairs(0); 
 
-		// Checks on number of APV pairs found
+		// Checks number of APV pairs found in module
 		if ( module.nApvPairs() != 2 &&
 		     module.nApvPairs() != 3 ) { 
 		  stringstream sss;
 		  sss << "["<<method<<"]"
-		      << " Unexpected number of APV pairs found (" << module.nApvPairs()
-		      << ") for module with DCU id 0x"
+		      << " DCU with id 0x" 
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
-		      << ". Setting to " << iter->second->getApvNumber()/2;
-		  edm::LogWarning("SiStripCabling") << sss.str();
+		      << " found in DCU-DetId map, but module has unexpected number of APV pairs (" << module.nApvPairs()
+		      << "). Setting to value found in static map (" << iter->second->getApvNumber()/2 << ")...";
+		  edm::LogWarning(logCategory_) << sss.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}
+		
+		// Checks number of APV pairs of module matches that within static table
 		if ( module.nApvPairs() != 
 		     iter->second->getApvNumber()/2 ) {
 		  stringstream sss;
 		  sss << "["<<method<<"]"
-		      << " Number of APV pairs found for module with DCU id 0x" 
+		      << " DCU with id 0x" 
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
-		      << " does not match value in DCU-DetId map!"
-		      << " (" << module.nApvPairs() << " wrt " << iter->second->getApvNumber()/2 << ")."
-		      << " Setting to " << iter->second->getApvNumber()/2;
-		  edm::LogWarning("SiStripCabling") << sss.str();
+		      << " found in DCU-DetId map, but number of APV pairs (" << module.nApvPairs()
+		      << ") does not match value found in static map (" << iter->second->getApvNumber()/2 
+		      << "). Setting to value found in static map...";
+		  edm::LogWarning(logCategory_) << sss.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}
 		
@@ -274,12 +277,12 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 		
 		stringstream sss;
 		sss << "["<<method<<"]"
-		    << " DCU id (0x"
+		    << " DCU with id 0x"
 		    << hex << setw(8) << setfill('0') << module.dcuId() << dec
-		    << ") not found in DCU-DetId map! Cannot assign DetId!" 
+		    << " not found in DCU-DetId map! Cannot assign DetId!" 
 		    << " Attempting to map DCU id to 'random' DetId"
 		    << " (with correct number of APV pairs)...";
-		edm::LogWarning("SiStripCabling") << sss.str();
+		edm::LogError(logCategory_) << sss.str();
 		
 		// If no match found, iterate through cached map and find DetId with correct number of APV pairs
 		SiStripConfigDb::DcuDetIdMap::iterator idcu;
@@ -308,12 +311,12 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 
 		  stringstream sss;
 		  sss << "["<<method<<"]"
-		      << " Cannot assign DCU id (0x"
+		      << " Cannot assign DCU with id 0x"
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
-		      << ") to 'random' DetId, as none have appropriate number of APV pairs ("
+		      << " to 'random' DetId, as none have appropriate number of APV pairs ("
 		      << module.nApvPairs()
 		      << "). Attempting to map DCU id to DetId based on incremented counter...";
-		  edm::LogWarning("SiStripCabling") << sss.str();
+		  edm::LogWarning(logCategory_) << sss.str();
 
 		  // If no match found, then assign DetId using incremented counter
 		  module.detId( detid );
@@ -326,34 +329,25 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 		}
 	      }
 	    }
-	    
-	    stringstream ss;
-	    ss << "["<<method<<"]"
-	       << " Setting DcuId/DetId/nApvPairs = " 
-	       << "0x" << hex << setw(8) << setfill('0') << module.dcuId() << dec << "/" 
-	       << "0x" << hex << setw(8) << setfill('0') << module.detId() << dec << "/" 
-	       << module.nApvPairs()
-	       << " for Crate/FEC/Ring/CCU/Module " 
-	       << icrate->fecCrate() << "/" 
-	       << ifec->fecSlot() << "/" 
-	       << iring->fecRing() << "/" 
-	       << iccu->ccuAddr() << "/" 
-	       << imod->ccuChan();
-	    cout << ss.str() << endl;
-	    LogTrace("SiStripCabling") << ss.str();
-	    
 	  }
 	}
       }
     }
   }
   
+  const NumberOfDevices& devs = fec_cabling.countDevices();
+  stringstream ss;
+  ss << "["<<method<<"] ";
+  devs.print(ss);
+  edm::LogVerbatim(logCategory_) << ss.str();
+  
   // Warn if not all DetIds have been assigned to DcuIds
   if ( !cached_map.empty() ) {
     stringstream ss;
     ss << "["<<method<<"]"
-       << " " << cached_map.size() << " DetIds have not been assigned to a DcuId!";
-    edm::LogWarning("SiStripCabling") << ss.str();
+       << " Not all DetIds have been assigned to a DcuId! (" 
+       << cached_map.size() << " DetIds are unassigned)";
+    edm::LogWarning(logCategory_) << ss.str();
   }
   
   // Generate FED cabling from FEC cabling object
@@ -407,7 +401,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromFedConnections( SiStripC
 void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb* const db,
 								 SiStripFedCabling& fed_cabling,
 								 SiStripConfigDb::DcuDetIdMap& new_map ) {
-  LogTrace("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]";
+  LogTrace(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]";
   
   // Clear new Dcu-DetId map
   new_map.clear();
@@ -428,9 +422,9 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 			       addr.i2cAddr_ ); 
     fec_cabling.addDevices( conn );
   } 
-  edm::LogVerbatim("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-				     << " Created FEC cabling based on " << apv_desc.size()
-				     << " APV descriptions extracted from config DB...";
+  edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
+				 << " Created FEC cabling based on " << apv_desc.size()
+				 << " APV descriptions extracted from config DB...";
   
   // Retrieve DCU descriptions and populate FEC cabling map 
   const SiStripConfigDb::DeviceDescriptions& dcu_desc = db->getDeviceDescriptions( DCU );
@@ -439,8 +433,8 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
     SiStripConfigDb::DeviceAddress addr = db->deviceAddress(**idcu);
     dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
     if ( !dcu ) {
-      edm::LogError("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-				      << " Null pointer to dcuDescription!";
+      edm::LogError(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
+				  << " Null pointer to dcuDescription!";
       continue;
     }
     FedChannelConnection conn( addr.fecCrate_, 
@@ -452,9 +446,9 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 			       dcu->getDcuHardId() ); 
     fec_cabling.dcuId( conn );
   }
-  edm::LogVerbatim("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-				     << " Extracted " << dcu_desc.size()
-				     << " DCU hardware ids from config DB";
+  edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
+				 << " Extracted " << dcu_desc.size()
+				 << " DCU hardware ids from config DB";
   
   // Estimate number of FEDs required to cable entire control system
   const NumberOfDevices& devices = fec_cabling.countDevices();
@@ -463,10 +457,10 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
   // Check if there are sufficient FED ids to cable entire control system
   vector<uint16_t> fed_ids = db->getFedIds();
   if ( fed_ids.size() < required_feds ) {
-    edm::LogVerbatim("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
-				       << " Insufficient number of FED descriptions (" << fed_ids.size()
-				       << ") in config DB to cable all APV pairs (" << devices.nApvPairs_
-				       << "). Generating random FED ids...";
+    edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
+				   << " Insufficient number of FED descriptions (" << fed_ids.size()
+				   << ") in config DB to cable all APV pairs (" << devices.nApvPairs_
+				   << "). Generating random FED ids...";
     // If insufficient FEDs, add "dummy" fed_ids
     uint16_t fed_id = 50;
     while ( fed_ids.size() < required_feds ) {
@@ -493,8 +487,8 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 	    // Provide dummy cabling to FEDs
 	    if ( 96-fed_ch < imod->nApvPairs() ) { ifed++; fed_ch = 0; } // move to next FED
 	    if ( ifed == fed_ids.end() ) {
-	      edm::LogError("SiStripCabling") << "[SiStripFedCablingBuilderFromDbFromDb::buildFedCablingFromDevices]"
-					      << " Insufficient FEDs to cabling entire control system!";
+	      edm::LogError(logCategory_) << "[SiStripFedCablingBuilderFromDbFromDb::buildFedCablingFromDevices]"
+					  << " Insufficient FEDs to cabling entire control system!";
 	      break;
 	    }
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
@@ -517,7 +511,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 		 << " Null DcuId found in FEC cabling!"
 		 << " Providing 'dummy' DcuId based on control key: 0x" 
 		 << hex << setw(8) << setfill('0') << module_key << dec;
-	      edm::LogWarning("SiStripCabling") << ss.str();
+	      edm::LogWarning(logCategory_) << ss.str();
 	    }
 	  
 	    // Check for null DetId
@@ -526,7 +520,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 	      ss << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
 		 << " Null DetId found in FEC cabling! Attempting to map DcuId 0x" 
 		 << hex << setw(8) << setfill('0') << module.dcuId() << dec << " to DetId...";
-	      edm::LogWarning("SiStripCabling") << ss.str();
+	      edm::LogWarning(logCategory_) << ss.str();
 	      // Set number of APV pairs based on number found in module
 	      module.nApvPairs(0); 
 	      // Search for DcuId in map and correct number of APV pairs
@@ -581,7 +575,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 	       << iring->fecRing() << "/" 
 	       << iccu->ccuAddr() << "/" 
 	       << imod->ccuChan();
-	    LogTrace("SiStripCabling") << ss.str();
+	    LogTrace(logCategory_) << ss.str();
 	  
 	  }
 	}
@@ -594,7 +588,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
     stringstream ss;
     ss << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices]"
        << " " << cached_map.size() << " DetIds have not been assigned to a DcuId!";
-    edm::LogWarning("SiStripCabling") << ss.str();
+    edm::LogWarning(logCategory_) << ss.str();
   }
 
   // Generate FED cabling from FEC cabling object
@@ -643,7 +637,7 @@ void SiStripFedCablingBuilderFromDb::buildFedCablingFromDevices( SiStripConfigDb
 void SiStripFedCablingBuilderFromDb::buildFedCablingFromDetIds( SiStripConfigDb* const db,
 								SiStripFedCabling& fed_cabling,
 								SiStripConfigDb::DcuDetIdMap& new_map ) {
-  LogTrace("SiStripCabling") << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDetIds]";
+  LogTrace(logCategory_) << "[SiStripFedCablingBuilderFromDb::buildFedCablingFromDetIds]";
 
   // Clear new Dcu-DetId map
   new_map.clear();

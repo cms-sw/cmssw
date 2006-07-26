@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.10 2006/07/18 15:44:19 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.11 2006/07/25 10:13:46 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -368,9 +368,9 @@ class SiStripConfigDb {
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
-
-  /** Constant string that defines error category for this class. */
-  static const std::string errorCategory_;
+  
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
 
   static uint32_t cntr_;
   

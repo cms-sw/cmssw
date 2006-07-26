@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.3 2006/06/02 13:18:01 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.4 2006/06/09 13:15:43 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -84,9 +84,13 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   
   /** Vector of strings holding partition names. */
   std::vector<std::string> partitions_;
+
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
   
 };
 
 SiStripConfigDb* const SiStripFedCablingBuilderFromDb::database() { return db_; }
 
 #endif // OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
+

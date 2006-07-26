@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: FedDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -12,8 +12,8 @@ using namespace std;
 // 
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   string method = "SiStripConfigDb::getFedDescriptions";
-  edm::LogInfo(errorCategory_) << "["<<method<<"]"
-			       << " Retrieving FED descriptions...";
+  edm::LogInfo(logCategory_) << "["<<method<<"]"
+			     << " Retrieving FED descriptions...";
 
   // If reset flag set, return contents of local cache
   if ( !resetFeds_ ) { return feds_; }
@@ -35,14 +35,14 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
        << " No FED descriptions found";
     if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(errorCategory_) << ss.str();
-    throw cms::Exception(errorCategory_) << ss.str();
+    edm::LogError(logCategory_) << ss.str();
+    throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "["<<method<<"]"
        << " Found " << feds_.size() << " FED descriptions";
     if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(errorCategory_) << ss.str();
+    edm::LogInfo(logCategory_) << ss.str();
   }
   
   return feds_;
@@ -127,8 +127,8 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::createFedDescriptions( 
   if ( static_fed_descriptions.empty() ) {
     stringstream ss;
     ss << "["<<method<<"] No FED connections created!";
-    edm::LogError(errorCategory_) << ss.str() << "\n";
-    //throw cms::Exception(errorCategory_) << ss.str() << "\n";
+    edm::LogError(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   }
   
   return static_fed_descriptions;

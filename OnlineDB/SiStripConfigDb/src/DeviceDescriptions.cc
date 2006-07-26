@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.9 2006/06/23 09:42:23 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.1 2006/06/30 06:57:52 bainbrid Exp $
+// Latest tag:  $Name: V00-01-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -18,7 +18,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
     ss << " Retrieving descriptions for all devices except " 
        << deviceType( device_type ) << "...";
   }
-  edm::LogInfo(errorCategory_) << ss.str();
+  edm::LogInfo(logCategory_) << ss.str();
   
   // Use static object to hold device description of a particular type
   static SiStripConfigDb::DeviceDescriptions descriptions;
@@ -42,14 +42,14 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
       sss << " No descriptions found (for all devices except " 
 	  << deviceType( device_type ) << ")";
     }
-    edm::LogError(errorCategory_) << sss.str();
-    throw cms::Exception(errorCategory_) << sss.str();
+    edm::LogError(logCategory_) << sss.str();
+    throw cms::Exception(logCategory_) << sss.str();
   } else {
     sss << "[SiStripConfigDb::getDeviceDescriptions]"
 	<< " Found " << descriptions.size() << " descriptions (for";
     if ( !all_devices_except ) { sss << " " << deviceType( device_type ) << ")"; }
     else { sss << " all devices except " << deviceType( device_type ) << ")"; }
-    edm::LogInfo(errorCategory_) << sss.str();
+    edm::LogInfo(logCategory_) << sss.str();
   }
 
   return descriptions;
@@ -58,8 +58,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions() {
-  edm::LogInfo(errorCategory_) << "[SiStripConfigDb::getDeviceDescriptions]"
-				  << " Retrieving device descriptions...";
+  edm::LogInfo(logCategory_) << "[SiStripConfigDb::getDeviceDescriptions]"
+			     << " Retrieving device descriptions...";
   string method = "SiStripConfigDb::getDeviceDescriptions";
   
   if ( !deviceFactory(method) ) { return devices_; }
@@ -91,14 +91,14 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
        << " No device descriptions found";
     if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogError(errorCategory_) << ss.str();
-    throw cms::Exception(errorCategory_) << ss.str();
+    edm::LogError(logCategory_) << ss.str();
+    throw cms::Exception(logCategory_) << ss.str();
   } else {
     ss << "[SiStripConfigDb::getDeviceDescriptions]"
        << " Found " << devices_.size() << " device descriptions";
     if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
     else { ss << " in database partition '" << partition_.name_ << "'"; }
-    edm::LogInfo(errorCategory_) << ss.str();
+    edm::LogInfo(logCategory_) << ss.str();
   }
   
   return devices_;
@@ -196,7 +196,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 						  0,0,0,0,0,0,0,0 ); // DCU channels
 	dcu->setFecHardwareId( fec_hardware_id.str() );
 	static_device_descriptions.push_back( dcu );
-	edm::LogInfo(errorCategory_)
+	edm::LogInfo(logCategory_)
 	  << "["<<method<<"]" 
 	  << " Added DCU to 'dummy' CCU at 'FEC ring' level, with address 0x" 
 	  << hex << setw(8) << setfill('0') << index << dec;
@@ -223,7 +223,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 						    0,0,0,0,0,0,0,0 ); // DCU channels
 	  dcu->setFecHardwareId( fec_hardware_id.str() );
 	  static_device_descriptions.push_back( dcu );
-	  edm::LogInfo(errorCategory_)
+	  edm::LogInfo(logCategory_)
 	    << "["<<method<<"]" 
 	    << " Added DCU at 'CCU level', with address 0x" 
 	    << hex << setw(8) << setfill('0') << index << dec;
@@ -239,7 +239,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	    doh->setAccessKey( index ) ;
 	    doh->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( doh ) ;
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "["<<method<<"]" 
 	      << " Added DOH at 'CCU level' with address 0x" 
 	      << hex << setw(8) << setfill('0') << index << dec;
@@ -261,7 +261,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	      apv->setAccessKey( index | setAddressKey(*iapv) ) ;
 	      apv->setFecHardwareId( fec_hardware_id.str() );
 	      static_device_descriptions.push_back( apv );
-	      edm::LogInfo(errorCategory_)
+	      edm::LogInfo(logCategory_)
 		<< "["<<method<<"]" 
 		<< " Added APV at 'module' level, with address 0x"
 		<< hex << setw(8) << setfill('0') << uint32_t( index | setAddressKey(*iapv) ) << dec;
@@ -274,7 +274,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 						      0,0,0,0,0,0,0,0 ); // DCU channels
 	    dcu->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( dcu ) ;
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "["<<method<<"]" 
 	      << " Added DCU at 'module' level, with address 0x"
 	      << hex << setw(8) << setfill('0') << index << dec;
@@ -284,7 +284,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	    mux->setAccessKey( index | 0x43 );
 	    mux->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( mux );
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "["<<method<<"]" 
 	      << " Added MUX at 'module' level, with address 0x"
 	      << hex << setw(8) << setfill('0') << uint32_t( index | 0x43 ) << dec;
@@ -294,7 +294,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	    pll->setAccessKey( index | 0x44 );
 	    pll->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( pll );
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "["<<method<<"]" 
 	      << " Added PLL at 'module' level, with address 0x"
 	      << hex << setw(8) << setfill('0') << uint32_t( index | 0x44 ) << dec;
@@ -304,7 +304,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 	    aoh->setAccessKey( index | 0x60 ) ;
 	    aoh->setFecHardwareId( fec_hardware_id.str() );
 	    static_device_descriptions.push_back( aoh ) ;
-	    edm::LogInfo(errorCategory_)
+	    edm::LogInfo(logCategory_)
 	      << "["<<method<<"]" 
 	      << " Added AOH at 'module' level, with address 0x"
 	      << hex << setw(8) << setfill('0') << uint32_t( index | 0x60 ) << dec;
@@ -318,8 +318,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
   if ( static_device_descriptions.empty() ) {
     stringstream ss;
     ss << "["<<method<<"] No device descriptions created!";
-    edm::LogError(errorCategory_) << ss.str() << "\n";
-    //throw cms::Exception(errorCategory_) << ss.str() << "\n";
+    edm::LogError(logCategory_) << ss.str() << "\n";
+    //throw cms::Exception(logCategory_) << ss.str() << "\n";
   } 
   
   return static_device_descriptions;
