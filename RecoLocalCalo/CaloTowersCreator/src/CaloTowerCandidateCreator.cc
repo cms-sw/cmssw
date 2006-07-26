@@ -1,7 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.4 2006/05/23 19:56:30 mansj Exp $
+// $Id: CaloTowerCandidateCreator.cc,v 1.5 2006/05/26 20:10:40 mansj Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -39,7 +39,7 @@ void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
       std::cout << "CaloTowerCandidateCreator::produce-> " << idx << " tower et/eta/phi/e: " 
 		<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
     }
-    if (cal->et() >= mEtThreshold && cal->energy() >= mEtThreshold ) {
+    if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
       math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
       RecoCaloTowerCandidate * c = 
 	new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
