@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/13 22:55:54 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/07/18 09:07:04 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -170,7 +170,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     if (  refitter()->getTotalChamberUsed() >= 2 && 
 	  (refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ){
       LogDebug(metname)<< "Trajectory saved" << endl;
-      trajectoryContainer.push_back(trajectoryFW);
+      //FIXME! creating with new!
+      trajectoryContainer.push_back(new Trajectory(trajectoryFW));
     }
     else LogDebug(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
     
@@ -209,7 +210,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   if (  bwfilter()->getTotalChamberUsed() >= 2 && 
 	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
     LogDebug(metname)<< "Trajectory saved" << endl;
-    trajectoryContainer.push_back(trajectoryBW);
+     //FIXME! creating with new!
+    trajectoryContainer.push_back(new Trajectory(trajectoryBW));
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
