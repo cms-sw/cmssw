@@ -7,8 +7,12 @@
  *   
  * CaloTowerDetId uses DetId::Det of Calo and subdetId() of 1.
  *
- * $Date: 2005/10/04 20:34:51 $
- * $Revision: 1.2 $
+ *  There are two encodings for this class.  Version 0 (original)
+ *  was supplanted by version 1 when the ECAL/HCAL iphi=1 alignment occurred
+ *  (0_9_0)
+ *
+ * $Date: 2005/10/06 00:39:42 $
+ * $Revision: 1.3 $
  * \author J. Mans - Minnesota
  */
 class CaloTowerDetId : public DetId {
@@ -31,7 +35,10 @@ public:
   /// get the tower ieta
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
-  int iphi() const { return id_&0x7F; }
+  int iphi() const;
+
+  /// get the encoding version (for expert use)
+  int encodingVersion() const { return (id_>>16)&0x3; }
 
   static const int SubdetId = 1;
 
