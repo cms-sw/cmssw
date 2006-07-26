@@ -3,6 +3,8 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/EcalDetId>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
 <use name=boost>
@@ -16,6 +18,8 @@
    <use name=SimDataFormats/Vertex>       
    <use name=SimDataFormats/HepMCProduct> 
    <use name=DataFormats/EcalDetId>       
+   <use name=CondFormats/EcalObjects>
+   <use name=CondFormats/DataRecord>
    <use name=FWCore/Framework>            
    <use name=DQMServices/CoreROOT>        
    <use name=boost>                       

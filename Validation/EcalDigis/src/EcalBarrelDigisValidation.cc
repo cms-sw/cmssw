@@ -1,13 +1,14 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/07/10 11:31:19 $
- * $Revision: 1.8 $
+ * $Date: 2006/07/10 15:41:32 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
   {
@@ -47,6 +48,8 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
  
   meEBDigiOccupancy_ = 0;
 
+  meEBDigiMultiplicity_ = 0;
+
   meEBDigiADCGlobal_ = 0;
 
   for (int i = 0; i < 10 ; i++ ) {
@@ -73,6 +76,9 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
   
     sprintf (histo, "EcalDigiTask Barrel occupancy" ) ;
     meEBDigiOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
+    sprintf (histo, "EcalDigiTask Barrel digis multiplicity" ) ;
+    meEBDigiMultiplicity_ = dbe_->book1D(histo, histo, 612, 0., 61200);
   
     sprintf (histo, "EcalDigiTask Barrel global pulse shape" ) ;
     meEBDigiADCGlobal_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
@@ -80,7 +86,7 @@ EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
     for (int i = 0; i < 10 ; i++ ) {
 
       sprintf (histo, "EcalDigiTask Barrel analog pulse %02d", i+1) ;
-      meEBDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
+      meEBDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4000, 0., 400.);
 
       sprintf (histo, "EcalDigiTask Barrel ADC pulse %02d Gain 1", i+1) ;
       meEBDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
@@ -118,6 +124,8 @@ EcalBarrelDigisValidation::~EcalBarrelDigisValidation(){
 
 void EcalBarrelDigisValidation::beginJob(const EventSetup& c){
 
+  checkCalibrations(c);
+
 }
 
 void EcalBarrelDigisValidation::endJob(){
@@ -145,6 +153,8 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
   ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
   ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
 
+  int nDigis = 0;
+
   for (std::vector<EBDataFrame>::const_iterator digis = barrelDigi->begin () ;
        digis != barrelDigi->end () ;
        ++digis)
@@ -152,6 +162,7 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
     
       EBDetId ebid = digis->id () ;
 
+      nDigis++;
       if (meEBDigiOccupancy_) meEBDigiOccupancy_->Fill( ebid.iphi(), ebid.ieta() );
 
       double Emax = 0. ;
@@ -199,8 +210,8 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
         
       for ( int i = 0 ; i < 10 ; i++ ) {
-        if (meEBDigiADCGlobal_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
-        if (meEBDigiADCAnalog_[i]) meEBDigiADCAnalog_[i]->Fill( ebAnalogSignal[i]*100. ) ;
+        if (meEBDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
+        if (meEBDigiADCAnalog_[i]) meEBDigiADCAnalog_[i]->Fill( ebAnalogSignal[i] ) ;
         if ( ebADCGains[i] == 3 ) {
           if (meEBDigiADCg1_[i]) meEBDigiADCg1_[i]->Fill( ebADCCounts[i] ) ;
         }
@@ -218,7 +229,35 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEBnADCafterSwitch_) meEBnADCafterSwitch_->Fill( countsAfterGainSwitch ) ;
         
-    } 
+    }
+
+  if ( meEBDigiMultiplicity_ ) meEBDigiMultiplicity_->Fill(nDigis);
+
+}
+
+void  EcalBarrelDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+{
+
+  // ADC -> GeV Scale
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  
+  EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
+
+  gainConv_[0] = 0.;
+  gainConv_[1] = 1.;
+  gainConv_[2] = defaultRatios->gain12Over6() ;
+  gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+
+  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
+
+  delete defaultRatios;
+
+  const double barrelADCtoGeV_  = agc->getEBValue();
+  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
+  const double endcapADCtoGeV_ = agc->getEEValue();
+  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
 
 }
 

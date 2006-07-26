@@ -1,13 +1,14 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/07/10 11:31:19 $
- * $Revision: 1.8 $
+ * $Date: 2006/07/10 15:41:32 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
 
 #include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
   {
@@ -47,6 +48,9 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
  
   meEEDigiOccupancyzp_ = 0;
   meEEDigiOccupancyzm_ = 0;
+ 
+  meEEDigiMultiplicityzp_ = 0;
+  meEEDigiMultiplicityzm_ = 0;
 
   meEEDigiADCGlobal_ = 0;
 
@@ -77,6 +81,12 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     
     sprintf (histo, "EcalDigiTask Endcap occupancy z-" ) ;
     meEEDigiOccupancyzm_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  
+    sprintf (histo, "EcalDigiTask Endcap multiplicity z+" ) ;
+    meEEDigiMultiplicityzp_ = dbe_->book1D(histo, histo, 100, 0., 7324.);
+    
+    sprintf (histo, "EcalDigiTask Endcap multiplicity z-" ) ;
+    meEEDigiMultiplicityzm_ = dbe_->book1D(histo, histo, 100, 0., 7324.);
     
     sprintf (histo, "EcalDigiTask Endcap global pulse shape" ) ;
     meEEDigiADCGlobal_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
@@ -84,7 +94,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     for (int i = 0; i < 10 ; i++ ) {
 
       sprintf (histo, "EcalDigiTask Endcap analog pulse %02d", i+1) ;
-      meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
+      meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4000, 0., 400.);
 
       sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 1", i+1) ;
       meEEDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
@@ -121,6 +131,8 @@ EcalEndcapDigisValidation::~EcalEndcapDigisValidation(){
 
 void EcalEndcapDigisValidation::beginJob(const EventSetup& c){
 
+  checkCalibrations(c);
+
 }
 
 void EcalEndcapDigisValidation::endJob(){
@@ -148,6 +160,9 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
   eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
   eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
 
+  int nDigiszp = 0;
+  int nDigiszm = 0;
+
   for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
        digis != endcapDigi->end () ;
        ++digis)
@@ -157,9 +172,11 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
 
       if (eeid.zside() > 0 ) {
         if (meEEDigiOccupancyzp_) meEEDigiOccupancyzp_->Fill( eeid.ix(), eeid.iy() );
+        nDigiszp++;
       }
       else if (eeid.zside() < 0 ) {
         if (meEEDigiOccupancyzm_) meEEDigiOccupancyzm_->Fill( eeid.ix(), eeid.iy() );
+        nDigiszm++;
       }
       
       double Emax = 0. ;
@@ -207,8 +224,8 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
 
       for ( int i = 0 ; i < 10 ; i++ ) {
-        if (meEEDigiADCGlobal_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
-        if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i]*100. ) ;
+        if (meEEDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
+        if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i] ) ;
         if ( eeADCGains[i] == 3 ) {
           if (meEEDigiADCg1_[i]) meEEDigiADCg1_[i]->Fill( eeADCCounts[i] ) ;
         }
@@ -227,6 +244,35 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       if (meEEnADCafterSwitch_) meEEnADCafterSwitch_->Fill(countsAfterGainSwitch);
       
     } 
+
+  if ( meEEDigiMultiplicityzp_ ) meEEDigiMultiplicityzp_->Fill(nDigiszp);
+  if ( meEEDigiMultiplicityzm_ ) meEEDigiMultiplicityzm_->Fill(nDigiszm);
+
+}
+
+void  EcalEndcapDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+{
+
+  // ADC -> GeV Scale
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  
+  EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
+
+  gainConv_[0] = 0.;
+  gainConv_[1] = 1.;
+  gainConv_[2] = defaultRatios->gain12Over6() ;
+  gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+
+  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
+
+  delete defaultRatios;
+
+  const double barrelADCtoGeV_  = agc->getEBValue();
+  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
+  const double endcapADCtoGeV_ = agc->getEEValue();
+  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
 
 }
 

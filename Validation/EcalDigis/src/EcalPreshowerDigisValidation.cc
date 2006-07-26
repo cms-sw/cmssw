@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/06/20 16:26:00 $
- * $Revision: 1.4 $
+ * $Date: 2006/07/10 15:41:32 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -38,6 +38,8 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
+  meESDigiMultiplicity_=0;
+
   for (int i = 0; i < 3 ; i++ ) {
     meESDigiADC_[i] = 0;
   }
@@ -46,6 +48,9 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
  
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalDigiTask");
+
+    sprintf (histo, "EcalDigiTask Preshower digis multiplicity" ) ;
+    meESDigiMultiplicity_ = dbe_->book1D(histo, histo, 1000, 0., 137728);
   
     for ( int i = 0; i < 3 ; i++ ) {
       
@@ -86,12 +91,16 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
   std::vector<double> esADCCounts ;
   esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
 
+  int nDigis = 0;
+
   for (std::vector<ESDataFrame>::const_iterator digis = preshowerDigi->begin () ;
        digis != preshowerDigi->end () ;
        ++digis)
     {
        
       ESDetId esid = digis->id () ;
+
+      nDigis++;
 
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         esADCCounts[sample] = 0.;
@@ -113,6 +122,8 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
       }
        
     } 
+
+  if ( meESDigiMultiplicity_ ) meESDigiMultiplicity_->Fill(nDigis);
 
 }
 

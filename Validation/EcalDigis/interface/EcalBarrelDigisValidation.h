@@ -4,7 +4,7 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2006/04/03 14:06:41 $
+ * $Date: 2006/04/10 08:50:50 $
  * $Revision: 1.1 $
  * \author F. Cossutti
  *
@@ -60,6 +60,8 @@ void beginJob(const EventSetup& c);
 // EndJob
 void endJob(void);
 
+void checkCalibrations(const edm::EventSetup & c);
+
 private:
 
  bool verbose_;
@@ -74,6 +76,8 @@ private:
  double endcapADCtoGeV_;
  
  MonitorElement* meEBDigiOccupancy_;
+
+ MonitorElement* meEBDigiMultiplicity_;
 
  MonitorElement* meEBDigiADCGlobal_;
 

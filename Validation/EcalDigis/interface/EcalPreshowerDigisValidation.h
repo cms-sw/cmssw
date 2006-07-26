@@ -4,8 +4,8 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/20 16:25:59 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -67,6 +67,8 @@ private:
  DaqMonitorBEInterface* dbe_;
  
  string outputFile_;
+
+ MonitorElement* meESDigiMultiplicity_;
  
  MonitorElement* meESDigiADC_[3];
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/07/09 16:49:46 $
- * $Revision: 1.11 $
+ * $Date: 2006/07/10 11:31:19 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
@@ -11,6 +11,7 @@
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   HepMCLabel(ps.getUntrackedParameter("moduleLabelMC",string("PythiaSource"))),
@@ -117,6 +118,8 @@ EcalDigisValidation::~EcalDigisValidation(){
 }
 
 void EcalDigisValidation::beginJob(const EventSetup& c){
+
+  checkCalibrations(c);
 
 }
 
@@ -373,3 +376,29 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   }
   
 }                                                                                                                                                            
+
+void  EcalDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+{
+
+  // ADC -> GeV Scale
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  
+  EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
+
+  gainConv_[0] = 0.;
+  gainConv_[1] = 1.;
+  gainConv_[2] = defaultRatios->gain12Over6() ;
+  gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+
+  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
+
+  delete defaultRatios;
+
+  const double barrelADCtoGeV_  = agc->getEBValue();
+  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
+  const double endcapADCtoGeV_ = agc->getEEValue();
+  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
+
+}

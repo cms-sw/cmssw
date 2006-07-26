@@ -9,6 +9,9 @@ void EcalDigisPlotCompare()
  char*  rfilename = "EcalDigisValidation_old.root";
  char*  sfilename = "EcalDigisValidation_new.root";
 
+ int rcolor = 2;
+ int scolor = 4;
+
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
@@ -41,32 +44,32 @@ void EcalDigisPlotCompare()
    TH1* meGunEnergy_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Momentum;1",meGunEnergy_);
    meGunEnergy_;
-   meGunEnergy_->SetLineColor(4);
+   meGunEnergy_->SetLineColor(rcolor);
    
    TH1* meGunEta_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Eta;1",meGunEta_);
    meGunEta_;
-   meGunEta_->SetLineColor(4);
+   meGunEta_->SetLineColor(rcolor);
    
    TH1* meGunPhi_; 
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Phi;1",meGunPhi_);
    meGunPhi_; 
-   meGunPhi_->SetLineColor(4); 
+   meGunPhi_->SetLineColor(rcolor); 
    
    TH1* newmeGunEnergy_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Momentum;1",newmeGunEnergy_);
    newmeGunEnergy_;
-   newmeGunEnergy_->SetLineColor(2);
+   newmeGunEnergy_->SetLineColor(scolor);
    
    TH1* newmeGunEta_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Eta;1",newmeGunEta_);
    newmeGunEta_;
-   newmeGunEta_->SetLineColor(2);
+   newmeGunEta_->SetLineColor(scolor);
    
    TH1* newmeGunPhi_; 
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Gun Phi;1",newmeGunPhi_);
    newmeGunPhi_; 
-   newmeGunPhi_->SetLineColor(2); 
+   newmeGunPhi_->SetLineColor(scolor); 
    
    
    Ecal->cd(1); 
@@ -99,12 +102,12 @@ void EcalDigisPlotCompare()
    TH2 * meEBDigiOccupancy_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel occupancy;1",meEBDigiOccupancy_);
    meEBDigiOccupancy_;
-   meEBDigiOccupancy_->SetLineColor(4);
+   meEBDigiOccupancy_->SetLineColor(rcolor);
 
    TH2 * newmeEBDigiOccupancy_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel occupancy;1",newmeEBDigiOccupancy_);
    newmeEBDigiOccupancy_;
-   newmeEBDigiOccupancy_->SetLineColor(2);
+   newmeEBDigiOccupancy_->SetLineColor(scolor);
 
    if ( meEBDigiOccupancy_ && newmeEBDigiOccupancy_ ) {
      Ecal->cd(1);
@@ -126,22 +129,22 @@ void EcalDigisPlotCompare()
    TH2 * meEEDigiOccupancyzp_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",meEEDigiOccupancyzp_);
    meEEDigiOccupancyzp_;
-   meEEDigiOccupancyzp_->SetLineColor(4);
+   meEEDigiOccupancyzp_->SetLineColor(rcolor);
 
    TH2 * meEEDigiOccupancyzm_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
    meEEDigiOccupancyzm_;
-   meEEDigiOccupancyzm_->SetLineColor(4);
+   meEEDigiOccupancyzm_->SetLineColor(rcolor);
 
    TH2 * newmeEEDigiOccupancyzp_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",newmeEEDigiOccupancyzp_);
    newmeEEDigiOccupancyzp_;
-   newmeEEDigiOccupancyzp_->SetLineColor(2);
+   newmeEEDigiOccupancyzp_->SetLineColor(scolor);
 
    TH2 * newmeEEDigiOccupancyzm_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",newmeEEDigiOccupancyzm_);
    newmeEEDigiOccupancyzm_;
-   newmeEEDigiOccupancyzm_->SetLineColor(2);
+   newmeEEDigiOccupancyzm_->SetLineColor(scolor);
 
    if ( meEEDigiOccupancyzp_ && newmeEEDigiOccupancyzp_ && meEEDigiOccupancyzm_ && newmeEEDigiOccupancyzm_ ) {
      Ecal->cd(1);
@@ -158,6 +161,87 @@ void EcalDigisPlotCompare()
    Ecal->Print("Endcap_Occupancy_compare.eps");
  }
 
+ // Multiplicities
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(2,2);
+
+   TH1 * meEBDigiMultiplicity_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel digis multiplicity;1",meEBDigiMultiplicity_);
+   meEBDigiMultiplicity_;
+   meEBDigiMultiplicity_->SetLineColor(rcolor);
+
+   TH1 * meESDigiMultiplicity_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower digis multiplicity;1",meESDigiMultiplicity_);
+   meESDigiMultiplicity_;
+   meESDigiMultiplicity_->SetLineColor(rcolor);
+
+   TH1 * meEEDigiMultiplicityzp_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z+;1",meEEDigiMultiplicityzp_);
+   meEEDigiMultiplicityzp_;
+   meEEDigiMultiplicityzp_->SetLineColor(rcolor);
+
+   TH1 * meEEDigiMultiplicityzm_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z-;1",meEEDigiMultiplicityzm_);
+   meEEDigiMultiplicityzm_;
+   meEEDigiMultiplicityzm_->SetLineColor(rcolor);
+
+   TH1 * newmeEBDigiMultiplicity_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel digis multiplicity;1",newmeEBDigiMultiplicity_);
+   newmeEBDigiMultiplicity_;
+   newmeEBDigiMultiplicity_->SetLineColor(scolor);
+
+   TH1 * newmeESDigiMultiplicity_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower digis multiplicity;1",newmeESDigiMultiplicity_);
+   newmeESDigiMultiplicity_;
+   newmeESDigiMultiplicity_->SetLineColor(scolor);
+
+   TH1 * newmeEEDigiMultiplicityzp_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z+;1",newmeEEDigiMultiplicityzp_);
+   newmeEEDigiMultiplicityzp_;
+   newmeEEDigiMultiplicityzp_->SetLineColor(scolor);
+
+   TH1 * newmeEEDigiMultiplicityzm_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z-;1",newmeEEDigiMultiplicityzm_);
+   newmeEEDigiMultiplicityzm_;
+   newmeEEDigiMultiplicityzm_->SetLineColor(scolor);
+
+   Ecal->cd(1);
+   if ( meEBDigiMultiplicity_ && newmeEBDigiMultiplicity_ ) {
+     gPad->SetLogx(0);
+     meEBDigiMultiplicity_->Draw();
+     newmeEBDigiMultiplicity_->Draw("same");
+     myPV->PVCompute(meEBDigiMultiplicity_ , newmeEBDigiMultiplicity_ , te);
+     gPad->SetLogx(1);
+   }
+   Ecal->cd(2);
+   if ( meESDigiMultiplicity_ && newmeESDigiMultiplicity_ ) {
+     gPad->SetLogx(0);
+     meESDigiMultiplicity_->Draw();
+     newmeESDigiMultiplicity_->Draw("same");
+     myPV->PVCompute(meESDigiMultiplicity_ , newmeESDigiMultiplicity_ , te);
+     gPad->SetLogx(1);
+   }
+   Ecal->cd(3);
+   if ( meEEDigiMultiplicityzp_ && newmeEEDigiMultiplicityzp_ ) {
+     gPad->SetLogx(0);
+     meEEDigiMultiplicityzp_->Draw();
+     newmeEEDigiMultiplicityzp_->Draw("same");
+     myPV->PVCompute(meEEDigiMultiplicityzp_ , newmeEEDigiMultiplicityzp_ , te);
+     gPad->SetLogx(1);
+   }
+   Ecal->cd(4);
+   if ( meEEDigiMultiplicityzm_ && newmeEEDigiMultiplicityzm_ ) {
+     gPad->SetLogx(0);
+     meEEDigiMultiplicityzm_->Draw();
+     newmeEEDigiMultiplicityzm_->Draw("same");
+     myPV->PVCompute(meEEDigiMultiplicityzm_ , newmeEEDigiMultiplicityzm_ , te);
+     gPad->SetLogx(1);
+   }
+   Ecal->Print("Multiplicity_compare.eps");
+ }
+
 
  // global pulse shapes
 
@@ -168,22 +252,22 @@ void EcalDigisPlotCompare()
    TProfile * meEBDigiADCGlobal_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel global pulse shape;1",meEBDigiADCGlobal_) ;
    meEBDigiADCGlobal_;
-   meEBDigiADCGlobal_->SetLineColor(4);
+   meEBDigiADCGlobal_->SetLineColor(rcolor);
 
    TProfile * meEEDigiADCGlobal_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap global pulse shape;1",meEEDigiADCGlobal_) ;
    meEEDigiADCGlobal_;
-   meEEDigiADCGlobal_->SetLineColor(4);
+   meEEDigiADCGlobal_->SetLineColor(rcolor);
 
    TProfile * newmeEBDigiADCGlobal_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel global pulse shape;1",newmeEBDigiADCGlobal_) ;
    newmeEBDigiADCGlobal_;
-   newmeEBDigiADCGlobal_->SetLineColor(2);
+   newmeEBDigiADCGlobal_->SetLineColor(scolor);
 
    TProfile * newmeEEDigiADCGlobal_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap global pulse shape;1",newmeEEDigiADCGlobal_) ;
    newmeEEDigiADCGlobal_;
-   newmeEEDigiADCGlobal_->SetLineColor(2);
+   newmeEEDigiADCGlobal_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBDigiADCGlobal_ && newmeEBDigiADCGlobal_ ) {
@@ -209,22 +293,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBDigiSimRatio_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio;1",meEBDigiSimRatio_);
    meEBDigiSimRatio_;
-   meEBDigiSimRatio_->SetLineColor(4);
+   meEBDigiSimRatio_->SetLineColor(rcolor);
 
    TH1 * meEEDigiSimRatio_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio;1",meEEDigiSimRatio_);
    meEEDigiSimRatio_;
-   meEEDigiSimRatio_->SetLineColor(4);
+   meEEDigiSimRatio_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiSimRatio_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio;1",newmeEBDigiSimRatio_);
    newmeEBDigiSimRatio_;
-   newmeEBDigiSimRatio_->SetLineColor(2);
+   newmeEBDigiSimRatio_->SetLineColor(scolor);
 
    TH1 * newmeEEDigiSimRatio_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio;1",newmeEEDigiSimRatio_);
    newmeEEDigiSimRatio_;
-   newmeEEDigiSimRatio_->SetLineColor(2);
+   newmeEEDigiSimRatio_->SetLineColor(scolor);
 
    Ecal->cd(1);
    gPad->SetLogy(0);
@@ -252,22 +336,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBDigiSimRatiogt10ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",meEBDigiSimRatiogt10ADC_);
    meEBDigiSimRatiogt10ADC_;
-   meEBDigiSimRatiogt10ADC_->SetLineColor(4);
+   meEBDigiSimRatiogt10ADC_->SetLineColor(rcolor);
 
    TH1 * meEEDigiSimRatiogt10ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 10 ADC;1",meEEDigiSimRatiogt10ADC_);
    meEEDigiSimRatiogt10ADC_;
-   meEEDigiSimRatiogt10ADC_->SetLineColor(4);
+   meEEDigiSimRatiogt10ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiSimRatiogt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 10 ADC;1",newmeEBDigiSimRatiogt10ADC_);
    newmeEBDigiSimRatiogt10ADC_;
-   newmeEBDigiSimRatiogt10ADC_->SetLineColor(2);
+   newmeEBDigiSimRatiogt10ADC_->SetLineColor(scolor);
 
    TH1 * newmeEEDigiSimRatiogt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 10 ADC;1",newmeEEDigiSimRatiogt10ADC_);
    newmeEEDigiSimRatiogt10ADC_;
-   newmeEEDigiSimRatiogt10ADC_->SetLineColor(2);
+   newmeEEDigiSimRatiogt10ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    gPad->SetLogy(0);
@@ -295,22 +379,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBDigiSimRatiogt100ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 100 ADC;1",meEBDigiSimRatiogt100ADC_);
    meEBDigiSimRatiogt100ADC_;
-   meEBDigiSimRatiogt100ADC_->SetLineColor(4);
+   meEBDigiSimRatiogt100ADC_->SetLineColor(rcolor);
 
    TH1 * meEEDigiSimRatiogt100ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 100 ADC;1",meEEDigiSimRatiogt100ADC_);
    meEEDigiSimRatiogt100ADC_;
-   meEEDigiSimRatiogt100ADC_->SetLineColor(4);
+   meEEDigiSimRatiogt100ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBDigiSimRatiogt100ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum Digi over Sim ratio gt 100 ADC;1",newmeEBDigiSimRatiogt100ADC_);
    newmeEBDigiSimRatiogt100ADC_;
-   newmeEBDigiSimRatiogt100ADC_->SetLineColor(2);
+   newmeEBDigiSimRatiogt100ADC_->SetLineColor(scolor);
 
    TH1 * newmeEEDigiSimRatiogt100ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum Digi over Sim ratio gt 100 ADC;1",newmeEEDigiSimRatiogt100ADC_);
    newmeEEDigiSimRatiogt100ADC_;
-   newmeEEDigiSimRatiogt100ADC_->SetLineColor(2);
+   newmeEEDigiSimRatiogt100ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    gPad->SetLogy(0);
@@ -340,22 +424,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBnADCafterSwitch_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel ADC counts after gain switch;1", meEBnADCafterSwitch_) ;
    meEBnADCafterSwitch_;
-   meEBnADCafterSwitch_->SetLineColor(4);
+   meEBnADCafterSwitch_->SetLineColor(rcolor);
 
    TH1 * meEEnADCafterSwitch_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap ADC counts after gain switch;1", meEEnADCafterSwitch_) ;
    meEEnADCafterSwitch_;
-   meEEnADCafterSwitch_->SetLineColor(4);
+   meEEnADCafterSwitch_->SetLineColor(rcolor);
 
    TH1 * newmeEBnADCafterSwitch_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel ADC counts after gain switch;1", newmeEBnADCafterSwitch_) ;
    newmeEBnADCafterSwitch_;
-   newmeEBnADCafterSwitch_->SetLineColor(2);
+   newmeEBnADCafterSwitch_->SetLineColor(scolor);
 
    TH1 * newmeEEnADCafterSwitch_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap ADC counts after gain switch;1", newmeEEnADCafterSwitch_) ;
    newmeEEnADCafterSwitch_;
-   newmeEEnADCafterSwitch_->SetLineColor(2);
+   newmeEEnADCafterSwitch_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBnADCafterSwitch_ && newmeEBnADCafterSwitch_ ) {
@@ -381,22 +465,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBPedestal_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel pedestal for pre-sample;1",meEBPedestal_);
    meEBPedestal_;
-   meEBPedestal_->SetLineColor(4);
+   meEBPedestal_->SetLineColor(rcolor);
 
    TH1 * meEEPedestal_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap pedestal for pre-sample;1",meEEPedestal_);
    meEEPedestal_;
-   meEEPedestal_->SetLineColor(4);
+   meEEPedestal_->SetLineColor(rcolor);
 
    TH1 * newmeEBPedestal_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel pedestal for pre-sample;1",newmeEBPedestal_);
    newmeEBPedestal_;
-   newmeEBPedestal_->SetLineColor(2);
+   newmeEBPedestal_->SetLineColor(scolor);
 
    TH1 * newmeEEPedestal_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap pedestal for pre-sample;1",newmeEEPedestal_);
    newmeEEPedestal_;
-   newmeEEPedestal_->SetLineColor(2);
+   newmeEEPedestal_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBPedestal_ && newmeEBPedestal_ ) {
@@ -423,22 +507,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBMaximumgt100ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 100 ADC;1",meEBMaximumgt100ADC_);
    meEBMaximumgt100ADC_;
-   meEBMaximumgt100ADC_->SetLineColor(4);
+   meEBMaximumgt100ADC_->SetLineColor(rcolor);
 
    TH1 * meEEMaximumgt100ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 100 ADC;1",meEEMaximumgt100ADC_);
    meEEMaximumgt100ADC_;
-   meEEMaximumgt100ADC_->SetLineColor(4);
+   meEEMaximumgt100ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBMaximumgt100ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 100 ADC;1",newmeEBMaximumgt100ADC_);
    newmeEBMaximumgt100ADC_;
-   newmeEBMaximumgt100ADC_->SetLineColor(2);
+   newmeEBMaximumgt100ADC_->SetLineColor(scolor);
 
    TH1 * newmeEEMaximumgt100ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 100 ADC;1",newmeEEMaximumgt100ADC_);
    newmeEEMaximumgt100ADC_;
-   newmeEEMaximumgt100ADC_->SetLineColor(2);
+   newmeEEMaximumgt100ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBMaximumgt100ADC_ && newmeEBMaximumgt100ADC_ ) { 
@@ -462,22 +546,22 @@ void EcalDigisPlotCompare()
    TH1 * meEBMaximumgt10ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",meEBMaximumgt10ADC_);
    meEBMaximumgt10ADC_;
-   meEBMaximumgt10ADC_->SetLineColor(4);
+   meEBMaximumgt10ADC_->SetLineColor(rcolor);
 
    TH1 * meEEMaximumgt10ADC_;
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 10 ADC;1",meEEMaximumgt10ADC_);
    meEEMaximumgt10ADC_;
-   meEEMaximumgt10ADC_->SetLineColor(4);
+   meEEMaximumgt10ADC_->SetLineColor(rcolor);
 
    TH1 * newmeEBMaximumgt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel maximum position gt 10 ADC;1",newmeEBMaximumgt10ADC_);
    newmeEBMaximumgt10ADC_;
-   newmeEBMaximumgt10ADC_->SetLineColor(2);
+   newmeEBMaximumgt10ADC_->SetLineColor(scolor);
 
    TH1 * newmeEEMaximumgt10ADC_;
    sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap maximum position gt 10 ADC;1",newmeEEMaximumgt10ADC_);
    newmeEEMaximumgt10ADC_;
-   newmeEEMaximumgt10ADC_->SetLineColor(2);
+   newmeEEMaximumgt10ADC_->SetLineColor(scolor);
 
    Ecal->cd(1);
    if ( meEBMaximumgt10ADC_ && newmeEBMaximumgt10ADC_ ) {
@@ -506,10 +590,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Preshower ADC pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meESDigiADC_[i]);
      meESDigiADC_[i];
-     meESDigiADC_[i]->SetLineColor(4);
+     meESDigiADC_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeESDigiADC_[i]);
      newmeESDigiADC_[i];
-     newmeESDigiADC_[i]->SetLineColor(2);
+     newmeESDigiADC_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<3; i++ ) {
      Ecal->cd(i+1);
@@ -536,10 +620,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel analog pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCAnalog_[i]);
      meEBDigiADCAnalog_[i];
-     meEBDigiADCAnalog_[i]->SetLineColor(4);
+     meEBDigiADCAnalog_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEBDigiADCAnalog_[i]);
      newmeEBDigiADCAnalog_[i];
-     newmeEBDigiADCAnalog_[i]->SetLineColor(2);
+     newmeEBDigiADCAnalog_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -566,10 +650,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 1;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg1_[i]);
      meEBDigiADCg1_[i];
-     meEBDigiADCg1_[i]->SetLineColor(4);
+     meEBDigiADCg1_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEBDigiADCg1_[i]);
      newmeEBDigiADCg1_[i];
-     newmeEBDigiADCg1_[i]->SetLineColor(2);
+     newmeEBDigiADCg1_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -596,10 +680,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 6;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg6_[i]);
      meEBDigiADCg6_[i];
-     meEBDigiADCg6_[i]->SetLineColor(4);
+     meEBDigiADCg6_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEBDigiADCg6_[i]);
      newmeEBDigiADCg6_[i];
-     newmeEBDigiADCg6_[i]->SetLineColor(2);
+     newmeEBDigiADCg6_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -626,10 +710,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel ADC pulse %02d Gain 12;1", i+1) ;
      rfile->GetObject(histo,meEBDigiADCg12_[i]);
      meEBDigiADCg12_[i];
-     meEBDigiADCg12_[i]->SetLineColor(4);
+     meEBDigiADCg12_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEBDigiADCg12_[i]);
      newmeEBDigiADCg12_[i];
-     newmeEBDigiADCg12_[i]->SetLineColor(2);
+     newmeEBDigiADCg12_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -656,10 +740,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Barrel gain pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEBDigiGain_[i]);
      meEBDigiGain_[i];
-     meEBDigiGain_[i]->SetLineColor(4);
+     meEBDigiGain_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEBDigiGain_[i]);
      newmeEBDigiGain_[i];
-     newmeEBDigiGain_[i]->SetLineColor(2);
+     newmeEBDigiGain_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -686,10 +770,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap analog pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCAnalog_[i]);
      meEEDigiADCAnalog_[i];
-     meEEDigiADCAnalog_[i]->SetLineColor(4);
+     meEEDigiADCAnalog_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEEDigiADCAnalog_[i]);
      newmeEEDigiADCAnalog_[i];
-     newmeEEDigiADCAnalog_[i]->SetLineColor(2);
+     newmeEEDigiADCAnalog_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -716,10 +800,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 1;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg1_[i]);
      meEEDigiADCg1_[i];
-     meEEDigiADCg1_[i]->SetLineColor(4);
+     meEEDigiADCg1_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEEDigiADCg1_[i]);
      newmeEEDigiADCg1_[i];
-     newmeEEDigiADCg1_[i]->SetLineColor(2);
+     newmeEEDigiADCg1_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -746,10 +830,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 6;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg6_[i]);
      meEEDigiADCg6_[i];
-     meEEDigiADCg6_[i]->SetLineColor(4);
+     meEEDigiADCg6_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEEDigiADCg6_[i]);
      newmeEEDigiADCg6_[i];
-     newmeEEDigiADCg6_[i]->SetLineColor(2);
+     newmeEEDigiADCg6_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -776,10 +860,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap ADC pulse %02d Gain 12;1", i+1) ;
      rfile->GetObject(histo,meEEDigiADCg12_[i]);
      meEEDigiADCg12_[i];
-     meEEDigiADCg12_[i]->SetLineColor(4);
+     meEEDigiADCg12_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEEDigiADCg12_[i]);
      newmeEEDigiADCg12_[i];
-     newmeEEDigiADCg12_[i]->SetLineColor(2);
+     newmeEEDigiADCg12_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
@@ -806,10 +890,10 @@ void EcalDigisPlotCompare()
      sprintf (histo, "DQMData/EcalDigiTask/EcalDigiTask Endcap gain pulse %02d;1", i+1) ;
      rfile->GetObject(histo,meEEDigiGain_[i]);
      meEEDigiGain_[i];
-     meEEDigiGain_[i]->SetLineColor(4);
+     meEEDigiGain_[i]->SetLineColor(rcolor);
      sfile->GetObject(histo,newmeEEDigiGain_[i]);
      newmeEEDigiGain_[i];
-     newmeEEDigiGain_[i]->SetLineColor(2);
+     newmeEEDigiGain_[i]->SetLineColor(scolor);
    }
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);

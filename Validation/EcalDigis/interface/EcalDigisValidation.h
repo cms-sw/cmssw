@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/27 16:29:28 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -71,6 +71,8 @@ void beginJob(const EventSetup& c);
 
 // EndJob
 void endJob(void);
+
+void checkCalibrations(const edm::EventSetup & c);
 
 private:
 

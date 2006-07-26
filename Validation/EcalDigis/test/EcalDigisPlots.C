@@ -59,11 +59,14 @@ void EcalDigisPlots()
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel occupancy;1",meEBDigiOccupancy_);
    meEBDigiOccupancy_;
 
+   gStyle->SetOptStat("11");
+
    Ecal->cd(1);
    if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Draw("colz");
    Ecal->Print("Barrel_Occupancy.eps");
- }
 
+   gStyle->SetOptStat("nemruoi");
+ }
 
  // Endcap occupancy
 
@@ -79,13 +82,57 @@ void EcalDigisPlots()
    rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
    meEEDigiOccupancyzm_;
 
+   gStyle->SetOptStat("11");
+
    Ecal->cd(1);
    if ( meEEDigiOccupancyzp_ ) meEEDigiOccupancyzp_->Draw("colz");
    Ecal->cd(2);
    if ( meEEDigiOccupancyzm_ ) meEEDigiOccupancyzm_->Draw("colz");
    Ecal->Print("Endcap_Occupancy.eps");
+
+   gStyle->SetOptStat("nemruoi");
  }
 
+ // Multiplicities
+
+ if (1) {
+   TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(2,2);
+
+   TH1 * meEBDigiMultiplicity_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Barrel digis multiplicity;1",meEBDigiMultiplicity_);
+   meEBDigiMultiplicity_;
+
+   TH1 * meESDigiMultiplicity_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Preshower digis multiplicity;1",meESDigiMultiplicity_);
+   meESDigiMultiplicity_;
+
+   TH1 * meEEDigiMultiplicityzp_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z+;1",meEEDigiMultiplicityzp_);
+   meEEDigiMultiplicityzp_;
+
+   TH1 * meEEDigiMultiplicityzm_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap multiplicity z-;1",meEEDigiMultiplicityzm_);
+   meEEDigiMultiplicityzm_;
+
+   Ecal->cd(1);
+   gPad->SetLogx(0);
+   if ( meEBDigiMultiplicity_ ) meEBDigiMultiplicity_->Draw();
+   gPad->SetLogx(1);
+   Ecal->cd(2);
+   gPad->SetLogx(0);
+   if ( meESDigiMultiplicity_ ) meESDigiMultiplicity_->Draw();
+   gPad->SetLogx(1);
+   Ecal->cd(3);
+   gPad->SetLogx(0);
+   if ( meEEDigiMultiplicityzp_ ) meEEDigiMultiplicityzp_->Draw();
+   gPad->SetLogx(1);
+   Ecal->cd(4);
+   gPad->SetLogx(0);
+   if ( meEEDigiMultiplicityzm_ ) meEEDigiMultiplicityzm_->Draw();
+   gPad->SetLogx(1);
+   Ecal->Print("Multiplicity.eps");
+ }
 
  // global pulse shapes
 
