@@ -83,7 +83,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     vector<TrajectoryMeasurement>::iterator measurementItr;
     vector<const DetLayer*> allLayers=layerList();
     std::cout << "  InOutConversionSeedFinder::fillClusterSeed allLayers.size " <<  allLayers.size() << std::endl;
-    for(int i = 0; i < allLayers.size(); ++i) {
+    for(unsigned int i = 0; i < allLayers.size(); ++i) {
       std::cout <<  " allLayers " << allLayers[i] << std::endl; 
     }
 
@@ -114,14 +114,14 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     
 
     std::cout << " InOutConversionSeedFinder::fillClusterSeed myLayers.size " <<  myLayers.size() << std::endl;
-    for(int i = 0; i < myLayers.size(); ++i) {
+    for( unsigned int i = 0; i < myLayers.size(); ++i) {
       std::cout <<  " myLayers " << myLayers[i] << " myItr " << myItr[i] << std::endl; 
     }
 
 
     if ( myItr.size()==0 )  std::cout << "HORRENDOUS ERROR!  No meas on track!" << std::endl;
     
-    int ilayer;
+    unsigned int ilayer;
     for(ilayer = 0; ilayer < allLayers.size(); ++ilayer) {
       std::cout <<  " allLayers in the search loop  " << allLayers[ilayer] <<  " " << myLayers[0] <<  std::endl; 
       if ( allLayers[ilayer] == myLayers[0]) {
@@ -348,7 +348,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
   thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
   float dphi = 0.01;
   float zrange = 5.;
-  for( int ilayer = startingLayer; ilayer <= startingLayer+1 && (ilayer < allLayers.size()-2); ++ilayer) {
+  for( unsigned int ilayer = startingLayer; ilayer <= startingLayer+1 && (ilayer < allLayers.size()-2); ++ilayer) {
     const DetLayer * layer = allLayers[ilayer];
     
     

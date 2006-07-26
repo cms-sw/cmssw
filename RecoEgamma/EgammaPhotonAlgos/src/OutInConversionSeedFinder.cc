@@ -62,7 +62,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection* a
   findLayers();
 
   
-  int charge;
+
   std::cout << " Check Basic cluster collection size " << allBC->size() << std::endl;
   
   float  theSCPhi=theSCPosition_.phi();
@@ -172,7 +172,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
   vector<const DetLayer*> myLayers=layerList();
   if ( myLayers.size() > 3 ) {
     
-    for(int ilayer = myLayers.size()-1; ilayer >= myLayers.size()-2; --ilayer) {
+    for(unsigned int ilayer = myLayers.size()-1; ilayer >= myLayers.size()-2; --ilayer) {
       const DetLayer * layer = myLayers[ilayer];
       
       
@@ -198,7 +198,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
       
       std::cout << " OutInSeedGenerator::startSeed Layer " << ilayer << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << endl;
       
-      for(int i = 0; i < theFirstMeasurements_.size(); ++i) {
+      for(unsigned int i = 0; i < theFirstMeasurements_.size(); ++i) {
 	TrajectoryMeasurement m1 = theFirstMeasurements_[i];
 	if(m1.recHit()->isValid()) {
 	  
@@ -304,7 +304,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   std::cout << " OutInConversionSeedGenerator::completeSeed Found " << measurements.size() << " second hits " << endl;
   delete newEstimator;
 
-  for(int i = 0; i < measurements.size(); ++i) {
+  for(unsigned int i = 0; i < measurements.size(); ++i) {
     if( measurements[i].recHit()->isValid()  ) {
       createSeed(m1, measurements[i]);
     }

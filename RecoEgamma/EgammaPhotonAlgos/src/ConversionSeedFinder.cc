@@ -97,7 +97,7 @@ void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
 
   theLayerList_ = collector.allLayers(traj);
   
-  for(int i = 0; i < theLayerList_.size(); ++i) {
+  for(unsigned int i = 0; i < theLayerList_.size(); ++i) {
     printLayer(i);
   }
   
