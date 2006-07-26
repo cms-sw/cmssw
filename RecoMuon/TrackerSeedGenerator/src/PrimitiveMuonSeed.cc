@@ -5,8 +5,8 @@
  *   Primitive tracker seed from muon which
  *   consists of one measurement and a trajectory state
  *
- *   $Date: 2006/07/10 13:20:35 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/07/26 18:24:02 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister   - Purdue University
  */
@@ -17,7 +17,7 @@ PrimitiveMuonSeed::PrimitiveMuonSeed(const PTrajectoryStateOnDet& state,
                                      const PropagationDirection& direction,
 				     const recHitContainer layerRecHits,
 				     const TrajectoryMeasurement& meas) :
-  TrajectorySeed(state,layerRecHits,direction),
+  theTrajectorySeed(state,layerRecHits,direction),
   theMeasurement(meas) 
 {
   
@@ -46,7 +46,7 @@ bool PrimitiveMuonSeed::share(const BasicTrajectorySeed&) const {
 
 //
 //
-PrimitiveMuonSeed* PrimitiveMuonSeed::clone() const {
+BasicTrajectorySeed* PrimitiveMuonSeed::clone() const {
 
   return new PrimitiveMuonSeed(*this);
   

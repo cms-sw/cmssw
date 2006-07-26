@@ -7,14 +7,14 @@
  *   consecutive tracker layers
  * 
  *
- *   $Date: 2006/06/09 15:54:43 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/07/26 18:21:43 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
  */
 
-#include "DataFormats/TrajectorySeed/interface/BasicTrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -30,7 +30,7 @@
 //              -- Class Interface --
 //              ---------------------
 
-class MuonSeedFromConsecutiveHits : public BasicTrajectorySeed {
+class MuonSeedFromConsecutiveHits : public TrajectorySeed {
 
   public:
 
@@ -57,7 +57,7 @@ class MuonSeedFromConsecutiveHits : public BasicTrajectorySeed {
 
     virtual bool share( const BasicTrajectorySeed&) const;
 
-    virtual MuonSeedFromConsecutiveHits* clone() const;
+    virtual TrajectorySeed* clone() const;
 
   private:
 

@@ -6,8 +6,8 @@
  *   consecutive tracker layers
  *
  *
- *   $Date: 2006/06/09 15:54:58 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/07/10 13:20:35 $
+ *   $Revision: 1.2 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
@@ -152,7 +152,7 @@ PropagationDirection MuonSeedFromConsecutiveHits::direction() const {
 //
 //
 //
-  BasicTrajectorySeed::range MuonSeedFromConsecutiveHits::recHits() const {
+  TrajectorySeed::range MuonSeedFromConsecutiveHits::recHits() const {
 
   range result; 
   if ( status == false ) return result;
@@ -209,9 +209,9 @@ bool MuonSeedFromConsecutiveHits::share(const BasicTrajectorySeed&) const {
 //
 //
 //
-MuonSeedFromConsecutiveHits* MuonSeedFromConsecutiveHits::clone() const { 
+TrajectorySeed* MuonSeedFromConsecutiveHits::clone() const { 
 
-  return new MuonSeedFromConsecutiveHits(*this);
+  return new TrajectorySeed(*this);
 
 }
 
