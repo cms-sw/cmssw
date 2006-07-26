@@ -58,8 +58,8 @@ namespace HcalSimpleRecAlgoImpl {
 
     
     if (slewCorrect) time-=HcalTimeSlew::delay(std::max(0.0,fc_ampl),slewFlavor);
-    
-    return RecHit(digi.id(),ampl,time);    
+    HcalDetId id(digi.id()); // perform conversion if necessary
+    return RecHit(id,ampl,time);    
   }
 }
 
