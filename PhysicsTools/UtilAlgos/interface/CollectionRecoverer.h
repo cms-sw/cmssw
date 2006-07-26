@@ -11,17 +11,19 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectCounter.h,v 1.8 2006/04/27 13:11:26 llista Exp $
+ * $Id: CollectionRecoverer.h,v 1.2 2006/04/28 07:34:08 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/CloneTrait.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-template<typename C, typename P>
+template<typename C, typename P = typename edm::clonehelper::CloneTrait<C>::type>
 class CollectionRecoverer : public edm::EDProducer {
 public:
   /// constructor from parameter set
@@ -33,7 +35,7 @@ private:
   /// event processing
   virtual void produce( edm::Event&, const edm::EventSetup& );
   /// label of source collection
-  std::string src_;
+  edm::InputTag src_;
   /// count how many missing collections
   unsigned long nMissing_;
   /// count how many processed events
@@ -42,7 +44,7 @@ private:
 
 template<typename C, typename P>
 CollectionRecoverer<C, P>::CollectionRecoverer( const edm::ParameterSet& par ) : 
-  src_( par.template getParameter<std::string>( "src" ) ) {
+  src_( par.template getParameter<edm::InputTag>( "src" ) ) {
   produces<C>();
 }
 
@@ -58,9 +60,8 @@ void CollectionRecoverer<C, P>::produce( edm::Event& evt, const edm::EventSetup&
   edm::Handle<C> h;
   try {
     evt.getByLabel( src_, h );
-    for( typename C::const_iterator c = h->begin(); c != h->end(); ++c ) {
+    for( typename C::const_iterator c = h->begin(); c != h->end(); ++c )
       coll->push_back( P::clone( * c ) );
-    }    
   } catch ( ... ) {
     ++ nMissing_;
   }
