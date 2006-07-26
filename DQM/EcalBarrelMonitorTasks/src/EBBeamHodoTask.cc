@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/08 07:22:02 $
- * $Revision: 1.18 $
+ * $Date: 2006/07/08 09:28:52 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -305,23 +305,16 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
      LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRawInfo" << std::endl;
    }
 
-
-  Handle<EcalTBTDCRecInfo> pTDC;
-  const EcalTBTDCRecInfo* recTDC=0;
-  try {
-    e.getByLabel( "tdcReco", "EcalTBTDCRecInfo", pTDC);
-    recTDC = pTDC.product();
-    LogDebug("EBBeamHodoTask") << " TDC offset is: " << recTDC->offset() << endl;
-  } catch ( std::exception& ex ) {
-    LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo" << std::endl;
-  }
   
   if ( !rawTDC ||!rawHodo || !uncalRecH)
     {
-      LogError("EcalBeamTask") << "analyze: missing a needed collection, returning.\n\n\n" << std::endl;
+      LogWarning("EcalBeamTask") << "analyze: missing a needed collection, returning.\n\n\n" << std::endl;
       return;
     }
   LogDebug("EBBeamHodoTask") << " TDC raw, Hodo raw, uncalRecH and DCCheader found." << std::endl;
+
+
+
 
 
 
@@ -415,10 +408,18 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	   }
       }
   }
-  
-  meTDCRec_        ->Fill( recTDC->offset());
 
 
+
+  Handle<EcalTBTDCRecInfo> pTDC;
+  const EcalTBTDCRecInfo* recTDC=0;
+  try {
+    e.getByLabel( "tdcReco", "EcalTBTDCRecInfo", pTDC);
+    recTDC = pTDC.product();
+    LogDebug("EBBeamHodoTask") << " TDC offset is: " << recTDC->offset() << endl;
+  } catch ( std::exception& ex ) {
+    LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo" << std::endl;
+  }
 
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   const EcalTBHodoscopeRecInfo* recHodo=0;
@@ -433,12 +434,17 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   } catch ( std::exception& ex ) {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRecInfo" << std::endl;
   }
-  if (!recHodo)
+
+
+  if ( (!recHodo) || (!recTDC) ) 
     {
-       LogError("EcalBeamTask") << "analyze: missing a needed collection, returning.\n\n\n" << std::endl;
+       LogWarning("EcalBeamTask") << "analyze: missing a needed collection, recHodo or recTDC. Returning.\n\n\n" << std::endl;
        return;
      }
-   LogDebug("EBBeamHodoTask") << " Hodo reco found." << std::endl;
+   LogDebug("EBBeamHodoTask") << " Hodo reco and TDC reco found." << std::endl;
+   
+   meTDCRec_        ->Fill( recTDC->offset());
+   
 
   meHodoPosRecXY_    ->Fill( recHodo->posX(), recHodo->posY() );
   meHodoPosRecX_       ->Fill( recHodo->posX());
