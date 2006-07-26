@@ -16,10 +16,12 @@ case $# in
 esac
 
 #--- definition of shell variables 
-RUN_ON_DISK0='cmsdisk0'
+#RUN_ON_DISK0='cmsdisk0'
+RUN_ON_DISK0='no'
 # this directory must be visible from remote batch machine
-#DIR_WHERE_TO_EVAL="/afs/cern.ch/user/g/giordano/scratch0/CMSSW/TUTORIAL/CMSSW_0_8_0/" # Domenico's space
-DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/" # Dorian's space
+#DIR_WHERE_TO_EVAL="/data/localscratch/d/dkcira/Analysis/2006_07_19_P5data/CMSSW_0_8_0_pre3"
+#DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/" # Dorian's space
+DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_26_code_with_new_filter/CMSSW_0_8_0_pre3"
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
@@ -148,7 +150,7 @@ copy_castor_files_locally(){ # this might not be necessary, if rfio: in poolsour
 #---
 copy_pedestal_files(){
   echo "copying pedestals";
-  PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/src/DQM/SiStripMonitorCluster/test";
+  PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/src/DQM/SiStripMonitorCluster/test/pedestals_1832";
   cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesDB ${MTCC_OUTPUT_DIR}/.
   cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesCatalog ${MTCC_OUTPUT_DIR}/.
 }
@@ -183,7 +185,6 @@ runcms(){
   echo "running cmsRun -p ${CMSSW_CFG}"
   cmsRun  -p ${CMSSW_CFG}
   echo "cmsRun jobstatus: $?";
-  ls -lh
 }
 
 #---
@@ -222,5 +223,6 @@ copy_pedestal_files;
 # copy_castor_files_locally;
 echo "Running cmsRun. Log file: ${LOG_FILE}";
 time runcms > ${LOG_FILE} 2>&1 ;
-#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/cmsdisk0/"
+ls -lh;
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/
 ###############################################################################################################
