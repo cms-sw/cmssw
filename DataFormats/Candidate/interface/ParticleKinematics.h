@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleKinematics.h,v 1.1 2006/06/05 13:40:07 llista Exp $
+ * \version $Id: ParticleKinematics.h,v 1.1 2006/06/07 12:40:56 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -65,6 +65,8 @@ namespace reco {
     double eta() const { return p4_.Eta(); }
     /// repidity
     double y() const { return p4_.Rapidity(); }
+    /// set 4-momentum
+    void setP4( const LorentzVector & p4 ) { p4_ = p4; }
   protected:
     /// four-momentum Lorentz vector
     LorentzVector p4_;

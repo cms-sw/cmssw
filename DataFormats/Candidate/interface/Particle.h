@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.6 2006/06/20 11:27:05 llista Exp $
+ * \version $Id: Particle.h,v 1.7 2006/07/20 10:12:58 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/ParticleWithCharge.h"
@@ -34,6 +34,8 @@ namespace reco {
     double vy() const { return vertex_.Y(); }
     /// z coordinate of vertex position
     double vz() const { return vertex_.Z(); }
+    /// set vertex
+    void setVertex( const Point & vertex ) { vertex_ = vertex; }
   protected:
     /// vertex position
     Point vertex_;

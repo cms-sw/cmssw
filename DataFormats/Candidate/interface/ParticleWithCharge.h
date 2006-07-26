@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleWithCharge.h,v 1.1 2006/06/05 13:40:07 llista Exp $
+ * \version $Id: ParticleWithCharge.h,v 1.1 2006/06/07 12:40:56 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/ParticleKinematics.h"
@@ -28,6 +28,8 @@ namespace reco {
     virtual ~ParticleWithCharge() { }
     /// electric charge
     int charge() const { return q_; }
+    /// set electric charge
+    void setCharge( Charge q ) { q_ = q; }
   protected:
     /// electric charge
     Charge q_;    
