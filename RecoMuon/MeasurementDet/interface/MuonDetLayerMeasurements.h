@@ -4,9 +4,9 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/07/09 00:54:04 $
- *  $Revision: 1.9 $
- *  \author C. Liu - Purdue University
+ *  $Date: 2006/07/12 15:39:24 $
+ *  $Revision: 1.10 $
+ *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
 
@@ -35,7 +35,7 @@ class MuonDetLayerMeasurements {
 			   bool enableRPC = true,
 			   std::string dtlabel = "DTSegment4DProducer", 
 			   std::string csclabel = "CSCSegmentProducer",
-			   std::string rpclabel = "rpcrechitbuilder"); // FIXME!! This label will be changed!
+			   std::string rpclabel = "RPCRecHits");
 
   virtual ~MuonDetLayerMeasurements();
   
