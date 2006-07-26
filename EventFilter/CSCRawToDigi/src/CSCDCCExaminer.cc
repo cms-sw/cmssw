@@ -346,7 +346,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			cntDDU_Headers++;
 			DDU_WordsSinceLastHeader=0; // Reset counter of DDU Words since last DDU Header
 			cout<<"\n----------------------------------------------------------"<<endl;
-			cout<<"DDU  Header Occurrence "<<cntDDU_Headers<<endl;
+			cout<<"DDU  Header Occurrence "<<cntDDU_Headers<< " L1A = " << ( ((buf_1[2]&0xFFFF) + ((buf_1[3]&0x00FF) << 16)) ) <<endl;
 		}
 
 
@@ -966,22 +966,30 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 		}
 
 		// DCC Trailer 1 && DCC Trailer 2
-		if( (buf0[3]&0xFF00) == 0xEF00 &&
-			(buf1[3]&0xFF00) == 0xAF00 && (buf1[0]&0x000F) == 0x0007 ){
+		if( (buf1[3]&0xFF00) == 0xEF00 &&
+			(buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x000F) == 0x0007 ){
 			if(fDCC_Trailer){
 				fERROR[26] = true;
 				bERROR|=0x4000000;
-			} // DDU Header is missing
+			} // DCC Header is missing
 			fDCC_Trailer=true;
 			fDCC_Header=false;
 
-			buffer+=8;
+			if( fDDU_Header ){
+				// == DDU Trailer is missing
+				fERROR[1]=true;
+				bERROR|=0x2;
+				fERROR[0] = true;
+				bERROR|=0x1;
+			}
+
+			buffer+=4;
 			buf_1 = &(tmpbuf[0]);  // Just for safety
 			buf0  = &(tmpbuf[4]);  // Just for safety
 			buf1  = &(tmpbuf[8]);  // Just for safety
 			buf2  = &(tmpbuf[12]); // Just for safety
 			bzero(tmpbuf, sizeof(short)*16);
-			return length-8;
+			return length-4;
 		}
 
 		length-=4;

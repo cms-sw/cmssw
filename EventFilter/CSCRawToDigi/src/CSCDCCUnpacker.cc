@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//FEDRawData 
+//FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -58,19 +58,19 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
-					       
-  if(instatiateDQM){   
-   monitor = edm::Service<CSCMonitorInterface>().operator->(); 
+
+  if(instatiateDQM){
+   monitor = edm::Service<CSCMonitorInterface>().operator->();
   }
-  
+
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
-  produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");  
+  produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
- 
+
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCCLCTData::setDebug(debug);
@@ -79,16 +79,16 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   CSCDCCEventData::setDebug(debug);
   CSCDDUEventData::setDebug(debug);
   CSCTMBHeader::setDebug(debug);
-  CSCRPCData::setDebug(debug);  
+  CSCRPCData::setDebug(debug);
 
   CSCDDUEventData::setErrorMask(errorMask);
 
   theMapping  = CSCReadoutMappingFromFile(pset);
-  
+
 }
 
 CSCDCCUnpacker::~CSCDCCUnpacker(){
-  
+
   //fill destructor here
 
 }
@@ -96,7 +96,7 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
- 
+
 
 
   // Get a handle to the FED data collection
@@ -111,11 +111,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
-  
- 
- 
+
+
+
   numOfEvents++;
-  
+
   //this line is to skip unpacking until 1309th event
   //if (numOfEvents>1308) {
 
@@ -123,12 +123,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
 
-    
+
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
     unsigned short int length =  fedData.size();
 
-    if (length){ ///unpack data 
+    if (length){ ///unpack data
 
       goodEvent = true;
       if (useExaminer) {///examine event for integrity
@@ -139,29 +139,29 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	examiner.output1().hide();
 	examiner.output2().hide();
 	const short unsigned int *data = (short unsigned int *)fedData.data();
-	if( examiner.check(data,long(fedData.size()/2)) != -1 ){
+	if( examiner.check(data,long(fedData.size()/2)) != 0 ){
 	  goodEvent=false;
 	} else {
 	  goodEvent=!(examiner.errors()&examinerMask);
 	}
       }
-      
+
 
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking
-	CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
-      
+	CSCDCCEventData dccData((short unsigned int *) fedData.data());
+
 
 	if(instatiateDQM) monitor->process(dccData);
 
 	///get a reference to dduData
-	const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
+	const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
 
 	for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
-	
+
 	  ///get a reference to chamber data
 	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	
+
 	  ///skip the DDU if its data has serious errors
 	  /// define a mask for serious errors  (currently DFCFEFFF)
 	  if (dduData[iDDU].trailer().errorstat()&errorMask) {
@@ -170,36 +170,36 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    continue;
 	  }
 	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
-	   
+
 	    ///first process chamber-wide digis such as LCT
-	    
+
 	    int endcap = 1;
 	    int station = 1;
 	    int tmb = 1;
 	    int vmecrate = cscData[iCSC].dmbHeader().crateID();
 	    int dmb = cscData[iCSC].dmbHeader().dmbID();
 	    int icfeb = 0; ///default value for all digis not related to cfebs
-	    int ilayer = 0; /// zeroth layer indicates whole chamber          
+	    int ilayer = 0; /// zeroth layer indicates whole chamber
 
 	    if (debug)
 	      edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
 
-	    /// this is some default value of CSCDetID 
-	    CSCDetId layer(1, //endcap      
-                           1, //station 
-                           1, //ring    
-                           1, //chamber 
-			   1); //layer       
-		
+	    /// this is some default value of CSCDetID
+	    CSCDetId layer(1, //endcap
+                           1, //station
+                           1, //ring
+                           1, //chamber
+			   1); //layer
+
 	    if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	    } else {
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 	      edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 	    }
-	    
-	    
-	    /// fill alct product  
+
+
+	    /// fill alct product
 	    int nalct = cscData[iCSC].dmbHeader().nalct();
 	    if (nalct) {
 	      if (cscData[iCSC].alctHeader().check()) {
@@ -211,10 +211,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      }
 	    }
 
-	      
+
 	    int nclct = cscData[iCSC].dmbHeader().nclct();
 	    if (nclct) {
-	      /// fill clct product         
+	      /// fill clct product
 	      if (cscData[iCSC].tmbHeader().check()) {
 		std::vector <CSCCLCTDigi> clctDigis =
 		  cscData[iCSC].tmbHeader().CLCTDigis();
@@ -223,7 +223,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		}
 	      }
 
-	      /// fill rpc product                                                                                                   
+	      /// fill rpc product
 	      if (cscData[iCSC].tmbData().checkSize()) {
 		if (cscData[iCSC].tmbData().hasRPC()) {
 		  std::vector <CSCRPCDigi> rpcDigis =
@@ -235,7 +235,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
 
 
-	      /// fill correlatedlct product           
+	      /// fill correlatedlct product
 	      if (cscData[iCSC].tmbHeader().check()) {
 		std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
 		  cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
@@ -243,14 +243,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  corrlctProduct->insertDigi(layer, correlatedlctDigis[i]);
 		}
 	      }
-      
-	    }	
 
-	    
+	    }
+
+
 	    //this loop stores wire strip and comparator digis:
 
-	    for (int ilayer = 1; ilayer <= 6; ilayer++) { 
- 
+	    for (int ilayer = 1; ilayer <= 6; ilayer++) {
+
 	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	      } else {
@@ -258,14 +258,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 	      }
 
-	    
+
 	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	      for (unsigned int i=0; i<wireDigis.size() ; i++) {
 		wireProduct->insertDigi(layer, wireDigis[i]);
 	      }
 
 
-	      for ( icfeb = 0; icfeb < 5; ++icfeb ) { 
+	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
 
 		if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
@@ -278,7 +278,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		for (unsigned int i=0; i<stripDigis.size() ; i++) {
 		  stripProduct->insertDigi(layer, stripDigis[i]);
 		}
-	    
+
 		int nclct = cscData[iCSC].dmbHeader().nclct();
 		if (nclct) {
 		  if (cscData[iCSC].clctData().check()) {
@@ -293,10 +293,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      }///end of loop over cfebs
 	    }///end of loop over layers
 	  }///end of loop over chambers
-	}///endof loop over DDUs 
+	}///endof loop over DDUs
       }///end of good event
       else {
-	edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!"; 
+	edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!";
       }
     }
   }
