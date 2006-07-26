@@ -2,7 +2,6 @@
 #define TkDetLayers_LayerCrossingSide_h
 
 // temporary solution
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 /** Helper class to determine if a TrajectoryStateOnSurface would cross a layer from 

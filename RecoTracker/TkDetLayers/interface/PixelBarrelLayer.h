@@ -43,7 +43,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
   virtual bool hasGroups() const {return true;}
 
   // DetLayer interface
-  virtual Module   module()   const { return pixel;}
+  virtual SubDetector subDetector()   const { return GeomDetEnumerators::PixelBarrel;}
 
 
  private:

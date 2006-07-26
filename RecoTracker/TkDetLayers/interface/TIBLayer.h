@@ -39,7 +39,8 @@ class TIBLayer : public BarrelDetLayer {
   virtual bool hasGroups() const {return true;};  
 
   // DetLayer interface
-  virtual Module   module()   const { return silicon;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::TIB;}
+
 
  private:
   // private methods for the implementation of groupedCompatibleDets()

@@ -36,7 +36,7 @@ class PixelForwardLayer : public ForwardDetLayer{
   virtual bool hasGroups() const {return true;}  
 
   // DetLayer interface
-  virtual Module   module()   const { return pixel;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
   
 
  private:  

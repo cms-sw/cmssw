@@ -35,7 +35,7 @@ class TIDLayer : public RingedForwardLayer{
   virtual bool hasGroups() const {return true;}
 
   // DetLayer interface
-  virtual Module   module()   const { return silicon;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
 
 
  private:
