@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.11 2006/05/22 21:10:37 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.12 2006/07/11 23:10:01 fedor Exp $
 */
 
 // pool
@@ -338,8 +338,8 @@ std::auto_ptr<coral::ISession> HcalDbPool::session () {
 
 namespace {
   const std::string METADATA_TABLE ("METADATA");
-  const std::string METADATA_TAG_COLUMN ("name");
-  const std::string METADATA_TOKEN_COLUMN ("token");
+  const std::string METADATA_TAG_COLUMN ("NAME");
+  const std::string METADATA_TOKEN_COLUMN ("TOKEN");
 }
 
 const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
