@@ -131,7 +131,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	std::cout << "Layer " << ilayer << "  contains the first valid measurement " << std::endl; 	
 	printLayer(ilayer);	
 
-	if ( (myLayers[0])->part() == barrel ) {
+	if ( (myLayers[0])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[0]);
 	  std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
 	} else {
@@ -146,7 +146,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
         myPointer=myItr[1];
 
 	std::cout << "Layer " << ilayer << "  contains the first valid measurement " << std::endl; 	
-	if ( (myLayers[1])->part() == barrel ) {
+	if ( (myLayers[1])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
 
 	} else {
@@ -178,7 +178,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
       
       std::cout << " InOutConversionSeedFinder::fillClusterSeeds looking for 2nd seed from layer " << ilayer << std::endl;
       
-      if ( (allLayers[ilayer])->part() == barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
+      if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
       std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  std::endl;     
       } else {
 	const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
@@ -354,7 +354,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
     
     ///// debug
-    if ( layer->part() == barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
+    if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
     std::cout << " InOutConversionSeedFinder::findSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  std::endl;     
     } else {
       const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
@@ -364,7 +364,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
 
     MeasurementEstimator * newEstimator=0;
-    if (layer->part() == barrel ) {
+    if (layer->location() == GeomDetEnumerators::barrel ) {
       //      cout << " InOutConversionSeedFinder::findSeeds ilayer " << ilayer << " " << barrel << endl;
       newEstimator = new ConversionBarrelEstimator(-dphi, dphi, -zrange, zrange);
     }

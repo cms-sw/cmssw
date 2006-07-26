@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: PixelMatchNextLayers.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 
@@ -70,10 +70,11 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
   const TrajectoryStateOnSurface tsos(aFTS,ilayer->surface());
   for (vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) {
 
-    if ( (*il)->module()==pixel) {
+    //    if ( (*il)->module()==pixel) {
+    if ( (*il)->subDetector()==GeomDetEnumerators::PixelBarrel || (*il)->subDetector()==GeomDetEnumerators::PixelEndcap ) {
 
       vector<TrajectoryMeasurement> pixelMeasurements;
-      if ((*il)->part() == barrel) {
+      if ((*il)->location() == GeomDetEnumerators::barrel) {
 	//	cout << "      Now in barrel layer "  << endl;
 // 	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*il);
 // 	if (bdetl) {

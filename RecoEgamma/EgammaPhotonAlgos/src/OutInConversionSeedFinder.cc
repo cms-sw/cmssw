@@ -235,7 +235,7 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
 
   MeasurementEstimator * newEstimator=0;
 
-  if (layer->part() == barrel ) {
+  if (layer->location() == GeomDetEnumerators::barrel ) {
     
     const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
     std::cout << " OutInConversionSeedFinder::makeEstimator Barrel  r = " << barrelLayer->specificSurface().radius() << " " << std::endl;        
@@ -246,7 +246,7 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
 
 
 
-  if (layer->part() == forward ) {   
+  if (layer->location() == GeomDetEnumerators::endcap ) {   
    
     const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
     std::cout << " OutInConversionSeedFinder::makeEstimator Endcap r = " << forwardLayer->specificSurface().innerRadius() << " R " << forwardLayer->specificSurface().outerRadius()  <<  " Z " << forwardLayer->specificSurface().position().z() << std::endl;  
@@ -276,7 +276,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   MeasurementEstimator * newEstimator=0;
   const DetLayer * layer = theLayerList_[ilayer];
   //cout << "no. hits on layer: " << layer->recHits().size() << endl;
-  if ( layer->part() == barrel ) {
+  if ( layer->location() == GeomDetEnumerators::barrel ) {
     // z error for 2nd hit is  2 sigma quadded with 5 cm
     std::cout << " Barrel OutInConversionSeedFinder::completeSeed " << the2ndHitdznSigma_ << " " << the2ndHitdzConst_ << " " << the2ndHitdphi_ << std::endl;
     float dz = sqrt(the2ndHitdznSigma_*the2ndHitdznSigma_*m1.recHit()->globalPositionError().czz() 
@@ -425,7 +425,7 @@ FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMea
 GlobalPoint OutInConversionSeedFinder::fixPointRadius(const  TrajectoryMeasurement& m1) const {
   GlobalPoint p1 = m1.recHit()->globalPosition();
   GlobalPoint p2;
-  if(m1.layer()->part() == barrel) {
+  if(m1.layer()->location() == GeomDetEnumerators::barrel) {
     p2 = p1;
   } else {
     float z = p1.z();
