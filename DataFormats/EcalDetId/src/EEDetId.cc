@@ -54,7 +54,7 @@ EEDetId::EEDetId(const DetId& gen) {
 }
   
 EEDetId& EEDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalEndcap) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalEndcap )) {
     throw new std::exception();
   }
   id_=gen.rawId();

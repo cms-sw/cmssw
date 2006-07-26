@@ -36,14 +36,14 @@ EcalTrigTowerDetId::EcalTrigTowerDetId(int zside, EcalSubdetector subDet, int i,
   
 EcalTrigTowerDetId::EcalTrigTowerDetId(const DetId& gen) 
 {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower )) {
     throw new std::exception();
   }
   id_=gen.rawId();
 }
   
 EcalTrigTowerDetId& EcalTrigTowerDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower )) {
     throw new std::exception();
   }
   id_=gen.rawId();

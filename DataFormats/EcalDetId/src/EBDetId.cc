@@ -42,7 +42,7 @@ EBDetId::EBDetId(int index1, int index2, int mode)  throw(std::runtime_error)
 }
   
 EBDetId::EBDetId(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalBarrel) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalBarrel )) {
     throw new std::exception();
   }
   id_=gen.rawId();

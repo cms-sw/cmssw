@@ -20,14 +20,14 @@ EcalPnDiodeDetId::EcalPnDiodeDetId(int EcalSubDetectorId, int DCCId, int PnId) :
 }
   
 EcalPnDiodeDetId::EcalPnDiodeDetId(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalLaserPnDiode) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalLaserPnDiode)) {
     throw new std::exception();
   }
   id_=gen.rawId();
 }
   
 EcalPnDiodeDetId& EcalPnDiodeDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalLaserPnDiode) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalLaserPnDiode)) {
     throw new std::exception();
   }
   id_=gen.rawId();

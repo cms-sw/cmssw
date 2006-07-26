@@ -22,7 +22,7 @@ ESDetId::ESDetId(int strip, int ixs, int iys, int plane, int iz) : DetId(Ecal,Ec
 }
   
 ESDetId::ESDetId(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalPreshower) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalPreshower )) {
     throw new std::exception();
   }
   id_=gen.rawId();
