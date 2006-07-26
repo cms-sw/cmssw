@@ -5,13 +5,21 @@
 #include "HLTrigger/HLTexample/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTexample/interface/HLTAnalCand.h"
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
-#include "HLTrigger/HLTexample/interface/HLTSinglet.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+
+#include "HLTrigger/HLTexample/interface/HLTSinglet.h"
+#include "HLTrigger/HLTexample/src/HLTSinglet.cc"
+
+template HLTSinglet<reco::Electron> ;
+template HLTSinglet<reco::Photon>   ;
+template HLTSinglet<reco::Muon>     ;
+template HLTSinglet<reco::CaloJet>  ;
+template HLTSinglet<reco::CaloMET>  ;
 
 typedef HLTSinglet<reco::Electron> HLT1Electron;
 typedef HLTSinglet<reco::Photon>   HLT1Photon;

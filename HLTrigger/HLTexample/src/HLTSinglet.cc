@@ -2,13 +2,14 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/28 01:41:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/26 17:09:26 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTexample/interface/HLTSinglet.h"
 
 #include "FWCore/Framework/interface/Handle.h"
@@ -24,10 +25,10 @@
 template<typename T>
 HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig)
 {
-  inputTag_ = iConfig.getParameter< edm::InputTag >("inputTag");
-  Min_Pt_   = iConfig.getParameter<double>("MinPt");
-  Max_Eta_  = iConfig.getParameter<double>("MaxEta");
-  Min_N_    = iConfig.getParameter<int>("MinN");
+  inputTag_ = iConfig.template getParameter< edm::InputTag >("inputTag");
+  Min_Pt_   = iConfig.template getParameter<double>("MinPt");
+  Max_Eta_  = iConfig.template getParameter<double>("MaxEta");
+  Min_N_    = iConfig.template getParameter<int>("MinN");
 
    LogDebug("") << "Input/ptcut/etacut/ncut : " << inputTag_.encode() << " " << Min_Pt_ << " " << Max_Eta_ << " " << Min_N_ ;
 
@@ -75,9 +76,9 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    typename TCollection::const_iterator i ( objects->begin() );
    for (; i!=objects->end(); i++) {
-     if ( (i->pt() >= Min_pt_) && (abs(i->eta()) <= Max_eta_) ) {
+     if ( (i->pt() >= Min_Pt_) && (abs(i->eta()) <= Max_Eta_) ) {
        n++;
-       ref=RefToBase<Candidate>(TRef(objects,distance(i->begin(),i)));
+       ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
        filterproduct->putParticle(ref);
      }
    }
