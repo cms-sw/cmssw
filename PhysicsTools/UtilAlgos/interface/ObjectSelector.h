@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
+ * $Id: ObjectSelector.h,v 1.2 2006/07/25 17:20:27 llista Exp $
  *
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include <utility>
 #include <vector>
 #include <memory>
@@ -61,7 +62,7 @@ public:
   /// constructor 
   explicit ObjectSelector( const edm::ParameterSet & cfg ) :
   B( cfg ),
-  src_( cfg.template getParameter<std::string>( "src" ) ),
+  src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   filter_( cfg.template getParameter<bool>( "filter" ) ),
   selector_( cfg ) {
   }
@@ -81,7 +82,7 @@ private:
     return true;
   }
   /// source collection label
-  std::string src_;
+  edm::InputTag src_;
   /// filter event
   bool filter_;
   /// Object collection selector
