@@ -41,7 +41,11 @@ EOF
   for OWNER in ${OWNERS}
   do
    local CONNECTSTR=oracle://${HOST}/CMS_COND_${OWNER}
-   local READONLYUSER=CMS_COND_${OWNER}_R
+   local READONLYUSER=CMS_COND_${OWNER}
+   if [ ${HOST} != 'DEVDB10' ]
+   then
+      READONLYUSER=${READONLYUSER}'_R'
+   fi
 /bin/cat >> ${AUTH_FILE} <<EOF
  <connection name="${CONNECTSTR}">
    <parameter name="user" value="${READONLYUSER}"/>
