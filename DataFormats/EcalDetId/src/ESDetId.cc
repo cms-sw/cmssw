@@ -29,7 +29,7 @@ ESDetId::ESDetId(const DetId& gen) {
 }
   
 ESDetId& ESDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalPreshower) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalPreshower )) {
     throw new std::exception();
   }
   id_=gen.rawId();

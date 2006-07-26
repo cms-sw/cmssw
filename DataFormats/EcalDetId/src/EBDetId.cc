@@ -49,7 +49,7 @@ EBDetId::EBDetId(const DetId& gen) {
 }
   
 EBDetId& EBDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalBarrel) {
+  if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalBarrel )) {
     throw new std::exception();
   }
   id_=gen.rawId();

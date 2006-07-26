@@ -47,7 +47,7 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
 }
   
 EEDetId::EEDetId(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalEndcap) {
+  if (!gen.null() && (gen.det()!=Ecal || gen.subdetId()!=EcalEndcap)) {
     throw new std::exception();
   }
   id_=gen.rawId();
