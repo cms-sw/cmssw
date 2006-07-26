@@ -30,11 +30,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
  
 
-  scBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
-  scEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
+  scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
+  scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
 
-  scBarrelCollection_     = conf_.getParameter<std::string>("scBarrelCollection");
-  scEndcapCollection_     = conf_.getParameter<std::string>("scEndcapCollection");
+  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
+  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
   // Register the product
@@ -80,9 +80,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
-    theEvent.getByLabel(scBarrelProducer_,scBarrelCollection_,scBarrelHandle);
+    theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scBarrelCollection_.c_str() ;
+    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scHybridBarrelCollection_.c_str() ;
   } 
   std::cout << " Trying to access barrel SC collection from my Producer " << std::endl;
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
@@ -91,9 +91,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   try{  
-    theEvent.getByLabel(scEndcapProducer_,scEndcapCollection_,scEndcapHandle);
+    theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC in the endcap " << scEndcapCollection_.c_str() ;
+    LogError("PhotonProducer") << "Error! can't get the SC in the endcap " << scIslandEndcapCollection_.c_str() ;
   } 
   std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
@@ -106,8 +106,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
-    const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
+    const reco::Particle::LorentzVector  p4(aClus->position().x(), aClus->position().y() , aClus->position().z() , aClus->energy() );
+   
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
@@ -124,7 +125,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   //  Loop over Endcap SC and fill the  photon collection
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
-    const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
+    const reco::Particle::LorentzVector  p4(aClus->position().x(), aClus->position().y() , aClus->position().z() , aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
     reco::Photon newCandidate(0, p4, vtx);
 

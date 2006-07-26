@@ -38,13 +38,15 @@ PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& conf
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
 
+  // switch on/off corrections
+  applyDummyCorrection_=conf_.getParameter<bool>("applyDummyCorrection");
 
 
 }
 
 PhotonCorrectionProducer::~PhotonCorrectionProducer() {
 
-  delete theCorrections_;
+  delete theDummyCorrection_;
 
 }
 
@@ -54,8 +56,10 @@ void  PhotonCorrectionProducer::beginJob (edm::EventSetup const & theEventSetup)
   //get magnetic field
   edm::LogInfo("PhotonCorrectionProducer") << "get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
+  
 
-  theCorrections_= new  PhotonCorrectionAlgo();
+
+  theDummyCorrection_= new  PhotonCorrectionAlgo();
 
 
 }
@@ -94,7 +98,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
   for(iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
 
     //     reco::Photon newCandidate;
-      theCorrections_->makeCorrections(&(*iPho));
+      if( applyDummyCorrection_) theDummyCorrection_->makeCorrections(&(*iPho));
       outputPhotonCollection->push_back(*iPho);
       myCands++;      
 

@@ -52,12 +52,15 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
  
 
   bcProducer_       = conf_.getParameter<std::string>("bcProducer");
-  bcCollection_     = conf_.getParameter<std::string>("bcCollection");
+  bcBarrelCollection_     = conf_.getParameter<std::string>("bcBarrelCollection");
+  bcEndcapCollection_     = conf_.getParameter<std::string>("bcEndcapCollection");
 
-  scProducer_       = conf_.getParameter<std::string>("scProducer");
-  scCollection_     = conf_.getParameter<std::string>("scCollection");
+  
+ scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
+ scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
  
-
+ scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
+ scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
 
   ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
 
@@ -88,16 +91,12 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   theEventSetup .get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker_ );
 
 
- 
-
-
     // get the measurement tracker 
     //ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
     theMeasurementTracker_ = new MeasurementTracker(theEventSetup, conf_);
     theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
     theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
     NavigationSetter setter( *theNavigationSchool_);
-
 
     // get the Out In Seed Finder  
     edm::LogInfo("ConvertedPhotonProducer") << "get the OutInSeedFinder" << "\n";
@@ -144,28 +143,56 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 
 
-  // Get the basic cluster collection
-  edm::Handle<reco::BasicClusterCollection> bccHandle;
+  // Get the basic cluster collection in the Barrel 
+  edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   try {
-  theEvent.getByLabel(bcProducer_, bcCollection_, bccHandle);
+  theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection " << std::endl ;
+    LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection in the Barrel " << std::endl ;
   } 
-  std::cout << " Trying to access basic cluster collection from my Producer " << std::endl;
-  reco::BasicClusterCollection clusterCollection = *(bccHandle.product());
-  std::cout << " basic cluster collection size  " << clusterCollection.size() << std::endl;
+  std::cout << " Trying to access basic cluster collection in the Barrel from my Producer " << std::endl;
+  reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
+  std::cout << " basic cluster collection size  " << clusterCollectionBarrel.size() << std::endl;
 
 
-  // Get the Super Cluster collection
-  Handle<reco::SuperClusterCollection> scHandle;
+
+  // Get the basic cluster collection in the endcap 
+  edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
+  try {
+  theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
+  } catch ( cms::Exception& ex ) {
+    LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection in the Endcap " << std::endl ;
+  } 
+  std::cout << " Trying to access basic cluster collection in the Endcap from my Producer " << std::endl;
+  reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
+  std::cout << " basic cluster collection size  " << clusterCollectionEndcap.size() << std::endl;
+
+
+
+
+  // Get the Super Cluster collection in the Barrel
+
+  Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
-    theEvent.getByLabel(scProducer_,scCollection_,scHandle);
+    theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the SC " << scCollection_.c_str() ;
+    LogError("ConvertedPhotonProducer") << "Error! can't get the barrel SC  " << scHybridBarrelCollection_.c_str() ;
   } 
-  std::cout << " Trying to access SC collection from my Producer " << std::endl;
-  reco::SuperClusterCollection scCollection = *(scHandle.product());
-  std::cout << " SC collection size  " << scCollection.size() << std::endl;
+  std::cout << " Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << std::endl;
+  reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
+  std::cout << "barrel  SC collection size  " << scBarrelCollection.size() << std::endl;
+
+  // Get the Super Cluster collection in the Endcap
+
+  Handle<reco::SuperClusterCollection> scEndcapHandle;
+  try{  
+    theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
+  } catch ( cms::Exception& ex ) {
+    LogError("ConvertedPhotonProducer") << "Error! can't get the Endcap SC " << scIslandEndcapCollection_.c_str() ;
+  } 
+  std::cout << " Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << std::endl;
+  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
+  std::cout << "Endcap SC collection size  " << scEndcapCollection.size() << std::endl;
 
   
 
@@ -175,12 +202,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   reco::ConvertedPhotonCollection myConvPhotons; 
   const std::vector<TrajectorySeed> theOutInSeeds;
 
-  //  Loop over SC and reconstruct converted photons
+  //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;
   reco::SuperClusterCollection::iterator aClus;
-  for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
+  for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
     theOutInSeedFinder_->setCandidate(*aClus);
-    theOutInSeedFinder_->makeSeeds( bccHandle.product()  );
+    theOutInSeedFinder_->makeSeeds( bcBarrelHandle.product()  );
 
     //    theOutInSeedFinder_->makeSeeds( *(bccHandle.product()) );
     // std::vector<const Trajectory*> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds());     
@@ -189,7 +216,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
     theInOutSeedFinder_->setCandidate(*aClus);
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds(  bccHandle.product() );
+    theInOutSeedFinder_->makeSeeds(  bcBarrelHandle.product() );
     //theInOutSeedFinder_->makeSeeds( theEventSetup, *(bccHandle.product()) );
     //    std::vector<const TrajectoryMeasurement*> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
     std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds());     
