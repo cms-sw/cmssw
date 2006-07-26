@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: ElectronAnalyzer.cc,v 1.3 2006/06/21 22:49:28 pivarski Exp $
+// $Id: ElectronAnalyzer.cc,v 1.4 2006/07/25 10:43:54 rahatlou Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -182,8 +182,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       // and copy that if numberOfHits <= maxHitsOnDetId_?)
       if (numberOfHits <= 5) {
 	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	    if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TIB  ||
-		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetType::TOB    ) {
+	    if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
+		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
 
 	       GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
 	       cout << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
