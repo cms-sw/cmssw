@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: ObjectMethodSet.h,v 1.1 2006/07/27 10:45:23 llista Exp $
+ * $Id: methods.h,v 1.1 2006/07/27 14:20:37 llista Exp $
  *
  */
 #include <Reflex/Type.h>
@@ -23,7 +23,8 @@ namespace reco {
       charType, unsignedCharType,
       boolType
     };
-    typedef std::map<std::string, std::pair<ROOT::Reflex::Member, retType> > methodMap;
+    typedef std::pair<ROOT::Reflex::Member, retType> method;
+    typedef std::map<std::string, method > methodMap;
     
     template<typename T>
     const methodMap & methods();
@@ -32,7 +33,7 @@ namespace reco {
     void printMethods( std::ostream & );
 
     void fill( methodMap &, const ROOT::Reflex::Type & );
-    
+
     template<typename T>
     const methodMap & methods() {
       using namespace ROOT::Reflex;
