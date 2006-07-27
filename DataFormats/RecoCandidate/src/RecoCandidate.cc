@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.8 2006/06/05 14:12:04 llista Exp $
+// $Id: RecoCandidate.cc,v 1.9 2006/06/22 07:28:26 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -7,6 +7,14 @@ RecoCandidate::~RecoCandidate() { }
 
 TrackRef RecoCandidate::track() const {
   return TrackRef();
+}
+
+TrackRef RecoCandidate::track( size_t ) const {
+  return TrackRef();
+}
+
+size_t RecoCandidate::numberOfTracks() const {
+  return 0;
 }
 
 TrackRef RecoCandidate::standAloneMuon() const {

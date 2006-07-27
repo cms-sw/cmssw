@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.12 2006/06/05 14:12:03 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.13 2006/06/22 07:28:25 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -30,6 +30,10 @@ namespace reco {
     virtual bool overlap( const Candidate & ) const = 0;
     /// reference to a Track
     virtual reco::TrackRef track() const;
+    /// reference to one of multiple Tracks
+    virtual reco::TrackRef track( size_t ) const;
+    /// number of multiple Tracks
+    virtual size_t numberOfTracks() const;
     /// reference to a stand-alone muon Track
     virtual reco::TrackRef standAloneMuon() const;
     /// reference to a stand-alone muon Track
@@ -51,22 +55,22 @@ namespace reco {
   };
 
   /// stand alone muon component tag
-  struct StandAloneMuonTag {
-  };
-
-  struct CombinedMuonTag {
-  };
+  struct StandAloneMuonTag { };
+  /// conbined muon component tag
+  struct CombinedMuonTag { };
 
   /// get default Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, DefaultComponentTag, track );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, track );
+  /// get multuple tracks
+  GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( RecoCandidate, TrackRef, track, numberOfTracks );
   /// get stand-alone muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, StandAloneMuonTag, standAloneMuon );
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag );
   /// get combined muon Track component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, CombinedMuonTag, combinedMuon );
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, combinedMuon, CombinedMuonTag );
   /// get default SuperCluster component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, DefaultComponentTag, superCluster );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, superCluster );
   /// get default CaloTower component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, DefaultComponentTag, caloTower );
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, caloTower );
   
 }
 

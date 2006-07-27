@@ -1,4 +1,4 @@
-// $Id: testCandidate.cpp,v 1.1 2006/06/20 14:54:25 llista Exp $
+// $Id: testCandidate.cc,v 1.1 2006/07/26 16:03:54 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -46,8 +46,8 @@ namespace test {
 }
 
 namespace reco {
-  GET_CANDIDATE_COMPONENT( test::DummyCandidate1, test::DummyComponent, DefaultComponentTag, cmp );
-  GET_CANDIDATE_MULTIPLECOMPONENTS( test::DummyCandidate1, test::DummyComponent2, DefaultComponentTag, cmp2, cmpSize2 );
+  GET_DEFAULT_CANDIDATE_COMPONENT( test::DummyCandidate1, test::DummyComponent, cmp );
+  GET_CANDIDATE_MULTIPLECOMPONENTS( test::DummyCandidate1, test::DummyComponent2, cmp2, cmpSize2, DefaultComponentTag );
 }
 
 void testCandidate::checkAll() {
@@ -59,8 +59,7 @@ void testCandidate::checkAll() {
   CPPUNIT_ASSERT( c->p4() == p );
   CPPUNIT_ASSERT( c->numberOfDaughters() == 0 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent>().x == x );
-  CPPUNIT_ASSERT( c->numberOf<test::DummyComponent>() == 1 );
+  CPPUNIT_ASSERT( c->numberOf<test::DummyComponent2>() == 2 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent2>( 0 ).x == y0 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent2>( 1 ).x == y1 );
-  CPPUNIT_ASSERT( c->numberOf<test::DummyComponent2>() == 2 );
 }
