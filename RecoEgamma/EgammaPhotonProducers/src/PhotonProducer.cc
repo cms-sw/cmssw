@@ -25,8 +25,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 {
 
-  std::cout << " PhotonProducer CTOR " << std::endl;
-
+ 
+  edm::LogInfo("PhotonProducer CTOR") << "\n";
   // use onfiguration file to setup input/output collection names
  
 
@@ -51,10 +51,6 @@ PhotonProducer::~PhotonProducer() {
 
 void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
 
-  //get magnetic field
-  edm::LogInfo("PhotonProducer") << "get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-
 
 }
 
@@ -72,10 +68,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
-  std::cout << " Created empty PhotonCollection size " <<   std::endl;
-
-
-
+  
 
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
@@ -84,9 +77,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   } catch ( cms::Exception& ex ) {
     LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scHybridBarrelCollection_.c_str() ;
   } 
-  std::cout << " Trying to access barrel SC collection from my Producer " << std::endl;
+ 
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
-  std::cout << " barrel SC collection size  " << scBarrelCollection.size() << std::endl;
+  edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
 
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
@@ -95,9 +88,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   } catch ( cms::Exception& ex ) {
     LogError("PhotonProducer") << "Error! can't get the SC in the endcap " << scIslandEndcapCollection_.c_str() ;
   } 
-  std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
+
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
-  std::cout << " endcap SC collection size  " << scEndcapCollection.size() << std::endl;
+  edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
 
 
 
@@ -107,7 +100,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
-    const reco::Particle::LorentzVector  p4(aClus->position().x(), aClus->position().y() , aClus->position().z() , aClus->energy() );
+    
+    math::XYZVector momentum =aClus->position() - vtx;
+    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
    
     reco::Photon newCandidate(0, p4, vtx);
 
@@ -125,8 +120,11 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   //  Loop over Endcap SC and fill the  photon collection
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
-    const reco::Particle::LorentzVector  p4(aClus->position().x(), aClus->position().y() , aClus->position().z() , aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
+   
+    math::XYZVector momentum =aClus->position() - vtx;
+    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+   
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
@@ -141,7 +139,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
    
 
   // put the product in the event
-  std::cout << " Put the PhotonCollection " << iSC << "  candidates " << std::endl;
+
+  edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   theEvent.put( outputPhotonCollection_p, PhotonCollection_);
 
