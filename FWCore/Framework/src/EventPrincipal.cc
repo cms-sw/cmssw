@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.45 2006/07/20 23:43:36 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.46 2006/07/24 17:44:13 chrjones Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -163,7 +163,6 @@ private:
   void 
   EventPrincipal::put(auto_ptr<EDProduct> edp,
 		      auto_ptr<Provenance> prov) {
-    prov->product.init();
 
     if (prov->productID() == ProductID()) {
       ProductRegistry::ProductList const& pl = preg_->productList();
