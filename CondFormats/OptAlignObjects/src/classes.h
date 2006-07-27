@@ -10,6 +10,8 @@
 #include "CondFormats/OptAlignObjects/interface/CSCZSensors.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "CondFormats/OptAlignObjects/interface/Inclinometers.h"
+#include "CondFormats/OptAlignObjects/interface/PX_sensors.h"
 
 #include <string>
 #include <vector>
@@ -26,6 +28,12 @@ template std::vector<CSCZSensorData>::iterator;
 template std::vector<OpticalAlignParam>::iterator;
 template std::vector< int >::iterator;
 template std::vector< int >::const_iterator;
+
+template std::vector< Inclinometers::Item >::iterator;
+template std::vector< Inclinometers::Item >::const_iterator;
+template std::vector< PX_sensors::Item >::iterator;
+template std::vector< PX_sensors::Item >::const_iterator;
+
 //template edm::Wrapper<OpticalAlignments>;
 namespace {
   namespace {

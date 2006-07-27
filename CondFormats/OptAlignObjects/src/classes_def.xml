@@ -29,6 +29,13 @@
  <class name="edm::Wrapper<OpticalAlignments>"/>
  <class name="edm::Wrapper<OpticalAlignMeasurements>"/>
 
- <class pattern="*iterator*"/>
+ <class name="Inclinometers"/>
+ <class name="Inclinometers::Item"/>
+ <class name="std::vector<Inclinometers::Item>"/>  
+ <class name="PX_sensors"/>
+ <class name="PX_sensors::Item"/>
+ <class name="std::vector<PX_sensors::Item>" /> 
+ 
+<class pattern="*iterator*"/>
  <class pattern="*vector*"/>
 </lcgdict>
