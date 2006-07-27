@@ -246,3 +246,82 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
     }
   con->terminateStatement (stmt);
 }; // end of cdbon_last_record
+
+  void condbon::cdbon_read_rec (std::string obj_name, int record,
+                                CSCobject *obj)
+{
+  int i,len;
+  int map_id=0, map_index=0, layer_id=0;
+  std::string tab, tab_map, tab_data;
+  tab=obj_name;
+  tab_map=obj_name+"_map";
+  tab_data=obj_name+"_data";
+  int num_var;
+  int vec_index;
+
+  std::string sqlStmt,sqlStmt1;
+  stmt=con->createStatement ();
+  stmt1=con->createStatement ();
+  oracle::occi::ResultSet *rset, *rset1;
+  std::ostringstream ss;
+
+  char d;
+  const char* p=tab_data.c_str();
+  len=tab_data.length();
+  for(i=0;i<len;++i){
+   d=toupper(*(p+i));
+   ss<<d;
+  }
+  sqlStmt = "SELECT count(column_name) from user_tab_columns where table_name='"+ss.str()+"'";
+  ss.str(""); // clear
+  stmt->setSQL(sqlStmt);
+  rset = stmt->executeQuery ();
+  try{
+    while (rset->next ())
+    {num_var= rset->getInt(1) - 2;}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
+  stmt->closeResultSet (rset);
+
+  ss<<record;
+
+sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+ss.str()+" order by map_index";
+  ss.str(""); // clear
+  stmt->setSQL(sqlStmt);
+  rset = stmt->executeQuery ();
+  try{
+    while (rset->next ())
+    {map_id = rset->getInt (1);
+     map_index = rset->getInt (2);
+     layer_id = rset->getInt (3);
+     ss<<map_id;
+     sqlStmt1 = "SELECT * from "+tab_data+" where map_id="+ss.str()+" order by vec_index";
+     ss.str(""); // clear
+     stmt1->setSQL(sqlStmt1);
+     rset1 = stmt1->executeQuery ();
+     try{
+       while (rset1->next ())
+       {vec_index = rset1->getInt (2);
+               obj->obj[layer_id].resize(vec_index);
+        for(i=0;i<num_var;++i){
+         obj->obj[layer_id][vec_index-1].push_back(rset1->getFloat(3+i));
+                              }
+       }
+        }catch(oracle::occi::SQLException ex)
+       {
+        std::cout<<"Exception thrown: "<<std::endl;
+        std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+        std::cout<<ex.getMessage() << std::endl;
+       }
+    }
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
+}; // end of cdbon_read_rec
