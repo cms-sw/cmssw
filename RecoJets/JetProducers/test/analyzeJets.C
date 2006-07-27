@@ -13,8 +13,8 @@
 
   //Get event tree and jet collection branch
   TTree *tree = (TTree*)file.Get("Events");
-  std::vector<CaloJet> CaloJetCollection;
-  TBranch *branch = tree->GetBranch("CaloJets_CaloJetMcone5.obj");
+  std::vector<reco::CaloJet> CaloJetCollection;
+  TBranch *branch = tree->GetBranch("recoCaloJets_CaloJetMcone5__PROD.obj");
   branch->SetAddress(&CaloJetCollection);  
 
   // Loop over events
@@ -28,7 +28,7 @@
     //Loop over jets
     for ( unsigned int jetIndex = 0; jetIndex < CaloJetCollection.size(); ++jetIndex ) {
       std::cout << "jet" << jetIndex  ;
-      CaloJet* Jet = (CaloJet*)CaloJetCollection[jetIndex];
+      reco::CaloJet* Jet = (reco::CaloJet*)CaloJetCollection[jetIndex];
 
       //Get and printout jet pt, eta, phi for all jets
       double pt = Jet->pt();    std::cout << ": pt=" << pt; 
