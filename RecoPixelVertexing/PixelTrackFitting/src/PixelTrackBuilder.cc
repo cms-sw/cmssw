@@ -72,10 +72,10 @@ reco::Track * PixelTrackBuilder::build(
   int nhits = hits.size();
   reco::Track * track = new reco::Track( chi2,         // chi2
                           2*nhits-5,  // dof
-                          nhits, // foundHits
-                          0,
-                          0,          //lost hits
-                   tscp.perigeeParameters(),
+					 //                          nhits, // foundHits
+					 //                          0,
+					 //                          0,          //lost hits
+					 tscp.perigeeParameters(),tscp.pt(),
                    tscp.perigeeError());
 
   return track;
