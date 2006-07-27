@@ -38,7 +38,7 @@ class RPCDetInfo{
     float getMinPhi();
     float getMaxPhi();
     float getEtaCentre();
-    int getCurlId();
+    int getRingFromRollsId();
     //void setEtaMin(float);
     //void setEtaMax(float);
     int getMinTower();

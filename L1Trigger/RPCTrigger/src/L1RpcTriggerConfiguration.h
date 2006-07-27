@@ -21,16 +21,16 @@ public:
   virtual int GetTBsInTC() = 0;
 
   /** Returns the index of tower on TB.*/
-  virtual int GetTowerNumOnTb(const RPCParam::L1RpcConeCrdnts& coneCrdnts) = 0;
+  virtual int GetTowerNumOnTb(const rpcparam::L1RpcConeCrdnts& coneCrdnts) = 0;
 
   ///Returns pointer to PAC that should run given LogCone.
-  virtual const L1RpcPac* GetPac(const RPCParam::L1RpcConeCrdnts& coneCrdnts) const = 0;
+  virtual const L1RpcPac* GetPac(const rpcparam::L1RpcConeCrdnts& coneCrdnts) const = 0;
 
   ///Returns the index of TC that should run given LogCone.
-  virtual int GetTCNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts) = 0;
+  virtual int GetTCNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts) = 0;
 
   ///Returns the index of TB (in TC) that should run given LogCone.
-  virtual int GetTBNum(const RPCParam::L1RpcConeCrdnts& coneCrdnts) = 0;
+  virtual int GetTBNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts) = 0;
 
   ///Returns the count of Towers, that are covered by given TB .
   virtual int GetTowsCntOnTB(int tbNum) = 0;

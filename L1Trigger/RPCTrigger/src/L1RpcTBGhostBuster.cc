@@ -55,7 +55,7 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
 //--------- killing ghosts ---------------------------------------
   pacMuonsVec.push_back(L1RpcTBMuon()); //adding  empty muon to the end,
 
-  for(unsigned int iMu = 0; iMu < RPCParam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
+  for(unsigned int iMu = 0; iMu < rpcparam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
     if(pacMuonsVec[iMu].GetCode() == 0)
       ;
     else if(pacMuonsVec[iMu].GetCode() < pacMuonsVec[iMu + 1].GetCode() )
@@ -76,17 +76,17 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
   if(pacMuonsVec[0].IsLive() )
     pacMuonsVec[0].SetGBDataKilledFirst();
   else if(pacMuonsVec[0].WasKilled())
-    for(unsigned int iMu = 0; iMu < RPCParam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
+    for(unsigned int iMu = 0; iMu < rpcparam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
       if(pacMuonsVec[iMu].IsLive() ) {
         pacMuonsVec[iMu].SetGBDataKilledFirst();
         break;
       }
     }
 
-    if(pacMuonsVec[RPCParam::SEGMENTS_IN_SECTOR_CNT-1].IsLive() ) 
-      pacMuonsVec[RPCParam::SEGMENTS_IN_SECTOR_CNT-1].SetGBDataKilledLast();
-    else if(pacMuonsVec[RPCParam::SEGMENTS_IN_SECTOR_CNT-1].WasKilled())
-      for(int iMu = RPCParam::SEGMENTS_IN_SECTOR_CNT -1; iMu >= 0 ; iMu--) {
+    if(pacMuonsVec[rpcparam::SEGMENTS_IN_SECTOR_CNT-1].IsLive() ) 
+      pacMuonsVec[rpcparam::SEGMENTS_IN_SECTOR_CNT-1].SetGBDataKilledLast();
+    else if(pacMuonsVec[rpcparam::SEGMENTS_IN_SECTOR_CNT-1].WasKilled())
+      for(int iMu = rpcparam::SEGMENTS_IN_SECTOR_CNT -1; iMu >= 0 ; iMu--) {
         if(pacMuonsVec[iMu].IsLive() ) {
           pacMuonsVec[iMu].SetGBDataKilledLast();
           break;
@@ -104,7 +104,7 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
   L1RpcTBMuonsVec outputMuons(liveMuonsSet.begin(), liveMuonsSet.end() );*/
 
   L1RpcTBMuonsVec outputMuons;
-  for(unsigned int iMu = 0; iMu < RPCParam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
+  for(unsigned int iMu = 0; iMu < rpcparam::SEGMENTS_IN_SECTOR_CNT; iMu++) {
     if(pacMuonsVec[iMu].IsLive() ) {
       pacMuonsVec[iMu].SetPhiAddr(iMu);
       outputMuons.push_back(pacMuonsVec[iMu]);
@@ -113,9 +113,9 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
   sort(outputMuons.begin(), outputMuons.end(), L1RpcTBMuon::TMuonMore());
 
 //-------setting size to GBPHI_OUT_MUONS_CNT----------------
-  while (outputMuons.size() < RPCParam::GBPHI_OUT_MUONS_CNT)
+  while (outputMuons.size() < rpcparam::GBPHI_OUT_MUONS_CNT)
     outputMuons.push_back(L1RpcTBMuon() );
-  while(outputMuons.size() > RPCParam::GBPHI_OUT_MUONS_CNT)
+  while(outputMuons.size() > rpcparam::GBPHI_OUT_MUONS_CNT)
     outputMuons.pop_back();
 
   return outputMuons;
@@ -159,9 +159,9 @@ L1RpcTBMuonsVec L1RpcTBGhostBuster::GBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) cons
   sort(outputMuons.begin(), outputMuons.end(), L1RpcTBMuon::TMuonMore());
   
 //-------setting size to GBETA_OUT_MUONS_CNT----------------
-  while(outputMuons.size() < RPCParam::GBETA_OUT_MUONS_CNT)
+  while(outputMuons.size() < rpcparam::GBETA_OUT_MUONS_CNT)
     outputMuons.push_back(L1RpcTBMuon());
-  while(outputMuons.size() > RPCParam::GBETA_OUT_MUONS_CNT)
+  while(outputMuons.size() > rpcparam::GBETA_OUT_MUONS_CNT)
     outputMuons.pop_back();
 
   return outputMuons;

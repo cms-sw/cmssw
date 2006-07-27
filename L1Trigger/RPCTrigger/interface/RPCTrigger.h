@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/06/16 09:29:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/22 14:29:06 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  *  \todo All the code must be reviewed and cleaned to comply coding rules
  */
@@ -43,6 +43,8 @@
 #include <memory>
 #include <vector>
 
+
+
 //class RPCTriggerGeo;
 
 class RPCTrigger : public edm::EDProducer {
@@ -65,7 +67,7 @@ class RPCTrigger : public edm::EDProducer {
     L1RpcPacTrigger* m_pacTrigger;
     
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);
-        
+
 };
 
 

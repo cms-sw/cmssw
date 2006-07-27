@@ -23,7 +23,7 @@ L1RpcPacBase::L1RpcPacBase(int tower, int logSector, int logSegment) {
  *Constructor. ConeCrdnts and  CurrConeCrdnts are set.
  *
  */
-L1RpcPacBase::L1RpcPacBase(RPCParam::L1RpcConeCrdnts coneCrdnts): ConeCrdnts(coneCrdnts), CurrConeCrdnts(coneCrdnts) {}
+L1RpcPacBase::L1RpcPacBase(rpcparam::L1RpcConeCrdnts coneCrdnts): ConeCrdnts(coneCrdnts), CurrConeCrdnts(coneCrdnts) {}
 
 /**
  *
@@ -41,6 +41,6 @@ void L1RpcPacBase::SetCurrentPosition(int tower, int logSector, int logSegment) 
  *CurrConeCrdnts are set. Called by L1RpcPacManager in GetPac.
  *
  */
-void L1RpcPacBase::SetCurrentPosition(RPCParam::L1RpcConeCrdnts coneCrdnts) {
+void L1RpcPacBase::SetCurrentPosition(rpcparam::L1RpcConeCrdnts coneCrdnts) {
   CurrConeCrdnts = coneCrdnts;
 }

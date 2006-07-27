@@ -62,9 +62,9 @@ L1RpcTBMuonsVec L1RpcTCGhostBusterSorter::Run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
   sort(outputMuons.begin(), outputMuons.end(), L1RpcTBMuon::TMuonMore());
   
 //-------setting size to GBETA_OUT_MUONS_CNT----------------
-  while(outputMuons.size() < RPCParam::TCGB_OUT_MUONS_CNT)
+  while(outputMuons.size() < rpcparam::TCGB_OUT_MUONS_CNT)
     outputMuons.push_back(L1RpcTBMuon());
-  while(outputMuons.size() > RPCParam::TCGB_OUT_MUONS_CNT)
+  while(outputMuons.size() > rpcparam::TCGB_OUT_MUONS_CNT)
     outputMuons.pop_back();
 
   return outputMuons;

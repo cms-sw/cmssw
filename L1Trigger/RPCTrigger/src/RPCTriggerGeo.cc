@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/21 13:17:32 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/06/22 07:57:50 $
+ *  $Revision: 1.11 $
  *  \author Tomasz Fruboes
  */
 
@@ -64,58 +64,58 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
   } // RpcDet loop end
   
   // Separete reference curls from others, should be done in previous step
-  for(RPCCurlMap::iterator it = m_RPCCurlMap.begin();
-      it!=m_RPCCurlMap.end();
+  for(RPCRingFromRollsMap::iterator it = m_RPCRingFromRollsMap.begin();
+      it!=m_RPCRingFromRollsMap.end();
       it++)
   {
     if ( (it->second).isRefPlane() ){
-      m_refRPCCurlMap[it->first]=it->second;
+      m_refRPCRingFromRollsMap[it->first]=it->second;
     }
     else  
-      m_otherRPCCurlMap[it->first]=it->second;
+      m_otherRPCRingFromRollsMap[it->first]=it->second;
   }
   
   //loop over reference curls
-  for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
-        itRefCurl != m_refRPCCurlMap.end();
-        itRefCurl++)
+  for ( RPCRingFromRollsMap::iterator itRefRingFromRolls=m_refRPCRingFromRollsMap.begin(); 
+        itRefRingFromRolls != m_refRPCRingFromRollsMap.end();
+        itRefRingFromRolls++)
   {
     //loop over other curls
-    for ( RPCCurlMap::iterator itOtherCurl=m_otherRPCCurlMap.begin(); 
-          itOtherCurl != m_otherRPCCurlMap.end();
-          itOtherCurl++)
+    for ( RPCRingFromRollsMap::iterator itOtherRingFromRolls=m_otherRPCRingFromRollsMap.begin(); 
+          itOtherRingFromRolls != m_otherRPCRingFromRollsMap.end();
+          itOtherRingFromRolls++)
     {
-      (itRefCurl->second).makeRefConnections(&(itOtherCurl->second));
-    } //otherCurl loop end
-  } // refCurl's loop end
+      (itRefRingFromRolls->second).makeRefConnections(&(itOtherRingFromRolls->second));
+    } //otherRingFromRolls loop end
+  } // refRingFromRolls's loop end
   
   
   // Copy all stripConections into one place
-  for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); 
-        it != m_refRPCCurlMap.end();
+  for ( RPCRingFromRollsMap::iterator it=m_refRPCRingFromRollsMap.begin(); 
+        it != m_refRPCRingFromRollsMap.end();
         it++){
           
-          RPCCurl::RPCLinks linksTemp = (it->second).giveConnections();
+          RPCRingFromRolls::RPCLinks linksTemp = (it->second).giveConnections();
           m_links.insert(linksTemp.begin(),linksTemp.end() );
           
         }
   
-  for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); 
-        it != m_otherRPCCurlMap.end();
+  for ( RPCRingFromRollsMap::iterator it=m_otherRPCRingFromRollsMap.begin(); 
+        it != m_otherRPCRingFromRollsMap.end();
         it++){
           
-          RPCCurl::RPCLinks linksTemp = (it->second).giveConnections();
+          RPCRingFromRolls::RPCLinks linksTemp = (it->second).giveConnections();
           m_links.insert(linksTemp.begin(),linksTemp.end() );
   
   }
     
   // Free memory
-  m_RPCCurlMap.clear();
-  m_refRPCCurlMap.clear();
-  m_otherRPCCurlMap.clear();
+  m_RPCRingFromRollsMap.clear();
+  m_refRPCRingFromRollsMap.clear();
+  m_otherRPCRingFromRollsMap.clear();
     
   m_isGeometryBuilt=true;
-  //printCurlMapInfo();
+  //printRingFromRollsMapInfo();
 }
 
 //#############################################################################
@@ -130,21 +130,21 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
   RPCDetInfo detInfo(roll);
 
   // This two curls werent connected anywhere in ORCA. They are filtered out for consitency with ORCA.
-  if ( (detInfo.getCurlId() == 2108) ||(detInfo.getCurlId() == 2008) ){
+  if ( (detInfo.getRingFromRollsId() == 2108) ||(detInfo.getRingFromRollsId() == 2008) ){
     m_detsToIngore.insert(detInfo.rawId());
     return;
   }
   
   
-  if( m_RPCCurlMap.find(detInfo.getCurlId()) != m_RPCCurlMap.end() ){ // Curl allready in map
+  if( m_RPCRingFromRollsMap.find(detInfo.getRingFromRollsId()) != m_RPCRingFromRollsMap.end() ){ // RingFromRolls allready in map
 
-     m_RPCCurlMap[detInfo.getCurlId()].addDetId(detInfo);
+     m_RPCRingFromRollsMap[detInfo.getRingFromRollsId()].addDetId(detInfo);
 
   } else {  // add a new curl
     
-    RPCCurl newCurl;
-    newCurl.addDetId(detInfo);
-    m_RPCCurlMap[detInfo.getCurlId()]=newCurl;
+    RPCRingFromRolls newRingFromRolls;
+    newRingFromRolls.addDetId(detInfo);
+    m_RPCRingFromRollsMap[detInfo.getRingFromRollsId()]=newRingFromRolls;
 
   }
 
@@ -177,7 +177,7 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
          digiIt!=range.second;
          ++digiIt)
     {
-      RPCCurl::stripCords sc;
+      RPCRingFromRolls::stripCords sc;
       sc.detRawId=rawId;
       sc.stripNo=digiIt->strip();
       sc.isVirtual=false;
@@ -185,9 +185,9 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
       // Find strip in map
       if (m_links.find(sc)!=m_links.end()){
       
-        RPCCurl::RPCConnectionsVec stripCons = m_links[sc];
+        RPCRingFromRolls::RPCConnectionsVec stripCons = m_links[sc];
         //Build loghits
-        for (RPCCurl::RPCConnectionsVec::iterator it = stripCons.begin();
+        for (RPCRingFromRolls::RPCConnectionsVec::iterator it = stripCons.begin();
              it != stripCons.end();
              it++)
         {
@@ -240,23 +240,23 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
 *
 */
 //#############################################################################
-void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
+void RPCTriggerGeo::printRingFromRollsMapInfo(){ // XXX - Erase ME
   
   //*
-  for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); it != m_refRPCCurlMap.end(); it++){
+  for ( RPCRingFromRollsMap::iterator it=m_refRPCRingFromRollsMap.begin(); it != m_refRPCRingFromRollsMap.end(); it++){
     LogDebug("RPCTrigger") << "------------------------------";
-    LogDebug("RPCTrigger")  << "CurlId " << (it->first);
+    LogDebug("RPCTrigger")  << "RingFromRollsId " << (it->first);
     (it->second).printContents();
   }
-  for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); it != m_otherRPCCurlMap.end(); it++){
+  for ( RPCRingFromRollsMap::iterator it=m_otherRPCRingFromRollsMap.begin(); it != m_otherRPCRingFromRollsMap.end(); it++){
     LogDebug("RPCTrigger")<< "------------------------------";
-    LogDebug("RPCTrigger") << "CurlId " << (it->first);
+    LogDebug("RPCTrigger") << "RingFromRollsId " << (it->first);
     (it->second).printContents();
   }
   //*/
   
-  LogDebug("RPCTrigger") << "No of refs: " << m_refRPCCurlMap.size();
-  LogDebug("RPCTrigger")  << m_otherRPCCurlMap.size(); 
+  LogDebug("RPCTrigger") << "No of refs: " << m_refRPCRingFromRollsMap.size();
+  LogDebug("RPCTrigger")  << m_otherRPCRingFromRollsMap.size(); 
   LogDebug("RPCTrigger")  << m_links.size();
 
 }

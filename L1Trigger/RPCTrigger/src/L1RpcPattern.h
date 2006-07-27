@@ -37,7 +37,7 @@ public:
 
 private:
   ///LogicalStrip for every LogPlane. 
-  L1RpcLogicalStrip Strips[RPCParam::LOGPLANES_COUNT];
+  L1RpcLogicalStrip Strips[rpcparam::LOGPLANES_COUNT];
 
   ///Muon's sign.
   char Sign;
@@ -51,7 +51,7 @@ private:
   /** The PAC algorith that should be used for given Pattern.
     * PAT_TYPE_T - Basic (clasic), PAT_TYPE_E - "impoved" (energetic).
     * @see "Pattern Comparator Trigger Algorithm – implementation in FPGA" */
-  RPCParam::TPatternType PatternType;
+  rpcparam::TPatternType PatternType;
 
   ///If pattern is of type PAT_TYPE_E, denotes the index of group to which this pattern belongs.
   char RefGroup;
@@ -86,7 +86,7 @@ public:
 
   int GetNumber() const;
 
-  RPCParam::TPatternType GetPatternType() const;
+  rpcparam::TPatternType GetPatternType() const;
 
   int GetRefGroup() const;
 
@@ -98,7 +98,7 @@ public:
   
   void SetNumber(int a);
 
-  void SetPatternType(RPCParam::TPatternType patternType);
+  void SetPatternType(rpcparam::TPatternType patternType);
 
   void SetRefGroup(int refGroup);
 

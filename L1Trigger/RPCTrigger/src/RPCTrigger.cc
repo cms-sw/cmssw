@@ -1,19 +1,21 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/06/22 15:24:25 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/25 12:44:00 $
+ *  $Revision: 1.13 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
 
+//#define ML_DEBUG 
 
-#define ML_DEBUG 
+
+
+
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 {
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
-  
   
   std::string patternsDirName = iConfig.getParameter<std::string>("RPCPatternsDir");
   
@@ -26,12 +28,17 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   m_trigConfig->SetDebugLevel(0);
   
   m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
+
+
 }
+
+
 
 
 RPCTrigger::~RPCTrigger(){ 
   delete m_pacTrigger;
   delete m_trigConfig;
+
 }
 
 
@@ -115,11 +122,11 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     else  
       l1Cand.setChargePacked(0);
     
-    RPCParam::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
+    rpcparam::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
     
     int pac = cone.LogSector*12+cone.LogSegment;
     const float pi = 3.14159265;
-    const float offset = 5*(2*pi/360); // redefinition! Defined also in RPCCurl::phiMapCompare
+    const float offset = 5*(2*pi/360); // redefinition! Defined also in RPCRingFromRolls::phiMapCompare
     float phi = 2*pi*pac/144-offset;
     if (phi<0)
       phi+=2*pi;

@@ -13,7 +13,7 @@
 
 
 //inline
-int RPCParam::StringToInt(std::string str) {
+int rpcparam::StringToInt(std::string str) {
   for(unsigned int i = 0; i < str.size(); i++)
     if(str[i] < '0' || str[i] > '9' )
       //throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
@@ -22,7 +22,7 @@ int RPCParam::StringToInt(std::string str) {
 };
 
 //inline
-std::string RPCParam::IntToString(int number) {
+std::string rpcparam::IntToString(int number) {
   std::string str;
   /* Some problems. AK
   ostringstream ostr;
@@ -37,7 +37,7 @@ std::string RPCParam::IntToString(int number) {
   return str;
 };
 
-bool RPCParam::L1RpcConeCrdnts::operator < (const L1RpcConeCrdnts& cone) const{
+bool rpcparam::L1RpcConeCrdnts::operator < (const L1RpcConeCrdnts& cone) const{
   if(Tower != cone.Tower)
     return (Tower < cone.Tower);
   if(LogSector != cone.LogSector)
@@ -48,7 +48,7 @@ bool RPCParam::L1RpcConeCrdnts::operator < (const L1RpcConeCrdnts& cone) const{
   return false;
 }
 
-bool RPCParam::L1RpcConeCrdnts::operator == (const L1RpcConeCrdnts& cone) const{
+bool rpcparam::L1RpcConeCrdnts::operator == (const L1RpcConeCrdnts& cone) const{
   if(Tower != cone.Tower)
     return false;
   if(LogSector != cone.LogSector)

@@ -86,7 +86,7 @@ public:
       SegmentCnt = 4;
     }
 
-    for (int tower = 0; tower < RPCParam::TOWER_COUNT; tower++) {
+    for (int tower = 0; tower < rpcparam::TOWER_COUNT; tower++) {
       PacTab.push_back(std::vector<std::vector<TPacType*> >() );
       for (int logSector = 0; logSector < SectorsCnt; logSector++) {
         PacTab[tower].push_back(std::vector<TPacType*>() );
@@ -125,7 +125,7 @@ public:
   };
   
   //const 
-  TPacType* GetPac(const RPCParam::L1RpcConeCrdnts& coneCrdnts) const {
+  TPacType* GetPac(const rpcparam::L1RpcConeCrdnts& coneCrdnts) const {
     return GetPac(coneCrdnts.Tower, coneCrdnts.LogSector, coneCrdnts.LogSegment);
   }
 };

@@ -23,21 +23,21 @@
 class L1RpcPacBase {
 protected:
   ///Coordinates of LogCone. The coordinates, with which PAC is created - the same as in pac file name
-  RPCParam::L1RpcConeCrdnts ConeCrdnts;
+  rpcparam::L1RpcConeCrdnts ConeCrdnts;
 
   /** Coordinates of current LogCone. The same PAC may be used for several LogCones.
     * @see L1RpcPacManager */
-  RPCParam::L1RpcConeCrdnts CurrConeCrdnts;
+  rpcparam::L1RpcConeCrdnts CurrConeCrdnts;
 
 public:
   
   L1RpcPacBase(int tower, int logSector, int logSegment);
   
-  L1RpcPacBase(RPCParam::L1RpcConeCrdnts coneCrdnts);
+  L1RpcPacBase(rpcparam::L1RpcConeCrdnts coneCrdnts);
   
   void SetCurrentPosition(int tower, int logSector, int logSegment);
     
-  void SetCurrentPosition(RPCParam::L1RpcConeCrdnts coneCrdnts);
+  void SetCurrentPosition(rpcparam::L1RpcConeCrdnts coneCrdnts);
 
 };
 #endif

@@ -31,9 +31,9 @@ L1RpcPac::L1RpcPac(std::string patFilesDir, int tower, int logSector, int logSeg
 
   if(patFilesDir.find("pat") != std::string::npos) {
     patFileName = patFilesDir 
-        + "pacPat_t" + RPCParam::IntToString(ConeCrdnts.Tower) 
-        + "sc" + RPCParam::IntToString(ConeCrdnts.LogSector) 
-        + "sg" + RPCParam::IntToString(ConeCrdnts.LogSegment) 
+        + "pacPat_t" + rpcparam::IntToString(ConeCrdnts.Tower) 
+        + "sc" + rpcparam::IntToString(ConeCrdnts.LogSector) 
+        + "sg" + rpcparam::IntToString(ConeCrdnts.LogSegment) 
         + ".xml";
 
     L1RpcPatternsParser parser;
@@ -123,7 +123,7 @@ std::string L1RpcPac::GetPatternsGroupDescription(int patternGroupNum) {
     int i = 0;
     for(; iEGroup != EnergeticPatternsGroupList.end(); iEGroup++, i++) {
       if(i == patternGroupNum)
-        ret = "EGroup #"+ RPCParam::IntToString(i)+iEGroup->GetGroupDescription();
+        ret = "EGroup #"+ rpcparam::IntToString(i)+iEGroup->GetGroupDescription();
     }
     
   }
@@ -145,7 +145,7 @@ void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
   }
   else if(qualityTabNumber == QualityTabsVec.size() ) {
     // XXX - added cast (int)
-    RPCParam::TQualityTab qualityTab((int)std::pow(2.0,RPCParam::LOGPLANES_COUNT), -1); //= new TQualityTab();
+    rpcparam::TQualityTab qualityTab((int)std::pow(2.0,rpcparam::LOGPLANES_COUNT), -1); //= new TQualityTab();
     QualityTabsVec.push_back(qualityTab);
     QualityTabsVec[qualityTabNumber][firedPlanes] = quality; 
   }
@@ -157,9 +157,9 @@ void L1RpcPac::InsertQualityRecord(unsigned int qualityTabNumber,
 
 void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
   for(L1RpcPatternsVec::const_iterator patIt = patternsVec.begin(); patIt != patternsVec.end(); patIt++) { 
-    if(patIt->GetPatternType() == RPCParam::PAT_TYPE_T)
+    if(patIt->GetPatternType() == rpcparam::PAT_TYPE_T)
       TrackPatternsGroup.AddPattern(patIt);
-    else if (patIt->GetPatternType() == RPCParam::PAT_TYPE_E) {
+    else if (patIt->GetPatternType() == rpcparam::PAT_TYPE_E) {
       TEPatternsGroupList::iterator iEGroup;
       for(iEGroup = EnergeticPatternsGroupList.begin();
           iEGroup != EnergeticPatternsGroupList.end(); iEGroup++)
@@ -168,11 +168,11 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
       if(iEGroup == EnergeticPatternsGroupList.end() ) {
         TEPatternsGroup newEGroup(patIt);
         newEGroup.SetGroupDescription(
-        //"EGroup #"+ RPCParam::IntToString(EnergeticPatternsGroupList.size())+
-        ", code: " + RPCParam::IntToString(patIt->GetCode()) +
-        ", dir: " + RPCParam::IntToString(patIt->GetSign()) +
-        ", refGroup: " + RPCParam::IntToString(patIt->GetRefGroup()) +
-        ", qualityTabNumber: " + RPCParam::IntToString(patIt->GetQualityTabNumber()) );
+        //"EGroup #"+ rpcparam::IntToString(EnergeticPatternsGroupList.size())+
+        ", code: " + rpcparam::IntToString(patIt->GetCode()) +
+        ", dir: " + rpcparam::IntToString(patIt->GetSign()) +
+        ", refGroup: " + rpcparam::IntToString(patIt->GetRefGroup()) +
+        ", qualityTabNumber: " + rpcparam::IntToString(patIt->GetQualityTabNumber()) );
         EnergeticPatternsGroupList.push_back(newEGroup);
       }
       else
@@ -192,7 +192,7 @@ void L1RpcPac::InsertPatterns(const L1RpcPatternsVec& patternsVec) {
 void L1RpcPac::Init(const L1RpcPatternsParser& parser) {
   for(unsigned int i = 0; i < parser.GetQualityVec().size(); i++) {    
     L1RpcPatternsParser::TQuality quality = parser.GetQualityVec()[i];
-    bitset<RPCParam::LOGPLANES_COUNT> qualBits(quality.FiredPlanes );
+    bitset<rpcparam::LOGPLANES_COUNT> qualBits(quality.FiredPlanes );
     unsigned short firedPlanes = qualBits.to_ulong();
 
     InsertQualityRecord(quality.QualityTabNumber, firedPlanes, quality.QualityValue);  
@@ -210,8 +210,8 @@ L1RpcPacMuon L1RpcPac::RunTrackPatternsGroup(const L1RpcLogCone& cone) const {
     int firedPlanesCount = 0;
     unsigned short one = 1;
     const L1RpcPattern& pattern  = *(TrackPatternsGroup.PatternsItVec[vecNum]);
-    for(int logPlane = RPCParam::FIRST_PLANE; logPlane < RPCParam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++) {
-      if (pattern.GetStripFrom(logPlane) == RPCParam::NOT_CONECTED) {
+    for(int logPlane = rpcparam::FIRST_PLANE; logPlane < rpcparam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++) {
+      if (pattern.GetStripFrom(logPlane) == rpcparam::NOT_CONECTED) {
         //firedPlanes[logPlane] = false; //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         continue;
       }
@@ -225,7 +225,7 @@ L1RpcPacMuon L1RpcPac::RunTrackPatternsGroup(const L1RpcLogCone& cone) const {
         }              
       }
  
-      if( (RPCParam::USED_PLANES_COUNT[ConeCrdnts.Tower] - logPlane) == 3)
+      if( (rpcparam::USED_PLANES_COUNT[ConeCrdnts.Tower] - logPlane) == 3)
         if( firedPlanesCount == 0)
           break;
       
@@ -259,8 +259,8 @@ L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) cons
     firedPlanes = 0;
     firedPlanesCount = 0;
     unsigned short one = 1;
-    for(int logPlane = RPCParam::FIRST_PLANE; logPlane < RPCParam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++) {  //or po paskach ze stozka
-      for(unsigned int bitNum = 0; bitNum < RPCParam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane] ; bitNum++) {       
+    for(int logPlane = rpcparam::FIRST_PLANE; logPlane < rpcparam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++) {  //or po paskach ze stozka
+      for(unsigned int bitNum = 0; bitNum < rpcparam::LOGPLANE_SIZE[abs(ConeCrdnts.Tower)][logPlane] ; bitNum++) {       
         if(iEGroup->GroupShape.GetLogStripState(logPlane, bitNum) && cone.GetLogStripState(logPlane, bitNum) ) {
           firedPlanes  = firedPlanes | one;
           firedPlanesCount++;
@@ -280,8 +280,8 @@ L1RpcPacMuon L1RpcPac::RunEnergeticPatternsGroups(const L1RpcLogCone& cone) cons
       const L1RpcPattern& pattern = *patternIt;     
       bool wasHit = false;
       unsigned short one1 = 1;
-      for(int logPlane = RPCParam::FIRST_PLANE; logPlane < RPCParam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++, one1 = one1<<1) {        
-        if (pattern.GetStripFrom(logPlane) == RPCParam::NOT_CONECTED) {
+      for(int logPlane = rpcparam::FIRST_PLANE; logPlane < rpcparam::USED_PLANES_COUNT[ConeCrdnts.Tower]; logPlane++, one1 = one1<<1) {        
+        if (pattern.GetStripFrom(logPlane) == rpcparam::NOT_CONECTED) {
 //          firedPlanes[logPlane] = false; //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
           continue;
         }
@@ -329,7 +329,7 @@ L1RpcPacMuon L1RpcPac::Run(const L1RpcLogCone& cone) const {  //symualcja
 
   bestMuon.SetConeCrdnts(CurrConeCrdnts);
   bestMuon.SetLogConeIdx(cone.GetIdx());
-  int refStripNum = GetPattern(bestMuon.GetPatternNum()).GetStripFrom(RPCParam::REF_PLANE[abs(CurrConeCrdnts.Tower)]) + CurrConeCrdnts.LogSector * 96 + CurrConeCrdnts.LogSegment * 8;
+  int refStripNum = GetPattern(bestMuon.GetPatternNum()).GetStripFrom(rpcparam::REF_PLANE[abs(CurrConeCrdnts.Tower)]) + CurrConeCrdnts.LogSector * 96 + CurrConeCrdnts.LogSegment * 8;
 	bestMuon.SetRefStripNum(refStripNum);
   return bestMuon;
 };

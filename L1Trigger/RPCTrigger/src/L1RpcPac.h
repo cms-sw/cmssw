@@ -86,7 +86,7 @@ private:
     * the index in vector correspondes to the QualityTabNumber in pattern.
     * @see TQualityBitset, TQualityTab, TQualityTabsVec.
     */
-  RPCParam::TQualityTabsVec QualityTabsVec;
+  rpcparam::TQualityTabsVec QualityTabsVec;
 
   /** Container containig EPatternsGroups. Is filled by InsertPattern() during
     * parsing the pac file ParsePatternFile().

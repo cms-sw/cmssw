@@ -22,7 +22,7 @@
 
 //----------------------------------------------------------------------------------
 
-namespace RPCParam {
+namespace rpcparam {
 
     const int TOWER_COUNT = 16 + 1; //!< Only half of the detector.
     
@@ -195,7 +195,7 @@ namespace RPCParam {
     
     ///Converts inteager number to string.
     std::string IntToString(int number);
-} // namespace RPCParam 
+} // namespace rpcparam 
 
 #endif
 

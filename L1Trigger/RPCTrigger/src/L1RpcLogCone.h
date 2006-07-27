@@ -48,7 +48,7 @@ private:
     */
   std::vector<std::vector<int> > DigisIdx;
 
-  RPCParam::L1RpcConeCrdnts ConeCrdnts;
+  rpcparam::L1RpcConeCrdnts ConeCrdnts;
 
   int MuonCode;
 
@@ -112,7 +112,7 @@ public:
 
   int GetLogSegment() const;
 
-  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const;
+  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
   
 
   void SetIdx(int index);

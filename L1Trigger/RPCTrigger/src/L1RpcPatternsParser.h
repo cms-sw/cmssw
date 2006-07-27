@@ -38,7 +38,7 @@ public:
 
   void Parse(std::string fileName);
 
-  const L1RpcPatternsVec& GetPatternsVec(const RPCParam::L1RpcConeCrdnts& coneCrds) const;
+  const L1RpcPatternsVec& GetPatternsVec(const rpcparam::L1RpcConeCrdnts& coneCrds) const;
 
   struct TQuality {
     int QualityTabNumber;
@@ -64,7 +64,7 @@ private:
 
   TQualityVec QualityVec;
 
-  typedef std::map<RPCParam::L1RpcConeCrdnts, L1RpcPatternsVec> TPatternsVecsMap;
+  typedef std::map<rpcparam::L1RpcConeCrdnts, L1RpcPatternsVec> TPatternsVecsMap;
 
   TPatternsVecsMap PatternsVecsMap;
   

@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/06/12 15:45:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/06/19 15:28:49 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 
@@ -104,7 +104,7 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
  *
 */
 ///////////////////////////////////////////////////////////////////////////////
-int RPCDetInfo::getCurlId(){
+int RPCDetInfo::getRingFromRollsId(){
   
   int gr = getGlobRollNo();
   int curlId = 1000*(m_hwPlane) +     //1...6

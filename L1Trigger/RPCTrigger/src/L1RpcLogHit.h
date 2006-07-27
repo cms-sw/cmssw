@@ -39,7 +39,7 @@ public:
   ~L1RpcLogHit(){ }
 
   
-  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const;
+  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
 
   int getTower() const;
 
@@ -56,7 +56,7 @@ public:
   int getDigiIdx() const;
 
 private:
-  RPCParam::L1RpcConeCrdnts ConeCrdnts;
+  rpcparam::L1RpcConeCrdnts ConeCrdnts;
   
   int logPlaneNumber, stripNumberInCone;
 

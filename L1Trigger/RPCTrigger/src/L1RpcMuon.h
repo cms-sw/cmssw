@@ -21,14 +21,14 @@ public:
   L1RpcMuon();
 
   ///Constructor. All parameters are set.
-  L1RpcMuon(const RPCParam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
+  L1RpcMuon(const rpcparam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
   
   ///Constructor.
   L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
 
-  RPCParam::L1RpcConeCrdnts GetConeCrdnts() const;
+  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
 
-  void SetConeCrdnts(const RPCParam::L1RpcConeCrdnts& coneCrdnts);
+  void SetConeCrdnts(const rpcparam::L1RpcConeCrdnts& coneCrdnts);
 
   int GetTower() const;
 
@@ -69,7 +69,7 @@ public:
     
 protected:
   ///The coordinates of LogCone, in which the muon was found.
-  RPCParam::L1RpcConeCrdnts ConeCrdnts;
+  rpcparam::L1RpcConeCrdnts ConeCrdnts;
 
   ///5 bits, 0-31.
   unsigned int PtCode;

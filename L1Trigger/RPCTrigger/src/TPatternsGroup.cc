@@ -1,8 +1,8 @@
 #include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
 
 void TPatternsGroup::UpdateShape(const L1RpcPatternsVec::const_iterator& pattern) { //colled by AddPattern
-  for(int logPlane = RPCParam::FIRST_PLANE; logPlane <= RPCParam::LAST_PLANE; logPlane++) {
-    if (pattern->GetStripFrom(logPlane) != RPCParam::NOT_CONECTED) {
+  for(int logPlane = rpcparam::FIRST_PLANE; logPlane <= rpcparam::LAST_PLANE; logPlane++) {
+    if (pattern->GetStripFrom(logPlane) != rpcparam::NOT_CONECTED) {
       int fromBit = pattern->GetStripFrom(logPlane);
       int toBit = pattern->GetStripTo(logPlane);
       for (int bitNumber = fromBit; bitNumber < toBit; bitNumber++)
@@ -21,10 +21,10 @@ void TPatternsGroup::AddPattern(const L1RpcPatternsVec::const_iterator& pattern)
 }
 
 // Simple setters and getters
-void TPatternsGroup::SetPatternsGroupType(RPCParam::TPatternType patternsGroupType) { PatternsGroupType = patternsGroupType; }
+void TPatternsGroup::SetPatternsGroupType(rpcparam::TPatternType patternsGroupType) { PatternsGroupType = patternsGroupType; }
 
 void TPatternsGroup::SetGroupDescription(std::string groupDescription) { GroupDescription = groupDescription; }
 
 std::string TPatternsGroup::GetGroupDescription() const { return GroupDescription; }
 
-RPCParam::TPatternType TPatternsGroup::GetPatternsGroupType() { return PatternsGroupType; }
+rpcparam::TPatternType TPatternsGroup::GetPatternsGroupType() { return PatternsGroupType; }

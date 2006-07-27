@@ -19,7 +19,7 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
-#include "L1Trigger/RPCTrigger/src/RPCCurl.h"
+#include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
 
 #include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
 #include "set"
@@ -37,19 +37,19 @@ class RPCTriggerGeo {
 
   private:
     void addDet(RPCRoll* roll);
-    void printCurlMapInfo();
+    void printRingFromRollsMapInfo();
     int etaToTower(float eta);
                               
     bool m_isGeometryBuilt; ///< Determines if geometry is built allready
-    typedef std::map<uint32_t, RPCCurl> RPCCurlMap;
+    typedef std::map<uint32_t, RPCRingFromRolls> RPCRingFromRollsMap;
     // Probably the curls should be local 
-    RPCCurlMap m_RPCCurlMap; ///< Stores all curls
-    RPCCurlMap m_refRPCCurlMap; ///< Stores refernce curls
-    RPCCurlMap m_otherRPCCurlMap; ///< Stores other curls
+    RPCRingFromRollsMap m_RPCRingFromRollsMap; ///< Stores all curls
+    RPCRingFromRollsMap m_refRPCRingFromRollsMap; ///< Stores refernce curls
+    RPCRingFromRollsMap m_otherRPCRingFromRollsMap; ///< Stores other curls
     
     //L1RpcLogConesVec 	m_activeCones;
     
-    RPCCurl::RPCLinks m_links; ///< Translates rpcdigi into loghits
+    RPCRingFromRolls::RPCLinks m_links; ///< Translates rpcdigi into loghits
     
     set<uint32_t> m_detsToIngore; ///< Temp. solution to the problem of not connected dets (in ORCA)
 };
