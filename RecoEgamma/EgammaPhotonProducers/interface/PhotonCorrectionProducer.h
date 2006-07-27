@@ -3,9 +3,9 @@
 /** \class PhotonCorrectionProducer
  **  
  **
- **  $Id: PhotonCorrectionProducer.h,v 1.1 2006/06/27 14:03:29 nancy Exp $ 
- **  $Date: 2006/06/27 14:03:29 $ 
- **  $Revision: 1.1 $
+ **  $Id: PhotonCorrectionProducer.h,v 1.2 2006/07/26 09:11:32 nancy Exp $ 
+ **  $Date: 2006/07/26 09:11:32 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonCorrectionAlgo.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonDummyCorrection.h"
 
 
 // PhotonCorrectionProducer inherits from EDProducer, so it can be a module:
@@ -37,16 +37,16 @@ class PhotonCorrectionProducer : public edm::EDProducer {
   
 
   
-  std::string PhotonCollection_;
-  std::string phoProducer_;
-  std::string phoCollection_;
+  std::string CorrectedPhotonCollection_;
+  std::string photonCorrectionProducer_;
+  std::string uncorrectedPhotonCollection_;
   edm::ParameterSet conf_;
 
   bool applyDummyCorrection_;
 
   edm::ESHandle<MagneticField> theMF_;
 
-  PhotonCorrectionAlgo* theDummyCorrection_;
+  PhotonDummyCorrection* theDummyCorrection_;
 
 
 };
