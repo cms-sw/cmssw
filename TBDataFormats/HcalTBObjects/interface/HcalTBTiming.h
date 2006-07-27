@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2005/10/06 22:21:33 $
-  $Revision: 1.3 $
+  $Date: 2006/04/12 21:46:00 $
+  $Revision: 1.4 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -33,6 +33,11 @@ Time-to-Digital Converter (TDC).
     double laserFlash()      const { return laserFlash_;      }
     /// Returns the QIE phase for 2003 testbeam data (zero otherwise)
     double qiePhase()        const { return qiePhase_;        }
+
+    /// Returns the TOF1 time (zero otherwise)
+    double TOF1time()        const { return TOF1time_;        }
+    /// Returns the TOF2 time (zero otherwise)
+    double TOF2time()        const { return TOF2time_;        }
 
     /// Returns the number of hits from muon veto scintillator M1
     int    M1Count()         const { return m1hits_.size();   }
@@ -71,7 +76,9 @@ Time-to-Digital Converter (TDC).
 		     const double ttc_l1a_time,
 		     const double beam_coincidence,
 		     const double laser_flash,
-		     const double qie_phase);
+		     const double qie_phase,
+		     const double TOF1_time,
+		     const double TOF2_time);
 
     void   setHits  (const std::vector<double>& m1hits,
 		     const std::vector<double>& m2hits,
@@ -87,6 +94,8 @@ Time-to-Digital Converter (TDC).
     double beamCoincidence_;
     double laserFlash_;
     double qiePhase_;
+    double TOF1time_;
+    double TOF2time_;
 
     std::vector<double> m1hits_;
     std::vector<double> m2hits_;
