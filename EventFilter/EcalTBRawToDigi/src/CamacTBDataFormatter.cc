@@ -79,11 +79,6 @@ CamacTBDataFormatter::CamacTBDataFormatter () {
 }
 
 
-// for tests based on standalone file
-// void CamacTBDataFormatter::interpretRawData(ulong * buffer, ulong bufferSize,
-// 					    EcalTBEventHeader& tbEventHeader, 
-// 					    EcalTBHodoscopeRawInfo & productHodo,
-// 					    EcalTBTDCRawInfo & productTdc)
 
 void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData, 
 					     EcalTBEventHeader& tbEventHeader,
@@ -354,15 +349,20 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // acessing table in position bit
   **********************************/
   a = buffer[wordCounter];      wordCounter++;
-  b = (a & 0x00000001);
+  b = (a & 0x00000001);  //1= table is moving; 0=table is still
+  bool tableIsMoving;
   if ( b ){
     LogWarning("CamacTBDataFormatter") << " table is not in position."  << endl;
+    tableIsMoving = false;
   }
   else
     {
     LogWarning("CamacTBDataFormatter") << " table is in position."  << endl;
+    tableIsMoving = true;
     }
-  // skip 3 reserved words
+  tbEventHeader.setTableIsMoving( tableIsMoving );
+
+
   wordCounter += 3;
 
   
