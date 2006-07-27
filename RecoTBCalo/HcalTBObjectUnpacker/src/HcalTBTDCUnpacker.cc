@@ -109,7 +109,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   const unsigned int* hitbase=0;
   unsigned int totalhits=0;
 
-  // new TDC (775)
+  // old TDC (767)
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
     hitbase=(unsigned int*)(qdctdc);
@@ -127,13 +127,13 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
 
   for (unsigned int i=0; i<totalhits; i++) {
     Hit h;    
-    h.time=(hitbase[i]&0xFFFFF); // conversion is currently unknown
-    h.channel=128+((hitbase[i]&0x7FC00000)>>22); // hardcode channel assignment
+    h.channel=(hitbase[i]&0x7FC00000)>>22; // hardcode channel assignment
+    h.time=(hitbase[i]&0xFFFFF)*tdc_convers[h.channel]; 
     hits.push_back(h);
-      //      printf("V775: %d %d\n",h.channel,h.time);
+    //        printf("V767: %d %f\n",h.channel,h.time);
   }
 
-  // old TDC (V767)
+  // new TDC (V775)
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
     hitbase=(unsigned int*)(qdctdc);
@@ -144,10 +144,10 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     
     for (unsigned int i=0; i<totalhits; i++) {
       Hit h;    
-      h.time=(hitbase[i]&0xFFFFF) ;
-      h.channel=(hitbase[i]&0x7FC00000)>>22;
+      h.channel=128+i;
+      h.time=(hitbase[i]&0xFFF)*tdc_convers[h.channel] ;
       hits.push_back(h);
-      //      printf("V767: %d %d\n",h.channel,h.time);
+      //      printf("V775: %d %f\n",h.channel,h.time);
     }
   }
 
@@ -168,20 +168,20 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
 
   for (j=hits.begin(); j!=hits.end(); j++) {
     switch (j->channel) {
-    case lcTriggerTime:     trigger_time   = (j->time-tdc_ped[lcTriggerTime])*tdc_convers[lcTriggerTime];  break;
-    case lcTTCL1ATime:      ttc_l1a_time   = (j->time-tdc_ped[lcTTCL1ATime])*tdc_convers[lcTTCL1ATime];  break;
-    case lcBeamCoincidence: beam_coinc     = (j->time-tdc_ped[lcBeamCoincidence])*tdc_convers[lcBeamCoincidence];  break;
-    case lcLaserFlash:      laser_flash    = (j->time-tdc_ped[lcLaserFlash])*tdc_convers[lcLaserFlash];  break;
-    case lcQIEPhase:        qie_phase      = (j->time-tdc_ped[lcQIEPhase])*tdc_convers[lcQIEPhase];  break;
-    case lcMuon1:           m1hits.push_back((j->time-tdc_ped[lcMuon1])*tdc_convers[lcMuon1]); break;
-    case lcMuon2:           m2hits.push_back((j->time-tdc_ped[lcMuon2])*tdc_convers[lcMuon2]); break;
-    case lcMuon3:           m3hits.push_back((j->time-tdc_ped[lcMuon3])*tdc_convers[lcMuon3]); break;
-    case lcScint1:          s1hits.push_back((j->time-tdc_ped[lcScint1])*tdc_convers[lcScint1]); break;
-    case lcScint2:          s2hits.push_back((j->time-tdc_ped[lcScint2])*tdc_convers[lcScint2]); break;
-    case lcScint3:          s3hits.push_back((j->time-tdc_ped[lcScint3])*tdc_convers[lcScint3]); break;
-    case lcScint4:          s4hits.push_back((j->time-tdc_ped[lcScint4])*tdc_convers[lcScint4]); break;
-    case lcTOF1:            TOF1_time   = (j->time-tdc_ped[lcTOF1])*tdc_convers[lcTOF1];  break;
-    case lcTOF2:            TOF2_time   = (j->time-tdc_ped[lcTOF2])*tdc_convers[lcTOF2];  break;
+    case lcTriggerTime:     trigger_time   = j->time-tdc_ped[lcTriggerTime];  break;
+    case lcTTCL1ATime:      ttc_l1a_time   = j->time-tdc_ped[lcTTCL1ATime];  break;
+    case lcBeamCoincidence: beam_coinc     = j->time-tdc_ped[lcBeamCoincidence];  break;
+    case lcLaserFlash:      laser_flash    = j->time-tdc_ped[lcLaserFlash];  break;
+    case lcQIEPhase:        qie_phase      = j->time-tdc_ped[lcQIEPhase];  break;
+    case lcMuon1:           m1hits.push_back(j->time-tdc_ped[lcMuon1]); break;
+    case lcMuon2:           m2hits.push_back(j->time-tdc_ped[lcMuon2]); break;
+    case lcMuon3:           m3hits.push_back(j->time-tdc_ped[lcMuon3]); break;
+    case lcScint1:          s1hits.push_back(j->time-tdc_ped[lcScint1]); break;
+    case lcScint2:          s2hits.push_back(j->time-tdc_ped[lcScint2]); break;
+    case lcScint3:          s3hits.push_back(j->time-tdc_ped[lcScint3]); break;
+    case lcScint4:          s4hits.push_back(j->time-tdc_ped[lcScint4]); break;
+    case lcTOF1:            TOF1_time   = j->time-tdc_ped[lcTOF1];  break;
+    case lcTOF2:            TOF2_time   = j->time-tdc_ped[lcTOF2];  break;
     default: break;
     }
   }
