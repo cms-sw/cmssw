@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.16 2006/06/20 09:44:33 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.17 2006/06/30 22:23:08 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -67,6 +67,7 @@ HcalDetId getId (const std::vector <std::string> & items) {
   if (items [3] == "HB") subdet = HcalBarrel;
   else if (items [3] == "HE") subdet = HcalEndcap;
   else if (items [3] == "HF") subdet = HcalForward;
+  else if (items [3] == "HO") subdet = HcalOuter;
   return HcalDetId (subdet, eta, phi, depth);
 }
 
@@ -75,6 +76,7 @@ void dumpId (std::ostream& fOutput, HcalDetId id) {
   std::string subdet = "HB";
   if (id.subdet() == HcalEndcap) subdet = "HE";
   else if (id.subdet() == HcalForward) subdet = "HF";
+  else if (id.subdet() == HcalOuter) subdet = "HO";
   sprintf (buffer, "  %4i %4i %4i %4s",
 	   id.ieta(), id.iphi(), id.depth (), subdet.c_str ());
    fOutput << buffer;
