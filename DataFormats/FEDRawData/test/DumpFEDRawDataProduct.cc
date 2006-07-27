@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2005/12/06 09:25:21 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/06 15:15:59 $
+ * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -16,6 +16,7 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 #include <iostream>
+#include <iomanip>
 
 using namespace edm;
 using namespace std;
@@ -23,21 +24,48 @@ using namespace std;
 namespace test{
 
   class DumpFEDRawDataProduct: public EDAnalyzer{
-  
+  private:
+    std::set<int> FEDids_;
+    std::string label_;
+    bool dumpPayload_;
   public:
-    DumpFEDRawDataProduct(const ParameterSet& pset){}
+    DumpFEDRawDataProduct(const ParameterSet& pset){
+      std::vector<int> ids;
+      ids=pset.getUntrackedParameter<std::vector<int> >("feds",std::vector<int>());
+      dumpPayload_=pset.getUntrackedParameter<bool>("dumpPayload",false);
+      for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); i++) 
+	FEDids_.insert(*i);
+    }
+
  
     void analyze(const Event & e, const EventSetup& c){
       cout << "--- Run: " << e.id().run()
 	   << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByLabel("DaqSource", rawdata);
+      e.getByType(rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
 	const FEDRawData& data = rawdata->FEDData(i);
-	if(size_t size=data.size()) {
-	  cout << "FED# " << i << " " << size << endl;
-// 	  FEDHeader header(data.data());
-// 	  FEDTrailer trailer(data.data()+size-8);
+	size_t size=data.size();
+
+	if (size>0 && (FEDids_.empty() || FEDids_.find(i)!=FEDids_.end())) {
+	  cout << "FED# " << setw(4) << i << " " << setw(8) << size << " bytes " ;
+	  
+ 	  FEDHeader header(data.data());
+ 	  FEDTrailer trailer(data.data()+size-8);
+
+	  cout << " L1Id: " << setw(8) << header.lvl1ID();
+	  cout << " BXId: " << setw(4) << header.bxID();
+	  cout << endl;
+	  
+	  if (dumpPayload_) {
+	    const uint64_t* payload=(uint64_t*)(data.data());
+	    cout << hex << setfill('0');
+	    for (unsigned int i=0; i<data.size()/sizeof(uint64_t); i++) {
+	      cout << setw(4) << i << "  " << setw(16) << payload[i] << endl;
+	    }
+	    cout << dec << setfill(' ');
+	  }
+
 // 	  CPPUNIT_ASSERT(trailer.check()==true);
 // 	  CPPUNIT_ASSERT(trailer.lenght()==(int)data.size()/8);
 	}
