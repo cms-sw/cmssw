@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/25 19:05:35 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/07/26 09:26:11 $
+ *  $Revision: 1.18 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -106,9 +106,6 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new GlobalMuonReFitter(refitterPSet);
   
-  theFitterLabel = par.getParameter<std::string>("Fitter");
-  thePropagatorLabel = par.getParameter<std::string>("Propagator");
-  theSeedCollectionLabel = par.getParameter<std::string>("SeedCollectionTrackLabel");  
   //theTransTrackBuilderLabel = par.getParameter<std::string>("TransientTrackBuilderLabel");  
 
   theTkTrackLabel = par.getParameter<string>("TkTrackLabel");
@@ -153,12 +150,7 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
   //
-  // get the fitter from the ES
-  //
-  LogDebug("GlobalMuonTrajectoryBuilder")<< "get the fitter from the ES"<<"\n";
-  setup.get<TrackingComponentsRecord>().get(theFitterLabel,theFitter);
-  //
-  // get also the propagator
+  // get the propagator
   //
   LogDebug("GlobalMuonTrajectoryBuilder") << "get the propagator" << "\n";
   setup.get<TrackingComponentsRecord>().get(thePropagatorLabel,thePropagator);
@@ -183,9 +175,6 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
 //
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-
-  // take the STA muon container
-  event.getByLabel(theSeedCollectionLabel,theSeeds);
 
   // get tracker TrackCollection from Event
   LogDebug("GlobalMuonTrajectoryBuilder") << "Taking the tracker tracks" << endl;
@@ -864,7 +853,7 @@ double GlobalMuonTrajectoryBuilder::trackProbability(const Trajectory& track) co
 //
 GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(const reco::TrackRef& tkTrack) const {
 
-  GlobalMuonTrajectoryBuilder::TC result;
+  TC result;
 
   // use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
   RecHitContainer tkHits = getTransientHits((*tkTrack));
@@ -875,35 +864,15 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
   //TrajectoryStateOnSurface theTSOS = tkTransTrack.innermostMeasurementState();
   TrajectoryStateOnSurface theTSOS = tkTransTrack.impactPointState();
 
-  GlobalMuonTrajectoryBuilder::TC trjs = getTrajsFromTrack(theFitter,thePropagator,tkHits,theTSOS,theSeeds);
-  if(trjs.size() > 0) result.insert(result.end(),trjs.begin(),trjs.end()); 
+  TrajectorySeed seed;
+
+  vector<Trajectory> trajs = theRefitter->trajectories(seed,tkHits,theTSOS);
+
+  if(trajs.size() > 0) result.push_back(trajs.front()); 
   
   return result;
 
 }
-
-
-//
-// get TkTrajectories for each TkTrajSeed
-//
-GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajsFromTrack(const edm::ESHandle<TrajectoryFitter>& theFitter, 
-                                                                               const edm::ESHandle<Propagator>& thePropagator, 
-                                                                               const RecHitContainer& tkHits, TrajectoryStateOnSurface& theTSOS, 
-                                                                               const edm::Handle<TrajectorySeedCollection>& theSeeds) const {
-
-  GlobalMuonTrajectoryBuilder::TC result;
-  
-  for (TrajectorySeedCollection::const_iterator seed = theSeeds->begin(); seed != theSeeds->end(); seed++) {
-    // perform the fit: the result's size is 1 if it succeded, 0 if fails
-    TC trajs = theFitter->fit(*seed, tkHits, theTSOS);
-    if (trajs.size() > 0) result.insert(result.end(),trajs.begin(),trajs.end());
-  }
-  
-  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"FITTER FOUND "<<result.size()<<" TRAJECTORIES";
-  return result;
-
-}
-
 
 //
 // print RecHits

@@ -4,8 +4,9 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/20 21:00:21 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/25 16:38:11 $
+ *  $Revision: 1.16 $
+ *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
 
@@ -20,7 +21,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
@@ -90,54 +90,43 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// calculate chi2 probability (-ln(P))
     double trackProbability(const Trajectory&) const;    
 
-    /// get silicon tracker Trajectories from track Track and Seed directly
+    /// get silicon tracker Trajectories from track Track
     TC getTrajFromTrack(const reco::TrackRef&) const;
 
-    ///
-    TC getTrajsFromTrack(const edm::ESHandle<TrajectoryFitter>&,
-			 const edm::ESHandle<Propagator>&,
-			 const RecHitContainer&,
-			 TrajectoryStateOnSurface&,
-			 const edm::Handle<TrajectorySeedCollection>&) const;
-  
     //// print all RecHits of a trajectory
     void printHits(const RecHitContainer&) const;
 
   private:
 
-  GlobalPoint theVertexPos;
-  GlobalError theVertexErr;
-  MuonUpdatorAtVertex* theUpdator;
-  GlobalMuonTrackMatcher* theTrackMatcher;
-  GenericTransientTrackingRecHitBuilder* theGTTrackingRecHitBuilder;
-  GlobalMuonReFitter* theRefitter;
+    GlobalPoint theVertexPos;
+    GlobalError theVertexErr;
+    MuonUpdatorAtVertex* theUpdator;
+    GlobalMuonTrackMatcher* theTrackMatcher;
+    GenericTransientTrackingRecHitBuilder* theGTTrackingRecHitBuilder;
+    GlobalMuonReFitter* theRefitter;
 
-  float theTrackMatcherChi2Cut;
-  int   theMuonHitsOption;
-  ReconstructionDirection theDirection;
-  float thePtCut;
-  float theProbCut;
-  int   theHitThreshold;
-  float theDTChi2Cut;
-  float theCSCChi2Cut;
-  float theRPCChi2Cut;
+    float theTrackMatcherChi2Cut;
+    int   theMuonHitsOption;
+    ReconstructionDirection theDirection;
+    float thePtCut;
+    float theProbCut;
+    int   theHitThreshold;
+    float theDTChi2Cut;
+    float theCSCChi2Cut;
+    float theRPCChi2Cut;
 
-  std::string theFitterLabel;
-  std::string thePropagatorLabel;
-  std::string theSeedCollectionLabel;   
+    std::string thePropagatorLabel;
   //std::string theTransTrackBuilderLabel;   
 
-  std::string theTkTrackLabel;
+    std::string theTkTrackLabel;
 
-  edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
-  edm::ESHandle<MagneticField> theField;
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
+    edm::ESHandle<Propagator> thePropagator;
+    edm::ESHandle<MagneticField> theField;
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+    edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
   //edm::ESHandle<TransientTrackBuilder> theTransTrackBuilder;
 
-  edm::Handle<TrajectorySeedCollection> theSeeds; 
-  edm::Handle<reco::TrackCollection> allTrackerTracks;
+    edm::Handle<reco::TrackCollection> allTrackerTracks;
 
   //edm::ESHandle<TransientTrackingRecHitBuilder> theTransientHitBuilder;
 
