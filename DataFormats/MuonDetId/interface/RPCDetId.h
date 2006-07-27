@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/06/06 16:08:32 $
- *  \version $Id: RPCDetId.h,v 1.14 2006/06/06 16:08:32 mmaggi Exp $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/27 14:51:41 $
+ *  \version $Id: RPCDetId.h,v 1.15 2006/07/27 14:51:41 segoni Exp $
+ *  $Revision: 1.15 $
  *  \author Ilaria Segoni
  */
 
@@ -73,30 +73,30 @@ class RPCDetId :public DetId {
     }
   }
 
-  /// Station id : the four group of chambers at increasing r (distance from beam axis) and same phi
+  /// Station id : the four group of chambers at same r (distance from beam axis) and increasing phi
   int station() const{
     return int((id_>>StationStartBit_) & StationMask_) + minStationId;
   }
 
 
-  /// Sector id: the group of chambers at same r and increasing phi
+  /// Sector id: the group of chambers at same phi (and increasing r) 
   int sector() const{
     return int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
   }
 
-  /// Layer id: distincgushes the two chambers in the same station, layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
+  /// Layer id: each station can have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
   int layer() const{
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
 
 
-  /// SubSector id : distincghishes the chambers within the same sector
+  /// SubSector id : some sectors are divided along the phi direction in subsectors (from 1 to 4 in Barrel, from 1 to 6 in Endcap) 
   int subsector() const{
     return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
   }
 
-  /// Roll id: same as eta partition. each chamber is divided along the strip direction in  
- ///  or three parts (rolls)
+  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
+ ///  two or three parts (rolls)
   int roll() const{
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }
