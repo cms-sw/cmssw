@@ -1,15 +1,15 @@
-/** \class HLTAnalCand
+/** \class HLTAnalFilt
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/24 09:53:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/25 10:14:39 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTexample/interface/HLTAnalCand.h"
+#include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -24,12 +24,12 @@
 // constructors and destructor
 //
  
-HLTAnalCand::HLTAnalCand(const edm::ParameterSet& iConfig)
+HLTAnalFilt::HLTAnalFilt(const edm::ParameterSet& iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
 }
 
-HLTAnalCand::~HLTAnalCand()
+HLTAnalFilt::~HLTAnalFilt()
 {
 }
 
@@ -39,7 +39,7 @@ HLTAnalCand::~HLTAnalCand()
 
 // ------------ method called to produce the data  ------------
 void
-HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace reco;

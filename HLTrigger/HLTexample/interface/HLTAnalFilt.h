@@ -1,14 +1,14 @@
-#ifndef HLTAnalCand_h
-#define HLTAnalCand_h
+#ifndef HLTAnalFilt_h
+#define HLTAnalFilt_h
 
-/** \class HLTAnalCand
+/** \class HLTAnalFilt
  *
  *  
- *  This class is an EDAnalyzer implementing a very basic HLT
- *  EDProduct analysis
+ *  This class is an EDAnalyzer implementing a very basic HLT filter
+ *  product analysis
  *
- *  $Date: 2006/06/24 21:04:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/24 09:52:59 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -22,11 +22,11 @@
 // class decleration
 //
 
-class HLTAnalCand : public edm::EDAnalyzer {
+class HLTAnalFilt : public edm::EDAnalyzer {
 
    public:
-      explicit HLTAnalCand(const edm::ParameterSet&);
-      ~HLTAnalCand();
+      explicit HLTAnalFilt(const edm::ParameterSet&);
+      ~HLTAnalFilt();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -35,4 +35,4 @@ class HLTAnalCand : public edm::EDAnalyzer {
 
 };
 
-#endif //HLTAnalCand_h
+#endif //HLTAnalFilt_h
