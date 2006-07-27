@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/06/13 07:37:22 $
- *  $Revision: 1.25 $
+ *  $Date: 2006/07/21 12:37:12 $
+ *  $Revision: 1.26 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -153,9 +153,9 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
-    //     cout << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
+    //    LogInfo("EcalDCCUnpackingModule") << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    // cout << " Fed data size " << data.size() << endl;
+    //    LogInfo("EcalDCCUnpackingModule") << " Fed data size " << data.size() ;
    
     //cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << endl;
 //    const unsigned char * pData = data.data();
@@ -170,15 +170,27 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 //    cout<<"##############################################################"<<endl;
 //    } 
     if (data.size()>16){
+
       if (id >= BEG_DCC_FED_ID && id <= END_DCC_FED_ID)
-	// do the DCC data unpacking and fill the collections
-	formatter_->interpretRawData(data,  *productEb, *productPN, 
-				     *productDCCHeader, 
-				     *productDCCSize, 
-				     *productTTId, *productBlockSize, 
-				     *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
-				     *productMemTtId,  *productMemBlockSize,
-				     *productMemGain,  *productMemChIdErrors);
+	{	// do the DCC data unpacking and fill the collections
+	  
+	  (*productHeader).setSmInBeam(id);
+	  formatter_->interpretRawData(data,  *productEb, *productPN, 
+				       *productDCCHeader, 
+				       *productDCCSize, 
+				       *productTTId, *productBlockSize, 
+				       *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+				       *productMemTtId,  *productMemBlockSize,
+				       *productMemGain,  *productMemChIdErrors);
+	  int runType = (*productDCCHeader)[0].getRunType();
+	  if ( runType == EcalDCCHeaderBlock::COSMIC || runType == EcalDCCHeaderBlock::BEAMH4 ) 
+	    (*productHeader).setTriggerMask(0x1);
+	  else if ( runType == 4 || runType == 5 || runType == 6 ) //laser runs
+	    (*productHeader).setTriggerMask(0x2000);
+	  else if ( runType == 9 || runType == 10 || runType == 11 ) //pedestal runs
+	    (*productHeader).setTriggerMask(0x800);
+	  LogDebug("EcalDCCUnpackingModule") << "Event type is " << (*productHeader).eventType() << " dbEventType " << (*productHeader).dbEventType();
+	} 
       else if ( id == ECAL_SUPERVISOR_FED_ID )
 	ecalSupervisorFormatter_->interpretRawData(data, *productHeader);
       else if ( id == TBCAMAC_FED_ID )
