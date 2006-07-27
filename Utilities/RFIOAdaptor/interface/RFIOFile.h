@@ -8,6 +8,27 @@
 # include "SealBase/IOChannel.h"
 # include "SealBase/IOFlags.h"
 
+#include<vector>
+#include <sys/stat.h>
+// rfio data structure
+
+#ifndef  RFIO_iovec64_H
+#define  RFIO_iovec64_H
+extern "C" {
+struct iovec64 {
+  off64_t iov_base;
+  int iov_len ;
+};
+}
+#endif
+
+typedef std::vector<iovec64> IOVec;
+inline void push(IOVec& vec, off64_t b, int l) {
+  vec.push_back(iovec64());
+  vec.back().iov_base = b;
+  vec.back().iov_len = l;
+} 
+
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -51,6 +72,9 @@ public:
 
     virtual void	close (void);
     virtual void	abort (void);
+
+  virtual void          preseek(const IOVec& iov);
+
 
 private:
     IOFD		m_fd;

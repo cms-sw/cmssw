@@ -84,3 +84,17 @@ StorageAccountProxy::close (void)
     stats.tick ();
 }
 
+
+#include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
+
+void  StorageAccountProxy::preseek(const IOVec& iov) {
+
+  RFIOFile * rf = 
+    dynamic_cast<RFIOFile*>( m_baseStorage);
+  if (rf) {
+    StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "preseek"));
+    (*rf).preseek(iov);
+    stats.tick ();
+  }
+  
+}

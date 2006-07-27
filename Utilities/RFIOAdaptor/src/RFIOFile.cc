@@ -88,8 +88,8 @@ RFIOFile::open (const char *name,
     // buffering -- this turns off all buffering.
     if (flags & IOFlags::OpenUnbuffered)
     {
-	int readopt = 0;
-        rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
+      //   int readopt = 0;
+      // rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
     }
 
     // Actual open
@@ -204,3 +204,16 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
 void
 RFIOFile::resize (IOOffset /* size */)
 { throw RFIOError ("rfio_ftruncate()", 0); }
+
+
+void          
+RFIOFile::preseek(const IOVec& iov) {
+
+  if (rfioreadopt (RFIO_READOPT)!=1) 
+    throw RFIOError ("rfio_preseek(): readopt!=1", 0,0);
+
+  if ( rfio_preseek64(m_fd, 
+		      const_cast<struct iovec64*>(&iov[0]), iov.size()) == -1)
+    throw RFIOError ("rfio_preseek()", rfio_errno, serrno);
+  
+}

@@ -20,13 +20,20 @@ inline int   rfio_close64(int s) { return  rfio_close(s);}
 //<<<<<< PUBLIC VARIABLES                                               >>>>>>
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 
-
+#ifndef  RFIO_iovec64_H
+#define  RFIO_iovec64_H
+extern "C"{
+struct iovec64 {
+        off64_t iov_base ;
+        int iov_len ;
+};
+}
+#endif
 
 extern "C" {
-    int   rfio_open64_v3(const char *filepath, int flags, int mode);
-  //    int   rfio_close64_v3(int s);
-  //  int   rfio_read64_v3(int s, void *ptr, int size);
-  //  int   rfio_write64_v3(int s, const void *ptr, int size);
+
+
+    int   rfio_preseek64(int, struct iovec64 *, int);
 
     int   rfio_open64(const char *filepath, int flags, int mode);
     int   rfio_close(int s);
@@ -41,6 +48,7 @@ extern "C" {
     int   rfio_fstat64(int s, struct stat64 *statbuf);
     void  rfio_perror(const char *msg);
     char *rfio_serror();
+    int   rfioreadopt(int opt);
     int   rfiosetopt(int opt, int *pval, int len);
     int   rfio_mkdir(const char *path, int mode);
     void *rfio_opendir(const char *dirpath);

@@ -7,6 +7,12 @@
 # include "SealBase/Storage.h"
 # include <string>
 
+#include<vector>
+extern "C" {
+  struct iovec64;
+}
+typedef std::vector<iovec64> IOVec;
+
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -39,6 +45,8 @@ public:
     virtual void		flush (void);
     virtual void		close (void);
    
+  virtual void          preseek(const IOVec& iov);
+
 private:
     std::string			m_storageClass;
     seal::Storage		*m_baseStorage;
