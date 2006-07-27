@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.9 2006/07/25 23:29:19 pivarski Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.10 2006/07/26 11:21:28 rahatlou Exp $
 //
 
 // system include files
@@ -181,6 +181,8 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
       errors(3,3) = 0.0001;  // uncertainty**2 in phi
       errors(4,4) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
       errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
+
+      outputHits_pos_.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum));
 
       TrajectoryStateOnSurface state(
 	 GlobalTrajectoryParameters(position_pos_, momentum_pos_, 1, magneticField_p_),
