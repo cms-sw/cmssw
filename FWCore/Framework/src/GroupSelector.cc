@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.16.2.1 2006/07/01 06:23:37 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.17 2006/07/06 19:11:43 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -212,6 +212,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "GroupSelector::selected() called prematurely\n"
         << "before the product registry has been frozen.\n";
     }
+    // If the branch was dropped previously, don't write it.
+    if (!desc.present() && !desc.produced()) return false; 
     // We are to write this 'branch' if its name is one of the ones we
     // have been told to write.
     return std::binary_search(groupsToWrite_.begin(), 
