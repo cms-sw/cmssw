@@ -51,7 +51,7 @@ ThirdHitRZPrediction::Range ThirdHitRZPrediction::operator()(float rORz)
 
 void ThirdHitRZPrediction::initLayer(const DetLayer *layer)
 {
-  if ( layer->part() == barrel) {
+  if ( layer->location() == GeomDetEnumerators::barrel) {
     theBarrel = true;
     theForward = false;
     const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*layer);
@@ -59,7 +59,7 @@ void ThirdHitRZPrediction::initLayer(const DetLayer *layer)
     float radius = bl.specificSurface().radius();
     theDetRange = Range(radius-halfThickness, radius+halfThickness);
     theTolerance = Margin(0.03,0.03);
-  } else if ( layer->part() == forward) {
+  } else if ( layer->location() == GeomDetEnumerators::endcap) {
     theBarrel= false;
     theForward = true;
     const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*layer);

@@ -50,7 +50,7 @@ void HitTripletGeneratorFromPairAndLayers::hitTriplets(
     for (int il=0; il <=size-1; il++) {
       const LayerWithHits * layerwithhits = theLayers[il];
       const DetLayer * layer = layerwithhits->layer();
-      bool barrelLayer = (layer->part() == barrel);
+      bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
       ThirdHitRZPrediction::Range rzRange = predictionRZ(layer);
       LayerHitMapLoop thirdHits = thirdHitMap[il]->loop(phiRange, rzRange);
 
