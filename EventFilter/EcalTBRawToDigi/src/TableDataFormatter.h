@@ -2,16 +2,11 @@
 #define TableDataFormatter_H
 /** \class TableDataFormatter
  *
- *  $Id: TableDataFormatter.h,v 1.2 2006/07/27 18:01:50 meridian Exp $
+ *  $Id: TableDataFormatter.h,v 1.3 2006/07/27 20:36:39 franzoni Exp $
  */
 
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
-
-#include <vector> 
-#include <map>
-#include <iostream>
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
