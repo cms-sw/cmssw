@@ -37,7 +37,6 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
 // begin: added for XDAQ 3
   else if (type ==0 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::COSMIC);}
   else if (type ==0 && sequence == 2){
-    std::cout << "Beam is H4 " << std::endl;
     EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::BEAMH4);}
   else if (type ==0 && sequence == 3){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::BEAMH2);}
   else if (type ==0 && sequence == 4){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::MTCC);}
