@@ -37,10 +37,10 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
 {
   // The verbosity level
   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = IslandClusterAlgo::DEBUG;
-  else if (verbosityString == "WARNING") verbosity = IslandClusterAlgo::WARNING;
-  else if (verbosityString == "INFO")    verbosity = IslandClusterAlgo::INFO;
-  else                                   verbosity = IslandClusterAlgo::ERROR;
+  if      (verbosityString == "DEBUG")   verbosity = IslandClusterAlgo::pDEBUG;
+  else if (verbosityString == "WARNING") verbosity = IslandClusterAlgo::pWARNING;
+  else if (verbosityString == "INFO")    verbosity = IslandClusterAlgo::pINFO;
+  else                                   verbosity = IslandClusterAlgo::pERROR;
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");

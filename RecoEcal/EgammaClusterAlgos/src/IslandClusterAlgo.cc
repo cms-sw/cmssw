@@ -36,7 +36,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
       ecalPart_string = "Barrel";
     }
 
-  if (verbosity < INFO)
+  if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
       std::cout << "Island algorithm invoked for ECAL" << ecalPart_string << std::endl;
@@ -57,7 +57,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
     }
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
-  if (verbosity < INFO)
+  if (verbosity < pINFO)
     {
       std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
     }
@@ -65,7 +65,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
   mainSearch(ecalPart, topology_p);
   sort(clusters_v.begin(), clusters_v.end());
 
-  if (verbosity < INFO)
+  if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
     }
@@ -76,7 +76,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
 
 void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *topology_p)
 {
-  if (verbosity < INFO)
+  if (verbosity < pINFO)
     {
       std::cout << "Building clusters............" << std::endl;
     }
@@ -90,7 +90,7 @@ void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *t
 	{
 	  if (it == seeds.begin())
 	    {
-	      if (verbosity < INFO)
+	      if (verbosity < pINFO)
 		{
 		  std::cout << "##############################################################" << std::endl;
 		  std::cout << "DEBUG ALERT: Highest energy seed already belongs to a cluster!" << std::endl;
@@ -252,7 +252,7 @@ void IslandClusterAlgo::makeCluster()
     }
   chi2 /= energy;
 
-  if (verbosity < INFO)
+  if (verbosity < pINFO)
     { 
       std::cout << "******** NEW CLUSTER ********" << std::endl;
       std::cout << "No. of crystals = " << current_v.size() << std::endl;

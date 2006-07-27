@@ -63,7 +63,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 				(*currentSeed)->position().Z());
       position_ *= energy_;
 
-      if (verbosity <= INFO)
+      if (verbosity <= pINFO)
 	{
 	  std::cout << "*****************************" << std::endl;
 	  std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
@@ -83,7 +83,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 	      position_ += (*currentCluster)->energy() * math::XYZVector((*currentCluster)->position().X(), 
 									 (*currentCluster)->position().Y(), 
 									 (*currentCluster)->position().Z()); 
-	      if (verbosity <= INFO) 
+	      if (verbosity <= pINFO) 
 		{
 		  std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 		}
@@ -95,7 +95,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 
       position_ /= energy_;
 
-      if (verbosity <= INFO)
+      if (verbosity <= pINFO)
 	{
 	  std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
 	}
@@ -107,7 +107,7 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 
       superclusters_v.push_back(newSuperCluster);
 
-      if (verbosity <= INFO)
+      if (verbosity <= pINFO)
 	{
 	  std::cout << "created a new supercluster of: " << std::endl;
 	  std::cout << "Energy = " << newSuperCluster.energy() << std::endl;

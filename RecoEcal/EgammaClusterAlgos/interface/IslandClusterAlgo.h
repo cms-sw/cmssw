@@ -39,13 +39,13 @@ class IslandClusterAlgo
  public:
   
   enum EcalPart { barrel = 0, endcap = 1 };
-  enum VerbosityLevel { DEBUG = 0, WARNING = 1, INFO = 2, ERROR = 3 }; 
+  enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
   IslandClusterAlgo()
     {
     }
 
-  IslandClusterAlgo(double ebst, double ecst, VerbosityLevel the_verbosity = ERROR) : 
+  IslandClusterAlgo(double ebst, double ecst, VerbosityLevel the_verbosity = pERROR) : 
     ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity)
     {
     }
