@@ -87,11 +87,16 @@ RFIOFile::open (const char *name,
     // clients.  Note also that docs say the flag turns off write
     // buffering -- this turns off all buffering.
     if (flags & IOFlags::OpenUnbuffered)
-    {
-      //   int readopt = 0;
-      // rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
-    }
-
+      {
+	int readopt = 0;
+	rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
+      }
+    else 
+      {
+	int readopt = 1;
+	rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
+      }
+    
     // Actual open
     ASSERT (name && *name);
     ASSERT (flags & (IOFlags::OpenRead | IOFlags::OpenWrite));
