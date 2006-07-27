@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.12 2006/07/06 18:34:05 wmtan Exp $
+$Id: BranchDescription.h,v 1.13 2006/07/07 21:39:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -54,6 +54,8 @@ namespace edm {
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;} 
+    bool const& produced() const {return produced_;}
+    bool const& present() const {return present_;}
 
     std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
     ParameterSetID const& psetID() const;
@@ -108,6 +110,9 @@ namespace edm {
     // rather than in a previous process
     bool produced_;
 
+    // Is thie branch present in the events tree
+    // in the input file (or any of the input files)
+    mutable bool present_;
   };
   
   inline

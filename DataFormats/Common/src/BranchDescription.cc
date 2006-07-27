@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.8 2006/07/06 18:34:06 wmtan Exp $
+$Id: BranchDescription.cc,v 1.9 2006/07/07 21:39:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,8 @@ namespace edm {
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(),
-    produced_(false)
+    produced_(false),
+    present_(true)
   { }
 
   BranchDescription::BranchDescription(
@@ -43,7 +44,8 @@ namespace edm {
     psetIDs_(psetIDs),
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
-    produced_(true) {
+    produced_(true),
+    present_(true) {
     init();
   }
 
