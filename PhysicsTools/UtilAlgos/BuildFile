@@ -1,5 +1,6 @@
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/Utilities>
   <use name=DataFormats/Common>
 </export>
