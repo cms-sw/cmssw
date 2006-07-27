@@ -1,6 +1,6 @@
 #ifndef RecoAlgos_RecoModules_h
 #define RecoAlgos_RecoModules_h
-// $Id: RecoModules.h,v 1.5 2006/06/27 08:37:19 llista Exp $
+// $Id: RecoModules.h,v 1.6 2006/07/26 10:41:14 llista Exp $
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "PhysicsTools/UtilAlgos/interface/CollectionRecoverer.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
@@ -16,6 +16,7 @@
 #include "PhysicsTools/Utilities/interface/AnySelector.h"
 #include "PhysicsTools/Utilities/interface/PtMinSelector.h"
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 
 namespace reco {
   namespace modules {
@@ -45,6 +46,10 @@ namespace reco {
     typedef ObjectSelector<WindowCollectionSelector<reco::TrackCollection, 
 						MasslessInvariantMass<reco::Track> >
                           > MassWindowTrackSelector;
+    /// configurable single track selector
+    typedef ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection, 
+                                                           SingleObjectSelector<reco::Track> >
+                          > ConfigTrackSelector;
   }
 }
 

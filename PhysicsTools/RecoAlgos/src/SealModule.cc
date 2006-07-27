@@ -14,5 +14,6 @@ DEFINE_ANOTHER_FWK_MODULE( MuonMerger );
 DEFINE_ANOTHER_FWK_MODULE( ElectronMerger );
 DEFINE_ANOTHER_FWK_MODULE( PhotonMerger );
 DEFINE_ANOTHER_FWK_MODULE( TrackRecoverer );
+DEFINE_ANOTHER_FWK_MODULE( ConfigTrackSelector );
   }
 }
