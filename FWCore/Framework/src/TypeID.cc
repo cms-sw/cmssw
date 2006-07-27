@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.14 2006/02/20 01:51:58 wmtan Exp $
+$Id: TypeID.cc,v 1.15 2006/03/10 21:14:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -9,6 +9,7 @@ $Id: TypeID.cc,v 1.14 2006/02/20 01:51:58 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
 #include <string>
+#include "boost/thread/tss.hpp"
 
 namespace edm {
   void
@@ -16,16 +17,30 @@ namespace edm {
     os << className();
   }
 
-  std::string
-  TypeID::className() const {
-    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeInfo());
+  static 
+  std::string typeToClassName(const std::type_info& iType) {
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "TypeID::className: No dictionary for class " << name() << '\n';
+      << "TypeID::className: No dictionary for class " << iType.name() << '\n';
     }
     return t.Name(ROOT::Reflex::SCOPED);
   }
-
+  
+  std::string
+  TypeID::className() const {
+    typedef std::map<edm::TypeIDBase, std::string> Map;
+    static boost::thread_specific_ptr<Map> s_typeToName;
+    if(0 == s_typeToName.get()){
+      s_typeToName.reset(new Map);
+    }
+    Map::const_iterator itFound = s_typeToName->find(*this);
+    if(s_typeToName->end()==itFound) {
+      itFound = s_typeToName->insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
+    }
+    return itFound->second;
+  }
+  
   std::string 
   TypeID::userClassName() const {
     std::string name = className();
