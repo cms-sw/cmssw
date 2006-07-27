@@ -18,25 +18,25 @@
 // Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
 //
-#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonCorrectionAlgo.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonDummyCorrection.h"
 
 PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& config) : 
   conf_(config) 
 
 {
 
-  std::cout << " PhotonCorrectionProducer CTOR " << std::endl;
+  edm::LogInfo(" PhotonCorrectionProducer CTOR ") << "\n";
 
   // use onfiguration file to setup input/output collection names
  
 
-  phoProducer_       = conf_.getParameter<std::string>("phoProducer");
-  phoCollection_     = conf_.getParameter<std::string>("phoCollection");
+  photonCorrectionProducer_         = conf_.getParameter<std::string>("photonCorrectionProducer");
+  uncorrectedPhotonCollection_     = conf_.getParameter<std::string>("uncorrectedPhotonCollection");
 
-  PhotonCollection_ = conf_.getParameter<std::string>("photonCorrCollection");
+  CorrectedPhotonCollection_ = conf_.getParameter<std::string>("correctedPhotonCollection");
 
   // Register the product
-  produces< reco::PhotonCollection >(PhotonCollection_);
+  produces< reco::PhotonCollection >(CorrectedPhotonCollection_);
 
   // switch on/off corrections
   applyDummyCorrection_=conf_.getParameter<bool>("applyDummyCorrection");
@@ -59,7 +59,7 @@ void  PhotonCorrectionProducer::beginJob (edm::EventSetup const & theEventSetup)
   
 
 
-  theDummyCorrection_= new  PhotonCorrectionAlgo();
+  theDummyCorrection_= new  PhotonDummyCorrection();
 
 
 }
@@ -69,27 +69,27 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("PhotonCorrectionProducer") << "Producing event number: " << theEvent.id() << "\n";
+  LogInfo("PhotonCorrectionProducer") << "Producing event number: " << theEvent.id() << "\n";
 
 
   //
   // create empty output collections
   //
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection(new reco::PhotonCollection);
-  std::cout << " Created empty uncorrected PhotonCollection " <<   std::endl;
+
 
 
   // Get the uncorrected photon Collection
 
-  Handle<reco::PhotonCollection> phoHandle;
+  Handle<reco::PhotonCollection> uncorrectedPhotonHandle;
   try{  
-    theEvent.getByLabel(phoProducer_,phoCollection_,phoHandle);
+    theEvent.getByLabel(photonCorrectionProducer_,uncorrectedPhotonCollection_,uncorrectedPhotonHandle);
   } catch ( cms::Exception& ex ) {
-    LogError("PhotonCorrectionProducer") << "Error! can't get the Uncorrected Photon " << phoCollection_.c_str() ;
+    LogError("PhotonCorrectionProducer") << "Error! can't get the Uncorrected Photon " << uncorrectedPhotonCollection_.c_str() ;
   } 
-  std::cout << " Trying to access the Uncorrected photon collection from my Producer " << std::endl;
-  reco::PhotonCollection phoCollection = *(phoHandle.product());
-  std::cout << " Uncorrected Photon collection size  " << phoCollection.size() << std::endl;
+
+  reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
+  LogInfo("PhotonCorrectionProducer: Uncorrected Photon collection size ") << phoCollection.size() << "\n";
 
 
   //  Loop over the uncorrected photons and attach the corrections
@@ -98,7 +98,10 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
   for(iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
 
     //     reco::Photon newCandidate;
-      if( applyDummyCorrection_) theDummyCorrection_->makeCorrections(&(*iPho));
+    if( applyDummyCorrection_) { 
+      LogInfo("PhotonCorrectionProducer: Applying dummy correction")  << "\n";
+         theDummyCorrection_->makeCorrections(&(*iPho));
+    }
       outputPhotonCollection->push_back(*iPho);
       myCands++;      
 
@@ -110,8 +113,8 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
 
 
   // put the product in the event
-  std::cout << " Put the PhotonCollection " << myCands << "  corrected candidates " << std::endl;
-  theEvent.put( outputPhotonCollection, PhotonCollection_);
+  LogInfo("Put in the event ") << myCands << "  corrected candidates " << "\n";
+  theEvent.put( outputPhotonCollection, CorrectedPhotonCollection_);
 
 
 }
