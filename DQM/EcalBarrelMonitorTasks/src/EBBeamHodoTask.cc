@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.19 $
+ * $Date: 2006/07/26 18:21:25 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -229,9 +229,28 @@ void EBBeamHodoTask::endJob(void){
 void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   
   bool enable = false;
-  
+
+
+  Handle<EcalTBEventHeader> pHeader;
+  const EcalTBEventHeader * Header = pHeader.product(); // get a ptr to the product
+  try{
+  e.getByLabel("ecalEBunpacker", pHeader);
+  tableIsMoving_     = Header->tableIsMoving();
+  LogDebug("EBBeamHodoTask") << "event: " << ievt_ << " event header found " << endl;    
+  if (tableIsMoving_){
+    LogDebug("EBBeamHodoTask") << "Table is moving. " << endl;  }
+  else
+    {      LogDebug("EBBeamHodoTask") << "Table is not moving. " << endl;    }
+  }
+  catch ( std::exception& ex) {
+    LogDebug("EBBeamHodoTask") << "Event header not found. Returning. " << endl;    
+    return;    
+  }
+
+
+
   Handle<EcalRawDataCollection> dcchs;
-  Handle<EcalTBEventHeader> pEvH;
+  //  Handle<EcalTBEventHeader> pEvH;
   try{
     e.getByLabel("ecalEBunpacker", dcchs);
     
@@ -248,16 +267,20 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     
   }
   catch ( std::exception& ex) {
-    LogDebug("EcalBeamTask") << " EcalRawDataCollection not in event. Trying EcalTBEventHeader (2004 data)." << std::endl;
-    
-    try {
-      e.getByType(pEvH);
-      enable = true;
-      LogDebug("EcalBeamTask") << " EcalTBEventHeader found, instead." << std::endl;
-    } 
-    catch ( std::exception& ex ) {
-      LogError("EBBeamHodoTask") << "EcalTBEventHeader not present in event TOO! Returning." << std::endl;
-    }
+    LogDebug("EcalBeamTask") << " EcalRawDataCollection not in event. Returning." << std::endl;
+    return;
+
+    // used to debug importing 2004 data
+
+    //    LogDebug("EcalBeamTask") << " EcalRawDataCollection not in event. Trying EcalTBEventHeader (2004 data)." << std::endl;
+    //    try {
+    //      e.getByType(pEvH);
+    //      enable = true;
+    //      LogDebug("EcalBeamTask") << " EcalTBEventHeader found, instead." << std::endl;
+    //    } 
+    //    catch ( std::exception& ex ) {
+    //      LogError("EBBeamHodoTask") << "EcalTBEventHeader not present in event TOO! Returning." << std::endl;
+    //    }
     
   }
   
@@ -333,19 +356,19 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       if (! tableIsMoving_) {
 	cryInBeamCounter_++;
 	resetNow_ = true;
-	LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ << " switching table status by hand: from still to moving. " << endl;
+	LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ << " switching table status: from still to moving. " << endl;
       }
       else
 	{// if table has started moving
-	  LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " switching table status by hand: from moving to still. " << endl;
-	  // fill here plots which keep history of beamed crystals
+	  LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " switching table status: from moving to still. " << endl;
 
-	  float HodoPosXMinusCaloPosXVsCry_mean=0;
+	  // fill here plots which keep history of beamed crystals
+	  float HodoPosXMinusCaloPosXVsCry_mean  =0;
 	  float HodoPosXMinusCaloPosXVsCry_rms   =0;
-	  float HodoPosYMinusCaloPosYVsCry_mean=0;
+	  float HodoPosYMinusCaloPosYVsCry_mean  =0;
 	  float HodoPosYMinusCaloPosYVsCry_rms   =0;
-	  float TDCTimeMinusCaloTimeVsCry_mean    =0;
-	  float TDCTimeMinusCaloTimeVsCry_rms       =0;
+	  float TDCTimeMinusCaloTimeVsCry_mean   =0;
+	  float TDCTimeMinusCaloTimeVsCry_rms    =0;
 	  
 	  if (meCaloVsHodoXPos_ -> getEntries()  > 30){
 	    HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
@@ -357,7 +380,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	  }
 	  if (meCaloVsTDCTime_ -> getEntries()  > 30){
 	    TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_    -> getMean(1);
-	    TDCTimeMinusCaloTimeVsCry_rms        = meCaloVsTDCTime_    -> getRMS(1);
+	    TDCTimeMinusCaloTimeVsCry_rms      = meCaloVsTDCTime_    -> getRMS(1);
 	  }
 	  meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
 	  meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
