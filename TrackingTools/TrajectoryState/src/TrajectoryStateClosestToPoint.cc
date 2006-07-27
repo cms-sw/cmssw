@@ -6,8 +6,7 @@ TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint) :
   theFTS(originalFTS), theFTSavailable(true), theRefPoint(referencePoint)
 {
-  theParameters = perigeeConversions.ftsToPerigeeParameters(originalFTS, referencePoint);
-  thePt = fabs( originalFTS.signedInverseMomentum() );
+  theParameters = perigeeConversions.ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
   if (theFTS.hasError()) {
     thePerigeeError = perigeeConversions.ftsToPerigeeError(originalFTS);
     errorIsAvailable = true;

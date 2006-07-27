@@ -3,14 +3,14 @@
 #include <cmath>
 
 PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
-  (const FTS& originalFTS, const GlobalPoint& referencePoint) const
+  (const FTS& originalFTS, const GlobalPoint& referencePoint, double & pt) const
 
 {
   GlobalVector impactDistance = originalFTS.position() - referencePoint;
 
+  pt = originalFTS.momentum().perp();
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
-  double pt = originalFTS.momentum().perp();
   double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
 
   double positiveMomentumPhi = ( (phi>0) ? phi : (2*M_PI+phi) );

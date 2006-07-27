@@ -27,7 +27,7 @@ public:
    */
 
   PerigeeTrajectoryParameters ftsToPerigeeParameters(const FTS& originalFTS,
-    const GlobalPoint& referencePoint) const;
+    const GlobalPoint& referencePoint, double& pt) const;
 
   PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS) const;
 
