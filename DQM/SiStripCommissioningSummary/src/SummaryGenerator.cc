@@ -1,9 +1,9 @@
-#include "DQM/SiStripCommissioningSummary/interface/SiStripSummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 
 #include <cmath>
 
-SiStripSummaryGenerator::SiStripSummaryGenerator() :
+SummaryGenerator::SummaryGenerator() :
 
 
   //initialise private data members
@@ -18,12 +18,12 @@ SiStripSummaryGenerator::SiStripSummaryGenerator() :
 
 //------------------------------------------------------------------------------
 
-SiStripSummaryGenerator::~SiStripSummaryGenerator() 
+SummaryGenerator::~SummaryGenerator() 
 {;}
 
 //------------------------------------------------------------------------------
 
-void SiStripSummaryGenerator::update(unsigned int key, float comm_val, float comm_val_error) {
+void SummaryGenerator::update(unsigned int key, float comm_val, float comm_val_error) {
 
   //find range for histograms
   if ((comm_val > max_val_)  || map_.empty()) max_val_ = comm_val;

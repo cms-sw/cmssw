@@ -1,5 +1,5 @@
-#ifndef DQM_SiStripCommissioningSummary_SiStripSummaryGenerator_H
-#define DQM_SiStripCommissioningSummary_SiStripSummaryGenerator_H
+#ifndef DQM_SiStripCommissioningSummary_SummaryGenerator_H
+#define DQM_SiStripCommissioningSummary_SummaryGenerator_H
 
 #include <vector>
 #include "TH1.h"
@@ -14,22 +14,22 @@
 using namespace std;
 
 /**
-   @file : DQM/SiStripCommissioningSummary/interface/SiStripSummaryGenerator.h
-   @@ class : SiStripSummaryGenerator
+   @file : DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h
+   @@ class : SummaryGenerator
    @@ author : M.Wingham
    @@ brief : Designed to contain SST commissioning values and 
    their errors. Derived classes fill "summary histograms" to display the information when required.
 */
 
-class SiStripSummaryGenerator {
+class SummaryGenerator {
 
  public: 
 
   /** Constructor */
-  SiStripSummaryGenerator();
+  SummaryGenerator();
   
   /** Destructor */
-  virtual ~SiStripSummaryGenerator();
+  virtual ~SummaryGenerator();
 
   /** Updates the map, taking the device's key (fec/fed/det-id), the value and the value's error as arguments.*/
   void update(unsigned int, float, float = 0.);
@@ -61,4 +61,4 @@ class SiStripSummaryGenerator {
 
 //inline map<unsigned  int, map< unsigned int, pair< float,float > > >& CommissioningSummary::summaryMap() {return map_;}
 
-#endif // DQM_SiStripCommissioningSummary_SiStripSummaryGenerator_H
+#endif // DQM_SiStripCommissioningSummary_SummaryGenerator_H

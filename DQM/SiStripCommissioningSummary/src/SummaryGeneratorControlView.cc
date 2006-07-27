@@ -1,19 +1,17 @@
-
-
-#include "DQM/SiStripCommissioningSummary/interface/SiStripControlSummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 
 using namespace std;
 
 //------------------------------------------------------------------------------
-SiStripControlSummaryGenerator::SiStripControlSummaryGenerator() {;}
+SummaryGeneratorControlView::SummaryGeneratorControlView() {;}
 
 //------------------------------------------------------------------------------
-SiStripControlSummaryGenerator::~SiStripControlSummaryGenerator() {;}
+SummaryGeneratorControlView::~SummaryGeneratorControlView() {;}
 
 //------------------------------------------------------------------------------
 
-void SiStripControlSummaryGenerator::summary(TH1F* controlSumm, TH1F* summ, const string& dir, const string& option) {
+void SummaryGeneratorControlView::summary(TH1F* controlSumm, TH1F* summ, const string& dir, const string& option) {
 
  //interpret top level directory structure in terms of devices to be histogrammed
   stringstream directory;
@@ -76,10 +74,10 @@ void SiStripControlSummaryGenerator::summary(TH1F* controlSumm, TH1F* summ, cons
 
 //------------------------------------------------------------------------------
 
-void SiStripControlSummaryGenerator::histogram(TH1F* summ, const string& dir, const string& option) {
+void SummaryGeneratorControlView::histogram(TH1F* summ, const string& dir, const string& option) {
  
   //check
-  if ((option != "errors") && (option != "values")) {cout << "[SiStripSummaryGenerator::summary]: Unknown option. Option entered: " << option << "Expected either \"errors\" or \"values\". Returning null." << endl;
+  if ((option != "errors") && (option != "values")) {cout << "[SummaryGeneratorControlView::summary]: Unknown option. Option entered: " << option << "Expected either \"errors\" or \"values\". Returning null." << endl;
   return;}
 
  //interpret top level directory structure in terms of devices to be histogrammed

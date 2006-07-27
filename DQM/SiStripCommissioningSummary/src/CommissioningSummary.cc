@@ -15,10 +15,10 @@ CommissioningSummary::CommissioningSummary(sistrip::View view) :
   histogram_ = new TH1F();
   
   if (view == sistrip::CONTROL) {
-    generator_ = new SiStripControlSummaryGenerator();
+    generator_ = new SummaryGeneratorControlView();
   }
   else if (view == sistrip::READOUT) {
-    generator_ = new SiStripReadoutSummaryGenerator();
+    generator_ = new SummaryGeneratorReadoutView();
   }
   else {edm::LogError("DQM") << "[CommissioningSummary::CommissioningSummary]" 
 			     << " Unexpected view! Not " 

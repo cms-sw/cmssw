@@ -1,20 +1,19 @@
-
-#include "DQM/SiStripCommissioningSummary/interface/SiStripReadoutSummaryGenerator.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorReadoutView.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 
 using namespace std;
 
 //------------------------------------------------------------------------------
 
-SiStripReadoutSummaryGenerator::SiStripReadoutSummaryGenerator() {;}
+SummaryGeneratorReadoutView::SummaryGeneratorReadoutView() {;}
 
 //------------------------------------------------------------------------------
 
-SiStripReadoutSummaryGenerator::~SiStripReadoutSummaryGenerator() {;}
+SummaryGeneratorReadoutView::~SummaryGeneratorReadoutView() {;}
 
 //------------------------------------------------------------------------------
 
-void SiStripReadoutSummaryGenerator::summary(TH1F* readoutSumm, TH1F* summ, const string& dir, const string& option) {
+void SummaryGeneratorReadoutView::summary(TH1F* readoutSumm, TH1F* summ, const string& dir, const string& option) {
 
  //interpret top level directory structure in terms of devices to be histogrammed
   stringstream directory;
@@ -70,10 +69,10 @@ void SiStripReadoutSummaryGenerator::summary(TH1F* readoutSumm, TH1F* summ, cons
  histogram(summ,directory.str(),option);
 }
 
-void SiStripReadoutSummaryGenerator::histogram(TH1F* summ, const string& dir, const string& option) {
+void SummaryGeneratorReadoutView::histogram(TH1F* summ, const string& dir, const string& option) {
  
   //check
-  if ((option != "errors") && (option != "values")) {cout << "[SiStripSummaryGenerator::summary]: Unknown option. Option entered: " << option << "Expected either \"errors\" or \"values\". Returning null." << endl;
+  if ((option != "errors") && (option != "values")) {cout << "[SummaryGeneratorReadoutView::summary]: Unknown option. Option entered: " << option << "Expected either \"errors\" or \"values\". Returning null." << endl;
   return;}
 
  //interpret top level directory structure in terms of devices to be histogrammed
