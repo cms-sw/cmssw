@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/26 19:23:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/27 08:09:07 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -85,8 +85,8 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel (inputTag2_,coll2);
 
    int n(0);
-   const unsigned int n1(coll1->numberParticles());
-   const unsigned int n2(coll2->numberParticles());
+   const unsigned int n1(coll1->size());
+   const unsigned int n2(coll2->size());
    ParticleKinematics p1,p2,p;
    for (unsigned int i1=0; i1!=n1; i1++) {
      p1=coll1->getParticle(i1);

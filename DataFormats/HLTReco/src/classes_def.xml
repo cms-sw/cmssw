@@ -6,8 +6,6 @@
   <class name="edm::Wrapper<reco::HLTResult<16, unsigned short> >" />
   <class name="edm::Wrapper<reco::HLTResult<24, unsigned short> >" />
 
-  <class name="std::map<edm::hlt::HLTScalar,float>" />
-
   <class name="edm::RefProd<reco::HLTPathObject>" />
   <class name="std::vector<edm::RefProd<reco::HLTPathObject> >" />
 
