@@ -203,13 +203,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    int nalct = cscData[iCSC].dmbHeader().nalct();
 	    if (nalct) {
 	      if (cscData[iCSC].alctHeader().check()) {
-		std::vector <CSCALCTDigi> alctDigis =
+		std::vector <CSCALCTDigi>  alctDigis =
 		  cscData[iCSC].alctHeader().ALCTDigis();
-		std::pair<std::vector<CSCALCTDigi>::const_iterator, 
-		  std::vector<CSCALCTDigi>::const_iterator> range;
-		range.first = alctDigis.begin();
-		range.second = alctDigis.end();
-		alctProduct->put(range,layer);
+		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	      }
 	    }
 
@@ -218,38 +214,29 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    if (nclct) {
 	      /// fill clct product
 	      if (cscData[iCSC].tmbHeader().check()) {
-		std::vector <CSCCLCTDigi> clctDigis =
+		std::vector <CSCCLCTDigi>  clctDigis =
 		  cscData[iCSC].tmbHeader().CLCTDigis();
-		std::pair<std::vector<CSCCLCTDigi>::const_iterator,
-                  std::vector<CSCCLCTDigi>::const_iterator> range;
-                range.first = clctDigis.begin();
-                range.second = clctDigis.end();
-                clctProduct->put(range,layer);
+                clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
 	      }
 
 
 	      /// fill rpc product
 	      if (cscData[iCSC].tmbData().checkSize()) {
 		if (cscData[iCSC].tmbData().hasRPC()) {
-		  std::vector <CSCRPCDigi> rpcDigis =
+		  std::vector <CSCRPCDigi>  rpcDigis =
 		    cscData[iCSC].tmbData().rpcData().digis();
-		  std::pair<std::vector<CSCRPCDigi>::const_iterator,
-		    std::vector<CSCRPCDigi>::const_iterator> range;
-		  range.first = rpcDigis.begin();
-		  range.second = rpcDigis.end();
-		  rpcProduct->put(range,layer);
+		  rpcProduct->put(std::make_pair(rpcDigis.begin(), rpcDigis.end()),layer);
+             
 		}
 	      } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
 
 	      /// fill correlatedlct product
 	      if (cscData[iCSC].tmbHeader().check()) {
-		std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
+		std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 		  cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
-		std::pair<std::vector<CSCCorrelatedLCTDigi>::const_iterator,
-		  std::vector<CSCCorrelatedLCTDigi>::const_iterator> range;
-		range.first = correlatedlctDigis.begin();
-		range.second = correlatedlctDigis.end();
-		corrlctProduct->put(range,layer);
+		corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(), 
+						   correlatedlctDigis.end()),layer);
+             
 	      }
 
 	    }
@@ -267,12 +254,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      }
 
 
-	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
-	      std::pair<std::vector<CSCWireDigi>::const_iterator,
-		std::vector<CSCWireDigi>::const_iterator> range;
-	      range.first = wireDigis.begin();
-	      range.second = wireDigis.end();
-	      wireProduct->put(range,layer);
+	      std::vector <CSCWireDigi>  wireDigis =  cscData[iCSC].wireDigis(ilayer);
+	      wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
+             
 
 
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
@@ -284,23 +268,19 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 		}
 
-		std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer, icfeb);
-		std::pair<std::vector<CSCStripDigi>::const_iterator,
-		  std::vector<CSCStripDigi>::const_iterator> range;
-		range.first = stripDigis.begin();
-		range.second = stripDigis.end();
-		stripProduct->put(range,layer);
+		std::vector <CSCStripDigi>  stripDigis = 
+		  cscData[iCSC].stripDigis(ilayer, icfeb);
+		stripProduct->put(std::make_pair(stripDigis.begin(), 
+						 stripDigis.end()),layer);
 	    
 		int nclct = cscData[iCSC].dmbHeader().nclct();
 		if (nclct) {
 		  if (cscData[iCSC].clctData().check()) {
-		    std::vector <CSCComparatorDigi> comparatorDigis =
+		    std::vector <CSCComparatorDigi>  comparatorDigis =
 		      cscData[iCSC].clctData().comparatorDigis(ilayer, icfeb);
-		    std::pair<std::vector<CSCComparatorDigi>::const_iterator,
-		      std::vector<CSCComparatorDigi>::const_iterator> range;
-		    range.first = comparatorDigis.begin();
-		    range.second = comparatorDigis.end();
-		    comparatorProduct->put(range,layer);
+		    comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
+							  comparatorDigis.end()),layer);
+             
 		  }
 		}
 
