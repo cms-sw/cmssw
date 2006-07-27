@@ -352,12 +352,12 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a & 0x00000001);  //1= table is moving; 0=table is still
   bool tableIsMoving;
   if ( b ){
-    LogWarning("CamacTBDataFormatter") << " table is not in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is not in position."  << endl;
     tableIsMoving = false;
   }
   else
     {
-    LogWarning("CamacTBDataFormatter") << " table is in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
     tableIsMoving = true;
     }
   tbEventHeader.setTableIsMoving( tableIsMoving );
