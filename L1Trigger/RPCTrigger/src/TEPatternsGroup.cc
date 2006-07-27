@@ -9,7 +9,7 @@
  
 TEPatternsGroup::TEPatternsGroup(const L1RpcPatternsVec::const_iterator& pattern) {
   AddPattern(pattern);
-  PatternsGroupType = rpcparam::PAT_TYPE_E;
+  PatternsGroupType = L1RpcConst::PAT_TYPE_E;
   QualityTabNumber = pattern->GetQualityTabNumber(); //it is uded in PAC algorithm, so we want to have fast acces.
 }
 

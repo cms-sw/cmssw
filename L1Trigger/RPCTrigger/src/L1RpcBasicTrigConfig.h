@@ -8,8 +8,7 @@
 #include "L1Trigger/RPCTrigger/src/L1RpcTriggerConfiguration.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcPacManager.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcException.h"
 //---------------------------------------------------------------------------
 class L1RpcBasicTrigConfig: public L1RpcTriggerConfiguration {
@@ -26,16 +25,16 @@ public:
 
   /** One TB covers 3 or 4 Towers. The function returns the index of tower
     * on TB. */
-  int GetTowerNumOnTb(const rpcparam::L1RpcConeCrdnts& coneCrdnts);
+  int GetTowerNumOnTb(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts);
 
   ///Returns pointer to PAC that should run given LogCone. The PACs are holded by L1PacManager.
-  const L1RpcPac* GetPac(const rpcparam::L1RpcConeCrdnts& coneCrdnts) const;
+  const L1RpcPac* GetPac(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) const;
 
   ///Returns the index of TC that should run given LogCone.
-  int GetTCNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts);
+  int GetTCNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the index of TB (in TC) that should run given LogCone.
-  int GetTBNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts);
+  int GetTBNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the count of Towers (3 or 4), that are covered by given TB.
   int GetTowsCntOnTB(int tbNum);

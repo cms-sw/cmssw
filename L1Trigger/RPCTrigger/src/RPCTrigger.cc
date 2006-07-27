@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/07/25 12:44:00 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/27 08:57:33 $
+ *  $Revision: 1.14 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -28,7 +28,6 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   m_trigConfig->SetDebugLevel(0);
   
   m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
-
 
 }
 
@@ -122,7 +121,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     else  
       l1Cand.setChargePacked(0);
     
-    rpcparam::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
+    L1RpcConst::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
     
     int pac = cone.LogSector*12+cone.LogSegment;
     const float pi = 3.14159265;

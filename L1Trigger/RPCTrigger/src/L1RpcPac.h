@@ -36,7 +36,6 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include "L1Trigger/RPCTrigger/src/TEPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/src/TTPatternsGroup.h"
 
-
 //------------------------------------------------------------------------------
 
 class L1RpcPac: public L1RpcPacBase {
@@ -86,7 +85,7 @@ private:
     * the index in vector correspondes to the QualityTabNumber in pattern.
     * @see TQualityBitset, TQualityTab, TQualityTabsVec.
     */
-  rpcparam::TQualityTabsVec QualityTabsVec;
+  L1RpcConst::TQualityTabsVec QualityTabsVec;
 
   /** Container containig EPatternsGroups. Is filled by InsertPattern() during
     * parsing the pac file ParsePatternFile().

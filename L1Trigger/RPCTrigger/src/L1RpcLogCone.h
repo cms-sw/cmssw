@@ -26,7 +26,7 @@
 
 #include "L1Trigger/RPCTrigger/src/L1RpcLogHit.h"
 
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 //------------------------------------------------------------------------------
 
 class L1RpcLogCone {
@@ -48,7 +48,7 @@ private:
     */
   std::vector<std::vector<int> > DigisIdx;
 
-  rpcparam::L1RpcConeCrdnts ConeCrdnts;
+  L1RpcConst::L1RpcConeCrdnts ConeCrdnts;
 
   int MuonCode;
 
@@ -112,7 +112,7 @@ public:
 
   int GetLogSegment() const;
 
-  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
+  L1RpcConst::L1RpcConeCrdnts GetConeCrdnts() const;
   
 
   void SetIdx(int index);

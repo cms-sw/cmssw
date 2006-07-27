@@ -5,7 +5,6 @@
 #include <cmath>
 #include <iostream> 
 #include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
-using namespace std;
 
 
 
@@ -162,7 +161,115 @@ const double L1RpcConst::etas[L1RpcConst::ITOW_MAX+2]=
                                           0.83, 0.93, 1.04, 1.14, 1.24, 1.36,
                                           1.48, 1.61, 1.73, 1.85, 1.97, 2.10};
 
+// imported constants
 
+    const std::string L1RpcConst::LOGPLANE_STR[L1RpcConst::LOGPLANES_COUNT] = {
+      "LOGPLANE1", "LOGPLANE2", "LOGPLANE3", "LOGPLANE4", "LOGPLANE5", "LOGPLANE6"
+    }; 
+    
+    const unsigned int L1RpcConst::LOGPLANE_SIZE[TOWER_COUNT][LOGPLANES_COUNT] = {
+    //LOGPLANE  1,  2,  3   4   5   6
+              {72, 56,  8, 40, 40, 24}, //TOWER 0
+              {72, 56,  8, 40, 40, 24}, //TOWER 1
+              {72, 56,  8, 40, 40, 24}, //TOWER 2
+              {72, 56,  8, 40, 40, 24}, //TOWER 3
+              {72, 56,  8, 40, 40, 24}, //TOWER 4
+              {72, 56, 40,  8, 40, 24}, //TOWER 5
+              {56, 72, 40,  8, 24,  0}, //TOWER 6
+              {72, 56, 40,  8, 24,  0}, //TOWER 7
+              {72, 24, 40,  8,  0,  0}, //TOWER 8
+              {72,  8, 40,  0,  0,  0}, //TOWER 9
+              {72,  8, 40, 24,  0,  0}, //TOWER 10
+              {72,  8, 40, 24,  0,  0}, //TOWER 11
+              {72,  8, 40, 24,  0,  0}, //TOWER 12
+              {72,  8, 40, 24,  0,  0}, //TOWER 13
+              {72,  8, 40, 24,  0,  0}, //TOWER 14
+              {72,  8, 40, 24,  0,  0}, //TOWER 15
+              {72,  8, 40, 24,  0,  0}  //TOWER 16
+    };  
+
+
+
+    const int L1RpcConst::VLPT_PLANES_COUNT[TOWER_COUNT] = {
+      4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3,  3,  3,  3,  3,  3,  3
+    };
+
+    const int L1RpcConst::USED_PLANES_COUNT[TOWER_COUNT] = {
+    //0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+      6, 6, 6, 6, 6, 6, 5, 5, 4, 3, 4,  4,  4,  4,  4,  4,  4
+    };
+
+    const int L1RpcConst::REF_PLANE[TOWER_COUNT] = {
+    //     0,         1,         2,         3,         4,
+      LOGPLANE3, LOGPLANE3, LOGPLANE3, LOGPLANE3, LOGPLANE3,
+    //     5,         6,         7,         8,
+      LOGPLANE4,  LOGPLANE4, LOGPLANE4, LOGPLANE4,
+    //     9,         10,       11,        12,        13,        14,         15,        16,
+      LOGPLANE2, LOGPLANE2, LOGPLANE2, LOGPLANE2, LOGPLANE2,  LOGPLANE2, LOGPLANE2, LOGPLANE2
+    };
+    
+    
+/*    
+    const int PT_CODE_MAX = 31; //!< Pt_code range = 0-PT_CODE_MAX
+    
+    const int LOGPLANE1 = 0; //!< The Logic Planes are named starting from '1', but in varoius loop indeks are from '0', that's why always use these consts 
+    const int LOGPLANE2 = 1;
+    const int LOGPLANE3 = 2;
+    const int LOGPLANE4 = 3;
+    const int LOGPLANE5 = 4;
+    const int LOGPLANE6 = 5;
+    
+    const int FIRST_PLANE = LOGPLANE1; //!< Use ase a first index in loops.
+    const int LAST_PLANE  = LOGPLANE6; //!< Use ase a last index in loops.
+*/
+    
+//------- imported fucntions
+
+int L1RpcConst::StringToInt(std::string str) {
+  for(unsigned int i = 0; i < str.size(); i++)
+    if(str[i] < '0' || str[i] > '9' )
+      //throw L1RpcException("Error in StringToInt(): the string cannot be converted to a number");
+      edm::LogError("RPCTrigger")<< "Error in StringToInt(): the string cannot be converted to a number";
+  return atoi(str.c_str());
+};
+
+//inline
+std::string L1RpcConst::IntToString(int number) {
+  std::string str;
+  /* Some problems. AK
+  ostringstream ostr;
+  ostr<<number;
+  str = ostr.str();
+  edm::LogError("RPCTrigger")<<"std::string IntToString(int number)";
+  edm::LogError("RPCTrigger")<<str;
+  */
+  char tmp[20];
+  sprintf(tmp,"%d",number);
+  str.append(tmp);
+  return str;
+};
+
+ bool L1RpcConst::L1RpcConeCrdnts::operator < (const L1RpcConeCrdnts& cone) const{
+  if(Tower != cone.Tower)
+    return (Tower < cone.Tower);
+  if(LogSector != cone.LogSector)
+    return (LogSector < cone.LogSector);
+  if(LogSegment != cone.LogSegment)
+    return (LogSegment < cone.LogSegment);
+
+  return false;
+}
+
+ bool L1RpcConst::L1RpcConeCrdnts::operator == (const L1RpcConeCrdnts& cone) const{
+  if(Tower != cone.Tower)
+    return false;
+  if(LogSector != cone.LogSector)
+    return false;
+  if(LogSegment != cone.LogSegment)
+    return false;
+
+  return true;
+}
 
 
 

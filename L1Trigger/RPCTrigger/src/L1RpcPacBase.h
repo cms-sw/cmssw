@@ -17,27 +17,26 @@
  * 
  */
 
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 //------------------------------------------------------------------------------
 class L1RpcPacBase {
 protected:
   ///Coordinates of LogCone. The coordinates, with which PAC is created - the same as in pac file name
-  rpcparam::L1RpcConeCrdnts ConeCrdnts;
+  L1RpcConst::L1RpcConeCrdnts ConeCrdnts;
 
   /** Coordinates of current LogCone. The same PAC may be used for several LogCones.
     * @see L1RpcPacManager */
-  rpcparam::L1RpcConeCrdnts CurrConeCrdnts;
+  L1RpcConst::L1RpcConeCrdnts CurrConeCrdnts;
 
 public:
   
   L1RpcPacBase(int tower, int logSector, int logSegment);
   
-  L1RpcPacBase(rpcparam::L1RpcConeCrdnts coneCrdnts);
+  L1RpcPacBase(L1RpcConst::L1RpcConeCrdnts coneCrdnts);
   
   void SetCurrentPosition(int tower, int logSector, int logSegment);
     
-  void SetCurrentPosition(rpcparam::L1RpcConeCrdnts coneCrdnts);
+  void SetCurrentPosition(L1RpcConst::L1RpcConeCrdnts coneCrdnts);
 
 };
 #endif

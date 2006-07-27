@@ -11,8 +11,7 @@
  *
  */
 
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #include <vector>
 //---------------------------------------------------------------------------
 class L1RpcMuon {
@@ -21,14 +20,14 @@ public:
   L1RpcMuon();
 
   ///Constructor. All parameters are set.
-  L1RpcMuon(const rpcparam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
+  L1RpcMuon(const L1RpcConst::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
   
   ///Constructor.
   L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
 
-  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
+  L1RpcConst::L1RpcConeCrdnts GetConeCrdnts() const;
 
-  void SetConeCrdnts(const rpcparam::L1RpcConeCrdnts& coneCrdnts);
+  void SetConeCrdnts(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts);
 
   int GetTower() const;
 
@@ -69,7 +68,7 @@ public:
     
 protected:
   ///The coordinates of LogCone, in which the muon was found.
-  rpcparam::L1RpcConeCrdnts ConeCrdnts;
+  L1RpcConst::L1RpcConeCrdnts ConeCrdnts;
 
   ///5 bits, 0-31.
   unsigned int PtCode;

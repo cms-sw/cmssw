@@ -21,7 +21,7 @@ L1RpcLogHit::L1RpcLogHit(int tower, int PAC, int logplane, int posInCone){
 // Simple getters and setters
 //
 //###################################################################
-rpcparam::L1RpcConeCrdnts L1RpcLogHit::GetConeCrdnts() const {
+L1RpcConst::L1RpcConeCrdnts L1RpcLogHit::GetConeCrdnts() const {
   return ConeCrdnts;
 }
 

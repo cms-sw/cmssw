@@ -25,8 +25,8 @@
 //------------------------------------------------------------------------------
 #include <string>
 #include <vector>
-//#include "Trigger/L1RpcTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 //#include "Trigger/L1RpcTrigger/src/L1RpcException.h"
 #include <xercesc/util/PlatformUtils.hpp>
 
@@ -86,7 +86,7 @@ public:
       SegmentCnt = 4;
     }
 
-    for (int tower = 0; tower < rpcparam::TOWER_COUNT; tower++) {
+    for (int tower = 0; tower < L1RpcConst::TOWER_COUNT; tower++) {
       PacTab.push_back(std::vector<std::vector<TPacType*> >() );
       for (int logSector = 0; logSector < SectorsCnt; logSector++) {
         PacTab[tower].push_back(std::vector<TPacType*>() );
@@ -125,7 +125,7 @@ public:
   };
   
   //const 
-  TPacType* GetPac(const rpcparam::L1RpcConeCrdnts& coneCrdnts) const {
+  TPacType* GetPac(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) const {
     return GetPac(coneCrdnts.Tower, coneCrdnts.LogSector, coneCrdnts.LogSegment);
   }
 };

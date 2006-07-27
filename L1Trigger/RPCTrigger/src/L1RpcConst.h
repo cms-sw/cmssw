@@ -2,7 +2,10 @@
 #define L1RpcConstH
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include <string>
+#include <map>
+#include <vector>
+#include <bitset>
 /** \class L1RpcConst
  * 
  * Class contains number of L1RpcTrigger specific
@@ -28,6 +31,148 @@ public:
         OFFSET    = 5            //!< Offset of the first trigger phi sector [deg]
    };
 
+  //static const int TOWER_COUNT = 16 + 1; //!< Only half of the detector.
+  
+//-----------------import from L1RpcParameters beg------------------    
+  
+    static const int TOWER_COUNT = 16 + 1; //!< Only half of the detector.
+    
+    static const int PT_CODE_MAX = 31; //!< Pt_code range = 0-PT_CODE_MAX
+    
+    static const int LOGPLANES_COUNT = 6; //!< Max Logic Planes Count in trigger towers
+    
+    static const int LOGPLANE1 = 0; //!< The Logic Planes are named starting from '1', but in varoius loop indeks are from '0', that's why always use these consts 
+    static const int LOGPLANE2 = 1;
+    static const int LOGPLANE3 = 2;
+    static const int LOGPLANE4 = 3;
+    static const int LOGPLANE5 = 4;
+    static const int LOGPLANE6 = 5;
+    
+    static const int FIRST_PLANE = LOGPLANE1; //!< Use ase a first index in loops.
+    static const int LAST_PLANE  = LOGPLANE6; //!< Use ase a last index in loops.
+  
+  /*
+  
+    static const int TOWER_COUNT = 16 + 1; //!< Only half of the detector.
+    
+    static const int PT_CODE_MAX; //!< Pt_code range = 0-PT_CODE_MAX
+    
+    static const int LOGPLANES_COUNT = 6; //!< Max Logic Planes Count in trigger towers
+    
+    static const int LOGPLANE1; //!< The Logic Planes are named starting from '1', but in varoius loop indeks are from '0', that's why always use these consts 
+    static const int LOGPLANE2;
+    static const int LOGPLANE3;
+    static const int LOGPLANE4;
+    static const int LOGPLANE5;
+    static const int LOGPLANE6;
+    
+    static const int FIRST_PLANE; //!< Use ase a first index in loops.
+    static const int LAST_PLANE; //!< Use ase a last index in loops.
+    */
+
+    ///Log Planes names.
+    static const std::string LOGPLANE_STR[];
+    
+    /// Definition of Logic Cone Sizes - number of Logic Strips in each plane
+    static const unsigned int LOGPLANE_SIZE[TOWER_COUNT][LOGPLANES_COUNT];
+    
+    ///Definition of Referenece Plane for each Tower.
+    static const int REF_PLANE[TOWER_COUNT];
+    
+    ///Number of Logic Planes existing in each Tower.
+    static const int USED_PLANES_COUNT[TOWER_COUNT];
+    
+    ///Number of Logic Planes used for Very Low Pt patterns.
+    static const int VLPT_PLANES_COUNT[TOWER_COUNT];
+    
+    static const int VLPT_CUT = 7; //!< Max Pt code of Very Low Pt patterns.
+    
+    static const int NOT_CONECTED = 99; //!< Denotes Logic Strips that is not valid (f.e. in Patterns denotes, that in given plane the pattern is not defined).
+    
+    /** The PAC algorith that should be used for given Pattern.
+      * PAT_TYPE_T - Basic (clasic), PAT_TYPE_E - "impoved" (energetic),
+      * @see "Pattern Comparator Trigger Algorithm – implementation in FPGA"
+      */
+    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
+    
+    
+    //-------------------------quallity tab-----------------------------------------
+    //should be moved somwhere else
+    /*
+    typedef std::bitset<LOGPLANES_COUNT> TQualityBitset; //for quallity tab
+    
+    struct bitsetLes : public std::less<TQualityBitset>
+    {
+      bool operator() (const TQualityBitset& x, const TQualityBitset& y) const
+      {
+        return(x.count() < y.count());
+      }
+    };
+    
+    typedef std::multimap<TQualityBitset, int , bitsetLes> TQualityTab;
+    typedef TQualityTab::value_type TQualityTabValueType;
+    */
+    typedef std::vector<short> TQualityTab;
+    typedef std::vector<TQualityTab> TQualityTabsVec;
+    //----------------------end quallity tab----------------------------------------
+    
+    ///The coordinates of Logic Cone: Tower, LogSector,  LogSegment.
+    struct L1RpcConeCrdnts {
+      int Tower;
+      int LogSector;
+      int LogSegment;
+    
+      L1RpcConeCrdnts() {
+        Tower = 0;
+        LogSector = 0;
+        LogSegment = 0;
+      }
+    
+      L1RpcConeCrdnts(int tower, int logSector, int logSegment ) {
+        Tower = tower;
+        LogSector = logSector ;
+        LogSegment = logSegment;
+      }
+    
+      int GetSegmentNum() {
+        return LogSector * 12 + LogSegment;
+      }
+      
+      bool operator < (const L1RpcConeCrdnts& cone) const;
+    
+      bool operator == (const L1RpcConeCrdnts& cone) const;
+    };
+    
+    
+    
+    
+    class L1RpcMuonGen {
+    public:
+      int RunNum, EventNum, PtCodeGen;
+      double EtaGen, PhiGen, PtGen;
+      int Sign, MaxFiredPlanesCnt;
+    
+      int PossibleTrigger;
+    };
+    
+    //hardware consts - fixed by board design
+    static const unsigned int TOWERS_ON_TB_CNT = 4;      //!< Max number of towers covered by one Trugger Board.
+    static const unsigned int SEGMENTS_IN_SECTOR_CNT = 12;   //!< Number of Logic Segments in one Logic Sector, defines also the number of Logic Cones for one Logic Sector of one Tower.
+    static const unsigned int GBPHI_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's phi Ghost Buster
+    static const unsigned int GBETA_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Trigger Board's eta Ghost Buster
+    static const unsigned int TCGB_OUT_MUONS_CNT = 4;   //!< Number of muon candidates return by Trigger Crate's Ghost Buster
+    static const unsigned int FINAL_OUT_MUONS_CNT = 4;  //!< Number of muon candidates return by Final GhostBuster&Sorter
+    //const that are dependent on trigger configuration (f.e. TBs cnt in TC)
+    //are in L1RpcTriggerConfiguration
+    
+    
+    ///Converts string to inteager number. If string contains chars, that are not digits, throws L1RpcException.
+    int StringToInt(std::string str);
+    
+    ///Converts inteager number to string.
+    std::string IntToString(int number);
+  
+//-----------------import from L1RpcParameters end------------------  
   ///
   ///Method converts pt [Gev/c] into pt bin number (0, 31).
   ///

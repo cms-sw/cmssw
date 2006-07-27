@@ -22,7 +22,7 @@
   class TPatternsGroup {
     friend class L1RpcPac;
     protected:
-      rpcparam::TPatternType PatternsGroupType;
+      L1RpcConst::TPatternType PatternsGroupType;
     //L1RpcPatternsVec PatternsVec; //!< Vector of patterns.
       std::vector<L1RpcPatternsVec::const_iterator> PatternsItVec; //!< Vector of itereator on PatternsVec in Pac.
       L1RpcLogCone GroupShape; //!< Set LogStrips denotes strips beloging to the group.
@@ -35,9 +35,9 @@
     ///Updates GroupShape, i.e. sets to true strips belonging to the pattern. Coleed in AddPattern()
       void UpdateShape(const L1RpcPatternsVec::const_iterator& pattern); 
 
-      void SetPatternsGroupType(rpcparam::TPatternType patternsGroupType);
+      void SetPatternsGroupType(L1RpcConst::TPatternType patternsGroupType);
 
-      rpcparam::TPatternType GetPatternsGroupType();
+      L1RpcConst::TPatternType GetPatternsGroupType();
 
       void SetGroupDescription(std::string groupDescription);
 

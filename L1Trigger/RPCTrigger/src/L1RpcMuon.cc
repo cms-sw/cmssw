@@ -19,7 +19,7 @@ L1RpcMuon::L1RpcMuon() {
 ///Constructor. All parameters are set.
 //
 //#############################################################################################
-L1RpcMuon::L1RpcMuon(const rpcparam::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, 
+L1RpcMuon::L1RpcMuon(const L1RpcConst::L1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, 
           int patternNum, unsigned short firedPlanes) 
 {
     ConeCrdnts = coneCrdnts;
@@ -36,7 +36,7 @@ L1RpcMuon::L1RpcMuon(const rpcparam::L1RpcConeCrdnts coneCrdnts, int ptCode, int
 //#############################################################################################
 L1RpcMuon::L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes) {
   
-  ConeCrdnts = rpcparam::L1RpcConeCrdnts();
+  ConeCrdnts = L1RpcConst::L1RpcConeCrdnts();
   PtCode = ptCode;
   Quality = quality;
   Sign = sign;
@@ -48,9 +48,9 @@ L1RpcMuon::L1RpcMuon(int ptCode, int quality, int sign, int patternNum, unsigned
 //  Simple getters and setters
 //
 //#############################################################################################
-rpcparam::L1RpcConeCrdnts L1RpcMuon::GetConeCrdnts() const {  return ConeCrdnts; }
+L1RpcConst::L1RpcConeCrdnts L1RpcMuon::GetConeCrdnts() const {  return ConeCrdnts; }
 
-void L1RpcMuon::SetConeCrdnts(const rpcparam::L1RpcConeCrdnts& coneCrdnts) { ConeCrdnts = coneCrdnts; }
+void L1RpcMuon::SetConeCrdnts(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) { ConeCrdnts = coneCrdnts; }
 
 int L1RpcMuon::GetTower() const { return ConeCrdnts.Tower;}
 

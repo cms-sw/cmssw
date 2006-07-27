@@ -51,6 +51,6 @@ class RPCTriggerGeo {
     
     RPCRingFromRolls::RPCLinks m_links; ///< Translates rpcdigi into loghits
     
-    set<uint32_t> m_detsToIngore; ///< Temp. solution to the problem of not connected dets (in ORCA)
+    std::set<uint32_t> m_detsToIngore; ///< Temp. solution to the problem of not connected dets (in ORCA)
 };
 #endif

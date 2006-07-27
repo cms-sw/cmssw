@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/06/22 07:57:50 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/27 08:57:33 $
+ *  $Revision: 1.12 $
  *  \author Tomasz Fruboes
  */
 
@@ -214,7 +214,7 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
   // Build cones
   L1RpcLogConesVec ActiveCones;
   
-  vector<L1RpcLogHit>::iterator p_lhit;
+  std::vector<L1RpcLogHit>::iterator p_lhit;
   for (p_lhit = logHits.begin(); p_lhit != logHits.end(); p_lhit++){
     bool hitTaken = false;
     L1RpcLogConesVec::iterator p_cone;

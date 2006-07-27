@@ -38,7 +38,7 @@ string XMLCh2String (const XMLCh* ch) {
 #endif
 }
 
-const L1RpcPatternsVec& L1RpcPatternsParser::GetPatternsVec(const rpcparam::L1RpcConeCrdnts& coneCrds) const {
+const L1RpcPatternsVec& L1RpcPatternsParser::GetPatternsVec(const L1RpcConst::L1RpcConeCrdnts& coneCrds) const {
   TPatternsVecsMap::const_iterator patVecIt  = PatternsVecsMap.find(coneCrds);
   if(patVecIt == PatternsVecsMap.end()){
       //throw L1RpcException( std::string("no such a cone in PatternsVecsMap"));
@@ -130,23 +130,30 @@ void L1RpcPatternsParser::Parse(std::string fileName)
   delete parser;
 }
 
-void L1RpcPatternsParser::startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs) {
+void L1RpcPatternsParser::startElement(const XMLCh* const uri,
+                                       const XMLCh* const localname,
+                                       const XMLCh* const qname,
+                                       const Attributes& attrs) {
+  L1RpcConst rpcconst;
+  
   CurrElement = XMLCh2String(localname);
   if(CurrElement == "quality") {
     //<quality id = "0" planes = "011110" val = 1/>
     TQuality quality;
-    quality.QualityTabNumber = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("id"))));
+    
+    
+    quality.QualityTabNumber = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("id"))));
     quality.FiredPlanes = XMLCh2String(attrs.getValue(Char2XMLCh("planes")));
-    quality.QualityValue = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("val"))));
+    quality.QualityValue = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("val"))));
 
     QualityVec.push_back(quality);
   }
   else if(CurrElement == "pac") {
     //<pac id ="0" tower = "0" logSector = "0" logSegment = "0" descr = "">       
-    rpcparam::L1RpcConeCrdnts cone;
-    cone.Tower = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("tower"))));
-    cone.LogSector = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("logSector"))));
-    cone.LogSegment = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("logSegment"))));
+    L1RpcConst::L1RpcConeCrdnts cone;
+    cone.Tower = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("tower"))));
+    cone.LogSector = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("logSector"))));
+    cone.LogSegment = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("logSegment"))));
     pair <TPatternsVecsMap::iterator, bool> res = PatternsVecsMap.insert(TPatternsVecsMap::value_type(cone, L1RpcPatternsVec()));
     if(res.second == true)
       CurPacIt = res.first;
@@ -158,25 +165,25 @@ void L1RpcPatternsParser::startElement(const XMLCh* const uri, const XMLCh* cons
     //<pat type="E" grp="0" qual="0" sign="0" code="31" num="0">
     string pt = XMLCh2String(attrs.getValue(Char2XMLCh("type")));
     if(pt == "E")
-      CurPattern.SetPatternType(rpcparam::PAT_TYPE_E);
+      CurPattern.SetPatternType(L1RpcConst::PAT_TYPE_E);
     else if(pt == "T")
-      CurPattern.SetPatternType(rpcparam::PAT_TYPE_T);
+      CurPattern.SetPatternType(L1RpcConst::PAT_TYPE_T);
     else
       //throw L1RpcException("unknown pattern type: " + pt);
       edm::LogError("RPCTrigger") << "unknown pattern type: " + pt;
 
-    CurPattern.SetRefGroup(rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("grp")))));
-    CurPattern.SetQualityTabNumber(rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("qual")))));
+    CurPattern.SetRefGroup(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("grp")))));
+    CurPattern.SetQualityTabNumber(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("qual")))));
     
-    CurPattern.SetSign(rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("sign")))));
-    CurPattern.SetCode(rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("code")))));
-    CurPattern.SetNumber(rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("num")))));
+    CurPattern.SetSign(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("sign")))));
+    CurPattern.SetCode(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("code")))));
+    CurPattern.SetNumber(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("num")))));
   }
   else if (CurrElement == "str") {
     //<logstrip plane="LOGPLANE1" from="32" to="32"/>
-    int logPlane = rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("Pl"))));
-    CurPattern.SetStripFrom(logPlane, rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("f")))));
-    CurPattern.SetStripTo(logPlane, rpcparam::StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("t")))) + 1);
+    int logPlane = rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("Pl"))));
+    CurPattern.SetStripFrom(logPlane, rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("f")))));
+    CurPattern.SetStripTo(logPlane, rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("t")))) + 1);
   }
 }
 

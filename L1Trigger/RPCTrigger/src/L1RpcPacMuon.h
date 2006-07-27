@@ -14,8 +14,7 @@
  * \author Karol Bunkowski (Warsaw)
  */
 
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcMuon.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcPattern.h"
 //------------------------------------------------------------------------------

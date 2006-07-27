@@ -12,8 +12,7 @@
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #include "L1Trigger/RPCTrigger/src/L1RpcPattern.h"
 //#include "L1Trigger/RPCTrigger/src/L1RpcException.h"
 
@@ -38,7 +37,7 @@ public:
 
   void Parse(std::string fileName);
 
-  const L1RpcPatternsVec& GetPatternsVec(const rpcparam::L1RpcConeCrdnts& coneCrds) const;
+  const L1RpcPatternsVec& GetPatternsVec(const L1RpcConst::L1RpcConeCrdnts& coneCrds) const;
 
   struct TQuality {
     int QualityTabNumber;
@@ -64,7 +63,7 @@ private:
 
   TQualityVec QualityVec;
 
-  typedef std::map<rpcparam::L1RpcConeCrdnts, L1RpcPatternsVec> TPatternsVecsMap;
+  typedef std::map<L1RpcConst::L1RpcConeCrdnts, L1RpcPatternsVec> TPatternsVecsMap;
 
   TPatternsVecsMap PatternsVecsMap;
   

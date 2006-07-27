@@ -18,12 +18,12 @@ L1RpcTBMuonsVec L1RpcTriggerBoard::RunTBGB() { //4 muons or empty vector
     L1RpcMuonsGrabber::Instance()->StorePacMuons(PacsMuonsVec);
   #endif
 
-  L1RpcTBMuonsVec2 gbMuons(rpcparam::TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
+  L1RpcTBMuonsVec2 gbMuons(L1RpcConst::TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
   for(unsigned int iMu = 0; iMu < PacsMuonsVec.size(); iMu++) {
     int tbTower = TriggerConfig->GetTowerNumOnTb(PacsMuonsVec[iMu].GetConeCrdnts() );
 
     if(gbMuons[tbTower].size() == 0)
-      gbMuons[tbTower].assign(rpcparam::SEGMENTS_IN_SECTOR_CNT, L1RpcTBMuon());
+      gbMuons[tbTower].assign(L1RpcConst::SEGMENTS_IN_SECTOR_CNT, L1RpcTBMuon());
 
     gbMuons[tbTower][PacsMuonsVec[iMu].GetLogSegment()] = PacsMuonsVec[iMu];
   }

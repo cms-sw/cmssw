@@ -14,8 +14,7 @@
  * \author Karol Bunkowski (Warsaw)
  */
 #include <vector>
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 //-----------------------------------------------------------------------------
 
 class L1RpcPattern  {
@@ -37,7 +36,7 @@ public:
 
 private:
   ///LogicalStrip for every LogPlane. 
-  L1RpcLogicalStrip Strips[rpcparam::LOGPLANES_COUNT];
+  L1RpcLogicalStrip Strips[L1RpcConst::LOGPLANES_COUNT];
 
   ///Muon's sign.
   char Sign;
@@ -51,7 +50,7 @@ private:
   /** The PAC algorith that should be used for given Pattern.
     * PAT_TYPE_T - Basic (clasic), PAT_TYPE_E - "impoved" (energetic).
     * @see "Pattern Comparator Trigger Algorithm – implementation in FPGA" */
-  rpcparam::TPatternType PatternType;
+  L1RpcConst::TPatternType PatternType;
 
   ///If pattern is of type PAT_TYPE_E, denotes the index of group to which this pattern belongs.
   char RefGroup;
@@ -86,7 +85,7 @@ public:
 
   int GetNumber() const;
 
-  rpcparam::TPatternType GetPatternType() const;
+  L1RpcConst::TPatternType GetPatternType() const;
 
   int GetRefGroup() const;
 
@@ -98,7 +97,7 @@ public:
   
   void SetNumber(int a);
 
-  void SetPatternType(rpcparam::TPatternType patternType);
+  void SetPatternType(L1RpcConst::TPatternType patternType);
 
   void SetRefGroup(int refGroup);
 

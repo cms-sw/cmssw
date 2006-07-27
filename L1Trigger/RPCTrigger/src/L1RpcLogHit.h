@@ -15,12 +15,7 @@
 
 #include <vector>
 //#include "L1Trigger/RPCTrigger/src/L1RpcConeCrdnts.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
-
-using namespace std;
-//#include "Muon/MCommonData/interface/MRpcDigi.h"
-
-//#include "Trigger/L1RpcTrigger/src/L1RpcParametersDef.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 
 class L1RpcLogHit {
 
@@ -39,7 +34,7 @@ public:
   ~L1RpcLogHit(){ }
 
   
-  rpcparam::L1RpcConeCrdnts GetConeCrdnts() const;
+  L1RpcConst::L1RpcConeCrdnts GetConeCrdnts() const;
 
   int getTower() const;
 
@@ -56,7 +51,7 @@ public:
   int getDigiIdx() const;
 
 private:
-  rpcparam::L1RpcConeCrdnts ConeCrdnts;
+  L1RpcConst::L1RpcConeCrdnts ConeCrdnts;
   
   int logPlaneNumber, stripNumberInCone;
 

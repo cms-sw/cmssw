@@ -43,7 +43,7 @@ int L1RpcBasicTrigConfig::GetTBsInTC() { return TB_IN_TC_CNT; }
  * Returns the index of TC that should run given LogCone.
  *
 */
-int L1RpcBasicTrigConfig::GetTCNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts) {
+int L1RpcBasicTrigConfig::GetTCNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) {
   return coneCrdnts.LogSector;
 };
 /**
@@ -68,15 +68,15 @@ int L1RpcBasicTrigConfig::TowAddr2TowNum(int towAddr) {
   return TOW_ADDR_2_TOW_NUM[towAddr];
 };
 
-int L1RpcBasicTrigConfig::GetTowerNumOnTb(const rpcparam::L1RpcConeCrdnts& coneCrdnts) {
+int L1RpcBasicTrigConfig::GetTowerNumOnTb(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) {
   return TOWER_ON_TB[L1RpcConst::ITOW_MAX + coneCrdnts.Tower];
 }
 
-const L1RpcPac* L1RpcBasicTrigConfig::GetPac(const rpcparam::L1RpcConeCrdnts& coneCrdnts) const {
+const L1RpcPac* L1RpcBasicTrigConfig::GetPac(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) const {
   return PacManager->GetPac(coneCrdnts.Tower, coneCrdnts.LogSector, coneCrdnts.LogSegment);
 }
 
-int L1RpcBasicTrigConfig::GetTBNum(const rpcparam::L1RpcConeCrdnts& coneCrdnts) {
+int L1RpcBasicTrigConfig::GetTBNum(const L1RpcConst::L1RpcConeCrdnts& coneCrdnts) {
   return TB_NUM_FOR_TOWER[L1RpcConst::ITOW_MAX + coneCrdnts.Tower];
 }
 //#############################################################################################

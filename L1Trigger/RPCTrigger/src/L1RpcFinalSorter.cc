@@ -1,8 +1,7 @@
 //---------------------------------------------------------------------------
 #include "L1Trigger/RPCTrigger/src/L1RpcFinalSorter.h"
 
-//#include "L1Trigger/RPCTrigger/src/L1RpcParametersDef.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcParameters.h"
+#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
 #ifdef _GRAB_MUONS
 #include "PactAnalysis/L1RpcMuonsGrabber.h"
 #endif
@@ -43,7 +42,7 @@ L1RpcTBMuonsVec2 L1RpcFinalSorter::RunHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
             if( abs(tcsMuonsVec2[iTC][iMu].GetEtaAddr() -
                     tcsMuonsVec2[iTC+1][iMuN].GetEtaAddr() ) <= 1 )
               if(tcsMuonsVec2[iTC][iMu].GetCode() <= tcsMuonsVec2[iTC+1][iMuN].GetCode() ) {
-                if(tcsMuonsVec2[iTC][iMu].GetSegmentAddr() == rpcparam::SEGMENTS_IN_SECTOR_CNT-1)
+                if(tcsMuonsVec2[iTC][iMu].GetSegmentAddr() == L1RpcConst::SEGMENTS_IN_SECTOR_CNT-1)
                   tcsMuonsVec2[iTC][iMu].Kill();
               }    
               else
@@ -69,14 +68,14 @@ L1RpcTBMuonsVec2 L1RpcFinalSorter::RunHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   sort(outputBarrelMuons.begin(), outputBarrelMuons.end(), L1RpcTBMuon::TMuonMore());
   sort(outputEndcapMuons.begin(), outputEndcapMuons.end(), L1RpcTBMuon::TMuonMore());
 
-  while(outputBarrelMuons.size() < rpcparam::FINAL_OUT_MUONS_CNT)
+  while(outputBarrelMuons.size() < L1RpcConst::FINAL_OUT_MUONS_CNT)
     outputBarrelMuons.push_back(L1RpcTBMuon());
-  while(outputBarrelMuons.size() > rpcparam::FINAL_OUT_MUONS_CNT)
+  while(outputBarrelMuons.size() > L1RpcConst::FINAL_OUT_MUONS_CNT)
     outputBarrelMuons.pop_back();
   
-  while(outputEndcapMuons.size() < rpcparam::FINAL_OUT_MUONS_CNT)
+  while(outputEndcapMuons.size() < L1RpcConst::FINAL_OUT_MUONS_CNT)
     outputEndcapMuons.push_back(L1RpcTBMuon());
-  while(outputEndcapMuons.size() > rpcparam::FINAL_OUT_MUONS_CNT)
+  while(outputEndcapMuons.size() > L1RpcConst::FINAL_OUT_MUONS_CNT)
     outputEndcapMuons.pop_back();
 
   GBOutputMuons[0].insert(GBOutputMuons[0].end(), outputBarrelMuons.begin(), outputBarrelMuons.end());
@@ -131,7 +130,7 @@ void L1RpcFinalSorter::RunFinalSorter(L1RpcTBMuonsVec2 &finalMuons) {
   sort(finalMuons[1].begin(), finalMuons[1].end(), L1RpcTBMuon::TMuonMore()) ;
 
 //-------setting size to GBETA_OUT_MUONS_CNT----------------
-  while(finalMuons[0].size() > rpcparam::FINAL_OUT_MUONS_CNT) {
+  while(finalMuons[0].size() > L1RpcConst::FINAL_OUT_MUONS_CNT) {
     finalMuons[0].pop_back();
     finalMuons[1].pop_back();
   }
