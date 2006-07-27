@@ -28,7 +28,7 @@ using namespace std;
     calibLines_.clear();
     if(calibFile_.size()>0){
       parseCalib();
-      printf("I got %d lines!\n",calibLines_.size());
+    //  printf("I got %d lines!\n",calibLines_.size());
     }
     else{
       printf("HcalTBObjectUnpacker thinks your calibration file stinks....\n");
@@ -71,8 +71,10 @@ using namespace std;
     if (doRunData_) produces<HcalTBRunData>();
     if (doEventPosition_) produces<HcalTBEventPosition>();
     if (doTiming_) produces<HcalTBTiming>();
-    if (doBeamADC_) produces<HcalTBBeamCounters>();
-    if (doSourcePos_) produces<HcalSourcePositionData>();
+//    if (doBeamADC_) produces<HcalTBBeamCounters>();
+    if (doBeamADC_) {produces<HcalTBBeamCounters>();qadcUnpacker_.setCalib(calibLines_);}
+//    if (doSourcePos_) produces<HcalSourcePositionData>();
+    if(doTiming_||doEventPosition_)tdcUnpacker_.setCalib(calibLines_);
   }
 
   // Virtual destructor needed.
@@ -127,7 +129,7 @@ using namespace std;
       // Step C: unpack all requested FEDs
       const FEDRawData& fed = rawraw->FEDData(qadcFed_);
       bool is04 = true;
-      if(qadcFed_==8) is04=true;
+      if(qadcFed_==8) is04=false;
       qadcUnpacker_.unpack(fed, *bcntd,is04);
     }
 
@@ -172,7 +174,7 @@ void HcalTBObjectUnpacker::parseCalib(){
 	  std::string item(tmpStr, start, i-start);
 	  lineVect.push_back(item);
 	  empty = true;
-	  printf("Got: %s\n",item.c_str());
+//	  printf("Got: %s\n",item.c_str());
 	}
 	start = i+1;
       }
