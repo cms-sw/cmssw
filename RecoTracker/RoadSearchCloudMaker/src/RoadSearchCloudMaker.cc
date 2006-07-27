@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tmoulik $
-// $Date: 2006/07/25 20:25:16 $
-// $Revision: 1.6 $
+// $Author: tboccali $
+// $Date: 2006/07/26 13:16:44 $
+// $Revision: 1.7 $
 //
 
 #include <memory>
@@ -62,9 +62,7 @@ namespace cms
 
     edm::Handle<SiPixelRecHitCollection> pixRecHits; // TMoulik
     std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");
-    // e.getByLabel(recHitCollLabel, pixRecHits);
     e.getByLabel(recHitProducer1,pixRecHits); // TMoulik
-    std::cout <<" FOUND "<< (pixRecHits.product())->size()<<" Pixel Hits"<<std::endl;
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
