@@ -20,10 +20,13 @@ SequentialVertexFitter::SequentialVertexFitter(
   theLinP(linP.clone()), theUpdator(updator.clone()), 
   theSmoother(smoother.clone())
 {
+  /*
   setDefaultParameters();
+  */
+  readParameters();  
 }
 
-
+/*
 SequentialVertexFitter::SequentialVertexFitter(
   const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
   const VertexUpdator & updator, const VertexSmoother & smoother) : 
@@ -32,12 +35,12 @@ SequentialVertexFitter::SequentialVertexFitter(
 {
   readParameters();
 }
-
+*/
 
 SequentialVertexFitter::SequentialVertexFitter(
   const SequentialVertexFitter & original)
 {
-  thePSet = original.parameterSet();
+  //  thePSet = original.parameterSet();
   theLinP = original.linearizationPointFinder()->clone();
   theUpdator = original.vertexUpdator()->clone();
   theSmoother = original.vertexSmoother()->clone();
@@ -56,11 +59,15 @@ SequentialVertexFitter::~SequentialVertexFitter()
 
 void SequentialVertexFitter::readParameters()
 {
+  /*
   theMaxShift = thePSet.getParameter<double>("maxDistance"); //0.01
   theMaxStep = thePSet.getParameter<int>("maxNbrOfIterations"); //10
+  */
+  theMaxShift = 0.01;
+  theMaxStep = 10;
 }
 
-
+/*
 void SequentialVertexFitter::setDefaultParameters()
 {
   thePSet.addParameter<double>("maxDistance", 0.01);
@@ -69,7 +76,7 @@ void SequentialVertexFitter::setDefaultParameters()
   cout << "theMaxShift " << theMaxShift << endl;
   cout << "theMaxStep " << theMaxStep << endl;
 }
-
+*/
 
 CachingVertex 
 SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
