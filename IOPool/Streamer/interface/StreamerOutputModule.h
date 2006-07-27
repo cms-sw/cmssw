@@ -45,8 +45,9 @@ namespace edm
   {
 
   /** Consumers are suppose to provide
-         void doSerializeHeader(std::auto_ptr<InitMsgBuilder> init_message)
-         void doSerializeEvent(std::auto_ptr<EventMsgBuilder> msg)
+         void doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message)
+         void doOutputEvent(std::auto_ptr<EventMsgBuilder> msg)
+         void stop()
   **/
         
   public:
@@ -56,6 +57,7 @@ namespace edm
   private:
     virtual void write(EventPrincipal const& e);
     virtual void beginJob(EventSetup const&);
+    virtual void endJob();
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e); 
@@ -100,15 +102,21 @@ template <class Consumer>
 void StreamerOutputModule<Consumer>::beginJob(EventSetup const&)
   {
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry(); 
-    c_->doSerializeHeader(init_message);  // You can't use init_message 
+    c_->doOutputHeader(init_message);  // You can't use init_message 
                                            // in StreamerOutputModule after this point
+  }
+
+template <class Consumer>
+void StreamerOutputModule<Consumer>::endJob()
+  {
+    c_->stop();  // for closing of files, notify storage manager, etc.
   }
 
 template <class Consumer>
 void StreamerOutputModule<Consumer>::write(EventPrincipal const& e)
   {
     std::auto_ptr<EventMsgBuilder> msg = serializeEvent(e);
-    c_->doSerializeEvent(msg); // You can't use msg
+    c_->doOutputEvent(msg); // You can't use msg
                               // in StreamerOutputModule after this point
   }
 
