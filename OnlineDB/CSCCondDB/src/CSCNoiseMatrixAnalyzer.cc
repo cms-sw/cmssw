@@ -35,7 +35,7 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   eventNumber=0,evt=0,NChambers=0,Nddu=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
-  length=1;
+  length=1,flagMatrix=-9;
   for(int k=0;k<CHAMBERS_ma;k++) cam[k].zero();
 
   for (int i=0;i<480;i++){
@@ -145,13 +145,13 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
       cout<<name<<endl;
     }
   }
-  string::size_type runNameStart = name.find("06",0);
+  string::size_type runNameStart = name.find("\"",0);
   string::size_type runNameEnd   = name.find("bin",0);
   string::size_type rootStart    = name.find("Gains",0);
-  int nameSize = runNameEnd+3-runNameStart;
-  int myRootSize = rootStart-runNameStart+5;
-  std::string myname= name.substr(runNameStart,nameSize);
-  std::string myRootName= name.substr(runNameStart,myRootSize);
+  int nameSize = runNameEnd+2-runNameStart;
+  int myRootSize = rootStart-runNameStart+4;
+  std::string myname= name.substr(runNameStart+1,nameSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
@@ -172,7 +172,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   TCalibNoiseMatrixEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","NoiseMatrix");
-  calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I");
+  calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I:id/I:flagMatrix/I");
   
   //for (int myDDU; myDDU<Nddu; myDDU++){
   for (int i=0; i<NChambers; i++){
@@ -184,6 +184,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
     map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
     std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
        
+    calib_evt.id=chamber_num;
     for (int j=0; j<LAYERS_ma; j++){
       int layer_id=chamber_num+j+1;
       if(sector==-100)continue;
@@ -192,6 +193,11 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
       for (int k=0; k<size[i]; k++){
 	for (int max=0; max<12;max++){
 	  tmp=cam[i].autocorrmat(j,k);
+	  
+	  if (tmp[max]>3.0 || tmp[max]<100.0) flagMatrix = 1; // ok
+	  if (tmp[max]>50.0)                  flagMatrix = 2; // warning too high
+	  if (tmp[max]<3.0)                   flagMatrix = 3; // warning too low
+
 	  calib_evt.elem[0] = tmp[0];
 	  calib_evt.elem[1] = tmp[1];
 	  calib_evt.elem[2] = tmp[2];
@@ -207,11 +213,12 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  calib_evt.strip   = k;
 	  calib_evt.layer   = j;
 	  calib_evt.cham    = i;
+	  calib_evt.flagMatrix = flagMatrix;
 	  
 	  calibtree.Fill();
 	  
 	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" strip "<<k<<" Matrix elements "<<tmp[max]<<std::endl;
-	  if(tmp[max]>100) std::cout<<"Matrix elements out of range!"<<std::endl;
+	  
 	  cn->obj[layer_id][k].resize(12);
 	  
 	  cn->obj[layer_id][k][0] = tmp[0];

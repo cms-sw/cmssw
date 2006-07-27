@@ -14,6 +14,7 @@
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH2F.h"
 
 class TCalibSaturationEvt {
   public:
@@ -23,6 +24,7 @@ class TCalibSaturationEvt {
   Int_t strip;
   Int_t layer;
   Int_t cham;
+  Int_t id;
 };
 
 class CSCSaturationAnalyzer : public edm::EDAnalyzer {
@@ -30,11 +32,11 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   explicit CSCSaturationAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS_sat 468
+#define CHAMBERS_sat 9
 #define LAYERS_sat 6
 #define STRIPS_sat 80
-#define NUMBERPLOTTED_sat 10 
-#define NUMMODTEN_sat 200
+#define NUMBERPLOTTED_sat 25 
+#define NUMMODTEN_sat 500
 #define DDU_sat 2
 
   ~CSCSaturationAnalyzer();
@@ -57,4 +59,6 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
+  float myCharge[25];
+  TH2F gain_vs_charge;
 };

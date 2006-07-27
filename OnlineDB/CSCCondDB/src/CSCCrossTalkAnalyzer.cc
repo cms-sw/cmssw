@@ -36,7 +36,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   eventNumber=0, Nddu=0,chamber=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
   layer=0,reportedChambers=0;
-  length=1,myevt=0,flag=-9;
+  length=1,myevt=0,flagRMS=-9,flagNoise=-9;
   aPeak=0.0,sumFive=0.0;
   pedMean=0.0,evt=0,NChambers=0;
   
@@ -274,7 +274,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   string::size_type runNameStart = name.find("\"",0);
   string::size_type runNameEnd   = name.find("bin",0);
   string::size_type rootStart    = name.find("Crosstalk",0);
-  int nameSize = runNameEnd+3-runNameStart;
+  int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
@@ -299,7 +299,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Crosstalk");
-  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F");
+  calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:id/I:flagRMS/I:flagNoise/I");
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
@@ -335,7 +335,9 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
       int new_dmbID   = dmbID[i];
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
       map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-      std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+      std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
+
+      calib_evt.id = chamber_num;
 
       meanPedestal = 0.0;
       meanPeak     = 0.0;
@@ -509,12 +511,23 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  newPed[fff]  = meanPedestal;
 	  meanPedestalSquare = arrayOfPedSquare[iii][i][j][k] / evt;
 	  theRMS       = sqrt(abs(meanPedestalSquare - meanPedestal*meanPedestal));
-	  if (theRMS>2.5){
-	    flag = 2;
-	  } else{
-	    flag = 1;
-	  }
+
+	  //introducing flags for RMS and baseline
+	  if (theRMS>6.0||theRMS<20.0)   flagRMS = 2; // warning high CFEB noise
+	  if (theRMS<1.5)                flagRMS = 3; // warning/failure too low noise
+	  if (theRMS>=20.0)              flagRMS = 4; // warning/failure too high noise
+	  if (theRMS >1.5||theRMS <6.0)  flagRMS = 1; // ok
 	  
+
+	  if (thePedestal <50.)                      flagNoise = 2; // warning/failure too low pedestal 
+	  if (thePedestal>50. || thePedestal<200.)   flagNoise = 3; // warning low pedestal
+	  if (thePedestal >1000.||thePedestal<3000.) flagNoise = 4; // warning high pedstal
+	  if (thePedestal>3000.)                     flagNoise = 5; // warning/failure too high pedestal 
+	  if (thePedestal>200. || thePedestal<1000.) flagNoise = 1; // ok
+	  	  
+	  calib_evt.flagRMS = flagRMS;
+	  calib_evt.flagNoise = flagNoise;
+
 	  newRMS[fff]  = theRMS;
 	  theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
 	  thePeak      = arrayPeak[iii][i][j][k];
@@ -533,7 +546,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  calib_evt.maxADC   = newPeak[fff];
 	  calib_evt.sum      = newSumFive[fff];
 	  
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flag "<<flag<<std::endl;
+	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<" flagRMS "<<flagRMS<<" flagNoise "<<flagNoise<<std::endl;
 	  
 	  calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
 	  calib_evt.xtalk_slope_right    = xtalk_slope_right[iii][i][j][k];

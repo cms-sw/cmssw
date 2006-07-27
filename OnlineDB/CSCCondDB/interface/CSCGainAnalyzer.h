@@ -15,6 +15,7 @@
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH2F.h"
 
 class TCalibGainEvt {
   public:
@@ -24,6 +25,9 @@ class TCalibGainEvt {
   Int_t strip;
   Int_t layer;
   Int_t cham;
+  Int_t id;
+  Int_t flagGain;
+  Int_t flagIntercept;
 };
 
 class CSCGainAnalyzer : public edm::EDAnalyzer {
@@ -54,8 +58,10 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   float newGain[480];
   float newIntercept[480];
   float newChi2[480];
-  int lines;
+  float myCharge[10];
+  int lines,flagGain,flagIntercept;
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
+  TH2F adcCharge;
 };

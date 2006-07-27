@@ -36,7 +36,9 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
-  
+
+  gain_vs_charge = TH2F("Saturation","gain_vs_charge", 100,0,5000,100,0,600);
+
   for (int i=0; i<NUMMODTEN_sat; i++){
     for (int j=0; j<CHAMBERS_sat; j++){
       for (int k=0; k<LAYERS_sat; k++){
@@ -158,7 +160,7 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 
 CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   //get time of Run file for DB transfer
-  filein.open("../test/CSCgain.cfg");
+  filein.open("../test/CSCsaturation.cfg");
   filein.ignore(1000,'\n');
   
   while(filein != NULL){
@@ -170,14 +172,14 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
       cout<<name<<endl;
     }
   }
-  string::size_type runNameStart = name.find("06",0);
+  string::size_type runNameStart = name.find("\"",0);
   string::size_type runNameEnd   = name.find("bin",0);
-  string::size_type rootStart    = name.find("PulseDAC",0);
-  int nameSize = runNameEnd+3-runNameStart;
-  int myRootSize = rootStart-runNameStart+8;
-  std::string myname= name.substr(runNameStart,nameSize);
-  std::string myRootName= name.substr(runNameStart,myRootSize);
-  std::string myRootEnd = "_sat.root";
+  string::size_type rootStart    = name.find("Saturation",0);
+  int nameSize = runNameEnd+2-runNameStart;
+  int myRootSize = rootStart-runNameStart+9;
+  std::string myname= name.substr(runNameStart+1,nameSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize);
+  std::string myRootEnd = ".root";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
   const char *myNewName=myRootFileName.c_str();
@@ -197,8 +199,9 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   TCalibSaturationEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Saturation");
-  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I");
-  
+  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I");
+  gain_vs_charge.Write();
+
   for (int dduiter=0;dduiter<Nddu;dduiter++){
     for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
       for (int cham=0;cham<NChambers;cham++){
@@ -211,6 +214,8 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
 	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
+	calib_evt.id=chamber_num;
+
 	for (int layeriter=0; layeriter<LAYERS_sat; layeriter++){
 	  for (int stripiter=0; stripiter<STRIPS_sat; stripiter++){
 	    
@@ -230,13 +235,15 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		float gainIntercept = 0.0;
 		float chi2      = 0.0;
 		
-		float charge[NUMBERPLOTTED_sat]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
+		float charge[NUMBERPLOTTED_sat]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0, 246.4, 268.8, 291.2, 313.6, 336.0, 358.4, 380.8, 403.2, 425.6, 448.0, 470.4, 492.8, 515.2, 537.6, 560.0};
 		
 		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
 		  sumOfX  += charge[ii];
 		  sumOfY  += maxmodten[ii][cham][j][k];
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
+		  myCharge[ii] = 22.4 +(22.4*ii);
+		  gain_vs_charge.Fill(maxmodten[ii][cham][j][k],myCharge[ii]);
 		}
 		
 		//Fit parameters for straight line
@@ -274,6 +281,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   dbon->cdbon_last_record("gains",&record);
   std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
+  gain_vs_charge.Write();
   calibfile.Write();
   calibfile.Close();
   }

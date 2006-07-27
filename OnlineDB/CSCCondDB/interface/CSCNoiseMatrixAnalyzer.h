@@ -28,6 +28,8 @@ class TCalibNoiseMatrixEvt {
   Int_t strip;
   Int_t layer;
   Int_t cham;
+  Int_t id;
+  Int_t flagMatrix;
 };
 
 class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
@@ -50,7 +52,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  int eventNumber,evt,strip,misMatch,NChambers,Nddu;
  int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,record;
  int dmbID[CHAMBERS_ma],crateID[CHAMBERS_ma],size[CHAMBERS_ma];
- int lines;
+ int lines,flagMatrix;
  std::ifstream filein;
  std::string PSet,name;
  bool debug;

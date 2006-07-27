@@ -12,7 +12,6 @@
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/MessageLogger/data/MessageLogger.cfi"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -33,11 +32,13 @@
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0,Nddu=0;
+  eventNumber=0,evt=0,Nddu=0,flagGain=-9,flagIntercept=-9;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
+  adcCharge = TH2F("adcCharge","adcCharge", 100,0,2000,100,0,300);
+
   for (int i=0; i<NUMMODTEN_ga; i++){
     for (int j=0; j<CHAMBERS_ga; j++){
       for (int k=0; k<LAYERS_ga; k++){
@@ -172,13 +173,13 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
       cout<<name<<endl;
     }
   }
-  string::size_type runNameStart = name.find("06",0);
+  string::size_type runNameStart = name.find("\"",0);
   string::size_type runNameEnd   = name.find("bin",0);
   string::size_type rootStart    = name.find("PulseDAC",0);
-  int nameSize = runNameEnd+3-runNameStart;
-  int myRootSize = rootStart-runNameStart+8;
-  std::string myname= name.substr(runNameStart,nameSize);
-  std::string myRootName= name.substr(runNameStart,myRootSize);
+  int nameSize = runNameEnd+2-runNameStart;
+  int myRootSize = rootStart-runNameStart+7;
+  std::string myname= name.substr(runNameStart+1,nameSize);
+  std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
@@ -199,7 +200,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   TCalibGainEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Gains");
-  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I");
+  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I:flagGain/I:flagIntercept/I");
+  
   
   for (int dduiter=0;dduiter<Nddu;dduiter++){
     for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
@@ -213,6 +215,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
 	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
+	calib_evt.id=chamber_num;
+
 	for (int layeriter=0; layeriter<LAYERS_ga; layeriter++){
 	  for (int stripiter=0; stripiter<STRIPS_ga; stripiter++){
 	      
@@ -233,30 +237,45 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		float chi2      = 0.0;
 		
 		float charge[NUMBERPLOTTED_ga]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
+
 		
 		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){//numbers    
 		  sumOfX  += charge[ii];
 		  sumOfY  += maxmodten[ii][cham][j][k];
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
+		  myCharge[ii] = 22.4 +(22.4*ii);
+		  adcCharge.Fill(maxmodten[ii][cham][j][k],myCharge[ii]);
 		}
+	
 		
 		//Fit parameters for straight line
 		gainSlope     = ((NUMBERPLOTTED_ga*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_ga*sumx2) - (sumOfX*sumOfX));//k
 		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_ga*sumx2)-(sumOfX*sumOfX));//m
-		  
+		
 		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){
 		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_ga*NUMBERPLOTTED_ga);
 		}
 		
 		std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
 		
+
+		if (gainSlope>5.0 || gainSlope<10.0) flagGain=1; // ok
+		if (gainSlope<5.0)                   flagGain=2; // warning fit fails
+		if (gainSlope>10.0)                  flagGain=3; // warning fit fails
+
+		if (gainIntercept> -40. || gainIntercept<15.)  flagIntercept = 1 ;
+		if (gainIntercept< -40.)                       flagIntercept = 2 ;
+		if (gainIntercept> 15.)                        flagIntercept = 3 ;  
+
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
 		calib_evt.strip     = k;
 		calib_evt.layer     = j;
 		calib_evt.cham      = cham;
+		calib_evt.flagGain  = flagGain;
+		calib_evt.flagIntercept  = flagIntercept;
 		
 		calibtree.Fill();
 		
@@ -276,7 +295,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   dbon->cdbon_last_record("gains",&record);
   std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
+  adcCharge.Write();
   calibfile.Write();
   calibfile.Close();
-
+  
 }

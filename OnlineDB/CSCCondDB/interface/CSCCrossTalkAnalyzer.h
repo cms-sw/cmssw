@@ -36,6 +36,9 @@ class TCalibCrossTalkEvt {
   Float_t peakRMS;
   Float_t maxADC;
   Float_t sum;
+  Int_t id;
+  Int_t flagRMS;
+  Int_t flagNoise;
 };
 
 class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
@@ -102,7 +105,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  int flag;
+  int flagRMS,flagNoise;
 
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
