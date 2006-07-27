@@ -8,6 +8,8 @@ using namespace std;
     beamCoincidence_(0),
     laserFlash_(0),
     qiePhase_(0),
+    TOF1time_(0),
+    TOF2time_(0),
     m1hits_(),
     m2hits_(),
     m3hits_(),
@@ -21,12 +23,16 @@ using namespace std;
 			       const double ttc_l1a_time,
 			       const double beam_coincidence,
 			       const double laser_flash,
-			       const double qie_phase) {
+			       const double qie_phase,
+			       const double TOF1_time,
+			       const double TOF2_time) {
     triggerTime_     = trigger_time;
     ttcL1Atime_      = ttc_l1a_time;
     beamCoincidence_ = beam_coincidence;
     laserFlash_      = laser_flash;
     qiePhase_        = qie_phase;
+    TOF1time_        = TOF1_time;
+    TOF2time_        = TOF2_time;
   }
 
   void HcalTBTiming::setHits  (const std::vector<double>& m1hits,
@@ -53,6 +59,8 @@ using namespace std;
     s << "Beam Coincidence = " << htbtmg.beamCoincidence() << endl;
     s << "Laser Flash      = " << htbtmg.laserFlash() << endl;
     s << "QIE Phase        = " << htbtmg.qiePhase() << endl;
+    s << "TOF1             = " << htbtmg.TOF1time() << endl;
+    s << "TOF2             = " << htbtmg.TOF2time() << endl;
 
     s << "M1 hits: ";
     for (int i=0; i<htbtmg.M1Count(); i++) {
