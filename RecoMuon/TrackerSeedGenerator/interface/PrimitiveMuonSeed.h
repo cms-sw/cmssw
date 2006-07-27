@@ -6,8 +6,8 @@
  *   Primitive tracker seed from muon which 
  *   consists of one measurement and a trajectory state
  *
- *   $Date: 2006/07/10 16:30:45 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/07/26 20:26:46 $
+ *   $Revision: 1.3 $
  *
  *   \author   N. Neumeister   - Purdue University
  */
@@ -39,17 +39,17 @@ class PrimitiveMuonSeed : public BasicTrajectorySeed {
     /// destructor
     virtual ~PrimitiveMuonSeed() {}
 
-    virtual PropagationDirection direction() const;
+    PropagationDirection direction() const;
 
-    virtual std::vector<TrajectoryMeasurement> measurements() const;
+    std::vector<TrajectoryMeasurement> measurements() const;
 
     virtual bool share(const BasicTrajectorySeed&) const;
 
-    virtual BasicTrajectorySeed* clone() const;
+    virtual PrimitiveMuonSeed* clone() const;
 
-    virtual range recHits() const ;
+    range recHits() const;
 
-    virtual PTrajectoryStateOnDet startingState() const ;
+    PTrajectoryStateOnDet startingState() const;
 
   private:
 
