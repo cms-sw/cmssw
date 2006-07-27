@@ -15,6 +15,10 @@
  <class name="CSCZSensorData"/>
  <class name="std::vector<CSCZSensorData>"/>
 
+ <class name="CSCRSensors"/>
+ <class name="CSCRSensorData"/>
+ <class name="std::vector<CSCRSensorData>"/>
+
  <class name="std::vector<OpticalAlignInfo>"/>
  <class name="std::vector<OpticalAlignMeasurementInfo>"/>
  <class name="std::vector<OpticalAlignParam>"/>
@@ -35,7 +39,4 @@
  <class name="PX_sensors"/>
  <class name="PX_sensors::Item"/>
  <class name="std::vector<PX_sensors::Item>" /> 
- 
-<class pattern="*iterator*"/>
- <class pattern="*vector*"/>
 </lcgdict>

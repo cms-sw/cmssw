@@ -4,7 +4,6 @@
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 
 #include <vector>
-#include <iostream>
 #include <string>
 
 /**
