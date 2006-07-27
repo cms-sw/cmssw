@@ -14,9 +14,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-//
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-// Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 
 
@@ -25,11 +22,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 {
 
- 
-  edm::LogInfo("PhotonProducer CTOR") << "\n";
   // use onfiguration file to setup input/output collection names
- 
-
   scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
 
@@ -39,8 +32,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
-
-
 
 }
 
@@ -59,39 +50,26 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   using namespace edm;
 
-  edm::LogInfo("PhotonProducer") << "Producing event number: " << theEvent.id() << "\n";
-
-
   //
   // create empty output collections
   //
 
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
-  
 
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
-  try{  
-    theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC in the barrel " << scHybridBarrelCollection_.c_str() ;
-  } 
- 
+  theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
+
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
 
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  try{  
-    theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("PhotonProducer") << "Error! can't get the SC in the endcap " << scIslandEndcapCollection_.c_str() ;
-  } 
+  theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
 
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
-
 
 
   //  Loop over barrel SC and fill the  photon collection
@@ -110,39 +88,32 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
 
-    iSC++;      
+    iSC++;
 
-      
   }
-  
-
 
   //  Loop over Endcap SC and fill the  photon collection
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
-   
+
     math::XYZVector momentum =aClus->position() - vtx;
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
-   
+
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scEndcapHandle, iSC));
     outputPhotonCollection[iSC].setSuperCluster(scRef);
 
-    iSC++;      
+    iSC++;
 
-      
   }
-  
-   
 
   // put the product in the event
 
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   theEvent.put( outputPhotonCollection_p, PhotonCollection_);
-
 
 }
