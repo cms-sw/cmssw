@@ -6,7 +6,6 @@ using namespace std;
 #include <iostream>
 
 TableDataFormatter::TableDataFormatter () {
-  nWordsPerEvent = 10;
 }
 
 void TableDataFormatter::interpretRawData( const FEDRawData & fedData, 

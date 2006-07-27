@@ -2,7 +2,7 @@
 #define TableDataFormatter_H
 /** \class TableDataFormatter
  *
- *  $Id: TableDataFormatter.h,v 1.1 2006/07/21 12:36:25 meridian Exp $
+ *  $Id: TableDataFormatter.h,v 1.2 2006/07/27 18:01:50 meridian Exp $
  */
 
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
@@ -31,6 +31,6 @@ class TableDataFormatter   {
   void  interpretRawData( const FEDRawData & data, EcalTBEventHeader& tbEventHeader);
  private:
 
-  int nWordsPerEvent;    // Number of fibers per hodoscope plane   
+ static const int nWordsPerEvent =10;    // Number of fibers per hodoscope plane   
 };
 #endif
