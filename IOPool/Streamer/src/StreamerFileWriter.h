@@ -21,8 +21,9 @@ namespace edm
     explicit StreamerFileWriter(edm::ParameterSet const& ps);
     ~StreamerFileWriter();
 
-    void doSerializeHeader(std::auto_ptr<InitMsgBuilder> init_message);    
-    void doSerializeEvent(std::auto_ptr<EventMsgBuilder> msg);
+    void doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message);    
+    void doOutputEvent(std::auto_ptr<EventMsgBuilder> msg);
+    void stop();
  
   private:
 

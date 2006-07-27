@@ -31,7 +31,14 @@ StreamerFileWriter::~StreamerFileWriter()
     index_writer_->writeEOF(dummyStatusCode, hltStats);
   }
 
-void StreamerFileWriter::doSerializeHeader(std::auto_ptr<InitMsgBuilder> init_message)
+void StreamerFileWriter::stop() 
+  {
+    // call method in stream_writer_ and index_writer_ to
+    // close their respective files here instead of in
+    // destructor in case they need to throw?
+  }
+
+void StreamerFileWriter::doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message)
   {
     cout<<"init_message.size: "<<init_message->size()<<endl;
     cout<<"init_message.run: "<<init_message->run()<<endl;
@@ -46,7 +53,7 @@ void StreamerFileWriter::doSerializeHeader(std::auto_ptr<InitMsgBuilder> init_me
     index_writer_->write(*init_message);
   }
 
-void StreamerFileWriter::doSerializeEvent(std::auto_ptr<EventMsgBuilder> msg)
+void StreamerFileWriter::doOutputEvent(std::auto_ptr<EventMsgBuilder> msg)
   {
     //Write the Event Message to Streamer file
     long long int event_offset = stream_writer_->write(*msg);
