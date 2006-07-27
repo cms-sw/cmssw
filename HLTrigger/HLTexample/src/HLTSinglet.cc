@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/26 17:09:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/26 19:23:10 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -68,7 +68,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    RefToBase<Candidate> ref;
 
 
-   // get hold of jets
+   // get hold of collection of objects
    Handle<TCollection> objects;
    iEvent.getByLabel (inputTag_,objects);
 
