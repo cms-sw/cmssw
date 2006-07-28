@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/26 09:26:11 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/07/27 00:53:13 $
+ *  $Revision: 1.19 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -86,8 +86,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-//#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 #include <RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h>
@@ -106,8 +104,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new GlobalMuonReFitter(refitterPSet);
   
-  //theTransTrackBuilderLabel = par.getParameter<std::string>("TransientTrackBuilderLabel");  
-
+  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
+  theUpdator = new MuonUpdatorAtVertex(updatorPSet);
+  
   theTkTrackLabel = par.getParameter<string>("TkTrackLabel");
 
   theVertexPos = GlobalPoint(0.0,0.0,0.0);
@@ -149,22 +148,9 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theField);  
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
-  //
-  // get the propagator
-  //
-  LogDebug("GlobalMuonTrajectoryBuilder") << "get the propagator" << "\n";
-  setup.get<TrackingComponentsRecord>().get(thePropagatorLabel,thePropagator);
-  //
-  // get also the TransientTrackBuilder
-  //
-  //LogDebug("GlobalMuonTrajectoryBuilder")<<" Asking for the TransientTrackBuilder \n";
-  //setup.get<TransientTrackRecord>().get(theTransTrackBuilderLabel,theTransTrackBuilder);
   
-  //setup.get<TransientTrackingRecHitBuilder>().get(theTransientHitBuilder); 
-
-  theUpdator = new MuonUpdatorAtVertex(&*thePropagator);
+  theUpdator->setES(setup);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
-  //theRefitter = new GlobalMuonReFitter(&*theField);
   theRefitter->setES(setup);
   theGTTrackingRecHitBuilder = new GenericTransientTrackingRecHitBuilder(&*theTrackingGeometry);
 

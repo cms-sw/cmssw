@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/25 16:38:11 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/07/27 00:51:16 $
+ *  $Revision: 1.17 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -120,7 +120,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     std::string theTkTrackLabel;
 
-    edm::ESHandle<Propagator> thePropagator;
     edm::ESHandle<MagneticField> theField;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
