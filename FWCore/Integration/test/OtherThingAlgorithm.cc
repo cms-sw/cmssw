@@ -7,6 +7,7 @@
 
 namespace edmtest {
   void OtherThingAlgorithm::run(const edm::Event &e, OtherThingCollection & otherThingCollection) {
+    otherThingCollection.reserve(20);
     edm::Handle<ThingCollection> things;
     e.getByLabel("Thing", things);
     for (int i = 0; i < 20; ++i) {
