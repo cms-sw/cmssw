@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/26 13:16:44 $
-// $Revision: 1.7 $
+// $Author: tmoulik $
+// $Date: 2006/07/27 00:02:29 $
+// $Revision: 1.8 $
 //
 
 #include <memory>
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace cms
 {
@@ -50,15 +51,16 @@ namespace cms
     e.getByLabel(seedProducer, seeds);
 
     // retrieve producer name of input SiStripRecHit2DCollection
-    std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
+    edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
+    edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
      // retrieve producer name of input SiPixelRecHitCollection - TMoulik
     std::string recHitProducer1 = conf_.getParameter<std::string>("RecHitProducer1");
  
     // get Inputs 
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-    e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
+    e.getByLabel( rphirecHitsTag, rphirecHits);
     edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-    e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
+    e.getByLabel( stereorecHitsTag, stereorecHits);
 
     edm::Handle<SiPixelRecHitCollection> pixRecHits; // TMoulik
     std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");

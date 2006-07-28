@@ -36,7 +36,7 @@ namespace cms
   private:
     SiStripRecHitConverterAlgorithm recHitConverterAlgorithm_;
     edm::ParameterSet conf_;
-
+    std::string matchedRecHitsTag_, rphiRecHitsTag_, stereoRecHitsTag_;
   };
 }
 

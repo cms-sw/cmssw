@@ -16,6 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
@@ -32,17 +33,17 @@ CosmicSeedGenerator::~CosmicSeedGenerator() { }
 // Functions that gets called by framework every event
 void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
-
- 
-
-  
   // get Inputs
+  edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
+  edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
+  edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
+
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel("SiStripRecHits2D","rphiRecHit" ,rphirecHits);
+  e.getByLabel( rphirecHitsTag, rphirecHits );
   edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-  e.getByLabel("SiStripRecHits2D","stereoRecHit" ,stereorecHits);
+  e.getByLabel( stereorecHitsTag ,stereorecHits );
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits; 	 
-  e.getByLabel("SiStripRecHits2D","matchedRecHit" ,matchedrecHits);
+  e.getByLabel( matchedrecHitsTag ,matchedrecHits );
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);

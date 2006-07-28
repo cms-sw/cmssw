@@ -32,11 +32,14 @@ namespace cms
 
   SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf) : 
     recHitConverterAlgorithm_(conf) ,
-    conf_(conf)
+    conf_(conf),
+    matchedRecHitsTag_( conf.getParameter<std::string>( "matchedRecHits" ) ), 
+    rphiRecHitsTag_( conf.getParameter<std::string>( "rphiRecHits" ) ), 
+    stereoRecHitsTag_( conf.getParameter<std::string>( "stereoRecHits" ) )
   {
-    produces<SiStripMatchedRecHit2DCollection>("matchedRecHit");
-    produces<SiStripRecHit2DCollection>("rphiRecHit");
-    produces<SiStripRecHit2DCollection>("stereoRecHit");
+    produces<SiStripMatchedRecHit2DCollection>( matchedRecHitsTag_ );
+    produces<SiStripRecHit2DCollection>( rphiRecHitsTag_ );
+    produces<SiStripRecHit2DCollection>( stereoRecHitsTag_ );
   }
 
 
@@ -78,9 +81,9 @@ namespace cms
     recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
 
     // Step D: write output to file
-    e.put(outputmatched,"matchedRecHit");
-    e.put(outputrphi,"rphiRecHit");
-    e.put(outputstereo,"stereoRecHit");
+    e.put(outputmatched, matchedRecHitsTag_ );
+    e.put(outputrphi, rphiRecHitsTag_ );
+    e.put(outputstereo,stereoRecHitsTag_ );
   }
 
 }

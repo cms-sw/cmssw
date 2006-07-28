@@ -17,6 +17,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 namespace cms
 {
 
@@ -37,9 +39,9 @@ namespace cms
   // Functions that gets called by framework every event
   void CosmicTrackFinder::produce(edm::Event& e, const edm::EventSetup& es)
   {
-
-    std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
-
+    edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
+    edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
+    edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
   
     // retrieve seeds
     edm::Handle<TrajectorySeedCollection> seed;
@@ -49,11 +51,11 @@ namespace cms
     if (geometry!="MTCC")  e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-    e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
+    e.getByLabel( matchedrecHitsTag ,matchedrecHits);
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-    e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
+    e.getByLabel( rphirecHitsTag ,rphirecHits);
     edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-    e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
+    e.getByLabel( stereorecHitsTag, stereorecHits);
 
     // Step B: create empty output collection
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);

@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 using namespace std;
 GlobalMixedSeedGenerator::GlobalMixedSeedGenerator(edm::ParameterSet const& conf) : 
@@ -38,13 +39,16 @@ void GlobalMixedSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   e.getByLabel(pxlHitProducer, pixelHits);
 
-  std::string stripHitProducer = conf_.getParameter<std::string>("StripHitProducer");
+  edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
+  edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
+  edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
+
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-  e.getByLabel(stripHitProducer,"matchedRecHit" ,matchedrecHits);
+  e.getByLabel( matchedrecHitsTag, matchedrecHits);
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel(stripHitProducer,"rphiRecHit" ,rphirecHits);
+  e.getByLabel( rphirecHitsTag ,rphirecHits);
   edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-  e.getByLabel(stripHitProducer,"stereoRecHit" ,stereorecHits);
+  e.getByLabel( stereorecHitsTag ,stereorecHits);
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //

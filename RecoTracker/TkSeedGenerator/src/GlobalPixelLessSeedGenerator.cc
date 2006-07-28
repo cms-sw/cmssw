@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 using namespace std;
 GlobalPixelLessSeedGenerator::GlobalPixelLessSeedGenerator(edm::ParameterSet const& conf) : 
@@ -34,13 +35,16 @@ GlobalPixelLessSeedGenerator::~GlobalPixelLessSeedGenerator() { }
 void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {  
   // get Inputs
-  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
+  edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
+  edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
+  edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
+
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-  e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
+  e.getByLabel( matchedrecHitsTag, matchedrecHits );
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
+  e.getByLabel( rphirecHitsTag ,rphirecHits );
   edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-  e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
+  e.getByLabel( stereorecHitsTag, stereorecHits );
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
