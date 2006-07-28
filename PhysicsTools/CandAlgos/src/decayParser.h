@@ -42,9 +42,7 @@ namespace cand {
     
     inline
     std::ostream& operator<<(std::ostream& out, const ConjInfo& info ) {
-      return out << info.tag_ .label()
-		 << ( info.tag_.instance() == "" ? "" : std::string( ":" ) + info.tag_.instance() )
-		 << " " 
+      return out << info.tag_ .encode() << " " 
 		 << ( 0 == info.mode_ ? "p" : ( info.mode_ == ConjInfo::kBar ? "b" : (info.mode_ == ConjInfo::kPlus ? "+" : "-" ) ) );
     }
     
