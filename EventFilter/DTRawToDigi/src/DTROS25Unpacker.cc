@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/17 14:53:42 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/07/18 13:26:33 $
+ *  $Revision: 1.22 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -38,6 +38,8 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
 
   debug = pset.getUntrackedParameter<bool>("debugMode",false);
 
+  globalDAQ = pset.getUntrackedParameter<bool>("globalDAQ",true);
+
 }
 
 
@@ -62,7 +64,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   DTROS25Data controlData(rosID);
 
   int wordCounter = 0;
-  uint32_t word = index[wordCounter];
+  uint32_t word = index[swap(wordCounter)];
 
   map<uint32_t,int> hitOrder;
 
@@ -98,7 +100,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
       // Loop on ROBs
       do {        
-        wordCounter++; word = index[wordCounter];
+        wordCounter++; word = index[swap(wordCounter)];
 
         // Eventual ROS Error: occurs when some errors are found in a ROB
         if (DTROSWordType(word).type() == DTROSWordType::ROSError) {
@@ -130,7 +132,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
           // Loop on TDCs data (headers and trailers are not there)
           do {
-            wordCounter++; word = index[wordCounter];
+            wordCounter++; word = index[swap(wordCounter)];
                 
             // Eventual TDC Error 
             if ( DTROSWordType(word).type() == DTROSWordType::TDCError) {
@@ -144,7 +146,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
             // Eventual TDC Debug
             else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
-              cout<<"TDC Debugging"<<endl;
+              if (debug) cout<<"TDC Debugging"<<endl;
             }
 
             // The TDC information
@@ -212,7 +214,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	  do {
 	    bx_counter++;
-            wordCounter++; word = index[wordCounter];
+            wordCounter++; word = index[swap(wordCounter)];
   	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
 	      DTLocalTriggerDataWord scDataWord(word);
 
@@ -255,7 +257,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
     }
 
-    else if (index[wordCounter] == 0) {
+    else if (index[swap(wordCounter)] == 0) {
       // in the case of odd number of words of a given ROS the header of 
       // the next one is postponed by 4 bytes word set to 0.
       // rosID needs to be step back by 1 unit
@@ -269,9 +271,22 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 
     // (needed if there are more than 1 ROS)
-    wordCounter++; word = index[wordCounter];
+    wordCounter++; word = index[swap(wordCounter)];
 
   }  
   
   
+}
+
+
+int DTROS25Unpacker::swap(int n) {
+  
+  int result=n;
+
+  if (globalDAQ) {
+    if (n%2==0) result = (n+1); 
+    if (n%2==1) result = (n-1); 
+  }
+
+  return result;
 }

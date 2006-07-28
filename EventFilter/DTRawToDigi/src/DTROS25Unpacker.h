@@ -5,8 +5,8 @@
  *  The unpacker for DTs' ROS25: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/04/13 17:14:29 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti INFN Padova
  */
 
@@ -34,6 +34,10 @@ public:
 				uint16_t rosList = 0);
 
 private:
+
+  int swap(int x);
+
+  bool globalDAQ;
 
   const edm::ParameterSet pset;
 
