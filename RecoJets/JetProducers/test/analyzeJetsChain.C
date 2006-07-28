@@ -46,7 +46,7 @@ void analyzeJetsChain()
 
   // Open first file and set addresses. This needed in addition to what is done in  event loop.
   chain.GetEvent(0);  
-  chain.SetBranchAddress("recoCaloJets_CaloJetMcone5__PROD.obj",&CaloJetCollection);
+  chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
 
   // Tell root we only want the CaloJets branches.
   chain.SetBranchStatus("*",0);
@@ -61,7 +61,7 @@ void analyzeJetsChain()
     int current = chain.LoadTree(index);
     if (treenumber!=current) {
        chain.GetEvent(index); 
-       chain.SetBranchAddress("recoCaloJets_CaloJetMcone5__PROD.obj",&CaloJetCollection);
+       chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
        treenumber = current;
     }
     // End magic from Phillipe Canal.
