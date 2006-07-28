@@ -186,7 +186,7 @@ class TrackValidator : public edm::EDAnalyzer {
 	      abs(simTrack->momentum().pseudoRapidity())<etaintervals[i+1]) {
 	    double tmp=track->pt()-simTrack->momentum().perp();
 // 	    double tmp2=track->eta()-simTrack->momentum().pseudoRapidity();
-	    if (abs(tmp)<abs(ptres)) etares=tmp2=track->eta()-simTrack->momentum().pseudoRapidity();
+	    if (abs(tmp)<abs(ptres)) etares=track->eta()-simTrack->momentum().pseudoRapidity();
 	  }
 	}
 	(*h)->Fill(etares);
