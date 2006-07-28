@@ -47,8 +47,9 @@ public:
 
   const PixelGeomDetUnit& specificGeomDet() const {return *thePixelGDU;}
 
-  TransientTrackingRecHit* buildRecHit( const SiPixelClusterRef & cluster,
-					const LocalTrajectoryParameters & ltp) const;
+  TransientTrackingRecHit::RecHitPointer 
+  buildRecHit( const SiPixelClusterRef & cluster,
+	       const LocalTrajectoryParameters & ltp) const;
 
 private:
 

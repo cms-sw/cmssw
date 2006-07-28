@@ -36,12 +36,12 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
       result.push_back( TrajectoryMeasurement( stateOnThisDet, *ihit, 
 					       diffEst.second));
     }
-    else delete *ihit; // we own allHits and have to delete the ones we don't return
+    //RC else delete *ihit; // we own allHits and have to delete the ones we don't return
   }
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     new InvalidTransientRecHit(&geomDet()), 0.F)); 
+					     InvalidTransientRecHit::build(&geomDet()), 0.F)); 
   }
   else {
     // sort results according to estimator value
@@ -52,13 +52,13 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
   return result;
 }
 
-TransientTrackingRecHit* 
+TransientTrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = theCPE->localParameters( * cluster, gdu, ltp );
-  return new TSiPixelRecHit( lv.first, lv.second, &geomDet(), cluster, theCPE);
+  return TSiPixelRecHit::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
 }
 
 TkPixelMeasurementDet::RecHitContainer 

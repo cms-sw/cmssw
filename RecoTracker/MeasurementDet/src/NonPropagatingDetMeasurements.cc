@@ -24,7 +24,7 @@ NonPropagatingDetMeasurements::get( const MeasurementDet& det,
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     new InvalidTransientRecHit(&det.geomDet()), 0.F)); 
+					     InvalidTransientRecHit::build(&det.geomDet()), 0.F)); 
   }
   else {
     // sort results according to estimator value

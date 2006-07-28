@@ -12,8 +12,9 @@ class GluedGeomDet;
 class ReferenceHitMatcher {
 public:
 
-  typedef std::pair<bool,TransientTrackingRecHit*> ReturnType;
-  typedef std::vector<TransientTrackingRecHit*>         RecHitContainer;
+  typedef TransientTrackingRecHit::RecHitPointer          RecHitPointer;
+  typedef std::pair<bool,RecHitPointer>                   ReturnType;
+  typedef TransientTrackingRecHit::ConstRecHitContainer   RecHitContainer;
 
   ReturnType match( const TransientTrackingRecHit& monoHit, 
 		    const TransientTrackingRecHit& stereoHit,

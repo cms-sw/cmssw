@@ -62,7 +62,8 @@ ReferenceHitMatcher::match( const TransientTrackingRecHit& monoHit,
 				  gdet.geographicalId(),
 				  dynamic_cast<const SiStripRecHit2D*>(monoHit.hit()), 
 				  dynamic_cast<const SiStripRecHit2D*>(stereoHit.hit()));
-    TSiStripMatchedRecHit* matchedHit = new TSiStripMatchedRecHit( &gdet, hitData);
+    RecHitPointer matchedHit = TSiStripMatchedRecHit::build( &gdet, hitData);
+    delete hitData;
 
     return ReturnType( true, matchedHit);
   }

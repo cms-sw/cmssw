@@ -32,7 +32,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, new InvalidTransientRecHit(&geomDet()), 0.F));
+    result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet()), 0.F));
     return result;
   }
   
@@ -48,8 +48,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     while ( --leftCluster >=  detSet_->begin()) {
       //      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
       SiStripClusterRef clusterref = edm::makeRefTo( handle_, leftCluster->geographicalId(), leftCluster ); 
-      TransientTrackingRecHit* recHit = buildRecHit(clusterref, 
-						     stateOnThisDet.localParameters());
+      TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
+								  stateOnThisDet.localParameters());
       std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
       if ( diffEst.first ) {
 	result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
@@ -61,8 +61,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   
   for ( ; rightCluster != detSet_->end(); rightCluster++) {
     SiStripClusterRef clusterref = edm::makeRefTo( handle_, rightCluster->geographicalId(), rightCluster ); 
-    TransientTrackingRecHit* recHit = buildRecHit( clusterref, 
-						   stateOnThisDet.localParameters());
+    TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
+								 stateOnThisDet.localParameters());
     std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
     if ( diffEst.first) {
       result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
@@ -74,7 +74,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     new InvalidTransientRecHit(&geomDet()), 0.F)); 
+					     InvalidTransientRecHit::build(&geomDet()), 0.F)); 
   }
   else {
     // sort results according to estimator value
@@ -85,13 +85,13 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   return result;
 }
 
-TransientTrackingRecHit* 
+TransientTrackingRecHit::RecHitPointer
 TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 				    const LocalTrajectoryParameters& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
-  return new TSiStripRecHit2DLocalPos( lv.first, lv.second, &geomDet(), cluster, theCPE);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
 
 //   return new TSiStripRecHit2DLocalPos( &geomDet(), 
 // 				       new SiStripRecHit2D( lv.first, lv.second,
