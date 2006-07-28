@@ -31,6 +31,7 @@ namespace edm
 	    const std::string dataCatalog (void) const;
 	    const std::string calibCatalog (void) const;
 	    const std::string frontierConnect (void) const;
+	    void initFrontierParams(std::string) const;
 	    
 	    // implicit copy constructor
 	    // implicit assignment operator
