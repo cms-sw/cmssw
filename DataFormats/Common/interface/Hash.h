@@ -10,7 +10,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.1.2.3 2006/06/27 21:05:17 paterno Exp $
+$Id: Hash.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
   template <int I>
@@ -46,6 +46,10 @@ namespace edm {
 
     std::ostream& print(std::ostream& os) const
     { return os << hash_; }
+    
+    void swap( Hash<I>& other) {
+      std::swap( hash_, other.hash_);
+    }
     
   private:
     value_type hash_;
