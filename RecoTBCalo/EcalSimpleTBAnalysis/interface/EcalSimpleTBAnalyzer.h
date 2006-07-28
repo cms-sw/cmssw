@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.h,v 1.1 2006/04/21 09:19:18 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.h,v 1.2 2006/04/25 21:53:31 meridian Exp $
 //
 
 
@@ -29,7 +29,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <string>
-#include "TTree.h"
+//#include "TTree.h"
 #include "TH1.h"
 #include "TGraph.h"
 #include "TH2.h"
@@ -52,6 +52,8 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
 
       
       std::string rootfile_;
+      std::string digiCollection_;
+      std::string digiProducer_;
       std::string hitCollection_;
       std::string hitProducer_;
       std::string hodoRecInfoCollection_;
@@ -63,6 +65,8 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
 
       // Amplitude vs TDC offset
       TH2F* h_ampltdc;
+
+      TH2F* h_Shape_;
       
       // Reconstructed energies
       TH1F* h_e1x1;
