@@ -14,8 +14,6 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
-using namespace GeomDetEnumerators;
-
 typedef PixelRecoRange<float> Range;
 
 
@@ -39,8 +37,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
   const edm::EventSetup& iSetup)
 {
-  if (theInnerLayer->layer()->subDetector() != PixelBarrel &&
-      theInnerLayer->layer()->location() == barrel ){
+  if (theInnerLayer->layer()->module() != pixel &&
+      theInnerLayer->layer()->part() == barrel ){
     hitPairsWithErrors(region,result,iSetup);
     return;
   }
@@ -60,7 +58,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   outerlay=theOuterLayer->layer();
 
   
-  float outerHitErrorRPhi = (outerlay->location() == barrel) ?
+  float outerHitErrorRPhi = (outerlay->part() == barrel) ?
       TrackingRegionBase::hitErrRPhi(
 	  dynamic_cast<const BarrelDetLayer*>(outerlay) )
     : TrackingRegionBase::hitErrRPhi(
@@ -77,7 +75,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   float rzLayer1, rzLayer2;
 
   
-  if (innerlay->location() == barrel) {
+  if (innerlay->part() == barrel) {
     const BarrelDetLayer& bl = 
         dynamic_cast<const BarrelDetLayer&>(*innerlay);
     float halfThickness  = bl.surface().bounds().thickness()/2;
@@ -193,11 +191,11 @@ void HitPairGeneratorFromLayerPair::
   float nSigmaRZ = sqrt(12.);
   float nSigmaPhi = 3.;
   for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
-    TransientTrackingRecHit* recHit = TTRHbuilder->build(*oh);
+    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(*oh);
     GlobalPoint hitPos = recHit->globalPosition();
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
-    delete recHit;
+    //RC delete recHit;
 
     float phiHit = hitPos.phi();
     vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
@@ -205,11 +203,11 @@ void HitPairGeneratorFromLayerPair::
     if(!checkRZ) continue;
 
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
-      TransientTrackingRecHit* recHit = TTRHbuilder->build(&(**ih));
+      TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(**ih));
       GlobalPoint innPos = recHit->globalPosition();
       Range allowed = checkRZ->range(innPos.perp());
       Range hitRZ;
-      if (theInnerLayer->layer()->location() == barrel) {
+      if (theInnerLayer->layer()->part() == barrel) {
         float zErr = nSigmaRZ * sqrt(recHit->globalPositionError().czz());
         hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
       } else {
@@ -220,7 +218,7 @@ void HitPairGeneratorFromLayerPair::
       if (! crossRange.empty() ) {
         result.push_back( OrderedHitPair( *ih, *oh ) );
       }
-      delete recHit;
+      //RC delete recHit;
     } 
     delete checkRZ;
   }
