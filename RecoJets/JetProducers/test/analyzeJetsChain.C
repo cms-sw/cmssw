@@ -32,7 +32,7 @@ void analyzeJetsChain()
   TH1F* h_m2j = new TH1F("m2j","Dijet Mass",100,0.0,1000.0);
 
   // Declare CaloJetCollection.
-  std::vector<CaloJet> CaloJetCollection;
+  std::vector<reco::CaloJet> CaloJetCollection;
 
   #ifndef __CINT__
     // For the compiled version we need to define the chain here
@@ -46,11 +46,11 @@ void analyzeJetsChain()
 
   // Open first file and set addresses. This needed in addition to what is done in  event loop.
   chain.GetEvent(0);  
-  chain.SetBranchAddress("CaloJets_CaloJetMcone5.obj",&CaloJetCollection);
+  chain.SetBranchAddress("recoCaloJets_CaloJetMcone5__PROD.obj",&CaloJetCollection);
 
   // Tell root we only want the CaloJets branches.
   chain.SetBranchStatus("*",0);
-  chain.SetBranchStatus("CaloJets*",1);
+  chain.SetBranchStatus("recoCaloJets*",1);
 
   int treenumber = 0;
   // Loop over events
@@ -61,7 +61,7 @@ void analyzeJetsChain()
     int current = chain.LoadTree(index);
     if (treenumber!=current) {
        chain.GetEvent(index); 
-       chain.SetBranchAddress("CaloJets_CaloJetMcone5.obj",&CaloJetCollection);
+       chain.SetBranchAddress("recoCaloJets_CaloJetMcone5__PROD.obj",&CaloJetCollection);
        treenumber = current;
     }
     // End magic from Phillipe Canal.
@@ -77,9 +77,9 @@ void analyzeJetsChain()
     for ( unsigned int jetIndex = 0; jetIndex < CaloJetCollection.size(); ++jetIndex ) {
       std::cout << "jet" << jetIndex  ;
      #ifndef __CINT__
-       CaloJet* Jet= &(CaloJetCollection[jetIndex]);
+       reco::CaloJet* Jet= &(CaloJetCollection[jetIndex]);
      #else
-       CaloJet* Jet = (CaloJet*)CaloJetCollection[jetIndex];
+       reco::CaloJet* Jet = (reco::CaloJet*)CaloJetCollection[jetIndex];
      #endif
 
       //Get and printout jet pt, eta, phi for all jets
