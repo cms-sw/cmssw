@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="L1GctCand"/>
   <class name="L1GctEmCand"/>
   <class name="L1GctJetCand"/>
   <class name="L1GctEtTotal"/>
