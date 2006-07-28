@@ -5,7 +5,7 @@
 #include <ostream>
 #include <string>
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 /*! \class L1GctEmCand
  * \brief Level-1 Trigger EM candidate at output of GCT
@@ -17,7 +17,7 @@
  */
 
 
-class L1GctEmCand : public L1TriggerObject {
+class L1GctEmCand : public L1GctCand {
 public:
 
   /// default constructor (for vector initialisation etc.)

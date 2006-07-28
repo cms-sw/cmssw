@@ -5,19 +5,16 @@
 #include <ostream>
 #include <string>
 
-#include "DataFormats/L1GlobalTrigger/interface/L1TriggerObject.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
-/*! \class L1GctJetCand
- * \brief Level-1 Trigger jet candidate
- *
- */
-
-/*! \author Jim Brooke
- *  \date June 2006
- */
+/// \class L1GctJetCand
+/// \brief Level-1 Trigger jet candidate
+/// \author Jim Brooke
+/// \date June 2006
+///
 
 
-class L1GctJetCand : public L1TriggerObject {
+class L1GctJetCand : public L1GctCand {
 public:
   /// default constructor (for vector initialisation etc.)
   L1GctJetCand();
