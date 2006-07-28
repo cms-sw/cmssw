@@ -8,20 +8,20 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: TrackProducerAlgorithm.h,v 1.6 2006/06/01 17:28:22 tboccali Exp $
+// $Id: TrackProducerAlgorithm.h,v 1.7 2006/07/28 14:42:42 cerati Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;
 class TrackingGeometry;
 class TrajectoryFitter;
 class Propagator;
 class Trajectory;
-class TransientTrackingRecHit;
 class TrajectoryStateOnSurface;
 class TransientTrackingRecHitBuilder;
 
