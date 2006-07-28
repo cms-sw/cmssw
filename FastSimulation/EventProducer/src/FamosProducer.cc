@@ -70,8 +70,10 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    fevt->load(*p1);
    fevt->load(*p2);
 
-   calo->loadFromEcalBarrel(*p3);
-   calo->loadFromHcal(*p4);
+   if ( calo ) {  
+     calo->loadFromEcalBarrel(*p3);
+     calo->loadFromHcal(*p4);
+   }
 
    iEvent.put(p1);
    iEvent.put(p2);

@@ -6,6 +6,11 @@
 <use name=FastSimulation/ParticleDecay>
 # <use name=FastSimulation/Utilities>
 <use name=Geometry/Surface>
+<use name=TrackingTools/DetLayers>
+<use name=TrackingTools/GeomPropagators>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=RecoTracker/TkDetLayers>
+
 <export>
  <use name=clhep>
  <lib name=FastSimulationTrajectoryManager>
@@ -16,4 +21,8 @@
  <use name=FastSimulation/ParticleDecay>
 # <use name=FastSimulation/Utilities>
  <use name=Geometry/Surface>
+ <use name=TrackingTools/DetLayers>
+ <use name=TrackingTools/GeomPropagators>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=RecoTracker/TkDetLayers>
 </export>

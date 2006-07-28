@@ -1,5 +1,4 @@
 <use name=clhep>
-<use name=FWCore/Framework>
 <use name=MagneticField/Engine>
 <use name=Geometry/Surface>
 <use name=FastSimulation/Particle>
@@ -8,7 +7,6 @@
 <export>
  <use name=clhep>
  <lib name=FastSimulationParticlePropagator>
- <use name=FWCore/Framework>
  <use name=MagneticField/Engine>
  <use name=Geometry/Surface>
  <use name=FastSimulation/Particle>

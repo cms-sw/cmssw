@@ -6,12 +6,18 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/Common/interface/EventID.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // CLHEP headers
 #include "CLHEP/HepMC/GenEvent.h"
@@ -24,6 +30,7 @@
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
+
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"  
 #include <iostream>
@@ -43,12 +50,13 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			       p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			       p.getParameter<bool>("ActivateDecays"))),
-      myPileUpProducer(new PUProducer(
-			       mySimEvent,
-			       p.getParameter<edm::ParameterSet>("PUProducer"))),
-       myCalorimetry(new CalorimetryManager(mySimEvent,p.getParameter<edm::ParameterSet>("Calorimetry"))),
+      myPileUpProducer(0),
+      myCalorimetry(0),
       m_FamosSeed(p.getParameter<int>("FamosSeed")),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
+      m_Tracking(p.getParameter<bool>("SimulateTracking")),
+      m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
+      m_PileUp(p.getParameter<bool>("SimulatePileUp")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
@@ -57,6 +65,19 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
   HepRandom::setTheEngine(new HepJamesRandom());
   HepRandom::setTheSeeds(&m_FamosSeed,2);
   HepRandom::showEngineStatus(); 
+
+
+  // Initialize PileUp Producer
+  if ( m_PileUp ) 
+    myPileUpProducer = new PUProducer(mySimEvent,
+				      p.getParameter<edm::ParameterSet>("PUProducer"));
+
+  // Initialize Calorimetry Fast Simulation
+  if ( m_Calorimetry) 
+    myCalorimetry = new CalorimetryManager(mySimEvent,
+					   p.getParameter<edm::ParameterSet>("Calorimetry"));
+
+
 }
 
 FamosManager::~FamosManager()
@@ -79,24 +100,28 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
     es.get<IdealMagneticFieldRecord>().get(pMF);
     const GlobalPoint g(0.,0.,0.);
     std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;      
-    MagneticFieldMap::instance(pMF); 
+    MagneticFieldMap::instance( &(*pMF) ); 
  }    
   
-  // Pass the information to a singleton
-  edm::ESHandle<CaloGeometry> pG;
-  es.get<IdealGeometryRecord>().get(pG);   
-  //  Initialize the calorimeter geometry
-  myCalorimetry->getCalorimeter()->setupGeometry(pG);
-}
+  // Initialize the tracker reco geometry
+  if ( m_Tracking ) {
+    edm::ESHandle<TrackerGeometry> tracker;
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
-/*
-void FamosManager::initEventReader()
-{
-    if (inputFile_!=0) delete inputFile_;
-    std::cout << "Input file name: " << m_pInputFileName << std::endl;
-    inputFile_ = new std::ifstream(m_pInputFileName.c_str(),std::ios::in);
+    myTrajectoryManager->initializeRecoGeometry(&(*tracker), &(*theGeomSearchTracker));
+  }
+
+
+  //  Initialize the calorimeter geometry
+  if ( myCalorimetry ) {
+    edm::ESHandle<CaloGeometry> pG;
+    es.get<IdealGeometryRecord>().get(pG);   
+    myCalorimetry->getCalorimeter()->setupGeometry(pG);
+  }
+
 }
-*/
 
 
 void 
@@ -114,14 +139,14 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
     // mySimEvent->print();
 
     // Get the pileup events and add the particles to the main event
-    myPileUpProducer->produce();
+    if ( myPileUpProducer ) myPileUpProducer->produce();
     //    mySimEvent->print();
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
     //    mySimEvent->print();
 
-    myCalorimetry->reconstruct();
+    if ( myCalorimetry ) myCalorimetry->reconstruct();
 
   }
 

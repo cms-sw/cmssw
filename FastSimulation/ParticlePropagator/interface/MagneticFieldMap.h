@@ -2,7 +2,6 @@
 #define FastSimulation_ParticlePropagator_MagneticFieldMap_H
 
 // Framework Headers
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 
@@ -18,15 +17,16 @@ public:
   double inTeslaZ(const GlobalPoint&) const;
   double inKGaussZ(const GlobalPoint&) const;
   double inInverseGeVZ(const GlobalPoint&) const;
+  const MagneticField& magneticField() const {return *pMF_;}
 
-  static MagneticFieldMap* instance(edm::ESHandle<MagneticField> pMF) ;
+  static MagneticFieldMap* instance(const MagneticField* pMF) ;
   static MagneticFieldMap* instance() ;
 
 private:
 
-  MagneticFieldMap(edm::ESHandle<MagneticField> pMF) : pMF_(pMF) {;}
+  MagneticFieldMap(const MagneticField* pMF) : pMF_(pMF) {;}
   static MagneticFieldMap* myself;
-  edm::ESHandle<MagneticField> pMF_;
+  const MagneticField* pMF_;
 
 };
 

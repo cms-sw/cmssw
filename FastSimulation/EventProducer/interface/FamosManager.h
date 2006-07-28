@@ -62,6 +62,9 @@ class FamosManager
 
   long int m_FamosSeed;
   bool m_pUseMagneticField;
+  bool m_Tracking;
+  bool m_Calorimetry;
+  bool m_PileUp;
   CLHEP::HepLorentzVector * vtx_;
   double weight_;    
   int m_pRunNumber;

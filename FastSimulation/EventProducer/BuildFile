@@ -22,6 +22,10 @@
 <use name=SimDataFormats/CaloHit>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/Record>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=RecoTracker/GeometryESProducer>
 <export>
  <lib name=FastSimulationEventProducer>
  <use name=Utilities/Notification>
@@ -46,6 +50,10 @@
  <use name=SimDataFormats/CaloHit>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
+ <use name=RecoTracker/TkDetLayers>
+ <use name=RecoTracker/Record>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=RecoTracker/GeometryESProducer>
 </export>
 
 <use name=seal>

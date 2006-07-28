@@ -8,6 +8,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 //FAMOS Headers
+#include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
 /**
@@ -42,7 +43,16 @@ class FSimTrack;
 //class FamosBasicRecHit;
 //class RecHit;
 
+class TrajectoryStateOnSurface;
+class DetLayer;
+class GeomDet;
+class GeomDetUnit;
+class MagneticField;
+class GeometricSearchTracker;
+class TrackerGeometry;
+
 class TrajectoryManager
+
 {
  public:
 
@@ -79,10 +89,34 @@ class TrajectoryManager
   /// Returns the pointer to geometry
   TrackerInteractionGeometry* theGeometry();
 
+  /// Initialize the Reconstruction Geometry
+  void initializeRecoGeometry(const TrackerGeometry* geomTracker,
+			      const GeometricSearchTracker* geomSearchTracker);
+
+
  private:
 
   /// Decay the particle and update the SimEvent with daughters 
   void updateWithDaughters(ParticlePropagator& PP, int fsimi);
+
+  /// Initialize correspondence map between Famos interaction geometry and tracker reco geometry
+  void initializeLayerMap();
+
+  /// Teddy, you must put comments there
+  TrajectoryStateOnSurface makeTrajectoryState( const DetLayer* layer, 
+						const ParticlePropagator& pp,
+						const MagneticField* field) const;
+
+  /// and there
+  void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
+		     std::vector<PSimHit>& result) const;
+
+  /// and there
+  PSimHit makeSinglePSimHit( const GeomDetUnit& det,
+			     const TrajectoryStateOnSurface& ts) const;
+
+  /// and there
+  const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
  private:
 
@@ -102,6 +136,11 @@ class TrajectoryManager
   double pTmin;
   bool firstLoop;
   std::vector<PSimHit>* thePSimHits;
+
+  const TrackerGeometry*                      theGeomTracker;
+  const GeometricSearchTracker*               theGeomSearchTracker;
+  std::vector<const DetLayer*>                theLayerMap;
+  int                                         theNegLayerOffset;
 
   //  Histos* myHistos;
 

@@ -8,6 +8,8 @@
 /** A class that gives some properties of the Tracker Layers in FAMOS
  */
 
+#include <iostream>
+
 class TrackerLayer {
 public:
   
@@ -56,6 +58,23 @@ public:
      theCylinder = 0;
    }
 
+
+  TrackerLayer(const TrackerLayer& other) :
+    theSurface (other.theSurface),
+    theDisk (other.theDisk),
+    theCylinder (other.theCylinder),
+    isForward (other.isForward),
+    theLayerNumber (other.theLayerNumber),
+    theFirstRing (other.theFirstRing),
+    theLastRing (other.theLastRing),
+    theResolutionAlongX (other.theResolutionAlongX),
+    theResolutionAlongY (other.theResolutionAlongY),
+    theHitEfficiency (other.theHitEfficiency),
+    isSensitive (other.isSensitive) {
+    
+    std::cout<<"calling copy constructor"<<std::endl;
+  }
+    
   /// Is the layer sensitive ?
   inline bool sensitive() const { return isSensitive; }
 

@@ -5,7 +5,7 @@ MagneticFieldMap*
 MagneticFieldMap::myself=0; 
 
 MagneticFieldMap* 
-MagneticFieldMap::instance(edm::ESHandle<MagneticField> pMF) {
+MagneticFieldMap::instance(const MagneticField* pMF) {
   if (!myself) myself = new MagneticFieldMap(pMF);
   return myself;
 }

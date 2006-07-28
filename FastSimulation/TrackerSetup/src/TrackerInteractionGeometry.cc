@@ -176,10 +176,10 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
 
 
   // Tracker Inner Barrel : thin detectors (300 microns)
-  const SimpleCylinderBounds  TIB1( 25.35, 25.65, -70.0, 70.0);
-  const SimpleCylinderBounds  TIB2( 33.85, 34.15, -70.0, 70.0);
-  const SimpleCylinderBounds  TIB3( 42.85, 43.15, -70.0, 70.0);
-  const SimpleCylinderBounds  TIB4( 51.85, 52.15, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB1( 27.3305, 27.6305, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB2( 32.379, 32.679,   -70.0, 70.0);
+  const SimpleCylinderBounds  TIB3( 43.5397, 43.8397, -70.0, 70.0);
+  const SimpleCylinderBounds  TIB4( 48.3112, 48.6112, -70.0, 70.0);
 
   // Inner Barrel Cylinder & Ends
 
@@ -189,9 +189,9 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
   const Surface::PositionType PTIBEOut2(0.0,0.0,71.501);
 
   // Tracker Outer Barrel : thick detectors (500 microns)
-  const SimpleCylinderBounds  TOB1( 60.55, 61.05,-109.0,109.0);
-  const SimpleCylinderBounds  TOB2( 68.95, 69.45,-109.0,109.0);
-  const SimpleCylinderBounds  TOB3( 77.75, 78.25,-109.0,109.0);
+  const SimpleCylinderBounds  TOB1( 60.7671, 61.2671, -109.0,109.0);
+  const SimpleCylinderBounds  TOB2( 69.3966, 69.8966, -109.0,109.0);
+  const SimpleCylinderBounds  TOB3( 78.0686, 78.5686, -109.0,109.0);
   const SimpleCylinderBounds  TOB4( 86.55, 86.95,-109.0,109.0);
   const SimpleCylinderBounds  TOB5( 96.25, 96.75,-109.0,109.0);
   const SimpleCylinderBounds  TOB6(107.75,108.25,-109.0,109.0);
@@ -210,16 +210,16 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
 
   // Pixel disks : thin detectors (300 microns)
   const SimpleDiskBounds PIXD1(6.0,15.001,-0.015,0.015);
-  const Surface::PositionType PPIXD1(0.0,0.0,34.5); 
+  const Surface::PositionType PPIXD1(0.0,0.0,35.5029); 
   const SimpleDiskBounds PIXD2(6.0,15.002,-0.015,0.015);
-  const Surface::PositionType PPIXD2(0.0,0.0,46.5); 
+  const Surface::PositionType PPIXD2(0.0,0.0,48.5029); 
   // Tracker Inner disks : thin detectors (300 microns)
   const SimpleDiskBounds TID1(23.3,54.001,-0.15,0.15);
-  const Surface::PositionType PTID1(0.0,0.0,78.8); 
+  const Surface::PositionType PTID1(0.0,0.0,78.445); 
   const SimpleDiskBounds TID2(23.3,54.002,-0.15,0.15);
-  const Surface::PositionType PTID2(0.0,0.0,91.75); 
+  const Surface::PositionType PTID2(0.0,0.0,90.445); 
   const SimpleDiskBounds TID3(23.3,54.003,-0.15,0.15);
-  const Surface::PositionType PTID3(0.0,0.0,104.7); 
+  const Surface::PositionType PTID3(0.0,0.0,105.445); 
 
   const SimpleDiskBounds TIDEOut(32.0,54.004,-0.5,0.5);
   const Surface::PositionType PTIDEOut(0.0,0.0,108.4);
@@ -229,23 +229,23 @@ TrackerInteractionGeometry::TrackerInteractionGeometry()
   // *** Warning*** the inner three rings are made
   // of thin detectors.... not reproduced here. 
   const SimpleDiskBounds TEC1(23.3,109.501,-0.25,0.25);
-  const Surface::PositionType PTEC1(0.0,0.0,125.0);
+  const Surface::PositionType PTEC1(0.0,0.0,131.892);
   const SimpleDiskBounds TEC2(23.3,109.502,-0.25,0.25);
-  const Surface::PositionType PTEC2(0.0,0.0,138.0);
+  const Surface::PositionType PTEC2(0.0,0.0,145.892);
   const SimpleDiskBounds TEC3(23.3,109.503,-0.25,0.25);
-  const Surface::PositionType PTEC3(0.0,0.0,152.0);
+  const Surface::PositionType PTEC3(0.0,0.0,158.892);
   const SimpleDiskBounds TEC4(23.3,109.504,-0.25,0.25);
-  const Surface::PositionType PTEC4(0.0,0.0,167.0);
+  const Surface::PositionType PTEC4(0.0,0.0,173.892);
   const SimpleDiskBounds TEC5(28.0,109.505,-0.25,0.25);
-  const Surface::PositionType PTEC5(0.0,0.0,185.0);
+  const Surface::PositionType PTEC5(0.0,0.0,187.892);
   const SimpleDiskBounds TEC6(28.0,109.506,-0.25,0.25);
-  const Surface::PositionType PTEC6(0.0,0.0,203.0);
+  const Surface::PositionType PTEC6(0.0,0.0,205.892);
   const SimpleDiskBounds TEC7(28.0,109.507,-0.25,0.25);
-  const Surface::PositionType PTEC7(0.0,0.0,224.0);
+  const Surface::PositionType PTEC7(0.0,0.0,224.121);
   const SimpleDiskBounds TEC8(28.0,109.508,-0.25,0.25);
-  const Surface::PositionType PTEC8(0.0,0.0,246.0);
+  const Surface::PositionType PTEC8(0.0,0.0,244.621);
   const SimpleDiskBounds TEC9(28.0,109.509,-0.25,0.25);
-  const Surface::PositionType PTEC9(0.0,0.0,272.0);
+  const Surface::PositionType PTEC9(0.0,0.0,266.121);
 
   // Outside : Endcap
   const SimpleDiskBounds TEOut(6.0,120.001,-0.5,0.5);
