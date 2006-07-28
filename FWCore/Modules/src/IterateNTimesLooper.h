@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 11 11:16:12 EDT 2006
-// $Id$
+// $Id: IterateNTimesLooper.h,v 1.1 2006/07/23 01:24:35 valya Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@ class IterateNTimesLooper : public edm::EDLooper
       // ---------- member functions ---------------------------
       virtual void startingNewLoop(unsigned int ) ; 
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) ; 
-      virtual Status endOfLoop(const edm::EventSetup&) ; 
+      virtual Status endOfLoop(const edm::EventSetup&, unsigned int) ; 
       
    private:
       IterateNTimesLooper(const IterateNTimesLooper&); // stop default

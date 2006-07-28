@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id$
+// $Id: EDLooper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
 //
 // Revision history
 //
-// $Log$
+// $Log: EDLooper.cc,v $
+// Revision 1.1  2006/07/23 01:24:34  valya
+// Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
+//
 
 // system include files
 // You may have to uncomment some of these or other stl headers
@@ -120,15 +123,15 @@ EDLooper::loop(EDLooperHelper& iHelper,
                break;
            }
        } while(1);
+       status = endOfLoop(*eventSetup,iCounter);
+       if (status!=kContinue) {
+           break;
+       }
        ++iCounter;
        // modify passID of the looper to keep track how many times we process the same loop
        std::ostringstream pid;
        pid<<iCounter;
        passID_=processID_+"_"+pid.str();
-       status = endOfLoop(*eventSetup);
-       if (status!=kContinue) {
-           break;
-       }
        iHelper.rewind(modifyingRecords());
    } while(1);
    return;

@@ -121,7 +121,7 @@ loopername::duringLoop(const edm::Event&, const edm::EventSetup&)
 
 // ------------ called at the end of each event loop. A new loop will occur if you return kContinue ------------
 loopername::Status 
-loopername::endOfLoop(const edm::EventSetup&)
+loopername::endOfLoop(const edm::EventSetup&, unsigned int)
 {
   return kStop;
 }

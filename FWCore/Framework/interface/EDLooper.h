@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id$
+// $Id: EDLooper.h,v 1.1 2006/07/23 01:24:33 valya Exp $
 //
 // Revision history
 //
-// $Log$
+// $Log: EDLooper.h,v $
+// Revision 1.1  2006/07/23 01:24:33  valya
+// Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
+//
 
 // system include files
 #include <string>
@@ -56,7 +59,7 @@ class EDLooper
       virtual void beginOfJob(const edm::EventSetup&); 
       virtual void startingNewLoop(unsigned int ) = 0; 
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
-      virtual Status endOfLoop(const edm::EventSetup&) = 0; 
+      virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0; 
       virtual void endOfJob();
       void loop(EDLooperHelper& iHelper, unsigned long numberToProcess); 
       void setLooperName(const std::string& name) {name_=name;};

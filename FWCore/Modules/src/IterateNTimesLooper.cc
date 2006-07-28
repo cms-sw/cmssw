@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 11 11:16:14 EDT 2006
-// $Id$
+// $Id: IterateNTimesLooper.cc,v 1.1 2006/07/23 01:24:35 valya Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ IterateNTimesLooper::duringLoop(const edm::Event& event, const edm::EventSetup& 
 }
 
 edm::EDLooper::Status 
-IterateNTimesLooper::endOfLoop(const edm::EventSetup&) {
+IterateNTimesLooper::endOfLoop(const edm::EventSetup& es, unsigned int iCounter) {
   ++times_;
   return (times_ < max_ ) ? kContinue : kStop;
 }

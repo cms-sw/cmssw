@@ -902,6 +902,9 @@ namespace edm {
     input_->beginJob(es);
     schedule_->beginJob(es);
     actReg_->postBeginJobSignal_();
+    if(looper_) {
+       looper_->beginOfJob(es);
+    }
     // toerror.succeeded(); // should we add this?
   }
 
@@ -914,6 +917,9 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
 
+    if(looper_) {
+       looper_->endOfJob();
+    }
     try {
 	schedule_->endJob();
     }
