@@ -32,7 +32,8 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryContainer & tc) const
     Trajectory::DataContainer pd = (*it).data();
     for (Trajectory::DataContainer::iterator im = pd.begin();
     	 im != pd.end(); im++) {
-      const TransientTrackingRecHit* theRecHit = ((*im).recHit());
+      //RC const TransientTrackingRecHit* theRecHit = ((*im).recHit());
+      const TransientTrackingRecHit* theRecHit = &(*(*im).recHit());
       if (theRecHit->isValid())
         theRecHitMap[theRecHit].push_back(it);
     }
@@ -48,7 +49,8 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryContainer & tc) const
       Trajectory::DataContainer pd = (*itt).data();
       for (Trajectory::DataContainer::iterator im = pd.begin();
 	   im != pd.end(); im++) {
-	const TransientTrackingRecHit* theRecHit = ((*im).recHit());	
+	//RC const TransientTrackingRecHit* theRecHit = ((*im).recHit());
+	const TransientTrackingRecHit* theRecHit = &(*(*im).recHit());
         if (theRecHit->isValid()) {
 	  const vector<TI>& hitTrajectories( theRecHitMap[theRecHit]);
 	  for (vector<TI>::const_iterator ivec=hitTrajectories.begin(); 

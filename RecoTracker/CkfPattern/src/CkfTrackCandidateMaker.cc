@@ -126,14 +126,15 @@ namespace cms{
 	   it != unsmoothedResult.end(); it++) {
 	
 	OwnVector<TrackingRecHit> recHits;
-	OwnVector<const TransientTrackingRecHit> thits = it->recHits();
-	for (OwnVector<const TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
+	//RC OwnVector<const TransientTrackingRecHit> thits = it->recHits();
+	//RCfor (OwnVector<const TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
+	Trajectory::RecHitContainer thits = it->recHits();
+	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
 	     hitIt != thits.end(); hitIt++) {
-	  recHits.push_back( hitIt->hit()->clone());
+	  //RC recHits.push_back( hitIt->hit()->clone());
+	  recHits.push_back( (**hitIt).hit()->clone());
 	}
 	
-	TrajectorySeed seed         = *(it->seed().clone());
-
 	//PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
 	std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	  theInitialState->innerState( *it);
@@ -149,7 +150,8 @@ namespace cms{
 	//	FitTester fitTester(es);
 	//	fitTester.fit( *it);
 	
-	output->push_back(TrackCandidate(recHits,seed,*state));
+	output->push_back(TrackCandidate(recHits,it->seed(),*state));
+	delete state;
       }
       
       

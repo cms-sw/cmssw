@@ -179,7 +179,8 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
-    TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
+    //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
+    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
 
@@ -242,10 +243,11 @@ void CkfTrajectoryBuilder::addToResult( Trajectory& traj,
 }
 
 void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
-						       const TM& tm) const
+					     const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
-  const TransientTrackingRecHit* hit = tm.recHit();
+  //RC const TransientTrackingRecHit* hit = tm.recHit();
+  TM::ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
     TM tmp = TM( predictedState, theUpdator->update( predictedState, *hit),
