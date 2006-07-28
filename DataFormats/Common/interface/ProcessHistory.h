@@ -25,12 +25,12 @@ namespace edm {
 
     typedef collection_type::size_type size_type;
 
-    ProcessHistory() : data_() {}
-    explicit ProcessHistory(size_type n) : data_(n) {}
-    explicit ProcessHistory(collection_type const& vec) : data_(vec) {}
+    ProcessHistory() : data_(), id_() {}
+    explicit ProcessHistory(size_type n) : data_(n), id_() {}
+    explicit ProcessHistory(collection_type const& vec) : data_(vec), id_() {}
 
-    void push_back(const_reference t) {data_.push_back(t);}
-    void swap(ProcessHistory& other) {data_.swap(other.data_);}
+    void push_back(const_reference t) {data_.push_back(t); id_=ProcessHistoryID();}
+    void swap(ProcessHistory& other) {data_.swap(other.data_); id_.swap(other.id_);}
     bool empty() const {return data_.empty();}
     size_type size() const {return data_.size();}
     size_type capacity() const {return data_.capacity();}
@@ -59,6 +59,7 @@ namespace edm {
 
   private:
     collection_type data_;
+    mutable ProcessHistoryID id_;
   };
 
   inline
