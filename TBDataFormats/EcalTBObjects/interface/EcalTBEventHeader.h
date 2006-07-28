@@ -8,7 +8,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.1 2006/04/21 09:26:34 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.2 2006/07/21 10:53:01 meridian Exp $
  */
 
 
@@ -28,9 +28,15 @@ class EcalTBEventHeader {
   int runNumber() const{
     return runNumber_;
   }
+
   //! Returns the burst number
   short burstNumber() const{
     return burstNumber_;
+  }
+
+  //! Returns the burst number
+  short smInBeam() const {
+    return smInBeam_;
   }
 
   //! Returns the begin burst time (sec)
@@ -95,12 +101,16 @@ class EcalTBEventHeader {
     return EBDetId(nextCrystalInBeam_).ic();
   }
   //! Returns the theta table index
-  int thetaTableIndex() const { return thetaTableIndex_; }
+  ulong thetaTableIndex() const { return thetaTableIndex_; }
   //! Returns the phi table index
-  int phiTableIndex() const { return phiTableIndex_; }
+  ulong phiTableIndex() const { return phiTableIndex_; }
   //! Tell if the table is Moving
   bool tableIsMoving() const { return tableIsMoving_; }
 
+  //! is there any sync error
+  bool syncError() const { return syncError_; }
+
+  
 
   ///SHOULD WE REMOVE ALL THIS???
   //! Unique codes for the 4 lasers
@@ -146,19 +156,25 @@ class EcalTBEventHeader {
 
   void setRunNumber(const int& runNumber) { runNumber_=runNumber; }
 
+  void setSmInBeam(const int& smInBeam) { smInBeam_ = smInBeam; }
+
   void setBurstNumber(const short& burstNumber ) { burstNumber_=burstNumber; }
 
   void setTriggerMask(const int& triggerMask ) { triggerMask_=triggerMask; }
 
-  void setBegBurstTimeSec(const short&  begBurstTimeSec) { begBurstTime_sec_ = begBurstTimeSec; }
+  void setBegBurstTimeSec(const int&  begBurstTimeSec) { begBurstTime_sec_ = begBurstTimeSec; }
 
-  void setBegBurstTimeMsec(const short&  begBurstTimeMsec) { begBurstTime_msec_ = begBurstTimeMsec; }
+  void setBegBurstTimeMsec(const int&  begBurstTimeMsec) { begBurstTime_msec_ = begBurstTimeMsec; }
 
-  void setEndBurstTimeSec(const short&  endBurstTimeSec) { endBurstTime_sec_ = endBurstTimeSec; }
+  void setEndBurstTimeSec(const int&  endBurstTimeSec) { endBurstTime_sec_ = endBurstTimeSec; }
 
-  void setEndBurstTimeMsec(const short&  endBurstTimeMsec) { endBurstTime_msec_ = endBurstTimeMsec; }
- 
- void setDate(const int& date ) { date_=date; }
+  void setEndBurstTimeMsec(const int&  endBurstTimeMsec) { endBurstTime_msec_ = endBurstTimeMsec; }
+
+  void setBegBurstLV1A(const int&  begBurstLV1A) { begBurstLV1A_ = begBurstLV1A; }
+
+  void setEndBurstLV1A(const int&  endBurstLV1A) { endBurstLV1A_ = endBurstLV1A; }
+
+  void setDate(const int& date ) { date_=date; }
 
   void setCrystalInBeam(const DetId& crystalInBeam ) { crystalInBeam_=crystalInBeam; }
 
@@ -166,11 +182,13 @@ class EcalTBEventHeader {
 
   void setNextCrystalInBeam(const DetId& crystalInBeam ) { nextCrystalInBeam_=crystalInBeam; }
 
-  void setThetaTableIndex(const int& thetaTableIndex ) { thetaTableIndex_=thetaTableIndex; }
+  void setThetaTableIndex(const ulong& thetaTableIndex ) { thetaTableIndex_=thetaTableIndex; }
 
-  void setPhiTableIndex(const int& phiTableIndex ) { phiTableIndex_=phiTableIndex; }
+  void setPhiTableIndex(const ulong& phiTableIndex ) { phiTableIndex_=phiTableIndex; }
 
   void setTableIsMoving(const bool& tableIsMoving ) { tableIsMoving_=tableIsMoving; }
+
+  void setSyncError(const bool& syncError ) { syncError_ = syncError; }
 
   void setLightIntensity(const int& lightIntensity) { lightIntensity_=lightIntensity; }
 
@@ -199,15 +217,19 @@ class EcalTBEventHeader {
   DetId    crystalInBeam_;    ///< The current crystal hit by the beam
   DetId    nominalCrystalInBeam_;    ///< The nominal crystal which should be hit by the beam
   DetId    nextCrystalInBeam_;    ///< The nominal next crystal which should be hit by the beam
-  int      thetaTableIndex_; ///< Theta table index (X)
-  int      phiTableIndex_;   ///< Phi table index (Y)
+  ulong    thetaTableIndex_; ///< Theta table index (X)
+  ulong    phiTableIndex_;   ///< Phi table index (Y)
 
   bool tableIsMoving_;
+
+  //Sync error for Camac stuff
+  bool syncError_;
 
   //FIXME for use in CMSSW(Probably unuseful when reading from new RawData Information will be stored in EcalDCCHeaderBlock)
   int      lightIntensity_;   ///< The light intensity
   int      laserType_;        ///< The laser type --see enum LaserType
 
+  short smInBeam_;
 };
 
 std::ostream& operator<<(std::ostream&, const EcalTBEventHeader&);
