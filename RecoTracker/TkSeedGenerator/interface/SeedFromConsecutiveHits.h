@@ -73,8 +73,8 @@ class SeedFromConsecutiveHits{
 					   const GlobalError& vertexErr);
 
   TrajectoryStateTransform transformer;
-  const TransientTrackingRecHit* outrhit;
-  const TransientTrackingRecHit* intrhit;
+  TransientTrackingRecHit::ConstRecHitPointer outrhit;
+  TransientTrackingRecHit::ConstRecHitPointer intrhit;
   PropagationDirection _dir;
   PTrajectoryStateOnDet* PTraj;
   recHitContainer _hits;

@@ -76,10 +76,9 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     GlobalPoint inner = tracker->idToDet(HitPairs[0].inner()->geographicalId())->surface().toGlobal(HitPairs[0].inner()->localPosition());
     GlobalPoint outer = tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface().toGlobal(HitPairs[0].outer()->localPosition());
   
-  
 
-    const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());
-    //const TransientTrackingRecHit* intrhit =TTTRHBuilder->build(HitPairs[0].inner());
+    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());  
+    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[0].outer());
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back(HitPairs[0].outer()->clone());
