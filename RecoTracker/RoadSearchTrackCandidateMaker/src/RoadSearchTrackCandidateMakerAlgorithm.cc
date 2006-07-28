@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/06/15 15:37:21 $
-// $Revision: 1.10 $
+// $Author: stevew $
+// $Date: 2006/07/10 21:37:07 $
+// $Revision: 1.11 $
 //
 
 #include <vector>
@@ -160,8 +160,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     edm::LogInfo("RoadSearch") << "Loop over hits to check measurements...";
     for (edm::OwnVector<TrackingRecHit>::const_iterator rhit=recHits.begin(); rhit!=recHits.end(); rhit++){
 
-      TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
-
+      //TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
+      TransientTrackingRecHit::RecHitPointer ihit = theBuilder.product()->build(&(*rhit)); 
       PropagatorWithMaterial thePropagator(alongMomentum,.1057,magField); 
       //AnalyticalPropagator thePropagator(magField,anyDirection);
 
