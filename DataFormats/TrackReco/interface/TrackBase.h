@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.20 2006/07/18 15:41:17 llista Exp $
+ * \version $Id: TrackBase.h,v 1.21 2006/07/25 08:40:21 llista Exp $
  *
  */
 
@@ -45,7 +45,7 @@ namespace reco {
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
     /// matrix size
-    enum { covarianceSize = CovarianceMatrix::kSize };
+    enum { covarianceSize = dimension * ( dimension + 1 ) /2 };
     /// position-momentum covariance matrix (6x6)
     typedef math::Error<6>::type PosMomError;
     /// spatial vector

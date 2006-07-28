@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.15 2006/07/18 15:56:54 llista Exp $
+ * \version $Id: Vertex.h,v 1.16 2006/07/20 14:34:40 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -31,7 +31,7 @@ namespace reco {
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type CovarianceMatrix;
     /// matix size
-    enum { size = Error::kSize };
+    enum { size = dimension * ( dimension + 1 ) / 2 };
     /// index type
     typedef unsigned int index;
     /// default constructor
