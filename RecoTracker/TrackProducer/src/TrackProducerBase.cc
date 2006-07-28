@@ -102,7 +102,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
     for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
 	j!=transHits.end(); j++){
-      outputRHColl->push_back( ( (j->hit() )->clone()) );
+      outputRHColl->push_back( ( ((**j).hit() )->clone()) );
     }
     
   }
@@ -194,9 +194,9 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
       i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     Trajectory::DataContainer dc = theTraj->measurements();
-    for (Trajectory::DataContainer::iterator j=dc.begin(); j!=dc.end(); j++) {
-      delete j->recHit();
-    }
+//     for (Trajectory::DataContainer::iterator j=dc.begin(); j!=dc.end(); j++) {
+//       delete j->recHit();
+//     }
     delete theTraj;
   }  
   

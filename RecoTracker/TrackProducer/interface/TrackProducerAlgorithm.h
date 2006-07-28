@@ -8,7 +8,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: TrackProducerAlgorithm.h,v 1.5 2006/05/10 15:02:20 magni Exp $
+// $Id: TrackProducerAlgorithm.h,v 1.6 2006/06/01 17:28:22 tboccali Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -57,7 +57,7 @@ class TrackProducerAlgorithm {
   bool buildTrack(const TrajectoryFitter *,
 		  const Propagator *,
 		  AlgoProductCollection& ,
-		  edm::OwnVector<const TransientTrackingRecHit>&,
+		  TransientTrackingRecHit::RecHitContainer&,
 		  TrajectoryStateOnSurface& ,
 		  const TrajectorySeed&,
 		  float);

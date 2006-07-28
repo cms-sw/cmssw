@@ -114,24 +114,24 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	ndof = ndof - 5;
 
 	//SORT RECHITS ALONGMOMENTUM
-	const TransientTrackingRecHit * firstHit;
+	TransientTrackingRecHit::ConstRecHitPointer firstHit;
 	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
-	  if (it->isValid()) {
-	    firstHit=&(*it);
+	  if ((**it).isValid()) {
+	    firstHit = *it;
 	    break;
 	  }
 	}
-	const TransientTrackingRecHit * lastHit;
+	TransientTrackingRecHit::ConstRecHitPointer lastHit;
 	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
-	  if (it->isValid()) {
-	    lastHit=&(*it);
+	  if ((**it).isValid()) {
+	    lastHit = *it;
 	    break;
 	  }
 	}
 	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ){
 	//FIXME temporary should use reverse
 	  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
-	    hits.push_back(it->clone());
+	    hits.push_back(*it);
 	  }
 	} else hits=tmp;
 	
@@ -140,7 +140,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	//       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
 	//       theTSOS.rescaleError(100);
 
-	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
+	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
 	AlgebraicSymMatrix C(5,1);
 	C *= 100.;
 	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
@@ -168,7 +168,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 					 const Propagator * thePropagator,
 					 AlgoProductCollection& algoResults,
-					 edm::OwnVector<const TransientTrackingRecHit>& hits,
+					 TransientTrackingRecHit::RecHitContainer& hits,
 					 TrajectoryStateOnSurface& theTSOS,
 					 const TrajectorySeed& seed,
 					 float ndof)
