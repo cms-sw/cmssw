@@ -1,6 +1,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/RecoAlgos/src/RecoModules.h"
+#include "PhysicsTools/RecoAlgos/src/ConversionModules.h"
 
 DEFINE_SEAL_MODULE();
 namespace reco {
@@ -15,5 +16,6 @@ DEFINE_ANOTHER_FWK_MODULE( ElectronMerger );
 DEFINE_ANOTHER_FWK_MODULE( PhotonMerger );
 DEFINE_ANOTHER_FWK_MODULE( TrackRecoverer );
 DEFINE_ANOTHER_FWK_MODULE( ConfigTrackSelector );
+DEFINE_ANOTHER_FWK_MODULE( ElectronToCandCollectionConverter );
   }
 }
