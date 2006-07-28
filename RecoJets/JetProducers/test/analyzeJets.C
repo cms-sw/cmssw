@@ -14,7 +14,7 @@
   //Get event tree and jet collection branch
   TTree *tree = (TTree*)file.Get("Events");
   std::vector<reco::CaloJet> CaloJetCollection;
-  TBranch *branch = tree->GetBranch("recoCaloJets_CaloJetMcone5__PROD.obj");
+  TBranch *branch = tree->GetBranch(tree->GetAlias("MC5CaloJet"));
   branch->SetAddress(&CaloJetCollection);  
 
   // Loop over events
