@@ -17,6 +17,7 @@ class RFIOStorageMaker : public StorageMaker
 {
 public:
     // implicit constructor
+   RFIOStorageMaker();
     // implicit destructor
     // implicit copy constructor
     // implicit assignment operator

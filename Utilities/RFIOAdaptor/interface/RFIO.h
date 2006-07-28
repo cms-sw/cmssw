@@ -10,9 +10,11 @@ inline int   rfio_close64(int s) { return  rfio_close(s);}
 */
 
 
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -57,8 +59,19 @@ extern "C" {
 #   define RFIO_READOPT 1
 }
 
-extern int rfio_errno;
-extern int serrno;
+
+// MT safe....
+extern "C" {
+     int  Cthread_init(void);
+     int *C__rfio_errno(void);
+     int *C__serrno(void);
+}
+
+#define serrno (*C__serrno())
+#define rfio_errno (*C__rfio_errno())
+
+// extern int rfio_errno;
+// extern int serrno;
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

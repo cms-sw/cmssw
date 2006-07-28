@@ -43,6 +43,10 @@ namespace {
   
 }
 
+RFIOStorageMaker::RFIOStorageMaker() {
+// init rfio MT
+  Cthread_init();
+}
 
 seal::Storage *
 RFIOStorageMaker::open (const std::string & /* proto */,
