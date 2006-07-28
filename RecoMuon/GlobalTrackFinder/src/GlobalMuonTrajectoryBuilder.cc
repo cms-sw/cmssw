@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/07/27 00:53:13 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/07/28 03:28:34 $
+ *  $Revision: 1.20 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -107,21 +107,20 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
   theUpdator = new MuonUpdatorAtVertex(updatorPSet);
   
-  theTkTrackLabel = par.getParameter<string>("TkTrackLabel");
-
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
-  theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
+  theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
 
   theTrackMatcherChi2Cut = par.getParameter<double>("Chi2CutTrackMatcher");
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
-  thePtCut = par.getParameter<double>("ptCut");
+  thePtCut = par.getParameter<double>("PtCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
   theHitThreshold = par.getParameter<int>("HitThreshold");
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
 
+  theVertexPos = GlobalPoint(0.0,0.0,0.0);
+  theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
 }
 
