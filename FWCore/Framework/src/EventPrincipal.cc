@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.46 2006/07/24 17:44:13 chrjones Exp $
+$Id: EventPrincipal.cc,v 1.47 2006/07/27 18:44:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -151,6 +151,13 @@ private:
       }
     }
     ph.push_back(processConfiguration);
+    //OPTIMIZATION NOTE:  As of 0_9_0_pre3
+    // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
+    // 96% of the time for this routine is being spent in computing the
+    // ProcessHistory id which happens because we are reconstructing the ProcessHistory for each event.
+    // (The process ID is first computed in the call to 'insertMapped(..)' below.)
+    // It would probably be better to move the ProcessHistory construction out to somewhere
+    // which persists for longer than one Event
     ProcessHistoryRegistry::instance()->insertMapped(ph);
     aux_.processHistoryID_ = ph.id();
   }
