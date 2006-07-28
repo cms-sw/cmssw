@@ -124,7 +124,7 @@ void PixelVertexTest::analyze(
       cout << "\tmomentum: " << tracks[i].momentum()
 	   << "\tPT: " << tracks[i].pt()<< endl;
       cout << "\tvertex: " << tracks[i].vertex()
-	   << "\tZ0: " << tracks[i].dz() << " +- " << tracks[i].covariance().dzError() << endl;
+	   << "\tZ0: " << tracks[i].dz() << " +- " << tracks[i].dzError() << endl;
       cout << "\tcharge: " << tracks[i].charge()<< endl;
     }
     trks.push_back( reco::TrackRef(trackCollection, i) );
@@ -133,7 +133,7 @@ void PixelVertexTest::analyze(
       pt_[ntrk_] = tracks[i].pt();
       z0_[ntrk_] = tracks[i].dz();
       //      errz0_[ntrk_] = std::sqrt( tracks[i].covariance(3,3) );
-      errz0_[ntrk_] = tracks[i].covariance().dzError();
+      errz0_[ntrk_] = tracks[i].dzError();
       //      tanl_[ntrk_] = tracks[i].tanDip();
       theta_[ntrk_] = tracks[i].theta();
       ntrk_++;
