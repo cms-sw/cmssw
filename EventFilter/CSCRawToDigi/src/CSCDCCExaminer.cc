@@ -967,7 +967,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 		// DCC Trailer 1 && DCC Trailer 2
 		if( (buf1[3]&0xFF00) == 0xEF00 &&
-			(buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x000F) == 0x0007 ){
+			(buf2[3]&0xFF00) == 0xAF00 ){
 			if(fDCC_Trailer){
 				fERROR[26] = true;
 				bERROR|=0x4000000;
