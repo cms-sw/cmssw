@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="L1CaloEmCand"/>
+  <class name="L1CaloRegionDetId"/>
   <class name="L1CaloRegion"/>
   <class name="std::vector<L1CaloEmCand>"/>
   <class name="std::vector<L1CaloRegion>"/>

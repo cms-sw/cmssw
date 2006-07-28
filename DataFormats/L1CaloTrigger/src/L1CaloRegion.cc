@@ -94,10 +94,6 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << " GCT eta=" << reg.gctEta();
   os << " GCT phi=" << reg.gctPhi();
   os << endl;
-  os << "             ";
-  os << " pseudorapidity=" << reg.pseudorapidity();
-  os << " phi=" << reg.phi();
-  os << endl;
   return os;
 }
 

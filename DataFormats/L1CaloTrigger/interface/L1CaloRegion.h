@@ -108,13 +108,6 @@ public:
   /// get GCT phi index
   unsigned gctPhi() const { return m_id.iphi(); }
 
-  /// get pseudorapidity
-  float pseudorapidity() const { return 0.; }
-
-  /// get phi in radians
-  float phi() const { return 0.; }
-
-
   /// print to stream
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
