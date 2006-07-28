@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/25 13:49:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/25 16:16:52 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -49,23 +49,24 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // the track collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
 
-  // Don't waste any time...
-  if( !trajectories.size() ){ 
+  // don't waste any time...
+  if ( trajectories.empty() ) { 
     return event.put(trackCollection);
   }
 
-  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-      trajectory != trajectories.end(); ++trajectory){
+  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
+       trajectory != trajectories.end(); ++trajectory) {
     
     // get the transient rechit from the trajectory
     const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
 
     // fill the rechit collection
-    for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	recHit != transHits.end(); ++recHit){
-      if(recHit->isValid())
+    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+	 recHit != transHits.end(); ++recHit) {
+      if ( recHit->isValid() )
 	recHitCollection->push_back( recHit->hit()->clone() );       
     }
+
   }
   
   // put the collection of TrackingRecHit in the event
@@ -81,8 +82,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   int position = 0;
 	
-  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-      trajectory != trajectories.end(); ++trajectory){
+  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
+       trajectory != trajectories.end(); ++trajectory) {
     
     // build the "bare" track extra from the trajectory
     reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
@@ -91,15 +92,15 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
 
     // Fill the track extra with the rec hit (persistent-)reference
-    for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	recHit != transHits.end(); ++recHit){
+    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+ 	recHit != transHits.end(); ++recHit) {
       
       trackExtra.add(TrackingRecHitRef(orphanHandleRecHit,position));
       ++position;
     }
     
     // fill the TrackExtraCollection
-    trackExtraCollection ->push_back(trackExtra);
+    trackExtraCollection->push_back(trackExtra);
   }
 
   // put the collection of TrackExtra in the event
@@ -132,9 +133,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     //     track.setHitPattern(hitlist);
     
-    //fill the TrackCollection
+    // fill the TrackCollection
     trackCollection->push_back(track);
-    
+
     ++position;
   }
   
@@ -143,14 +144,18 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   edm::OrphanHandle<reco::TrackCollection> orphanHandleTrack = event.put(trackCollection);
   
   // clean the memory. FIXME: check this!
-  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-      trajectory != trajectories.end(); ++trajectory){
+  for (TrajectoryContainer::const_iterator trajectory = trajectories.begin();
+       trajectory != trajectories.end(); ++trajectory) {
     
     Trajectory::DataContainer dataContainer = (*trajectory)->measurements();
     for (Trajectory::DataContainer::iterator datum = dataContainer.begin(); 
 	 datum != dataContainer.end(); ++datum) 
       delete datum->recHit();
-  }  
+
+    // delete trajectory
+    delete *trajectory;
+
+  }
 
   return orphanHandleTrack;
 
@@ -179,6 +184,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     muon.setStandAlone((*it)->muonTrack());
     muon.setTrack((*it)->trackerTrack());
     muonCollection->push_back(muon);
+    delete *it;
   }
 
   // create the TrackCollection of combined Trajectories
@@ -206,7 +212,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 //
 //
 //
-reco::Track MuonTrackLoader::buildTrack (const Trajectory& trajectory) const {
+reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   MuonPatternRecoDumper debug;
   
