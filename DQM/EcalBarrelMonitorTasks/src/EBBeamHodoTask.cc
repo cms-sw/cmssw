@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/27 22:45:11 $
- * $Revision: 1.21 $
+ * $Date: 2006/07/28 14:40:21 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -235,6 +235,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   const EcalTBEventHeader * Header = pHeader.product(); // get a ptr to the product
   try{
   e.getByLabel("ecalEBunpacker", pHeader);
+  if (!Header) {
+    LogDebug("EBBeamHodoTask") << "Event header not found. Returning. ";
+    return;
+  }
   tableIsMoving_     = Header->tableIsMoving();
   LogDebug("EBBeamHodoTask") << "event: " << ievt_ << " event header found ";    
   if (tableIsMoving_){
