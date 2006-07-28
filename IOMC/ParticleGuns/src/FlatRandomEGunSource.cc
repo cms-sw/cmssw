@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/07/10 20:58:31 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/17 23:17:15 $
+ *  $Revision: 1.10 $
  *  \author Julia Yarba
  */
 
@@ -68,6 +68,7 @@ bool FlatRandomEGunSource::produce(Event & e)
    
    // loop over particles
    //
+   int barcode = 1;
    for (unsigned int ip=0; ip<fPartIDs.size(); ip++)
    {
        //double energy = RandFlat::shoot(fMinE, fMaxE) ;
@@ -98,6 +99,8 @@ bool FlatRandomEGunSource::produce(Event & e)
        CLHEP::Hep3Vector p(px,py,pz) ;
        HepMC::GenParticle* Part = 
            new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
+       Part->suggest_barcode( barcode ) ;
+       barcode++ ;
        Vtx->add_particle_out(Part);
        
        if ( fAddAntiParticle )
@@ -110,6 +113,8 @@ bool FlatRandomEGunSource::produce(Event & e)
 	  }
 	  HepMC::GenParticle* APart =
 	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
+	  APart->suggest_barcode( barcode ) ;
+	  barcode++ ;
 	  Vtx->add_particle_out(APart) ;
        }
        
