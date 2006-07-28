@@ -14,7 +14,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 //
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 // Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
 //
@@ -52,11 +51,6 @@ PhotonCorrectionProducer::~PhotonCorrectionProducer() {
 
 
 void  PhotonCorrectionProducer::beginJob (edm::EventSetup const & theEventSetup) {
-
-  //get magnetic field
-  edm::LogInfo("PhotonCorrectionProducer") << "get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-  
 
 
   theDummyCorrection_= new  PhotonDummyCorrection();
