@@ -81,6 +81,7 @@ RFIOFile::open (const char *name,
 		int flags /* = IOFlags::OpenRead */,
 		FileAcl perms /* = 066 */)
 {
+  serrno = 0;
     // Disable buffering in rfio library?  Note that doing this on
     // one file disables it for everything.  Not much we can do...
     // but it does make a significant performance difference to the
@@ -145,6 +146,7 @@ void
 RFIOFile::close (void)
 {
     ASSERT (m_fd != IOFD_INVALID);
+    serrno = 0;
 
     if (rfio_close64 (m_fd) == -1)
 	throw RFIOError ("rfio_close()", rfio_errno, serrno);
@@ -156,7 +158,8 @@ RFIOFile::close (void)
 void
 RFIOFile::abort (void)
 {
-    if (m_fd != IOFD_INVALID)
+  serrno = 0;
+  if (m_fd != IOFD_INVALID)
 	rfio_close64 (m_fd);
 
     m_close = false;
@@ -169,6 +172,7 @@ RFIOFile::abort (void)
 IOSize
 RFIOFile::read (void *into, IOSize n)
 {
+  serrno = 0;
     ssize_t s = rfio_read64 (m_fd, into, n);
     if (s == -1)
 	throw RFIOError ("rfio_read()", rfio_errno, serrno);
@@ -179,6 +183,7 @@ RFIOFile::read (void *into, IOSize n)
 IOSize
 RFIOFile::write (const void *from, IOSize n)
 {
+  serrno = 0;
     ssize_t s = rfio_write64 (m_fd, from, n);
     if (s == -1)
 	throw RFIOError ("rfio_write()", rfio_errno, serrno);
@@ -195,6 +200,7 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
     ASSERT (m_fd != IOFD_INVALID);
     ASSERT (whence == CURRENT || whence == SET || whence == END);
 
+    serrno = 0;
     IOOffset	result;
     int		mywhence = (whence == SET ? SEEK_SET
 		    	    : whence == CURRENT ? SEEK_CUR
@@ -214,6 +220,7 @@ RFIOFile::resize (IOOffset /* size */)
 void          
 RFIOFile::preseek(const IOVec& iov) {
 
+  serrno = 0;
   if (rfioreadopt (RFIO_READOPT)!=1) 
     throw RFIOError ("rfio_preseek(): readopt!=1", 0,0);
 
