@@ -86,7 +86,7 @@ void EcalTBHodoscopeRawInfoDumper::analyze(const edm::Event& e, const edm::Event
 	       firedHits.push_back(j);
 	       str << j << " " ;
 	     }
-	 edm::LogDebug("EcalTBHodoscope") << "Looking plane " << i << " number of hits " << (*hodoscopeRawInfo)[i].numberOfFiredHits() << str.str();
+	 LogDebug("EcalTBHodoscope") << "Looking plane " << i << " number of hits " << (*hodoscopeRawInfo)[i].numberOfFiredHits() << str.str();
        }
   // Create empty output
 } 
