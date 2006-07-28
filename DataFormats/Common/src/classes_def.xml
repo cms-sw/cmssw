@@ -101,7 +101,9 @@
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>
  <class name="std::vector<edm::ProcessConfiguration>"/>
- <class name="edm::ProcessHistory"/>
+ <class name="edm::ProcessHistory">
+   <field name="id_" transient="true"/>
+ </class>
 
  <class name="edm::FileFormatVersion"/>
  <class name="edm::LuminosityBlock"/>
