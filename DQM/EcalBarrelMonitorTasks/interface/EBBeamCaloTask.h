@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/07/22 10:09:34 $
- * $Revision: 1.12 $
+ * $Date: 2006/07/26 22:34:22 $
+ * $Revision: 1.13 $
  * \author A. Ghezzi
  *
 */
@@ -133,6 +133,8 @@ int lastStableStatus_ ;
 int table_step_, crystal_step_;
 int event_last_reset_;
 int last_cry_in_beam_;
+int previous_cry_in_beam_;
+int previous_ev_num_; 
 // 0=stable, 1=moving, 
 // PreviousTableStatus_[0]-> event=current -2
 // PreviousTableStatus_[1]-> event=current -1
