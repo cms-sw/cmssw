@@ -15,4 +15,4 @@
   <use name=FWCore/Framework>
 </export>
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrackingRecHit">
+#<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrackingRecHit">

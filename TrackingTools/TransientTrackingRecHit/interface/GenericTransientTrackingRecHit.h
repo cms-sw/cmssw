@@ -6,22 +6,13 @@
 class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:
 
-  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
-    TransientTrackingRecHit(geom) {
-    trackingRecHit_ = rh->clone();
-  }
-  GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-    TransientTrackingRecHit( other.det()) {
-    trackingRecHit_ = other.hit()->clone();
-  }
+//RC   virtual GenericTransientTrackingRecHit * clone() const {
+//RC     return new GenericTransientTrackingRecHit(*this);
+//RC   }
 
-  virtual GenericTransientTrackingRecHit * clone() const {
-    return new GenericTransientTrackingRecHit(*this);
-  }
-
-  virtual GenericTransientTrackingRecHit* clone( const TrajectoryStateOnSurface&) const {
-    return clone();
-  }
+//RC  virtual RecHitPointer clone( const TrajectoryStateOnSurface&) const {
+//RC    return clone();
+//RC  }
 
   virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
 
@@ -49,6 +40,22 @@ public:
     return trackingRecHit_->recHits();
   }
 
+  static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh) {
+    return RecHitPointer( new GenericTransientTrackingRecHit( geom, rh));
+  }
+
+protected:
+
+  // private constructors enforce usage of builders
+  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) :
+    TransientTrackingRecHit(geom) {
+    trackingRecHit_ = rh->clone();
+  }
+  GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
+    TransientTrackingRecHit( other.det()) {
+    trackingRecHit_ = other.hit()->clone();
+  }
+
 private:
 
   TrackingRecHit * trackingRecHit_;
@@ -58,6 +65,12 @@ private:
     trackingRecHit_ = t.hit()->clone();
     return *(this);
   }
+
+  // hide the clone method for ReferenceCounted. Warning: this method is still 
+  // accessible via the bas class TrackingRecHit interface!
+   virtual GenericTransientTrackingRecHit * clone() const {
+     return new GenericTransientTrackingRecHit(*this);
+   }
 
 };
 

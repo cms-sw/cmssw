@@ -5,18 +5,25 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 #include <Geometry/CommonDetAlgo/interface/AlgebraicObjects.h>
-#include "DataFormats/Common/interface/OwnVector.h"
+//RC #include "DataFormats/Common/interface/OwnVector.h"
+#include "Geometry/Surface/interface/ReferenceCounted.h"
 
 class GeomDetUnit;
 
-class TransientTrackingRecHit : public TrackingRecHit {
+class TransientTrackingRecHit : public TrackingRecHit, 
+				public ReferenceCounted {
 public:
 
-  typedef edm::OwnVector<const TransientTrackingRecHit>   RecHitContainer;
+  //RC typedef edm::OwnVector<const TransientTrackingRecHit>        RecHitContainer;
+
+  typedef ReferenceCountingPointer< TransientTrackingRecHit>        RecHitPointer;
+  typedef ConstReferenceCountingPointer< TransientTrackingRecHit>   ConstRecHitPointer;
+  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
+  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   explicit TransientTrackingRecHit(const GeomDet * geom) : geom_(geom) {}
 
-  virtual TransientTrackingRecHit * clone() const = 0;
+  //RC virtual TransientTrackingRecHit * clone() const = 0;
 
   // Extension of the TrackingRecHit interface
 
@@ -35,9 +42,7 @@ public:
   /// to the TrajectoryStateOnSurface given as argument.
   /// For concrete hits not capable to improve their parameters and errors
   /// this method returns an exact copy, and is equivalent to clone() without arguments.
-  virtual TransientTrackingRecHit* clone (const TrajectoryStateOnSurface& ts) const {
-    return clone();
-  }
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const;
 
   /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
   /// improved hit, false if it returns an identical copy.
@@ -48,11 +53,15 @@ public:
   virtual const TrackingRecHit * hit() const = 0;
   
   /// Composite interface: returns the component hits, if any
-  virtual RecHitContainer transientHits() const;
+  virtual ConstRecHitContainer transientHits() const;
 
 private:
 
   const GeomDet * geom_ ;
+
+  // hide the clone method for ReferenceCounted. Warning: this method is still 
+  // accessible via the bas class TrackingRecHit interface!
+  virtual TransientTrackingRecHit * clone() const = 0;
 
 };
 

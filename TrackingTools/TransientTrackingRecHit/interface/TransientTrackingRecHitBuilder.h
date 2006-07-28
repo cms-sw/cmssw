@@ -4,8 +4,12 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class TransientTrackingRecHitBuilder {
- public:
-   virtual TransientTrackingRecHit * build ( const TrackingRecHit * p)  const = 0 ;
+public:
+
+  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+
+  virtual RecHitPointer build ( const TrackingRecHit * p)  const = 0 ;
 };
 
 
