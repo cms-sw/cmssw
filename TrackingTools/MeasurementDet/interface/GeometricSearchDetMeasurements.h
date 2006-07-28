@@ -112,7 +112,7 @@ public:
   
   void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 
 		       const TrajectoryStateOnSurface& ts, const GeomDet* det) const {
-    result.push_back( TM( ts, new InvalidTransientRecHit(det), 0.F,0));
+    result.push_back( TM( ts, InvalidTransientRecHit::build(det), 0.F,0));
   }
   
 

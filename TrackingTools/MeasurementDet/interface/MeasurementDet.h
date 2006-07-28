@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
@@ -16,7 +17,7 @@ class BoundSurface;
 class MeasurementDet {
 public:
 
-  typedef std::vector<TransientTrackingRecHit*>         RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
 
   MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
 

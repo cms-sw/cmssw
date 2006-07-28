@@ -20,7 +20,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
 
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
-					       new InvalidTransientRecHit(0), 0.F,
+					       InvalidTransientRecHit::build(0), 0.F,
 					       &layer));
     }
     return result;
