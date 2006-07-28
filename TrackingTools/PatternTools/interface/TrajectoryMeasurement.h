@@ -3,7 +3,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 class DetLayer;
 
@@ -24,11 +23,14 @@ class DetLayer;
 class TrajectoryMeasurement {
 public:
 
+  typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
+  typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+
   TrajectoryMeasurement() {}
 
   /// Constructor with forward predicted state, const TrackingRecHit*
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit) :
+                        ConstRecHitPointer aRecHit) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -36,13 +38,13 @@ public:
 
   /// Constructor with forward predicted state, RecHit, estimate
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
+                        ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
     theEstimate(aEstimate), theLayer(0) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate,
+                        ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
@@ -52,7 +54,7 @@ public:
   /// Constructor with forward predicted & updated state, RecHit
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit) :
+                        ConstRecHitPointer aRecHit) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -61,14 +63,14 @@ public:
   /// Constructor with forward predicted & updated state, RecHit, estimate 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
+                        ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
     theEstimate(aEstimate), theLayer(0) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate,
+                        ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
@@ -81,7 +83,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit) :
+                        ConstRecHitPointer aRecHit) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
@@ -94,7 +96,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
+                        ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
@@ -103,7 +105,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TransientTrackingRecHit* aRecHit, float aEstimate,
+                        ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
@@ -141,7 +143,7 @@ public:
     return theUpdatedState;
   }
 
-  const TransientTrackingRecHit* recHit() const {
+  ConstRecHitPointer recHit() const {
     return theRecHit;
   }
 
@@ -153,7 +155,7 @@ private:
   TrajectoryStateOnSurface theFwdPredictedState;
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
-  const TransientTrackingRecHit* theRecHit;
+  ConstRecHitPointer       theRecHit;
   float theEstimate;
   const DetLayer* theLayer;
 };

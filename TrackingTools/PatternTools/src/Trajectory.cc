@@ -64,7 +64,7 @@ Trajectory::RecHitContainer Trajectory::recHits() const {
 
   for (Trajectory::DataContainer::const_iterator itm
 	 = theData.begin(); itm != theData.end(); itm++) {
-    hits.push_back((*itm).recHit()->clone());
+    hits.push_back((*itm).recHit());
   }
   return hits;
 }
