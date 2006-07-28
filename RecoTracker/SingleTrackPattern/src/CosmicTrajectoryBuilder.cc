@@ -138,7 +138,8 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
  
-    TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
+    //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
+    TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet( ihit->geographicalId());
     TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
@@ -254,8 +255,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     GlobalPoint gphit=RHBuilder->build(Hits[icosmhit])->globalPosition();
     unsigned int iraw= Hits[icosmhit]->geographicalId().rawId();
     LogDebug("CosmicTrackFinder")<<" HIT POSITION "<< gphit;
-    TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
-
+    //RC TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
+    TransientTrackingRecHit::RecHitPointer tmphit=RHBuilder->build(Hits[icosmhit]);
      TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
  					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
      

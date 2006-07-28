@@ -94,10 +94,13 @@ namespace cms
 	const Trajectory  theTraj =(*trajoutput.begin());
 	
 	//RecHitCollection	
-	const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
-	for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	//RC const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
+	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	Trajectory::RecHitContainer transHits = theTraj.recHits();
+	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
-	  outputRHColl->push_back( ( (j->hit() )->clone()) );
+	  //RC outputRHColl->push_back( ( (j->hit() )->clone()) );
+	  outputRHColl->push_back( ( ((**j).hit() )->clone()) );
 	}
 
 	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
@@ -133,7 +136,8 @@ namespace cms
 	math::XYZVector outmom( p.x(), p.y(), p.z() );
 	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
-	for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
 	  theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
 	  cc++;
