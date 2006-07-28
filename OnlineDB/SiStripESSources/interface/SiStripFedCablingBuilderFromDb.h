@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.4 2006/06/09 13:15:43 bainbrid Exp $
-// Latest tag:  $Name: V00-01-01 $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.5 2006/07/26 11:27:20 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -71,11 +71,17 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   
   /** Virtual method that is called by makeFedCabling() to allow FED
       cabling to be written to the conds DB (local or otherwise). */
-  virtual void writeFedCablingToCondDb() {;}
+  virtual void writeFedCablingToCondDb( const SiStripFedCabling& ) {;}
   
   /** Returns pointer to database interface for any derived classes
       that implement writeFedCablingToCondDb(). */
   inline SiStripConfigDb* const database();
+  
+  /** */
+  inline const std::string& logCategory();
+
+  /** Defines the MessageLogger category for this class. */
+  static const std::string logCategory_;
   
  private:
   
@@ -84,13 +90,11 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   
   /** Vector of strings holding partition names. */
   std::vector<std::string> partitions_;
-
-  /** Defines the MessageLogger category for this class. */
-  static const std::string logCategory_;
   
 };
 
 SiStripConfigDb* const SiStripFedCablingBuilderFromDb::database() { return db_; }
+const std::string& SiStripFedCablingBuilderFromDb::logCategory() { return logCategory_; }
 
 #endif // OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 
