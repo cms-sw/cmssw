@@ -48,7 +48,7 @@ PROCEDURE update_online_pvss_tb_sm_iov
         raise_application_error(-20020, 'New IOV since overlaps older since');
     ELSIF new_since < last_till THEN
        -- Truncate the last IoV
-       sql_str := 'UPDATE ' || cndc_table || ' SET till = :new_since WHERE since = :last_since AND till = :last_till and dp_name := :d';
+       sql_str := 'UPDATE ' || cndc_table || ' SET till = :new_since WHERE since = :last_since AND till = :last_till and dp_name = :d';
        EXECUTE IMMEDIATE sql_str USING new_since, last_since, last_till, dp_name;
     END IF;
   END;
