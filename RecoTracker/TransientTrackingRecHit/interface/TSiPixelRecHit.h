@@ -10,31 +10,31 @@ class GeomDetUnit;
 class TSiPixelRecHit : public TransientTrackingRecHit {
 public:
 
-  /// This constructor clones the TrackingRecHit, it should be used when the 
-  /// TrackingRecHit exist already in some collection
-  TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
-		 const PixelClusterParameterEstimator* cpe) : 
-    TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) {}
-
   typedef const edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> > clusterRef;
 
-  /// Creates the TrackingRecHit internally, avoids redundent cloning
-  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-		  const GeomDet* det, 
-		  //		  const SiPixelCluster& cluster,
-		  clusterRef cluster,
-		  const PixelClusterParameterEstimator* cpe);
+//RC   /// This constructor clones the TrackingRecHit, it should be used when the 
+//RC   /// TrackingRecHit exist already in some collection
+//RC   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
+//RC 		 const PixelClusterParameterEstimator* cpe) : 
+//RC     TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) {}
 
-  TSiPixelRecHit( const TSiPixelRecHit& other ) :
-    TransientTrackingRecHit( other.det()), 
-    theHitData( other.specificHit()->clone()),
-    theCPE( other.cpe())  {}
+//RC   /// Creates the TrackingRecHit internally, avoids redundent cloning
+//RC   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
+//RC 		  const GeomDet* det, 
+//RC 		  //		  const SiPixelCluster& cluster,
+//RC 		  clusterRef cluster,
+//RC 		  const PixelClusterParameterEstimator* cpe);
+
+//RC   TSiPixelRecHit( const TSiPixelRecHit& other ) :
+//RC     TransientTrackingRecHit( other.det()), 
+//RC     theHitData( other.specificHit()->clone()),
+//RC     theCPE( other.cpe())  {}
 
   virtual ~TSiPixelRecHit() {delete theHitData;}
 
-  virtual TSiPixelRecHit * clone() const {
-    return new TSiPixelRecHit(*this);
-  }
+//RC   virtual TSiPixelRecHit * clone() const {
+//RC     return new TSiPixelRecHit(*this);
+//RC   }
 
   virtual AlgebraicVector parameters() const {return theHitData->parameters();}
   virtual AlgebraicSymMatrix parametersError() const {return theHitData->parametersError();}
@@ -58,7 +58,8 @@ public:
 
   virtual bool canImproveWithTrack() const {return true;}
 
-  virtual TSiPixelRecHit* clone (const TrajectoryStateOnSurface& ts) const;
+  //RC  virtual TSiPixelRecHit* clone (const TrajectoryStateOnSurface& ts) const;
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const;
 
   virtual const GeomDetUnit* detUnit() const;
 
@@ -67,10 +68,45 @@ public:
   const SiPixelRecHit* specificHit() const {return theHitData;};
   const PixelClusterParameterEstimator* cpe() const {return theCPE;}
 
+  static RecHitPointer build( const GeomDet * geom, const SiPixelRecHit* rh, 
+			      const PixelClusterParameterEstimator* cpe) {
+    return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe));
+  }
+
+  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
+			      const GeomDet* det, 
+			      clusterRef cluster,
+			      const PixelClusterParameterEstimator* cpe) {
+    return RecHitPointer( new TSiPixelRecHit( pos, err, det, cluster, cpe));
+  }
+
+
 private:
 
   SiPixelRecHit*                        theHitData;
   const PixelClusterParameterEstimator* theCPE;
+
+  /// This constructor clones the TrackingRecHit, it should be used when the 
+  /// TrackingRecHit exist already in some collection
+  TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
+		 const PixelClusterParameterEstimator* cpe) : 
+    TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) {}
+
+  /// Creates the TrackingRecHit internally, avoids redundent cloning
+  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
+		  const GeomDet* det, 
+		  //		  const SiPixelCluster& cluster,
+		  clusterRef cluster,
+		  const PixelClusterParameterEstimator* cpe);
+
+  TSiPixelRecHit( const TSiPixelRecHit& other ) :
+    TransientTrackingRecHit( other.det()), 
+    theHitData( other.specificHit()->clone()),
+    theCPE( other.cpe())  {}
+
+  virtual TSiPixelRecHit * clone() const {
+    return new TSiPixelRecHit(*this);
+  }
 
 };
 

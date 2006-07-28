@@ -14,7 +14,7 @@ TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
   theHitData = new SiStripRecHit2D( pos, err, det->geographicalId(), clust);
 }
 
-TSiStripRecHit2DLocalPos* 
+TransientTrackingRecHit::RecHitPointer
 TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE != 0) {
@@ -23,8 +23,8 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
     const SiStripCluster& clust = *specificHit()->cluster();  
     StripClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts.localParameters());
-    return new TSiStripRecHit2DLocalPos( lv.first, lv.second, det(), 
-					 specificHit()->cluster(), theCPE);
+    return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
+					    specificHit()->cluster(), theCPE);
   }
   /// FIXME: should report the problem somehow
   else return clone();

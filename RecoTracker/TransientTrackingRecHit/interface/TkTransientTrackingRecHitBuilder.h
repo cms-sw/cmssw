@@ -13,7 +13,7 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 
 				    const PixelClusterParameterEstimator * ,
 				    const StripClusterParameterEstimator * );
-  TransientTrackingRecHit * build (const TrackingRecHit * p) const ;
+  TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator(){return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
     

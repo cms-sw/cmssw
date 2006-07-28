@@ -13,7 +13,7 @@ TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
   theHitData = new SiPixelRecHit( pos, err, det->geographicalId(), clust);
 }
 
-TSiPixelRecHit* TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
+TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE == 0){
     return new TSiPixelRecHit( det(), theHitData, 0);
@@ -21,7 +21,7 @@ TSiPixelRecHit* TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts.localParameters());
-    return new TSiPixelRecHit( lv.first, lv.second, det(), specificHit()->cluster(), theCPE);
+    return TSiPixelRecHit::build( lv.first, lv.second, det(), specificHit()->cluster(), theCPE);
   }
 }
 
