@@ -21,7 +21,10 @@ RFIOError::RFIOError (const char *context, int code /* = 0 */, int scode /* = 0 
 
 std::string
 RFIOError::explainSelf (void) const
-{ return seal::StringFormat ("RFIO error %1/%2").arg (m_code).arg (m_scode); }
+{ 
+  return IOError::explainSelf() + 
+    std::string(seal::StringFormat (" RFIO error %1/%2").arg (m_code).arg (m_scode)); 
+}
 
 seal::Error *
 RFIOError::clone (void) const
