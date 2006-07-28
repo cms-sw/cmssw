@@ -50,7 +50,9 @@ namespace cms{
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
     es.get<IdealMagneticFieldRecord>().get(theMagField);
       
-    theInitialState       = new TransientInitialStateEstimator( es);
+    // get nested parameter set for the TransientInitialStateEstimator
+    ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+    theInitialState          = new TransientInitialStateEstimator( es,tise_params);
     
     // get nested parameter set for the MeasurementTracker
     ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
@@ -162,7 +164,7 @@ namespace cms{
 	DetId tmpId = DetId( iseed->startingState().detId());
 	const GeomDet* tmpDet  = tracker->idToDet( tmpId );
 	GlobalVector gv = tmpDet->surface().toGlobal( iseed->startingState().parameters().momentum() );
-	
+	 
 	cout << "seed perp,phi,eta : " 
 	<< gv.perp() << " , " 
 	<< gv.phi() << " , " 
@@ -177,9 +179,7 @@ namespace cms{
 	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
       }
       edm::LogVerbatim("CkfPattern") << "=================================================";
-      
-
-      
+          
     }
     // Step G: write output to file
     e.put(output);
