@@ -12,6 +12,7 @@
 
 class RecHitLessByDet {
 
+  typedef TransientTrackingRecHit::ConstRecHitPointer RecHitPointer;
 public:
 
   RecHitLessByDet(const PropagationDirection& dir) :
@@ -19,13 +20,13 @@ public:
 
   ~RecHitLessByDet() {}
 
-  bool operator()(const TransientTrackingRecHit& aHit, const TransientTrackingRecHit& bHit) const{
+  bool operator()(const RecHitPointer& aHit, const RecHitPointer& bHit) const{
 
     return (theDirection == alongMomentum ? 
-	    (aHit.det()->surface().toGlobal(aHit.localPosition()).mag() < 
-	     bHit.det()->surface().toGlobal(bHit.localPosition()).mag() ) :
-	    (aHit.det()->surface().toGlobal(aHit.localPosition()).mag() >
-	     bHit.det()->surface().toGlobal(bHit.localPosition()).mag()) );
+	    (aHit->det()->surface().toGlobal(aHit->localPosition()).mag() < 
+	     bHit->det()->surface().toGlobal(bHit->localPosition()).mag() ) :
+	    (aHit->det()->surface().toGlobal(aHit->localPosition()).mag() >
+	     bHit->det()->surface().toGlobal(bHit->localPosition()).mag()) );
   }
 
 private:

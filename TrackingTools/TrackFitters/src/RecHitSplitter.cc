@@ -7,13 +7,13 @@ RecHitSplitter::split(const RecHitContainer& hits) const {
 
   for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end();
       ihit++) {
-    if(!(*ihit).isValid()) {
-      singles.push_back((*ihit).clone());
+    if(!(**ihit).isValid()) {
+      singles.push_back((*ihit));
     } else {
-      RecHitContainer shits = ihit->clone()->transientHits();
+      RecHitContainer shits = (**ihit).transientHits();
       for(RecHitContainer::const_iterator ishit = shits.begin();
 	  ishit != shits.end(); ishit++) {
-	singles.push_back(&(*ishit));
+	singles.push_back(*ishit);
       }
     }
   }

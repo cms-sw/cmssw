@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
+  
 KFTrajectoryFitter::~KFTrajectoryFitter() {
 
   delete thePropagator;
@@ -58,17 +58,17 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     return std::vector<Trajectory>();
   } 
   TSOS currTsos;
-  if((&*(hits.begin()))->isValid()) {
+  if (hits.front()->isValid()) {
     //update
-    TransientTrackingRecHit* preciseHit = hits.begin()->clone(predTsos);
+    TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
     currTsos = updator()->update(predTsos, *preciseHit);
     myTraj.push(TM(predTsos, currTsos, preciseHit,
 		   estimator()->estimate(predTsos, *preciseHit).second));
   } else {
     currTsos = predTsos;
-    myTraj.push(TM(predTsos, hits.begin()->clone() ));
+    myTraj.push(TM(predTsos, *hits.begin() ));
   }
-  const TransientTrackingRecHit & firsthit = (*(hits.begin()));
+  const TransientTrackingRecHit & firsthit = *hits.front();
   
   if (firsthit.isValid()){
     
@@ -104,59 +104,59 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; 
       ihit != hits.end(); ihit++) {
-    if ((*ihit).isValid() == false && (*ihit).det() == 0) {
+    if ((**ihit).isValid() == false && (**ihit).det() == 0) {
       edm::LogError("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
 
-    if ((*ihit).isValid()){
+    if ((**ihit).isValid()){
       LogDebug("TrackingTools/TrackFitters")
 	<<" ----------------- NEW HIT -----------------------"<<"\n"
-	<<"  HIT IS AT R   "<<(*ihit).globalPosition().perp()<<"\n"
-	<<"  HIT IS AT Z   "<<(*ihit).globalPosition().z()<<"\n"
-	<<"  HIT IS AT Phi "<<(*ihit).globalPosition().phi()<<"\n"
-	<<"  HIT IS AT Loc "<<(*ihit).localPosition()<<"\n"
-	<<"  WITH LocError "<<(*ihit).localPositionError()<<"\n"
-	<<"  HIT IS AT Glo "<<(*ihit).globalPosition()<<"\n"
+	<<"  HIT IS AT R   "<<(**ihit).globalPosition().perp()<<"\n"
+	<<"  HIT IS AT Z   "<<(**ihit).globalPosition().z()<<"\n"
+	<<"  HIT IS AT Phi "<<(**ihit).globalPosition().phi()<<"\n"
+	<<"  HIT IS AT Loc "<<(**ihit).localPosition()<<"\n"
+	<<"  WITH LocError "<<(**ihit).localPositionError()<<"\n"
+	<<"  HIT IS AT Glo "<<(**ihit).globalPosition()<<"\n"
 	<<"SURFACE POSITION"<<"\n"
-	<<(*ihit).det()->surface().position()<<"\n"
+	<<(**ihit).det()->surface().position()<<"\n"
 	<<"SURFACE ROTATION"<<"\n"
-	<<(*ihit).det()->surface().rotation()<<"\n";
-      LogDebug("TrackingTools/TrackFitters") <<" GOING TO examine hit "<<(*ihit).geographicalId().rawId()<<"\n";
-      if ((*ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-	LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((*ihit).geographicalId()).layer()<<"\n";
-      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-	LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((*ihit).geographicalId()).layer()<<"\n";
-      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-	LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((*ihit).geographicalId()).wheel()<<"\n";
-      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-	LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((*ihit).geographicalId()).wheel()<<"\n";
+	<<(**ihit).det()->surface().rotation()<<"\n";
+      LogDebug("TrackingTools/TrackFitters") <<" GOING TO examine hit "<<(**ihit).geographicalId().rawId()<<"\n";
+      if ((**ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
+	LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((**ihit).geographicalId()).layer()<<"\n";
+      }else if ((**ihit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((**ihit).geographicalId()).layer()<<"\n";
+      }else if ((**ihit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((**ihit).geographicalId()).wheel()<<"\n";
+      }else if ((**ihit).geographicalId().subdetId() == StripSubdetector::TID ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((**ihit).geographicalId()).wheel()<<"\n";
       }else{
 	LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
       }
     }
 
     predTsos = propagator()->propagate(currTsos,
-				       (*ihit).det()->surface());
+				       (**ihit).det()->surface());
     if(!predTsos.isValid()) {
       edm::LogError("TrackingTools/TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"
 	<<"KFTrajectoryFitter: predicted tsos not valid!\n" 
 	<<"current TSOS: "<<currTsos<< "\n";
-      if((*ihit).isValid())
+      if((**ihit).isValid())
 	edm::LogError("TrackingTools/TrackFitters")
-	  << "next Surface: "<<(*ihit).det()->surface().position()<< "\n";
+	  << "next Surface: "<<(**ihit).det()->surface().position()<< "\n";
       return std::vector<Trajectory>();
     }
-    if((*ihit).isValid()) {
+    if((**ihit).isValid()) {
       //update
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS VALID: updating predTsos"<<"\n";
-      TransientTrackingRecHit* preciseHit = (*ihit).clone(predTsos);
+      TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
 
       if (preciseHit->isValid() == false){
 	LogDebug("TrackingTools/TrackFitters") <<"THE Precise HIT IS NOT VALID: using currTsos"<<"\n";
 	currTsos = predTsos;
-	myTraj.push(TM(predTsos, (*ihit).clone() ));
+	myTraj.push(TM(predTsos, *ihit ));
       }else{
 	
 	currTsos = updator()->update(predTsos, *preciseHit);
@@ -166,14 +166,14 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     } else {
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS NOT VALID: using currTsos"<<"\n";
       currTsos = predTsos;
-      myTraj.push(TM(predTsos, (*ihit).clone() ));
+      myTraj.push(TM(predTsos, *ihit));
     }
     LogDebug("TrackingTools/TrackFitters")
       <<" predTsos !"<<"\n"
       <<predTsos<<"\n"
       <<" currTsos !"<<"\n"
       <<currTsos<<"\n";
-    //std::cout <<(*ihit).det()->surface().position()<<std::endl;
+    //std::cout <<(**ihit).det()->surface().position()<<std::endl;
   }
   //
   // debug

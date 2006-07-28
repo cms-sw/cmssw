@@ -24,14 +24,14 @@ std::vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
   result.reserve(hits.size());
   for(RecHitContainer::iterator ihit = hits.begin(); ihit != hits.end();
       ihit++) {
-    if(!(*ihit).isValid()) result.push_back(ihit.get());
-    else if((*ihit).transientHits().size() == 1) result.push_back(ihit.get());
+    if(!(**ihit).isValid()) result.push_back(*ihit);
+    else if((**ihit).transientHits().size() == 1) result.push_back(*ihit);
     else {
-      RecHitContainer splitted = RecHitSplitter().split((*ihit).transientHits());
+      RecHitContainer splitted = RecHitSplitter().split((**ihit).transientHits());
       RecHitContainer sorted = 
 	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
       for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
-	result.push_back(srt.get());
+	result.push_back(*srt);
 	//      result.insert(result.end(), sorted.begin(), sorted.end());
       }
     }
@@ -50,14 +50,14 @@ std::vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
   result.reserve(hits.size());
   for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end();
       ihit++) {
-    if(!(*ihit).isValid()) result.push_back(ihit->clone());
-    else if((*ihit).transientHits().size() == 1) result.push_back(ihit->clone());
+    if(!(**ihit).isValid()) result.push_back(*ihit);
+    else if((**ihit).transientHits().size() == 1) result.push_back(*ihit);
     else {      
-      RecHitContainer splitted = RecHitSplitter().split(ihit->clone()->transientHits());
+      RecHitContainer splitted = RecHitSplitter().split((**ihit).transientHits());
       RecHitContainer sorted = 
 	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
       for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
-	result.push_back(srt.get());
+	result.push_back(*srt);
 	//      result.insert(result.end(), sorted.begin(), sorted.end());
       }
     }

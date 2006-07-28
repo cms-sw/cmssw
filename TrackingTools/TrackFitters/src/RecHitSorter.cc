@@ -8,7 +8,7 @@ RecHitSorter::RecHitContainer RecHitSorter::sortHits(const RecHitContainer& hits
 
   RecHitContainer myHits(hits);
 
-  myHits.sort(/*myHits.begin(), myHits.end(),*/ RecHitLessByDet(dir));
+  sort( myHits.begin(), myHits.end(), RecHitLessByDet(dir));
 
   return myHits;
 

@@ -4,8 +4,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "DataFormats/Common/interface/OwnVector.h"
-
 /** Sorts the RecHits along the PropagationDirection.
  */
 
@@ -13,7 +11,7 @@ class RecHitSorter {
 
 public:
 
-  typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
 
   RecHitSorter() {}
 
