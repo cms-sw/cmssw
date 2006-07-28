@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/13 15:43:06 $
+ * $Revision: 1.3 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -20,6 +20,12 @@ using namespace std;
 /* Constructor */ 
 DTSegmentCleaner::DTSegmentCleaner(const edm::ParameterSet& pset) {
   nSharedHitsMax = pset.getParameter<int>("nSharedHitsMax");
+  segmCleanerMode = pset.getParameter<int>("segmCleanerMode");
+  if((segmCleanerMode!=1)&&(segmCleanerMode!=2)&&(segmCleanerMode!=3))
+    {
+      cout<<"Warning: wrong segmCleanerMode "<<segmCleanerMode
+	  <<"    ->     default (1) has been chosen"<<endl;
+    }
 }
 
 /* Destructor */ 
@@ -30,15 +36,24 @@ DTSegmentCleaner::~DTSegmentCleaner() {
 vector<DTSegmentCand*> DTSegmentCleaner::clean(vector<DTSegmentCand*> inputCands) const {
   if (inputCands.size()<2) return inputCands;
 
+ 
   vector<DTSegmentCand*> result = solveConflict(inputCands);
 
-  // cout << "No conflict " << endl;
-  // for (vector<DTSegmentCand*>::const_iterator seg=result.begin();
-  //      seg!=result.end(); ++seg) 
-  //   cout << *(*seg) << endl;
-
+  /*cout << "No conflict --------------" << endl;
+  for (vector<DTSegmentCand*>::const_iterator seg=result.begin();
+       seg!=result.end(); ++seg) {
+    cout << *(*seg) << endl;
+      AssPointCont myAssPointCont = (*seg)->hits();
+      for (set<AssPoint, DTSegmentCand::AssPointLessZ>::const_iterator hits=myAssPointCont.begin();
+	   hits!=myAssPointCont.end(); ++hits) 
+	{	
+	  cout<<(*hits).second<<endl;
+	  cout<<(*hits).first->id()<<endl;
+	}
+	}*/
+  
   result = ghostBuster(result);
-
+  
   return result;
 }
 
@@ -51,7 +66,32 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
     for (vector<DTSegmentCand*>::iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
-      if (confHits.size()) {
+      if ((confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
+	  &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
+	  &&(segmCleanerMode!=1))
+	{
+	  if(segmCleanerMode==2)
+	    {	
+	      LocalVector dir1 = (*cand)->direction();
+	      LocalVector dir2 = (*cand2)->direction();
+	      float phi1=(atan((dir1.x())/(dir1.z())));
+	      float phi2=(atan((dir2.x())/(dir2.z())));
+	      
+	      if(fabs(phi1)>fabs(phi2))
+		for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
+		     cHit!=confHits.end(); ++cHit) {
+		  (*cand)->removeHit(*cHit);
+		}
+	      else
+		for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
+		     cHit!=confHits.end(); ++cHit) {
+		  (*cand2)->removeHit(*cHit);
+		}
+	    }
+	  else 
+	    cout<<"keep both segment candidates "<<*(*cand)<<" and "<<*(*cand2)<<endl;
+	}
+      else if (confHits.size()) {
         for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
              cHit!=confHits.end(); ++cHit) {
           if ((**cand)<(**cand2)) 
@@ -84,20 +124,26 @@ DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
        cand!=inputCands.end(); ++cand) {
     for (vector<DTSegmentCand*>::iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
-      int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
-      // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
-      //   << " < " << ((**cand)<(**cand2)) << endl;
-      if (nSharedHits >= nSharedHitsMax ) {
-        if ((**cand)<(**cand2)) {
-          // cout << (**cand) << " is ghost " << endl;
-          ghosts.push_back(*cand);
-        }
-        else {
-          // cout << (**cand2) << " is ghost " << endl;
-          ghosts.push_back(*cand2);
-        }
-        continue;
-      }
+	 int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
+       // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
+       //   << " < " << ((**cand)<(**cand2)) << endl;
+       	 if ((nSharedHits==((*cand)->nHits())) && (nSharedHits==((*cand2)->nHits()))
+	  &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
+	  &&(segmCleanerMode==3))
+	 {
+	   continue;
+	 }
+	 if (nSharedHits >= nSharedHitsMax ) {
+	   if ((**cand)<(**cand2)) {
+	     // cout << (**cand) << " is ghost " << endl;
+	     ghosts.push_back(*cand);
+	   }
+	   else {
+	     // cout << (**cand2) << " is ghost " << endl;
+	     ghosts.push_back(*cand2);
+	   }
+	   continue;
+	 }
     }
   }
 

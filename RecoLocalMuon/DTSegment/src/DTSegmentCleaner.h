@@ -12,8 +12,8 @@
  *  retaining the segment with higher number of hits and best chi2, while the
  *  others are deleted.
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/11 16:59:01 $
+ * $Revision: 1.2 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -34,6 +34,9 @@ class DTSegmentCleaner{
 
   public:
 
+  typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+  typedef std::set<AssPoint, DTSegmentCand::AssPointLessZ> AssPointCont;
+
 /* Constructor */ 
     DTSegmentCleaner(const edm::ParameterSet& pset) ;
 
@@ -51,7 +54,11 @@ class DTSegmentCleaner{
     /// ghost  suppression
     std::vector<DTSegmentCand*> ghostBuster(std::vector<DTSegmentCand*> inputCands) const ;
 
-    int nSharedHitsMax;
+  int nSharedHitsMax;
+  ///treatment of LR ambiguity cases: 1 chooses the best chi2
+  ///                                 2 chooses the smaller angle
+  ///                                 3 keeps both candidates
+  int segmCleanerMode;
 
 };
 #endif // DTSegment_DTSegmentCleaner_h
