@@ -143,6 +143,23 @@ edm::service::SiteLocalConfigService::frontierConnect (void) const
 }
 
 void
+edm::service::SiteLocalConfigService::initFrontierParams (std::string logicalServer) const
+{
+    // These cannot be stack-allocated because they will become part of
+    // the environment.  Making them static forces them to persist
+    // after this function returns.
+    static std::string logicalServerEnv, serverEnv;
+
+    logicalServerEnv = "FRONTIER_LOGICALSERVER=";
+    logicalServerEnv.append(logicalServer);
+    putenv((char *)(logicalServerEnv.c_str()));
+
+    serverEnv = "FRONTIER_SERVER=";
+    serverEnv.append(frontierConnect());
+    putenv((char *)(serverEnv.c_str()));
+}
+
+void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
     XMLPlatformUtils::Initialize();  
