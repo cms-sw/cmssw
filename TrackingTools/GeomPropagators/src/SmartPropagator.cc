@@ -6,8 +6,8 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: $
- * $Revision: $
+ * $Date: 2006/05/24 19:51:36 $
+ * $Revision: 1.1 $
  *
  * Modification:
  *
@@ -22,8 +22,8 @@
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /* Base Class Headers */
 
@@ -121,7 +121,6 @@ TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& f
 
 TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
                                                     const Cylinder& cylinder) const {
-
   if (insideTkVol(fts) && insideTkVol(cylinder)) {
     return getTkPropagator()->propagate(fts, cylinder);
   } else {
@@ -130,7 +129,7 @@ TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& f
 
 }
 
-pair<TrajectoryStateOnSurface,double> 
+std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
                                    const Plane& plane) const 
 {
@@ -141,7 +140,7 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   }
 }
 
-pair<TrajectoryStateOnSurface,double> 
+std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
                                    const Cylinder& cylinder) const
 {
@@ -155,18 +154,21 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
   GlobalPoint gp = fts.position();
-  LocalPoint lp = theTkVolume()->toLocal(gp);
-  return theTkVolume()->bounds().inside(lp);
+//  LocalPoint lp = theTkVolume()->toLocal(gp);
+//  return theTkVolume()->bounds().inside(lp);
 
+  return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );
 }
 
 
 bool SmartPropagator::insideTkVol(const Surface& surface) const {
 
   GlobalPoint gp = surface.position();
-  LocalPoint lp = theTkVolume()->toLocal(gp);
+ // LocalPoint lp = theTkVolume()->toLocal(gp);
 
-  return theTkVolume()->bounds().inside(lp);
+ // return theTkVolume()->bounds().inside(lp);
+  return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );
+
 
 }
 
@@ -174,8 +176,10 @@ bool SmartPropagator::insideTkVol(const Surface& surface) const {
 bool SmartPropagator::insideTkVol( const BoundCylinder& cylin)  const {
 
   GlobalPoint gp(cylin.radius(),0.,(cylin.bounds().length())/2.);
-  LocalPoint lp = theTkVolume()->toLocal(gp);
-  return theTkVolume()->bounds().inside(lp);
+//  LocalPoint lp = theTkVolume()->toLocal(gp);
+//  return theTkVolume()->bounds().inside(lp);
+  return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );
+
 
 }
 
@@ -183,8 +187,10 @@ bool SmartPropagator::insideTkVol( const BoundCylinder& cylin)  const {
 bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 
   GlobalPoint gp = plane.position();
-  LocalPoint lp = theTkVolume()->toLocal(gp);
-  return theTkVolume()->bounds().inside(lp);
+//  LocalPoint lp = theTkVolume()->toLocal(gp);
+//  return theTkVolume()->bounds().inside(lp);
+  return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );
+
 
 }
 
