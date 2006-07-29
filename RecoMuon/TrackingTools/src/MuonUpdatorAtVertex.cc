@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/21 20:24:55 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/07/28 12:52:54 $
+ *   $Revision: 1.7 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -130,6 +130,7 @@ void MuonUpdatorAtVertex::setES(const edm::EventSetup& iSetup) {
   if (thePropagator) delete thePropagator;
 
   thePropagator = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
+
   theExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
 
   theUpdator = new KFUpdator();
@@ -185,44 +186,11 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
     return MuonVertexMeasurement();
   }
   
-  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  Cylinder surface = TrackerBounds::barrelBound(); 
-
-  FreeTrajectoryState* ftsOftsos = tsos.freeState();
-
-  std::pair<TrajectoryStateOnSurface, double> tsosAtBarrelTrackerPair =
-  thePropagator->propagateWithPath(*ftsOftsos,surface);
-
-  Plane negDisk = TrackerBounds::negativeEndcapDisk();
-  std::pair<TrajectoryStateOnSurface, double> tsosAtNegTrackerPair =
-  thePropagator->propagateWithPath(*ftsOftsos,negDisk);
-
-  Plane posDisk = TrackerBounds::positiveEndcapDisk();
-  std::pair<TrajectoryStateOnSurface, double> tsosAtPosTrackerPair =
-  thePropagator->propagateWithPath(*ftsOftsos,posDisk);
-
-
-  if ( tsosAtBarrelTrackerPair.second == 0. && 
-       tsosAtBarrelTrackerPair.second == 0. &&
-       tsosAtBarrelTrackerPair.second == 0. ) {
-    edm::LogError("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
-    return MuonVertexMeasurement();
-  }
-  TrajectoryStateOnSurface tsosAtTracker;
-  if ( tsosAtNegTrackerPair.second != 0.)
-     tsosAtTracker = tsosAtNegTrackerPair.first;
-  if ( tsosAtPosTrackerPair.second != 0.)
-     tsosAtTracker = tsosAtPosTrackerPair.first;
-  if ( tsosAtBarrelTrackerPair.second != 0.)
-     tsosAtTracker = tsosAtBarrelTrackerPair.first;
-    
   // get state at outer tracker surface
-  StateOnTrackerBound tracker(thePropagator);
-  TrajectoryStateOnSurface trackerState = tracker(*tsosAtTracker.freeState());
-  
-  // inside the tracker we can use Gtf propagator
-  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(tsosAtTracker,theVertexPos);
+  TrajectoryStateOnSurface trackerState = stateAtTracker(tsos);
 
+  // inside the tracker we can use Gtf propagator
+  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos);
   TrajectoryStateOnSurface vertexState;
   TrajectoryMeasurement vertexMeasurement;
   double chi2 = 0.0;
@@ -259,7 +227,6 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
     vertexMeasurement = TrajectoryMeasurement(ipState,vertexState,recHit,chi2);
 
   }
-
   return MuonVertexMeasurement(trackerState,ipState,vertexState,vertexMeasurement,chi2);
 
 }
@@ -280,37 +247,11 @@ TrajectoryStateOnSurface MuonUpdatorAtVertex::stateAtTracker(const TrajectorySta
     return TrajectoryStateOnSurface();
   }
   
-  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  Cylinder surface = TrackerBounds::barrelBound(); 
-  std::pair<TrajectoryStateOnSurface, double> tsosAtBarrelTrackerPair =
-  thePropagator->propagateWithPath(tsos,surface);
-
-  Plane negDisk = TrackerBounds::negativeEndcapDisk();
-  std::pair<TrajectoryStateOnSurface, double> tsosAtNegTrackerPair =
-  thePropagator->propagateWithPath(tsos,negDisk);
-
-  Plane posDisk = TrackerBounds::positiveEndcapDisk();
-  std::pair<TrajectoryStateOnSurface, double> tsosAtPosTrackerPair =
-  thePropagator->propagateWithPath(tsos,posDisk);
-
-  if ( tsosAtBarrelTrackerPair.second == 0. && 
-       tsosAtBarrelTrackerPair.second == 0. &&
-       tsosAtBarrelTrackerPair.second == 0. ) {
-    edm::LogError("MuonUpdatorAtVertex")<<"Extrapolation to Tracker failed";
-    return TrajectoryStateOnSurface();
-  }
-
-  TrajectoryStateOnSurface tsosAtTracker;
-  if ( tsosAtNegTrackerPair.second != 0. )
-     tsosAtTracker = tsosAtNegTrackerPair.first;
-  if ( tsosAtPosTrackerPair.second != 0. )
-     tsosAtTracker = tsosAtPosTrackerPair.first;
-  if ( tsosAtBarrelTrackerPair.second != 0. )
-     tsosAtTracker = tsosAtBarrelTrackerPair.first;
-
   // get state at outer tracker surface
   StateOnTrackerBound tracker(thePropagator);
-  
-  return tracker(tsosAtTracker);
+
+  TrajectoryStateOnSurface result = tracker(tsos);
+
+  return result;
 
 }
