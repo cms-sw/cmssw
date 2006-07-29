@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.3 2006/01/21 01:35:39 fedor Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.1 2006/02/08 20:25:55 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -157,7 +157,7 @@ bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, const std::string& fTag, unsi
 	unsigned long hcalId = rset->getUInt (1);
 	float values [4];
 	for (int i = 0; i < 4; i++) values [i] = rset->getFloat (i+2);
-	fObject->addValue (hcalId, values);
+	fObject->addValue (DetId (hcalId), values);
 	//	 if (debug) std::cout << "new entry: " << hcalId << '/' << values [0] << '/' << values [1] << '/' 
 	//	  << values [2] << '/' << values [3] << std::endl;
       }
