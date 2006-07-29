@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.9 2006/04/13 22:40:39 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.10 2006/07/26 01:09:26 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -41,16 +41,17 @@ namespace {
     fOutput << "</ROOT>" << std::endl;
   }
 
-  void dumpChannelId (std::ostream& fOutput, HcalDetId fChannel) {
+  void dumpChannelId (std::ostream& fOutput, DetId fChannel) {
+    HcalText2DetIdConverter converter (fChannel);
     fOutput << "      ";
     fOutput << "<CHANNEL> ";
     fOutput << "<EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> ";
-    fOutput << "<ETA>" << fChannel.ietaAbs() << "</ETA>";
-    fOutput << "<PHI>" << fChannel.iphi() << "</PHI> ";
-    fOutput << "<DEPTH>" << fChannel.depth() << "</DEPTH> ";
-    fOutput << "<Z>" << (fChannel.zside() > 0 ? "1" : "-1") << "</Z> ";
-    fOutput << "<DETECTOR_NAME>" << (fChannel.subdet() == HcalBarrel ? "HB" : fChannel.subdet() == HcalEndcap ? "HE" : "HF") << "</DETECTOR_NAME> ";
-    fOutput << "<HCAL_CHANNEL_ID>" << fChannel.rawId () << "</HCAL_CHANNEL_ID> ";
+    fOutput << "<ETA>" << abs (converter.getField (1)) << "</ETA>";
+    fOutput << "<PHI>" << converter.getField (2) << "</PHI> ";
+    fOutput << "<DEPTH>" << converter.getField (3) << "</DEPTH> ";
+    fOutput << "<Z>" << (converter.getField (1) > 0 > 0 ? "1" : "-1") << "</Z> ";
+    fOutput << "<DETECTOR_NAME>" << converter.getFlavor () << "</DETECTOR_NAME> ";
+    fOutput << "<HCAL_CHANNEL_ID>" << converter.getId().rawId () << "</HCAL_CHANNEL_ID> ";
     fOutput << "</CHANNEL>";
     fOutput << std::endl;
   }
@@ -104,7 +105,7 @@ namespace {
 
   void dumpMapping (std::ostream& fOutput, unsigned fRun, const std::string& fKind, 
 		    unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, 
-		    const std::string& fTag, unsigned fVersion, const std::vector<HcalDetId>& fChannels) {
+		    const std::string& fTag, unsigned fVersion, const std::vector<DetId>& fChannels) {
     const std::string IOV_ID = "IOV_ID";
     const std::string TAG_ID = "TAG_ID";
     fOutput << "<ELEMENTS>" << std::endl;
@@ -154,8 +155,8 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
   HcalPedestalWidths widths;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     HcalPedestalWidth* item = widths.setWidth (*channel);
@@ -175,23 +176,23 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   dumpProlog (fOutput);
   dumpHeader (fOutput, fRun, KIND, KIND);
 
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDetId chId = *channel;
+    DetId chId = *channel;
     const float* values = fObject.getValues (chId)->getValues ();
     const HcalPedestalWidth* errors = fError.getValues (chId);
     if (!values) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
+      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << HcalText2DetIdConverter(chId).toString () << std::endl;
       continue;
     }
     if (!errors) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << chId <<  ". Use defaults" << std::endl;
+      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << HcalText2DetIdConverter(chId).toString () <<  ". Use defaults" << std::endl;
       continue;
     }
     dumpDataset (fOutput, fVersion, "", "");
-    dumpChannelId (fOutput,chId.rawId ()); 
+    dumpChannelId (fOutput,chId); 
     dumpData (fOutput, values, *errors);
     endDataset (fOutput);
   }
@@ -207,8 +208,8 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   float dummyErrors [4] = {0., 0., 0., 0.};
   std::cout << "HcalDbXml::dumpObject-> set default errors: 4 x 0.0" << std::endl;
   HcalGainWidths widths;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     widths.addValue (*channel, dummyErrors);
@@ -226,23 +227,23 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   dumpProlog (fOutput);
   dumpHeader (fOutput, fRun, TABLE, KIND);
 
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDetId chId = *channel;
+    DetId chId = *channel;
     const float* values = fObject.getValues (chId)->getValues ();
     const float* errors = fError.getValues (chId)->getValues ();
     if (!values) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
+      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << HcalText2DetIdConverter(chId).toString () << std::endl;
       continue;
     }
     if (!errors) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << chId <<  ". Use defaults" << std::endl;
+      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << HcalText2DetIdConverter(chId).toString () <<  ". Use defaults" << std::endl;
       continue;
     }
     dumpDataset (fOutput, fVersion, "", "");
-    dumpChannelId (fOutput,chId.rawId ()); 
+    dumpChannelId (fOutput,chId); 
     dumpData (fOutput, values, errors);
     endDataset (fOutput);
   }

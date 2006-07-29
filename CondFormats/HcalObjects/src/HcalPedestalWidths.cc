@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2006/02/22 19:51:41 $
-$Revision: 1.6 $
+$Date: 2006/04/13 22:40:42 $
+$Revision: 1.7 $
 */
 
 #include <iostream>
@@ -34,7 +34,7 @@ HcalPedestalWidths::HcalPedestalWidths()
 
 HcalPedestalWidths::~HcalPedestalWidths(){}
 
-const HcalPedestalWidth* HcalPedestalWidths::getValues (HcalDetId fId) const {
+const HcalPedestalWidth* HcalPedestalWidths::getValues (DetId fId) const {
   HcalPedestalWidth target (fId.rawId ());
   std::vector<Item>::const_iterator cell;
   if (sorted ()) {
@@ -48,7 +48,7 @@ const HcalPedestalWidth* HcalPedestalWidths::getValues (HcalDetId fId) const {
   return &(*cell);
 }
 
-float HcalPedestalWidths::getWidth (HcalDetId fId, int fCapId) const {
+float HcalPedestalWidths::getWidth (DetId fId, int fCapId) const {
   const HcalPedestalWidth* values;
   if (fCapId >= 0 && fCapId < 4) {
     values = getValues (fId);
@@ -60,7 +60,7 @@ float HcalPedestalWidths::getWidth (HcalDetId fId, int fCapId) const {
   return -1;
 }
 
-float HcalPedestalWidths::getSigma (HcalDetId fId, int fCapId1, int fCapId2) const {
+float HcalPedestalWidths::getSigma (DetId fId, int fCapId1, int fCapId2) const {
   const HcalPedestalWidth* values;
   if (fCapId1 >= 0 && fCapId1 < 4 && fCapId2 >= 0 && fCapId2 < 4) {
     values = getValues (fId);
@@ -72,7 +72,7 @@ float HcalPedestalWidths::getSigma (HcalDetId fId, int fCapId1, int fCapId2) con
   return -1;
 }
 
-HcalPedestalWidth* HcalPedestalWidths::setWidth (HcalDetId fId) {
+HcalPedestalWidth* HcalPedestalWidths::setWidth (DetId fId) {
   HcalPedestalWidth item (fId.rawId ());
   mItems.push_back (item);
   mSorted = false;
@@ -84,10 +84,10 @@ void HcalPedestalWidths::setWidth (const HcalPedestalWidth& fItem) {
   mSorted = false;
 }
 
-std::vector<HcalDetId> HcalPedestalWidths::getAllChannels () const {
-  std::vector<HcalDetId> result;
+std::vector<DetId> HcalPedestalWidths::getAllChannels () const {
+  std::vector<DetId> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (HcalDetId (item->rawId ()));
+    result.push_back (DetId (item->rawId ()));
   }
   return result;
 }

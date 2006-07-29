@@ -109,9 +109,9 @@ void HcalLedAnalysis::doPeds(const HcalPedestals* fInputPedestals){
   map<int,float> PedVals;
   pedCan = fInputPedestals;
   if(pedCan){
-    std::vector<HcalDetId> Channs=pedCan->getAllChannels();
+    std::vector<DetId> Channs=pedCan->getAllChannels();
     for (int i=0; i<(int)Channs.size(); i++){
-      detid=Channs[i];
+      detid=HcalDetId (Channs[i]);
       for (int icap=0; icap<4; icap++) PedVals[icap]=pedCan->getValue(detid,icap);
       m_AllPedVals[detid]=PedVals;
     }

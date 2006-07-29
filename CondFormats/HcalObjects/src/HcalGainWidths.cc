@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store GainWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.5 $
+$Date: 2006/04/13 22:40:42 $
+$Revision: 1.6 $
 */
 
 #include <iostream>
@@ -34,7 +34,7 @@ HcalGainWidths::HcalGainWidths()
 
 HcalGainWidths::~HcalGainWidths(){}
 
-const HcalGainWidth* HcalGainWidths::getValues (HcalDetId fId) const {
+const HcalGainWidth* HcalGainWidths::getValues (DetId fId) const {
   Item target (fId.rawId (), 0, 0, 0, 0);
   std::vector<Item>::const_iterator cell;
   if (sorted ()) {
@@ -48,7 +48,7 @@ const HcalGainWidth* HcalGainWidths::getValues (HcalDetId fId) const {
   return &(*cell);
 }
 
-float HcalGainWidths::getValue (HcalDetId fId, int fCapId) const {
+float HcalGainWidths::getValue (DetId fId, int fCapId) const {
   const HcalGainWidth* values;
   if (fCapId >= 0 && fCapId < 4) {
     values = getValues (fId);
@@ -60,21 +60,21 @@ float HcalGainWidths::getValue (HcalDetId fId, int fCapId) const {
   return -1;
 }
 
-bool HcalGainWidths::addValue (HcalDetId fId, const float fValues [4]) {
+bool HcalGainWidths::addValue (DetId fId, const float fValues [4]) {
   return addValue (fId, fValues [0], fValues [1], fValues [2], fValues [3]);
 }
 
-bool HcalGainWidths::addValue (HcalDetId fId, float fValue0, float fValue1, float fValue2, float fValue3) {
+bool HcalGainWidths::addValue (DetId fId, float fValue0, float fValue1, float fValue2, float fValue3) {
   Item item (fId.rawId (), fValue0, fValue1, fValue2, fValue3);
   mItems.push_back (item);
   mSorted = false;
   return true;
 }
 
-std::vector<HcalDetId> HcalGainWidths::getAllChannels () const {
-  std::vector<HcalDetId> result;
+std::vector<DetId> HcalGainWidths::getAllChannels () const {
+  std::vector<DetId> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (HcalDetId (item->rawId ()));
+    result.push_back (DetId (item->rawId ()));
   }
   return result;
 }

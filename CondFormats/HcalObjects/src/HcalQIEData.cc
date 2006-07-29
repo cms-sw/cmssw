@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.2 $
+$Date: 2006/05/06 00:33:30 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
@@ -49,7 +49,7 @@ const HcalQIEShape& HcalQIEData::getShape () const {
   return shape_;
 }
 
-const HcalQIECoder* HcalQIEData::getCoder (HcalDetId fId) const {
+const HcalQIECoder* HcalQIEData::getCoder (DetId fId) const {
   HcalQIECoder target (fId.rawId ());
   std::vector<HcalQIECoder>::const_iterator cell;
   if (sorted ()) {
@@ -63,15 +63,15 @@ const HcalQIECoder* HcalQIEData::getCoder (HcalDetId fId) const {
   return &(*cell);
 }
 
-std::vector<HcalDetId> HcalQIEData::getAllChannels () const {
-  std::vector<HcalDetId> result;
+std::vector<DetId> HcalQIEData::getAllChannels () const {
+  std::vector<DetId> result;
   for (std::vector<HcalQIECoder>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (HcalDetId (item->rawId ()));
+    result.push_back (DetId (item->rawId ()));
   }
   return result;
 }
 
-bool HcalQIEData::addCoder (HcalDetId fId, const HcalQIECoder& fCoder) {
+bool HcalQIEData::addCoder (DetId fId, const HcalQIECoder& fCoder) {
   HcalQIECoder newCoder (fId.rawId ());
   for (int range = 0; range < 4; range++) { 
     for (int capid = 0; capid < 4; capid++) {

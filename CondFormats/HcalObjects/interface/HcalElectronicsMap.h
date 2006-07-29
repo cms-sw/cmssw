@@ -6,17 +6,19 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2006/02/13 22:14:26 $
-$Revision: 1.6 $
+$Date: 2006/02/15 19:48:02 $
+$Revision: 1.7 $
 */
 
 #include <vector>
 #include <algorithm>
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 // 
 class HcalElectronicsMap {
@@ -42,7 +44,8 @@ class HcalElectronicsMap {
 
 
   std::vector <HcalElectronicsId> allElectronicsId () const;
-  std::vector <HcalDetId> allDetectorId () const;
+  std::vector <DetId> allDetectorId () const;
+  std::vector <HcalDetId> allHcalDetectorId () const;
   std::vector <HcalCalibDetId> allCalibrationId () const;
   std::vector <HcalTrigTowerDetId> allTriggerId () const;
 

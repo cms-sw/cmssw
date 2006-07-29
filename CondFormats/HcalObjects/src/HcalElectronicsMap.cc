@@ -3,13 +3,14 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/02/15 19:48:02 $
-$Revision: 1.6 $
+$Date: 2006/06/30 22:23:40 $
+$Revision: 1.7 $
 */
 
 #include <iostream>
 #include <set>
 
+#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 HcalElectronicsMap::HcalElectronicsMap() 
@@ -107,16 +108,13 @@ std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsId () const {
   return result;
 }
 
-std::vector <HcalDetId> HcalElectronicsMap::allDetectorId () const {
-  std::vector <HcalDetId> result;
+std::vector <DetId> HcalElectronicsMap::allDetectorId () const {
+  std::vector <DetId> result;
   std::set <unsigned long> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-    try {
-      result.push_back (HcalDetId (DetId (*channel)));
-    }
-    catch (...) {} // do nothing if wrong type of Id
+      result.push_back (DetId (DetId (*channel)));
   }
   return result;
 }
@@ -127,10 +125,22 @@ std::vector <HcalCalibDetId> HcalElectronicsMap::allCalibrationId () const {
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-    try {
-      result.push_back (HcalCalibDetId (DetId (*channel)));
+    if (HcalGenericDetId (*channel).isHcalCalibDetId ()) {
+      result.push_back (HcalCalibDetId (*channel));
     }
-    catch (...) {} // do nothing if wrong type of Id
+  }
+  return result;
+}
+
+std::vector <HcalDetId> HcalElectronicsMap::allHcalDetectorId () const {
+  std::vector <HcalDetId> result;
+  std::set <unsigned long> allIds;
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
+    if (item->mId) allIds.insert (item->mId);
+  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
+    if (HcalGenericDetId (*channel).isHcalDetId()) {
+      result.push_back (HcalDetId (*channel));
+    }
   }
   return result;
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.12 2006/02/20 23:24:54 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.13 2006/06/20 19:23:15 fedor Exp $
 //
 //
 
@@ -43,6 +43,8 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
+#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
@@ -177,23 +179,19 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector <HcalElectronicsId> elIds = emap->allElectronicsId ();
     std::vector <HcalElectronicsId>::iterator id = elIds.begin ();
     for (; id != elIds.end (); id++) {
-      DetId detid = emap->lookup (*id);
-      DetId trigid = emap->lookupTrigger (*id);
-      if (detid.subdetId () <= int (HcalForward)) {
-	if ((!detid.rawId () || HcalDetId (detid.rawId ()) == HcalDetId::Undefined) 
-	    && (!trigid.rawId () || HcalTrigTowerDetId (trigid.rawId ()) == HcalDetId::Undefined)) {
-	  std::cout << "ElectronicsID: " << *id << " UNCONNECTED" << std::endl;
-	}
-	else {
-	  std::cout << "ElectronicsID: " << *id << " , Detector ID: " << HcalDetId (detid.rawId ())
-		    << " , Trigger ID: " << HcalTrigTowerDetId(emap->lookupTrigger (*id).rawId ()) << std::endl;
-	}
+      HcalGenericDetId detid = emap->lookup (*id);
+      if (detid.isHcalDetId ()) {
+	std::cout << "ElectronicsID: " << *id << " , Detector ID: " << HcalDetId (detid)
+		  << " , Trigger ID: " << HcalTrigTowerDetId(emap->lookupTrigger (*id).rawId ()) << std::endl;
       }
-      else if (detid.subdetId () <= int (HcalCalibration)) {
-	std::cout << "ElectronicsID: " << *id << " , Calibration ID: " << HcalCalibDetId (detid.rawId ()) << std::endl;
+      else if (detid.isHcalCalibDetId ()) {
+	std::cout << "ElectronicsID: " << *id << " , Calibration ID: " << HcalCalibDetId (detid) << std::endl;
+      }
+      else if (detid.isHcalZDCDetId ()) {
+	std::cout << "ElectronicsID: " << *id << " , ZDC ID: " << HcalZDCDetId (detid) << std::endl;
       }
       else {
-	std::cout << "ElectronicsID: " << *id << " , connected ID is unknown: " << detid.rawId () << std::endl;
+	std::cout << "ElectronicsID: " << *id << " , UNCONNECTED " << std::endl;
       }
     }
   }

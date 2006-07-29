@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/05/06 00:33:30 $
-$Revision: 1.3 $
+$Date: 2006/05/22 21:06:26 $
+$Revision: 1.1 $
 */
 
 #include <iostream>
@@ -34,7 +34,7 @@ HcalCalibrationQIEData::HcalCalibrationQIEData()
 
 HcalCalibrationQIEData::~HcalCalibrationQIEData(){}
 
-const HcalCalibrationQIECoder* HcalCalibrationQIEData::getCoder (HcalDetId fId) const {
+const HcalCalibrationQIECoder* HcalCalibrationQIEData::getCoder (DetId fId) const {
   HcalCalibrationQIECoder target (fId.rawId ());
   std::vector<HcalCalibrationQIECoder>::const_iterator cell;
   if (sorted ()) {
@@ -48,15 +48,15 @@ const HcalCalibrationQIECoder* HcalCalibrationQIEData::getCoder (HcalDetId fId) 
   return &(*cell);
 }
 
-std::vector<HcalDetId> HcalCalibrationQIEData::getAllChannels () const {
-  std::vector<HcalDetId> result;
+std::vector<DetId> HcalCalibrationQIEData::getAllChannels () const {
+  std::vector<DetId> result;
   for (std::vector<HcalCalibrationQIECoder>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
-    result.push_back (HcalDetId (item->rawId ()));
+    result.push_back (DetId (item->rawId ()));
   }
   return result;
 }
 
-bool HcalCalibrationQIEData::addCoder (HcalDetId fId, const HcalCalibrationQIECoder& fCoder) {
+bool HcalCalibrationQIEData::addCoder (DetId fId, const HcalCalibrationQIECoder& fCoder) {
   HcalCalibrationQIECoder newCoder (fId.rawId ());
   newCoder.setMinCharges (fCoder.minCharges ());
   mItems.push_back (newCoder);

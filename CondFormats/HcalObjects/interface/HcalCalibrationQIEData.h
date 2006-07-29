@@ -12,7 +12,7 @@ $Id
 #include <algorithm>
 
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 
 // 
@@ -23,13 +23,13 @@ class HcalCalibrationQIEData {
   ~HcalCalibrationQIEData();
 
    /// get QIE parameters
-   const HcalCalibrationQIECoder* getCoder (HcalDetId fId) const;
+   const HcalCalibrationQIECoder* getCoder (DetId fId) const;
    // get list of all available channels
-   std::vector<HcalDetId> getAllChannels () const;
+   std::vector<DetId> getAllChannels () const;
    // check if data are sorted
    bool sorted () const {return mSorted;}
    // fill values [capid][range]
-   bool addCoder (HcalDetId fId, const HcalCalibrationQIECoder& fCoder);
+   bool addCoder (DetId fId, const HcalCalibrationQIECoder& fCoder);
    // sort values by channelId  
    void sort ();
   typedef HcalCalibrationQIECoder Item;

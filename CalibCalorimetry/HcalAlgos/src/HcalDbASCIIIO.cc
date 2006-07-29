@@ -1,29 +1,37 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.17 2006/06/30 22:23:08 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.18 2006/07/27 17:11:30 fedor Exp $
 //
 #include <vector>
 #include <string>
 
+#include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 namespace {
-  class HcalDetIdLess {
+  class DetIdLess {
   public:
-    bool operator () (HcalDetId first, HcalDetId second) const {
-      return
-	first.subdet () != second.subdet () ? first.subdet () < second.subdet () :
-	first.zside () != second.zside () ? first.zside () < second.zside () :
-	first.iphi () != second.iphi () ? first.iphi () < second.iphi () :
-	first.ietaAbs () != second.ietaAbs () ? first.ietaAbs () < second.ietaAbs () :
-	first.depth () < second.depth ();
+    bool operator () (DetId fFirst, DetId fSecond) const {
+      HcalGenericDetId first (fFirst);
+      HcalGenericDetId second (fSecond);
+      if (first.genericSubdet () != second.genericSubdet ()) return first.genericSubdet () < second.genericSubdet ();
+      if (first.isHcalDetId ()) {
+	HcalDetId f1 (first);
+	HcalDetId s1 (second);
+	return	f1.zside () != s1.zside () ? f1.zside () < s1.zside () :
+	  f1.iphi () != s1.iphi () ? f1.iphi () < s1.iphi () :
+	  f1.ietaAbs () != s1.ietaAbs () ? f1.ietaAbs () < s1.ietaAbs () :
+	  f1.depth () < s1.depth ();
+      }
+      else {
+	return first.rawId() < second.rawId();
+      }
     }
   };
   class HcalElectronicsIdLess {
@@ -59,27 +67,17 @@ std::vector <std::string> splitString (const std::string& fLine) {
   return result;
 }
 
-HcalDetId getId (const std::vector <std::string> & items) {
-  int eta = atoi (items [0].c_str());
-  int phi = atoi (items [1].c_str());
-  int depth = atoi (items [2].c_str());
-  HcalSubdetector subdet = HcalEmpty;
-  if (items [3] == "HB") subdet = HcalBarrel;
-  else if (items [3] == "HE") subdet = HcalEndcap;
-  else if (items [3] == "HF") subdet = HcalForward;
-  else if (items [3] == "HO") subdet = HcalOuter;
-  return HcalDetId (subdet, eta, phi, depth);
+DetId getId (const std::vector <std::string> & items) {
+  HcalText2DetIdConverter converter (items [3], items [0], items [1], items [2]);
+  return converter.getId ();
 }
 
-void dumpId (std::ostream& fOutput, HcalDetId id) {
+void dumpId (std::ostream& fOutput, DetId id) {
+  HcalText2DetIdConverter converter (id);
   char buffer [1024];
-  std::string subdet = "HB";
-  if (id.subdet() == HcalEndcap) subdet = "HE";
-  else if (id.subdet() == HcalForward) subdet = "HF";
-  else if (id.subdet() == HcalOuter) subdet = "HO";
-  sprintf (buffer, "  %4i %4i %4i %4s",
-	   id.ieta(), id.iphi(), id.depth (), subdet.c_str ());
-   fOutput << buffer;
+  sprintf (buffer, "  %15s %15s %15s %15s",
+	   converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str (),converter.getFlavor ().c_str ());  
+  fOutput << buffer;
 }
 
 template <class T> 
@@ -104,11 +102,11 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
 template <class T>
 bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   char buffer [1024];
-  sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "HcalDetId");
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "DetId");
   fOutput << buffer;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     const float* values = fObject.getValues (*channel)->getValues ();
@@ -158,14 +156,14 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject) {
   char buffer [1024];
-  sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
 	   "eta", "phi", "dep", "det", 
 	   "sig_0_o", "sig_1_0", "sig_1_1", "sig_2_0", "sig_2_1", "sig_2_2", "sig_3_0", "sig_3_1", "sig_3_2", "sig_3_3", 
-	   "HcalDetId");
+	   "DetId");
   fOutput << buffer;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     const HcalPedestalWidth* item = fObject.getValues (*channel);
@@ -200,7 +198,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
 	continue;
       }
-      HcalDetId id = getId (items);
+      DetId id = getId (items);
       HcalQIECoder coder (id.rawId ());
       int index = 4;
       for (unsigned capid = 0; capid < 4; capid++) {
@@ -232,14 +230,14 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
   fOutput << std::endl;
 
   fOutput << "# QIE data" << std::endl;
-  sprintf (buffer, "# %4s %4s %4s %4s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
+  sprintf (buffer, "# %15s %15s %15s %15s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
 	   "eta", "phi", "dep", "det", 
 	   "4 x offsets cap0", "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3",
 	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3");
   fOutput << buffer;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     const HcalQIECoder* coder = fObject.getCoder (*channel);
@@ -272,7 +270,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
       std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 32 bin values" << std::endl;
       continue;
     }
-    HcalDetId id = getId (items);
+    DetId id = getId (items);
     HcalCalibrationQIECoder coder (id.rawId ());
     int index = 4;
     float values [32];
@@ -289,12 +287,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject) {
   char buffer [1024];
   fOutput << "# QIE data in calibration mode" << std::endl;
-  sprintf (buffer, "# %4s %4s %4s %4s %288s\n", 
+  sprintf (buffer, "# %15s %15s %15s %15s %288s\n", 
 	   "eta", "phi", "dep", "det", "32 x charges");
   fOutput << buffer;
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
     const HcalCalibrationQIECoder* coder = fObject.getCoder (*channel);
@@ -334,7 +332,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject) {
   char buffer [1024];
-  sprintf (buffer, "# %4s %4s %4s %4s %8s\n", 
+  sprintf (buffer, "# %15s %15s %15s %15s %8s\n", 
 	   "eta", "phi", "dep", "det", 
 	   "quality");
   fOutput << buffer;
@@ -342,7 +340,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality&
   for (std::vector<unsigned long>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDetId id ((uint32_t) *channel);
+    DetId id ((uint32_t) *channel);
     dumpId (fOutput, id);
     sprintf (buffer, " %8s\n", HcalChannelQuality::str (fObject.quality (*channel)));
   }
@@ -361,6 +359,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
       }
       continue;
     }
+    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
     int slot = atoi (items [2].c_str());
     int top = 1;
@@ -369,65 +368,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int spigot = atoi (items [5].c_str());
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
-    HcalSubdetector subdet = HcalEmpty;
-    HcalOtherSubdetector osubdet = HcalOtherEmpty;
-    if (items [8] == "HB") subdet = HcalBarrel;
-    else if (items [8] == "HE") subdet = HcalEndcap;
-    else if (items [8] == "HO") subdet = HcalOuter;
-    else if (items [8] == "HF") subdet = HcalForward;
-    else if (items [8] == "HT") subdet = HcalTriggerTower;
-    else if (items [8] == "CBOX") {
-      subdet = HcalOther;
-      osubdet = HcalCalibration;
-    } else if (items [8] != "NA") {
-      std::cerr << "HcalElectronicsMap-> Unknown subdetector: " << items [8]
-		<< " in line: " << buffer 
-		<< "\n subdetector may be HB, HE, HF, HO, HT, CBOX, or NA if it is known that channel is not connected" << std::endl;
-      continue;
-    }
+
+    HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
     HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
     elId.setHTR (crate, slot, top);
-    if (subdet > HcalEmpty && subdet <= HcalTriggerTower) { 
-      int eta = atoi (items [9].c_str());
-      int phi = atoi (items [10].c_str());
-      int depth = atoi (items [11].c_str());
-      if (subdet == HcalTriggerTower) {
-	HcalTrigTowerDetId trigId = HcalTrigTowerDetId (eta, phi);
-	fObject->mapEId2tId (elId, trigId);
-      }
-      else {
-	HcalDetId chId = HcalDetId (subdet, eta, phi, depth);
-	fObject->mapEId2chId (elId, DetId (chId));
-      }
+    if (converter.isHcalDetId ()) { 
+      fObject->mapEId2chId (elId, converter.getId ());
     }
-    else if (subdet == HcalOther && osubdet==HcalCalibration) {
-      HcalCalibDetId calibId;
-      HcalCalibDetId::SectorId sector (HcalCalibDetId::SectorId(0));
-      if (items [9] == "HBP") sector = HcalCalibDetId::HBplus;
-      else if (items [9] == "HBM") sector = HcalCalibDetId::HBminus;
-      else if (items [9] == "HEP") sector = HcalCalibDetId::HEplus;
-      else if (items [9] == "HEM") sector = HcalCalibDetId::HEminus;
-      else if (items [9] == "HFP") sector = HcalCalibDetId::HFplus;
-      else if (items [9] == "HFM") sector = HcalCalibDetId::HFminus;
-      else if (items [9] == "HO0") sector = HcalCalibDetId::HOzero;
-      else if (items [9] == "HO1P") sector = HcalCalibDetId::HO1plus;
-      else if (items [9] == "HO1M") sector = HcalCalibDetId::HO1minus;
-      else if (items [9] == "HO2P") sector = HcalCalibDetId::HO2plus;
-      else if (items [9] == "HO2M") sector = HcalCalibDetId::HO2minus;
-      if (sector) {
-	int rbx = atoi (items [10].c_str());
-	int channel = atoi (items [11].c_str());
-	calibId = HcalCalibDetId (sector, rbx, channel);
-	fObject->mapEId2chId (elId, calibId);
-      }
-      else {
-	std::cerr << "HcalElectronicsMap-> Unknown calibration sector: " << items [9]
-		  << " in line: " << buffer 
-		  << "\n sectors may be HBM/HBP/HEM/HEP/HO0/HO1P/HO1M/HO2P/HO2M/HFP/HFM" << std::endl;
-      }
+    else if (converter.isHcalTrigTowerDetId ()) {
+	fObject->mapEId2tId (elId, converter.getId ());
     }
-    else { // undefined channel
+    else if (converter.isHcalCalibDetId ()) {
+	fObject->mapEId2chId (elId, converter.getId ());
+    }
+    else if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
+    }
+    else {
+      std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
+		<< items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
     }
   }
   fObject->sort ();
@@ -435,28 +394,28 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
-  std::vector<HcalDetId> channels = fObject.allDetectorId ();
-  std::sort (channels.begin(), channels.end(), HcalDetIdLess ());
+  std::vector<DetId> channels = fObject.allDetectorId ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
   char buf [1024];
-  sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s",
+  sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber", "fibcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
   for (unsigned i = 0; i < channels.size (); i++) {
-    HcalDetId hcalId = channels [i];
-    HcalElectronicsId eid = fObject.lookup (hcalId, false);
+    HcalText2DetIdConverter converter (channels [i]);
+    HcalElectronicsId eid = fObject.lookup (converter.getId(), false);
     if (eid.rawId()) {
       char buf [1024];
-      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %6s %6d %6d %6d",
+      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
 	       i,
 	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-	       hcalId.subdet()==HcalBarrel?"HB": hcalId.subdet()==HcalEndcap?"HE": hcalId.subdet()==HcalOuter?"HO": hcalId.subdet()==HcalForward?"HF":"NA",
-	       hcalId.ieta(), hcalId.iphi(), hcalId.depth()
+	       converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 	       );
       fOutput << buf << std::endl;
     }
     else {
-      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for HcalDetId " << hcalId << std::endl;
+      std::cerr << "HcalDbASCIIIO::dumpObject for HcalElectronicsMap-> can not find EID for DetId " << converter.getFlavor() << " "
+		<< converter.getField1 () << " " << converter.getField2 () << " " << converter.getField3 () << std::endl; 
     }
   }
   return true;
