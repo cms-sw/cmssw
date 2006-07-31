@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/04/25 10:04:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/11 16:11:03 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -49,15 +49,15 @@ class DTDDUFileReader : public DaqBaseReader {
 
  private:
 
-
-  std::ifstream inputFile;
+  FILE* inputFile;
 
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
 
   bool readFromDMA;
+  bool isRFIO;
 
-  static const int dduWordLenght = 8;
+  static const int dduWordLength = 8;
 
 };
 #endif

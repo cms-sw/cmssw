@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/11 16:11:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/14 16:29:37 $
+ *  $Revision: 1.5 $
  *  \author M. Zanetti
  */
 
@@ -24,6 +24,15 @@
 #include <iostream>
 #include <algorithm>
    
+extern "C" {
+  extern FILE *rfio_fopen (char *path, char *mode);
+  extern int rfio_fread(void*, size_t, size_t, void*);
+  extern int rfio_fclose (FILE *fd);
+  extern int rfio_fseek (FILE *fp, long offset, int whence);
+  extern int rfio_feof (FILE *fp);
+  extern long rfio_ftell (FILE *fp);
+};
+                                                                                
 using namespace std;
 using namespace edm;
 
@@ -35,20 +44,41 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
 
   readFromDMA = pset.getUntrackedParameter<bool>("isRaw",false);
 
-  inputFile.open(filename.c_str(), ios::in | ios::binary );
-  if( inputFile.fail() ) {
-    throw cms::Exception("InputFileMissing") 
-      << "[DTDDUFileReader]: the input file: " << filename <<" is not present";
+  const string & prefix = filename.substr(0,5);
+  if (prefix=="rfio:") isRFIO = true;
+  else isRFIO = false;
+
+  string filename_noprefix = filename;
+  if (prefix=="rfio:" || prefix=="file:") filename_noprefix.erase(0,5);
+
+  if (isRFIO) {
+    inputFile = rfio_fopen((char*)filename_noprefix.c_str(),"r");
+  } else {
+    inputFile = fopen((char*)filename_noprefix.c_str(),"rb");
+  }
+  if( !inputFile ) {
+      throw cms::Exception("InputFileMissing") 
+        << "[DTDDUFileReader]: the input file: " << filename <<" is not present";
+  } else {
+      cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
   }
 
   //else if (readFromDMA) 
-  inputFile.ignore(4*7);
+  if (isRFIO) {
+      rfio_fseek(inputFile,4*7,SEEK_SET);
+  } else {
+      fseek(inputFile,4*7,SEEK_SET);
+  }
 
 }
 
 
 DTDDUFileReader::~DTDDUFileReader(){
-  inputFile.close();
+  if (isRFIO) {
+      rfio_fclose(inputFile);
+  } else {
+      fclose(inputFile);
+  }
 }
 
 
@@ -79,11 +109,16 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     }
     
     else {
-      inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
+      int nread = 0;
+      if (isRFIO) {
+            nread = fread(dataPointer<uint64_t>( &word ), dduWordLength, 1, inputFile);
+      } else {
+            nread = fread(dataPointer<uint64_t>( &word ), dduWordLength, 1, inputFile);
+      }
       dataTag = false;
-      if ( !inputFile ) {
-	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
-	return false;
+      if ( nread<=0 ) {
+	      cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	      return false;
       }
     }
     
@@ -119,7 +154,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   eID = EventID( runNumber, eventNumber);
   
   // eventDataSize = (Number Of Words)* (Word Size)
-  int eventDataSize = eventData.size()*dduWordLenght;
+  int eventDataSize = eventData.size()*dduWordLength;
   
   // The FED ID is always the first in the DT range
   FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
@@ -148,10 +183,17 @@ uint64_t DTDDUFileReader::dmaUnpack(bool & isData) {
 
   uint32_t td[4];
   // read 4 32-bits word from the file;
-  inputFile.read(dataPointer<uint32_t>( &td[0] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[1] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[2] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[3] ), 4);
+  if (isRFIO) {
+      rfio_fread(dataPointer<uint32_t>( &td[0] ), 4, 1, inputFile);
+      rfio_fread(dataPointer<uint32_t>( &td[1] ), 4, 1, inputFile);
+      rfio_fread(dataPointer<uint32_t>( &td[2] ), 4, 1, inputFile);
+      rfio_fread(dataPointer<uint32_t>( &td[3] ), 4, 1, inputFile);
+  } else {
+      fread(dataPointer<uint32_t>( &td[0] ), 4, 1, inputFile);
+      fread(dataPointer<uint32_t>( &td[1] ), 4, 1, inputFile);
+      fread(dataPointer<uint32_t>( &td[2] ), 4, 1, inputFile);
+      fread(dataPointer<uint32_t>( &td[3] ), 4, 1, inputFile);
+  }
 
   uint32_t data[2];
   // adjust 4 32-bits words  into 2 32-bits words
@@ -201,7 +243,11 @@ bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
 bool DTDDUFileReader::checkEndOfFile(){
 
   bool retval=false;
-  if ( inputFile.eof() ) retval=true;
+  if (isRFIO) {
+      if ( rfio_feof(inputFile) ) retval=true;
+  } else {
+      if ( feof(inputFile) ) retval=true;
+  }
   return retval;
 
 }
