@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/18 08:52:38 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/18 12:24:18 $
+ *  $Revision: 1.12 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -504,13 +504,9 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // FIXME: put it into a parameter set!
   string theNavigationType = "Standard";
 
-  // Take the whole tracking geometry
+  // Take the whole det layer geometry
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
-
-  // Take the whole det layer geometry
-  edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry;
-  eSetup.get<MuonRecoGeometryRecord>().get(detLayerGeometry);
 
   // set the proper navigation school
   MuonNavigationSchool school(&*muonLayers);
@@ -581,7 +577,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   if(theNavigationType == "Standard")
     detLayers = initialLayer->compatibleLayers(state,oppositeToMomentum);  
   else if (theNavigationType == "Direct"){
-    DirectMuonNavigation navigation(&*detLayerGeometry);
+    DirectMuonNavigation navigation(&*muonLayers);
     detLayers = navigation.compatibleLayers(state,oppositeToMomentum);
   }
   else
