@@ -56,7 +56,7 @@ class SmartPropagator : public Propagator {
 
     ///Virtual constructor (using copy c'tor)
     virtual SmartPropagator* clone() const {
-      return new SmartPropagator(*this);
+      return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
     }
 
     /* Operations as propagator*/ 
