@@ -164,7 +164,7 @@ void PixelVertexTest::analyze(
   PVClusterComparer vcompare;
   for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
     vz2_[i] = vertexes[i].z();
-    errvz2_[i] = std::sqrt(vertexes[i].error()(2,2));
+    errvz2_[i] = std::sqrt(vertexes[i].error(2,2));
     ntrk2_[i] = vertexes[i].tracksSize();
     sumpt2_[i] = vcompare.pTSquaredSum(vertexes[i]);
     // Now calculate my own average position by hand to cross check conversion process
