@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.2 2005/10/07 19:20:05 chrjones Exp $
+// $Id: ConstProductRegistry.h,v 1.3 2006/01/11 00:21:31 paterno Exp $
 //
 
 // system include files
@@ -38,6 +38,8 @@ namespace edm {
     ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) { }
      
     // ---------- const member functions ---------------------
+    ProductRegistry const& productRegistry() const {return *reg_;}
+
     ProductList const& productList() const {return reg_->productList();}
 
     // Return all the branch names currently known to *this.  This
