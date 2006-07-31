@@ -8,6 +8,8 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace HepMC {
   class GenParticle;
@@ -20,19 +22,23 @@ public:
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator		         genp_iterator;
   typedef SimTrackRefVector::iterator				 g4t_iterator;
- 
+  
+//  typedef edm::RefProd<edm::PSimHitContainer>                    TrackPSimHitRefProd;
+//  typedef edm::Ref<edm::PSimHitContainer>                        TrackPSimHitRef;
+//  typedef edm::RefVector<edm::PSimHitContainer>                  TrackPSimHitRefVector;
+//  typedef std::map<int, TrackPSimHitRefVector> 			 TrackIdPSimHitMap;
+  
   /// default constructor
   TrackingParticle() { }
   // destructor
   ~TrackingParticle();
   /// constructor from pointer to generator particle
   TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
-		    double t, const int pdgId,  const int source, const int crossing );
+		    double t, const int pdgId,  const EncodedEventId eventId);
   
   /// PDG id, signal source, crossing number  
   int pdgId() const { return pdgId_; }
-  int source() const { return signalSource_ % 4 == 0; }
-  int crossing() const { return crossing_; }
+  EncodedEventId eventId() const { return eventId_; }
   
   ///iterators
   genp_iterator genParticle_begin() const;
@@ -44,10 +50,14 @@ public:
 // Setters for G4 and HepMC
   void addG4Track(const SimTrackRef&);
   void addGenParticle(const GenParticleRef&);
+
+  void addPSimHit(const TrackPSimHitRef&);
   
 // Getters for Embd and Sim Tracks
   GenParticleRefVector	genParticle() const { return genParticles_; }
   SimTrackRefVector	g4Tracks() const { return g4Tracks_ ; }
+ 
+  TrackPSimHitRefVector trackPSimHit() const { return trackPSimHit_; }
   
 private:
   /// production time
@@ -56,9 +66,13 @@ private:
   int pdgId_;
   int signalSource_; 
   int crossing_;
+  EncodedEventId eventId_;
+  
   /// references to G4 and HepMC tracks
   SimTrackRefVector g4Tracks_;
   GenParticleRefVector  genParticles_;
+ 
+  TrackPSimHitRefVector trackPSimHit_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
