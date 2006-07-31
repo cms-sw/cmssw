@@ -29,6 +29,7 @@ namespace edm {
       bool findChild(const std::string & child, NodePtr & result);
 
       void removeChild(const std::string & child);
+      void removeChild(const Node* child);
 
       /// returns all sub-nodes
       NodePtrListPtr nodes() const {return nodes_;}

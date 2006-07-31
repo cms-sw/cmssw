@@ -129,6 +129,26 @@ namespace edm {
         << "Cannot find node " <<child << " to erase in " << name;
 
     }
+
+    void CompositeNode::removeChild(const Node* child) 
+  {
+      NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        if( &(**i) == child)
+        {
+          nodes_->erase(i);
+          // only set this node's modified flag
+          modified_ = true;
+          return;
+        }
+      }
+      
+      // if we didn't find it
+      throw edm::Exception(errors::Configuration,"")
+        << "Cannot find node " <<child->name << " to erase in " << name;
+      
+  }
     
 
     void CompositeNode::resolve(std::list<std::string> & openFiles,
