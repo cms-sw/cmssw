@@ -39,6 +39,7 @@ SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output
       new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
 				   region.origin(), vtxerr,iSetup,pSet());
     output.push_back(*(seedfromhits->TrajSeed()) );
+    delete seedfromhits;
   }
 
 }
