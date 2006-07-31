@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.4 2006/05/19 18:53:05 evansde Exp $
+// $Id: JobReport.cc,v 1.5 2006/06/09 13:56:09 evansde Exp $
 //
 
 
@@ -330,6 +330,33 @@ namespace edm
     LogError("FwkJob") << msg.str();
   }
 
-  
+  void 
+  JobReport::reportSkippedFile(std::string const& pfn, 
+			       std::string const& lfn) {
+
+    std::ostringstream msg;
+    msg << "<SkippedFile Pfn=\"" << pfn << "\"";
+    msg << " Lfn=\"" << lfn << "\" />\n";
+    LogInfo("FwkJob") << msg.str();
+  }
+
+  void 
+  JobReport::reportTimingInfo(std::map<std::string, double> & timingData){
+
+
+    std::ostringstream msg;
+    msg << "<TimingService>\n";
+    
+
+    std::map<std::string, double>::iterator pos;
+    for (pos = timingData.begin(); pos != timingData.end(); ++pos){
+      msg <<  "  <" << pos->first 
+	  <<  "  Value=\"" << pos->second  << "\" />"
+	  <<  "\n";
+    }
+    msg << "</TimingService>\n";
+    LogInfo("FwkJob") << msg.str();
+  }
+
 
 } //namspace edm
