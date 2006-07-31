@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/07/12 15:39:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/26 09:25:14 $
+ *  $Revision: 1.11 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -22,14 +22,17 @@ class GeomDet;
 class TrajectoryMeasurement;
 class MuonTransientTrackingRecHit;
 
-typedef std::vector<MuonTransientTrackingRecHit*>       RecHitContainer;
+
+//FIXME: these typedefs MUST GO inside the scope of MuonDetLayerMeasurements
 typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
 typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
 
 class MuonDetLayerMeasurements {
  public:
-  
+  typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+
   MuonDetLayerMeasurements(bool enableDT = true,
 			   bool enableCSC = true,
 			   bool enableRPC = true,

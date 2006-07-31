@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/12 16:28:42 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/26 08:37:49 $
+ *  $Revision: 1.16 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -38,7 +38,7 @@ MuonDetLayerMeasurements::~MuonDetLayerMeasurements() {
 
 }
 
-RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const edm::Event& iEvent) const {
+TransientTrackingRecHit::RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const edm::Event& iEvent) const {
 
   RecHitContainer muonRecHits;
   
@@ -61,7 +61,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     // Create the MuonTransientTrackingRechit
     for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
       
-      MuonTransientTrackingRecHit* muonRecHit = new MuonTransientTrackingRecHit(geomDet, (&(*rechit)));
+      RecHitPointer muonRecHit = MuonTransientTrackingRecHit::build(geomDet, (&(*rechit)));
       muonRecHits.push_back(muonRecHit);
     }
   }
@@ -83,7 +83,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     // Create the MuonTransientTrackingRecHit
     for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
       
-      MuonTransientTrackingRecHit* muonRecHit = new MuonTransientTrackingRecHit(geomDet, (&(*rechit)));
+      RecHitPointer muonRecHit = MuonTransientTrackingRecHit::build(geomDet, (&(*rechit)));
       muonRecHits.push_back(muonRecHit);
     }    
   }
@@ -105,7 +105,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, const 
     // Create the MuonTransientTrackingRecHit
     for (RPCRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
       
-      MuonTransientTrackingRecHit* muonRecHit = new MuonTransientTrackingRecHit(geomDet, (&(*rechit)));
+      RecHitPointer muonRecHit = MuonTransientTrackingRecHit::build(geomDet, (&(*rechit)));
       muonRecHits.push_back(muonRecHit);
     }
   }
@@ -189,7 +189,7 @@ void MuonDetLayerMeasurements::setEvent(const edm::Event& event) {
   theEventFlag = true;
 }
 
-RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const edm::Event& iEvent) const
+TransientTrackingRecHit::RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const edm::Event& iEvent) const
 {
   RecHitContainer rhs;
   
@@ -214,7 +214,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
 
        // Create the MuonTransientTrackingRecHit
       for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
-	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
+	RecHitPointer gttrh = MuonTransientTrackingRecHit::build((*igd), (&(*rechit)));
 	rhs.push_back(gttrh);
       }
     }
@@ -238,7 +238,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
 
       // Create the MuonTransientTrackingRecHit
       for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
-	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
+	RecHitPointer gttrh = MuonTransientTrackingRecHit::build((*igd), (&(*rechit)));
 	rhs.push_back(gttrh);
       }
     }
@@ -261,7 +261,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
       
       // Create the MuonTransientTrackingRecHit
       for (RPCRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
-	MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
+	RecHitPointer gttrh = MuonTransientTrackingRecHit::build((*igd), (&(*rechit)));
 	rhs.push_back(gttrh);
       }
     }
@@ -273,7 +273,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
   return rhs;
 }
 
-RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer) const
+TransientTrackingRecHit::RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer) const
 {
   RecHitContainer result;
   if (theEventFlag) return recHits(layer, *theEvent);
