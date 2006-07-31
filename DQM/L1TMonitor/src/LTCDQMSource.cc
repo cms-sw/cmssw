@@ -5,21 +5,22 @@
 // 
 /**\class LTCDQMSource LTCDQMSource.cc DQMServices/LTCDQMSource/src/LTCDQMSource.cc
 
- Description: <one line class summary>
+   Description: DQM Source for LTC data
 
- Implementation:
-     <Notes on implementation>
+   Implementation:
+   <Notes on implementation>
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id$
+// $Id: LTCDQMSource.cc,v 1.1 2006/06/29 04:15:11 wsun Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <unistd.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,24 +44,32 @@ using namespace std ;
 //
 
 class LTCDQMSource : public edm::EDAnalyzer {
-   public:
-      explicit LTCDQMSource(const edm::ParameterSet&);
-      ~LTCDQMSource();
+public:
+  explicit LTCDQMSource(const edm::ParameterSet&);
+  ~LTCDQMSource();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(void);
-   private:
-      // ----------member data ---------------------------
-      MonitorElement* h1;
-      MonitorElement* h2;
-      MonitorElement* h3;
-//       MonitorElement* hlist[ 6 ] ;
-      float XMIN; float XMAX;
-      // event counter
-      int counter;
-      // back-end interface
-      DaqMonitorBEInterface * dbe;
+private:
+  // ----------member data ---------------------------
+  MonitorElement* h1;
+  MonitorElement* h2;
+  MonitorElement* h3;
+  //MonitorElement* h4;
+  MonitorElement* overlaps;
+  MonitorElement* n_inhibit;
+  MonitorElement* run;
+  MonitorElement* event;
+  MonitorElement* gps_time;
+  float XMIN; float XMAX;
+  // event counter
+  int counter;
+  // back-end interface
+  DaqMonitorBEInterface * dbe;
+  int nev_; // Number of events processed
+  bool saveMe_; // save histograms or no?
+  std::string rootFileName_;
 };
 
 //
@@ -74,41 +83,51 @@ class LTCDQMSource : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-LTCDQMSource::LTCDQMSource(const edm::ParameterSet& iConfig)
+LTCDQMSource::LTCDQMSource(const edm::ParameterSet& iConfig):
+  nev_(0)
 {
-   // get hold of back-end interface
-   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  // get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-   // now do what ever initialization is needed
-   edm::Service<MonitorDaemon> daemon;
-   daemon.operator->();
+  // now do what ever initialization is needed
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
 
-   // book some histograms here
+  // book some histograms here
 
-   // create and cd into new folder
-   dbe->setCurrentFolder("C1");
-   h1 = dbe->book1D("histo", "Bunch Number", 100, 0., 5000.) ;
-   h2 = dbe->book1D("histo2", "Orbit Number", 100, 0., 100000. ) ;
-   h3 = dbe->book1D("histo3", "Triggers", 8, -0.5, 7.5 ) ;
+  // create and cd into new folder
+  // Every filter unit will prepend this with a filter unit string
+  // so to see all the LTC data you need to select
+  // Collector/*/L1Trigger/LTC/*
+  dbe->setCurrentFolder("L1Trigger/LTC");
+  h1 = dbe->book1D("Bunch", "Bunch Number", 100, 0., 5000.) ;
+  h2 = dbe->book1D("Orbit", "Orbit Number", 100, 0., 100000. ) ;
+  h3 = dbe->book1D("Triggers", "Triggers", 8, -0.5, 7.5 ) ;
 
-//    hlist[ 0 ] = dbe->book1D("hlist0", "Trigger 0 Rate", 2, 0., 2. ) ;
-//    hlist[ 1 ] = dbe->book1D("hlist1", "Trigger 1 Rate", 2, 0., 2. ) ;
-//    hlist[ 2 ] = dbe->book1D("hlist2", "Trigger 2 Rate", 2, 0., 2. ) ;
-//    hlist[ 3 ] = dbe->book1D("hlist3", "Trigger 3 Rate", 2, 0., 2. ) ;
-//    hlist[ 4 ] = dbe->book1D("hlist4", "Trigger 4 Rate", 2, 0., 2. ) ;
-//    hlist[ 5 ] = dbe->book1D("hlist5", "Trigger 5 Rate", 2, 0., 2. ) ;
+  overlaps = dbe->book2D("olaps", "Trigger Overlaps", 8, -0.5, 7.5 ,
+			 8, -0.5, 7.5);
+			 
+  n_inhibit    = dbe->bookInt("n_inhibit");
+  run          = dbe->bookInt("run");
+  event        = dbe->bookInt("event");
+  gps_time     = dbe->bookInt("gps_time");
 
-//    // contents of h5 & h6 will be reset at end of monitoring cycle
-//    h5->setResetMe(true);
-//    h6->setResetMe(true);
+  saveMe_ = iConfig.getParameter<bool>("saveRootFile");
+  rootFileName_ = iConfig.getParameter<std::string>("RootFileName");
+
+
+  //    // contents of h5 & h6 will be reset at end of monitoring cycle
+  //    h5->setResetMe(true);
+  //    h6->setResetMe(true);
+  std::cout << "LTCDQMSource: configured histograms." << std::endl;
 }
 
 
 LTCDQMSource::~LTCDQMSource()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -116,48 +135,69 @@ LTCDQMSource::~LTCDQMSource()
 //
 // member functions
 //
+// void LTCDQMSource::beginRun()
+// {
+// }
 
 
 void LTCDQMSource::endJob(void)
 {
-  dbe->save("ltcsource.root");  
+  std::cout << "LTCDQMSource: saw " << nev_ << " events. " << std::endl;
+  if ( saveMe_ ) 
+    dbe->save(rootFileName_);  
 }
 
 // ------------ method called to produce the data  ------------
 void
 LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
+  using namespace edm;
 
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
+  Handle< LTCDigiCollection > digis ;
+  //  iEvent.getByLabel( "digis", digis ) ;
+  iEvent.getByType( digis ) ;
 
-   Handle< LTCDigiCollection > digis ;
-//  iEvent.getByLabel( "digis", digis ) ;
-   iEvent.getByType( digis ) ;
-
-   for( LTCDigiCollection::const_iterator digiItr = digis->begin() ;
-	digiItr != digis->end() ;
-	++digiItr )
-   {
+  for( LTCDigiCollection::const_iterator digiItr = digis->begin() ;
+       digiItr != digis->end() ;
+       ++digiItr )
+    {
       h1->Fill( digiItr->bunchNumber() ) ;
       h2->Fill( digiItr->orbitNumber() ) ;
 
-      for( int i = 0 ; i < 6 ; ++i )
-      {
-	 h3->Fill( i, ( digiItr->HasTriggered( i ) ? 1 : 0 ) ) ;
-// 	 hlist[ i ]->Fill( digiItr->HasTriggered( i ) ? 1 : 0 ) ;
+      for( int i = 0 ; i < 6 ; ++i )	{
+	h3->Fill( i, ( digiItr->HasTriggered( i ) ? 1 : 0 ) ) ;
       }
 
       h3->Fill( 6, digiItr->ramTrigger() ) ;
       h3->Fill( 7, digiItr->vmeTrigger() ) ;
-   }
+      // overlaps
+      unsigned int setbits = digiItr->externTriggerMask();
+      // mock up the VME and RAM triggers
+      if ( digiItr->ramTrigger() ) {
+	setbits |= (0x1UL<<7);
+      }
+      if ( digiItr->vmeTrigger() ) {
+	setbits |= (0x1UL<<8);
+      }
+      for ( int i = 0; i < 8; ++i ) {
+	if ( setbits & (0x1UL<<i) ) {
+	  for ( int j = j; j < 8; ++j ) {
+	    if ( i == j ) continue;
+	    if ( setbits & (0x1UL<<j) ) {
+	      overlaps->Fill(i,j); // do both....
+	      overlaps->Fill(j,i);
+	    }
+	  }
+	}
+      }
+      // fill floats and ints
+      n_inhibit->Fill(digiItr->triggerInhibitNumber());
+      run      ->Fill(digiItr->runNumber());
+      event    ->Fill(digiItr->eventNumber());
+      gps_time ->Fill(digiItr->bstGpsTime());
+    }
+  ++nev_;
+  usleep(10000);
 }
 
 //define this as a plug-in
