@@ -15,14 +15,17 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
 				     reco::BasicClusterCollection &basicClusters)
 {
   //Initialize my map.
-  rechits_m = CorrMap;
-
+  rechits_m.clear();
   //clear vector of seeds
   seeds.clear();
-
   //clear map of supercluster/basiccluster association
   _clustered.clear();
-  
+  //clear set of used detids
+  useddetids.clear();
+
+  //Pass in the map
+  rechits_m = CorrMap;
+
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
 
   std::map<DetId, EcalRecHit>::iterator it;
