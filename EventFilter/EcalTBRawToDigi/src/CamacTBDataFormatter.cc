@@ -207,6 +207,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b << endl;
     }
 
+  hodoRaw.setPlanes(0);
   // unpacking the hodo data
   if (hodoAreGood){
   for (int iplane=0; iplane<nHodoPlanes; iplane++) 
