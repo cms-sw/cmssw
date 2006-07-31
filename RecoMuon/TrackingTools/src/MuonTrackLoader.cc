@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/28 10:55:57 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/31 11:10:33 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -84,12 +84,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     const Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
 
     // fill the rechit collection
-    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	 recHit != transHits.end(); ++recHit) {
-      if ( recHit->isValid() )
-	recHitCollection->push_back( recHit->hit()->clone() );       
+    for(Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+	recHit != transHits.end(); ++recHit) {
+      if((**recHit).isValid())
+	recHitCollection->push_back( (**recHit).hit()->clone() );       
     }
-
   }
   
   // put the collection of TrackingRecHit in the event
@@ -288,7 +287,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
       rechit != transRecHits.end(); ++rechit)
-    if ((*rechit).isValid()) dof += (*rechit).dimension();
+    if ((**rechit).isValid()) dof += (**rechit).dimension();
   
   float ndof = std::max(dof - 5., 0.);
 
