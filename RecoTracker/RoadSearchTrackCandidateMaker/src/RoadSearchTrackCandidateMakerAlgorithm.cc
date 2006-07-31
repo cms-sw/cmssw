@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/07/28 19:15:34 $
-// $Revision: 1.12 $
+// $Date: 2006/07/31 15:05:18 $
+// $Revision: 1.13 $
 //
 
 #include <vector>
@@ -220,10 +220,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (it->isValid()){
 
 	edm::OwnVector<TrackingRecHit> goodHits;
-	edm::OwnVector<const TransientTrackingRecHit> ttHits = it->recHits();	
-	for (edm::OwnVector<const TransientTrackingRecHit>::const_iterator rhit=ttHits.begin(); 
+	//edm::OwnVector<const TransientTrackingRecHit> ttHits = it->recHits();	
+	//for (edm::OwnVector<const TransientTrackingRecHit>::const_iterator rhit=ttHits.begin(); 
+	TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();		
+	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); 
 	     rhit!=ttHits.end(); ++rhit)
-	  goodHits.push_back(rhit->hit()->clone());
+	  goodHits.push_back((*rhit)->hit()->clone());
 
 	// clone 
 	//TrajectorySeed seed = *((*ref).clone());
@@ -234,9 +236,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	// exclude if first state on first hit is not valid
       
 	bool valid = true;
-	if (it->recHits().begin()->geographicalId().rawId() != state.detId()) {
+	DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
+	if (FirstHitId.rawId() != state.detId()) {
+	  //if (it->recHits().begin()->geographicalId().rawId() != state.detId()) {
 	  AnalyticalPropagator prop(magField,anyDirection);
-	  const GeomDet* det = geom->idToDet(it->recHits().begin()->geographicalId());
+	  const GeomDet* det = geom->idToDet(FirstHitId);
 	  const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
 	  
 	  TrajectoryStateTransform transformer;
@@ -246,7 +250,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  if (firstState.isValid() == false){
 	    valid=false;
 	  }
-	  state = *(transformer.persistentState(firstState,it->recHits().begin()->geographicalId().rawId()));
+	  state = *(transformer.persistentState(firstState,FirstHitId.rawId()));
 	}
 	else{
 	  const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
