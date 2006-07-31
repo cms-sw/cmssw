@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/04 09:27:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/06 16:17:52 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -87,7 +87,7 @@ private:
   /// the state will be propagated to the surface where lies the "current" rechit 
   TrajectoryStateOnSurface propagateState(const TrajectoryStateOnSurface& state,
 					  const TrajectoryMeasurement* theMeas, 
-					  const TransientTrackingRecHit& current) const;
+					  const TransientTrackingRecHit::ConstRecHitPointer  & current) const;
   
   ///  the max chi2 allowed
   double theMaxChi2;
@@ -102,9 +102,9 @@ private:
   // FIXME: ask Tim if the CSC segments can be used, since in ORCA they wasn't.
 
   /// copy objs from an OwnVector to another one
-  void insert(edm::OwnVector<const TransientTrackingRecHit> & to,
-	      edm::OwnVector<const TransientTrackingRecHit> & from);
-  
+  void insert (TransientTrackingRecHit::ConstRecHitContainer & to,
+	       TransientTrackingRecHit::ConstRecHitContainer & from);
+
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{
     bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
@@ -138,7 +138,7 @@ private:
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
 					   const TrajectoryStateOnSurface &lastUpdatedTSOS, 
-					   const TransientTrackingRecHit &recHit,
+					   const TransientTrackingRecHit::ConstRecHitPointer &recHit,
 					   const double &chi2, const DetLayer *detLayer, 
 					   const TrajectoryMeasurement *initialMeasurement);
   
