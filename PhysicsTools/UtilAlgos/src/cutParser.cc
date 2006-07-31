@@ -1,10 +1,10 @@
+#include "PhysicsTools/UtilAlgos/interface/cutParser.h"
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
-#include <vector>
-#include "PhysicsTools/UtilAlgos/interface/cutParser.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <Reflex/Member.h>
 #include <Reflex/Object.h>
+#include <vector>
 using namespace ROOT::Reflex;
 using namespace boost::spirit;
 using namespace std;
@@ -20,40 +20,34 @@ namespace reco {
     };
     
     struct ExpressionNumber : public ExpressionBase {
-      virtual double value( const Object& ) const {
-	return m_value;
-      }
+      virtual double value( const Object& ) const { return m_value; }
       double m_value;
-      ExpressionNumber( double iValue ) : m_value(iValue) {
-      }
+      ExpressionNumber( double iValue ) : m_value(iValue) { }
     };
     
     struct ExpressionVar : public ExpressionBase {
-      ExpressionVar( methods::method m ): method_( m ) { }
+      ExpressionVar( MethodMap::method_t m ): method_( m ) { }
       virtual double value( const Object & o ) const {
-	using namespace methods;
+	using namespace method;
 	Object ro = method_.first.Invoke( o );
 	void * addr = ro.Address();
 	double ret = 0;
 	switch( method_.second ) {
-	case( doubleType ) : 
-	  ret = * static_cast<double *>( addr ); break;
-	case( floatType ) : 
-	  ret = * static_cast<float * >( addr ); break;
-	case( intType ) : 
-	  ret = * static_cast<int *   >( addr ); break;
-	case( unsignedIntType ) : 
-	  ret = * static_cast<unsigned int *>( addr ); break;
-	case( charType ) : 
-	  ret = * static_cast<char *   >( addr ); break;
-	case( unsignedCharType ) : 
-	  ret = * static_cast<unsigned char *>( addr ); break;
-	case( boolType ) :
-	  ret = * static_cast<bool *>( addr ); break;
+	case( doubleType ) : ret = * static_cast<double         *>( addr ); break;
+	case( floatType  ) : ret = * static_cast<float          *>( addr ); break;
+	case( intType    ) : ret = * static_cast<int            *>( addr ); break;
+	case( uIntType   ) : ret = * static_cast<unsigned int   *>( addr ); break;
+	case( shortType  ) : ret = * static_cast<short          *>( addr ); break;
+	case( uShortType ) : ret = * static_cast<unsigned short *>( addr ); break;
+	case( longType   ) : ret = * static_cast<long           *>( addr ); break;
+	case( uLongType  ) : ret = * static_cast<unsigned long  *>( addr ); break;
+	case( charType   ) : ret = * static_cast<char           *>( addr ); break;
+	case( uCharType  ) : ret = * static_cast<unsigned char  *>( addr ); break;
+	case( boolType   ) : ret = * static_cast<bool           *>( addr ); break;
 	};
 	return ret;
       }
-      methods::method method_;
+      MethodMap::method_t method_;
     };
     
     typedef vector<boost::shared_ptr<ExpressionBase> > ExpressionStack;
@@ -68,8 +62,7 @@ namespace reco {
     };
     
     struct ExpressionVarSetter {
-      ExpressionVarSetter( ExpressionStack & stack,
-			   const methods::methodMap & methods) : 
+      ExpressionVarSetter( ExpressionStack & stack, const MethodMap & methods ) : 
 	stack_( stack ), methods_( methods ){ }
       
       void operator()( const char * iVarStart, const char* iVarEnd ) const {
@@ -77,7 +70,7 @@ namespace reco {
 	string::size_type endOfExpr = methodName.find_last_of(' ');
 	if( endOfExpr != string::npos )
 	  methodName.erase( endOfExpr, methodName.size() );
-	methods::methodMap::const_iterator itMethod = methods_.find( methodName );
+	MethodMap::const_iterator itMethod = methods_.find( methodName );
 	if( itMethod == methods_.end() ) {
 	  throw edm::Exception( edm::errors::Configuration, 
 				string( "unknown method name \""+ methodName + "\"" ) );
@@ -86,7 +79,7 @@ namespace reco {
     }
     private:
       ExpressionStack& stack_;
-      const methods::methodMap & methods_;
+      const MethodMap & methods_;
     };
     
     struct ComparisonBase {
@@ -249,9 +242,7 @@ namespace reco {
       CombinerStack& cStack_;
     };
     
-    bool cutParser( const string& value,
-		    const methods::methodMap& methods,
-		    selector_ptr& sel ) {
+    bool cutParser( const string& value, const MethodMap& methods, selector_ptr& sel ) {
       
       using namespace boost::spirit;
       ExpressionStack expressionStack;
