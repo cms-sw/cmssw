@@ -3,6 +3,8 @@
   <class name="std::vector<bool>"/>
   <class name="edm::Wrapper<std::vector<bool> >"/>
 
+  <class name="L1TriggerObject"/>
+
   <class name="L1GlobalTriggerReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutRecord>"/>
   
