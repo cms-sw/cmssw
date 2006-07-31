@@ -5,8 +5,8 @@
  *
  *  Build the RPC DetLayers.
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/06 08:54:56 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -25,9 +25,10 @@ class MuonRPCDetLayerGeometryBuilder {
   /// Destructor
   virtual ~MuonRPCDetLayerGeometryBuilder();
   
-  /// Operations
+  /// Builds the forward (first) and backward (second) layers
   static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildEndcapLayers(const RPCGeometry& geo);
         
+  /// Builds the barrel layers
   static std::vector<DetLayer*> buildBarrelLayers(const RPCGeometry& geo);
     
  private:

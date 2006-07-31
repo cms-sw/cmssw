@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/26 13:24:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/27 12:39:45 $
+ *  $Revision: 1.3 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -70,7 +70,7 @@ void MuonRecoGeometryAnalyzer::analyze( const Event& ev,
   ESHandle<MagneticField> magfield;
   es.get<IdealMagneticFieldRecord>().get(magfield);
   
-  //  testDTLayers(geo.product(),magfield.product());
+  testDTLayers(geo.product(),magfield.product());
   testCSCLayers(geo.product(),magfield.product());
 }
 

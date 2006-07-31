@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/27 12:35:36 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/25 17:10:28 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -69,8 +69,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     edm::ESHandle<RPCGeometry> rpc;
     record.getRecord<MuonGeometryRecord>().get(rpc);
     if (rpc.isValid()) {
-        //muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc));
-        //muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildEndcaplLayers(*rpc));
+      muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
     }
   
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {

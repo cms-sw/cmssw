@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/23 12:36:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/25 17:10:28 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -42,13 +42,13 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
     }    
 }    
 
-/*
-void MuonDetLayerGeometry::addRPCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+
+void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vector<DetLayer*>, vector<DetLayer*> > endcapLayers) {
     
-    cscLayers_fw = csclayers.first;
-    cscLayers_bg = csclayers.second;
+//     layers_fw = endcapLayers.first;
+//     layers_bg = endcapLayers.second;
 }    
-*/
+
 void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
 
     vector<DetLayer*>::const_iterator it;
