@@ -1,20 +1,19 @@
-// $Id: TwoBodyCombiner.cc,v 1.12 2006/02/28 11:20:21 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.13 2006/07/26 08:48:06 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 using namespace reco;
 using namespace std;
 
-TwoBodyCombiner::TwoBodyCombiner( const boost::shared_ptr<CandSelector> & sel,
-				  bool ck, int q ) :
-  checkCharge( ck ), charge( 0 ), overlap(), select( sel ) {
-  if ( checkCharge ) charge = abs(q);
+TwoBodyCombiner::TwoBodyCombiner( const parser::selector_ptr & sel, bool ck, int q ) :
+  checkCharge_( ck ), charge_( 0 ), overlap_(), select_( sel ) {
+  if ( checkCharge_ ) charge_ = abs( q );
 }
 	 
 bool TwoBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) const {
-  if ( checkCharge ) {
-    if ( charge != abs(c1.charge() + c2.charge()) ) return false;
+  if ( checkCharge_ ) {
+    if ( charge_ != abs( c1.charge() + c2.charge() ) ) return false;
   }
-  if ( overlap( c1, c2 ) ) return false;
+  if ( overlap_( c1, c2 ) ) return false;
   return true;
 }
 
@@ -22,7 +21,7 @@ Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
-  addp4.set( * cmp );
+  addp4_.set( * cmp );
   return cmp;
 }
 
@@ -38,7 +37,7 @@ TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateColle
 	const Candidate & c2 = cands[ i2 ];
 	if ( preselect( c1, c2 ) ) {
 	  std::auto_ptr<Candidate> c( combine( c1, c2 ) );
-	  if ( (*select)( * c ) )
+	  if ( select_( * c ) )
 	    comps->push_back( c.release() );
 	}
       }
@@ -52,7 +51,7 @@ TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateColle
 	const Candidate & c2 = cands2[ i2 ];
 	if ( preselect( c1, c2 ) ) {
 	  std::auto_ptr<Candidate> c( combine( c1, c2 ) );
-	  if ( (*select)( * c ) )
+	  if ( select_( * c ) )
 	    comps->push_back( c.release() );
 	}
       }

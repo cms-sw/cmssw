@@ -16,39 +16,40 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.10 $
  *
- * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * $Id: TwoBodyCombiner.h,v 1.10 2006/03/03 10:09:18 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include <boost/shared_ptr.hpp>
+#include "PhysicsTools/Utilities/interface/ReflexObjectSelector.h"
 
 class TwoBodyCombiner {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  TwoBodyCombiner( const boost::shared_ptr<CandSelector> &, 
+  TwoBodyCombiner( const reco::parser::selector_ptr &, 
 		   bool checkCharge, int charge = 0 );
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
   combine( const reco::CandidateCollection *, const reco::CandidateCollection * );
+
 protected:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate & );
   /// flag to specify the checking of electric charge
-  bool checkCharge;
+  bool checkCharge_;
   /// electric charge of the composite
-  int charge;
+  int charge_;
   /// utility to setup composite candidate kinematics from daughters
-  AddFourMomenta addp4;
+  AddFourMomenta addp4_;
   /// utility to check candidate daughters overlap
-  OverlapChecker overlap;
+  OverlapChecker overlap_;
   /// candidate selector
-  boost::shared_ptr<CandSelector> select;
+  ReflexObjectSelector<reco::Candidate> select_;
 };
 
 #endif

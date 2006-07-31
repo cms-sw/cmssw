@@ -6,13 +6,13 @@
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include <boost/shared_ptr.hpp>
+#include "PhysicsTools/Utilities/interface/ReflexObjectSelector.h"
 #include <vector>
 
 class ThreeBodyCombiner {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  ThreeBodyCombiner( const boost::shared_ptr<CandSelector> &, 
+  ThreeBodyCombiner( const reco::parser::selector_ptr &, 
 		     bool checkCharge, const std::vector <int> &,
 		     int charge = 0);
   /// return all selected candidate pairs
@@ -30,17 +30,17 @@ protected:
   reco::Candidate * combine( const reco::Candidate &, const reco::Candidate &,
 			     const reco::Candidate & );
   /// flag to specify the checking of electric charge
-  bool checkCharge;
+  bool checkCharge_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
   /// electric charge of the composite
-  int charge;
+  int charge_;
   /// utility to setup composite candidate kinematics from daughters
-  AddFourMomenta addp4;
+  AddFourMomenta addp4_;
   /// utility to check candidate daughters overlap
-  OverlapChecker overlap;
+  OverlapChecker overlap_;
   /// candidate selector
-  boost::shared_ptr<CandSelector> select;
+  ReflexObjectSelector<reco::Candidate> select_;
 };
 
 #endif

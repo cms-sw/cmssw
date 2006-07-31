@@ -47,7 +47,7 @@ void RecoToCandCollectionConverter<R>::produce( edm::Event& evt, const edm::Even
     edm::Handle<R> recoCollection;
     evt.getByLabel( src_, recoCollection );
     for( typename R::const_iterator r = recoCollection->begin(); r != recoCollection->end(); ++r ) {
-      coll->push_back( (* r ).clone() );
+      coll->push_back( r->clone() );
     }
   evt.put( coll );
 }

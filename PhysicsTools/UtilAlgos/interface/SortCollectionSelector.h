@@ -6,13 +6,12 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SortCollectionSelector.h,v 1.3 2006/07/24 13:23:12 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.1 2006/07/25 09:28:58 llista Exp $
  *
  */
 
-#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include <algorithm>
@@ -28,7 +27,7 @@ struct SortCollectionSelector {
     max_( cfg.template getParameter<unsigned int>( "max" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const reco::TrackCollection & c, const edm::Event & ) {
+  void select( const C & c, const edm::Event & ) {
     container v;
     for( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
       v.push_back( & * i );
@@ -39,8 +38,9 @@ struct SortCollectionSelector {
   }
 private:
   struct Comparator {
+    typedef typename C::value_type value_type;
     Comparator( const CMP & cmp ) : cmp_( cmp ) { }
-    bool operator()( const reco::Track * t1, const reco::Track * t2 ) const {
+    bool operator()( const value_type * t1, const value_type * t2 ) const {
       return cmp_( * t1, * t2 );
     } 
     CMP cmp_;

@@ -1,10 +1,10 @@
-// $Id: CandCombiner.cc,v 1.9 2006/07/26 08:48:05 llista Exp $
+// $Id: CandCombiner.cc,v 1.10 2006/07/26 09:21:40 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/CandAlgos/src/cutParser.h"
-#include "PhysicsTools/CandAlgos/src/candidateMethods.h"
+#include "PhysicsTools/Utilities/interface/cutParser.h"
+#include "PhysicsTools/Utilities/interface/MethodMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -35,10 +35,12 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
 			  "failed to parse \"" + decay + "\"" );
   }
 
-  boost::shared_ptr<CandSelector> select;
+  using namespace reco::parser;
+
+  selector_ptr select;
 
   std::string cutString = cfg.getParameter<std::string>( "cut" );
-  if( cutParser( cutString, candidateMethods(), select ) ) {
+  if( cutParser( cutString, reco::MethodMap::methods<reco::Candidate>(), select ) ) {
   } else {
     throw edm::Exception( edm::errors::Configuration,
 			  "failed to parse \"" + cutString + "\"" );
