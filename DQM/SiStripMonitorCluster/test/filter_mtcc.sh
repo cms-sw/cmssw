@@ -19,9 +19,7 @@ esac
 #RUN_ON_DISK0='cmsdisk0'
 RUN_ON_DISK0='no'
 # this directory must be visible from remote batch machine
-#DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_23_code/CMSSW_0_8_0_pre3/" # Dorian's space
-#DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_26_code_with_new_filter/CMSSW_0_8_0_pre3"
-DIR_WHERE_TO_EVAL="/data/localscratch/d/dkcira/Analysis/2006_07_19_P5data/CMSSW_0_8_0_pre3"
+DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3/"
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
@@ -45,7 +43,7 @@ DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_filter_dqm_${RUNNR}.root"
 # template
 TEMPLATE_FILTER_CFG="${LK_WKDIR}/template_filter.cfg"
 # have to find smth. more clever for below
-CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_07_27_recdata";
+CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31";
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
 BATCH_USER_NAME=`whoami`
 # for testing, if 0 no limit is set
