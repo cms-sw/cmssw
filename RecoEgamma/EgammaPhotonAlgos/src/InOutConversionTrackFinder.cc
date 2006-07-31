@@ -18,7 +18,7 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
     
   seedClean_ = conf_.getParameter<bool>("inOutSeedCleaning");
   smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
-  theInitialState_       = new TransientInitialStateEstimator( es);
+  theInitialState_       = new TransientInitialStateEstimator( es,conf);
   theCkfTrajectoryBuilder_ = new CkfTrajectoryBuilder(conf_,es,theMeasurementTracker_);
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
 

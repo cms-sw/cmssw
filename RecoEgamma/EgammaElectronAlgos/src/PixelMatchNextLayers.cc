@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.2 2006/07/26 21:04:44 tboccali Exp $
 //
 //
 
@@ -95,8 +95,10 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
         if (m->recHit()->isValid()) {
 	  //	  cout << "    Found compatible hit" << endl;
           measurementsHere.push_back( *m);
-	  const TSiPixelRecHit *hit= dynamic_cast<const TSiPixelRecHit*>(m->recHit());
-	  if (hit) hitsHere.push_back( *hit);
+	  //RC const TSiPixelRecHit *hit= dynamic_cast<const TSiPixelRecHit*>(m->recHit());
+	  const TSiPixelRecHit *hit= dynamic_cast<const TSiPixelRecHit*>(m->recHit().get());
+	  //RC if (hit) hitsHere.push_back( *hit);
+	  if (hit) hitsHere.push_back( m->recHit());
 	} else {
           badMeasurementsHere.push_back( *m);
 	}
@@ -116,7 +118,8 @@ vector<TrajectoryMeasurement> PixelMatchNextLayers::badMeasurementsInNextLayers(
   return badMeasurementsHere;
 }
 
-vector<TSiPixelRecHit> PixelMatchNextLayers::hitsInNextLayers() const {
+//RC vector<TSiPixelRecHit> PixelMatchNextLayers::hitsInNextLayers() const {
+TransientTrackingRecHit::RecHitContainer PixelMatchNextLayers::hitsInNextLayers() const {
 
   return hitsHere;
 }

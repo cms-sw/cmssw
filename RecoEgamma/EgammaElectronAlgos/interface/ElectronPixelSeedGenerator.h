@@ -40,7 +40,13 @@ class ElectronPixelSeedGenerator
 {
 public:
 
-  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
+  //RC
+  typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+  
+
   enum mode{HLT, offline, unknown};  //to be used later
 
   ElectronPixelSeedGenerator(
@@ -65,7 +71,9 @@ public:
  private:
 
   void seedsFromThisCluster(edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection & out);
-  void prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos);
+  //RC void prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos);
+  void prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
+  
 
   float ephimin1;
   float ephimax1;
@@ -91,7 +99,8 @@ public:
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
-  recHitContainer recHits_; 
+  //RC recHitContainer recHits_; 
+  PRecHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 
 
   /*   edm::ValidityInterval vMag; */

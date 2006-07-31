@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: PixelMatchNextLayers.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
@@ -38,15 +38,18 @@ public:
 		      const ForwardMeasurementEstimator *aForwardMeas);
   vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
-  vector<TSiPixelRecHit> hitsInNextLayers() const;
+  //RC vector<TSiPixelRecHit> hitsInNextLayers() const;  
+  //In this way we are losing the information about the kind of the ReferenceCounted TTRH? 
+  TransientTrackingRecHit::RecHitContainer hitsInNextLayers() const;  
   vector<Hep3Vector> predictionInNextLayers() const;
 
   
 private:
                                                         
   vector<TrajectoryMeasurement> measurementsHere;
-  vector<TrajectoryMeasurement> badMeasurementsHere;
-  vector<TSiPixelRecHit> hitsHere;
+  vector<TrajectoryMeasurement> badMeasurementsHere;  
+  //RC vector<TSiPixelRecHit> hitsHere;
+  TransientTrackingRecHit::RecHitContainer hitsHere;
   vector<Hep3Vector> predictionHere; 
 };
 

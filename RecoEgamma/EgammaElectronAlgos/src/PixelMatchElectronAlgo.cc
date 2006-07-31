@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.1 2006/07/12 15:10:47 charlot Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.2 2006/07/25 10:56:40 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -65,7 +65,9 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
   es.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  theInitialState       = new TransientInitialStateEstimator( es);
+  // get nested parameter set for the TransientInitialStateEstimator
+  ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+  theInitialState       = new TransientInitialStateEstimator( es,tise_params);
 
   // get nested parameter set for the MeasurementTracker
   ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
@@ -151,11 +153,12 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
 
       OwnVector<TrackingRecHit> recHits;
       float ndof=0;
-      OwnVector<const TransientTrackingRecHit> thits = it->recHits();
-      for (OwnVector<const TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
+      //RC OwnVector<const TransientTrackingRecHit> thits = it->recHits();
+      TransientTrackingRecHit::RecHitContainer thits = it->recHits();
+      for (TransientTrackingRecHit::RecHitContainer::const_iterator hitIt = thits.begin(); 
 	   hitIt != thits.end(); hitIt++) {
-	recHits.push_back( hitIt->hit()->clone());
-	if ((*hitIt).isValid()) ndof = ndof + (hitIt->dimension())*(hitIt->weight());
+	recHits.push_back( (*hitIt)->hit()->clone());
+	if (hitIt->get()->isValid()) ndof = ndof + ((**hitIt).dimension())*((**hitIt).weight());
       }
       ndof = ndof - 5;
       

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.5 2006/06/30 12:36:57 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.6 2006/06/30 14:10:34 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -165,7 +165,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   // is this an electron
   double aCharge=-1.;
    
-  vector<pair<RecHitWithDist,TSiPixelRecHit> > elePixelHits = 
+  //RC vector<pair<RecHitWithDist,TSiPixelRecHit> > elePixelHits = 
+  vector<pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits = 
     myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   float vertexZ = myMatchEle->getVertex();
   GlobalPoint eleVertex(0.,0.,vertexZ); 
@@ -175,7 +176,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] electron compatible hits found ";
     isEle = 1;
     //     vector<pair<RecHitWithDist,RecHit> >::iterator v;
-    vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
+    //RC vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
+    vector<pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
      
     for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
        
@@ -201,7 +203,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   }  
   aCharge=1.;  
   
-  vector<pair<RecHitWithDist,TSiPixelRecHit> > posPixelHits = 
+  //RC vector<pair<RecHitWithDist,TSiPixelRecHit> > posPixelHits = 
+  vector<pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits = 
     myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   vertexZ = myMatchPos->getVertex();
    
@@ -209,7 +212,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   if (!posPixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] positron compatible hits found ";
     isEle == 1 ? isEle = 3 : isEle = 2;
-    vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
+    //RC vector<pair<RecHitWithDist,TSiPixelRecHit> >::iterator v;
+    vector<pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
       //     try {
       //        if (theMode_==offline) {
@@ -229,38 +233,53 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
 
  return ;
 }
-void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& innerhit,const TSiPixelRecHit& outerhit, const GlobalPoint& vertexPos) {
-
+//RC void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& innerhit,const TSiPixelRecHit& outerhit, const GlobalPoint& vertexPos) {
+void ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
+						    ConstRecHitPointer outerhit,
+						    const GlobalPoint& vertexPos)
+{
   // debug prints
-  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit.globalPosition();
-  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit.globalPosition();
+  //RC
+  //LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit.globalPosition();
+  //LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit.globalPosition();
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit->globalPosition();
+  LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
   recHits_.clear();
-  
+    
   SiPixelRecHit *hit;
-  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (innerhit.hit())));
+  //RC hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (innerhit.hit())));
+  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (innerhit->hit())));
   recHits_.push_back(hit);
-  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
-  recHits_.push_back(hit);
+  //RC hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
+  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit->hit())));
+  recHits_.push_back(hit);  
+  
 
   typedef TrajectoryStateOnSurface     TSOS;
   // make a spiral
-  FastHelix helix(outerhit.globalPosition(),innerhit.globalPosition(),vertexPos,*theSetup);
+  //RC FastHelix helix(outerhit.globalPosition(),innerhit.globalPosition(),vertexPos,*theSetup);
+  FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
   if ( !helix.isValid()) {
     throw cms::Exception("DetLogicError")<<" prepareElTrackSeed: invalid helix";
   }
   FreeTrajectoryState fts = helix.stateAtVertex();
-  TSOS propagatedState = thePropagator->propagate(fts,innerhit.det()->surface()) ;
+  //RC TSOS propagatedState = thePropagator->propagate(fts,innerhit.det()->surface()) ;
+  TSOS propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
   if (!propagatedState.isValid()) 
     throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
-  TSOS updatedState = theUpdator->update(propagatedState, innerhit);
+  //RC TSOS updatedState = theUpdator->update(propagatedState, innerhit);
+  TSOS updatedState = theUpdator->update(propagatedState, *innerhit);
   
-  TSOS propagatedState_out = thePropagator->propagate(fts,outerhit.det()->surface()) ;
+  //RC TSOS propagatedState_out = thePropagator->propagate(fts,outerhit.det()->surface()) ;
+  TSOS propagatedState_out = thePropagator->propagate(fts,outerhit->det()->surface()) ;
   if (!propagatedState_out.isValid()) 
     throw cms::Exception("DetLogicError") <<"SeedFromConsecutiveHits propagation failed";
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, outerhit);
+  //RC TSOS updatedState_out = theUpdator->update(propagatedState_out, outerhit);
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, *outerhit);
   // debug prints
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] final TSOS, position: "<<updatedState_out.globalPosition()<<" momentum: "<<updatedState_out.globalMomentum();
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] final TSOS Pt: "<<updatedState_out.globalMomentum().perp();
-  pts_ =  transformer_.persistentState(updatedState_out, outerhit.geographicalId().rawId());
+  //RC pts_ =  transformer_.persistentState(updatedState_out, outerhit.geographicalId().rawId());
+  pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
 }

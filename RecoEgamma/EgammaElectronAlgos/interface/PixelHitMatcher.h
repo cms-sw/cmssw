@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: PixelHitMatcher.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 
@@ -49,22 +49,36 @@ using namespace reco; //FIXME
 class RecHitWithDist
 {
  public: 
+
+  //RC
+  typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+
   //UB change place??
-  RecHitWithDist(const TSiPixelRecHit &rh, float &dphi) : rh_(rh), dphi_(dphi)
+  //RC RecHitWithDist(const TSiPixelRecHit &rh, float &dphi) : rh_(rh), dphi_(dphi)
+  RecHitWithDist(ConstRecHitPointer rh, float &dphi) : rh_(rh), dphi_(dphi)
     {}
-  const TSiPixelRecHit &recHit() const {return rh_;}
+  //RC const TSiPixelRecHit & recHit() const {return rh_;}
+  ConstRecHitPointer  recHit() const {return rh_;}
   float dPhi() const {return dphi_;}
   void invert() {dphi_*=-1.;}
 
  private:
   
-   TSiPixelRecHit rh_;
+   ConstRecHitPointer rh_;  
    float dphi_;
 
 };
 
-class PixelHitMatcher{
+class PixelHitMatcher{  
  public:
+  //RC
+  typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+  
+
   PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
 		  float z1min, float z1max, float z2min, float z2max) :
     phi1min(phi1min), phi1max(phi1max), phi2min(phi2min), phi2max(phi2max), 
@@ -80,16 +94,19 @@ class PixelHitMatcher{
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
 
-  vector<pair<RecHitWithDist,TSiPixelRecHit> > compatibleHits(const GlobalPoint& xmeas,
-							      const GlobalPoint& vprim,
-							      float energy,
-							      float charge);
+  //RC vector<pair<RecHitWithDist,TSiPixelRecHit> > compatibleHits(const GlobalPoint& xmeas,
+  vector<pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
+								  const GlobalPoint& vprim,
+								  float energy,
+								  float charge);
   vector<Hep3Vector> predicted1Hits();
   vector<Hep3Vector> predicted2Hits();
   float getVertex();
  
-private:
-  vector<TSiPixelRecHit> hitsInTrack;
+ private:
+  //vector<TSiPixelRecHit> hitsInTrack;
+  RecHitContainer hitsInTrack;
+
   float phi1min, phi1max, phi2min, phi2max, z1min, z1max, z2min, z2max;
   vector<Hep3Vector> pred1Meas;
   vector<Hep3Vector> pred2Meas; 

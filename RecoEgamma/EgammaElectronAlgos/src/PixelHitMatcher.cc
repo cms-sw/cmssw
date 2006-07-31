@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.3 2006/06/30 14:11:08 uberthon Exp $
 //
 //
 
@@ -54,13 +54,15 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
 
-vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
-									      const GlobalPoint& vprim,
-									      float energy,
-									      float fcharge) {
+//RC vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
+vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
+												   const GlobalPoint& vprim,
+										  float energy,
+										  float fcharge) {
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
-  vector<pair<RecHitWithDist, TSiPixelRecHit> > result;
+  //RC vector<pair<RecHitWithDist, TSiPixelRecHit> > result;
+  vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
    LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
 
 
@@ -224,10 +226,16 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
       if (dphi > pi) dphi -= twopi;
       if (dphi < -pi) dphi += twopi; 
 
-      const TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
-      RecHitWithDist rh(*pxrh,dphi);
-      pxrh=dynamic_cast<const TSiPixelRecHit*>( secondHit.measurementsInNextLayers()[0].recHit());
-      pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
+      //RCconst TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
+      ConstRecHitPointer pxrh = validMeasurements[i].recHit();
+      
+      //RC RecHitWithDist rh(pxrh,dphi);
+      RecHitWithDist rh(pxrh,dphi);
+      
+      //RC pxrh=dynamic_cast<const TSiPixelRecHit*>( secondHit.measurementsInNextLayers()[0].recHit());
+      pxrh = secondHit.measurementsInNextLayers()[0].recHit();
+      //RC pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
+      pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
       result.push_back(compatiblePair);
     }
 
@@ -248,11 +256,15 @@ vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(co
 	  float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
 	  if (dphi > pi) dphi -= twopi;
 	  if (dphi < -pi) dphi += twopi; 
-	  const TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
-	  RecHitWithDist rh(*pxrh,dphi);
+	  //RC const TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
+	  ConstRecHitPointer pxrh = validMeasurements[i].recHit();
+	  //RC RecHitWithDist rh(*pxrh,dphi);
+	  RecHitWithDist rh(pxrh,dphi);
 
-	  pxrh=dynamic_cast<const TSiPixelRecHit *>(secondSecondHit.measurementsInNextLayers()[0].recHit());
-	  pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
+	  //RC pxrh=dynamic_cast<const TSiPixelRecHit *>(secondSecondHit.measurementsInNextLayers()[0].recHit());
+	  pxrh = secondSecondHit.measurementsInNextLayers()[0].recHit();
+	  //RC pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
+	  pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
           result.push_back(compatiblePair);
         }// test on secondSecondHit.measurementsInNextLayers()
       }//loop on missed measurements
