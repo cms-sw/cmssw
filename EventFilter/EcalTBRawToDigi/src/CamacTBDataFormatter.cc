@@ -350,15 +350,15 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // acessing table in position bit
   **********************************/
   a = buffer[wordCounter];      wordCounter++;
-  b = (a & 0x00000001);  //1= table is moving; 0=table is still
+  b = (a & 0x00000001);  //1= table is in position; 0=table is moving
   bool tableIsMoving;
   if ( b ){
-    LogDebug("CamacTBDataFormatter") << " table is not in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
     tableIsMoving = false;
   }
   else
     {
-    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is moving."  << endl;
     tableIsMoving = true;
     }
   tbEventHeader.setTableIsMoving( tableIsMoving );
