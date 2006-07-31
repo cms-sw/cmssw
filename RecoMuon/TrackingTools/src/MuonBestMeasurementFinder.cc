@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/06/27 13:44:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/04 16:55:38 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -36,7 +36,7 @@ MuonBestMeasurementFinder::~MuonBestMeasurementFinder(){
 TrajectoryMeasurement* 
 MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement>& measC){
 
-  typedef edm::OwnVector<const TransientTrackingRecHit> MuonRecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer MuonRecHitContainer;
     
   std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
@@ -73,7 +73,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
     // FIXME: is it right??
     const MuonTransientTrackingRecHit *measRH = 
-      dynamic_cast<const MuonTransientTrackingRecHit*> ( (*measurement)->recHit() ); 
+      dynamic_cast<const MuonTransientTrackingRecHit*> ( ((*measurement)->recHit()).get() ); 
     
     unsigned int npts=0;
     double thisChi2 = 0.;
@@ -87,21 +87,21 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
     for (MuonRecHitContainer::const_iterator rhit = rhits_list.begin(); 
 	 // for (vector<const TrackingRecHit*>::const_iterator rhit = rhits_list.begin(); 
 	 rhit!= rhits_list.end(); rhit++ ) {
-      if ((*rhit).isValid() ) {
-	LogDebug(metname)<<"Rechit dimension: "<<(*rhit).dimension()<<endl;
-	npts+=(*rhit).dimension();
+      if ((*rhit)->isValid() ) {
+	LogDebug(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
+	npts+=(*rhit)->dimension();
 	  
 	TrajectoryStateOnSurface predState;
 
 	// Double FIXME
-	if (!( (*rhit).geographicalId() == (*measRH).geographicalId() ) ){
+	if (!( (*rhit)->geographicalId() == (*measRH).geographicalId() ) ){
 	  predState = propagator()->propagate(*(*measurement)->predictedState().freeState(),
-					      (*rhit).det()->surface()); 
+					      (*rhit)->det()->surface()); 
 	}
 	else predState = (*measurement)->predictedState();  
 	  
 	if ( predState.isValid() ) { 
-	  std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *rhit);
+	  std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
 	  thisChi2 += sing_chi2.second ;
 	  LogDebug(metname) << " sing_chi2: "
 			    << sing_chi2.second;
@@ -157,28 +157,29 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
   // if there are more than one valid meas, then sort them.
   for ( meas = measC.begin(); meas!= measC.end(); meas++ ) {
 
-    const TransientTrackingRecHit *measRH= (*meas).recHit();
-
+    TransientTrackingRecHit::ConstRecHitPointer measRH= (*meas).recHit();
+    
     if ( measRH->isValid() ) {
       unsigned int npts=0;
       double thisChi2 = 0.;
 
       // ask for the segments
-    TransientTrackingRecHit::RecHitContainer rhits_list = measRH->transientHits();
+      TransientTrackingRecHit::ConstRecHitContainer rhits_list = measRH->transientHits();
       
       // loop over them
       for (TransientTrackingRecHit::RecHitContainer::const_iterator rhit = rhits_list.begin(); 
            rhit!= rhits_list.end(); rhit++ ) {
-        if ((*rhit).isValid() ) {
-          npts+=(*rhit).dimension();
+        if ((*rhit)->isValid() ) {
+          npts+=(*rhit)->dimension();
 	  
           TrajectoryStateOnSurface predState;
 
 	  // FIXME
    	  // was (! *rhit == measRH)
-	  if (!( (*rhit).geographicalId() == (*measRH).geographicalId() ) ) {
+	  if (!( (*rhit)->geographicalId() ==
+		 (*measRH).geographicalId() ) ) {
 	    predState = propagator()->propagate(*(*meas).predictedState().freeState(),
-						(*rhit).det()->surface()); 
+						(*rhit)->det()->surface()); 
 	       // FIXME was (*rhit).det().detUnits()[0]->specificSurface()
 	  }
 	  else {
@@ -186,7 +187,7 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
 	  }
 	  
           if ( predState.isValid() ) { 
-            std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *rhit);
+            std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
             thisChi2 += sing_chi2.second ;
             LogDebug(metname) << " sing_chi2: "
 			      << sing_chi2.second;
