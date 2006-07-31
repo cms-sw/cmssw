@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.5 2006/06/27 07:52:08 dkcira Exp $
+// $Id: SiStripMonitorCluster.h,v 1.6 2006/07/20 19:45:52 dkcira Exp $
 //
 
 // system include files
@@ -60,6 +60,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
        edm::ParameterSet conf_;
        SiStripNoiseService SiStripNoiseService_;  
        std::map<uint32_t, ModMEs> ClusterMEs;
+       MonitorElement* charge_of_each_cluster;
 };
 
 #endif

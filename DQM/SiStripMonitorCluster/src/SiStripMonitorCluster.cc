@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.17 2006/07/20 12:06:06 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.18 2006/07/20 19:46:24 dkcira Exp $
 //
 //
 
@@ -99,7 +99,10 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     // create SiStripFolderOrganizer
     SiStripFolderOrganizer folder_organizer;
 
-    // loop over TOB detectors and book MEs
+    folder_organizer.setSiStripFolder();
+    charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",300,-0.5,300.5);
+
+    // loop over detectors and book MEs
     LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
     for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
       ModMEs local_modmes;
@@ -166,6 +169,18 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edm::DetSetVector<SiStripCluster> > cluster_detsetvektor;
   iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
+  // auxiliary histogram with charge of each cluster
+  for (edm::DetSetVector<SiStripCluster>::const_iterator icdetset=cluster_detsetvektor->begin();icdetset!=cluster_detsetvektor->end();icdetset++) {
+    for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = (icdetset->data).begin(); clusterIter!= (icdetset->data).end(); clusterIter++){
+      const std::vector<short>& ampls = clusterIter->amplitudes();
+      short local_charge = 0;
+      for(std::vector<short>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
+        local_charge += *iampls;
+      }
+      charge_of_each_cluster->Fill(static_cast<float>(local_charge),1.);
+    }
+  }
+  //
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
   for (map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs local_modmes = iterMEs->second;

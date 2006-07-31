@@ -35,6 +35,7 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        edm::ParameterSet conf_;
        MonitorElement * HLTDecision;
        MonitorElement * ClusterCharge;
+       MonitorElement * NumberOfClustersAboveThreshold;
 };
 
 #endif
