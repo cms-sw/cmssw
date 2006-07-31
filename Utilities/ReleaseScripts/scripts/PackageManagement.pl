@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.5 2006/04/13 12:34:10 sashby Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.6 2006/04/19 08:32:27 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -27,6 +27,7 @@ my $wantedpackages;
 my $versionfile;
 my $packagelist;
 my $startdir=cwd();
+my $package_search_regexp = '*';
 
 # Support for colours in messages:
 if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ )
@@ -41,7 +42,7 @@ if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ )
    }
 
 # Getopt option variables:
-my %opts; $opts{VERBOSE} = 1; # Verbose by default;
+my %opts; $opts{VERBOSE} = 1; $opts{USE_REGEXP}=0; # Verbose by default; Use package list as supplied by user (or all by default);
 my %options =
    ("release=s"       => sub { $releaseid=$_[1] },
     "mypackagefile=s" => sub { $opts{MYPACKAGES} = 1; $mypackagefile=$_[1] },
@@ -49,6 +50,7 @@ my %options =
     "query"           => sub { $opts{QUERY} = 1},
     "ignorepack=s"    => sub { $opts{IGNOREPACK} = 1; $ignoredpackages = [ split(" ",$_[1]) ] },
     "pack=s"          => sub { $opts{PACKAGES} = 1; $wantedpackages = [ split(" ",$_[1]) ]; $opts{MYPACKAGES} = 0; },
+    "search=s"        => sub { $opts{USE_REGEXP} = 1; $opts{PACKAGES} = 0; $package_search_regexp = $_[1]; },
     "justtag"         => sub { $opts{SHOWTAGONLY} = 1 },
     "dumptags"        => sub { $opts{DUMPTAGLIST} = 1 },
     "silent"          => sub { $opts{VERBOSE} = 0 },
@@ -160,6 +162,39 @@ else
 	 {
 	 # Do the real checkout:
 	 &do_checkout($wantedpks);
+	 }
+      }
+   elsif ($opts{USE_REGEXP})
+      {
+      my $wantedpks={};
+      my $matched=0;
+      print "PackageManagement: Checking out packages matching regexp \"$package_search_regexp\".","\n\n", if ($opts{VERBOSE});
+      # Use a regular expression to build the list of wanted packages:      
+      foreach my $list_package (sort keys %$packagelist)
+	 {
+	 if ($list_package =~ m|$package_search_regexp|)
+	    {
+	    $matched++;
+	    $wantedpks->{$list_package} = $packagelist->{$list_package};
+	    }
+	 }
+
+      # Check to see if at least one match was found:
+      if ($matched)
+	 {
+	 if ($opts{QUERY})
+	    {
+	    &do_query($wantedpks);
+	    }
+	 else
+	    {
+	    # Do the real checkout:
+	    &do_checkout($wantedpks);
+	    }
+	 }
+      else
+	 {
+	 print "PackageManagement: No packages found matching regexp \"$package_search_regexp\".","\n\n";
 	 }
       }
    else
@@ -303,7 +338,7 @@ sub do_checkout()
 	    }
 	 }
       }
-   print "Done".$statmsg,"\n";
+   print "\nDone".$statmsg,"\n";
    }
 
 sub do_query()
@@ -329,6 +364,7 @@ sub do_query()
 	    }
 	 } sort keys %$packagelist;      
       }
+   print "\n";
    }
 
 sub getpklistfromtc()
@@ -392,6 +428,7 @@ sub usage()
    $string.="--mypackagefile=<FILENAME>  Read the list of packages to check out from FILENAME.\n";
    $string.="--ignorepack=<PACKAGES>     Ignore packages listed in space-separated string PACKAGES.\n";
    $string.="--pack=<PACKAGES>           Only consider the packages listed in space-separated string PACKAGES.\n";
+   $string.="--search=<REGEXP>           Query/checkout packages matching the Perl regular expression REGEXP.\n";
    $string.="--justtag | -j              Print just the CVS tag for the package given in \"--pack X\" option.\n";
    $string.="--query | -q                Query package lists to see tags. Don't perform any checkouts.\n";
    $string.="--silent | -s               Be silent: don't print anything.\n";
