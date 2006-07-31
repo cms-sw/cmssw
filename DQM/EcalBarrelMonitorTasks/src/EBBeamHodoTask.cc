@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/28 14:43:31 $
- * $Revision: 1.23 $
+ * $Date: 2006/07/31 10:39:19 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -66,7 +66,7 @@ void EBBeamHodoTask::beginJob(const EventSetup& c){
   }
 
   LV1_ = 0;
-  cryInBeamCounter_ =1;
+  cryInBeamCounter_ =0;
   resetNow_                =false;
 
 }
@@ -234,9 +234,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
 
   Handle<EcalTBEventHeader> pHeader;
-  const EcalTBEventHeader * Header = pHeader.product(); // get a ptr to the product
+  const EcalTBEventHeader * Header =0;
   try{
     e.getByLabel("ecalEBunpacker", pHeader);
+    Header = pHeader.product(); // get a ptr to the product
     if (!Header) {
       LogDebug("EBBeamHodoTask") << "Event header not found. Returning. ";
       return;
@@ -253,7 +254,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       {      LogDebug("EBBeamHodoTask") << "Table is not moving. ";    }
   }// end try
   catch ( std::exception& ex) {
-    LogWarning("EBBeamHodoTask") << "Event header not found. Returning. ";    
+    LogWarning("EBBeamHodoTask") << "Event header not found (exception caught). Returning. ";    
     return;    
   }
 
@@ -340,32 +341,30 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
 
 
-  // table has come to a stop:
-  //   - identified by new value of cry_in_beam
+  // table has come to a stop is identified by new value of cry_in_beam
   //   - increase counter of crystals that have been on beam
   //   - set flag for resetting
   if (cryInBeam_ != previousCryInBeam_ )
     {
+      previousCryInBeam_ = cryInBeam_ ;
       cryInBeamCounter_++;
-      resetNow_ = true;
-      LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ << " switching table status: from still to moving. ";
-	
+      resetNow_ = true;	
 
 
       // since flag "tableIsMoving==false" is reliable (as we can tell, so far),
-
       // operations due when "table has started moving"
       // can be done after the change in crystal in beam
       
-      LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " switching table status: from moving to still. ";
+      LogDebug("EcalBeamTask")  << "At event number : " << LV1_ <<  " switching table status: from moving to still. "
+				<< " cry in beam is: " << cryInBeam_;
 	
       // fill here plots which keep history of beamed crystals
       float HodoPosXMinusCaloPosXVsCry_mean  =0;
-      float HodoPosXMinusCaloPosXVsCry_rms     =0;
+      float HodoPosXMinusCaloPosXVsCry_rms   =0;
       float HodoPosYMinusCaloPosYVsCry_mean  =0;
-      float HodoPosYMinusCaloPosYVsCry_rms     =0;
-      float TDCTimeMinusCaloTimeVsCry_mean      =0;
-      float TDCTimeMinusCaloTimeVsCry_rms         =0;
+      float HodoPosYMinusCaloPosYVsCry_rms   =0;
+      float TDCTimeMinusCaloTimeVsCry_mean   =0;
+      float TDCTimeMinusCaloTimeVsCry_rms    =0;
 	  
       if (meCaloVsHodoXPos_ -> getEntries()  > 30){
 	HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
@@ -386,7 +385,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
       meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
 
-      LogDebug("EcalBeamTask")  << "At event LV1: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_=" 
+      LogDebug("EcalBeamTask")  << "At event number: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_=" 
 				<< cryInBeamCounter_ << ")";
 
     }
@@ -484,12 +483,12 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   
   if (tableIsMoving_)
     {
-      LogDebug("EcalBeamTask")<< "At event LV1:" << LV1_ << " table is moving. Not filling concerned monitoring elements. ";
+      LogDebug("EcalBeamTask")<< "At event number:" << LV1_ << " table is moving. Not filling concerned monitoring elements. ";
       return;
     }
   else
     {
-      LogDebug("EcalBeamTask")<< "At event LV1:" << LV1_ << " table is not moving - thus filling alos monitoring elements requiring so.";
+      LogDebug("EcalBeamTask")<< "At event number:" << LV1_ << " table is not moving - thus filling alos monitoring elements requiring so.";
     }
 
   float maxE =0;
