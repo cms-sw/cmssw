@@ -3,12 +3,12 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>
  <use name=IORawData/DaqSource>
- <use name=rfio>
+ <use name=castor>
 </export>
 
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=IORawData/DaqSource>
-<use name=rfio>
+<use name=castor>
  
 <flags SEAL_PLUGIN_NAME="IORawDataDTCommissioning">
