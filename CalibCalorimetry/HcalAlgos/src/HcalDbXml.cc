@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.10 2006/07/26 01:09:26 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.11 2006/07/29 00:17:58 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -9,6 +9,8 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+
+#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
