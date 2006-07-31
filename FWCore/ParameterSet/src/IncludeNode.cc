@@ -75,7 +75,7 @@ namespace edm {
         // duplicate.  Remove this one.
         CompositeNode * parent  = dynamic_cast<CompositeNode *>(getParent());
         assert(parent != 0);
-        parent->removeChild(name);
+        parent->removeChild(this);
       }
       else 
       {
