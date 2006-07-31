@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2006/02/15 19:48:02 $
-$Revision: 1.7 $
+$Date: 2006/07/29 00:21:32 $
+$Revision: 1.8 $
 */
 
 #include <vector>
@@ -18,7 +18,6 @@ $Revision: 1.7 $
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 
 // 
 class HcalElectronicsMap {
