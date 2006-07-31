@@ -24,10 +24,12 @@ StorageAccount::StorageStats StorageAccount::s_stats;
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 std::string
-StorageAccount::summaryText (void)
+StorageAccount::summaryText (bool banner /*=false*/)
 {
   bool first = true;
   std::ostringstream os;
+  if (banner) 
+    os << "stats: class/operation/attempts/successes/amount/tot time/min time/max time\n";
   for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
     for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
       os << (first ? "" : "; ")

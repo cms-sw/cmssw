@@ -52,7 +52,7 @@ public:
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
   
   static const StorageStats &	summary (void);
-  static std::string		summaryText (void);
+  static std::string		summaryText (bool banner=false);
   static Counter &		counter (const std::string &storageClass,
 					 const std::string &operation);
   
