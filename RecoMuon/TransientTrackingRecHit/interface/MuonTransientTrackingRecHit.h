@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2006/07/31 18:08:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/31 18:26:51 $
+ *  $Revision: 1.9 $
  */
 
 
@@ -57,7 +57,7 @@ public:
   bool isRPC() const;
 
   /// return the sub components of this transient rechit
-  ConstRecHitContainer transientHits() const;
+  virtual ConstRecHitContainer transientHits() const;
 
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit* rh) {
     return RecHitPointer( new MuonTransientTrackingRecHit(geom, rh));

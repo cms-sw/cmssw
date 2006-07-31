@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/28 12:52:54 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/07/29 02:48:16 $
+ *   $Revision: 1.8 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -214,7 +214,9 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
 
     const VertexRecHit* vrecHit = new VertexRecHit(LocalPoint(0.,0.),err2D); //FIXME
     const TrackingRecHit* trecHit = (*vrecHit).hit();
-    GenericTransientTrackingRecHit* recHit = new GenericTransientTrackingRecHit(&(det.geomDet()), trecHit);
+    //    GenericTransientTrackingRecHit* recHit = GenericTransientTrackingRecHit(&(det.geomDet()), trecHit);
+    TransientTrackingRecHit::RecHitPointer recHit = GenericTransientTrackingRecHit::build((&(det.geomDet())), trecHit);
+
 
     std::pair<bool,double> pairChi2 = theEstimator->estimate(ipState, *recHit);
 
