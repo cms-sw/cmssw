@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.2 2006/02/07 07:16:46 wmtan Exp $
+// $Id: Timing.h,v 1.1 2006/07/07 14:00:56 chrjones Exp $
 //
 #include "boost/signal.hpp"
 
@@ -39,6 +39,18 @@ namespace edm {
       double curr_event_time_;  // seconds
       double curr_module_time_; // seconds
       bool want_summary_;
+      bool report_summary_;
+      
+        //
+       // Min Max and average event times for summary
+      //  at end of job
+      double max_event_time_;    // seconds
+      double min_event_time_;    // seconds
+      int total_event_count_; 
+
+
+      
+
     };
   }
 }

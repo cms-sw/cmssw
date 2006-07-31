@@ -6,10 +6,12 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.3 2006/02/08 00:44:27 wmtan Exp $
+// $Id: Timing.cc,v 1.4 2006/07/07 14:00:57 chrjones Exp $
 //
 
 #include "FWCore/Services/interface/Timing.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
@@ -34,7 +36,12 @@ namespace edm {
     }
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      want_summary_(iPS.getUntrackedParameter<bool>("summaryOnly",false))
+      want_summary_(iPS.getUntrackedParameter<bool>("summaryOnly",false)),
+      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport",false)),
+      max_event_time_(0.),
+      min_event_time_(0.),
+      total_event_count_(0)
+     
     {
       iRegistry.watchPostBeginJob(this,&Timing::postBeginJob);
       iRegistry.watchPostEndJob(this,&Timing::postEndJob);
@@ -53,7 +60,7 @@ namespace edm {
 
     void Timing::postBeginJob()
     {
-      // edm::LogInfo("TimeReport")
+      //edm::LogInfo("TimeReport")
       cout
 	<< "TimeReport> Report activated" << "\n"
 	<< "TimeReport> Report columns headings for events: "
@@ -68,11 +75,28 @@ namespace edm {
     void Timing::postEndJob()
     {
       double t = getTime() - curr_job_;
-      // edm::LogInfo("TimeReport")
+      double average_event_t = t / total_event_count_;
+      //edm::LogInfo("TimeReport")
       cout
 	<< "TimeReport> Time report complete in "
 	<< t << " seconds"
-	<< "\n";
+	<< "\n"
+        << " Time Summary: \n" 
+        << " Min: " << min_event_time_ << "\n"
+        << " Max: " << max_event_time_ << "\n"
+        << " Avg: " << average_event_t << "\n";
+      
+      if (report_summary_){
+	Service<JobReport> reportSvc;
+	std::map<std::string, double> reportData;
+
+	reportData.insert(std::make_pair("MinEventTime", min_event_time_));
+	reportData.insert(std::make_pair("MaxEventTime", max_event_time_));
+	reportData.insert(std::make_pair("AvgEventTime", average_event_t));
+	reportData.insert(std::make_pair("TotalTime", t));
+	reportSvc->reportTimingInfo(reportData);
+      }
+
     }
 
     void Timing::preEventProcessing(const edm::EventID& iID,
@@ -80,15 +104,26 @@ namespace edm {
     {
       curr_event_ = iID;
       curr_event_time_ = getTime();
+      
+
     }
     void Timing::postEventProcessing(const Event& e, const EventSetup&)
     {
       double t = getTime() - curr_event_time_;
-      //edm::LogInfo("TimeEvent")
-      cout << "TimeEvent> "
-	   << curr_event_.event() << " "
-	   << curr_event_.run() << " "
-	   << t << "\n";
+      edm::LogInfo("TimeEvent")
+	<< "TimeEvent> "
+	<< curr_event_.event() << " "
+	<< curr_event_.run() << " "
+	<< t << "\n";
+      
+      if (total_event_count_ == 0) {
+	max_event_time_ = t;
+        min_event_time_ = t;
+      }
+      
+      if (t > max_event_time_) max_event_time_ = t;
+      if (t < min_event_time_) min_event_time_ = t;
+      total_event_count_ = total_event_count_ + 1;
     }
 
     void Timing::preModule(const ModuleDescription&)
@@ -106,6 +141,8 @@ namespace edm {
 	   << desc.moduleLabel_ << " "
 	   << desc.moduleName_ << " "
 	   << t << "\n";
+
+   
       newMeasurementSignal(desc,t);
     }
 
