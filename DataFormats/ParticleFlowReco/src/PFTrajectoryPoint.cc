@@ -37,11 +37,11 @@ PFTrajectoryPoint::~PFTrajectoryPoint()
 {}
 
 
-const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::getPositionREP() {
-  if(posrep_ == REPPoint())
-    posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi());
-  return posrep_;
-}
+// const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::getPositionREP() {
+// //   if(posrep_ == REPPoint())
+// //     posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi());
+//   return posrep_;
+// }
 
 
 std::ostream& reco::operator<<(std::ostream& out, 

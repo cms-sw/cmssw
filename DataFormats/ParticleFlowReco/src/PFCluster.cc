@@ -18,7 +18,8 @@ PFCluster::PFCluster() :
   energy_(0),
   posCalcMode_(0),
   posCalcP1_(0),
-  posCalcDepthCor_(false)
+  posCalcDepthCor_(false),
+  color_(1)
 {}
 
 
@@ -29,7 +30,8 @@ PFCluster::PFCluster(unsigned id, int type) :
   energy_(0), 
   posCalcMode_(0),
   posCalcP1_(0),
-  posCalcDepthCor_(false)
+  posCalcDepthCor_(false),
+  color_(1)
 {}
   
 
@@ -43,8 +45,19 @@ PFCluster::PFCluster(const PFCluster& other) :
   posrep_(other.posrep_),
   posCalcMode_(other.posCalcMode_),
   posCalcP1_(other.posCalcP1_),
-  posCalcDepthCor_(other.posCalcDepthCor_)
+  posCalcDepthCor_(other.posCalcDepthCor_),
+  color_(other.color_)
 {}
+
+
+void PFCluster::reset() {
+  
+  energy_ = 0;
+  posxyz_ *= 0;
+  posrep_ *= 0;
+  
+  rechits_.clear();
+}
 
 
 void PFCluster::addRecHit( const reco::PFRecHit& rechit, double fraction) {
@@ -363,6 +376,56 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 //     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].getRecHit()->getPositionXYZ() ).Mag() );
 //   }
 
+}
+
+
+PFCluster& PFCluster::operator=(const PFCluster& other) {
+
+  rechits_ = other.rechits_;
+  id_ = other.id_;
+  type_ = other.type_; 
+  layer_= other.layer_;
+  energy_ = other.energy_;
+  posxyz_ = other.posxyz_;
+  posrep_ = other.posrep_;
+  posCalcMode_ = other.posCalcMode_;
+  posCalcP1_ = other.posCalcP1_;
+  posCalcDepthCor_ = other.posCalcDepthCor_;
+  color_ = other.color_;
+
+  return *this;
+}
+
+
+PFCluster& PFCluster::operator+=(const PFCluster& other) {
+  
+  if( id_==0 && 
+      rechits_.empty() ) { // this is a default cluster
+    (*this) = other;
+    return *this;
+  }
+
+  // these clusters must be compatible
+  assert( posCalcMode_ == other.posCalcMode_ &&
+	  fabs(posCalcP1_ - other.posCalcP1_)<0.000001 && 
+	  posCalcDepthCor_ == other.posCalcDepthCor_ && 
+	  layer_ == other.layer_);
+
+  for(unsigned ic=0; ic<other.rechits_.size(); ic++) {
+    reco::PFRecHitFraction& cf 
+      = const_cast<reco::PFRecHitFraction&>( other.rechits_[ic] );
+    
+    addRecHit( *(cf.getRecHit()) , cf.getFraction() );
+  }
+
+  // sortCells();
+  calculatePosition(other.posCalcMode_, 
+		    other.posCalcP1_, 
+		    other.posCalcDepthCor_);
+ 
+  cout<<"clusters have been added !"<<endl;
+ 
+  return *this;
 }
 
 

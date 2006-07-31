@@ -5,6 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -22,6 +23,8 @@ class TCanvas;
 class TH2F;
 class TGraph;
 class IO;
+
+class PFBlockElement;
 
 
 /// \brief ROOT interface to particle flow package
@@ -109,6 +112,9 @@ class PFRootEventManager {
   /// performs clustering 
   void clustering();
 
+  /// performs particle flow
+  void particleFlow();
+
   /// display one entry 
   void display(int ientry);
 
@@ -134,6 +140,11 @@ class PFRootEventManager {
   /// updates all displays
   void updateDisplay();
 
+  /// look for ecal
+  void lookForMaxRecHit(bool ecal);
+
+  /// look for hcal 
+
   /// finds max rechit energy in a given layer 
   double getMaxE(int layer) const;
 
@@ -158,14 +169,20 @@ class PFRootEventManager {
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
-  // rechits
+  /// rechits
   std::vector<reco::PFRecHit> rechits_;
 
-  // clusters
+  /// clusters
   std::vector<reco::PFCluster> clusters_;
 
-  // reconstructed tracks
+  /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
+  
+  /// all pfblock elements
+  std::set< PFBlockElement* > allElements_; 
+
+  /// all pfblocks  
+  std::vector< PFBlock >     allPFBs_;
 
   /// input file
   TFile*     file_; 
@@ -192,6 +209,9 @@ class PFRootEventManager {
 
   /// display cluster color ? (then color = cluster type )
   bool displayColorClusters_;
+
+  /// size of view in number of cells when centering on a rechit
+  double displayZoomFactor_;
 
   /// support histogram for eta/phi display
   TH2F*                    displayHistEtaPhi_;
@@ -257,5 +277,9 @@ class PFRootEventManager {
   /// hcal number of neighbours
   int    nNeighboursHcal_;
 
+
+  // particle flow ------------------------------------------
+  bool   displayJetColors_;
+  int    reconMethod_;
 };
 #endif

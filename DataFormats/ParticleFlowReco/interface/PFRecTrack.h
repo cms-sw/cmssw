@@ -12,7 +12,8 @@ namespace reco {
 
   /**\class PFRecTrack
      \brief reconstructed track for particle flow
-          
+     
+     \todo   colin: the structure for trajectory points is very inefficient. 
      \author Renaud Bruneliere
      \date   July 2006
   */
@@ -41,6 +42,9 @@ namespace reco {
 		  const reco::PFTrajectoryPoint& measurement)
     { trajectoryPoints_[index] = measurement; }
 
+    /// calculate posrep_ once and for all for each point
+    void CalculatePositionREP();
+
     /// get electric charge
     double getCharge() const    { return charge_; }
 
@@ -49,30 +53,38 @@ namespace reco {
 
     /// get number of trajectory points
     unsigned int getNTrajectoryPoints() const 
-    { return trajectoryPoints_.size(); }
-
+      { return trajectoryPoints_.size(); }
+    
     /// get number of trajectory measurements in tracker
     unsigned int getNTrajectoryMeasurements() const 
-    { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
+      { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
 
     /// vector of trajectory points
     const std::vector< reco::PFTrajectoryPoint >& getTrajectoryPoints() const 
-    { return trajectoryPoints_; }
-
+      { return trajectoryPoints_; }
+    
     /// get a trajectory point
     const reco::PFTrajectoryPoint& getTrajectoryPoint(unsigned index) const 
-    { return trajectoryPoints_[index]; }
+      { return trajectoryPoints_[index]; }
+
+    /// get extrapolated point
+    const reco::PFTrajectoryPoint& getExtrapolatedPoint(unsigned layerid) const; 
 
     /// iterator on innermost tracker measurement
     std::vector< reco::PFTrajectoryPoint >::const_iterator getInnermostMeasurement() const
-    { return trajectoryPoints_.begin() + indexInnermost_; }
-
+      { return trajectoryPoints_.begin() + indexInnermost_; }
+    
     /// iterator on outermost tracker measurement
     std::vector< reco::PFTrajectoryPoint >::const_iterator getOutermostMeasurement() const
-    { return trajectoryPoints_.begin() + indexOutermost_; }
+      { return trajectoryPoints_.begin() + indexOutermost_; }
   
     bool isPropagated() { return (!doPropagation_); }
+
     void setPropagation(bool doPropagation) { doPropagation_ = doPropagation; }
+
+    void         setColor(int color) {color_ = color;}
+
+    int          getColor() const {return color_;}    
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFRecTrack& track);
@@ -96,6 +108,9 @@ namespace reco {
 
     /// propagate trajectory to extra positions (transient)
     bool doPropagation_;
+
+    /// color
+    int  color_;
 
   };
 

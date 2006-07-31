@@ -80,8 +80,11 @@ namespace reco {
     /// rechit cell centre x, y, z
     const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
 
-    /// rechit cell centre rho, eta, phi
-    const REPPoint& getPositionREP();
+    /// rechit cell centre rho, eta, phi. call CalculatePositionREP before !
+    const REPPoint& getPositionREP() const;
+
+    /// calculates rho eta phi position once and for all
+    void CalculatePositionREP();
 
     /// rechit cell axis x, y, z
     const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
@@ -104,6 +107,9 @@ namespace reco {
 
     const std::vector< unsigned >& getNeighboursIds8() const 
       {return neighboursIds8_;}  
+
+
+    void size(double& deta, double& dphi) const;
 
     /// comparison >= operator
     bool operator>=(const PFRecHit& rhs) const { return (energy_>=rhs.energy_); }

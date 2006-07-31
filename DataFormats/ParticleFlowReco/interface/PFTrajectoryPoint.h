@@ -33,6 +33,8 @@ namespace reco {
       PS2 = 3,             /// Preshower layer 2
       ECALEntrance = 4,
       ECALShowerMax = 5,   /// Position of maximal shower developpment
+      // showermax is for e/gamma. 
+      // we need one for hadrons, see FamosRootEF
       HCALEntrance = 6,
       HCALExit = 7,
       NLayers = 8
@@ -62,11 +64,19 @@ namespace reco {
     /// trajectory point layer
     unsigned getLayer() const    { return layer_; }
 
+    /// is this point valid ? 
+    bool     isValid() const {return static_cast<bool>(layer_);}
+
     /// cartesian position (x, y, z)
     const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
 
     /// trajectory position in (rho, eta, phi) base
-    const REPPoint& getPositionREP();
+    const REPPoint& getPositionREP() const { return posrep_; }
+
+    /// calculate posrep_ once and for all
+    void CalculatePositionREP() {
+      posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
+    }
 
     /// 4-momenta quadrivector
     const math::XYZTLorentzVector& getMomentum() const    { return momentum_; }

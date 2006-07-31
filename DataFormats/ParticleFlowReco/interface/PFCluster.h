@@ -34,11 +34,17 @@ namespace reco {
 
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
+    /// default constructor
     PFCluster();
   
+    /// constructor
     PFCluster(unsigned id, int type);
 
+    /// copy constructor
     PFCluster(const PFCluster& other);
+
+    /// resets clusters parameters
+    void reset();
    
     /// add a given fraction of the rechit
     void addRecHit( const reco::PFRecHit& rechit, double fraction);
@@ -49,6 +55,9 @@ namespace reco {
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& getRecHitFractions() const 
       { return rechits_; }
+
+    /// set cluster id
+    void          setId(unsigned id) {id_ = id;} 
   
     /// cluster id
     unsigned      getId() const {return id_;}
@@ -68,21 +77,32 @@ namespace reco {
     /// cluster position: rho, eta, phi
     const REPPoint&       getPositionREP() const {return posrep_;}
 
+    /// calculates posrep_ once and for all
+    void CalculatePositionREP() {
+      posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ); 
+    }
+
     /// set parameters for depth correction
     static void setDepthCorParameters( int    mode,
 				       double a, 
 				       double b, 
 				       double ap, 
-				       double bp ) 
-      {
-	depthCorMode_ = mode;
-	depthCorA_  = a;
-	depthCorB_  = b;
-	depthCorAp_ = ap;
-	depthCorBp_ = bp;
-      }
+				       double bp ) {
+      depthCorMode_ = mode;
+      depthCorA_  = a;
+      depthCorB_  = b;
+      depthCorAp_ = ap;
+      depthCorBp_ = bp;
+    }
 
+    void         setColor(int color) {color_ = color;}
+
+    int          getColor() const {return color_;}
   
+    PFCluster& operator+=(const PFCluster&);
+    PFCluster& operator=(const PFCluster&);
+
+
     friend    std::ostream& operator<<(std::ostream& out, 
 				       const PFCluster& cluster);
 
@@ -117,6 +137,9 @@ namespace reco {
 
     /// keep track of whether depth correction was required or not
     bool                posCalcDepthCor_;
+
+    /// color (transient)
+    int                 color_;
 
     // the following parameters should maybe be moved to PFClusterAlgo
 

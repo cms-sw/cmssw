@@ -7,6 +7,7 @@
     <field name="depthCorAp_" transient="true"/>
     <field name="depthCorBp_" transient="true"/>
     <field name="rechits_" transient="true"/>
+    <field name="color_" transient="true"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
   <class name="reco::PFRecHit">
     <field name="posrep_" transient="true"/>
@@ -20,6 +21,7 @@
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
   <class name="reco::PFRecTrack">
     <field name="doPropagation_" transient="true"/>
+    <field name="color_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
