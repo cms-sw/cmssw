@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/29 18:19:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/04 09:04:58 $
+ *  $Revision: 1.7 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -72,9 +72,9 @@ bool MuonTransientTrackingRecHit::isRPC() const{
 
 // FIXME, now it is "on-demand". I have to change it.
 // FIXME check on mono hit!
-edm::OwnVector<const TransientTrackingRecHit> MuonTransientTrackingRecHit::transientHits() const{
-  
-  edm::OwnVector<const TransientTrackingRecHit> theSubTransientRecHits;
+TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::transientHits() const{
+
+  ConstRecHitContainer theSubTransientRecHits;
   
   // the sub rec hit of this TransientRecHit
   std::vector<const TrackingRecHit*> ownRecHits = recHits();
@@ -128,4 +128,5 @@ edm::OwnVector<const TransientTrackingRecHit> MuonTransientTrackingRecHit::trans
 								       *rechit) );
   }
   return theSubTransientRecHits;
+
 }

@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/29 18:19:54 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -57,7 +57,7 @@ public:
   bool isRPC() const;
 
   /// return the sub components of this transient rechit
-  edm::OwnVector<const TransientTrackingRecHit> transientHits() const;
+  ConstRecHitContainer transientHits() const;
   
  private:
 };
