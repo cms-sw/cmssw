@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/06/26 20:59:38 $
- * $Revision: 1.4 $
+ * $Date: 2006/06/26 22:51:29 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -81,6 +81,7 @@ string outputFile_;
  bool tableIsMoving_;
  bool resetNow_;
  int    cryInBeam_;
+ int    previousCryInBeam_;
  int    cryInBeamCounter_;
  
  //  ME type I
