@@ -6,23 +6,20 @@
 #include <Reflex/Object.h>
 #include <vector>
 using namespace ROOT::Reflex;
-using namespace boost::spirit;
 using namespace std;
 
 namespace reco {
   namespace parser {
-    typedef scanner<const char*, scanner_policies_t> ScannerUsed;
-    typedef rule<ScannerUsed> Rule_t;
-    
     struct ExpressionBase {
       virtual ~ExpressionBase() {};
       virtual double value( const Object & ) const = 0;
     };
     
     struct ExpressionNumber : public ExpressionBase {
-      virtual double value( const Object& ) const { return m_value; }
-      double m_value;
-      ExpressionNumber( double iValue ) : m_value(iValue) { }
+      virtual double value( const Object& ) const { return value_; }
+      ExpressionNumber( double value ) : value_( value ) { }
+    private:
+      double value_;
     };
     
     struct ExpressionVar : public ExpressionBase {
@@ -58,27 +55,27 @@ namespace reco {
 	stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionNumber( n ) ) );
       }
     private:
-      ExpressionStack& stack_;
+      ExpressionStack & stack_;
     };
     
     struct ExpressionVarSetter {
       ExpressionVarSetter( ExpressionStack & stack, const MethodMap & methods ) : 
 	stack_( stack ), methods_( methods ){ }
       
-      void operator()( const char * iVarStart, const char* iVarEnd ) const {
-	string methodName( iVarStart, iVarEnd );
+      void operator()( const char * begin, const char* end ) const {
+	string methodName( begin, end );
 	string::size_type endOfExpr = methodName.find_last_of(' ');
 	if( endOfExpr != string::npos )
 	  methodName.erase( endOfExpr, methodName.size() );
-	MethodMap::const_iterator itMethod = methods_.find( methodName );
-	if( itMethod == methods_.end() ) {
+	MethodMap::const_iterator m = methods_.find( methodName );
+	if( m == methods_.end() ) {
 	  throw edm::Exception( edm::errors::Configuration, 
 				string( "unknown method name \""+ methodName + "\"" ) );
 	}
-	stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionVar( itMethod->second ) ) );
+	stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionVar( m->second ) ) );
     }
     private:
-      ExpressionStack& stack_;
+      ExpressionStack & stack_;
       const MethodMap & methods_;
     };
     
@@ -88,190 +85,192 @@ namespace reco {
     
     template<class CompT>
     struct Comparison : public ComparisonBase {
-      virtual bool compare( double iLHS, double iRHS ) const {
-	CompT comp;
-	return comp( iLHS, iRHS );
-      }
+      virtual bool compare( double lhs, double rhs ) const { return comp( lhs, rhs ); }
+    private:
+      CompT comp;
     };
     
     typedef vector<boost::shared_ptr<ComparisonBase> > ComparisonStack;
     template<class CompT>
-    class ComparisonSetter {
-    public:
-      ComparisonSetter( ComparisonStack& iStack) : stack_(iStack){}
-      
+    struct ComparisonSetter {
+      ComparisonSetter( ComparisonStack& stack ) : stack_( stack ) { }
       void operator()( const char ) const {
 	stack_.push_back( boost::shared_ptr<ComparisonBase>( new Comparison<CompT>() ) );
       }
     private:
-      ComparisonStack& stack_;
+      ComparisonStack & stack_;
     };
     
     typedef vector<selector_ptr> SelectorStack;
   
     struct BinarySelector : public ReflexSelector {
-      BinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
-		      boost::shared_ptr<ComparisonBase> iComp,
-		      boost::shared_ptr<ExpressionBase> iRHS ) :
-	lhs_( iLHS), comp_(iComp), rhs_( iRHS ) {}
-      virtual bool operator()(const Object& o) const {
-	return comp_->compare( lhs_->value(o), rhs_->value(o) );
+      BinarySelector( boost::shared_ptr<ExpressionBase> lhs,
+		      boost::shared_ptr<ComparisonBase> cmp,
+		      boost::shared_ptr<ExpressionBase> rhs ) :
+	lhs_( lhs ), cmp_( cmp ), rhs_( rhs ) {}
+      virtual bool operator()( const Object& o ) const {
+	return cmp_->compare( lhs_->value(o), rhs_->value(o) );
       }
       boost::shared_ptr<ExpressionBase> lhs_;
-      boost::shared_ptr<ComparisonBase> comp_;
+      boost::shared_ptr<ComparisonBase> cmp_;
       boost::shared_ptr<ExpressionBase> rhs_;
     };
     
     class BinarySelectorSetter {
     public:
-      BinarySelectorSetter( SelectorStack& iSelStack,
-			    ComparisonStack& iCompStack, ExpressionStack& iExpStack) : 
-	sStack_(iSelStack), cStack_(iCompStack), eStack_(iExpStack){}
+      BinarySelectorSetter( SelectorStack& selStack,
+			    ComparisonStack& cmpStack, ExpressionStack& expStack ) : 
+	selStack_( selStack ), cmpStack_( cmpStack ), expStack_( expStack ) { }
       
       void operator()( const char* iVarStart, const char* iVarEnd) const {
-	boost::shared_ptr<ExpressionBase> rhs = eStack_.back(); eStack_.pop_back();
-	boost::shared_ptr<ExpressionBase> lhs = eStack_.back(); eStack_.pop_back();
-	boost::shared_ptr<ComparisonBase> comp = cStack_.back(); cStack_.pop_back();
-	sStack_.push_back( selector_ptr( new BinarySelector( lhs, comp, rhs ) ) );
+	boost::shared_ptr<ExpressionBase> rhs = expStack_.back(); expStack_.pop_back();
+	boost::shared_ptr<ExpressionBase> lhs = expStack_.back(); expStack_.pop_back();
+	boost::shared_ptr<ComparisonBase> comp = cmpStack_.back(); cmpStack_.pop_back();
+	selStack_.push_back( selector_ptr( new BinarySelector( lhs, comp, rhs ) ) );
       }
     private:
-      SelectorStack& sStack_;
-      ComparisonStack& cStack_;
-      ExpressionStack& eStack_;
+      SelectorStack & selStack_;
+      ComparisonStack & cmpStack_;
+      ExpressionStack & expStack_;
     };
     
     struct TrinarySelector : public ReflexSelector {
-      TrinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
-		       boost::shared_ptr<ComparisonBase> iComp1,
-		       boost::shared_ptr<ExpressionBase> iMid,
-		       boost::shared_ptr<ComparisonBase> iComp2,
-		       boost::shared_ptr<ExpressionBase> iRHS) :
-	lhs_( iLHS), comp1_(iComp1), mid_(iMid), comp2_(iComp2),rhs_( iRHS ) {}
-      virtual bool operator()(const Object& o) const {
-	return comp1_->compare( lhs_->value(o), mid_->value(o) ) &&
-	  comp2_->compare( mid_->value(o), rhs_->value(o) );
+      TrinarySelector( boost::shared_ptr<ExpressionBase> lhs,
+		       boost::shared_ptr<ComparisonBase> cmp1,
+		       boost::shared_ptr<ExpressionBase> mid,
+		       boost::shared_ptr<ComparisonBase> cmp2,
+		       boost::shared_ptr<ExpressionBase> rhs ) :
+	lhs_( lhs ), cmp1_( cmp1 ), mid_( mid ), cmp2_( cmp2 ),rhs_( rhs ) {}
+      virtual bool operator()( const Object& o ) const {
+	return 
+	  cmp1_->compare( lhs_->value( o ), mid_->value( o ) ) &&
+	  cmp2_->compare( mid_->value( o ), rhs_->value( o ) );
       }
       boost::shared_ptr<ExpressionBase> lhs_;
-      boost::shared_ptr<ComparisonBase> comp1_;
+      boost::shared_ptr<ComparisonBase> cmp1_;
       boost::shared_ptr<ExpressionBase> mid_;
-      boost::shared_ptr<ComparisonBase> comp2_;
+      boost::shared_ptr<ComparisonBase> cmp2_;
       boost::shared_ptr<ExpressionBase> rhs_;
     };
     
     class TrinarySelectorSetter {
     public:
-      TrinarySelectorSetter( SelectorStack& iSelStack,
-			     ComparisonStack& iCompStack, ExpressionStack& iExpStack ) : 
-	sStack_(iSelStack), cStack_(iCompStack), eStack_(iExpStack){}
+      TrinarySelectorSetter( SelectorStack& selStack,
+			     ComparisonStack& cmpStack, ExpressionStack& expStack ) : 
+	selStack_( selStack ), cmpStack_( cmpStack ), expStack_( expStack ) { }
       
-      void operator()( const char* iVarStart, const char* iVarEnd) const {
-	boost::shared_ptr<ExpressionBase> rhs = eStack_.back(); eStack_.pop_back();
-	boost::shared_ptr<ExpressionBase> mid = eStack_.back();eStack_.pop_back();
-	boost::shared_ptr<ExpressionBase> lhs = eStack_.back();eStack_.pop_back();
-	boost::shared_ptr<ComparisonBase> comp2 = cStack_.back();cStack_.pop_back();
-	boost::shared_ptr<ComparisonBase> comp1 = cStack_.back();cStack_.pop_back();
-	sStack_.push_back( selector_ptr( new TrinarySelector( lhs, comp1, mid, comp2, rhs ) ) );
+      void operator()( const char* begin, const char* end ) const {
+	boost::shared_ptr<ExpressionBase> rhs = expStack_.back(); expStack_.pop_back();
+	boost::shared_ptr<ExpressionBase> mid = expStack_.back(); expStack_.pop_back();
+	boost::shared_ptr<ExpressionBase> lhs = expStack_.back(); expStack_.pop_back();
+	boost::shared_ptr<ComparisonBase> comp2 = cmpStack_.back(); cmpStack_.pop_back();
+	boost::shared_ptr<ComparisonBase> comp1 = cmpStack_.back(); cmpStack_.pop_back();
+	selStack_.push_back( selector_ptr( new TrinarySelector( lhs, comp1, mid, comp2, rhs ) ) );
       }
     private:
-      SelectorStack& sStack_;
-      ComparisonStack& cStack_;
-      ExpressionStack& eStack_;
+      SelectorStack& selStack_;
+      ComparisonStack& cmpStack_;
+      ExpressionStack& expStack_;
     };
     
     enum Combiner { kAnd, kOr };
     
-    typedef vector< Combiner > CombinerStack;
+    typedef vector<Combiner> CombinerStack;
     
     struct AndCombiner : public ReflexSelector {
-      AndCombiner( selector_ptr iLHS,
-		   selector_ptr iRHS ) :
-	lhs_( iLHS), rhs_( iRHS ) {}
-      virtual bool operator()(const Object& o) const {
-	return (*lhs_)(o) && (*rhs_)(o);
+      AndCombiner( selector_ptr lhs, selector_ptr rhs ) :
+	lhs_( lhs ), rhs_( rhs ) { }
+      virtual bool operator()( const Object& o ) const {
+	return (*lhs_)( o ) && (*rhs_)( o );
       }
-      selector_ptr lhs_;
-      selector_ptr rhs_;
+    private:
+      selector_ptr lhs_, rhs_;
     };
     
     struct OrCombiner : public ReflexSelector {
-      OrCombiner( selector_ptr iLHS,
-		  selector_ptr iRHS ) :
-	lhs_( iLHS), rhs_( iRHS ) {}
-      virtual bool operator()(const Object& o) const {
-	return (*lhs_)(o) || (*rhs_)(o);
+      OrCombiner( selector_ptr lhs, selector_ptr rhs ) :
+	lhs_( lhs ), rhs_( rhs ) {}
+      virtual bool operator()( const Object& o ) const {
+	return (*lhs_)( o ) || (*rhs_)( o );
       }
-      selector_ptr lhs_;
-      selector_ptr rhs_;
+    private:
+      selector_ptr lhs_, rhs_;
     };
     
     struct CombinerSetter {
-      CombinerSetter( Combiner iCombiner, CombinerStack& iStack ):
-	comb_( iCombiner), stack_(iStack) {}
+      CombinerSetter( Combiner comb, CombinerStack& stack ):
+	comb_( comb ), stack_( stack ) {}
       
-      void operator()(const char ) const {
-	stack_.push_back( comb_ );
-      }
+      void operator()(const char ) const { stack_.push_back( comb_ ); }
+    private:
       Combiner comb_;
-      CombinerStack& stack_;
+      CombinerStack & stack_;
     };
     
     struct CutSetter {
-      CutSetter( selector_ptr& iCut,
-		 SelectorStack& iSelStack,
-		 CombinerStack& iCombStack) :
-	cut_( iCut ), sStack_(iSelStack), cStack_(iCombStack) {}
+      CutSetter( selector_ptr& cut, SelectorStack& selStack, CombinerStack& cmbStack ) :
+	cut_( cut ), selStack_( selStack ), cmbStack_( cmbStack ) { }
       
-      void operator()(const char*, const char* ) const {
+      void operator()( const char*, const char* ) const {
 	if( 0 == cut_.get() ) {
-	  cut_ = sStack_.back();
-	  sStack_.pop_back();
+	  cut_ = selStack_.back();
+	  selStack_.pop_back();
 	} else {
-	  if( cStack_.back() == kAnd ) {
+	  switch ( cmbStack_.back() ) {
+	  case ( kAnd ) : {
 	    selector_ptr lhs = cut_;
-	    cut_ = selector_ptr(new AndCombiner(lhs, sStack_.back() ) );
-	  } else {
-	    selector_ptr lhs = cut_;
-	    cut_ = selector_ptr(new OrCombiner(lhs, sStack_.back() ) );
+	    cut_ = selector_ptr( new AndCombiner( lhs, selStack_.back() ) );
+	    break;
 	  }
-	  cStack_.pop_back();
-	  sStack_.pop_back();
+	  case ( kOr ) : {
+	    selector_ptr lhs = cut_;
+	    cut_ = selector_ptr( new OrCombiner( lhs, selStack_.back() ) );
+	    break;
+	  }
+	  };
+	  cmbStack_.pop_back();
+	  selStack_.pop_back();
 	}
       }
-      selector_ptr& cut_;
-      SelectorStack& sStack_;
-      CombinerStack& cStack_;
+      selector_ptr & cut_;
+      SelectorStack & selStack_;
+      CombinerStack & cmbStack_;
     };
     
-    bool cutParser( const string& value, const MethodMap& methods, selector_ptr& sel ) {
-      
+    bool cutParser( const string& value, const MethodMap& methods, selector_ptr & sel ) {
       using namespace boost::spirit;
+      typedef rule<scanner<const char*, scanner_policies_t> > Rule_t;
+
       ExpressionStack expressionStack;
-      ComparisonStack cStack;
-      SelectorStack sStack;
-      CombinerStack combStack;
+      ComparisonStack cmpStack;
+      SelectorStack selStack;
+      CombinerStack cmbStack;
       
-      Rule_t number = real_p                       [ExpressionNumberSetter(expressionStack)];
-      Rule_t var = (alpha_p >> *alnum_p)           [ExpressionVarSetter(expressionStack, methods)];
+      Rule_t number = real_p [ ExpressionNumberSetter( expressionStack ) ];
+      Rule_t var = ( alpha_p >> * alnum_p ) [ ExpressionVarSetter( expressionStack, methods ) ];
       
-      Rule_t comparison_op = ch_p('<')             [ComparisonSetter<less<double> >(cStack)]           | 
-	(ch_p('<') >> ch_p('=')[ComparisonSetter<less_equal<double> >(cStack)])    | 
-	ch_p('=')              [ComparisonSetter<equal_to<double> >(cStack)]       | 
-	(ch_p('>') >> ch_p('=')[ComparisonSetter<greater_equal<double> >(cStack)]) | 
-	ch_p('>')              [ComparisonSetter<greater<double> >(cStack)]        | 
-	(ch_p('!') >> ch_p('=')[ComparisonSetter<not_equal_to<double> >(cStack)]);
-      
-      Rule_t expression = var | number;
-      Rule_t binary_comp = expression >> comparison_op >> expression;
-      Rule_t trinary_comp = expression >> comparison_op >> var >> comparison_op >> expression;
-      Rule_t logical_combiner = ch_p('&')[CombinerSetter(kAnd, combStack)] | ch_p('|')[CombinerSetter(kOr, combStack)];
-      Rule_t cut = (trinary_comp [TrinarySelectorSetter(sStack, cStack, expressionStack)] | 
-		    binary_comp  [BinarySelectorSetter(sStack, cStack, expressionStack)]) [CutSetter(sel, sStack, combStack)] % logical_combiner;
-      return parse<>( value.c_str(),
-		      (
-		       cut
-		       )
-		      ,
-		      space_p).full;
+      Rule_t comparison_op = 
+	ch_p('<')                [ ComparisonSetter<less<double> >         ( cmpStack ) ]   | 
+	( ch_p('<') >> ch_p('=') [ ComparisonSetter<less_equal<double> >   ( cmpStack ) ] ) | 
+	ch_p('=')                [ ComparisonSetter<equal_to<double> >     ( cmpStack ) ]   | 
+	( ch_p('>') >> ch_p('=') [ ComparisonSetter<greater_equal<double> >( cmpStack ) ] ) | 
+	ch_p('>')                [ ComparisonSetter<greater<double> >      ( cmpStack ) ]   | 
+	( ch_p('!') >> ch_p('=') [ ComparisonSetter<not_equal_to<double> > ( cmpStack ) ] );
+      Rule_t expression = 
+	var | number;
+      Rule_t binary_comp = 
+	expression >> comparison_op >> expression;
+      Rule_t trinary_comp = 
+	expression >> comparison_op >> var >> comparison_op >> expression;
+      Rule_t logical_combiner = 
+	ch_p('&') [ CombinerSetter( kAnd, cmbStack )] | 
+	ch_p('|') [ CombinerSetter(kOr, cmbStack) ];
+      Rule_t cut = 
+	( trinary_comp [ TrinarySelectorSetter( selStack, cmpStack, expressionStack ) ] | 
+	  binary_comp  [ BinarySelectorSetter ( selStack, cmpStack, expressionStack ) ] ) [ CutSetter( sel, selStack, cmbStack ) ] 
+        % logical_combiner;
+
+      return parse<>( value.c_str(), cut, space_p ).full;
     }
   }
 }
