@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2006/06/29 18:19:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/31 18:08:38 $
+ *  $Revision: 1.8 $
  */
 
 
@@ -18,16 +18,16 @@ class MuonTransientTrackingRecHit: public GenericTransientTrackingRecHit{
 public:
 
   /// Construct from a TrackingRecHit and its GeomDet
-  MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
+//  MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
 
   /// Copy ctor
-  MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other );
+//  MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other );
   
   virtual ~MuonTransientTrackingRecHit(){}
 
-  virtual MuonTransientTrackingRecHit* clone() const {
-    return new MuonTransientTrackingRecHit(*this);
-  }
+// virtual MuonTransientTrackingRecHit* clone() const {
+//    return new MuonTransientTrackingRecHit(*this);
+//  }
 
   /// Direction in 3D for segments, otherwise (0,0,0)
   virtual LocalVector localDirection() const;
@@ -58,8 +58,23 @@ public:
 
   /// return the sub components of this transient rechit
   ConstRecHitContainer transientHits() const;
+
+  static RecHitPointer build( const GeomDet * geom, const TrackingRecHit* rh) {
+    return RecHitPointer( new MuonTransientTrackingRecHit(geom, rh));
+  }
   
  private:
+
+  /// Construct from a TrackingRecHit and its GeomDet
+  MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
+
+  /// Copy ctor
+  MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other );
+
+  virtual MuonTransientTrackingRecHit* clone() const {
+    return new MuonTransientTrackingRecHit(*this);
+  }
+
 };
 #endif
 
