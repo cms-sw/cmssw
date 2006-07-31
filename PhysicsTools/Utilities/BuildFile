@@ -1,3 +1,5 @@
+<use name=FWCore/ParameterSet>
 <export>
+  <lib name=PhysicsToolsUtilities>
   <use name=FWCore/ParameterSet>
 </export>
