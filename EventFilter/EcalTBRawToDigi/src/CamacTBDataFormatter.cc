@@ -182,11 +182,14 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   LogDebug("CamacTBDataFormatter") << "vme errors: "<< b << endl;
   b = (a& 0xffff);
   LogDebug("CamacTBDataFormatter") << "camac errors: "<< b << endl;
-  // if any of these numbers >~50% raise alarm
 
+  a = buffer[wordCounter];wordCounter++;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  b = a;
+  LogDebug("CamacTBDataFormatter") << "extended (32 bits) run number: "<< b << endl;
 
-  // skip 2 reserved words
-  wordCounter +=2;
+  // skip 1 reserved words
+  wordCounter +=1;
 
   /**********************************
   // acessing the hodoscope block
@@ -375,13 +378,13 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   wordCounter += 10;
   bool ADCIsGood = true;
   ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  a = buffer[wordCounter];      wordCounter++;
+  a = buffer[wordCounter];      wordCounter++;  // NOT read out
   b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1) << endl;
   ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  a = buffer[wordCounter];      wordCounter++;
+  a = buffer[wordCounter];      wordCounter++;  // read out
   b = (a&0xffffff);
-  LogDebug("CamacTBDataFormatter") << "ADC word2: " << a << "\t ADC2: " << b << endl;
+  LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b << endl;
 
 
   
