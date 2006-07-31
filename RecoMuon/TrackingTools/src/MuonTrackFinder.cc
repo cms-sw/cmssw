@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/07/21 02:45:52 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/07/25 12:22:29 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -57,6 +57,7 @@ MuonTrackFinder::~MuonTrackFinder() {
 void MuonTrackFinder::setES(const edm::EventSetup& eSetup) {
 
   theTrajBuilder->setES(eSetup);
+  theTrackLoader->setES(eSetup);
 
 }
 

@@ -5,22 +5,23 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/07/21 02:41:34 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/25 12:22:29 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include <vector>
-
-namespace edm {class Event;}
+namespace edm {class Event; class EventSetup;}
 
 class Trajectory;
+class Propagator;
 
 class MuonTrackLoader {
   public:
@@ -29,7 +30,7 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
     
     /// Constructor
-    MuonTrackLoader() {}
+    MuonTrackLoader();
 
     /// Destructor
     virtual ~MuonTrackLoader() {}
@@ -42,10 +43,17 @@ class MuonTrackLoader {
     edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
                                                        edm::Event&); 
   
+    /// pass the Event Setup to the algo at each event
+    virtual void setES(const edm::EventSetup&);
+
   private:
  
     reco::Track buildTrack (const Trajectory&) const;
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
+
+  private:
+
+    edm::ESHandle<Propagator> thePropagator;
 
 };
 #endif

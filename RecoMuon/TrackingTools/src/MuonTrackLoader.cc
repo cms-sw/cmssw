@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/25 16:16:52 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/28 10:55:57 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -11,9 +11,12 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-// FIXME!!!
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,6 +27,26 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+using namespace edm;
+
+
+//
+// constructor
+//
+MuonTrackLoader::MuonTrackLoader() : thePropagator(0) {
+
+}
+
+
+//
+//
+//
+void MuonTrackLoader::setES(const EventSetup& setup) {
+
+  setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", thePropagator);
+
+}
 
 
 //
@@ -233,12 +256,18 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   debug.dumpTSOS(innerTSOS,metname);
 
   // This is needed to extrapolate the tsos at vertex
-  // FIXME: check it!
-  TSCPBuilderNoMaterial tscpBuilder;
-  TrajectoryStateClosestToPoint tscp;
+  GlobalPoint vtx(0,0,0); 
+  TransverseImpactPointExtrapolator tipe(*thePropagator);
+  TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
+  PerigeeConversions conv;
+  double pt = 0.0;
+  PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
+  PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
+
+/*
   try{
-    tscp = tscpBuilder( innerTSOS,GlobalPoint(0,0,0) );//FIXME Correct?
+    tscp = tscpBuilder( innerTSOS,vtx );
   }
   catch(const TrajectoryStateException &er){
     edm::LogWarning("RecoMuon") << "caught TrajectoryStateException: "<< er.what() << std::endl;
@@ -252,7 +281,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     edm::LogWarning("RecoMuon") << "Funny error" << std::endl;
     return reco::Track(); 
   }
-
+*/
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
   float dof=0.;
@@ -265,10 +294,11 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   reco::Track track(trajectory.chiSquared(), 
 		    ndof,
-		    tscp.perigeeParameters(), 
-		    tscp.pt(),
-		    tscp.perigeeError());
+		    perigeeParameters, 
+		    pt,
+		    perigeeError);
   return track;
+
 }
 
 
