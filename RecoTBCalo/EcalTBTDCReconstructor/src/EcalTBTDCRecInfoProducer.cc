@@ -47,21 +47,43 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Get input
    edm::Handle<EcalTBTDCRawInfo> ecalRawTDC;  
+   const EcalTBTDCRawInfo* ecalTDCRawInfo = 0;
+
    try {
      //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
      e.getByLabel( rawInfoProducer_, ecalRawTDC);
+     ecalTDCRawInfo = ecalRawTDC.product();
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+     //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
    }
 
+   if (! ecalTDCRawInfo )
+     {
+       edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+       return;
+     }
+
+   if ( (*ecalTDCRawInfo).size() < 1 )
+     { 
+       edm::LogError("EcalTBTDcRecInfoError") << "Less than one TDC good channel found. Aborting" << rawInfoCollection_.c_str() ;
+       return;
+     }
    // Get input
    edm::Handle<EcalTBEventHeader> tbEventHeader;  
+   const EcalTBEventHeader* ecalEventHeader = 0;
    try {
      //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
      e.getByLabel( eventHeaderProducer_, tbEventHeader);
+     ecalEventHeader = tbEventHeader.product();
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << eventHeaderCollection_.c_str() ;
+     //     edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << eventHeaderCollection_.c_str() ;
    }
+   
+   if (! ecalEventHeader )
+     {
+       edm::LogError("EcalTBTDCRecInfoError") << "Error! can't get the product " << eventHeaderCollection_.c_str();
+       return;
+     }
 
   // Create empty output
   std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(algo_->reconstruct(*ecalRawTDC,*tbEventHeader,use2004OffsetConvention_)));

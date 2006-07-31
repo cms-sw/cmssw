@@ -43,12 +43,26 @@ void EcalTBHodoscopeRecInfoProducer::produce(edm::Event& e, const edm::EventSetu
 {
   // Get input
    edm::Handle<EcalTBHodoscopeRawInfo> ecalRawHodoscope;  
+   const EcalTBHodoscopeRawInfo* ecalHodoRawInfo = 0;
    try {
      //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
      e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
+     ecalHodoRawInfo = ecalRawHodoscope.product();
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalTBHodoscopeRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+     //     edm::LogError("EcalTBHodoscopeRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
    }
+
+   if (! ecalHodoRawInfo )
+     {
+       edm::LogError("EcalTBHodoscopeRecInfoError") << "Error! can't get the product " << rawInfoCollection_.c_str() ;
+       return;
+     }
+
+   if ( (*ecalHodoRawInfo).planes() != 4 )
+     { 
+       edm::LogError("EcalTBHodoscopeRecInfoError") << "Number of planes different from expected " << rawInfoCollection_.c_str() ;
+       return;
+     }
 
   // Create empty output
   std::auto_ptr<EcalTBHodoscopeRecInfo> recInfo(new EcalTBHodoscopeRecInfo(algo_->reconstruct(*ecalRawHodoscope)));
