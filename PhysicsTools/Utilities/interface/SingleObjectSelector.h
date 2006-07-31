@@ -4,14 +4,13 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: SingleObjectSelector.h,v 1.1 2006/07/27 16:34:43 llista Exp $
+ * $Id: SingleObjectSelector.h,v 1.2 2006/07/31 09:50:11 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/UtilAlgos/interface/ReflexSelector.h"
-#include  <boost/shared_ptr.hpp>
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "PhysicsTools/UtilAlgos/interface/cutParser.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/Utilities/interface/ReflexSelector.h"
+#include "PhysicsTools/Utilities/interface/cutParser.h"
 
 template<typename T>
 struct SingleObjectSelector {
