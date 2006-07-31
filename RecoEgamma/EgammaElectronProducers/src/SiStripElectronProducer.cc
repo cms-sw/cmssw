@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.6 2006/07/25 22:37:00 pivarski Exp $
+// $Id: SiStripElectronProducer.cc,v 1.7 2006/07/25 23:30:46 pivarski Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
       iConfig.getParameter<int32_t>("maxHitsOnDetId"),
       iConfig.getParameter<double>("originUncertainty"),
       iConfig.getParameter<double>("phiBandWidth"),      // this is in radians
+      iConfig.getParameter<double>("maxNormResid"),
       iConfig.getParameter<int32_t>("minHits"),
       iConfig.getParameter<double>("maxReducedChi2"));
 }

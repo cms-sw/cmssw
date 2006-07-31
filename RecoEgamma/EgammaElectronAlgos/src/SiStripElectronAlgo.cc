@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.10 2006/07/26 11:21:28 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.11 2006/07/27 17:19:14 pivarski Exp $
 //
 
 // system include files
@@ -43,11 +43,13 @@
 SiStripElectronAlgo::SiStripElectronAlgo(unsigned int maxHitsOnDetId,
 					 double originUncertainty,
 					 double phiBandWidth,
+					 double maxNormResid,
 					 unsigned int minHits,
 					 double maxReducedChi2)
    : maxHitsOnDetId_(maxHitsOnDetId)
    , originUncertainty_(originUncertainty)
    , phiBandWidth_(phiBandWidth)
+   , maxNormResid_(maxNormResid)
    , minHits_(minHits)
    , maxReducedChi2_(maxReducedChi2)
 {
@@ -310,24 +312,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
    const double scr = superclusterIn->rho();
    const double scz = superclusterIn->position().z();
 
-   // Identify the innermost hit
-   const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)(0);
-   double innerhitRadius = -1.;  // meaningless until innerhit is defined
-
-   // Copy hits into an OwnVector, which we put in the TrackCandidate
-   edm::OwnVector<TrackingRecHit> outputHits;
-   // Reference rphi and stereo hits into RefVectors, which we put in the SiStripElectron
-   edm::RefVector<TrackingRecHitCollection> outputRphiHits;
-   edm::RefVector<TrackingRecHitCollection> outputStereoHits;
-
    // These are used to fit all hits to a line in phi(r)
-   double sum_w2   = 0.;
-   double sum_w2x  = 0.;
-   double sum_w2x2 = 0.;
-   double sum_w2y  = 0.;
-   double sum_w2y2 = 0.;
-   double sum_w2xy = 0.;
-   std::vector<double> xlist, ylist, w2list;
+   std::vector<bool> uselist;
+   std::vector<double> rlist, philist, w2list;
+   std::vector<int> typelist;  // stereo = 0, rphi barrel = 1, and zphi disk = 2 (only used in this function)
+   std::vector<const SiStripRecHit2D*> hitlist;
 
    // These are used to fit the stereo hits to a line in z(r), constrained to pass through supercluster
    double zSlopeFitNumer = 0.;
@@ -350,34 +339,18 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	    // Cut a narrow band around the supercluster's projection in phi
 	    if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {
 	 
-	       numberOfStereoHits++;
-
 	       // Use this hit to fit phi(r)
-	       double weight2 = 1./(0.05/r)/(0.05/r);  // weight**2 == 1./uncertainty**2
-	       sum_w2   += weight2;
-	       sum_w2x  += weight2 * r;
-	       sum_w2x2 += weight2 * r*r;
-	       sum_w2y  += weight2 * phi;
-	       sum_w2y2 += weight2 * phi*phi;
-	       sum_w2xy += weight2 * r*phi;
-	       xlist.push_back(r);
-	       ylist.push_back(phi);
-	       w2list.push_back(weight2);
+	       uselist.push_back(true);
+	       rlist.push_back(r);
+	       philist.push_back(phi);
+	       w2list.push_back(1./(0.05/r)/(0.05/r));  // weight**2 == 1./uncertainty**2
+	       typelist.push_back(0);
+	       hitlist.push_back(*hit);
 
 	       // Use this hit to fit z(r)
 	       zSlopeFitNumer += -(scr - r) * (z - scz);
 	       zSlopeFitDenom += (scr - r) * (scr - r);
 	    
-	       // Keep track of the innermost hit
-	       if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
-		  innerhit = *hit;
-		  innerhitRadius = r;
-	       }
-
-	       // Copy this hit for the TrajectorySeed
-	       outputHits.push_back(((TrackingRecHit*)(*hit))->clone());
-	       outputStereoHits.push_back(TrackingRecHitRef(*stereoHits_hp_, stereoKey_[*hit]));
-
 	    } // end cut on phi band
 	 } // end cut on electron originating *near* the origin
       } // end assign disjoint sets of hits to electrons
@@ -409,35 +382,19 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
 	 // Cut on the Z of the strip
 	 // TIB strips are 11 cm long, TOB strips are 19 cm long (can I get these from a function?)
-	 if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  &&  fabs(z - zFit) < 12.)  ||
-	     (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  &&  fabs(z - zFit) < 20.)    ) {
+ 	 if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  &&  fabs(z - zFit) < 12.)  ||
+ 	     (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  &&  fabs(z - zFit) < 20.)    ) {
 	 
 	    // Cut a narrow band around the supercluster's projection in phi
 	    if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {
 
-	       numberOfBarrelRphiHits++;
-
 	       // Use this hit to fit phi(r)
-	       double weight2 = 1./(0.05/r)/(0.05/r);  // weight**2 == 1./uncertainty**2
-	       sum_w2   += weight2;
-	       sum_w2x  += weight2 * r;
-	       sum_w2x2 += weight2 * r*r;
-	       sum_w2y  += weight2 * phi;
-	       sum_w2y2 += weight2 * phi*phi;
-	       sum_w2xy += weight2 * r*phi;
-	       xlist.push_back(r);
-	       ylist.push_back(phi);
-	       w2list.push_back(weight2);
-
-	       // Keep track of the innermost hit
-	       if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
-		  innerhit = *hit;
-		  innerhitRadius = r;
-	       }
-
-	       // Copy this hit for the TrajectorySeed
-	       outputHits.push_back(((TrackingRecHit*)(*hit))->clone());
-	       outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[*hit]));
+	       uselist.push_back(true);
+	       rlist.push_back(r);
+	       philist.push_back(phi);
+	       w2list.push_back(1./(0.05/r)/(0.05/r));  // weight**2 == 1./uncertainty**2
+	       typelist.push_back(1);
+	       hitlist.push_back(*hit);
 
 	    } // end cut on phi band
 	 } // end cut on strip z
@@ -464,49 +421,125 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	 if (rFit > 0.  &&
 	     unwrapPhi((rFit-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((rFit-scr)*phiVsRSlope + phiBandWidth_)) {
 
-	    numberOfEndcapZphiHits++;
-
 	    // Use this hit to fit phi(r)
-	    double weight2 = 1./(0.05/rFit)/(0.05/rFit);  // weight**2 == 1./uncertainty**2
-	    sum_w2   += weight2;
-	    sum_w2x  += weight2 * rFit;
-	    sum_w2x2 += weight2 * rFit*rFit;
-	    sum_w2y  += weight2 * phi;
-	    sum_w2y2 += weight2 * phi*phi;
-	    sum_w2xy += weight2 * rFit*phi;
-	    xlist.push_back(rFit);
-	    ylist.push_back(phi);
-	    w2list.push_back(weight2);
-
-	    // Keep track of the innermost hit
-	    if (innerhit == (SiStripRecHit2D*)(0)  ||  rFit < innerhitRadius) {
-	       innerhit = *hit;
-	       innerhitRadius = rFit;
-	    }
-
-	    // Copy this hit for the TrajectorySeed
-	    outputHits.push_back(((TrackingRecHit*)(*hit))->clone());
-	    outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[*hit]));
+	    uselist.push_back(true);
+	    rlist.push_back(rFit);
+	    philist.push_back(phi);
+	    w2list.push_back(1./(0.05/rFit)/(0.05/rFit));  // weight**2 == 1./uncertainty**2
+	    typelist.push_back(2);
+	    hitlist.push_back(*hit);
 
 	 } // end cut on phi band
       } // end assign disjoint sets of hits to electrons
    } // end loop over endcap zphi hits
 
-   // Calculate the linear fit for phi(r)
-   double delta = sum_w2 * sum_w2x2 - (sum_w2x)*(sum_w2x);
-   double intercept = (sum_w2x2 * sum_w2y - sum_w2x * sum_w2xy)/delta;
-   double slope = (sum_w2 * sum_w2xy - sum_w2x * sum_w2y)/delta;
+   // Calculate a linear phi(r) fit and drop hits until the biggest contributor to chi^2 is less than maxNormResid_
+   bool done = false;
+   double intercept, slope, chi2;
+   while (!done) {
+      // The linear fit
+      double sum_w2   = 0.;
+      double sum_w2x  = 0.;
+      double sum_w2x2 = 0.;
+      double sum_w2y  = 0.;
+      double sum_w2y2 = 0.;
+      double sum_w2xy = 0.;
+      unsigned int uselist_size = uselist.size();
+      for (unsigned int i = 0;  i < uselist_size;  i++) {
+	 if (uselist[i]) {
+	    double r = rlist[i];
+	    double phi = philist[i];
+	    double weight2 = w2list[i];
 
-   // Calculate chi^2
-   double chi2 = 0.;
-   for (unsigned int i = 0;  i < xlist.size();  i++) {
-      chi2 += w2list[i] * (ylist[i] - intercept - slope*xlist[i])*(ylist[i] - intercept - slope*xlist[i]);
-   }
-   // The reduced chi^2 should have a large (rejectable) value if there are no degrees of freedom
-   // (with a minHits_ cut above 2, this will never happen...)
-   double reducedChi2 = (xlist.size() > 2 ? chi2 / (xlist.size() - 2) : 1e10);
+	    sum_w2   += weight2;
+	    sum_w2x  += weight2 * r;
+	    sum_w2x2 += weight2 * r*r;
+	    sum_w2y  += weight2 * phi;
+	    sum_w2y2 += weight2 * phi*phi;
+	    sum_w2xy += weight2 * r*phi;
+	 }
+      } // end loop over hits to calculate a linear fit
+      double delta = sum_w2 * sum_w2x2 - (sum_w2x)*(sum_w2x);
+      intercept = (sum_w2x2 * sum_w2y - sum_w2x * sum_w2xy)/delta;
+      slope = (sum_w2 * sum_w2xy - sum_w2x * sum_w2y)/delta;
+
+      // Calculate chi^2
+      chi2 = 0.;
+      double biggest_normresid = -1.;
+      unsigned int biggest_index = 0;
+      for (unsigned int i = 0;  i < uselist_size;  i++) {
+	 if (uselist[i]) {
+	    double r = rlist[i];
+	    double phi = philist[i];
+	    double weight2 = w2list[i];
+
+	    double normresid = weight2 * (phi - intercept - slope*r)*(phi - intercept - slope*r);
+	    chi2 += normresid;
+
+	    if (normresid > biggest_normresid) {
+	       biggest_normresid = normresid;
+	       biggest_index = i;
+	    }
+	 }
+      } // end loop over hits to calculate chi^2 and find its biggest contributer
+
+      if (biggest_normresid > maxNormResid_) {
+	 uselist[biggest_index] = false;
+      }
+      else {
+	 done = true;
+      }
+   } // end loop over trial fits
+
+   // Now we have intercept, slope, and chi2; uselist to tell us which hits are used, and hitlist for the hits
+
+   // Identify the innermost hit
+   const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)(0);
+   double innerhitRadius = -1.;  // meaningless until innerhit is defined
+
+   // Copy hits into an OwnVector, which we put in the TrackCandidate
+   edm::OwnVector<TrackingRecHit> outputHits;
+   // Reference rphi and stereo hits into RefVectors, which we put in the SiStripElectron
+   edm::RefVector<TrackingRecHitCollection> outputRphiHits;
+   edm::RefVector<TrackingRecHitCollection> outputStereoHits;
+
+   for (unsigned int i = 0;  i < uselist.size();  i++) {
+      if (uselist[i]) {
+	 double r = rlist[i];
+	 const SiStripRecHit2D* hit = hitlist[i];
+
+	 // Keep track of the innermost hit
+	 if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
+	    innerhit = hit;
+	    innerhitRadius = r;
+	 }
+	 
+	 if (typelist[i] == 0) {
+	    numberOfStereoHits++;
+
+	    // Copy this hit for the TrajectorySeed
+	    outputHits.push_back(((TrackingRecHit*)(hit))->clone());
+	    outputStereoHits.push_back(TrackingRecHitRef(*stereoHits_hp_, stereoKey_[hit]));
+	 }
+	 else if (typelist[i] == 1) {
+	    numberOfBarrelRphiHits++;
+
+	    // Copy this hit for the TrajectorySeed
+	    outputHits.push_back(((TrackingRecHit*)(hit))->clone());
+	    outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[hit]));
+	 }
+	 else if (typelist[i] == 2) {
+	    numberOfEndcapZphiHits++;
+
+	    // Copy this hit for the TrajectorySeed
+	    outputHits.push_back(((TrackingRecHit*)(hit))->clone());
+	    outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[hit]));
+	 }
+      }
+   } // end loop over all hits, after having culled the ones with big residuals
 
    unsigned int totalNumberOfHits = numberOfStereoHits + numberOfBarrelRphiHits + numberOfEndcapZphiHits;
+   double reducedChi2 = (totalNumberOfHits > 2 ? chi2 / (totalNumberOfHits - 2) : 1e10);
 
    // Select this candidate if it passes minHits_ and maxReducedChi2_ cuts
    if (totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
@@ -529,7 +562,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       GlobalVector momentum = GlobalVector(correct_pT*cos(phi), correct_pT*sin(phi), pZ);
 
       if (chargeHypothesis > 0.) {
-	 redchi2_pos_ = chi2 / double(xlist.size() - 2);
+	 redchi2_pos_ = chi2 / double(totalNumberOfHits - 2);
 	 position_pos_ = position;
 	 momentum_pos_ = momentum;
 	 innerhit_pos_ = innerhit;
@@ -540,7 +573,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	 slope_pos_ = slope;
 	 intercept_pos_ = intercept;
 	 chi2_pos_ = chi2;
-	 ndof_pos_ = xlist.size() - 2;
+	 ndof_pos_ = totalNumberOfHits - 2;
 	 correct_pT_pos_ = correct_pT;
 	 pZ_pos_ = pZ;
 	 zVsRSlope_pos_ = zVsRSlope;
@@ -549,7 +582,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	 numberOfEndcapZphiHits_pos_ = numberOfEndcapZphiHits;
       }
       else {
-	 redchi2_neg_ = chi2 / double(xlist.size() - 2);
+	 redchi2_neg_ = chi2 / double(totalNumberOfHits - 2);
 	 position_neg_ = position;
 	 momentum_neg_ = momentum;
 	 innerhit_neg_ = innerhit;
@@ -560,7 +593,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	 slope_neg_ = slope;
 	 intercept_neg_ = intercept;
 	 chi2_neg_ = chi2;
-	 ndof_neg_ = xlist.size() - 2;
+	 ndof_neg_ = totalNumberOfHits - 2;
 	 correct_pT_neg_ = correct_pT;
 	 pZ_neg_ = pZ;
 	 zVsRSlope_neg_ = zVsRSlope;

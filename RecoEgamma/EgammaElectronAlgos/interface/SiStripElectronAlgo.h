@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.6 2006/07/25 22:32:32 pivarski Exp $
+// $Id: SiStripElectronAlgo.h,v 1.7 2006/07/25 23:29:53 pivarski Exp $
 //
 
 // system include files
@@ -60,6 +60,7 @@ class SiStripElectronAlgo
       SiStripElectronAlgo(unsigned int maxHitsOnDetId,
 			  double originUncertainty,
 			  double phiBandWidth,
+			  double maxNormResid,
 			  unsigned int minHits,
 			  double maxReducedChi2);
 
@@ -111,6 +112,7 @@ class SiStripElectronAlgo
       unsigned int maxHitsOnDetId_;
       double originUncertainty_;
       double phiBandWidth_;
+      double maxNormResid_;
       unsigned int minHits_;
       double maxReducedChi2_;
 
