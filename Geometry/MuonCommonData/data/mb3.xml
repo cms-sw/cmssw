@@ -387,7 +387,7 @@
 <!-- ####  MB3: DT Honeycomb -->
  <LogicalPart name="MB3HoneycombBox" category="unspecified">
   <rSolid name="MB3HoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB3Honeycomb" category="unspecified">
   <rSolid name="MB3Honeycomb"/>
@@ -530,7 +530,7 @@
 <!-- ####  MB3Chim: DT Honeycomb -->
  <LogicalPart name="MB3ChimHoneycombBox" category="unspecified">
   <rSolid name="MB3ChimHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB3ChimHoneycomb" category="unspecified">
   <rSolid name="MB3ChimHoneycomb"/>

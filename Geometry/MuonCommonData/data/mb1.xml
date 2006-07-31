@@ -428,7 +428,7 @@
 <!-- ####  MB1: DT Honeycomb -->
  <LogicalPart name="MB1HoneycombBox" category="unspecified">
   <rSolid name="MB1HoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB1Honeycomb" category="unspecified">
   <rSolid name="MB1Honeycomb"/>
@@ -588,7 +588,7 @@
 <!-- ####  MB1Chim: DT Honeycomb -->
  <LogicalPart name="MB1ChimHoneycombBox" category="unspecified">
   <rSolid name="MB1ChimHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB1ChimHoneycomb" category="unspecified">
   <rSolid name="MB1ChimHoneycomb"/>

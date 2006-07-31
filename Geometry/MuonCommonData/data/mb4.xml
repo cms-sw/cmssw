@@ -497,7 +497,7 @@
 
  <LogicalPart name="MB4BigHoneycombBox" category="unspecified">
   <rSolid name="MB4BigHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4BigHoneycomb" category="unspecified">
   <rSolid name="MB4BigHoneycomb"/>
@@ -518,7 +518,7 @@
 
   <LogicalPart name="MB4SmallHoneycombBox" category="unspecified">
   <rSolid name="MB4SmallHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4SmallHoneycomb" category="unspecified">
   <rSolid name="MB4SmallHoneycomb"/>
@@ -539,7 +539,7 @@
 
   <LogicalPart name="MB4FeetHoneycombBox" category="unspecified">
   <rSolid name="MB4FeetHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4FeetHoneycomb" category="unspecified">
   <rSolid name="MB4FeetHoneycomb"/>
@@ -560,7 +560,7 @@
 
  <LogicalPart name="MB4BottomHoneycombBox" category="unspecified">
   <rSolid name="MB4BottomHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4BottomHoneycomb" category="unspecified">
   <rSolid name="MB4BottomHoneycomb"/>
@@ -577,7 +577,7 @@
 
  <LogicalPart name="MB4TopHoneycombBox" category="unspecified">
   <rSolid name="MB4TopHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4TopHoneycomb" category="unspecified">
   <rSolid name="MB4TopHoneycomb"/>
@@ -746,7 +746,7 @@
 
  <LogicalPart name="MB4BigChimHoneycombBox" category="unspecified">
   <rSolid name="MB4BigChimHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4BigChimHoneycomb" category="unspecified">
   <rSolid name="MB4BigChimHoneycomb"/>
@@ -759,7 +759,7 @@
 
  <LogicalPart name="MB4TopChimHoneycombBox" category="unspecified">
   <rSolid name="MB4TopChimHoneycombBox"/>
-  <rMaterial name="materials:M_Aluminium"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="MB4TopChimHoneycomb" category="unspecified">
   <rSolid name="MB4TopChimHoneycomb"/>
