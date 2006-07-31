@@ -25,10 +25,14 @@ public:
 
   struct Counter
   {
+    inline Counter() : attempts(0),successes(0), amount(0), 
+	time_tot(0), time_min(10E10), time_max(0){}
     seal::ULongLong	attempts;
     seal::ULongLong	successes;
     double		amount;
-    double		time;
+    double              time_tot;
+    double              time_min;
+    double		time_max;
     std::string         idTag;
   };
   
