@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: SingleObjectSelector.h,v 1.1 2006/07/25 17:26:44 llista Exp $
+ * $Id: SingleObjectSelector.h,v 1.1 2006/07/27 16:34:43 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/UtilAlgos/interface/ReflexSelector.h"
@@ -18,7 +18,7 @@ struct SingleObjectSelector {
   SingleObjectSelector( const edm::ParameterSet & cfg ) : 
   type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
   std::string cut = cfg.template getParameter<std::string>( "cut" );
-  if( ! reco::parser::cutParser( cut, reco::methods::methods<T>(), select_ ) ) {
+  if( ! reco::parser::cutParser( cut, reco::MethodMap::methods<T>(), select_ ) ) {
     throw edm::Exception( edm::errors::Configuration,
                           "failed to parse \"" + cut + "\"" );
   }
