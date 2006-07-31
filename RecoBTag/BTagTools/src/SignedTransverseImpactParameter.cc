@@ -63,7 +63,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
     cout << TSOS.cartesianError().matrix() << endl;
     cout << deriv << endl;   
     double E1 = (TSOS.cartesianError().matrix()).similarity(deriv);
-    double E2 = RecoVertex::convertError(vertex.error()).matrix().similarity(deriv_v);
+    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(deriv_v);
              // (aJet.vertex().positionError().matrix()).similarity(deriv_v);
     theError = sqrt(E1);//TODO:no pV yet+E2);
  cout << "the Error is " <<  theError << endl;
@@ -108,7 +108,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( con
   double deltaZ = fabs(PCA.z()-PV.z()) * sign ;
   
   // error
-  double errPvZ2 = RecoVertex::convertError(vertex.error()).czz() ;
+  double errPvZ2 = RecoVertex::convertError(vertex.covariance()).czz() ;
   //CW  cout << "CW number or rows and columns : " << statePCA.cartesianError().matrix().num_row() << " , "
   //CW                                             << statePCA.cartesianError().matrix().num_col() << endl ;
   double errTrackZ2 =  statePCA.cartesianError().matrix()[2][2] ;

@@ -69,7 +69,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
     deriv[5] =  - (TT1.dot(Xi)*DD.z())/T1.mag();
 
     double E1 = (theTSOS.cartesianError().matrix()).similarity(deriv);
-    double E2 = RecoVertex::convertError(vertex.error()).matrix().similarity(deriv_v);
+    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(deriv_v);
 //    double E2 = 0.; // no vertex error because of stupid use of hundreds of different types for same thing 
     theError = sqrt(E1+E2);
 
