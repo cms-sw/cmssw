@@ -1,12 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.31.2.1 2006/06/30 19:25:21 wmtan Exp $
+$Id: PoolSource.cc,v 1.32 2006/07/06 19:25:00 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
-#include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ProductID.h"
@@ -19,8 +18,11 @@ namespace edm {
     VectorInputSource(pset, desc),
     fileIter_(fileNames().begin()),
     rootFile_(),
+    matchMode_(BranchDescription::Permissive),
     mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
   {
+    std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
+    if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     init(*fileIter_);
     if (mainInput_) {
@@ -86,14 +88,16 @@ namespace edm {
     }
 
     // save the product registry from the current file, temporarily
-    boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
+    boost::shared_ptr<ProductRegistry> pReg(rootFile_->productRegistrySharedPtr());
 
     rootFile_->close();
 
     init(*fileIter_);
 
-    // make sure the new product registry is identical to the old one
-    if (*pReg != rootFile_->productRegistry()) {
+    ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
+
+    // make sure the new product registry is compatible with the main one
+    if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
 	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
     }
@@ -112,14 +116,16 @@ namespace edm {
     --fileIter_;
 
     // save the product registry from the current file, temporarily
-    boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
+    boost::shared_ptr<ProductRegistry> pReg(rootFile_->productRegistrySharedPtr());
 
     rootFile_->close();
 
     init(*fileIter_);
 
-    // make sure the new product registry is identical to the old one
-    if (*pReg != rootFile_->productRegistry()) {
+    ProductRegistry * preg = (mainInput_ ? &productRegistry() : pReg.get());
+
+    // make sure the new product registry is compatible to the main one
+    if (!preg->merge(rootFile_->productRegistry(), matchMode_)) {
       throw cms::Exception("MismatchedInput","PoolSource::previous()")
 	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
     }

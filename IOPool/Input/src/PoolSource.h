@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.22 2006/05/30 20:07:31 wmtan Exp $
+$Id: PoolSource.h,v 1.23 2006/06/06 21:23:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ $Id: PoolSource.h,v 1.22 2006/05/30 20:07:31 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -49,6 +50,7 @@ namespace edm {
 
     std::vector<std::string>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
+    BranchDescription::MatchMode matchMode_;
     bool mainInput_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
