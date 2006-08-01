@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/18 13:26:33 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/07/28 17:59:27 $
+ *  $Revision: 1.23 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -210,29 +210,72 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	  DTLocalTriggerHeaderWord scHeaderWord(word);
 	  if (debug) cout<<"[DTROS25Unpacker]: SCHeader  eventID "<<scHeaderWord.eventID()<<endl;
 
-	  int bx_counter=0;
+	  // RT added : first word following SCHeader is a SC private header
+	  wordCounter++; word = index[swap(wordCounter)];
 
-	  do {
-	    bx_counter++;
-            wordCounter++; word = index[swap(wordCounter)];
-  	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
-	      DTLocalTriggerDataWord scDataWord(word);
+	  if(DTROSWordType(word).type() == DTROSWordType::SCData){
+	    DTLocalTriggerSectorCollectorHeaderWord scPrivateHeaderWord(word);
+	    
+	    int numofscword = scPrivateHeaderWord.NumberOf16bitWords();
+	    int leftword = numofscword;
+	    
+	    if(debug)  cout<<"[DTROS25Unpacker]: SCPrivateHeader (number of data + subheader = " << scPrivateHeaderWord.NumberOf16bitWords() << " " <<endl;
+	    
+	    // if no SC data -> no loop ; otherwise subtract 1 word (subheader) and countdown for bx assignment
+	    
+	    if(numofscword > 0){
+	      
+	      int bx_received = (numofscword - 1) / 2;
+	      if(debug)  cout<<"[DTROS25Unpacker]: number of bx " << bx_received << endl;
+	      
+	      wordCounter++; word = index[swap(wordCounter)];
+	      if (DTROSWordType(word).type() == DTROSWordType::SCData) {
+		//second word following SCHeader is a SC private SUB-header
+		leftword--;
+		
+		DTLocalTriggerSectorCollectorSubHeaderWord scPrivateSubHeaderWord(word);
+		if(debug)  {
+		  cout<<"[DTROS25Unpacker]: SC trigger delay = " << scPrivateSubHeaderWord.TriggerDelay() << endl;
+		  cout<<"[DTROS25Unpacker]: SC bunch counter = " << scPrivateSubHeaderWord.LocalBunchCounter() << endl;
+		}
+		
+		
+	      // M.Z.   ... RT comments!
+	      //int bx_counter=0;
+	      //
+	      
+		do {
+		  wordCounter++; word = index[swap(wordCounter)];
 
-	      DTSectorCollectorData scData(scDataWord, int(round(bx_counter/2.)));
-	      controlData.addSCData(scData);
-
-	      if (debug) {
-		//cout<<"[DTROS25Unpacker]: SCData bits "<<scDataWord.SCData()<<endl;
-		if (scDataWord.hasTrigger(0)) 
-		  cout<<" at BX "<<round(bx_counter/2.)
-		      <<" lower part has trigger! with track quality "<<scDataWord.trackQuality(0)<<endl;
-		if (scDataWord.hasTrigger(1)) 
-		  cout<<" at BX "<<round(bx_counter/2.)
-		      <<" upper part has trigger! with track quality "<<scDataWord.trackQuality(1)<<endl;
-	      }
-	    }
-
-	  } while ( DTROSWordType(word).type() != DTROSWordType::SCTrailer );
+		  if (DTROSWordType(word).type() == DTROSWordType::SCData) {
+		    leftword--;    //RT: bx are sent from SC in reverse order starting from the one which stopped the spy buffer
+		    int bx_counter = int(round( (leftword + 1)/ 2.));
+		    
+		    if(debug){
+		      if(bx_counter < 0 || leftword < 0)cout<<"[DTROS25Unpacker]: SC data more than expected; negative bx counter reached! "<<endl;
+		    }
+		    
+		    DTLocalTriggerDataWord scDataWord(word);
+		    
+		    //		    DTSectorCollectorData scData(scDataWord, int(round(bx_counter/2.))); M.Z.
+		    DTSectorCollectorData scData(scDataWord,bx_counter);
+		    controlData.addSCData(scData);
+		    
+		    if (debug) {
+		      //cout<<"[DTROS25Unpacker]: SCData bits "<<scDataWord.SCData()<<endl;
+		    if (scDataWord.hasTrigger(0)) 
+		      cout<<" at BX "<< bx_counter //round(bx_counter/2.)
+			  <<" lower part has trigger! with track quality "<<scDataWord.trackQuality(0)<<endl;
+		    if (scDataWord.hasTrigger(1)) 
+		      cout<<" at BX "<< bx_counter //round(bx_counter/2.)
+			  <<" upper part has trigger! with track quality "<<scDataWord.trackQuality(1)<<endl;
+		    }
+		  }
+		  
+		} while ( DTROSWordType(word).type() != DTROSWordType::SCTrailer );
+	      } // end SC subheader
+	    } // end if SC send more than only its own header!
+	  } //  end if first data following SCheader is not SCData 
 
 	  if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
 	    DTLocalTriggerTrailerWord scTrailerWord(word);
