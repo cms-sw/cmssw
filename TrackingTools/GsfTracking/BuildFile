@@ -1,0 +1,41 @@
+<use name=boost>
+<use name=CLHEP>
+
+<export>
+ <lib name=TrackingToolsGsfTracking>
+ <use name="DataFormats/TrajectorySeed">
+ <use name="FWCore/Framework">
+ <use name="FWCore/MessageLogger">
+ <use name="FWCore/ParameterSet">
+ <use name="FWCore/Utilities">
+ <use name="Geometry/CommonDetAlgo">
+ <use name="Geometry/Surface">
+ <use name="TrackingTools/GeomPropagators">
+ <use name="TrackingTools/GsfTools">
+ <use name="TrackingTools/KalmanUpdators">
+ <use name="TrackingTools/MaterialEffects">
+ <use name="TrackingTools/PatternTools">
+ <use name="TrackingTools/Records">
+ <use name="TrackingTools/TrackFitters">
+ <use name="TrackingTools/TrajectoryState">
+ <use name="TrackingTools/TransientTrackingRecHit">
+</export>
+
+<use name="DataFormats/TrajectorySeed">
+<use name="FWCore/Framework">
+<use name="FWCore/MessageLogger">
+<use name="FWCore/ParameterSet">
+<use name="FWCore/Utilities">
+<use name="Geometry/CommonDetAlgo">
+<use name="Geometry/Surface">
+<use name="TrackingTools/GeomPropagators">
+<use name="TrackingTools/GsfTools">
+<use name="TrackingTools/KalmanUpdators">
+<use name="TrackingTools/MaterialEffects">
+<use name="TrackingTools/PatternTools">
+<use name="TrackingTools/Records">
+<use name="TrackingTools/TrackFitters">
+<use name="TrackingTools/TrajectoryState">
+<use name="TrackingTools/TransientTrackingRecHit">
+
+<flags SEAL_PLUGIN_NAME="TrackingToolsGsfTracking">
