@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/28 14:48:10 $
- * $Revision: 1.26 $
+ * $Date: 2006/07/28 18:49:20 $
+ * $Revision: 1.27 $
  * \author A. Ghezzi
  *
  */
@@ -170,7 +170,7 @@ void EBBeamCaloTask::setup(void){
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
     
     sprintf(histo, "EBBCT readout crystals number");
-    meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1700,1.,1701.);
+    meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1701,0.,1701.);
     
     sprintf(histo, "EBBCT rec Ene sum 3x3");
     meBBCaloE3x3_ = dbe->book1D(histo,histo,500,0.,9000.);
@@ -191,7 +191,7 @@ void EBBeamCaloTask::setup(void){
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EBBCT crystals done");
-    CrystalsDone_ = dbe->book1D(histo,histo,1700,0.,1700.);
+    CrystalsDone_ = dbe->book1D(histo,histo,1700,1.,1701.);
     //for a crystal done the corresponing bin is filled with the step in the 
     //autoscan pertainig to the given crystales 
   
@@ -206,14 +206,14 @@ void EBBeamCaloTask::setup(void){
 
     sprintf(histo, "EBBCT average rec energy in the single crystal");
     //meEBBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
-    meEBBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,500,0.,9000.,"s");
+    meEBBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
     //meEBBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
-    meEBBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 85,1.,86.,500,0.,9000.,"s");
+    meEBBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
 
     sprintf(histo, "EBBCT number of entries");
-    meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,85,1.,86.);
+    meEBBCaloEntriesVsCry_ = dbe->book1D(histo, histo,1700,1.,1701.);
     
     sprintf(histo, "EBBCT energy deposition in the 3x3");
     meEBBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
@@ -589,7 +589,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
   
 
-  meEBBCaloEntriesVsCry_->Fill(crystal_step_ );
+  meEBBCaloEntriesVsCry_->Fill(cry_in_beam);
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -737,8 +737,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   if (!tb_moving){
     meBBCaloE3x3_->Fill(ene3x3);
-    meEBBCaloE1vsCry_->Fill(crystal_step_ , cryInBeamEne );
-    meEBBCaloE3x3vsCry_->Fill(crystal_step_, ene3x3 );
+    meEBBCaloE1vsCry_->Fill(cry_in_beam , cryInBeamEne );
+    meEBBCaloE3x3vsCry_->Fill(cry_in_beam, ene3x3 );
     //     if( cry_in_beam > 0 && cry_in_beam < 1701){
     //       meBBCaloE3x3Cry_[cry_in_beam]->Fill(ene3x3);
     //       meBBCaloE1Cry_[cry_in_beam]->Fill(cryInBeamEne);
