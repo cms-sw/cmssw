@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/06/27 16:37:51 $
- * $Revision: 1.7 $
+ * $Date: 2006/07/18 13:25:49 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -146,7 +146,7 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
 				     dtLayer.sector(),
 				     dtLayer.superlayer(),
 				     dtLayer.layer()).rawId()] = 
-      dbe->book1D(histoName,histoName,nWires,0,nWires);
+      dbe->book1D(histoName,histoName,nWires,1,nWires+1);
   
   }
 
