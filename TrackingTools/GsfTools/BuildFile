@@ -1,0 +1,19 @@
+<use name=boost>
+<use name=CLHEP>
+
+<export>
+ <lib name=TrackingToolsGsfTools>
+ <use name="FWCore/MessageLogger">
+ <use name="FWCore/Utilities">
+ <use name="Geometry/CommonDetAlgo">
+ <use name="TrackingTools/GeomPropagators">
+ <use name="TrackingTools/TrajectoryState">
+</export>
+
+<use name="FWCore/MessageLogger">
+<use name="FWCore/Utilities">
+<use name="Geometry/CommonDetAlgo">
+<use name="TrackingTools/GeomPropagators">
+<use name="TrackingTools/TrajectoryState">
+
+<flags SEAL_PLUGIN_NAME="TrackingToolsGsfTools">
