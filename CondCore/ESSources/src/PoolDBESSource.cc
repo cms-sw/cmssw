@@ -20,14 +20,17 @@
 static
 std::string
 buildName( const std::string& iRecordName, const std::string& iTypeName ) {
-  //std::cout<<"building name "<<iRecordName+"_"+iTypeName+"_Proxy"<<std::endl;
-  return iRecordName+"_"+iTypeName+"_Proxy";
+  //std::cout<<"building name "<<iRecordName+"@"+iTypeName+"@Proxy"<<std::endl;
+  return iRecordName+"@"+iTypeName+"@Proxy";
 }
 
 static
 std::pair<std::string,std::string>
 deconstructName(const std::string& iProxyName) {
-  std::string recordName(iProxyName, 0, iProxyName.find_first_of("_"));
+  if(iProxyName.find_first_of("@")==std::string::npos){
+    return std::make_pair("","");
+  }
+  std::string recordName(iProxyName, 0, iProxyName.find_first_of("@"));
   std::string typeName(iProxyName,recordName.size()+1,iProxyName.size()-6-recordName.size()-1);
   //std::cout <<"Record \""<<recordName<<"\" type \""<<typeName<<"\""<<std::endl;
   return std::make_pair(recordName,typeName);
@@ -61,6 +64,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 	if (cache->child(i)->token(0) == mycat) {
 	  const std::string cap = cache->child(i)->token(1);
 	  std::pair<std::string,std::string> pairName=deconstructName(cap);
+	  if( pairName.first.empty() ) continue;
 	  if( oToFill.find(pairName.first)==oToFill.end() ){
 	    //oToFill.insert(deconstructName(cap));
 	    oToFill.insert(pairName);
