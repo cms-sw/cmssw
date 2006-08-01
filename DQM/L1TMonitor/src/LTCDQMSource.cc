@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.1 2006/06/29 04:15:11 wsun Exp $
+// $Id: LTCDQMSource.cc,v 1.2 2006/07/31 14:33:10 wittich Exp $
 //
 //
 
@@ -197,7 +197,7 @@ LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gps_time ->Fill(digiItr->bstGpsTime());
     }
   ++nev_;
-  usleep(10000);
+  //usleep(10000);
 }
 
 //define this as a plug-in
