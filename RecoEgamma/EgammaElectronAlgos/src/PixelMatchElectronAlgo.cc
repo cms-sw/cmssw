@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.2 2006/07/25 10:56:40 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.3 2006/07/31 21:36:14 tboccali Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -231,7 +231,7 @@ void  PixelMatchElectronAlgo::run(const Event& e, TrackCandidateCollection & out
 	const XYZTLorentzVector momentum(initState.first.globalMomentum().x(),
 	                                initState.first.globalMomentum().y(),
 	                                initState.first.globalMomentum().z(),
-	                                0.000511);
+	                                sqrt(initState.first.globalMomentum().mag2() + 0.000511*0.000511) );
 	XYZPoint vertex( 0, 0, 0 );
 	Electron ele(aTrack.charge(),momentum,vertex);
         ele.setSuperCluster(epseed->superCluster());
