@@ -1,17 +1,19 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
+
+const unsigned PFRecTrack::nMaxTrackingLayers_ = 17;
 
 PFRecTrack::PFRecTrack() :
   charge_(0.),
   algoType_(PFRecTrack::Unknown),
   indexInnermost_(0),
   indexOutermost_(0),
-  doPropagation_(true),
   color_(1) {
 
   // prepare vector of trajectory points for propagated positions
-  trajectoryPoints_.resize(PFTrajectoryPoint::NLayers);
+  trajectoryPoints_.reserve(PFTrajectoryPoint::NLayers + nMaxTrackingLayers_);
 }
 
 
@@ -20,11 +22,10 @@ PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) :
   algoType_(algoType), 
   indexInnermost_(0),
   indexOutermost_(0),
-  doPropagation_(true),
   color_(1) {
 
   // prepare vector of trajectory points for propagated positions
-  trajectoryPoints_.resize(PFTrajectoryPoint::NLayers);
+  trajectoryPoints_.reserve(PFTrajectoryPoint::NLayers + nMaxTrackingLayers_);
 }
   
 
@@ -34,63 +35,67 @@ PFRecTrack::PFRecTrack(const PFRecTrack& other) :
   trajectoryPoints_(other.trajectoryPoints_),
   indexInnermost_(other.indexInnermost_),
   indexOutermost_(other.indexOutermost_),
-  doPropagation_(other.doPropagation_),
   color_(other.color_)
 {}
 
 
-void PFRecTrack::addMeasurement(const PFTrajectoryPoint& measurement) {
+void PFRecTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   
-  if (!indexOutermost_) // first time a measurement is added
+  if (trajPt.isTrackerLayer() && !indexOutermost_) { // first time a measurement is added
+    if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipe + 1) {
+      PFTrajectoryPoint dummyPt;
+      for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipe + 1; iPt++)
+	trajectoryPoints_.push_back(dummyPt);
+    } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipe + 1) {
+      edm::LogError("PFRecTrack") << "trajectoryPoints_.size() is too large = " 
+				  << trajectoryPoints_.size() << "\n";
+    }
     indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipe + 1;
-  std::vector< PFTrajectoryPoint >::iterator it = 
-    trajectoryPoints_.begin() + indexOutermost_;
-  trajectoryPoints_.insert(it, PFTrajectoryPoint(measurement));
+  }
+  // Use push_back instead of insert in order to gain time
+//   std::vector< PFTrajectoryPoint >::iterator it = 
+//     trajectoryPoints_.begin() + indexOutermost_;
+//   trajectoryPoints_.insert(it, PFTrajectoryPoint(measurement));
+  trajectoryPoints_.push_back(trajPt);
   indexOutermost_++;
-  
-  // COLIN: vector::insert is a very time consuming operation (linear)
 }
 
 
-void PFRecTrack::CalculatePositionREP() {
+void PFRecTrack::calculatePositionREP() {
   
   for(unsigned i=0; i<trajectoryPoints_.size(); i++) {
-    trajectoryPoints_[i].CalculatePositionREP();
+    trajectoryPoints_[i].calculatePositionREP();
   }
 }
 
  
-const reco::PFTrajectoryPoint& PFRecTrack::getExtrapolatedPoint(unsigned layerid) const {
+const reco::PFTrajectoryPoint& PFRecTrack::extrapolatedPoint(unsigned layerid) const {
   
   if( layerid >= reco::PFTrajectoryPoint::NLayers ) {
     assert(0);
   }
-
-  unsigned slot = getNTrajectoryMeasurements() + layerid;
-  if( layerid == reco::PFTrajectoryPoint::ClosestApproach )
-    slot = 0;
-
-  return trajectoryPoints_[ slot ];  
+  if (layerid < indexInnermost_)
+    return trajectoryPoints_[ layerid ];
+  else
+    return trajectoryPoints_[ nTrajectoryMeasurements() + layerid ];  
 }
-
 
 
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const PFRecTrack& track) {  
   if (!out) return out;  
-//   if (!track.IsPropagated()) track.Propagate();
 
   const reco::PFTrajectoryPoint& closestApproach = 
-    track.getTrajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
+    track.trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
-  out << "Track charge = " << track.getCharge() 
-      << ", type = " << track.getAlgoType()
-      << ", Pt = " << closestApproach.getMomentum().Pt() 
-      << ", P = " << closestApproach.getMomentum().P() << std::endl
-      << "\tR0 = " << closestApproach.getPositionXYZ().Rho()
-      <<" Z0 = " << closestApproach.getPositionXYZ().Z() << std::endl
+  out << "Track charge = " << track.charge() 
+      << ", type = " << track.algoType()
+      << ", Pt = " << closestApproach.momentum().Pt() 
+      << ", P = " << closestApproach.momentum().P() << std::endl
+      << "\tR0 = " << closestApproach.positionXYZ().Rho()
+      <<" Z0 = " << closestApproach.positionXYZ().Z() << std::endl
       << "\tnumber of tracker measurements = " 
-      << track.getNTrajectoryMeasurements() << std::endl;
+      << track.nTrajectoryMeasurements() << std::endl;
 
   return out;
 }

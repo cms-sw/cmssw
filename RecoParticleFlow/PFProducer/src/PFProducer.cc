@@ -5,6 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 
+// include files used for reconstructed tracks
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -41,13 +42,18 @@ using namespace std;
 using namespace edm;
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
-  conf_(iConfig), trackAlgo_(iConfig)
+  trackAlgo_(iConfig)
 {
   edm::LogInfo("PFProducer") << "Constructor" << std::endl;
 
   // use configuration file to setup input/output collection names
   tcCollection_ = iConfig.getParameter<std::string>("TrackCandidateCollection");
   pfRecTrackCollection_ = iConfig.getParameter<std::string>("PFRecTrackCollection");
+
+  // set algorithms used for track reconstruction
+  fitterName_ = iConfig.getParameter<std::string>("Fitter");   
+  propagatorName_ = iConfig.getParameter<std::string>("Propagator");
+  builderName_ = iConfig.getParameter<std::string>("TTRHBuilder");   
 
   // register your products
   produces<reco::PFRecTrackCollection>(pfRecTrackCollection_);
@@ -89,33 +95,22 @@ void PFProducer::produce(edm::Event& iEvent,
 
   LogDebug("PFProducer") << "get the trajectory fitter from the ES" << "\n";
   edm::ESHandle<TrajectoryFitter> theFitter;
+  iSetup.get<TrackingComponentsRecord>().get(fitterName_, theFitter);
 
-  // COLIN: fitterName should be an attribute. No need to look for Fitter in 
-  // the parameters at each event
-  std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-  iSetup.get<TrackingComponentsRecord>().get(fitterName, theFitter);
-
-  LogDebug("PFProducer") << "get the trajectory propagator from the ES" 
-			 << "\n";
+  LogDebug("PFProducer") << "get the trajectory propagator from the ES" << "\n";
   edm::ESHandle<Propagator> thePropagator;
-
-  // COLIN : propagatorName should be an attribute
-  std::string propagatorName = conf_.getParameter<std::string>("Propagator");
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName, thePropagator);
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, thePropagator);
 
   LogDebug("PFProducer") << "get the TransientTrackingRecHitBuilder" << "\n";
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  // COLIN : builderName should be an attribute  
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
+  iSetup.get<TransientRecHitRecord>().get(builderName_, theBuilder);
 
   //
-  // Prepare propagation tools
+  // Prepare propagation tools and layers
   //
   const MagneticField * magField = theMF.product();
   AnalyticalPropagator propagator(magField, alongMomentum);
-  // COLIN:  ecal wall at 129, 317
-//   ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(130., 130., -500., 500.)));
+  ReferenceCountingPointer<Surface> beamPipe(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(2.5, 2.5, -5., 5.)));
   ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(129., 129., -317., 317.)));
   ReferenceCountingPointer<Surface> hcalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(183., 183., -388., 388.)));
 
@@ -156,6 +151,24 @@ void PFProducer::produce(edm::Event& iEvent,
     reco::PFRecTrack track(theTrack->parameters().charge(), 
 			   reco::PFRecTrack::KF);
 
+    // Closest approach of the beamline
+    math::XYZPoint posClosest(theTrack->x(), theTrack->y(), theTrack->z());
+    math::XYZTLorentzVector momClosest(theTrack->px(), theTrack->py(), 
+				       theTrack->pz(), theTrack->p());
+    reco::PFTrajectoryPoint closestPt(0, 
+				      reco::PFTrajectoryPoint::ClosestApproach,
+				      posClosest, momClosest);
+    track.addPoint(closestPt);
+
+    // Intersection with beam pipe
+    math::XYZPoint posBeamPipe(theTrack->x(), theTrack->y(), theTrack->z());
+    math::XYZTLorentzVector momBeamPipe(theTrack->px(), theTrack->py(), 
+					theTrack->pz(), theTrack->p());
+    reco::PFTrajectoryPoint beamPipePt(0, 
+				       reco::PFTrajectoryPoint::BeamPipe,
+				       posBeamPipe, momBeamPipe);
+    track.addPoint(beamPipePt);
+
     //
     // Loop over trajectory measurements
     //
@@ -179,18 +192,9 @@ void PFProducer::produce(edm::Event& iEvent,
 	measurements[iTraj].recHit()->det()->geographicalId().rawId();
       reco::PFTrajectoryPoint trajPt(detId, reco::PFTrajectoryPoint::NLayers, 
 				     pos, mom);
-      track.addMeasurement(trajPt);
+      track.addPoint(trajPt);
       LogDebug("PFProducer") << trajPt << "\n";
     }
-
-    // Closest approach of the beamline
-    math::XYZPoint posClosest(theTrack->x(), theTrack->y(), theTrack->z());
-    math::XYZTLorentzVector momClosest(theTrack->px(), theTrack->py(), 
-				       theTrack->pz(), theTrack->p());
-    reco::PFTrajectoryPoint closestPt(0, 
-				      reco::PFTrajectoryPoint::ClosestApproach,
-				      posClosest, momClosest);
-    track.setPoint(reco::PFTrajectoryPoint::ClosestApproach, closestPt);
 
     // Propagate track to ECAL
     TrajectoryStateOnSurface outerTSOS;
@@ -207,7 +211,7 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pECAL.mag());
     reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				   posECAL, momECAL);
-    track.setPoint(track.getNTrajectoryMeasurements() +
+    track.setPoint(track.nTrajectoryMeasurements() +
 		   reco::PFTrajectoryPoint::ECALEntrance, ecalPt);
     
     // Propage track to ECAL shower max TODO
@@ -222,7 +226,7 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pHCAL.mag());
     reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
 				   posHCAL, momHCAL);
-    track.setPoint(track.getNTrajectoryMeasurements() +
+    track.setPoint(track.nTrajectoryMeasurements() +
 		   reco::PFTrajectoryPoint::HCALEntrance, hcalPt);
     
     

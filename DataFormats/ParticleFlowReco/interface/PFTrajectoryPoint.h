@@ -59,27 +59,27 @@ namespace reco {
     bool isTrackerLayer() const { return isTrackerLayer_; }
 
     /// measurement detId
-    unsigned getDetId() const    { return detId_; }
+    unsigned detId() const    { return detId_; }
 
     /// trajectory point layer
-    unsigned getLayer() const    { return layer_; }
+    unsigned layer() const    { return layer_; }
 
     /// is this point valid ? 
     bool     isValid() const {return static_cast<bool>(layer_);}
 
     /// cartesian position (x, y, z)
-    const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
+    const math::XYZPoint& positionXYZ() const { return posxyz_; }
 
     /// trajectory position in (rho, eta, phi) base
-    const REPPoint& getPositionREP() const { return posrep_; }
+    const REPPoint& positionREP() const { return posrep_; }
 
     /// calculate posrep_ once and for all
-    void CalculatePositionREP() {
+    void calculatePositionREP() {
       posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
     }
 
     /// 4-momenta quadrivector
-    const math::XYZTLorentzVector& getMomentum() const    { return momentum_; }
+    const math::XYZTLorentzVector& momentum() const    { return momentum_; }
 
     friend std::ostream& operator<<(std::ostream& out, const reco::PFTrajectoryPoint& trajPoint);
 

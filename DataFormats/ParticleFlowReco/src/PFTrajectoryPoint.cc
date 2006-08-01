@@ -16,16 +16,19 @@ PFTrajectoryPoint::PFTrajectoryPoint(unsigned detId,
 				     unsigned layer, 
 				     const math::XYZPoint& posxyz, 
 				     const math::XYZTLorentzVector& momentum) :
+  isTrackerLayer_(false),
   detId_(detId),
   layer_(layer),
   posxyz_(posxyz),
   momentum_(momentum) 
 { 
+  if (detId) isTrackerLayer_ = true;
   posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi()); 
 }
 
 
 PFTrajectoryPoint::PFTrajectoryPoint(const PFTrajectoryPoint& other) :
+  isTrackerLayer_(other.isTrackerLayer_),
   detId_(other.detId_), 
   layer_(other.layer_), 
   posxyz_(other.posxyz_), 
@@ -37,22 +40,15 @@ PFTrajectoryPoint::~PFTrajectoryPoint()
 {}
 
 
-// const PFTrajectoryPoint::REPPoint& PFTrajectoryPoint::getPositionREP() {
-// //   if(posrep_ == REPPoint())
-// //     posrep_.SetCoordinates(posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi());
-//   return posrep_;
-// }
-
-
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
 
-  const math::XYZPoint& posxyz = trajPoint.getPositionXYZ();
+  const math::XYZPoint& posxyz = trajPoint.positionXYZ();
 
-  out << "Trajectory point id = " << trajPoint.getDetId()
-      << ", layer = " << trajPoint.getLayer()
-      << ", Pt = " << trajPoint.getMomentum().Pt() 
+  out << "Trajectory point id = " << trajPoint.detId()
+      << ", layer = " << trajPoint.layer()
+      << ", Pt = " << trajPoint.momentum().Pt() 
       << ", Eta = " << posxyz.Eta()
       << ", R = " << posxyz.Rho() << ", Z = " << posxyz.Z() << std::endl;
   

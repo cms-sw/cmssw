@@ -35,61 +35,60 @@ namespace reco {
     PFRecTrack(const PFRecTrack& other);
    
     /// add a trajectory measurement
-    void addMeasurement(const reco::PFTrajectoryPoint& measurement);
+    void addPoint(const reco::PFTrajectoryPoint& trajPt);
 
     /// set a trajectory point
     void setPoint(unsigned int index,
 		  const reco::PFTrajectoryPoint& measurement)
-    { trajectoryPoints_[index] = measurement; }
+      { trajectoryPoints_[index] = measurement; }
 
     /// calculate posrep_ once and for all for each point
-    void CalculatePositionREP();
+    void calculatePositionREP();
 
     /// get electric charge
-    double getCharge() const    { return charge_; }
+    double charge() const { return charge_; }
 
     /// get type of algorithm
-    unsigned int getAlgoType() const    { return algoType_; }
+    unsigned int algoType() const { return algoType_; }
 
     /// get number of trajectory points
-    unsigned int getNTrajectoryPoints() const 
+    unsigned int nTrajectoryPoints() const 
       { return trajectoryPoints_.size(); }
     
     /// get number of trajectory measurements in tracker
-    unsigned int getNTrajectoryMeasurements() const 
+    unsigned int nTrajectoryMeasurements() const 
       { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
 
     /// vector of trajectory points
-    const std::vector< reco::PFTrajectoryPoint >& getTrajectoryPoints() const 
+    const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
       { return trajectoryPoints_; }
     
     /// get a trajectory point
-    const reco::PFTrajectoryPoint& getTrajectoryPoint(unsigned index) const 
+    const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
       { return trajectoryPoints_[index]; }
 
-    /// get extrapolated point
-    const reco::PFTrajectoryPoint& getExtrapolatedPoint(unsigned layerid) const; 
+    /// get an extrapolated point
+    const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
 
     /// iterator on innermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator getInnermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator innermostMeasurement() const
       { return trajectoryPoints_.begin() + indexInnermost_; }
     
     /// iterator on outermost tracker measurement
-    std::vector< reco::PFTrajectoryPoint >::const_iterator getOutermostMeasurement() const
+    std::vector< reco::PFTrajectoryPoint >::const_iterator outermostMeasurement() const
       { return trajectoryPoints_.begin() + indexOutermost_; }
   
-    bool isPropagated() { return (!doPropagation_); }
-
-    void setPropagation(bool doPropagation) { doPropagation_ = doPropagation; }
-
     void         setColor(int color) {color_ = color;}
 
-    int          getColor() const {return color_;}    
+    int          color() const { return color_; }    
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFRecTrack& track);
 
   private:
+
+    /// maximal number of tracking layers
+    static const unsigned int nMaxTrackingLayers_;
   
     /// charge
     double charge_;
@@ -106,10 +105,7 @@ namespace reco {
     /// index outermost tracker measurement
     unsigned int indexOutermost_;
 
-    /// propagate trajectory to extra positions (transient)
-    bool doPropagation_;
-
-    /// color
+    /// color (transient)
     int  color_;
 
   };
