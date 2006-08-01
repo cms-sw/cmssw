@@ -376,7 +376,7 @@ void PFRootEventManager::particleFlow() {
 
 
   for(unsigned i=0; i<recTracks_.size(); i++) {
-    recTracks_[i].CalculatePositionREP();
+    recTracks_[i].calculatePositionREP();
     allElements_.insert( new PFBlockElementTrack( & recTracks_[i] ) );  
   }
 
@@ -933,10 +933,10 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
     double sign = 1.;
 
     const reco::PFTrajectoryPoint& tpatecal 
-      = itRecTrack->getTrajectoryPoint(itRecTrack->getNTrajectoryMeasurements() +
-					reco::PFTrajectoryPoint::ECALEntrance );
+      = itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() +
+				    reco::PFTrajectoryPoint::ECALEntrance );
     
-    if ( cos(phi0 - tpatecal.getMomentum().Phi()) < 0.)
+    if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
       sign = -1.;
 
     // Check number of measurements with non-zero momentum
@@ -958,12 +958,12 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
     // reserving space. nb not all trajectory points are valid
     
     const std::vector<reco::PFTrajectoryPoint>& trajectoryPoints = 
-      itRecTrack->getTrajectoryPoints();
+      itRecTrack->trajectoryPoints();
 
     vector<double> xPos;
-    xPos.reserve( itRecTrack->getNTrajectoryPoints() );
+    xPos.reserve( itRecTrack->nTrajectoryPoints() );
     vector<double> yPos;
-    yPos.reserve( itRecTrack->getNTrajectoryPoints() );
+    yPos.reserve( itRecTrack->nTrajectoryPoints() );
     
     // COLIN: avoid double* 
 //     double* xPos = new double[itTrajPt->getNTrajectoryPoints()];
@@ -977,13 +977,13 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
     for (IPT itTrajPt = trajectoryPoints.begin(); 
 	 itTrajPt != trajectoryPoints.end(); itTrajPt++ ) {
 
-      if (itTrajPt->getMomentum().P() > 0.) {
+      if (itTrajPt->momentum().P() > 0.) {
 
 	// COLIN: this is bugged
 	// math::XYZPoint xyzPos(itTrajPt->xyzPosition().X()*vPhi0.Y() - itTrajPt->xyzPosition().Y()*vPhi0.X(), itTrajPt->xyzPosition().X()*vPhi0.X() + itTrajPt->xyzPosition().Y()*vPhi0.Y(), itTrajPt->xyzPosition().Z());
 	// xyzPos.SetPhi(xyzPos.Phi()); // <=== Does not work ??? why ???
 	
-	math::XYZPoint xyzPos = itTrajPt->getPositionXYZ();
+	math::XYZPoint xyzPos = itTrajPt->positionXYZ();
 	
 	switch(viewType) {
 	case XY:
@@ -999,7 +999,7 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
 	case EPE:
 	case EPH:	 
 	  // closest approach is meaningless in eta/phi
-	  if( itTrajPt->getLayer() == reco::PFTrajectoryPoint::ClosestApproach)
+	  if( itTrajPt->layer() == reco::PFTrajectoryPoint::ClosestApproach)
 	    continue;
 	  
 	  // 	  cout<<itTrajPt->getPositionXYZ().Eta()<<" "
@@ -1024,7 +1024,7 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
     graphTrack_[viewType][lastHisto]->SetMarkerStyle(8);
     graphTrack_[viewType][lastHisto]->SetMarkerSize(0.5);
     graphTrack_[viewType][lastHisto]->SetLineColor(color);
-    graphTrack_[viewType][lastHisto]->SetLineStyle(itRecTrack->getAlgoType());
+    graphTrack_[viewType][lastHisto]->SetLineStyle(itRecTrack->algoType());
     graphTrack_[viewType][lastHisto]->Draw("pl");
 
   }
