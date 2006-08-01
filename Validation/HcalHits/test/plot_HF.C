@@ -14,13 +14,13 @@
   TTree * tree = dynamic_cast<TTree*>(myf->Get("Events"));
   assert(tree != 0);
 
-  TBranch * branchLayer = tree->GetBranch("PHcalValidInfoLayer_SimG4Object__CaloTest.obj");
+  TBranch * branchLayer = tree->GetBranch("PHcalValidInfoLayer_g4SimHits__CaloTest.obj");
   assert(branchLayer != 0);
 
-  TBranch * branchNxN = tree->GetBranch("PHcalValidInfoNxN_SimG4Object__CaloTest.obj");
+  TBranch * branchNxN = tree->GetBranch("PHcalValidInfoNxN_g4SimHits__CaloTest.obj");
   assert(branchNxN != 0);
 
-  TBranch * branchJets = tree->GetBranch( "PHcalValidInfoJets_SimG4Object__CaloTest.obj");  assert(branchJets != 0);
+  TBranch * branchJets = tree->GetBranch( "PHcalValidInfoJets_g4SimHits__CaloTest.obj");  assert(branchJets != 0);
 
   // Just number of entries (same for all branches)
   int  nent = branchLayer->GetEntries();

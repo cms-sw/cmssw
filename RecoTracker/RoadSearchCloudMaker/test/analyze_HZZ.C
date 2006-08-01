@@ -12,7 +12,7 @@
 
   std::vector<reco::Track> trackCollection;
 
-  TBranch *branch = tree->GetBranch("recoTracks_RSWMaterial__Higgs.obj");
+  TBranch *branch = tree->GetBranch("recoTracks_rsWithMaterialTracks__Higgs.obj");
   branch->SetAddress(&trackCollection);
 
   for ( unsigned int index = 0; index < tree->GetEntries(); ++index ) {

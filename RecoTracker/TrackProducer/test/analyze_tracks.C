@@ -11,8 +11,8 @@ float intervals[] = {0,0.5,1.0,1.5,2.0,2.5};
 int bins = 5;
 char * ptinterval  = "4.99<P_{T}<5.01";
 char * etainterval = "|#eta|<2.5";
-char * rs  = "recoTracks_RSWMaterial__RsWithMaterial";
-char * ctf = "recoTracks_CTFWMaterial__FinalFits";
+char * rs  = "recoTracks_rsWithMaterialTracks__RsWithMaterial";
+char * ctf = "recoTracks_ctfWithMaterialTracks__FinalFits";
 char * sim = "SimTracks_SimG4Object__Test";
 ////////////////////////////////////////
 vector<float> tot;
