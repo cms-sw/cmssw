@@ -136,7 +136,6 @@ esac
    echo "copying output files to $OUTPUT_CASTOR_DIR"
    rfcp $FILTER_CFG ${OUTPUT_CASTOR_DIR}/.
    rfcp $FILTER_LOG ${OUTPUT_CASTOR_DIR}/.
-   rfcp $PED_FILTER_LOG ${OUTPUT_CASTOR_DIR}/.
    rfcp $FILTER_POOL_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
  fi
 }
