@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2006/05/31 14:12:25 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/27 11:21:48 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -48,7 +48,7 @@ DaqSource::readOneEvent() {
 
   EventID eventId;
   edm::TimeValue_t time = 0LL;
-  gettimeofday((timeval *)time,0);
+  gettimeofday((timeval *)(&time),0);
   
   Timestamp tstamp(time);
 
