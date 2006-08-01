@@ -6,11 +6,14 @@
 <use name=TrackingTools/GeomPropagators>
 
 <use name=DataFormats/Common>
+<use name=DataFormats/VertexReco>
+
 
 </export>
 <use name=CLHEP>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrack>
+<use name=DataFormats/VertexReco>
 <use name=TrackingTools/GeomPropagators>
 
 <use name=DataFormats/Common>
