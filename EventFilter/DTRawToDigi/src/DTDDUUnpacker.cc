@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/12 17:07:59 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/28 18:01:52 $
+ *  $Revision: 1.13 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -63,13 +63,23 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
   // DDU header
   FEDHeader dduHeader(index8);
-  if (debug)  cout<<"[DTDDUUnpacker]: FED Header, BXID:"<<dduHeader.bxID()
-		  <<" L1ID "<<dduHeader.lvl1ID()<<endl;
+  if (debug) {  
+    cout<<"[DTDDUUnpacker]: FED Header candidate. Is header? "<< dduHeader.check();
+    if (dduHeader.check())
+      cout <<". BXID: "<<dduHeader.bxID()
+	   <<" L1ID: "<<dduHeader.lvl1ID()<<endl;
+    else cout<<" WARNING!, this is not a DDU Header"<<endl;
+  }
 
   // DDU trailer
   // [BITS] stop before FED trailer := 8 bytes
   FEDTrailer dduTrailer(index8 + datasize - 1*wordSize_64); 
-  if (debug)  cout<<"[DTDDUUnpacker]: FED Trailer, lenght:"<<dduTrailer.lenght()<<endl;
+  if (debug)  {
+    cout<<"[DTDDUUnpacker]: FED Trailer candidate. Is trailer? "<<dduTrailer.check();
+    if (dduTrailer.check()) 
+      cout<<". Lenght of the DT event: "<<dduTrailer.lenght()<<endl;
+    else cout<<" WARNING!, this is not a DDU Trailer"<<endl;
+  }
 
   // Control DDU data
   DTDDUData controlData(dduHeader,dduTrailer);
@@ -85,12 +95,12 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
       controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
     }
     // DDU channels from 5 to 8
-    for (int rosId = 4; rosId < 8; rosId++ ) {
+    for (int rosId = 0; rosId < 4; rosId++ ) {
       int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
       controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
     }
     // DDU channels from 9 to 12
-    for (int rosId = 8; rosId < 12; rosId++ ) {
+    for (int rosId = 0; rosId < 4; rosId++ ) {
       int wordIndex8 = numberOf32Words*wordSize_32 - 2*wordSize_64 + wordSize_32 + rosId; 
       controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
     }
