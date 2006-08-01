@@ -204,7 +204,7 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   DTDigiMap digiMap;
   //Sort digis by chamber so they can be used by BTIs
   edm::Handle<DTDigiCollection> dtDigis;
-  iEvent.getByLabel("muondtdigi", dtDigis);   
+  iEvent.getByLabel("muonDTDigis", dtDigis);   
   DTDigiCollection::DigiRangeIterator detUnitIt;
   
   for (detUnitIt=dtDigis->begin();
