@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/07/18 13:25:49 $
- * $Revision: 1.9 $
+ * $Date: 2006/07/20 08:41:29 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -356,12 +356,10 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
   /// SC Data
+  int stationGroup = 0 ; //= ((*sc_it).second)%2;
   for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
        sc_it != data.getSCData().end(); sc_it++) {
 
-    // MB1 and MB2 stay in even numbered 32 bit words; MB3 and MB4 in odd
-    int stationGroup = ((*sc_it).second)%2;
-    
     // SC Data words are devided into 2 parts each of 8 bits:
     //  LSB refers to MB1 and MB3
     //  MSB refers to MB2 and MB4
@@ -412,7 +410,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
       }
     }
- 
+    stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
   }
   
   if (neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
