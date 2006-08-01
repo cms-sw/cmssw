@@ -59,7 +59,10 @@ public:
    }
 
 
+
+  /// Copy constructor
   TrackerLayer(const TrackerLayer& other) :
+
     theSurface (other.theSurface),
     theDisk (other.theDisk),
     theCylinder (other.theCylinder),
@@ -72,7 +75,6 @@ public:
     theHitEfficiency (other.theHitEfficiency),
     isSensitive (other.isSensitive) {
     
-    std::cout<<"calling copy constructor"<<std::endl;
   }
     
   /// Is the layer sensitive ?
