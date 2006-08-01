@@ -20,7 +20,7 @@
 #include "CLHEP/Units/PhysicalConstants.h" // for c_light
 
 // FAMOS Headers
-#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 class TrackerLayer;
 class FSimTrack;

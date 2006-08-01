@@ -1,6 +1,7 @@
 <use name=clhep>
 <use name=MagneticField/Engine>
 <use name=Geometry/Surface>
+<use name=FastSimulation/BaseParticlePropagator>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/Event>
 
@@ -9,6 +10,7 @@
  <lib name=FastSimulationParticlePropagator>
  <use name=MagneticField/Engine>
  <use name=Geometry/Surface>
+ <use name=FastSimulation/BaseParticlePropagator>
  <use name=FastSimulation/Particle>
  <use name=FastSimulation/Event>
 </export>
