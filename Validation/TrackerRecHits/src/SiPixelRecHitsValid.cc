@@ -26,7 +26,9 @@
 
 #include <math.h>
 
-SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):dbe_(0) {
+SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps): 
+  dbe_(0), 
+  src_( ps.getParameter<edm::InputTag>( "src" ) ) {
 
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
@@ -201,9 +203,8 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 
    //Get RecHits
-   std::string recHitProducer = conf_.getUntrackedParameter<std::string>("recHitProducer","pixRecHitConverter");
    edm::Handle<SiPixelRecHitCollection> recHitColl;
-   e.getByLabel(recHitProducer, recHitColl);
+   e.getByLabel( src_, recHitColl);
 
    //Get event setup
    edm::ESHandle<TrackerGeometry> geom;

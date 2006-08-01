@@ -41,6 +41,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include <string>
 
 using namespace std;
@@ -110,6 +112,8 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* recHitXResDisk2Plaquettes[7];
 	MonitorElement* recHitYResDisk1Plaquettes[7];
 	MonitorElement* recHitYResDisk2Plaquettes[7];
+
+        edm::InputTag src_;
 };
 
 #endif

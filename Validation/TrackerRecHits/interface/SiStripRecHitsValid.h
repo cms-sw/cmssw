@@ -43,6 +43,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
 
@@ -203,6 +204,8 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitmatchedresx[MAXHIT];
   float rechitmatchedresy[MAXHIT];
   float rechitmatchedchi2[MAXHIT];
+
+  edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_;
 };
 
 #endif
