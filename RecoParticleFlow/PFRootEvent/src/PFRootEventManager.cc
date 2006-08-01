@@ -26,6 +26,7 @@
 using namespace std;
 
 
+
 PFRootEventManager::PFRootEventManager() {
   graphTrack_.resize(NViews);
 }
@@ -394,9 +395,28 @@ void PFRootEventManager::particleFlow() {
     if( displayJetColors_ ) efbcolor = 1;
     
     allPFBs_.back().Finalize(efbcolor, reconMethod_); 
-    cout<<"new eflowblock----------------------"<<endl;
-    cout<<allPFBs_.back()<<endl;
+//     cout<<"new eflowblock----------------------"<<endl;
+//     cout<<allPFBs_.back()<<endl;
     efbcolor++;
+  }
+
+  
+  for(unsigned iefb = 0; iefb<allPFBs_.size(); iefb++) {
+
+    switch(reconMethod_) {
+    case 1:
+      allPFBs_[iefb].ReconstructParticles1();
+      break;
+    case 2:
+      allPFBs_[iefb].ReconstructParticles2();
+      break;
+    case 3:
+      allPFBs_[iefb].ReconstructParticles3();
+      break;
+    default:
+      break;
+    }    
+    cout<<(allPFBs_[iefb])<<endl;
   }
 
 }
@@ -921,23 +941,22 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
 
     // Check number of measurements with non-zero momentum
     // COLIN: this was a copy ! should pass a reference
-//     std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
-//       itRecTrack->getTrajectoryPoints();
-
+    //     std::vector<reco::PFTrajectoryPoint> trajectoryPoints = 
+    //       itRecTrack->getTrajectoryPoints();
+    
     // COLIN: iterator uninitialized 
-//     std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
-//     unsigned nValidPts = 0;
-
+    //     std::vector<reco::PFTrajectoryPoint>::iterator itTrajPt;
+    //     unsigned nValidPts = 0;
+    
     // COLIN: unnecessary loop
-//     for (itTrajPt = trajectoryPoints.begin(); 
-// 	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
-//       if (itTrajPt->getMomentum().P() > 0.) nValidPts++;
-//     if (!nValidPts) continue;
+    //     for (itTrajPt = trajectoryPoints.begin(); 
+    // 	 itTrajPt != trajectoryPoints.end(); itTrajPt++)
+    //       if (itTrajPt->getMomentum().P() > 0.) nValidPts++;
+    //     if (!nValidPts) continue;
 
 
     // reserving space. nb not all trajectory points are valid
     
-    // COLIN: can this be const ?
     const std::vector<reco::PFTrajectoryPoint>& trajectoryPoints = 
       itRecTrack->getTrajectoryPoints();
 
