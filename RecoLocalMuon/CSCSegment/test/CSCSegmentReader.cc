@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/06/01 08:44:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/26 16:37:56 $
+ *  $Revision: 1.4 $
  *  \author M. Sani
  */
 
@@ -268,10 +268,10 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
     event.getByLabel("SimG4Object","MuonCSCHits",simHits);    
     
     Handle<CSCRecHit2DCollection> recHits; 
-    event.getByLabel("CSCRecHit2DProducer", recHits);   
+    event.getByLabel("csc2DRecHits", recHits);   
     
     Handle<CSCSegmentCollection> cscSegments;
-    event.getByLabel("CSCSegmentProducer", cscSegments);
+    event.getByLabel("cscSegments", cscSegments);
     
     simInfo(simTracks);
     resolution(simHits, cscSegments, geom);
