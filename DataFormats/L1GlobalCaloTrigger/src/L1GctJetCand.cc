@@ -28,7 +28,7 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_isTau(isTau),
   m_isFor(isFor)
 { 
-  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0xf)<<10); 
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
 }
 
 L1GctJetCand::~L1GctJetCand() { } 
