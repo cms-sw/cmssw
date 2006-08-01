@@ -96,6 +96,7 @@ public:
     typedef std::vector<unsigned> CaloJetCountsWord;
     static const unsigned int NumberJetCountsBits = 32;
     static const unsigned int NumberJetCountsWords = 2;
+    static const unsigned int NumberCountBits = 5;
     
 
     typedef std::vector< std::bitset<64> > L1GlobalTriggerDaqWord; 
