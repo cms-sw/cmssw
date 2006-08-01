@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.3 2006/04/25 21:53:45 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.4 2006/07/28 12:27:23 meridian Exp $
 //
 //
 
@@ -100,7 +100,7 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
 //========================================================================
 
   // Amplitude vs TDC offset
-  h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1500, 0., 150.);
+  h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1000, 0., 4000.);
 
   // Reconstructed energies
   h_e1x1 = new TH1F("h_e1x1","E1x1 energy", 1000, 0., 4000.);
@@ -130,10 +130,10 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
     {       
       sprintf(hname,"h_mapx_%d",icry);
       sprintf(htitle,"Max Amplitude vs X %d",icry);
-      h_mapx[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,200.);
+      h_mapx[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,4000.);
       sprintf(hname,"h_mapy_%d",icry);
       sprintf(htitle,"Max Amplitude vs Y %d",icry);
-      h_mapy[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,200.);
+      h_mapy[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,4000.);
     }
   
   h_e1e9_mapx = new TH2F("h_e1e9_mapx","E1/E9 vs X",80,-20,20,600,0.,1.2);
@@ -264,7 +264,6 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
      //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
      iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
      evtHeader = pEventHeader.product(); // get a ptr to the product
-     std::cout << "Taken EventHeader " << std::endl;
    } catch ( std::exception& ex ) {
      std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str() << std::endl;
    }
