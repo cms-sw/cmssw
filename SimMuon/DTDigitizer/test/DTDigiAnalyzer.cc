@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/03/09 17:02:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.3 $
  *  \authors: R. Bellan
  */
 
@@ -75,7 +75,7 @@ void  DTDigiAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   event.getByLabel(label, dtDigis);
   
   Handle<PSimHitContainer> simHits; 
-  event.getByLabel("SimG4Object","MuonDTHits",simHits);    
+  event.getByLabel("g4SimHits","MuonDTHits",simHits);    
 
   ESHandle<DTGeometry> muonGeom;
   eventSetup.get<MuonGeometryRecord>().get(muonGeom);
