@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/05/29 21:25:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/25 13:50:52 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta
   */
 
@@ -16,7 +16,6 @@
 #include <string>
 #include <map>
 
-using namespace std;
 
 class SiStripConfigParser : public DQMParserBase {
 
@@ -30,10 +29,11 @@ class SiStripConfigParser : public DQMParserBase {
   ~SiStripConfigParser();
 
   // get List of MEs for TrackerMap
-  bool getMENamesForTrackerMap(string& tkmap_name,vector<string>& me_names);
-  bool getMENamesForSummary(string &structure_name, vector<string>& me_names);
+  bool getMENamesForTrackerMap(std::string& tkmap_name,std::vector<std::string>& me_names);
+  bool getMENamesForSummary(std::string &structure_name, std::vector<std::string>& me_names);
   bool getFrequencyForTrackerMap(int& u_freq);
   bool getFrequencyForSummary(int& u_freq);
+
  private:
   
 };

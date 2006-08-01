@@ -7,7 +7,7 @@
 
 #include "TText.h"
 #include <iostream>
-
+using namespace std;
 //
 // -- Constructor
 // 
@@ -15,7 +15,7 @@ SiStripActionExecutor::SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
   configParser_ = 0;
-  
+  configWriter_ = 0;
 }
 //
 // --  Destructor
@@ -152,6 +152,12 @@ void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
   }
   mui->cd();
   fillSummary(mui, structure_name, me_names);
+  mui->cd();
+  createLayout(mui);
+  string fname = "test.xml";
+  configWriter_->write(fname);
+  if (configWriter_) delete configWriter_;
+  configWriter_ = 0;
 }
 //
 // -- Browse through the Folder Structure
@@ -163,7 +169,7 @@ void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui,
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
-      std::string tag = "Summary_" + (*iv) + "_in_" 
+      string tag = "Summary_" + (*iv) + "_in_" 
                                 + currDir.substr(currDir.find(dir_name));
       MonitorElement* temp = getSummaryME(mui, tag);
       sum_mes.push_back(temp);
@@ -360,6 +366,58 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
       string me_path = dir_path + (*ic);
       mui->add(sum, me_path);
 
+    }
+  }
+}
+void SiStripActionExecutor::createLayout(MonitorUserInterface * mui){
+  if (configWriter_ == 0) {
+    configWriter_ = new SiStripConfigWriter();
+    if (!configWriter_->init()) return;
+  }
+  string currDir = mui->pwd();   
+  if (currDir.find("layer") != string::npos) {
+    string name = "Default";
+   configWriter_->createLayout(name);
+   configWriter_->createRow();
+    fillLayout(mui);
+  } else {
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      mui->cd(*it);
+      createLayout(mui);
+      mui->goUp();
+    }
+  }
+  
+}
+void SiStripActionExecutor::fillLayout(MonitorUserInterface * mui){
+  
+  static int icount = 0;
+  string currDir = mui->pwd();
+  if (currDir.find("string_") != string::npos) {
+    vector<string> contents = mui->getMEs(); 
+    for (vector<string>::const_iterator im = contents.begin();
+	 im != contents.end(); im++) {
+      if ((*im).find("Clusters") != string::npos) {
+        icount++;
+        if (icount != 0 && icount%6 == 0) {
+          configWriter_->createRow();
+        }
+        ostringstream full_path;
+	full_path << "test/" << currDir << "/" << *im ;
+        string element = "monitorable";
+        string element_name = full_path.str();     
+        configWriter_->createColumn(element, element_name);
+      }
+    }
+  } else {
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      mui->cd(*it);
+      fillLayout(mui);
+      mui->goUp();
     }
   }
 }

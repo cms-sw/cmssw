@@ -1,4 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+using namespace std;
 //
 // Get a list of MEs in a folder
 //
@@ -26,7 +27,7 @@ int SiStripUtility::getMEList(string name, string& dir_path, vector<string>& val
 
 // Check if the requested ME exists in a folder
 bool SiStripUtility::checkME(string name, string me_name, string& full_path) {
-  if (name.find(name) == std::string::npos) return false;
+  if (name.find(name) == string::npos) return false;
   string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
   string temp_str = name.substr(name.find(":")+1);
@@ -34,7 +35,7 @@ bool SiStripUtility::checkME(string name, string me_name, string& full_path) {
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin();
        it != values.end(); it++) {
-    if ((*it).find(me_name) != std::string::npos) {
+    if ((*it).find(me_name) != string::npos) {
       full_path = prefix_str + (*it);
       return true;
     }

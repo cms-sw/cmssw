@@ -1,8 +1,8 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <iostream>
+using namespace std;
 
 //
 // -- Constructor

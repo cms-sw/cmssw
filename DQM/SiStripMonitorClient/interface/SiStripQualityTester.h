@@ -5,25 +5,25 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/04/19 17:06:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/03 09:15:01 $
+ *  $Revision: 1.3 $
  *  \author Suchandra Dutta
   */
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
 #include <vector>
 #include <fstream>
 #include <string>
 #include <map>
 
-using namespace std;
 
 class SiStripQualityTester
 {
  public:
   
-  typedef  map<string, map<string, string> > QTestMapType;
-  typedef  map<string, vector<string> > MEAssotiateMapType;
+  typedef  std::map<std::string, std::map<std::string, std::string> > QTestMapType;
+  typedef  std::map<std::string, std::vector<std::string> > MEAssotiateMapType;
 
 
   // Constructor
@@ -36,24 +36,23 @@ class SiStripQualityTester
   void setupQTests(MonitorUserInterface * mui) ;
 
   // Read up Quality Test Parameters from text file
-  void readQualityTests(string fname) ;
+  void readQualityTests(std::string fname) ;
  
   // Attaches Quality Tests to ME's
   void attachTests(MonitorUserInterface * mui);
   
   // Configures Test of type ContentsXRangeROOT 
-  void setXRangeTest(MonitorUserInterface * mui, string name,
-        map<string, string>& params);
+  void setXRangeTest(MonitorUserInterface * mui, std::string name,
+        std::map<std::string, std::string>& params);
 
   // Configures Test of type MeanWithinExpectedROOT
-  void setMeanWithinExpectedTest(MonitorUserInterface * mui, string name,
-            map<string, string>& params);  
+  void setMeanWithinExpectedTest(MonitorUserInterface * mui, std::string name,
+           std::map<std::string, std::string>& params);  
 
   int getMEsUnderTest(std::vector<std::string> & me_names);
  private:
   QTestMapType theQTestMap;
   MEAssotiateMapType theMeAssociateMap;
-
 };
 
 #endif

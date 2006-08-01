@@ -2,19 +2,19 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/29 17:12:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/06/25 13:50:52 $
+ *  $Revision: 1.10 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
 #include "DQMServices/ClientConfig/interface/QTestNames.h"
 
 #include<iostream>
 #include <fstream>
+using namespace std;
 //
 // -- Constructor
 //
@@ -37,7 +37,9 @@ SiStripQualityTester::~SiStripQualityTester() {
 // -- Set up Quality Tests 
 //
 void SiStripQualityTester::setupQTests(MonitorUserInterface* mui) {
-  if (theQTestMap.size() == 0) readQualityTests("sistrip_qualitytest_config.xml");
+  if (theQTestMap.size() == 0) {
+    readQualityTests("sistrip_qualitytest_config.xml");
+  }
   for (SiStripQualityTester::QTestMapType::iterator it = theQTestMap.begin();
        it != theQTestMap.end(); it++) {
     string qTestName = it->first;
@@ -70,7 +72,7 @@ void SiStripQualityTester::readQualityTests(string fname) {
 // -- Attach Quality Tests to ME's
 //
 void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
-  std::string currDir = mui->pwd();
+  string currDir = mui->pwd();
   vector<string> contentVec;
   mui->getContents(contentVec);
   for (vector<string>::iterator it = contentVec.begin();
@@ -78,12 +80,12 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
     vector<string> contents;
     int nval = SiStripUtility::getMEList((*it), contents);
     if (nval == 0) continue;
-    for (std::vector<std::string>::const_iterator im = contents.begin();
+    for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
     
       for (SiStripQualityTester::MEAssotiateMapType::const_iterator ic = theMeAssociateMap.begin(); ic != theMeAssociateMap.end(); ic++) {
         string me_name = ic->first;
-        if ((*im).find(me_name) != std::string::npos) {
+        if ((*im).find(me_name) != string::npos) {
 	  for (vector<string>::const_iterator iv = ic->second.begin();
 	       iv !=  ic->second.end(); iv++) {
 	    mui->useQTest((*im), (*iv));
@@ -137,7 +139,7 @@ void SiStripQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
 //
 // -- Get names of MEs under Quality Test
 //
-int SiStripQualityTester::getMEsUnderTest(std::vector<std::string>& me_names){  
+int SiStripQualityTester::getMEsUnderTest(vector<string>& me_names){  
   if (theMeAssociateMap.size() == 0) {
     cout << " SiStripQualityTester::getMEsUnderTest ==> " << 
       " ME association Map emptyis empty!!! " << endl;

@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/05/21 19:42:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/29 17:12:23 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta
   */
 
@@ -15,18 +15,16 @@
 #include <string>
 #include <map>
 
-using namespace std;
-
 class SiStripUtility
 {
  public:
  
- static int getMEList(string name, vector<string>& values);
- static bool checkME(string element, string name, string& full_path);
- static int getMEList(string name, string& dir_path, vector<string>& me_names);
+ static int getMEList(std::string name, std::vector<std::string>& values);
+ static bool checkME(std::string element, std::string name, std::string& full_path);
+ static int getMEList(std::string name, std::string& dir_path, std::vector<std::string>& me_names);
 
- static void split(const string& str, vector<string>& tokens, 
-             const string& delimiters=" ");
+ static void split(const std::string& str, std::vector<std::string>& tokens, 
+             const std::string& delimiters=" ");
 };
 
 #endif

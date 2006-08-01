@@ -4,15 +4,16 @@
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
+#include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 
-using namespace std;
 class SiStripActionExecutor {
 
  public:
-  typedef map<int,vector <pair <int,float> > > DetMapType;
+  typedef std::map<int,std::vector <std::pair <int,float> > > DetMapType;
 
   SiStripActionExecutor();
  ~SiStripActionExecutor();
@@ -25,15 +26,19 @@ class SiStripActionExecutor {
  void createTkMap(MonitorUserInterface* mui);
  bool readConfiguration(int& tkmap_freq, int& sum_freq);
  void readConfiguration();
+ void createLayout(MonitorUserInterface * mui);
+ void fillLayout(MonitorUserInterface * mui);
 
  private:
-  MonitorElement* getSummaryME(MonitorUserInterface* mui, string me_name);
+  MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string me_name);
   void getValuesForTkMap(MonitorUserInterface* mui,
-        vector<string> me_names, SiStripActionExecutor::DetMapType& values);
-  void fillSummary(MonitorUserInterface* mui, string dir_name,vector<string>& me_names);
-  void drawMEs(int idet, vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values);
+     std::vector<std::string> me_names, SiStripActionExecutor::DetMapType& values);
+     void fillSummary(MonitorUserInterface* mui, std::string dir_name,
+     std::vector<std::string>& me_names);
+  void drawMEs(int idet, std::vector<MonitorElement*>& mon_elements, 
+                    std::vector<std::pair <int, float> > & values);
 
   SiStripConfigParser* configParser_;
-
+  SiStripConfigWriter* configWriter_;
 };
 #endif
