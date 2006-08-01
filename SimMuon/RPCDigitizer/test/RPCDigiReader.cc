@@ -4,8 +4,8 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/06/23 06:43:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/23 07:41:32 $
+ *  $Revision: 1.4 $
  *  \authors: M. Maggi -- INFN Bari
  */
 
@@ -42,7 +42,7 @@ public:
    edm::Handle<RPCDigiCollection> rpcDigis;
    event.getByLabel(label, rpcDigis);
    edm::Handle<edm::PSimHitContainer> simHits; 
-   event.getByLabel("SimG4Object","MuonRPCHits",simHits);    
+   event.getByLabel("g4SimHits","MuonRPCHits",simHits);    
 
    edm::ESHandle<RPCGeometry> pDD;
    eventSetup.get<MuonGeometryRecord>().get( pDD );
