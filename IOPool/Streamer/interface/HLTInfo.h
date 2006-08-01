@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "boost/thread/mutex.hpp"
 
@@ -31,11 +32,17 @@ namespace stor
   struct FragEntry
   {
     FragEntry():buffer_object_(),buffer_address_() { }
-    FragEntry(void* bo, void* ba,int sz):
-      buffer_object_(bo),buffer_address_(ba),buffer_size_(sz) {}
+    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, unsigned long id):
+      buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
+      segNumber_(segn), totalSegs_(totseg), code_(msgcode), id_(id) {}
     void* buffer_object_;
     void* buffer_address_;
     int   buffer_size_;
+// for new messages
+    int  segNumber_;
+    int  totalSegs_;
+    uint8 code_;
+    unsigned long id_;
   };
 
   class HLTInfo

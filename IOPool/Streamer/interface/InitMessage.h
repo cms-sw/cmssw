@@ -40,6 +40,7 @@ public:
 
   uint32 code() const { return head_.code(); }
   uint32 size() const { return head_.size(); }
+  uint8* startAddress() const { return buf_; }
 
   uint32 run() const;
   uint32 protocolVersion() const;
@@ -48,6 +49,10 @@ public:
 
   void hltTriggerNames(Strings& save_here) const;
   void l1TriggerNames(Strings& save_here) const;
+
+ //HEREHEREHERE a hack where is the const?
+  uint32 get_hlt_bit_cnt() const { return hlt_trig_count_; }
+  uint32 get_l1_bit_cnt() const { return l1_trig_count_; }
 
   // needed for streamer file
   uint32 descLength() const { return desc_len_; }

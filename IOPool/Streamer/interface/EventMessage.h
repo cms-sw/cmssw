@@ -31,6 +31,7 @@ public:
   uint32 size() const { return head_.size(); }
 
   const uint8* eventData() const { return event_start_; }
+  uint8* startAddress() const { return buf_; }
   uint32 eventLength() const { return event_len_; }
   uint32 headerSize() const {return event_start_-buf_;}
   uint32 run() const;
