@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/27 00:51:16 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/07/28 03:28:33 $
+ *  $Revision: 1.18 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -29,7 +29,7 @@ class MagneticField;
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
 //class TransientTrackBuilder;
-class GenericTransientTrackingRecHitBuilder;
+//class GenericTransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
 class GlobalMuonReFitter;
@@ -41,11 +41,10 @@ namespace edm {class ParameterSet;}
 class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
-
-    typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
+    typedef TransientTrackingRecHit::RecHitContainer   RecHitContainer;
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;
- 
+
   public:
 
     /// constructor with Parameter Set
@@ -102,7 +101,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
-    GenericTransientTrackingRecHitBuilder* theGTTrackingRecHitBuilder;
+//    GenericTransientTrackingRecHitBuilder* theGTTrackingRecHitBuilder;
     GlobalMuonReFitter* theRefitter;
 
     float theTrackMatcherChi2Cut;
