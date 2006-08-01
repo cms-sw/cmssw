@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/07/28 03:28:33 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/01 16:08:11 $
+ *  $Revision: 1.19 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -42,6 +42,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
     typedef TransientTrackingRecHit::RecHitContainer   RecHitContainer;
+    typedef TransientTrackingRecHit::ConstRecHitContainer  ConstRecHitContainer;
+
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;
 
@@ -75,13 +77,13 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::CandidateContainer build(const reco::TrackRef&, const std::vector<reco::TrackRef>&) const;
   
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, RecHitContainer&, RecHitContainer&, std::vector<int>&) const;
+    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, ConstRecHitContainer&, std::vector<int>&) const;
  
     /// select muon hits compatible with trajectory; check hits in chambers with showers
-    RecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
+    ConstRecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
  
     /// get TransientTrackingRecHits from Track
-    RecHitContainer getTransientHits(const reco::Track&) const;
+    ConstRecHitContainer getTransientHits(const reco::Track&) const;
 
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
@@ -93,7 +95,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     TC getTrajFromTrack(const reco::TrackRef&) const;
 
     //// print all RecHits of a trajectory
-    void printHits(const RecHitContainer&) const;
+    void printHits(const ConstRecHitContainer&) const;
 
   private:
 
