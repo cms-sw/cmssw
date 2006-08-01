@@ -47,6 +47,9 @@ public:
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
+
+  /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
+  void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
   
   /// print the original MCTruth event
   void printMCTruth(const HepMC::GenEvent& hev);

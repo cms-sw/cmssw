@@ -195,6 +195,9 @@ class FSimTrack : public SimTrack {
   /// Add a RecHit for a track on a layer
   void addSimHit(const RawParticle& pp, unsigned layer);
 
+  /// Update the vactors of daughter's id
+  inline void addDaughter(int i) { daugh_.push_back(i); }
+
  private:
 
   //  HepMC::GenParticle* me_;
@@ -218,6 +221,8 @@ class FSimTrack : public SimTrack {
   RawParticle ECAL_Entrance;   // the particle at ECAL entrance
   RawParticle HCAL_Entrance;   // the particle at HCAL entrance
   RawParticle VFCAL_Entrance;  // the particle at VFCAL entrance
+
+  std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 
   //  std::map<unsigned,const FamosBasicRecHit*> theRecHits;
   std::map<unsigned,RawParticle> theSimHits;

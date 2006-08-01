@@ -52,13 +52,19 @@ const FSimTrack&
 FSimTrack::mother() const { return vertex().parent(); }
 
 int
-FSimTrack::nDaughters() const { return endVertex().nDaughters(); }
+FSimTrack::nDaughters() const { return abs(type()) != 11 ? 
+				  endVertex().nDaughters() : 
+                                  daugh_.size(); }
 
 const FSimTrack& 
-FSimTrack::daughter(int i) const { return endVertex().daughter(i); }
+FSimTrack::daughter(int i) const { return abs(type()) != 11 ?
+				     endVertex().daughter(i) : 
+                                     mom_->track(daugh_[i]); }
 
 const vector<int>&
-FSimTrack::daughters() const { return endVertex().daughters(); }
+FSimTrack::daughters() const { return abs(type()) != 11 ? 
+				 endVertex().daughters() : 
+                                 daugh_; }
 
 bool  
 FSimTrack::noEndVertex() const { 
@@ -66,7 +72,9 @@ FSimTrack::noEndVertex() const {
     // The particle either has no end vertex index
     endv_ == -1 || 
     // or it's an electron that has just brem'ed, but continues its way
-    ( abs(type())==11&&nDaughters()>0&&daughter(nDaughters()-1).type()==22); } 
+    ( abs(type())==11 && 
+      endVertex().nDaughters()>0 && 
+      endVertex().daughter(endVertex().nDaughters()-1).type()==22); } 
 
 bool 
 FSimTrack::notYetToEndVertex(const HepLorentzVector& pos) const {

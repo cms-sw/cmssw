@@ -39,6 +39,10 @@ public:
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent & hev, edm::EventID & Id);
 
+  /// fill the FBaseSimEvent from the SimTrack's and SimVert'ices
+  void fill(const std::vector<SimTrack>& simTracks, 
+	  const std::vector<SimVertex>& simVertices);
+
   ///Method to return the EventId
   virtual edm::EventID id() const;
 

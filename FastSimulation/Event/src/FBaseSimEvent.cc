@@ -19,6 +19,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
+#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace std;
@@ -107,6 +108,131 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 
   // for ( unsigned i=0; i<nVertices(); ++i ) cout << embdVertex(i) << endl;
 }
+
+void
+FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, 
+		    const std::vector<SimVertex>& simVertices) {
+
+  clear();
+
+  unsigned nVtx = simVertices.size();
+  unsigned nTks = simTracks.size();
+
+  // Empty event, do nothin'
+  if ( nVtx == 0 ) return;
+
+  // Two arrays for internal use.
+  vector<int> myVertices(nVtx,-1);
+  vector<int> myTracks(nTks,-1);
+
+  // Set the main vertex for the kine particle filter
+  HepLorentzVector primaryVertex = simVertices[0].position();
+  myFilter->setMainVertex(primaryVertex);
+  // Add the main vertex to the list.
+  addSimVertex(myFilter->vertex());
+  myVertices[0] = 0;
+
+  for( unsigned trackId=0; trackId<nTks; ++trackId ) {
+
+    // The track
+    SimTrack track = simTracks[trackId];
+
+    // The origin vertex
+    int vertexId = track.vertIndex();
+    SimVertex vertex = simVertices[vertexId];
+
+    // The mother track 
+    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+    int originId = motherId == - 1 ? -1 : myTracks[motherId];
+
+    // Add the vertex (if it does not already exist!)
+    if ( myVertices[vertexId] == -1 ) 
+      myVertices[vertexId] = addSimVertex(vertex.position(),originId);
+      
+    // Add the track (with protection for brem'ing electrons)
+    int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
+    
+    if ( motherType != track.type() ) {
+      RawParticle part(track.momentum(), simVertices[vertexId].position());
+      part.setID(track.type()); 
+      myTracks[trackId] = addSimTrack(&part,myVertices[vertexId]);
+    } else {
+      myTracks[trackId] = myTracks[motherId];
+    }
+      
+  }
+
+  // Now loop over the remaining end vertices !
+  for( unsigned vertexId=0; vertexId<nVtx; ++vertexId ) {
+
+    // if the vertex is already saved, just ignore.
+    if ( myVertices[vertexId] != -1 ) continue;
+
+    // The yet unused vertex
+    SimVertex vertex = simVertices[vertexId];
+
+    // The mother track 
+    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+
+    // Add the vertex (if it does not already exist!)
+    if ( motherId != -1 && myVertices[vertexId] == -1 ) 
+      myVertices[vertexId] = addSimVertex(vertex.position(),myTracks[motherId]);
+  }
+
+  // Finally, propagate all particles to the calorimeters
+  BaseParticlePropagator myPart;
+  HepLorentzVector mom;
+  HepLorentzVector pos;
+
+  // Loop over the tracks
+  for( int fsimi=0; fsimi < (int)nTracks() ; ++fsimi) {
+
+    FSimTrack& myTrack = track(fsimi);
+    mom = myTrack.momentum();
+
+    // Special treatment for electrons to account for bremstrahlung photons
+    if ( abs(myTrack.type()) == 11 && myTrack.nDaughters() > 0 ) { 
+      for ( int idaugh=0; idaugh<myTrack.nDaughters(); ++idaugh ) {
+	mom -= myTrack.daughter(idaugh).momentum();
+	pos =  myTrack.daughter(idaugh).vertex().position();
+      }
+    } else {
+      pos = myTrack.vertex().position();
+    }
+
+    // The particle to be propagated
+    myPart = BaseParticlePropagator(RawParticle(mom,pos),0.,0.,4.);
+    myPart.setCharge(myTrack.charge());
+
+    // Propagate to Preshower layer 1
+    myPart.propagateToPreshowerLayer1(false);
+    if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+    myTrack.setLayer1(myPart,myPart.getSuccess());
+  
+    // Propagate to Preshower Layer 2 
+    myPart.propagateToPreshowerLayer2(false);
+    if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+    myTrack.setLayer2(myPart,myPart.getSuccess());
+
+    // Propagate to Ecal Endcap
+    myPart.propagateToEcalEntrance(false);
+    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+      myTrack.setEcal(myPart,myPart.getSuccess());
+    
+    // Propagate to HCAL entrance
+    myPart.propagateToHcalEntrance(false);
+    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+      myTrack.setHcal(myPart,myPart.getSuccess());
+    
+    // Propagate to VFCAL entrance
+    myPart.propagateToVFcalEntrance(false);
+    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+      myTrack.setVFcal(myPart,myPart.getSuccess());
+
+  }
+
+}
+
 
 void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
@@ -247,9 +373,11 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
     return -1;
   }
 
-  // Attach the particle to the origin vertex
+  // Attach the particle to the origin vertex, and to the mother
   vertex(iv).addDaughter(trackId);
-  
+  if ( !vertex(iv).noParent() )  
+    track(vertex(iv).parent().id()).addDaughter(trackId);
+
   // Attach the vertex to the event (inoccuous if the vertex exists)
   // add_vertex(originVertex);
   
@@ -284,7 +412,7 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   }
 
   // Attach the end vertex to the particle (if accepted)
-  if ( im != -1 ) track(im).setEndVertex(vertexId);
+  if ( im !=-1 ) track(im).setEndVertex(vertexId);
 
   // Some persistent information for the users
   //  mySimVertices->push_back(SimVertex(v.vect(),v.e(),im));
