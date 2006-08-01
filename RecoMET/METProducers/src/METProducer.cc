@@ -94,7 +94,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(output) );
+      calometcoll->push_back( calo.addInfo(input, output) );
       event.put( calometcoll );
     }
     //-----------------------------------

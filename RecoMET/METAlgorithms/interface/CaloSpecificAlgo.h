@@ -15,8 +15,9 @@ class CaloSpecificAlgo
  public:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
+  typedef std::vector <const reco::Candidate*> TowerCollection;
   /// Make CaloMET. Assumes MET is made from CaloTowerCandidates
-  reco::CaloMET addInfo(CommonMETData met);
+  reco::CaloMET addInfo(const TowerCollection &towers, CommonMETData met);
 };
 
 #endif
