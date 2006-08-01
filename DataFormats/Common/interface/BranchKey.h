@@ -7,7 +7,7 @@ BranchKey: The key used to identify a Group in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
 
-$Id: BranchKey.h,v 1.12 2006/01/24 16:33:11 wmtan Exp $
+$Id: BranchKey.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -55,6 +55,12 @@ namespace edm {
   bool 
   operator==(const BranchKey& a, const BranchKey& b) {
     return !(a < b || b < a);
+  }
+
+  inline
+  bool 
+  operator!=(const BranchKey& a, const BranchKey& b) {
+    return !(a == b);
   }
 
   std::ostream&
