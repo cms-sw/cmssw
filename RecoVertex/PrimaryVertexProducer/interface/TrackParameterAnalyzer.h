@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.1 2006/07/11 11:40:32 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.2 2006/07/25 16:36:13 vanlaer Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -89,6 +90,7 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       TH1*   h1_Beff_;
       TH2*   h2_dvsphi_;
 
+      edm::InputTag simG4_;
      // pdg
      //HepPDT* pdg;
 };

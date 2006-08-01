@@ -15,8 +15,8 @@ const double fBfield=4.06;
 //
 // constructors and destructor
 //
-TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
-{
+TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig) :
+  simG4_( iConfig.getParameter<edm::InputTag>( "simG4" ) ) {
    //now do what ever initialization is needed
 
   recoTrackProducer_   = iConfig.getUntrackedParameter<std::string>("recoTrackProducer");
@@ -82,7 +82,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    using namespace edm;
   
    Handle<edm::SimVertexContainer> simVtcs;
-   iEvent.getByLabel("SimG4Object", simVtcs);
+   iEvent.getByLabel( simG4_, simVtcs);
    std::cout << "SimVertex " << simVtcs->size() << std::endl;
    for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
        v!=simVtcs->end(); ++v){
@@ -98,7 +98,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    // get the simulated tracks, extract perigee parameters
    Handle<SimTrackContainer> simTrks;
-   iEvent.getByLabel("SimG4Object", simTrks);
+   iEvent.getByLabel( simG4_, simTrks);
    std::vector<PerigeeTrajectoryParameters::ParameterVector > tsim;
    for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
        t!=simTrks->end(); ++t){
