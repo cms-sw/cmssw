@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.9 2006/07/07 21:39:13 wmtan Exp $
+$Id: BranchDescription.cc,v 1.10 2006/07/27 06:21:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -90,6 +90,15 @@ namespace edm {
     return *psetIDs().begin();
   }
 
+  bool
+  BranchDescription::merge(BranchDescription const& other, MatchMode m) {
+    if (!match(*this, other, m)) return false;
+    psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
+    processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
+    branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
+    return true;
+  }
+
   void
   BranchDescription::write(std::ostream& os) const {
     os << "Process Name = " << processName() << std::endl;
@@ -120,6 +129,8 @@ namespace edm {
     if (b.processConfigurationIDs() < a.processConfigurationIDs()) return false;
     if (a.branchAliases() < b.branchAliases()) return true;
     if (b.branchAliases() < a.branchAliases()) return false;
+    if (a.present() < b.present()) return true;
+    if (b.present() < a.present()) return false;
     return false;
   }
 
@@ -134,6 +145,23 @@ namespace edm {
     (a.moduleLabel() == b.moduleLabel()) &&
     (a.psetIDs() == b.psetIDs()) &&
     (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
-    (a.branchAliases() == b.branchAliases());
+    (a.branchAliases() == b.branchAliases()) &&
+    (a.present() == b.present());
+  }
+
+  bool
+  match(BranchDescription const& a, BranchDescription const& b, BranchDescription::MatchMode m) {
+    bool looseMatch = 
+      (a.processName() == b.processName()) &&
+      (a.productID() == b.productID()) &&
+      (a.fullClassName() == b.fullClassName()) &&
+      (a.friendlyClassName() == b.friendlyClassName()) &&
+      (a.productInstanceName() == b.productInstanceName()) &&
+      (a.moduleLabel() == b.moduleLabel()) &&
+      (a.present() == b.present());
+    if (m == BranchDescription::Strict) {
+      return (looseMatch && a.psetIDs() == b.psetIDs() && a.psetIDs().size() == 1);
+    }
+    return looseMatch;
   }
 }

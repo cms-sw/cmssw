@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.13 2006/07/07 21:39:12 wmtan Exp $
+$Id: BranchDescription.h,v 1.14 2006/07/27 06:21:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -29,6 +29,9 @@ namespace edm {
   class EDProduct;
   struct BranchDescription {
 
+    enum MatchMode { Strict = 0,
+		     Permissive };
+
     BranchDescription();
 
     explicit BranchDescription(std::string const& moduleLabel, 
@@ -46,6 +49,8 @@ namespace edm {
     void init() const;
 
     void write(std::ostream& os) const;
+
+    bool merge(BranchDescription const& other, MatchMode m);
 
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
@@ -126,5 +131,6 @@ namespace edm {
 
   bool operator==(BranchDescription const& a, BranchDescription const& b);
 
+  bool match(BranchDescription const& a, BranchDescription const& b, BranchDescription::MatchMode m);
 }
 #endif

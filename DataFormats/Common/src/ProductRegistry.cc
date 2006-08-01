@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.4 2006/04/19 16:13:51 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.5 2006/06/24 06:06:17 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.4 2006/04/19 16:13:51 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.5 2006/06/24 06:06:17 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -39,7 +39,7 @@ namespace edm {
     throwIfFrozen();
     for (ProductList::iterator it = productList_.begin(); it != productList_.end(); ++it) {
        if (it->second.productID().id_ == 0) {
-          it->second.productID_.id_ = ++nextID_;
+          it->second.productID_.id_ = nextID_++;
        }
     }
     frozen_ = true;
@@ -79,5 +79,23 @@ namespace edm {
   
   void
   ProductRegistry::addCalled(BranchDescription const&, bool) {
+  }
+
+  bool
+  ProductRegistry::merge(ProductRegistry const& other, BranchDescription::MatchMode m) {
+    if (nextID() != other.nextID()) return false;
+    if (size() != other.size()) return false;
+    ProductRegistry::ProductList::const_iterator i = other.productList().begin();
+    ProductRegistry::ProductList::const_iterator e = other.productList().end();
+    ProductRegistry::ProductList::const_iterator j = productList_.begin();
+    for( ; i != e; ++i, ++j) {
+      if (i->first != j->first) return false;
+    }
+    i = other.productList().begin();
+    ProductRegistry::ProductList::iterator k = productList_.begin();
+    for( ; i != e; ++i, ++k) {
+      if (!k->second.merge(i->second, m)) return false;
+    }
+    return true;
   }
 }

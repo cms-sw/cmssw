@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.2 2006/04/17 23:39:20 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.3 2006/04/19 01:43:50 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -30,7 +30,7 @@ namespace edm {
   class ProductRegistry {
 
   public:
-    ProductRegistry() : productList_(), nextID_(0), frozen_(false) {}
+    ProductRegistry() : productList_(), nextID_(1), frozen_(false) {}
 
     virtual ~ProductRegistry() {}
 
@@ -43,6 +43,8 @@ namespace edm {
     void setProductIDs();
 
     void setFrozen() const;
+
+    bool merge(ProductRegistry const& other, BranchDescription::MatchMode m);
 
     ProductList const& productList() const {
       throwIfNotFrozen();
@@ -79,15 +81,16 @@ namespace edm {
 
   inline
   bool
-  operator==(ProductRegistry const& lhs, ProductRegistry const& rhs) {
-    return lhs.nextID() == rhs.nextID() && lhs.productList() == rhs.productList();
+  operator==(ProductRegistry const& a, ProductRegistry const& b) {
+    return a.nextID() == b.nextID() && a.productList() == b.productList();
   }
 
   inline
   bool
-  operator!=(ProductRegistry const& lhs, ProductRegistry const& rhs) {
-    return !(lhs == rhs);
+  operator!=(ProductRegistry const& a, ProductRegistry const& b) {
+    return !(a == b);
   }
+
 } // edm
 
 
