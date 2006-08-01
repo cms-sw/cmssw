@@ -46,7 +46,8 @@ namespace cms
     conf_(conf),
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
-    readyToCluster_(false)    // since we obviously aren't
+    readyToCluster_(false),   // since we obviously aren't
+    src_( conf.getParameter<edm::InputTag>( "src" ) )
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollection>(); 
@@ -65,14 +66,10 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input SiPixelDigiCollection
-    std::string digiProducer = 
-      conf_.getUntrackedParameter<std::string>("DigiProducer","pixdigi");
-
-    // Step A.1: get input data
+   // Step A.1: get input data
     //edm::Handle<PixelDigiCollection> pixDigis;
     edm::Handle< edm::DetSetVector<PixelDigi> >  input;
-    e.getByLabel(digiProducer, input);
+    e.getByLabel( src_, input);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;

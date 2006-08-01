@@ -47,6 +47,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class MagneticField;
 namespace cms
@@ -89,6 +90,7 @@ namespace cms
     std::string cpeName_;                   // what the user said s/he wanted
     PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
     bool ready_;                            // needed CPE's valid => good to go!
+    edm::InputTag src_;
   };
 }
 

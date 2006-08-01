@@ -48,6 +48,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 
 namespace cms
@@ -79,6 +80,7 @@ namespace cms
     std::string clusterMode_;               // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
+    edm::InputTag src_;
   };
 }
 

@@ -49,7 +49,8 @@ namespace cms
     conf_(conf),
     cpeName_("None"),     // bogus
     cpe_(0),              // the default, in case we fail to make one
-    ready_(false)         // since we obviously aren't
+    ready_(false),        // since we obviously aren't
+    src_( conf.getParameter<edm::InputTag>( "src" ) )
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
@@ -74,13 +75,9 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input SiPixelClusterCollection
-    std::string clusterCollLabel = 
-      conf_.getUntrackedParameter<std::string>("ClusterCollLabel","pixClust");
-
-    // Step A.1: get input data
+     // Step A.1: get input data
      edm::Handle< edm::DetSetVector<SiPixelCluster> > input;
-    e.getByLabel(clusterCollLabel, input);
+    e.getByLabel( src_, input);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;
