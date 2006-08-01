@@ -6,8 +6,8 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: 2006/05/24 19:51:36 $
- * $Revision: 1.1 $
+ * $Date: 2006/07/29 02:34:18 $
+ * $Revision: 1.2 $
  *
  * Modification:
  *
@@ -86,8 +86,8 @@ void SmartPropagator::initTkVolume(float epsilon) {
   //
   // fill tracker dimensions
   //
-  float r_out = TrackerBounds::radius();
-  float r_in = 0.0;
+  float r_out = TrackerBounds::radius() + epsilon/2;
+  float r_in = r_out - epsilon;
   float z_max = TrackerBounds::halfLength();
   float z_min = - z_max;
 
