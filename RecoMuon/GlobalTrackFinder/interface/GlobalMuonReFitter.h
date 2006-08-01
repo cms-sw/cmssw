@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/07/21 19:15:18 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/07/24 01:20:31 $
+ *   $Revision: 1.6 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -40,6 +40,8 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 
   public:
   
+    typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+
     /// default constructor
     GlobalMuonReFitter(const edm::ParameterSet&);
 
@@ -54,8 +56,8 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 
     ///
     virtual TrajectoryContainer trajectories(const TrajectorySeed& seed,
-				            const edm::OwnVector<const TransientTrackingRecHit>& hits, 
-				            const TrajectoryStateOnSurface& firstPredTsos) const;
+				             const ConstRecHitContainer& hits, 
+				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
     ///
     GlobalMuonReFitter* clone() const {
@@ -66,7 +68,7 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 
      std::vector<Trajectory> fit(const Trajectory&) const;
      std::vector<Trajectory> fit(const TrajectorySeed& seed,
-                            const edm::OwnVector<const TransientTrackingRecHit>& hits,
+                            const ConstRecHitContainer& hits,
                             const TrajectoryStateOnSurface& firstPredTsos) const;
      std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
 

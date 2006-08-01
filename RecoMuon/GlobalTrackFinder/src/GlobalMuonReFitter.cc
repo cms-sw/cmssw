@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/07/21 19:16:41 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/07/24 19:42:35 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
@@ -96,7 +96,7 @@ vector<Trajectory> GlobalMuonReFitter::trajectories(const Trajectory& t) const {
 
 
 vector<Trajectory> GlobalMuonReFitter::trajectories(const TrajectorySeed& seed,
-	                                      const edm::OwnVector<const TransientTrackingRecHit>& hits, 
+	                                      const ConstRecHitContainer& hits, 
 	                                      const TrajectoryStateOnSurface& firstPredTsos) const {
 
   if ( hits.empty() ) return vector<Trajectory>();
@@ -120,7 +120,7 @@ vector<Trajectory> GlobalMuonReFitter::fit(const Trajectory& t) const {
 
 
 vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
-			             const edm::OwnVector<const TransientTrackingRecHit>& hits, 
+			             const ConstRecHitContainer& hits, 
 				     const TSOS& firstPredTsos) const {
 
   if ( hits.empty() ) return vector<Trajectory>();
@@ -129,16 +129,16 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
   TSOS predTsos(firstPredTsos);
   if ( !predTsos.isValid() ) return vector<Trajectory>();
  
-  for ( edm::OwnVector<const TransientTrackingRecHit>::const_iterator ihit = hits.begin(); 
+  for ( ConstRecHitContainer::const_iterator ihit = hits.begin(); 
         ihit != hits.end(); ++ihit ) {
 
 
-    const TM* theMeas = new TM(predTsos,(&*ihit)); 
+    const TM* theMeas = new TM(predTsos,(*ihit)); 
       // update
     pair<bool,TrajectoryStateOnSurface> result = theTrajectoryUpdator->update(theMeas,myTraj);
       if(result.first){ 
 	predTsos = result.second;
-      }else predTsos = thePropagator1->propagate(predTsos, (*ihit).det()->surface());
+      }else predTsos = thePropagator1->propagate(predTsos, (**ihit).det()->surface());
 
   }
   if ( !myTraj.isValid() ) return vector<Trajectory>();
