@@ -1,6 +1,6 @@
 /** \file CSCSegmentProducer.cc
  *
- * $Date: 2006/04/03 10:10:10 $
+ * $Date: 2006/05/08 17:45:31 $
  * $Revision: 1.2 $
  * \author M. Sani
  */
@@ -20,7 +20,7 @@
 
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 	
-    recHitProducer_ = pas.getParameter<std::string>("CSCRecHit2DProducer");
+    inputObjectsTag = pas.getParameter<edm::InputTag>("inputObjects");
     segmentBuilder_ = new CSCSegmentBuilder(pas); // pass on the PS
 
   	// register what this produces
@@ -46,7 +46,7 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	
     // get the collection of CSCRecHit2D
     edm::Handle<CSCRecHit2DCollection> cscRecHits;
-    ev.getByLabel(recHitProducer_, cscRecHits);  
+    ev.getByLabel(inputObjectsTag, cscRecHits);  
 
     // create empty collection of Segments
     std::auto_ptr<CSCSegmentCollection> oc( new CSCSegmentCollection );

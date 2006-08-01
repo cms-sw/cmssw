@@ -4,8 +4,8 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
- * $Date: 2006/04/03 10:10:10 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/08 17:45:31 $
+ * $Revision: 1.3 $
  * \author M. Sani
  */
 
@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class CSCSegmentBuilder; 
 
@@ -27,7 +28,7 @@ public:
 
 private:
     int iev; // events through
-    std::string recHitProducer_;
+    edm::InputTag inputObjectsTag; // input tag labelling rechits for input
     CSCSegmentBuilder* segmentBuilder_;
 };
 
