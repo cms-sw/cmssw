@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tmoulik $
-// $Date: 2006/07/27 00:02:29 $
-// $Revision: 1.8 $
+// $Author: llista $
+// $Date: 2006/07/28 20:18:49 $
+// $Revision: 1.9 $
 //
 
 #include <memory>
@@ -53,8 +53,7 @@ namespace cms
     // retrieve producer name of input SiStripRecHit2DCollection
     edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
     edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
-     // retrieve producer name of input SiPixelRecHitCollection - TMoulik
-    std::string recHitProducer1 = conf_.getParameter<std::string>("RecHitProducer1");
+    edm::InputTag recHitCollection = conf_.getParameter<edm::InputTag>("recHitCollection");
  
     // get Inputs 
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
@@ -63,8 +62,7 @@ namespace cms
     e.getByLabel( stereorecHitsTag, stereorecHits);
 
     edm::Handle<SiPixelRecHitCollection> pixRecHits; // TMoulik
-    std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");
-    e.getByLabel(recHitProducer1,pixRecHits); // TMoulik
+    e.getByLabel( recHitCollection, pixRecHits ); // TMoulik
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);

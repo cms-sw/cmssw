@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/15 01:06:52 $
-// $Revision: 1.1 $
+// $Author: burkett $
+// $Date: 2006/03/15 16:07:16 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -42,7 +42,6 @@ namespace cms
   private:
     RoadSearchCloudMakerAlgorithm roadSearchCloudMakerAlgorithm_;
     edm::ParameterSet conf_;
-
   };
 }
 
