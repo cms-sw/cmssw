@@ -2,13 +2,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
-<use name=rfio>
+<use name=castor>
 
 <export>
  <lib name=IORawDataEcalTBInputService>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/FEDRawData>
- <use name=rfio>
+ <use name=castor>
 </export>
 
