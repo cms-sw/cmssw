@@ -37,10 +37,18 @@ class PFProducer : public edm::EDProducer {
 
  private:
   // ----------member data ---------------------------
+
+  // input collection names
   std::string tcCollection_;
+
+  // output collection names
   std::string pfRecTrackCollection_;
-  edm::ParameterSet conf_;
+
+  // members used for track reconstruction
   TrackProducerAlgorithm trackAlgo_;
+  std::string fitterName_;
+  std::string propagatorName_;
+  std::string builderName_;
 };
 
 #endif
