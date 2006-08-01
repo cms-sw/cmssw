@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/31 10:39:19 $
- * $Revision: 1.24 $
+ * $Date: 2006/07/31 23:07:51 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -313,8 +313,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   try {
     e.getByType( pHodoRaw );
     rawHodo = pHodoRaw.product();
+    if(rawHodo->planes() ){
     LogDebug("EcalBeamTask") << "hodoscopeRaw:  num planes: " <<  rawHodo->planes() 
 			     << " channels in plane 1: "  <<  rawHodo->channels(0);
+    }
   } catch ( std::exception& ex ) {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRawInfo. Returning";
     return;
@@ -332,9 +334,9 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   }
 
   
-  if ( !rawTDC ||!rawHodo || !uncalRecH)
+  if ( !rawTDC ||!rawHodo || !uncalRecH  || !( rawHodo->planes() ))
     {
-      LogWarning("EcalBeamTask") << "analyze: missing a needed collection, returning.";
+      LogWarning("EcalBeamTask") << "analyze: missing a needed collection or hodo collection empty. Returning.";
       return;
     }
   LogDebug("EBBeamHodoTask") << " TDC raw, Hodo raw, uncalRecH and DCCheader found.";
