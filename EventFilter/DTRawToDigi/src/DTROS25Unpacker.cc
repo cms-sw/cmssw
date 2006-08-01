@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/28 17:59:27 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/01 17:41:21 $
+ *  $Revision: 1.24 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -39,6 +39,8 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
   debug = pset.getUntrackedParameter<bool>("debugMode",false);
 
   globalDAQ = pset.getUntrackedParameter<bool>("globalDAQ",true);
+  if (globalDAQ) cout<<" ANALYZING GLOBAL RUN "<<endl;
+  else cout<<" ANALYZING LOCAL RUN "<<endl;
 
 }
 
@@ -141,7 +143,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
               controlData.addTDCError(tdcError);
 
               DTTDCErrorNotifier dtTDCError(dtTDCErrorWord);
-              dtTDCError.print();
+              if (debug) dtTDCError.print();
             }           
 
             // Eventual TDC Debug
