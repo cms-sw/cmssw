@@ -129,10 +129,10 @@ i*/
   HcalGainWidths gainWidths;
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValue(detItr->rawId(), HcalDbHardcode::makePedestal(HcalDetId(*detItr)).getValues ());
-    *pedestalWidths.setWidth(HcalDetId(*detItr)) = HcalDbHardcode::makePedestalWidth(HcalDetId(*detItr));
-    gains.addValue(detItr->rawId(), HcalDbHardcode::makeGain(HcalDetId(*detItr)).getValues ());
-    gainWidths.addValue(detItr->rawId(), HcalDbHardcode::makeGainWidth(HcalDetId(*detItr)).getValues ());
+    pedestals.addValue(*detItr, HcalDbHardcode::makePedestal(*detItr).getValues ());
+    *pedestalWidths.setWidth(*detItr) = HcalDbHardcode::makePedestalWidth(*detItr);
+    gains.addValue(*detItr, HcalDbHardcode::makeGain(*detItr).getValues ());
+    gainWidths.addValue(*detItr, HcalDbHardcode::makeGainWidth(*detItr).getValues ());
   }
 
   pedestals.sort();
@@ -140,7 +140,7 @@ i*/
   gains.sort();
   gainWidths.sort();
 
-std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId.rawId(),  1) << std::endl;
+std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::endl;
 
   HcalDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
