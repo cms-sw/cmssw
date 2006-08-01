@@ -96,7 +96,7 @@ uint16_t L1GctJet::rankForHt() const
 
 /// convert to central jet digi
 L1GctJetCand L1GctJet::makeJetCand() {
-  return L1GctJetCand(this->rank(), this->hwEta(), this->hwPhi(), this->isTauJet(), this->isForwardJet());
+  return L1GctJetCand(this->rank(), this->hwPhi(), this->hwEta(), this->isTauJet(), this->isForwardJet());
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -104,7 +104,7 @@ unsigned L1GctJet::hwEta() const
 {
   // Force into 4 bits.
   // Count eta bins separately for central and forward jets. Set MSB to indicate the Wheel
-  return (((m_id.rctEta() % 7) & 0x7) | (m_id.ieta()<11 ? 0x10 : 0));
+  return (((m_id.rctEta() % 7) & 0x7) | (m_id.ieta()<11 ? 0x8 : 0));
 }
 
 /// phi value as encoded in hardware at the GCT output
