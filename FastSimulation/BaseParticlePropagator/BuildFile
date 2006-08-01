@@ -1,0 +1,9 @@
+<use name=clhep>
+<use name=FastSimulation/Particle>
+
+<export>
+ <use name=clhep>
+ <lib name=FastSimulationBaseParticlePropagator>
+ <use name=FastSimulation/Particle>
+</export>
+
