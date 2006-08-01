@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/04/04 20:05:32 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/23 16:07:16 $
+ * $Revision: 1.2 $
  * \author W. Fisher
  *
 */
@@ -80,6 +80,7 @@ private:
   HcalLEDMonitor*    m_ledMon;
   
   bool m_monitorDaemon;
+  bool offline_;
 
   string m_outputFile;
   ofstream m_logFile;

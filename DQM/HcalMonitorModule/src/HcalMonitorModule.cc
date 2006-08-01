@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/04/18 19:24:15 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/23 16:07:16 $
+ * $Revision: 1.10 $
  * \author W Fisher
  *
 */
@@ -18,6 +18,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
     m_dbe->setVerbose(0);
   }
+
   m_monitorDaemon = false;
   if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
     edm::Service<MonitorDaemon> daemon;
@@ -30,12 +31,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
   }
   
-  m_runNum = 0;
-  m_meStatus=0;
-  m_meRunNum=0;
-  m_meRunType=0;
-  m_meEvtNum=0;
-  m_meEvtMask=0;
+  m_runNum = 0; m_meStatus=0;
+  m_meRunNum=0; m_meRunType=0;
+  m_meEvtNum=0; m_meEvtMask=0;
   
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor");
@@ -53,10 +51,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   }
   
   m_evtSel = new HcalMonitorSelector(ps);
-  m_digiMon = NULL;
-  m_dfMon = NULL;
-  m_rhMon = NULL;
-  m_pedMon = NULL;
+  m_digiMon = NULL; m_dfMon = NULL; 
+  m_rhMon = NULL;   m_pedMon = NULL; 
   m_ledMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
@@ -83,12 +79,17 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_ledMon = new HcalLEDMonitor();
     m_ledMon->setup(ps, m_dbe);
   }
-  
+
+  offline_ = ps.getUntrackedParameter<bool>("OffLine", false);
+
   if ( m_dbe ) m_dbe->showDirStructure();
   
 }
 
 HcalMonitorModule::~HcalMonitorModule(){
+
+  if ( offline_ ) sleep(60); 
+
   if(m_digiMon!=NULL) { delete m_digiMon; m_digiMon=NULL; }
   if(m_dfMon!=NULL) { delete m_dfMon; m_dfMon=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
@@ -103,21 +104,18 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   m_ievt = 0;
   if ( m_meStatus ) m_meStatus->Fill(0);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  //if ( m_monitorDaemon ) sleep(10);
+  if ( offline_ ) sleep(15);
   return;
-
 }
 
 void HcalMonitorModule::endJob(void) {
-
+  
   cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
-
+  
   if ( m_meStatus ) m_meStatus->Fill(2);
-  if ( m_meRunNum) m_meRunNum->Fill(m_runNum);
+  if ( m_meRunNum ) m_meRunNum->Fill(m_runNum);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  //  if ( m_monitorDaemon ){ sleep(10); }
-
-  sleep(30);
+  if ( offline_ ) sleep(20);
 
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
@@ -126,6 +124,7 @@ void HcalMonitorModule::endJob(void) {
   if(m_ledMon!=NULL) m_ledMon->done();
 
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
+
   return;
 }
 
@@ -148,7 +147,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
-    m_meRunNum->Fill(m_runNum);  ///????
+    m_meRunNum->Fill(m_runNum);
     m_meEvtNum->Fill(m_ievt);
     m_meEvtMask->Fill(evtMask);
   }
@@ -211,6 +210,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
+
+  if(offline_) usleep(15);
 
   return;
 }

@@ -123,9 +123,9 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
       if(_ib->energy()>occThresh_){
 	hbHists.meOCC_MAP_GEO->Fill(_ib->id().ieta(),_ib->id().ieta());
 	meOCC_MAP_all_GEO->Fill(_ib->id().ieta(),_ib->id().ieta());      
-      }
+	hbHists.meRECHIT_T_tot->Fill(_ib->time());
+      }      
       tot += _ib->energy();
-      hbHists.meRECHIT_T_tot->Fill(_ib->time());
       if(doPerChannel_) HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe);
     }
     hbHists.meRECHIT_E_tot->Fill(tot);
@@ -139,9 +139,9 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
       if(_io->energy()>occThresh_){
 	hoHists.meOCC_MAP_GEO->Fill(_io->id().ieta(),_io->id().ieta());
 	meOCC_MAP_all_GEO->Fill(_io->id().ieta(),_io->id().ieta());      
+	hoHists.meRECHIT_T_tot->Fill(_io->time());
       }
       tot += _io->energy();
-      hoHists.meRECHIT_T_tot->Fill(_io->time());
       if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(1,*_io,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe);
     }
     hoHists.meRECHIT_E_tot->Fill(tot);
@@ -155,9 +155,9 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
       if(_if->energy()>occThresh_){
 	hfHists.meOCC_MAP_GEO->Fill(_if->id().ieta(),_if->id().ieta());
 	meOCC_MAP_all_GEO->Fill(_if->id().ieta(),_if->id().ieta());      
+	hfHists.meRECHIT_T_tot->Fill(_if->time());	    
       }
       tot += _if->energy();
-      hfHists.meRECHIT_T_tot->Fill(_if->time());
       if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(2,*_if,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe);
     }
     hfHists.meRECHIT_E_tot->Fill(tot);

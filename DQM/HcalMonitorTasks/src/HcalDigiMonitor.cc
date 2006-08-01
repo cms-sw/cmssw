@@ -50,7 +50,7 @@ namespace HcalDigiMap{
     }
     return false;
   }
-
+  
 }
 
 void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
