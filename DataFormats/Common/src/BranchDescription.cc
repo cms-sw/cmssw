@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.10 2006/07/27 06:21:02 wmtan Exp $
+$Id: BranchDescription.cc,v 1.11 2006/08/01 05:34:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -160,7 +160,11 @@ namespace edm {
       (a.moduleLabel() == b.moduleLabel()) &&
       (a.present() == b.present());
     if (m == BranchDescription::Strict) {
-      return (looseMatch && a.psetIDs() == b.psetIDs() && a.psetIDs().size() == 1);
+      return (looseMatch &&
+		 a.psetIDs().size() == 1 &&
+		 a.processConfigurationIDs().size() == 1 &&
+		 a.psetIDs() == b.psetIDs() &&
+		 a.processConfigurationIDs() == b.processConfigurationIDs());
     }
     return looseMatch;
   }
