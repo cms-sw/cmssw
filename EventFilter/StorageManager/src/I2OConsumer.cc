@@ -237,7 +237,7 @@ namespace edmtest
     try
     {
       toolbox::mem::Reference* bufRef =
-         toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,I2O_MAX_SIZE);
+         toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,i2o_max_size_);
 
       I2O_MESSAGE_FRAME *stdMsg =
         (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
@@ -384,7 +384,7 @@ namespace edmtest
       {
         FDEBUG(10) << "I2OConsumer: getting memory pool frame" << std::endl;
         toolbox::mem::Reference* bufRef =
-           toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,I2O_MAX_SIZE);
+           toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,i2o_max_size_);
 
         FDEBUG(10) << "I2OConsumer: setting up frame pointers" << std::endl;
         I2O_MESSAGE_FRAME *stdMsg =
@@ -586,7 +586,7 @@ namespace edmtest
       try
       {
         toolbox::mem::Reference* bufRef =
-           toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,I2O_MAX_SIZE);
+           toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,i2o_max_size_);
         I2O_MESSAGE_FRAME *stdMsg =
           (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
         I2O_PRIVATE_MESSAGE_FRAME*pvtMsg = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
