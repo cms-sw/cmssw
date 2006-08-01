@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/07/31 15:05:18 $
-// $Revision: 1.13 $
+// $Date: 2006/07/31 20:17:58 $
+// $Revision: 1.14 $
 //
 
 #include <vector>
@@ -161,7 +161,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       
       //Loop over RecHits and propagate trajectory to each hit
       
-      double chi2cut = 30;
+      double chi2cut = conf_.getParameter<double>("HitChi2Cut");
       Chi2MeasurementEstimator theEstimator(chi2cut);
       KFUpdator theUpdator;
       
