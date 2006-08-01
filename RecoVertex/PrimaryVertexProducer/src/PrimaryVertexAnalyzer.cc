@@ -73,7 +73,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    using namespace edm;
    
   Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("OfflinePrimaryVerticesFromCTFTracks", "PrimaryVertex",
+  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", "PrimaryVertex",
 		    recVtxs);
   std::cout << "vertices " << recVtxs->size() << std::endl;
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 

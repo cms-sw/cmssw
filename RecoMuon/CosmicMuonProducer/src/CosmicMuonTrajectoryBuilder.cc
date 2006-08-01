@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/07/21 03:13:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/26 17:56:32 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -52,7 +52,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   theMaxChi2 = par.getParameter<double>("MaxChi2");;
   thePropagatorName = par.getParameter<string>("Propagator");
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
-  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, false, "DTSegment4DProducer","CSCSegmentProducer");
+  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, false, "dt4DSegments","cscSegments");
 
 
 }

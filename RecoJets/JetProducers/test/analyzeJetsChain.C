@@ -62,6 +62,7 @@ void analyzeJetsChain()
     if (treenumber!=current) {
        chain.GetEvent(index); 
        chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
+
        treenumber = current;
     }
     // End magic from Phillipe Canal.
@@ -69,7 +70,7 @@ void analyzeJetsChain()
     chain.GetEvent(index);
     double px[2], py[2], pz[2], E[2];
     std::cout << "Entry index: " << index << std::endl;  
-    //chain.SetBranchAddress("CaloJets_CaloJetMcone5.obj",&CaloJetCollection);
+    //chain.SetBranchAddress("CaloJets_midPointCone5CaloJets.obj",&CaloJetCollection);
     int numJets = CaloJetCollection.size();
     std::cout << "Num Jets: " << numJets << std::endl;
 

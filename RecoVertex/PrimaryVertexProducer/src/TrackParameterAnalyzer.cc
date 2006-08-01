@@ -187,7 +187,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    /*
    Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("OfflinePrimaryVerticesFromCTFTracks", "TrackParameter",
+  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", "TrackParameter",
 		    recVtxs);
   std::cout << "vertices " << recVtxs->size() << std::endl;
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
