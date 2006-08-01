@@ -321,7 +321,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer thePxlBrlHits;
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",
+  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof",
 		    PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -330,7 +330,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",
+  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof",
 		    PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -399,7 +399,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer thePxlFwdHits;
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof",
+  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof",
 		    PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -408,7 +408,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof",
+  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof",
 		    PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogWarning("GlobalValProducer.fillTrk")
@@ -476,7 +476,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer theSiBrlHits;
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof",SiTIBLowContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof",SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBLowTof in event!";
@@ -484,7 +484,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof",SiTIBHighContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof",SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBHighTof in event!";
@@ -492,7 +492,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof",SiTOBLowContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof",SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBLowTof in event!";
@@ -500,7 +500,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof",SiTOBHighContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof",SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBHighTof in event!";
@@ -573,7 +573,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer theSiFwdHits;
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof",SiTIDLowContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof",SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIDLowTof in event!";
@@ -581,7 +581,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof",SiTIDHighContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof",SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
     edm::LogWarning("GlobalValProducer.fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
@@ -589,7 +589,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof",SiTECLowContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof",SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECLowTof in event!";
@@ -597,7 +597,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
-  iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof",SiTECHighContainer);
+  iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof",SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECHighTof in event!";
@@ -766,7 +766,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
-  iEvent.getByLabel("SimG4Object","MuonCSCHits",MuonCSCContainer);
+  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonCSCHits in event!";
@@ -840,7 +840,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon DT information
   edm::Handle<edm::PSimHitContainer> MuonDtContainer;
-  iEvent.getByLabel("SimG4Object","MuonDTHits",MuonDtContainer);
+  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDtContainer);
   if (!MuonDtContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonDTHits in event!";
@@ -919,7 +919,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
-  iEvent.getByLabel("SimG4Object","MuonRPCHits",MuonRPCContainer);
+  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonRPCHits in event!";
@@ -1112,7 +1112,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::PCaloHitContainer theECalHits;
   // extract EB container
   edm::Handle<edm::PCaloHitContainer> EBContainer;
-  iEvent.getByLabel("SimG4Object","EcalHitsEB",EBContainer);
+  iEvent.getByLabel("g4SimHits","EcalHitsEB",EBContainer);
   if (!EBContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEB in event!";
@@ -1120,7 +1120,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   }
   // extract EE container
   edm::Handle<edm::PCaloHitContainer> EEContainer;
-  iEvent.getByLabel("SimG4Object","EcalHitsEE",EEContainer);
+  iEvent.getByLabel("g4SimHits","EcalHitsEE",EEContainer);
   if (!EEContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEE in event!";
@@ -1190,7 +1190,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   ////////////////////////////
   // extract PreShower container
   edm::Handle<edm::PCaloHitContainer> PreShContainer;
-  iEvent.getByLabel("SimG4Object","EcalHitsES",PreShContainer);
+  iEvent.getByLabel("g4SimHits","EcalHitsES",PreShContainer);
   if (!PreShContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsES in event!";
@@ -1324,7 +1324,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   ///////////////////////////////
   // extract HCal container
   edm::Handle<edm::PCaloHitContainer> HCalContainer;
-  iEvent.getByLabel("SimG4Object","HcalHits",HCalContainer);
+  iEvent.getByLabel("g4SimHits","HcalHits",HCalContainer);
   if (!HCalContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HCalHits in event!";
