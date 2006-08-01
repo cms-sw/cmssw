@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.19 $
+ * $Date: 2006/07/26 22:35:17 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -61,13 +61,13 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   // there should be not more than a eta row in an autoscan
   minEvtNum_ = 2000;//FIX ME, change in case of prescaling
   //FIX ME, this should be configurable and change with the beam energy
-  aveEne1_    = 1500;  E1Th_   = 500;
-  aveEne3x3_  = 2000;  E3x3Th_ = 500;
-  RMSEne3x3_  = 150;
+  aveEne1_    = 1300;  E1Th_   = 500;
+  aveEne3x3_  = 2000;  E3x3Th_ = 300;
+  RMSEne3x3_  = 500;
 
   ReadCryErrThr_ = 0.01;// 1%
   //FIX ME, this should follow the prescaling in the monitoring
-  prescaling_ = 1;
+  prescaling_ = 50;
   
   ///////// task specific histos 
   for(int u=0;u<cryInArray_;u++){
@@ -668,10 +668,13 @@ void EBBeamCaloClient::analyze(void){
 	DoneCry++;
 	float E3x3RMS = -1, E3x3 =-1, E1=-1;
 	if(hBE3x3vsCry_){
-	  E3x3RMS = hBE3x3vsCry_->GetBinError(step);
-	  E3x3 = hBE3x3vsCry_->GetBinContent(step);
+	  //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+	  //E3x3 = hBE3x3vsCry_->GetBinContent(step);
+	  E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
+	  E3x3 = hBE3x3vsCry_->GetBinContent(cry);
 	}
-	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
+	//if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
+	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
 	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
 	bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
 	bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
@@ -685,8 +688,9 @@ void EBBeamCaloClient::analyze(void){
 	}
 	
 	float Entries = -1;
-	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
-	bool Nent = ( Entries > minEvtNum_ * prescaling_ );
+	//if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
+	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
+	bool Nent = ( Entries * prescaling_  > minEvtNum_ );
 	//cout<<"step: "<<step<<" entries: "<<Entries<<endl;
 	//cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
 	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
@@ -963,6 +967,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(2.0);
+    obj2f->GetXaxis()->SetTitle("step in the scan");
+    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();
@@ -1008,6 +1014,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
+    obj1f->GetXaxis()->SetTitle("number of read crystals");
+    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1035,6 +1043,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    obj1f->GetXaxis()->SetTitle("step in the scan");
+    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1065,6 +1075,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
+    obj1f->GetXaxis()->SetTitle("rec Ene (ADC)");
+    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1189,6 +1201,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
+    obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
+    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1217,6 +1231,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
+    obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
+    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1246,6 +1262,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(" ");
     obj2f->SetLineColor(kRed);
     obj2f->SetFillColor(kRed);
+    obj2f->GetXaxis()->SetTitle("\\Delta \\eta");
+    obj2f->GetXaxis()->SetTitleColor(1);
+    obj2f->GetYaxis()->SetTitle("\\Delta \\phi");
+
     obj2f->Draw("box");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1278,6 +1298,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       can->cd();
       objp1->SetStats(kTRUE);
       gStyle->SetOptStat("e");
+      objp1->GetXaxis()->SetTitle("#sample");
+      objp1->GetXaxis()->SetTitleColor(1);
+      objp1->GetYaxis()->SetTitle("ADC");
       objp1->Draw();
       can->Update();
       can->SaveAs( pulseImgF[ind].c_str());
@@ -1300,6 +1323,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       can->cd();
       obj1f->SetStats(kTRUE);
       gStyle->SetOptStat(1110);
+      obj1f->GetXaxis()->SetTitle("gain");
+      obj1f->GetXaxis()->SetTitleColor(1);
       if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
       obj1f->Draw();
       can->Update();
@@ -1381,6 +1406,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    obj1f->GetXaxis()->SetTitle("crystal");
+    obj1f->GetYaxis()->SetTitle("step in the scan");
+    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1409,6 +1437,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    obj1f->GetXaxis()->SetTitle("crystal");
+    obj1f->GetXaxis()->SetTitleColor(1);
+    obj1f->GetYaxis()->SetTitle("number of events (prescaled)");
+
     if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
     AdjustRange(obj1f);
     obj1f->Draw();
@@ -1442,6 +1474,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     objp1->SetStats(kTRUE);
+    objp1->GetXaxis()->SetTitle("crystal");
+    objp1->GetXaxis()->SetTitleColor(1);
+    objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     gStyle->SetOptStat("e");
     AdjustRange(objp1);
     objp1->Draw();
@@ -1471,6 +1506,9 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    objp1->GetXaxis()->SetTitle("crystal");
+    objp1->GetXaxis()->SetTitleColor(1);
+    objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     AdjustRange(objp1);
     objp1->Draw();
     can->Update();
@@ -1510,6 +1548,10 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     //gStyle->SetOptStat("e");
     float dd = objp1->GetBinContent(2)+0.01;
     objp1->Fill(21,dd);
+    objp1->GetXaxis()->SetTitle("event");
+    objp1->GetXaxis()->SetTitleColor(1);
+    objp1->GetYaxis()->SetTitle("crystal in beam");
+
     AdjustRange(objp1);
     float Ymin = 1701, Ymax =0;
     for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
@@ -1557,6 +1599,8 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
+    obj1f->GetXaxis()->SetTitle("table status (0=stable, 1=moving)");
+    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1588,8 +1632,8 @@ template<class T> void EBBeamCaloClient::AdjustRange( T obj){
   }
   
   if(first_bin < 1 || last_bin < 1){return;}
-  if(first_bin > 1){first_bin -= 1;}
-  if(last_bin < obj->GetNbinsX() ){last_bin += 1;}
+  if(first_bin > 3){first_bin -= 3;}
+  if(last_bin < obj->GetNbinsX() ){last_bin += 3;}
   
   obj->GetXaxis()->SetRange(first_bin, last_bin);
 }
