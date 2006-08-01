@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.36 2006/07/20 23:43:37 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.37 2006/07/21 21:49:31 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -134,12 +135,9 @@ namespace edm {
 	runBlockPlacement_);
     makePlacement(poolNames::luminosityBlockTreeName(), poolNames::luminosityBlockBranchName(),
 	luminosityBlockPlacement_);
-    ProductRegistry pReg;
-    pReg.setNextID(om_->nextID());
    
     for (Selections::const_iterator it = om_->descVec_.begin();
       it != om_->descVec_.end(); ++it) {
-      pReg.copyProduct(**it);
       pool::Placement provenancePlacement;
       pool::Placement eventPlacement;
       makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
@@ -149,28 +147,12 @@ namespace edm {
     }
     for (Selections::const_iterator it = om_->droppedVec_.begin();
       it != om_->droppedVec_.end(); ++it) {
-      pReg.copyProduct(**it);
       pool::Placement provenancePlacement;
       makePlacement(poolNames::eventMetaDataTreeName(), (*it)->branchName(), provenancePlacement);
       outputItemList_.push_back(OutputItem(*it, false, provenancePlacement));
     }
 
     startTransaction();
-
-    pool::Ref<ProductRegistry const> rp(om_->context(), &pReg);
-    rp.markWrite(productDescriptionPlacement_);
-
-    pool::Ref<ModuleDescriptionMap const> rmod(om_->context(), &ModuleDescriptionRegistry::instance()->data());
-    rmod.markWrite(moduleDescriptionPlacement_);
-
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    ParameterSetMap psetMap;
-    pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
-    pool::Ref<ParameterSetMap const> rpparam(om_->context(), &psetMap);
-    rpparam.markWrite(parameterSetPlacement_);
 
     FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
 
@@ -318,6 +300,24 @@ namespace edm {
 
   void PoolOutputModule::PoolFile::endFile() {
     startTransaction();
+
+    Service<ConstProductRegistry> reg;
+    ProductRegistry pReg = reg->productRegistry();
+    pool::Ref<ProductRegistry const> rp(om_->context(), &pReg);
+    rp.markWrite(productDescriptionPlacement_);
+
+    pool::Ref<ModuleDescriptionMap const> rmod(om_->context(), &ModuleDescriptionRegistry::instance()->data());
+    rmod.markWrite(moduleDescriptionPlacement_);
+
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    ParameterSetMap psetMap;
+    pset::Registry const* psetRegistry = pset::Registry::instance();    
+    for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
+      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
+    }
+    pool::Ref<ParameterSetMap const> rpparam(om_->context(), &psetMap);
+    rpparam.markWrite(parameterSetPlacement_);
+
     pool::Ref<ProcessHistoryMap const> rhist(om_->context(), &ProcessHistoryRegistry::instance()->data());
     rhist.markWrite(processHistoryPlacement_);
 
