@@ -4,6 +4,7 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "boost/bind.hpp"
 #include "boost/scoped_array.hpp"
@@ -107,8 +108,9 @@ namespace edmtestp
 	ist_.read((char*)data.get(),len);
 	//cout << "read frag to " << (void*)data.get() << endl;
 	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
+        //HEREHERE need a real event number here for id
 	stor::FragEntry* msg = 
-	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len);
+	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len,1,1,Header::EVENT,1);
         assert(msg); // Suppresses compiler warning about unused variable
 	//new (b.buffer()) stor::FragEntry(0,0,len);
 	//cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
