@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/18 12:24:18 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/31 21:42:49 $
+ *  $Revision: 1.13 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -46,6 +46,10 @@
 
 using namespace std;
 
+typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+
 template <class T> T sqr(const T& t) {return t*t;}
 
 TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
@@ -79,19 +83,19 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   LogDebug(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
   
   // take the best candidate
-  MuonTransientTrackingRecHit* last = best_cand();
+  ConstMuonRecHitPointer last = best_cand();
   return createSeed(ptmean, sptmean,last,eSetup);
 }
 
-MuonTransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
+ConstMuonRecHitPointer MuonSeedFromRecHits::best_cand() const {
 
   int alt_npt = 0;
   int best_npt = 0;
   int cur_npt = 0;
-  MuonTransientTrackingRecHit* best = 0;
-  MuonTransientTrackingRecHit* alter=0;
+  MuonRecHitPointer best = 0;
+  MuonRecHitPointer alter=0;
 
-  for (RecHitIterator iter=theRhits.begin();
+  for (MuonRecHitContainer::const_iterator iter=theRhits.begin();
        iter!=theRhits.end(); iter++ ) {
 
     bool hasZed = ((*iter)->projectionMatrix()[1][1]==1);
@@ -137,23 +141,21 @@ MuonTransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
 
 void MuonSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
-  RecHitIterator iter;
-  RecHitIterator iter2;  // +v
 
 //+vvp ! Try to search group of nearest segm-s:
 
-    int Maxseg = 0;
-    float Msdeta = 100.;
-    float eta0 = (*theRhits.begin())->globalPosition().eta();
+  int Maxseg = 0;
+  float Msdeta = 100.;
+  float eta0 = (*theRhits.begin())->globalPosition().eta();
 
-  for ( iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
+  for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
 
     float eta1= (*iter)->globalPosition().eta(); 
 
     int Nseg = 0;
     float sdeta = .0;
 
-    for ( iter2=theRhits.begin();  iter2!=theRhits.end(); iter2++ ) {
+    for (MuonRecHitContainer::const_iterator iter2=theRhits.begin();  iter2!=theRhits.end(); iter2++ ) {
 
       if ( iter2 == iter )  continue;
 
@@ -174,7 +176,7 @@ void MuonSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
   }   //  +v.
 
 
-  for ( iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
+  for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); iter!=theRhits.end(); iter++ ) {
 
  //+vvp !:
       float eta1= (*iter)->globalPosition().eta(); 
@@ -234,7 +236,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
   float Msdeta = 100.;
   float eta0 = (*theRhits.begin())->globalPosition().eta();
 
-  for ( RecHitIterator iter=theRhits.begin(); 
+  for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); 
         iter!=theRhits.end(); iter++ ) {
 
     float eta1= (*iter)->globalPosition().eta(); 
@@ -242,7 +244,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
     int Nseg = 0;
     float sdeta = .0;
 
-    for ( RecHitIterator iter2=theRhits.begin(); 
+    for (MuonRecHitContainer::const_iterator iter2=theRhits.begin(); 
           iter2!=theRhits.end(); iter2++ ) {
 
       if ( iter2 == iter )  continue;
@@ -266,7 +268,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
   int ch=0;
 
-  for ( RecHitIterator iter=theRhits.begin(); 
+  for (MuonRecHitContainer::const_iterator iter=theRhits.begin(); 
         iter!=theRhits.end(); iter++ ) {
     //+vvp !:
     float eta1= (*iter)->globalPosition().eta(); 
@@ -274,7 +276,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
     float radius1= (*iter)->det()->position().perp(); 
 
-    for ( RecHitIterator iter2=theRhits.begin(); 
+    for (MuonRecHitContainer::const_iterator iter2=theRhits.begin(); 
           iter2!=iter; iter2++ ) {
 
       //+vvp !:
@@ -478,7 +480,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
 
 TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 					       float sptmean,
-					       MuonTransientTrackingRecHit* last,
+					       ConstMuonRecHitPointer last,
 					       const edm::EventSetup& eSetup) const{
   
   std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";

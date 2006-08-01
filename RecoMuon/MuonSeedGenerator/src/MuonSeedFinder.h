@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/06/27 13:42:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/05 09:32:45 $
+ *  $Revision: 1.7 $
  *  
  */
 
@@ -27,12 +27,6 @@ namespace edm {class EventSetup;}
 class MagneticField;
 
 class MuonSeedFinder {
-
-public:
-  
-  typedef std::vector<MuonTransientTrackingRecHit*>       RecHitContainer;
-  typedef RecHitContainer::const_iterator   RecHitIterator;
-
 public:
   /// Constructor
   MuonSeedFinder();
@@ -42,25 +36,25 @@ public:
 
   // Operations
 
-  void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
+  void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
   
   std::vector<TrajectorySeed> seeds(const edm::EventSetup& eSetup) const;
-  MuonTransientTrackingRecHit *firstRecHit() const { return theRhits.front(); }
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
   
 private:
   //  TrackingRecHit best_cand(TrackingRecHit* rhit=0) const;
-  bool createEndcapSeed(MuonTransientTrackingRecHit *me, 
+  bool createEndcapSeed(MuonTransientTrackingRecHit::MuonRecHitPointer me, 
 			std::vector<TrajectorySeed>& theSeeds,
 			const edm::EventSetup& eSetup) const;
 
-  bool createEndcapSeed_OLD(MuonTransientTrackingRecHit *me, 
+  bool createEndcapSeed_OLD(MuonTransientTrackingRecHit::MuonRecHitPointer me, 
 			    std::vector<TrajectorySeed>& theSeeds,
 			    const edm::EventSetup& eSetup) const;
   
-  float computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const;
+  float computePt(MuonTransientTrackingRecHit::ConstMuonRecHitPointer muon, const MagneticField *field) const;
   
-  RecHitContainer theRhits;
+  MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
  
   // put a parameterSet instead of
   // static SimpleConfigurable<float> theMinMomentum;

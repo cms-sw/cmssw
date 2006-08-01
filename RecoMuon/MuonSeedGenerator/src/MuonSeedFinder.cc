@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/18 08:52:38 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/26 09:26:03 $
+ *  $Revision: 1.12 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -36,6 +36,10 @@
 
 using namespace std;
 
+typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+
 MuonSeedFinder::MuonSeedFinder(){
   
   // FIXME put it in a pSet
@@ -53,9 +57,8 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 
   MuonSeedFromRecHits barrel;
 
-  RecHitIterator iter;
   int num_bar = 0;
-  for ( iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
+  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( (*iter)->isDT() ) {
       barrel.add(*iter);
       num_bar++;
@@ -77,13 +80,13 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   else LogDebug(metname) << "Endcap Seed" << endl;
 
   //Search ME1  ...
-  MuonTransientTrackingRecHit *me1=0, *meit=0;
+  MuonRecHitPointer me1=0, meit=0;
   float dPhiGloDir = .0;                            //  +v
   float bestdPhiGloDir = M_PI;                      //  +v
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
   
   
-  for ( iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
+  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( !(*iter)->isCSC() ) continue;
 
     // tmp compar. Glob-Dir for the same tr-segm:
@@ -147,7 +150,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *last, 
+MuonSeedFinder::createEndcapSeed(MuonRecHitPointer last, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
@@ -181,7 +184,7 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *last,
 }
 
 
-float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
+float MuonSeedFinder::computePt(ConstMuonRecHitPointer muon, const MagneticField *field) const {
 // assume dZ = dPhi*R*C, here C = pZ/pT
 // =======================================================================
 // ptc: I suspect the following comment should really be
@@ -225,7 +228,7 @@ float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const M
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed_OLD(MuonTransientTrackingRecHit *me, 
+MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me, 
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 

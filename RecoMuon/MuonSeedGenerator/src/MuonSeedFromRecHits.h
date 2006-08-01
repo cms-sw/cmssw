@@ -13,12 +13,10 @@
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include <vector>
-
-class MuonTransientTrackingRecHit;
 
 class RecHit;
 class BoundPlane;
@@ -27,23 +25,20 @@ class GeomDet;
 namespace edm {class EventSetup;}
 
 class MuonSeedFromRecHits {
-  typedef std::vector<MuonTransientTrackingRecHit*>  RecHitContainer;
-  typedef RecHitContainer::const_iterator            RecHitIterator;
   typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
   public:
-  MuonSeedFromRecHits(){
-  }
+  MuonSeedFromRecHits(){}
 
-  void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
+  void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
   TrajectorySeed seed(const edm::EventSetup& eSetup) const;
-  const MuonTransientTrackingRecHit* firstRecHit() const { return theRhits.front(); }
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
   private:
   friend class MuonSeedFinder;
 
-  MuonTransientTrackingRecHit *best_cand() const;
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer best_cand() const;
   // was
   // TrackingRecHit best_cand() const;
 
@@ -52,11 +47,11 @@ class MuonSeedFromRecHits {
   void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
   TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit *last,
+			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last,
 			    const edm::EventSetup& eSetup) const;
 
   private:
-  RecHitContainer theRhits;
+  MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
 };
 
 #endif

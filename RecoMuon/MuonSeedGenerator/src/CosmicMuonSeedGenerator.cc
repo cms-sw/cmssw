@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/15 18:33:57 $
+ *  $Revision: 1.1 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -29,6 +29,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
 #include <vector>
+
+typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 using namespace std;
 
@@ -96,24 +99,24 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   muonMeasurements.setEvent(event);
 
   // ------------        EndCap disk z<0
-  RecHitContainer RHBME4 = muonMeasurements.recHits(ME4Bwd);
-  RecHitContainer RHBME3 = muonMeasurements.recHits(ME3Bwd);
-  RecHitContainer RHBME2 = muonMeasurements.recHits(ME2Bwd);
-  RecHitContainer RHBME12 = muonMeasurements.recHits(ME12Bwd);
-  RecHitContainer RHBME11 = muonMeasurements.recHits(ME11Bwd);
+  MuonRecHitContainer RHBME4 = muonMeasurements.recHits(ME4Bwd);
+  MuonRecHitContainer RHBME3 = muonMeasurements.recHits(ME3Bwd);
+  MuonRecHitContainer RHBME2 = muonMeasurements.recHits(ME2Bwd);
+  MuonRecHitContainer RHBME12 = muonMeasurements.recHits(ME12Bwd);
+  MuonRecHitContainer RHBME11 = muonMeasurements.recHits(ME11Bwd);
 
   // ------------        EndCap disk z>0 
-  RecHitContainer RHFME4 = muonMeasurements.recHits(ME4Fwd);
-  RecHitContainer RHFME3 = muonMeasurements.recHits(ME3Fwd);
-  RecHitContainer RHFME2 = muonMeasurements.recHits(ME2Fwd);
-  RecHitContainer RHFME12 = muonMeasurements.recHits(ME12Fwd);
-  RecHitContainer RHFME11 = muonMeasurements.recHits(ME11Fwd);
+  MuonRecHitContainer RHFME4 = muonMeasurements.recHits(ME4Fwd);
+  MuonRecHitContainer RHFME3 = muonMeasurements.recHits(ME3Fwd);
+  MuonRecHitContainer RHFME2 = muonMeasurements.recHits(ME2Fwd);
+  MuonRecHitContainer RHFME12 = muonMeasurements.recHits(ME12Fwd);
+  MuonRecHitContainer RHFME11 = muonMeasurements.recHits(ME11Fwd);
 
   // ------------        Barrel
-  RecHitContainer RHMB4 = muonMeasurements.recHits(MB4DL);
-  RecHitContainer RHMB3 = muonMeasurements.recHits(MB3DL);
-  RecHitContainer RHMB2 = muonMeasurements.recHits(MB2DL);
-  RecHitContainer RHMB1 = muonMeasurements.recHits(MB1DL);
+  MuonRecHitContainer RHMB4 = muonMeasurements.recHits(MB4DL);
+  MuonRecHitContainer RHMB3 = muonMeasurements.recHits(MB3DL);
+  MuonRecHitContainer RHMB2 = muonMeasurements.recHits(MB2DL);
+  MuonRecHitContainer RHMB1 = muonMeasurements.recHits(MB1DL);
 
   edm::LogInfo("CosmicMuonSeedGenerator")<<"RecHits: Barrel outsideIn "
                                          <<RHMB4.size()<<" : "
@@ -165,7 +168,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 }
 
 
-bool CosmicMuonSeedGenerator::checkQuality(MuonTransientTrackingRecHit* hit) const {
+bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
   return true; //FIXME
 
   // only use 4D segments ?  try another way for 2D segments
@@ -186,12 +189,12 @@ bool CosmicMuonSeedGenerator::checkQuality(MuonTransientTrackingRecHit* hit) con
 } 
 
 void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results, 
-                                          const RecHitContainer& hits, 
+                                          const MuonRecHitContainer& hits, 
                                           const edm::EventSetup& eSetup) const {
 
   if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
-  for (RecHitIterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
-    if ( !checkQuality(*ihit) ) continue;
+  for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
+    if ( !checkQuality(*ihit)) continue;
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     edm::LogInfo("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
@@ -199,7 +202,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
   return;
 }
 
-std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonTransientTrackingRecHit* hit, const edm::EventSetup& eSetup) const {
+std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointer hit, const edm::EventSetup& eSetup) const {
 
   std::vector<TrajectorySeed> result;
 

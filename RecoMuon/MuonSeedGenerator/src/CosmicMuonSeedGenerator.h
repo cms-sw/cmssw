@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2006/07/14 03:20:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/15 18:34:24 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -19,12 +19,6 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 
 class CosmicMuonSeedGenerator: public edm::EDProducer {
-
- public:
-
-  typedef std::vector<MuonTransientTrackingRecHit*>  RecHitContainer;
-  typedef RecHitContainer::const_iterator            RecHitIterator;
-
  public:
 
   /// Constructor
@@ -42,14 +36,14 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
 
   /// generate TrajectorySeeds and put them into results
   void createSeeds(TrajectorySeedCollection& results,
-                   const RecHitContainer& hits,
+                   const MuonTransientTrackingRecHit::MuonRecHitContainer& hits,
                    const edm::EventSetup& eSetup) const;
 
   /// determine if a MuonTransientTrackingRecHit is qualified to build seed
-  bool checkQuality(MuonTransientTrackingRecHit *) const;
+  bool checkQuality(MuonTransientTrackingRecHit::MuonRecHitPointer) const;
 
   /// create TrajectorySeed from MuonTransientTrackingRecHit 
-  std::vector<TrajectorySeed> createSeed(MuonTransientTrackingRecHit *,
+  std::vector<TrajectorySeed> createSeed(MuonTransientTrackingRecHit::MuonRecHitPointer,
                                          const edm::EventSetup&) const;
 
  private: 

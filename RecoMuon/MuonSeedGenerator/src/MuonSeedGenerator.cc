@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/07/06 08:06:06 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/12 15:41:13 $
+ *  $Revision: 1.9 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -46,6 +46,10 @@
 #include <vector>
 
 using namespace std;
+
+typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
@@ -118,18 +122,18 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   // ------------        EndCap disk z<0 + barrel
 
-  RecHitContainer list24 = muonMeasurements.recHits(ME4Bwd,event);
-  RecHitContainer list23 = muonMeasurements.recHits(ME3Bwd,event);
+  MuonRecHitContainer list24 = muonMeasurements.recHits(ME4Bwd,event);
+  MuonRecHitContainer list23 = muonMeasurements.recHits(ME3Bwd,event);
   
-  RecHitContainer list12 = muonMeasurements.recHits(ME2Bwd,event);
+  MuonRecHitContainer list12 = muonMeasurements.recHits(ME2Bwd,event);
   
-  RecHitContainer list22 = muonMeasurements.recHits(ME12Bwd,event);
-  RecHitContainer list21 = muonMeasurements.recHits(ME11Bwd,event);
+  MuonRecHitContainer list22 = muonMeasurements.recHits(ME12Bwd,event);
+  MuonRecHitContainer list21 = muonMeasurements.recHits(ME11Bwd,event);
 
-  RecHitContainer list11 = list21; 
-  RecHitContainer list5 = list22;
-  RecHitContainer list13 = list23;  
-  RecHitContainer list4 = list24; 
+  MuonRecHitContainer list11 = list21; 
+  MuonRecHitContainer list5 = list22;
+  MuonRecHitContainer list13 = list23;  
+  MuonRecHitContainer list4 = list24; 
  
   if ( list21.size() == 0 )  { 
     list11 = list22; list5 = list21;
@@ -143,9 +147,9 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
     list13 = list24; list4 = list23;
   }
 
-  RecHitContainer list1 = list11;
-  RecHitContainer list2 = list12;
-  RecHitContainer list3 = list13;
+  MuonRecHitContainer list1 = list11;
+  MuonRecHitContainer list2 = list12;
+  MuonRecHitContainer list3 = list13;
 
 
   if ( list12.size() == 0 )  { 
@@ -180,9 +184,9 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
     }
   }
 
-  RecHitContainer list6 = muonMeasurements.recHits(MB3DL,event);
-  RecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
-  RecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
+  MuonRecHitContainer list6 = muonMeasurements.recHits(MB3DL,event);
+  MuonRecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
+  MuonRecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
   
   bool* MB1 = 0;
   if (list8.size()) {
@@ -224,20 +228,18 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   // creates list of compatible track segments
 
-  RecHitIterator iter;
-
-  for ( iter = list1.begin(); iter!=list1.end(); iter++ ){
+  for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
-    MuonSeedFinder Theseed;
-    Theseed.add(*iter);
-    complete(Theseed, list2, ME2);
-    complete(Theseed, list3, ME3);
-    complete(Theseed, list4, ME4);
-    complete(Theseed, list5, ME5);
-    complete(Theseed, list6, MB3);
-    complete(Theseed, list7, MB2);    
-    complete(Theseed, list8, MB1);
-    checkAndFill(Theseed,eSetup);
+    MuonSeedFinder theSeed;
+    theSeed.add(*iter);
+    complete(theSeed, list2, ME2);
+    complete(theSeed, list3, ME3);
+    complete(theSeed, list4, ME4);
+    complete(theSeed, list5, ME5);
+    complete(theSeed, list6, MB3);
+    complete(theSeed, list7, MB2);    
+    complete(theSeed, list8, MB1);
+    checkAndFill(theSeed,eSetup);
   }
 
 
@@ -245,16 +247,16 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   for ( counter = 0; counter<list2.size(); counter++ ){
     if ( !ME2[counter] ) {
-      MuonSeedFinder Theseed;
-      Theseed.add(list2[counter]);
-      complete(Theseed, list3, ME3);
-      complete(Theseed, list4, ME4);
-      complete(Theseed, list5, ME5);
-      complete(Theseed, list6, MB3);
-      complete(Theseed, list7, MB2);
-      complete(Theseed, list8, MB1);
+      MuonSeedFinder theSeed;
+      theSeed.add(list2[counter]);
+      complete(theSeed, list3, ME3);
+      complete(theSeed, list4, ME4);
+      complete(theSeed, list5, ME5);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(Theseed,eSetup);
+      checkAndFill(theSeed,eSetup);
     }
   }
 
@@ -262,15 +264,15 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list3.size() < 20 ) {   // +v
     for ( counter = 0; counter<list3.size(); counter++ ){
       if ( !ME3[counter] ) { 
-	MuonSeedFinder Theseed;
-	Theseed.add(list3[counter]);
-	complete(Theseed, list4, ME4);
-	complete(Theseed, list5, ME5);
-	complete(Theseed, list6, MB3);
-	complete(Theseed, list7, MB2);
-	complete(Theseed, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list3[counter]);
+	complete(theSeed, list4, ME4);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 	
-	checkAndFill(Theseed,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -278,14 +280,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list4.size() < 20 ) {   // +v
     for ( counter = 0; counter<list4.size(); counter++ ){
       if ( !ME4[counter] ) {
-	MuonSeedFinder Theseed;
-	Theseed.add(list4[counter]);
-	complete(Theseed, list5, ME5);
-	complete(Theseed, list6, MB3);
-	complete(Theseed, list7, MB2);
-	complete(Theseed, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list4[counter]);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(Theseed,eSetup);
+	checkAndFill(theSeed,eSetup);
       }   
     }          
   } 
@@ -380,35 +382,35 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   }
 
 
-  for ( iter=list1.begin(); iter!=list1.end(); iter++ ){
+  for (MuonRecHitContainer::iterator iter=list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue;// 3p.tr-seg.aren't so good for starting
-    MuonSeedFinder Theseed;
-    Theseed.add(*iter);
-    complete(Theseed, list2, ME2);
-    complete(Theseed, list3, ME3);
-    complete(Theseed, list4, ME4);
-    complete(Theseed, list5, ME5);
-    complete(Theseed, list6, MB3);
-    complete(Theseed, list7, MB2);
-    complete(Theseed, list8, MB1);
+    MuonSeedFinder theSeed;
+    theSeed.add(*iter);
+    complete(theSeed, list2, ME2);
+    complete(theSeed, list3, ME3);
+    complete(theSeed, list4, ME4);
+    complete(theSeed, list5, ME5);
+    complete(theSeed, list6, MB3);
+    complete(theSeed, list7, MB2);
+    complete(theSeed, list8, MB1);
 
-    checkAndFill(Theseed,eSetup);
+    checkAndFill(theSeed,eSetup);
     
   }
 
 
   for ( counter = 0; counter<list2.size(); counter++ ){
     if ( !ME2[counter] ) {
-      MuonSeedFinder Theseed;
-      Theseed.add(list2[counter]);
-      complete(Theseed, list3, ME3);
-      complete(Theseed, list4, ME4);
-      complete(Theseed, list5, ME5);
-      complete(Theseed, list6, MB3);
-      complete(Theseed, list7, MB2);
-      complete(Theseed, list8, MB1);
+      MuonSeedFinder theSeed;
+      theSeed.add(list2[counter]);
+      complete(theSeed, list3, ME3);
+      complete(theSeed, list4, ME4);
+      complete(theSeed, list5, ME5);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(Theseed,eSetup);
+      checkAndFill(theSeed,eSetup);
     } 
   }
 
@@ -416,15 +418,15 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list3.size() < 20 ) {   // +v
     for ( counter = 0; counter<list3.size(); counter++ ){
       if ( !ME3[counter] ) { 
-	MuonSeedFinder Theseed;
-	Theseed.add(list3[counter]);
-	complete(Theseed, list4, ME4);
-	complete(Theseed, list5, ME5);
-	complete(Theseed, list6, MB3);
-	complete(Theseed, list7, MB2);
-	complete(Theseed, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list3[counter]);
+	complete(theSeed, list4, ME4);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(Theseed,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -432,14 +434,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list4.size() < 20 ) {   // +v
     for ( counter = 0; counter<list4.size(); counter++ ){
       if ( !ME4[counter] ) {
-	MuonSeedFinder Theseed;
-	Theseed.add(list4[counter]);
-	complete(Theseed, list5, ME5);
-	complete(Theseed, list6, MB3);
-	complete(Theseed, list7, MB2);
-	complete(Theseed, list8, MB1);
+	MuonSeedFinder theSeed;
+	theSeed.add(list4[counter]);
+	complete(theSeed, list5, ME5);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
 
-	checkAndFill(Theseed,eSetup);
+	checkAndFill(theSeed,eSetup);
       }   
     }          
   } 
@@ -447,17 +449,17 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   // ----------    Barrel only
   
-  RecHitContainer list9 = muonMeasurements.recHits(MB4DL,event);
+  MuonRecHitContainer list9 = muonMeasurements.recHits(MB4DL,event);
 
   if ( list9.size() < 100 ) {   // +v
-    for ( iter=list9.begin(); iter!=list9.end(); iter++ ){
-      MuonSeedFinder Theseed;
-      Theseed.add(*iter);
-      complete(Theseed, list6, MB3);
-      complete(Theseed, list7, MB2);
-      complete(Theseed, list8, MB1);
+    for (MuonRecHitContainer::iterator iter=list9.begin(); iter!=list9.end(); iter++ ){
+      MuonSeedFinder theSeed;
+      theSeed.add(*iter);
+      complete(theSeed, list6, MB3);
+      complete(theSeed, list7, MB2);
+      complete(theSeed, list8, MB1);
 
-      checkAndFill(Theseed,eSetup);
+      checkAndFill(theSeed,eSetup);
     }
   }
 
@@ -465,13 +467,13 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list6.size() < 100 ) {   // +v
     for ( counter = 0; counter<list6.size(); counter++ ){
       if ( !MB3[counter] ) { 
-	MuonSeedFinder Theseed;
-	Theseed.add(list6[counter]);
-	complete(Theseed, list7, MB2);
-	complete(Theseed, list8, MB1);
-	complete(Theseed, list9);
+	MuonSeedFinder theSeed;
+	theSeed.add(list6[counter]);
+	complete(theSeed, list7, MB2);
+	complete(theSeed, list8, MB1);
+	complete(theSeed, list9);
 
-	checkAndFill(Theseed,eSetup);
+	checkAndFill(theSeed,eSetup);
       }
     }
   }
@@ -480,14 +482,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list7.size() < 100 ) {   // +v
     for ( counter = 0; counter<list7.size(); counter++ ){
       if ( !MB2[counter] ) { 
-	MuonSeedFinder Theseed;
-	Theseed.add(list7[counter]);
-	complete(Theseed, list8, MB1);
-	complete(Theseed, list9);
-	complete(Theseed, list6, MB3);
-	if (Theseed.nrhit()>1 || (Theseed.nrhit()==1 &&
-				  Theseed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(Theseed,eSetup);
+	MuonSeedFinder theSeed;
+	theSeed.add(list7[counter]);
+	complete(theSeed, list8, MB1);
+	complete(theSeed, list9);
+	complete(theSeed, list6, MB3);
+	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
+				  theSeed.firstRecHit()->dimension()==4) ) {
+	  checkAndFill(theSeed,eSetup);
 
 
 	}
@@ -499,14 +501,14 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if ( list8.size() < 100 ) {   // +v
     for ( counter = 0; counter<list8.size(); counter++ ){
       if ( !MB1[counter] ) { 
-	MuonSeedFinder Theseed;
-	Theseed.add(list8[counter]);
-	complete(Theseed, list9);
-	complete(Theseed, list6, MB3);
-	complete(Theseed, list7, MB2);
-	if (Theseed.nrhit()>1 || (Theseed.nrhit()==1 &&
-				  Theseed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(Theseed,eSetup);
+	MuonSeedFinder theSeed;
+	theSeed.add(list8[counter]);
+	complete(theSeed, list9);
+	complete(theSeed, list6, MB3);
+	complete(theSeed, list7, MB2);
+	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
+				  theSeed.firstRecHit()->dimension()==4) ) {
+	  checkAndFill(theSeed,eSetup);
 	}
       }
     }
@@ -534,19 +536,19 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
 
 void MuonSeedGenerator::complete(MuonSeedFinder& seed,
-                                 RecHitContainer &recHits, bool* used) const {
+                                 MuonRecHitContainer &recHits, bool* used) const {
 
-  RecHitContainer good_rhit;
+  MuonRecHitContainer good_rhit;
 
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
 
-  MuonTransientTrackingRecHit *first = seed.firstRecHit(); // first rechit of seed
+  ConstMuonRecHitPointer first = seed.firstRecHit(); // first rechit of seed
 
   GlobalPoint ptg2 = first->globalPosition(); // its global pos +v
 
   int nr=0; // count rechits we have checked against seed
 
-  for ( RecHitIterator iter=recHits.begin(); iter!=recHits.end(); iter++){
+  for (MuonRecHitContainer::iterator iter=recHits.begin(); iter!=recHits.end(); iter++){
 
     GlobalPoint ptg1 = (*iter)->globalPosition();  //+v global pos of rechit
 
@@ -600,7 +602,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
 
-  MuonTransientTrackingRecHit *best=0;
+  MuonRecHitPointer best=0;
 
   float best_dphiG = M_PI;
   float best_dphiD = M_PI;
@@ -613,7 +615,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
    
     GlobalPoint  pos2 =  first->globalPosition();  // +v
       
-    for ( RecHitIterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
+    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
 
       GlobalPoint pos1 = (*iter)->globalPosition();  // +v
  
@@ -657,7 +659,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
     float best_dphi = M_PI;
 
-    for ( RecHitIterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
+    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
       GlobalVector dir1 = (*iter)->globalDirection();
 
       //@@ Tim: Why do this again? 'first' hasn't changed, has it?
@@ -689,10 +691,10 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 }  //   void complete.
 
 
-void MuonSeedGenerator::checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup){
+void MuonSeedGenerator::checkAndFill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup){
 
-  if (Theseed.nrhit()>1 ) {
-    vector<TrajectorySeed> the_seeds =  Theseed.seeds(eSetup);
+  if (theSeed.nrhit()>1 ) {
+    vector<TrajectorySeed> the_seeds =  theSeed.seeds(eSetup);
     for (vector<TrajectorySeed>::const_iterator
 	   the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
       // FIXME, ask for this method

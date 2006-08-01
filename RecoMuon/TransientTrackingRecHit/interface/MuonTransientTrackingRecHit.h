@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2006/07/31 18:26:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/31 22:52:37 $
+ *  $Revision: 1.10 $
  */
 
 
@@ -16,18 +16,12 @@
 
 class MuonTransientTrackingRecHit: public GenericTransientTrackingRecHit{
 public:
-
-  /// Construct from a TrackingRecHit and its GeomDet
-//  MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
-
-  /// Copy ctor
-//  MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other );
+  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
+  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
+  typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
+  typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
   
   virtual ~MuonTransientTrackingRecHit(){}
-
-// virtual MuonTransientTrackingRecHit* clone() const {
-//    return new MuonTransientTrackingRecHit(*this);
-//  }
 
   /// Direction in 3D for segments, otherwise (0,0,0)
   virtual LocalVector localDirection() const;
@@ -59,17 +53,22 @@ public:
   /// return the sub components of this transient rechit
   virtual ConstRecHitContainer transientHits() const;
 
+  /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
+
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit* rh) {
     return RecHitPointer( new MuonTransientTrackingRecHit(geom, rh));
   }
-  
+
+  static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
+    return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
+  }
  private:
 
   /// Construct from a TrackingRecHit and its GeomDet
   MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
 
   /// Copy ctor
-  MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other );
+  MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit & other );
 
   virtual MuonTransientTrackingRecHit* clone() const {
     return new MuonTransientTrackingRecHit(*this);
