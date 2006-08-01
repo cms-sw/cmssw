@@ -34,7 +34,9 @@ namespace edmtestp
     char headerurl_[256];
     Buf buf_;
     int events_read_;      // use this until we inherent from the right input source
-    edm::EventDecoder decoder_;
+    //edm::EventDecoder decoder_;
+    int hltBitCount;
+    int l1BitCount;
   };
 
 }

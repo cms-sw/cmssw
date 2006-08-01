@@ -24,6 +24,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/OtherMessage.h"
 
 #include <algorithm>
 #include <iterator>
@@ -144,15 +146,25 @@ namespace edmtestp
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
 
     // first check if done message
-    edm::MsgCode msgtest(&buf_[0],len);
-    if(msgtest.getCode() == MsgCode::DONE) {
+    // need to use this BUT does EventMsgView EVER look like a MsgCode DONE message!!!
+    //edm::MsgCode msgtest(&buf_[0],len);
+    //if(msgtest.getCode() == MsgCode::DONE) {
+    // OtherMessageView class not working
+    OtherMessageView msgView(&buf_[0]);
+    //std::cout << "received other message code = " << msgView.code()
+    //          << " and size = " << msgView.size()
+    //          << " and check against " << Header::DONE << endl;
+
+    if (msgView.code() == Header::DONE) {
       // this will end cmsRun 
-      std::cout << "Storage Manager as halted - ending run" << std::endl;
+      std::cout << "Storage Manager has halted - ending run" << std::endl;
       return std::auto_ptr<edm::EventPrincipal>();
     } else {
       events_read_++;
-      edm::EventMsg msg(&buf_[0],len);
-      return decoder_.decodeEvent(msg,productRegistry());
+      //edm::EventMsg msg(&buf_[0],len);
+      //return decoder_.decodeEvent(msg,productRegistry());
+      EventMsgView eventView(&buf_[0],hltBitCount,l1BitCount);
+      return StreamTranslator::deserializeEvent(eventView,productRegistry());
     }
   }
 
@@ -194,7 +206,7 @@ namespace edmtestp
       }
     } while (data.d_.length() == 0);
 
-    JobHeaderDecoder hdecoder;
+    //JobHeaderDecoder hdecoder;
     std::vector<char> regdata(1000*1000);
 
     // rely on http transfer string of correct length!
@@ -202,13 +214,19 @@ namespace edmtestp
     FDEBUG(9) << "EventStreamHttpReader received registry len = " << len << std::endl;
     regdata.resize(len);
     for (int i=0; i<len ; i++) regdata[i] = data.d_[i];
-    edm::InitMsg msg(&regdata[0],len);
+    //edm::InitMsg msg(&regdata[0],len);
+    InitMsgView initView(&regdata[0]);
+    //hltBitCount = initView.hltTriggerCount();
+    //l1BitCount = initView.l1TriggerCount();
+    hltBitCount = initView.get_hlt_bit_cnt();
+    l1BitCount = initView.get_l1_bit_cnt();
     // 21-Jun-2006, KAB:  catch (and re-throw) any exceptions decoding
     // the job header so that we can display the returned HTML and
     // (hopefully) give the user a hint as to the cause of the problem.
     std::auto_ptr<SendJobHeader> p;
     try {
-      p = hdecoder.decodeJobHeader(msg);
+      //p = hdecoder.decodeJobHeader(msg);
+      p = StreamTranslator::deserializeRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;
