@@ -1,4 +1,3 @@
-#include "Calibration/EcalTBTools/interface/BlockClasses.h"
 #include "Calibration/EcalTBTools/interface/TB06Reco.h"
 
 #ifdef __CINT__
