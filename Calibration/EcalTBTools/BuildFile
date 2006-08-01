@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+#<use name=DataFormats/EcalDigi>
+#<use name=DataFormats/EcalRecHit>
+#<use name=DataFormats/EcalDetId>
+<use name=root>
+<use name=clhep>
+#<flags SEAL_PLUGIN_NAME="CalibrationEcalTBTools">
+<export>
+   <lib name=CalibrationEcalTBTools>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+#   <use name=DataFormats/EcalDigi>
+#   <use name=DataFormats/EcalRecHit>
+#   <use name=DataFormats/EcalDetId>
+   <use name=root>
+   <use name=clhep>
+</export>
