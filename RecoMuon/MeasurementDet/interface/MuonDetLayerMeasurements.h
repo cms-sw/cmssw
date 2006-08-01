@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/07/31 23:17:32 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/01 15:29:24 $
+ *  $Revision: 1.13 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -14,13 +14,13 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include <vector>
 
 class DetLayer;
 class GeomDet;
 class TrajectoryMeasurement;
-class MuonTransientTrackingRecHit;
 
 
 //FIXME: these typedefs MUST GO inside the scope of MuonDetLayerMeasurements
@@ -30,8 +30,7 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
 class MuonDetLayerMeasurements {
  public:
-  typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-  typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+
 
   MuonDetLayerMeasurements(bool enableDT = true,
 			   bool enableCSC = true,
@@ -78,16 +77,16 @@ class MuonDetLayerMeasurements {
   void setEvent(const edm::Event &);  
 
   /// returns the rechits which are onto the layer
-  RecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
+  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
 
   /// returns the rechits which are onto the layer
-  RecHitContainer recHits(const DetLayer* layer) const;
+  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer) const;
 
 
  private:
 
   /// obtain TrackingRecHits from a DetLayer
-  RecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
+  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
 
 
   bool enableDTMeasurement;
