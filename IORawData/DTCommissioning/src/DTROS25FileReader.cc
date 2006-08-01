@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/15 23:40:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/28 08:59:50 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti
  */
 
@@ -33,7 +33,7 @@ DTROS25FileReader::DTROS25FileReader(const edm::ParameterSet& pset) :
       
   const string & filename = pset.getParameter<string>("fileName");
 
-  inputFile.open(filename.c_str(), ios::in | ios::binary );
+  inputFile.open(filename.c_str());
   if( inputFile.fail() ) {
     throw cms::Exception("InputFileMissing") 
       << "DTROS25FileReader: the input file: " << filename <<" is not present";
@@ -66,12 +66,12 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
     while ( !isTrailer(word) ) { 
       
       // get the first word
-      inputFile.read(dataPointer<uint32_t>( &word ), rosWordLenght);
+      int nread = inputFile.read(dataPointer<uint32_t>( &word ), rosWordLenght);
       
       // WARNING!!! ||swapping it|| (Check whether it is necessary) 
       swap(word);
 
-      if ( !inputFile ) throw 1;
+      if ( nread<=0 ) throw 1;
 
       // get the ROS25 header
       if (isHeader(word)) marked=true;

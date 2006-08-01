@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/07 10:39:26 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/03/15 23:40:07 $
+ *  $Revision: 1.8 $
  *  \author M. Zanetti
  */
 
@@ -33,7 +33,7 @@ DTROS8FileReader::DTROS8FileReader(const edm::ParameterSet& pset) :
       
   const string & filename = pset.getParameter<string>("fileName");
 
-  inputFile.open(filename.c_str(), ios::in | ios::binary );
+  inputFile.open(filename.c_str());
   if( inputFile.fail() ) {
     throw cms::Exception("InputFileMissing") 
       << "DTROS8FileReader: the input file: " << filename <<" is not present";
@@ -59,14 +59,15 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
 
     // Get the total number of words from the 1st word in the payload
     int numberOfWords;
-    inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght);
-    if ( !inputFile )  throw 1;
+    int nread = 0;
+    nread = inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght);
+    if ( nread<=0 )  throw 1;
 
 
     // Get the event data (all words but the 1st)
     int* eventData = new int[numberOfWords];
-    inputFile.read(dataPointer<int>( eventData + 1 ), (numberOfWords-1) * ros8WordLenght );
-    if ( !inputFile ) throw 1;
+    nread = inputFile.read(dataPointer<int>( eventData + 1 ), (numberOfWords-1) * ros8WordLenght );
+    if ( nread<=0 ) throw 1;
     
 
     // Check that the event data size corresponds to the 1st word datum 

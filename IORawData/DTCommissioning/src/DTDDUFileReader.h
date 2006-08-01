@@ -4,12 +4,13 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/07/11 16:11:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/31 16:49:00 $
+ *  $Revision: 1.4 $
  *  \author M. Zanetti - INFN Padova
  */
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
+#include <IORawData/DTCommissioning/src/RawFile.h>
 #include <DataFormats/Common/interface/EventID.h>
 
 #include <ostream>
@@ -49,13 +50,12 @@ class DTDDUFileReader : public DaqBaseReader {
 
  private:
 
-  FILE* inputFile;
+  RawFile inputFile;
 
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
 
   bool readFromDMA;
-  bool isRFIO;
 
   static const int dduWordLength = 8;
 

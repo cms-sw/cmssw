@@ -4,12 +4,13 @@
 /** \class DTROS25FileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/02/14 16:22:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/15 23:40:07 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
+#include <IORawData/DTCommissioning/src/RawFile.h>
 #include <DataFormats/Common/interface/EventID.h>
 
 #include <ostream>
@@ -45,7 +46,7 @@ class DTROS25FileReader : public DaqBaseReader {
  private:
 
 
-  std::ifstream inputFile;
+  RawFile inputFile;
 
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
