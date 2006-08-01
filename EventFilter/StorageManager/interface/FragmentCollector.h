@@ -17,13 +17,19 @@
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 // added for Event Server by HWKC
-#include "EventFilter/StorageManager/interface/ESRingBuffer.h"
+#include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
+// for hack
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/StreamerOutputService.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
 #include <vector>
 #include <map>
+#include <string>
+#include <fstream>
 
 namespace stor
 {
@@ -54,6 +60,7 @@ namespace stor
     static void run(FragmentCollector*);
     void processFragments();
     void processEvent(FragEntry* msg);
+    void processHeader(FragEntry* msg);
 
     edm::EventBuffer* cmd_q_;
     edm::EventBuffer* evtbuf_q_;
@@ -67,17 +74,39 @@ namespace stor
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
 	const stor::HLTInfo* info_;
 
+    // hack here! HEREHEREHERE
+    // should not need to set the bit counts as the first INIT messages has them
+  public:
+    void set_hlt_bit_count(uint32 count) { hlt_bit_cnt_ = count; }
+    void set_l1_bit_count(uint32 count) { l1_bit_cnt_ = count; }
+    void set_outoption(bool stream_only) { streamerOnly_ = stream_only; }
+    void set_outfile(std::string outfilestart) { filename_ = outfilestart; }
+  private:
+    uint32 hlt_bit_cnt_;
+    uint32 l1_bit_cnt_;
+    bool streamerOnly_;
+    std::string filename_;
+    //ofstream ost_;
+    std::auto_ptr<edm::StreamerOutputService> writer_;
+
+
   // added for Event Server by HWKC so SM can get events from ring buffer
   public:
     bool esbuf_isEmpty() { return evtsrv_area_.isEmpty(); }
     bool esbuf_isFull() { return evtsrv_area_.isFull(); }
-    edm::EventMsg esbuf_pop_front() {return evtsrv_area_.pop_front();}
-    void esbuf_push_back(edm::EventMsg msg) { evtsrv_area_.push_back(msg); }
+//HEREHERE
+    EventMsgView esbuf_pop_front() {return evtsrv_area_.pop_front();}
+    void esbuf_push_back(EventMsgView msg) { evtsrv_area_.push_back(msg); }
+//HEREHERE
 
     void set_esbuf_oneinN(int N) { oneinN_ = N; }
 
   private:
-    stor::ESRingBuffer evtsrv_area_;
+//HEREHERE
+    stor::EvtMsgRingBuffer evtsrv_area_;
+// the writer here
+//  writer writer_;
+//HEREHERE
     int oneinN_;  // place one in every oneinN_ events into the buffer
     int count_4_oneinN_;
   };

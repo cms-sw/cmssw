@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EPRunner.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 // added by HWKC for Event Server
 #include "IOPool/Streamer/interface/Messages.h"
@@ -46,11 +47,20 @@ namespace stor
     // added for Event Server by HWKC so SM can get event from ring buffer
     bool isEmpty() { return collector_->esbuf_isEmpty(); }
     bool isFull() { return collector_->esbuf_isFull(); }
-    edm::EventMsg pop_front() {return collector_->esbuf_pop_front();}
-    void push_back(edm::EventMsg msg) 
+//HEREHERE
+    EventMsgView pop_front() {return collector_->esbuf_pop_front();}
+    void push_back(EventMsgView msg) 
       { collector_->esbuf_push_back(msg); }
+//HEREHERE
     void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
     edm::ServiceToken getToken() { return ep_runner_->getToken();}
+
+//HEREHEREHERE
+    // a hack to get hlt and l1 counts into fragColl
+    void set_hlt_bit_count(uint32 count) { collector_->set_hlt_bit_count(count);}
+    void set_l1_bit_count(uint32 count) { collector_->set_l1_bit_count(count);}
+    void set_outoption(bool stream_only) { collector_->set_outoption(stream_only);}
+    void set_outfile(std::string outfilestart) { collector_->set_outfile(outfilestart);}
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);
