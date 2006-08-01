@@ -74,11 +74,11 @@ using namespace edm;
     edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
     edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
     edm::Handle<SiPixelRecHitCollection> pixelrechits;
-    std::string  rechitProducer = "SiStripRecHits2D";
+    std::string  rechitProducer = "siStripMatchedRecHits";
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
-    e.getByLabel("pixRecHitConverter",pixelrechits);
+    e.getByLabel("siPixelRecHits",pixelrechits);
       //e.getByType(pixelrechits);
     
     //first instance tracking geometry

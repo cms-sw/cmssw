@@ -180,7 +180,7 @@ void MeasurementTracker::update( const edm::Event& event) const
 
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   //std::string stripClusterProducer ("ClusterProducer"); // FIXME SiStripClusterizer
-  std::string stripClusterProducer ("ThreeThresholdClusterizer");
+  std::string stripClusterProducer ("siStripClusters");
   edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
   event.getByLabel(stripClusterProducer, clusterHandle);
   const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
@@ -206,7 +206,7 @@ void MeasurementTracker::update( const edm::Event& event) const
   }
 
   // Pixel Clusters
-  std::string pixelClusterProducer ("pixClust"); 
+  std::string pixelClusterProducer ("siPixelClusters"); 
 
   edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
   event.getByLabel(pixelClusterProducer, pixelClusters);

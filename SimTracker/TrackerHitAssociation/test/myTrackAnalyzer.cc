@@ -22,7 +22,6 @@ class TrackerHitAssociator;
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     
     edm::Handle<reco::TrackCollection> trackCollection;
-    //    event.getByLabel("trackp", trackCollection);
     event.getByType(trackCollection);
     
     //get simtrack info
@@ -31,8 +30,8 @@ class TrackerHitAssociator;
 
    Handle<SimTrackContainer> SimTk;
    Handle<SimVertexContainer> SimVtx;
-   event.getByLabel("SimG4Object",SimTk);
-   event.getByLabel("SimG4Object",SimVtx);
+   event.getByLabel("g4SimHits",SimTk);
+   event.getByLabel("g4SimHits",SimVtx);
    theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
    theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
 

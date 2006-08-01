@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.3 2006/04/07 15:42:19 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.4 2006/07/13 09:48:44 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -86,7 +86,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   std::cout << " Processing event: " << eventNo << std::endl;
 
   // retrieve producer name of input SiPixelDigiCollection
-  std::string digiProducer = conf_.getUntrackedParameter<std::string>("DigiProducer","pixdigi");
+  std::string digiProducer = conf_.getUntrackedParameter<std::string>("DigiProducer","siPixelDigis");
 
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;

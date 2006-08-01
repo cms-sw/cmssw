@@ -373,7 +373,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
  ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 
- std::string digiProducer = "stripdigi";
+ std::string digiProducer = "siStripDigis";
  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
  e.getByLabel(digiProducer, stripDigis);
  edm::DetSetVector<SiStripDigi>::const_iterator DSViter = stripDigis->begin();

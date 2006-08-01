@@ -251,11 +251,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : myEvent_(e)  
   //  using namespace edm;
   
   //get stuff from the event
-  //changed to detsetvector
-  //edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
-  //    e.getByLabel("stripdigi", "stripdigi", stripdigisimlink);
-  e.getByLabel("stripdigi", stripdigisimlink);
-  e.getByLabel("pixdigi",   pixeldigisimlink);
+  e.getByLabel("siStripDigis", stripdigisimlink);
+  e.getByLabel("siPixelDigis",   pixeldigisimlink);
   //cout << "Associator : get digilink from the event" << endl;
   
   theStripHits.clear();
@@ -268,14 +265,14 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : myEvent_(e)  
   edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
   edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
   
-  e.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
   
   theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
   theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
@@ -299,10 +296,10 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : myEvent_(e)  
   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
   
-  e.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
+  e.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
+  e.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
   
   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());

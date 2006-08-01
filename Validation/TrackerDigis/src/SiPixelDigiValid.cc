@@ -319,7 +319,7 @@ for ( int i =0 ; i< 44; i++) {
  edm::ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );     
 
- string digiProducer = "pixdigi";
+ string digiProducer = "siPixelDigis";
  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
  e.getByLabel(digiProducer, pixelDigis);
 
