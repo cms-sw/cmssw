@@ -66,7 +66,11 @@ const reco::PFTrajectoryPoint& PFRecTrack::getExtrapolatedPoint(unsigned layerid
     assert(0);
   }
 
-  return trajectoryPoints_[ getNTrajectoryMeasurements() + layerid ];  
+  unsigned slot = getNTrajectoryMeasurements() + layerid;
+  if( layerid == reco::PFTrajectoryPoint::ClosestApproach )
+    slot = 0;
+
+  return trajectoryPoints_[ slot ];  
 }
 
 
