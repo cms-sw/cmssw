@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.22 2006/07/28 12:12:59 llista Exp $
+ * \version $Id: TrackBase.h,v 1.23 2006/07/31 12:08:29 llista Exp $
  *
  */
 
@@ -106,15 +106,15 @@ namespace reco {
     double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
     
     /// error on signed transverse curvature
-    double transverseCurvatureError() const { return covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ]; }
+    double transverseCurvatureError() const { return sqrt( covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ] ); }
     /// error on theta
-    double thetaError() const { return covariance_[ idx( i_theta, i_theta ) ]; }
+    double thetaError() const { return sqrt( covariance_[ idx( i_theta, i_theta ) ] ); }
     /// error on phi0
-    double phi0Error() const { return covariance_[ idx ( i_phi0, i_phi0 ) ]; }
+    double phi0Error() const { return sqrt( covariance_[ idx ( i_phi0, i_phi0 ) ] ); }
     /// error on d0
-    double d0Error() const { return covariance_[ idx( i_d0, i_d0 ) ]; }
+    double d0Error() const { return sqrt( covariance_[ idx( i_d0, i_d0 ) ] ); }
     /// error on dx
-    double dzError() const { return covariance_[ idx( i_dz, i_dz ) ]; }
+    double dzError() const { return sqrt( covariance_[ idx( i_dz, i_dz ) ] ); }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
