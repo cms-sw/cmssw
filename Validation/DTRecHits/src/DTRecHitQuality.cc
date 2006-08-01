@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/06 15:58:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/27 12:23:54 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -80,9 +80,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   debug = pset.getUntrackedParameter<bool>("debug");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "g4SimHits");
   // the name of the 1D rec hit collection
-  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "DTRecHit1DProducer");
+  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "dt1DRecHits");
   // the name of the 2D rec hit collection
   segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
   // the name of the 4D rec hit collection
