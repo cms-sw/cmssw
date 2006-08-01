@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.6 2006/06/30 14:10:34 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.7 2006/07/31 21:36:14 tboccali Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -95,7 +95,10 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
 
   theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-  theMeasurementTracker = new MeasurementTracker(setup,conf);
+
+  using edm::ParameterSet;
+  ParameterSet mt_params = conf.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
+  theMeasurementTracker = new MeasurementTracker(setup,mt_params);
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
