@@ -3,6 +3,6 @@
 <tr>
   <td><a href="classSiStripDigi.html">SiStripDigi </a></td>
   <td><a href="DataFormats_SiStripDigi.html">edm::DetSetVector&lt;SiStripDigi&gt;</a></td>
-  <td><a href="SimTracker_SiStripDgitizer.html">stripdigi</a></td>
+  <td><a href="SimTracker_SiStripDgitizer.html">siStripDigis</a></td>
   <td class="description">Silicon strip digis</td>
   <td>F.Ambroglini</td>

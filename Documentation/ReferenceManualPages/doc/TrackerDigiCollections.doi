@@ -3,7 +3,7 @@
 <tr>
   <td><a href="classSiStripDigi.html">SiStripDigi </a></td>
   <td><a href="DataFormats_SiStripDigi.html">edm::DetSetVector&lt;SiStripDigi&gt;</a></td>
-  <td><a href="SimTracker_SiStripDgitizer.html">stripdigi</a></td>
+  <td><a href="SimTracker_SiStripDgitizer.html">siStripDigis</a></td>
   <td class="description">Silicon strip digi </td>
   <td>F. Ambroglini</td>
 </tr><tr class="colgroup">
@@ -11,7 +11,7 @@
 <tr>
   <td><a href="classSiPixelDigi.html">SiPixelDigi </a></td>
   <td><a href="DataFormats_SiPixelDigi.html">edm::DetSetVector&lt;SiPixelDigi</a></td>
-  <td><a href="SimTracker_SiPixelDgitizer.html">pixdigi</a></td>
-  <td class="description">Silicon strip digi </td>
+  <td><a href="SimTracker_SiPixelDgitizer.html">siPixelDigis</a></td>
+  <td class="description">Silicon pixel digi </td>
   <td>M. Pioppi</td>
 </tr>

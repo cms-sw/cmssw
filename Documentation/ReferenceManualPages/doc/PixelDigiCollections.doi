@@ -4,7 +4,7 @@
 <tr>
   <td><a href="classPixelDigi.html">PixelDigi</a></rd>
   <td><a href="DataFormats_SiStripDigi.html">edm::DetSetVector&lt;PixelDigi&gt;</a></td>
-  <td><a href="EventFilter_SiPixelRawToDigi.html">RawToDigi</a></td>
+  <td><a href="EventFilter_SiPixelRawToDigi.html">siPixelDigis</a></td>
   <td class="description">Silicon pixel digis</td>
   <td>V.Chiochia</td>
 </tr>
