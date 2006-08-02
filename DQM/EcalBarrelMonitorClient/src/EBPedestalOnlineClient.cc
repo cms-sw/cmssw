@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.38 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,7 +81,7 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
   }
 
   expectedMean_ = 200.0;
-  discrepancyMean_ = 20.0;
+  discrepancyMean_ = 25.0;
   RMSThreshold_ = 2.0;
 
 }
