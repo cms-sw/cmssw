@@ -6,7 +6,7 @@
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Utilities/interface/ReflexObjectSelector.h"
+#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
 #include <vector>
 
 class ThreeBodyCombiner {
@@ -40,7 +40,7 @@ protected:
   /// utility to check candidate daughters overlap
   OverlapChecker overlap_;
   /// candidate selector
-  ReflexObjectSelector<reco::Candidate> select_;
+  SingleObjectSelector<reco::Candidate> select_;
 };
 
 #endif

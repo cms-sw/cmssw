@@ -8,7 +8,7 @@
 </center>
 
 \section desc Description
-Framework generic utility classes
+Generic Physics Tools utility classes
 
 \subsection selectors Selectors
 - PtMinSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on objects 
@@ -17,16 +17,28 @@ Framework generic utility classes
 - AnySelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true on all objects. 
   It is a trivial selector to be used mainly for tests.
 
+- SingleObjectSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true
+  or false according to selection criterion specified by the user as a string. Mapping of string variables to
+  object methods is done using Reflex dictionary. Should be used in conjunction with the function reco::parser::cutParser
+  that returns a ReflexSelector object to be passed to ReflexObjectSelector constructor.
+
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
   objects by smallest <tt>pt()</tt>.
 - PtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
   objects by largest <tt>pt()</tt>.
 
+
 \subsection functions Functions
 - MasslessInvariantMass: <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> that computes
   invariant mass of a pair of objects assuming they are massless using the method <tt>momentum()</tt> to retrieve
   their spatial momentum vector.
+
+
+\section other utilities
+- MethodMap: generic map of class methods based on Reflex dictionary. Only selector (i.e.: <tt>const</tt>) 
+  methods with no argument with a return type convertible to <tt>double</tt> are contained in the map.
+  Method from base classes are also contiained.
 
 
 \section status Status and planned development

@@ -16,15 +16,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: TwoBodyCombiner.h,v 1.10 2006/03/03 10:09:18 llista Exp $
+ * $Id: TwoBodyCombiner.h,v 1.11 2006/07/31 13:30:47 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Utilities/interface/ReflexObjectSelector.h"
+#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
 
 class TwoBodyCombiner {
 public:
@@ -49,7 +49,7 @@ protected:
   /// utility to check candidate daughters overlap
   OverlapChecker overlap_;
   /// candidate selector
-  ReflexObjectSelector<reco::Candidate> select_;
+  SingleObjectSelector<reco::Candidate> select_;
 };
 
 #endif

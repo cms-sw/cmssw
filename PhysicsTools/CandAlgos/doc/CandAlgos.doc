@@ -37,18 +37,21 @@ both decays to <i>x<sup>+</sup>y<sup>-</sup></i> and <i>x<sup>-</sup>y<sup>+</su
 \endhtmlonly
 
 - cand::modules::CandSelector: selects candidates from a collection and saves their clones in 
-a new collection. The selection can be specified by the user as a string. <br>
+a new collection. The selection can be specified by the user as a string. The module can
+also be used as filter specifying the boolean parameter <tt>filter</tt>.<br>
 Examples of configuration for this module are the following:
 \htmlonly
 <pre>
   module goodMuons = CandSelector {
     string src = "allMuons"
     string cut = "pt > 5.0"
+    bool filter = false
   }
 
   module goodZ = CandSelector {
     string src = "allZ"
     string cut = "86.0 < mass < 96.0"
+    bool filter = false
   }
 </pre>
 \endhtmlonly
