@@ -1,5 +1,5 @@
-#ifndef CALIBMUON_CSCCALIBRATION_CSCAFEBTHRANALYSIS_H
-#define CALIBMUON_CSCCALIBRATION_CSCAFEBTHRANALYSIS_H 1
+#ifndef CSCAFEBTHRANALYSIS_H
+#define CSCAFEBTHRANALYSIS_H
 
 #include "TH1.h"
 #include "TH2.h"
@@ -13,8 +13,8 @@
 
 /** \class CSCAFEBThrAnalysis
   *  
-  * $Date: 2006/06/07 15:03:56 $
-  * $Revision: 1.2 $
+  * $Date: 2006/06/09 13:15:39 $
+  * $Revision: 1.1 $
   * \author 
   */
 class CSCAFEBThrAnalysis {

@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "OnlineDB/CSCCondDB/interface/CSCAFEBAnalyzer.h"
-#include "OnlineDB/CSCCondDB/interface/CSCAFEBThrAnalysis.h"
 
 CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf) {
 
@@ -16,7 +15,13 @@ CSCAFEBAnalyzer::CSCAFEBAnalyzer(edm::ParameterSet const& conf) {
   /// their names and types, and access them to initialize internal
   /// variables. Example as follows:
 
+  testname=conf.getParameter<std::string>("TestName");
+  
+if(testname=="AFEBThresholdScan")
   analysisthr_.setup(conf.getParameter<std::string>("HistogramFile"));
+if(testname=="AFEBConnectivity")
+  analysiscnt_.setup(conf.getParameter<std::string>("HistogramFile"));
+
 }
 
 void CSCAFEBAnalyzer::analyze(edm::Event const& e,edm::EventSetup const& iSetup) {
@@ -26,15 +31,11 @@ void CSCAFEBAnalyzer::analyze(edm::Event const& e,edm::EventSetup const& iSetup)
    const char* modtag="cscunpacker";
    e.getByLabel(modtag,"MuonCSCWireDigi",wire_digis);
 
-   /// To get information from the event setup, you must request the "Record"
-   /// which contains it and then extract the object you need (HCAL example)
-
-   ///  edm::ESHandle<CaloGeometry> geometry;
-   ///  iSetup.get<IdealGeometryRecord>().get(geometry);
-
-   analysisthr_.analyze(*wire_digis);
+if(testname=="AFEBThresholdScan")   analysisthr_.analyze(*wire_digis);
+if(testname=="AFEBConnectivity")     analysiscnt_.analyze(*wire_digis);
 }
 
 void CSCAFEBAnalyzer::endJob() {
-  analysisthr_.done();
+if(testname=="AFEBThresholdScan")  analysisthr_.done();
+if(testname=="AFEBConnectivity")    analysiscnt_.done();
 }

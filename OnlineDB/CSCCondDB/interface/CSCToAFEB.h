@@ -1,5 +1,5 @@
-#ifndef  CSCToAFEB_CSCToAFEB_h
-#define  CSCToAFEB_CSCToAFEB_h
+#ifndef CSCToAFEB_h
+#define CSCToAFEB_h
 
 /**\class  CSCToAFEB
  *

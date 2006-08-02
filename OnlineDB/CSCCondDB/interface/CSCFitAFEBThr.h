@@ -1,5 +1,5 @@
-#ifndef CSCCalibration_CSCFitAFEBThr_h
-#define CSCCalibration_CSCFitAFEBThr_h
+#ifndef CSCFitAFEBThr_h
+#define CSCFitAFEBThr_h
 
 /** \class CSCFitAFEBThr
  *

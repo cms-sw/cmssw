@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "OnlineDB/CSCCondDB/interface/CSCAFEBThrAnalysis.h"
+#include "OnlineDB/CSCCondDB/interface/CSCAFEBConnectAnalysis.h"
 
 class CSCAFEBAnalyzer : public edm::EDAnalyzer {
 public:
@@ -16,7 +17,8 @@ public:
   virtual void endJob();
 private:
   /// variables persistent across events should be declared here.
-
+  std::string testname;
   CSCAFEBThrAnalysis analysisthr_;
+  CSCAFEBConnectAnalysis analysiscnt_;
 };
 
