@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/24 09:53:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/25 10:14:39 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -19,6 +19,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -30,7 +33,8 @@
  
 HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 {
-   using namespace reco;
+   jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
+   metsTag_ = iConfig.getParameter< edm::InputTag > ("metsTag");
 
    //register your products
 
@@ -65,6 +69,25 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<CaloJetCollection>  jets (new CaloJetCollection);
    auto_ptr<CaloMETCollection>  mets (new CaloMETCollection);
 
+   // jets and MET are special: check if MC truths jets/mets is available
+   edm::Handle<GenJetCollection> mcjets;
+   edm::Handle<   METCollection> mcmets;
+   bool foundJets(true);
+   bool foundMets(true);
+   try {
+     iEvent.getByLabel(jetsTag_,mcjets);
+   }
+   catch(...) {
+     foundJets=false;
+   }
+   LogDebug("") << "Found MC truth jets: " << foundJets;
+   try {
+     iEvent.getByLabel(metsTag_,mcmets);
+   }
+   catch(...) {
+     foundMets=false;
+   }
+   LogDebug("") << "Found MC truth mets: " << foundMets;
 
    vector<edm::Handle<edm::HepMCProduct> > hepmcs;
    edm::Handle<edm::HepMCProduct> hepmc;
@@ -73,32 +96,50 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    LogDebug("") << "Number of HepMC products found: " << hepmcs.size();
 
    math::XYZTLorentzVector p4;
-   if (hepmcs.size()>0) {
-     hepmc=hepmcs[0];
+   for (unsigned int i=0; i!=hepmcs.size(); i++) {
+     hepmc=hepmcs[i];
      const HepMC::GenEvent* evt = hepmc->GetEvent();
-     for (HepMC::GenEvent::vertex_const_iterator vitr=evt->vertices_begin(); vitr!= evt->vertices_end(); vitr++) {
-       for (HepMC::GenVertex::particle_iterator pitr=(*vitr)->particles_begin(HepMC::children);
-                                               pitr!=(*vitr)->particles_end(HepMC::children); pitr++) {
-	 if ( (*pitr)->status()==1) {
-	   HepLorentzVector p = (*pitr)->momentum() ;
-           p4=math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t());
-           int ipdg = (*pitr)->pdg_id();
-           if (abs(ipdg)==11) {
-             elec->push_back(Electron(0,p4));
-	   } else if (abs(ipdg)==13) {
-             muon->push_back(Muon(0,p4));
-           } else if (abs(ipdg)==22) {
-             phot->push_back(Photon(0,p4));
-           } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16) {
+     for (HepMC::GenEvent::particle_const_iterator pitr=evt->particles_begin(); pitr!=evt->particles_end(); pitr++) {
+       if ( (*pitr)->status()==1) {
+	 HepLorentzVector p = (*pitr)->momentum() ;
+	 p4=math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t());
+	 int ipdg = (*pitr)->pdg_id();
+	 if (abs(ipdg)==11) {
+	   elec->push_back(Electron(-ipdg/abs(ipdg),p4));
+	 } else if (abs(ipdg)==13) {
+	   muon->push_back(Muon(-ipdg/abs(ipdg),p4));
+	 } else if (abs(ipdg)==22) {
+	   phot->push_back(Photon(0,p4));
+	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16) {
+	   if (!foundMets) {
 	     SpecificCaloMETData specific;
-             mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
-	   } else { 
-	     CaloJet::Specific specific;
-             vector<CaloTowerDetId> ctdi(0);
-             jets->push_back(CaloJet(p4,specific,ctdi));
+	     mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
 	   }
-         }
+	 } else { 
+	   if (!foundJets) {
+	     CaloJet::Specific specific;
+	     vector<CaloTowerDetId> ctdi(0);
+	     jets->push_back(CaloJet(p4,specific,ctdi));
+	   }
+	 }
        }
+     }
+   }
+
+   if (foundJets) {
+     for (unsigned int i=0; i!=mcjets->size(); i++) {
+       p4=((*mcjets)[i]).p4();
+       CaloJet::Specific specific;
+       vector<CaloTowerDetId> ctdi(0);
+       jets->push_back(CaloJet(p4,specific,ctdi));
+     }
+   }
+
+   if (foundMets) {
+     for (unsigned int i=0; i!=mcmets->size(); i++) {
+       p4=((*mcmets)[i]).p4();
+       SpecificCaloMETData specific;
+       mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
      }
    }
 
