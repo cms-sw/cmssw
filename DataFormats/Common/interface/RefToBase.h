@@ -96,7 +96,7 @@ namespace edm {
       TRef castTo() const {
 	typedef reftobase::Holder<T,TRef> Holder;
 	const Holder * h = dynamic_cast<Holder *>( holder_ );
-	if ( h == 0 ) return Ref();
+	if ( h == 0 ) return TRef();
         return h->getRef();
       }
 
