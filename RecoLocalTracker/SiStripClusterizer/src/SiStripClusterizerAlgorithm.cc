@@ -22,6 +22,7 @@ SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet
     validClusterizer_ = true;
   } else {
     edm::LogError("SiStripClusterizer") << "[SiStripClusterizerAlgorithm] No valid strip clusterizer selected, possible clusterizer: ThreeThresholdClusterizer" << std::endl;
+    throw edm::Exception(edm::errors::Configuration) << "[SiStripClusterizerAlgorithm] No valid strip clusterizer selected, possible clusterizer: ThreeThresholdClusterizer";
     validClusterizer_ = false;
   }
 }
