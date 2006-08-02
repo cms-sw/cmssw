@@ -6,8 +6,8 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: 2006/07/29 02:34:18 $
- * $Revision: 1.2 $
+ * $Date: 2006/08/01 16:08:37 $
+ * $Revision: 1.3 $
  *
  * Modification:
  *
@@ -18,7 +18,6 @@
 
 /* Collaborating Class Header */
 #include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Surface/interface/CylinderBuilder.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
@@ -86,17 +85,16 @@ void SmartPropagator::initTkVolume(float epsilon) {
   //
   // fill tracker dimensions
   //
-  float r_out = TrackerBounds::radius() + epsilon/2;
-  float r_in = r_out - epsilon;
-  float z_max = TrackerBounds::halfLength();
-  float z_min = - z_max;
+  float radius = TrackerBounds::radius();
+  float r_out  = radius + epsilon/2;
+  float r_in   = r_out - epsilon;
+  float z_max  = TrackerBounds::halfLength();
+  float z_min  = - z_max;
 
   Surface::PositionType pos(0,0,0); // centered at the global origin
   Surface::RotationType rot; // unit matrix - barrel cylinder orientation
 
-  CylinderBuilder cylB;
-
-  theTkVolume() = cylB.cylinder( pos, rot, SimpleCylinderBounds(r_in, r_out, z_min, z_max));
+  theTkVolume() = BoundCylinder::build(pos, rot, radius, SimpleCylinderBounds(r_in, r_out, z_min, z_max));
 
 }
 
