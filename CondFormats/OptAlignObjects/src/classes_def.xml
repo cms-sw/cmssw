@@ -36,7 +36,7 @@
  <class name="Inclinometers"/>
  <class name="Inclinometers::Item"/>
  <class name="std::vector<Inclinometers::Item>"/>  
- <class name="PX_sensors"/>
- <class name="PX_sensors::Item"/>
- <class name="std::vector<PX_sensors::Item>" /> 
+ <class name="PXsensors"/>
+ <class name="PXsensors::Item"/>
+ <class name="std::vector<PXsensors::Item>" /> 
 </lcgdict>
