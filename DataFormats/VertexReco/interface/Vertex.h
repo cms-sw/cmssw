@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.16 2006/07/20 14:34:40 llista Exp $
+ * \version $Id: Vertex.h,v 1.17 2006/07/28 12:13:00 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -65,6 +65,12 @@ namespace reco {
     double y() const { return position_.Y(); }
     /// y coordinate 
     double z() const { return position_.Z(); }
+    /// error on x
+    double xError() const { return sqrt( error( 0, 0 ) ); }
+    /// error on y
+    double yError() const { return sqrt( error( 1, 1 ) ); }
+    /// error on z
+    double zError() const { return sqrt( error( 2, 2 ) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
     double error( int i, int j ) const { return covariance_[ idx( i, j ) ]; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
