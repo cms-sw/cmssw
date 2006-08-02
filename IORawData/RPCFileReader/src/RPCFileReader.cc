@@ -57,7 +57,7 @@ void RPCFileReader::setRunAndEventInfo(){
       isOpen_=true;
       fileCounter_++;
       edm::LogInfo("RPCFR")<< "[RPCFileReader::setRunAndEventInfo] "
-			   << "Open for reading file no. " << fileCounter_+1
+			   << "Open for reading file no. " << fileCounter_
 			   << " " << fileNames()[fileCounter_-1].substr(5);  
     }
     else{
@@ -69,7 +69,7 @@ void RPCFileReader::setRunAndEventInfo(){
     }
   }
 
-  ReadDataFromAsciiFile(fileNames()[fileCounter_-1].substr(5),eventPos_);
+  readDataFromAsciiFile(fileNames()[fileCounter_-1].substr(5),eventPos_);
   unsigned int freq = 100;
   if(debug_) freq = 1;
   if(eventCounter_%freq==0)
@@ -95,8 +95,19 @@ bool RPCFileReader::produce(edm::Event &ev) {
   //exit when no more data
   if(noMoreData_) return false;
 
+  unsigned int freq = 100;
+  if(debug_) freq = 1;
+  if(eventCounter_%freq==0)
+    edm::LogInfo("RPCFR") << "[RPCFileReader::produce] "
+			  << " #" << eventCounter_ << " Run: "<< run_ 
+			  << " Event: " << event_ << " Bx = " << bxn_ 
+			  << " Time Stamp: " << timeStamp_.hour << ":" 
+			  << timeStamp_.min << ":" << timeStamp_.sec
+			  << " " << timeStamp_.day << " " << timeStamp_.month 
+			  << " " << timeStamp_.year;
+
   //fill the FEDRawDataCollection
-  FEDRawData *rawData = RPCDataFormatter();
+  FEDRawData *rawData = rpcDataFormatter();
   FEDRawData& fedRawData = result->FEDData(triggerFedId_);
   fedRawData = *rawData;
 
@@ -106,10 +117,10 @@ bool RPCFileReader::produce(edm::Event &ev) {
 }
 
 // ------------ Method called to read the PAC data from ASCII file ------------
-void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int *pos=0){
+void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
   
   if(!pos){
-    edm::LogError("RPCFR")<< "[RPCFileReader::ReadDataFromAsciiFile] "
+    edm::LogError("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
 			  << "Unknown event position; Abort";
     return;
   }
@@ -149,12 +160,12 @@ void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int 
       }
       else{
 	if(debug_)
-	  edm::LogInfo("RPCFR")<< "[RPCFileReader::ReadDataFromAsciiFile] "
+	  edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
 				<< "Unrecognized header. Skipping ";
 	infile.ignore(10000,10);// 10==\n
       }
     }
-    else if(IsHexNumber(dummy)){
+    else if(isHexNumber(dummy)){
       int bxLocal = atoi(dummy.c_str());
       int bxn4b, bc0, valid;
       infile >> hex >>  bxn4b >> bc0 >> valid;
@@ -164,8 +175,8 @@ void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int 
 	  for(int iLb=0;iLb<3;iLb++){
 	    infile >> hex >> idummy;
 	    RPCPacData dummyPartData(idummy);
-	    if(dummyPartData.PartitionDelay()-bxLocal==RPC_PAC_L1ACCEPT_BX){//Link data collected at L1A bx
-	      linkData_[dummyPartData.LbNum()][iL+iLb]=dummyPartData;
+	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX){//Link data collected at L1A bx
+	      linkData_[dummyPartData.lbNum()][iL+iLb]=dummyPartData;
 	    }
 	  }
 	}
@@ -181,7 +192,7 @@ void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int 
       }
       else{
 	if(debug_)
-	  edm::LogInfo("RPCFR")<< "[RPCFileReader::ReadDataFromAsciiFile] "
+	  edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
 				<< " Not valid data. Validity bit = " << valid
 				<< " Skipping record.";
 	infile.ignore(10000,10);// 10==\n
@@ -190,14 +201,14 @@ void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int 
     }
     else{
       if(debug_)
-	edm::LogInfo("RPCFR")<< "[RPCFileReader::ReadDataFromAsciiFile] "
+	edm::LogInfo("RPCFR")<< "[RPCFileReader::readDataFromAsciiFile] "
 			      << "Unrecognized begining of record: " << dummy
 			      << " Skipping record.";
       infile.ignore(10000,10);// 10==\n
     }
   }
   if(debug_)
-    edm::LogInfo("RPCFR") << "[RPCFileReader::ReadDataFromAsciiFile] "
+    edm::LogInfo("RPCFR") << "[RPCFileReader::readDataFromAsciiFile] "
 			   << " #" << eventCounter_ << " Run: "<< run_ 
 			   << " Event: " << event_ << " Bx = " << bxn_ 
 			   << " Time Stamp: " << timeStamp_.hour << ":" 
@@ -217,17 +228,17 @@ void RPCFileReader::ReadDataFromAsciiFile(string fileName="PacReadout.txt", int 
 }
 
 // ------------ Methods called to form RPC word for DAQ ------------
-RPCFileReader::Word16 RPCFileReader::BuildCDWord(RPCPacData linkData){//Chamber Data(Link Board Data)
-  Word16 word = (Word16(linkData.LbNum())<<14)
-               |(Word16(linkData.PartitionNum())<<10)
-               |(Word16(linkData.EndOfData())<<9)
-               |(Word16(linkData.HalfPartition())<<8)
-               |(Word16(linkData.PartitionData())<<0);
+RPCFileReader::Word16 RPCFileReader::buildCDWord(RPCPacData linkData){//Chamber Data(Link Board Data)
+  Word16 word = (Word16(linkData.lbNum())<<14)
+               |(Word16(linkData.partitionNum())<<10)
+               |(Word16(linkData.endOfData())<<9)
+               |(Word16(linkData.halfPartition())<<8)
+               |(Word16(linkData.partitionData())<<0);
   return word;
 }
 
-RPCFileReader::Word16 RPCFileReader::BuildSLDWord(unsigned int tbNum, unsigned int linkNum){//Start of the Link input Data
-  Word16 specIdent = 11;
+RPCFileReader::Word16 RPCFileReader::buildSLDWord(unsigned int tbNum, unsigned int linkNum){//Start of the Link input Data
+  Word16 specIdent = 3;
   Word16 word = (specIdent<<14)
                |(1<<13)|(1<<12)|(1<<11)
                |(Word16(tbNum)<<5)
@@ -235,16 +246,16 @@ RPCFileReader::Word16 RPCFileReader::BuildSLDWord(unsigned int tbNum, unsigned i
   return word;
 }
 
-RPCFileReader::Word16 RPCFileReader::BuildSBXDWord(unsigned int bxn){//Start of the Bunch Crossing Data
-  Word16 specIdent = 11;
+RPCFileReader::Word16 RPCFileReader::buildSBXDWord(unsigned int bxn){//Start of the Bunch Crossing Data
+  Word16 specIdent = 3;
   Word16 word = (specIdent<<14)
                |(0<<13)|(1<<12)
                |(Word16(bxn)<<0);
   return word;
 }
 
-RPCFileReader::Word16 RPCFileReader::BuildEmptyWord(){//Empty word
-  Word16 specIdent = 11;
+RPCFileReader::Word16 RPCFileReader::buildEmptyWord(){//Empty word
+  Word16 specIdent = 3;
   Word16 word = (specIdent<<14)
                |(1<<13)|(0<<12)|(1<<11)
                |~(0x3ff);
@@ -252,7 +263,7 @@ RPCFileReader::Word16 RPCFileReader::BuildEmptyWord(){//Empty word
 }
 
 // ------------ Method called to format RPC Raw data  ------------
-FEDRawData* RPCFileReader::RPCDataFormatter(){
+FEDRawData* RPCFileReader::rpcDataFormatter(){
 
   std::vector<Word16> words;
   bool empty=true;
@@ -260,25 +271,25 @@ FEDRawData* RPCFileReader::RPCDataFormatter(){
   //Check if an event consists data
   for(unsigned int iL=0; iL<18; iL++){
     for(unsigned int iLb=0; iLb<2; iLb++){
-      if(linkData_[iLb][iL].PartitionData()!=0)
+      if(linkData_[iLb][iL].partitionData()!=0)
 	empty=false;
     }
   }
   if(!empty){
     //fill vector words with correctly ordered RPCwords
-    words.push_back(BuildSBXDWord((unsigned int)bxn_));
+    words.push_back(buildSBXDWord((unsigned int)bxn_));
     for(unsigned int iL=0; iL<18; iL++){
       //Check if data of current link exist
       empty=true;
       for(unsigned int iLb=0; iLb<2; iLb++){
-	if(linkData_[iLb][iL].PartitionData()!=0)
+	if(linkData_[iLb][iL].partitionData()!=0)
 	  empty=false;
       }
       if(!empty){
-	words.push_back(BuildSLDWord(tbNum_, iL));//FIMXE iL+1??
+	words.push_back(buildSLDWord(tbNum_, iL));//FIMXE iL+1??
 	for(unsigned int iLb=0; iLb<2; iLb++){
-	  if(linkData_[iLb][iL].PartitionData()!=0){
-	    words.push_back(BuildCDWord(linkData_[iLb][iL]));
+	  if(linkData_[iLb][iL].partitionData()!=0){
+	    words.push_back(buildCDWord(linkData_[iLb][iL]));
 	  }
 	}
       }
@@ -286,7 +297,7 @@ FEDRawData* RPCFileReader::RPCDataFormatter(){
   }
   //add empty words if needed
   while(words.size()%4!=0){
-    words.push_back(BuildEmptyWord());
+    words.push_back(buildEmptyWord());
   }
   //format data, add header & trailer
   int dataSize = words.size()*sizeof(Word16);
@@ -305,7 +316,7 @@ FEDRawData* RPCFileReader::RPCDataFormatter(){
 	   |(Word64(words[i+2])<<16)
            |(Word64(words[i+3])    );
     if(debug_){
-      edm::LogInfo("RPCFR") << "[RPCFileReader::RPCDataFormater] Word64: " << *reinterpret_cast<bitset<64>* >(word);
+      edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Word64: " << *reinterpret_cast<bitset<64>* >(word);
     }
     word++;
   }
@@ -318,7 +329,7 @@ FEDRawData* RPCFileReader::RPCDataFormatter(){
   //check memory
   if(word!=reinterpret_cast<Word64*>(rawData->data()+dataSize)){
   //if(word!=reinterpret_cast<Word64*>(rawData->data()+sizeof(fedh_t)+dataSize+sizeof(fedt_t))){
-    string warn = "ERROR !!! Problem with memory in RPCDataFormater !!!";
+    string warn = "ERROR !!! Problem with memory in RPCFileReader::rpcDataFormater !!!";
     throw cms::Exception(warn);
   }
 

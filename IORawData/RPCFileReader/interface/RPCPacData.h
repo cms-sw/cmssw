@@ -5,8 +5,8 @@
  *
  *  Muxed PAC data
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/31 14:47:56 $
+ *  $Revision: 1.1 $
  * \author K. Bunkowski & M. Bluj - Warsaw
 */
 
@@ -26,23 +26,23 @@ public:
 	     unsigned int halfPart,
 	     unsigned int lbNo);
 	
-  unsigned int PartitionData() const { return partitionData_; }
-  unsigned int PartitionNum() const { return partitionNum_; }
-  unsigned int PartitionDelay() const { return partitionDelay_; }
-  unsigned int EndOfData() const { return endOfData_; }
-  unsigned int HalfPartition() const { return halfPartition_; }
-  unsigned int LbNum() const { return lbNum_; }
+  unsigned int partitionData() const { return partitionData_; }
+  unsigned int partitionNum() const { return partitionNum_; }
+  unsigned int partitionDelay() const { return partitionDelay_; }
+  unsigned int endOfData() const { return endOfData_; }
+  unsigned int halfPartition() const { return halfPartition_; }
+  unsigned int lbNum() const { return lbNum_; }
 
-  void SetPartitionData(unsigned int partData) { partitionData_=partData; }
-  void SetPartitionNum(unsigned int partNo) { partitionNum_=partNo; }
-  void SetPartitionDelay(unsigned int partDelay) { partitionDelay_=partDelay; }
-  void SetEndOfData(unsigned int eofData) { endOfData_=eofData; }
-  void SetHalfPartition(unsigned int halfPart) { halfPartition_=halfPart; }
-  void SetLbNum(unsigned int lbNo) { lbNum_=lbNo; }
+  void setPartitionData(unsigned int partData) { partitionData_=partData; }
+  void setPartitionNum(unsigned int partNo) { partitionNum_=partNo; }
+  void setPartitionDelay(unsigned int partDelay) { partitionDelay_=partDelay; }
+  void setEndOfData(unsigned int eofData) { endOfData_=eofData; }
+  void setHalfPartition(unsigned int halfPart) { halfPartition_=halfPart; }
+  void setLbNum(unsigned int lbNo) { lbNum_=lbNo; }
 
-  unsigned int ToRaw();
+  unsigned int toRaw();
   
-  std::string ToString();
+  std::string toString();
   
   bool operator == (const RPCPacData& right) const;
   

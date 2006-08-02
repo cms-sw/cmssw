@@ -40,7 +40,7 @@ RPCPacData::RPCPacData(unsigned int partData,
   lbNum_          =  lbNo;	
 }
 
-unsigned int RPCPacData::ToRaw() {		
+unsigned int RPCPacData::toRaw() {		
   unsigned int rawData = 0;
   unsigned int shift = 0;
 	 
@@ -55,12 +55,12 @@ unsigned int RPCPacData::ToRaw() {
 }
 
 bool RPCPacData::operator == (const RPCPacData& right) const {
-  if( partitionData_  == right.PartitionData()    &&
-      partitionNum_   == right.PartitionNum()     &&
-      partitionDelay_ == right.PartitionDelay()   &&
-      endOfData_      == right.EndOfData()        &&
-      halfPartition_  == right.HalfPartition()    &&
-      lbNum_          == right.LbNum()	            )
+  if( partitionData_  == right.partitionData()    &&
+      partitionNum_   == right.partitionNum()     &&
+      partitionDelay_ == right.partitionDelay()   &&
+      endOfData_      == right.endOfData()        &&
+      halfPartition_  == right.halfPartition()    &&
+      lbNum_          == right.lbNum()	            )
     return true;
   else
     return false;
@@ -70,7 +70,7 @@ bool RPCPacData::operator != (const RPCPacData& right) const {
   return !(*this == right);
 }
 
-string RPCPacData::ToString() {
+string RPCPacData::toString() {
   ostringstream ostr;
   
   ostr << lbNum_ << " "
@@ -80,7 +80,7 @@ string RPCPacData::ToString() {
        << setw(2)<< dec 
        << partitionNum_ << " "
        << setw(2)<< hex << setfill('0')
-       <<partitionData_;
+       << partitionData_;
   
   return ostr.str();
 }

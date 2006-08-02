@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/31 14:47:56 $
+ *  $Revision: 1.1 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -37,14 +37,6 @@ class RPCFileReader : public ExternalInputSource {
   virtual bool produce(Event &);
   virtual void setRunAndEventInfo();
 
-  int run(){ return run_; }
-  int event(){ return event_; }
-  int bxn(){ return bxn_; }
-
-  void SetRun(int runNo){ run_=runNo; }
-  void SetEvent(int eventNo){ event_=eventNo; }
-  void SetBxn(int bxnNo){ bxn_=bxnNo; }
-
  private:
 
   //typedefs
@@ -73,16 +65,16 @@ class RPCFileReader : public ExternalInputSource {
   const static unsigned int RPC_PAC_L1ACCEPT_BX=1;
   
   // methods
-  void ReadDataFromAsciiFile(string fileName, int *pos);
+  void readDataFromAsciiFile(string fileName, int *pos);
   
-  unsigned short BuildCDWord(RPCPacData linkData);
-  unsigned short BuildSLDWord(unsigned int tbNum, unsigned int linkNum);
-  unsigned short BuildSBXDWord(unsigned int bxn);
-  unsigned short BuildEmptyWord();
+  Word16 buildCDWord(RPCPacData linkData);
+  Word16 buildSLDWord(unsigned int tbNum, unsigned int linkNum);
+  Word16 buildSBXDWord(unsigned int bxn);
+  Word16 buildEmptyWord();
     
-  FEDRawData* RPCDataFormatter();
+  FEDRawData* rpcDataFormatter();
 
-  bool IsHexNumber(string str){//utility to check if string is hex
+  bool isHexNumber(string str){//utility to check if string is hex
     for(unsigned int i=0; i<str.size(); i++)
       if(! isxdigit(str[i])) return false;
     return true;
