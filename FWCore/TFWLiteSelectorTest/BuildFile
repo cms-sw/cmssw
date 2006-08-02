@@ -1,0 +1,11 @@
+<use name=DataFormats/Candidate>
+<use name=DataFormats/Common>
+<use name=FWCore/TFWLiteSelector>
+<use name=root>
+<export>
+ <lib name=FWCoreTFWLiteSelectorTest>
+  <use name=DataFormats/TestObjects>
+  <use name=DataFormats/Common>
+  <use name=root>
+  <use name=FWCore/TFWLiteSelector>
+</export>
