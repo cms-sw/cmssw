@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id$
+// $Id: L1ParticleMap.cc,v 1.1 2006/07/26 20:41:31 wsun Exp $
 //
 
 // system include files
@@ -26,10 +26,38 @@ using namespace l1extra ;
 // static data member definitions
 //
 
+std::string
+L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
+   "singleElectron",
+      "singleJet",
+      "singleTau",
+      "singleMuon"
+      } ;
+
 //
 // constructors and destructor
 //
 L1ParticleMap::L1ParticleMap()
+{
+}
+
+L1ParticleMap::L1ParticleMap(
+   L1TriggerType triggerType,
+   bool triggerDecision,
+   const L1ParticleTypeVector& particleTypes,
+   const L1EmParticleRefVector& emParticles,
+   const L1JetParticleRefVector& jetParticles,
+   const L1MuonParticleRefVector& muonParticles,
+   const L1EtMissParticleRefProd& etMissParticle,
+   const L1IndexComboVector& indexCombos )
+   : triggerType_( triggerType ),
+     triggerDecision_( triggerDecision ),
+     particleTypes_( particleTypes ),
+     emParticles_( emParticles ),
+     jetParticles_( jetParticles ),
+     muonParticles_( muonParticles ),
+     etMissParticle_( etMissParticle ),
+     indexCombos_( indexCombos )
 {
 }
 
@@ -68,17 +96,17 @@ L1ParticleMap::indexCombos() const
    if( indexCombos_.size() == 0 && numOfNonGlobalParticles() == 1 )
    {
       int nParticles = 0 ;
-      L1ParticleType type = *( nonGlobalParticleTypes().begin() ) ;
+      L1NonGlobalParticleType type = *( nonGlobalParticleTypes().begin() ) ;
 
-      if( type == L1PhysObjectBase::kEM )
+      if( type == kEM )
       {
 	 nParticles = emParticles_.size() ;
       }
-      else if( type == L1PhysObjectBase::kJet )
+      else if( type == kJet )
       {
 	 nParticles = jetParticles_.size() ;
       }
-      else if( type == L1PhysObjectBase::kMuon )
+      else if( type == kMuon )
       {
 	 nParticles = muonParticles_.size() ;
       }
@@ -94,52 +122,52 @@ L1ParticleMap::indexCombos() const
    return indexCombos_ ;
 }
 
-const reco::ParticleKinematics*
-L1ParticleMap::particleInCombo( int aIndexInCombo,
-				const L1IndexCombo& aCombo ) const
-{
-   L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
-   int particleInList = aCombo[ aIndexInCombo ] ;
+// const reco::ParticleKinematics*
+// L1ParticleMap::particleInCombo( int aIndexInCombo,
+// 				const L1IndexCombo& aCombo ) const
+// {
+//    L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+//    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == L1PhysObjectBase::kEM )
-   {
-      return dynamic_cast< const reco::ParticleKinematics* >(
-	 emParticles_[ particleInList ].get() ) ;
-   }
-   else if( type == L1PhysObjectBase::kJet )
-   {
-      return dynamic_cast< const reco::ParticleKinematics* >(
-	 jetParticles_[ particleInList ].get() ) ;
-   }
-   else if( particleTypes_[ aIndexInCombo ] == L1PhysObjectBase::kEM )
-   {
-      return dynamic_cast< const reco::ParticleKinematics* >(
-	 muonParticles_[ particleInList ].get() ) ;
-   }
-   else
-   {
-      return 0 ;
-   }
-}
+//    if( type == L1PhysObjectBase::kEM )
+//    {
+//       return dynamic_cast< const reco::ParticleKinematics* >(
+// 	 emParticles_[ particleInList ].get() ) ;
+//    }
+//    else if( type == L1PhysObjectBase::kJet )
+//    {
+//       return dynamic_cast< const reco::ParticleKinematics* >(
+// 	 jetParticles_[ particleInList ].get() ) ;
+//    }
+//    else if( type == L1PhysObjectBase::kMuon )
+//    {
+//       return dynamic_cast< const reco::ParticleKinematics* >(
+// 	 muonParticles_[ particleInList ].get() ) ;
+//    }
+//    else
+//    {
+//       return 0 ;
+//    }
+// }
 
 const L1PhysObjectBase*
 L1ParticleMap::physObjectInCombo( int aIndexInCombo,
 				  const L1IndexCombo& aCombo ) const
 {
-   L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == L1PhysObjectBase::kEM )
+   if( type == kEM )
    {
       return dynamic_cast< const L1PhysObjectBase* >(
 	 emParticles_[ particleInList ].get() ) ;
    }
-   else if( type == L1PhysObjectBase::kJet )
+   else if( type == kJet )
    {
       return dynamic_cast< const L1PhysObjectBase* >(
 	 jetParticles_[ particleInList ].get() ) ;
    }
-   else if( particleTypes_[ aIndexInCombo ] == L1PhysObjectBase::kEM )
+   else if( type == kMuon )
    {
       return dynamic_cast< const L1PhysObjectBase* >(
 	 muonParticles_[ particleInList ].get() ) ;
@@ -154,10 +182,10 @@ const L1EmParticle*
 L1ParticleMap::emParticleInCombo( int aIndexInCombo,
 				  const L1IndexCombo& aCombo ) const
 {
-   L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == L1PhysObjectBase::kEM )
+   if( type == kEM )
    {
       return emParticles_[ particleInList ].get() ;
    }
@@ -171,10 +199,10 @@ const L1JetParticle*
 L1ParticleMap::jetParticleInCombo( int aIndexInCombo,
 				   const L1IndexCombo& aCombo ) const
 {
-   L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == L1PhysObjectBase::kJet )
+   if( type == kJet )
    {
       return jetParticles_[ particleInList ].get() ;
    }
@@ -188,10 +216,10 @@ const L1MuonParticle*
 L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
 				    const L1IndexCombo& aCombo ) const
 {
-   L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
-   if( type == L1PhysObjectBase::kMuon )
+   if( type == kMuon )
    {
       return muonParticles_[ particleInList ].get() ;
    }
@@ -201,18 +229,18 @@ L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
    }
 }
 
-std::vector< const reco::ParticleKinematics* >
-L1ParticleMap::particleCombo( const L1IndexCombo& aCombo ) const
-{
-   std::vector< const reco::ParticleKinematics* > tmp ;
+// std::vector< const reco::ParticleKinematics* >
+// L1ParticleMap::particleCombo( const L1IndexCombo& aCombo ) const
+// {
+//    std::vector< const reco::ParticleKinematics* > tmp ;
 
-   for( int i = 0 ; i < numOfNonGlobalParticles() ; ++i )
-   {
-      tmp.push_back( particleInCombo( i, aCombo ) ) ;
-   }
+//    for( int i = 0 ; i < numOfNonGlobalParticles() ; ++i )
+//    {
+//       tmp.push_back( particleInCombo( i, aCombo ) ) ;
+//    }
 
-   return tmp ;
-}
+//    return tmp ;
+// }
 
 std::vector< const L1PhysObjectBase* >
 L1ParticleMap::physObjectCombo( const L1IndexCombo& aCombo ) const
@@ -230,3 +258,22 @@ L1ParticleMap::physObjectCombo( const L1IndexCombo& aCombo ) const
 //
 // static member functions
 //
+const std::string&
+L1ParticleMap::triggerName( L1TriggerType type )
+{
+   return triggerNames_[ type ] ;
+}
+
+L1ParticleMap::L1TriggerType
+L1ParticleMap::triggerType( const std::string& name )
+{
+   for( int i = 0 ; i < kNumOfL1TriggerTypes ; ++i )
+   {
+      if( triggerNames_[ i ] == name )
+      {
+	 return ( L1TriggerType ) i ;
+      }
+   }
+
+   return kNumOfL1TriggerTypes ;
+}
