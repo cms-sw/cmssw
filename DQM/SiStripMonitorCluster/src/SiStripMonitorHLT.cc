@@ -55,19 +55,25 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
    // sum of cluster charges
    Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch);
    // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
-   Handle<std::pair<uint,uint> > layers_nrclusters; 
-//   Handle< std::map< uint, std::pair<SiStripCluster,DetId> > > clusters_in_subcomponents;
-//   if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
+   Handle< std::map< uint, std::pair<SiStripCluster,uint32_t> > > clusters_in_subcomponents;
+   if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
 
    // filter decision
    Handle<int> hltres; iEvent.getByLabel(HLTProducer, "", hltres);
 
-//   if(HLTProducer=="ClusterMTCCFilter") NumberOfClustersAboveThreshold->Fill( (*layers_nrclusters).first, (*layers_nrclusters).second);
+   if(HLTProducer=="ClusterMTCCFilter"){
+//     for(uint i = 10; i<80; i++){ // is stupid, change!
+     for(std::map< uint, std::pair<SiStripCluster,uint32_t> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
+//       NumberOfClustersAboveThreshold->Fill( clusters_in_subcomponents->count(i), 1.);
+       NumberOfClustersAboveThreshold->Fill( it->first, 1.);
+     }
+   }
    ClusterCharge->Fill(*sum_of_clustch);
    HLTDecision->Fill(*hltres);
 }
 
 void SiStripMonitorHLT::endJob(void){
+  LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   string outputFileName = conf_.getParameter<string>("OutputFileName");
   if(outputMEsInRootFile){
