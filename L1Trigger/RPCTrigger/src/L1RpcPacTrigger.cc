@@ -21,11 +21,9 @@ L1RpcPacTrigger::L1RpcPacTrigger(L1RpcTriggerConfiguration* triggerConfig):
 
 L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) {
   GBFinalMuons.clear();
-  //std::cout<< "------------" << std::endl;         
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
     if(logConesVec[iLC].GetFiredPlanesCnt() >= 3) {
       TriggerCratesVec[TrigCnfg->GetTCNum(logConesVec[iLC].GetConeCrdnts())].RunCone(logConesVec[iLC]);
-      //std::cout<< logConesVec[iLC].toString();
     }
   }
 
@@ -43,6 +41,44 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   #ifdef _GRAB_MUONS
     L1RpcMuonsGrabber::Instance()->StoreAnswers(GBFinalMuons);
   #endif
+
+#ifdef GETCONES
+  bool foundMuons = false;
+  L1RpcTBMuonsVec bMuons = GBFinalMuons[0];
+  L1RpcTBMuonsVec fMuons = GBFinalMuons[1];
+
+  std::cout<< "------------" << std::endl;
+  for (unsigned int i = 0; i < bMuons.size(); i++){
+    if (bMuons[i].GetPtCode()!=0){ 
+       /*
+       std::cout<< "ptcode " << bMuons[i].GetPtCode() 
+                << " t " <<  bMuons[i].GetTower()
+                << " sec " <<  bMuons[i].GetLogSector()
+                << " seg " <<  bMuons[i].GetLogSegment()
+                << std::endl;*/
+       foundMuons = true;
+   }
+  }
+  for (unsigned int i = 0; i < fMuons.size(); i++){
+    if (fMuons[i].GetPtCode()!=0){
+       /*std::cout<< "ptcode " << fMuons[i].GetPtCode()
+                << " t " <<  fMuons[i].GetTower()
+                << " sec " <<  fMuons[i].GetLogSector()
+                << " seg " <<  fMuons[i].GetLogSegment()
+                << std::endl;*/
+       foundMuons = true;
+       }
+  }
+  if (!foundMuons){
+    for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
+      if(logConesVec[iLC].GetFiredPlanesCnt() >= 3) {
+        std::cout<< logConesVec[iLC].toString();
+      }
+    }
+  }
+#endif
+
+
 
   return GBFinalMuons;
 };
