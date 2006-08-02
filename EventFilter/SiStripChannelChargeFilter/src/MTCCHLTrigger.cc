@@ -7,23 +7,14 @@
 namespace cms
 {
 MTCCHLTrigger::MTCCHLTrigger(const edm::ParameterSet& ps){
-
-
    selOnDigiCharge=ps.getParameter<bool>("SelOnDigiCharge");
    ChargeThreshold=ps.getParameter<int>("ChargeThreshold");
    clusterProducer = ps.getParameter<std::string>("ClusterProducer");
    produces <int>();
-   produces <unsigned int >();
- 
-
+   produces <unsigned int>();
 }
 
-
 bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
-
- 
-  //  bool allowed=false;
-
   //get data
   //StripCluster
   edm::Handle< edm::DetSetVector<SiStripCluster> > h;
@@ -33,62 +24,30 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
   std::vector< edm::Handle< edm::DetSetVector<SiStripDigi> > > di;
   e.getManyByType(di);
 
-
   if (selOnDigiCharge) {
-
-    //   std::cout<<"DIGIIII"<<std::endl;
-
     unsigned int digiadc=0;
-
     for (std::vector< edm::Handle< edm::DetSetVector<SiStripDigi> > >::const_iterator mi = di.begin(); mi!=di.end(); mi++){
-
       for (edm::DetSetVector<SiStripDigi>::const_iterator it = (*mi)->begin(); it!= (*mi)->end();it++) {
-
 	for(std::vector<SiStripDigi>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++) digiadc += vit->adc();
-	
       }
-
     }
-  
-
-  
-
     return (digiadc>ChargeThreshold) ? true : false;
-
-  }
-
-  else {
-    
+  } else {
     unsigned int amplclus=0;
-
     for (edm::DetSetVector<SiStripCluster>::const_iterator it=h->begin();it!=h->end();it++) {
-  
       for(std::vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
-	
 	for(std::vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
-{
-  if  ((*ia)>0){	  
-        amplclus+=(*ia);
-	//	std::cout<<"ia:"<<*ia<<std::endl;
-	}
-       }
+        {
+            if  ((*ia)>0){ amplclus+=(*ia); }
+        }
       }
     }
-
     bool decision= (amplclus>ChargeThreshold) ? true : false;
-
-    std::cout<<"ampl:"<<amplclus<<std::endl;
-
-    std::auto_ptr< unsigned int > 
-      output( new unsigned int(amplclus) );
-    std::auto_ptr< int > 
-      output_dec( new int(decision) );
+    std::auto_ptr< unsigned int > output( new unsigned int(amplclus) );
+    std::auto_ptr< int > output_dec( new int(decision) );
     e.put(output);
     e.put(output_dec);
     return decision;
-
   }
- 
  }
-
 }

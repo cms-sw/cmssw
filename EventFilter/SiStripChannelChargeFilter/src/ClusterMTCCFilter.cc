@@ -16,19 +16,15 @@ namespace cms
 {
 
 ClusterMTCCFilter::ClusterMTCCFilter(const edm::ParameterSet& ps){
-   edm::LogInfo("DQM")<<"ClusterMTCCFilter::ClusterMTCCFilter getting here 1";
    ChargeThresholdTIB=ps.getParameter<int>("ChargeThresholdTIB");
    ChargeThresholdTOB=ps.getParameter<int>("ChargeThresholdTOB");
    ChargeThresholdTEC=ps.getParameter<int>("ChargeThresholdTEC");
-   edm::LogInfo("DQM")<<"ClusterMTCCFilter::ClusterMTCCFilter getting here 2";
    MinClustersDiffComponents=ps.getParameter<int>("MinClustersDiffComponents");
-   edm::LogInfo("DQM")<<"ClusterMTCCFilter::ClusterMTCCFilter getting here 3";
    clusterProducer = ps.getParameter<std::string>("ClusterProducer");
    //
    produces <int>();
    produces <unsigned int >();
-//   produces < std::map<uint,std::pair<SiStripCluster,DetId>> >();
-
+   produces < std::map<uint,std::pair<SiStripCluster,uint32_t> > >();
 }
 
 bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
@@ -39,9 +35,8 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   //
   unsigned int sum_of_cluster_charges=0;
   clusters_in_subcomponents.clear();
-  // uint generalized_layer:  31 = TIB1, 32 = TIB2, 33 = TIB3, 50 = TOB, 60 = TEC
-  //   std::map<uint , std::pair<SiStripCluster,DetId> > clusters_in_subcomponents;
   // first find all clusters that are over the threshold
+  // uint generalized_layer:  31 = TIB1, 32 = TIB2, 33 = TIB3, 50 = TOB, 60 = TEC
   for (edm::DetSetVector<SiStripCluster>::const_iterator it=h->begin();it!=h->end();it++) {
     for(std::vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
       // calculate sum of amplitudes
@@ -69,12 +64,10 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
           generalized_layer = 10*thedetId.subdetId();
 	  if(thedetId.subdetId()==StripSubdetector::TOB){
 	    TOBDetId ptob = TOBDetId(thedetId.rawId());
-	    generalized_layer+= ptob.layer();
+	    generalized_layer += ptob.layer();
 	  }
         }
-	
-
-        clusters_in_subcomponents.insert( std::make_pair(generalized_layer,  std::make_pair(*vit,thedetId)) );
+        clusters_in_subcomponents.insert( std::make_pair(generalized_layer,  std::make_pair(*vit,it->detId())) );
       }
     }
   }
@@ -84,19 +77,15 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   if( clusters_in_subcomponents.count(31)>0 ) nr_of_subcomps_with_clusters++; // TIB1
   if( clusters_in_subcomponents.count(32)>0 ) nr_of_subcomps_with_clusters++; // TIB2
   if( clusters_in_subcomponents.count(33)>0 ) nr_of_subcomps_with_clusters++; // TIB3
-  if( clusters_in_subcomponents.count(51)>0 ) nr_of_subcomps_with_clusters++; // TOB
-  if( clusters_in_subcomponents.count(52)>0 ) nr_of_subcomps_with_clusters++; // TOB
+  if( clusters_in_subcomponents.count(51)>0 ) nr_of_subcomps_with_clusters++; // TOB1
+  if( clusters_in_subcomponents.count(52)>0 ) nr_of_subcomps_with_clusters++; // TOB2
   if( clusters_in_subcomponents.count(60)>0 ) nr_of_subcomps_with_clusters++; // TEC
   if(
      nr_of_subcomps_with_clusters >= MinClustersDiffComponents // more than 'MinClustersDiffComponents' components have at least 1 cluster
      ) {
-
-    decision = true; // accept event
-
-
-    std::cout<<"Nr of layers with clusters: "<<nr_of_subcomps_with_clusters<<" "<< clusters_in_subcomponents.count(31)<<" "<< clusters_in_subcomponents.count(32)<<" "<< clusters_in_subcomponents.count(33)<<" "<< clusters_in_subcomponents.count(51)<<" "<< clusters_in_subcomponents.count(51)<<" "<< clusters_in_subcomponents.count(60)<<std::endl;
+      decision = true; // accept event
+//      std::cout<<"Nr of layers with clusters: "<<nr_of_subcomps_with_clusters<<" "<< clusters_in_subcomponents.count(31)<<" "<< clusters_in_subcomponents.count(32)<<" "<< clusters_in_subcomponents.count(33)<<" "<< clusters_in_subcomponents.count(51)<<" "<< clusters_in_subcomponents.count(51)<<" "<< clusters_in_subcomponents.count(60)<<std::endl;
   }
-
 
   std::auto_ptr< int > output_decision( new int(decision) );
   e.put(output_decision);
@@ -104,8 +93,8 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   std::auto_ptr< unsigned int > output_sumofcharges( new unsigned int(sum_of_cluster_charges) );
   e.put(output_sumofcharges);
 
-//  std::auto_ptr< std::map< uint, std::pair<SiStripCluster,DetId> >  > output_clusters(new std::map< uint, std::pair<SiStripCluster,DetId> > (clusters_in_subcomponents));
-//  e.put(output_clusters);
+  std::auto_ptr< std::map< uint, std::pair<SiStripCluster,uint32_t> >  > output_clusters(new std::map< uint, std::pair<SiStripCluster,uint32_t> > (clusters_in_subcomponents));
+  e.put(output_clusters);
 
   return decision;
 
