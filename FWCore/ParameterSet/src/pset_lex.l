@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.20 2006/06/21 17:55:31 rpw Exp $
+ * $Id: pset_lex.l,v 1.21 2006/07/23 01:24:36 valya Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -109,6 +109,7 @@ comment2        "//".*[\n]?
 \'\'		{ yylval.str = stringDupQuoted("",'\''); return SQWORD_tok; }
 \"		{ BEGIN DQ; break;}
 \'		{ BEGIN SQ; break;}
+\+=              { return PLUSEQUAL_tok; }
 =		{ return EQUAL_tok; }
 ,               { return COMMA_tok; }
 \{		{ return SCOPE_START_tok; }

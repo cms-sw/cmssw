@@ -28,6 +28,8 @@ namespace edm {
       virtual void accept(Visitor& v) const;
       // keeps the orignal type and tracked-ness
       virtual void replaceWith(const ReplaceNode *);
+      /// append a node into the vector
+      virtual void append(NodePtr ptr);
 
       virtual edm::Entry makeEntry() const;
 

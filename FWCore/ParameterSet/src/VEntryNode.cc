@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 
@@ -59,18 +60,63 @@ namespace edm {
     void VEntryNode::replaceWith(const ReplaceNode * replaceNode)
     {
       assertNotModified();
-      VEntryNode * replacement = dynamic_cast<VEntryNode*>(replaceNode->value_.get());
-      if(replacement == 0) {
-        throw edm::Exception(errors::Configuration)
-          << "Cannot replace entry vector" << name
-          << " with " << replaceNode->type();
+      // see if it's a replace or an append
+      if(replaceNode->type() == "replace")
+      {
+        VEntryNode * replacement = dynamic_cast<VEntryNode*>(replaceNode->value().get());
+        if(replacement == 0) {
+          throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name
+            <<   " with " << replaceNode->type();
+        }
+        // replace the value, keep the type
+        value_ = replacement->value_;
       }
-      // replace the value, keep the type
-      value_ = replacement->value_;
+      else if(replaceNode->type() == "replaceAppend")
+      {
+        append(replaceNode->value());
+      }
+      else 
+      {
+         throw edm::Exception(errors::Configuration)
+            << "Cannot replace entry vector" << name
+            <<   " with " << replaceNode->type();
+      }
       setModified(true);
     }
 
 
+    void VEntryNode::append(NodePtr ptr)
+    {  
+      // single or multiple?
+      EntryNode * entryNode =  dynamic_cast<EntryNode*>(ptr.get());
+      if(entryNode != 0)
+      {
+        value_->push_back(entryNode->value());
+      }
+      else 
+      {
+        // try VEntry
+        VEntryNode * ventryNode =  dynamic_cast<VEntryNode*>(ptr.get());
+        if(ventryNode != 0)
+        {
+          StringListPtr entries = ventryNode->value_;
+          for(StringList::const_iterator itr = entries->begin();
+              itr != entries->end(); ++itr)
+          {
+            value_->push_back(*itr);
+          }
+        }
+        // neither Entry or VEntry
+        else 
+        { 
+          throw edm::Exception(errors::Configuration)
+            << "Bad type to append to VEntry " 
+            <<  ptr->type();
+        }
+      }
+    }  
+    
     edm::Entry VEntryNode::makeEntry() const
     {
       vector<string>::const_iterator ib(value_->begin()),

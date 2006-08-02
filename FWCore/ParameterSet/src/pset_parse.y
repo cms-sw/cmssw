@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.34 2006/07/21 18:30:29 rpw Exp $
+ * $Id: pset_parse.y,v 1.35 2006/07/23 01:24:36 valya Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -102,6 +102,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token PRODUCTTAG_tok
 %token BANGSTART_tok
 %token EQUAL_tok
+%token PLUSEQUAL_tok
 %left COMMA_tok
 %token VALUE_tok
 %token SQWORD_tok
@@ -754,6 +755,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    $<_Node>$ = wn;
                  }
                |
+                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok replaceEntry
+                 {
+                   DBPRINT("procnode: APPENDVALUE");
+                   string name(toString($<str>2));
+                   string value(toString($<str>4));
+                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
+                   NodePtr entryPtr(entry);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
                  REPLACE_tok LETTERSTART_tok EQUAL_tok anyarray
                  {
                    DBPRINT("node: REPLACEARRAY");
@@ -762,6 +774,17 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok PLUSEQUAL_tok anyarray
+                 {
+                   DBPRINT("node: REPLACEARRAY");
+                   string name(toString($<str>2));
+                   StringListPtr value($<_StringList>4);
+                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
+                   NodePtr entryPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceAppend", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
