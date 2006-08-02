@@ -111,7 +111,7 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++ mapItr) {
     CaloTower ct=convert(mapItr->first,mapItr->second);
-    if (ct.energy()>0 && ct.energy()>theEcutTower)
+    if (ct.constituentsSize()>0 && ct.energy()>theEcutTower)
       result.push_back(ct);
   }
   theTowerMap.clear(); // save the memory
