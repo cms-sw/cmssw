@@ -63,13 +63,13 @@ namespace reco {
     void      setNECorner( double posx, double posy, double posz );
 
     /// rechit detId
-    unsigned getDetId() const {return detId_;}
+    unsigned detId() const {return detId_;}
 
     /// rechit layer
-    int getLayer() const { return layer_; }
+    int layer() const { return layer_; }
 
     /// rechit energy
-    double getEnergy() const { return energy_; }
+    double energy() const { return energy_; }
 
     /// is seed ? (-1:unknown, 0:no, 1 yes)
     int  isSeed() const { return isSeed_; }
@@ -78,13 +78,13 @@ namespace reco {
     void youAreSeed(int seedstate=1) {isSeed_ = seedstate;} 
 
     /// rechit cell centre x, y, z
-    const math::XYZPoint& getPositionXYZ() const { return posxyz_; }
+    const math::XYZPoint& positionXYZ() const { return posxyz_; }
 
-    /// rechit cell centre rho, eta, phi. call CalculatePositionREP before !
-    const REPPoint& getPositionREP() const;
+    /// rechit cell centre rho, eta, phi. call calculatePositionREP before !
+    const REPPoint& positionREP() const;
 
     /// calculates rho eta phi position once and for all
-    void CalculatePositionREP();
+    void calculatePositionREP();
 
     /// rechit cell axis x, y, z
     const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    

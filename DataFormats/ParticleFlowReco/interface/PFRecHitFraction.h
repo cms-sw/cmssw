@@ -47,9 +47,9 @@ namespace reco {
     /// \return energy fraction
     double getFraction() const {return fraction_;}
     
-    /// \return recHit_->getEnergy() * fraction_
-    double getEnergy() const 
-      { return recHit_->getEnergy() * fraction_;}
+    /// \return recHit_->energy() * fraction_
+    double energy() const 
+      { return recHit_->energy() * fraction_;}
     
     /// \return distance to cluster
     double getDistToCluster() const {return distance_;}

@@ -69,7 +69,7 @@ void PFCluster::addRecHit( const reco::PFRecHit& rechit, double fraction) {
 void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 
   if( rechits_.empty() ) {
-    cerr<<"PFCluster::CalculatePosition: empty cluster!!!"<<endl; 
+    cerr<<"PFCluster::calculatePosition: empty cluster!!!"<<endl; 
     return;
   }
 
@@ -93,21 +93,21 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
 
     double frac =  rechits_[ic].getFraction();
-    double theRecHitEnergy = rechit->getEnergy() * frac;
+    double theRecHitEnergy = rechit->energy() * frac;
 
     energy_ += theRecHitEnergy;
-//     if ( rechit->getLayer() == LAYER_ECAL_BARREL ||
-// 	 rechit->getLayer() == LAYER_ECAL_ENDCAP ) 
+//     if ( rechit->layer() == LAYER_ECAL_BARREL ||
+// 	 rechit->layer() == LAYER_ECAL_ENDCAP ) 
 //       fEecal += theRecHitEnergy;
-//     else if ( rechit->getLayer() == LAYER_HCAL_BARREL_1 ||
-// 	      rechit->getLayer() == LAYER_HCAL_BARREL_2 ||
-// 	      rechit->getLayer() == LAYER_HCAL_ENDCAP_1 ||
-// 	      rechit->getLayer() == LAYER_HCAL_ENDCAP_2 || 
-// 	      rechit->getLayer() == LAYER_VFCAL	      
+//     else if ( rechit->layer() == LAYER_HCAL_BARREL_1 ||
+// 	      rechit->layer() == LAYER_HCAL_BARREL_2 ||
+// 	      rechit->layer() == LAYER_HCAL_ENDCAP_1 ||
+// 	      rechit->layer() == LAYER_HCAL_ENDCAP_2 || 
+// 	      rechit->layer() == LAYER_VFCAL	      
 // 	      ) 
 //       fEhcal += theRecHitEnergy;
 
-    layer += rechit->getLayer() * theRecHitEnergy;
+    layer += rechit->layer() * theRecHitEnergy;
   }  
   layer /= energy_;
   layer_ = lrintf(layer); // nearest integer
@@ -166,7 +166,7 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
     double fraction =  rechits_[ic].getFraction();  
-    double theRecHitEnergy = rechit->getEnergy() * fraction;
+    double theRecHitEnergy = rechit->energy() * fraction;
 
     double norm=0;
     
@@ -183,7 +183,7 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
     }
     
     
-    const math::XYZPoint& rechitposxyz = rechit->getPositionXYZ();
+    const math::XYZPoint& rechitposxyz = rechit->positionXYZ();
     
     if( theRecHitEnergy > maxe ) {
       firstrechitposxyz = rechitposxyz;
@@ -250,7 +250,7 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
       depth = corra;
       break;
     default:
-      cerr<<"ClusterEF::CalculatePosition : unknown function for depth correction! "<<endl;
+      cerr<<"ClusterEF::calculatePosition : unknown function for depth correction! "<<endl;
       assert(0);
     }
 
@@ -289,9 +289,9 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
       const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
       double fraction =  rechits_[ic].getFraction();
       
-      double theRecHitEnergy = rechit->getEnergy() * fraction;
+      double theRecHitEnergy = rechit->energy() * fraction;
 
-      const math::XYZPoint&  rechitposxyz = rechit->getPositionXYZ();
+      const math::XYZPoint&  rechitposxyz = rechit->positionXYZ();
       const math::XYZVector& rechitaxis = rechit->getAxisXYZ();
 
 
@@ -373,7 +373,7 @@ void PFCluster::calculatePosition( int algo, double p1, bool depcor) {
 //   // calculate the distance between the cluster and each rechit
 
 //   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
-//     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].getRecHit()->getPositionXYZ() ).Mag() );
+//     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].getRecHit()->positionXYZ() ).Mag() );
 //   }
 
 }
@@ -435,13 +435,13 @@ std::ostream& reco::operator<<(std::ostream& out,
   
   if(!out) return out;
   
-  const PFCluster::REPPoint&  pos = cluster.getPositionREP();
+  const PFCluster::REPPoint&  pos = cluster.positionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.getRecHitFractions();
 
-  out<<"cluster "<<cluster.getId()
-     <<"\ttype: "<<cluster.getType()
-     <<"\tenergy: "<<cluster.getEnergy()
+  out<<"cluster "<<cluster.id()
+     <<"\ttype: "<<cluster.type()
+     <<"\tenergy: "<<cluster.energy()
      <<"\tposition: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<endl;
   out<<"\t"<<fracs.size()<<" rechits: "<<endl;

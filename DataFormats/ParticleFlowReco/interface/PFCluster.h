@@ -60,25 +60,25 @@ namespace reco {
     void          setId(unsigned id) {id_ = id;} 
   
     /// cluster id
-    unsigned      getId() const {return id_;}
+    unsigned      id() const {return id_;}
   
     /// cluster type
-    int           getType() const {return type_;}
+    int           type() const {return type_;}
 
     /// cluster layer, see PFClusterLayer.h
-    int           getLayer() const {return layer_;}          
+    int           layer() const {return layer_;}          
 
     /// cluster energy
-    double        getEnergy() const {return energy_;}
+    double        energy() const {return energy_;}
 
     /// cluster position: cartesian
-    const math::XYZPoint& getPositionXYZ() const {return posxyz_;}
+    const math::XYZPoint& positionXYZ() const {return posxyz_;}
 
     /// cluster position: rho, eta, phi
-    const REPPoint&       getPositionREP() const {return posrep_;}
+    const REPPoint&       positionREP() const {return posrep_;}
 
     /// calculates posrep_ once and for all
-    void CalculatePositionREP() {
+    void calculatePositionREP() {
       posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ); 
     }
 
@@ -97,7 +97,7 @@ namespace reco {
 
     void         setColor(int color) {color_ = color;}
 
-    int          getColor() const {return color_;}
+    int          color() const {return color_;}
   
     PFCluster& operator+=(const PFCluster&);
     PFCluster& operator=(const PFCluster&);

@@ -83,7 +83,7 @@ PFRecHit::~PFRecHit()
 {}
 
 
-const PFRecHit::REPPoint& PFRecHit::getPositionREP() const {
+const PFRecHit::REPPoint& PFRecHit::positionREP() const {
 //   if( posrep_ == REPPoint() ) {
 //     posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
 //   }
@@ -91,7 +91,7 @@ const PFRecHit::REPPoint& PFRecHit::getPositionREP() const {
 }
 
 
-void PFRecHit::CalculatePositionREP() {
+void PFRecHit::calculatePositionREP() {
   posrep_.SetCoordinates( posxyz_.Rho(),  posxyz_.Eta(),  posxyz_.Phi() );
 }
 
@@ -115,10 +115,10 @@ void PFRecHit::setNeighbours( const vector<PFRecHit*>& neighbours ) {
   for(unsigned i=0; i<neighbours.size(); i++) {
     if( neighbours[i] ) {
       neighbours8_.push_back( neighbours[i] );      
-      neighboursIds8_.push_back( neighbours[i]->getDetId() );  
+      neighboursIds8_.push_back( neighbours[i]->detId() );  
       if( !(i%2) ) {
 	neighbours4_.push_back( neighbours[i] );
-	neighboursIds4_.push_back( neighbours[i]->getDetId() );  
+	neighboursIds4_.push_back( neighbours[i]->detId() );  
       }
     }
   }
@@ -207,13 +207,13 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
   if(!out) return out;
 
 //   reco::PFRecHit& nshit = const_cast<reco::PFRecHit& >(hit);
-//   const reco::PFRecHit::REPPoint& posrep = nshit.getPositionREP();
+//   const reco::PFRecHit::REPPoint& posrep = nshit.positionREP();
   
-  const  math::XYZPoint& posxyz = hit.getPositionXYZ();
+  const  math::XYZPoint& posxyz = hit.positionXYZ();
 
-  out<<"hit id:"<<hit.getDetId()
-     <<" layer:"<<hit.getLayer()
-     <<" energy:"<<hit.getEnergy()
+  out<<"hit id:"<<hit.detId()
+     <<" layer:"<<hit.layer()
+     <<" energy:"<<hit.energy()
      <<" position: "
      <<" / "<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()
      <<" / "<<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()
@@ -222,7 +222,7 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
 //   out<<endl;
 //   out<<"neighbours "<<endl;
 //   for(unsigned i=0; i<hit.neighbours8_.size(); i++ ) {
-//     out<<"\t"<< hit.neighbours8_[i]->getDetId()<<endl;
+//     out<<"\t"<< hit.neighbours8_[i]->detId()<<endl;
 //   }
 //   out<<"--"<<endl;
 //   for(unsigned i=0; i<hit.neighboursIds8_.size(); i++ ) {
