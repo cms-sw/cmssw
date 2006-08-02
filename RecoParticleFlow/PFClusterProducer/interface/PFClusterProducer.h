@@ -103,6 +103,18 @@ class PFClusterProducer : public edm::EDProducer {
   /// hcal endcap seed threshold
   double threshSeedHcalEndcap_;
 
+
+  // ----------access to event data
+  std::string ecalRecHitsEBModuleLabel_;
+  std::string ecalRecHitsEBProductInstanceName_;
+  std::string ecalRecHitsEEModuleLabel_;
+  std::string ecalRecHitsEEProductInstanceName_;
+  std::string ecalRecHitsESModuleLabel_;
+  std::string ecalRecHitsESProductInstanceName_;
+  std::string hcalRecHitsHBHEModuleLabel_;
+  std::string hcalRecHitsHBHEProductInstanceName_;
+  
+
 };
 
 #endif

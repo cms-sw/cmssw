@@ -122,7 +122,40 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
       dcorb > -0.5 && 
       dcorap > -0.5 && 
       dcorbp > -0.5 )
-    reco::PFCluster::setDepthCorParameters( dcormode, dcora, dcorb, dcorap, dcorbp);
+    reco::PFCluster::setDepthCorParameters( dcormode, 
+					    dcora, dcorb, 
+					    dcorap, dcorbp);
+
+  
+  ecalRecHitsEBModuleLabel_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsEBModuleLabel",
+					  "ecalRecHit");
+  ecalRecHitsEBProductInstanceName_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsEBProductInstanceName",
+					  "EcalRecHitsEB");
+  
+  ecalRecHitsEEModuleLabel_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsEEModuleLabel",
+					  "ecalRecHit");
+  ecalRecHitsEEProductInstanceName_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsEEProductInstanceName",
+					  "EcalRecHitsEE");
+  
+  ecalRecHitsESModuleLabel_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsESModuleLabel",
+					  "ecalRecHit");
+  ecalRecHitsESProductInstanceName_ = 
+    iConfig.getUntrackedParameter<string>("ecalRecHitsESProductInstanceName",
+					  "EcalRecHitsES");
+  
+  
+  hcalRecHitsHBHEModuleLabel_ = 
+    iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEModuleLabel",
+					  "hbhereco");
+  hcalRecHitsHBHEProductInstanceName_ = 
+    iConfig.getUntrackedParameter<string>("hcalRecHitsHBHEProductInstanceName",
+					  "");
+
 }
 
 
@@ -175,7 +208,9 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // get the ecal ecalBarrel rechits
     edm::Handle<EcalRecHitCollection> rhcHandle;
     try {
-      iEvent.getByLabel("ecalrechit", "EcalRecHitsEB", rhcHandle);
+      iEvent.getByLabel(ecalRecHitsEBModuleLabel_, 
+			ecalRecHitsEBProductInstanceName_, 
+			rhcHandle);
       if (!(rhcHandle.isValid())) {
 	cout<<"could not get a handle on EcalRecHitsEB!"<<endl;
 	return;
@@ -225,7 +260,9 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // process ecal endcap rechits
 
     try {
-      iEvent.getByLabel("ecalrechit", "EcalRecHitsEE", rhcHandle);
+      iEvent.getByLabel(ecalRecHitsEEModuleLabel_,
+			ecalRecHitsEEProductInstanceName_,
+			rhcHandle);
       cerr<<"got handle"<<endl;
       if (!(rhcHandle.isValid())) {
 	cout<<"could not get a handle on EcalRecHitsEE!"<<endl;
@@ -330,7 +367,11 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     // HCAL rechits 
     vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
     try {
+//       iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_,
+// 			hcalRecHitsHBHEProductInstanceName_,
+// 			hcalHandles);
       iEvent.getManyByType(hcalHandles);
+      
     } catch (...) {
       cout << "could not get handles on HBHERecHits !" << endl;
       return;
@@ -440,7 +481,9 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     Handle< EcalRecHitCollection >   pRecHits;
 
     try {
-      iEvent.getByLabel( "esrechit", "EcalRecHitsES", pRecHits);
+      iEvent.getByLabel(ecalRecHitsESModuleLabel_,
+			ecalRecHitsESProductInstanceName_,
+			pRecHits);
       if (!(pRecHits.isValid())) {
 	cout<<"could not get a handle on the EcalRecHitCollection!" 
 	    <<endl;
