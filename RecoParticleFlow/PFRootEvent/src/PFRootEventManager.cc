@@ -229,7 +229,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("particle_flow", "resolution_map_HCAL_eta", map_HCAL_eta);
   string map_HCAL_phi;
   options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
-  PFBlock::SetResMaps(map_ECAL_eta,
+  PFBlock::setResMaps(map_ECAL_eta,
 		      map_ECAL_phi, 
 		      map_ECALec_x,
 		      map_ECALec_y,
@@ -249,7 +249,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   double chi2_PS_Track=0;
   options_->GetOpt("particle_flow", "chi2_PS_Track", chi2_PS_Track);
 
-  PFBlock::SetMaxChi2(chi2_ECAL_HCAL,
+  PFBlock::setMaxChi2(chi2_ECAL_HCAL,
 		      chi2_ECAL_PS,
 		      chi2_HCAL_PS,
 		      chi2_ECAL_Track,
@@ -257,15 +257,15 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 		      chi2_PS_Track );
   double nsigma;
   options_->GetOpt("particle_flow", "nsigma_neutral", nsigma);
-  PFBlock::SetNsigmaNeutral(nsigma);
+  PFBlock::setNsigmaNeutral(nsigma);
 
   vector<double> ecalib;
   options_->GetOpt("particle_flow", "ecalib", ecalib);
   if(ecalib.size() == 2) {
-    PFBlock::SetEcalib(ecalib[0], ecalib[1]);
+    PFBlock::setEcalib(ecalib[0], ecalib[1]);
   }
   else {
-    PFBlock::SetEcalib(0, 1);
+    PFBlock::setEcalib(0, 1);
   }
 
   reconMethod_ = 3; 
@@ -302,8 +302,8 @@ void PFRootEventManager::clustering() {
   std::map<unsigned,  reco::PFRecHit* > rechits;
    
   for(unsigned i=0; i<rechits_.size(); i++) {
-    rechits_[i].CalculatePositionREP();
-    rechits.insert( make_pair(rechits_[i].getDetId(), &rechits_[i] ) );
+    rechits_[i].calculatePositionREP();
+    rechits.insert( make_pair(rechits_[i].detId(), &rechits_[i] ) );
   }
 
   for( PFClusterAlgo::IDH ih = rechits.begin(); ih != rechits.end(); ih++) {
@@ -350,9 +350,9 @@ void PFRootEventManager::particleFlow() {
 
   for(unsigned i=0; i<clusters_.size(); i++) {
    
-    if( clusters_[i].getType() != reco::PFCluster::TYPE_PF ) continue;
+    if( clusters_[i].type() != reco::PFCluster::TYPE_PF ) continue;
 
-    int layer = clusters_[i].getLayer();
+    int layer = clusters_[i].layer();
       
     switch( layer ) {
     case PFLayer::ECAL_BARREL:
@@ -382,19 +382,19 @@ void PFRootEventManager::particleFlow() {
 
 
 
-  PFBlock::SetAllElements( allElements_ );
+  PFBlock::setAllElements( allElements_ );
   int efbcolor = 2;
   for(PFBlock::IT iele = allElements_.begin(); 
       iele != allElements_.end(); iele++) {
 
-    if( (*iele) -> GetPFBlock() ) continue; // already associated
+    if( (*iele) -> block() ) continue; // already associated
     
     allPFBs_.push_back( PFBlock() );
-    allPFBs_.back().Associate( 0, *iele );
+    allPFBs_.back().associate( 0, *iele );
     
     if( displayJetColors_ ) efbcolor = 1;
     
-    allPFBs_.back().Finalize(efbcolor, reconMethod_); 
+    allPFBs_.back().finalize(efbcolor, reconMethod_); 
 //     cout<<"new eflowblock----------------------"<<endl;
 //     cout<<allPFBs_.back()<<endl;
     efbcolor++;
@@ -405,13 +405,13 @@ void PFRootEventManager::particleFlow() {
 
     switch(reconMethod_) {
     case 1:
-      allPFBs_[iefb].ReconstructParticles1();
+      allPFBs_[iefb].reconstructParticles1();
       break;
     case 2:
-      allPFBs_[iefb].ReconstructParticles2();
+      allPFBs_[iefb].reconstructParticles2();
       break;
     case 3:
-      allPFBs_[iefb].ReconstructParticles3();
+      allPFBs_[iefb].reconstructParticles3();
       break;
     default:
       break;
@@ -613,7 +613,7 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0)
        itRecHit++) {
     // double maxe = 0;
     double thresh = 0;
-    switch(itRecHit->getLayer()) {
+    switch(itRecHit->layer()) {
     case PFLayer::ECAL_BARREL:
       // maxe = maxee;
       thresh = threshEcalBarrel_;
@@ -636,7 +636,7 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0)
       continue;
     }
 
-    if(itRecHit->getEnergy() > thresh )
+    if(itRecHit->energy() > thresh )
       displayRecHit(*itRecHit, viewType, maxe, thresh, phi0);
   }
 }
@@ -646,7 +646,7 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 				       double phi0) 
 {
 
-  int layer = rh.getLayer();
+  int layer = rh.layer();
 
   // on EPH view, draw only ECAL and preshower
   if(  viewType == EPH && 
@@ -663,11 +663,11 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   
 
   // math::XYZPoint vPhi0(cos(phi0), sin(phi0), 0.);
-  if (rh.getEnergy() < thresh ) return;
+  if (rh.energy() < thresh ) return;
 
 
-  double rheta = rh.getPositionREP().Eta();
-  double rhphi = rh.getPositionREP().Phi();
+  double rheta = rh.positionREP().Eta();
+  double rhphi = rh.positionREP().Phi();
   double sign = 1.;
   if (cos(phi0 - rhphi) < 0.) sign = -1.;
 
@@ -695,7 +695,7 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   assert(corners.size() == 4);
   
   double propfact = 0.95; // so that the cells don't overlap ? 
-  double ampl = (log(rh.getEnergy() + 1.)/log(maxe + 1.));
+  double ampl = (log(rh.energy() + 1.)/log(maxe + 1.));
   
   for ( unsigned jc=0; jc<4; ++jc ) { 
     phiSize[jc] = rhphi-corners[jc].Phi();
@@ -738,14 +738,14 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 // 	 layer == PFLayer::HCAL_BARREL2)
 //       ) {
       
-//       math::XYZPoint centreXYZrot(rh.getPositionXYZ().X()*vPhi0.Y() - 
-// 				  rh.getPositionXYZ().Y()*vPhi0.X(), 
-// 				  rh.getPositionXYZ().X()*vPhi0.X() + 
-// 				  rh.getPositionXYZ().Y()*vPhi0.Y(), 
-// 				  rh.getPositionXYZ().Z());
+//       math::XYZPoint centreXYZrot(rh.positionXYZ().X()*vPhi0.Y() - 
+// 				  rh.positionXYZ().Y()*vPhi0.X(), 
+// 				  rh.positionXYZ().X()*vPhi0.X() + 
+// 				  rh.positionXYZ().Y()*vPhi0.Y(), 
+// 				  rh.positionXYZ().Z());
       // centreXYZrot.SetPhi( fCentre.Y() - phi0 );
       
-      math::XYZPoint centreXYZrot = rh.getPositionXYZ();
+      math::XYZPoint centreXYZrot = rh.positionXYZ();
 
       math::XYZPoint centertocorner(x[jc] - centreXYZrot.X(), 
 				    y[jc] - centreXYZrot.Y(),
@@ -883,7 +883,7 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   for(itCluster = clusters_.begin(); itCluster != clusters_.end(); 
       itCluster++) {
     
-    int type = itCluster->getType();
+    int type = itCluster->type();
     if(algosToDisplay_.find(type) == algosToDisplay_.end() )
       continue;
     
@@ -891,12 +891,12 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
 
     int color = 4;
     if( displayColorClusters_ ) 
-      color = itCluster->getType();
+      color = itCluster->type();
 
     m.SetMarkerColor(color);
     m.SetMarkerStyle(20);
     
-    math::XYZPoint xyzPos = itCluster->getPositionXYZ();
+    math::XYZPoint xyzPos = itCluster->positionXYZ();
 
     switch(viewType) {
     case XY:
@@ -905,17 +905,17 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
     case RZ:
       {
 	double sign = 1.;
-	if (cos(phi0 - itCluster->getPositionXYZ().Phi()) < 0.)
+	if (cos(phi0 - itCluster->positionXYZ().Phi()) < 0.)
 	  sign = -1.;
 	m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
 	break;
       }
     case EPE:
-      if(itCluster->getLayer()<0)
+      if(itCluster->layer()<0)
 	m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
       break;
     case EPH:
-      if(itCluster->getLayer()>0)
+      if(itCluster->layer()>0)
 	m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
       break;
     }      
@@ -1002,10 +1002,10 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0)
 	  if( itTrajPt->layer() == reco::PFTrajectoryPoint::ClosestApproach)
 	    continue;
 	  
-	  // 	  cout<<itTrajPt->getPositionXYZ().Eta()<<" "
-	  // 	      <<itTrajPt->getPositionXYZ().Phi()<<" "
-	  // 	      <<itTrajPt->getPositionXYZ().X()<<" "
-	  // 	      <<itTrajPt->getPositionXYZ().Y()<<endl;
+	  // 	  cout<<itTrajPt->positionXYZ().Eta()<<" "
+	  // 	      <<itTrajPt->positionXYZ().Phi()<<" "
+	  // 	      <<itTrajPt->positionXYZ().X()<<" "
+	  // 	      <<itTrajPt->positionXYZ().Y()<<endl;
 	  // 	  cout<<xyzPos.Eta()<<" "<<xyzPos.Phi()<<" "<<xyzPos.X()<<" "<<xyzPos.Y()<<endl;
 	  
 	  xPos.push_back(xyzPos.Eta());
@@ -1077,16 +1077,16 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
   for(unsigned i=0; i<rechits_.size(); i++) {
 
     if(ecal &&
-       rechits_[i].getLayer() != PFLayer::ECAL_BARREL && 
-       rechits_[i].getLayer() != PFLayer::ECAL_ENDCAP )
+       rechits_[i].layer() != PFLayer::ECAL_BARREL && 
+       rechits_[i].layer() != PFLayer::ECAL_ENDCAP )
       continue;
 
     if(!ecal &&
-       rechits_[i].getLayer() != PFLayer::HCAL_BARREL1 && 
-       rechits_[i].getLayer() != PFLayer::HCAL_ENDCAP )
+       rechits_[i].layer() != PFLayer::HCAL_BARREL1 && 
+       rechits_[i].layer() != PFLayer::HCAL_ENDCAP )
       continue;
 
-    double energy = rechits_[i].getEnergy();
+    double energy = rechits_[i].energy();
 
     if(energy > maxe ) {
       maxe = energy;
@@ -1109,8 +1109,8 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
   double etagate = displayZoomFactor_ * etasize;
   double phigate = displayZoomFactor_ * phisize;
   
-  double eta =  maxrh->getPositionREP().Eta();
-  double phi =  maxrh->getPositionREP().Phi();
+  double eta =  maxrh->positionREP().Eta();
+  double phi =  maxrh->positionREP().Phi();
   
 
   if(displayHist_[EPE]) {
@@ -1159,9 +1159,9 @@ double PFRootEventManager::getMaxE(int layer) const {
   double maxe = -9999;
 
   for( unsigned i=0; i<rechits_.size(); i++) {
-    if( rechits_[i].getLayer() != layer ) continue;
-    if( rechits_[i].getEnergy() > maxe)
-      maxe = rechits_[i].getEnergy();
+    if( rechits_[i].layer() != layer ) continue;
+    if( rechits_[i].energy() > maxe)
+      maxe = rechits_[i].energy();
   }
 
   return maxe;

@@ -413,7 +413,7 @@ void PFClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(pfrechit) {
 	  // cout<<(*pfrechit)<<endl;
 
-	  //	  const math::XYZPoint& cpos = pfrechit->getPositionXYZ();
+	  //	  const math::XYZPoint& cpos = pfrechit->positionXYZ();
 	  // if( fabs(cpos.Eta() )< 0.06  )
 	    hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
 	}
@@ -615,17 +615,17 @@ PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh,
   
   // cerr<<"find neighbours "<<endl;
 
-  const math::XYZPoint& cpos = rh->getPositionXYZ();
+  const math::XYZPoint& cpos = rh->positionXYZ();
   double posx = cpos.X();
   double posy = cpos.Y();
   double posz = cpos.Z();
 
   bool debug = false;
-  if( rh->getLayer() == PFLayer::PS1 ||
-      rh->getLayer() == PFLayer::PS2 ) debug = true;
+  if( rh->layer() == PFLayer::PS1 ||
+      rh->layer() == PFLayer::PS2 ) debug = true;
   
 
-  DetId detid( rh->getDetId() );
+  DetId detid( rh->detId() );
   // if(debug) cerr<<"detid created "<<endl;
 
   CaloNavigator<DetId>* navigator = 0;
@@ -634,9 +634,9 @@ PFClusterProducer::findRecHitNeighbours( reco::PFRecHit* rh,
 
 
 
-  if(debug) cerr<<"find hcal neighbours "<<rh->getLayer()<<endl;
+  if(debug) cerr<<"find hcal neighbours "<<rh->layer()<<endl;
   
-  switch( rh->getLayer()  ) {
+  switch( rh->layer()  ) {
   case PFLayer::ECAL_ENDCAP: 
     // if(debug) cerr<<"ec cell"<<endl;
     navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
