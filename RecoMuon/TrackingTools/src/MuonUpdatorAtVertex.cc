@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/29 02:48:16 $
- *   $Revision: 1.8 $
+ *   $Date: 2006/07/31 22:47:43 $
+ *   $Revision: 1.9 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -226,7 +226,7 @@ MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface
 
 //    det.addRecHit(recHit);
 // measurements methods no longer exits for det
-    vertexMeasurement = TrajectoryMeasurement(ipState,vertexState,recHit,chi2);
+    vertexMeasurement = TrajectoryMeasurement(ipState,vertexState,&*recHit,chi2);
 
   }
   return MuonVertexMeasurement(trackerState,ipState,vertexState,vertexMeasurement,chi2);
