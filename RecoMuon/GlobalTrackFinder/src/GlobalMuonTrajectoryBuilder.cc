@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/08/01 19:06:43 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/01 19:43:26 $
+ *  $Revision: 1.24 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -66,7 +66,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-//#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
 
@@ -96,13 +96,6 @@ using namespace edm;
 //----------------
 // Constructors --
 //----------------
-
-typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
-
-typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
-typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par) {
@@ -156,6 +149,8 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
   
+//  setup.get<>().get(theTkTransientTrackingRecHitBuilder);
+
   theUpdator->setES(setup);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
   theRefitter->setES(setup);
@@ -244,8 +239,8 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   // track at innermost muon station
   reco::TransientTrack staTT(staTrack,&*theField);
   //FIXME
-  //TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState(); 
-  TrajectoryStateOnSurface innerMuTsos = staTT.impactPointState(); 
+  TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState(); 
+ // TrajectoryStateOnSurface innerMuTsos = staTT.impactPointState(); 
   MuonVertexMeasurement vm = theUpdator->update(innerMuTsos);
   TrajectoryStateOnSurface tkTsosFromMu = vm.stateAtTracker();
 
@@ -266,8 +261,8 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   float phi2 = 0.0;
   float theta2 = 0.0;
   
-  ConstRecHitContainer recHits = getTransientHits(*staTrack);
-  ConstRecHitPointer r = *(recHits.begin()+1);
+  ConstMuonRecHitContainer recHits = getTransientHits(*staTrack);
+  ConstMuonRecHitPointer r = *(recHits.begin()+1);
   eta2   = r->globalPosition().eta();
   phi2   = r->globalPosition().phi();
   theta2 = r->globalPosition().theta();
@@ -465,10 +460,10 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   
   MuonDetLayerMeasurements theLayerMeasurements;
   
-  ConstRecHitContainer muonRecHits = getTransientHits(muon);
+  ConstMuonRecHitContainer muonRecHits = getTransientHits(muon);
   
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
-  for (ConstRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
+  for (ConstMuonRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
     if ( !(*imrh)->isValid() ) continue;
     
     if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
@@ -477,14 +472,14 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       int detRecHits = 0;
 
       // FIXMEFIXME: probably you want to get directly MuonTransientTrackingRecHits  with no cast
-      ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*imrh).get());
-      DetId id = immrh->geographicalId();
+ //     ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*imrh).get());
+      DetId id = (*imrh)->geographicalId();
       
       const DetLayer* layer = theDetLayerGeometry->idToLayer(id);
       MuonRecHitContainer dRecHits = theLayerMeasurements.recHits(layer);
       
       // get station of hit if it is in DT
-      if ( (*immrh).isDT() ) {
+      if ( (**imrh).isDT() ) {
         DTChamberId did(id.rawId());
         station = did.station();
         float coneSize = 10.0;
@@ -516,33 +511,33 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
           }// end of else
 	}// end of for loop over dRecHits
             for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
-        double rhitDistance = ((*ir)->localPosition()-(*immrh).localPosition()).mag();
+        double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
         if ( rhitDistance < coneSize ) detRecHits++;
         edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
               <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
       }// end of for all2dRecHits
     }// end of if DT
     // get station of hit if it is in CSC
-    else if ( (*immrh).isCSC() ) {
+    else if ( (**imrh).isCSC() ) {
       CSCDetId did(id.rawId());
       station = did.station();
 
       float coneSize = 10.0;
 
       for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-        double rhitDistance = ((**ir).localPosition()-(*immrh).localPosition()).mag();
+        double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
         if ( rhitDistance < coneSize ) detRecHits++;
         edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
                   <<" Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
       }
     }
     // get station of hit if it is in RPC
-    else if ( (*immrh).isRPC() ) {
+    else if ( (**imrh).isRPC() ) {
       RPCDetId rpcid(id.rawId());
       station = rpcid.station();
       float coneSize = 100.0;
       for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-        double rhitDistance = ((**ir).localPosition()-(*immrh).localPosition()).mag();
+        double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
         if ( rhitDistance < coneSize ) detRecHits++;
         edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
                   <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
@@ -558,7 +553,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
     }
     } //end of if option 3, 4
-    all.push_back((*imrh));
+    all.push_back((*imrh).get());
   } // end of loop over muon rechits
   if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 )  {
     for ( int i = 0; i < 4; i++ ) {
@@ -650,22 +645,45 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 //
 //
 //
-GlobalMuonTrajectoryBuilder::ConstRecHitContainer GlobalMuonTrajectoryBuilder::getTransientHits(const reco::Track& track) const 
+MuonTransientTrackingRecHit::ConstMuonRecHitContainer  
+GlobalMuonTrajectoryBuilder::getTransientHits(const reco::Track&  
+track) const
 {
-  ConstRecHitContainer result;
 
-  for(trackingRecHit_iterator iter = track.recHitsBegin(); iter != track.recHitsEnd(); ++iter){
-    ConstRecHitPointer ttrh;
-    //FIXMEFIXME : Are these supposed to be muon hits? Probably should return a MuonRecHitContainer then
+   MuonTransientTrackingRecHit::ConstMuonRecHitContainer result;
 
-    /// MuonTransientTrackingRecHit::build(...,(*iter).get())
-    result.push_back(ttrh);
-  }
+   for (trackingRecHit_iterator iter = track.recHitsBegin(); iter !=  
+track.recHitsEnd(); ++iter) {
+     ConstRecHitPointer ttrh;
+     const TrackingRecHit* p = (*iter).get();
+     MuonRecHitPointer mp = MuonTransientTrackingRecHit::specificBuild 
+(theTrackingGeometry->idToDet(p->geographicalId()),p);
+     result.push_back(mp);
+   }
 
-  return result;
+   return result;
 
 }
 
+GlobalMuonTrajectoryBuilder::ConstRecHitContainer
+GlobalMuonTrajectoryBuilder::getTkTransientHits(const reco::Track&
+track) const
+{
+
+   ConstRecHitContainer result;
+
+   for (trackingRecHit_iterator iter = track.recHitsBegin(); iter !=
+track.recHitsEnd(); ++iter) {
+     ConstRecHitPointer ttrh;
+     const TrackingRecHit* p = (*iter).get();
+     TransientTrackingRecHit::RecHitPointer 
+     tp = theTkTransientTrackingRecHitBuilder->build (p);
+     result.push_back(tp);
+   }
+
+   return result;
+
+}
 
 //
 // select muon hits compatible with trajectory; 
@@ -820,7 +838,7 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
   TC result;
 
   // use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
-  ConstRecHitContainer tkHits = getTransientHits((*tkTrack));
+  ConstRecHitContainer tkHits = getTkTransientHits((*tkTrack));
 
   // use TransientTrackBuilder to get a starting TSOS
   reco::TransientTrack tkTransTrack(tkTrack,&*theField);

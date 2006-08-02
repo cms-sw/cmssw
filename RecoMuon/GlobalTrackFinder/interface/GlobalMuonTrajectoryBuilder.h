@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/01 16:08:11 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/08/01 19:06:32 $
+ *  $Revision: 1.20 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -21,6 +21,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
@@ -28,8 +29,9 @@ class MuonUpdatorAtVertex;
 class MagneticField;
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
+class MuonTransientTrackingRecHit;
 //class TransientTrackBuilder;
-//class GenericTransientTrackingRecHitBuilder;
+class TkTransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
 class GlobalMuonReFitter;
@@ -43,6 +45,15 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
   public:
     typedef TransientTrackingRecHit::RecHitContainer   RecHitContainer;
     typedef TransientTrackingRecHit::ConstRecHitContainer  ConstRecHitContainer;
+    typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+    typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+
+    typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+    typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+    typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+    typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+
+
 
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;
@@ -82,8 +93,11 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// select muon hits compatible with trajectory; check hits in chambers with showers
     ConstRecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
  
-    /// get TransientTrackingRecHits from Track
-    ConstRecHitContainer getTransientHits(const reco::Track&) const;
+    /// get TransientTrackingRecHits from Muon Track
+    ConstMuonRecHitContainer getTransientHits(const reco::Track&) const;
+
+    /// get TransientTrackingRecHits from Tracker Track
+    ConstRecHitContainer getTkTransientHits(const reco::Track&) const;
 
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
@@ -103,7 +117,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
-//    GenericTransientTrackingRecHitBuilder* theGTTrackingRecHitBuilder;
+    TkTransientTrackingRecHitBuilder* theTkTransientTrackingRecHitBuilder;
     GlobalMuonReFitter* theRefitter;
 
     float theTrackMatcherChi2Cut;
