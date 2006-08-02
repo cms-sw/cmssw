@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.8 2006/06/16 11:04:01 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.9 2006/08/02 08:17:36 llista Exp $
 //
 //
 // system include files
@@ -33,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // my includes
 //#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -103,6 +104,7 @@ private:
   TH1F *hsimlinks, *hfract;
 
   TH2F *htest, *htest2;
+  edm::InputTag src_;
 
 };
 
@@ -123,6 +125,7 @@ PixelDigisTest::PixelDigisTest(const edm::ParameterSet& iConfig) {
   //daemon.operator->();
 
   PRINT = iConfig.getUntrackedParameter<bool>("Verbosity",false);
+  src_ =  iConfig.getParameter<edm::InputTag>( "src" );
   cout<<" Construct PixelDigisTest "<<endl;
 }
 
@@ -221,13 +224,13 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   
   // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByLabel("siPixelDigis", pixelDigis);
+  iEvent.getByLabel( src_ , pixelDigis);
 
   // Get simlink data
   //edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
   //iEvent.getByLabel("siPixelDigis", pixelSimLinks);
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > pixelSimLinks;
-  iEvent.getByLabel("siPixelDigis",   pixelSimLinks);
+  iEvent.getByLabel( src_ ,   pixelSimLinks);
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
