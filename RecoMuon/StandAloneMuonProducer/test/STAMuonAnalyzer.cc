@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/07/18 10:18:22 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -93,7 +93,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   // Get the SimTrack collection from the event
   if(theDataType == "SimData"){
     Handle<SimTrackContainer> simTracks;
-    event.getByLabel("SimG4Object",simTracks);
+    event.getByLabel("g4SimHits",simTracks);
     
     numberOfRecTracks += staTracks->size();
 
