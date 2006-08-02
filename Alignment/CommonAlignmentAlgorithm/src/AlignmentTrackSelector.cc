@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentTrackSelector.h"
 
@@ -18,26 +19,24 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   nHitMin( cfg.getParameter<double>( "nHitMin" ) ),
   nHitMax( cfg.getParameter<double>( "nHitMax" ) )
 {
-  std::cout <<"[AlignmentTrackSelector] constructed.\n";
-  if (applyBasicCuts) {
-    std::cout <<"[AlignmentTrackSelector] applying basic track cuts ...\n";
-    std::cout <<"[AlignmentTrackSelector] ptmin,ptmax: " 
-              << ptMin <<","<<ptMax<< std::endl;
-    std::cout <<"[AlignmentTrackSelector] etamin,etamax: " 
-              << etaMin <<","<<etaMax<< std::endl;
-    std::cout <<"[AlignmentTrackSelector] phimin,phimax: " 
-              << phiMin <<","<<phiMax<< std::endl;
-    std::cout <<"[AlignmentTrackSelector] nhitmin,nhitmax: " 
-              << nHitMin <<","<<nHitMax<< std::endl;
-  }
-  if (applyNHighestPt) {
-    std::cout <<"[AlignmentTrackSelector] filter N tracks with highest Pt N="
-              << nHighestPt<<std::endl;
-  }
-  if (applyMultiplicityFilter) {
-    std::cout <<"[AlignmentTrackSelector] apply multiplicity filter N>="
-              << minMultiplicity<<std::endl;
-  }    
+
+  if (applyBasicCuts)
+	edm::LogInfo("AlignmentTrackSelector") 
+	  << "applying basic track cuts ..."
+	  << "\nptmin,ptmax:     " << ptMin   << "," << ptMax 
+	  << "\netamin,etamax:   " << etaMin  << "," << etaMax
+	  << "\nphimin,phimax:   " << phiMin  << "," << phiMax
+	  << "\nnhitmin,nhitmax: " << nHitMin << "," << nHitMax;
+
+  if (applyNHighestPt)
+	edm::LogInfo("AlignmentTrackSelector") 
+	  << "filter N tracks with highest Pt N=" << nHighestPt;
+
+  if (applyMultiplicityFilter)
+	edm::LogInfo("AlignmentTrackSelector") 
+	  << "apply multiplicity filter N>=" << minMultiplicity;
+
+  edm::LogInfo("AlignmentTrackSelector") << "Constructed";
 
 }
 
@@ -65,10 +64,11 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
     if (result.size()<(unsigned int)minMultiplicity) result.clear();
   }
 
-  std::cout <<"[AlignmentTrackSelector] tracks all,kept: "
-            << tracks.size()<<","<<result.size()<<std::endl; 
+  edm::LogInfo("AlignmentTrackSelector") << "tracks all,kept: "
+										 << tracks.size() << "," << result.size();
 
   return result;
+
 }
 
 // make basic cuts ------------------------------------------------------------
@@ -86,8 +86,8 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     float phi=trackp->phi();
     int nhit = trackp->recHitsSize(); 
 
-    std::cout <<"[AlignmentTrackSelector] pt,eta,phi,nhit: " 
-      <<pt<<","<<eta<<","<<phi<<","<<nhit<<std::endl;
+	edm::LogInfo("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
+										   <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
     if (pt>ptMin && pt<ptMax 
        && eta>etaMin && eta<etaMax 
@@ -114,8 +114,8 @@ AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
   // copy theTrackMult highest pt tracks to result vector
   int n=0;
   for (Tracks::const_iterator it=sortedTracks.begin();
-      it!=sortedTracks.end(); it++) {
-      if (n<nHighestPt) { result.push_back(*it); n++; }
+	   it!=sortedTracks.end(); it++) {
+	if (n<nHighestPt) { result.push_back(*it); n++; }
   }
 
   return result;

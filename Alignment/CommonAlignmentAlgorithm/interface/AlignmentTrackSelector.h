@@ -1,9 +1,10 @@
-#ifndef AlignmentTrackSelector_h
-#define AlignmentTrackSelector_h
+#ifndef Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
+#define Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <vector>
+
 namespace edm { class Event; }
 
 class AlignmentTrackSelector
@@ -11,7 +12,7 @@ class AlignmentTrackSelector
 
  public:
 
-  typedef std::vector< const reco::Track*> Tracks; 
+  typedef std::vector<const reco::Track*> Tracks; 
 
   /// constructor
   AlignmentTrackSelector(const edm::ParameterSet & cfg);
@@ -39,7 +40,6 @@ class AlignmentTrackSelector
   ComparePt ptComparator;
 
   /// private data members
-
   bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
   int nHighestPt,minMultiplicity;
   double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax;
