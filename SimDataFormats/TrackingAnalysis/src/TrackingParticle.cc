@@ -19,6 +19,10 @@ void TrackingParticle::addG4Track( const SimTrackRef& ref) {
 void TrackingParticle::addPSimHit( const TrackPSimHitRef& ref){
   trackPSimHit_.push_back(ref);
 }
+//void TrackingParticle::addPSimHit( const TrackPSimHitRef& ref){
+//  trackPSimHit_.push_back(edm::RefToBase<PSimHit>(ref));
+//}
+
 TrackingParticle::genp_iterator TrackingParticle::genParticle_begin() const {
    return genParticles_.begin();
 }
@@ -34,4 +38,11 @@ TrackingParticle::g4t_iterator TrackingParticle::g4Track_begin()const {
 TrackingParticle::g4t_iterator TrackingParticle::g4Track_end()const {
     return g4Tracks_.end();
 }
-//int TrackingParticle::source(){}
+
+TrackingParticle::pSH_iterator TrackingParticle::pSimHit_begin()const{
+    return trackPSimHit_.begin();
+}
+
+TrackingParticle::pSH_iterator TrackingParticle::pSimHit_end()const{
+    return trackPSimHit_.end();
+}
