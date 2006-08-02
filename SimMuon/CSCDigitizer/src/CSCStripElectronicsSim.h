@@ -76,6 +76,9 @@ private:
                   float sca_start_time,
                   bool addScaNoise);
 
+  // saturation of the 12-bit ADC.  Max reading is 4095
+  void doSaturation(CSCStripDigi & digi);
+
   // useful constants
   float theComparatorThreshold;      // in fC
   float theComparatorNoise;

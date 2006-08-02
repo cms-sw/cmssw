@@ -397,20 +397,31 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel,
       scaCounts[scaBin] += static_cast< int >( RandGaussQ::shoot() * sca_noise 
 						 / theSpecs->chargePerCount() );
     }
-
-    // do saturation of 12-bit ADC
-    scaCounts[scaBin] = std::min(scaCounts[scaBin], 4095);
   }
   //int adcCounts = static_cast< int >( signal.getTotal() / theSpecs->chargePerCount() );
   CSCStripDigi newDigi(channel, scaCounts);
   if(theScaNoiseGenerator != 0) {
     theScaNoiseGenerator->addPedestal(layerId(), newDigi);
   }
+
+  // do saturation of 12-bit ADC
+  doSaturation(newDigi);
+
   addLinks(channelIndex(channel));
   //LogDebug("CSCStripElectronicsSim") << newDigi;
   //newDigi.print();
 
   return newDigi;
+}
+
+
+void CSCStripElectronicsSim::doSaturation(CSCStripDigi & digi)
+{
+  std::vector<int> scaCounts(digi.getADCCounts());
+  for(int scaBin = 0; scaBin < scaCounts.size(); ++scaBin) {
+    scaCounts[scaBin] = std::min(scaCounts[scaBin], 4095);
+  }
+  digi.setADCCounts(scaCounts);
 }
 
 
