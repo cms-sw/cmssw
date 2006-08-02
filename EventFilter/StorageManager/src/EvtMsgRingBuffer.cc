@@ -70,8 +70,6 @@ void EvtMsgRingBuffer::push_back(EventMsgView inputMsgView)
   else nextfree_++;
   FDEBUG(10) << "after push_back head = " << head_ << " tail = " << tail_
              << " next free = " << nextfree_ << endl;
-  cout << "after push_back head = " << head_ << " tail = " << tail_
-       << " next free = " << nextfree_ << endl;
 }
 
 bool EvtMsgRingBuffer::isEmpty()
