@@ -28,13 +28,12 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   // The track parameters:
   AlgebraicVector theTrackParameters = AlgebraicVector(5);
 
-  double signTC = -originalFTS.charge();
+  double signTC = originalFTS.charge();
   bool isCharged = (signTC!=0);
   if (isCharged) {
     theTrackParameters[0] = field / pt*signTC;
   } else {
     theTrackParameters[0] = 1 / pt;
-    
   }
   theTrackParameters[1] = theta;
   theTrackParameters[2] = phi;
