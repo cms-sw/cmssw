@@ -11,6 +11,8 @@
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "POOLCore/Exception.h"
+#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -143,7 +145,6 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
 // constructors and destructor
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
   m_loader(new cond::ServiceLoader),
   m_session( 0 )
@@ -151,9 +152,22 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   /*parameter set parsing and pool environment setting
    */
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
+  bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
+  std::string catconnect;
+  
+  if( siteLocalConfig ){
+    edm::Service<edm::service::SiteLocalConfigService> localconfservice;
+    if( !localconfservice.isAvailable() ){
+      throw cms::Exception("edm::LocalConfigService is not available");       
+    }
+    m_con=localconfservice->frontierConnect();
+    catconnect=localconfservice->calibCatalog();
+  }else{
+    m_con=iConfig.getParameter<std::string>("connect") ;
+  }
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   bool loadblob=iConfig.getUntrackedParameter<bool>("loadBlobStreamer",false);
-  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+  catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
   try{
     if( auth==1 ){
