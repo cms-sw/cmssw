@@ -23,7 +23,7 @@ public:
   buf_((uint8*)buf),
   h_((Header*)buf) 
    {
-   new (h_) Header (code, (unsigned int)4+4+bodySize);
+   new (h_) Header (code, (unsigned int)sizeof(Header)+bodySize);
    }
 
   uint32 code() const { return h_->code_; }
@@ -48,7 +48,7 @@ public:
   buf_((uint8*)buf), 
   head_((Header*)buf) 
   { 
-   msg_body_start_ = buf_ + sizeof(HeaderView); 
+   msg_body_start_ = buf_ + sizeof(Header); 
   } 
  
   uint32 code() const { return head_->code_; } 
