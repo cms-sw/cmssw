@@ -2,6 +2,7 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/Candidate>
 <export>
   <lib name=DataFormatsL1Trigger>
   <use name=DataFormats/Common>
