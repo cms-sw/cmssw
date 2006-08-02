@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id$
+// $Id: PixelSimHitsTest.cc,v 1.2 2006/06/07 15:44:14 dkotlins Exp $
 //
 //
 // system include files
@@ -287,8 +287,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
    Handle<PSimHitContainer> PixelBarrelHitsLowTof;
    Handle<PSimHitContainer> PixelBarrelHitsHighTof;
 
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
    //vector<PSimHit> pixelHits;
    //pixelHits.insert(pixelHits.end(),PixelBarrelHitsLowTof->begin(),
    //       PixelBarrelHitsLowTof->end());

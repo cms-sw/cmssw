@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.6 2006/06/13 07:41:02 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.8 2006/06/16 11:04:01 dkotlins Exp $
 //
 //
 // system include files
@@ -221,13 +221,13 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   
   // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByLabel("pixdigi", pixelDigis);
+  iEvent.getByLabel("siPixelDigis", pixelDigis);
 
   // Get simlink data
   //edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
-  //iEvent.getByLabel("pixdigi", pixelSimLinks);
+  //iEvent.getByLabel("siPixelDigis", pixelSimLinks);
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > pixelSimLinks;
-  iEvent.getByLabel("pixdigi",   pixelSimLinks);
+  iEvent.getByLabel("siPixelDigis",   pixelSimLinks);
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;

@@ -14,7 +14,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id$
+// $Id: PixelSimHitsTestForward.cc,v 1.1 2006/06/07 15:44:14 dkotlins Exp $
 //
 //
 // system include files
@@ -300,9 +300,9 @@ void PixelSimHitsTestForward::analyze(const edm::Event& iEvent,
    Handle<PSimHitContainer> PixelForwardHitsLowTof;
    Handle<PSimHitContainer> PixelForwardHitsHighTof;
 
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof",
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof",
 		     PixelForwardHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof",
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof",
 		     PixelForwardHitsHighTof);
 
    //vector<PSimHit> pixelHits;
