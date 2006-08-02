@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.15 2006/07/12 14:49:44 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.16 2006/07/18 15:08:58 goitom Exp $
 //
 //
 
@@ -201,7 +201,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 			const TrajectoryMeasurement tm = *fit;
 			TrajectoryStateOnSurface theCombinedPredictedState = TrajectoryStateCombiner().combine( tm.forwardPredictedState(),
 				tm.backwardPredictedState());
-			const TransientTrackingRecHit* hit = tm.recHit();
+			TransientTrackingRecHit::ConstRecHitPointer hit = tm.recHit();
 			const GeomDet* det = hit->det();
 			
 			 if (det->components().empty())
@@ -214,21 +214,6 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 					theTopol->measurementPosition( theCombinedPredictedState.localPosition());
 				Measurement2DVector residual = theMeasHitPos - theMeasStatePos;
 				
-				/*const LocalPoint & LocalHitPos = hit->localPosition();
-		
-				const LocalPoint& LocalTrajPos = fit->updatedState().localPosition();
-				const DetId & detId = hit->geographicalId();
-				const GeomDetUnit *detUnit = theG->idToDetUnit(detId);
-				const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(&(*detUnit));
-				const StripTopology& topology = stripDet->specificTopology();
-		
-				const float hitPositionInStrips = topology.strip(LocalHitPos);
-				const float trackPositionInStrips = topology.strip(LocalTrajPos);
-		
-				double residual = trackPositionInStrips - hitPositionInStrips;
-			
-				//if (hit->detUnit() == NULL) { std::cout<<"STEREO HIT!"<<std::endl;}*/
-
 				DetId hit_detId = hit->geographicalId();
 				int CutRawDetId= ( hit_detId.rawId() ) & 0x1ffffff ;
 				switch(hit_detId.subdetId())
