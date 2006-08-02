@@ -202,11 +202,11 @@ namespace edm
     char* dummyBuffer = new char[16];
     //std::auto_ptr<OtherMessageBuilder> othermsg(
     //                    new OtherMessageBuilder(dummyBuffer,Header::DONE));
-    OtherMessageBuilder othermsg(dummyBuffer,16,Header::DONE);
+    OtherMessageBuilder othermsg(dummyBuffer,Header::DONE);
     //std::cout << "making other message code = " << othermsg->code()
     //          << " and size = " << othermsg->size() << std::endl;
-    std::cout << "making other message code = " << othermsg.code()
-              << " and size = " << othermsg.size() << std::endl;
+    //std::cout << "making other message code = " << othermsg.code()
+    //          << " and size = " << othermsg.size() << std::endl;
   //  writeI2OOther((const char*)pb.buffer(),sz);
   //  writeI2OOther((const char*)othermsg,sz);
     //writeI2OOther(*othermsg);
