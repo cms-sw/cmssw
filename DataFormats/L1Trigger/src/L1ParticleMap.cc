@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.1 2006/07/26 20:41:31 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.2 2006/08/02 14:21:34 wsun Exp $
 //
 
 // system include files
@@ -28,10 +28,42 @@ using namespace l1extra ;
 
 std::string
 L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
-   "singleElectron",
-      "singleJet",
-      "singleTau",
-      "singleMuon"
+   "SingleElectron",
+      "DoubleElectron",
+      "RelaxedDoubleElectron",
+      "SinglePhoton",
+      "PrescaledSinglePhoton",
+      "DoublePhoton",
+      "PrescaledDoublePhoton",
+      "RelaxedDoublePhoton",
+      "PrescaledRelaxedDoublePhoton",
+      "SingleMuon",
+      "RelaxedSingleMuon",
+      "DoubleMuon",
+      "RelaxedDoubleMuon",
+      "DoublePixelTauJet",
+      "DoubleTrackerTauJet",
+      "ElectronTauJet",
+      "MuonTauJet",
+      "TauJetMET",
+      "SingleJet",
+      "SingleJetPrescale1",
+      "SingleJetPrescale2",
+      "SingleJetPrescale3",
+      "DoubleJet",
+      "TripleJet",
+      "QuadrupleJet",
+      "AcoplanarDoubleJet",
+      "SingleJetMETAcoplanar",
+      "SingleJetMET",
+      "DoubleJetMET",
+      "TripleJetMET",
+      "QuadrupleJetMET",
+      "MET",
+      "HTMET",
+      "HTSingleElectron",
+      "BJetsLeadingJet",
+      "BJetsSecondJet"
       } ;
 
 //
@@ -44,7 +76,7 @@ L1ParticleMap::L1ParticleMap()
 L1ParticleMap::L1ParticleMap(
    L1TriggerType triggerType,
    bool triggerDecision,
-   const L1ParticleTypeVector& particleTypes,
+   const L1ObjectTypeVector& objectTypes,
    const L1EmParticleRefVector& emParticles,
    const L1JetParticleRefVector& jetParticles,
    const L1MuonParticleRefVector& muonParticles,
@@ -52,7 +84,7 @@ L1ParticleMap::L1ParticleMap(
    const L1IndexComboVector& indexCombos )
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
-     particleTypes_( particleTypes ),
+     objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
      muonParticles_( muonParticles ),
@@ -93,10 +125,10 @@ L1ParticleMap::~L1ParticleMap()
 const L1ParticleMap::L1IndexComboVector&
 L1ParticleMap::indexCombos() const
 {
-   if( indexCombos_.size() == 0 && numOfNonGlobalParticles() == 1 )
+   if( indexCombos_.size() == 0 && numOfObjects() == 1 )
    {
       int nParticles = 0 ;
-      L1NonGlobalParticleType type = *( nonGlobalParticleTypes().begin() ) ;
+      L1ObjectType type = *( objectTypes().begin() ) ;
 
       if( type == kEM )
       {
@@ -109,6 +141,10 @@ L1ParticleMap::indexCombos() const
       else if( type == kMuon )
       {
 	 nParticles = muonParticles_.size() ;
+      }
+      else if( type == kEtMiss || type == kEtTotal || type == kEtHad )
+      {
+	 nParticles = 1 ;
       }
 
       for( int i = 0 ; i < nParticles ; ++i )
@@ -126,7 +162,7 @@ L1ParticleMap::indexCombos() const
 // L1ParticleMap::particleInCombo( int aIndexInCombo,
 // 				const L1IndexCombo& aCombo ) const
 // {
-//    L1ParticleType type = particleTypes_[ aIndexInCombo ] ;
+//    L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
 //    int particleInList = aCombo[ aIndexInCombo ] ;
 
 //    if( type == L1PhysObjectBase::kEM )
@@ -154,7 +190,7 @@ const L1PhysObjectBase*
 L1ParticleMap::physObjectInCombo( int aIndexInCombo,
 				  const L1IndexCombo& aCombo ) const
 {
-   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
    if( type == kEM )
@@ -172,6 +208,11 @@ L1ParticleMap::physObjectInCombo( int aIndexInCombo,
       return dynamic_cast< const L1PhysObjectBase* >(
 	 muonParticles_[ particleInList ].get() ) ;
    }
+   else if( type == kEtMiss || type == kEtTotal || type == kEtHad )
+   {
+      return dynamic_cast< const L1PhysObjectBase* >(
+	 etMissParticle_.get() ) ;
+   }
    else
    {
       return 0 ;
@@ -182,7 +223,7 @@ const L1EmParticle*
 L1ParticleMap::emParticleInCombo( int aIndexInCombo,
 				  const L1IndexCombo& aCombo ) const
 {
-   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
    if( type == kEM )
@@ -199,7 +240,7 @@ const L1JetParticle*
 L1ParticleMap::jetParticleInCombo( int aIndexInCombo,
 				   const L1IndexCombo& aCombo ) const
 {
-   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
    if( type == kJet )
@@ -216,7 +257,7 @@ const L1MuonParticle*
 L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
 				    const L1IndexCombo& aCombo ) const
 {
-   L1NonGlobalParticleType type = particleTypes_[ aIndexInCombo ] ;
+   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
    if( type == kMuon )
@@ -229,12 +270,28 @@ L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
    }
 }
 
+const L1EtMissParticle*
+L1ParticleMap::etMissParticleInCombo( int aIndexInCombo,
+				      const L1IndexCombo& aCombo ) const
+{
+   L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
+
+   if( type == kEtMiss || type == kEtTotal || type == kEtHad )
+   {
+      return etMissParticle_.get() ;
+   }
+   else
+   {
+      return 0 ;
+   }
+}
+
 // std::vector< const reco::ParticleKinematics* >
 // L1ParticleMap::particleCombo( const L1IndexCombo& aCombo ) const
 // {
 //    std::vector< const reco::ParticleKinematics* > tmp ;
 
-//    for( int i = 0 ; i < numOfNonGlobalParticles() ; ++i )
+//    for( int i = 0 ; i < numOfObjects() ; ++i )
 //    {
 //       tmp.push_back( particleInCombo( i, aCombo ) ) ;
 //    }
@@ -247,7 +304,7 @@ L1ParticleMap::physObjectCombo( const L1IndexCombo& aCombo ) const
 {
    std::vector< const L1PhysObjectBase* > tmp ;
 
-   for( int i = 0 ; i < numOfNonGlobalParticles() ; ++i )
+   for( int i = 0 ; i < numOfObjects() ; ++i )
    {
       tmp.push_back( physObjectInCombo( i, aCombo ) ) ;
    }
