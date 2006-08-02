@@ -23,7 +23,7 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.2 2006/05/22 19:09:06 chrjones Exp $
+// $Id: RefToBase.h,v 1.3 2006/06/21 17:56:08 chrjones Exp $
 //
 
 // system include files
@@ -53,6 +53,7 @@ namespace edm {
         virtual BaseHolder<T>* clone() const { return new Holder<T,TRef>(*this);}
         virtual const T* getPtr() const { return ref_.operator->(); }
         virtual ProductID id() const {return ref_.id();}
+        const TRef & getRef() const { return ref_; }
        private:
         TRef ref_;
       };
@@ -90,6 +91,15 @@ namespace edm {
         return holder_->id();
       }
   
+      /// cast to a concrete type
+      template<typename TRef>
+      TRef castTo() const {
+	typedef reftobase::Holder<T,TRef> Holder;
+	const Holder * h = dynamic_cast<Holder *>( holder_ );
+	if ( h == 0 ) return Ref();
+        return h->getRef();
+      }
+
       /// Checks for null
       bool isNull() const {return id() == ProductID();}
   
