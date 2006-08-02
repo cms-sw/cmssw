@@ -19,32 +19,21 @@ class OtherMessageBuilder
 public:
 
   //Constructor to Create OtherMessage
-  OtherMessageBuilder(void* buf, uint32 size, uint32 code, uint32 msgBody=0):
-  buf_((uint8*)buf)
+  OtherMessageBuilder(void* buf, uint32 code, uint32 bodySize=0):
+  buf_((uint8*)buf),
+  h_((Header*)buf) 
    {
-   Header* h = (Header*)buf_;
-   h->code_ = code;
-   uint32 messageSize = sizeof(Header) + sizeof(uint32);
-   assert(size >= messageSize);
-   convert(messageSize, h->size_);
-   uint8 *bodyAddress = buf_ + sizeof(Header);
-   char_uint32 bodyArray;
-   for (uint32 idx = 0; idx < sizeof(uint32); idx++) {
-     bodyArray[idx] = bodyAddress[idx];
-   }
-   convert(msgBody, bodyArray);
+   new (h_) Header (code, (unsigned int)4+4+bodySize);
    }
 
-  uint32 code() const { HeaderView* h = (HeaderView*)buf_; return h->code(); }
-  uint32 size() const { HeaderView* h = (HeaderView*)buf_; return h->size(); }
-  uint32 msgBody() const {
-    uint8 *bodyAddress = buf_ + sizeof(Header);
-    return convert32(bodyAddress);
-  }
-  uint8* startAddress() { return buf_; } // HWKC
+  uint32 code() const { return h_->code_; }
+  uint32 size() const { return convert32(h_->size_); }
+  uint8* msgBody()    { return buf_+sizeof(Header); }
+  uint8* startAddress() { return buf_; }
 
 private:
   uint8* buf_;
+  Header* h_;
 };
 
 // ----------------------- Looks at the Message  ------------------------
@@ -57,22 +46,21 @@ public:
   //Constructor to View OtherMessage 
   OtherMessageView(void* buf): 
   buf_((uint8*)buf), 
-  head_(buf) 
+  head_((Header*)buf) 
   { 
-   msg_body_start_ = buf_ + sizeof(Header); 
-   msgBody_ = convert32(msg_body_start_); 
+   msg_body_start_ = buf_ + sizeof(HeaderView); 
   } 
  
-  uint32 code() const { return head_.code(); } 
-  uint32 size() const { return head_.size(); } 
-  uint32 msgBody() const {return msgBody_; } 
+  uint32 code() const { return head_->code_; } 
+  uint32 size() const { return convert32(head_->size_); } 
+  uint8* msgBody() const {return msg_body_start_; } 
+  uint8* startAddress() { return buf_; }
  
 private: 
   uint8* buf_; 
   uint8* msg_body_start_; 
- 
-  HeaderView head_; 
-  uint32 msgBody_; 
+  Header* head_; 
 }; 
 
 #endif
+
