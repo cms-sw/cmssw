@@ -109,8 +109,11 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
-      mapItr != theTowerMap.end(); ++ mapItr)
-    result.push_back(convert(mapItr->first,mapItr->second));
+      mapItr != theTowerMap.end(); ++ mapItr) {
+    CaloTower ct=convert(mapItr->first,mapItr->second);
+    if (ct.energy()>0 && ct.energy()>theEcutTower)
+      result.push_back(ct);
+  }
   theTowerMap.clear(); // save the memory
 }
 
@@ -216,6 +219,8 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
     double E=mt.E;
     double E_em=mt.E_em;
+    double E_had=mt.E_had;
+    double E_outer=mt.E_outer;
     std::vector<DetId> contains=mt.constituents;
 
     if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
@@ -226,9 +231,18 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 	if (i->det()!=DetId::Ecal) contains_noecal.push_back(*i);
       contains.swap(contains_noecal);
     }
+    if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
+      E-=E_had;
+      E_had=0;
+      E_outer=0;
+      std::vector<DetId> contains_nohcal;
+      for (std::vector<DetId>::iterator i=contains.begin(); i!=contains.end(); i++) 
+	if (i->det()!=DetId::Hcal) contains_nohcal.push_back(*i);
+      contains.swap(contains_nohcal);
+    }
 
     CaloTower::Vector v(E*pf,p.eta(),p.phi());
-    CaloTower retval(id,v,E_em*pf,mt.E_had*pf,mt.E_outer*pf,
+    CaloTower retval(id,v,E_em*pf,E_had*pf,E_outer*pf,
 		     -1,-1);
     retval.addConstituents(contains);
     return retval;
