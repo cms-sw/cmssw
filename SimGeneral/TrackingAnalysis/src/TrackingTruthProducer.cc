@@ -15,14 +15,14 @@
 
 #include <map>
 
+#include "DataFormats/Common/interface/RefVectorBase.h"
+
 using namespace edm;
 using namespace std; 
 using CLHEP::HepLorentzVector;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
-typedef edm::RefVector<edm::PSimHitContainer>		       TrackPSimHitRefVector;
-typedef edm::Ref<edm::PSimHitContainer> 		       TrackPSimHitRef;
 
 string MessageCategory = "TrackingTruthProducer";
 
@@ -77,10 +77,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
   edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
   edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
-//  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-//  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-//  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-//  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
+  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
+  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
+  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
+  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
 
   event.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
   event.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
@@ -90,10 +90,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
   event.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
   event.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
-//  event.getByLabel("SimG4Object","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
-//  event.getByLabel("SimG4Object","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
-//  event.getByLabel("SimG4Object","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
-//  event.getByLabel("SimG4Object","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
+  event.getByLabel("SimG4Object","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
+  event.getByLabel("SimG4Object","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
+  event.getByLabel("SimG4Object","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
+  event.getByLabel("SimG4Object","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
   
 //  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
   const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
@@ -116,10 +116,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   AlltheConteiners.push_back(TOBHitsHighTof);
   AlltheConteiners.push_back(TECHitsLowTof);
   AlltheConteiners.push_back(TECHitsHighTof);
-//  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
-//  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
-//  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
-//  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
+  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
+  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
+  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
+  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
 //  
   
 //  genEvent.print();
@@ -159,27 +159,31 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
        }
        TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
        
-       typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
-//       map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
-       int  index = 0;
-       int simtrackId = itP -> trackId();
-       for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
-         for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
-	     cout << " Debug Info " << *allCont.id() << endl;
-//           if( simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
-//	     tp.addPSimHit(TrackPSimHitRef(*allCont, index));
-//	     trackIdPSimHitMap[hit->trackId()].push_back(TrackPSimHitRef(*allCont, index));
-//	   }           
-         }
-       }
-
-       tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
-       if (genPart >= 0) {
-         tp.addGenParticle(GenParticleRef(hepMC,genPart));
-       }
-       productionVertex.insert(pair<int,int>(tPC->size(),genVert));
-       tPC -> push_back(tp);
-       ++iG4Track;
+      typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
+//      map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
+      int simtrackId = itP -> trackId();
+     for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
+     int  index = 0;
+      	 for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
+     	     if( simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
+     	   tp.addPSimHit(TrackPSimHitRef(*allCont, index));
+//     	   trackIdPSimHitMap[hit->trackId()].push_back(TrackPSimHitRef(*allCont, index));
+      	     }
+      	 }
+      }
+//      int index = 0;
+//      for(edm::PSimHitContainer::const_iterator itSimHit =  TIBHitsLowTof->begin(); itSimHit !=TIBHitsLowTof->end();
+//	 ++itSimHit, ++index){
+//	 tp.addPSimHit(TrackPSimHitRef(TIBHitsLowTof, index));
+//      }
+	
+	tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
+	if (genPart >= 0) {
+	  tp.addGenParticle(GenParticleRef(hepMC,genPart));
+	}
+	productionVertex.insert(pair<int,int>(tPC->size(),genVert));
+	tPC -> push_back(tp);
+	++iG4Track;
   }
 
 // Put TrackingParticles in event and get handle to access them    
