@@ -147,9 +147,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
   try {
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection in the Barrel " << std::endl ;
-  } 
+  }
   std::cout << " Trying to access basic cluster collection in the Barrel from my Producer " << std::endl;
   reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
   std::cout << " basic cluster collection size  " << clusterCollectionBarrel.size() << std::endl;
@@ -160,24 +158,17 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
   try {
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the Basic Cluster collection in the Endcap " << std::endl ;
-  } 
+  }
   std::cout << " Trying to access basic cluster collection in the Endcap from my Producer " << std::endl;
   reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
   std::cout << " basic cluster collection size  " << clusterCollectionEndcap.size() << std::endl;
 
 
-
-
   // Get the Super Cluster collection in the Barrel
-
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   try{  
     theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the barrel SC  " << scHybridBarrelCollection_.c_str() ;
-  } 
+  }
   std::cout << " Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << std::endl;
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   std::cout << "barrel  SC collection size  " << scBarrelCollection.size() << std::endl;
@@ -185,21 +176,14 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the Super Cluster collection in the Endcap
 
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  try{  
+  try{
     theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("ConvertedPhotonProducer") << "Error! can't get the Endcap SC " << scIslandEndcapCollection_.c_str() ;
-  } 
+  }
   std::cout << " Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << std::endl;
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   std::cout << "Endcap SC collection size  " << scEndcapCollection.size() << std::endl;
 
-  
-
-
-
-
-  reco::ConvertedPhotonCollection myConvPhotons; 
+  reco::ConvertedPhotonCollection myConvPhotons;
   const std::vector<TrajectorySeed> theOutInSeeds;
 
   //  Loop over SC in the barrel and reconstruct converted photons
@@ -234,18 +218,14 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
       reco::ConvertedPhoton newCandidate;
       outputConvPhotonCollection->push_back(newCandidate);
-      myCands++;      
-
+      myCands++;
 
     }
 
-    
   }
-
 
   // put the product in the event
   std::cout << " Put the ConvertedPhotonCollection " << myCands << "  candidates " << std::endl;
   theEvent.put( outputConvPhotonCollection, ConvertedPhotonCollection_);
-
 
 }

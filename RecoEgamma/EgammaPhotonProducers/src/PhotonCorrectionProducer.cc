@@ -63,9 +63,6 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
 
   using namespace edm;
 
-  LogInfo("PhotonCorrectionProducer") << "Producing event number: " << theEvent.id() << "\n";
-
-
   //
   // create empty output collections
   //
@@ -78,10 +75,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
   Handle<reco::PhotonCollection> uncorrectedPhotonHandle;
   try{  
     theEvent.getByLabel(photonCorrectionProducer_,uncorrectedPhotonCollection_,uncorrectedPhotonHandle);
-  } catch ( cms::Exception& ex ) {
-    LogError("PhotonCorrectionProducer") << "Error! can't get the Uncorrected Photon " << uncorrectedPhotonCollection_.c_str() ;
-  } 
-
+  }
   reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
   LogInfo("PhotonCorrectionProducer: Uncorrected Photon collection size ") << phoCollection.size() << "\n";
 
@@ -97,18 +91,11 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
          theDummyCorrection_->makeCorrections(&(*iPho));
     }
       outputPhotonCollection->push_back(*iPho);
-      myCands++;      
-
-      
+      myCands++;
   }
-  
-    
-
-
 
   // put the product in the event
   LogInfo("Put in the event ") << myCands << "  corrected candidates " << "\n";
   theEvent.put( outputPhotonCollection, CorrectedPhotonCollection_);
-
 
 }
