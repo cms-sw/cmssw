@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.7 2006/06/04 14:12:53 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.8 2006/06/27 12:32:37 maya Exp $
 //
 //
 
@@ -81,8 +81,8 @@ class SimHitTrackerAnalyzer : public edm::EDAnalyzer {
 //
 SimHitTrackerAnalyzer::SimHitTrackerAnalyzer( const edm::ParameterSet& iConfig ):
   HepMCLabel(iConfig.getUntrackedParameter("moduleLabelMC",std::string("FlatRandomPtGunSource"))),
-  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("SimG4Object"))),
-  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("SimG4Object")))
+  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("g4SimHits"))),
+  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("g4SimHits")))
 {
    //now do what ever initialization is needed
 
@@ -132,18 +132,18 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    //   iEvent.getByLabel(HepMCLabel, MCEvt);
    iEvent.getByLabel(SimTkLabel,SimTk);
    iEvent.getByLabel(SimVtxLabel,SimVtx);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-   iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
+   iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
 
 
    theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
