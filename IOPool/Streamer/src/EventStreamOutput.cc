@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.20 2006/06/25 14:13:43 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.21 2006/07/06 19:33:07 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -61,7 +61,7 @@ namespace edm
 	if(spi->desc()==0)
 	  throw cms::Exception("NoData","EmptyDesc");
 
-	cout << "Prov:"
+	FDEBUG(2) << "Prov:"
 	     << " " << spi->desc()->className()
 	     << " " << spi->desc()->productID()
 	     << " " << spi->prov()->productID_
@@ -184,7 +184,7 @@ namespace edm
 #if 0
     FDEBUG(11) << "-----Dump start" << endl;
     for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
-      std::cout << "Prov:"
+      cout << "Prov:"
 	   << " " << pii->desc()->className()
 	   << " " << pii->desc()->productID()
 	   << endl;      

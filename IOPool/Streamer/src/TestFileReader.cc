@@ -85,9 +85,6 @@ namespace edmtestp
   {
     while(1)
       {
-
-	//cout << "Reader: " << (void*)this << " " << (void*)to_ << endl;
-
 	int len=0;
 	ist_.read((char*)&len,sizeof(int));
 

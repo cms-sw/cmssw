@@ -37,14 +37,12 @@ namespace edm
     edm::OutputModule::Selections::const_iterator i(selections_->begin()),e(selections_->end());
 
     FDEBUG(9) << "Product List: " << endl;
-    cout << "Product List: " << endl;
 
     for(;i!=e;++i)  
       {
         sd.descs_.push_back(**i);
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
                   << endl;
-        cout << "StreamOutput got product = " << (*i)->className() <<endl;
       }
 
     TBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
@@ -94,8 +92,6 @@ namespace edm
 
     edm::OutputModule::Selections::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
-
-    cout<<"Loop over EDProducts, fill the provenance, and write"<<endl;
 
     for(; i != ie; ++i) {
       BranchDescription const& desc = **i;
@@ -204,7 +200,7 @@ namespace edm
       throw cms::Exception("StreamTranslation","Event deserialization error")
         << "received wrong message type: expected EVENT, got "
         << eventView.code() << "\n";
-    cout << "Decode event: "
+    FDEBUG(9) << "Decode event: "
          << eventView.event() << " "
          << eventView.run() << " "
          << eventView.size() << " "

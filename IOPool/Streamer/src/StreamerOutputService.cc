@@ -87,13 +87,8 @@ void StreamerOutputService::stop()
 
 void StreamerOutputService::writeHeader(InitMsgBuilder& init_message)
   {
-    cout<<"init_message.size: "<<init_message.size()<<endl;
-    cout<<"init_message.run: "<<init_message.run()<<endl;
-
     //Write the Init Message to Streamer file
     stream_writer_->write(init_message); 
-    cout<<"Just wrote init_message"<<endl;
-
 
     // Don't know what should go in as Magic and Reserved fields.
     uint32 magic = 22;
