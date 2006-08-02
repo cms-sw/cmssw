@@ -25,6 +25,7 @@ namespace edm {
       virtual std::string type() const {return type_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
+      NodePtr value() const {return value_;}
 
       std::string type_;
       NodePtr value_;
