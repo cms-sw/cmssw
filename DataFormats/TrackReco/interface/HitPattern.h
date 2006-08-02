@@ -23,50 +23,48 @@ namespace reco {
   public:
     /// default constructor
     HitPattern() {}
+    HitPattern( TrackingRecHitRefVector hitlist ); 
+    void set( const TrackingRecHitRefVector & hitlist );
     bool validHitFilter( uint32_t pattern ) const;
     bool trackerHitFilter( uint32_t pattern ) const;
     bool muonHitFilter( uint32_t pattern ) const;
     bool pixelHitFilter( uint32_t pattern ) const;
-    unsigned int numberOfValidHits() const;    
-    unsigned int numberOfLostHits() const;
-    unsigned int numberOfValidMuonHits() const;
-    unsigned int numberOfLostMuonHits() const;
-    unsigned int numberOfValidTrackerHits() const;    
-    unsigned int numberOfLostTrackerHits();    
-    unsigned int numberOfValidPixelHits() const;
-    unsigned int numberOfLostPixelHits() const;    
+    int numberOfValidHits() const;    
+    int numberOfLostHits() const;
+    int numberOfValidMuonHits() const;
+    int numberOfLostMuonHits() const;
+    int numberOfValidTrackerHits() const;    
+    int numberOfLostTrackerHits();    
+    int numberOfValidPixelHits() const;
+    int numberOfLostPixelHits() const;    
     /// return true if a valid hit is found in the first pixel barrel layer
     bool hasValidHitInFirstPixelBarrel() const; 
-    uint32_t getHitPattern( int position ) const; 
-    void setHitPattern( int position, uint32_t pattern );
-    void clear();
-
-    /// number of 32 bit integers to store the full pattern
-    static const unsigned short patternSize = 5; 
-    /// number of bits used for each hit
-    static const unsigned short hitSize = 9;     
-    /// number or patterns
-    static const unsigned short numberOfPatterns = (patternSize * 32) / hitSize;
-    /// 1 bit to distinguish tracker and muon subsystems
-    static const unsigned short subDetectorOffset = 8; 
-    static const unsigned short subDetectorMask = 0x1; 
-    /// 3 bits identify the tracker (PXB, PXF, TIB, TID, TOB, TEC) 
-    /// or muon chamber (DT, CSC, RPD) substructure        
-    static const unsigned short substrOffset = 5; 
-    static const unsigned short substrMask = 0x7;
-
-    /// 4 bits identify the layer/wheel within the substructure. 
-    /// Note that this implies that for end-cap structures the "side" is not stored. 
-    static const unsigned short layerOffset = 1; 
-    static const unsigned short layerMask = 0xF;
-    /// Finally, 1 bit is reserved to indicate whether the hit was valid.
-    static const unsigned short validOffset = 0; 
-    static const unsigned short validMask = 0x1;
+    uint32_t getHitPattern(int position) const; 
+    void setHitPattern(int position, uint32_t pattern);
 
   private:
+    /// number of 32 bit integers to store the full pattern
+    const static unsigned short PatternSize = 5; 
+    /// number of bits used for each hit
+    const static unsigned short HitSize = 9;     
+    /// 1 bit to distinguish tracker and muon subsystems
+    const static unsigned short SubDetectorOffset = 8; 
+    const static unsigned short SubDetectorMask = 0x1; 
+    /// 3 bits identify the tracker (PXB, PXF, TIB, TID, TOB, TEC) 
+    /// or muon chamber (DT, CSC, RPD) substructure        
+    const static unsigned short SubstrOffset = 5; 
+    const static unsigned short SubstrMask = 0x7;
+    /// 4 bits identify the layer/wheel within the substructure. 
+    /// Note that this implies that for end-cap structures the "side" is not stored. 
+    const static unsigned short LayerOffset = 1; 
+    const static unsigned short LayerMask = 0xF;
+    /// Finally, 1 bit is reserved to indicate whether the hit was valid.
+    const static unsigned short ValidOffset = 0; 
+    const static unsigned short ValidMask = 0x1;
+    
     ///  full hit pattern information is packed in  PatternSize 32 bit words
     ///  each hit is described by HitSize bits. 
-    uint32_t hitPattern_[ patternSize ]; 
+    uint32_t hitPattern_[ PatternSize ]; 
   };
 } 
 

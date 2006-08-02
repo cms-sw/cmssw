@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.23 2006/07/31 12:08:29 llista Exp $
+ * \version $Id: TrackBase.h,v 1.20 2006/07/18 15:41:17 llista Exp $
  *
  */
 
@@ -45,7 +45,7 @@ namespace reco {
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
     /// matrix size
-    enum { covarianceSize = dimension * ( dimension + 1 ) /2 };
+    enum { covarianceSize = CovarianceMatrix::kSize };
     /// position-momentum covariance matrix (6x6)
     typedef math::Error<6>::type PosMomError;
     /// spatial vector
@@ -66,6 +66,10 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof,
 	       const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+    /// set hit pattern from vector of hit references
+    void setHitPattern( const TrackingRecHitRefVector & hitlist ) {
+      hitPattern_.set( hitlist );
+    }
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
@@ -78,7 +82,7 @@ namespace reco {
     /// i-th fit parameter ( i = 0, ... 4 )
     const double & parameter( int i ) const { return parameters_[ i ]; }
     /// track electric charge
-    int charge() const { return transverseCurvature() >0 ? 1 : -1; }
+    int charge() const { return transverseCurvature() >0 ? -1 : 1; }
     /// The signed transverse curvature
     double transverseCurvature() const { return parameters_[ i_transverseCurvature ]; }
     /// track azimutal angle of point of closest approach to beamline
@@ -106,15 +110,15 @@ namespace reco {
     double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
     
     /// error on signed transverse curvature
-    double transverseCurvatureError() const { return sqrt( covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ] ); }
+    double transverseCurvatureError() const { return covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ]; }
     /// error on theta
-    double thetaError() const { return sqrt( covariance_[ idx( i_theta, i_theta ) ] ); }
+    double thetaError() const { return covariance_[ idx( i_theta, i_theta ) ]; }
     /// error on phi0
-    double phi0Error() const { return sqrt( covariance_[ idx ( i_phi0, i_phi0 ) ] ); }
+    double phi0Error() const { return covariance_[ idx ( i_phi0, i_phi0 ) ]; }
     /// error on d0
-    double d0Error() const { return sqrt( covariance_[ idx( i_d0, i_d0 ) ] ); }
+    double d0Error() const { return covariance_[ idx( i_d0, i_d0 ) ]; }
     /// error on dx
-    double dzError() const { return sqrt( covariance_[ idx( i_dz, i_dz ) ] ); }
+    double dzError() const { return covariance_[ idx( i_dz, i_dz ) ]; }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
@@ -141,8 +145,6 @@ namespace reco {
     /// z coordinate of point of closest approach to the beamline
     double z() const { return vertex().Z(); }
     
-    //  hit pattern
-    HitPattern & hitPattern() { return hitPattern_; }
     //  hit pattern
     const HitPattern & hitPattern() const { return hitPattern_; }
     /// number of hits found 

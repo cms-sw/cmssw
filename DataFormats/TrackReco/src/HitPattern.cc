@@ -1,20 +1,85 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 
+
 using namespace reco;
 
-void HitPattern::clear() {
-  for ( int i = 0 ; i < patternSize ; i ++ ) 
-    hitPattern_[ i ] = 0;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
+
+
+HitPattern::HitPattern(const TrackingRecHitRefVector hitlist) {
+  for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i]=0;
+  set(hitlist);
 }
 
+void HitPattern::set(const TrackingRecHitRefVector & hitlist) {
+  for ( int i = 0 ; i < PatternSize ; i++ ) hitPattern_[i]=0;
+  int counter = 0;
+  
+  for (trackingRecHit_iterator hit = hitlist.begin() ;
+       hit != hitlist.end() && counter < 32*PatternSize/HitSize ;
+       hit++, counter++) {
+    DetId id = (*hit)->geographicalId();
+    uint32_t valid = (uint32_t) (*hit)->isValid();
+    uint32_t pattern = 0;
+    uint32_t detid=id.det();
+    // adding subdetector bit, removing LS bit (wildcard)
+    pattern += ((detid)&SubDetectorMask)<<SubDetectorOffset;
+    
+    // adding substructure bits, removing LS bit (wildcard)
+    uint32_t subdet = id.subdetId();
+    
+    pattern += ((subdet)&SubstrMask)<<SubstrOffset;
+    
+    uint32_t layer = 0;
+    
+    // to understand the layer/disk/wheel number, we need to instantiate each 
+    if (detid == DetId::Tracker) {
+      if (subdet == PixelSubdetector::PixelBarrel) 
+	layer = PXBDetId(id).layer();
+      else if (subdet == PixelSubdetector::PixelEndcap)
+	layer = PXFDetId(id).disk();
+      else if (subdet == StripSubdetector::TIB)
+	layer = TIBDetId(id).layer();
+      else if (subdet == StripSubdetector::TID)
+	layer = TIDDetId(id).wheel();
+      else if (subdet == StripSubdetector::TOB)
+	layer = TOBDetId(id).layer();
+      else if (subdet == StripSubdetector::TEC)
+	layer = TECDetId(id).wheel();
+    } else if (detid == DetId::Muon) {
+      if (subdet == (uint32_t) MuonSubdetId::DT) 
+	layer = DTLayerId(id.rawId()).layer();
+      else if (subdet == (uint32_t) MuonSubdetId::CSC)
+	layer = CSCDetId(id.rawId()).layer();
+      else if (subdet == (uint32_t) MuonSubdetId::RPC)
+	layer = RPCDetId(id.rawId()).layer();
+    }
+    pattern += (layer&LayerMask)<<LayerOffset;
+    pattern += (valid&ValidMask)<<ValidOffset;
+    
+    setHitPattern(counter,pattern);
+  }
+}
+                                                                                        
 bool HitPattern::hasValidHitInFirstPixelBarrel() const {
-  for ( int i = 0 ; i < ( patternSize * 32 ) / hitSize ; i++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( validHitFilter( pattern ) && trackerHitFilter( pattern ) ) {
-      uint32_t substructure = ( pattern >> substrOffset ) & substrMask + 1;
-      if ( substructure == PixelSubdetector::PixelBarrel ) {
-	int layer = ( pattern >> layerOffset )  & layerMask + 1;
-	if ( layer == 1 ) return true;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (validHitFilter(pattern) && trackerHitFilter(pattern)) {
+      uint32_t substructure = (pattern >> SubstrOffset) & SubstrMask + 1;
+      if (substructure == PixelSubdetector::PixelBarrel) {
+	int layer = (pattern>>LayerOffset) 
+	  & LayerMask + 1;
+		      if (layer == 1) return true;
       }
     }
     
@@ -22,122 +87,132 @@ bool HitPattern::hasValidHitInFirstPixelBarrel() const {
   return false;
 }
 
-uint32_t HitPattern::getHitPattern( int position ) const {
-  int offset = position * hitSize;
+uint32_t HitPattern::getHitPattern(int position) const {
+  int offset = position * HitSize;
   uint32_t pattern = 0; 
-  for ( int i = 0; i < hitSize; i ++ ) {
+  for (int i = 0; i < HitSize; i++) {
     int pos = offset + i;
-    uint32_t word = hitPattern_[ pos / 32 ];
-    uint32_t bit = ( word >> ( pos % 32 ) ) & 0x1;
+    uint32_t word = hitPattern_[pos / 32];
+    uint32_t bit = (word >> (pos%32)) & 0x1;
     pattern += bit << i;
   }
   return pattern;
 }
 
-void HitPattern::setHitPattern( int position, uint32_t pattern ) {
-  int offset = position * hitSize;
-  for ( int i = 0; i < hitSize; i ++ ) {
+void HitPattern::setHitPattern(int position, uint32_t pattern) {
+  int offset = position * HitSize;
+  for (int i = 0; i < HitSize; i++) {
     int pos = offset + i;
-    uint32_t bit = ( pattern >> i ) & 0x1;
-    hitPattern_[ pos / 32 ] += bit << ( (offset + i) % 32 ); 
+    uint32_t bit = (pattern >> i) & 0x1;
+    hitPattern_[pos / 32] += bit << ((offset + i) % 32); 
   }
 }
 
 bool HitPattern::validHitFilter(uint32_t pattern) const {
-  return ( pattern >> validOffset ) & validMask;
+  if ((pattern>>ValidOffset) & ValidMask) return true;
+  return false;
 }
 
 bool HitPattern::trackerHitFilter(uint32_t pattern) const {
-  return DetId::Detector( ( pattern >> subDetectorOffset ) & subDetectorMask ) == DetId::Tracker;
+  if (DetId::Detector(((pattern>>SubDetectorOffset) & SubDetectorMask)) == DetId::Tracker) return true;
+  return false;
 }
 
 bool HitPattern::muonHitFilter(uint32_t pattern) const {
-  return DetId::Detector( ( pattern >> subDetectorOffset ) & subDetectorMask ) == DetId::Muon;
+  if (DetId::Detector(((pattern>>SubDetectorOffset) & SubDetectorMask)) == DetId::Muon) return true;
+  return false;
 }
 
 bool HitPattern::pixelHitFilter(uint32_t pattern) const { 
-  if ( ! trackerHitFilter( pattern ) ) return false;
-  uint32_t substructure = ( pattern >> substrOffset ) & substrMask;
-  return 
-    substructure == PixelSubdetector::PixelBarrel || 
-    substructure == PixelSubdetector::PixelEndcap;
+  if (!trackerHitFilter(pattern)) return false;
+  uint32_t substructure = (pattern >> SubstrOffset) & SubstrMask;
+  if (substructure == PixelSubdetector::PixelBarrel || 
+      substructure == PixelSubdetector::PixelEndcap) return true; 
+  return false;
 }
 
-unsigned int HitPattern::numberOfValidHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( validHitFilter( pattern ) ) count ++;
+int HitPattern::numberOfValidHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (validHitFilter(pattern)) count++;
   }
+  
   return count;
 }
 
-unsigned int HitPattern::numberOfLostHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
+int HitPattern::numberOfLostHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
     uint32_t pattern = getHitPattern(i);
-    if ( muonHitFilter( pattern ) || trackerHitFilter( pattern ) ) {
-      if ( ! validHitFilter( pattern ) ) count++;
+    if (muonHitFilter(pattern) || trackerHitFilter(pattern)) {
+      if (!validHitFilter(pattern)) count++;
     }
   }
   return count;
 }
 
       
-unsigned int HitPattern::numberOfValidMuonHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( validHitFilter( pattern ) && muonHitFilter( pattern ) ) count ++;
+int HitPattern::numberOfValidMuonHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (validHitFilter(pattern) 
+	&& muonHitFilter(pattern)) count++;
   }
   
   return count;
 }
 
-unsigned int HitPattern::numberOfLostMuonHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( ! validHitFilter(pattern) && muonHitFilter( pattern ) ) count ++;
-    
-  }
-  return count;
-}
-
-unsigned int HitPattern::numberOfValidTrackerHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( validHitFilter( pattern ) && trackerHitFilter( pattern ) ) count ++;
-  }
-  return count;
-}
-
-unsigned int HitPattern::numberOfLostTrackerHits() {
-  unsigned int count = 0;
-  for (int i = 0 ; i < numberOfPatterns ; i++) {
+int HitPattern::numberOfLostMuonHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
     uint32_t pattern = getHitPattern(i);
-    if (!validHitFilter(pattern) && trackerHitFilter(pattern)) count++;
+    if (!validHitFilter(pattern) 
+	&& muonHitFilter(pattern)) count++;
     
   }
   return count;
 }
 
-unsigned int HitPattern::numberOfValidPixelHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( validHitFilter( pattern ) && pixelHitFilter( pattern ) ) count ++;
+int HitPattern::numberOfValidTrackerHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (validHitFilter(pattern) 
+	&& trackerHitFilter(pattern)) count++;
+  }
+  return count;
+}
+
+int HitPattern::numberOfLostTrackerHits() {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (!validHitFilter(pattern) 
+	&& trackerHitFilter(pattern)) count++;
     
   }
   return count;
 }
 
-unsigned int HitPattern::numberOfLostPixelHits() const {
-  unsigned int count = 0;
-  for ( int i = 0 ; i < numberOfPatterns ; i ++ ) {
-    uint32_t pattern = getHitPattern( i );
-    if ( ! validHitFilter( pattern ) && pixelHitFilter( pattern ) ) count ++;
+int HitPattern::numberOfValidPixelHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (validHitFilter(pattern) 
+	&& pixelHitFilter(pattern)) count++;
+    
+  }
+  return count;
+}
+
+int HitPattern::numberOfLostPixelHits() const {
+  int count=0;
+  for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (!validHitFilter(pattern) 
+	&& pixelHitFilter(pattern)) count++;
   }
   return count;
 }
