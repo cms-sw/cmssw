@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:56:47 EDT 2006
-// $Id$
+// $Id: L1EmParticle.cc,v 1.1 2006/07/26 00:05:39 wsun Exp $
 //
 
 // system include files
@@ -36,8 +36,19 @@ L1EmParticle::L1EmParticle()
 
 L1EmParticle::L1EmParticle( const LorentzVector& p4,
 			    const L1Ref& aRef )
-   : ParticleKinematics( p4 ),
-     L1PhysObjectBase( aRef, kEM )
+//   : ParticleKinematics( p4 ),
+   : L1PhysObjectBase( ( char ) 0, p4, aRef )
+{
+   if( triggerObjectRef().isNonnull() )
+   {
+      type_ = gctEmCand()->isolated() ? kIsolated : kNonIsolated ;
+   }
+}
+
+L1EmParticle::L1EmParticle( const LorentzVector& p4,
+			    EmType type )
+   : L1PhysObjectBase( ( char ) 0, p4, L1Ref() ),
+     type_( type )
 {
 }
 

@@ -16,32 +16,49 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/Candidate/interface/ParticleKinematics.h"
 #include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // forward declarations
 class L1GctEtMiss ;
+class L1GctEtTotal ;
+class L1GctEtHad ;
 
 namespace l1extra {
 
-   class L1EtMissParticle : public reco::ParticleKinematics,
-			    public L1PhysObjectBase
+//   class L1EtMissParticle : public reco::ParticleKinematics,
+   class L1EtMissParticle : public L1PhysObjectBase
    {
 
       public:
 	 L1EtMissParticle();
+
+	 // Default Refs are null.
 	 L1EtMissParticle( const LorentzVector& p4,
-			   const L1Ref& aRef ) ;
+			   const double& etTotal,
+			   const double& etHad,
+			   const L1Ref& aEtMissRef = L1Ref(),
+			   const L1Ref& aEtTotalRef = L1Ref(),
+			   const L1Ref& aEtHadRef = L1Ref() ) ;
+
 	 virtual ~L1EtMissParticle();
 
 	 // ---------- const member functions ---------------------
 	 const L1GctEtMiss* gctEtMiss() const ;
+	 const L1GctEtTotal* gctEtTotal() const ;
+	 const L1GctEtHad* gctEtHad() const ;
+
+	 const double& etTotal() const
+	 { return etTot_ ; }
+
+	 const double& etHad() const
+	 { return etHad_ ; }
 
 	 // ---------- static member functions --------------------
 
@@ -53,6 +70,11 @@ namespace l1extra {
 	 // const L1EtMissParticle& operator=(const L1EtMissParticle&); // stop default
 
 	 // ---------- member data --------------------------------
+	 double etTot_ ;
+	 double etHad_ ;
+
+	 L1Ref etTotRef_ ;
+	 L1Ref etHadRef_ ;
    };
 }
 

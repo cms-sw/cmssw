@@ -16,13 +16,12 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.1 2006/07/17 20:35:19 wsun Exp $
+// $Id: L1JetParticle.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/Candidate/interface/ParticleKinematics.h"
 #include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
@@ -31,18 +30,35 @@ class L1GctJetCand ;
 
 namespace l1extra {
 
-   class L1JetParticle : public reco::ParticleKinematics,
-			 public L1PhysObjectBase
+   class L1JetParticle : public L1PhysObjectBase
    {
 
       public:
+         enum JetType
+         {
+            kCentral,
+            kForward,
+            kTau,
+	    kUndefined,
+            kNumOfJetTypes
+         } ;
+
 	 L1JetParticle();
+
 	 L1JetParticle( const LorentzVector& p4,
 			const L1Ref& aRef ) ;
+
+         // Creates null Ref.
+         L1JetParticle( const LorentzVector& p4,
+                        JetType type = kUndefined ) ;
+
 	 virtual ~L1JetParticle();
 
 	 // ---------- const member functions ---------------------
 	 const L1GctJetCand* gctJetCand() const ;
+
+         JetType type() const
+         { return type_ ; }
 
 	 // ---------- static member functions --------------------
 
@@ -54,6 +70,7 @@ namespace l1extra {
 	 // const L1JetParticle& operator=(const L1JetParticle&); // stop default
 
 	 // ---------- member data --------------------------------
+         JetType type_ ;
    };
 }
 

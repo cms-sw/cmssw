@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:52:40 EDT 2006
-// $Id$
+// $Id: L1PhysObjectBase.cc,v 1.1 2006/07/26 00:05:40 wsun Exp $
 //
 
 // system include files
@@ -33,10 +33,11 @@ L1PhysObjectBase::L1PhysObjectBase()
 {
 }
 
-L1PhysObjectBase::L1PhysObjectBase( const L1Ref& aRef,
-				    L1PhysObjectType aType )
-   : ref_( aRef ),
-     objectType_( aType )
+L1PhysObjectBase::L1PhysObjectBase( Charge q,
+				    const LorentzVector& p4,
+				    const L1Ref& aRef )
+   : LeafCandidate( q, p4 ),
+     ref_( aRef )
 {
 }
 
