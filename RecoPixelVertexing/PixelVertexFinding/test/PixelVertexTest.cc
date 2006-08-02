@@ -154,7 +154,7 @@ void PixelVertexTest::analyze(
 
   // NOW let's see if my vertex producer did a darn thing...
   edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByLabel("PixelVertexes",vertexCollection);
+  ev.getByLabel("pixelVertices",vertexCollection);
   const reco::VertexCollection vertexes = *(vertexCollection.product());
   if (verbose_ > 0) {
     std::cout << *(vertexCollection.provenance()) << std::endl;
