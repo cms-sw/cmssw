@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.20 2006/07/21 16:15:25 fambrogl Exp $
+// $Id: SiPixelDigitizer.cc,v 1.21 2006/07/24 13:00:41 fambrogl Exp $
 //
 //
 
@@ -82,8 +82,10 @@ namespace cms
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
-    produces<edm::DetSetVector<PixelDigi> >();
-    produces<edm::DetSetVector<PixelDigiSimLink> >();
+    std::string alias ( iConfig.template getParameter<std::string>("@module_label") ); 
+
+    produces<edm::DetSetVector<PixelDigi> >().setBranchAlias( alias );
+    produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias ( alias + "siPixelDigiSimLink");
     trackerContainers.clear();
     trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
   }
