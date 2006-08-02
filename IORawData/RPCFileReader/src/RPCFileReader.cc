@@ -234,6 +234,9 @@ RPCFileReader::Word16 RPCFileReader::buildCDWord(RPCPacData linkData){//Chamber 
                |(Word16(linkData.endOfData())<<9)
                |(Word16(linkData.halfPartition())<<8)
                |(Word16(linkData.partitionData())<<0);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::buildCDWord] ";
+  }
   return word;
 }
 
@@ -243,6 +246,9 @@ RPCFileReader::Word16 RPCFileReader::buildSLDWord(unsigned int tbNum, unsigned i
                |(1<<13)|(1<<12)|(1<<11)
                |(Word16(tbNum)<<5)
                |(Word16(linkNum)<<0);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::buildSLDWord] ";
+  }
   return word;
 }
 
@@ -251,14 +257,20 @@ RPCFileReader::Word16 RPCFileReader::buildSBXDWord(unsigned int bxn){//Start of 
   Word16 word = (specIdent<<14)
                |(0<<13)|(1<<12)
                |(Word16(bxn)<<0);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::buildSBXDWord] ";
+  }
   return word;
 }
 
 RPCFileReader::Word16 RPCFileReader::buildEmptyWord(){//Empty word
   Word16 specIdent = 3;
-  Word16 word = (specIdent<<14)
-               |(1<<13)|(0<<12)|(1<<11)
-               |~(0x3ff);
+  Word16 word = 0;
+  word = (specIdent<<14)
+        |(1<<13)|(0<<12)|(1<<11);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::buildEmptyWord] ";
+  }
   return word;
 }
 
@@ -298,6 +310,9 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   //add empty words if needed
   while(words.size()%4!=0){
     words.push_back(buildEmptyWord());
+  }
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Num of words: " << words.size();
   }
   //format data, add header & trailer
   int dataSize = words.size()*sizeof(Word16);
