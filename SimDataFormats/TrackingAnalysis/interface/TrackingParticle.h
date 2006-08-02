@@ -22,10 +22,7 @@ public:
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator		         genp_iterator;
   typedef SimTrackRefVector::iterator				 g4t_iterator;
-  
-//  typedef edm::RefProd<edm::PSimHitContainer>                    TrackPSimHitRefProd;
-//  typedef edm::Ref<edm::PSimHitContainer>                        TrackPSimHitRef;
-//  typedef edm::RefVector<edm::PSimHitContainer>                  TrackPSimHitRefVector;
+  typedef TrackPSimHitRefVector::iterator 			 pSH_iterator;
 //  typedef std::map<int, TrackPSimHitRefVector> 			 TrackIdPSimHitMap;
   
   /// default constructor
@@ -46,6 +43,8 @@ public:
   g4t_iterator  g4Track_begin() const;
   g4t_iterator  g4Track_end() const;
   
+  pSH_iterator  pSimHit_begin() const;
+  pSH_iterator  pSimHit_end() const;
 
 // Setters for G4 and HepMC
   void addG4Track(const SimTrackRef&);
@@ -58,14 +57,13 @@ public:
   SimTrackRefVector	g4Tracks() const { return g4Tracks_ ; }
  
   TrackPSimHitRefVector trackPSimHit() const { return trackPSimHit_; }
+//  TrackPSimHitRefToBaseVector trackPSimHit() const { return trackPSimHit_; }
   
 private:
   /// production time
   double t_;
   /// PDG identifier, signal source, crossing number
   int pdgId_;
-  int signalSource_; 
-  int crossing_;
   EncodedEventId eventId_;
   
   /// references to G4 and HepMC tracks
@@ -73,6 +71,7 @@ private:
   GenParticleRefVector  genParticles_;
  
   TrackPSimHitRefVector trackPSimHit_;
+//    TrackPSimHitRefToBaseVector trackPSimHit_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
