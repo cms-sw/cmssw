@@ -249,27 +249,46 @@ TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 
   DetGroupMerger merger;
   vector<DetGroup> result;
-  
+  int size = groupPlusIndex.size();
+
   float zpos = tsos.globalPosition().z();
   if(tsos.globalMomentum().z()*zpos>0){ // momentum points outwards
     if(prop.propagationDirection() == alongMomentum){
       result = merger.orderAndMergeTwoLevels(groupPlusIndex[0].first,
 					     groupPlusIndex[1].first,1,1);
-      if(groupPlusIndex.size()==3)
+      if(size==3)
 	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[2].first,1,1);      
     }
     else{ 
-      result = merger.orderAndMergeTwoLevels(groupPlusIndex[2].first,
-					     groupPlusIndex[1].first,1,1);
-      if(groupPlusIndex.size()==3)
+      if(size==2){
+	result =  merger.orderAndMergeTwoLevels(groupPlusIndex[1].first,
+						groupPlusIndex[0].first,1,1);
+      }else if(size==3){	
+	result = merger.orderAndMergeTwoLevels(groupPlusIndex[2].first,
+					       groupPlusIndex[1].first,1,1);
 	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[0].first,1,1);      
-    }      
+      }      
+    }
   }
   else{ //  momentum points inwards
-    // I don't know what to do 
-    throw DetLayerException("TIDLayer::orderAndMergeLevels() inward implementation still to do");
-  }
-  
+    if(prop.propagationDirection() == oppositeToMomentum){
+      result = merger.orderAndMergeTwoLevels(groupPlusIndex[0].first,
+					     groupPlusIndex[1].first,1,1);
+      if(size==3)
+	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[2].first,1,1);      
+    }
+    else{ 
+      if(size==2){
+	result =  merger.orderAndMergeTwoLevels(groupPlusIndex[1].first,
+						groupPlusIndex[0].first,1,1);
+      }else if(size==3){	
+	result = merger.orderAndMergeTwoLevels(groupPlusIndex[2].first,
+					       groupPlusIndex[1].first,1,1);
+	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[0].first,1,1);      
+      }      
+    } 
+    
+  }  
   return result;
 }
 
