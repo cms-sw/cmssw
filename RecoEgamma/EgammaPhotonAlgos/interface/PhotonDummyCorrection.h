@@ -3,8 +3,8 @@
 /** \class PhotonDummyCorrection
  **  
  **
- **  $Id: PhotonDummyCorrection.h,v 1.1 2006/06/27 14:05:06 nancy Exp $
- **  $Date: 2006/06/27 14:05:06 $ 
+ **  $Id: PhotonDummyCorrection.h,v 1.1 2006/07/27 19:35:11 nancy Exp $
+ **  $Date: 2006/07/27 19:35:11 $ 
  **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
@@ -27,7 +27,7 @@ class PhotonDummyCorrection {
   
   virtual ~PhotonDummyCorrection(){}
 
-  void makeCorrections(reco::Photon* pho);
+  reco::Photon makeCorrections(const reco::Photon& pho);
 
 
 };
