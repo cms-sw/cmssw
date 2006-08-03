@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/01 19:06:32 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/02 16:36:20 $
+ *  $Revision: 1.21 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -31,7 +31,7 @@ class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
 class MuonTransientTrackingRecHit;
 //class TransientTrackBuilder;
-class TkTransientTrackingRecHitBuilder;
+class TransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
 class GlobalMuonReFitter;
@@ -117,7 +117,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
-    TkTransientTrackingRecHitBuilder* theTkTransientTrackingRecHitBuilder;
     GlobalMuonReFitter* theRefitter;
 
     float theTrackMatcherChi2Cut;
@@ -131,18 +130,17 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theRPCChi2Cut;
 
     std::string thePropagatorLabel;
-  //std::string theTransTrackBuilderLabel;   
+    std::string theTTRHBuilderName;   
 
     std::string theTkTrackLabel;
 
     edm::ESHandle<MagneticField> theField;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
-  //edm::ESHandle<TransientTrackBuilder> theTransTrackBuilder;
 
     edm::Handle<reco::TrackCollection> allTrackerTracks;
 
-  //edm::ESHandle<TransientTrackingRecHitBuilder> theTransientHitBuilder;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTkTransientTrackingRecHitBuilder;
 
 };
 #endif
