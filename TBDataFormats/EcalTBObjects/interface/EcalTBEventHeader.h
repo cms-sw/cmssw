@@ -8,7 +8,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.2 2006/07/21 10:53:01 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.3 2006/07/28 00:04:27 meridian Exp $
  */
 
 
@@ -105,12 +105,11 @@ class EcalTBEventHeader {
   //! Returns the phi table index
   ulong phiTableIndex() const { return phiTableIndex_; }
   //! Tell if the table is Moving
-  bool tableIsMoving() const { return tableIsMoving_; }
-
+  bool tableIsMoving() const { return tableIsMoving_;} 
+  //! Tell if the table is Moving At the begin of the spill (available in runs only after 1st August 06)
+  bool tableIsMovingAtBegSpill() const { return tableIsMovingAtBegSpill_; }
   //! is there any sync error
   bool syncError() const { return syncError_; }
-
-  
 
   ///SHOULD WE REMOVE ALL THIS???
   //! Unique codes for the 4 lasers
@@ -188,6 +187,8 @@ class EcalTBEventHeader {
 
   void setTableIsMoving(const bool& tableIsMoving ) { tableIsMoving_=tableIsMoving; }
 
+  void setTableIsMovingAtBegSpill(const bool& tableIsMoving ) { tableIsMovingAtBegSpill_=tableIsMoving; }
+
   void setSyncError(const bool& syncError ) { syncError_ = syncError; }
 
   void setLightIntensity(const int& lightIntensity) { lightIntensity_=lightIntensity; }
@@ -221,6 +222,8 @@ class EcalTBEventHeader {
   ulong    phiTableIndex_;   ///< Phi table index (Y)
 
   bool tableIsMoving_;
+
+  bool tableIsMovingAtBegSpill_; //indipendent but from CAMAC one saying if table is moving at the begin of the spill
 
   //Sync error for Camac stuff
   bool syncError_;
