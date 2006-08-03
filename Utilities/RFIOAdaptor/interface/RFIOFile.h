@@ -75,10 +75,16 @@ public:
 
   virtual void          preseek(const IOVec& iov);
 
+private:
+
+    ssize_t     retry_read (void *into, IOSize n, int max_retry=10);
+
 
 private:
     IOFD		m_fd;
     bool		m_close;
+
+  IOOffset              m_currentPosition;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

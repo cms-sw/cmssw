@@ -169,15 +169,60 @@ RFIOFile::abort (void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+
+#include <iostream>
+
+namespace {
+
+  struct CountAndPrint {
+    CountAndPrint(const std::string & message ) : m_n(0), m_message(message) {}
+    ~CountAndPrint() {
+      std::cerr << m_message << ": " << m_n << std::endl;
+    }  
+    int m_n;
+    std::string m_message;
+  };
+
+  void countAndPrint() {
+    static CountAndPrint c("total rfio retries");
+    c.m_n++;
+  }
+
+}
+
+
+ssize_t
+RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
+  if (max_retry == 0) return -1;
+  serrno=0;
+  ssize_t s = rfio_read64 (m_fd, into, n);
+  if ( (s == -1 && serrno == 1004) || (s>int(n)) 
+       ) {
+    countAndPrint();
+    if (serrno == 1004) std::cerr << "timeout on RFIO read: retry" << std::endl;
+    std::cerr << "current position " << m_currentPosition << std::endl;
+    if (s>int(n)) std::cerr << "error in read " << n << ", " << s << std::endl;
+    sleep(5);
+    max_retry--;
+    // re seek
+    IOOffset l_pos = m_currentPosition;
+    position(0); // hope reset internal rfio state
+    position(l_pos);
+    return retry_read (into, n, max_retry);
+  } 
+  return s;
+}
+
 IOSize
 RFIOFile::read (void *into, IOSize n)
 {
   serrno = 0;
-    ssize_t s = rfio_read64 (m_fd, into, n);
-    if (s == -1)
-	throw RFIOError ("rfio_read()", rfio_errno, serrno);
-
-    return s;
+  ssize_t s = retry_read (into, n);
+  //    ssize_t s = rfio_read64 (m_fd, into, n);
+  if (s == -1)
+    throw RFIOError ("rfio_read()", rfio_errno, serrno);
+  
+  return s;
 }
 
 IOSize
@@ -209,6 +254,7 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
     if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1)
 	throw RFIOError ("rfio_lseek()", rfio_errno, serrno);
 
+    m_currentPosition = result;
     return result;
 }
 
