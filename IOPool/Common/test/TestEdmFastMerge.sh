@@ -4,10 +4,12 @@ function die { echo $1: status $2 ;  exit $2; }
 
 INPUT_1=${LOCAL_TMP_DIR}/EdmFastMergeTest_1.root
 INPUT_2=${LOCAL_TMP_DIR}/EdmFastMergeTest_2.root
+LOGICAL_INPUT_1=PoolTest_1.root
+LOGICAL_INPUT_2=PoolTest_2.root
 
 rm -f ${INPUT_1} ${INPUT_2}
-rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_1.xml      ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_2.xml
-rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_1.xml.BAK  ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_2.xml.BAK
+rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml
+rm -f ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml.BAK
 rm -f ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg          ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg
 
 #---------------------------
@@ -22,8 +24,8 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_1}'
-		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_1.xml'
-		untracked string logicalFileName = 'PoolTest_1.root'
+		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml'
+		untracked string logicalFileName = '${LOGICAL_INPUT_1}'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
@@ -49,8 +51,8 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_2}'
-		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog_2.xml'
-		untracked string logicalFileName = 'PoolTest_2.root'
+		untracked string catalog = '${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml'
+		untracked string logicalFileName = '${LOGICAL_INPUT_2}'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
@@ -68,6 +70,6 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg || die 'Failur
 # Merge files
 #---------------------------
 
-EdmFastMerge -i ${INPUT_1} ${INPUT_2} -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root || die 'Failure using EdmFastMerge' $?
+EdmFastMerge -i file:${INPUT_1} ${LOGICAL_INPUT_2} -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root -c ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml || die 'Failure using EdmFastMerge' $?
 
 
