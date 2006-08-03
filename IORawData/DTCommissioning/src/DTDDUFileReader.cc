@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/31 16:49:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/08/01 08:15:23 $
+ *  $Revision: 1.7 $
  *  \author M. Zanetti
  */
 
@@ -37,14 +37,21 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
 
   inputFile.open(filename.c_str());
   if( inputFile.fail() ) {
-      throw cms::Exception("InputFileMissing") 
-        << "[DTDDUFileReader]: the input file: " << filename <<" is not present";
+    throw cms::Exception("InputFileMissing") 
+      << "[DTDDUFileReader]: the input file: " << filename <<" is not present";
   } else {
-      cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
+    cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
   }
-
+  
   //else if (readFromDMA) 
   inputFile.ignore(4*7);
+  
+  skipEvents = pset.getUntrackedParameter<int>("skipEvents",0);
+  if (skipEvents) { 
+    cout<<""<<endl;
+    cout<<"   Dear user, pleas be patient, "<<skipEvents<<" are being skipped .."<<endl;
+    cout<<""<<endl;
+  }
 
 }
 
@@ -62,8 +69,6 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   eventData.reserve(estimatedEventDimension); 
   uint64_t word = 0;
 
-  
-
   bool haederTag = false;
   bool dataTag = true;
   
@@ -76,15 +81,20 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     //while ( !isTrailer(word) ) { 
     
     if (readFromDMA) {
-      word = dmaUnpack(dataTag);
+      int nread;
+      word = dmaUnpack(dataTag,nread);
+      if ( nread<=0 ) {
+	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	return false;
+      }
     }
     
     else {
       int nread = inputFile.read(dataPointer<uint64_t>( &word ), dduWordLength);
       dataTag = false;
       if ( nread<=0 ) {
-	      cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
-	      return false;
+	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	return false;
       }
     }
     
@@ -116,21 +126,26 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   // those will be skipped automatically when seeking for the DDU header
   //if (eventData.size() > estimatedEventDimension) throw 2;
   
-  // Setting the Event ID
-  eID = EventID( runNumber, eventNumber);
-  
-  // eventDataSize = (Number Of Words)* (Word Size)
-  int eventDataSize = eventData.size()*dduWordLength;
-  
-  // The FED ID is always the first in the DT range
-  FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-  fedRawData.resize(eventDataSize);
-  
-  copy(reinterpret_cast<unsigned char*>(&eventData[0]),
-       reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
-  
+  // Eventually skipping events
+  if (eventNumber >= skipEvents) {
+
+    // Setting the Event ID
+    eID = EventID( runNumber, eventNumber);
+    
+    // eventDataSize = (Number Of Words)* (Word Size)
+    int eventDataSize = eventData.size()*dduWordLength;
+    
+    // The FED ID is always the first in the DT range
+    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+    fedRawData.resize(eventDataSize);
+    
+    copy(reinterpret_cast<unsigned char*>(&eventData[0]),
+	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
+
+  }
+
   return true;
-  
+    
 }
 
 void DTDDUFileReader::swap(uint64_t & word) {
@@ -143,16 +158,16 @@ void DTDDUFileReader::swap(uint64_t & word) {
 }
 
 
-uint64_t DTDDUFileReader::dmaUnpack(bool & isData) {
+uint64_t DTDDUFileReader::dmaUnpack(bool & isData, int & nread) {
   
   uint64_t dduWord = 0;
 
   uint32_t td[4];
   // read 4 32-bits word from the file;
-  inputFile.read(dataPointer<uint32_t>( &td[0] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[1] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[2] ), 4);
-  inputFile.read(dataPointer<uint32_t>( &td[3] ), 4);
+  nread = inputFile.read(dataPointer<uint32_t>( &td[0] ), 4);
+  nread += inputFile.read(dataPointer<uint32_t>( &td[1] ), 4);
+  nread += inputFile.read(dataPointer<uint32_t>( &td[2] ), 4);
+  nread += inputFile.read(dataPointer<uint32_t>( &td[3] ), 4);
 
   uint32_t data[2];
   // adjust 4 32-bits words  into 2 32-bits words
