@@ -1,5 +1,5 @@
 //FAMOS headers
-#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 //CLHEP Headers
 #include "CLHEP/Random/Random.h"
