@@ -20,6 +20,8 @@
     double VH2adc()     const { return VH2adc_;     }
     double VH3adc()     const { return VH3adc_;     }
     double VH4adc()     const { return VH4adc_;     }
+    double Ecal7x7()    const { return Ecal7x7_;     }
+    double CK1adc()     const { return CK1adc_;     }
     double CK2adc()     const { return CK2adc_;     }
     double CK3adc()     const { return CK3adc_;     }
     double SciVLEadc()     const { return SciVLEadc_;     }
@@ -41,19 +43,24 @@
     double VM8adc()     const { return VM8adc_;     }
     double TOF1adc()     const { return TOF1adc_;     }
     double TOF2adc()     const { return TOF2adc_;     }
+    double BH1adc()     const { return BH1adc_;     }
+    double BH2adc()     const { return BH2adc_;     }
+    double BH3adc()     const { return BH3adc_;     }
+    double BH4adc()     const { return BH4adc_;     }
 
     // Setter methods
     void   setADCs04 (double VMadc,double V3adc,double V6adc,
                                      double VH1adc ,double VH2adc,double VH3adc,double VH4adc,
                                      double CK2adc,double CK3adc,double SciVLEadc,
                                      double Sci521adc,double Sci528adc,
-                                     double S1,double S2,double S3,double S4);
+                                     double S1adc,double S2adc,double S3adc,double S4adc,double Ecal7x7);
     void   setADCs06 (double VMFadc,double VMBadc,
                                      double VM1adc ,double VM2adc,double VM3adc,double VM4adc,
                                      double VM5adc ,double VM6adc,double VM7adc,double VM8adc,
-                                     double CK2adc,double CK3adc,double SciVLEadc,
+                                     double CK1adc,double CK2adc,double CK3adc,
                                      double S1adc,double S2adc,double S3adc,double S4adc,
-				     double TOF1adc,double TOF2adc);
+				     double TOF1adc,double TOF2adc,double Sci521adc,double Sci528adc,
+				     double BH1adc ,double BH2adc,double BH3adc,double BH4adc);
 
   private:
 //    TB2004 specific
@@ -64,9 +71,11 @@
 	double    VH2adc_ ; // part of extra muon veto wall - the end of TB04 data taking
 	double    VH3adc_ ; // part of extra muon veto wall - the end of TB04 data taking
 	double    VH4adc_ ; // part of extra muon veto wall - the end of TB04 data taking
+	double    Ecal7x7_; // Ecal energy - sum of all 49 crustals
+//   Common for TB2004 and TB2006
 	double    Sci521adc_ ; // Scintilator at 521m (see beam line drawings)
 	double    Sci528adc_ ; // Scintilator at 522m (see beam line drawings)
-//   Common for TB2004 and TB2006
+	double    CK1adc_ ; // TB2006
 	double    CK2adc_ ; // Cerenkov 2 : electron id 
 	double    CK3adc_ ; // Cerenkov 3 : pi/proton separation
 	double    SciVLEadc_ ; // Scintillator in VLE beam line 
@@ -87,6 +96,10 @@
 	double    VM8adc_ ; // Muon veto wall
 	double    TOF1adc_ ; // TOF1
 	double    TOF2adc_ ; // TOF2
+	double    BH1adc_ ; // beam halo up
+	double    BH2adc_ ; // beam halo left from particle view
+	double    BH3adc_ ; // beam halo right from particle view
+	double    BH4adc_ ; // beam halo down
 
 
   };

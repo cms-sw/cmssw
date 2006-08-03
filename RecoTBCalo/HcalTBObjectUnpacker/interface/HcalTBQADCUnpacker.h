@@ -13,8 +13,8 @@ public:
   void setCalib(const vector<vector<string> >& calibLines_);
 private:
   bool isTB04_;
-  double qdc_ped[128];
-  double qdc_gain[128];
+  double qdc_ped[192];
+  double qdc_gain[192];
 };
 
 }

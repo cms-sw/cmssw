@@ -15,6 +15,10 @@ static const int lcScint1          = 93;
 static const int lcScint2          = 94;
 static const int lcScint3          = 95;
 static const int lcScint4          = 96;
+static const int lcBeamHalo1       = 97;
+static const int lcBeamHalo2       = 98;
+static const int lcBeamHalo3       = 99;
+static const int lcBeamHalo4       = 100;
 static const int lcTOF1            = 129;
 static const int lcTOF2            = 130;
 
@@ -43,10 +47,11 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
                   }
                  else
                   {
-                  printf("HcalTBTDCUnpacker thinks your TDC calibration format stinks....\n");
-      ///throw an exception here when we're ready with the calib file..
+               throw cms::Exception("Incomplete configuration") << 
+		"Wrong TDC configuration format : expected 3 parameters, got "<<calibLines_[ii].size()-1;
                   }
-                }
+                } // End of the TDCs
+
 //   Wire chambers calibration
           if(calibLines_[ii][0]=="WC")
                 {
@@ -62,12 +67,12 @@ void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
                   }
                  else
                   {
-                  printf("HcalTBTDCUnpacker thinks your WC calibration format stinks....\n");
-      ///throw an exception here when we're ready with the calib file..
+               throw cms::Exception("Incomplete configuration") << 
+		"Wrong Wire Chamber configuration format : expected 5 parameters, got "<<calibLines_[ii].size()-1;
                   }
-                }
+                } // End of the Wire Chambers
 
-         }
+         } // End of the CalibLines
         }
 
   void HcalTBTDCUnpacker::unpack(const FEDRawData& raw,
@@ -144,7 +149,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     
     for (unsigned int i=0; i<totalhits; i++) {
       Hit h;    
-      h.channel=128+i;
+      h.channel=129+i;
       h.time=(hitbase[i]&0xFFF)*tdc_convers[h.channel] ;
       hits.push_back(h);
       //      printf("V775: %d %f\n",h.channel,h.time);
@@ -164,7 +169,8 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
   double TOF1_time=0;
   double TOF2_time=0;
   
-  std::vector<double> m1hits, m2hits, m3hits, s1hits, s2hits, s3hits, s4hits;
+  std::vector<double> m1hits, m2hits, m3hits, s1hits, s2hits, s3hits, s4hits,
+                      bh1hits, bh2hits, bh3hits, bh4hits;
 
   for (j=hits.begin(); j!=hits.end(); j++) {
     switch (j->channel) {
@@ -182,25 +188,38 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     case lcScint4:          s4hits.push_back(j->time-tdc_ped[lcScint4]); break;
     case lcTOF1:            TOF1_time   = j->time-tdc_ped[lcTOF1];  break;
     case lcTOF2:            TOF2_time   = j->time-tdc_ped[lcTOF2];  break;
+    case lcBeamHalo1:       bh1hits.push_back(j->time-tdc_ped[lcBeamHalo1]); break;
+    case lcBeamHalo2:       bh2hits.push_back(j->time-tdc_ped[lcBeamHalo2]); break;
+    case lcBeamHalo3:       bh3hits.push_back(j->time-tdc_ped[lcBeamHalo3]); break;
+    case lcBeamHalo4:       bh4hits.push_back(j->time-tdc_ped[lcBeamHalo4]); break;
     default: break;
     }
   }
 
   timing.setTimes(trigger_time,ttc_l1a_time,beam_coinc,laser_flash,qie_phase,TOF1_time,TOF2_time);
-  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits);
+  timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits);
 
 }
 
-const int HcalTBTDCUnpacker::WC_CHANNELIDS[10*3] = { 12, 13, 14,
-						     10, 11, 15,
-						     22, 23, 24,
-						     20, 21, 25,
-						     32, 33, 34,
-						     30, 31, 35,
-						     42, 43, 44,
-						     40, 41, 45,
-						     52, 53, 54,
-						     50, 51, 55 };
+const int HcalTBTDCUnpacker::WC_CHANNELIDS[PLANECOUNT*3] = { 
+                                                     12, 13, 14, // WCA LR plane 
+						     10, 11, 15, // WCA UD plane
+						     22, 23, 24, // WCB LR plane
+						     20, 21, 25, // WCB UD plane
+						     32, 33, 34, // WCC LR plane
+						     30, 31, 35, // WCC UD plane
+						     42, 43, 44, // WCD LR plane
+						     40, 41, 45, // WCD UD plane
+						     52, 53, 54, // WCE LR plane
+						     50, 51, 55, // WCE UD plane 
+						    101, 102, 103, // WCF LR plane (was WC1)
+						    104, 105, 106, // WCF UD plane (was WC1)
+						    107, 108, 109, // WCG LR plane (was WC2)
+						    110, 111, 112, // WCG UD plane (was WC2)
+						    113, 114, 115, // WCH LR plane (was WC3)
+						    116, 117, 118, // WCH UD plane (was WC3)
+
+};
 
 static const double TDC_OFFSET_CONSTANT = 12000;
 static const double N_SIGMA = 2.5;

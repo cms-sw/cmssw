@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/04/12 21:46:00 $
-  $Revision: 1.4 $
+  $Date: 2006/07/27 03:03:31 $
+  $Revision: 1.5 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -55,6 +55,15 @@ Time-to-Digital Converter (TDC).
     /// Returns the number of hits from scintillator S4, which is 12cm x 12cm.
     int    S4Count()         const { return s4hits_.size();   }
 
+    /// Returns the number of hits from beam halo counter up horizontal
+    int    BH1Count()         const { return bh1hits_.size();   }
+    /// Returns the number of hits from beam halo counter left from particle view
+    int    BH2Count()         const { return bh2hits_.size();   }
+    /// Returns the number of hits from beam halo counter right from particle view
+    int    BH3Count()         const { return bh3hits_.size();   }
+    /// Returns the number of hits from beam halo counter down horizontal
+    int    BH4Count()         const { return bh4hits_.size();   }
+
     /// Returns the indexed hit time from muon veto scintillator M1
     double M1Hits(int index) const { return m1hits_[index];   }
     /// Returns the indexed hit time from muon veto scintillator M2
@@ -71,6 +80,15 @@ Time-to-Digital Converter (TDC).
     /// Returns the indexed hit time from scintillator S4, which is 12cm x 12cm.
     double S4Hits(int index) const { return s4hits_[index];   }
 
+    /// Returns the indexed hit time from beam halo counter UP HORIZONTAL.
+    double BH1Hits(int index) const { return bh1hits_[index];   }
+    /// Returns the indexed hit time from from beam halo counter BEAM LEFT FROM PARTICLE'S VIEW.
+    double BH2Hits(int index) const { return bh2hits_[index];   }
+    /// Returns the indexed hit time from beam halo counter BEAM RIGHT FROM PARTICLE'S VIEW.
+    double BH3Hits(int index) const { return bh3hits_[index];   }
+    /// Returns the indexed hit time from beam halo counter DOWN HORZINTAL.
+    double BH4Hits(int index) const { return bh4hits_[index];   }
+
     // Setter methods
     void   setTimes (const double trigger_time,
 		     const double ttc_l1a_time,
@@ -86,7 +104,11 @@ Time-to-Digital Converter (TDC).
 		     const std::vector<double>& s1hits,
 		     const std::vector<double>& s2hits,
 		     const std::vector<double>& s3hits,
-		     const std::vector<double>& s4hits);
+		     const std::vector<double>& s4hits,
+		     const std::vector<double>& bh1hits,
+		     const std::vector<double>& bh2hits,
+		     const std::vector<double>& bh3hits,
+		     const std::vector<double>& bh4hits);
 
   private:
     double triggerTime_;
@@ -105,6 +127,11 @@ Time-to-Digital Converter (TDC).
     std::vector<double> s2hits_;
     std::vector<double> s3hits_;
     std::vector<double> s4hits_;
+
+    std::vector<double> bh1hits_;
+    std::vector<double> bh2hits_;
+    std::vector<double> bh3hits_;
+    std::vector<double> bh4hits_;
   };
 
   std::ostream& operator<<(std::ostream& s, const HcalTBTiming& htbtmg);

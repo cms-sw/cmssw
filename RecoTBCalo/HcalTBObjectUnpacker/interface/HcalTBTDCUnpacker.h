@@ -8,8 +8,8 @@ using namespace std;
 namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: 2005/10/06 22:56:56 $
-   $Revision: 1.2 $
+   $Date: 2006/07/27 02:55:28 $
+   $Revision: 1.3 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {
@@ -32,15 +32,15 @@ private:
 			 HcalTBTiming& timing) const;
 //  void setupWC();  // reads it from configuration file
 
-  static const int PLANECOUNT = 10;
+  static const int PLANECOUNT = 16;
   static const int WC_CHANNELIDS[PLANECOUNT*3];
   struct WireChamberRecoData {
     double b0, b1, mean, sigma;
   } wc_[PLANECOUNT];
 
   bool includeUnmatchedHits_;
-  double tdc_ped[131];
-  double tdc_convers[131];
+  double tdc_ped[130];
+  double tdc_convers[130];
 };
 
 }

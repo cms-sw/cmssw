@@ -16,7 +16,11 @@ using namespace std;
     s1hits_(),
     s2hits_(),
     s3hits_(),
-    s4hits_() {
+    s4hits_(),
+    bh1hits_(),
+    bh2hits_(),
+    bh3hits_(),
+    bh4hits_() {
   }
 
   void HcalTBTiming::setTimes (const double trigger_time,
@@ -41,7 +45,11 @@ using namespace std;
 			       const std::vector<double>& s1hits,
 			       const std::vector<double>& s2hits,
 			       const std::vector<double>& s3hits,
-			       const std::vector<double>& s4hits) {
+			       const std::vector<double>& s4hits,
+			       const std::vector<double>& bh1hits,
+			       const std::vector<double>& bh2hits,
+			       const std::vector<double>& bh3hits,
+			       const std::vector<double>& bh4hits) {
     m1hits_ = m1hits;
     m2hits_ = m2hits;
     m3hits_ = m3hits;
@@ -50,6 +58,11 @@ using namespace std;
     s2hits_ = s2hits;
     s3hits_ = s3hits;
     s4hits_ = s4hits;
+
+    bh1hits_ = bh1hits;
+    bh2hits_ = bh2hits;
+    bh3hits_ = bh3hits;
+    bh4hits_ = bh4hits;
   }
 
   ostream& operator<<(ostream& s, const HcalTBTiming& htbtmg) {
@@ -108,6 +121,34 @@ using namespace std;
     for (int i=0; i<htbtmg.S4Count(); i++) {
       if (i) s << ", ";
       s << htbtmg.S4Hits(i);
+    }
+    s << endl;
+
+    s << "BH1 hits: ";
+    for (int i=0; i<htbtmg.BH1Count(); i++) {
+      if (i) s << ", ";
+      s << htbtmg.BH1Hits(i);
+    }
+    s << endl;
+
+    s << "BH2 hits: ";
+    for (int i=0; i<htbtmg.BH2Count(); i++) {
+      if (i) s << ", ";
+      s << htbtmg.BH2Hits(i);
+    }
+    s << endl;
+
+    s << "BH3 hits: ";
+    for (int i=0; i<htbtmg.BH3Count(); i++) {
+      if (i) s << ", ";
+      s << htbtmg.BH3Hits(i);
+    }
+    s << endl;
+
+    s << "BH4 hits: ";
+    for (int i=0; i<htbtmg.BH4Count(); i++) {
+      if (i) s << ", ";
+      s << htbtmg.BH4Hits(i);
     }
     s << endl;
 
