@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.2 2006/05/23 09:13:43 elmer Exp $
+// $Id: FileCatalog.cc,v 1.3 2006/06/07 20:29:30 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -14,6 +14,7 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
+#include "StorageSvc/DbType.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/SiteLocalConfig.h"
 
@@ -104,11 +105,17 @@ namespace edm {
 
   OutputFileCatalog::~OutputFileCatalog() {}
 
-  void OutputFileCatalog::registerFile(std::string const& pfn, std::string const& lfn) {
+  pool::FileCatalog::FileID OutputFileCatalog::registerFile(std::string const& pfn, std::string const& lfn) {
+    pool::FileCatalog::FileID fid;
+    std::string fileType = "ROOT_Tree";
+    pool::FCregister action0;
+    catalog().setAction(action0);
+    action0.registerPFN(pfn, fileType, fid);
     if (!lfn.empty()) {
       pool::FCregister action;
       catalog().setAction(action);
       action.registerLFN(pfn, lfn);       
     }
+    return fid;
   }
 }
