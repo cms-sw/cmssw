@@ -18,6 +18,8 @@
 <RotationSection label="tobrod0_c_mtcc.xml">
   <Rotation name="180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg" 
                         phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
+  <Rotation name="180X" thetaX="90*deg" phiX="0*deg"   thetaY="90*deg" 
+                        phiY="-90*deg"   thetaZ="180*deg" phiZ="0*deg" />
 </RotationSection>
 
 
@@ -53,7 +55,7 @@
    <rParent name="tobrod0_c_mtcc:TOBRod0"/>
    <rChild name="tobrod2l:TOBRod2L"/>
    <Translation x="0*cm" y="0*cm" z="[tob_mtcc:tobrod0_c_ZOffset]+[rod_FlushingZOffset]" />
-  <rRotation name="tobrod0_c_mtcc:180D"/>
+  <rRotation name="tobrod0_c_mtcc:180X"/>
 
  </PosPart>
 
