@@ -33,7 +33,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   
   int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   int16_t dump_frequency = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
-  int16_t trigger_fed_id = pset.getUntrackedParameter<int>("TriggerFedId",1023);
+  int16_t trigger_fed_id = pset.getUntrackedParameter<int>("TriggerFedId",0);
   bool    using_fed_key  = pset.getUntrackedParameter<bool>("UseFedKey",false);
   rawToDigi_ = new SiStripRawToDigiUnpacker( appended_bytes, 
 					     dump_frequency,
