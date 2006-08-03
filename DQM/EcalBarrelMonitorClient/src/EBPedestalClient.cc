@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.86 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -429,6 +429,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -452,6 +453,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -475,6 +477,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

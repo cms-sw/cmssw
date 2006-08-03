@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.39 $
+ * $Date: 2006/08/02 05:37:24 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -259,6 +259,7 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

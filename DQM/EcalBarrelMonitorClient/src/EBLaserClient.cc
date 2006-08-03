@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/07/23 07:23:09 $
- * $Revision: 1.84 $
+ * $Date: 2006/08/03 14:03:26 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -476,6 +476,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -499,6 +500,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -522,6 +524,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -545,6 +548,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

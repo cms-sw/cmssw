@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/07/20 16:34:33 $
- * $Revision: 1.87 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -339,6 +339,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl; 
@@ -362,6 +363,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -385,6 +387,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
+           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
