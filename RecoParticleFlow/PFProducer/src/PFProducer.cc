@@ -109,8 +109,9 @@ void PFProducer::produce(edm::Event& iEvent,
   // Prepare propagation tools and layers
   //
   const MagneticField * magField = theMF.product();
-  AnalyticalPropagator propagator(magField, alongMomentum);
-  ReferenceCountingPointer<Surface> beamPipe(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(2.5, 2.5, -5., 5.)));
+  AnalyticalPropagator fwdPropagator(magField, alongMomentum);
+  AnalyticalPropagator bkwdPropagator(magField, oppositeToMomentum);
+  ReferenceCountingPointer<Surface> beamPipe(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(2.5, 2.5, -500., 500.)));
   ReferenceCountingPointer<Surface> ecalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(129., 129., -317., 317.)));
   ReferenceCountingPointer<Surface> hcalWall(new BoundCylinder(GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds(183., 183., -388., 388.)));
 
@@ -147,6 +148,7 @@ void PFProducer::produce(edm::Event& iEvent,
   for(AlgoProductCollection::iterator itTrack = algoResults.begin();
       itTrack != algoResults.end(); itTrack++) {
     Trajectory*  theTraj  = (*itTrack).first;
+    std::vector<TrajectoryMeasurement> measurements = theTraj->measurements();
     reco::Track* theTrack = (*itTrack).second;
     reco::PFRecTrack track(theTrack->parameters().charge(), 
 			   reco::PFRecTrack::KF);
@@ -160,19 +162,28 @@ void PFProducer::produce(edm::Event& iEvent,
 				      posClosest, momClosest);
     track.addPoint(closestPt);
 
-    // Intersection with beam pipe
-    math::XYZPoint posBeamPipe(theTrack->x(), theTrack->y(), theTrack->z());
-    math::XYZTLorentzVector momBeamPipe(theTrack->px(), theTrack->py(), 
-					theTrack->pz(), theTrack->p());
-    reco::PFTrajectoryPoint beamPipePt(0, 
-				       reco::PFTrajectoryPoint::BeamPipe,
-				       posBeamPipe, momBeamPipe);
-    track.addPoint(beamPipePt);
+    if (posClosest.Rho() < 2.5) {
+      // Intersection with beam pipe
+      TrajectoryStateOnSurface innerTSOS;
+      if (theTraj->direction() == alongMomentum)
+	innerTSOS = measurements[0].updatedState();
+      else
+	innerTSOS = measurements[measurements.size() - 1].updatedState();
+      TrajectoryStateOnSurface beamPipeTSOS = 
+	bkwdPropagator.propagate(innerTSOS, *beamPipe);
+      GlobalPoint vBeamPipe  = beamPipeTSOS.globalParameters().position();
+      GlobalVector pBeamPipe = beamPipeTSOS.globalParameters().momentum();
+      math::XYZPoint posBeamPipe(vBeamPipe.x(), vBeamPipe.y(), vBeamPipe.z());
+      math::XYZTLorentzVector momBeamPipe(pBeamPipe.x(), pBeamPipe.y(), 
+					  pBeamPipe.z(), pBeamPipe.mag());
+      reco::PFTrajectoryPoint beamPipePt(0, reco::PFTrajectoryPoint::BeamPipe, 
+					 posBeamPipe, momBeamPipe);
+      track.addPoint(beamPipePt);
+    }
 
     //
     // Loop over trajectory measurements
     //
-    std::vector<TrajectoryMeasurement> measurements = theTraj->measurements();
     // Order measurements along momentum
     int iTrajFirst = 0;
     int iTrajLast  = measurements.size();
@@ -203,7 +214,7 @@ void PFProducer::produce(edm::Event& iEvent,
     else
       outerTSOS = measurements[0].updatedState();
     TrajectoryStateOnSurface ecalTSOS = 
-      propagator.propagate(outerTSOS, *ecalWall);
+      fwdPropagator.propagate(outerTSOS, *ecalWall);
     GlobalPoint vECAL  = ecalTSOS.globalParameters().position();
     GlobalVector pECAL = ecalTSOS.globalParameters().momentum();
     math::XYZPoint posECAL(vECAL.x(), vECAL.y(), vECAL.z());       
@@ -211,14 +222,15 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pECAL.mag());
     reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				   posECAL, momECAL);
-    track.setPoint(track.nTrajectoryMeasurements() +
-		   reco::PFTrajectoryPoint::ECALEntrance, ecalPt);
+    track.addPoint(ecalPt);
     
     // Propage track to ECAL shower max TODO
+    // Be careful : the following formula are only valid for electrons !
+    track.addPoint(ecalPt);
     
     // Propagate track to HCAL
     TrajectoryStateOnSurface hcalTSOS = 
-      propagator.propagate(outerTSOS, *hcalWall);
+      fwdPropagator.propagate(outerTSOS, *hcalWall);
     GlobalPoint vHCAL  = hcalTSOS.globalParameters().position();
     GlobalVector pHCAL = hcalTSOS.globalParameters().momentum();
     math::XYZPoint posHCAL(vHCAL.x(), vHCAL.y(), vHCAL.z());       
