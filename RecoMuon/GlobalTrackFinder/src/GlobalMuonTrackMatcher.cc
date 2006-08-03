@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/07/31 13:01:42 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/02 21:53:40 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -15,7 +15,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 using namespace edm;
 //
@@ -67,10 +66,8 @@ void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
 std::pair<bool, reco::TrackRef> 
 GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, 
                                  const edm::Handle<reco::TrackCollection>& tkTs) const {
-  //edm::LogInfo("GlobalMuonTrackMatcher")
-  //<<"Begin matchOne staT:"<< staT->momentum();
   bool hasMatchTk = false;
-  reco::TrackRef* result = &staT;//FIXME?
+  reco::TrackRef* result = 0;
   double minChi2 = theMaxChi2;
   
   reco::TransientTrack staTT(staT,&*theField);
@@ -103,7 +100,6 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT,
       result = &tkTRef;
     } 
   } 
-  //LogInfo("GlobalMuonTrackMatcher")<<"End matchOne";
   return(std::pair<bool, reco::TrackRef>(hasMatchTk, *result));
 
 }
@@ -195,7 +191,6 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 std::pair<bool,double> 
 GlobalMuonTrackMatcher::match(const reco::Track& sta, 
                               const reco::Track& tk) const {
-  //LogInfo("GlobalMuonTrackMatcher")<<"Begin match(Tk,Tk):"<< sta.momentum();
   reco::TransientTrack staT(sta,&*theField);  
   reco::TransientTrack tkT(tk,&*theField);
   
@@ -214,10 +209,6 @@ GlobalMuonTrackMatcher::match(const reco::Track& sta,
   // extrapolate outermost tracker measurement TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
   
-  //LogInfo("GlobalMuonTrackMatcher")
-  //<<"End match(Tk,Tk): "<< tkTsosFromMu.isValid()
-  //<< " " << tkTsosFromTk.isValid();
-
   // compare the TSOSs on outer tracker surface
   return match(tkTsosFromMu,tkTsosFromTk);
   
