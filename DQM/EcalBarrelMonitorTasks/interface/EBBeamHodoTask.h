@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/06/26 22:51:29 $
- * $Revision: 1.5 $
+ * $Date: 2006/07/31 10:39:19 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -98,6 +98,7 @@ MonitorElement* meTDCRec_;
 MonitorElement* meHodoPosXMinusCaloPosXVsCry_;
 MonitorElement* meHodoPosYMinusCaloPosYVsCry_;
 MonitorElement* meTDCTimeMinusCaloTimeVsCry_;
+MonitorElement* meMissingCollections_;
 
 
 
