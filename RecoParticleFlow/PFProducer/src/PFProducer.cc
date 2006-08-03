@@ -159,6 +159,7 @@ void PFProducer::produce(edm::Event& iEvent,
 				      reco::PFTrajectoryPoint::ClosestApproach,
 				      posClosest, momClosest);
     track.addPoint(closestPt);
+    LogDebug("PFProducer") << "closest approach point " << closestPt << "\n";
 
     if (posClosest.Rho() < 2.5) {
       // Intersection with beam pipe
@@ -177,6 +178,7 @@ void PFProducer::produce(edm::Event& iEvent,
       reco::PFTrajectoryPoint beamPipePt(0, reco::PFTrajectoryPoint::BeamPipe, 
 					 posBeamPipe, momBeamPipe);
       track.addPoint(beamPipePt);
+      LogDebug("PFProducer") << "beam pipe point " << beamPipePt << "\n";
     }
 
     //
@@ -202,7 +204,7 @@ void PFProducer::produce(edm::Event& iEvent,
       reco::PFTrajectoryPoint trajPt(detId, reco::PFTrajectoryPoint::NLayers, 
 				     pos, mom);
       track.addPoint(trajPt);
-      LogDebug("PFProducer") << trajPt << "\n";
+      LogDebug("PFProducer") << "add measuremnt " << iTraj << " " << trajPt << "\n";
     }
 
     // Propagate track to ECAL
@@ -221,6 +223,7 @@ void PFProducer::produce(edm::Event& iEvent,
     reco::PFTrajectoryPoint ecalPt(0, reco::PFTrajectoryPoint::ECALEntrance, 
 				   posECAL, momECAL);
     track.addPoint(ecalPt);
+    LogDebug("PFProducer") << "ecal point " << ecalPt << "\n";
     
     // Propage track to ECAL shower max TODO
     // Be careful : the following formula are only valid for electrons !
@@ -237,7 +240,7 @@ void PFProducer::produce(edm::Event& iEvent,
     reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
 				   posHCAL, momHCAL);
     track.addPoint(hcalPt);
-    
+    LogDebug("PFProducer") << "hcal point " << hcalPt << "\n";    
     
     pOutputPFRecTrackCollection->push_back(track);
    
