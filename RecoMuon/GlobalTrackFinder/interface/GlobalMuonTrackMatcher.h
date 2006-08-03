@@ -4,9 +4,10 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/20 13:00:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/21 20:26:02 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  - Purdue University
+ *  \author Norbert Neumeister - Purdue University
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -51,6 +52,10 @@ class GlobalMuonTrackMatcher {
     /// choose all that has chi2 less than MaxChi2
     std::vector<reco::TrackRef> match(const reco::TrackRef&, 
                                       const std::vector<reco::TrackRef>&) const;
+
+    /// check if two trackRefs are match
+    std::pair<bool,double> match(const reco::TrackRef&,
+                                 const reco::TrackRef&) const;
 
     /// check if two tracks are match
     std::pair<bool,double> match(const reco::Track&, 
