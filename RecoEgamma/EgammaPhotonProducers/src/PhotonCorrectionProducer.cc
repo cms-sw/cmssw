@@ -86,7 +86,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
     //     reco::Photon newCandidate;
     if( applyDummyCorrection_) { 
       LogInfo("PhotonCorrectionProducer: Applying dummy correction")  << "\n";
-         theDummyCorrection_->makeCorrections(&(*iPho));
+         theDummyCorrection_->makeCorrections( *iPho );
     }
       outputPhotonCollection->push_back(*iPho);
       myCands++;
