@@ -10,8 +10,8 @@
  *                             4 - combined
  *
  *
- *  $Date: 2006/08/03 03:24:34 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/08/03 13:27:23 $
+ *  $Revision: 1.27 $
  *
  *  Author :
  *  N. Neumeister            Purdue University
@@ -821,7 +821,7 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
 
   // use TransientTrackingRecHitBuilder to get TransientTrackingRecHits 
   ConstRecHitContainer tmp = getTkTransientHits((*tkTrack));
-  ConstRecHitContainer hits(tmp);
+  ConstRecHitContainer hits; //?
 
   // sort RecHits AlongMomentum
   TransientTrackingRecHit::ConstRecHitPointer firstHit;
@@ -839,9 +839,10 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
     }
   }
   if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ) {
-    for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+    for (ConstRecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
       hits.push_back(*it);
     }
+    //std::reverse(tmp.begin(),tmp.end());?
   } 
   else {
     hits = tmp;
