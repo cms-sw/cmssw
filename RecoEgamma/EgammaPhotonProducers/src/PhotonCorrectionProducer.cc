@@ -73,9 +73,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
   // Get the uncorrected photon Collection
 
   Handle<reco::PhotonCollection> uncorrectedPhotonHandle;
-  try{  
-    theEvent.getByLabel(photonCorrectionProducer_,uncorrectedPhotonCollection_,uncorrectedPhotonHandle);
-  }
+  theEvent.getByLabel(photonCorrectionProducer_,uncorrectedPhotonCollection_,uncorrectedPhotonHandle);
   reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
   LogInfo("PhotonCorrectionProducer: Uncorrected Photon collection size ") << phoCollection.size() << "\n";
 

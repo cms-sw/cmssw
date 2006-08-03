@@ -145,9 +145,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the basic cluster collection in the Barrel 
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
-  try {
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
-  }
   std::cout << " Trying to access basic cluster collection in the Barrel from my Producer " << std::endl;
   reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
   std::cout << " basic cluster collection size  " << clusterCollectionBarrel.size() << std::endl;
@@ -156,9 +154,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the basic cluster collection in the endcap 
   edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
-  try {
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
-  }
   std::cout << " Trying to access basic cluster collection in the Endcap from my Producer " << std::endl;
   reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
   std::cout << " basic cluster collection size  " << clusterCollectionEndcap.size() << std::endl;
@@ -166,9 +162,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the Super Cluster collection in the Barrel
   Handle<reco::SuperClusterCollection> scBarrelHandle;
-  try{  
-    theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  }
+  theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   std::cout << " Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << std::endl;
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   std::cout << "barrel  SC collection size  " << scBarrelCollection.size() << std::endl;
@@ -176,9 +170,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the Super Cluster collection in the Endcap
 
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  try{
-    theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  }
+  theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   std::cout << " Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << std::endl;
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   std::cout << "Endcap SC collection size  " << scEndcapCollection.size() << std::endl;
