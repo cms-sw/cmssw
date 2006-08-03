@@ -4,23 +4,18 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/02 16:36:20 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/03 03:24:41 $
+ *  $Revision: 1.22 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
 
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonReconstructionEnumerators.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonReconstructionEnumerators.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 class RectangularEtaPhiTrackingRegion;
@@ -30,7 +25,6 @@ class MagneticField;
 class GlobalMuonTrackMatcher;
 class TransientTrackingRecHit;
 class MuonTransientTrackingRecHit;
-//class TransientTrackBuilder;
 class TransientTrackingRecHitBuilder;
 class GlobalTrackingGeometry;
 class MuonDetLayerGeometry;
@@ -38,11 +32,12 @@ class GlobalMuonReFitter;
 class Propagator;
 class TrajectoryFitter;
 
-namespace edm {class ParameterSet;}
+namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
+
     typedef TransientTrackingRecHit::RecHitContainer   RecHitContainer;
     typedef TransientTrackingRecHit::ConstRecHitContainer  ConstRecHitContainer;
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
@@ -52,8 +47,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
     typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
     typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
-
-
 
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;

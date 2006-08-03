@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/07/24 01:20:31 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/08/01 01:57:50 $
+ *   $Revision: 1.7 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -59,6 +59,8 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 				             const ConstRecHitContainer& hits, 
 				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
+    Propagator* propagator() const { return thePropagator1; }
+
     ///
     GlobalMuonReFitter* clone() const {
       return new GlobalMuonReFitter(*this);
@@ -80,6 +82,7 @@ class GlobalMuonReFitter : public TrajectorySmoother {
     typedef TrajectoryMeasurement TM;
 
   private:
+
     Propagator* thePropagator1;
     Propagator* thePropagator2;
     const KFUpdator* theUpdator;
@@ -96,4 +99,3 @@ class GlobalMuonReFitter : public TrajectorySmoother {
 };
 
 #endif
-
