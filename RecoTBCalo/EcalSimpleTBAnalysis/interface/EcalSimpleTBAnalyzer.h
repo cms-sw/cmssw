@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.h,v 1.2 2006/04/25 21:53:31 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.h,v 1.3 2006/07/28 12:27:22 meridian Exp $
 //
 
 
@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <string>
 //#include "TTree.h"
@@ -69,6 +70,7 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
       TH2F* h_Shape_;
       
       // Reconstructed energies
+      TH1F* h_tableIsMoving;
       TH1F* h_e1x1;
       TH1F* h_e3x3; 
       TH1F* h_e5x5; 
@@ -102,6 +104,7 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
       TH2F* h_e9e25_mapx;
       TH2F* h_e9e25_mapy;
 
+      EBDetId xtalInBeam_;
 };
 
 

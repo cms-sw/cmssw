@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.4 2006/07/28 12:27:23 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.5 2006/08/01 11:08:39 meridian Exp $
 //
 //
 
@@ -17,7 +17,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
 
 //#include<fstream>
 
@@ -43,7 +43,7 @@
 
 
 //========================================================================
-EcalSimpleTBAnalyzer::EcalSimpleTBAnalyzer( const edm::ParameterSet& iConfig )
+EcalSimpleTBAnalyzer::EcalSimpleTBAnalyzer( const edm::ParameterSet& iConfig ) : xtalInBeam_(0)
 //========================================================================
 {
    //now do what ever initialization is needed
@@ -58,6 +58,7 @@ EcalSimpleTBAnalyzer::EcalSimpleTBAnalyzer( const edm::ParameterSet& iConfig )
    tdcRecInfoProducer_       = iConfig.getParameter<std::string>("tdcRecInfoProducer");
    eventHeaderCollection_     = iConfig.getParameter<std::string>("eventHeaderCollection");
    eventHeaderProducer_       = iConfig.getParameter<std::string>("eventHeaderProducer");
+
 
    std::cout << "EcalSimpleTBAnalyzer: fetching hitCollection: " << hitCollection_.c_str()
 	<< " produced by " << hitProducer_.c_str() << std::endl;
@@ -103,6 +104,8 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
   h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1000, 0., 4000.);
 
   // Reconstructed energies
+  h_tableIsMoving = new TH1F("h_tableIsMoving","TableIsMoving", 100000, 0., 100000.);
+
   h_e1x1 = new TH1F("h_e1x1","E1x1 energy", 1000, 0., 4000.);
   h_e3x3 = new TH1F("h_e3x3","E3x3 energy", 1000, 0., 4000.);
   h_e5x5 = new TH1F("h_e5x5","E5x5 energy", 1000, 0., 4000.);
@@ -198,6 +201,8 @@ EcalSimpleTBAnalyzer::endJob() {
   h_e9e25_mapx->Write(); 
   h_e9e25_mapy->Write(); 
 
+  h_tableIsMoving->Write();
+
   f.Close();
 }
 
@@ -283,8 +288,21 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    if (hits->size() == 0)
      return;
 
+   if (evtHeader->tableIsMoving())
+     h_tableIsMoving->Fill(evtHeader->eventNumber());
+
    // Crystal hit by beam
-   EBDetId maxHitId(1,evtHeader->crystalInBeam(),EBDetId::SMCRYSTALMODE);
+   if (xtalInBeam_.null())
+     {
+       xtalInBeam_ = EBDetId(1,evtHeader->crystalInBeam(),EBDetId::SMCRYSTALMODE);
+       std::cout<< "Xtal In Beam is " << xtalInBeam_.ic() << std::endl;
+     }
+   else if (xtalInBeam_ != EBDetId(1,evtHeader->crystalInBeam(),EBDetId::SMCRYSTALMODE))
+     return;
+
+   if (evtHeader->tableIsMoving())
+     return;
+   
    
 //    EBDetId maxHitId(0); 
 //    float maxHit= -999999.;
@@ -309,29 +327,37 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // EBFixedWindowSelector<EcalUncalibratedRecHit> Simple5x5Matrix(hits,maxHitId,5,5);
    // std::vector<EcalUncalibratedRecHit> Energies5x5 = Simple5x5Matrix.getHits();
 
+
    EBDetId Xtals5x5[25];
    for (unsigned int icry=0;icry<25;icry++)
      {
        unsigned int row = icry / 5;
        unsigned int column= icry %5;
-       try
-	 {
-	   Xtals5x5[icry]=EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE);
-	   //	   std::cout << "**** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
-	 }
-       catch ( std::runtime_error &e )
-	 {
-	   std::cout << "Cannot construct 5x5 matrix around EBDetId " << maxHitId << std::endl;
-	   return;
-	 }
-     }
+      try
+	{
+	  int ieta=xtalInBeam_.ieta()+column-2;
+          int iphi=xtalInBeam_.iphi()+row-2;
+          EBDetId tempId(ieta, iphi,EBDetId::ETAPHIMODE);
+	  if (tempId.ism()==1) 
+	    Xtals5x5[icry]=tempId;
+	  else
+            Xtals5x5[icry]=EBDetId(0);
+	  ///       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
+	}
+      catch ( std::runtime_error &e )
+	{
+	  Xtals5x5[icry]=EBDetId(0);   
+        }
+     } 
+
+
    
    bool gain_switch = false;
    double samples_save[10]; for(int i=0; i < 10; ++i) samples_save[i]=0.0;
    double gain_save[10];    for(int i=0; i < 10; ++i) gain_save[i]=0.0;
    
    // find the rechit corresponding digi and the max sample
-   EBDigiCollection::const_iterator myDigi = digis->find(maxHitId);
+   EBDigiCollection::const_iterator myDigi = digis->find(xtalInBeam_);
    int sMax = -1;
    double eMax = 0.;
    if (myDigi != digis->end())
@@ -364,14 +390,17 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    
    for (unsigned int icry=0;icry<25;icry++)
      {
-       amplitude[icry]=(hits->find(Xtals5x5[icry]))->amplitude();
-       amplitude5x5 += amplitude[icry];
-       // Is in 3x3?
-       if ( icry == 6  || icry == 7  || icry == 8 ||
-	    icry == 11 || icry == 12 || icry ==13 ||
-	    icry == 16 || icry == 17 || icry ==18   )
+       if (!Xtals5x5[icry].null())
 	 {
-	   amplitude3x3+=amplitude[icry];
+	   amplitude[icry]=(hits->find(Xtals5x5[icry]))->amplitude();
+	   amplitude5x5 += amplitude[icry];
+	   // Is in 3x3?
+	   if ( icry == 6  || icry == 7  || icry == 8 ||
+		icry == 11 || icry == 12 || icry ==13 ||
+		icry == 16 || icry == 17 || icry ==18   )
+	     {
+	       amplitude3x3+=amplitude[icry];
+	     }
 	 }
      }
 
