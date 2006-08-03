@@ -53,7 +53,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
   void readSMRunFile() ;
-  void writeToLogFile(string , string) ;
+  void writeToLogFile(string , string, bool) ;
   void writeToLogFileResults(char* ) ;
 
   explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
@@ -63,6 +63,9 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   virtual void endJob();
 
  private:
+
+  void fillHeader(char*);
+
   std::vector< std::string > objectName_ ;
   // it can be of type: EcalWeightXtalGroups, EcalTBWeights, EcalADCToGeVConstant, EcalIntercalibConstants, EcalGainRatios
 
