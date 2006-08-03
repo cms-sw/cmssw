@@ -6,6 +6,7 @@
 //--------------------------------------------
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+
 //needed for the geometry: 
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
@@ -24,11 +25,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
 #include "DataFormats/Common/interface/OwnVector.h" 
 
+
 //Constructor
-SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) : 
-  dbe_(0),
-  matchedRecHits_( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ), 
-  rphiRecHits_( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ), 
+SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
+  dbe_(0),	
+  matchedRecHits_( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ),
+  rphiRecHits_( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ),
   stereoRecHits_( ps.getParameter<edm::InputTag>( "stereoRecHits" ) ) {
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
@@ -279,13 +281,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //--- get RecHits
   
+  //  std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
+  std::string rechitProducer = "SiStripRecHits2D";
+  
   // Step A: Get Inputs 
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
-  e.getByLabel( matchedRecHits_, rechitsmatched );
-  e.getByLabel( rphiRecHits_, rechitsrphi );
-  e.getByLabel( stereoRecHits_, rechitsstereo );
+  e.getByLabel(matchedRecHits_, rechitsmatched);
+  e.getByLabel(rphiRecHits_, rechitsrphi);
+  e.getByLabel(stereoRecHits_, rechitsstereo);
   
   int numrechitrphi   =0;
   int numrechitsas    =0;
@@ -381,7 +386,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	matched.clear();
 	matched = associate.associateHit(rechit);
 	float mindist = 999999;
-	float dist;
+	float dist = 999999;
 	PSimHit closest;
 	if(!matched.empty()){
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
@@ -444,7 +449,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	cluchgsas[j] = totcharge;
 	
 	float mindist = 999999;
-	float dist;
+	float dist = 999999;
 	PSimHit closest;
 	matched.clear();
 	matched = associate.associateHit(rechit);
@@ -497,13 +502,15 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	LocalError error=rechit.localPositionError();
 	
 	float mindist = 999999;
-	float distx, disty, dist;
+	float distx = 999999;
+	float disty = 999999;
+	float dist = 999999;
 	std::pair<LocalPoint,LocalVector> closestPair;
 	matched.clear();
-	const SiStripRecHit2D *mono = rechit.monoHit();
-	const SiStripRecHit2D *st = rechit.stereoHit();
-	LocalPoint monopos = mono->localPosition();
-	LocalPoint stpos   = st->localPosition();
+	//	const SiStripRecHit2D *mono = rechit.monoHit();
+	//	const SiStripRecHit2D *st = rechit.stereoHit();
+	//	LocalPoint monopos = mono->localPosition();
+	//	LocalPoint stpos   = st->localPosition();
 	
 	rechitmatchedx[j] = position.x();
 	rechitmatchedy[j] = position.y();
@@ -511,28 +518,36 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	rechitmatchederrxx[j] = error.xx();
 	rechitmatchederrxy[j] = error.xy();
 	rechitmatchederryy[j] = error.yy();
-	//	cout << " errors = " << sqrt(error.xx()) << ", " << error.xy() << ", " << sqrt(error.yy()) <<  endl;
-	matched = associate.associateHit(*st);
+
+	std::cout << " before association " << std::endl;
+	matched = associate.associateHit(rechit);
+	std::cout << " after association size = " << matched.size() << std::endl;
+
 	if(!matched.empty()){
 	  //project simhit;
 	  const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
 	  const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
 	  std::pair<LocalPoint,LocalVector> hitPair;
+
+	  std::cout << " RECHIT position = " << position << std::endl;	  
 	  
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	    distx = fabs(rechitmatchedx[j] - hitPair.first.x());
 	    disty = fabs(rechitmatchedy[j] - hitPair.first.y());
-	    dist = distx*distx+disty*disty;
-	    if(sqrt(dist)<mindist){
+	    dist = sqrt(distx*distx+disty*disty);
+	    std::cout << " Simhit position x = " << hitPair.first.x() 
+		      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;	  
+	    if(dist<mindist){
 	      mindist = dist;
 	      closestPair = hitPair;
 	    }
 	  }
+	  std::cout << " Closest position x = " << closestPair.first.x() 
+		      << " y = " << closestPair.first.y() << " dist = " << dist << std::endl;	  
 	  rechitmatchedresx[j] = rechitmatchedx[j] - closestPair.first.x();
 	  rechitmatchedresy[j] = rechitmatchedy[j] - closestPair.first.y();
-	  
 
  	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
  	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
@@ -547,11 +562,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
-// 	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
-// 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
-// 	  std::cout << "RecHit errors = " << R << std::endl;
-// 	  std::cout << "SimHit param. = " << shparameters << std::endl;
-// 	  std::cout << " chi2  = " << est << std::endl;
+ 	  std::cout << " ====== Chi2 test matched ====== " << std::endl;
+ 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
+ 	  std::cout << "RecHit errors = " << R << std::endl;
+ 	  std::cout << "SimHit param. = " << shparameters << std::endl;
+ 	  std::cout << " chi2  = " << est << std::endl;
 	  chi2matched[j] = est;
 	}
 	
