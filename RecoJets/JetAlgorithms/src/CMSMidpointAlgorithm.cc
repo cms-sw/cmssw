@@ -62,7 +62,7 @@ namespace {
     for (;towerIter != towerIterEnd; ++towerIter) {
       const Candidate* caloTowerPointer = *towerIter;
       if(caloTowerPointer->et() > etThreshold){
-	double dR = deltaR2 (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
+	double dR = deltaR (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
 	if(dR < coneRadius){
 	  result.push_back(caloTowerPointer);
 	}
@@ -250,7 +250,7 @@ void CMSMidpointAlgorithm::findStableConesFromMidPoints(const InputCollection& f
     const ProtoJet* cluster1 = (*stableCones)[nCluster1];
     for(unsigned int nCluster2 = 0; nCluster2 < nCluster1; ++nCluster2){         // Loop over the other proto-jets
       const ProtoJet* cluster2 = (*stableCones)[nCluster2];
-      double dR = sqrt(deltaR2 (cluster1->y(), cluster1->phi(), cluster2->y(), cluster2->phi()));
+      double dR = deltaR (cluster1->y(), cluster1->phi(), cluster2->y(), cluster2->phi());
       distanceOK[nCluster1 - 1][nCluster2] = dR < 2*theConeRadius;
     }
   }
