@@ -41,23 +41,22 @@ PFRecTrack::PFRecTrack(const PFRecTrack& other) :
 
 void PFRecTrack::addPoint(const PFTrajectoryPoint& trajPt) {
   
-  if (trajPt.isTrackerLayer() && !indexOutermost_) { // first time a measurement is added
-    if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipe + 1) {
-      PFTrajectoryPoint dummyPt;
-      for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipe + 1; iPt++)
-	trajectoryPoints_.push_back(dummyPt);
-    } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipe + 1) {
-      edm::LogError("PFRecTrack") << "trajectoryPoints_.size() is too large = " 
-				  << trajectoryPoints_.size() << "\n";
-    }
-    indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipe + 1;
+  if (trajPt.isTrackerLayer()) {
+    if (!indexOutermost_) { // first time a measurement is added
+      if (trajectoryPoints_.size() < PFTrajectoryPoint::BeamPipe + 1) {
+	PFTrajectoryPoint dummyPt;
+	for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipe + 1; iPt++)
+	  trajectoryPoints_.push_back(dummyPt);
+      } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipe + 1) {
+	edm::LogError("PFRecTrack") << "trajectoryPoints_.size() is too large = " 
+				    << trajectoryPoints_.size() << "\n";
+      }
+      indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipe + 1;
+    } else 
+      indexOutermost_++;
   }
   // Use push_back instead of insert in order to gain time
-//   std::vector< PFTrajectoryPoint >::iterator it = 
-//     trajectoryPoints_.begin() + indexOutermost_;
-//   trajectoryPoints_.insert(it, PFTrajectoryPoint(measurement));
   trajectoryPoints_.push_back(trajPt);
-  indexOutermost_++;
 }
 
 
