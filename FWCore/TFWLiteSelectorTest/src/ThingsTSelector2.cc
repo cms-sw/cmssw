@@ -1,4 +1,4 @@
-#include "FWCore/TFWLiteSelector/test/ThingsTSelector2.h"
+#include "FWCore/TFWLiteSelectorTest/src/ThingsTSelector2.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
