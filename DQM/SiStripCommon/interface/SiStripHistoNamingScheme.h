@@ -56,7 +56,7 @@ class SiStripHistoNamingScheme {
   /** Returns directory path in the form of a string, based on readout
       parameters (FED id and channel). */ 
   static std::string readoutPath( uint16_t fed_id = sistrip::all_, 
-				  uint16_t fed_channel = sistrip::all_ );
+				  uint16_t fed_ch = sistrip::all_ );
   
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
