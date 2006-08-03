@@ -17,7 +17,13 @@ using namespace std;
     dx_(),
     dy_(),
     ex_(),
-    ey_() {
+    ey_(),
+    fx_(),
+    fy_(),
+    gx_(),
+    gy_(),
+    hx_(),
+    hy_() {
   }
 
   void HcalTBEventPosition::getChamberHits ( char chamberch,
@@ -29,6 +35,9 @@ using namespace std;
     case 'C': xvec = cx_; yvec = cy_; break;
     case 'D': xvec = dx_; yvec = dy_; break;
     case 'E': xvec = ex_; yvec = ey_; break;
+    case 'F': xvec = fx_; yvec = fy_; break;
+    case 'G': xvec = gx_; yvec = gy_; break;
+    case 'H': xvec = hx_; yvec = hy_; break;
     default:
       cerr << "Unrecognized chamber character " << chamberch << endl;
       return;
@@ -44,6 +53,9 @@ using namespace std;
     case 'C': cx_ = xvec; cy_ = yvec; break;
     case 'D': dx_ = xvec; dy_ = yvec; break;
     case 'E': ex_ = xvec; ey_ = yvec; break;
+    case 'F': fx_ = xvec; fy_ = yvec; break;
+    case 'G': gx_ = xvec; gy_ = yvec; break;
+    case 'H': hx_ = xvec; hy_ = yvec; break;
     default:
       cerr << "Unrecognized chamber character " << chamberch << endl;
       return;
@@ -149,6 +161,54 @@ using namespace std;
     s << endl;
 
     s << "WC Ey: ";
+    for (j=yvec.begin(); j!=yvec.end(); j++) {
+      if (j!=yvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    htbep.getChamberHits('F', xvec, yvec);
+
+    s << "WC Fx: ";
+    for (j=xvec.begin(); j!=xvec.end(); j++) {
+      if (j!=xvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    s << "WC Fy: ";
+    for (j=yvec.begin(); j!=yvec.end(); j++) {
+      if (j!=yvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    htbep.getChamberHits('G', xvec, yvec);
+
+    s << "WC Gx: ";
+    for (j=xvec.begin(); j!=xvec.end(); j++) {
+      if (j!=xvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    s << "WC Gy: ";
+    for (j=yvec.begin(); j!=yvec.end(); j++) {
+      if (j!=yvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    htbep.getChamberHits('H', xvec, yvec);
+
+    s << "WC Hx: ";
+    for (j=xvec.begin(); j!=xvec.end(); j++) {
+      if (j!=xvec.begin()) s << ", ";
+      s << *j;
+    }
+    s << endl;
+
+    s << "WC Hy: ";
     for (j=yvec.begin(); j!=yvec.end(); j++) {
       if (j!=yvec.begin()) s << ", ";
       s << *j;
