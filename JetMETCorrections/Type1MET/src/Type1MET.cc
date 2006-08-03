@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.2 2006/02/27 02:56:08 cavana Exp $
+// $Id: Type1MET.cc,v 1.3 2006/04/24 07:42:16 cavana Exp $
 //
 //
 
@@ -33,6 +33,9 @@
 
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 //using namespace std;
 
@@ -49,13 +52,17 @@ namespace cms
   private:
     Type1METAlgo alg_;
     std::string inputLabel;
+    std::string inputUncorrCandLabel;
+    std::string inputCorrCandLabel;
   };
 
   // PRODUCER CONSTRUCTORS ------------------------------------------
   Type1MET::Type1MET( const edm::ParameterSet& iConfig ) : alg_() 
   {
     produces<METCollection>();
-    inputLabel = iConfig.getParameter<std::string>("inputLabel");
+    inputLabel = iConfig.getParameter<std::string>("inputUncorrMetLabel");
+    inputUncorrCandLabel = iConfig.getParameter<std::string>("inputUncorrCandLabel");
+    inputCorrCandLabel = iConfig.getParameter<std::string>("inputCorrCandLabel");
   }
   Type1MET::Type1MET() : alg_() {}
   // PRODUCER DESTRUCTORS -------------------------------------------
@@ -65,15 +72,32 @@ namespace cms
   void Type1MET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
-    Handle<METCollection> pIn;                                //Define Inputs
+    Handle<CaloMETCollection> pIn;                                //Define Inputs
     iEvent.getByLabel(inputLabel, pIn);                       //Get Inputs
     std::auto_ptr<METCollection> pOut( new METCollection() ); //Create empty output
-    alg_.run( pIn.product(), *pOut );                         //Invoke the algorithm
+    
+    edm::Handle<CaloJetCollection> inputUncorrJetCollection;
+    iEvent.getByLabel( inputUncorrCandLabel, inputUncorrJetCollection );
+    vector <const CaloJet*> inputUncorrJet;
+    inputUncorrJet.reserve( inputUncorrJetCollection->size() );
+    CaloJetCollection::const_iterator input_object = inputUncorrJetCollection->begin();
+    for( ; input_object != inputUncorrJetCollection->end(); input_object++ )
+      inputUncorrJet.push_back( &*input_object );
+    
+    edm::Handle<CaloJetCollection> inputCorrJetCollection;
+    iEvent.getByLabel( inputCorrCandLabel, inputCorrJetCollection );
+    vector <const CaloJet*> inputCorrJet;
+    inputCorrJet.reserve( inputCorrJetCollection->size() );
+    input_object = inputCorrJetCollection->begin();
+    for( ; input_object != inputCorrJetCollection->end(); input_object++ )
+      inputCorrJet.push_back( &*input_object );
+    
+    alg_.run( pIn.product(), inputUncorrJet, inputCorrJet, *pOut );                         //Invoke the algorithm
     iEvent.put( pOut );                                       //Put output into Event
   }
 
   //define this as a plug-in
   DEFINE_FWK_MODULE(Type1MET)
 
-    }//end namespace cms
+}//end namespace cms
 

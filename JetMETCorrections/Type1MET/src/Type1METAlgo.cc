@@ -7,8 +7,11 @@
 #include <math.h>
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
+
 
 using namespace std;
 using namespace reco;
@@ -22,8 +25,30 @@ Type1METAlgo::~Type1METAlgo() {}
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void Type1METAlgo::run(const METCollection *uncorrMET, METCollection &corrMET) 
+void Type1METAlgo::run(const CaloMETCollection *uncorrMET, 
+		       JetInputColl uncorrJet,
+		       JetInputColl corrJet, 
+		       METCollection &corrMET) 
 {
+  double DeltaPx = 0.0;
+  double DeltaPy = 0.0;
+  double DeltaSumET = 0.0;
+  JetInputColl::const_iterator jet = corrJet.begin();
+  for( ; jet != corrJet.end(); jet++)
+    {
+      DeltaPx += (*jet)->px();
+      DeltaPy += (*jet)->py(); 
+      DeltaSumET += (*jet)->et();
+    }
+  std::cout << " ---------------------- " << DeltaPx << " , " << DeltaPy << std::endl;
+  jet = uncorrJet.begin();
+  for( ; jet != uncorrJet.end(); jet++)
+    {
+      DeltaPx -= (*jet)->px();
+      DeltaPy -= (*jet)->py();
+      DeltaSumET -= (*jet)->et();
+    }
+  std::cout << " ---------------------- " << DeltaPx << " , " << DeltaPy << std::endl;
   //----------------- Initialise
   corrMET.clear();
   //----------------- Set Corrected MET to uncorrected MET
@@ -34,15 +59,15 @@ void Type1METAlgo::run(const METCollection *uncorrMET, METCollection &corrMET)
   if( corrections.size() > 0 ) 
     {
       CorrMETData old = corrections.back(); //cummulate corrections just to test...
-      delta.mex   = old.mex + 10.0;   // dummy correction for now
-      delta.mey   = old.mey + 10.0;   // dummy correction for now
-      delta.sumet = old.sumet + 10.0; // dummy correction for now
+      delta.mex   = old.mex + DeltaPx;   // dummy correction for now
+      delta.mey   = old.mey + DeltaPy;   // dummy correction for now
+      delta.sumet = old.sumet + DeltaSumET; // dummy correction for now
     }
   else
     {
-      delta.mex   =  + 10.0; // dummy correction for now
-      delta.mey   =  + 10.0; // dummy correction for now
-      delta.sumet =  + 10.0; // dummy correction for now
+      delta.mex   =  DeltaPx; // dummy correction for now
+      delta.mey   =  DeltaPy; // dummy correction for now
+      delta.sumet =  DeltaSumET; // dummy correction for now
     }
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
   LorentzVector correctedMET4vector( u.px()+delta.mex, 
