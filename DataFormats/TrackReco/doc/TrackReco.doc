@@ -91,7 +91,7 @@ in the internal CMS note <a href="https://cmsdoc.cern.ch/documents/03/in/in03_00
 The five parameters are:
 \htmlonly
 <ul>
-<li> <b><i>&rho;</i>: signed transverse curvature.
+<li> <b><i>&kappa;</i>: signed transverse curvature: <i>&kappa = -q &bull; B<sub>z</sub>/p<sub>t</sub></i>.
 <li> <b><i>&theta;</i></b>: polar angle of the momentum vector.
 <li> <b><i>&phi;<sub>0</sub></i></b>: azimuthal angle of the momentum vector at the PCA to the beam line.
 <li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: signed transverse distance of the PCA. By convention, the
