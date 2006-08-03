@@ -78,8 +78,6 @@ void PFProducer::produce(edm::Event& iEvent,
   //
   // Create empty output collections
   //
-  // COLIN : the second line should be enough ? 
-  reco::PFRecTrackCollection outputPFRecTrackCollection;
   std::auto_ptr< reco::PFRecTrackCollection > pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
   
   //
@@ -238,13 +236,10 @@ void PFProducer::produce(edm::Event& iEvent,
 				    pHCAL.mag());
     reco::PFTrajectoryPoint hcalPt(0, reco::PFTrajectoryPoint::HCALEntrance, 
 				   posHCAL, momHCAL);
-    track.setPoint(track.nTrajectoryMeasurements() +
-		   reco::PFTrajectoryPoint::HCALEntrance, hcalPt);
+    track.addPoint(hcalPt);
     
     
-    
-    outputPFRecTrackCollection.push_back(track);
-    
+    pOutputPFRecTrackCollection->push_back(track);
    
     LogDebug("PFProducer") << "Add a new PFRecTrack " << track << "\n";
   }
@@ -253,10 +248,8 @@ void PFProducer::produce(edm::Event& iEvent,
   // Put the products in the event
   //
   edm::LogInfo("PFProducer") << " Put the PFRecTrackCollection of " 
-			     << outputPFRecTrackCollection.size() 
+			     << pOutputPFRecTrackCollection->size() 
 			     << " candidates in the Event" << std::endl;
-  pOutputPFRecTrackCollection->assign(outputPFRecTrackCollection.begin(),
-				      outputPFRecTrackCollection.end());
   iEvent.put(pOutputPFRecTrackCollection, pfRecTrackCollection_);
 }
 
