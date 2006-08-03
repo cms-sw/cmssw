@@ -4,8 +4,12 @@
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+
+
+
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
+//#include <CLHEP/HepPDT/DefaultConfig.hh>
 
 #include <map>
 #include <vector>
@@ -21,6 +25,7 @@ class FSimTrack;
 class FSimVertex;
 class RawParticle;
 class HepPDTable;
+//class ParticleDataTable;
 class KineParticleFilter;
 
 class SimTrack;
@@ -44,6 +49,9 @@ public:
 
   ///  usual virtual destructor
   ~FBaseSimEvent();
+
+  /// Initialize the particle data table
+  //  void initializePdt(const DefaultConfig::ParticleDataTable* aPdt);
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
@@ -127,6 +135,7 @@ public:
   double sigmaVerteZ;
 
   HepPDTable * tab;
+  //  const DefaultConfig::ParticleDataTable * pdt;
 
   BaseEventVertexGenerator* theVertexGenerator;
 

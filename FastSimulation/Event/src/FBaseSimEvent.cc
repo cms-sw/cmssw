@@ -5,6 +5,7 @@
 #include "CLHEP/HepMC/GenParticle.h"
 
 // CMSSW Sim headers
+// #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -19,13 +20,14 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
-#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace std;
 //using namespace edm;
 using namespace HepMC;
 using namespace CLHEP;
+using namespace HepPDT;
 
 // system include
 #include <iostream>
@@ -87,6 +89,15 @@ FBaseSimEvent::~FBaseSimEvent(){
   //  myHistos->put("histos.root");
   //  delete myHistos;
 }
+
+/*
+void 
+FBaseSimEvent::initializePdt(const DefaultConfig::ParticleDataTable* aPdt) { 
+
+  pdt = aPdt; 
+
+}
+*/
 
 void
 FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
@@ -447,6 +458,14 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
     } else {
       name = "none";
     }
+
+    /*
+    if ( pdt->particle(ParticleID(partId)) !=0 ) {
+      name = (pdt->particle(ParticleID(partId)))->name();
+    } else {
+      name = "none";
+    }
+    */
        
     HepLorentzVector momentum1 = p->momentum();
     Hep3Vector vertex1 = p->creationVertex().vect();
