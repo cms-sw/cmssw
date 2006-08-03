@@ -12,8 +12,8 @@
 This class contains event position information, including the table
 position as well as hits from the delay wire chambers.
       
-$Date: 2005/10/06 22:21:33 $
-$Revision: 1.2 $
+$Date: 2006/04/04 15:00:27 $
+$Revision: 1.3 $
 \author P. Dudero - Minnesota
 */
 class HcalTBEventPosition {
@@ -54,7 +54,7 @@ private:
   double hfTableX_, hfTableY_, hfTableV_;
   double hbheTableEta_, hbheTablePhi_;
   
-  std::vector<double> ax_,ay_,bx_,by_,cx_,cy_,dx_,dy_,ex_,ey_;
+  std::vector<double> ax_,ay_,bx_,by_,cx_,cy_,dx_,dy_,ex_,ey_,fx_,fy_,gx_,gy_,hx_,hy_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HcalTBEventPosition& htbep);
