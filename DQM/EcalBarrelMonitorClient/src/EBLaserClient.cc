@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/07/05 07:52:38 $
- * $Revision: 1.83 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
 */
@@ -173,6 +173,13 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth02_[ism-1]->setMeanRange(100., 4096.);
       qth02_[ism-1]->setMeanRange(100., 4096.);
       qth03_[ism-1]->setMeanRange(100., 4096.);
+
+/*
+      qth01_[ism-1]->setMeanTolerance(percentVariation_);
+      qth02_[ism-1]->setMeanTolerance(percentVariation_);
+      qth02_[ism-1]->setMeanTolerance(percentVariation_);
+      qth03_[ism-1]->setMeanTolerance(percentVariation_);
+*/
 
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
