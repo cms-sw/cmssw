@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.19 2006/07/26 11:27:20 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.20 2006/07/28 20:47:08 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -26,9 +26,9 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
     db_(0),
     partitions_( pset.getUntrackedParameter< vector<string> >( "Partitions", vector<string>() ) ) //@@@ use this????
 {
-  cout << "TEST TEST " << __PRETTY_FUNCTION__ << endl;
-  edm::LogVerbatim(logCategory_) << "[SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb]"
-				 << " Constructing object...";
+  stringstream ss;
+  ss << __PRETTY_FUNCTION__ << " Constructing object...";
+  edm::LogVerbatim(logCategory_) << ss.str();
   if ( pset.getUntrackedParameter<bool>( "UsingDb", true ) ) {
     // Using database 
     db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("User",""),
