@@ -69,17 +69,18 @@ namespace dqm
       int biny; // bin # in y-axis (for 2D or 3D histograms)
       int binz; // bin # in z-axis (for 3D histograms)
       float content; // bin content
+      float RMS; // RMS of bin content
+
+      int getBin(){return getBinX();}
+      int getBinX(){return binx;}
+      int getBinY(){return biny;}
+      int getBinZ(){return binz;}
+      float getContents(){return content;}
+      float getRMS(){return RMS;}
+      Channel_(int bx, int by, int bz, float data, float rms)
+      {binx = bx; biny = by; binz = bz; content = data; RMS = rms;}
       
-      int getBin(void){return getBinX();}
-      int getBinX(void){return binx;}
-      int getBinY(void){return biny;}
-      int getBinZ(void){return binz;}
-      float getContents(void){return content;}
-      
-      Channel_(int bx, int by, int bz, float data)
-      {binx = bx; biny = by; binz = bz; content = data;}
-      
-      Channel_() {Channel_(0, 0, 0, 0);}
+      Channel_() {Channel_(0, 0, 0, 0, 0);}
     };
     typedef struct Channel_ Channel;
 
