@@ -104,7 +104,6 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
   nrDets_=1;
   subdets_.push_back(subdet);
   getNewPileups(); // get first pileup collection
-
 } 
 
 template <class T> 
@@ -168,13 +167,13 @@ std::vector<T> * MixCollection<T>::getNewSignal() {
   // gets the next signal collection with non-zero size
   //at the same time we verify that input is coherent
   for (int i=iSignal_;i<nrDets_;i++) {
-
     //verify whether detector is known
     if ( strstr(typeid(T).name(),"Hit")  && !cf_->knownDetector(subdets_[iSignal_]))
       throw cms::Exception("UnknownSubdetector")<< " No detector '"<<subdets_[iSignal_]<<"' for hits known in CrossingFrame (must be non-blank)\n";
 
     //verify whether detector/T type correspond
     std::string type=cf_->getType(subdets_[iSignal_]);
+
     if (!type.empty()) { //test only for SimHits and CaloHits
       if (!strstr(typeid(T).name(),type.c_str()))
 	throw cms::Exception("TypeMismatch")<< "Given template type "<<type<<" does not correspond to detecetor "<<subdets_[iSignal_]<<"\n";
@@ -200,7 +199,6 @@ std::vector<std::vector<T> > * MixCollection<T>::getNewPileups() {
 
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
-
   // initialisation
   if (first_) {
     first_=false;
@@ -241,6 +239,12 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::begin() {
+  //FIXME hack to make it possible to iterate over
+  // a collection more than once.
+  // iSignal_ & iPileup_ really should be moved into MixItr
+  // rpw Aug 3 2006
+  iSignal_ = 0;
+  iPileup_ = 0;
   return MixItr(this,bunchRange_.first,bunchRange_.second)++;
 }
 
