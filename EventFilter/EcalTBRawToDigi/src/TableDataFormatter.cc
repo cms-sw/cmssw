@@ -50,4 +50,8 @@ void TableDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a& 0xffff);
   tbEventHeader.setNextCrystalInBeam(EBDetId(1,b,EBDetId::SMCRYSTALMODE));
   LogDebug("TableDataFormatter") << "Next crystal in beam:\t" << b << endl;
+  b = (a& 0x00010000); //Table is moving at the begin of the spill
+  b = b >> 16;
+  tbEventHeader.setTableIsMovingAtBegSpill(b & 0x1);
+  LogDebug("TableDataFormatter") << "Table is moving at begin of the spill:\t" << b << endl;
 }
