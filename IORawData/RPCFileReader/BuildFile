@@ -3,7 +3,6 @@
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
 <use name=DataFormats/FEDRawData>
-<use name=xdaq>
 <flags SEAL_PLUGIN_NAME="IORawDataRPCFileReader">
 <export>
    <lib name=IORawDataRPCFileReader>
@@ -12,5 +11,4 @@
    <use name=FWCore/MessageLogger>
    <use name=Foundation/PluginManager>
    <use name=DataFormats/FEDRawData>
-   <use name=xdaq>
 </export>

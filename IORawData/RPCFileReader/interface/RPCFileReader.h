@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/07/31 14:47:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/02 12:05:47 $
+ *  $Revision: 1.2 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -60,9 +60,9 @@ class RPCFileReader : public ExternalInputSource {
   unsigned int triggerFedId_, tbNum_;
 
   // consts
-  //FIXME: At the moment PACTrigger delay isn't known
-  const static unsigned int RPC_PAC_TRIGGER_DELAY=10;
-  const static unsigned int RPC_PAC_L1ACCEPT_BX=1;
+  //FIXME: Checked
+  const static unsigned int RPC_PAC_TRIGGER_DELAY=11;
+  const static unsigned int RPC_PAC_L1ACCEPT_BX=2;
   
   // methods
   void readDataFromAsciiFile(string fileName, int *pos);

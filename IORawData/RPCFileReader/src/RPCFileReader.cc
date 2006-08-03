@@ -15,9 +15,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -307,23 +304,25 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
       }
     }
   }
-  //add empty words if needed
+  //Add empty words if needed
   while(words.size()%4!=0){
     words.push_back(buildEmptyWord());
   }
   if(debug_){
     edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Num of words: " << words.size();
   }
-  //format data, add header & trailer
+  //Format data, add header & trailer
   int dataSize = words.size()*sizeof(Word16);
-  FEDRawData *rawData = new FEDRawData(dataSize);
+  FEDRawData *rawData = new FEDRawData(dataSize+2*sizeof(Word64));
   Word64 *word = reinterpret_cast<Word64*>(rawData->data());
-  //FIXME
-  //Add header
-  //fedh_t *header = reinterpret_cast<fedh_t*>(word);
-  //header->sourceid = (triggerFedId_<<8);
-  //header->eventid = (0x50000000 | event_);
-  //word++;//?
+  //Add simple header by hand
+  *word = Word64(0);
+  *word = (Word64(0x5)<<60)|(Word64(0x3)<<56)|(Word64(event_)<<32)
+         |(Word64(bxn_)<<20)|((triggerFedId_)<<8);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Header: " << *reinterpret_cast<bitset<64>* >(word);
+  }
+  word++;
   //Add data
   for(unsigned int i=0; i<words.size(); i+=4){
     *word = (Word64(words[i])  <<48)
@@ -335,18 +334,20 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
     }
     word++;
   }
-  //FIXME
-  //Add trailer
-  //fedt_t *trailer = reinterpret_cast<fedt_t*>(&word[(sizeof(fedh_t)+dataSize)/sizeof(Word64)]);
-  //trailer->conscheck = 0xdeadface;
-  //trailer->eventsize = (0xa0000000
-  //			|((sizeof(fedh_t)+dataSize+sizeof(fedt_t))>>3));
-  //check memory
-  if(word!=reinterpret_cast<Word64*>(rawData->data()+dataSize)){
-  //if(word!=reinterpret_cast<Word64*>(rawData->data()+sizeof(fedh_t)+dataSize+sizeof(fedt_t))){
+  //Add simple trailer by hand
+  *word = Word64(0);
+  *word = (Word64(0xa)<<60)|(Word64(0x0)<<56)|(Word64(2+words.size()/4)<<32)
+         |(0xf<<8)|(0xf<<4);
+  if(debug_){
+    edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Trailer: " << *reinterpret_cast<bitset<64>* >(word);
+  }
+  word++;
+
+  //Check memory
+  if(word!=reinterpret_cast<Word64*>(rawData->data()+dataSize+2*sizeof(Word64))){
     string warn = "ERROR !!! Problem with memory in RPCFileReader::rpcDataFormater !!!";
     throw cms::Exception(warn);
-  }
+    }
 
   return rawData;
 }
