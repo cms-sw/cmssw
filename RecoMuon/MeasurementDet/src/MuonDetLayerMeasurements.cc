@@ -1,17 +1,15 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/07/31 23:17:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/08/01 15:58:07 $
+ *  $Revision: 1.18 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
@@ -22,8 +20,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+//typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+//typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
