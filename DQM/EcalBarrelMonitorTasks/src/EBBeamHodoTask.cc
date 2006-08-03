@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/07/31 23:07:51 $
- * $Revision: 1.25 $
+ * $Date: 2006/08/01 08:16:16 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,6 +35,7 @@ EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
   meHodoPosXMinusCaloPosXVsCry_   =0;
   meHodoPosYMinusCaloPosYVsCry_   =0;
   meTDCTimeMinusCaloTimeVsCry_ =0;
+  meMissingCollections_        =0;
 
   meEvsXRecProf_     =0;
   meEvsYRecProf_     =0;
@@ -130,6 +131,9 @@ void EBBeamHodoTask::setup(void){
     
     sprintf(histo, "EBBHT TDC-Calo vs Cry SM%02d", smId);
     meTDCTimeMinusCaloTimeVsCry_  = dbe->book1D(histo, histo, 50, 0, 50);
+    
+    sprintf(histo, "EBBHT Missing Collections SM%02d", smId);
+    meMissingCollections_ = dbe->book1D(histo, histo, 7, 0, 7);
 
     // following ME (type II):
     //  *** can be filled only when table is **not** moving
@@ -213,6 +217,8 @@ void EBBeamHodoTask::cleanup(void){
     meHodoPosYMinusCaloPosYVsCry_  = 0;
     if ( meTDCTimeMinusCaloTimeVsCry_  ) dbe->removeElement( meTDCTimeMinusCaloTimeVsCry_  ->getName() );
     meTDCTimeMinusCaloTimeVsCry_  = 0;
+    if ( meMissingCollections_  ) dbe->removeElement( meMissingCollections_ ->getName() );
+    meMissingCollections_  = 0;
 
   }
 
@@ -240,6 +246,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     Header = pHeader.product(); // get a ptr to the product
     if (!Header) {
       LogDebug("EBBeamHodoTask") << "Event header not found. Returning. ";
+      meMissingCollections_ -> Fill(0); // bin1: missing CMSSW Event header
       return;
     }
     tableIsMoving_     = Header->tableIsMoving();
@@ -280,6 +287,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   }
   catch ( std::exception& ex) {
     LogDebug("EcalBeamTask") << " EcalRawDataCollection not in event. Returning.";
+    meMissingCollections_ -> Fill(1); // bin2: missing DCC headers
     return;
     // see bottom of cc file for compatibility to 2004 data [***]
   }
@@ -304,6 +312,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   } 
   catch ( std::exception& ex ) {
     LogError("EBBeamHodoTask") << "EcalUncalibRecHitsEB not found in event! Returning.";
+    meMissingCollections_ -> Fill(2); // bin3: missing uncalibRecHits
     return;
   }
 
@@ -319,6 +328,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     }
   } catch ( std::exception& ex ) {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRawInfo. Returning";
+    meMissingCollections_ -> Fill(3); // bin4: missing raw hodo hits collection
     return;
   }
 
@@ -330,6 +340,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     rawTDC = pTDCRaw.product();
   } catch ( std::exception& ex ) {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRawInfo. Returning.";
+    meMissingCollections_ -> Fill(4); // bin5: missing raw TDC
     return;
   }
 
@@ -352,7 +363,6 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       cryInBeamCounter_++;
       resetNow_ = true;	
 
-
       // since flag "tableIsMoving==false" is reliable (as we can tell, so far),
       // operations due when "table has started moving"
       // can be done after the change in crystal in beam
@@ -367,25 +377,29 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       float HodoPosYMinusCaloPosYVsCry_rms   =0;
       float TDCTimeMinusCaloTimeVsCry_mean   =0;
       float TDCTimeMinusCaloTimeVsCry_rms    =0;
-	  
-      if (meCaloVsHodoXPos_ -> getEntries()  > 30){
+      
+      // min number of entries chosen assuming:
+      //                 prescaling = 100 X 2FU
+      //                 that we want at leas 2k events per crystal
+
+      if (meCaloVsHodoXPos_ -> getEntries()  > 10){
 	HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
-	HodoPosXMinusCaloPosXVsCry_rms    = meCaloVsHodoXPos_ -> getRMS(1);
+	HodoPosXMinusCaloPosXVsCry_rms  = meCaloVsHodoXPos_ -> getRMS(1);
+	meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
+	meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
       }
-      if (meCaloVsHodoYPos_ -> getEntries()  > 30){
+      if (meCaloVsHodoYPos_ -> getEntries()  > 10){
 	HodoPosYMinusCaloPosYVsCry_mean = meCaloVsHodoYPos_ -> getMean(1);
-	HodoPosYMinusCaloPosYVsCry_rms    = meCaloVsHodoYPos_ -> getRMS(1);
+	HodoPosYMinusCaloPosYVsCry_rms  = meCaloVsHodoYPos_ -> getRMS(1);
+	meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
+	meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
       }
-      if (meCaloVsTDCTime_ -> getEntries()  > 30){
+      if (meCaloVsTDCTime_ -> getEntries()  > 10){
 	TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_    -> getMean(1);
 	TDCTimeMinusCaloTimeVsCry_rms      = meCaloVsTDCTime_    -> getRMS(1);
+	meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
+	meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
       }
-      meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
-      meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
-      meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
-      meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
-      meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
-      meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
 
       LogDebug("EcalBeamTask")  << "At event number: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_=" 
 				<< cryInBeamCounter_ << ")";
@@ -442,7 +456,9 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     recTDC = pTDC.product();
     LogDebug("EBBeamHodoTask") << " TDC offset is: " << recTDC->offset();
   } catch ( std::exception& ex ) {
-    LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo";
+    LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo. Returning";
+    meMissingCollections_ -> Fill(5); // bin6: missing reconstructed TDC 
+    return;
   }
 
   Handle<EcalTBHodoscopeRecInfo> pHodo;
@@ -456,6 +472,8 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 			     << "\t sy: " << recHodo->slopeY() << "\t qualy: " << recHodo->qualY();
   } catch ( std::exception& ex ) {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRecInfo";
+    meMissingCollections_ -> Fill(6); // bin7: missing reconstructed hodoscopes
+    return;
   }
 
 
