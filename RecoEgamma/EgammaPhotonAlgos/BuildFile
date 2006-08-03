@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrajectorySeed>
 <use name=TrackingTools/MaterialEffects>
@@ -24,6 +25,7 @@
   <use name=FWCore/ParameterSet>
   <lib name=RecoEgammaEgammaPhotonAlgos>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrajectorySeed>
   <use name=TrackingTools/MaterialEffects>
