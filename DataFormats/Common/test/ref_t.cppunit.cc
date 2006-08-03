@@ -12,7 +12,6 @@
 #include "DataFormats/Common/test/TestHandle.h"
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
 using namespace edm;
@@ -38,21 +37,14 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testRef);
 
 namespace {
-  struct DummyBase {
-    virtual ~DummyBase() {}
-  };
-
-  struct Dummy : public DummyBase { 
+  struct Dummy { 
     Dummy() {} 
     ~Dummy() {}
     bool operator==(Dummy const& iRHS) const {return this == &iRHS;} 
     void const* address() const {return this;}
   };
 
-  struct Dummy2 { };
-
   typedef std::vector<Dummy> DummyCollection;
-  typedef std::vector<Dummy2> DummyCollection2;
 }
 
 void testRef::constructTest() {
@@ -89,10 +81,6 @@ void testRef::constructTest() {
    CPPUNIT_ASSERT(dummyRef->address() == dummyCollection[key].address());
    CPPUNIT_ASSERT(&(*dummyRefProd) == &dummyCollection);
    CPPUNIT_ASSERT((dummyRefProd.operator->()) == &dummyCollection);
-
-   RefToBase<DummyBase> baseRef( dummyRef );
-   CPPUNIT_ASSERT( baseRef.castTo<Ref<DummyCollection> >() == dummyRef );
-   CPPUNIT_ASSERT( baseRef.castTo<Ref<DummyCollection2> >() == Ref<DummyCollection2>() );
 }
 
 void testRef::comparisonTest() {

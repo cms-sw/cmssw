@@ -19,6 +19,11 @@ within the edm::Event where those objects are only related by a base class, T.
    bars.push_back( edm::RefToBase<Bar>( foo ) );
 \endcode
 
+  Cast to concrete type can be done via the castTo<TRef> 
+  function template. This function throws an exception
+  if the type passed as TRef does not match the concrete
+  reference type.
+
 */
 //
 // Original Author:  Chris Jones
@@ -31,8 +36,8 @@ within the edm::Event where those objects are only related by a base class, T.
 
 // user include files
 #include "DataFormats/Common/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
-// forward declarations
 namespace edm {
   namespace reftobase {
     template <class T>
@@ -85,10 +90,7 @@ namespace edm {
       
       /// Accessor for product ID.
       ProductID id() const { 
-        if(0 == holder_) { 
-          return ProductID();
-        }
-        return holder_->id();
+        return  0 == holder_ ? ProductID() : holder_->id();
       }
   
       /// cast to a concrete type
@@ -96,8 +98,13 @@ namespace edm {
       TRef castTo() const {
 	typedef reftobase::Holder<T,TRef> Holder;
 	const Holder * h = dynamic_cast<Holder *>( holder_ );
-	if ( h == 0 ) return TRef();
-        return h->getRef();
+	if ( h == 0 ) {
+	  throw edm::Exception(errors::InvalidReference) 
+	    << "trying to cast a RefToBase to the wrong type."
+	    << "Catch this exception in case you need to check"
+	    <<"the concrete reference type.";
+	}
+	return h->getRef();
       }
 
       /// Checks for null

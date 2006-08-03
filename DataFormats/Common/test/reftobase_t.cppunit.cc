@@ -1,4 +1,4 @@
-// $Id: reftobase_t.cppunit.cc,v 1.2 2006/05/22 19:10:22 chrjones Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.3 2006/06/21 17:56:27 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -17,8 +17,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testRefToBase);
 namespace testreftobase {
-  struct Base
-  {
+  struct Base {
     virtual ~Base() {}
     virtual int val() const=0;
   };  
@@ -35,7 +34,7 @@ namespace testreftobase {
       TestHandle(const edm::ProductID& iId, const T* iProd) : id_(iId), prod_(iProd) {}
       const edm::ProductID& id() const { return id_;}
       const T* product() const { return prod_;}
-private:
+    private:
       edm::ProductID id_;
       const T* prod_;
     };
@@ -52,17 +51,17 @@ testRefToBase::check()
   std::vector<Inherit2> v2(2,Inherit2());
   
   TestHandle<std::vector<Inherit1> > h1( ProductID(1), &v1);
-  
-  RefToBase<Base> b1( Ref<std::vector<Inherit1> >(h1, 1 ) );
+  Ref<std::vector<Inherit1> > r1( h1, 1 );
+  RefToBase<Base> b1( r1 );
   CPPUNIT_ASSERT( &(*b1) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT( b1.operator->() == b1.get() );
   CPPUNIT_ASSERT( b1.get() == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b1.id() == ProductID(1));
   
   //copy constructor
-  RefToBase<Base> b2( b1);
+  RefToBase<Base> b2( b1 );
   CPPUNIT_ASSERT( &(*b2) == static_cast<Base*>(&(v1[1])));
-  CPPUNIT_ASSERT(b2.id() == b1.id());
+  CPPUNIT_ASSERT( b2.id() == b1.id() );
 
   //operator=
   RefToBase<Base> b3;
@@ -74,5 +73,11 @@ testRefToBase::check()
   CPPUNIT_ASSERT(b3.id() == b1.id());
   CPPUNIT_ASSERT( !(b3.isNull()));
   CPPUNIT_ASSERT(b3.isNonnull());
-  CPPUNIT_ASSERT(! (!b3) );
+  CPPUNIT_ASSERT( !(!b3) );
+
+  CPPUNIT_ASSERT( b1.castTo<Ref<std::vector<Inherit1> > >() == r1 );
+  bool throwed = false;
+  try { b1.castTo<Ref<std::vector<Inherit2> > >(); } 
+  catch ( edm::Exception e ) { throwed = true; }
+  CPPUNIT_ASSERT( throwed );
 }
