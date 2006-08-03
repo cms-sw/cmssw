@@ -3,6 +3,7 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBBeamCounters.h"
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBParticleId.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -13,6 +14,7 @@ namespace {
     edm::Wrapper<HcalTBEventPosition> theEvtPosData_;
     edm::Wrapper<HcalTBTiming>        theTimingData_;
     edm::Wrapper<HcalTBBeamCounters>  theBeamCountersData_;
+    edm::Wrapper<HcalTBParticleId>    theParticleId_;
 
  }
 }
