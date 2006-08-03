@@ -25,9 +25,9 @@ namespace reco {
     
     TransientTrack& operator=(const TransientTrack & tt);
 
-    TrajectoryStateOnSurface outermostMeasurementState();
+    TrajectoryStateOnSurface outermostMeasurementState() const;
 
-    TrajectoryStateOnSurface innermostMeasurementState();
+    TrajectoryStateOnSurface innermostMeasurementState() const;
 
     TrajectoryStateClosestToPoint 
       trajectoryStateClosestToPoint( const GlobalPoint & point ) const
