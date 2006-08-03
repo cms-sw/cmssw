@@ -10,7 +10,7 @@
  * Model of 5 perigee parameters for Track fit:<BR>
  * <B> (q/R, theta, phi_0, d_0, z_0) </B><BR>
  * defined as:  <BR>
- *   <DT> q/R = charge unit divided by radius of curvature in transverse plane </DT> 
+ *   <DT> -qB_z/p_T = signed transverse curvature </DT> 
  *   <DT> theta = polar angle at pca. to the beam line </DT>
  *   <DT> phi_0 = azimuth angle at pca. to the beam line </DT>
  *   <DT> d_0 = signed transverse dca. to the beam line (positive if the beam is outside the circle) </DT>
@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.27 2006/08/02 10:58:34 llista Exp $
+ * \version $Id: TrackBase.h,v 1.28 2006/08/03 12:56:45 llista Exp $
  *
  */
 
