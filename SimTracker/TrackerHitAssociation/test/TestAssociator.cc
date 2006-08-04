@@ -96,10 +96,20 @@ using namespace edm;
       edm::OwnVector<SiStripRecHit2D> collector; 
       if(myid!=999999999){ //if is valid detector
 
-	SiStripRecHit2DCollection::range rechitRange = (rechitsrphi.product())->get((detid));
-	SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-	SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-	SiStripRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
+	SiStripRecHit2DCollection::range rechitrphiRange = (rechitsrphi.product())->get((detid));
+	SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
+	SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
+	SiStripRecHit2DCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
+
+	SiStripRecHit2DCollection::range rechitsterRange = (rechitsstereo.product())->get((detid));
+	SiStripRecHit2DCollection::const_iterator rechitsterRangeIteratorBegin = rechitsterRange.first;
+	SiStripRecHit2DCollection::const_iterator rechitsterRangeIteratorEnd   = rechitsterRange.second;
+	SiStripRecHit2DCollection::const_iterator iterster=rechitsterRangeIteratorBegin;
+
+	SiStripMatchedRecHit2DCollection::range rechitmatchRange = (rechitsmatched.product())->get((detid));
+	SiStripMatchedRecHit2DCollection::const_iterator rechitmatchRangeIteratorBegin = rechitmatchRange.first;
+	SiStripMatchedRecHit2DCollection::const_iterator rechitmatchRangeIteratorEnd   = rechitmatchRange.second;
+	SiStripMatchedRecHit2DCollection::const_iterator itermatch=rechitmatchRangeIteratorBegin;
 
 	SiPixelRecHitCollection::range pixelrechitRange = (pixelrechits.product())->get((detid));
 	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
@@ -124,8 +134,8 @@ using namespace edm;
 	}
 
 	// Do the strips
-	for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
-	  SiStripRecHit2D const rechit=*iter;
+	for(iterrphi=rechitrphiRangeIteratorBegin;iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){//loop on the rechit
+	  SiStripRecHit2D const rechit=*iterrphi;
 	  int i=0;
 	  stripcounter++;
 	  cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
@@ -149,6 +159,59 @@ using namespace edm;
 	  }
 	  i++;
 	} 
+
+	for(iterster=rechitsterRangeIteratorBegin;iterster!=rechitsterRangeIteratorEnd;++iterster){//loop on the rechit
+	  SiStripRecHit2D const rechit=*iterster;
+	  int i=0;
+	  stripcounter++;
+	  cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	  float mindist = 999999;
+	  float dist;
+	  PSimHit closest;
+	  matched.clear();
+	  matched = associate.associateHit(rechit);
+	  if(!matched.empty()){
+	    cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	    if(matched.size()>1) cout << " matched = " << matched.size() << endl;
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
+	      dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
+	    }  
+	    cout << " Closest Simhit = " << closest.localPosition() << endl;
+	  }
+	  i++;
+	} 
+
+	for(itermatch=rechitmatchRangeIteratorBegin;itermatch!=rechitmatchRangeIteratorEnd;++itermatch){//loop on the rechit
+	  SiStripMatchedRecHit2D const rechit=*itermatch;
+	  int i=0;
+	  stripcounter++;
+	  cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	  float mindist = 999999;
+	  float dist;
+	  PSimHit closest;
+	  matched.clear();
+	  matched = associate.associateHit(rechit);
+	  if(!matched.empty()){
+	    cout << " Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
+	    if(matched.size()>1) cout << " matched = " << matched.size() << endl;
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
+	      dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
+	    }  
+	    cout << " Closest Simhit = " << closest.localPosition() << endl;
+	  }
+	  i++;
+	} 
+
       }
     } 
     cout << " === calling end job " << endl;  
