@@ -5,15 +5,14 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2006/03/22 16:15:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/06 15:58:29 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -73,10 +72,6 @@ private:
   bool doStep2;
   bool doStep3;
 
-  // Map simhits per wireId
-  std::map<DTWireId,  std::vector<PSimHit> > 
-  mapSimHitsPerWire(const edm::PSimHitContainer* simhits);
-
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
   map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
@@ -88,9 +83,6 @@ private:
   // Return a map between DTRecHit1D and wireId
   std::map<DTWireId, std::vector<DTRecHit1D> >
   map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
-
-  // Find the mu simhit among a collection of simhits
-  const PSimHit* findMuSimHit(const std::vector<PSimHit>& hits);
 
   // Compute SimHit distance from wire (cm)
   float simHitDistFromWire(const DTLayer* layer,

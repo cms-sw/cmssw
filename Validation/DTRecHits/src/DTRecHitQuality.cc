@@ -7,7 +7,7 @@
  */
 
 #include "DTRecHitQuality.h"
-
+#include "DTHitQualityUtils.h"
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -80,9 +80,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   debug = pset.getUntrackedParameter<bool>("debug");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "g4SimHits");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
   // the name of the 1D rec hit collection
-  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "dt1DRecHits");
+  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "DTRecHit1DProducer");
   // the name of the 2D rec hit collection
   segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
   // the name of the 4D rec hit collection
@@ -184,8 +184,9 @@ void DTRecHitQuality::endJob() {
 
 // The real analysis
 void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup){
-  cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
-       << " #Event: " << event.id().event() << endl;
+  if(debug)
+    cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
+	 << " #Event: " << event.id().event() << endl;
   theFile->cd();
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
@@ -197,8 +198,8 @@ void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup)
   event.getByLabel(simHitLabel, "MuonDTHits", simHits);
 
   // Map simhits per wire
-  map<DTWireId, vector<PSimHit> > simHitsPerWire =
-    mapSimHitsPerWire(simHits.product());
+  map<DTWireId, PSimHitContainer > simHitsPerWire =
+    DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
 
  
 
@@ -258,22 +259,6 @@ void DTRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup)
 
 }
 
-
-
-
-// Return a map between simhits of a layer and the wireId of their cell
-map<DTWireId, vector<PSimHit> >
-DTRecHitQuality::mapSimHitsPerWire(const PSimHitContainer* simhits) {
-  map<DTWireId, vector<PSimHit> > hitWireMapResult;
-   
-  for(PSimHitContainer::const_iterator simhit = simhits->begin();
-      simhit != simhits->end();
-      simhit++) {
-    hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(*simhit);
-  }
-   
-  return hitWireMapResult;
-}
 
 
 // Return a map between DTRecHit1DPair and wireId
@@ -339,27 +324,6 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds)
 
    return ret;
 }
-
-
-
-// Find the mu simhit among a collection of simhits
-const PSimHit*
-DTRecHitQuality::findMuSimHit(const vector<PSimHit>& hits) {
-  vector<const PSimHit*> muHits; //FIXME: Do we really need a vector?
-  // Loop over simhits
-  for (vector<PSimHit>::const_iterator hit = hits.begin();
-       hit != hits.end(); hit++) {
-    if (abs((*hit).particleType()) == 13) muHits.push_back(&(*hit));
-  }
-
-  if (muHits.size()==0)
-    return 0;
-  else if (muHits.size()>1)
-    cout << "[DTRecHitQuality]***WARNING: #muHits = " << muHits.size() << endl;
-  return muHits.front();
-}
-
-
 
 // Compute SimHit distance from wire (cm)
 float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
@@ -432,7 +396,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     const DTLayer* layer = dtGeom->layer(wireId);
 
     // Look for a mu hit in the cell
-    const PSimHit* muSimHit = findMuSimHit(simHitsInCell);
+    const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
     if (muSimHit==0) {
       if (debug) 
 	cout << "   No mu SimHit in channel: " << wireId << ", skipping! " << endl;
@@ -453,20 +417,23 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     // Look for RecHits in the same cell
     if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
       // No RecHit found in this cell
-      cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
+      if(debug)
+	cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
       vector<type> recHits = recHitsPerWire[wireId];
-      cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
+      if(debug)
+	cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
 	 
       // Find the best RecHit
       const type* theBestRecHit = findBestRecHit(layer, wireId, recHits, simHitWireDist);
 
 	 
       float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
-      cout << "    SimHit distance from wire: " << simHitWireDist << endl;
-      cout << "    RecHit distance from wire: " << recHitWireDist << endl;
+      if(debug)
+	cout << "    SimHit distance from wire: " << simHitWireDist << endl
+	     << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
 
       HRes1DHit *hRes = 0;
