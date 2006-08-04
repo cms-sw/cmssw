@@ -85,7 +85,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_metadata=new cond::MetaData(m_connect, *m_loader);
   m_session=new cond::DBSession(m_connect);
   m_session->setCatalog(catalogcontact);
-  m_iovWriter=new cond::DBWriter(*m_session,"IOV");  
+  m_iovWriter=new cond::DBWriter(*m_session,"cond::IOV");  
 }
 void 
 cond::service::PoolDBOutputService::initDB()
