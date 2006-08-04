@@ -1,7 +1,8 @@
 /** Event Message Represented here
 
-code 1 | size 4 | run 4 | event 4 |lumi 4 | reserved 4 |hltbits bits/4 |
-l1bits bits/8  | eventdatalegth 4 | eventdata blob var 
+code 1 | size 4 | run 4 | event 4 |lumi 4 | reserved 4 |
+hlt_count 4| hltbits hlt_count/4 |
+l1_count 4| l1bits l1_count/8  | eventdatalength 4 | eventdata blob {variable} 
 
 */
 
@@ -25,7 +26,13 @@ struct EventHeader
 class EventMsgView
 {
 public:
+
+  //Don't use THIS CTOR any more, its here for backward compatability only.
   EventMsgView(void* buf, uint32 hlt_bit_cnt, uint32 l1_bit_cnt);
+
+
+  //Only THIS CTOR is supposed to be used.
+  EventMsgView(void* buf);
 
   uint32 code() const { return head_.code(); }
   uint32 size() const { return head_.size(); }
@@ -42,6 +49,9 @@ public:
 
   void l1TriggerBits(std::vector<bool>& put_here) const;
   void hltTriggerBits(uint8* put_here) const;
+
+  uint32 hltCount() {return hlt_bits_count_;}
+  uint32 l1Count() {return l1_bits_count_;}
 
 private:
   uint8* buf_;

@@ -13,9 +13,14 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
   convert(lumi,h->lumi_);
   uint8* pos = buf_ + sizeof(EventHeader);
 
-  // set the l1 bits
-  uint8* pos_end = pos + (l1_bits.size()/8);
-  memset(pos,0x00,pos_end-pos); // clear the bits
+  // l1 count
+  uint32 l1_count = l1_bits.size();
+  convert(l1_count, pos);
+  pos = pos + sizeof(uint32); 
+
+  // set the l1 
+  uint8* pos_end = pos + l1_bits.size()/8;
+  memset(pos,0x00, pos_end-pos); // clear the bits
   for(unsigned int i=0;i<l1_bits.size();++i)
     {
       uint8 v = l1_bits[i] ? 1:0;
@@ -23,8 +28,12 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
     }
   pos = pos_end;
 
+  // hlt count
+  convert(hlt_bit_count, pos); 
+  pos = pos + sizeof(uint32);
+
   // copy the hlt bits over
-  pos = std::copy(hlt_bits,hlt_bits+(hlt_bit_count/4),pos);
+  pos = std::copy(hlt_bits, hlt_bits+(hlt_bit_count/4), pos);
   event_addr_ = pos + sizeof(char_uint32);
   setEventLength(0);
 }
