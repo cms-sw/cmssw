@@ -1,8 +1,9 @@
 /** Event Message Represented here
 
 code 1 | size 4 | run 4 | event 4 |lumi 4 | reserved 4 |
+l1_count 4| l1bits l1_count/8  | 
 hlt_count 4| hltbits hlt_count/4 |
-l1_count 4| l1bits l1_count/8  | eventdatalength 4 | eventdata blob {variable} 
+eventdatalength 4 | eventdata blob {variable} 
 
 */
 
