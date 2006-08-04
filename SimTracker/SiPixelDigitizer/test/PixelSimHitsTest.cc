@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTest.cc,v 1.2 2006/06/07 15:44:14 dkotlins Exp $
+// $Id: PixelSimHitsTest.cc,v 1.3 2006/08/02 08:17:36 llista Exp $
 //
 //
 // system include files
@@ -74,7 +74,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  const static bool PRINT = true;
+  const static bool PRINT = false;
 
   TFile* hFile;
   TH1F  *heloss1,*heloss2, *heloss3,*hdetunit,*hpabs,*hpid,*htof,*htid;
@@ -287,14 +287,9 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
    Handle<PSimHitContainer> PixelBarrelHitsLowTof;
    Handle<PSimHitContainer> PixelBarrelHitsHighTof;
 
-   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
-   //vector<PSimHit> pixelHits;
-   //pixelHits.insert(pixelHits.end(),PixelBarrelHitsLowTof->begin(),
-   //       PixelBarrelHitsLowTof->end());
+   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",PixelBarrelHitsLowTof);
+   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",PixelBarrelHitsHighTof);
 
-   //for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsHighTof->begin();
-   //  isim != PixelBarrelHitsHighTof->end(); ++isim){
    for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
        isim != PixelBarrelHitsLowTof->end(); ++isim){
 
