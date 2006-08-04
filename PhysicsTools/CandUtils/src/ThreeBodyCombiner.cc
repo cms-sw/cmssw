@@ -3,7 +3,7 @@
 using namespace reco;
 using namespace std;
 
-ThreeBodyCombiner::ThreeBodyCombiner( const parser::selector_ptr & sel, bool ck, const vector<int> & dauCharge, int q ) :
+ThreeBodyCombiner::ThreeBodyCombiner( const parser::SelectorPtr & sel, bool ck, const vector<int> & dauCharge, int q ) :
   checkCharge_( ck ), dauCharge_( dauCharge ), charge_( 0 ), overlap_(), select_( sel ) {
   if ( checkCharge_ ) charge_ = abs( q );
   assert( dauCharge_.size() == 3 );

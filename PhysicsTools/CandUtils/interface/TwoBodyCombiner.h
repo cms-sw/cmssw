@@ -16,9 +16,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: TwoBodyCombiner.h,v 1.11 2006/07/31 13:30:47 llista Exp $
+ * $Id: TwoBodyCombiner.h,v 1.12 2006/08/02 09:54:28 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
@@ -29,7 +29,7 @@
 class TwoBodyCombiner {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  TwoBodyCombiner( const reco::parser::selector_ptr &, 
+  TwoBodyCombiner( const reco::parser::SelectorPtr &, 
 		   bool checkCharge, int charge = 0 );
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 

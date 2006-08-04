@@ -20,7 +20,7 @@ Generic Physics Tools utility classes
 - SingleObjectSelector: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> that returns true
   or false according to selection criterion specified by the user as a string. Mapping of string variables to
   object methods is done using Reflex dictionary. Should be used in conjunction with the function reco::parser::cutParser
-  that returns a ReflexSelector object to be passed to ReflexObjectSelector constructor.
+  from the package \ref PhysicsTools_Parser "PhysicsTools/Parser".
 
 \subsection comparators Comparators
 - PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 

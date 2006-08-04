@@ -1,10 +1,10 @@
-// $Id: TwoBodyCombiner.cc,v 1.13 2006/07/26 08:48:06 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.14 2006/07/31 13:30:47 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 using namespace reco;
 using namespace std;
 
-TwoBodyCombiner::TwoBodyCombiner( const parser::selector_ptr & sel, bool ck, int q ) :
+TwoBodyCombiner::TwoBodyCombiner( const parser::SelectorPtr & sel, bool ck, int q ) :
   checkCharge_( ck ), charge_( 0 ), overlap_(), select_( sel ) {
   if ( checkCharge_ ) charge_ = abs( q );
 }
