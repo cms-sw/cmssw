@@ -1,9 +1,9 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="skelsubsysprodname">
+<flags SEAL_PLUGIN_NAME="skelsubsysloopername">
 <export>
-   <lib name=skelsubsysprodname>
+   <lib name=skelsubsysloopername>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
