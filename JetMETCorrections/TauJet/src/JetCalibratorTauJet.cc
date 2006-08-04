@@ -89,7 +89,7 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
   
   std::ifstream in( (f1.fullPath()).c_str() );
   
-  if ( f1.isLocal() ){
+  //  if ( f1.isLocal() ){
     cout << " Start to read file "<<file<<endl;
     string line;
     while( std::getline( in, line)){
@@ -106,9 +106,9 @@ JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
       pars.push_back(vector<double>());
       while(linestream>>par)pars.back().push_back(par);
     }
-  }
-  else
-    cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl;
+    //  }
+    //  else
+    //    cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl;
 }
 
 JetCalibratorTauJet::~JetCalibratorTauJet()
