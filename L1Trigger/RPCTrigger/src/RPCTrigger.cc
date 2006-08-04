@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/07/27 08:57:33 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/07/27 14:20:40 $
+ *  $Revision: 1.15 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -19,13 +19,19 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   
   std::string patternsDirName = iConfig.getParameter<std::string>("RPCPatternsDir");
   
-  //m_pacManager.Init("/afs/cern.ch/user/f/fruboes/public/patterns/", _12_PACS_PER_TOWER);
-    
+  int triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
+  
+  // 0 - no debug
+  // 2 - technical debug
+  // 1 - human readable debug
+  if ( triggerDebug != 1 && triggerDebug != 2)
+     triggerDebug = 0;
+        
   m_pacManager.Init(patternsDirName, _12_PACS_PER_TOWER);
   
   m_trigConfig = new L1RpcBasicTrigConfig(&m_pacManager);
   
-  m_trigConfig->SetDebugLevel(0);
+  m_trigConfig->SetDebugLevel(triggerDebug);
   
   m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
 
@@ -59,8 +65,9 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   
   edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByType(rpcDigis);
-  
+//  iEvent.getByType(rpcDigis);
+  iEvent.getByLabel("muonRPCDigis",rpcDigis);
+
   L1RpcLogConesVec ActiveCones = theLinksystem.getCones(rpcDigis);
   
   L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);

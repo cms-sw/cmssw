@@ -31,17 +31,34 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   for(unsigned int iTC = 0; iTC < TriggerCratesVec.size(); iTC++) {
     tcsMuonsVec2.push_back(TriggerCratesVec[iTC].RunTCGBSorter() );
   }
-
-  #ifdef _GRAB_MUONS
-    L1RpcMuonsGrabber::Instance()->StoreFinalGBMuons(tcsMuonsVec2);
-  #endif
+      
+  if (TrigCnfg->GetDebugLevel()!=0){
+    LogDebug("RPCHwDebug") << "After TCGB: ";
+    for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
+        for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
+            LogDebug("RPCHwDebug") <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+        }
+    }
+  }
 
   GBFinalMuons = FinalSorter.Run(tcsMuonsVec2);
 
+  if (TrigCnfg->GetDebugLevel()!=0){
+     // iterate over GBFinalMuons and call printDebug()
+    LogDebug("RPCHwDebug") << "After FinalSorter: ";
+    for (unsigned  int iTC = 0; iTC < GBFinalMuons.size(); iTC++){
+        for (unsigned  int iTB = 0; iTB < GBFinalMuons[iTC].size(); iTB++){
+            LogDebug("RPCHwDebug") <<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+        }
+    }                               
+  }
+
+  /*
   #ifdef _GRAB_MUONS
     L1RpcMuonsGrabber::Instance()->StoreAnswers(GBFinalMuons);
   #endif
-
+  */
+  
 #ifdef GETCONES
   bool foundMuons = false;
   L1RpcTBMuonsVec bMuons = GBFinalMuons[0];

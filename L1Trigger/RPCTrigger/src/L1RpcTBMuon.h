@@ -63,6 +63,8 @@ public:
   int GetGBData() const;
 
   std::string GetGBDataBitStr() const;
+  
+  std::string printDebugInfo(int) const;
 
   void SetGBDataKilledFirst();
 

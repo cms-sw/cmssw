@@ -1,7 +1,7 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/07/27 09:08:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/02 12:37:05 $
+ *  $Revision: 1.3 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
@@ -111,7 +111,7 @@ bool RPCRingFromRolls::addDetId(RPCDetInfo detInfo){
 //#############################################################################
 /**
  *
- * \brief Makes connections for curls not beeing a refernce ones
+ * \brief Makes connections for Rings not beeing a refernce ones
  *
  */
 //#############################################################################
@@ -164,20 +164,77 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
   for (int i=0; i < logplaneSize/2; i++){
     if (it==m_stripPhiMap.begin())
       it=m_stripPhiMap.end();  // (m_stripPhiMap.end()--) is ok.
-    
     it--;
   }
   
-  for (int i=0; i < logplaneSize; i++){
-    stripCords scTemp = it->second;
-    newConnection.posInCone = i;
-    m_links[it->second].push_back(newConnection);
+  // In barell station 4 (farrest station) chambers overlap in phi.
+  // This is the q&d method to avoid mixing of strips in logplanes
+  if (m_region == 0 && m_hwPlane == 4){
+               
+      std::map<uint32_t,GlobalStripPhiMap> chambersMap;
+      std::map<uint32_t,float> lowestPhiMap; // For finding lowest phi in each chamber
+      
+      for (int i=0; i < logplaneSize; i++){
+          stripCords scTemp = it->second;
+          (chambersMap[scTemp.detRawId])[it->first]=it->second;
+          //aMap[it->first]=it->second;
+          
+          if (lowestPhiMap.find(scTemp.detRawId)==lowestPhiMap.end())// New detID
+            {
+               lowestPhiMap[scTemp.detRawId]=it->first;                                               
+            } 
+          else // detId allready in map
+            {
+               RPCRingFromRolls::phiMapCompare compare;
+                  // compare(a,b) <=>  (a<b)
+               if (compare(lowestPhiMap[scTemp.detRawId],it->first))
+                 {
+                   lowestPhiMap[scTemp.detRawId]=it->first;
+                 }
+            }
+        it++;
+        if (it==m_stripPhiMap.end())
+          it=m_stripPhiMap.begin();
+      } // for (int i=0; i < logplaneSize; i++) ends
+      
 
-    it++;
-    if (it==m_stripPhiMap.end())
-      it=m_stripPhiMap.begin();
-  }
+      
+      // sort chambers in phi
+      std::map<float,uint32_t,phiMapCompare> chambersIds;
+      
+      std::map<uint32_t,float>::const_iterator phiIt =  lowestPhiMap.begin();
+      for (;phiIt!=lowestPhiMap.end();phiIt++){
+          chambersIds[phiIt->second]=phiIt->first;
+      }
+      
+      // Now we can iterate over the strips in each chamber      
+      std::map<float,uint32_t,phiMapCompare>::const_iterator chambersIt = chambersIds.begin();
+      int curStripInConeNo = 0;
+      for (;chambersIt!=chambersIds.end();chambersIt++){
+          GlobalStripPhiMap aMap = chambersMap[chambersIt->second];
+          
+          GlobalStripPhiMap::const_iterator stripIt = aMap.begin();
+          for(;stripIt!=aMap.end();stripIt++){
+             //stripCords scTemp = stripIt->second;
+             newConnection.posInCone = curStripInConeNo;
+             m_links[stripIt->second].push_back(newConnection);
+             curStripInConeNo++;
+          }
+      }
   
+  }
+  else // Normal, non overlaping chamber
+  {
+      for (int i=0; i < logplaneSize; i++){
+        stripCords scTemp = it->second;
+        newConnection.posInCone = i;
+        m_links[it->second].push_back(newConnection);
+    
+        it++;
+        if (it==m_stripPhiMap.end())
+          it=m_stripPhiMap.begin();
+      }
+  }
   return 0;
   
 }
@@ -189,7 +246,7 @@ RPCRingFromRolls::RPCLinks RPCRingFromRolls::giveConnections(){
 //#############################################################################
 /**
  *
- * \brief Makes connections for reference curls
+ * \brief Makes connections for reference rings
  * \todo Calculate centrePhi in more elegant way
  * \note Conevention: first strip in logplane is no. 0
 *

@@ -31,6 +31,30 @@ L1RpcTBMuon::L1RpcTBMuon(int ptCode, int quality, int sign,
     PhiAddress = 0;
 }
 
+/**
+*
+* \brief Gives debuging info in human readable format (1) or technicall format (2)
+*
+*/
+std::string L1RpcTBMuon::printDebugInfo(int debugFormat) const{
+
+  std::ostringstream sDebugInfo;
+  if (debugFormat==1){	// Human readable
+  
+    sDebugInfo << "TBMuon: code: " << GetCode() 
+               << " etaAddr: " << GetEtaAddr() 
+               << " phiAddr: " << GetPhiAddr()
+               << " sgAddr: " << GetSegmentAddr()
+               << " scAddr: " << GetSectorAddr()
+               << " gbData: " << GetGBData();
+  }
+  else {	//technicall
+  }
+  
+  return sDebugInfo.str();
+
+}
+
 //---------------------------------------------------------------------------
 // Simple setters and getters
 
