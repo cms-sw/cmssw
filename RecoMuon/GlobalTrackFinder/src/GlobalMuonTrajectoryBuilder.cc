@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/04 13:06:13 $
- *  $Revision: 1.29 $
+ *  $Date: 2006/08/04 15:02:08 $
+ *  $Revision: 1.30 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -202,7 +202,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const reco::TrackRef& s
     position++;
     
     double deltaEta = 0.05;
-    double deltaPhi = 0.07;
+    double deltaPhi = 0.1; // 0.07;
     
     float eta = is->innerMomentum().eta();
     float phi = is->innerMomentum().phi();
@@ -210,12 +210,14 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const reco::TrackRef& s
     float deta(fabs(eta-regionOfInterest.direction().eta()));
     float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
 
+    LogInfo("GlobalMuonTrajectoryBuilder") << "Region: " << regionOfInterest.direction().eta() << "+-" << deltaEta << " " << regionOfInterest.direction().phi() << "+-" << deltaPhi << endl; 
+    LogInfo("GlobalMuonTrajectoryBuilder") << "Track:  " << eta << " " << phi << " | " << deta << " " << dphi << endl; 
+
     if ( deta > deltaEta || dphi > deltaPhi ) continue;  
     //FIXME: should we limit the number of tracks in an area?
     reco::TrackRef tkTsRef(tkTs,position-1);
     result.push_back(tkTsRef); 
-    
-    
+ 
   }
   
   return result;
@@ -308,6 +310,8 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
     }    
   }
   
+  if ( tkTrajs.empty() ) return tkTrajs;
+
   //
   // check and select muon measurements and 
   // measure occupancy of muon stations
@@ -351,7 +355,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const reco:
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	LogInfo("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
-        printHits(rechits);
 	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted1.size() == 1 ) {
 	  refit[1] = &(*refitted1.begin());
