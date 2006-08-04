@@ -29,7 +29,7 @@ HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
 //  setupWC(); reads it from configuration file
 }
 void HcalTBTDCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
-        for(int i=0;i<131;i++)
+        for(int i=0;i<161;i++)
          {
           tdc_ped[i]=0.;tdc_convers[i]=1.;
          }

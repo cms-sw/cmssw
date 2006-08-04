@@ -8,8 +8,8 @@ using namespace std;
 namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: 2006/07/27 02:55:28 $
-   $Revision: 1.3 $
+   $Date: 2006/08/03 23:54:33 $
+   $Revision: 1.4 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {
@@ -39,8 +39,8 @@ private:
   } wc_[PLANECOUNT];
 
   bool includeUnmatchedHits_;
-  double tdc_ped[130];
-  double tdc_convers[130];
+  double tdc_ped[161];
+  double tdc_convers[161];
 };
 
 }
