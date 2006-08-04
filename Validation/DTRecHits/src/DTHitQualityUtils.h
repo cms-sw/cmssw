@@ -6,8 +6,8 @@
  *  Define some basic tools and utilities for 1D DT Rec Hit and 
  *  2D, 4D DT Segment analysis
  *
- *  $Date: July 2006 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 10:33:44 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -18,11 +18,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <map>
-/*namespace edm {
-  //class Event;
-  //class EventSetup;
-  class PSimHitContainer;
-  }*/
 
 class PSimHit;
 class DTGeometry;
@@ -52,9 +47,8 @@ public:
   /// Find the angles from a segment direction:
   static std::pair<double, double> findSegmentAlphaAndBeta(const LocalVector& direction);
 
-  //static void setDebug(bool debug);
   // Set the verbosity level
-  static bool debug; //???????????????come settarlo
+  static bool debug; 
 
 
 protected:
