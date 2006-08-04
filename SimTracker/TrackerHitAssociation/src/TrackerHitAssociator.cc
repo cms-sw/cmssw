@@ -71,11 +71,35 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       const PSimHit ihit = *simHitIter;
       unsigned int simHitid = ihit.trackId();
       for(size_t i=0; i<simtrackid.size();i++){
-	//	cout << " Associator -->  check sihit id's = " << simHitid << endl;
+	// cout << " Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
 	if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
 	  //	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	  //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	  result.push_back(ihit);
+	}
+      }
+    }
+  }else{
+    /// Check if it's the gluedDet   
+    std::map<unsigned int, std::vector<PSimHit> >::const_iterator itrphi = 
+      SimHitMap.find(detID+2);//iterator to the simhit in the rphi module
+    std::map<unsigned int, std::vector<PSimHit> >::const_iterator itster = 
+      SimHitMap.find(detID+1);//iterator to the simhit in the stereo module
+    if (itrphi!= SimHitMap.end()&&itster!=SimHitMap.end()){
+      simHit = itrphi->second;
+      simHit.insert(simHit.end(),(itster->second).begin(),(itster->second).end());
+      vector<PSimHit>::const_iterator simHitIter = simHit.begin();
+      vector<PSimHit>::const_iterator simHitIterEnd = simHit.end();
+      for (;simHitIter != simHitIterEnd; ++simHitIter) {
+	const PSimHit ihit = *simHitIter;
+	unsigned int simHitid = ihit.trackId();
+	for(size_t i=0; i<simtrackid.size();i++){
+	  //  cout << " GluedDet Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
+	  if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
+	    //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
+	    //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
+	    result.push_back(ihit);
+	  }
 	}
       }
     }
@@ -217,7 +241,6 @@ std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const Si
     unsigned int simtrackid_cache = 9999999;
     for(vector<unsigned int>::iterator mhit=matched_mono.begin(); mhit != matched_mono.end(); mhit++){
       if(find(matched_st.begin(), matched_st.end(),(*mhit))!=matched_st.end()){
-	std::cout << " matched id = " << (*mhit) << std::endl;
 	if((*mhit) != simtrackid_cache) {
 	  simtrackid.push_back(*mhit);
 	  simtrackid_cache = (*mhit);
