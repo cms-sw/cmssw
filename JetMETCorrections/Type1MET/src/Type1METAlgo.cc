@@ -11,6 +11,7 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 
 using namespace std;
@@ -25,64 +26,53 @@ Type1METAlgo::~Type1METAlgo() {}
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void Type1METAlgo::run(const CaloMETCollection *uncorrMET, 
-		       JetInputColl uncorrJet,
-		       JetInputColl corrJet, 
-		       METCollection &corrMET) 
+void Type1METAlgo::run(const CaloMETCollection *uncorMET, 
+		       const CaloJetCollection *uncorJet,
+		       const CaloJetCollection *corJet,
+		       METCollection &corMET) 
 {
+  //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
   double DeltaPx = 0.0;
   double DeltaPy = 0.0;
   double DeltaSumET = 0.0;
-  JetInputColl::const_iterator jet = corrJet.begin();
-  for( ; jet != corrJet.end(); jet++)
+  std::vector<CaloJet>::const_iterator jet = corJet->begin();
+  //----------------- Calculate jet corrections : start with vector sum over
+  //----------------- corrected jets
+  for( ; jet != corJet->end(); jet++)
     {
-      DeltaPx += (*jet)->px();
-      DeltaPy += (*jet)->py(); 
-      DeltaSumET += (*jet)->et();
+      DeltaPx    += jet->px();
+      DeltaPy    += jet->py(); 
+      DeltaSumET += jet->et();
     }
-  std::cout << " ---------------------- " << DeltaPx << " , " << DeltaPy << std::endl;
-  jet = uncorrJet.begin();
-  for( ; jet != uncorrJet.end(); jet++)
+  // ---------------- Now subtract off the vector sum over uncorrected jets
+  for( jet = uncorJet->begin(); jet != uncorJet->end(); jet++)
     {
-      DeltaPx -= (*jet)->px();
-      DeltaPy -= (*jet)->py();
-      DeltaSumET -= (*jet)->et();
+      DeltaPx    -= jet->px();
+      DeltaPy    -= jet->py();
+      DeltaSumET -= jet->et();
     }
-  std::cout << " ---------------------- " << DeltaPx << " , " << DeltaPy << std::endl;
-  //----------------- Initialise
-  corrMET.clear();
-  //----------------- Set Corrected MET to uncorrected MET
-  MET u = uncorrMET->front();
+  //----------------- Initialise corrected MET container
+  corMET.clear();
+  MET u = uncorMET->front();
   std::vector<CorrMETData> corrections = u.mEtCorr();
   //----------------- Calculate and set deltas for new MET correction
   CorrMETData delta;
-  if( corrections.size() > 0 ) 
-    {
-      CorrMETData old = corrections.back(); //cummulate corrections just to test...
-      delta.mex   = old.mex + DeltaPx;   // dummy correction for now
-      delta.mey   = old.mey + DeltaPy;   // dummy correction for now
-      delta.sumet = old.sumet + DeltaSumET; // dummy correction for now
-    }
-  else
-    {
-      delta.mex   =  DeltaPx; // dummy correction for now
-      delta.mey   =  DeltaPy; // dummy correction for now
-      delta.sumet =  DeltaSumET; // dummy correction for now
-    }
+  delta.mex   =  DeltaPx;    
+  delta.mey   =  DeltaPy;    
+  delta.sumet =  DeltaSumET; 
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
   LorentzVector correctedMET4vector( u.px()+delta.mex, 
 				     u.py()+delta.mey, 
-				     u.pz(), 
+				     0.0, 
 				     sqrt( (u.px()+delta.mex)*(u.px()+delta.mex) + 
 					   (u.py()+delta.mey)*(u.py()+delta.mey) ));
-  //----------------- Determine deltas to derived quantities
-  //delta.met   = correctedMET.met - u.mEt();
-  //delta.phi   = correctedMET.phi - u.phi();
-  //----------------- get previous corrections and push into new corrections (preserve ordering)
+  //----------------- get previous corrections and push into new corrections 
   corrections.push_back( delta );
+  //std::vector<CorrMETData>::const_iterator position = corrections.begin(); 
+  //corrections.insert(position, delta);
   //----------------- Push onto MET Collection
   Point vtx(0,0,0);
   MET result( u.sumEt()+delta.sumet, corrections, correctedMET4vector, vtx);
-  corrMET.push_back(result);
+  corMET.push_back(result);
 }
 //----------------------------------------------------------------------------
