@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/03 15:09:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/05 09:14:26 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -68,17 +68,20 @@ void DumpDBToFile::endJob() {
   if(dbToDump == "TTrigDB") {
     for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
 	ttrig != tTrigMap->end(); ttrig++) {
-      cout << "Wh: " << (*ttrig).wheelId
-	   << " St: " << (*ttrig).stationId
-	   << " Sc: " << (*ttrig).sectorId
-	   << " Sl: " << (*ttrig).slId
-	   << " TTrig mean (ns): " << (*ttrig).tTrig * convToNs
-	   << " TTrig sigma (ns): " << (*ttrig).tTrms * convToNs<< endl;
+      cout << "Wh: " << (*ttrig).first.wheelId
+	   << " St: " << (*ttrig).first.stationId
+	   << " Sc: " << (*ttrig).first.sectorId
+	   << " Sl: " << (*ttrig).first.slId
+	   << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
+	   << " TTrig sigma (ns): " << (*ttrig).second.tTrms * convToNs<< endl;
 
-      DTWireId wireId((*ttrig).wheelId, (*ttrig).stationId, (*ttrig).sectorId, (*ttrig).slId, 0, 0);
+      DTWireId wireId((*ttrig).first.wheelId,
+		      (*ttrig).first.stationId,
+		      (*ttrig).first.sectorId,
+		      (*ttrig).first.slId, 0, 0);
       vector<float> consts;
-      consts.push_back((*ttrig).tTrig * convToNs);
-      consts.push_back((*ttrig).tTrms * convToNs);
+      consts.push_back((*ttrig).second.tTrig * convToNs);
+      consts.push_back((*ttrig).second.tTrms * convToNs);
       consts.push_back(-1);
       consts.push_back(-1);
 
@@ -87,36 +90,36 @@ void DumpDBToFile::endJob() {
   } else if(dbToDump == "TZeroDB") {
     for(DTT0::const_iterator tzero = tZeroMap->begin();
 	tzero != tZeroMap->end(); tzero++) {
-      DTWireId wireId((*tzero).wheelId,
-		      (*tzero).stationId,
-		      (*tzero).sectorId,
-		      (*tzero).slId,
-		      (*tzero).layerId,
-		      (*tzero).cellId);
+      DTWireId wireId((*tzero).first.wheelId,
+		      (*tzero).first.stationId,
+		      (*tzero).first.sectorId,
+		      (*tzero).first.slId,
+		      (*tzero).first.layerId,
+		      (*tzero).first.cellId);
       cout << wireId
-	   << " TZero mean (TDC counts): " << (*tzero).t0mean
-	   << " TZero RMS (TDC counts): " << (*tzero).t0rms << endl;
+	   << " TZero mean (TDC counts): " << (*tzero).second.t0mean
+	   << " TZero RMS (TDC counts): " << (*tzero).second.t0rms << endl;
       vector<float> consts;
       consts.push_back(-1);
       consts.push_back(-1);
       consts.push_back(-1);
       consts.push_back(-1);
-      consts.push_back((*tzero).t0mean);      
-      consts.push_back((*tzero).t0rms);
+      consts.push_back((*tzero).second.t0mean);      
+      consts.push_back((*tzero).second.t0rms);
 
       theCalibFile->addCell(wireId, consts);
     }
   } else if(dbToDump == "NoiseDB") {
     for(DTStatusFlag::const_iterator statusFlag = statusMap->begin();
 	statusFlag != statusMap->end(); statusFlag++) {
-      DTWireId wireId((*statusFlag).wheelId,
-		      (*statusFlag).stationId,
-		      (*statusFlag).sectorId,
-		      (*statusFlag).slId,
-		      (*statusFlag).layerId,
-		      (*statusFlag).cellId);
+      DTWireId wireId((*statusFlag).first.wheelId,
+		      (*statusFlag).first.stationId,
+		      (*statusFlag).first.sectorId,
+		      (*statusFlag).first.slId,
+		      (*statusFlag).first.layerId,
+		      (*statusFlag).first.cellId);
       cout << wireId
-	   << " Noisy Flag: " << (*statusFlag).noiseFlag << endl;
+	   << " Noisy Flag: " << (*statusFlag).second.noiseFlag << endl;
       vector<float> consts;
       consts.push_back(-1);
       consts.push_back(-1);
@@ -124,7 +127,7 @@ void DumpDBToFile::endJob() {
       consts.push_back(-1);
       consts.push_back(-9999999);      
       consts.push_back(-9999999);
-      consts.push_back((*statusFlag).noiseFlag);
+      consts.push_back((*statusFlag).second.noiseFlag);
 
       theCalibFile->addCell(wireId, consts);
     }
