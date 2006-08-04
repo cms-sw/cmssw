@@ -81,10 +81,11 @@ void LayerHitMap::initCells() const
   vector<TkHitPairsCachedHit>::iterator ih;
   for (ih = hits.begin(); ih != hits.end(); ih++) {
     int irz = idxRz(ih->rOrZ());
-    // --- FIX MANDATORY (in ORCA) to make caching work also with SiStrip RecHit
-    // further investigation needed!!
-    //if(irz>=theNbinsRZ) irz = theNbinsRZ-1;
-    //if(irz<0)   irz = 0;
+    // --- FIX MANDATORY  to make caching work also with SiStrip RecHit
+    // It is connected to the fact that sometimes the mathed hit are located
+    // outside their gluedDet surface.
+    if(irz>=theNbinsRZ) irz = theNbinsRZ-1;
+    if(irz<0)   irz = 0;
     // ---
     cells[irz].push_back(&(*ih));
   }
