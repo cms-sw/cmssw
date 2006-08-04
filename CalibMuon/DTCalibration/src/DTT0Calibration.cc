@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/08 15:41:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/15 13:47:33 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTT0Calibration.h"
@@ -245,13 +245,13 @@ void DTT0Calibration::dumpT0Map(const DTT0* t0s) const {
 //   static const double convToNs = 25./32.;
   for(DTT0::const_iterator t0 = t0s->begin();
       t0 != t0s->end(); t0++) {
-    cout << "Wh: " << (*t0).wheelId
-	 << " St: " << (*t0).stationId
-	 << " Sc: " << (*t0).sectorId
-	 << " Sl: " << (*t0).slId
-	 << " L:  " << (*t0).layerId
-	 << " Wi: " << (*t0).cellId
-	 << " T0 mean (TDC counts): " << (*t0).t0mean
-	 << " T0 sigma (TDC counts): " << (*t0).t0rms << endl;
+    cout << "Wh: " << (*t0).first.wheelId
+	 << " St: " << (*t0).first.stationId
+	 << " Sc: " << (*t0).first.sectorId
+	 << " Sl: " << (*t0).first.slId
+	 << " L:  " << (*t0).first.layerId
+	 << " Wi: " << (*t0).first.cellId
+	 << " T0 mean (TDC counts): " << (*t0).second.t0mean
+	 << " T0 sigma (TDC counts): " << (*t0).second.t0rms << endl;
   }
 }
