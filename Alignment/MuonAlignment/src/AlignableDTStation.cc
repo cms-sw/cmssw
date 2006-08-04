@@ -1,3 +1,11 @@
+/** \file
+ *
+ *  $Date: 2006/8/4 10:10:07 $
+ *  $Revision: 1.0 $
+ *  \author Andre Sznajder - UERJ(Brazil)
+ */
+ 
+
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

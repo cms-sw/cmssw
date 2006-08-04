@@ -1,6 +1,15 @@
 #ifndef Alignment_MuonAlignment_AlignableDTWheel_H
 #define Alignment_MuonAlignment_AlignableDTWheel_H
 
+/** \class AlignableDTWheel
+ *  The alignable muon DT wheel.
+ *
+ *  $Date: 2006/8/4 10:00:01 $
+ *  $Revision: 1.0 $
+ *  \author Andre Sznajder - UERJ(Brazil)
+ */
+
+
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"

@@ -1,6 +1,15 @@
 #ifndef Alignment_MuonAlignment_AlignableMuon_H
 #define Alignment_MuonAlignment_AlignableMuon_H
 
+/** \class AlignableMuon
+ *  The alignable muon.
+ *
+ *  $Date: 2006/8/4 10:00:01 $
+ *  $Revision: 1.0 $
+ *  \author Andre Sznajder - UERJ(Brazil)
+ */
+
+
 #include <vector>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>

@@ -1,6 +1,14 @@
 #ifndef Alignment_MuonAlignment_AlignableDTChamber_H
 #define Alignment_MuonAlignment_AlignableDTChamber_H
 
+/** \class AlignableDTChamber
+ *  The alignable muon DT chamber.
+ *
+ *  $Date: 2006/8/4 10:00:01 $
+ *  $Revision: 1.0 $
+ *  \author Andre Sznajder - UERJ(Brazil)
+ */
+
 
 #include <iosfwd> 
 #include <iostream>
