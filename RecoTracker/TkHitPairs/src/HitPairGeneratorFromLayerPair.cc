@@ -26,10 +26,6 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(const LayerWithHits
   : TTRHbuilder(0),trackerGeometry(0),theLayerCache(*layerCache), 
     theOuterLayer(outer), theInnerLayer(inner)
 {
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
-  iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilderHandle);
-  TTRHbuilder = theBuilderHandle.product();
-
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   trackerGeometry = tracker.product();
@@ -175,6 +171,12 @@ void HitPairGeneratorFromLayerPair::
 		       OrderedHitPairs & result,
 		       const edm::EventSetup& iSetup)
 {
+  if(TTRHbuilder == 0){
+    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
+    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
+    TTRHbuilder = theBuilderHandle.product();
+  }
+
   typedef OrderedHitPair::InnerHit InnerHit;
   typedef OrderedHitPair::OuterHit OuterHit;
 
@@ -193,12 +195,10 @@ void HitPairGeneratorFromLayerPair::
   float nSigmaRZ = sqrt(12.);
   float nSigmaPhi = 3.;
   for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
-    //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(*oh);
     TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(*oh);
     GlobalPoint hitPos = recHit->globalPosition();
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
-    //RC delete recHit;
 
     float phiHit = hitPos.phi();
     vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
@@ -206,7 +206,6 @@ void HitPairGeneratorFromLayerPair::
     if(!checkRZ) continue;
 
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
-      //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(**ih));
       TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(**ih));
       GlobalPoint innPos = recHit->globalPosition();
       Range allowed = checkRZ->range(innPos.perp());
@@ -222,7 +221,6 @@ void HitPairGeneratorFromLayerPair::
       if (! crossRange.empty() ) {
         result.push_back( OrderedHitPair( *ih, *oh ) );
       }
-      //RC delete recHit;
     } 
     delete checkRZ;
   }
