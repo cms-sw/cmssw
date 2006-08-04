@@ -19,7 +19,8 @@ esac
 #RUN_ON_DISK0='cmsdisk0'
 RUN_ON_DISK0='no'
 # this directory must be visible from remote batch machine
-DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3/"
+#DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3/"
+DIR_WHERE_TO_EVAL="/localscratch/d/dkcira/Analysis/2006_08_01_code_reco_filter/CMSSW_0_8_0_pre3"
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
@@ -43,7 +44,7 @@ DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_filter_dqm_${RUNNR}.root"
 # template
 TEMPLATE_FILTER_CFG="${LK_WKDIR}/template_filter.cfg"
 # have to find smth. more clever for below
-CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31";
+CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31"
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
 BATCH_USER_NAME=`whoami`
 # for testing, if 0 no limit is set
@@ -137,6 +138,7 @@ esac
    rfcp $FILTER_CFG ${OUTPUT_CASTOR_DIR}/.
    rfcp $FILTER_LOG ${OUTPUT_CASTOR_DIR}/.
    rfcp $FILTER_POOL_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
+   rfcp $DQM_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
  fi
 }
 
