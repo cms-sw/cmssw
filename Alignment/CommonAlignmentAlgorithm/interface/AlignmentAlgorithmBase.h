@@ -11,10 +11,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 class Trajectory;
-class EventSetup;
 
 class AlignmentAlgorithmBase
 {
@@ -26,13 +26,13 @@ public:
   
   /// Constructor
   AlignmentAlgorithmBase() {}
-  AlignmentAlgorithmBase(const edm::ParameterSet& cfg, AlignableTracker* tracker) {};
+  AlignmentAlgorithmBase(const edm::ParameterSet& cfg) {};
 
   /// Destructor
   virtual ~AlignmentAlgorithmBase() {}
 
   /// Call at beginning of job
-  virtual void initialize( const EventSetup& setup ) {}
+  virtual void initialize( const edm::EventSetup& setup, AlignableTracker* tracker ) {}
 
   /// Call at end of job
   virtual void terminate(void) {}

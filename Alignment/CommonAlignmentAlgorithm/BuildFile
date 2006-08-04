@@ -1,5 +1,7 @@
 <use name=Alignment/CSA06AlignmentAlgorithm>
-<use name=PhysicsTools/RecoAlgos>
+<use name=Alignment/CommonAlignmentParametrization>
+<use name=Alignment/TrackerAlignment>
+<use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
@@ -17,6 +19,8 @@
 <export>
    <lib name=AlignmentCommonAlignmentAlgorithm>
    <use name=Alignment/CSA06AlignmentAlgorithm>
+   <use name=Alignment/CommonAlignmentParametrization>
+   <use name=Alignment/TrackerAlignment>
    <use name=PhysicsTools/RecoAlgos>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>

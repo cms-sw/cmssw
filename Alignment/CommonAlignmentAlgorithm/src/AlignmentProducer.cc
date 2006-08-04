@@ -1,69 +1,132 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentProducer.h"
 
-// system include files
+// System include files
 #include <memory>
 
-// user include files
+// Framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "Alignment/CSA06AlignmentAlgorithm/interface/CSA06AlignmentAlgorithm.h"
 
 //_____________________________________________________________________________
 
-AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) : 
-  theRefitterAlgo(iConfig)
+AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
+  theRefitterAlgo( iConfig ),
+  theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
+  theSrc( iConfig.getParameter<std::string>( "src" ) )
 {
+
+  edm::LogInfo("Constructor") << "Constructing producer";
+
+  // Tell the framework what data is being produced
+  setWhatProduced(this);
+
   setConf( iConfig );
   setSrc( iConfig.getParameter<std::string>( "src" ) );
 
-  // Register your products
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackCollection>();
-  produces<reco::TrackExtraCollection>();
-
-  std::cout <<"[AlignmentProducer::AlignmentProducer] called\n";
-
-  // create alignable tracker
-  //theAlignableTracker = new AlignableTracker();
-
   // create alignment algorithm
-  edm::ParameterSet csa06Config = iConfig.getParameter<edm::ParameterSet>(
-    "CSA06AlignmentAlgorithm" );
-  theAlignmentAlgo = new CSA06AlignmentAlgorithm(csa06Config,theAlignableTracker);
+  edm::ParameterSet csa06Config 
+	= iConfig.getParameter<edm::ParameterSet>( "CSA06AlignmentAlgorithm" );
+
+  theAlignmentAlgo = new CSA06AlignmentAlgorithm(csa06Config);
 
 }
 
+
+//__________________________________________________________________________________________________
+// Close files, etc.
+AlignmentProducer::~AlignmentProducer()
+{
+
+}
+
+
+//__________________________________________________________________________________________________
+// Produce tracker geometry
+AlignmentProducer::ReturnType 
+AlignmentProducer::produce( const TrackerDigiGeometryRecord& iRecord )
+{
+
+  edm::LogInfo("Produce") << "At producer method";
+
+  return theTracker;
+  
+}
+
+
 //_____________________________________________________________________________
 // Initialize algorithm
-
-void AlignmentProducer::beginJob(EventSetup const& setup)
+void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
-  std::cout <<"[AlignmentProducer::beginJob] called\n";
-  theAlignmentAlgo->initialize( setup );
+
+  edm::LogInfo("BeginJob") << "At begin job";
+
+  // Create the tracker geometry from ideal geometry (first time only)
+  edm::ESHandle<DDCompactView> cpv;
+  edm::ESHandle<GeometricDet> gD;
+  iSetup.get<IdealGeometryRecord>().get( cpv );
+  iSetup.get<IdealGeometryRecord>().get( gD );
+  TrackerGeomBuilderFromGeometricDet trackerBuilder;
+  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
+  
+  // create alignable tracker
+  theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
+
+  theAlignmentAlgo->initialize( iSetup, theAlignableTracker );
+
 }
 
 //_____________________________________________________________________________
 // Terminate algorithm
-
-void AlignmentProducer::endJob()
+void AlignmentProducer::endOfJob()
 {
-  std::cout <<"[AlignmentProducer::endJob] called\n";
+
+  edm::LogInfo("EndJob") << "At end of job: terminating algorithm";
   theAlignmentAlgo->terminate();
+
+}
+
+
+//__________________________________________________________________________________________________
+// Called at beginning of loop
+void AlignmentProducer::startingNewLoop(unsigned int iLoop )
+{
+
+  edm::LogInfo("NewLoop") << "Starting loop number " << iLoop;
+
+}
+
+
+//__________________________________________________________________________________________________
+// Called at end of loop
+edm::EDLooper::Status AlignmentProducer::endOfLoop( const edm::EventSetup& iSetup, 
+						    unsigned int iLoop )
+{
+  
+  edm::LogInfo("EndLoop") << "Ending loop " << iLoop;
+
+  if ( iLoop == theMaxLoops-1 || iLoop >= theMaxLoops ) return kStop;
+  else return kContinue;
+
 }
 
 //_____________________________________________________________________________
 // Called at each event
-
-void AlignmentProducer::produce(edm::Event& event, 
-  const edm::EventSetup& setup)
+edm::EDLooper::Status 
+AlignmentProducer::duringLoop( const edm::Event& event, const edm::EventSetup& setup )
 {
 
-  edm::LogInfo("TrackProducer") << "Analyzing event number: " << event.id();
+  edm::LogInfo("InLoop") << "Analyzing event";
 
-  //Create empty output collections
   std::auto_ptr<TrackingRecHitCollection> outputRHColl(new TrackingRecHitCollection);
   std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
@@ -79,7 +142,8 @@ void AlignmentProducer::produce(edm::Event& event,
 
   // Retrieve track collection from the event
   edm::Handle<reco::TrackCollection> m_TrackCollection;
-  getFromEvt(event, m_TrackCollection);
+  event.getByLabel( theSrc, m_TrackCollection );
+  //getFromEvt( event, m_TrackCollection );
     
   // Run the refitter algorithm  
   AlgoProductCollection m_algoResults;
@@ -87,33 +151,11 @@ void AlignmentProducer::produce(edm::Event& event,
     *m_TrackCollection, m_TrajectoryFitter.product(), m_Propagator.product(), 
     m_RecHitBuilder.product(), m_algoResults );
 
-  // Strip out the tracks to keep trajectories only
-  //std::vector<Trajectory*> trajectories = this->getTrajectories( m_algoResults );
-
   // Run the alignment algorithm
   theAlignmentAlgo->run(  m_algoResults );
-  //theAlignmentAlgo->run( trajectories );
 
-  // Put everything in the event => WHAT?
-  putInEvt( event, outputRHColl, outputTColl, outputTEColl, m_algoResults );
-  LogDebug("TrackProducer") << "end";
 
-}
+  return kContinue;
 
-//_____________________________________________________________________________
-
-// Keep only trajectories from pairs of trajectories/initial tracks
-// From TrackProducerAlgorithm.h: 
-// typedef std::pair<Trajectory*, reco::Track*> AlgoProduct; 
-// typedef std::vector< AlgoProduct >  AlgoProductCollection;
-
-std::vector<Trajectory*> 
-AlignmentProducer::getTrajectories( AlgoProductCollection algoResults )
-{
-  std::vector<Trajectory*> result;
-  for ( AlgoProductCollection::iterator iPair = algoResults.begin();
-		iPair != algoResults.end(); iPair++ )
-	result.push_back( (*iPair).first );
-  return result;
 }
 

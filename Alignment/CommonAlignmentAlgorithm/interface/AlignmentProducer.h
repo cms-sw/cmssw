@@ -14,38 +14,66 @@
 
 #include <vector>
 
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+// Framework
+#include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/Framework/interface/ESProducerLooper.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
+// Geometry
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+// Alignment
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-class AlignmentProducer : public TrackProducerBase, public edm::EDProducer 
+class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLooper
 {
 
  public:
 
   /// Constructor
-  explicit AlignmentProducer(const edm::ParameterSet& iConfig);
+  AlignmentProducer( const edm::ParameterSet& iConfig );
+  
+  /// Destructor
+  ~AlignmentProducer();
 
-  /// Called at each event (if product is requested)
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  // Define return type
+  typedef boost::shared_ptr<TrackerGeometry> ReturnType;
+
+  /// Produce the geometry
+  virtual ReturnType produce( const TrackerDigiGeometryRecord& iRecord );
+
+  /// Dummy implementation (job done in duringLoop)
+  virtual void produce(edm::Event&, const edm::EventSetup&) {};
 
   /// Called at beginning of job
-  virtual void beginJob(EventSetup const&);
+  virtual void beginOfJob(const edm::EventSetup&);
 
   /// Called at end of job
-  virtual void endJob();
+  virtual void endOfJob();
+
+  /// Called at beginning of loop
+  virtual void startingNewLoop( unsigned int iLoop );
+
+  /// Called at end of loop
+  virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
+
+  /// Called at each event 
+  virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
 
  private:
 
-  TrackProducerAlgorithm theRefitterAlgo;
-
   AlignmentAlgorithmBase* theAlignmentAlgo;
-
   AlignableTracker* theAlignableTracker;
+  TrackProducerAlgorithm theRefitterAlgo;
+  ReturnType theTracker;
 
-  // Helper method to only keep trajectories
-  std::vector<Trajectory*> getTrajectories(AlgoProductCollection algoResults);
+  unsigned int theMaxLoops;     // Number of loops to loop
+
+  std::string theSrc; // For local use (bypass TrackerProducerBase)
+
 
 };
 

@@ -8,7 +8,7 @@
 
 //-----------------------------------------------------------------------------
 
-#include "PhysicsTools/RecoAlgos/interface/ObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentTrackSelector.h"
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
@@ -44,5 +44,5 @@ typedef ObjectSelector<TrackConfigSelector>  AlignmentTrackSelectorModule;
 //-----------------------------------------------------------------------------
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE( AlignmentProducer );
+DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );
 DEFINE_ANOTHER_FWK_MODULE( AlignmentTrackSelectorModule );
