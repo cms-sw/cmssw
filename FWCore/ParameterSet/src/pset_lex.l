@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.21 2006/07/23 01:24:36 valya Exp $
+ * $Id: pset_lex.l,v 1.22 2006/08/02 20:02:07 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -54,6 +54,7 @@ comment2        "//".*[\n]?
 
 %x DQ
 %x SQ
+%x CMNT
 
 %%
 
@@ -93,6 +94,7 @@ comment2        "//".*[\n]?
 "es_prefer"     { return ES_PREFER_tok; }
 "mixer"         { return MIXER_tok; }
 "mixer_path"    { return MIXERPATH_tok; }
+"/*"            { BEGIN CMNT; break;}
 
 \&              { return AND_tok; }
 \(		{ return GROUP_START_tok; }
@@ -126,6 +128,10 @@ comment2        "//".*[\n]?
 <SQ>((\\\')*[^\'\n]*(\\\')*)+ { yylval.str = stringDupQuoted(yytext,'\''); return SQWORD_tok; }
 <SQ>\'		{ BEGIN 0; break; }
 <SQ>\n          { BEGIN 0; return ERROR_tok;}
+
+<CMNT>. |
+<CMNT>\n        { break; }
+<CMNT>"*/"	{ BEGIN 0; break; }
 
 
 %%
