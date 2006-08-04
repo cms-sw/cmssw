@@ -5,23 +5,17 @@
   <class name="reco::RecoCaloTowerCandidate"/> 
   <class name="std::vector<reco::RecoChargedCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoChargedCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate
->,reco::RecoChargedCandidate> >"/>
+  <class name="edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoChargedCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::
-RecoChargedCandidate>,reco::RecoChargedCandidate> >"/>
+  <class name="edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> >"/>
 
   <class name="std::vector<reco::RecoEcalCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoEcalCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::El
-ectron>,reco::RecoEcalCandidate> >"/>
+  <class name="edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoEcalCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<re
-co::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
- <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelpe
-r::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >" />
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::F
-indUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
+  <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
+ <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>
  
