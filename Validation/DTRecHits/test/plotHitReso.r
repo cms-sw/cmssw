@@ -9,22 +9,23 @@
 
 // class hRHit;
 class HRes1DHit;
-// class hRes2DHit;
-// class hRes4DHit;
+class HRes2DHit;
+class HRes4DHit;
 
 void plotHitReso();
 void plotWWWHitReso();
 void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int form);
 void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
+void plot2DResiduals(HRess2DHit * h1);
 
-// void plot2DResiduals(hRes2DHit * h1);
-// void plot2DSLPhiResiduals(hRes2DHit * h1);
-// void plot4DResiduals(hRes4DHit * h1);
-// void plot4DResVsEta(hRes4DHit * h1);
-// void plot4DResVsPhi(hRes4DHit * h1);
-// void plot2DAngles(hRes2DHit * h1, bool ThreeIn1);
+// void plot2DSLPhiResiduals(HRes2DHit * h1);
+void plot4DResiduals(HRes4DHit * h1);
+void plot4DResVsEta(HRes4DHit * h1);
+void plot4DResVsPhi(HRes4DHit * h1);
+
+void plot2DAngles(HRess2DHit * h1, bool ThreeIn1);
 // void plot2DSLPhiAngles(hRes4DHit * h1, bool ThreeIn1);
-// void plot4DAngles(hRes4DHit * h1, bool ThreeIn1);
+void plot4DAngles(HRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
 bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
@@ -161,23 +162,23 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
 
   }
 
-  //   if(do2DRecHit) {
-  //     hRes2DHit *h2DHitRPhi = new hRes2DHit("RPhi",f);
-  //     hRes2DHit *h2DHitRZ = new hRes2DHit("RZ",f);
-  //     hRes2DHit *h2DHitRZ_W0 = new hRes2DHit("RZ_W0",f);
-  //     hRes2DHit *h2DHitRZ_W1 = new hRes2DHit("RZ_W1",f);
-  //     hRes2DHit *h2DHitRZ_W2 = new hRes2DHit("RZ_W2",f);
-  //   }
+     if(do2DRecHit) {
+       HRes2DHit *h2DHitRPhi = new HRes2DHit("RPhi",f);
+       HRes2DHit *h2DHitRZ = new HRes2DHit("RZ",f);
+       HRes2DHit *h2DHitRZ_W0 = new HRes2DHit("RZ_W0",f);
+       HRes2DHit *h2DHitRZ_W1 = new HRes2DHit("RZ_W1",f);
+       HRes2DHit *h2DHitRZ_W2 = new HRes2DHit("RZ_W2",f);
+     }
   //  if(do2DSLPhiRecHit) {
   //     hRes2DHit *h2DSLPhiHit = new hRes2DHit("SLPhi",f);
   //     }
 
-  //   if(do4DRecHit) {
-  //     hRes4DHit *h4DHit = new hRes4DHit("All", f);
-  //     hRes4DHit *h4DHit_W0 = new hRes4DHit("W0", f);
-  //     hRes4DHit *h4DHit_W1 = new hRes4DHit("W1", f);
-  //     hRes4DHit *h4DHit_W2 = new hRes4DHit("W2", f);
-  //   }
+     if(do4DRecHit) {
+       HRes4DHit *h4DHit = new HRes4DHit("All", f);
+       HRes4DHit *h4DHit_W0 = new HRes4DHit("W0", f);
+       HRes4DHit *h4DHit_W1 = new HRes4DHit("W1", f);
+       HRes4DHit *h4DHit_W2 = new HRes4DHit("W2", f);
+     }
 
 
   TCanvas * c1;
@@ -199,24 +200,24 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
     plot1DResiduals(h1RZ_W2,h2RZ_W2,h3RZ_W2,ThreeIn1);
   }
 
-  //   if(do2DRecHit) {
-  //     plot2DResiduals(h2DHitRPhi);
-  //     plot2DResiduals(h2DHitRZ);
-  //     plot2DResiduals(h2DHitRZ_W0);
-  //     plot2DResiduals(h2DHitRZ_W1);
-  //     plot2DResiduals(h2DHitRZ_W2);
-  //   }
+     if(do2DRecHit) {
+       plot2DResiduals(h2DHitRPhi);
+       plot2DResiduals(h2DHitRZ);
+       plot2DResiduals(h2DHitRZ_W0);
+       plot2DResiduals(h2DHitRZ_W1);
+       plot2DResiduals(h2DHitRZ_W2);
+     }
 
   //   if(do2DSLPhiRecHit) {
   //     plot2DResiduals(h2DSLPhiHit);
   //   }
 
-  //  if(do4DRecHit) {
-  //     plot4DResiduals(h4DHit);
-  //     plot4DResiduals(h4DHit_W0);
-  //     plot4DResiduals(h4DHit_W1);
-  //     plot4DResiduals(h4DHit_W2);
-  //  }
+    if(do4DRecHit) {
+       plot4DResiduals(h4DHit);
+       plot4DResiduals(h4DHit_W0);
+       plot4DResiduals(h4DHit_W1);
+       plot4DResiduals(h4DHit_W2);
+    }
 
  resovseta:
   
@@ -242,38 +243,38 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
     plotAndProfileX(h3RZ->hResVsEta,min,max);
   }
 
-  //   if(do2DRecHit) {
-  //     c1 = newCanvas("c_2D_RPhi_hResPosVsEta",form);
-  //     plotAndProfileX(h2DHitRPhi->hResPosVsEta,-3,3);
+     if(do2DRecHit) {
+       c1 = newCanvas("c_2D_RPhi_hResPosVsEta",form);
+       plotAndProfileX(h2DHitRPhi->hResPosVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_hResPosVsEta",form);
-  //     plotAndProfileX(h2DHitRZ->hResPosVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_hResPosVsEta",form);
+       plotAndProfileX(h2DHitRZ->hResPosVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W0_hResPosVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W0->hResPosVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W0_hResPosVsEta",form);
+       plotAndProfileX(h2DHitRZ_W0->hResPosVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W1_hResPosVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W1->hResPosVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W1_hResPosVsEta",form);
+       plotAndProfileX(h2DHitRZ_W1->hResPosVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W2_hResPosVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W2->hResPosVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W2_hResPosVsEta",form);
+       plotAndProfileX(h2DHitRZ_W2->hResPosVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RPhi_hResAngleVsEta",form);
-  //     plotAndProfileX(h2DHitRPhi->hResAngleVsEta,-3,3);
+       c1 = newCanvas("c_2D_RPhi_hResAngleVsEta",form);
+       plotAndProfileX(h2DHitRPhi->hResAngleVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_hResAngleVsEta",form);
-  //     plotAndProfileX(h2DHitRZ->hResAngleVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_hResAngleVsEta",form);
+       plotAndProfileX(h2DHitRZ->hResAngleVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W0_hResAngleVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W0->hResAngleVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W0_hResAngleVsEta",form);
+       plotAndProfileX(h2DHitRZ_W0->hResAngleVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W1_hResAngleVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W1->hResAngleVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W1_hResAngleVsEta",form);
+       plotAndProfileX(h2DHitRZ_W1->hResAngleVsEta,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W2_hResAngleVsEta",form);
-  //     plotAndProfileX(h2DHitRZ_W2->hResAngleVsEta,-3,3);
+       c1 = newCanvas("c_2D_RZ_W2_hResAngleVsEta",form);
+       plotAndProfileX(h2DHitRZ_W2->hResAngleVsEta,-3,3);
 
-  //  }
+    }
 
   //   if(do2DSLPhiRecHit) {
   //     c1 = newCanvas("c_2D_SLPhi_hResPosVsEta",form);
@@ -284,12 +285,12 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
 
   //   }
 
-  //   if(do4DRecHit) {
-  //     plot4DResVsEta(h4DHit);
-  //     plot4DResVsEta(h4DHit_W0);
-  //     plot4DResVsEta(h4DHit_W1);
-  //     plot4DResVsEta(h4DHit_W2);
-  //   }
+     if(do4DRecHit) {
+       plot4DResVsEta(h4DHit);
+       plot4DResVsEta(h4DHit_W0);
+       plot4DResVsEta(h4DHit_W1);
+       plot4DResVsEta(h4DHit_W2);
+     }
 
  resovsphi:
   
@@ -316,38 +317,38 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
 
   }
 
-  //  if(do2DRecHit) {
-  //     c1 = newCanvas("c_2D_RPhi_hResPosVsPhi",form);
-  //     plotAndProfileX(h2DHitRPhi->hResPosVsPhi,-3,3);
+    if(do2DRecHit) {
+       c1 = newCanvas("c_2D_RPhi_hResPosVsPhi",form);
+       plotAndProfileX(h2DHitRPhi->hResPosVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_hResPosVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ->hResPosVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_hResPosVsPhi",form);
+       plotAndProfileX(h2DHitRZ->hResPosVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W0_hResPosVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W0->hResPosVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W0_hResPosVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W0->hResPosVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W1_hResPosVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W1->hResPosVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W1_hResPosVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W1->hResPosVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W2_hResPosVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W2->hResPosVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W2_hResPosVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W2->hResPosVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RPhi_hResAngleVsPhi",form);
-  //     plotAndProfileX(h2DHitRPhi->hResAngleVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RPhi_hResAngleVsPhi",form);
+       plotAndProfileX(h2DHitRPhi->hResAngleVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_hResAngleVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ->hResAngleVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_hResAngleVsPhi",form);
+       plotAndProfileX(h2DHitRZ->hResAngleVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W0_hResAngleVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W0->hResAngleVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W0_hResAngleVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W0->hResAngleVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W1_hResAngleVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W1->hResAngleVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W1_hResAngleVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W1->hResAngleVsPhi,-3,3);
 
-  //     c1 = newCanvas("c_2D_RZ_W2_hResAngleVsPhi",form);
-  //     plotAndProfileX(h2DHitRZ_W2->hResAngleVsPhi,-3,3);
+       c1 = newCanvas("c_2D_RZ_W2_hResAngleVsPhi",form);
+       plotAndProfileX(h2DHitRZ_W2->hResAngleVsPhi,-3,3);
 
-  //  }
+    }
 
   //  if(do2DSLPhiRecHit) {
   //     c1 = newCanvas("c_2D_SLPhi_hResPosVsPhi",form);
@@ -357,12 +358,12 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
   //     plotAndProfileX(h2DSLPhiHit->hResAngleVsPhi,-3,3);
   //  }
 
-  //  if(do4DRecHit) {
-  //    plot4DResVsPhi(h4DHit);
-  //    plot4DResVsPhi(h4DHit_W0);
-  //    plot4DResVsPhi(h4DHit_W1);
-  //    plot4DResVsPhi(h4DHit_W2);
-  //  }
+    if(do4DRecHit) {
+      plot4DResVsPhi(h4DHit);
+      plot4DResVsPhi(h4DHit_W0);
+      plot4DResVsPhi(h4DHit_W1);
+      plot4DResVsPhi(h4DHit_W2);
+    }
 
 
 
@@ -421,25 +422,25 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
 
  misc:
 
-  //  if(do2DRecHit) {
-  //    cout << "h2DHitRPhi: " << (int)h2DHitRPhi << endl;
-  //    plot2DAngles(h2DHitRPhi, ThreeIn1);
-  //    plot2DAngles(h2DHitRZ, ThreeIn1);
-  //    plot2DAngles(h2DHitRZ_W0, ThreeIn1);
-  //    plot2DAngles(h2DHitRZ_W1, ThreeIn1);
-  //    plot2DAngles(h2DHitRZ_W2, ThreeIn1);
-  //  }
+    if(do2DRecHit) {
+      cout << "h2DHitRPhi: " << (int)h2DHitRPhi << endl;
+      plot2DAngles(h2DHitRPhi, ThreeIn1);
+      plot2DAngles(h2DHitRZ, ThreeIn1);
+      plot2DAngles(h2DHitRZ_W0, ThreeIn1);
+      plot2DAngles(h2DHitRZ_W1, ThreeIn1);
+      plot2DAngles(h2DHitRZ_W2, ThreeIn1);
+    }
 
   // if(do2DSLPhiRecHit) {
   //   plot2DAngles(h2DSLPhiHit, ThreeIn1);
   // }
 
-  //  if(do4DRecHit) {
-  //    plot4DAngles(h4DHit, ThreeIn1);
-  //    plot4DAngles(h4DHit_W0, ThreeIn1);
-  //    plot4DAngles(h4DHit_W1, ThreeIn1);
-  //    plot4DAngles(h4DHit_W2, ThreeIn1);
-  //  }
+    if(do4DRecHit) {
+      plot4DAngles(h4DHit, ThreeIn1);
+      plot4DAngles(h4DHit_W0, ThreeIn1);
+      plot4DAngles(h4DHit_W1, ThreeIn1);
+      plot4DAngles(h4DHit_W2, ThreeIn1);
+    }
 
 
   return;
@@ -475,132 +476,132 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
 
 }
 
-// void plot2DResiduals(hRes2DHit * h1) {
-//   int i = 2;
+ void plot2DResiduals(HRes2DHit * h1) {
+   int i = 2;
   
-//   TString N1 = "c_2D_" + h1->name;
+   TString N1 = "c_2D_" + h1->name;
 
-//   int form = 2;
-//   newCanvas(N1+"_hResPos",form);
-//   drawGFit(h1->hResPos, -0.2,0.2,-0.1,0.1);
+   int form = 2;
+   newCanvas(N1+"_hResPos",form);
+   drawGFit(h1->hResPos, -0.2,0.2,-0.1,0.1);
 
-//   newCanvas(N1+"_hResAngle",form);
-//   drawGFit(h1->hResAngle, -0.2,0.2,-0.1,0.1);
-// }
+   newCanvas(N1+"_hResAngle",form);
+   drawGFit(h1->hResAngle, -0.2,0.2,-0.1,0.1);
+ }
 
-// void plot4DResiduals(hRes4DHit * h1) {
-//   int i = 2;
+ void plot4DResiduals(HRes4DHit * h1) {
+   int i = 2;
   
-//   TString N1 = "c_4D_" + h1->name;
+   TString N1 = "c_4D_" + h1->name;
 
-//   int form = 2;
-//   newCanvas(N1+"_hResX",form);
-//   drawGFit(h1->hResX, -0.2,0.2,-0.1,0.1);
+   int form = 2;
+   newCanvas(N1+"_hResX",form);
+   drawGFit(h1->hResX, -0.2,0.2,-0.1,0.1);
 
-//   newCanvas(N1+"_hResY",form);
-//   drawGFit(h1->hResY, -0.2,0.2,-0.1,0.1);
+   newCanvas(N1+"_hResY",form);
+   drawGFit(h1->hResY, -0.2,0.2,-0.1,0.1);
 
-//   newCanvas(N1+"_hResAlpha",form);
-//   drawGFit(h1->hResAlpha, -0.2,0.2,-0.1,0.1);
+   newCanvas(N1+"_hResAlpha",form);
+   drawGFit(h1->hResAlpha, -0.2,0.2,-0.1,0.1);
 
-//   newCanvas(N1+"_hResBeta",form);
-//   drawGFit(h1->hResBeta, -0.2,0.2,-0.1,0.1);
+   newCanvas(N1+"_hResBeta",form);
+   drawGFit(h1->hResBeta, -0.2,0.2,-0.1,0.1);
 
-// }
+ }
 
-// void plot4DResVsEta(hRes4DHit * h1) {
-//   int i = 2;
+ void plot4DResVsEta(HRes4DHit * h1) {
+   int i = 2;
   
-//   TString N1 = "c_4D_" + h1->name;
+   TString N1 = "c_4D_" + h1->name;
 
-//   int form = 2;
-//   newCanvas(N1+"_hResXVsEta",form);
-//   plotAndProfileX(h1->hResXVsEta,-3,3);
+   int form = 2;
+   newCanvas(N1+"_hResXVsEta",form);
+   plotAndProfileX(h1->hResXVsEta,-3,3);
 
-//   newCanvas(N1+"_hResYVsEta",form);
-//   plotAndProfileX(h1->hResYVsEta,-3,3);
+   newCanvas(N1+"_hResYVsEta",form);
+   plotAndProfileX(h1->hResYVsEta,-3,3);
 
-//   newCanvas(N1+"_hResAlphaVsEta",form);
-//   plotAndProfileX(h1->hResAlphaVsEta,-3,3);
+   newCanvas(N1+"_hResAlphaVsEta",form);
+   plotAndProfileX(h1->hResAlphaVsEta,-3,3);
 
-//   newCanvas(N1+"_hResBetaVsEta",form);
-//   plotAndProfileX(h1->hResBetaVsEta,-3,3);
-// }
+   newCanvas(N1+"_hResBetaVsEta",form);
+   plotAndProfileX(h1->hResBetaVsEta,-3,3);
+ }
 
-// void plot4DResVsPhi(hRes4DHit * h1) {
-//   int i = 2;
+ void plot4DResVsPhi(HRes4DHit * h1) {
+   int i = 2;
   
-//   TString N1 = "c_4D_" + h1->name;
+   TString N1 = "c_4D_" + h1->name;
 
-//   int form = 2;
-//   newCanvas(N1+"_hResXVsPhi",form);
-//   plotAndProfileX(h1->hResXVsPhi,-3,3);
+   int form = 2;
+   newCanvas(N1+"_hResXVsPhi",form);
+   plotAndProfileX(h1->hResXVsPhi,-3,3);
 
-//   newCanvas(N1+"_hResYVsPhi",form);
-//   plotAndProfileX(h1->hResYVsPhi,-3,3);
+   newCanvas(N1+"_hResYVsPhi",form);
+   plotAndProfileX(h1->hResYVsPhi,-3,3);
 
-//   newCanvas(N1+"_hResAlphaVsPhi",form);
-//   plotAndProfileX(h1->hResAlphaVsPhi,-3,3);
+   newCanvas(N1+"_hResAlphaVsPhi",form);
+   plotAndProfileX(h1->hResAlphaVsPhi,-3,3);
 
-//   newCanvas(N1+"_hResBetaVsPhi",form);
-//   plotAndProfileX(h1->hResBetaVsPhi,-3,3);
-// }
+   newCanvas(N1+"_hResBetaVsPhi",form);
+   plotAndProfileX(h1->hResBetaVsPhi,-3,3);
+ }
 
-// void plot2DAngles(hRes2DHit * h1, bool ThreeIn1) {
-//   int i = 2;
+ void plot2DAngles(HRes2DHit * h1, bool ThreeIn1) {
+   int i = 2;
   
-//   TString N1 = "c_2D_" + h1->name;
+   TString N1 = "c_2D_" + h1->name;
 
-//   int form = 2;
-//   if (ThreeIn1) c1 = newCanvas(N1+"_hAngle",3,1,1200,500);
-//   else newCanvas(N1+"_hRecAngle",form);
-//   h1->hRecAngle->Draw();
+   int form = 2;
+   if (ThreeIn1) c1 = newCanvas(N1+"_hAngle",3,1,1200,500);
+   else newCanvas(N1+"_hRecAngle",form);
+   h1->hRecAngle->Draw();
 
-//   if (ThreeIn1) c1->cd(i++);
-//   else c1 = newCanvas(N1+"_hSimAngle",form);
-//   h1->hSimAngle->Draw();
+   if (ThreeIn1) c1->cd(i++);
+   else c1 = newCanvas(N1+"_hSimAngle",form);
+   h1->hSimAngle->Draw();
 
-//   cout << "h1->hRecVsSimAngle: " << (int)h1->hRecVsSimAngle << endl;
+   cout << "h1->hRecVsSimAngle: " << (int)h1->hRecVsSimAngle << endl;
                
-//   if (ThreeIn1) c1->cd(i++);
-//   else c1 = newCanvas(N1+"_hRecVsSimAngle",form);
-//   plotAndProfileX(h1->hRecVsSimAngle,-3,3);
+   if (ThreeIn1) c1->cd(i++);
+   else c1 = newCanvas(N1+"_hRecVsSimAngle",form);
+   plotAndProfileX(h1->hRecVsSimAngle,-3,3);
 
-// }
+ }
 
-// void plot4DAngles(hRes4DHit * h1, bool ThreeIn1) {
-//   int i = 2;
+ void plot4DAngles(HRes4DHit * h1, bool ThreeIn1) {
+   int i = 2;
   
-//   TString N1 = "c_4D_" + h1->name;
+   TString N1 = "c_4D_" + h1->name;
 
-//   int form = 2;
-//   if (ThreeIn1) c1 = newCanvas(N1+"_hAlpha",3,1,1200,500);
-//   else newCanvas(N1+"_hRecAlpha",form);
-//   h1->hRecAlpha->Draw();
+   int form = 2;
+   if (ThreeIn1) c1 = newCanvas(N1+"_hAlpha",3,1,1200,500);
+   else newCanvas(N1+"_hRecAlpha",form);
+   h1->hRecAlpha->Draw();
 
-//   if (ThreeIn1) c1->cd(i++);
-//   else c1 = newCanvas(N1+"_hSimAlpha",form);
-//   h1->hSimAlpha->Draw();
+   if (ThreeIn1) c1->cd(i++);
+   else c1 = newCanvas(N1+"_hSimAlpha",form);
+   h1->hSimAlpha->Draw();
 
-//   if (ThreeIn1) c1->cd(i++);
-//   else c1 = newCanvas(N1+"_hRecVsSimAlpha",form);
-//   plotAndProfileX(h1->hRecVsSimAlpha,-3,3);
+   if (ThreeIn1) c1->cd(i++);
+   else c1 = newCanvas(N1+"_hRecVsSimAlpha",form);
+   plotAndProfileX(h1->hRecVsSimAlpha,-3,3);
 
-//   i=2;
+   i=2;
 
-//   if (ThreeIn1) c2 = newCanvas(N1+"_hBeta",3,1,1200,500);
-//   else newCanvas(N1+"_hRecBeta",form);
-//   h1->hRecBeta->Draw();
+   if (ThreeIn1) c2 = newCanvas(N1+"_hBeta",3,1,1200,500);
+   else newCanvas(N1+"_hRecBeta",form);
+   h1->hRecBeta->Draw();
 
-//   if (ThreeIn1) c2->cd(i++);
-//   else c1 = newCanvas(N1+"_hSimBeta",form);
-//   h1->hSimBeta->Draw();
+   if (ThreeIn1) c2->cd(i++);
+   else c1 = newCanvas(N1+"_hSimBeta",form);
+   h1->hSimBeta->Draw();
 
-//   if (ThreeIn1) c2->cd(i++);
-//   else c1 = newCanvas(N1+"_hRecVsSimBeta",form);
-//   plotAndProfileX(h1->hRecVsSimBeta,-3,3);
+   if (ThreeIn1) c2->cd(i++);
+   else c1 = newCanvas(N1+"_hRecVsSimBeta",form);
+   plotAndProfileX(h1->hRecVsSimBeta,-3,3);
 
-// }
+ }
 
 
 bool setPreferences(bool& do1DRecHit,
