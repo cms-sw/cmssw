@@ -227,7 +227,6 @@ MixedSeedLayerPairs::selectHitTID(const SiStripMatchedRecHit2DCollection &collma
   for(SiStripMatchedRecHit2DCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
     int ring = TIDDetId( it->geographicalId() ).ring();
-    cout << "TIDDetId( it->geographicalId() ).ring(): " << ring << endl;
     if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
   }
   
