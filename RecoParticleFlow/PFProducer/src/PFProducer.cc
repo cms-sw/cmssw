@@ -207,6 +207,12 @@ void PFProducer::produce(edm::Event& iEvent,
       LogDebug("PFProducer") << "add measuremnt " << iTraj << " " << trajPt << "\n";
     }
 
+    // add point for PS1 and PS2
+    reco::PFTrajectoryPoint dummyPS1;
+    reco::PFTrajectoryPoint dummyPS2;
+    track.addPoint(dummyPS1);
+    track.addPoint(dummyPS2);
+
     // Propagate track to ECAL
     TrajectoryStateOnSurface outerTSOS;
     if (theTraj->direction() == alongMomentum)
@@ -224,7 +230,7 @@ void PFProducer::produce(edm::Event& iEvent,
 				   posECAL, momECAL);
     track.addPoint(ecalPt);
     LogDebug("PFProducer") << "ecal point " << ecalPt << "\n";
-    
+
     // Propage track to ECAL shower max TODO
     // Be careful : the following formula are only valid for electrons !
     track.addPoint(ecalPt);
@@ -241,6 +247,9 @@ void PFProducer::produce(edm::Event& iEvent,
 				   posHCAL, momHCAL);
     track.addPoint(hcalPt);
     LogDebug("PFProducer") << "hcal point " << hcalPt << "\n";    
+
+    reco::PFTrajectoryPoint dummyHCALExit;
+    track.addPoint(dummyHCALExit);
     
     pOutputPFRecTrackCollection->push_back(track);
    
