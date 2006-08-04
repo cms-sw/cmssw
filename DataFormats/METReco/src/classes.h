@@ -2,6 +2,8 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
@@ -20,7 +22,15 @@ namespace {
     edm::Wrapper<reco::CaloMETCollection> dummy7;
     edm::Wrapper< std::vector<reco::CaloMET> > dummy8;
     std::vector<reco::CaloMET> dummy9;
-
     edm::reftobase::Holder<reco::Candidate,reco::CaloMETRef> rtb1;
+
+    GenMETRef r2;
+    GenMETRefProd rp2;
+    GenMETRefVector rv2;
+    edm::Wrapper<reco::GenMET> dummy10;
+    edm::Wrapper<reco::GenMETCollection> dummy11;
+    edm::Wrapper< std::vector<reco::GenMET> > dummy12;
+    std::vector<reco::GenMET> dummy13;
+    edm::reftobase::Holder<reco::Candidate,reco::GenMETRef> rtb2;
   }
 }
