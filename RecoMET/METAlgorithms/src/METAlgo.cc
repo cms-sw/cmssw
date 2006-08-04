@@ -6,6 +6,7 @@
 //------------------------------------------------------------------------
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include <iostream>
@@ -36,19 +37,19 @@ METAlgo::~METAlgo() {}
 // since it _may_ be useful for Data Quality Monitering as it should be 
 // symmetrically distributed about the origin.)
 //----------------------------------
-void METAlgo::run(const InputCollection &input, CommonMETData *met) 
+void METAlgo::run(const CandidateCollection *input, CommonMETData *met) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
   // Loop over Candidate Objects and calculate MET and related quantities
-  METAlgo::InputCollection::const_iterator candidate;
-  for( candidate = input.begin(); candidate != input.end(); candidate++ )
+  CandidateCollection::const_iterator candidate;
+  for( candidate = input->begin(); candidate != input->end(); candidate++ )
     {
-      double phi   = (*candidate)->phi();
-      double theta = (*candidate)->theta();
-      double e     = (*candidate)->energy();
+      double phi   = candidate->phi();
+      double theta = candidate->theta();
+      double e     = candidate->energy();
       double et    = e*sin(theta);
       sum_ez += e*cos(theta);
       sum_et += et;

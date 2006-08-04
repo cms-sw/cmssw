@@ -21,10 +21,11 @@
 class METAlgo 
 {
  public:
-  typedef std::vector <const reco::Candidate*> InputCollection;
+  //typedef std::vector<const reco::Candidate*> InputCollection;
+  typedef std::vector<const reco::Candidate> InputCollection;
   METAlgo();
   virtual ~METAlgo();
-  virtual void run(const InputCollection &, CommonMETData * );
+  virtual void run(const reco::CandidateCollection*, CommonMETData* );
  private:
 };
 

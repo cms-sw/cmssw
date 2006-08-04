@@ -7,12 +7,14 @@
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 //#include "DataFormats/METObjects/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-//#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 using namespace edm;
 using namespace std;
@@ -37,9 +39,9 @@ namespace cms
   {
     inputLabel = iConfig.getParameter<std::string>("src");
     METtype    = iConfig.getParameter<std::string>("METType");
-    std::cout << "MET Type = " << METtype << std::endl;
+    std::cout << "Create MET Producer of Type = " << METtype << std::endl;
     if(      METtype == "CaloMET" ) produces<CaloMETCollection>(); 
-    else if( METtype == "GenMET" )  /*produces<GenMETCollection>()*/; 
+    else if( METtype == "GenMET" )  produces<GenMETCollection>(); 
     else                            produces<METCollection>();
   }
   //--------------------------------------------------------------------------
@@ -66,24 +68,13 @@ namespace cms
     //-----------------------------------
     // Step A: Get Inputs.  Create an empty collection of candidates
     edm::Handle<CandidateCollection> inputs;
-    // Now, fill the collection of candidates with the event product defined
-    // by its product label via the config parameter "src"
     event.getByLabel( inputLabel, inputs );
-    // create a vector of pointers to candidates (for economy) and reserve
-    // enough space for all candidates in the above collection
-    vector <const Candidate*> input;
-    input.reserve( inputs->size() );
-    // Now, fill the vector of points by loops over all the candidates and 
-    // assigning each element a pointer the corresponding candidate
-    CandidateCollection::const_iterator input_object = inputs->begin();
-    for( ; input_object != inputs->end(); input_object++ )
-      input.push_back( &*input_object );
     //-----------------------------------
     // Step B: Create an empty MET struct output.
     CommonMETData output;
     //-----------------------------------
     // Step C: Invoke the MET algorithm, which runs on any candidate input. 
-    alg_.run(input, &output);  
+    alg_.run(inputs.product(), &output);  
     //-----------------------------------
     // Step D: Invoke the specific "afterburner", which adds information
     //         depending on the input type, given via the config parameter.
@@ -94,19 +85,17 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(input, output) );
+      calometcoll->push_back( calo.addInfo(inputs.product(), output) );
       event.put( calometcoll );
     }
     //-----------------------------------
     else if( METtype == "GenMET" ) 
     {
-    /*
-      std::auto_ptr<GenMETCollection> GenMET;
-      GenMET.reset (new GenMETCollection);
-      GenSpecificInfo gen;
-      GenMET->push_back( gen.addInfo(output) );
-      event.put(GenMET);
-    */
+      GenSpecificAlgo gen;
+      std::auto_ptr<GenMETCollection> genmetcoll;
+      genmetcoll.reset (new GenMETCollection);
+      genmetcoll->push_back( gen.addInfo(inputs.product(), output) );
+      event.put( genmetcoll );
     }
     //-----------------------------------
     else
