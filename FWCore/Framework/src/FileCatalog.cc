@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.3 2006/06/07 20:29:30 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.4 2006/08/03 23:01:25 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -107,14 +107,30 @@ namespace edm {
 
   pool::FileCatalog::FileID OutputFileCatalog::registerFile(std::string const& pfn, std::string const& lfn) {
     pool::FileCatalog::FileID fid;
-    std::string fileType = "ROOT_Tree";
-    pool::FCregister action0;
-    catalog().setAction(action0);
-    action0.registerPFN(pfn, fileType, fid);
-    if (!lfn.empty()) {
+    {
+      std::string type;
       pool::FCregister action;
       catalog().setAction(action);
-      action.registerLFN(pfn, lfn);       
+      action.lookupFileByPFN(pfn, fid, type);
+    }
+    if (fid.empty()) {
+      std::string fileType = "ROOT_Tree";
+      pool::FCregister action;
+      catalog().setAction(action);
+      action.registerPFN(pfn, fileType, fid);
+    }
+    if (!lfn.empty()) {
+      pool::FileCatalog::FileID fidl;
+      {
+        pool::FCregister action;
+        catalog().setAction(action);
+        action.lookupFileByLFN(lfn, fidl);
+      }
+      if (fidl.empty()) {
+        pool::FCregister action;
+        catalog().setAction(action);
+        action.registerLFN(pfn, lfn);       
+      }
     }
     return fid;
   }
