@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/31 11:10:33 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/31 22:37:48 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -56,7 +56,7 @@ edm::OrphanHandle<reco::TrackCollection>
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const std::string metname = "RecoMuon|MuonTrackLoader";
   
   // *** first loop: create the full collection of TrackingRecHit ***
   
@@ -191,11 +191,10 @@ edm::OrphanHandle<reco::MuonCollection>
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    edm::Event& event) {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const std::string metname = "RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event
   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
-
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
