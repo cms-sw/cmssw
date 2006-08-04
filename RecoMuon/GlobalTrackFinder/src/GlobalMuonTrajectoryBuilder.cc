@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/03 03:24:34 $
- *  $Revision: 1.26 $
+ *  $Date: 2006/08/04 13:06:13 $
+ *  $Revision: 1.29 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -95,6 +95,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   
   ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
   theUpdator = new MuonUpdatorAtVertex(updatorPSet);
+
+  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
+  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
   
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
@@ -140,7 +143,8 @@ void GlobalMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   setup.get<TransientRecHitRecord>().get(theTTRHBuilderName,theTkTransientTrackingRecHitBuilder);
 
   theUpdator->setES(setup);
-  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+  theTrackMatcher->setES(setup);
   theRefitter->setES(setup);
 
 }
@@ -191,28 +195,31 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const reco::TrackRef& s
   RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staTrack);
   vector<reco::TrackRef> result;
   int position = 0;
-
+  
   reco::TrackCollection::const_iterator is;
   for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
 
     position++;
-
+    
     double deltaEta = 0.05;
     double deltaPhi = 0.07;
-
+    
     float eta = is->innerMomentum().eta();
     float phi = is->innerMomentum().phi();
-
+    
     float deta(fabs(eta-regionOfInterest.direction().eta()));
     float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
+
     if ( deta > deltaEta || dphi > deltaPhi ) continue;  
     //FIXME: should we limit the number of tracks in an area?
     reco::TrackRef tkTsRef(tkTs,position-1);
     result.push_back(tkTsRef); 
+    
+    
   }
-
+  
   return result;
-
+  
 }
 
 
