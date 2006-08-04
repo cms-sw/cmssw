@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/04 15:02:08 $
- *  $Revision: 1.30 $
+ *  $Date: 2006/08/04 17:05:30 $
+ *  $Revision: 1.31 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -98,6 +98,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+
   
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
@@ -160,7 +161,6 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogInfo("GlobalMuonTrajectoryBuilder") 
   << "Found " << allTrackerTracks->size() << " tracker tracks with label "
   << theTkTrackLabel << endl;
-
 }
 
 
@@ -178,7 +178,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogInfo("GlobalMuonTrajectoryBuilder") << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest" << endl;
 
   CandidateContainer result = build(staTrack, trackerTracks);
-  
+
   return result;
 
 }
@@ -190,34 +190,31 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 vector<reco::TrackRef> 
 GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const reco::TrackRef& staTrack, 
                                                          const edm::Handle<reco::TrackCollection>& tkTs) const {
-
+  
   // define eta-phi region
   RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staTrack);
+
   vector<reco::TrackRef> result;
+
   int position = 0;
-  
   reco::TrackCollection::const_iterator is;
   for ( is = tkTs->begin(); is != tkTs->end(); ++is ) {
 
     position++;
+
+    float eta = is->eta();
+    float phi = is->phi();
     
-    double deltaEta = 0.05;
-    double deltaPhi = 0.1; // 0.07;
-    
-    float eta = is->innerMomentum().eta();
-    float phi = is->innerMomentum().phi();
-    
-    float deta(fabs(eta-regionOfInterest.direction().eta()));
     float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
 
-    LogInfo("GlobalMuonTrajectoryBuilder") << "Region: " << regionOfInterest.direction().eta() << "+-" << deltaEta << " " << regionOfInterest.direction().phi() << "+-" << deltaPhi << endl; 
-    LogInfo("GlobalMuonTrajectoryBuilder") << "Track:  " << eta << " " << phi << " | " << deta << " " << dphi << endl; 
+    bool inEtaRange = regionOfInterest.etaRange().inside(eta);
+    bool inPhiRange = false;
+    if(dphi < regionOfInterest.phiMargin().right()) inPhiRange = true;
+    if( !( inEtaRange && inPhiRange ) ) continue;  
 
-    if ( deta > deltaEta || dphi > deltaPhi ) continue;  
-    //FIXME: should we limit the number of tracks in an area?
     reco::TrackRef tkTsRef(tkTs,position-1);
     result.push_back(tkTsRef); 
- 
+
   }
   
   return result;
@@ -448,7 +445,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   MuonDetLayerMeasurements theLayerMeasurements;
   
   ConstMuonRecHitContainer muonRecHits = getTransientHits(muon);
-
+  
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
   for (ConstMuonRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
     if ( !(*imrh)->isValid() ) continue;
@@ -457,7 +454,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       
       int station = 0;
       int detRecHits = 0;
-
+      
       DetId id = (*imrh)->geographicalId();
       
       const DetLayer* layer = theDetLayerGeometry->idToLayer(id);
@@ -495,48 +492,48 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
             }//end of for sRecHits
           }// end of else
 	}// end of for loop over dRecHits
-            for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
-        double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
-        if ( rhitDistance < coneSize ) detRecHits++;
-        edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
-              <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
-      }// end of for all2dRecHits
-    }// end of if DT
-    // get station of hit if it is in CSC
-    else if ( (**imrh).isCSC() ) {
-      CSCDetId did(id.rawId());
-      station = did.station();
-
-      float coneSize = 10.0;
-
-      for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-        double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
-        if ( rhitDistance < coneSize ) detRecHits++;
-        edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
-                  <<" Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
+	for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
+	  double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
+	  if ( rhitDistance < coneSize ) detRecHits++;
+	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
+						     <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
+	}// end of for all2dRecHits
+      }// end of if DT
+      // get station of hit if it is in CSC
+      else if ( (**imrh).isCSC() ) {
+	CSCDetId did(id.rawId());
+	station = did.station();
+	
+	float coneSize = 10.0;
+	
+	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
+	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
+	  if ( rhitDistance < coneSize ) detRecHits++;
+	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<< " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
+						     <<" Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
+	}
       }
-    }
-    // get station of hit if it is in RPC
-    else if ( (**imrh).isRPC() ) {
-      RPCDetId rpcid(id.rawId());
-      station = rpcid.station();
-      float coneSize = 100.0;
-      for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-        double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
-        if ( rhitDistance < coneSize ) detRecHits++;
-        edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
-                  <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
+      // get station of hit if it is in RPC
+      else if ( (**imrh).isRPC() ) {
+	RPCDetId rpcid(id.rawId());
+	station = rpcid.station();
+	float coneSize = 100.0;
+	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
+	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
+	  if ( rhitDistance < coneSize ) detRecHits++;
+	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
+						     <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
+	}
       }
-    }
-    else {
-      continue;      
-     }
-
-    if ( (station > 0) && (station < 5) ) {
-      int detHits = dRecHits.size();
-      dethits[station-1] += detHits;
-      if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
-    }
+      else {
+	continue;      
+      }
+      
+      if ( (station > 0) && (station < 5) ) {
+	int detHits = dRecHits.size();
+	dethits[station-1] += detHits;
+	if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
+      }
     } //end of if option 3, 4
     all.push_back((*imrh).get());
   } // end of loop over muon rechits
@@ -545,30 +542,30 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       edm::LogInfo("GlobalMuonTrajectoryBuilder")<<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
     }
   }     
-
+  
   //
   // check order of muon measurements
   //
   if ((*all.begin())->globalPosition().mag() >
-       (*(all.end()-1))->globalPosition().mag() ) {
-     edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "reverse order: ";
-     sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
+      (*(all.end()-1))->globalPosition().mag() ) {
+    edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "reverse order: ";
+    sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
   }
-
-
+  
+  
   int station1 = -999;
   int station2 = -999;
-
+  
   for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ihit++ ) {
     if ( !(*ihit)->isValid() ) continue;
     station1 = -999; station2 = -999;
-
+    
     // store muon hits one at a time.
     first.push_back(*ihit);
     
     ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*ihit).get()); //FIXME
     DetId id = immrh->geographicalId();
-
+    
     // get station of 1st hit if it is in DT
     if ( (*immrh).isDT()  ) {
       DTChamberId did(id.rawId());
@@ -576,19 +573,19 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
     }
     // otherwise get station of 1st hit if it is in CSC
     else if  ( (*immrh).isCSC() ) {
-     CSCDetId did(id.rawId());
+      CSCDetId did(id.rawId());
       station1 = did.station();
     }
-      
+    
     // check next RecHit
     ConstRecHitContainer::const_iterator nexthit(ihit);
     nexthit++;
-
+    
     if ( ( nexthit != all.end()) && (*nexthit)->isValid() ) {
-
+      
       ConstMuonRecHitPointer immrh2 = dynamic_cast<const MuonTransientTrackingRecHit*>((*nexthit).get());
       DetId id2 = immrh2->geographicalId();
-
+      
       // get station of 1st hit if it is in DT
       if ( (*immrh2).isDT()  ) {
         DTChamberId did2(id2.rawId());
@@ -599,19 +596,19 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
         CSCDetId did2(id2.rawId());
         station2 = did2.station();
       }
-
+      
       // 1st hit is in station 1 and second hit is in a different station
       // or an rpc (if station = -999 it could be an rpc hit)
       if ( (station1 != -999) && ((station2 == -999) || (station2 > station1)) ) {
-          edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "checkMuonHits:";
-          edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 1 = "<<station1 
-                        <<", r = "<< (*ihit)->globalPosition().perp()
-              	        <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
-		        
-	  edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 2 = " << station2
-						     <<", r = "<<(*(nexthit))->globalPosition().perp()
-						     <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
-	  return;
+	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< "checkMuonHits:";
+	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 1 = "<<station1 
+						   <<", r = "<< (*ihit)->globalPosition().perp()
+						   <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
+	
+	edm::LogInfo("GlobalMuonTrajectoryBuilder")<< " station 2 = " << station2
+						   <<", r = "<<(*(nexthit))->globalPosition().perp()
+						   <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
+	return;
       }
     }
     else if ( (nexthit == all.end()) && (station1 != -999) ) {
@@ -624,7 +621,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   }
   // if none of the above is satisfied, return blank vector.
   first.clear();
-
+  
 }
 
 
