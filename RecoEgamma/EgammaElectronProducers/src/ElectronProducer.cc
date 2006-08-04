@@ -79,18 +79,14 @@ void ElectronProducer::produce(edm::Event& theEvent, const edm::EventSetup& theE
 
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
-  try{  
-    theEvent.getByLabel(scBarrelProducer_,scBarrelCollection_,scBarrelHandle);
-  }
+  theEvent.getByLabel(scBarrelProducer_,scBarrelCollection_,scBarrelHandle);
   std::cout << " Trying to access barrel SC collection from my Producer " << std::endl;
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
   std::cout << " barrel SC collection size  " << scBarrelCollection.size() << std::endl;
 
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  try{  
-    theEvent.getByLabel(scEndcapProducer_,scEndcapCollection_,scEndcapHandle);
-  }
+  theEvent.getByLabel(scEndcapProducer_,scEndcapCollection_,scEndcapHandle);
   std::cout << " Trying to access endcap SC collection from my Producer " << std::endl;
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   std::cout << " endcap SC collection size  " << scEndcapCollection.size() << std::endl;
