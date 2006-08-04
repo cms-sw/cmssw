@@ -135,11 +135,17 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
       innertsos = theTraj->lastMeasurement().updatedState();
     }
     //build the TrackExtra
+    //build the TrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
     math::XYZVector outmom( p.x(), p.y(), p.z() );
-    math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-    theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+    math::XYZPoint  outpos( v.x(), v.y(), v.z() );
+    v = innertsos.globalParameters().position();
+    p = innertsos.globalParameters().momentum();
+    math::XYZVector inmom( p.x(), p.y(), p.z() );
+    math::XYZPoint  inpos( v.x(), v.y(), v.z() );
+
+    theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true);
     
     
     //fill the TrackExtra with TrackingRecHitRef	
