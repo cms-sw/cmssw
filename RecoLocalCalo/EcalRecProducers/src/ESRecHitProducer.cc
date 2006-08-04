@@ -39,29 +39,22 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // Get input
    edm::Handle<ESDigiCollection> digiHandle;  
    const ESDigiCollection* digi=0;
-   try {
-     //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-     e.getByLabel( digiProducer_, digiHandle);
-     digi=digiHandle.product();
-   } catch ( std::exception& ex ) {
-     edm::LogError("ESRecHitError") << "Error! can't get the product " << digiCollection_.c_str() ;
-   }
-
-   if (!digi)
-     return;
+   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+   e.getByLabel( digiProducer_, digiHandle);
+   digi=digiHandle.product();
 
    edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  
    // Create empty output
    std::auto_ptr<ESRecHitCollection> rec(new EcalRecHitCollection());
-   
+
    // run the algorithm
    ESDigiCollection::const_iterator i;
    for (i=digi->begin(); i!=digi->end(); i++) {    
      rec->push_back(algo_->reconstruct(*i, true));
    }
-  
+
   e.put(rec,rechitCollection_);
-} 
+}
 
 void ESRecHitProducer::checkGeometry(const edm::EventSetup & es) 
 {
