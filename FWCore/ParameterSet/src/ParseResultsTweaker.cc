@@ -153,10 +153,18 @@ namespace edm {
 
             // double-check that no duplication
             NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
-            if(moduleMapItr != modulesAndSources_.end()) {
+            if(moduleMapItr != modulesAndSources_.end()) 
+            {
+              std::ostringstream firstTrace, secondTrace;
+              moduleNode->printTrace(secondTrace);
+              moduleMapItr->second->printTrace(firstTrace);
+              if(firstTrace.str().empty()) firstTrace << "main config\n";
+              if(secondTrace.str().empty()) secondTrace << "main config\n";
               throw edm::Exception(errors::Configuration,"") 
                << "Duplicate definition of " << name
-               << "\nPlease edit the configuration so it is only defined once";
+               << "\nfirst: " << firstTrace.str()
+               << "second: " << secondTrace.str()
+               << "Please edit the configuration so it is only defined once";
               //edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
               //<< name << ". Only last one will be kept.";
             }
