@@ -167,9 +167,9 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
       int bxn4b, bc0, valid;
       infile >> hex >>  bxn4b >> bc0 >> valid;
       if(valid==0x3ffff){ 
-	for(int iL=0; iL<18; iL+=3){//Link data 
+      for(int iL=17; iL>=0; iL-=3){
 	  infile >> dummy;
-	  for(int iLb=0;iLb<3;iLb++){
+        for(int iLb=0;iLb>-3;iLb--){ 
 	    infile >> hex >> idummy;
 	    RPCPacData dummyPartData(idummy);
 	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX){//Link data collected at L1A bx
@@ -177,7 +177,7 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 	    }
 	  }
 	}
-	for(int iC=0; iC<12*3; iC+=3){//LogCones 
+      for(int iC=12*3-1; iC>=0; iC-=3){
 	  infile >> dummy;
 	  LogCone logCone;
 	  infile >> hex >> logCone.quality >> logCone.ptCode >> logCone.sign;
