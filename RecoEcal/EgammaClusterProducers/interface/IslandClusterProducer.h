@@ -56,17 +56,17 @@ class IslandClusterProducer : public edm::EDProducer
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
-      const EcalRecHitCollection * getCollection(edm::Event& evt, 
-						 std::string hitProducer_,
-						 std::string hitCollection_);
+      const EcalRecHitCollection * getCollection(edm::Event& evt,
+                                                 const std::string& hitProducer_,
+                                                 const std::string& hitCollection_);
 
       void makeRecHitsMap(std::map<DetId, EcalRecHit> &rechits_m, const EcalRecHitCollection *hitCollection);
 
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			      std::string hitProducer,
-			      std::string hitCollection,
-			      std::string clusterCollection, 
-			      IslandClusterAlgo::EcalPart ecalPart);
+			      const std::string& hitProducer,
+			      const std::string& hitCollection,
+			      const std::string& clusterCollection,
+			      const IslandClusterAlgo::EcalPart& ecalPart);
 
       void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
 };

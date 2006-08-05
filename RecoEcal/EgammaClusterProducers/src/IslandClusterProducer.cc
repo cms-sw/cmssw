@@ -81,14 +81,14 @@ void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, IslandClusterAlgo::endcap); 
   clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, IslandClusterAlgo::barrel);
-  
+
   nEvt_++;
 }
 
 
-const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& evt, 
-								  std::string hitProducer_,
-								  std::string hitCollection_)
+const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& evt,
+                                                                  const std::string& hitProducer_,
+                                                                  const std::string& hitCollection_)
 {
   edm::Handle<EcalRecHitCollection> rhcHandle;
   try
@@ -121,10 +121,10 @@ void IslandClusterProducer::makeRecHitsMap(std::map<DetId, EcalRecHit> &rechits_
 
 
 void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-					       std::string hitProducer,
-					       std::string hitCollection,
-					       std::string clusterCollection,
-					       IslandClusterAlgo::EcalPart ecalPart)
+                                               const std::string& hitProducer,
+                                               const std::string& hitCollection,
+                                               const std::string& clusterCollection,
+                                               const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
@@ -145,14 +145,14 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
       topology_p = new EcalBarrelTopology(geoHandle);
     }
-  else 
+  else
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
       topology_p = new EcalEndcapTopology(geoHandle); 
    }
-  
+
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;  
+  std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
   providedParameters.insert(std::make_pair("X0",clustershape_x0));
   providedParameters.insert(std::make_pair("T0",clustershape_t0));
@@ -167,4 +167,6 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   evt.put(clusters_p, clusterCollection);
+
+  delete topology_p;
 }

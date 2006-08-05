@@ -82,17 +82,17 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   std::map<DetId, EcalRecHit> CorrMap;
   for (it = hit_collection.begin(); it != hit_collection.end(); it++){
     //Make the map of DetID, EcalRecHit pairs
-    CorrMap.insert(std::make_pair(it->id(), *it));    
+    CorrMap.insert(std::make_pair(it->id(), *it));
   }
-  
+
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
-  CaloGeometry geometry = *geoHandle;
+  const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
 
   std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
-  
+
   if(hitcollection_ == "EcalRecHitsEB") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   else if(hitcollection_ == "EcalRecHitsEE") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   else if(hitcollection_ == "EcalRecHitsPS") geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
