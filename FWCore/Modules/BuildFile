@@ -1,11 +1,9 @@
 <flags SEAL_PLUGIN_NAME="FWCoreModules">
 <use name=boost>
-<use name=sigcpp>
 <use name=FWCore/Framework>
 <export>
  <lib name=FWCoreModules>
  <use name=boost>
- <use name=sigcpp>
  <use name=FWCore/Framework>
 </export>
 
