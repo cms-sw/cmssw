@@ -67,7 +67,7 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Handle<int> filter_decision; iEvent.getByLabel(HLTProducer, "", filter_decision); // filter decision
   Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch); // sum of cluster charges
   // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
-  Handle<map<uint,vector<pair<SiStripCluster,uint32_t> > > > clusters_in_subcomponents;
+  Handle<map<uint,vector<SiStripCluster> > > clusters_in_subcomponents;
   if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
 
   // trigger decision
@@ -80,17 +80,16 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //clusters in different layers
   if(HLTProducer=="ClusterMTCCFilter"){
     // loop over layers ("subcomponents")
-    for(map<uint,vector<pair<SiStripCluster,uint32_t> > >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
+    for(map<uint,vector<SiStripCluster> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
       int generalized_layer = it->first;
-      vector<pair<SiStripCluster,uint32_t> > clusters_detids = it->second;
-      NumberOfClustersAboveThreshold_all->Fill( generalized_layer, clusters_detids.size() ); // number of clusters in this generalized layer
-      if(*filter_decision) NumberOfClustersAboveThreshold_hlt->Fill( generalized_layer, clusters_detids.size() );
+      vector<SiStripCluster> theclusters = it->second;
+      NumberOfClustersAboveThreshold_all->Fill( generalized_layer, theclusters.size() ); // number of clusters in this generalized layer
+      if(*filter_decision) NumberOfClustersAboveThreshold_hlt->Fill( generalized_layer, theclusters.size() );
       //loop over clusters (and detids)
-      for(vector<pair<SiStripCluster,uint32_t> >::const_iterator iclusd = clusters_detids.begin(); iclusd != clusters_detids.end(); iclusd++){
-        SiStripCluster the_cluster = iclusd->first;
+      for(vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
         // calculate sum of amplitudes
         unsigned int amplclus=0;
-        for(vector<short>::const_iterator ia=the_cluster.amplitudes().begin(); ia!=the_cluster.amplitudes().end(); ia++) {
+        for(vector<short>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
           if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
         }
         if(generalized_layer==31 || generalized_layer==32 || generalized_layer==33){ // you can also ask the detid here whether is TIB
@@ -118,5 +117,4 @@ void SiStripMonitorHLT::endJob(void){
     dbe_->save(outputFileName);
   }
 }
-
 
