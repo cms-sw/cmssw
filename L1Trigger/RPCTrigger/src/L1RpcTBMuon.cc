@@ -34,6 +34,7 @@ L1RpcTBMuon::L1RpcTBMuon(int ptCode, int quality, int sign,
 /**
 *
 * \brief Gives debuging info in human readable format (1) or technicall format (2)
+* \note Possible debugFormat codes (1,2) are defined in RPCTrigger constructor
 *
 */
 std::string L1RpcTBMuon::printDebugInfo(int debugFormat) const{
@@ -49,6 +50,7 @@ std::string L1RpcTBMuon::printDebugInfo(int debugFormat) const{
                << " gbData: " << GetGBData();
   }
   else {	//technicall
+    //sDebugInfo << "Your ad here.";
   }
   
   return sDebugInfo.str();

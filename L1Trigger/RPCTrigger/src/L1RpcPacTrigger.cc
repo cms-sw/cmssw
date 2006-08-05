@@ -33,10 +33,10 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   }
       
   if (TrigCnfg->GetDebugLevel()!=0){
-    LogDebug("RPCHwDebug") << "After TCGB: ";
+    LogDebug("RPCHwDebug") << "---TBMuons in new event";
     for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
-            LogDebug("RPCHwDebug") <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+            LogDebug("RPCHwDebug") << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
         }
     }
   }
@@ -45,10 +45,9 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
 
   if (TrigCnfg->GetDebugLevel()!=0){
      // iterate over GBFinalMuons and call printDebug()
-    LogDebug("RPCHwDebug") << "After FinalSorter: ";
     for (unsigned  int iTC = 0; iTC < GBFinalMuons.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < GBFinalMuons[iTC].size(); iTB++){
-            LogDebug("RPCHwDebug") <<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
+            LogDebug("RPCHwDebug")<<"After FS: "<<GBFinalMuons[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
         }
     }                               
   }
