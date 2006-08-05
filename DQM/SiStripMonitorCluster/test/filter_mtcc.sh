@@ -20,7 +20,7 @@ esac
 RUN_ON_DISK0='no'
 # this directory must be visible from remote batch machine
 #DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3/"
-DIR_WHERE_TO_EVAL="/localscratch/d/dkcira/Analysis/2006_08_01_code_reco_filter/CMSSW_0_8_0_pre3"
+DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_08_05_only_filter/CMSSW_0_8_0_pre3"
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
