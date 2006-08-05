@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/07/27 14:20:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/04 14:08:29 $
+ *  $Revision: 1.14 $
  *  \author Tomasz Fruboes
  */
 
@@ -9,6 +9,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
+#include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
@@ -199,13 +200,10 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
       } 
       // m_detsToIngore fixes problem with two unconnected curls (ORCA consistency)
       else if ( m_detsToIngore.find(rawId)==m_detsToIngore.end() ) { 
-      // should throw exception
-        RPCDetId missing = RPCDetId(sc.detRawId);
-        edm::LogError("RPCTrigger")
-            << "Strip " << sc.stripNo 
-            << " of det " << sc.detRawId
-            << " not present in map "
-            << missing;
+//       RPCDetId missing = RPCDetId(sc.detRawId);
+         
+        throw L1RpcException( "Strip not present in map ");
+//            << missing;
         
         
       }

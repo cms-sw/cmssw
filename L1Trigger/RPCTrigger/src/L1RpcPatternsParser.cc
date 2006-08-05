@@ -13,6 +13,7 @@
 #include <sstream>
 #include <fstream> 
 #include <iostream>
+#include "L1Trigger/RPCTrigger/src/RPCException.h"
 //#ifndef __BORLANDC__
 //#include "xoap.h"
 //#endif
@@ -41,8 +42,8 @@ string XMLCh2String (const XMLCh* ch) {
 const L1RpcPatternsVec& L1RpcPatternsParser::GetPatternsVec(const L1RpcConst::L1RpcConeCrdnts& coneCrds) const {
   TPatternsVecsMap::const_iterator patVecIt  = PatternsVecsMap.find(coneCrds);
   if(patVecIt == PatternsVecsMap.end()){
-      //throw L1RpcException( std::string("no such a cone in PatternsVecsMap"));
-    edm::LogError("RPCTrigger")<< "no such a cone in PatternsVecsMap";
+    throw L1RpcException( std::string("no such a cone in PatternsVecsMap"));
+    //edm::LogError("RPCTrigger")<< "no such a cone in PatternsVecsMap";
   }
   return patVecIt->second; // XXX - TMF - was in if{}, changed to avoid warning
 };
@@ -100,9 +101,9 @@ L1RpcPatternsParser::L1RpcPatternsParser()
         InstanceCount++;
     }
     catch(const XMLException &toCatch)  {
-        //throw L1RpcException("Error during Xerces-c Initialization: "
-         //  + XMLCh2String(toCatch.getMessage()));
-      edm::LogError("RPCTrigger")<< "Error during Xerces-c Initialization: " + XMLCh2String(toCatch.getMessage());
+      throw L1RpcException("Error during Xerces-c Initialization: "
+           + XMLCh2String(toCatch.getMessage()));
+      //edm::LogError("RPCTrigger")<< "Error during Xerces-c Initialization: " + XMLCh2String(toCatch.getMessage());
     }
   }  
 }
@@ -117,8 +118,8 @@ void L1RpcPatternsParser::Parse(std::string fileName)
   ifstream fin;
   fin.open(fileName.c_str());
   if (fin.fail()) {
-    //throw L1RpcException("Cannot open the file" + fileName);
-    edm::LogError("RPCTrigger") << "Cannot open the file" + fileName;
+    throw L1RpcException("Cannot open the file" + fileName);
+    //edm::LogError("RPCTrigger") << "Cannot open the file" + fileName;
   }
   fin.close();
 
@@ -158,8 +159,8 @@ void L1RpcPatternsParser::startElement(const XMLCh* const uri,
     if(res.second == true)
       CurPacIt = res.first;
     else
-      //throw L1RpcException( std::string("PatternsVecsMap insertion failed - cone already exixsts?"));
-      edm::LogError("RPCTrigger") << "PatternsVecsMap insertion failed - cone already exixsts?";
+      throw L1RpcException( std::string("PatternsVecsMap insertion failed - cone already exixsts?"));
+      //edm::LogError("RPCTrigger") << "PatternsVecsMap insertion failed - cone already exixsts?";
   }
   else if(CurrElement == "pat") {
     //<pat type="E" grp="0" qual="0" sign="0" code="31" num="0">
@@ -169,8 +170,8 @@ void L1RpcPatternsParser::startElement(const XMLCh* const uri,
     else if(pt == "T")
       CurPattern.SetPatternType(L1RpcConst::PAT_TYPE_T);
     else
-      //throw L1RpcException("unknown pattern type: " + pt);
-      edm::LogError("RPCTrigger") << "unknown pattern type: " + pt;
+      throw L1RpcException("unknown pattern type: " + pt);
+      //edm::LogError("RPCTrigger") << "unknown pattern type: " + pt;
 
     CurPattern.SetRefGroup(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("grp")))));
     CurPattern.SetQualityTabNumber(rpcconst.StringToInt(XMLCh2String(attrs.getValue(Char2XMLCh("qual")))));

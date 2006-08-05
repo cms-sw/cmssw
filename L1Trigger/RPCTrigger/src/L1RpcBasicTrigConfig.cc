@@ -1,4 +1,5 @@
 #include "L1Trigger/RPCTrigger/src/L1RpcBasicTrigConfig.h"
+#include "L1Trigger/RPCTrigger/src/RPCException.h"
 
 /// Ctor
 L1RpcBasicTrigConfig::L1RpcBasicTrigConfig(L1RpcPacManager<L1RpcPac>* pacManager) {
@@ -60,8 +61,8 @@ int L1RpcBasicTrigConfig::GetTowsCntOnTB(int tbNum) {
 int L1RpcBasicTrigConfig::TowAddr2TowNum(int towAddr) {
   
     if (TOW_ADDR_2_TOW_NUM[towAddr] == -99 || towAddr < 0 || towAddr > 35){
-        //throw L1RpcException("L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr");
-        edm::LogError("RPC")<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr";
+        throw L1RpcException("L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr");
+        //edm::LogError("RPC")<< "L1RpcBasicTrigConfig::TowAddr2TowNum - wrong towAddr";
     }
 
 
