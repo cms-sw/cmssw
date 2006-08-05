@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.2 2006/07/31 14:33:10 wittich Exp $
+// $Id: LTCDQMSource.cc,v 1.3 2006/08/01 11:50:04 wittich Exp $
 //
 //
 
@@ -181,8 +181,7 @@ LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       for ( int i = 0; i < 8; ++i ) {
 	if ( setbits & (0x1UL<<i) ) {
-	  for ( int j = j; j < 8; ++j ) {
-	    if ( i == j ) continue;
+	  for ( int j = i; j < 8; ++j ) {
 	    if ( setbits & (0x1UL<<j) ) {
 	      overlaps->Fill(i,j); // do both....
 	      overlaps->Fill(j,i);
