@@ -86,6 +86,7 @@ void HybridClusterAlgo::mainSearch(void)
   std::vector<EcalRecHit>::iterator it;
   int clustercounter=0;
 
+  EcalBarrelHardcodedTopology *topo = new EcalBarrelHardcodedTopology();
   for (it = seeds.begin(); it != seeds.end(); it++){
     std::vector <reco::BasicCluster> thisseedClusters;
     DetId itID = it->id();
@@ -103,7 +104,6 @@ void HybridClusterAlgo::mainSearch(void)
     std::cout << "*****************************************************" << std::endl;
 
     //Make a navigator, and set it to the seed cell.
-    EcalBarrelHardcodedTopology *topo = new EcalBarrelHardcodedTopology();
     EcalBarrelNavigator navigator(itID, topo);
 
     //Now use the navigator to start building dominoes.
@@ -279,9 +279,10 @@ void HybridClusterAlgo::mainSearch(void)
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
     clustercounter++;
   }//Seed loop
+  delete topo;
 }
 
-reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector clustersCollection)
+reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::BasicClusterRefVector& clustersCollection)
 {
   //Here's what we'll return.
   reco::SuperClusterCollection SCcoll;

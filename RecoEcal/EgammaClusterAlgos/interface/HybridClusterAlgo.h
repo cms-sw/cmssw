@@ -75,7 +75,7 @@ class HybridClusterAlgo
   void makeClusters(std::map<DetId, EcalRecHit>, const CaloSubdetectorGeometry *, reco::BasicClusterCollection &basicClusters);
 
   //Make superclusters from the references to the BasicClusters in the event.
-  reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);
+  reco::SuperClusterCollection makeSuperClusters(const reco::BasicClusterRefVector&);
 
   //The routine doing the real work.
   void mainSearch();
