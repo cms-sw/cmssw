@@ -23,7 +23,7 @@ namespace cms
    uint ChargeThresholdTEC;
    uint MinClustersDiffComponents;
    // uint: generalized_layer: 10*subdetId + layer
-   std::map< uint, std::vector< std::pair<SiStripCluster,uint32_t> > > clusters_in_subcomponents;
+   std::map<uint,std::vector<SiStripCluster> > clusters_in_subcomponents;
   };
 }
 #endif

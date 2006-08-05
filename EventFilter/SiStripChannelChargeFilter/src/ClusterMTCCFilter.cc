@@ -25,7 +25,7 @@ ClusterMTCCFilter::ClusterMTCCFilter(const edm::ParameterSet& ps){
    //
    produces <int>();
    produces <unsigned int >();
-   produces < map<uint,vector< pair<SiStripCluster, uint32_t> > > >();
+   produces < map<uint,vector<SiStripCluster> > >();
 }
 
 bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
@@ -70,13 +70,13 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 	  }
         }
         // fill clusters_in_subcomponents
-        map<uint,vector<pair<SiStripCluster,uint32_t> > >::iterator layer_it = clusters_in_subcomponents.find(generalized_layer);
+        map<uint,vector<SiStripCluster> >::iterator layer_it = clusters_in_subcomponents.find(generalized_layer);
         if(layer_it==clusters_in_subcomponents.end()){ // if layer not found yet, create DATA vector and generate map KEY + DATA
-          vector<pair<SiStripCluster, uint32_t> > local_vector;
-          local_vector.push_back( std::make_pair(*vit,it->detId()) );
+          vector<SiStripCluster> local_vector;
+          local_vector.push_back(*vit);
           clusters_in_subcomponents.insert( std::make_pair( generalized_layer, local_vector) );
         }else{ // push into already existing vector
-           (layer_it->second).push_back( std::make_pair(*vit,it->detId()) );
+           (layer_it->second).push_back(*vit);
         }
       }
     }
@@ -102,7 +102,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   std::auto_ptr< unsigned int > output_sumofcharges( new unsigned int(sum_of_cluster_charges) );
   e.put(output_sumofcharges);
 
-  std::auto_ptr< map< uint, vector< pair<SiStripCluster,uint32_t> > > > output_clusters(new map< uint, vector< pair<SiStripCluster,uint32_t> > > (clusters_in_subcomponents));
+  std::auto_ptr< map<uint,vector<SiStripCluster> > > output_clusters(new map<uint,vector<SiStripCluster> > (clusters_in_subcomponents));
   e.put(output_clusters);
 
   return decision;
