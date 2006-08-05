@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  7 09:43:43 EST 2006
-// $Id: RandomNumberGeneratorService.h,v 1.1 2006/03/07 19:46:37 chrjones Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.2 2006/03/21 20:36:45 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 // user include files
 
 // forward declarations
