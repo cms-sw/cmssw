@@ -21,6 +21,10 @@ L1RpcPacTrigger::L1RpcPacTrigger(L1RpcTriggerConfiguration* triggerConfig):
 
 L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) {
   GBFinalMuons.clear();
+
+ if (TrigCnfg->GetDebugLevel()!=0){
+   LogDebug("RPCHwDebug") << "---TBMuons in new event";
+ }
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
     if(logConesVec[iLC].GetFiredPlanesCnt() >= 3) {
       TriggerCratesVec[TrigCnfg->GetTCNum(logConesVec[iLC].GetConeCrdnts())].RunCone(logConesVec[iLC]);
@@ -33,7 +37,6 @@ L1RpcTBMuonsVec2 L1RpcPacTrigger::RunEvent(const L1RpcLogConesVec& logConesVec) 
   }
       
   if (TrigCnfg->GetDebugLevel()!=0){
-    LogDebug("RPCHwDebug") << "---TBMuons in new event";
     for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
             LogDebug("RPCHwDebug") << "After TCGB: " <<tcsMuonsVec2[iTC][iTB].printDebugInfo(TrigCnfg->GetDebugLevel());
