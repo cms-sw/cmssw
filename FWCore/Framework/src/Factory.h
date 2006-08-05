@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "boost/signal.hpp"
+#include "sigc++/signal.h"
 
 namespace edm {
 
@@ -24,8 +24,8 @@ namespace edm {
     static Factory* get();
 
     std::auto_ptr<Worker> makeWorker(const WorkerParams&,
-                                     boost::signal<void (const ModuleDescription&)>& pre,
-                                     boost::signal<void (const ModuleDescription&)>& post) const;
+                                     sigc::signal<void, const ModuleDescription&>& pre,
+                                     sigc::signal<void, const ModuleDescription&>& post) const;
 
 
   private:

@@ -35,8 +35,8 @@ namespace edm {
   }
 
   std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
-                                            boost::signal<void (const ModuleDescription&)>& pre,
-                                            boost::signal<void (const ModuleDescription&)>& post) const
+                                            sigc::signal<void, const ModuleDescription&>& pre,
+                                            sigc::signal<void, const ModuleDescription&>& post) const
   {
     string modtype = p.pset_->getParameter<string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << endl;

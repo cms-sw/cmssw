@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.12 2006/04/28 17:01:18 paterno Exp $
+$Id: Worker.h,v 1.13 2006/06/20 23:13:27 paterno Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -66,8 +66,8 @@ namespace edm {
    
     struct Sigs
     {
-      boost::signal<void (const ModuleDescription&)> preModuleSignal;
-      boost::signal<void (const ModuleDescription&)> postModuleSignal;
+      ActivityRegistry::PreModule preModuleSignal;
+      ActivityRegistry::PostModule postModuleSignal;
     };
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon

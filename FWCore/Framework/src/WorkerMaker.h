@@ -21,7 +21,7 @@
 
 #include <memory>
 #include <string>
-#include "boost/signal.hpp"
+#include "sigc++/signal.h"
 
 
 namespace edm {
@@ -31,8 +31,8 @@ namespace edm {
   public:
     virtual ~Maker();
     virtual std::auto_ptr<Worker> makeWorker(const WorkerParams&,
-                                             boost::signal<void (const ModuleDescription&)>& iPre,
-                                             boost::signal<void (const ModuleDescription&)>& iPost) const = 0;
+                                             sigc::signal<void, const ModuleDescription&>& iPre,
+                                             sigc::signal<void, const ModuleDescription&>& iPost) const = 0;
   };
 
   template <class T>
@@ -42,8 +42,8 @@ namespace edm {
     typedef T worker_type;
     explicit WorkerMaker();
     std::auto_ptr<Worker> makeWorker(const WorkerParams&,
-                                     boost::signal<void (const ModuleDescription&)>&,
-                                     boost::signal<void (const ModuleDescription&)>&) const;
+                                     sigc::signal<void, const ModuleDescription&>&,
+                                     sigc::signal<void, const ModuleDescription&>&) const;
   };
 
   template <class T>
@@ -53,8 +53,8 @@ namespace edm {
 
   template <class T>
   std::auto_ptr<Worker> WorkerMaker<T>::makeWorker(const WorkerParams& p,
-                                                   boost::signal<void (const ModuleDescription&)>& pre,
-                                                   boost::signal<void (const ModuleDescription&)>& post) const
+                                                   sigc::signal<void, const ModuleDescription&>& pre,
+                                                   sigc::signal<void, const ModuleDescription&>& post) const
   {
     typedef T UserType;
     typedef typename UserType::ModuleType ModuleType;
