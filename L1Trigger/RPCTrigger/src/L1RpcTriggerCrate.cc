@@ -14,7 +14,7 @@ L1RpcTriggerCrate::L1RpcTriggerCrate(L1RpcTCGhostBusterSorter* tcGhostBusterSort
   for(int iTB = 0; iTB < triggerConfig->GetTBsInTC(); iTB++)
     TBsVec.push_back(L1RpcTriggerBoard(tbGhostBuster, triggerConfig, iTB));
 }
-
+//----------------------------------------
 L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
   if(!WasMuon)
     return L1RpcTBMuonsVec();
@@ -25,6 +25,17 @@ L1RpcTBMuonsVec L1RpcTriggerCrate::RunTCGBSorter() {
   }
 
   WasMuon = false;
+
+  if ( TriggerConfig->GetDebugLevel()!=0){
+
+    for (unsigned  int iTC = 0; iTC < tbMuonsVec2.size(); iTC++){
+        for (unsigned  int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++){
+            LogDebug("RPCHwDebug") << "After TBGB/before TCGB: " <<tbMuonsVec2[iTC][iTB].printDebugInfo(TriggerConfig->GetDebugLevel());
+        }
+    }
+
+  }
+
   return TCGhostBusterSorter->Run(tbMuonsVec2);
 }
 
