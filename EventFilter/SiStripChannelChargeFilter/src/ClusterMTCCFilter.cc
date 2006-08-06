@@ -1,3 +1,12 @@
+// -*- C++ -*-
+//
+// Package:     SiStripChannelChargeFilter
+// Class  :     ClusterMTCCFilter
+// 
+//
+// Original Author:  dkcira
+
+
 #include "EventFilter/SiStripChannelChargeFilter/interface/ClusterMTCCFilter.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"

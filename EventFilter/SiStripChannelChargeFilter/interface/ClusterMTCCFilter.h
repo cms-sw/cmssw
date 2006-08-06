@@ -1,6 +1,15 @@
 #ifndef ClusterMTCCFilter_H
 #define ClusterMTCCFilter_H 
 
+// -*- C++ -*-
+//
+// Package:     SiStripChannelChargeFilter
+// Class  :     ClusterMTCCFilter
+// 
+//
+// Original Author:  dkcira
+
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
