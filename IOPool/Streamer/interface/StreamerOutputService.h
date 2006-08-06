@@ -23,7 +23,8 @@ namespace edm
     explicit StreamerOutputService();
     ~StreamerOutputService();
 
-    void init(std::string fileName, InitMsgView& init_message) ;
+    void init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
+              std::string path, InitMsgView& init_message) ;
     void writeEvent(EventMsgView& msg, uint32 hlt_trig_count);
 
     void stop(); // shouldn't be called from destructor.
@@ -37,6 +38,13 @@ namespace edm
      unsigned long totalEventCount_;
      unsigned long eventsInFile_;
      unsigned long fileNameCounter_;
+
+     std::string filen_;
+     double highWaterMark_;
+     std::string path_;
+
+     // memory to keep the INIT message for when writing to more than one file
+     char saved_initmsg_[1000*1000*2];
 
      std::string fileName_;
      std::string indexFileName_;
