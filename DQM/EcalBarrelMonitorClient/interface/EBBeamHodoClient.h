@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2006/06/30 10:33:28 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/10 12:40:04 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -111,6 +111,8 @@ TH1F* hq01_[2];
 TH1F* ht01_;
 
 TH1F* hc01_[3];
+
+TH1F* hm01_;
 
 TProfile* he01_[2];
 TH2F* he02_[2];
