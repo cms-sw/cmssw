@@ -32,7 +32,7 @@ bool TrackMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   e.getByLabel(TrackProducer,TrackLabel,trackCollection);
 
   uint nroftracks = trackCollection->size();
-  edm::LogInfo("TrackMTCCFilter")<<"trackCollection->size()="<<nroftracks;
+//  edm::LogInfo("TrackMTCCFilter")<<"trackCollection->size()="<<nroftracks;
   if(nroftracks>=MinNrOfTracks) decision = true;
 
   std::auto_ptr< int > output_decision( new int(decision) );
