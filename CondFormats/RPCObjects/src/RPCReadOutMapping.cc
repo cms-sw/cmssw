@@ -77,6 +77,8 @@ RPCReadOutMapping::StripInDetUnit
     if (strip) {
       stripInDU = strip->cmsStripNumber;
     }
+    else std::cout << "NO STRIP!" << std::endl;
   }
+  else std::cout <<"NO FEB!!" << std::endl;
   return std::make_pair(detUnit,stripInDU);
 }
