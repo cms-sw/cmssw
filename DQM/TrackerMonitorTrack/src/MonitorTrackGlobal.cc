@@ -47,24 +47,24 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
   //
   NumberOfTracks = dbe->book1D("NumberOfTracks", "NumberOfTracks.", 6, -0.5, 5.5);
   NumberOfRecHitsPerTrack = dbe->book1D("NumberOfRecHitsPerTrack", "NumberOfRecHitsPerTrack", 12, -0.5, 11.5);
-  NumberOfRecHitsPerTrackVsPhi = dbe->book1D("NumberOfRecHitsPerTrackVsPhi","NumberOfRecHitsPerTrackVsPhi", 20, -6.1, 6.1);
+  NumberOfRecHitsPerTrackVsPhi = dbe->book1D("NumberOfRecHitsPerTrackVsPhi","NumberOfRecHitsPerTrackVsPhi", 20, -3.142, 3.142);
   NumberOfRecHitsPerTrackVsPseudorapidity = dbe->book1D("NumberOfRecHitsPerTrackVsPseudorapidity","NumberOfRecHitsPerTrackVsPseudorapidity",20,-3.142,3.142);
 
   //
   Chi2 = dbe->book1D("Chi2", "Chi2", 20, 0, 100);
   Chi2overDoF = dbe->book1D("Chi2overDoF", "Chi2overDoF", 20, 0, 10);
   Chi2overDoFVsTheta = dbe->book2D("Chi2overDoFVsTheta", "Chi2overDoFVsTheta", 20, 0, 3.2 , 20, 0, 20);
-  Chi2overDoFVsPhi   = dbe->book2D("Chi2overDoFVsPhi"  , "Chi2overDoFVsPhi", 20, -4 , 4 , 20, 0, 20);
+  Chi2overDoFVsPhi   = dbe->book2D("Chi2overDoFVsPhi"  , "Chi2overDoFVsPhi", 20, -3.142 , 3.142 , 20, 0, 20);
   Chi2overDoFVsEta   = dbe->book2D("Chi2overDoFVsEta"  , "Chi2overDoFVsEta", 20, -3 , 3, 20, 0, 20);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
-  TrackPt = dbe->book1D("TrackPt", "TrackPt", 20, 0, 1000);
-  TrackPx = dbe->book1D("TrackPx", "TrackPx", 20, -800, 800);
-  TrackPy = dbe->book1D("TrackPy", "TrackPy", 20, -800, 800);
-  TrackPz = dbe->book1D("TrackPz", "TrackPz", 20, 1000, 1000);
+  TrackPt = dbe->book1D("TrackPt", "TrackPt", 20, 0, 100);
+  TrackPx = dbe->book1D("TrackPx", "TrackPx", 20, -100, 200);
+  TrackPy = dbe->book1D("TrackPy", "TrackPy", 20, -100, 200);
+  TrackPz = dbe->book1D("TrackPz", "TrackPz", 20, -100, 200);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
-  TrackPhi = dbe->book1D("TrackPhi", "TrackPhi.", 20, 0, 6.3);
+  TrackPhi = dbe->book1D("TrackPhi", "TrackPhi.", 20, -3.142, 3.142);
   TrackEta = dbe->book1D("TrackEta", "TrackEta.", 20, -4, 4);
   TrackTheta = dbe->book1D("TrackTheta", "TrackTheta.", 20, -0.5, 4);
 
@@ -72,7 +72,7 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
     {
       DistanceOfClosestApproach = dbe->book1D("DistanceOfClosestApproach","DistanceOfClosestApproach",50,0,.2);
       DistanceOfClosestApproachVsTheta = dbe->book2D("DistanceOfClosestApproachVsTheta","DistanceOfClosestApproachVsTheta", 50, 0, 3.2, 50, 0, .2);
-      DistanceOfClosestApproachVsPhi = dbe->book2D("DistanceOfClosestApproachVsPhi","DistanceOfClosestApproachVsPhi", 50, -4 , 4 , 50, 0, .2);
+      DistanceOfClosestApproachVsPhi = dbe->book2D("DistanceOfClosestApproachVsPhi","DistanceOfClosestApproachVsPhi", 50, -3.142 , 3.142 , 50, 0, .2);
       DistanceOfClosestApproachVsEta = dbe->book2D("DistanceOfClosestApproachVsEta","DistanceOfClosestApproachVsEta", 50, -3 , 3 , 50, 0, .2);
 
       xPointOfClosestApproach = dbe->book1D("xPointOfClosestApproach", "xPointOfClosestApproach", 20, -20, 20);
@@ -101,7 +101,6 @@ MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    Handle<reco::TrackCollection> trackCollection;
    iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
-// ---> implement this but need vector<reco::TrackCollection>>   iEvent.getManyByType(trackCollection);
    NumberOfTracks->Fill(trackCollection->size());
 
    int totalRecHits = 0;
