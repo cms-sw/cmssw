@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.12 2006/07/24 21:50:53 marafino Exp $
+// $Id: MessageLogger.cc,v 1.13 2006/07/25 20:10:02 marafino Exp $
 //
 // Change log
 //
@@ -49,6 +49,9 @@
 #ifdef JMM
 #include <iostream>		// JMM debugging
 #endif
+
+static const std::string kPostModule("PostModule");
+static const std::string kSource("main_input:source");
 
 using namespace edm;
 using namespace edm::service;
@@ -280,9 +283,9 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
 void
 MessageLogger::preSource()
 {
-  curr_module_ = "main_input";
-  curr_module_ += ":";
-  curr_module_ += "source";
+  curr_module_ = kSource;
+  //curr_module_ += ":";
+  //curr_module_ += "source";
   MessageDrop::instance()->moduleName = curr_module_;  
   if (!anyDebugEnabled_) {
     MessageDrop::instance()->debugEnabled = false;
@@ -302,6 +305,7 @@ MessageLogger::preModuleConstruction(const ModuleDescription& desc)
   curr_module_ = desc.moduleName_;
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel_;
+  
   MessageDrop::instance()->moduleName = curr_module_ + "{ctor}";  
   if (!anyDebugEnabled_) {
     MessageDrop::instance()->debugEnabled = false;
@@ -317,16 +321,26 @@ void
 MessageLogger::preModule(const ModuleDescription& desc)
 {
   // LogInfo("preModule") << "Module:" << desc.moduleLabel();
-  curr_module_ = desc.moduleName_;
-  curr_module_ += ":";
-  curr_module_ += desc.moduleLabel_;
-  MessageDrop::instance()->moduleName = curr_module_;  
-  if (!anyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = false;
-  } else if (everyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = true;
+  //cache the value to improve performance based on profiling studies
+  MessageDrop* messageDrop = MessageDrop::instance();
+  std::map<const ModuleDescription*,std::string>::const_iterator itFind = descToCalcName_.find(&desc);
+  if ( itFind == descToCalcName_.end()) {
+    curr_module_ = desc.moduleName_;
+    curr_module_ += ":";
+    curr_module_ += desc.moduleLabel_;
+    //cache this value to improve performance based on profiling studies
+    descToCalcName_[&desc]=curr_module_;
+    messageDrop->moduleName = curr_module_;  
   } else {
-    MessageDrop::instance()->debugEnabled = 
+    messageDrop->moduleName = itFind->second;
+  }
+
+  if (!anyDebugEnabled_) {
+    messageDrop->debugEnabled = false;
+  } else if (everyDebugEnabled_) {
+    messageDrop->debugEnabled = true;
+  } else {
+    messageDrop->debugEnabled = 
     			debugEnabledModules_.count(desc.moduleLabel_);
   }
 
@@ -341,13 +355,13 @@ MessageLogger::preModule(const ModuleDescription& desc)
     std::cout << "Module name found.  Selected severity level = " 
                     << it->second << std::endl;
 #endif
-    MessageDrop::instance()->debugEnabled  = MessageDrop::instance()->debugEnabled 
+    messageDrop->debugEnabled  = messageDrop->debugEnabled 
                                            && (it->second < ELseverityLevel::ELsev_success );
-    MessageDrop::instance()->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
-    MessageDrop::instance()->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
   } else {
-    MessageDrop::instance()->infoEnabled    = true;
-    MessageDrop::instance()->warningEnabled = true;
+    messageDrop->infoEnabled    = true;
+    messageDrop->warningEnabled = true;
   }
 #ifdef JMM
   std::cout << "MessageDrop::debugEnabled = "
@@ -391,8 +405,9 @@ MessageLogger::postModule(const ModuleDescription& iDescription)
 {
   // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
   //                      << " finished";
-  curr_module_ = "PostModule";
-  MessageDrop::instance()->moduleName = curr_module_;  
+  //curr_module_ = kPostModule;
+  //MessageDrop::instance()->moduleName = curr_module_;  
+  MessageDrop::instance()->moduleName = kPostModule;
 }
 
 } // end of namespace service  

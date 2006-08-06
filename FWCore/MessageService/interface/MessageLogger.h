@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.3 2006/07/06 14:53:13 lsexton Exp $
+// $Id: MessageLogger.h,v 1.4 2006/07/24 21:50:52 marafino Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 #include <set>
+#include <map>
 
 // user include files
 
@@ -82,6 +83,8 @@ private:
   std::set<std::string> debugEnabledModules_;
   std::map<std::string,ELseverityLevel> suppression_levels_;
   bool debugEnabled_;
+  //this is a cache which profiling has shown to be helpful
+  std::map<const ModuleDescription*, std::string> descToCalcName_;
   static bool   anyDebugEnabled_;
   static bool everyDebugEnabled_;
 
