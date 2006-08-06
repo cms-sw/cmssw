@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.5 2006/08/02 20:48:55 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.6 2006/08/04 03:30:47 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.6  2006/08/04 03:30:47  wsun
+// Separated tau/jet bookkeeping, added static function objectTypeIsGlobal().
+//
 // Revision 1.5  2006/08/02 20:48:55  wsun
 // Added more trigger lines, added mapping for global objects.
 //
@@ -56,7 +59,7 @@ namespace l1extra {
          enum L1ObjectType
 	 {
             kEM,
-            kJet,
+            kJet,  // = non-tau jets
             kTau,
             kMuon,
 	    kEtMiss,
