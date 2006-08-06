@@ -22,24 +22,32 @@ class CSCWireHit
 public:
 
   CSCWireHit();
-  CSCWireHit( const CSCDetId& id, const int& wire_group );
+  CSCWireHit( const CSCDetId& id, const int& wgroup, const int& tmax );
 
   ~CSCWireHit();
 
   /// CSCWireHit base class interface
   CSCWireHit* clone() const { return new CSCWireHit( *this ); }
 
-//  /// TrackingRecHit base class interface  --> do I need this ???
-//  DetId geographicalId() const { return theDetId; }
-    CSCDetId cscDetId() const { return theDetId; }
+  /// Position of the wire hit in CSC
+  CSCDetId cscDetId() const { return theDetId; }
 
-  /// Container 1-D wire hit position expressed in terms of wiregroup #
-  int wire_group() const { return theWireHitPosition; }
+  /// The wire hit position expressed in terms of wiregroup #
+  int wgroup() const { return theHitWirePosition; }
+
+  /// The time for the wire hit
+  int tmax() const { return theHitTmax; }
+ 
 
 private:
   CSCDetId theDetId;
-  int theWireHitPosition;
+  int theHitWirePosition;
+  int theHitTmax;
 };
+
+
+// Output operator for CSCWireHit
+//std::ostream& operator<<(std::ostream& os, const CSCWireHit& rh);
 
 
 #endif

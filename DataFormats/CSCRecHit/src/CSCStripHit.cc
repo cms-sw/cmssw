@@ -3,12 +3,14 @@
 
 CSCStripHit::CSCStripHit() :
   theDetId(),
-  theHalfStripHitPosition()     
+  theHitHalfStripPosition(),
+  theHitTmax()     
 {}
 
-CSCStripHit::CSCStripHit( const CSCDetId& id, const float& halfStripPos) :
+CSCStripHit::CSCStripHit( const CSCDetId& id, const float& halfStripPos, const int& tmax) :
   theDetId( id ), 
-  theHalfStripHitPosition( halfStripPos )
+  theHitHalfStripPosition( halfStripPos ),
+  theHitTmax( tmax )
 {}
 
 CSCStripHit::~CSCStripHit() {}

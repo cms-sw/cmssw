@@ -3,12 +3,14 @@
 
 CSCWireHit::CSCWireHit() :
   theDetId(),
-  theWireHitPosition()     
+  theHitWirePosition(),
+  theHitTmax()
 {}
 
-CSCWireHit::CSCWireHit( const CSCDetId& id, const int& wire_group) :
+CSCWireHit::CSCWireHit( const CSCDetId& id, const int& wgroup, const int& tmax) :
   theDetId( id ), 
-  theWireHitPosition( wire_group )
+  theHitWirePosition( wgroup ),
+  theHitTmax ( tmax )
 {}
 
 CSCWireHit::~CSCWireHit() {}
