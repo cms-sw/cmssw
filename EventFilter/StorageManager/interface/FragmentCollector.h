@@ -80,12 +80,20 @@ namespace stor
     void set_hlt_bit_count(uint32 count) { hlt_bit_cnt_ = count; }
     void set_l1_bit_count(uint32 count) { l1_bit_cnt_ = count; }
     void set_outoption(bool stream_only) { streamerOnly_ = stream_only; }
-    void set_outfile(std::string outfilestart) { filename_ = outfilestart; }
+    void set_outfile(std::string outfilestart, unsigned long maxFileSize,
+                     double highWaterMark, std::string path) 
+                       { filen_ = outfilestart; 
+                         maxFileSize_ = maxFileSize;
+                         highWaterMark_ = highWaterMark;
+                         path_ = path; }
   private:
     uint32 hlt_bit_cnt_;
     uint32 l1_bit_cnt_;
     bool streamerOnly_;
-    std::string filename_;
+    std::string filen_;
+    unsigned long maxFileSize_;
+    double highWaterMark_;
+    std::string path_;
     //ofstream ost_;
     std::auto_ptr<edm::StreamerOutputService> writer_;
 

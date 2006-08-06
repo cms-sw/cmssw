@@ -35,10 +35,14 @@ namespace stor
     event_area_(1000*1000*7),
     inserter_(*evtbuf_q_),
     prods_(&p),
-	info_(&h), writer_(new edm::StreamerOutputService()),
+	info_(&h), 
+    maxFileSize_(1073741824), highWaterMark_(0.9),
+    writer_(new edm::StreamerOutputService()),
     evtsrv_area_(10),
     oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
   {
+    // supposed to have given parameterSet smConfigString to writer_
+    // at ctor
   }
 
   FragmentCollector::~FragmentCollector()
@@ -330,7 +334,7 @@ namespace stor
    
     // open file here as there is only one of these per run
     //std::string outfilename = filename_ + ".dat";
-    FR_DEBUG << "FragmentCollector: streamer file starting with " << filename_ << endl;
+    FR_DEBUG << "FragmentCollector: streamer file starting with " << filen_ << endl;
     //ost_.open(outfilename.c_str(),ios_base::binary | ios_base::out);
     //if(!ost_)
     //{
@@ -342,6 +346,7 @@ namespace stor
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
     //ost_.write((const char*)entry->buffer_address_, entry->buffer_size_);
     //dumpInitHeader(&msg);
-    writer_->init(filename_, msg);
+    // should be passing smConfigSTring to writer_ at construction
+    writer_->init(filen_, maxFileSize_, highWaterMark_, path_, msg);
   }
 }
