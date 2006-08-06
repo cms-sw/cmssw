@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1EmParticle.h,v 1.3 2006/08/02 14:22:33 wsun Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@ namespace l1extra {
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
+	 void setType( EmType type )
+	 { type_ = type ; }
 
       private:
 	 // L1EmParticle(const L1EmParticle&); // stop default

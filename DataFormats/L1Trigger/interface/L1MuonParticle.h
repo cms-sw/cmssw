@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.3 2006/08/02 14:22:33 wsun Exp $
 //
 
 // system include files
@@ -60,6 +60,11 @@ namespace l1extra {
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
+	 void setIsolated( bool isIso )
+	 { isolated_ = isIso ; }
+
+	 void setMip( bool isMip )
+	 { mip_ = isMip ; }
 
       private:
 	 // L1MuonParticle(const L1MuonParticle&); // stop default
