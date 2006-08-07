@@ -155,15 +155,15 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripMatchedRecHit2DCollection &co
   }
   
   
-  /*  
+    
   SiStripRecHit2DCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
   }
-
-
+  
+  /*
   SiStripRecHit2DCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
