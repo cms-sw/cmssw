@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/21 12:27:43 $
- * $Revision: 1.173 $
+ * $Date: 2006/07/21 12:47:22 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -69,6 +69,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
+  runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
@@ -303,10 +304,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   clients_.push_back( new EBCosmicClient(ps) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   clients_.push_back(  new EBLaserClient(ps) );
   clientNames_.push_back( "Laser" );
@@ -327,6 +330,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   clients_.push_back(  new EBTestPulseClient(ps) );
   clientNames_.push_back( "TestPulse" );

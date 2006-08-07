@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/07/08 07:22:02 $
- * $Revision: 1.52 $
+ * $Date: 2006/07/08 09:28:52 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -134,6 +134,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     dccMap[dcch.id()] = dcch;
 
     if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
 
   }
 
