@@ -2,13 +2,15 @@
 <!DOCTYPE Mapping SYSTEM "InMemory">
 <Mapping version="SiStripNoises-1.0" >
   <Class table="SISTRIPNOISES" id_columns="ID" name="SiStripNoises" >
-    <Container table="SISTRIPNOISES_M_NO_1" id_columns="ID_ID" name="m_noises" position_column="POS" >
-      <Container table="SISTRIPNOISES_M_NO_2" id_columns="ID_POS ID_ID_ID" name="std::vector<SiStripNoises::SiStripData>" position_column="POS" >
-        <Object table="SISTRIPNOISES_M_NO_2" id_columns="POS ID_POS ID_ID_ID" name="SiStripNoises::SiStripData" >
-          <Primitive column="M_NOISES_STD_VECTOR_SISTRIPN_1" name="Data" />
-        </Object >
-      </Container >
-      <Primitive column="M_NOISES_UNSIGNED_INT" name="unsigned int" />
+    <Container table="SISTRIPNOISES_INDE_1" id_columns="ID_ID" name="indexes" position_column="POS" >
+      <Object table="SISTRIPNOISES_INDE_1" id_columns="POS ID_ID" name="value_type" >
+        <Primitive column="INDEXES_VALUE_TYPE_DETID" name="detid" />
+        <Primitive column="INDEXES_VALUE_TYPE_IBEGIN" name="ibegin" />
+        <Primitive column="INDEXES_VALUE_TYPE_IEND" name="iend" />
+      </Object >
+    </Container >
+    <Container table="SISTRIPNOISES_V_NO_1" id_columns="ID_ID" name="v_noises" position_column="POS" >
+      <Primitive column="V_NOISES_VALUE_TYPE" name="value_type" />
     </Container >
   </Class >
 </Mapping >
