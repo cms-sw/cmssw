@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 07:03:49 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/06/22 17:39:34 $
+ *  $Revision: 1.1 $
  *  \author Marina Giunta
  */
 
@@ -11,9 +11,9 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
- 
 // Declare histograms for debugging purposes
 #include "CalibMuon/DTCalibration/src/Histogram.h"
+
 #include <map>
 #include <iostream>
 
@@ -24,30 +24,33 @@ using namespace DTEnums;
 DTTMax::InfoLayer::InfoLayer(DTRecHit1D rh_, const DTSuperLayer & isl, GlobalVector dir,
 			     GlobalPoint pos, DTTTrigBaseSync* sync):
   rh(rh_), idWire(rh.wireId()), lr(rh.lrSide()) {
-  const DTLayer*  layer = isl.layer(idWire.layerId());
-  LocalPoint wirePosInLayer(layer->specificTopology().wirePosition(idWire.wire()), 0, 0);
-  LocalPoint wirePosInSL=isl.toLocal(layer->toGlobal(wirePosInLayer));
-  wireX = wirePosInSL.x();
+    const DTLayer*  layer = isl.layer(idWire.layerId());
+    LocalPoint wirePosInLayer(layer->specificTopology().wirePosition(idWire.wire()), 0, 0);
+    LocalPoint wirePosInSL=isl.toLocal(layer->toGlobal(wirePosInLayer));
+    wireX = wirePosInSL.x();
     
-  //-- Correction for signal propagation along wire, t0 subtraction,
-  LocalVector segDir =  layer->toLocal(dir);
-  LocalPoint segPos = layer->toLocal(pos);
-  LocalPoint segPosAtLayer = segPos + segDir*(-segPos.z())/cos(segDir.theta());
-  LocalPoint hitPos(rh.localPosition().x() ,segPosAtLayer.y(),0.);
-  time = rh.digiTime() - sync->offset(layer, idWire, layer->toGlobal(hitPos));
+    //-- Correction for signal propagation along wire, t0 subtraction,
+    LocalVector segDir =  layer->toLocal(dir);
+    LocalPoint segPos = layer->toLocal(pos);
+    LocalPoint segPosAtLayer = segPos + segDir*(-segPos.z())/cos(segDir.theta());
+    LocalPoint hitPos(rh.localPosition().x() ,segPosAtLayer.y(),0.);
+    time = rh.digiTime() - sync->offset(layer, idWire, layer->toGlobal(hitPos));
  
-  if (time < 0. || time > 415.) {
-    // FIXME introduce time window to reject "out-of-time" digis
-    cout << " *** WARNING time = " << time << endl;
+    if (time < 0. || time > 415.) {
+      // FIXME introduce time window to reject "out-of-time" digis
+      cout << " *** WARNING time = " << time << endl;
+    }
   }
-}
 
 
 DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalVector dir, 
-	 GlobalPoint pos, DTTTrigBaseSync* sync):
+	       GlobalPoint pos, DTTTrigBaseSync* sync):
   theInfoLayers(4,(InfoLayer*)0), //FIXME
   theTMaxes(4,(TMax*)0) 
 {
+  // debug parameter for verbose output
+  debug = "true";
+
   // Collect all information using InfoLayer
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin(); hit!=hits.end();
        ++hit) {
@@ -58,7 +61,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
     if (getInfoLayer(ilay)==0) {
       getInfoLayer(ilay) = layInfo;
     } else {
-    // FIXME: in case there is > 1 hit/layer, the first is taken and the others are IGNORED.
+      // FIXME: in case there is > 1 hit/layer, the first is taken and the others are IGNORED.
       delete layInfo;
     }
   }
@@ -118,17 +121,18 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
     float t = 0.;
     TMaxCells cGroup = notInit;
     string type;
-    SigmaFactor sigma = noR; /// Return the factor relating the width of the 
-                             /// TMax distribution and the cell resolution
-    float halfCell = 2.1;    /// 2.1 is the half cell length in cm
-    float delta = 0.5;       /// (diff. wire pos.) < delta, halfCell+delta, .....
-    unsigned t0Factor = 99;  /// "quantity" of Delta(t0) included in the tmax formula
+    SigmaFactor sigma = noR; // Return the factor relating the width of the TMax distribution and the cell resolution
+    float halfCell = 2.1;    // 2.1 is the half cell length in cm
+    float delta = 0.5;       // (diff. wire pos.) < delta, halfCell+delta, .....
+    unsigned t0Factor = 99;  // "quantity" of Delta(t0) included in the tmax formula
 
-    //****Debug****
-    cout << "seg. type: " << theSegType << " and dir: " << theSegDir << endl;
-    cout << "t1, t2, t3, t4: " << t1 << " " << t2 << " " << t3 << " " << t4 << endl;
-    cout << "x1, x2, x3, x4: " << x1 << " " << x2 << " " << x3 << " " << x4 << endl;
-    //**********
+    //Debug
+    if (debug) {
+      cout << "seg. type: " << theSegType << " and dir: " << theSegDir << endl;
+      cout << "t1, t2, t3, t4: " << t1 << " " << t2 << " " << t3 << " " << t4 << endl;
+      cout << "x1, x2, x3, x4: " << x1 << " " << x2 << " " << x3 << " " << x4 << endl;
+    }
+    
     //different t0 hists (if you have at least one hit within a certain distance from the wire)
     unsigned hSubGroup = 99; //
     if(t1 == 0. || t2 == 0. || t3 == 0. || t4 == 0.)
@@ -169,7 +173,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT123Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t,cGroup,type,sigma,t0Factor,hSubGroup);
-      cout << "tmax123 " << t << " " << type << endl;
+      if(debug) cout << "tmax123 " << t << " " << type << endl;
     }
     if(layersIn == 7 || layersIn == 10) {
       cGroup = c124;
@@ -214,7 +218,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT124LRLR->Fill(t);
       }
       else if((type == "LRR" && theSegDir == R && x1 < x4 && (fabs(x1-x4)<(halfCell+delta)))||
-	      (type == "RLL" && theSegDir == L && x1 > x4 && (fabs(x1-x4)<(halfCell+delta)))) {
+	       (type == "RLL" && theSegDir == L && x1 > x4 && (fabs(x1-x4)<(halfCell+delta)))) {
 	t0Factor = 1;
 	t = 3./4.*t2+t1/2.-t4/4.;
 	sigma = r78;
@@ -226,7 +230,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT124Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t,cGroup,type,sigma,t0Factor,hSubGroup);
-      cout << "tmax124 " << t << " " << t0Factor << " "  << type << endl;
+      if(debug) cout << "tmax124 " << t << " " << t0Factor << " "  << type << endl;
     }
     if(layersIn == 8 || layersIn == 10) {
       cGroup = c134;
@@ -240,14 +244,14 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT134LLR1gt4->Fill(t);
       }
       else if((type == "LLR"  && x1 < x4 && (fabs(x1-x4)<(halfCell+delta))) ||
-	      (type == "RRL"  && x1 > x4 && (fabs(x1-x4)<(halfCell+delta)))) {
+	       (type == "RRL"  && x1 > x4 && (fabs(x1-x4)<(halfCell+delta)))) {
 	t0Factor = 1;
 	t = 3./4.*t3+t4/2.-t1/4.; 
 	sigma = r78;
 	hT134LLR1lt4->Fill(t);
       }
       else if((type == "LRR"  && theSegDir == R && x1 < x4 && (fabs(x1-x3)<delta)) ||
-	      (type == "RLL"  && theSegDir == L && x1 > x4 &&(fabs(x1-x3)<delta))) {
+	       (type == "RLL"  && theSegDir == L && x1 > x4 &&(fabs(x1-x3)<delta))) {
 	t0Factor = 1;
 	t = 1.5*t3-t4+t1/2.;
 	hT134LRR->Fill(t);
@@ -283,7 +287,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT134Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t,cGroup,type,sigma,t0Factor,hSubGroup);
-      cout << "tmax134 " << t << " " << t0Factor << " "  << type << endl;
+      if(debug) cout << "tmax134 " << t << " " << t0Factor << " "  << type << endl;
     }
     if((layersIn == 9 || layersIn == 10) && (fabs(x2-x4)<delta)) {
       cGroup = c234;
@@ -314,7 +318,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
 	hT234Bad->Fill(t);
       }
       theTMaxes[cGroup] = new TMax(t,cGroup,type,sigma,t0Factor,hSubGroup);
-      cout << "tmax234 " << t << " " << type << endl;
+      if(debug) cout << "tmax234 " << t << " " << type << endl;
     }
   }      
   
@@ -366,7 +370,7 @@ const DTTMax::TMax* DTTMax::getTMax(TMaxCells cCase){
 /* Destructor */ 
 DTTMax::~DTTMax(){
   for (vector<InfoLayer*>::const_iterator ilay = theInfoLayers.begin();
-      ilay != theInfoLayers.end(); ilay++) {
+       ilay != theInfoLayers.end(); ilay++) {
     delete (*ilay);
   }
 

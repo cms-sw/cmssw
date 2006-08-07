@@ -5,8 +5,8 @@
  *  Class to calculate the different TMax values according to
  *  the track path
  *
- *  $Date: 2006/06/16 07:05:36 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/06/22 17:39:49 $
+ *  $Revision: 1.1 $
 
  *  \author Marina Giunta
  */
@@ -84,6 +84,9 @@ class DTTMax {
 
  private:
   DTTMax(){}; // Hide default constructor
+
+  //debug flag 
+  bool debug;
 
   std::vector<InfoLayer*> theInfoLayers;
   std::vector<TMax*> theTMaxes;

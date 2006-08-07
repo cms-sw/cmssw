@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2006/06/14 17:14:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/22 17:40:39 $
+ *  $Revision: 1.2 $
  *  \author M. Giunta
  */
 
@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/src/DTTMax.h"
-#include "CalibMuon/DTCalibration/src/DTCalibrationFile.h"
+#include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
@@ -72,9 +72,11 @@ private:
     hTMaxCell* histos;
   };
 
-  // to be implemented: granularity different from bySL
+  h2DSegm *h2DSegmRZ;
 
-//   //Divide cellInfo by given granularity
+  h2DSegm *h2DSegmRPhi;
+
+//   //Divide cellInfo by given granularity (to be implemented)
 //   DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId); 
 
   // Specify the granularity for the TMax histograms
@@ -93,17 +95,34 @@ private:
   // The file which will contain the tMax histograms
   TFile *theFile;
 
+  // Perform the vDrift and t0 evaluation or just fill the
+  //  tMaxHists (if you read the dataset in different jobs)
+  bool findVDriftAndT0;
+
   // The name of the output text file
   std::string theVDriftOutputFile;
- 
-  //Map of wires and cellInfo with coarse granularity
+
+  // Map of wires and cellInfo with coarse granularity
   std::map<DTWireId, cellInfo*> theWireIdAndCellMap;
 
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
 
-  //parameter set for DTCalibrationFile constructor
+  // parameter set for DTCalibrationMap constructor
   edm::ParameterSet theCalibFilePar;
+
+  // Maximum value for the 4D Segment chi2
+  double theMaxChi2;
+
+  // Maximum incident angle for Phi Seg 
+  double theMaxPhiAngle;
+
+  // Maximum incident angle for Theta Seg
+  double theMaxZAngle;
+
+  // Choose the chamber you want to calibrate
+  std::string theCalibChamber;
+
 };
 #endif
 

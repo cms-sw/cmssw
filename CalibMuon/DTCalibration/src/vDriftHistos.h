@@ -1,5 +1,5 @@
-#ifndef HistoBooking_H
-#define HistoBooking_H
+#ifndef vDriftHistos_H
+#define vDriftHistos_H
 
 #include "TH1.h"
 #include "TString.h"
@@ -11,52 +11,52 @@ using namespace dttmaxenums;
 
 // A set of histograms on SL angle and position
 class h2DSegm{
-public:
+ public:
   h2DSegm(std::string name_){
     TString N = name_.c_str();
     name=name_.c_str();
     h2DSegmPosInCham     = new TH1F(N+"_h2DSegmPosInCham1", 
- 				  "2D Segment position (cm) in Chamber RF", 200, -200, 200); 
-     h2DSegmAngleInCham   = new TH1F(N+"_h2DSegmAngleInCham1",  
+				    "2D Segment position (cm) in Chamber RF", 200, -200, 200); 
+    h2DSegmAngleInCham   = new TH1F(N+"_h2DSegmAngleInCham1",  
  				    "2D Segment angle (rad) in Chamber RF", 200, -2, 2); 
-     h2DSegmCosAngleInCham   = new TH1F(N+"_h2DSegmCosAngleInCham1",  
+    h2DSegmCosAngleInCham   = new TH1F(N+"_h2DSegmCosAngleInCham1",  
  				       "2D Segment cos(angle) in Chamber RF", 200, -2, 2); 
   }
   h2DSegm(TString name_, TFile* file){
     name=name_;
 
-     h2DSegmPosInCham  = (TH1F *) file->Get(name+"_h2DSegmPosInCham"); 
-     h2DSegmAngleInCham  = (TH1F *) file->Get(name+"_h2DSegmAngleInCham"); 
-     h2DSegmCosAngleInCham  = (TH1F *) file->Get(name+"_h2DSegmCosAngleInCham"); 
- }
+    h2DSegmPosInCham  = (TH1F *) file->Get(name+"_h2DSegmPosInCham"); 
+    h2DSegmAngleInCham  = (TH1F *) file->Get(name+"_h2DSegmAngleInCham"); 
+    h2DSegmCosAngleInCham  = (TH1F *) file->Get(name+"_h2DSegmCosAngleInCham"); 
+  }
   ~h2DSegm(){
-     delete h2DSegmPosInCham;     
-     delete h2DSegmAngleInCham;   
-     delete h2DSegmCosAngleInCham;   
+    delete h2DSegmPosInCham;     
+    delete h2DSegmAngleInCham;   
+    delete h2DSegmCosAngleInCham;   
   }
   void Fill(float pos, float localAngle) {
 
-     h2DSegmPosInCham->Fill(pos); 
-     h2DSegmAngleInCham->Fill(atan(localAngle));   
-     h2DSegmCosAngleInCham->Fill(cos(atan(localAngle)));   
+    h2DSegmPosInCham->Fill(pos); 
+    h2DSegmAngleInCham->Fill(atan(localAngle));   
+    h2DSegmCosAngleInCham->Fill(cos(atan(localAngle)));   
   }
   void Write() {
-     h2DSegmPosInCham->Write();     
-     h2DSegmAngleInCham->Write();   
-     h2DSegmCosAngleInCham->Write();   
+    h2DSegmPosInCham->Write();     
+    h2DSegmAngleInCham->Write();   
+    h2DSegmCosAngleInCham->Write();   
   }
-public:
+ public:
 
-   TH1F *h2DSegmPosInCham;     
-   TH1F *h2DSegmAngleInCham;   
-   TH1F *h2DSegmCosAngleInCham;   
+  TH1F *h2DSegmPosInCham;     
+  TH1F *h2DSegmAngleInCham;   
+  TH1F *h2DSegmCosAngleInCham;   
 
   TString name;
 };
 
 // A set of histograms on SL Tmax
 class hTMaxCell{
-public:
+ public:
   hTMaxCell(TString name_){
     name = name_;
 
@@ -122,7 +122,7 @@ public:
     hTmax_t0_5  = (TH1F *) file->Get(name+"_t0_5");
     hTmax_0  = (TH1F *) file->Get(name+"_0");
 
- }
+  }
 
  
   ~hTMaxCell(){
@@ -232,7 +232,7 @@ public:
     }
     if(tmax134 > 0.) {
       (s134==r72)? hTmax134s72->Fill(tmax134):hTmax134s78->Fill(tmax134);
-     if(t0_134==0)  
+      if(t0_134==0)  
 	hTmax_0->Fill(tmax134);
       else if(t0_134==1) {
 	hTmax_t0->Fill(tmax134); 

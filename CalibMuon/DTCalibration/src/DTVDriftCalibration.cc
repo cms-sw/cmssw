@@ -2,17 +2,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/14 17:14:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/22 17:40:55 $
+ *  $Revision: 1.2 $
  *  \author M. Giunta
  */
 
-#include "DTVDriftCalibration.h"
+#include "CalibMuon/DTCalibration/src/DTVDriftCalibration.h"
 #include "RecoLocalMuon/DTSegment/test/DTRecSegment4DReader.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
@@ -31,6 +29,7 @@
 #include "TROOT.h" 
 
 // Declare histograms.
+TH1F * hChi2;
 extern void bookHistos();
 
 using namespace std;
@@ -39,10 +38,18 @@ using namespace dttmaxenums;
 
 
 DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
+  hChi2 = new TH1F("hChi2","Chi squared tracks",100,0,100);
+  h2DSegmRPhi = new h2DSegm("SLRPhi");
+  h2DSegmRZ = new h2DSegm("SLRZ");
   bookHistos();
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  debug = pset.getUntrackedParameter<bool>("debug", "false");
 
+  findVDriftAndT0 = pset.getUntrackedParameter<bool>("findVDriftAndT0", "false");
+
+  // Chamber/s to calibrate
+  theCalibChamber =  pset.getUntrackedParameter<string>("calibChamber", "All");
+ 
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getUntrackedParameter<string>("recHits4DLabel");
 
@@ -58,12 +65,21 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
 					      pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
 
-  // get parameter set for DTCalibrationFile constructor
+  // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
 
+  // get maximum chi2 value 
+  theMaxChi2 =  pset.getParameter<double>("maxChi2");
+
+  // Maximum incidence angle for Phi SL 
+  theMaxPhiAngle =  pset.getParameter<double>("maxAnglePhi");
+
+  // Maximum incidence angle for Theta SL 
+  theMaxZAngle =  pset.getParameter<double>("maxAngleZ");
+  
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity","bySL");
-  
+   
   // Initialize correctly the enum which specify the granularity for the calibration
   if(tMaxGranularity == "bySL") {
     theGranularity = bySL;
@@ -76,7 +92,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
 	 << tMaxGranularity << " options not available!" << endl;
   }
 
-  if(debug) 
+  if(debug)
     cout << "[DTVDriftCalibration]Constructor called!" << endl;
 }
 
@@ -91,6 +107,17 @@ DTVDriftCalibration::~DTVDriftCalibration(){
 void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
   cout << endl<<"--- [DTVDriftCalibration] Event analysed #Run: " << event.id().run()
        << " #Event: " << event.id().event() << endl;
+
+  DTChamberId chosenChamberId;
+  if(theCalibChamber != "All") {
+    stringstream linestr;
+    int selWheel, selStation, selSector;
+    linestr << theCalibChamber;
+    linestr >> selWheel >> selStation >> selSector;
+    chosenChamberId = DTChamberId(selWheel, selStation, selSector);
+    cout << "chosen chamber " << chosenChamberId << endl;
+  }
+ 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
@@ -107,21 +134,43 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
   for (chamberIdIt = all4DSegments->id_begin();
        chamberIdIt != all4DSegments->id_end();
        ++chamberIdIt){
-
+    
     // Get the chamber from the setup
     const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
-    cout << "Chamber Id: " << *chamberIdIt << endl;
+    if(debug)
+      cout << "Chamber Id: " << *chamberIdIt << endl;
 
+
+    // Calibrate just the chosen chamber/s    
+    if((theCalibChamber != "All") && ((*chamberIdIt) != chosenChamberId)) 
+      continue;
+    
     // Get the range for the corresponding ChamberId
     DTRecSegment4DCollection::range  range = all4DSegments->get((*chamberIdIt));
-
+    
     // Loop over the rechits of this DetUnit
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
 	 segment!=range.second; ++segment){
-      cout << "Segment local pos (in chamber RF): " << (*segment).localPosition() << endl;
-      cout << "Segment global pos: " << chamber->toGlobal((*segment).localPosition()) << endl;;
+      if(debug) {
+	cout << "Segment local pos (in chamber RF): " << (*segment).localPosition() << endl;
+	cout << "Segment global pos: " << chamber->toGlobal((*segment).localPosition()) << endl;;
+      }
 
-      const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();
+      //get the segment chi2
+      double chiSquare = ((*segment).chi2()/(*segment).degreesOfFreedom());
+      hChi2->Fill(chiSquare);
+      // cut on the segment chi2 
+      if(chiSquare > theMaxChi2) continue;
+
+     // get the Phi 2D segment and plot the angle in the chamber RF
+      const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
+      LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
+      LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
+
+      if(fabs(atan(phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z())) > theMaxPhiAngle) continue; // cut on the angle
+
+      h2DSegmRPhi->Fill(phiSeg2DPosInCham.x(), phiSeg2DDirInCham.x()/phiSeg2DDirInCham.z());
+      
       vector<DTRecHit1D> hits = phiSeg->specificRecHits();
       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
       for(vector<DTRecHit1D>::const_iterator hit = hits.begin();
@@ -129,15 +178,23 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 	DTSuperLayerId slId =  (*hit).wireId().superlayerId();
 	hitsBySLMap[slId].push_back(*hit); 
       }
+     // get the Theta 2D segment and plot the angle in the chamber RF
       if((*segment).hasZed()) {
-	const DTSLRecSegment2D* zSeg = (*segment).zSegment();
+	const DTSLRecSegment2D* zSeg = (*segment).zSegment();  // zSeg lives in the SL RF
+	const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
+	LocalPoint zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
+	LocalVector zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
+
+	if(fabs(atan(zSeg2DDirInCham.y()/zSeg2DDirInCham.z())) > theMaxZAngle) continue; // cut on the angle
+
+	h2DSegmRZ->Fill(zSeg2DPosInCham.y(), zSeg2DDirInCham.y()/zSeg2DDirInCham.z());
 	hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
       }
       //loop over the segments 
       for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
 	if (slIdAndHits->second.size() < 3) continue;
-
 	DTSuperLayerId slId =  slIdAndHits->first;
+
 	// Create the DTTMax, that computes the 4 TMax
 	DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);
 
@@ -185,11 +242,13 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
 }
 
 void DTVDriftCalibration::endJob() {
-  cout << "End of job" << endl;
-  theFile->cd(); 
+  theFile->cd();
   gROOT->GetList()->Write();
-  // Instantiate a DTCalibrationFile object   
-  DTCalibrationFile calibValuesFile(theCalibFilePar);  
+  h2DSegmRPhi->Write();
+  h2DSegmRZ->Write();
+  hChi2->Write();
+  // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
+  DTCalibrationMap calibValuesFile(theCalibFilePar);  
   // write the TMax histograms of each SL to the root file
   if(theGranularity == bySL) {
     for(map<DTWireId, cellInfo*>::const_iterator  wireCell = theWireIdAndCellMap.begin();
@@ -197,36 +256,33 @@ void DTVDriftCalibration::endJob() {
       cellInfo* cell= theWireIdAndCellMap[(*wireCell).first];
       hTMaxCell* cellHists = cell->getHists();
       cellHists->Write();
-      
-      // evaluate v_drift and sigma from the TMax histograms
-      DTWireId wireId = (*wireCell).first;
-      vector<float> newConstants;
-      vector<float> vDriftAndReso = evaluateVDriftAndReso(wireId);
-      // Don't write the constants for the SL if the vdrift was not computed
-      if(vDriftAndReso.front() == -1)
-	continue;
+      if(findVDriftAndT0) {  // if TRUE: evaluate calibration constants from TMax hists filled in this job  
+	// evaluate v_drift and sigma from the TMax histograms
+	DTWireId wireId = (*wireCell).first;
+	vector<float> newConstants;
+	vector<float> vDriftAndReso = evaluateVDriftAndReso(wireId);
 
-      const DTCalibrationFile::CalibConsts* oldConstants = calibValuesFile.getConsts(wireId);
-      if(oldConstants != 0) {
-	newConstants.push_back((*oldConstants)[0]);
-	newConstants.push_back((*oldConstants)[1]);
-	newConstants.push_back(vDriftAndReso[0]); // vdrift
-	newConstants.push_back(vDriftAndReso[1]); // reso
-	newConstants.push_back(vDriftAndReso[2]); // delta(t0) calculated from gaussian mean
-	newConstants.push_back(vDriftAndReso[3]); // delta(t0) calculated from histo mean
-	
-      } else {
-	newConstants.push_back(-1);
-	newConstants.push_back(-1);
-	newConstants.push_back(vDriftAndReso[0]);
-	newConstants.push_back(vDriftAndReso[1]);
-	newConstants.push_back(vDriftAndReso[2]);
-	newConstants.push_back(vDriftAndReso[3]);
+	// Don't write the constants for the SL if the vdrift was not computed
+	if(vDriftAndReso.front() == -1)
+	  continue;
+	const DTCalibrationMap::CalibConsts* oldConstants = calibValuesFile.getConsts(wireId);
+	if(oldConstants != 0) {
+	  newConstants.push_back((*oldConstants)[0]);
+	  newConstants.push_back((*oldConstants)[1]);
+	} else {
+	  newConstants.push_back(-1);
+	  newConstants.push_back(-1);
+	}
+	for(int ivd=0; ivd<=5;ivd++) { 
+	  // 0=vdrift, 1=reso, 2=(3deltat0-2deltat0), 3=(2deltat0-1deltat0),
+	  //  4=(1deltat0-0deltat0), 5=deltat0 from hists with max entries,
+	  newConstants.push_back(vDriftAndReso[ivd]); 
+	}
+	calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
       }
-      calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
     }
   }
- 
+
   // to be implemented: granularity different from bySL
 
   //   if(theGranularity == "byChamber") {
@@ -257,6 +313,7 @@ void DTVDriftCalibration::endJob() {
   //       digiParams.addCell(wire_id, newConstants);
   //     }
   //   }
+
   //write values to a table  
   calibValuesFile.writeConsts(theVDriftOutputFile);
 }
@@ -264,7 +321,7 @@ void DTVDriftCalibration::endJob() {
 vector<float> DTVDriftCalibration::evaluateVDriftAndReso (const DTWireId& wireId) {
   TString N=(((((TString) "TMax"+(long) wireId.wheel()) +(long) wireId.station())
 	      +(long) wireId.sector())+(long) wireId.superLayer());
-  cout << N << endl;
+  
   // Retrieve histogram sets
   hTMaxCell * histos   = new hTMaxCell(N, theFile);
   vector<float> vDriftAndReso;
@@ -295,7 +352,7 @@ vector<float> DTVDriftCalibration::evaluateVDriftAndReso (const DTWireId& wireId
     factor.push_back(sqrt(2./3.)); // hTmax234
 
 
-    // Retrieve the gaussian mean and sigma for each histogram    
+    // Retrieve the gaussian mean and sigma for each TMax histogram    
     vector<Double_t> mean;
     vector<Double_t> sigma; 
     vector<Double_t> count;  //number of entries
@@ -303,13 +360,20 @@ vector<float> DTVDriftCalibration::evaluateVDriftAndReso (const DTWireId& wireId
     for(vector<TH1F*>::const_iterator ith = hTMax.begin();
 	ith != hTMax.end(); ith++) {
       // Find distribution peak and fit range
-      Int_t peak = (*ith)->GetMaximumBin() - 1000;
+      Double_t peak = ((((((*ith)->GetXaxis())->GetXmax())-(((*ith)->GetXaxis())->GetXmin()))/(*ith)->GetNbinsX())*
+		       ((*ith)->GetMaximumBin()))+(((*ith)->GetXaxis())->GetXmin());
+      if(debug)
+	cout<<"Peak "<<peak<<" : "<<"xmax "<<(((*ith)->GetXaxis())->GetXmax())
+	    <<"            xmin "<<(((*ith)->GetXaxis())->GetXmin())
+	    <<"            nbin "<<(*ith)->GetNbinsX()
+	    <<"            bin with max "<<((*ith)->GetMaximumBin())<<endl;
       Double_t range = 2.*(*ith)->GetRMS(); 
 
       // Fit each Tmax histogram with a Gaussian in a restricted interval
       TF1 *rGaus = new TF1("rGaus","gaus",peak-range,peak+range);
       (*ith)->Fit("rGaus","R");
       TF1 *f1 = (*ith)->GetFunction("rGaus");
+
       // Get mean, sigma and number of entries of each histogram
       mean.push_back(f1->GetParameter(1));
       sigma.push_back(f1->GetParameter(2)); 
@@ -340,84 +404,94 @@ vector<float> DTVDriftCalibration::evaluateVDriftAndReso (const DTWireId& wireId
     Double_t reso = vDrift * sigmaT;
     vDriftAndReso.push_back(vDrift);
     vDriftAndReso.push_back(reso);
-    cout << " final TMaxMean=" << tMaxMean << " sigma= "  << sigmaT 
-	 << " v_d and reso: " << vDrift << " " << reso << endl;
+    if(debug)
+      cout << " final TMaxMean=" << tMaxMean << " sigma= "  << sigmaT 
+	   << " v_d and reso: " << vDrift << " " << reso << endl;
 
-    //Retrieve t0 histogram number of entries (choose histograms with higher nr. of entries)
-    map<Double_t,TH1F*> hEntries;
-
+    // Order t0 histogram by number of entries (choose histograms with higher nr. of entries)
+    map<Double_t,TH1F*> hEntries;    
     for(vector<TH1F*>::const_iterator ith = hT0.begin();
 	ith != hT0.end(); ith++) {
       hEntries[(*ith)->GetEntries()] = (*ith);
-      
     } 
 
-    vector<TH1F*> t0Hists;
+    // add at the end of hT0 the two hists with the higher number of entries 
     int counter = 0;
-    
     for(map<Double_t,TH1F*>::reverse_iterator iter = hEntries.rbegin();
-	iter != hEntries.rend(); iter++) {
+ 	iter != hEntries.rend(); iter++) {
       counter++;
-      cout << iter->first << " " << iter->second->GetTitle() << endl;
-      if (counter==1) t0Hists.push_back(iter->second); //first hist selected for t0 evaluation
-      else if (counter==2) {t0Hists.push_back(iter->second); break;} //second hist selected for t0 evaluation
+      if (counter==1) hT0.push_back(iter->second); 
+      else if (counter==2) {hT0.push_back(iter->second); break;} 
     }
-      
+    
     // Retrieve the gaussian mean and sigma of histograms for Delta(t0) evaluation   
     vector<Double_t> meanT0;
     vector<Double_t> sigmaT0; 
-    vector<Double_t> countT0; 
+    vector<Double_t> countT0;
 
-    for(vector<TH1F*>::const_iterator ith = t0Hists.begin();
-	ith != t0Hists.end(); ith++) {
-      cout << (*ith)->GetTitle() << endl;
+    for(vector<TH1F*>::const_iterator ith = hT0.begin();
+	ith != hT0.end(); ith++) {
       (*ith)->Fit("gaus");
       TF1 *f1 = (*ith)->GetFunction("gaus");
-      // Get mean, sigma and number of entries of each the two selected histograms
+      // Get mean, sigma and number of entries of the  histograms
       meanT0.push_back(f1->GetParameter(1));
       sigmaT0.push_back(f1->GetParameter(2));
       countT0.push_back((*ith)->GetEntries());
     }
-    
     //calculate Delta(t0)
-    Double_t t0Diff = histos->GetT0Factor(t0Hists[0]) - 
-      histos->GetT0Factor(t0Hists[1]);
+    if(hT0.size() != 6) { // check if you have all the t0 hists
+      cout << "t0 histograms = " << hT0.size() << endl;
+      for(int i=1; i<=4;i++) {
+	vDriftAndReso.push_back(-1);
+      }
+      return vDriftAndReso;
+    }
     
-    Double_t deltaT0_fromHMean = (t0Hists[0]->GetMean(1) - 
-				  t0Hists[1]->GetMean(1)) / t0Diff; 
-    Double_t deltaT0 = -1;
-    if((countT0[0] > 200) && (countT0[1] > 200)) 
-      deltaT0 = (meanT0[0] - meanT0[1]) / t0Diff; 
-    
-    vDriftAndReso.push_back(deltaT0);
-    vDriftAndReso.push_back(deltaT0_fromHMean);
-  } else {
-    vDriftAndReso.push_back(-1);
-    vDriftAndReso.push_back(-1);
-    vDriftAndReso.push_back(-1);
-    vDriftAndReso.push_back(-1);
+    for(int it0=0; it0<=2; it0++) {      
+      if((countT0[it0] > 200) && (countT0[it0+1] > 200)) {
+	Double_t deltaT0 = meanT0[it0] - meanT0[it0+1];	
+	vDriftAndReso.push_back(deltaT0);
+      }  
+      else
+ 	vDriftAndReso.push_back(999.);
+    }
+    //deltat0 using hists with max nr. of entries
+    if((countT0[4] > 200) && (countT0[5] > 200)) {
+      Double_t t0Diff = histos->GetT0Factor(hT0[4]) - histos->GetT0Factor(hT0[5]);
+      Double_t deltaT0MaxEntries =  (meanT0[4] - meanT0[5])/ t0Diff;
+      vDriftAndReso.push_back(deltaT0MaxEntries);
+    }
+    else
+      vDriftAndReso.push_back(999.);
   }
-  
+  else {
+    for(int i=1; i<=6; i++) { 
+      // 0=vdrift, 1=reso,  2=(3deltat0-2deltat0), 3=(2deltat0-1deltat0), 
+      // 4=(1deltat0-0deltat0), 5=deltat0 from hists with max entries,
+      vDriftAndReso.push_back(-1);
+    }
+  }
   return vDriftAndReso;
-
-  // to be implemented: granularity different from bySL
-
-  // // Create partitions 
-  // DTVDriftCalibration::cellInfo* DTVDriftCalibration::partition(const DTWireId& wireId) {
-  //   for( map<MuBarWireId, cellInfo*>::const_iterator iter =
-  // 	 mapCellTmaxPart.begin(); iter != mapCellTmaxPart.end(); iter++) {
-  //     // Divide wires per SL (with phi symmetry)
-  //     if(iter->first.wheel() == wireId.wheel() &&
-  //        iter->first.station() == wireId.station() &&
-  //        //       iter->first.sector() == wireId.sector() && // phi symmetry!
-  //        iter->first.superlayer() == wireId.superlayer()) {
-  //       return iter->second;
-  //     }
-  //   }
-  //   cellInfo * result = new cellInfo("dummy string"); // FIXME: change constructor; create tree?
-  //   mapCellTmaxPart.insert(make_pair(wireId, result));
-  //   return result;
 }
+   
+// to be implemented: granularity different from bySL
+
+// // Create partitions 
+// DTVDriftCalibration::cellInfo* DTVDriftCalibration::partition(const DTWireId& wireId) {
+//   for( map<MuBarWireId, cellInfo*>::const_iterator iter =
+// 	 mapCellTmaxPart.begin(); iter != mapCellTmaxPart.end(); iter++) {
+//     // Divide wires per SL (with phi symmetry)
+//     if(iter->first.wheel() == wireId.wheel() &&
+//        iter->first.station() == wireId.station() &&
+//        //       iter->first.sector() == wireId.sector() && // phi symmetry!
+//        iter->first.superlayer() == wireId.superlayer()) {
+//       return iter->second;
+//     }
+//   }
+//   cellInfo * result = new cellInfo("dummy string"); // FIXME: change constructor; create tree?
+//   mapCellTmaxPart.insert(make_pair(wireId, result));
+//   return result;
+//}
 
 
 void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {

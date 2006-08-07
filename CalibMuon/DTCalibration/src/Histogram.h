@@ -30,8 +30,6 @@ TH1F * hT234LRL;
 TH1F * hT234LLR;
 TH1F * hT234LRR;
 
-
-
 void bookHistos() {
   hT123LRL = new TH1F("hT123LRL", "Tmax123 LRL", 2000, -1000., 1000.); 
   hT123LLR = new TH1F("hT123LLR", "Tmax123 LLR", 2000, -1000., 1000.);
@@ -58,9 +56,5 @@ void bookHistos() {
   hT234LRR = new TH1F("hT234LRR", "Tmax234 LRR", 2000, -1000., 1000.);
   hT234Bad = new TH1F("hT234Bad", "Bad Tmax234", 10, -5., 5.); 
 }
-
-
-
-
 
 #endif
