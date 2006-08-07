@@ -84,7 +84,7 @@ int testCSCMapping::runIt(const std::string& config){
 
 void testCSCMapping::testRead(){
   
-  edm::FileInPath fip("CondFormats/CSCObjects/test/csc_slice_test_map.txt");
+  edm::FileInPath fip("CondFormats/CSCObjects/data/csc_slice_test_map.txt");
   std::cout << "Attempt to set FileInPath to " << fip.fullPath() << std::endl;
   edm::ParameterSet ps;
   ps.addParameter<edm::FileInPath>("theMappingFile", fip);
