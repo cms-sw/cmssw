@@ -15,6 +15,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+
 //destructor
 TrackProducerBase::~TrackProducerBase(){ }
 
@@ -81,47 +82,28 @@ void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<reco::TrackC
   theEvent.getByLabel(src_,theTCollection );
 }
 
-void TrackProducerBase::putInEvt(edm::Event& theEvent,
-				 std::auto_ptr<TrackingRecHitCollection>& outputRHColl,
-				 std::auto_ptr<reco::TrackCollection>& outputTColl,
-				 std::auto_ptr<reco::TrackExtraCollection>& outputTEColl,
+void TrackProducerBase::putInEvt(edm::Event& evt,
+				 std::auto_ptr<TrackingRecHitCollection>& selHits,
+				 std::auto_ptr<reco::TrackCollection>& selTracks,
+				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 				 AlgoProductCollection& algoResults)
 {
-  //
-  //first loop: create the full collection of TrackingRecHit
-  //
-  LogDebug("TrackProducer") << 
-    "first loop: create the full collection of TrackingRecHit" << "\n";
+
+  TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
+  reco::TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
+  reco::TrackRefProd rTracks = evt.getRefBeforePut<reco::TrackCollection>();
+
+  size_t idx = 0, hidx = 0;
+//   for( TrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
   for(AlgoProductCollection::iterator i=algoResults.begin();
       i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
-    
-    
-    
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
-    //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
-    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
-	j!=transHits.end(); j++){
-      outputRHColl->push_back( ( ((**j).hit() )->clone()) );
-    }
+
+    reco::Track * theTrack = (*i).second;
     
-  }
-  //put the collection of TrackingRecHit in the event
-  LogDebug("TrackProducer") << 
-    "put the collection of TrackingRecHit in the event" << "\n";
-  
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = theEvent.put( outputRHColl );
-  
-  //
-  //second loop: create the collection of TrackExtra
-  //
-  LogDebug("TrackProducer") << 
-    "second loop: create the collection of TrackExtra" << "\n";
-  int cc = 0;	
-  for(AlgoProductCollection::iterator i=algoResults.begin();
-      i!=algoResults.end();i++){
-    
-    Trajectory * theTraj = (*i).first;
+    //     if( ) {
+    selTracks->push_back( *theTrack );
     
     reco::TrackExtra * theTrackExtra;
     //sets the outermost and innermost TSOSs
@@ -135,7 +117,6 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
       innertsos = theTraj->lastMeasurement().updatedState();
     }
     //build the TrackExtra
-    //build the TrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
     math::XYZVector outmom( p.x(), p.y(), p.z() );
@@ -144,67 +125,144 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     p = innertsos.globalParameters().momentum();
     math::XYZVector inmom( p.x(), p.y(), p.z() );
     math::XYZPoint  inpos( v.x(), v.y(), v.z() );
-
+    
     theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true);
+    reco::TrackExtraRef teref( rTrackExtras, idx ++ );
+    selTracks->back().setExtra( teref );
+    selTracks->back().setHitPattern(teref->recHits());
+    selTrackExtras->push_back( *theTrackExtra );
     
-    
-    //fill the TrackExtra with TrackingRecHitRef	
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
-    //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
+//     reco::TrackExtra & tx = selTrackExtras->back();
     for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
 	j!=transHits.end(); j++){
-      theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-      cc++;
+      selHits->push_back( ( ((**j).hit() )->clone()) );
+      theTrackExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
-    
-    //fill the TrackExtraCollection
-    outputTEColl->push_back(*theTrackExtra);
+    //     }
     delete theTrackExtra;
-  }
-  //put the collection of TrackExtra in the event
-  LogDebug("TrackProducer") << 
-    "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = theEvent.put(outputTEColl);
-  
-  
-  //
-  //third loop: create the collection of Tracks
-  //
-  LogDebug("RecoTracker/TrackProducer") << 
-    "third loop: create the collection of Tracks" << "\n";
-  cc = 0;
-  for(AlgoProductCollection::iterator i=algoResults.begin();
-      i!=algoResults.end();i++){
-    
-    reco::Track * theTrack = (*i).second;
-    
-    //create a TrackExtraRef
-    reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
-    theTrack->setHitPattern((*theTrackExtraRef).recHits());
-    
-    //use the TrackExtraRef to assign the TrackExtra to the Track
-    theTrack->setExtra(theTrackExtraRef);
-    
-    //fill the TrackCollection
-    outputTColl->push_back(*theTrack);
-    
-    cc++;
     delete theTrack;
-  }
-  //put the TrackCollection in the event
-  LogDebug("TrackProducer") << 
-    "put the TrackCollection in the event" << "\n";
-  theEvent.put(outputTColl);
-
-  for(AlgoProductCollection::iterator i=algoResults.begin();
-      i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
-    Trajectory::DataContainer dc = theTraj->measurements();
-//     for (Trajectory::DataContainer::iterator j=dc.begin(); j!=dc.end(); j++) {
-//       delete j->recHit();
-//     }
     delete theTraj;
-  }  
+  }
   
+  evt.put( selTracks );
+  evt.put( selTrackExtras );
+  evt.put( selHits );
 }
+
+//   //
+//   //first loop: create the full collection of TrackingRecHit
+//   //
+//   LogDebug("TrackProducer") << 
+//     "first loop: create the full collection of TrackingRecHit" << "\n";
+//   for(AlgoProductCollection::iterator i=algoResults.begin();
+//       i!=algoResults.end();i++){
+//     Trajectory * theTraj = (*i).first;
+    
+//     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+//     for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
+// 	j!=transHits.end(); j++){
+//       outputRHColl->push_back( ( ((**j).hit() )->clone()) );
+//     }
+    
+//   }
+//   //put the collection of TrackingRecHit in the event
+//   LogDebug("TrackProducer") << 
+//     "put the collection of TrackingRecHit in the event" << "\n";
+  
+//   edm::OrphanHandle <TrackingRecHitCollection> ohRH = theEvent.put( outputRHColl );
+  
+//   //
+//   //second loop: create the collection of TrackExtra
+//   //
+//   LogDebug("TrackProducer") << 
+//     "second loop: create the collection of TrackExtra" << "\n";
+//   int cc = 0;	
+//   for(AlgoProductCollection::iterator i=algoResults.begin();
+//       i!=algoResults.end();i++){
+    
+//     Trajectory * theTraj = (*i).first;
+    
+//     reco::TrackExtra * theTrackExtra;
+//     //sets the outermost and innermost TSOSs
+//     TrajectoryStateOnSurface outertsos;
+//     TrajectoryStateOnSurface innertsos;
+//     if (theTraj->direction() == alongMomentum) {
+//       outertsos = theTraj->lastMeasurement().updatedState();
+//       innertsos = theTraj->firstMeasurement().updatedState();
+//     } else { 
+//       outertsos = theTraj->firstMeasurement().updatedState();
+//       innertsos = theTraj->lastMeasurement().updatedState();
+//     }
+//     //build the TrackExtra
+//     GlobalPoint v = outertsos.globalParameters().position();
+//     GlobalVector p = outertsos.globalParameters().momentum();
+//     math::XYZVector outmom( p.x(), p.y(), p.z() );
+//     math::XYZPoint  outpos( v.x(), v.y(), v.z() );
+//     v = innertsos.globalParameters().position();
+//     p = innertsos.globalParameters().momentum();
+//     math::XYZVector inmom( p.x(), p.y(), p.z() );
+//     math::XYZPoint  inpos( v.x(), v.y(), v.z() );
+
+//     theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true);
+    
+    
+//     //fill the TrackExtra with TrackingRecHitRef	
+//     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+//     //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
+//     for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
+// 	j!=transHits.end(); j++){
+//       theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+//       cc++;
+//     }
+    
+//     //fill the TrackExtraCollection
+//     outputTEColl->push_back(*theTrackExtra);
+//     delete theTrackExtra;
+//   }
+//   //put the collection of TrackExtra in the event
+//   LogDebug("TrackProducer") << 
+//     "put the collection of TrackExtra in the event" << "\n";
+//   edm::OrphanHandle<reco::TrackExtraCollection> ohTE = theEvent.put(outputTEColl);
+  
+  
+//   //
+//   //third loop: create the collection of Tracks
+//   //
+//   LogDebug("RecoTracker/TrackProducer") << 
+//     "third loop: create the collection of Tracks" << "\n";
+//   cc = 0;
+//   for(AlgoProductCollection::iterator i=algoResults.begin();
+//       i!=algoResults.end();i++){
+    
+//     reco::Track * theTrack = (*i).second;
+    
+//     //create a TrackExtraRef
+//     reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
+//     theTrack->setHitPattern((*theTrackExtraRef).recHits());
+    
+//     //use the TrackExtraRef to assign the TrackExtra to the Track
+//     theTrack->setExtra(theTrackExtraRef);
+    
+//     //fill the TrackCollection
+//     outputTColl->push_back(*theTrack);
+    
+//     cc++;
+//     delete theTrack;
+//   }
+//   //put the TrackCollection in the event
+//   LogDebug("TrackProducer") << 
+//     "put the TrackCollection in the event" << "\n";
+//   theEvent.put(outputTColl);
+
+//   for(AlgoProductCollection::iterator i=algoResults.begin();
+//       i!=algoResults.end();i++){
+//     Trajectory * theTraj = (*i).first;
+//     Trajectory::DataContainer dc = theTraj->measurements();
+// //     for (Trajectory::DataContainer::iterator j=dc.begin(); j!=dc.end(); j++) {
+// //       delete j->recHit();
+// //     }
+//     delete theTraj;
+//   }  
+  
+// }
 
