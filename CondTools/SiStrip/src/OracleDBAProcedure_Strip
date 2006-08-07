@@ -1,17 +1,31 @@
-pool_build_object_relational_mapping -f mapping-template-SiStripPedestals-default.xml -o SiStripPedestals-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+##
+## To reate mapping descriptions, if not already defined here
+##
+
+rm -f SiStripPedestals-mapping-default.xml
+
+pool_build_object_relational_mapping -f mapping-template-SiStripPedestals.xml -o SiStripPedestals-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+
+rm -f pippo.db
 
 cp SiStripPedestals-mapping-default.xml SiStripPedestals-mapping-custom.xml
 
 ######################
+rm -f SiStripNoises-mapping-default.xml
 
-pool_build_object_relational_mapping -f mapping-template-SiStripNoises-default.xml -o SiStripNoises-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+pool_build_object_relational_mapping -f mapping-template-SiStripNoises.xml -o SiStripNoises-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+
+rm -f pippo.db
 
 cp SiStripNoises-mapping-default.xml SiStripNoises-mapping-custom.xml
 
 ###########################
+rm -f SiStripFedCabling-mapping-default.xml
 
-pool_build_object_relational_mapping -f mapping-template-SiStripFedCabling-default.xml -o SiStripFedCabling-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+pool_build_object_relational_mapping -f mapping-template-SiStripFedCabling.xml -o SiStripFedCabling-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
  
+rm -f pippo.db
+
 cp SiStripFedCabling-mapping-default.xml SiStripFedCabling-mapping-custom.xml
 
 ######################
