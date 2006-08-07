@@ -39,8 +39,8 @@
 //ZeroSuppression 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressionAlgorithm.h"
 //SiStripPedestalsService
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>
