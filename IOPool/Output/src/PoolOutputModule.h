@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.7.2.2 2006/06/30 04:32:11 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.9 2006/07/06 19:25:00 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -51,6 +51,7 @@ namespace edm {
     std::string const logicalFileName_;
     unsigned long commitInterval_;
     unsigned long maxFileSize_;
+    int compressionLevel_;
     std::string const moduleLabel_;
     unsigned long fileCount_;
     boost::shared_ptr<PoolFile> poolFile_;

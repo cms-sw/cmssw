@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.38 2006/08/01 05:58:49 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.39 2006/08/03 23:03:39 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -47,6 +47,7 @@ namespace edm {
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
+    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
     poolFile_() {
@@ -159,6 +160,9 @@ namespace edm {
 
     pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
     fft.markWrite(fileFormatVersionPlacement_);
+
+    // Now, we can set the ROOT compression level
+    om_->context_.setCompressionLevel(file_, om_->compressionLevel_);
 
     // For now, just one run block per file.
     RunBlock runBlock;
