@@ -52,7 +52,7 @@ public:
 	unsigned int af  (void) const throw() { return alignment_fifo;}
 	unsigned int timingError(void) const throw() { return bxBit; }
 
-	bool unpack(const unsigned short *buf) throw() { memcpy(this, buf, 4*sizeof(short)); return check(); }
+	bool unpack(const unsigned short *&buf) throw() { memcpy(this, buf, 4*sizeof(short)); buf+=4; return check(); }
 
 	CSCSP_MBblock(void){}
 };
