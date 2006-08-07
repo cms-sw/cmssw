@@ -31,6 +31,10 @@ CSCDetId CSCReadoutMapping::detId( int endcap, int station, int vme, int dmb, in
   int cid = chamber( endcap, station, vme, dmb, tmb );
 
   // Decode the individual labels
+  // ... include endcap & station for MTCC when they are unique in the mapping file
+  // and so do not need to be specified as input arguments
+      endcap  = CSCDetId::endcap( cid );
+      station = CSCDetId::station( cid );
   int chamber = CSCDetId::chamber( cid );
   int ring    = CSCDetId::ring( cid );
 
