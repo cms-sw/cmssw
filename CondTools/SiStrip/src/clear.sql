@@ -1,4 +1,9 @@
 -- Tables created from the object-relational mapping
+drop table SISTRIPFEDCABLING_DETEC;
+drop table SISTRIPFEDCABLING_FEDS;
+drop table SISTRIPFEDCABLING_UNDET;
+drop table SISTRIPFEDCABLING_CONN;
+drop table SISTRIPFEDCABLING_CONN_V;
 drop table SISTRIPPEDESTALS;
 drop table DETREGISTRYINDEX_PED;
 drop table SISTRIPNOISES;
