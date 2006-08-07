@@ -1,14 +1,39 @@
 pool_build_object_relational_mapping -f mapping-template-SiStripPedestals-default.xml -o SiStripPedestals-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
- 
+
 cp SiStripPedestals-mapping-default.xml SiStripPedestals-mapping-custom.xml
-edit SiStripPedestals-mapping-custom.xml change to meaningful names
+
+######################
+
+pool_build_object_relational_mapping -f mapping-template-SiStripNoises-default.xml -o SiStripNoises-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+
+cp SiStripNoises-mapping-default.xml SiStripNoises-mapping-custom.xml
+
+###########################
+
+pool_build_object_relational_mapping -f mapping-template-SiStripFedCabling-default.xml -o SiStripFedCabling-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+ 
+cp SiStripFedCabling-mapping-default.xml SiStripFedCabling-mapping-custom.xml
+
+######################3
+
+edit SiStrip*-mapping-custom.xml change to meaningful names
+
+######################################
 
 start DBA procedure:
 build real table in oracle db
 
-pool_build_object_relational_mapping -f SiStripPedestals-mapping-custom.xml -d CondFormatsSiStripObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>SiStripPedestals.debug
+setenv TNS_ADMIN /afs/cern.ch/project/oracle/admin
 
-pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -o CondIOV-mapping-default.xml -debug > SiStripCondIOV.debug
+pool_build_object_relational_mapping -f SiStripPedestals-mapping-custom.xml -d CondFormatsSiStripObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug >! SiStripPedestals.debug
+
+pool_build_object_relational_mapping -f SiStripNoises-mapping-custom.xml -d CondFormatsSiStripObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug >! SiStripNoises.debug
+
+pool_build_object_relational_mapping -f SiStripFedCabling-mapping-custom.xml -d CondFormatsSiStripObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug >! SiStripFedCabling.debug
+
+pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -o CondIOV-mapping-default.xml -debug >! SiStripCondIOV.debug
+
+#####################################################
 
 to get create statements for DBA record:
 grep CREATE *.debug > SiStripschema.debug
