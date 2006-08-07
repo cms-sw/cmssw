@@ -4,16 +4,13 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/03/09 16:56:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.2 $
  *  \authors: R. Bellan
  */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "PluginManager/ModuleDef.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include <DataFormats/MuonDetId/interface/DTWireId.h>
 
 class TH1F;
 class TFile;
@@ -46,5 +43,4 @@ class DTDigiAnalyzer : public edm::EDAnalyzer{
   
 };
 
-DEFINE_FWK_MODULE(DTDigiAnalyzer)
 #endif    

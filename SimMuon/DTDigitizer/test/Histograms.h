@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Classes for histograms handling.
  *
- *  $Date: 2006/03/09 17:02:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 #include "TString.h"
@@ -35,11 +35,11 @@ class hDigis{
   }
 
   virtual ~hDigis(){
-    delete hMuonDigis; 
-    delete hMuonTimeDigis; 
-    delete hMuonTimeDigis_vs_theta;
-    delete hMuonTimeDigis_vs_theta_RZ;
-    delete hMuonTimeDigis_vs_theta_RPhi;
+//     delete hMuonDigis; 
+//     delete hMuonTimeDigis; 
+//     delete hMuonTimeDigis_vs_theta;
+//     delete hMuonTimeDigis_vs_theta_RZ;
+//     delete hMuonTimeDigis_vs_theta_RPhi;
   }
   	 
   hDigis(std::string name_,TFile *file){
@@ -150,37 +150,37 @@ class hHits{
   }
   
   virtual ~hHits(){
-    delete hHitType;
-    delete hZentry;
-    delete hZexit;  
-    delete hXentry;
-    delete hXexit;
-    delete hYentry;
-    delete hYexit;
-    delete hDeltaZ;
-    delete hDeltaY;
-    delete hDeltaX;
-    delete hAbsZEntry;
-    delete hAbsZExit;
-    delete hAbsXEntry;
-    delete hAbsXExit;
-    delete hAbsYEntry;
-    delete hAbsYExit;
-    delete hHitMomentum;
-    delete hSagittaGeom;
-    delete hSagittaMag;
-    delete hSagittaPVSType;
-    delete hSagittaBVSType;
-    delete hPathVSType;
-    delete hPathXVSType;
-    delete hProcessType;
-    delete hProcessVsHitType;
-    delete hPathVsProcess;
-    delete hPathXVsProcess;
+//     delete hHitType;
+//     delete hZentry;
+//     delete hZexit;  
+//     delete hXentry;
+//     delete hXexit;
+//     delete hYentry;
+//     delete hYexit;
+//     delete hDeltaZ;
+//     delete hDeltaY;
+//     delete hDeltaX;
+//     delete hAbsZEntry;
+//     delete hAbsZExit;
+//     delete hAbsXEntry;
+//     delete hAbsXExit;
+//     delete hAbsYEntry;
+//     delete hAbsYExit;
+//     delete hHitMomentum;
+//     delete hSagittaGeom;
+//     delete hSagittaMag;
+//     delete hSagittaPVSType;
+//     delete hSagittaBVSType;
+//     delete hPathVSType;
+//     delete hPathXVSType;
+//     delete hProcessType;
+//     delete hProcessVsHitType;
+//     delete hPathVsProcess;
+//     delete hPathXVsProcess;
 
-    delete h3DPathXVsProcessVsType;
-    delete h3DPathVsProcessVsType;
-    delete h3DXexitVsProcessVsType;
+//     delete h3DPathXVsProcessVsType;
+//     delete h3DPathVsProcessVsType;
+//     delete h3DXexitVsProcessVsType;
 
  }
   	 
@@ -366,17 +366,17 @@ class hDeltaR{
   }
    
   virtual ~hDeltaR(){
-    delete hType;
-    delete hZentry;
-    delete hXentry;
-    delete hYentry;
-    delete hHitMomentum;
-    delete hHitEnergyLoss;
-    delete hSagittaMag;
-    delete hPath;
-    delete hPathX;
-    delete hZoomPath;
-    delete hZoomPathX;
+//     delete hType;
+//     delete hZentry;
+//     delete hXentry;
+//     delete hYentry;
+//     delete hHitMomentum;
+//     delete hHitEnergyLoss;
+//     delete hSagittaMag;
+//     delete hPath;
+//     delete hPathX;
+//     delete hZoomPath;
+//     delete hZoomPathX;
   }
   
   hDeltaR(std::string name_,TFile *file){
@@ -462,10 +462,10 @@ class hParam{
   }
   
   virtual ~hParam(){
-  delete HitParam_X;
-  delete HitParam_Theta;
-  delete HitParam_Bwire;
-  delete HitParam_Bnorm;
+//   delete HitParam_X;
+//   delete HitParam_Theta;
+//   delete HitParam_Bwire;
+//   delete HitParam_Bnorm;
   }
   	 
   hParam(std::string name_,TFile *file){
@@ -524,9 +524,9 @@ class hMuonStat{
     }
     
     ~hMuonStat(){
-      delete hMuonNumber;
-      delete hMuonVsEta;
-      delete hMuonVsPhi;
+//       delete hMuonNumber;
+//       delete hMuonVsEta;
+//       delete hMuonVsPhi;
     }
     void Write(){
       hMuonNumber->Write();
@@ -576,11 +576,11 @@ public:
 
 
   ~hTOF(){
-    delete hTOF_true;
-    delete hTOF_hitPos;
-    delete hTOF_WC;
-    delete hDeltaTOF_hitPos;
-    delete hDeltaTOF_WC;
+//     delete hTOF_true;
+//     delete hTOF_hitPos;
+//     delete hTOF_WC;
+//     delete hDeltaTOF_hitPos;
+//     delete hDeltaTOF_WC;
   }
   
   void Fill(float tof, float TOF_WC, float TOF_hitPos){
@@ -642,11 +642,11 @@ public:
     hDeltaTDelay_hitpos = (TH1F *) file->Get(name+"_DeltaTDelay_hitpos");
   }
   ~hTDelay() {
-    delete hTDelay_true;	
-    delete hTDelay_WC;	
-    delete hTDelay_hitpos;
-    delete hDeltaTDelay_WC;
-    delete hDeltaTDelay_hitpos;
+//     delete hTDelay_true;	
+//     delete hTDelay_WC;	
+//     delete hTDelay_hitpos;
+//     delete hDeltaTDelay_WC;
+//     delete hDeltaTDelay_hitpos;
   }  
 
   void Fill(float t_True, float t_WC, float t_hitpos){
@@ -698,11 +698,11 @@ class hTimes{
 
  
   ~hTimes(){
-    delete RZ;
-    delete RPhi;
-    delete W0;
-    delete W1;
-    delete W2;
+//     delete RZ;
+//     delete RPhi;
+//     delete W0;
+//     delete W1;
+//     delete W2;
   }
 
   void Fill(float t_True, float t_WC, float t_hitpos, int wheel_type, int sltype){
@@ -744,9 +744,3 @@ class hTimes{
 
 #endif
 
-hDigis hDigis_global("Global");
-hDigis hDigis_W0("Wheel0");
-hDigis hDigis_W1("Wheel1");
-hDigis hDigis_W2("Wheel2");
-
-hHits hAllHits("AllHits");
