@@ -63,7 +63,7 @@ namespace edm {
     bool CompositeNode::isModified() const 
     {
       // see if any child is modified
-      bool result = modified_;
+      bool result = Node::isModified();
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;(i!=e) &&  !result;++i)
       {
@@ -90,7 +90,7 @@ namespace edm {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
       {
-         if((*i)->name == child) {
+         if((*i)->name() == child) {
            result = *i;
            return true;
          }
@@ -115,18 +115,18 @@ namespace edm {
       NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
       for(;i!=e;++i)
       {
-        if((**i).name == child)
+        if((**i).name() == child)
         {
           nodes_->erase(i);
           // only set this node's modified flag
-          modified_ = true;
+          Node::setModified(true);
           return;
         }
       }
  
       // if we didn't find it
       throw edm::Exception(errors::Configuration,"")
-        << "Cannot find node " <<child << " to erase in " << name;
+        << "Cannot find node " <<child << " to erase in " << name();
 
     }
 
@@ -139,14 +139,14 @@ namespace edm {
         {
           nodes_->erase(i);
           // only set this node's modified flag
-          modified_ = true;
+          Node::setModified(true);
           return;
         }
       }
       
       // if we didn't find it
       throw edm::Exception(errors::Configuration,"")
-        << "Cannot find node " <<child->name << " to erase in " << name;
+        << "Cannot find node " <<child->name() << " to erase in " << name();
       
   }
     
@@ -182,7 +182,7 @@ namespace edm {
         if((**nodeItr).type() == "using")
         {
           // find the block
-          string blockName = (**nodeItr).name;
+          string blockName = (**nodeItr).name();
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
           if(blockPtrItr == blocks.end()) {
              throw edm::Exception(errors::Configuration,"")

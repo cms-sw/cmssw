@@ -28,7 +28,7 @@ namespace edm {
 
     void UsingNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << "  using " << name;
+      ost << "  using " << name();
     }
     
     void UsingNode::accept(Visitor& v) const
@@ -44,7 +44,7 @@ namespace edm {
                                                                                                           
     void RenameNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << name << " " << from_ << " " << to_;
+      ost << name() << " " << from_ << " " << to_;
     }
                                                                                                           
     void RenameNode::accept(Visitor& v) const
@@ -60,7 +60,7 @@ namespace edm {
                                                                                                     
     void CopyNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << name << " " << from_ << " " << to_;
+      ost << name() << " " << from_ << " " << to_;
     }
                                                                                                     
     void CopyNode::accept(Visitor& v) const
@@ -110,7 +110,7 @@ namespace edm {
 
     void PSetRefNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << "PSet " << name << " = " << value_;
+      ost << "PSet " << name() << " = " << value_;
     }
 
     void PSetRefNode::accept(Visitor& v) const
@@ -202,7 +202,7 @@ namespace edm {
 
     void OperandNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << name;
+      ost << name();
     }
 
     void OperandNode::accept(Visitor& v) const

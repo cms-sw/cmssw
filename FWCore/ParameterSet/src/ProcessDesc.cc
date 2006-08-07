@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.3 2006/07/19 21:49:20 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.4 2006/07/23 01:24:36 valya Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.3 2006/07/19 21:49:20 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.4 2006/07/23 01:24:36 valya Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -73,18 +73,18 @@ namespace edm
 	++pathIt){
      
       if ((*pathIt)->type()=="sequence") {
-	sequences[(*pathIt)->name]= (*pathIt);
+	sequences[(*pathIt)->name()]= (*pathIt);
       }
      
       if ((*pathIt)->type()=="path") {
-	sequenceSubstitution((*pathIt)->wrapped_, sequences);
+	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),triggerpaths);
       }
 
       if ((*pathIt)->type()=="endpath") {
 	//cout << "got endpath = " << (*pathIt)->name << endl;
-	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name << endl;
-	sequenceSubstitution((*pathIt)->wrapped_, sequences);
+	//cout << "pointer = " << typeid(*(*pathIt)->wrapped().get()).name << endl;
+	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),endpaths);
       }
      
@@ -137,11 +137,11 @@ namespace edm
   void 
   ProcessDesc::getNames(const edm::pset::Node* n, Strs& out){
     if(n->type()=="operand"){ 
-      out.push_back(n->name);
+      out.push_back(n->name());
     } else {	
       const edm::pset::OperatorNode& op = dynamic_cast<const edm::pset::OperatorNode&>(*n);
-      getNames(op.left_.get(),out);
-      getNames(op.right_.get(),out);
+      getNames(op.left().get(),out);
+      getNames(op.right().get(),out);
     }
   } // getNames
 
@@ -150,9 +150,9 @@ namespace edm
   {
   
     Strs names;
-    getNames(n->wrapped_.get(),names);    
-    pset_->insert(true,n->name,Entry(names,true));
-    paths.push_back(n->name); // add to the list of paths
+    getNames(n->wrapped().get(),names);    
+    pset_->insert(true,n->name(),Entry(names,true));
+    paths.push_back(n->name()); // add to the list of paths
   
   } // fillPath(..) 
 
@@ -162,9 +162,9 @@ namespace edm
 						SeqMap&  sequences){
   
     if (node->type()=="operand"){
-      SeqMap::iterator seqIt = sequences.find(node->name); 
+      SeqMap::iterator seqIt = sequences.find(node->name()); 
       if (seqIt!= sequences.end()){
-        node = seqIt->second->wrapped_;
+        node = seqIt->second->wrapped();
         sequenceSubstitution(node, sequences);
       }
     } // if operator
@@ -172,18 +172,18 @@ namespace edm
       edm::pset::OperatorNode* onode = dynamic_cast<edm::pset::OperatorNode*>(node.get());
     
     
-      SeqMap::iterator seqIt = sequences.find(onode->left_->name); 
+      SeqMap::iterator seqIt = sequences.find(onode->left()->name()); 
       if (seqIt!= sequences.end()) {
-        onode->left_= seqIt->second->wrapped_;
-        onode->left_->setParent(onode);
+        onode->left()= seqIt->second->wrapped();
+        onode->left()->setParent(onode);
       }
-      seqIt = sequences.find(onode->right_->name); 
+      seqIt = sequences.find(onode->right()->name()); 
       if (seqIt!= sequences.end()){
-        onode->right_= seqIt->second->wrapped_; 
-        onode->right_->setParent(onode);
+        onode->right()= seqIt->second->wrapped(); 
+        onode->right()->setParent(onode);
       }
-      sequenceSubstitution(onode->left_, sequences);
-      sequenceSubstitution(onode->right_,sequences);
+      sequenceSubstitution(onode->left(), sequences);
+      sequenceSubstitution(onode->right(),sequences);
     
     }// else (operand)
   
@@ -192,15 +192,15 @@ namespace edm
 
   void ProcessDesc::dumpTree(NodePtr& node){
     if(node->type()=="operand"){ 
-      cout << " Operand " << node->name<< " p:";
-      if (node->getParent()) cout <<  node->getParent()->name;cout<< endl;
+      cout << " Operand " << node->name()<< " p:";
+      if (node->getParent()) cout <<  node->getParent()->name();cout<< endl;
     } else{	
       edm::pset::OperatorNode* op = dynamic_cast<edm::pset::OperatorNode*>(node.get());
-      cout << " Operator: " << op->name<<"["<<op->type()<<"]" 
-	   << " l:" << op->left_ << " r:"<<op->right_<< " p:";
-      if (op->parent_)cout<<  op->parent_->name;cout<< endl;
-      dumpTree(op->left_);
-      dumpTree(op->right_);
+      cout << " Operator: " << op->name()<<"["<<op->type()<<"]" 
+	   << " l:" << op->left() << " r:"<<op->right()<< " p:";
+      if (op->getParent())cout<<  op->getParent()->name() << endl;
+      dumpTree(op->left());
+      dumpTree(op->right());
     }
   } // dumpTree
 

@@ -38,7 +38,7 @@ namespace edm {
     void VEntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_ ? "" : "untracked ";
-      ost << t << type_ << " " << name << " = {\n  ";
+      ost << t << type() << " " << name() << " = {\n  ";
 
       if(!value_->empty())
         {
@@ -63,10 +63,10 @@ namespace edm {
       // see if it's a replace or an append
       if(replaceNode->type() == "replace")
       {
-        VEntryNode * replacement = dynamic_cast<VEntryNode*>(replaceNode->value().get());
+        VEntryNode * replacement = replaceNode->value<VEntryNode>();
         if(replacement == 0) {
           throw edm::Exception(errors::Configuration)
-            << "Cannot replace entry vector" << name
+            << "Cannot replace entry vector" << name()
             <<   " with " << replaceNode->type();
         }
         // replace the value, keep the type
@@ -79,7 +79,7 @@ namespace edm {
       else 
       {
          throw edm::Exception(errors::Configuration)
-            << "Cannot replace entry vector" << name
+            << "Cannot replace entry vector" << name()
             <<   " with " << replaceNode->type();
       }
       setModified(true);

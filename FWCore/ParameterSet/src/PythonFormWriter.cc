@@ -137,18 +137,18 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name << "': ('"
+	    << n.name() << "': ('"
 	    << n.type() << "', ";
-      write_trackedness(tuple, n.tracked_);
+      write_trackedness(tuple, n.isTracked());
       tuple << ", ";
 
       if (n.type() == "string") 
 	{
-	  write_string_value(tuple, n.value_);
+	  write_string_value(tuple, n.value());
 	}
       else 
 	{
-	  write_other_value(tuple, n.value_);
+	  write_other_value(tuple, n.value());
 	}
 
       tuple  << ')';
@@ -164,15 +164,15 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name << "': ('"
+	    << n.name() << "': ('"
 	    << n.type() << "', ";
 
-      write_trackedness(tuple, n.tracked_);
+      write_trackedness(tuple, n.isTracked());
       tuple << ", ";
 
       // Write out contents of the list...
-      StringList::const_iterator i = n.value_->begin();
-      StringList::const_iterator e = n.value_->end();
+      StringList::const_iterator i = n.value()->begin();
+      StringList::const_iterator e = n.value()->end();
 
       // Figure out which writer to call, so we don't have to do it
       // each time in the loop below.
@@ -270,7 +270,7 @@ namespace edm
       MYDEBUG(5) << "Saw a PSetNode\n";
       if ( "process" == n.type() )
 	{
-	  procname_ = n.name;
+	  procname_ = n.name();
 	  n.acceptForChildren(*this);
 
 	  MYDEBUG(4) << "\nprocess name: " << procname_
@@ -285,9 +285,9 @@ namespace edm
 	  // be written a named parameter.
 	  ostringstream out;
 	  out << "'" 
-	      << n.name 
+	      << n.name() 
 	      << "': ('PSet', ";
-          write_trackedness(out, n.tracked_);
+          write_trackedness(out, n.isTracked());
           out << ", ";
 
           bool atTopLevel = (moduleStack_.empty());
@@ -312,7 +312,7 @@ namespace edm
       else
 	{
 	  MYDEBUG(5) << "weird thing: "
-		     << n.type() << " " << n.name << '\n';
+		     << n.type() << " " << n.name() << '\n';
 	}
 
     }
@@ -323,9 +323,9 @@ namespace edm
       MYDEBUG(5) << "Saw a VPSetNode\n";
       ostringstream out;
       out << "'"
-	  << n.name
+	  << n.name()
 	  << "': ('VPSet', ";
-      write_trackedness(out, n.tracked_);
+      write_trackedness(out, n.isTracked());
       out << ", [";
       moduleStack_.top() += out.str();
 
@@ -352,7 +352,7 @@ namespace edm
     PythonFormWriter::visitModule(const ModuleNode& n)
     { 
       MYDEBUG(5) << "Saw a ModuleNode, name: " 
-		 << n.name << '\n';
+		 << n.name() << '\n';
 
       ostringstream header;
 
@@ -368,29 +368,29 @@ namespace edm
           string prefix("");
           string label("");
           string name("@");
-          if((n.type() == "es_module" && n.name!="nameless" ||
-              n.type() == "es_source" && n.name!="main_es_input") ||
-              n.type() == "es_prefer" && n.name!="nameless")
+          if((n.type() == "es_module" && n.name()!="nameless" ||
+              n.type() == "es_source" && n.name()!="main_es_input") ||
+              n.type() == "es_prefer" && n.name()!="nameless")
           {
-             label = n.name;
-             name += n.name;
+             label = n.name();
+             name += n.name();
           }
           if(n.type() =="es_prefer") {
             prefix = "esprefer_";
           }
-	  header <<"'"<< prefix << n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
+	  header <<"'"<< prefix << n.className() <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
 	}
-      else if (n.type() == "source" && n.name.empty())
+      else if (n.type() == "source" && n.name().empty())
 	{
 	  // no header to write...
 	}
-      else if (n.type() == "looper" && n.name.empty())
+      else if (n.type() == "looper" && n.name().empty())
       {
         // no header to write...
       }
       else if(n.type()=="service") 
         {
-          header<<"'"<<n.class_<<"': {";
+          header<<"'"<<n.className()<<"': {";
         }
       else if(n.type()=="secsource")
         {
@@ -402,15 +402,15 @@ namespace edm
           assert(!tokens.empty());
           modulesWithSecSources_.push_back(*(tokens.begin()));
 
-          header<<"'"<<n.name <<"': ('secsource', 'tracked', {";
+          header<<"'"<<n.name() <<"': ('secsource', 'tracked', {";
         }
       else
 	{
-	  header << "'" << n.name << "': {";
+	  header << "'" << n.name() << "': {";
 	}
 
       header << "'@classname': ('string', 'tracked', '"
-	     << n.class_
+	     << n.className()
 	     << "')";
 
       // Remember the names of modules that are output modules...  We
@@ -424,9 +424,9 @@ namespace edm
 //       assert ( !looks_like_an_output_module ("X") );
 
       if ( n.type() == "module" && 
-	   looks_like_an_output_module(n.class_) )
+	   looks_like_an_output_module(n.className()) )
 	{
-	  outputModuleNames_.push_back(n.name);
+	  outputModuleNames_.push_back(n.name());
 	}
 
       // secsource is the only kind of module that can exist inside another module
@@ -479,32 +479,32 @@ namespace edm
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
       ostringstream header;
-      header<<"'"<<n.name<<"' : '";
+      header<<"'"<<n.name()<<"' : '";
       moduleStack_.push(header.str());
       
       //processes the node held by the wrapper
-      n.wrapped_->accept(*this);
+      n.wrapped()->accept(*this);
 
       moduleStack_.top()+="'";
-      modules_[n.type_].push_back(moduleStack_.top());
+      modules_[n.type()].push_back(moduleStack_.top());
       moduleStack_.pop();
       MYDEBUG(5) << "Saw a WrapperNode, name: "
-		 << n.name << '\n';
+		 << n.name() << '\n';
     }
     
     void 
     PythonFormWriter::visitOperator(const OperatorNode& n)
     {
       moduleStack_.top()+="(";
-      n.left_->accept(*this);
-      moduleStack_.top()+=n.type_;
-      n.right_->accept(*this);
+      n.left()->accept(*this);
+      moduleStack_.top()+=n.type();
+      n.right()->accept(*this);
       moduleStack_.top()+=")";
     }
     void 
     PythonFormWriter::visitOperand(const OperandNode& n)
     {
-      moduleStack_.top()+=n.name;
+      moduleStack_.top()+=n.name();
     }
 
 

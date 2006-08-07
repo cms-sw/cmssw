@@ -29,7 +29,7 @@ namespace edm {
 
     void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      ost << type_ << " " << name << " = ";
+      ost << type() << " " << name() << " = ";
 
       CompositeNode::print(ost, options);
     }
@@ -42,15 +42,14 @@ namespace edm {
 
     bool PSetNode::isModified() const 
     {
-      return modified_ || CompositeNode::isModified();
+      return Node::isModified() || CompositeNode::isModified();
     }
 
 
     void PSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
       assertNotModified();
-      NodePtr replacementPtr = replaceNode->value_;
-      PSetNode * replacement = dynamic_cast<PSetNode*>(replacementPtr.get());
+      PSetNode * replacement = replaceNode->value<PSetNode>();
       assert(replacement != 0);
 
       nodes_ = replacement->nodes_;
@@ -76,14 +75,14 @@ namespace edm {
 
     void PSetNode::insertInto(edm::ParameterSet & pset) const
     {
-      pset.insert(false, name, makeEntry());
+      pset.insert(false, name(), makeEntry());
     }
 
 
 
     void PSetNode::insertInto(edm::ProcessDesc & procDesc) const
     {
-      procDesc.getProcessPSet()->insert(false, name, makeEntry());
+      procDesc.getProcessPSet()->insert(false, name(), makeEntry());
     }
 
 
@@ -96,7 +95,7 @@ namespace edm {
           << "Attempt to make a ProcessDesc with a PSetNode which is not a process";
       }
 
-      procDesc.getProcessPSet()->insert(true, "@process_name", edm::Entry(name, true));
+      procDesc.getProcessPSet()->insert(true, "@process_name", edm::Entry(name(), true));
       // insert the subnodes as top-level nodes
       NodePtrList::const_iterator i(nodes()->begin()),e(nodes()->end());
       for(;i!=e;++i)

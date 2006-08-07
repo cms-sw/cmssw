@@ -7,7 +7,7 @@ namespace edm {
   namespace pset {
 
     /** CompositeNode is meant as a base class */
-    struct CompositeNode : public Node {
+    class CompositeNode : public Node {
     public:
       CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
       : Node(name, line), nodes_(nodes) {}

@@ -12,13 +12,17 @@ namespace edm {
       They hold another Node that actually contains the information.
     */
 
-    struct WrapperNode : public Node
+    class WrapperNode : public Node
     {
+    public:
       WrapperNode(const std::string& type, const std::string& name,
                   NodePtr w, int line=-1);
       virtual Node * clone() const { return new WrapperNode(*this);}
 
       virtual std::string type() const;
+      NodePtr & wrapped() {return wrapped_;}
+      const NodePtr & wrapped() const {return wrapped_;}
+
       virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
@@ -28,6 +32,7 @@ namespace edm {
       /// field for the Wrapper nodes
       virtual void insertInto(edm::ProcessDesc & procDesc) const;
 
+    private:
       std::string type_;
       NodePtr wrapped_;
     };

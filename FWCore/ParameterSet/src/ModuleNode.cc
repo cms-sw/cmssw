@@ -24,7 +24,7 @@ namespace edm {
 
     void ModuleNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
-      string output_name = ( name == "nameless" ? string() : name);
+      string output_name = ( name() == "nameless" ? string() : name());
       ost << type_ << " " << output_name << " = " << class_ << "\n";
       CompositeNode::print(ost, options);
     }
@@ -35,10 +35,10 @@ namespace edm {
     }
 
     void ModuleNode::replaceWith(const ReplaceNode * replaceNode) {
-      ModuleNode * replacement = dynamic_cast<ModuleNode *>(replaceNode->value_.get());
+      ModuleNode * replacement = replaceNode->value<ModuleNode>();
       if(replacement == 0) {
         throw edm::Exception(errors::Configuration)
-          << "Cannot replace this module with a non-module  " << name;
+          << "Cannot replace this module with a non-module  " << name();
       }
       nodes_ = replacement->nodes_;
       class_ = replacement->class_;
@@ -58,14 +58,14 @@ namespace edm {
        // do all the subnodes
        CompositeNode::insertInto(*pset);
        pset->insert(false, "@module_type", Entry(class_, true));
-       pset->insert(false, "@module_label", Entry(name, true));
+       pset->insert(false, "@module_label", Entry(name(), true));
        return Entry(*pset, true);
     }
 
 
     void ModuleNode::insertInto(edm::ParameterSet & pset) const
     {
-      pset.insert(false, name, makeEntry());
+      pset.insert(false, name(), makeEntry());
     }
 
 
@@ -87,14 +87,14 @@ namespace edm {
         string bookkeepingIndex(""); 
         if(type() =="module")
         {
-          pset->insert(true, "@module_label", Entry(name, true));
+          pset->insert(true, "@module_label", Entry(name(), true));
           pset->insert(true, "@module_type", Entry(class_,true));
-          label = name;
+          label = name();
           bookkeepingIndex = "@all_modules";
         }
         else if(type() =="source")
         {
-          label = name;
+          label = name();
           if (label.empty()) label = "@main_input";
           pset->insert(true, "@module_label", Entry(label, true));
           std::string tmpClass = (class_=="secsource") ? "source" : class_;
@@ -103,7 +103,7 @@ namespace edm {
         }
         else if(type() =="looper")
         {
-          label = name;
+          label = name();
           if (label.empty()) label = "@main_looper";
           pset->insert(true, "@module_label", Entry(label, true));
           pset->insert(true, "@module_type", Entry(class_,true));
@@ -111,7 +111,7 @@ namespace edm {
         }
         else if(type() =="es_module")
         {
-          string sublabel = (name == "nameless") ? "" : name;
+          string sublabel = (name() == "nameless") ? "" : name();
           pset->insert(true, "@module_label", Entry(sublabel, true));
           pset->insert(true, "@module_type", Entry(class_,true));
           label = class_+"@"+sublabel;
@@ -119,7 +119,7 @@ namespace edm {
         }
         else if(type() =="es_source")
         {
-          string sublabel = (name == "main_es_input") ? "" : name;
+          string sublabel = (name() == "main_es_input") ? "" : name();
           pset->insert(true, "@module_label", Entry(sublabel, true));
           pset->insert(true, "@module_type", Entry(class_,true));
           label = class_+"@"+sublabel;
@@ -127,7 +127,7 @@ namespace edm {
         }
         else if(type() =="es_prefer")
         {
-          string sublabel = (name == "nameless") ? "" : name;
+          string sublabel = (name() == "nameless") ? "" : name();
           pset->insert(true, "@module_label", Entry(sublabel, true));
           pset->insert(true, "@module_type", Entry(class_,true));
           label = "esprefer_" + class_+"@"+sublabel;

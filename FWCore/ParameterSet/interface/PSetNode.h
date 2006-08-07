@@ -6,8 +6,9 @@
 namespace edm {
   namespace pset {
 
-    struct PSetNode : public CompositeNode
+    class PSetNode : public CompositeNode
     {
+    public:
       PSetNode(const std::string& typ,
                const std::string& name,
                NodePtrListPtr value,
@@ -15,6 +16,7 @@ namespace edm {
                int line=-1);
       virtual Node * clone() const { return new PSetNode(*this);}
       virtual std::string type() const;
+      bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual bool isModified() const;
 
@@ -31,6 +33,7 @@ namespace edm {
       /// a node of type "process"
       void fillProcess(edm::ProcessDesc & procDesc) const;
 
+    private:
       std::string type_;
       bool tracked_;
     };

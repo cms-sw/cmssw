@@ -29,7 +29,7 @@ namespace edm {
       // if it's modified, we have to print out everything
       if(options == COMPRESSED && !isModified())
       {
-         ost << "include \"" << name << "\"\n";
+         ost << "include \"" << name() << "\"\n";
       }
       else 
       {
@@ -49,7 +49,7 @@ namespace edm {
     {
       if(isResolved())
       {
-        ost << "Line " << line << " includes " << fullPath_ << "\n";
+        ost << "Line " << line() << " includes " << fullPath_ << "\n";
       }
       // and pass it up
       Node::printTrace(ost);
@@ -60,16 +60,16 @@ namespace edm {
                               std::list<string> & sameLevelIncludes)
     {
       // we don't allow circular opening of already-open files,
-      if(std::find(openFiles.begin(), openFiles.end(), name)
+      if(std::find(openFiles.begin(), openFiles.end(), name())
          != openFiles.end())
       {
         throw edm::Exception(errors::Configuration, "IncludeError")
-         << "Circular inclusion of file " << name;
+         << "Circular inclusion of file " << name();
       }
 
       // ignore second includes at the same level
       std::list<std::string>::const_iterator twinSister
-        = find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name);
+        = find(sameLevelIncludes.begin(), sameLevelIncludes.end(), name());
       if(twinSister != sameLevelIncludes.end())
       {
         // duplicate.  Remove this one.
@@ -79,14 +79,13 @@ namespace edm {
       }
       else 
       {
-        openFiles.push_back(name);
-        sameLevelIncludes.push_back(name);
-        FileInPath fip(name);
+        openFiles.push_back(name());
+        sameLevelIncludes.push_back(name());
+        FileInPath fip(name());
         fullPath_ = fip.fullPath();
         isResolved_ = true;
         string configuration;
         read_whole_file(fip.fullPath(), configuration);
-
         // save the name of the file
         extern string currentFile;
         string oldFile = currentFile;
@@ -99,7 +98,7 @@ namespace edm {
       
         currentFile = oldFile;
         // make sure the openFiles list isn't corrupted
-        assert(openFiles.back() == name);
+        assert(openFiles.back() == name());
         openFiles.pop_back();
       }
     }

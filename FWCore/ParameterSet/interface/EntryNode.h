@@ -13,13 +13,15 @@ namespace edm {
       according to the rules in pset_parse.y
     */
 
-    struct EntryNode : public Node
+    class EntryNode : public Node
     {
+    public:
       EntryNode(const std::string& type, const std::string& name,
                 const std::string& values, bool tracked, int line=-1);
       virtual Node * clone() const { return new EntryNode(*this);}
       virtual std::string type() const;
       std::string value() const {return value_;}
+      bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;
@@ -28,6 +30,7 @@ namespace edm {
       /// the components of ParameterSets
       virtual edm::Entry makeEntry() const;
 
+    private:
       std::string type_;
       std::string value_;
       bool tracked_;

@@ -26,7 +26,7 @@ namespace edm {
     void EntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       const char* t = !tracked_? "" : "untracked ";
-      ost << t << type_ << " " << name << " = " << value_;
+      ost << t << type() << " " << name() << " = " << value();
     }
 
 
@@ -38,10 +38,10 @@ namespace edm {
 
     void EntryNode::replaceWith(const ReplaceNode * replaceNode) {
       assertNotModified();
-      EntryNode * replacement = dynamic_cast<EntryNode*>(replaceNode->value_.get());
+      EntryNode * replacement = replaceNode->value<EntryNode>();
       if(replacement == 0) {
         throw edm::Exception(errors::Configuration)
-          << "Cannot replace entry " << name
+          << "Cannot replace entry " << name()
           << " with " << replaceNode->type();
       }
       // replace the value, keep the type
