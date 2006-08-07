@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/04 17:05:30 $
- *  $Revision: 1.31 $
+ *  $Date: 2006/08/04 20:01:12 $
+ *  $Revision: 1.32 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -98,7 +98,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
   theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
-
+  theLayerMeasurements = new MuonDetLayerMeasurements();
   
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
@@ -128,6 +128,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theRefitter) delete theRefitter;
   if (theUpdator) delete theUpdator;
   if (theTrackMatcher) delete theTrackMatcher;
+  if (theLayerMeasurements) delete theLayerMeasurements; 
 
 }
 
@@ -161,6 +162,8 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogInfo("GlobalMuonTrajectoryBuilder") 
   << "Found " << allTrackerTracks->size() << " tracker tracks with label "
   << theTkTrackLabel << endl;
+  theLayerMeasurements->setEvent(event);
+
 }
 
 
@@ -442,8 +445,6 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
-  MuonDetLayerMeasurements theLayerMeasurements;
-  
   ConstMuonRecHitContainer muonRecHits = getTransientHits(muon);
   
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
@@ -458,7 +459,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       DetId id = (*imrh)->geographicalId();
       
       const DetLayer* layer = theDetLayerGeometry->idToLayer(id);
-      MuonRecHitContainer dRecHits = theLayerMeasurements.recHits(layer);
+      MuonRecHitContainer dRecHits = theLayerMeasurements->recHits(layer);
       
       // get station of hit if it is in DT
       if ( (**imrh).isDT() ) {
