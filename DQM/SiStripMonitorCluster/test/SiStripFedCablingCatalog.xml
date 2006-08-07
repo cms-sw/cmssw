@@ -2,7 +2,7 @@
 <!-- Edited By POOL -->
 <!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
 <POOLFILECATALOG>
-  <File ID="52554624-BC18-DB11-B16C-000E0C4DE536">
+  <File ID="30AE7F7D-3026-DB11-8C67-000E0C5CE283">
     <physical>
       <pfn filetype="POOL_RDBMS" name="sqlite_file:sistripfedcabling.db"/>
     </physical>
