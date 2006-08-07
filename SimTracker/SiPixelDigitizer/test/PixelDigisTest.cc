@@ -7,7 +7,7 @@
 
  Description: Test pixel digis. 
  Barrel & Forward digis. Uses root histos.
- Works with CMSSW_0_7_0 
+ Works with CMSSW_0_9_0_pre3 
  Adopted for the new simLinks. 
 
  Implementation:
@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.9 2006/08/02 08:17:36 llista Exp $
+// $Id: PixelDigisTest.cc,v 1.8 2006/06/16 11:04:01 dkotlins Exp $
 //
 //
 // system include files
@@ -91,20 +91,27 @@ private:
   bool PRINT;
 
   TFile* hFile;
-  TH1F *heloss1,*heloss2, *heloss3,*hdetunit;
+  TH1F *hdetunit;
+  TH1F *heloss1,*heloss2, *heloss3;
+  TH1F *helossF1,*helossF2;
   TH1F *hpixid,*hpixsubid,*hlayerid,*hladder1id,*hladder2id,*hladder3id,
     *hz1id,*hz2id,*hz3id;
   TH1F *hcols1,*hcols2,*hcols3,*hrows1,*hrows2,*hrows3;
+  TH1F *hcolsF1,*hcolsF2,*hcolsF3,*hrowsF1,*hrowsF2,*hrowsF3;
   TH1F *hdigisPerDet1,*hdigisPerDet2,*hdigisPerDet3;
   TH1F *hdigisPerLay1,*hdigisPerLay2,*hdigisPerLay3;
   TH1F *hdetsPerLay1,*hdetsPerLay2,*hdetsPerLay3;
+  TH1F *hdigisPerDetF1,*hdigisPerDetF2,*hdigisPerDetF3;
+  TH1F *hdigisPerLayF1,*hdigisPerLayF2,*hdigisPerLayF3;
+  TH1F *hdetsPerLayF1,*hdetsPerLayF2,*hdetsPerLayF3;
   TH1F *hdetr, *hdetz, *hdetrF, *hdetzF;
   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
   TH1F *hcols1big, *hrows1big, *heloss1bigx, *heloss1bigy;
   TH1F *hsimlinks, *hfract;
 
   TH2F *htest, *htest2;
-  edm::InputTag src_;
+
+  edm::InputTag src_;  
 
 };
 
@@ -182,6 +189,19 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hdetsPerLay2 = new TH1F( "hdetsPerLay2", "Full dets per layer l2", 
 			      257, -0.5, 256.5);
 
+    hdigisPerDetF1 = new TH1F( "hdigisPerDetF1", "Digis per det d1", 
+			      200, -0.5, 199.5);
+    hdigisPerDetF2 = new TH1F( "hdigisPerDetF2", "Digis per det d2", 
+			      200, -0.5, 199.5);
+    hdigisPerLayF1 = new TH1F( "hdigisPerLayF1", "Digis per layer d1", 
+			      2000, -0.5, 1999.5);
+    hdigisPerLayF2 = new TH1F( "hdigisPerLayF2", "Digis per layer d2", 
+			      2000, -0.5, 1999.5);
+    hdetsPerLayF1 = new TH1F( "hdetsPerLayF1", "Full dets per layer d1", 
+			      161, -0.5, 160.5);
+    hdetsPerLayF2 = new TH1F( "hdetsPerLayF2", "Full dets per layer d2", 
+			      257, -0.5, 256.5);
+
     heloss1 = new TH1F( "heloss1", "Pix charge l1", 100, 0., 300.);
     heloss2 = new TH1F( "heloss2", "Pix charge l2", 100, 0., 300.);
     heloss3 = new TH1F( "heloss3", "Pix charge l3", 100, 0., 300.);
@@ -198,6 +218,15 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hrows3 = new TH1F( "hrows3", "layer 3 rows", 200,-1.5,198.5);
     hrows1big = new TH1F( "hrows1big", "Layer 1 big rows", 200,-1.5,198.5);
  
+    helossF1 = new TH1F( "helossF1", "Pix charge d1", 100, 0., 300.);
+    helossF2 = new TH1F( "helossF2", "Pix charge d2", 100, 0., 300.);
+    hcolsF1 = new TH1F( "hcolsF1", "Disk 1 cols", 500,-1.5,498.5);
+    hcolsF2 = new TH1F( "hcolsF2", "Disk 2 cols", 500,-1.5,498.5);
+    hrowsF1 = new TH1F( "hrowsF1", "Disk 1 rows", 200,-1.5,198.5);
+    hrowsF2 = new TH1F( "hrowsF2", "Disk 2 rows", 200,-1.5,198.5);
+
+
+
     hdetr = new TH1F("hdetr","det r",150,0.,15.);
     hdetz = new TH1F("hdetz","det z",520,-26.,26.);
     hdetrF = new TH1F("hdetrF","det r",150,0.,15.);
@@ -221,8 +250,8 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 			   const edm::EventSetup& iSetup) {
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
-  
-  // Get digis
+
+    // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
   iEvent.getByLabel( src_ , pixelDigis);
 
@@ -239,6 +268,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
   int numberOfDetUnits = 0;
   int totalNumOfDigis = 0;
+
   int numberOfDetUnits1 = 0;
   int totalNumOfDigis1 = 0;
   int numberOfDetUnits2 = 0;
@@ -248,7 +278,13 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   int numOfDigisPerDet1 = 0;
   int numOfDigisPerDet2 = 0;
   int numOfDigisPerDet3 = 0;
-  
+
+  int numberOfDetUnitsF1 = 0;
+  int totalNumOfDigisF1 = 0;
+  int numberOfDetUnitsF2 = 0;
+  int totalNumOfDigisF2 = 0;
+  int numOfDigisPerDetF1 = 0;
+  int numOfDigisPerDetF2 = 0;
 
   // Iterate on detector units
   edm::DetSetVector<PixelDigi>::const_iterator DSViter;
@@ -287,6 +323,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     unsigned int layer=0;
     unsigned int ladder=0;
     unsigned int zindex=0;
+    unsigned int disk=0; //1,2,3
 
     // Subdet it, pix barrel=1, forward=2
     if(subid==2) {   // forward
@@ -297,7 +334,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       hrowsF->Fill(float(rows));
 
       PXFDetId pdetId = PXFDetId(detid);
-      unsigned int disk=pdetId.disk(); //1,2,3
+      disk=pdetId.disk(); //1,2,3
       unsigned int blade=pdetId.blade(); //1-24
       unsigned int zindex=pdetId.module(); //
       unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
@@ -312,7 +349,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       }
 
     } else if(subid == 1) { // Barrel 
-
 
       hdetr->Fill(detR);
       hdetz->Fill(detZ);
@@ -353,6 +389,12 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
         hz3id->Fill(float(zindex));
 	++numberOfDetUnits3;
 	numOfDigisPerDet3=0;
+      } else if(disk==1) {
+	++numberOfDetUnitsF1;
+	numOfDigisPerDetF1=0;
+      } else if(disk==2) {
+	++numberOfDetUnitsF2;
+	numOfDigisPerDetF2=0;
       }
       
     } // end bar-fb 
@@ -398,10 +440,10 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	
 	numberOfDigis++;
        totalNumOfDigis++;
-       int adc = di->adc();    // charge
+       int adc = di->adc();    // charge, modifued to unsiged short 
        int col = di->column(); // column 
        int row = di->row();    // row
-       //int tof = di->time();    // tof always 0
+       //int tof = di->time();    // tof always 0, method deleted
 
        // channel index needed to look for the simlink to simtracks
        int channel = PixelChannelIdentifier::pixelToChannel(row,col);
@@ -441,6 +483,18 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	 hrows3->Fill(float(row));
 	 totalNumOfDigis3++;
 	 numOfDigisPerDet1++;
+       } else if(disk==1) {
+	 helossF1->Fill(float(adc));
+	 hcolsF1->Fill(float(col));
+	 hrowsF1->Fill(float(row));
+	 totalNumOfDigisF1++;
+	 numOfDigisPerDetF1++;
+       } else if(disk==2) {
+	 helossF2->Fill(float(adc));
+	 hcolsF2->Fill(float(col));
+	 hrowsF2->Fill(float(row));
+	 totalNumOfDigisF2++;
+	 numOfDigisPerDetF2++;
        } // end if layer
         
      } // end for digis
@@ -448,10 +502,12 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       //cout<<" for det "<<detid<<" digis = "<<numberOfDigis<<endl;
 
      if(layer==1) {
-       hdigisPerDet1->Fill(float(numberOfDigis));
-       htest->Fill(float(zindex),float(numberOfDigis));
-     } else if(layer==2) hdigisPerDet2->Fill(float(numberOfDigis));
-     else if(layer==3) hdigisPerDet3->Fill(float(numberOfDigis));
+       hdigisPerDet1->Fill(float(numOfDigisPerDet1));
+       htest->Fill(float(zindex),float(numOfDigisPerDet1));
+     } else if(layer==2) hdigisPerDet2->Fill(float(numOfDigisPerDet2));
+     else if(layer==3) hdigisPerDet3->Fill(float(numOfDigisPerDet3));
+     else if(disk==1) hdigisPerDetF1->Fill(float(numOfDigisPerDetF1));
+     else if(disk==2) hdigisPerDetF1->Fill(float(numOfDigisPerDetF2));
 
    } // end for det-units
 
@@ -465,6 +521,11 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
    hdetsPerLay1 ->Fill(float(numberOfDetUnits1));
    hdetsPerLay2 ->Fill(float(numberOfDetUnits2));
    hdetsPerLay3 ->Fill(float(numberOfDetUnits3));
+
+   hdigisPerLayF1 ->Fill(float(totalNumOfDigisF1));
+   hdigisPerLayF2 ->Fill(float(totalNumOfDigisF2));
+   hdetsPerLayF1 ->Fill(float(numberOfDetUnitsF1));
+   hdetsPerLayF2 ->Fill(float(numberOfDetUnitsF2));
 
 }
 // ------------ method called to at the end of the job  ------------
