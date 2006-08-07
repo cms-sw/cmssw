@@ -16,6 +16,27 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
 
 }
 
+//__________________________________________________________________________________________________
+AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
+{
+
+  theMap.clear();
+ 
+  
+  for ( std::vector<Alignable*>::iterator it = alignables.begin();
+		it != alignables.end(); it++ )
+	recursiveGetId( *it );
+
+
+}
+
+
+//__________________________________________________________________________________________________
+Alignable* AlignableNavigator::alignableFromGeomDet( const GeomDet* geomDet )
+{
+   return alignableFromDetId( geomDet->geographicalId() );
+}
+
 
 //__________________________________________________________________________________________________
 Alignable* AlignableNavigator::alignableFromDetId( const DetId& detid )
