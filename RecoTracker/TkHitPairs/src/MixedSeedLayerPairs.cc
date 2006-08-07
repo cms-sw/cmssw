@@ -27,20 +27,20 @@ vector<SeedLayerPairs::LayerPair> MixedSeedLayerPairs::operator()()
   //seeds from the forward-barrel
   addBarrelForwardLayers(0,0,result);
   addBarrelForwardLayers(0,1,result);
+  addBarrelForwardLayers(1,0,result);
   addBarrelForwardLayers(1,1,result);
 
   //seeds from the forward
   addForwardForwardLayers(0,1,result);
-  addForwardForwardLayers(0,2,result);
-  addForwardForwardLayers(0,3,result);
-  addForwardForwardLayers(0,4,result);
+  //addForwardForwardLayers(0,2,result); Overlaps (0,1) --> redundant
+  //addForwardForwardLayers(0,3,result); Overlaps (0,1) --> redundant
+  //addForwardForwardLayers(0,4,result); Overlaps (0,1) --> redundant
 
   addForwardForwardLayers(1,2,result);
   addForwardForwardLayers(1,3,result);
-  addForwardForwardLayers(1,4,result);
+  //addForwardForwardLayers(1,4,result); Overlaps (0,1) --> redundant
 
-  addForwardForwardLayers(2,3,result);
-  addForwardForwardLayers(2,4,result);
+  //addForwardForwardLayers(2,3,result); Overlaps (1,2) --> redundant
 
   addForwardForwardLayers(3,4,result);
 
