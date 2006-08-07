@@ -57,14 +57,14 @@ class CSCReadoutMapping {
     * Return CSCDetId for layer corresponding to readout ids vme, tmb, and dmb for given endcap
     * and layer no. 1-6, or for chamber if no layer no. supplied.
     * Args: endcap = 1 (+z), 2 (-z), station, vme crate number, dmb slot number, tmb slot number, 
-    * cfeb number (so we can identify ME1a/b within ME11, layer number
+    * cfeb number (so we can identify ME1a/b within ME11), layer number
     */
     // layer at end so it can have default arg
   CSCDetId detId( int endcap, int station, int vmecrate, int dmb, int tmb, int cfeb, int layer = 0 ) const;
 
    /** 
     * Return chamber label corresponding to readout ids vme, tmb and dmb for given endcap
-    *  endcap = 1 (+z), 2 (-z), vme crate number, dmb slot number, tmb slot number.
+    *  endcap = 1 (+z), 2 (-z), station, vme crate number, dmb slot number, tmb slot number.
     */
   int chamber( int endcap, int station, int vmecrate, int dmb, int tmb ) const;
 
