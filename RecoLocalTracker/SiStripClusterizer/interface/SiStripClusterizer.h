@@ -29,7 +29,7 @@
 //Clusterizer
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
 //SiStripPedestalsService
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>
