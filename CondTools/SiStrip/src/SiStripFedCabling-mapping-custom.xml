@@ -2,9 +2,9 @@
 <!DOCTYPE Mapping SYSTEM "InMemory">
 <Mapping version="SiStripFedCabling-1.0" >
   <Class table="SISTRIPFEDCABLING" id_columns="IOV_VALUE_ID" name="SiStripFedCabling" >
-    <Container table="SISTRIPFEDCABLING_CONNECTED" id_columns="IOV_VALUE_ID" name="connected_" position_column="FED_ID" >
-      <Container table="SISTRIPFEDCABLING_CONNECTED_V" id_columns="FED_ID IOV_VALUE_ID" name="value_type" position_column="POS" >
-        <Object table="SISTRIPFEDCABLING_CONNECTED_V" id_columns="POS ID_POS IOV_VALUE_ID" name="value_type" >
+    <Container table="SISTRIPFEDCABLING_CONN" id_columns="IOV_VALUE_ID" name="connected_" position_column="FED_ID" >
+      <Container table="SISTRIPFEDCABLING_CONN_V" id_columns="FED_ID IOV_VALUE_ID" name="value_type" position_column="POS" >
+        <Object table="SISTRIPFEDCABLING_CONN_V" id_columns="POS FED_ID IOV_VALUE_ID" name="value_type" >
           <Primitive column="APV0"     name="apv0_" />
           <Primitive column="APV1"     name="apv1_" />
           <Primitive column="CCUADDR"  name="ccuAddr_" />
@@ -25,8 +25,8 @@
         </Object >
       </Container >
     </Container >
-    <Container table="SISTRIPFEDCABLING_DETECTED" id_columns="IOV_VALUE_ID" name="detected_" position_column="POS" >
-      <Object table="SISTRIPFEDCABLING_DETECTED" id_columns="POS IOV_VALUE_ID" name="value_type" >
+    <Container table="SISTRIPFEDCABLING_DETEC" id_columns="IOV_VALUE_ID" name="detected_" position_column="POS" >
+      <Object table="SISTRIPFEDCABLING_DETEC" id_columns="POS IOV_VALUE_ID" name="value_type" >
         <Primitive column="APV0" name="apv0_" />
         <Primitive column="APV1" name="apv1_" />
         <Primitive column="CCUADDR" name="ccuAddr_" />
@@ -49,8 +49,8 @@
     <Container table="SISTRIPFEDCABLING_FEDS" id_columns="IOV_VALUE_ID" name="feds_" position_column="POS" >
       <Primitive column="FEDS" name="value_type" />
     </Container >
-    <Container table="SISTRIPFEDCABLING_UNDETECTED" id_columns="IOV_VALUE_ID" name="undetected_" position_column="POS" >
-      <Object table="SISTRIPFEDCABLING_UNDETECTED" id_columns="POS IOV_VALUE_ID" name="value_type" >
+    <Container table="SISTRIPFEDCABLING_UNDET" id_columns="IOV_VALUE_ID" name="undetected_" position_column="POS" >
+      <Object table="SISTRIPFEDCABLING_UNDET" id_columns="POS IOV_VALUE_ID" name="value_type" >
         <Primitive column="APV0" name="apv0_" />
         <Primitive column="APV1" name="apv1_" />
         <Primitive column="CCUAD" name="ccuAddr_" />
