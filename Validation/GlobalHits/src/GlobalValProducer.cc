@@ -17,6 +17,31 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
+  //get Labels to use to extract information
+  PxlBrlLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc");
+  PxlBrlHighSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc");
+  PxlFwdLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc");
+  PxlFwdHighSrc_ = iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc");
+
+  SiTIBLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTIBLowSrc");
+  SiTIBHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTIBHighSrc");
+  SiTOBLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTOBLowSrc");
+  SiTOBHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTOBHighSrc");
+  SiTIDLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTIDLowSrc");
+  SiTIDHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTIDHighSrc");
+  SiTECLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTECLowSrc");
+  SiTECHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTECHighSrc");
+
+  MuonCscSrc_ = iPSet.getParameter<edm::InputTag>("MuonCscSrc");
+  MuonDtSrc_ = iPSet.getParameter<edm::InputTag>("MuonDtSrc");
+  MuonRpcSrc_ = iPSet.getParameter<edm::InputTag>("MuonRpcSrc");
+
+  ECalEBSrc_ = iPSet.getParameter<edm::InputTag>("ECalEBSrc");
+  ECalEESrc_ = iPSet.getParameter<edm::InputTag>("ECalEESrc");
+  ECalESSrc_ = iPSet.getParameter<edm::InputTag>("ECalESSrc");
+
+  HCalSrc_ = iPSet.getParameter<edm::InputTag>("HCalSrc");
+
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -29,11 +54,49 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
     edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
       << "Initialized as EDProducer with parameter values:\n"
-      << "    Name      = " << fName << "\n"
-      << "    Verbosity = " << verbosity << "\n"
-      << "    Label     = " << label << "\n"
-      << "    GetProv   = " << getAllProvenances << "\n"
-      << "    PrintProv = " << printProvenanceInfo << "\n"
+      << "    Name          = " << fName << "\n"
+      << "    Verbosity     = " << verbosity << "\n"
+      << "    Label         = " << label << "\n"
+      << "    GetProv       = " << getAllProvenances << "\n"
+      << "    PrintProv     = " << printProvenanceInfo << "\n"
+      << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() 
+      << ":" << PxlBrlLowSrc_.instance() << "\n"
+      << "    PxlBrlHighSrc = " << PxlBrlHighSrc_.label() 
+      << ":" << PxlBrlHighSrc_.instance() << "\n"
+      << "    PxlFwdLowSrc  = " << PxlFwdLowSrc_.label() 
+      << ":" << PxlBrlLowSrc_.instance() << "\n"
+      << "    PxlFwdHighSrc = " << PxlFwdHighSrc_.label() 
+      << ":" << PxlBrlHighSrc_.instance() << "\n"
+      << "    SiTIBLowSrc   = " << SiTIBLowSrc_.label() 
+      << ":" << SiTIBLowSrc_.instance() << "\n"
+      << "    SiTIBHighSrc  = " << SiTIBHighSrc_.label() 
+      << ":" << SiTIBHighSrc_.instance() << "\n"
+      << "    SiTOBLowSrc   = " << SiTOBLowSrc_.label() 
+      << ":" << SiTOBLowSrc_.instance() << "\n"
+      << "    SiTOBHighSrc  = " << SiTOBHighSrc_.label() 
+      << ":" << SiTOBHighSrc_.instance() << "\n"
+      << "    SiTIDLowSrc   = " << SiTIDLowSrc_.label() 
+      << ":" << SiTIDLowSrc_.instance() << "\n"
+      << "    SiTIDHighSrc  = " << SiTIDHighSrc_.label() 
+      << ":" << SiTIDHighSrc_.instance() << "\n"
+      << "    SiTECLowSrc   = " << SiTECLowSrc_.label() 
+      << ":" << SiTECLowSrc_.instance() << "\n"
+      << "    SiTECHighSrc  = " << SiTECHighSrc_.label() 
+      << ":" << SiTECHighSrc_.instance() << "\n"
+      << "    MuonCscSrc    = " << MuonCscSrc_.label() 
+      << ":" << MuonCscSrc_.instance() << "\n"
+      << "    MuonDtSrc     = " << MuonDtSrc_.label() 
+      << ":" << MuonDtSrc_.instance() << "\n"
+      << "    MuonRpcSrc    = " << MuonRpcSrc_.label() 
+      << ":" << MuonRpcSrc_.instance() << "\n"
+      << "    ECalEBSrc     = " << ECalEBSrc_.label() 
+      << ":" << ECalEBSrc_.instance() << "\n"
+      << "    ECalEESrc     = " << ECalEESrc_.label() 
+      << ":" << ECalEESrc_.instance() << "\n"
+      << "    ECalESSrc     = " << ECalESSrc_.label() 
+      << ":" << ECalESSrc_.instance() << "\n"
+      << "    HCalSrc       = " << HCalSrc_.label() 
+      << ":" << HCalSrc_.instance() << "\n"
       << "===============================\n";
   }
 }
@@ -321,8 +384,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer thePxlBrlHits;
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof",
-		    PxlBrlLowContainer);
+  iEvent.getByLabel(PxlBrlLowSrc_,PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
@@ -330,8 +392,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof",
-		    PxlBrlHighContainer);
+  iEvent.getByLabel(PxlBrlHighSrc_,PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
@@ -399,8 +460,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer thePxlFwdHits;
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof",
-		    PxlFwdLowContainer);
+  iEvent.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -408,8 +468,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof",
-		    PxlFwdHighContainer);
+  iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogWarning("GlobalValProducer.fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
@@ -476,7 +535,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer theSiBrlHits;
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof",SiTIBLowContainer);
+  iEvent.getByLabel(SiTIBLowSrc_,SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBLowTof in event!";
@@ -484,7 +543,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof",SiTIBHighContainer);
+  iEvent.getByLabel(SiTIBHighSrc_,SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBHighTof in event!";
@@ -492,7 +551,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof",SiTOBLowContainer);
+  iEvent.getByLabel(SiTOBLowSrc_,SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBLowTof in event!";
@@ -500,7 +559,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof",SiTOBHighContainer);
+  iEvent.getByLabel(SiTOBHighSrc_,SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBHighTof in event!";
@@ -573,7 +632,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::PSimHitContainer theSiFwdHits;
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof",SiTIDLowContainer);
+  iEvent.getByLabel(SiTIDLowSrc_,SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIDLowTof in event!";
@@ -581,7 +640,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof",SiTIDHighContainer);
+  iEvent.getByLabel(SiTIDHighSrc_,SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
     edm::LogWarning("GlobalValProducer.fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
@@ -589,7 +648,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof",SiTECLowContainer);
+  iEvent.getByLabel(SiTECLowSrc_,SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECLowTof in event!";
@@ -597,7 +656,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
-  iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof",SiTECHighContainer);
+  iEvent.getByLabel(SiTECHighSrc_,SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECHighTof in event!";
@@ -766,7 +825,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
-  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
+  iEvent.getByLabel(MuonCscSrc_,MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonCSCHits in event!";
@@ -840,7 +899,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon DT information
   edm::Handle<edm::PSimHitContainer> MuonDtContainer;
-  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDtContainer);
+  iEvent.getByLabel(MuonDtSrc_,MuonDtContainer);
   if (!MuonDtContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonDTHits in event!";
@@ -919,7 +978,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
-  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
+  iEvent.getByLabel(MuonRpcSrc_,MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonRPCHits in event!";
@@ -1112,7 +1171,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::PCaloHitContainer theECalHits;
   // extract EB container
   edm::Handle<edm::PCaloHitContainer> EBContainer;
-  iEvent.getByLabel("g4SimHits","EcalHitsEB",EBContainer);
+  iEvent.getByLabel(ECalEBSrc_,EBContainer);
   if (!EBContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEB in event!";
@@ -1120,7 +1179,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   }
   // extract EE container
   edm::Handle<edm::PCaloHitContainer> EEContainer;
-  iEvent.getByLabel("g4SimHits","EcalHitsEE",EEContainer);
+  iEvent.getByLabel(ECalEESrc_,EEContainer);
   if (!EEContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEE in event!";
@@ -1190,7 +1249,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   ////////////////////////////
   // extract PreShower container
   edm::Handle<edm::PCaloHitContainer> PreShContainer;
-  iEvent.getByLabel("g4SimHits","EcalHitsES",PreShContainer);
+  iEvent.getByLabel(ECalESSrc_,PreShContainer);
   if (!PreShContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsES in event!";
@@ -1324,7 +1383,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   ///////////////////////////////
   // extract HCal container
   edm::Handle<edm::PCaloHitContainer> HCalContainer;
-  iEvent.getByLabel("g4SimHits","HcalHits",HCalContainer);
+  iEvent.getByLabel(HCalSrc_,HCalContainer);
   if (!HCalContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HCalHits in event!";

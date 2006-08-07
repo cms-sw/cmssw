@@ -117,11 +117,15 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector ECalToF; 
   FloatVector ECalPhi; 
   FloatVector ECalEta;
+  edm::InputTag ECalEBSrc_;
+  edm::InputTag ECalEESrc_;
+
   // Preshower info
   FloatVector PreShE; 
   FloatVector PreShToF; 
   FloatVector PreShPhi; 
   FloatVector PreShEta;
+  edm::InputTag ECalESSrc_;
 
   // Hadronic info
   // HCal info
@@ -129,6 +133,7 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector HCalToF; 
   FloatVector HCalPhi; 
   FloatVector HCalEta;
+  edm::InputTag HCalSrc_;
 
   // Tracker info
   // Pixel info
@@ -140,6 +145,10 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector PxlFwdZ;
   FloatVector PxlFwdPhi; 
   FloatVector PxlFwdEta;
+  edm::InputTag PxlBrlLowSrc_;
+  edm::InputTag PxlBrlHighSrc_;
+  edm::InputTag PxlFwdLowSrc_;
+  edm::InputTag PxlFwdHighSrc_;
 
   // Strip info
   FloatVector SiBrlToF; 
@@ -150,6 +159,15 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector SiFwdZ;
   FloatVector SiFwdPhi; 
   FloatVector SiFwdEta;
+  edm::InputTag SiTIBLowSrc_;
+  edm::InputTag SiTIBHighSrc_;
+  edm::InputTag SiTOBLowSrc_;
+  edm::InputTag SiTOBHighSrc_;
+  edm::InputTag SiTIDLowSrc_;
+  edm::InputTag SiTIDHighSrc_;
+  edm::InputTag SiTECLowSrc_;
+  edm::InputTag SiTECHighSrc_;
+
 
   // Muon info
   // DT info
@@ -157,11 +175,13 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector MuonDtR;
   FloatVector MuonDtPhi;
   FloatVector MuonDtEta;
+  edm::InputTag MuonDtSrc_;
   // CSC info
   FloatVector MuonCscToF; 
   FloatVector MuonCscZ;
   FloatVector MuonCscPhi;
   FloatVector MuonCscEta;
+  edm::InputTag MuonCscSrc_;
   // RPC info
   FloatVector MuonRpcBrlToF; 
   FloatVector MuonRpcBrlR;
@@ -171,7 +191,7 @@ class GlobalValProducer : public edm::EDProducer
   FloatVector MuonRpcFwdZ;
   FloatVector MuonRpcFwdPhi;
   FloatVector MuonRpcFwdEta;
-
+  edm::InputTag MuonRpcSrc_;
 
   // private statistics information
   unsigned int count;
