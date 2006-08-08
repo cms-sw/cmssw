@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/08/02 12:05:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/03 12:41:10 $
+ *  $Revision: 1.3 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -49,13 +49,13 @@ class RPCFileReader : public ExternalInputSource {
   int run_, event_, bxn_;
   Time timeStamp_;
   std::vector<LogCone> theLogCones_;//(12)
-  std::vector<std::vector<RPCPacData> > linkData_;//(3,18)
+  std::vector<std::vector<std::vector<RPCPacData> > > linkData_;//(3,18,3)
 
   bool isOpen_, noMoreData_;
   int eventPos_[2];
   int fileCounter_, eventCounter_;
 
-  bool debug_;
+  bool debug_,saveOutOfTime_;
 
   unsigned int triggerFedId_, tbNum_;
 

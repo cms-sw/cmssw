@@ -8,6 +8,7 @@
 #include <cctype>
 #include <vector>
 #include <bitset>
+#include <ctime>
 
 #include "IORawData/RPCFileReader/interface/RPCFileReader.h"
 #include "IORawData/RPCFileReader/interface/RPCPacData.h"
@@ -16,6 +17,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 
 using namespace std;
 using namespace edm;
@@ -26,6 +29,14 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
   ExternalInputSource(pset, desc),
   theLogCones_(12),linkData_(3,18)
 {
+
+  for(int i=0;i<3;i++){
+    for(int j=0;j<18;j++){
+      linkData_[i][j].push_back(RPCPacData());
+      linkData_[i][j].push_back(RPCPacData());
+      linkData_[i][j].push_back(RPCPacData());
+    }
+  }
 
   //register products
   produces<FEDRawDataCollection>();
@@ -38,6 +49,7 @@ RPCFileReader::RPCFileReader(ParameterSet const& pset,
   run_ = 1; event_ = 1; bxn_ =1;
   isOpen_ = false; noMoreData_ = false; 
   debug_ = pset.getUntrackedParameter<bool>("PrintOut",false);
+  saveOutOfTime_ = pset.getUntrackedParameter<bool>("SaveOutOfTimeDigis",false);
   triggerFedId_  = pset.getUntrackedParameter<unsigned int>("TriggerFedId",790);
   tbNum_ = pset.getUntrackedParameter<unsigned int>("TriggerBoardNum",1);
 }
@@ -66,6 +78,16 @@ void RPCFileReader::setRunAndEventInfo(){
     }
   }
 
+  //clear vectors
+  for(int i=0;i<3;i++){
+    for(int j=0;j<18;j++){
+      for(int k=0;k<3;k++){
+	linkData_[i][j][k] = RPCPacData();
+      }
+    }
+  }
+  
+
   readDataFromAsciiFile(fileNames()[fileCounter_-1].substr(5),eventPos_);
   unsigned int freq = 100;
   if(debug_) freq = 1;
@@ -78,9 +100,34 @@ void RPCFileReader::setRunAndEventInfo(){
 			  << " " << timeStamp_.day << " " << timeStamp_.month 
 			  << " " << timeStamp_.year;
 
+
+ //Setting time stamp. To be optimised. AK
+  int month = 0;
+  if(timeStamp_.month=="Jan") month = 0;
+  if(timeStamp_.month=="Feb") month = 1;
+  if(timeStamp_.month=="March") month = 2;
+  if(timeStamp_.month=="May") month = 3;
+  if(timeStamp_.month=="April") month = 4;
+  if(timeStamp_.month=="June") month = 5;
+  if(timeStamp_.month=="July") month = 6;
+  if(timeStamp_.month=="Aug") month = 7;
+  if(timeStamp_.month=="Sep") month = 8;
+  if(timeStamp_.month=="Nov") month = 9;
+  if(timeStamp_.month=="Oct") month = 10;
+  if(timeStamp_.month=="Dec") month = 11;
+  tm aTime;
+  aTime.tm_sec = timeStamp_.sec;
+  aTime.tm_min = timeStamp_.min;
+  aTime.tm_hour = timeStamp_.hour; //UTC check FIX!!
+  aTime.tm_mday = timeStamp_.day;
+  aTime.tm_mon = month;
+  aTime.tm_year = timeStamp_.year - 1900;
+  //AK
+
+
   setRunNumber(run_);
   setEventNumber(event_);
-  //setTime(timeStamp_);
+  setTime(mktime(&aTime));  
     
   return;
 }
@@ -107,7 +154,6 @@ bool RPCFileReader::produce(edm::Event &ev) {
   FEDRawData *rawData = rpcDataFormatter();
   FEDRawData& fedRawData = result->FEDData(triggerFedId_);
   fedRawData = *rawData;
-
   ev.put(result);
 
   return true;
@@ -167,17 +213,30 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
       int bxn4b, bc0, valid;
       infile >> hex >>  bxn4b >> bc0 >> valid;
       if(valid==0x3ffff){ 
-      for(int iL=17; iL>=0; iL-=3){
+	//for(int iL=0; iL<18; iL+=3){//Link data 
+	for(int iL=17; iL>=0; iL-=3){//AK
 	  infile >> dummy;
-        for(int iLb=0;iLb>-3;iLb--){ 
+	  //for(int iLb=0;iLb<3;iLb++){
+	  for(int iLb=0;iLb>-3;iLb--){//AK
 	    infile >> hex >> idummy;
 	    RPCPacData dummyPartData(idummy);
-	    if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX){//Link data collected at L1A bx
-	      linkData_[dummyPartData.lbNum()][iL+iLb]=dummyPartData;
+	    for(int i=-1;i<2;i++){
+	      if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i)//Link data collected at L1A bx	     
+		linkData_[dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;
+	      /*
+	      if(dummyPartData.partitionNum()>11){
+		std::cout<<"RPCFileReader::buildCDWord partitionNum "
+			 <<dummyPartData.partitionNum()
+			 <<" lbNum: "<<dummyPartData.lbNum();
+		std::cout<<" link num: "<<iL+iLb<<std::endl;
+	      }
+	      else std::cout<<"Ok. link num: "<<iL+iLb<<std::endl;
+	      */
 	    }
 	  }
 	}
-      for(int iC=12*3-1; iC>=0; iC-=3){
+	//for(int iC=0; iC<12*3; iC+=3){//LogCones 
+	for(int iC=12*3-1; iC>=0; iC-=3){//AK
 	  infile >> dummy;
 	  LogCone logCone;
 	  infile >> hex >> logCone.quality >> logCone.ptCode >> logCone.sign;
@@ -226,6 +285,7 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 
 // ------------ Methods called to form RPC word for DAQ ------------
 RPCFileReader::Word16 RPCFileReader::buildCDWord(RPCPacData linkData){//Chamber Data(Link Board Data)
+ 
   Word16 word = (Word16(linkData.lbNum())<<14)
                |(Word16(linkData.partitionNum())<<10)
                |(Word16(linkData.endOfData())<<9)
@@ -238,6 +298,7 @@ RPCFileReader::Word16 RPCFileReader::buildCDWord(RPCPacData linkData){//Chamber 
 }
 
 RPCFileReader::Word16 RPCFileReader::buildSLDWord(unsigned int tbNum, unsigned int linkNum){//Start of the Link input Data
+
   Word16 specIdent = 3;
   Word16 word = (specIdent<<14)
                |(1<<13)|(1<<12)|(1<<11)
@@ -251,10 +312,11 @@ RPCFileReader::Word16 RPCFileReader::buildSLDWord(unsigned int tbNum, unsigned i
 
 RPCFileReader::Word16 RPCFileReader::buildSBXDWord(unsigned int bxn){//Start of the Bunch Crossing Data
   Word16 specIdent = 3;
+  
   Word16 word = (specIdent<<14)
                |(0<<13)|(1<<12)
                |(Word16(bxn)<<0);
-  if(debug_){
+    if(debug_){
     edm::LogInfo("RPCFR") << "[RPCFileReader::buildSBXDWord] ";
   }
   return word;
@@ -277,28 +339,36 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   std::vector<Word16> words;
   bool empty=true;
 
+  int beginBX = 0;
+  int endBX = 1;
+  if(saveOutOfTime_){
+    beginBX = -1;
+    endBX = 2;  
+  }
+
+  for(int iBX=beginBX;iBX<endBX;iBX++){
   //Check if an event consists data
   for(unsigned int iL=0; iL<18; iL++){
     for(unsigned int iLb=0; iLb<2; iLb++){
-      if(linkData_[iLb][iL].partitionData()!=0)
+      if(linkData_[iLb][iL][iBX+1].partitionData()!=0)
 	empty=false;
     }
   }
   if(!empty){
     //fill vector words with correctly ordered RPCwords
-    words.push_back(buildSBXDWord((unsigned int)bxn_));
+    words.push_back(buildSBXDWord((unsigned int)(bxn_+iBX))); 
     for(unsigned int iL=0; iL<18; iL++){
       //Check if data of current link exist
       empty=true;
       for(unsigned int iLb=0; iLb<2; iLb++){
-	if(linkData_[iLb][iL].partitionData()!=0)
+	if(linkData_[iLb][iL][iBX+1].partitionData()!=0)
 	  empty=false;
       }
       if(!empty){
 	words.push_back(buildSLDWord(tbNum_, iL));//FIMXE iL+1??
 	for(unsigned int iLb=0; iLb<2; iLb++){
-	  if(linkData_[iLb][iL].partitionData()!=0){
-	    words.push_back(buildCDWord(linkData_[iLb][iL]));
+	  if(linkData_[iLb][iL][iBX+1].partitionData()!=0){
+	    words.push_back(buildCDWord(linkData_[iLb][iL][iBX+1]));
 	  }
 	}
       }
@@ -308,6 +378,10 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   while(words.size()%4!=0){
     words.push_back(buildEmptyWord());
   }
+  }
+
+
+
   if(debug_){
     edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Num of words: " << words.size();
   }
