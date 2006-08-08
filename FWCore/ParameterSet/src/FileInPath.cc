@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.11 2006/06/20 04:08:01 wmtan Exp $
+// $Id: FileInPath.cc,v 1.12 2006/08/08 21:13:02 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ namespace edm
     stringvec_t::const_iterator it =  pathElements.begin();
     stringvec_t::const_iterator end = pathElements.end();
     while (it != end) {
-      bf::path pathPrefix("", boost::filesystem::no_check);
+      bf::path pathPrefix("", bf::no_check);
 
       // Set the boost::fs path to the current element of
       // CMSSW_SEARCH_PATH:
@@ -232,7 +232,7 @@ namespace edm
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
 	// Convert relative path to canonical form, and save it.
-	relativePath_ = bf::path(relativePath_).normalize().string();
+	relativePath_ = bf::path(relativePath_, bf::no_check).normalize().string();
 	  
 	// Save the absolute path.
 	canonicalFilename_ = bf::complete(relativePath_, 
@@ -258,7 +258,7 @@ namespace edm
 	    << " must be defined - is runtime environment set correctly?\n";
 
 	// Create a path object for our local path LOCALTOP:
-	bf::path local_ = localtop_;
+	bf::path local_(localtop_);
 	    
 	// If the branch path matches the local path, the file was found locally:
 	if (br == local_) {
