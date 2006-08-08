@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.6 2005/10/28 13:54:51 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.7 2005/11/11 20:55:46 chrjones Exp $
 //
 
 // system include files
@@ -169,6 +169,19 @@ ServicesManager::connectTo(ActivityRegistry& iOther)
 {
    iOther.connect(registry_);
 }
+
+void 
+ServicesManager::copySlotsFrom(ActivityRegistry& iOther)
+{
+  registry_.copySlotsFrom(iOther);
+}   
+
+void 
+ServicesManager::copySlotsTo(ActivityRegistry& iOther)
+{
+  iOther.copySlotsFrom(registry_);
+}
+
 
 void
 ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfiguration)

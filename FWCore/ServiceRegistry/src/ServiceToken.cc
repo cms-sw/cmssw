@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 04:26:12 EDT 2005
-// $Id: ServiceToken.cc,v 1.1 2005/09/08 09:04:59 chrjones Exp $
+// $Id: ServiceToken.cc,v 1.2 2005/09/09 14:50:40 chrjones Exp $
 //
 
 // system include files
@@ -70,6 +70,21 @@ edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo)
    if(0!=manager_.get()){
       manager_->connect(iConnectTo);
    }
+}
+
+void
+edm::ServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo)
+{
+  if(0!=manager_.get()){
+    manager_->copySlotsTo(iConnectTo);
+  }
+}
+void
+edm::ServiceToken::copySlotsFrom(edm::ActivityRegistry& iConnectTo)
+{
+  if(0!=manager_.get()){
+    manager_->copySlotsFrom(iConnectTo);
+  }
 }
 
 //

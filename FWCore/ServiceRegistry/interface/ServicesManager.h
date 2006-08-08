@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id: ServicesManager.h,v 1.5 2006/04/06 01:31:10 wmtan Exp $
+// $Id: ServicesManager.h,v 1.6 2006/05/23 13:10:01 chrjones Exp $
 //
 
 // system include files
@@ -134,6 +134,12 @@ public:
          
          ///causes iOther's signals to be forward to us
          void connectTo(ActivityRegistry& iOther);
+         
+         ///copy our Service's slots to the argument's signals
+         void copySlotsTo(ActivityRegistry&);
+         ///the copy the argument's slots to the our signals
+         void copySlotsFrom(ActivityRegistry&);
+         
 private:
          ServicesManager(const ServicesManager&); // stop default
          

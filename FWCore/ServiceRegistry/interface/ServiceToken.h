@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 18:31:44 EDT 2005
-// $Id: ServiceToken.h,v 1.2 2005/09/08 09:04:56 chrjones Exp $
+// $Id: ServiceToken.h,v 1.3 2005/09/09 14:50:38 chrjones Exp $
 //
 
 // system include files
@@ -53,6 +53,11 @@ namespace edm {
       void connectTo(ActivityRegistry&);
       ///the argument's signals will forward the token's signals
       void connect(ActivityRegistry&);
+
+      ///copy our Service's slots to the argument's signals
+      void copySlotsTo(ActivityRegistry&);
+      ///the copy the argument's slots to the token's signals
+      void copySlotsFrom(ActivityRegistry&);
       
     private:
       ServiceToken(boost::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
