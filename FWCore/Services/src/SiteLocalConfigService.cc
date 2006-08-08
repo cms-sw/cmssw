@@ -142,6 +142,22 @@ edm::service::SiteLocalConfigService::frontierConnect (void) const
     return m_frontierConnect;
 }
 
+const std::string
+edm::service::SiteLocalConfigService::lookupCalibConnect (const std::string& input) const
+{
+    static const std::string logical_frontier = "frontier://cms_conditions_data";
+    if (input.substr(0,logical_frontier.length()) == logical_frontier)
+    {
+	// Replace the logical name "cms_conditions_data" with the complex
+	//  parenthesized string returned from frontierConnect().  Also
+	//  add a keyword defining the logical server name.  This allows
+	//  the pool catalog file to also use the shorter name.
+	return "frontier://(logicalserverurl=http://cms_conditions_data)" +
+		frontierConnect() + input.substr(logical_frontier.length());
+    }
+    return input;
+}
+
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
