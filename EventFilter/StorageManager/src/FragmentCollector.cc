@@ -347,6 +347,6 @@ namespace stor
     //ost_.write((const char*)entry->buffer_address_, entry->buffer_size_);
     //dumpInitHeader(&msg);
     // should be passing smConfigSTring to writer_ at construction
-    writer_->init(filen_, maxFileSize_, highWaterMark_, path_, msg);
+    writer_->init(filen_, maxFileSize_, highWaterMark_, path_, mpath_, msg);
   }
 }
