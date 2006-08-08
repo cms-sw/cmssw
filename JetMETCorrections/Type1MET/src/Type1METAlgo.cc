@@ -27,6 +27,11 @@ Type1METAlgo::~Type1METAlgo() {}
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
+//The "run" method is overloaded to allow multiple types of MET to be corrected
+//This current implementation duplicates some code and is only a simple 
+//cludge to provide functionality and will be re-implemented
+//to avoid code duplication.  R.Cavanaugh  
+//----------------------------------------------------------------------------
 void Type1METAlgo::run(const CaloMETCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
 		       const CaloJetCollection *corJet,
@@ -79,6 +84,11 @@ void Type1METAlgo::run(const CaloMETCollection *uncorMET,
 }
 //----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+//The "run" method is overloaded to allow multiple types of MET to be corrected
+//This current implementation duplicates some code and is only a simple 
+//cludge to provide functionality and will be re-implemented
+//to avoid code duplication.  R.Cavanaugh  
 //----------------------------------------------------------------------------
 void Type1METAlgo::run(const METCollection *uncorMET, 
 		       const CaloJetCollection *uncorJet,
