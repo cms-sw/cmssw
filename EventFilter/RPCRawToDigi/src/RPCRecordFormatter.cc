@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/07/06 08:49:37 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/07/17 06:50:25 $
+ *  $Revision: 1.16 $
  *
  * \author Ilaria Segoni
  */
@@ -87,15 +87,10 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
             // fired strip in LB frame
 		int lbBit = *(pBit);
 
-            // FIXME  not sure about conversion, check! 
-            int febInLB = lbBit%6;
-            int stripPinInFeb = lbBit/6;
-
             uint32_t rawDetId;
             int geomStrip;
             try {
-              RPCReadOutMapping::StripInDetUnit stripInDetUnit= 
-                readoutMapping->detUnitFrame(linkBoard, febInLB, stripPinInFeb);
+	      RPCReadOutMapping::StripInDetUnit stripInDetUnit=linkBoard->strip(lbBit);
 
                // DetUnit
                rawDetId = stripInDetUnit.first;
@@ -170,8 +165,9 @@ RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIn
     std::vector<int> bits;
     bits.clear();
     for(int bb=0; bb<8;++bb) {
-	if ((partitionData>>bb)& 0X1) bits.push_back( partitionNumber* rpcraw::bits::BITS_PER_PARTITION + bb); 
-    }
+      if(partitionNumber>11){continue;} //Temporasry FIX. Very dirty. AK
+	if ((partitionData>>bb)& 0X1) bits.push_back( partitionNumber* rpcraw::bits::BITS_PER_PARTITION + bb);
+	}
     
     RPCLinkBoardData lbData(bits,halfP,eod,partitionNumber,lbNumber);
 
