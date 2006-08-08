@@ -60,8 +60,10 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 
   if ( alignable->geomDetId().rawId() ) 
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
-  for ( std::vector<Alignable*>::iterator it = alignable->components().begin();
-		it != alignable->components().end(); it++ )
-	this->recursiveGetId( *it );
+
+  std::vector<Alignable*> comp = alignable->components();
+  if ( comp.size() > 1 ) // Non-glued AlignableDets contain themselves
+	for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); it++ )
+	  this->recursiveGetId( *it );
 
 }
