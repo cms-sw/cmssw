@@ -53,8 +53,6 @@ using namespace std;
     vector<vector<string> > calibLines_;
     void parseCalib();
 
-
-    
   };
 
 
