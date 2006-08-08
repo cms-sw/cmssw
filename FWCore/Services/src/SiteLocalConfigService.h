@@ -30,13 +30,14 @@ namespace edm
 	    
 	    const std::string dataCatalog (void) const;
 	    const std::string calibCatalog (void) const;
-	    const std::string frontierConnect (void) const;
-	    
+	    const std::string lookupCalibConnect (const std::string& input) const;
+
 	    // implicit copy constructor
 	    // implicit assignment operator
 	    // implicit destructor
 	private:
 	    void parse (const std::string &url);
+	    const std::string frontierConnect (void) const;
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
 	    std::string 	m_calibCatalog;
