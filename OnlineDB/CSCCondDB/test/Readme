@@ -2,19 +2,14 @@
 ^^ ############ THIS IS A LIST OF CALIBRATION CODE FOR CSC CATHODE STRIPS and ANODE WIRES ############ ^^
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0. Set up an area for CMSSW (works currently in CMSSW_0_7_0_pre3) and check out:
+0. Set up an area for CMSSW (works currently in CMSSW_0_9_0_pre2) and check out:
     OnlineDB/CSCCondDB 
     CondFormats/CSCObjects
 
 0.1 Source files are in /src and header files in /interface. 
 
-    Have to set up environmental variables now:
-
-    setenv CONDBON_AUTH_USER xxx
-    setenv CONDBON_AUTH_PASSWORD xxx
-    setenv CSCMAP_AUTH_USER xxx
-    setenv CSCMAP_AUTH_PASSWORD xxx
-(    Ask Igor Vorobiev, Oana Boeriu for the username and password ! )
+    Have to set up environmental variables now to connect to databases, use the authentication.xml file
+ (Ask Oana Boeriu for the file ! )
 
 
 0.3 COMPILE & LINK under OnlineDB/CSCCondDB !!
@@ -39,7 +34,8 @@
 
 7.0 CSCSaturationAnalyzer.ccand .h, run: cmsRun CSCgain.cfg
 
-8.0 CSCCFEBConnectivityAnalyzer.cc and .h, run: cmsRun CSCCFEBconnect.cfg
+8.0 CSCCFEBConnectAnalysis.cc and .h, run: cmsRun CSCCFEBAnalysis.cfg
+
 
 In the .cfg file you can chose if you want to send constants to DB, default is set to false for not sending.
 
@@ -91,6 +87,6 @@ RunNum1083Evs0to9999.bin for gains (ME1 chambers)
 
 ----------------------------------------
 ****************************************
-*  This is the status 2006.07.18 !!!!! *
+*  This is the status 2006.08.08 !!!!! *
 ****************************************
 ----------------------------------------
