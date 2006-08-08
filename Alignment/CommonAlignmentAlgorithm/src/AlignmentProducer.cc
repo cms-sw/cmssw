@@ -22,7 +22,9 @@
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theRefitterAlgo( iConfig ),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
-  theSrc( iConfig.getParameter<std::string>( "src" ) )
+  theSrc( iConfig.getParameter<std::string>( "src" ) ),
+  stParameterSelector( iConfig.getParameter<std::string>( "parameterSelector" ) ),
+  stAlignableSelector( iConfig.getParameter<std::string>( "alignableSelector" ) )
 {
 
   edm::LogInfo("Constructor") << "Constructing producer";
@@ -33,10 +35,11 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   setConf( iConfig );
   setSrc( iConfig.getParameter<std::string>( "src" ) );
 
-  // create alignment algorithm
+  // get cfg for alignment algorithm
   edm::ParameterSet csa06Config 
 	= iConfig.getParameter<edm::ParameterSet>( "CSA06AlignmentAlgorithm" );
 
+  // create alignment algorithm
   theAlignmentAlgo = new CSA06AlignmentAlgorithm(csa06Config);
 
 }
@@ -81,6 +84,52 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // create alignable tracker
   theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
+  // create alignment parameter builder
+  edm::LogInfo("BeginJob") <<"Creating AlignmentParameterBuilder";
+  theAlignmentParameterBuilder = new AlignmentParameterBuilder(theAlignableTracker);
+
+  // determine which parameters are fixed/aligned (local coordinates)
+  static const unsigned int npar=6;
+  std::vector<bool> sel(npar,false);
+    edm::LogInfo("BeginJob") <<"ParameterSelector: >" <<stParameterSelector<<"<"; 
+  if (stParameterSelector.length()!=npar) {
+    edm::LogInfo("BeginJob") <<"ERROR: ParameterSelector vector has wrong size!";
+    exit(1);
+  }
+  else {
+    // shifts
+    if (stParameterSelector.substr(0,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dx]=true;
+    if (stParameterSelector.substr(1,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dy]=true;
+    if (stParameterSelector.substr(2,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dz]=true;
+    // rotations
+    if (stParameterSelector.substr(3,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dalpha]=true;
+    if (stParameterSelector.substr(4,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dbeta]=true;
+    if (stParameterSelector.substr(5,1)=="1") 
+      sel[RigidBodyAlignmentParameters::dgamma]=true;
+
+    for (unsigned int i=0; i<npar; i++) {
+      if (sel[i]==true) edm::LogInfo("BeginJob") <<"Parameter "<< i <<" active.";
+    }
+  }
+
+  // select alignables 
+  edm::LogInfo("BeginJob") <<"select alignables ...";
+  theAlignmentParameterBuilder->addSelection(stAlignableSelector,sel);
+
+  // get alignables
+  Alignables theAlignables = theAlignmentParameterBuilder->alignables();
+  edm::LogInfo("BeginJob") <<"got alignables: "<<theAlignables.size();
+
+  // create AlignmentParameterStore 
+  //theAlignmentParameterStore = new AlignmentParameterStore(theAlignables);
+  //edm::LogInfo("BeginJob") <<"store created!";
+
+  // initialize alignment algorithm
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker );
 
 }

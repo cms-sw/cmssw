@@ -28,6 +28,10 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+
 class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLooper
 {
 
@@ -65,7 +69,13 @@ class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLoope
 
  private:
 
+  typedef std::vector<Alignable*> Alignables;
+
   AlignmentAlgorithmBase* theAlignmentAlgo;
+  AlignmentParameterBuilder* theAlignmentParameterBuilder;
+  AlignmentParameterStore* theAlignmentParameterStore;
+
+
   AlignableTracker* theAlignableTracker;
   TrackProducerAlgorithm theRefitterAlgo;
   ReturnType theTracker;
@@ -74,6 +84,8 @@ class AlignmentProducer :  public TrackProducerBase, public edm::ESProducerLoope
 
   std::string theSrc; // For local use (bypass TrackerProducerBase)
 
+  std::string stParameterSelector;
+  std::string stAlignableSelector;
 
 };
 
