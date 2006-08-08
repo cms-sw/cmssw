@@ -28,7 +28,7 @@ namespace edm
     
     virtual const std::string dataCatalog (void) const =0;
     virtual const std::string calibCatalog (void) const =0;
-    virtual const std::string frontierConnect (void) const =0;
+    virtual const std::string lookupCalibConnect (const std::string& input) const =0;
     
     // implicit copy constructor
     // implicit assignment operator
