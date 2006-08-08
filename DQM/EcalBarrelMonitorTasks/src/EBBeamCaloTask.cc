@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/01 11:17:16 $
- * $Revision: 1.28 $
+ * $Date: 2006/08/08 08:57:05 $
+ * $Revision: 1.29 $
  * \author A. Ghezzi
  *
  */
@@ -91,8 +91,8 @@ void EBBeamCaloTask::setup(void){
 
   PreviousCrystalinBeam_[0] = 0;
   PreviousCrystalinBeam_[1] = 0;
-  PreviousCrystalinBeam_[2] = 0;
-
+  PreviousCrystalinBeam_[2] = -1;
+  // PreviousCrystalinBeam_[2] = -1 is needed to have a correct step vs cry matching
   lastStableStatus_=0;
   for(int u=0;u<10;u++){cib_[u]=0;}
   changed_tb_status_= false;
@@ -371,6 +371,10 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     tb_moving = lastStableStatus_;
     event = previous_ev_num_ +10;
   }
+
+  //if(tb_moving){cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Moving"<<endl;}
+  //else {cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Still"<<endl;}
+  
   previous_cry_in_beam_ = cry_in_beam;
   previous_ev_num_ = event;
   
@@ -565,7 +569,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
  // <5 just to avoid that we skip the event just after the reset and we do not set CrystalsDone_ . 
  // if( ievt_ - event_last_reset_ < 5){ CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );}
  CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );
- 
+ //cout<<"Event: "<< event <<" Setting cry: "<<cry_in_beam <<" to step: "<< crystal_step_<<endl;
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
   
