@@ -1,4 +1,5 @@
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
@@ -122,9 +123,9 @@ unsigned CSCCFEBData::errorstat(unsigned layer, unsigned channel, unsigned timeB
   return result;
 }
 
-std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
+std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
 
-  assert(layer>0 && layer <= 6);
+  //  assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
   result.reserve(16);
   std::vector<int> sca(nTimeSamples());
@@ -132,6 +133,9 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
   std::vector<uint16_t> contrData(nTimeSamples());
   std::vector<uint16_t> overlap(nTimeSamples());
   std::vector<uint16_t> errorfl(nTimeSamples());
+
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  unsigned layer = CSCDetId::layer(idlayer);
 
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel) {
     if (nTimeSamples()==0) {
@@ -150,6 +154,7 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
       break;
     }
     int strip = ichannel + 16*boardNumber_;
+    if ( me1a ) strip = strip%64; // reset 65-80 to 1-16
     CSCStripDigi digi(strip, sca, overflow, contrData, overlap, errorfl); 
     result.push_back(digi);
   }

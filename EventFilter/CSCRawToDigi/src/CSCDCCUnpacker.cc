@@ -269,7 +269,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		}
 
 		std::vector <CSCStripDigi>  stripDigis = 
-		  cscData[iCSC].stripDigis(ilayer, icfeb);
+		  cscData[iCSC].stripDigis(layer.rawId(), icfeb); // pass the raw cscdetid
 		stripProduct->put(std::make_pair(stripDigis.begin(), 
 						 stripDigis.end()),layer);
 	    

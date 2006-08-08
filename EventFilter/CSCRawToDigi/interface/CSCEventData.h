@@ -59,7 +59,7 @@ class CSCEventData {
   std::vector<CSCStripDigi> stripDigis(unsigned ilayer) const;
 
   /// returns all the strip digis in the chamber's cfeb
-  std::vector<CSCStripDigi> stripDigis(unsigned ilayer, unsigned icfeb) const;
+  std::vector<CSCStripDigi> stripDigis(unsigned idlayer, unsigned icfeb) const;
 
 
   /// deprecated.  Use the above methods instead

@@ -26,8 +26,9 @@ class CSCCFEBData {
   unsigned errorstat(unsigned layer, unsigned channel, unsigned timeBin) const;
   
   void add(const CSCStripDigi &, int layer);
+  /// Fill strip digis for layer with raw detid = idlayer
   /// WARNING: these digis have no comparator information.
-  std::vector<CSCStripDigi> digis(unsigned layer) const;
+  std::vector<CSCStripDigi> digis(unsigned idlayer) const;
   /// deprecated.  Use the above method.
   std::vector<std::vector<CSCStripDigi> > stripDigis() const;
 
