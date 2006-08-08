@@ -24,11 +24,15 @@ namespace reco {
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 
+    TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+
     TransientTrack( const TransientTrack & tt );
     
     TransientTrack& operator=(const TransientTrack & tt);
 
     void setES(const edm::EventSetup& );
+
+    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& );
 
     TrajectoryStateOnSurface outermostMeasurementState() const;
 

@@ -27,6 +27,14 @@ TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
+TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false)
+  Track(*tk), tkr_(&tk), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+{
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+}
+
 
 TransientTrack::TransientTrack( const TransientTrack & tt ) :
   Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), stateAtVertexAvailable(false) 
@@ -69,6 +77,12 @@ void TransientTrack::setES(const edm::EventSetup& setup) {
 
 }
 
+void TransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
+
+  theTrackingGeometry = tg;
+
+}
+
 
 TrajectoryStateOnSurface TransientTrack::impactPointState() const
 {
@@ -78,17 +92,17 @@ TrajectoryStateOnSurface TransientTrack::impactPointState() const
 
 TrajectoryStateOnSurface TransientTrack::outermostMeasurementState() const
 {
-    math::XYZPoint outPosXYZ = (*tkr_)->outerPosition();
-    math::XYZVector outMomXYZ = (*tkr_)->outerMomentum();
+    math::XYZPoint outPosXYZ = (this)->outerPosition();
+    math::XYZVector outMomXYZ = (this)->outerMomentum();
 
     GlobalPoint outPos(outPosXYZ.x(),outPosXYZ.y(),outPosXYZ.z());
     GlobalVector outMom(outMomXYZ.x(),outMomXYZ.y(),outMomXYZ.z());
  //  edm::LogInfo("TransientTrack")
  //     << "outermost meas: pos: " <<outPos <<" mom: "<<outMom; 
 
-    GlobalTrajectoryParameters par(outPos, outMom, (*tkr_)->charge(), theField);
+    GlobalTrajectoryParameters par(outPos, outMom, (this)->charge(), theField);
     FreeTrajectoryState fts(par);
-    trackingRecHit_iterator last = (*tkr_)->recHitsEnd();
+    trackingRecHit_iterator last = (this)->recHitsEnd();
     last--;
  //  edm::LogInfo("TransientTrack")
 //      << "id "<<(*last)->geographicalId().rawId();
@@ -105,21 +119,21 @@ TrajectoryStateOnSurface TransientTrack::outermostMeasurementState() const
 
 TrajectoryStateOnSurface TransientTrack::innermostMeasurementState() const
 {
-    math::XYZPoint inPosXYZ = (*tkr_)->innerPosition();
-    math::XYZVector inMomXYZ = (*tkr_)->innerMomentum();
+    math::XYZPoint inPosXYZ = (this)->innerPosition();
+    math::XYZVector inMomXYZ = (this)->innerMomentum();
 
     GlobalPoint inPos(inPosXYZ.x(),inPosXYZ.y(),inPosXYZ.z());
     GlobalVector inMom(inMomXYZ.x(),inMomXYZ.y(),inMomXYZ.z());
  //   edm::LogInfo("TransientTrack")
  //     << "innermost meas: pos: " <<inPos <<" mom: "<<inMom;
 
-    GlobalTrajectoryParameters par(inPos, inMom, (*tkr_)->charge(), theField);
+    GlobalTrajectoryParameters par(inPos, inMom, (this)->charge(), theField);
 
     FreeTrajectoryState fts(par);
  //  edm::LogInfo("TransientTrack")
 //      << "id "<<(*last)->geographicalId().rawId();
 
-    TrajectoryStateOnSurface result(fts,theTrackingGeometry->idToDet((*(*tkr_)->recHitsBegin())->geographicalId())->surface());
+    TrajectoryStateOnSurface result(fts,theTrackingGeometry->idToDet((*(this)->recHitsBegin())->geographicalId())->surface());
 
   //  if (result.isValid())
    // edm::LogInfo("TransientTrack")
