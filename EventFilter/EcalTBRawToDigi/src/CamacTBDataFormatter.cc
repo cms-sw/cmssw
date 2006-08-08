@@ -474,14 +474,15 @@ bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
- 
-  if (word & 0x04000000) // no camac check error
-    { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
-      statusWords[wordNumber -1] = false;      
-      isOk = false;
-    }
-
+  
+  // camac error check not done on purpose from Aug 8, to speed up Camac communication. This bit status is now ignored.
+  //  if (word & 0x04000000) // no camac check error
+  //    { 
+  //LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
+  //statusWords[wordNumber -1] = false;      
+  //isOk = false;
+  //    }
+  
   return isOk;
 
 }
