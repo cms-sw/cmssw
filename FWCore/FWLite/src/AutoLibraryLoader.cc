@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.1 2006/05/17 16:43:44 wmtan Exp $
+// $Id: AutoLibraryLoader.cc,v 1.2 2006/05/29 13:03:24 chrjones Exp $
 //
 
 // system include files
@@ -99,5 +99,42 @@ AutoLibraryLoader::enable()
    static edm::EDProductGetter::Operate s_op(&s_getter);
    static AutoLibraryLoader s_loader;
 }
+
+
+
+
+void
+AutoLibraryLoader::loadAll()
+{
+  // std::cout <<"LoadAllDictionaries"<<std::endl;
+  enable();
+  
+  seal::PluginManager                       *db =  seal::PluginManager::get();
+  seal::PluginManager::DirectoryIterator    dir;
+  seal::ModuleCache::Iterator               plugin;
+  seal::ModuleDescriptor                    *cache;
+  unsigned                            i;
+  
+  const std::string mycat("Capability");
+  
+  for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
+    for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
+      for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
+        //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
+        if (cache->child(i)->token(0) == mycat) {
+          const std::string cap = cache->child(i)->token(1);
+          //std::cout <<"  "<<cap<<std::endl;
+          // check that cap starts with either LCGDict or LCGReflex (not really required)
+          static const std::string cPrefix("LCGReflex/");
+          if(cPrefix == cap.substr(cPrefix.size())) {
+            seal::PluginCapabilities::get()->load(cap);
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+
 
 ClassImp(AutoLibraryLoader);

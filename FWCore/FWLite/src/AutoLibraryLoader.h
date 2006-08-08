@@ -7,7 +7,7 @@
  *
  * \author Chirs Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.2 2006/03/15 21:48:30 llista Exp $
+ * $Id: AutoLibraryLoader.h,v 1.1 2006/05/17 16:43:44 wmtan Exp $
  *
  */
 #include "TClassGenerator.h"
@@ -22,6 +22,9 @@ public:
   ClassDef(AutoLibraryLoader,1);
   /// enable automatic library loading  
   static void enable();
+  
+  /// load all known libraries holding dictionaries
+  static void loadAll();
 
 private:
   AutoLibraryLoader();
