@@ -168,12 +168,8 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   if (det==HcalForward) units=int(phibin[nEta+etaR-etaMin[2]-1]/fiveDegInRad+0.5);
   else units=int(phibin[etaR-1]/fiveDegInRad+0.5);
 
-  // this shifts iphi=1 to -10 degrees.  
-  if (units==1) iphi_skip=phi+2;  
-  else if (units==2) iphi_skip=(phi-1)*2+3;
+  if (units==2) iphi_skip=(phi-1)*2+1;
   else if (units==4) iphi_skip=(phi-1)*4+1;
-
-  if (iphi_skip>72) iphi_skip-=72;
 
   HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,iphi_skip,lay);
 
