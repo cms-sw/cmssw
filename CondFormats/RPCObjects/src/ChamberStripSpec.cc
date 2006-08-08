@@ -7,6 +7,7 @@ void ChamberStripSpec::print( int depth ) const
   std::cout << " ChamberStripSpec: " 
             << " pin: "<<cablePinNumber
             << ", chamber: "<<chamberStripNumber
+            << ", CMS strip: "<<cmsStripNumber
             << std::endl;
 }
 

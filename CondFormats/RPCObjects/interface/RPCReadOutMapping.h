@@ -43,6 +43,12 @@ public:
   /// version as string
   const std::string & version() const { return theVersion; }
 
+  /// get linkboards for given chamber name
+  std::vector<const LinkBoardSpec*> getLBforChamber(const std::string & name) const;
+
+  /// get RAW data specification for a given CMS strip in given chamber
+  std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const;
+
   /// convert strip location as in raw data to detUnit frame
   StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
       int febInLB, int stripPinInFeb) const;

@@ -8,6 +8,7 @@
 
 #include<iostream>
 
+
 RPCReadOutMapping::RPCReadOutMapping(const std::string & version) 
   : theVersion(version) { }
 
@@ -63,6 +64,94 @@ const LinkBoardSpec*
   return 0;
 }
 
+
+std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::string &name) const{
+
+
+ std::vector<const LinkBoardSpec*> vLBforChamber;
+
+ ChamberRawDataSpec linkboard;
+ linkboard.dccId = 790;
+ linkboard.dccInputChannelNum = 1;
+ linkboard.tbLinkInputNum = 1;
+ linkboard.lbNumInLink = 0;
+ const LinkBoardSpec *location = this->location(linkboard);
+ 
+ for(int k=0;k<18;k++){
+   //std::cout<<std::endl<<"Link number: "<<k<<"-------------------"<<std::endl;
+   linkboard.dccInputChannelNum = 1;
+   linkboard.tbLinkInputNum = k;
+   for(int j=0;j<3;j++){
+     linkboard.lbNumInLink = j;
+     int febInputNum=1;
+     location = this->location(linkboard);
+     if (location) {
+       //location->print();
+       for(int j=0;j<6;j++){	 
+	 const FebConnectorSpec * feb = location->feb(febInputNum+j);
+	 if(feb){
+	   //feb->print();	  
+	   std::string chName = feb->chamber().chamberLocationName;
+	   if(chName==name){
+	     vLBforChamber.push_back(location);
+	     //feb->chamber().print();
+	     break;
+	   }
+	 }
+       }
+     }
+   }
+ }
+ return vLBforChamber;
+}
+
+std::pair<ChamberRawDataSpec, int>  
+RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const{
+
+ ChamberRawDataSpec linkboard;
+ linkboard.dccId = 790;
+ linkboard.dccInputChannelNum = 1;
+
+ for(int k=0;k<18;k++){
+   //std::cout<<std::endl<<"Link number: "<<k<<"-------------------"<<std::endl;
+   linkboard.dccInputChannelNum = 1;
+   linkboard.tbLinkInputNum = k;
+   for(int j=0;j<3;j++){
+     linkboard.lbNumInLink = j;
+     const LinkBoardSpec *location = this->location(linkboard);    
+     if (location) {
+       for(int i=1;i<7;i++){	 
+	 const FebConnectorSpec * feb = location->feb(i);
+	 /*
+	 if(feb){
+	 feb->print();
+	 std::cout<<"RPCReadOutMapping raw id: "<<feb->rawId()<<std::endl;
+	 }
+	 */
+	 if(feb && feb->rawId()==detId){
+	   for(int l=0;l<16;l++){
+	     int pin = l;
+	     //if(feb->chamber().barrelOrEndcap=="Endcap") pin = 2*l+1;
+	     //pin = 2*l+1;
+	     const ChamberStripSpec *aStrip = feb->strip(pin);
+	     //if(aStrip) aStrip->print();
+	     if(aStrip && aStrip->cmsStripNumber==strip){
+	       int bitInLink = (i-1)*16+l;
+	       //aStrip->print();
+	       std::pair<ChamberRawDataSpec, int> stripInfo(linkboard,bitInLink);
+	       return stripInfo;
+	     }
+	   }
+	 }
+       }
+     }
+   }
+ }
+ std::pair<ChamberRawDataSpec, int> dummyStripInfo(linkboard,-99);
+ return dummyStripInfo;
+}
+
+
 RPCReadOutMapping::StripInDetUnit 
     RPCReadOutMapping::detUnitFrame(const LinkBoardSpec* location, 
     int febInLB, int stripPinInFeb) const 
@@ -77,8 +166,8 @@ RPCReadOutMapping::StripInDetUnit
     if (strip) {
       stripInDU = strip->cmsStripNumber;
     }
-    else std::cout << "NO STRIP!" << std::endl;
   }
-  else std::cout <<"NO FEB!!" << std::endl;
   return std::make_pair(detUnit,stripInDU);
 }
+
+

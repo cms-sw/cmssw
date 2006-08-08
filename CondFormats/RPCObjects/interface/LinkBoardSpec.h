@@ -28,6 +28,9 @@ public:
   /// get Feb by its connection number to this board
   const FebConnectorSpec * feb(int febInputNum) const;
 
+  /// get strip info for LB channel
+  std::pair<uint32_t,int> strip(int chanelLB) const;
+
   /// debud printout
   void print(int depth=0) const;
 
