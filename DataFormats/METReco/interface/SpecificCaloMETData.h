@@ -15,16 +15,16 @@
 
 struct SpecificCaloMETData
 {
-  double mMaxEInEmTowers;         // Maximum energy in EM towers
-  double mMaxEInHadTowers;        // Maximum energy in HCAL towers
-  double mHadEnergyInHO;          // Hadronic energy fraction in HO
-  double mHadEnergyInHB;          // Hadronic energy in HB
-  double mHadEnergyInHF;          // Hadronic energy in HF
-  double mHadEnergyInHE;          // Hadronic energy in HE
-  double mEmEnergyInEB;           // Em energy in EB
-  double mEmEnergyInEE;           // Em energy in EE
-  double mEmEnergyInHF;           // Em energy in HF
-  double mEnergyFractionHadronic; // Hadronic energy fraction
-  double mEnergyFractionEm;       // Em energy fraction
+  double MaxEtInEmTowers;         // Maximum ET in EM towers
+  double MaxEtInHadTowers;        // Maximum ET in HCAL towers
+  double HadEtInHO;          // Hadronic ET fraction in HO
+  double HadEtInHB;          // Hadronic ET in HB
+  double HadEtInHF;          // Hadronic ET in HF
+  double HadEtInHE;          // Hadronic ET in HE
+  double EmEtInEB;           // Em ET in EB
+  double EmEtInEE;           // Em ET in EE
+  double EmEtInHF;           // Em ET in HF
+  double EtFractionHadronic; // Hadronic ET fraction
+  double EtFractionEm;       // Em ET fraction
 }; //public : struct SpecificCaloMETData
 #endif

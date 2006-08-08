@@ -44,6 +44,8 @@ namespace reco
       //Define methods to extract elements related to MET
       //scalar sum of transverse energy over all objects
       double sumEt() const { return sumet; }       
+      //MET Significance = MET / sqrt(SumET)
+      double mEtSig() const { return ( sumet ? (this->et() / sqrt(sumet)) : (0.0) ); }
       //longitudinal component of the vector sum of energy over all object
       //(useful for data quality monitoring)
       double e_longitudinal() const {return elongit; }  

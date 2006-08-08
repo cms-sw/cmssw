@@ -34,28 +34,28 @@ namespace reco
       virtual ~CaloMET() {}
       
       /* Returns the maximum energy deposited in ECAL towers */
-      double maxEInEmTowers() const {return calo_data.mMaxEInEmTowers;};
+      double maxEtInEmTowers() const {return calo_data.MaxEtInEmTowers;};
       /* Returns the maximum energy deposited in HCAL towers */
-      double maxEInHadTowers() const {return calo_data.mMaxEInHadTowers;};
+      double maxEtInHadTowers() const {return calo_data.MaxEtInHadTowers;};
       /* Returns the event hadronic energy fraction          */
-      double energyFractionHadronic () const 
-	{return calo_data.mEnergyFractionHadronic;};
+      double etFractionHadronic () const 
+	{return calo_data.EtFractionHadronic;};
       /* Returns the event electromagnetic energy fraction   */
-      double emEnergyFraction() const {return calo_data.mEnergyFractionEm;};
+      double emEtFraction() const {return calo_data.EtFractionEm;};
       /* Returns the event hadronic energy in HB             */
-      double hadEnergyInHB() const {return calo_data.mHadEnergyInHB;};
+      double hadEtInHB() const {return calo_data.HadEtInHB;};
       /* Returns the event hadronic energy in HO             */
-      double hadEnergyInHO() const {return calo_data.mHadEnergyInHO;};
+      double hadEtInHO() const {return calo_data.HadEtInHO;};
       /* Returns the event hadronic energy in HE             */
-      double hadEnergyInHE() const {return calo_data.mHadEnergyInHE;};
+      double hadEtInHE() const {return calo_data.HadEtInHE;};
       /* Returns the event hadronic energy in HF             */
-      double hadEnergyInHF() const {return calo_data.mHadEnergyInHF;};
+      double hadEtInHF() const {return calo_data.HadEtInHF;};
       /* Returns the event electromagnetic energy in EB      */
-      double emEnergyInEB() const {return calo_data.mEmEnergyInEB;};
+      double emEtInEB() const {return calo_data.EmEtInEB;};
       /* Returns the event electromagnetic energy in EE      */
-      double emEnergyInEE() const {return calo_data.mEmEnergyInEE;};
+      double emEtInEE() const {return calo_data.EmEtInEE;};
       /* Returns the event electromagnetic energy extracted from HF */
-      double emEnergyInHF() const {return calo_data.mEmEnergyInHF;};
+      double emEtInHF() const {return calo_data.EmEtInHF;};
       
       // block accessors
       //const Specific& getSpecific () const {return calo_data;}
