@@ -63,8 +63,8 @@ void Type1METAlgo::run(const CaloMETCollection *uncorMET,
   std::vector<CorrMETData> corrections = u.mEtCorr();
   //----------------- Calculate and set deltas for new MET correction
   CorrMETData delta;
-  delta.mex   =  DeltaPx;    
-  delta.mey   =  DeltaPy;    
+  delta.mex   =  - DeltaPx;    //correction to MET (from Jets) is negative,    
+  delta.mey   =  - DeltaPy;    //since MET points in direction opposite of jets
   delta.sumet =  DeltaSumET; 
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
   LorentzVector correctedMET4vector( u.px()+delta.mex, 
@@ -121,8 +121,8 @@ void Type1METAlgo::run(const METCollection *uncorMET,
   std::vector<CorrMETData> corrections = u.mEtCorr();
   //----------------- Calculate and set deltas for new MET correction
   CorrMETData delta;
-  delta.mex   =  DeltaPx;    
-  delta.mey   =  DeltaPy;    
+  delta.mex   =  - DeltaPx;    //correction to MET (from Jets) is negative,    
+  delta.mey   =  - DeltaPy;    //since MET points in direction opposite of jets
   delta.sumet =  DeltaSumET; 
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
   LorentzVector correctedMET4vector( u.px()+delta.mex, 
