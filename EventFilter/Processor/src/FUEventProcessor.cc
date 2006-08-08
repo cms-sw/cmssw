@@ -124,41 +124,45 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 		 "plugin path:" << getenv("SEAL_PLUGINS"));
 
   // Load the message service plug-in
-  try {
-    ah_ = new edm::AssertHandler();   
-    LOG4CPLUS_INFO(this->getApplicationLogger(),
-		   "Trying to create message service presence ");
-    edm::PresenceFactory *pf = edm::PresenceFactory::get();
-    LOG4CPLUS_INFO(this->getApplicationLogger(),
-		   "presence factory pointer is " << (int) pf);
-    if(pf != 0)
-      m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
-    else
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		     "Unable to create message service presence ");
-  } 
-  catch(seal::Error& e) 
+  if(!servicesDone_)
     {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      e.explainSelf());
+      
+      try {
+	ah_ = new edm::AssertHandler();   
+	LOG4CPLUS_INFO(this->getApplicationLogger(),
+		       "Trying to create message service presence ");
+	edm::PresenceFactory *pf = edm::PresenceFactory::get();
+	LOG4CPLUS_INFO(this->getApplicationLogger(),
+		       "presence factory pointer is " << (int) pf);
+	if(pf != 0)
+	  m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
+	else
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  "Unable to create message service presence ");
+	
+      } 
+      catch(seal::Error& e) 
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}
+      catch(cms::Exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}    
+      
+      catch(std::exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.what());
+	}
+      catch(...)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  "Unknown Exception");
+	}
     }
-  catch(cms::Exception &e)
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      e.explainSelf());
-    }    
-
-  catch(std::exception &e)
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      e.what());
-    }
-  catch(...)
-    {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "Unknown Exception");
-    }
-
 
   //test it 
   edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
@@ -177,12 +181,21 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       internal::addServiceMaybe(pServiceSets, "MLlog4cplus");
       internal::addServiceMaybe(pServiceSets, "MonitorDaemon");
       serviceToken_ = edm::ServiceRegistry::createSet(pServiceSets);
-      edm::ServiceRegistry::Operate operate(serviceToken_);
-      rmt_p = edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
-      edm::Service<ML::MLlog4cplus>()->setAppl(this);
       servicesDone_ = true;
     }
-  std::cout << "Using config string \n" << configString << std::endl;
+
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  try{
+    rmt_p = edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
+    edm::Service<ML::MLlog4cplus>()->setAppl(this);
+  }
+  catch(...)
+      { 
+	LOG4CPLUS_INFO(this->getApplicationLogger(),"exception when trying to get service MonitorDaemon");
+      }
+
+  edm::LogInfo("FUEventProcessor") << "Using config string \n" << configString;
+
   try{
 
     proc_ = new edm::EventProcessor(configString, serviceToken_, edm::serviceregistry::kTokenOverrides);
@@ -201,7 +214,9 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 	mwr = edm::Service<ModuleWebRegistry>().operator->();
     }
     catch(...)
-      { cout <<"exception when trying to get the service registry " << endl;}
+      { 
+	LOG4CPLUS_INFO(this->getApplicationLogger(),"exception when trying to get service ModuleWebRegistry");
+      }
     if(mwr)
       mwr->publish(getApplicationInfoSpace());
 
