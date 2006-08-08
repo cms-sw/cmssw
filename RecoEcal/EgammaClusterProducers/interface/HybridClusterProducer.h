@@ -43,6 +43,7 @@ class HybridClusterProducer : public edm::EDProducer
       float clustershape_t0;
       float clustershape_w0;
       HybridClusterAlgo * hybrid_p;
+      HybridClusterAlgo::DebugLevel debugL;  
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };

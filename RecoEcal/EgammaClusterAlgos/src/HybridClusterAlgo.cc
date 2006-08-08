@@ -25,8 +25,10 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
 
   //Pass in the map
   rechits_m = CorrMap;
-
+  
+  if ( debugLevel_ == pDEBUG ) {
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
+  }
 
   std::map<DetId, EcalRecHit>::iterator it;
 
@@ -41,23 +43,29 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
     //Must pass seed threshold.
     if (ET > eb_st){
       seeds.push_back(it->second);
-      std::cout << "Seed ET: " << ET << std::endl;
-      std::cout << "Seed E: " << it->second.energy() << std::endl;
+      if ( debugLevel_ == pDEBUG ){
+	std::cout << "Seed ET: " << ET << std::endl;
+	std::cout << "Seed E: " << it->second.energy() << std::endl;
+      }
     }
   }
   
   //Yay sorting.
-  std::cout << "Built vector of seeds, about to sort them...";
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "Built vector of seeds, about to sort them...";
 
   //Needs three argument sort with seed comparison operator
   sort(seeds.begin(), seeds.end(), less_mag());
-  std::cout << "done" << std::endl;
+
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "done" << std::endl;
 
   //Now to do the work.
-  std::cout << "About to call mainSearch...";
+  if ( debugLevel_ ==pDEBUG ) 
+    std::cout << "About to call mainSearch...";
   mainSearch();
-
-  std::cout << "done" << std::endl;
+  if ( debugLevel_ == pDEBUG ) 
+    std::cout << "done" << std::endl;
   
   //Hand the basicclusters back to the producer.  It has to 
   //put them in the event.  Then we can make superclusters.
@@ -72,15 +80,19 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
   //Yay more sorting.
   sort(basicClusters.begin(), basicClusters.end());
   //Done!
-  std::cout << "returning to producer. " << std::endl;
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "returning to producer. " << std::endl;
 }
 
 
 
 void HybridClusterAlgo::mainSearch(void)
 {
-  std::cout << "HybridClusterAlgo Algorithm - looking for clusters" << std::endl;
-  std::cout << "Found the following clusters:" << std::endl;
+ 
+  if ( debugLevel_ ==pDEBUG ) {
+    std::cout << "HybridClusterAlgo Algorithm - looking for clusters" << std::endl;
+    std::cout << "Found the following clusters:" << std::endl;
+  }
 
   // Loop over seeds:
   std::vector<EcalRecHit>::iterator it;
@@ -98,10 +110,12 @@ void HybridClusterAlgo::mainSearch(void)
     //If this seed is already used, then don't use it again.
     
     // output some info on the hit:
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "Seed of energy E = " << it->energy() 
-	      << std::endl;
-    std::cout << "*****************************************************" << std::endl;
+    if ( debugLevel_ == pDEBUG ){
+      std::cout << "*****************************************************" << std::endl;
+      std::cout << "Seed of energy E = " << it->energy() 
+		<< std::endl;
+      std::cout << "*****************************************************" << std::endl;
+    }
 
     //Make a navigator, and set it to the seed cell.
     EcalBarrelNavigator navigator(itID, topo);
@@ -140,7 +154,8 @@ void HybridClusterAlgo::mainSearch(void)
       dominoCellsPhiPlus.push_back(dcells);
     }
 
-    std::cout << "Got positive dominos" << std::endl;
+    if ( debugLevel_ == pDEBUG )
+      std::cout << "Got positive dominos" << std::endl;
     //return to initial position
     navigator.home();
     
@@ -159,7 +174,8 @@ void HybridClusterAlgo::mainSearch(void)
       dominoCellsPhiMinus.push_back(dcells);
     }
     
-    std::cout << "Got negative dominos: " << std::endl;
+    if ( debugLevel_ == pDEBUG )
+      std::cout << "Got negative dominos: " << std::endl;
 
     //Assemble this information:
     for (int i=int(dominoEnergyPhiMinus.size())-1;i >= 0;--i){
@@ -174,9 +190,11 @@ void HybridClusterAlgo::mainSearch(void)
     }
 
     //Ok, now I have all I need in order to go ahead and make clusters.
-    std::cout << "Dumping domino energies: " << std::endl;
-    for (int i=0;i<int(dominoEnergy.size());++i){
-      std::cout << "Domino: " << i << " E: " << dominoEnergy[i] << std::endl;
+    if ( debugLevel_ == pDEBUG ){
+      std::cout << "Dumping domino energies: " << std::endl;
+      for (int i=0;i<int(dominoEnergy.size());++i){
+	std::cout << "Domino: " << i << " E: " << dominoEnergy[i] << std::endl;
+      }
     }
 
 
@@ -191,8 +209,10 @@ void HybridClusterAlgo::mainSearch(void)
 	PeakIndex.push_back(i);
       }
     }
-    std::cout << "Found: " << PeakIndex.size() << " peaks." << std::endl;
 
+    if ( debugLevel_ == pDEBUG )
+      std::cout << "Found: " << PeakIndex.size() << " peaks." << std::endl;
+    
     //Order these peaks by energy:
     for (int i=0;i<int(PeakIndex.size());++i){
       for (int j=0;j<int(PeakIndex.size())-1;++j){
@@ -256,9 +276,12 @@ void HybridClusterAlgo::mainSearch(void)
 	  }
 	}  
       }
-      std::cout << "Adding a cluster with: " << nhits << std::endl;
-      std::cout << "total E: " << LumpEnergy[i] << std::endl;
-      std::cout << "total dets: " << dets.size() << std::endl;
+      if ( debugLevel_ == pDEBUG ){
+	std::cout << "Adding a cluster with: " << nhits << std::endl;
+	std::cout << "total E: " << LumpEnergy[i] << std::endl;
+	std::cout << "total dets: " << dets.size() << std::endl;
+      }
+
       //Get Calorimeter position
       Point pos = PositionCalc::Calculate_Location(dets);
  
@@ -316,8 +339,11 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     }//End loop over clusters.
     reco::SuperCluster suCl(ClusterE, (*seed).position(), seed, thissc);
     SCcoll.push_back(suCl);
-    std::cout << "Super cluster sum: " << ClusterE << std::endl;
-    std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
+
+    if ( debugLevel_ == pDEBUG ){
+      std::cout << "Super cluster sum: " << ClusterE << std::endl;
+      std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
+    }
   }//end loop over map
   sort(SCcoll.begin(), SCcoll.end());
   return SCcoll;

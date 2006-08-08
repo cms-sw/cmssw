@@ -53,7 +53,12 @@ class HybridClusterAlgo
 
   //Map of basicclusters and what supercluster they will belong to.
   std::map<int, std::vector<reco::BasicCluster> > _clustered;
+
+  //Control the verbosity.
+  int debugLevel_;
+
  public:
+   enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
   
   //The default constructor
   HybridClusterAlgo(){}
@@ -65,8 +70,9 @@ class HybridClusterAlgo
 		    int step, 
 		    double ethresh, 
 		    double ewing,
-		    double eseed) : eb_st(eb_str), ec_st(ec_str), 
-    phi_steps(step), Ethres(ethresh), Ewing(ewing), Eseed(eseed)
+		    double eseed,
+		    DebugLevel debugLevel = pINFO) : eb_st(eb_str), ec_st(ec_str), 
+    phi_steps(step), Ethres(ethresh), Ewing(ewing), Eseed(eseed), debugLevel_(debugLevel)
   {
     
   }
