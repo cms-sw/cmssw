@@ -78,10 +78,12 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
-    
-    math::XYZVector momentum =aClus->position() - vtx;
+
+    // compute correctly the momentum vector of the photon from primary vertex and cluster position
+    math::XYZVector direction =aClus->position() - vtx;
+    math::XYZVector momentum = direction.unit() * aClus->energy();
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
-   
+
     reco::Photon newCandidate(0, p4, vtx);
 
     outputPhotonCollection.push_back(newCandidate);
