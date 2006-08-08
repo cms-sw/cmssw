@@ -559,6 +559,19 @@ AlignableTrackerEndcap  &AlignableTracker::endCap(unsigned int i)
 
 
 //--------------------------------------------------------------------------------------------------
+AlignableTrackerEndcap  &AlignableTracker::pixelEndCap(unsigned int i)
+{
+
+  if (i >= thePixelEndcaps.size() )
+	throw cms::Exception("LogicError") 
+	  << "Pixel endcap index (" << i << ") out of range";
+  else
+	return *(thePixelEndcaps[i]);
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
 AlignableTracker::PositionType AlignableTracker::computePosition()
 {
   // for the time being we decided to start 
@@ -689,10 +702,10 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapGeomDets()
   std::vector<Alignable*> result;
 
   for ( unsigned int i=0; i<thePixelEndcaps.size(); i++ )
-	for ( int j=0; j<endCap(i).size(); j++ )
-	  for ( int k=0; k<endCap(i).layer(j).size(); k++ ) 
-		for ( int l=0; l<endCap(i).layer(j).petal(k).size(); l++ ) 
-		  result.push_back(&endCap(i).layer(j).petal(k).det(l));
+	for ( int j=0; j<pixelEndCap(i).size(); j++ )
+	  for ( int k=0; k<pixelEndCap(i).layer(j).size(); k++ ) 
+		for ( int l=0; l<pixelEndCap(i).layer(j).petal(k).size(); l++ ) 
+		  result.push_back(&pixelEndCap(i).layer(j).petal(k).det(l));
   
   return result;		    		    
 
