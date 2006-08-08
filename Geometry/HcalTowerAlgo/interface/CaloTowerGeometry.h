@@ -15,12 +15,6 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry {
 public:
   CaloTowerGeometry();
   virtual ~CaloTowerGeometry();  
-
-  /// overriden to deal with detid representation issues
-  virtual bool present(const DetId& id) const;
-  /// overriden to deal with detid representation issues
-  virtual const CaloCellGeometry* getGeometry(const DetId& id) const;
-
 };
 
 #endif
