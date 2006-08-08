@@ -18,7 +18,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
       n++;
     }
   }
-  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers." << std::endl;
+  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers.";
   return std::auto_ptr<CaloSubdetectorGeometry>(geom);
 }
 
