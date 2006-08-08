@@ -98,20 +98,22 @@ void ElectronProducer::produce(edm::Event& theEvent, const edm::EventSetup& theE
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
 
-    const reco::Particle::LorentzVector  p4(0, 0, 0, aClus->energy() );
     const reco::Particle::Point  vtx( 0, 0, 0 );
-    reco::Electron newCandidate(0, p4, vtx);
+
+    // compute correctly the momentum vector of the photon from primary vertex and cluster position
+    math::XYZVector direction = aClus->position() - vtx;
+    math::XYZVector momentum = direction.unit() * aClus->energy();
+    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
+
+    reco::Electron newCandidate(-1, p4, vtx);
 
     outputElectronCollection.push_back(newCandidate);
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scBarrelHandle, iSC));
     outputElectronCollection[iSC].setSuperCluster(scRef);
 
-    iSC++;      
+    iSC++;
 
-      
   }
-  
-
 
   //  Loop over Endcap SC and fill the  photon collection
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
