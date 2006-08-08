@@ -85,7 +85,7 @@ int EBDetId::hashedIndex() const {
 int EBDetId::tower_iphi() const { 
   int iphi_simple=((iphi()-1)/5)+1; 
   iphi_simple-=2;
-  return (iphi_simple<=0)?(iphi_simple+72):(iphi_simple);
+  return ((iphi_simple<=0)?(iphi_simple+72):(iphi_simple));
 }
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
