@@ -9,8 +9,11 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace reco {
 
@@ -24,6 +27,8 @@ namespace reco {
     TransientTrack( const TransientTrack & tt );
     
     TransientTrack& operator=(const TransientTrack & tt);
+
+    void setES(const edm::EventSetup& );
 
     TrajectoryStateOnSurface outermostMeasurementState() const;
 
@@ -64,7 +69,7 @@ namespace reco {
     mutable bool stateAtVertexAvailable;
     mutable TrajectoryStateOnSurface theStateAtVertex;
     TSCPBuilderNoMaterial builder;
-
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 
   };
 
