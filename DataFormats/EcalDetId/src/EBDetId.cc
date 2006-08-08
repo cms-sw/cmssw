@@ -80,6 +80,13 @@ int EBDetId::ic() const {
 int EBDetId::hashedIndex() const {
   return (ism()-1) * kCrystalsPerSM + ic() -1;
 }
+
+//corrects for HB/EB differing iphi=1
+int EBDetId::tower_iphi() const { 
+  int iphi_simple=((iphi()-1)/5)+1; 
+  iphi_simple-=2;
+  return (iphi_simple<=0)?(iphi_simple+72):(iphi_simple);
+}
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
   return s << "(EB ieta " << id.ieta() << ", iphi" << id.iphi() 
