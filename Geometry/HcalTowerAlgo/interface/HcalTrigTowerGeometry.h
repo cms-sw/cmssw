@@ -9,6 +9,10 @@ class HcalDetId;
 
 class HcalTrigTowerGeometry {
 public:
+
+  HcalTrigTowerGeometry();
+
+  void setupHF(bool useShortFibers, bool useQuadRings);
   
   /// the mapping to and from DetIds
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & cellId) const;
@@ -37,6 +41,8 @@ public:
 
 private:
   HcalTopology theTopology;
+  bool useShortFibers_;
+  bool useHFQuadPhiRings_;
 };
 
 #endif

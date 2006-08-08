@@ -5,15 +5,24 @@
 
 #include <iostream>
 
+HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
+  useShortFibers_=true;
+  useHFQuadPhiRings_=true;
+}
+
+void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
+  useShortFibers_=useShortFibers;
+  useHFQuadPhiRings_=useQuadRings;
+}
+
 std::vector<HcalTrigTowerDetId> 
 HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
-  bool use_hf_short=true;
   std::vector<HcalTrigTowerDetId> results;
 
   if(cellId.subdet() == HcalForward) {
     // short fibers don't count
-    if(cellId.depth() == 1 || use_hf_short) {
+    if(cellId.depth() == 1 || useShortFibers_) {
       // first do eta
       int hfRing = cellId.ietaAbs();
       int ieta = firstHFTower(); 
@@ -31,7 +40,8 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       if(cellId.ietaAbs() < theTopology.firstHFQuadPhiRing()) { 
 	iphi = (((iphi+1)/4)* 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
       }
-      results.push_back( HcalTrigTowerDetId(ieta, iphi) );
+      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
+        results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
       
   } else {
