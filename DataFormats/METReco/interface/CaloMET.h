@@ -19,6 +19,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/CorrMETData.h"
 
 namespace reco
 {
@@ -30,6 +31,10 @@ namespace reco
       CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
+      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
+	       std::vector<CorrMETData> corr_,
+	       const LorentzVector& fP4, const Point& fVertex ) 
+	: MET( sumet_, corr_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/
       virtual ~CaloMET() {}
       
@@ -58,7 +63,7 @@ namespace reco
       double emEtInHF() const {return calo_data.EmEtInHF;};
       
       // block accessors
-      //const Specific& getSpecific () const {return calo_data;}
+      SpecificCaloMETData getSpecific() const {return calo_data;}
       
     private:
       virtual bool overlap( const Candidate & ) const;
