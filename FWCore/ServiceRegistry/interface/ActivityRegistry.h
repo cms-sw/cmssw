@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.10 2006/04/22 03:57:15 wmtan Exp $
+// $Id: ActivityRegistry.h,v 1.11 2006/08/05 18:36:01 chrjones Exp $
 //
 
 // system include files
@@ -155,6 +155,11 @@ namespace edm {
 
       ///forwards our signals to slots connected to iOther
       void connect(ActivityRegistry& iOther);
+      
+      ///copy the slots from iOther and connect them directly to our own
+      /// this allows us to 'forward' signals more efficiently,
+      /// BUT if iOther gains new slots after this call, we will not see them
+      void copySlotsFrom(ActivityRegistry& iOther);
       
    private:
       ActivityRegistry(const ActivityRegistry&); // stop default

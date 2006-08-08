@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.6 2006/04/20 16:53:20 chrjones Exp $
+// $Id: ActivityRegistry.cc,v 1.8 2006/04/22 03:57:16 wmtan Exp $
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -78,6 +79,42 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preSourceConstructionSignal_.connect(iOther.preSourceConstructionSignal_);
    postSourceConstructionSignal_.connect(iOther.postSourceConstructionSignal_);
 
+}
+
+template<class T>
+static
+inline
+void
+copySlotsToFrom(T& iTo, T& iFrom)
+{
+  typename T::slot_list_type slots = iFrom.slots();
+  
+  std::for_each(slots.begin(),slots.end(),
+                boost::bind( &T::connect, iTo, _1) );
+}
+void 
+edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
+{
+  copySlotsToFrom(postBeginJobSignal_,iOther.postBeginJobSignal_);
+  copySlotsToFrom(postEndJobSignal_,iOther.postEndJobSignal_);
+  
+  copySlotsToFrom(jobFailureSignal_,iOther.jobFailureSignal_);
+  
+  copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
+  copySlotsToFrom(postSourceSignal_,iOther.postSourceSignal_);
+  
+  copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
+  copySlotsToFrom(postProcessEventSignal_,iOther.postProcessEventSignal_);
+  
+  copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
+  copySlotsToFrom(postModuleSignal_,iOther.postModuleSignal_);
+  
+  copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
+  copySlotsToFrom(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);
+  
+  copySlotsToFrom(preSourceConstructionSignal_,iOther.preSourceConstructionSignal_);
+  copySlotsToFrom(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
+  
 }
 
 //
