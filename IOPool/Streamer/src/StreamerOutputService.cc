@@ -2,6 +2,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
 #include "IOPool/Streamer/interface/DumpTools.h"
 
@@ -32,7 +33,7 @@ string itoa(int i){
  totalEventCount_(0),
  eventsInFile_(0),
  fileNameCounter_(0),
- highWaterMark_(0.9)
+ highWaterMark_(0.9), diskUsage_(0.0)
    
   {
     saved_initmsg_[0] = '\0';
@@ -40,14 +41,15 @@ string itoa(int i){
   }
 
 void StreamerOutputService::init(string fileName, unsigned long maxFileSize, double highWaterMark,
-                                 std::string path, InitMsgView& view)
+                                 std::string path, std::string mpath, InitMsgView& view)
   { 
    maxFileSize_ = maxFileSize;
    highWaterMark_ = highWaterMark;
    path_ = path;
+   mpath_ = mpath;
    filen_ = fileName;
-   fileName_ = filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-   indexFileName_ = filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
+   fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
+   indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
    stream_writer_ = std::auto_ptr<StreamerOutputFile>(new StreamerOutputFile(fileName_));
    index_writer_ =  std::auto_ptr<StreamerOutputIndexFile>(new StreamerOutputIndexFile(indexFileName_));
    
@@ -83,6 +85,22 @@ StreamerOutputService::~StreamerOutputService()
    // expect to do this manually at the end of a run
    // stop();   //Remove this from destructor if you want higher class to do that at its will.
               // and if stop() is ever made Public.
+   writeToMailBox();
+   ostringstream entry;
+   entry << fileNameCounter_ << " "
+         << fileName_
+         << " " << eventsInFile_
+         << "   " << currentFileSize_;
+   files_.push_back(entry.str());
+   closedFiles_ += ", ";
+   closedFiles_ += fileName_;
+   // HEREHERE for test
+   std::cout << "#    name                             evt        size     " << endl;
+   for(list<string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+     std::cout << *it << endl;
+   std::cout << "Disk Usage = " << diskUsage_ << endl;
+   std::cout << "Closed files = " << closedFiles_ << endl;
+
   }
 
 void StreamerOutputService::stop()
@@ -98,6 +116,15 @@ void StreamerOutputService::stop()
     // is this writing the number of events written?
     stream_writer_->writeEOF(dummyStatusCode, hltStats);
     index_writer_->writeEOF(dummyStatusCode, hltStats);
+    // how am I supposed to get the size?
+   // build using dummy values
+    EOFRecordBuilder eof(1, 
+                         eventsInFile_,
+                         dummyStatusCode,
+                         hltStats,
+                         0,
+                         1);
+    currentFileSize_ += eof.size();
   }
 
 void StreamerOutputService::writeHeader(InitMsgBuilder& init_message)
@@ -120,23 +147,35 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
   {
         if ( eventsInFile_ > maxFileEventCount_  || currentFileSize_ > maxFileSize_ )
            {
+             checkFileSystem(); // later should take some action
              stop();
+             writeToMailBox();
              fileNameCounter_++;
              // better to use temp variable as not sure if writer is still using
              // them? shouldn't be! (no time to look now)
 
              // also should be checking the filesystem here at path_
-             std::string fileN = filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-             std::string indexFileN = filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
+             std::string fileN = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
+             std::string indexFileN = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
 
              //stream_writer_.reset( new StreamerOutputFile(fileName_+itoa(fileNameCounter_)));
              //index_writer_.reset( new StreamerOutputIndexFile(indexFileName_+itoa(fileNameCounter_)));
              stream_writer_.reset( new StreamerOutputFile(fileN));
              index_writer_.reset( new StreamerOutputIndexFile(indexFileN));
 
+             // write out the summary line for this last file
+             ostringstream entry;
+             entry << (fileNameCounter_ - 1) << " " 
+                   << fileName_
+                   << " " << eventsInFile_
+                   << "   " << currentFileSize_;
+             files_.push_back(entry.str());
+             if(fileNameCounter_!=1) closedFiles_ += ", ";
+             closedFiles_ += fileName_;
+
              // now set the filenames
-             fileName_ = filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
-             indexFileName_ = filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
+             fileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".dat";
+             indexFileName_ = path_ + "/" + filen_ + "." + itoa((int)fileNameCounter_) + ".ind";
 
              eventsInFile_ = 0; 
              currentFileSize_ = 0;
@@ -186,6 +225,50 @@ void StreamerOutputService::writeEvent(EventMsgView& eview, uint32 hltsize)
            eventsInFile_++;
            totalEventCount_++;
            currentFileSize_ += msg.size();
+  }
+
+#include <fstream>
+// to stat files and directories
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <unistd.h>
+  
+  void StreamerOutputService::writeToMailBox()
+  {
+    ostringstream ofilename;
+    ofilename << mpath_ << "/" << filen_ << "." << fileNameCounter_ << ".smry";
+    ofstream of(ofilename.str().c_str());
+    of << fileName_;
+    of.close();
+  }
+  
+  void StreamerOutputService::checkFileSystem()
+  {
+    struct statfs64 buf;
+    int retVal = statfs64(path_.c_str(), &buf);
+    if(retVal!=0)
+      //edm::LogWarning("StreamerOutputService") << "Could not stat output filesystem for path " 
+      std::cout << "StreamerOutputService: " << "Could not stat output filesystem for path " 
+                                               << path_ << std::endl;
+  
+    unsigned long btotal = 0;
+    unsigned long bfree = 0;
+    unsigned long blksize = 0;
+    if(retVal==0)
+      {
+        blksize = buf.f_bsize;
+        btotal = buf.f_blocks;
+        bfree  = buf.f_bfree;
+      }
+    float dfree = float(bfree)/float(btotal);
+    float dusage = 1. - dfree;
+    diskUsage_ = dusage;
+    if(dusage>highWaterMark_)
+      //edm::LogWarning("StreamerOutputService") << "Output filesystem for path " << path_ 
+      std::cout << "StreamerOutputService: " << "Output filesystem for path " << path_ 
+                                 << " is more than " << highWaterMark_*100 << "% full " << std::endl;
+
   }
 
 }  //end-of-namespace block
