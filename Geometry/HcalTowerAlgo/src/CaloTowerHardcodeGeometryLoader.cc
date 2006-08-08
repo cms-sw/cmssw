@@ -3,8 +3,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   CaloTowerGeometry* geom=new CaloTowerGeometry();
@@ -19,7 +18,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
       n++;
     }
   }
-  std::cout << "CaloTowersHardcodeGeometry made " << n << " towers." << std::endl;
+  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers." << std::endl;
   return std::auto_ptr<CaloSubdetectorGeometry>(geom);
 }
 
@@ -49,7 +48,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   double dphi_nominal = 2.0*M_PI / limits.nPhiBins(1); // always the same
   double dphi_half = M_PI / limits.nPhiBins(etaRing); // half-width
   
-  double phi_low = dphi_nominal*(iphi-3); // low-edge boundaries are constant...
+  double phi_low = dphi_nominal*(iphi-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
 
   double x,y,z,thickness;
