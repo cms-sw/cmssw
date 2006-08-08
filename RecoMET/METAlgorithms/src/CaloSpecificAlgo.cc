@@ -19,18 +19,18 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
   // Instantiate the container to hold the calorimeter specific information
   SpecificCaloMETData specific;
   // Initialise the container 
-  specific.mMaxEInEmTowers = 0.0;         // Maximum energy in EM towers
-  specific.mMaxEInHadTowers = 0.0;        // Maximum energy in HCAL towers
-  specific.mHadEnergyInHO = 0.0;          // Hadronic energy fraction in HO
-  specific.mHadEnergyInHB = 0.0;          // Hadronic energy in HB
-  specific.mHadEnergyInHF = 0.0;          // Hadronic energy in HF
-  specific.mHadEnergyInHE = 0.0;          // Hadronic energy in HE
-  specific.mEmEnergyInEB = 0.0;           // Em energy in EB
-  specific.mEmEnergyInEE = 0.0;           // Em energy in EE
-  specific.mEmEnergyInHF = 0.0;           // Em energy in HF
-  specific.mEnergyFractionHadronic = 0.0; // Hadronic energy fraction
-  specific.mEnergyFractionEm = 0.0;       // Em energy fraction
-  double totalEnergy = 0.0; 
+  specific.MaxEtInEmTowers = 0.0;         // Maximum energy in EM towers
+  specific.MaxEtInHadTowers = 0.0;        // Maximum energy in HCAL towers
+  specific.HadEtInHO = 0.0;          // Hadronic energy fraction in HO
+  specific.HadEtInHB = 0.0;          // Hadronic energy in HB
+  specific.HadEtInHF = 0.0;          // Hadronic energy in HF
+  specific.HadEtInHE = 0.0;          // Hadronic energy in HE
+  specific.EmEtInEB = 0.0;           // Em energy in EB
+  specific.EmEtInEE = 0.0;           // Em energy in EE
+  specific.EmEtInHF = 0.0;           // Em energy in HF
+  specific.EtFractionHadronic = 0.0; // Hadronic energy fraction
+  specific.EtFractionEm = 0.0;       // Em energy fraction
+  double totalEt = 0.0; 
   double totalEm     = 0.0;
   double totalHad    = 0.0;
   double MaxTowerEm  = 0.0;
@@ -46,14 +46,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
   CaloTowerCollection::const_iterator calotower = towerCollection->begin();
   for( ; calotower != towerCollection->end(); calotower++ ) 
     {
-      totalEnergy += calotower->energy();
-      totalEm     += calotower->emEnergy();
-      totalHad    += calotower->hadEnergy();
+      totalEt  += calotower->et();
+      totalEm  += calotower->emEt();
+      totalHad += calotower->hadEt();
 
-      if( MaxTowerEm  > calotower->emEnergy() )  MaxTowerEm  = calotower->emEnergy();
-      if( MaxTowerHad > calotower->hadEnergy() ) MaxTowerHad = calotower->hadEnergy();
+      if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+      if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
 
-      specific.mHadEnergyInHO   += calotower->outerEnergy();
+      specific.HadEtInHO   += calotower->outerEt();
 
       bool hadIsDone = false;
       bool emIsDone = false;
@@ -66,17 +66,17 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
 	      HcalSubdetector subdet = HcalDetId(id).subdet();
 	      if( subdet == HcalBarrel || subdet == HcalOuter )
 		{
-		  specific.mHadEnergyInHB   += calotower->hadEnergy();
-		  specific.mHadEnergyInHO   += calotower->outerEnergy();
+		  specific.HadEtInHB   += calotower->hadEt();
+		  specific.HadEtInHO   += calotower->outerEt();
 		}
 	      else if( subdet == HcalEndcap )
 		{
-		  specific.mHadEnergyInHE   += calotower->hadEnergy();
+		  specific.HadEtInHE   += calotower->hadEt();
 		}
 	      else if( subdet == HcalForward )
 		{
-		  specific.mHadEnergyInHF   += calotower->hadEnergy();
-		  specific.mEmEnergyInHF    += calotower->emEnergy(); 
+		  specific.HadEtInHF   += calotower->hadEt();
+		  specific.EmEtInHF    += calotower->emEt(); 
 		}
 	      hadIsDone = true;
 	    }
@@ -85,19 +85,20 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
 	      EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
 	      if( subdet == EcalBarrel )
 		{
-		  specific.mEmEnergyInEB    += calotower->emEnergy(); 
+		  specific.EmEtInEB    += calotower->emEt(); 
 		}
 	      else if( subdet == EcalEndcap ) 
 		{
-		  specific.mEmEnergyInEE    += calotower->emEnergy();
+		  specific.EmEtInEE    += calotower->emEt();
 		}
+	      emIsDone = true;
 	    }
 	}
     }
-  specific.mMaxEInEmTowers         = MaxTowerEm;  
-  specific.mMaxEInHadTowers        = MaxTowerHad;         
-  specific.mEnergyFractionHadronic = totalEm  / totalEnergy; 
-  specific.mEnergyFractionEm       = totalHad / totalEnergy;       
+  specific.MaxEtInEmTowers         = MaxTowerEm;  
+  specific.MaxEtInHadTowers        = MaxTowerHad;         
+  specific.EtFractionHadronic = totalEm  / totalEt; 
+  specific.EtFractionEm       = totalHad / totalEt;       
   // Instantiate containers for the MET candidate and initialise them with
   // the MET information in "met" (of type CommonMETData)
   const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
