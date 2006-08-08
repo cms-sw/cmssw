@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.13 2006/06/20 23:13:27 paterno Exp $
+$Id: Worker.h,v 1.14 2006/08/05 18:36:45 chrjones Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -51,6 +51,8 @@ namespace edm {
     
     ModuleDescription const & description() const {return md_;}
     ModuleDescription const * descPtr() const {return &md_; }
+    ///The signals passed in are required to live longer than the last call to 'doWork'
+    /// this was done to improve performance based on profiling
     void connect(ActivityRegistry::PreModule&, ActivityRegistry::PostModule&);
 
     std::pair<double,double> timeCpuReal() const {
@@ -66,8 +68,9 @@ namespace edm {
    
     struct Sigs
     {
-      ActivityRegistry::PreModule preModuleSignal;
-      ActivityRegistry::PostModule postModuleSignal;
+      Sigs();
+      ActivityRegistry::PreModule* preModuleSignal;
+      ActivityRegistry::PostModule* postModuleSignal;
     };
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.11 2006/05/08 16:44:04 chrjones Exp $
+$Id: Worker.cc,v 1.12 2006/06/20 23:13:27 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -21,9 +21,9 @@ namespace edm
     {
     public:
       CallPrePost(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md)
-      { s_->preModuleSignal(*md_); }
+      { (*(s_->preModuleSignal))(*md_); }
       ~CallPrePost()
-      { s_->postModuleSignal(*md_); }
+      { (*(s_->postModuleSignal))(*md_); }
     private:
       Worker::Sigs* s_;
       ModuleDescription* md_;
@@ -36,6 +36,11 @@ namespace edm
     }
   }
   
+  static ActivityRegistry::PreModule defaultPreModuleSignal;
+  static ActivityRegistry::PostModule defaultPostModuleSignal;
+  
+  Worker::Sigs::Sigs() : preModuleSignal( &defaultPreModuleSignal ),
+  postModuleSignal( &defaultPostModuleSignal ) {}
   Worker::Worker(const ModuleDescription& iMD, 
 		 const WorkerParams& iWP):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
@@ -58,8 +63,8 @@ namespace edm
   void Worker::connect(ActivityRegistry::PreModule& pre,
 		       ActivityRegistry::PostModule& post)
   {
-    sigs_.preModuleSignal.connect(pre);
-    sigs_.postModuleSignal.connect(post);
+    sigs_.preModuleSignal= &pre;
+    sigs_.postModuleSignal= &post;
   }
 
   bool Worker::doWork(EventPrincipal& ep, EventSetup const& es,
