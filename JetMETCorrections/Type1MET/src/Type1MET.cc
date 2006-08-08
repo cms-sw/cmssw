@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.4 2006/08/03 22:18:14 cavana Exp $
+// $Id: Type1MET.cc,v 1.5 2006/08/04 02:35:23 cavana Exp $
 //
 //
 
@@ -49,6 +49,7 @@ namespace cms
     virtual void produce( edm::Event&, const edm::EventSetup& );
   private:
     Type1METAlgo alg_;
+    std::string metType;
     std::string inputUncorMetLabel;
     std::string inputUncorJetsLabel;
     std::string inputCorJetsLabel;
@@ -57,10 +58,14 @@ namespace cms
   // PRODUCER CONSTRUCTORS ------------------------------------------
   Type1MET::Type1MET( const edm::ParameterSet& iConfig ) : alg_() 
   {
-    produces<METCollection>();
-    inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorrMetLabel");
-    inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorrJetsLabel");
-    inputCorJetsLabel   = iConfig.getParameter<std::string>("inputCorrJetsLabel");
+    metType             = iConfig.getParameter<std::string>("metType");
+    inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorMetLabel");
+    inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorJetsLabel");
+    inputCorJetsLabel   = iConfig.getParameter<std::string>("inputCorJetsLabel");
+    if( metType == "CaloMET" )
+      produces<CaloMETCollection>();
+    else
+      produces<METCollection>();
   }
   Type1MET::Type1MET() : alg_() {}
   // PRODUCER DESTRUCTORS -------------------------------------------
@@ -70,16 +75,28 @@ namespace cms
   void Type1MET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
-    Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
     Handle<CaloJetCollection> inputUncorJets;
     Handle<CaloJetCollection> inputCorJets;
-    iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
     iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
     iEvent.getByLabel( inputCorJetsLabel,   inputCorJets );
-    std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
-    alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-	      inputCorJets.product(), *output );                 //Invoke the algorithm
-    iEvent.put( output );                                        //Put output into Event
+    if( metType == "CaloMET")
+      {
+	Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
+	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
+	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
+	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
+		  inputCorJets.product(), *output );                 //Invoke the algorithm
+	iEvent.put( output );                                        //Put output into Event
+      }
+    else
+      {
+	Handle<METCollection> inputUncorMet;                     //Define Inputs
+	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
+	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
+		  inputCorJets.product(), *output );                 //Invoke the algorithm
+	iEvent.put( output );                                        //Put output into Event
+      }
   }
 
   DEFINE_FWK_MODULE(Type1MET)  //define this as a plug-in

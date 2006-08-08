@@ -29,10 +29,12 @@ class Type1METAlgo
   typedef std::vector<const CaloJet*> JetInputColl;
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const CaloMETCollection*, 
+  virtual void run(const METCollection*, 
 		   const CaloJetCollection*, 
 		   const CaloJetCollection*, METCollection &);
-
+  virtual void run(const CaloMETCollection*, 
+		   const CaloJetCollection*, 
+		   const CaloJetCollection*, CaloMETCollection &);
 };
 
 #endif // Type1METAlgo_h
