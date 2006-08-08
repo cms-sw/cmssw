@@ -22,18 +22,18 @@ KarimakiAlignmentDerivatives::operator()( const TrajectoryStateOnSurface tsos ) 
 
   AlgebraicMatrix aliderivs(6,2);
 
-  aliderivs[0][0]=-1.0;
-  aliderivs[0][1]= 0.0;
-  aliderivs[1][0]= 0.0;
-  aliderivs[1][1]=-1.0;
-  aliderivs[2][0]= tanpsi;
-  aliderivs[2][1]= tantheta;
-  aliderivs[3][0]= vx*tanpsi;
-  aliderivs[3][1]= vx*tantheta;
-  aliderivs[4][0]= ux*tanpsi;
-  aliderivs[4][1]= ux*tantheta;
-  aliderivs[5][0]= vx;
-  aliderivs[5][1]=-1.*ux;
+  aliderivs[0][0]= -1.0;
+  aliderivs[0][1]=  0.0;
+  aliderivs[1][0]=  0.0;
+  aliderivs[1][1]= -1.0;
+  aliderivs[2][0]=  tanpsi;
+  aliderivs[2][1]=  tantheta;
+  aliderivs[3][0]=  vx*tanpsi;
+  aliderivs[3][1]=  vx*tantheta;
+  aliderivs[4][0]= -ux*tanpsi;   // New beta sign convention
+  aliderivs[4][1]= -ux*tantheta; // New beta sign convention
+  aliderivs[5][0]=  vx;
+  aliderivs[5][1]= -ux;
    
   return(aliderivs);
 

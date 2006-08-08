@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 
 
 //__________________________________________________________________________________________________
@@ -105,9 +105,71 @@ CompositeAlignmentParameters::components() const
 
 //__________________________________________________________________________________________________
 // full derivatives for a composed object
-AlgebraicMatrix 
-CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSurface> tsosvec, 
+AlgebraicMatrix
+CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSurface> tsosvec,
 										   std::vector<AlignableDet*> alidetvec ) const
+{
+  std::vector<Alignable*> alivec;
+  for (std::vector<AlignableDet*>::iterator it=alidetvec.begin();
+	   it!=alidetvec.end(); it++)
+	alivec.push_back(alignableFromAlignableDet(*it));
+  
+  CompositeAlignmentDerivativesExtractor theExtractor(alivec,alidetvec,tsosvec);
+  return theExtractor.derivatives();
+}
+
+//__________________________________________________________________________________________________
+AlgebraicVector 
+CompositeAlignmentParameters::correctionTerm( const std::vector<TrajectoryStateOnSurface> tsosvec,
+											  std::vector<AlignableDet*> alidetvec) const
+{
+  std::vector<Alignable*> alivec;
+  for (std::vector<AlignableDet*>::iterator it=alidetvec.begin();
+	   it!=alidetvec.end(); it++ )
+	alivec.push_back(alignableFromAlignableDet(*it));
+  
+  CompositeAlignmentDerivativesExtractor theExtractor(alivec,alidetvec,tsosvec);
+  return theExtractor.correctionTerm();
+}
+ 	 
+//__________________________________________________________________________________________________ 	 
+// assume all are selected
+AlgebraicMatrix CompositeAlignmentParameters::
+selectedDerivatives( const std::vector<TrajectoryStateOnSurface> tsosvec,
+					 std::vector<AlignableDet*> alidetvec) const
+{ 
+  return derivatives(tsosvec,alidetvec);
+}
+
+//__________________________________________________________________________________________________ 	 
+// only one (tsos,AlignableDet) as argument [for compatibility with base class]
+AlgebraicMatrix 
+CompositeAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos, 
+										   AlignableDet* alidet) const
+{
+  std::vector<TrajectoryStateOnSurface> tsosvec;
+  std::vector<AlignableDet*> alidetvec;
+  tsosvec.push_back(tsos);
+  alidetvec.push_back(alidet);
+  return derivatives(tsosvec,alidetvec);
+}
+ 	
+//__________________________________________________________________________________________________ 
+// assume all are selected
+AlgebraicMatrix 
+CompositeAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface tsos, 
+												   AlignableDet* alidet ) const
+{ 
+  return derivatives(tsos,alidet);
+}
+ 	 
+
+// Derivatives ----------------------------------------------------------------
+// legacy methods
+// full derivatives for a composed object
+AlgebraicMatrix CompositeAlignmentParameters::
+derivativesLegacy( const std::vector<TrajectoryStateOnSurface> tsosvec, 
+				   std::vector<AlignableDet*> alidetvec ) const
 {
 
   // sanity check: length of parameter argument vectors must be equal
@@ -149,27 +211,26 @@ CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSu
 
 //__________________________________________________________________________________________________
 // assume all are selected
-AlgebraicMatrix 
-CompositeAlignmentParameters::selectedDerivatives( const 
-												   std::vector<TrajectoryStateOnSurface> tsosvec, 
-												   std::vector<AlignableDet*> alidetvec ) const
+AlgebraicMatrix CompositeAlignmentParameters::
+selectedDerivativesLegacy( const std::vector<TrajectoryStateOnSurface> tsosvec, 
+						   std::vector<AlignableDet*> alidetvec ) const
 { 
-  return derivatives(tsosvec,alidetvec);
+  return derivativesLegacy(tsosvec,alidetvec);
 }
 
 
 //__________________________________________________________________________________________________
 // only one (tsos,AlignableDet) as argument [for compatibility with base class]
 AlgebraicMatrix 
-CompositeAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos, 
-										   AlignableDet* alidet ) const
+CompositeAlignmentParameters::derivativesLegacy( const TrajectoryStateOnSurface tsos, 
+												 AlignableDet* alidet ) const
 {
 
   std::vector<TrajectoryStateOnSurface> tsosvec;
   std::vector<AlignableDet*> alidetvec;
   tsosvec.push_back(tsos);
   alidetvec.push_back(alidet);
-  return derivatives(tsosvec,alidetvec);
+  return derivativesLegacy(tsosvec,alidetvec);
 
 }
 
@@ -177,10 +238,10 @@ CompositeAlignmentParameters::derivatives( const TrajectoryStateOnSurface tsos,
 //__________________________________________________________________________________________________
 // assume all are selected
 AlgebraicMatrix 
-CompositeAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface tsos, 
-												   AlignableDet* alidet ) const
+CompositeAlignmentParameters::selectedDerivativesLegacy( const TrajectoryStateOnSurface tsos, 
+														 AlignableDet* alidet ) const
 { 
-  return derivatives(tsos,alidet);
+  return derivativesLegacy(tsos,alidet);
 }
 
 

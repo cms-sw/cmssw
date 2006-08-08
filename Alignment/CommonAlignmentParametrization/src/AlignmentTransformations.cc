@@ -111,14 +111,15 @@ Surface::RotationType AlignmentTransformations::rotationType( AlgebraicMatrix al
 AlgebraicMatrix AlignmentTransformations::rotMatrix3( AlgebraicVector a ) const
 {
 
+  // New convention, consistent with misalignment scenario
   AlgebraicMatrix orig(3,3);
   orig[0][0]= cos(a[1])*cos(a[2]);
-  orig[0][1]=-sin(a[0])*sin(a[1])*cos(a[2])+cos(a[0])*sin(a[2]);
-  orig[0][2]= cos(a[0])*sin(a[1])*cos(a[2])+sin(a[0])*sin(a[2]);
+  orig[0][1]= sin(a[0])*sin(a[1])*cos(a[2])+cos(a[0])*sin(a[2]);
+  orig[0][2]=-cos(a[0])*sin(a[1])*cos(a[2])+sin(a[0])*sin(a[2]);
   orig[1][0]=-cos(a[1])*sin(a[2]);
-  orig[1][1]= sin(a[0])*sin(a[1])*sin(a[2])+cos(a[0])*cos(a[2]);
-  orig[1][2]=-cos(a[0])*sin(a[1])*sin(a[2])+sin(a[0])*cos(a[2]);
-  orig[2][0]=-sin(a[1]);
+  orig[1][1]=-sin(a[0])*sin(a[1])*sin(a[2])+cos(a[0])*cos(a[2]);
+  orig[1][2]= cos(a[0])*sin(a[1])*sin(a[2])+sin(a[0])*cos(a[2]);
+  orig[2][0]= sin(a[1]);
   orig[2][1]=-sin(a[0])*cos(a[1]);
   orig[2][2]= cos(a[0])*cos(a[1]);  
   return orig;
@@ -135,34 +136,21 @@ AlgebraicVector AlignmentTransformations::eulerAngles( Surface::RotationType rot
  
   if(orig[2][0]!=1.0) // If angle1 is not +-PI/2
     {
-
       if(flag==0) // assuming -PI/2 < angle1 < PI/2 
-		{
-		  testangle[1][flag]=asin(-orig[2][0]);
-		}
+		testangle[1][flag] = asin(orig[2][0]); // New beta sign convention
 
       if(flag==1) // assuming angle1 < -PI/2 or angle1 >PI/2
-		{
-		  testangle[1][flag]=M_PI-asin(-orig[2][0]);
-		}
+		testangle[1][flag]=M_PI-asin(orig[2][0]); // New beta sign convention
 
       if(cos(testangle[1][flag])*orig[2][2]>0)
-		{
-		  testangle[0][flag]=atan(-orig[2][1]/orig[2][2]);
-		}
+		testangle[0][flag]=atan(-orig[2][1]/orig[2][2]);
       else
-		{
-		  testangle[0][flag]=atan(-orig[2][1]/orig[2][2])+M_PI;
-		}
+		testangle[0][flag]=atan(-orig[2][1]/orig[2][2])+M_PI;
 
       if(cos(testangle[1][flag])*orig[0][0]>0)
-		{
-		  testangle[2][flag]=atan(-orig[1][0]/orig[0][0]);
-		}
+		testangle[2][flag]=atan(-orig[1][0]/orig[0][0]);
       else
-		{
-		  testangle[2][flag]=atan(-orig[1][0]/orig[0][0])+M_PI;
-		}
+		testangle[2][flag]=atan(-orig[1][0]/orig[0][0])+M_PI;
     }
 
   else // if angle1 == +-PI/2

@@ -70,11 +70,21 @@ public:
   /// Get derivatives for selected alignables
   AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface tsos, 
 									   AlignableDet* alidet ) const;
-
   AlgebraicMatrix derivatives( const std::vector<TrajectoryStateOnSurface> tsosvec, 
 							   std::vector<AlignableDet*> alidetvec ) const;
   AlgebraicMatrix selectedDerivatives( const std::vector<TrajectoryStateOnSurface> 
 									   tsosvec, std::vector<AlignableDet*> alidetvec ) const;
+
+  AlgebraicVector correctionTerm( const std::vector<TrajectoryStateOnSurface> tsosvec,
+								  std::vector<AlignableDet*> alidetvec ) const;
+  AlgebraicMatrix derivativesLegacy ( const TrajectoryStateOnSurface tsos, 
+									  AlignableDet* alidet ) const;
+  AlgebraicMatrix selectedDerivativesLegacy( const TrajectoryStateOnSurface tsos, 
+											 AlignableDet* alidet ) const;
+  AlgebraicMatrix derivativesLegacy( const std::vector<TrajectoryStateOnSurface> tsosvec,
+									 std::vector<AlignableDet*> alidetvec ) const;
+  AlgebraicMatrix selectedDerivativesLegacy( const std::vector<TrajectoryStateOnSurface> tsosvec, 
+											 std::vector<AlignableDet*> alidetvec ) const;
 
   /// Get relevant Alignable from AlignableDet 
   Alignable* alignableFromAlignableDet( AlignableDet* adet ) const;

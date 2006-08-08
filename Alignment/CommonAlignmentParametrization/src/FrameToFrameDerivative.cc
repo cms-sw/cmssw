@@ -1,8 +1,6 @@
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
 
-
-
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 FrameToFrameDerivative::frameToFrameDerivative( AlignableDet* object,
@@ -118,9 +116,9 @@ FrameToFrameDerivative::derivativePosRot( AlgebraicMatrix RotDet,
  AlgebraicMatrix RotDb(3,3);
  AlgebraicMatrix RotDc(3,3);
  
- RotDa[1][2] = 1; RotDa[2][1] = -1;
- RotDb[0][2] = 1; RotDb[2][0] = -1;
- RotDc[0][1] = 1; RotDc[1][0] = -1;
+ RotDa[1][2] =  1; RotDa[2][1] = -1;
+ RotDb[0][2] = -1; RotDb[2][0] =  1; // New beta sign
+ RotDc[0][1] =  1; RotDc[1][0] = -1;
  
  dEulerA = RotDet*( RotRot.T()*RotDa*RotRot*S );
  dEulerB = RotDet*( RotRot.T()*RotDb*RotRot*S );
@@ -154,9 +152,9 @@ FrameToFrameDerivative::derivativeRotRot( AlgebraicMatrix RotDet, AlgebraicMatri
  AlgebraicMatrix RotDb(3,3);
  AlgebraicMatrix RotDc(3,3);
 
- RotDa[1][2] = 1; RotDa[2][1] = -1;
- RotDb[0][2] = 1; RotDb[2][0] = -1;
- RotDc[0][1] = 1; RotDc[1][0] = -1;
+ RotDa[1][2] =  1; RotDa[2][1] = -1;
+ RotDb[0][2] = -1; RotDb[2][0] =  1; // New beta sign
+ RotDc[0][1] =  1; RotDc[1][0] = -1;
 
  dEulerA = linearEulerAngles( RotDet*RotRot.T()*RotDa*RotRot*RotDet.T() );
  dEulerB = linearEulerAngles( RotDet*RotRot.T()*RotDb*RotRot*RotDet.T() );
@@ -187,8 +185,8 @@ FrameToFrameDerivative::linearEulerAngles( AlgebraicMatrix rotDelta )
   
   AlgebraicMatrix eulerAB(3,3);
   AlgebraicVector aB(3);
-  eulerAB[0][1] = 1; 
-  eulerAB[1][0] = 1;
+  eulerAB[0][1] =  1; 
+  eulerAB[1][0] = -1; // New beta sign
   aB[2] = 1;
 
   AlgebraicMatrix eulerC(3,3);
