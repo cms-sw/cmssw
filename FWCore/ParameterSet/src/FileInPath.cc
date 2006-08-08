@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.10 2006/06/19 21:40:34 wmtan Exp $
+// $Id: FileInPath.cc,v 1.11 2006/06/20 04:08:01 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -27,10 +27,10 @@ namespace bf = boost::filesystem;
 namespace 
 {
   /// These are the names of the environment variables which control
-  /// the behavior  of the FileInPath  class.  They are local to  this
-  /// class; other code should not even know about them!
+/// the behavior  of the FileInPath  class.  They are local to  this
+/// class; other code should not even know about them!
     
-  const std::string PathVariableName("CMSSW_SEARCH_PATH");
+ const std::string PathVariableName("CMSSW_SEARCH_PATH");
   // Environment variables for local and release areas: 
   const std::string LOCALTOP("CMSSW_BASE");
   const std::string RELEASETOP("CMSSW_RELEASE_BASE");
@@ -43,7 +43,7 @@ namespace
   {
     const char* val = getenv(name.c_str());
     if (val == 0) {
-	return false;
+      return false;
     }
     result = val;
     return true;
@@ -99,8 +99,8 @@ namespace edm
 
   FileInPath::FileInPath(const char* r) :
     relativePath_(r ?
-		   r :
-		   ((throw edm::Exception(edm::errors::FileInPathError)
+		  r :
+		  ((throw edm::Exception(edm::errors::FileInPathError)
 		    << "Relative path may not be null\n"), r)),
     canonicalFilename_(),
     isLocal_(false)
@@ -222,58 +222,58 @@ namespace edm
     stringvec_t::const_iterator it =  pathElements.begin();
     stringvec_t::const_iterator end = pathElements.end();
     while (it != end) {
-	bf::path pathPrefix;
+      bf::path pathPrefix("", boost::filesystem::no_check);
 
-	// Set the boost::fs path to the current element of
-	// CMSSW_SEARCH_PATH:
-	pathPrefix = *it;
+      // Set the boost::fs path to the current element of
+      // CMSSW_SEARCH_PATH:
+      pathPrefix = *it;
 
-	// Does the a file exist? locateFile throws is it finds
-	// something goofy.
-	if (locateFile(pathPrefix, relativePath_)) {
-	  // Convert relative path to canonical form, and save it.
-	  relativePath_ = bf::path(relativePath_).normalize().string();
+      // Does the a file exist? locateFile throws is it finds
+      // something goofy.
+      if (locateFile(pathPrefix, relativePath_)) {
+	// Convert relative path to canonical form, and save it.
+	relativePath_ = bf::path(relativePath_).normalize().string();
 	  
-	  // Save the absolute path.
-	  canonicalFilename_ = bf::complete(relativePath_, 
-					      pathPrefix).string();
-	    if (canonicalFilename_.empty())
-	      throw edm::Exception(edm::errors::FileInPathError)
-		<< "fullPath is empty"
-		<< "\nrelativePath() is: " << relativePath_
-		<< "\npath prefix is: " << pathPrefix.string()
-		<< '\n';
+	// Save the absolute path.
+	canonicalFilename_ = bf::complete(relativePath_, 
+					  pathPrefix).string();
+	if (canonicalFilename_.empty())
+	  throw edm::Exception(edm::errors::FileInPathError)
+	    << "fullPath is empty"
+	    << "\nrelativePath() is: " << relativePath_
+	    << "\npath prefix is: " << pathPrefix.string()
+	    << '\n';
 
-	    // From the current path element, find the branch path (basically the path minus the
-	    // last directory, e.g. /src or /share):
-	    bf::path br = pathPrefix.branch_path();	   	    
+	// From the current path element, find the branch path (basically the path minus the
+	// last directory, e.g. /src or /share):
+	bf::path br = pathPrefix.branch_path();	   	    
 
-	    std::string localtop_;
-	    isLocal_ = false;
+	std::string localtop_;
+	isLocal_ = false;
 
-	    // Check that LOCALTOP really has a value and store it:
-	    if (!envstring(LOCALTOP, localtop_))
-		throw edm::Exception(edm::errors::FileInPathError)
-		    << LOCALTOP
-		    << " must be defined - is runtime environment set correctly?\n";
+	// Check that LOCALTOP really has a value and store it:
+	if (!envstring(LOCALTOP, localtop_))
+	  throw edm::Exception(edm::errors::FileInPathError)
+	    << LOCALTOP
+	    << " must be defined - is runtime environment set correctly?\n";
 
-	    // Create a path object for our local path LOCALTOP:
-	    bf::path local_ = localtop_;
+	// Create a path object for our local path LOCALTOP:
+	bf::path local_ = localtop_;
 	    
-	    // If the branch path matches the local path, the file was found locally:
-	    if (br == local_) {
-	      isLocal_ = true;
-	    }
-	    
-	    // We're done...indeed.
-	    
-	    // This is really gross --- this organization of if/else
-	    // inside the while-loop should be changed so that
-	    // this break isn't needed.
-	    return;
+	// If the branch path matches the local path, the file was found locally:
+	if (br == local_) {
+	  isLocal_ = true;
 	}
-	// Keep trying
-	++it;
+	    
+	// We're done...indeed.
+	    
+	// This is really gross --- this organization of if/else
+	// inside the while-loop should be changed so that
+	// this break isn't needed.
+	return;
+      }
+      // Keep trying
+      ++it;
     }
     
     // If we got here, we ran out of path elements without finding
