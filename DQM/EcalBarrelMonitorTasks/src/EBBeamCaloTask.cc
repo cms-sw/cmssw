@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/07/28 18:49:20 $
- * $Revision: 1.27 $
+ * $Date: 2006/08/01 11:17:16 $
+ * $Revision: 1.28 $
  * \author A. Ghezzi
  *
  */
@@ -220,6 +220,9 @@ void EBBeamCaloTask::setup(void){
 
     sprintf(histo, "EBBCT E1 in the max cry");
     meEBBCaloE1MaxCry_= dbe->book1D(histo,histo,500,0.,9000.);
+
+    sprintf(histo, "EBBCT Desynchronization vs step");
+    meEBBCaloDesync_= dbe->book1D(histo, histo, 85 ,1.,86.);
   }
   
 }
@@ -296,8 +299,10 @@ void EBBeamCaloTask::cleanup(void){
     meEBBCaloBeamCentered_ = 0;
     if( meEBBCaloE1MaxCry_ ) dbe->removeElement(meEBBCaloE1MaxCry_->getName() );
     meEBBCaloE1MaxCry_ = 0;
+    if( meEBBCaloDesync_ ) dbe->removeElement(meEBBCaloDesync_->getName() );
+    meEBBCaloDesync_ = 0;
   }
-
+  
   init_ = false;
 
 }
@@ -359,6 +364,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     cry_in_beam = evtHeader->crystalInBeam(); 
     tb_moving = evtHeader->tableIsMoving();
     event = evtHeader->eventNumber();
+    if( evtHeader->syncError() ) {meEBBCaloDesync_->Fill(crystal_step_);}
   }
   else {
     cry_in_beam =   previous_cry_in_beam_;
@@ -367,7 +373,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   }
   previous_cry_in_beam_ = cry_in_beam;
   previous_ev_num_ = event;
-
+  
   //cry_in_beam = 702;//just for test, to be filled with info from the event
   
   bool reset_histos_stable = false;

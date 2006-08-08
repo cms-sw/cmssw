@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/07/26 22:34:22 $
- * $Revision: 1.13 $
+ * $Date: 2006/07/28 18:49:20 $
+ * $Revision: 1.14 $
  * \author A. Ghezzi
  *
 */
@@ -118,6 +118,8 @@ MonitorElement* meEBBCaloEntriesVsCry_;
 MonitorElement* meEBBCaloBeamCentered_;
 
 MonitorElement* meEBBCaloE1MaxCry_;
+
+MonitorElement* meEBBCaloDesync_;
 
 bool init_; 
 
