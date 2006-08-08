@@ -68,7 +68,7 @@ HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps){
 }
 
 HcalLedAnalyzer::~HcalLedAnalyzer(){
-  delete m_ledAnal;
+//  delete m_ledAnal;
 }
 
 void HcalLedAnalyzer::beginJob(const edm::EventSetup& c){
