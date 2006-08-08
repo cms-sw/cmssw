@@ -4,6 +4,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 //using namespace PixelRecoUtilities;
 
@@ -32,14 +33,13 @@ SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output
   SeedHitPairs::const_iterator ip;
 
   for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {
- 
-
-
-    SeedFromConsecutiveHits *seedfromhits=
-      new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
-				   region.origin(), vtxerr,iSetup,pSet());
-    output.push_back(*(seedfromhits->TrajSeed()) );
-    delete seedfromhits;
+    try{            
+      SeedFromConsecutiveHits seedfromhits( ip->outer(), ip->inner(),
+					    region.origin(), vtxerr,iSetup,pSet());
+      output.push_back(*(seedfromhits.TrajSeed()) );
+    }
+    catch( PropagationException& err){
+      //cout << "warning: " << err.what() << endl;
+    }
   }
-
 }
