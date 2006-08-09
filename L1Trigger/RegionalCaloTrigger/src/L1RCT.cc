@@ -88,13 +88,25 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   //unsigned short x;
 
   // ecal:
-  cout << "\n\nECAL" << endl;
-  cout << "Crate\tCard\tTower\tInput" << endl;
-  for (int i = 0; i < 4032; i++){
+//  cout << "\n\nECAL" << endl;
+//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
+  int nEcalDigi = ecalCollection.size();
+  if (nEcalDigi>4032) {nEcalDigi=4032;}
+  for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
+//     if (ecalCollection[i].compressedEt()>0) { 
+//     cout << "Energy " << ecalCollection[i].compressedEt()
+//	   <<" eta " << ieta; 
+//     }
     unsigned short absIeta = (unsigned short) abs(ieta);
-    unsigned short iphi = (unsigned short) ecalCollection[i].id().iphi();
-    iphi = (72 + 19 - iphi) % 72;             // transform TOWERS (not regions) into local rct (intuitive) phi bins
+    unsigned short iphi = (unsigned short) ecalCollection[i].id().iphi(); 
+//     if (ecalCollection[i].compressedEt()>0) { 
+//    cout << " raw phi " << iphi ; 
+//     }
+    iphi = (72 + 20 - iphi) % 72;         //    transform TOWERS (not regions) into local rct (intuitive) phi bins
+//     if (ecalCollection[i].compressedEt()>0) { 
+//    cout << " rct phi " << iphi << "  "; 
+//     }
     unsigned short regionPhi = (iphi % 8)/4;
 
     //map digis to crates, cards, and towers
@@ -104,33 +116,43 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       crate = crate + 9;
     }
 
+    // Note absIeta counts from 1-28 (not 0-27)
     if (absIeta <= 24){
-      card = (absIeta/8)*2 + regionPhi;          // slick integer division
-      if ((iphi % 4) == 0){
-	tower = ((absIeta % 8) -1)*4 + 4;        // changed from ieta
-      }
-      else {
-        tower = ((absIeta % 8) -1)*4 + (iphi % 4);  //cfieta
-      }
+      card  = ((absIeta-1)/8)*2 + regionPhi;      // slick integer division
+      tower = ((absIeta-1)%8)*4 + (iphi%4) + 1;   // towers from 1-32, modified Aug. 1 Jessica Leonard
+      // The following code commented by Greg Heath
+      // and replaced with the assignment to "tower" above
+      // Note ((absIeta % 8) -1)*4 is 65532 when absIeta is a multiple of 8
+//       if ((iphi % 4) == 0){
+// 	tower = ((absIeta % 8) -1)*4 + 4;
+//       }
+//       else {
+//         tower = ((absIeta % 8) -1)*4 + (iphi % 4);
+//       }
     }
     // absIeta >= 25
     else {
       card = 6;
       if (regionPhi == 0){
-        if ((iphi % 4) == 0){
-	  tower = ((absIeta % 8) -1)*4 + 4;   //cfieta
-	}
-	else {
-	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);   //cfieta
-	}
+	tower = (absIeta-25)*4 + (iphi%4) + 1;   // towers from 1-32, modified Aug. 1 Jessica Leonard
+	// The following code commented by Greg Heath
+	// and replaced with the assignment to "tower" above
+//         if ((iphi % 4) == 0){
+// 	  tower = ((absIeta % 8) -1)*4 + 4;
+// 	}
+// 	else {
+// 	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);
+// 	}
       }
       else {
-        if ((iphi % 4) == 0){
-	  tower = 16 + (4 - (absIeta % 4))*4 + 4;            //cfieta
-	}
-	else {
-	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);  //cfieta
-	}
+//	tower = (absIeta-21)*4 + (iphi%4);          // Greg's line
+        tower = (28 - absIeta)*4 + (iphi%4) + 17;   // Jessica's line
+//         if ((iphi % 4) == 0){
+// 	  tower = 16 + (4 - (absIeta % 4))*4 + 4;
+// 	}
+// 	else {
+// 	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);
+// 	}
       }
     }
 
@@ -139,66 +161,95 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short ecalInput = energy*2 + fineGrain;
 
     // put input into correct crate/card/tower of barrel
-    barrel.at(crate).at(card).at(tower) = ecalInput;
-    cout << crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
+    if ((crate<18) && (card<7) && ((tower - 1)<64)) {             // changed "tower" to "tower - 1" Aug. 1 J. Leonard
+      barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
+    }
+    else { cout << "out of range!"; }
+//    cout << crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
   }
 
   //same for hcal, once we get the hcal digis, just need to add 32 to towers:
   // just copied and pasted and changed names where necessary
-  cout << "\n\nHCAL" << endl;
-  cout << "Crate\tCard\tTower\tInput" << endl;
+//  cout << "\n\nHCAL" << endl;
+//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   for (int i = 0; i < 4176; i++){                        // ARE THERE 4032?? think not -- incl HF 4032 + 144 = 4176
     short ieta = (short) hcalCollection[i].id().ieta(); 
+//     if (hcalCollection[i].SOI_compressedEt()>0) { 
+//    cout << "Energy " << hcalCollection[i].SOI_compressedEt()
+// 	 << " eta " << ieta; 
+//     }
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short iphi = (unsigned short) hcalCollection[i].id().iphi();
+//     if (hcalCollection[i].SOI_compressedEt()>0) { 
+//    cout << " raw phi " << iphi; 
+//     }
+    unsigned short regionPhi = 999;
     if (absIeta <= 28){
-      iphi = (72 + 19 - iphi) % 72;      // transform HB/HE TOWERS into local rct (intuitive) phi bins (72 bins) 0-71
+      iphi = (72 + 20 - iphi) % 72;      // transform HB/HE TOWERS (1-72)into local rct (intuitive) phi bins (72 bins) 0-71
+      regionPhi = (iphi % 8)/4;
     }
     else {
-      iphi = (18 + 4 - iphi) % 18;           // transformation for HF, since HF regions have 18 phi bins still 0-17
+      iphi = (18 + 5 - iphi) % 18;           // transformation for HF, since HF regions have 18 phi bins still 0-17 ???
+      regionPhi = iphi%2;
     }
-    unsigned short regionPhi = (iphi % 8)/4;
+//     if (hcalCollection[i].SOI_compressedEt()>0) { 
+//    cout << " rct phi " << iphi << "  "; 
+//     }
 
     //map digis to crates, cards, and towers
     unsigned short crate = 999, card = 999, tower = 999;
     crate = iphi/8;
+    if (absIeta >= 29) { crate = iphi/2; }  // for case of HF  Aug. 8 J. Leonard
     if (ieta > 0){
       crate = crate + 9;
     }
 
-    if (absIeta <= 24){                      // ARE INDICES SAME FOR HCAL??? yes, plus more
-      card = (absIeta/8)*2 + regionPhi;          // integer division again
-      if ((iphi % 4) == 0){
-	tower = ((absIeta % 8) -1)*4 + 4;              //cfieta
-      }
-      else {
-        tower = ((absIeta % 8) -1)*4 + (iphi % 4);       //cfieta
-      }
+    if (absIeta <= 24){
+      card =  ((absIeta-1)/8)*2 + regionPhi;          // integer division again
+      tower = ((absIeta-1)%8)*4 + (iphi%4) + 1;       // assume iphi between 0 and 71; makes towers from 1-32
+      // The following code commented by Greg Heath
+      // and replaced with the assignment to "tower" above
+      // Note ((absIeta % 8) -1)*4 is 65532 when absIeta is a multiple of 8
+//       if ((iphi % 4) == 0){
+// 	tower = ((absIeta % 8) -1)*4 + 4;
+//       }
+//       else {
+//         tower = ((absIeta % 8) -1)*4 + (iphi % 4);
+//       }
     }
     // 25 <= absIeta <= 28 (card 6)
     else if ((absIeta >= 25) && (absIeta <= 28)){
       card = 6;
       if (regionPhi == 0){
-        if ((iphi % 4) == 0){
-	  tower = ((absIeta % 8) -1)*4 + 4;              //cfieta
-	}
-	else {
-	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);     //cfieta
-	}
+	tower = (absIeta-25)*4 + (iphi%4) + 1;   // towers from 1-32, modified Aug. 1 Jessica Leonard
+	// The following code commented by Greg Heath
+	// and replaced with the assignment to "tower" above
+//         if ((iphi % 4) == 0){
+// 	  tower = ((absIeta % 8) -1)*4 + 4;
+// 	}
+// 	else {
+// 	  tower = ((absIeta % 8) -1)*4 + (iphi % 4);
+// 	}
       }
       else {
-        if ((iphi % 4) == 0){
-	  tower = 16 + (4 - (absIeta % 4))*4 + 4;          //cfieta
-	}
-	else {
-	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);  //cfieta
-	}
+//	tower = (absIeta-21)*4 + (iphi%4);          // Greg's line
+        tower = (28 - absIeta)*4 + (iphi%4) + 17;   // Jessica's line
+	// The following code commented by Greg Heath
+	// and replaced with the assignment to "tower" above
+//         if ((iphi % 4) == 0){
+// 	  tower = 16 + (4 - (absIeta % 4))*4 + 4;
+// 	}
+// 	else {
+// 	  tower = 16 + (4 - (absIeta % 4))*4 + (iphi % 4);
+// 	}
       }
     }
     // absIeta >= 29 (HF regions)
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // HF MAPPING, just regions now, don't need to worry about towers -- just calling it "tower" for convenience
-      tower = (regionPhi) * 4 + absIeta - 7;
+      // Modified by Greg to give a number between 0 and 7
+//       tower = (regionPhi) * 4 + absIeta - 7;
+      tower = (regionPhi) * 4 + absIeta - 29;
     }
 
     //unsigned short energy = hcalCollection[i].t0().compressedEt();  // CHANGED
@@ -209,13 +260,20 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 
     if (absIeta <= 28){
       // put input into correct crate/card/tower of barrel
-      barrel.at(crate).at(card).at(tower + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
-      cout << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
+      if ((crate<18) && (card<7) && ((tower - 1)<64)) {               // changed "tower" to "tower - 1" Aug. 1 J. Leonard
+                                                                      // also in following line
+      barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
+      }
+      else { cout << "out of range!"; }
+//      cout << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
+      if ((crate<18) && (tower<8)) {
       hf.at(crate).at(tower) = hcalInput;
-      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
+      }
+      else { cout << "out of range!"; }
+//      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
     }
   }
 
