@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/04 20:01:12 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/08/07 16:36:58 $
+ *  $Revision: 1.33 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -235,7 +235,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z());
 
-  reco::TransientTrack staTT(staTrack,&*theField);
+  reco::TransientTrack staTT(staTrack,&*theField,theTrackingGeometry);
   TrajectoryStateOnSurface traj_vertex = staTT.impactPointState();
   if ( traj_vertex.isValid() ) mom = traj_vertex.globalMomentum();
   float eta1   = mom.eta();
@@ -850,7 +850,7 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::getTrajFromTrack(co
 */
   
   // use TransientTrackBuilder to get a starting TSOS
-  reco::TransientTrack theTT(tkTrack,&*theField);
+  reco::TransientTrack theTT(tkTrack,&*theField,theTrackingGeometry);
   TrajectoryStateOnSurface firstState = theRefitter->propagator()->propagate(theTT.impactPointState(), hits.front()->det()->surface());
   AlgebraicSymMatrix C(5,1);
   C *= 100.;
