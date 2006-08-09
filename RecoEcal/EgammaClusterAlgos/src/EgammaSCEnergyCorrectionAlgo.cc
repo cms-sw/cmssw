@@ -1,5 +1,5 @@
 //
-// $Id: $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.3 2006/06/01 13:07:39 rahatlou Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -8,21 +8,22 @@
 #include <string>
 #include <vector>
 
-EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise)
+EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise, 
+  EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity = pERROR)
 {
-  std::cout << "EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo()" << std::endl;
   sigmaElectronicNoise_ = noise;
+  verbosity_ = verbosity;
   recHits_m = new std::map<DetId, EcalRecHit>();
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 {
-  std::cout << "EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()" << std::endl;
   recHits_m->clear();
   delete recHits_m;
 }
 
-reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo)
+reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
+  const EcalRecHitCollection &rhc, reco::AlgoId theAlgo)
 {	
 	
   // Insert the recHits into map	
@@ -36,61 +37,79 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     }
 	
   // A little bit of trivial info to be sure all is well
-  std::cout << "   EgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
-  std::cout << "   SC has energy " << cl.energy() << std::endl;
-  std::cout << "   Will correct now.... " << std::endl;
+
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   EgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
+    std::cout << "   SC has energy " << cl.energy() << std::endl;
+    std::cout << "   Will correct now.... " << std::endl;
+  }
 
   // Get the seed cluster  	
   reco::BasicClusterRef seedC = cl.seed();
-  std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
+
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
+  }
 
   // Get the constituent clusters
   reco::basicCluster_iterator cluster;
   reco::BasicClusterRefVector clusters_v;
-  std::cout << "   Constituent cluster energies... ";
+
+  if (verbosity_ <= pINFO) std::cout << "   Constituent cluster energies... ";
   for(cluster = cl.clustersBegin(); cluster != cl.clustersEnd(); cluster ++)
   {
-  	clusters_v.push_back(*cluster);
-  	std::cout << (*cluster)->energy() << ", ";
+    clusters_v.push_back(*cluster);
+    if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
   }
-  std::cout << std::endl;
+  if (verbosity_ <= pINFO) std::cout << std::endl;
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
-  std::cout << "   The seed cluster used algo " << theAlgo;  
-  
+  if (verbosity_ <= pINFO) 
+  {
+    std::cout << "   The seed cluster used algo " << theAlgo;  
+  }
+ 
   // Find the detector region of the supercluster
   // where is the seed cluster?
   std::vector<DetId> seedHits = seedC->getHitsByDetId();  
   EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).subdetId());
-  std::cout << "   seed cluster location == " << theBase << std::endl;
-  
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   seed cluster location == " << theBase << std::endl;
+  }
+
   // Get number of crystals 2sigma above noise in seed basiccluster      
   int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC);
-  std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
-  
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
+  }
+
   // Supercluster enery - seed basiccluster energy
   float bremsEnergy = cl.energy() - seedC->energy();
-  std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
-  
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
+  }
+
   // Calculate the new supercluster energy as a function of number of crystals
   // in the seed basiccluster
   float newEnergy = (seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)
     +bremsEnergy);
  
   // Create a new supercluster with the corrected energy 
-  std::cout << "   creating a new supercluster with energy " << newEnergy << std::endl;
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
+    std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
+  }
+
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v);
   
-  // Make a final comparison of old and new superclusters...
-  std::cout << "   **********" << std::endl;
-  std::cout << "   OLD E, x, y, z: " << cl.energy() << ", ";
-  std::cout << cl.position().X() << ", " << cl.position().Y() << ", " << cl.position().Z() << std::endl;
-  std::cout << "   NEW E, x, y, z: " << corrCl.energy() << ", ";
-  std::cout << cl.position().X() << ", " << corrCl.position().Y() << ", " << corrCl.position().Z() << std::endl;
-  std::cout <<    "   **********" << std::endl;
-     
   // Return the corrected cluster
   recHits_m->clear();
   return corrCl;
@@ -133,7 +152,10 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::AlgoId theAlgo, E
     }
           
     else if((theBase == EcalEndcap) && (theAlgo == reco::hybrid)) {
-        std::cout << "ERROR! HybridEFRYsc called" << std::endl;
+        if (verbosity_ <= pERROR)
+        {
+          std::cout << "ERROR! HybridEFRYsc called" << std::endl;
+        } 
         result = 1.;
       }
         
@@ -158,7 +180,10 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::AlgoId theAlgo, E
       }
       
     else {
-      std::cout << "trying to correct unknown cluster!!!" << std::endl;
+      if (verbosity_ <= pINFO)
+      {
+        std::cout << "trying to correct unknown cluster!!!" << std::endl;
+      }
     }
 
   return result;  
@@ -170,12 +195,15 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &se
   // electronic noise
   
   std::vector<DetId> hits = seed.getHitsByDetId();
-  
-  std::cout << "      EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma" << std::endl;
-  std::cout << "      Will calculate number of crystals above 2sigma noise" << std::endl;
-  std::cout << "      sigmaElectronicNoise = " << sigmaElectronicNoise_ << std::endl;
-  std::cout << "      There are " << hits.size() << " recHits" << std::endl;
-  
+
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "      EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma" << std::endl;
+    std::cout << "      Will calculate number of crystals above 2sigma noise" << std::endl;
+    std::cout << "      sigmaElectronicNoise = " << sigmaElectronicNoise_ << std::endl;
+    std::cout << "      There are " << hits.size() << " recHits" << std::endl;
+  }
+
   int nCry = 0;
   std::vector<DetId>::iterator hit;
   std::map<DetId, EcalRecHit>::iterator aHit;
@@ -185,8 +213,12 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &se
       aHit = recHits_m->find(*hit);
       if(aHit->second.energy()>2.*sigmaElectronicNoise_) nCry++;
     }
-    
-  std::cout << "         " << nCry << " of these above 2sigma noise" << std::endl;  
+
+  if (verbosity_ <= pINFO)
+  {
+    std::cout << "         " << nCry << " of these above 2sigma noise" << std::endl;  
+  }
+ 
   return nCry;
 }
 
