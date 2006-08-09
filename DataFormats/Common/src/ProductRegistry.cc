@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.5 2006/06/24 06:06:17 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.6 2006/08/01 05:34:43 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.5 2006/06/24 06:06:17 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.6 2006/08/01 05:34:43 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -83,17 +83,27 @@ namespace edm {
 
   bool
   ProductRegistry::merge(ProductRegistry const& other, BranchDescription::MatchMode m) {
-    if (nextID() != other.nextID()) return false;
-    if (size() != other.size()) return false;
+    if (nextID() < other.nextID()) return false;
+    if (size() < other.size()) return false;
+    ProductRegistry::ProductList::const_iterator j = productList().begin();
+    ProductRegistry::ProductList::const_iterator s = productList().end();
+    int nProduced = 0;
+    for ( ; j != s; ++j) {
+      if(j->second.produced()) ++nProduced;
+    }
+    if (size() != (other.size() + nProduced)) return false;
     ProductRegistry::ProductList::const_iterator i = other.productList().begin();
     ProductRegistry::ProductList::const_iterator e = other.productList().end();
-    ProductRegistry::ProductList::const_iterator j = productList_.begin();
+
+    j = productList().begin();
     for( ; i != e; ++i, ++j) {
+      while (j->second.produced()) ++j;
       if (i->first != j->first) return false;
     }
     i = other.productList().begin();
     ProductRegistry::ProductList::iterator k = productList_.begin();
     for( ; i != e; ++i, ++k) {
+      while (k->second.produced()) ++k;
       if (!k->second.merge(i->second, m)) return false;
     }
     return true;
