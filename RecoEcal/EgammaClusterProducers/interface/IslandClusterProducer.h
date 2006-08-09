@@ -46,7 +46,9 @@ class IslandClusterProducer : public edm::EDProducer
       std::string endcapClusterCollection_;
 
       // Position correction parameters
-      std::string clustershapecollection_;
+      std::string clustershapecollectionEB_;
+      std::string clustershapecollectionEE_;
+
       bool clustershape_logweighted;
       float clustershape_x0;
       float clustershape_t0;
