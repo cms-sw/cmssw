@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.5 2006/06/28 18:00:37 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.6 2006/06/30 08:18:57 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -61,6 +61,7 @@ public:
   virtual std::auto_ptr<EcalGainRatios> produceEcalGainRatios( const EcalGainRatiosRcd& );
   virtual std::auto_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& );
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
+  virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
 
 
 protected:
@@ -73,6 +74,7 @@ private:
   const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ); // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
+
   // data members
   double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
   double adcToGeVEEConstant_;      // ADC -> GeV scale for endcap
@@ -119,16 +121,17 @@ private:
   std::string jittWeightsAftFile_; 
   std::string chi2MatrixFile_;
   std::string chi2MatrixAftFile_;
+  std::string intercalibConstantsFile_ ;
 
   int nTDCbins_;
 
   bool getWeightsFromFile_;
   bool weightsForAsynchronousRunning_;
-  bool producedEcalPedestals_;
-  bool producedEcalWeights_;
-  bool producedEcalIntercalibConstants_;
-  bool producedEcalGainRatios_;
-  bool producedEcalADCToGeVConstant_;
+  bool produceEcalPedestals_;
+  bool produceEcalWeights_;
+  bool produceEcalIntercalibConstants_;
+  bool produceEcalGainRatios_;
+  bool produceEcalADCToGeVConstant_;
 
   int    verbose_; // verbosity
 

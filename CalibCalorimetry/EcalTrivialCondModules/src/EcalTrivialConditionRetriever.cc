@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.10 2006/07/10 16:07:48 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.11 2006/07/25 11:23:52 azabi Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -51,25 +51,25 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   nTDCbins_ = 1;
 
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
-  
+
   if (weightsForAsynchronousRunning_)
     {
       getWeightsFromFile_ = true; //override user request 
       //nTDCbins_ = 25;
       nTDCbins_ = 50; //modif Alex-21-07-2006
     }
-  
+
   std::string path="CalibCalorimetry/EcalTrivialCondModules/data/";
   std::string weightType;
   std::ostringstream str;
-  
+
   if (!weightsForAsynchronousRunning_)
     str << "_CMS.txt" ;
   else
     str << "_TB.txt" ;
-  
+
   weightType = str.str();
-  
+
   amplWeightsFile_ = ps.getUntrackedParameter<std::string>("amplWeightsFile",path+"ampWeights"+weightType);
   amplWeightsAftFile_ = ps.getUntrackedParameter<std::string>("amplWeightsAftFile",path+"ampWeightsAfterGainSwitch"+weightType);
   pedWeightsFile_ = ps.getUntrackedParameter<std::string>("pedWeightsFile",path+"pedWeights"+weightType);
@@ -87,49 +87,59 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   jittWeightsAft_.resize(nTDCbins_); 
   chi2Matrix_.resize(nTDCbins_);
   chi2MatrixAft_.resize(nTDCbins_);
-  
+
   // default weights for MGPA shape after pedestal subtraction
   getWeightsFromConfiguration(ps);
-  
-  producedEcalPedestals_ = ps.getUntrackedParameter<bool>("producedEcalPedestals",true);
-  producedEcalWeights_ = ps.getUntrackedParameter<bool>("producedEcalWeights",true);
-  producedEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstants",true);
-  producedEcalGainRatios_ = ps.getUntrackedParameter<bool>("producedEcalGainRatios",true);
-  producedEcalADCToGeVConstant_ = ps.getUntrackedParameter<bool>("producedEcalADCToGeVConstant",true);
-  
-  verbose_  = ps.getUntrackedParameter<int>("verbose", 0);
-  
+
+  produceEcalPedestals_ = ps.getUntrackedParameter<bool>("produceEcalPedestals",true);
+  produceEcalWeights_ = ps.getUntrackedParameter<bool>("produceEcalWeights",true);
+
+  produceEcalGainRatios_ = ps.getUntrackedParameter<bool>("produceEcalGainRatios",true);
+  produceEcalADCToGeVConstant_ = ps.getUntrackedParameter<bool>("produceEcalADCToGeVConstant",true);
+
+  verbose_ = ps.getUntrackedParameter<int>("verbose", 0);
+
   //Tell Producer what we produce
-  //setWhatProduced(this);
-  if (producedEcalPedestals_)
+  //setWhatproduce(this);
+  if (produceEcalPedestals_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalPedestals );
-  if (producedEcalWeights_)
-    {
+
+  if (produceEcalWeights_) {
       setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalWeightXtalGroups );
       setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTBWeights );
     }
-  if (producedEcalIntercalibConstants_)
-    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants );
-  if (producedEcalGainRatios_)
+
+  if (produceEcalGainRatios_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalGainRatios );
-  if (producedEcalADCToGeVConstant_)
+
+  if (produceEcalADCToGeVConstant_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalADCToGeVConstant );
-  
+
+  // intercalibration constants
+  produceEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("produceEcalIntercalibConstants",true);
+  intercalibConstantsFile_ = ps.getUntrackedParameter<std::string>("intercalibConstantsFile","") ;
+
+  if (produceEcalIntercalibConstants_) { // user asks to produce constants
+    if(intercalibConstantsFile_ != "") {  // if file provided read constants
+        setWhatProduced (this, &EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration ) ;
+    } else { // set all constants to 1. or smear as specified by user
+        setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants ) ;
+    }
+    findingRecord<EcalIntercalibConstantsRcd> () ;
+  }
+
   //Tell Finder what records we find
-  if (producedEcalPedestals_)
-    findingRecord<EcalPedestalsRcd>();
-  if (producedEcalWeights_)
-    {
+  if (produceEcalPedestals_)  findingRecord<EcalPedestalsRcd>();
+
+  if (produceEcalWeights_) {
       findingRecord<EcalWeightXtalGroupsRcd>();
       findingRecord<EcalTBWeightsRcd>();
     }
-  if (producedEcalIntercalibConstants_)
-    findingRecord<EcalIntercalibConstantsRcd>();
-  if (producedEcalGainRatios_)
-    findingRecord<EcalGainRatiosRcd>();
-  if (producedEcalADCToGeVConstant_)
-    findingRecord<EcalADCToGeVConstantRcd>();
-  
+
+  if (produceEcalGainRatios_)  findingRecord<EcalGainRatiosRcd>();
+
+  if (produceEcalADCToGeVConstant_)  findingRecord<EcalADCToGeVConstantRcd>();
+
 }
 
 EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever()
@@ -1005,4 +1015,115 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
        chi2MatrixAft_ =  chi2MatrixAft;
      }
 
+}
+
+
+// --------------------------------------------------------------------------------
+
+
+std::auto_ptr<EcalIntercalibConstants> 
+EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration 
+( const EcalIntercalibConstantsRcd& )
+{
+  std::auto_ptr<EcalIntercalibConstants>  ical = 
+      std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+
+  // Read the values from a txt file
+  // -------------------------------
+
+  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading intercalibration constants from file "
+                                                << intercalibConstantsFile_.c_str() ;
+
+  FILE *inpFile ;
+  inpFile = fopen (intercalibConstantsFile_.c_str (),"r") ;
+  if (!inpFile) 
+    {
+      edm::LogError ("EcalTrivialConditionRetriever") 
+         << "*** Can not open file: " << intercalibConstantsFile_ ;
+      throw cms::Exception ("Cannot open inter-calibration coefficients txt file") ;
+    }
+
+  char line[256] ;
+  std::ostringstream str ;
+  fgets (line,255,inpFile) ;
+  int sm_number=atoi (line) ;
+  str << "sm: " << sm_number ;  
+
+  fgets (line,255,inpFile) ;
+  //int nevents=atoi (line) ; // not necessary here just for online conddb
+
+  fgets (line,255,inpFile) ;
+  std::string gen_tag = line ;
+  str << "gen tag: " << gen_tag ;  // should I use this? 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_method = line ;
+  str << "cali method: " << cali_method << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_version = line ;
+  str << "cali version: " << cali_version << std::endl ; // not important 
+
+  fgets (line,255,inpFile) ;
+  std::string cali_type = line ;
+  str << "cali type: " << cali_type ; // not important
+
+  edm::LogInfo("EcalTrivialConditionRetriever")
+            << "[PIETRO] Intercalibration file - " 
+            << str.str () << std::endl ;
+
+  float calib[1700]={1} ;
+  float calib_rms[1700]={0} ;
+  int calib_nevents[1700]={0} ;
+  int calib_status[1700]={0} ;
+
+  int ii = 0 ;
+
+  while (fgets (line,255,inpFile)) 
+    {
+      int dmy_num = 0 ;
+      float dmy_calib = 0. ;
+      float dmy_RMS = 0. ;
+      int dmy_events = 0 ;
+      int dmy_status = 0 ;
+      sscanf (line, "%d %f %f %d %d", &dmy_num, &dmy_calib,
+                                      &dmy_RMS, &dmy_events,
+                                      &dmy_status) ;
+      assert (dmy_num >= 1) ;
+      assert (dmy_num <= 1700) ;
+      calib[dmy_num-1] = dmy_calib ; 
+      calib_rms[dmy_num-1] = dmy_RMS  ;
+      calib_nevents[dmy_num-1] = dmy_events ;
+      calib_status[dmy_num-1] = dmy_status ;
+
+//       edm::LogInfo ("EcalTrivialConditionRetriever")
+//                 << "[PIETRO] cry = " << dmy_num 
+//                 << " calib = " << calib[dmy_num-1] 
+//                 << " RMS = " << calib_rms[dmy_num-1] 
+//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " status = " << calib_status[dmy_num-1] 
+//                 << std::endl ;
+    }
+
+  fclose (inpFile) ;           // close inp. file
+  edm::LogInfo ("EcalTrivialConditionRetriever") << "Read intercalibrations for " << ii << " xtals " ; 
+  if (ii!=1700) edm::LogWarning ("StoreEcalCondition") 
+                << "Some crystals missing, set to 1" << std::endl ;
+
+  // Transfer the data to the inter-calibration coefficients container
+  // -----------------------------------------------------------------
+
+  // DB supermodule always set to 1 for the TestBeam FIXME
+  int sm_db=1 ;
+
+  // loop over channels 
+  for (int i=0 ; i<1700 ; i++)
+    {    
+      EBDetId ebid (sm_db,i+1,EBDetId::SMCRYSTALMODE) ;
+      if (calib_status[i]) ical->setValue (ebid.rawId (), calib[i]) ;
+      else ical->setValue (ebid.rawId (), 1.) ;
+    } // loop over channels 
+	
+//  edm::LogInfo ("EcalTrivialConditionRetriever") << "INTERCALIBRATION DONE" ; 
+  return ical;
 }
