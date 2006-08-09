@@ -16,9 +16,13 @@
 
 SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
   
-   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeldigihisto.root");
-   dbe_ = Service<DaqMonitorBEInterface>().operator->();
+   
+ outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeldigihisto.root");
+ src_ =  ps.getParameter<edm::InputTag>( "src" );
 
+
+   dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  
  if ( dbe_ ) {
     dbe_->setCurrentFolder("Pixel");
 
@@ -319,9 +323,9 @@ for ( int i =0 ; i< 44; i++) {
  edm::ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );     
 
- string digiProducer = "siPixelDigis";
+ //string digiProducer = "siPixelDigis";
  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
- e.getByLabel(digiProducer, pixelDigis);
+ e.getByLabel(src_, pixelDigis);
 
  edm::DetSetVector<PixelDigi>::const_iterator DSViter = pixelDigis->begin();
  for( ; DSViter != pixelDigis->end(); DSViter++) {
