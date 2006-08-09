@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.1 2006/07/05 08:21:33 dmytro Exp $
 //
 //
 
@@ -44,10 +44,10 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
@@ -127,29 +127,36 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
    using namespace edm;
 
    // get list of tracks and their vertices
-   Handle<EmbdSimTrackContainer> simTracks;
-   iEvent.getByType<EmbdSimTrackContainer>(simTracks);
+   Handle<SimTrackContainer> simTracks;
+   iEvent.getByType<SimTrackContainer>(simTracks);
    
-   Handle<EmbdSimVertexContainer> simVertices;
-   iEvent.getByType<EmbdSimVertexContainer>(simVertices);
+   Handle<SimVertexContainer> simVertices;
+   iEvent.getByType<SimVertexContainer>(simVertices);
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
    
    // loop over simulated tracks
-   for(EmbdSimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
+   std::cout << "Number of simulated tracks found in the event: " << simTracks->size() << std::endl;
+   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
        tracksCI != simTracks->end(); tracksCI++){
       
       // skip low Pt tracks
-      if (tracksCI->momentum().perp() < 5) continue;
+      if (tracksCI->momentum().perp() < 5) {
+	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
+	 continue;
+      }
       
       // get vertex
       int vertexIndex = tracksCI->vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
       
-      EmbdSimVertex vertex(Hep3Vector(0.,0.,0.),0);
+      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
       if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
-      if (vertex.position().rho() > 50) continue;
+      if (vertex.position().rho() > 50) {
+	 std::cout << "Skipped track originated away from IP: " <<vertex.position().rho()<<std::endl;
+	 continue;
+      }
       
       std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;

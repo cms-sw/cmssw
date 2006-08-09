@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.2 2006/07/05 08:34:05 dmytro Exp $
 //
 //
 
@@ -288,7 +288,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 	if(hit != (*EBRecHits).end()) 
 	  info.crossedEcalRecHits.push_back(*hit);
 	else  
-	  throw cms::Exception("FatalError") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+	   LogDebug("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
      }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
      {
@@ -296,7 +296,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 	if(hit != (*EBRecHits).end()) 
 	  info.ecalRecHits.push_back(*hit);
 	else 
-	  throw cms::Exception("FatalError") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+	  LogDebug("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
      }
 }
 
@@ -347,8 +347,8 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
-	else 
-	  throw cms::Exception("FatalError") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	else
+	  LogDebug("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -358,7 +358,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.towers.push_back(*tower);
 	else 
-	  throw cms::Exception("FatalError") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogDebug("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
    
 }
@@ -471,8 +471,8 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 
 
 FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup, 
-							     const EmbdSimTrack& track, 
-							     const EmbdSimVertex& vertex )
+							     const SimTrack& track, 
+							     const SimVertex& vertex )
 {
    edm::ESHandle<MagneticField> bField;
    iSetup.get<IdealMagneticFieldRecord>().get(bField);
