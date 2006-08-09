@@ -28,6 +28,9 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/IslandClusterProducer.h"
@@ -60,10 +63,15 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   clustershape_x0 = ps.getParameter<double>("coretools_x0");
   clustershape_t0 = ps.getParameter<double>("coretools_t0");
   clustershape_w0 = ps.getParameter<double>("coretools_w0");
+  clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
+  clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");
 
   // Produces a collection of barrel and a collection of endcap clusters
-  produces< reco::BasicClusterCollection >(barrelClusterCollection_);
+
+  produces< reco::ClusterShapeCollection>(clustershapecollectionEE_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
+  produces< reco::ClusterShapeCollection>(clustershapecollectionEB_);
+  produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
   island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, verbosity);
 
@@ -140,6 +148,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
+  std::string clustershapetag;
   if (ecalPart == IslandClusterAlgo::barrel) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -163,10 +172,42 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(&rechits_m, geometry_p, topology_p, ecalPart);
 
+  //Code added by A. Askew to calculate clustershapes.
+  ClusterShapeAlgo::Initialize(&rechits_m, &geoHandle);
+
+  //Create associated ClusterShape objects.
+  std::vector <reco::ClusterShape> ClusVec;
+  for (int erg=0;erg<int(clusters.size());++erg){
+    reco::ClusterShape TestShape = ClusterShapeAlgo::Calculate(clusters[erg]);
+    ClusVec.push_back(TestShape);
+  }
+
+  //Put clustershapes in event, but retain a Handle on them.
+  std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
+  clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
+  edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle; 
+  if (ecalPart == IslandClusterAlgo::barrel) 
+    clusHandle= evt.put(clustersshapes_p, 
+			clustershapecollectionEB_);
+  else
+    clusHandle= evt.put(clustersshapes_p, 
+			clustershapecollectionEE_);
+  //Set references from BasicClusters to ClusterShapes.
+  reco::ClusterShapeCollection clusColl= *clusHandle;
+  for (unsigned int i = 0; i < clusColl.size(); i++){
+    reco::ClusterShapeRef reffer(reco::ClusterShapeRef(clusHandle, i));
+    clusters[i].SetClusterShapeRef(reffer);
+  }
+
+  //End creating clustershapes and adding Refs to appropriate BasicClusters.
+
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
-  evt.put(clusters_p, clusterCollection);
+  if (ecalPart == IslandClusterAlgo::barrel) 
+    evt.put(clusters_p, barrelClusterCollection_);
+  else
+    evt.put(clusters_p, endcapClusterCollection_);
 
   delete topology_p;
 }
