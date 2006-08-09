@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/07/21 20:26:02 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/03 17:28:50 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -20,6 +20,8 @@
 class TrajectoryStateOnSurface;
 class MuonUpdatorAtVertex;
 class MagneticField;
+class GlobalTrackingGeometry;
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -74,6 +76,7 @@ class GlobalMuonTrackMatcher {
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
     edm::ESHandle<MagneticField> theField;
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 
 };
 
