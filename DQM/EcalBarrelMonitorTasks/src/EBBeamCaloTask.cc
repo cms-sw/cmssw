@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/08 11:42:47 $
- * $Revision: 1.30 $
+ * $Date: 2006/08/09 10:19:58 $
+ * $Revision: 1.31 $
  * \author A. Ghezzi
  *
  */
@@ -196,8 +196,8 @@ void EBBeamCaloTask::setup(void){
     //autoscan pertainig to the given crystales 
   
     sprintf(histo, "EBBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,200000.,1802,-101.,1701.,"s");
-    // 1 bin each 10 events
+    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
+    // 1 bin each 20 events
     // when table is moving for just one events fill with -100
     
 
