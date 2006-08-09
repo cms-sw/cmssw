@@ -52,7 +52,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   // m_gct->setVerbose(m_verbose);
 
   // for now, call the debug print output
-  m_gct->print();
+//   m_gct->print();
 
 }
 
