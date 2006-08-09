@@ -255,6 +255,18 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 
 	      std::vector <CSCWireDigi>  wireDigis =  cscData[iCSC].wireDigis(ilayer);
+	      /// kludge to fix wire group numbers for ME 3/1 chambers
+
+	      if ((layer.ring()==3)&&(layer.station()==1)) {
+		for (int i=0; i<wireDigis.size(); ++i) {
+		  int wiregroup = wireDigis[i].getWireGroup();
+		  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
+					 "Wire group is out of range!";
+		  else wiregroup = wiregroup - 16; /// adjust by 16
+		  wireDigis[i].setWireGroup(wiregroup);
+		}	
+	      }
+
 	      wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
              
 
