@@ -8,6 +8,13 @@
   <class name="L1GctJetCounts"/>
   <class name="std::vector<L1GctEmCand>"/>
   <class name="std::vector<L1GctJetCand>"/>
+  <class name="edm::Ref<std::vector<L1GctEmCand>,L1GctEmCand,edm::refhelper::FindUsingAdv
+ance<std::vector<L1GctEmCand>,L1GctEmCand>>"/>
+  <class name="edm::Ref<std::vector<L1GctJetCand>,L1GctJetCand,edm::refhelper::FindUsingA
+dvance<std::vector<L1GctJetCand>,L1GctJetCand>>"/>
+  <class name="edm::RefProd<L1GctEtTotal>"/>
+  <class name="edm::RefProd<L1GctEtHad>"/>
+  <class name="edm::RefProd<L1GctEtMiss>"/>
   <class name="edm::Wrapper<std::vector<L1GctEmCand>>"/>
   <class name="edm::Wrapper<std::vector<L1GctJetCand>>"/>
   <class name="edm::Wrapper<L1GctEtTotal>"/>

@@ -22,5 +22,12 @@ namespace {
     edm::Wrapper<L1GctEtHad> w_etHad;
     edm::Wrapper<L1GctEtMiss> w_etMiss;
     edm::Wrapper<L1GctJetCounts> w_jetCounts;
+
+    edm::Ref<L1GctEmCandCollection> emRef ;
+    edm::Ref<L1GctJetCandCollection> jetRef ;
+    edm::RefProd<L1GctEtTotal> etTotRef ;
+    edm::RefProd<L1GctEtHad> etHadRef ;
+    edm::RefProd<L1GctEtMiss> etMissRef ;
+
   }
 }
