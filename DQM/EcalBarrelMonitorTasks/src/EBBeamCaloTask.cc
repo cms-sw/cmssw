@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/09 10:19:58 $
- * $Revision: 1.31 $
+ * $Date: 2006/08/09 12:40:38 $
+ * $Revision: 1.32 $
  * \author A. Ghezzi
  *
  */
@@ -67,7 +67,7 @@ EBBeamCaloTask::~EBBeamCaloTask(){
 void EBBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
-
+  profileArranged_ = false;
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
@@ -83,7 +83,7 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
 void EBBeamCaloTask::setup(void){
 
   init_ = true;
-
+  profileArranged_= false;
   Char_t histo[200];
 
   PreviousTableStatus_[0]=0;//let's start with stable...
@@ -476,6 +476,16 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     
     if( !tb_moving ) {CrystalInBeam_vs_Event_->Fill(event,float(cry_in_beam));}
     else{CrystalInBeam_vs_Event_->Fill(event,-100); }
+    if ( !profileArranged_ ){
+      float dd=0; 
+      int mbin =0;
+      for( int bin=1; bin < 20001; bin++ ){
+	float temp = CrystalInBeam_vs_Event_->getBinContent(bin);
+	if(temp>0){ dd= temp+0.01; mbin=bin; break;}
+      }
+      if(mbin >0) { CrystalInBeam_vs_Event_->Fill(20*mbin-1,dd);}
+      profileArranged_ = true;
+    }
     
     // }
 //   else{ // here there is either a step or a daq error

@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/07/28 18:49:20 $
- * $Revision: 1.14 $
+ * $Date: 2006/08/08 08:57:06 $
+ * $Revision: 1.15 $
  * \author A. Ghezzi
  *
 */
@@ -122,6 +122,8 @@ MonitorElement* meEBBCaloE1MaxCry_;
 MonitorElement* meEBBCaloDesync_;
 
 bool init_; 
+
+bool profileArranged_;
 
 int PreviousTableStatus_[2];
 int PreviousCrystalinBeam_[3];
