@@ -491,8 +491,8 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 
       // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
       found = true;
-      output.resize( input.size()-offset ); //@@ will output size always be even?
-      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) ); // + offset );
+      output.resize( input.size()-offset );
+      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) );
       uint16_t iter = offset; 
       while ( iter < output.size() / sizeof(uint32_t) ) {
 	output_u32[iter] = input_u32[iter+1];
@@ -564,7 +564,9 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
      << ". Buffer contains " << buffer.size() << " bytes (NB: payload is byte-swapped). \n";
   uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
   unsigned int empty = 0;
+
   if ( 0 ) { 
+
     ss << "Byte->   4 5 6 7 0 1 2 3\n";
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
       unsigned int temp0 = buffer_u32[i*2] & 0xFFFFFFFF;
@@ -584,10 +586,11 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 	   << "\n";
       }
     }
+
   } else {
     
-    ss << "Cntr      <------- byte ------->    Cntr\n";
-    ss << "          7  6  5  4  3  2  1  0\n";
+    ss << "  Byte |  <---- byte order ----<  | Byte\n";
+    ss << "  cntr |  7  6  5  4  3  2  1  0  | cntr\n";
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
 
       if ( i>=20 && ((i+4)<(buffer.size()/8)) ) { continue; }
@@ -623,6 +626,7 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 	   << "\n";
       }
     }
+
   }
   ss << "["<<method<<"] End of FED buffer";
 }
