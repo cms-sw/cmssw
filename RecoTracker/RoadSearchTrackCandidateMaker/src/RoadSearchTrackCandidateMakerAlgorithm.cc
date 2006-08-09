@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/08/01 20:27:39 $
-// $Revision: 1.15 $
+// $Date: 2006/08/08 21:50:28 $
+// $Revision: 1.16 $
 //
 
 #include <vector>
@@ -83,6 +83,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+
+  // Get the cut on number of hits in the cloud
+  int numhitcut = conf_.getParameter<int>("NumHitCut");
 
   // Create the trajectory cleaner 
   TrajectoryCleanerBySharedHits theTrajectoryCleaner;
@@ -201,7 +204,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	
       }
       //std::cout<<"This trajectory has chi2 = "<<my_chi<<std::endl;
-      if (traj.recHits().size()>2) CloudTrajectories.push_back(traj);
+      if (traj.recHits().size()>numhitcut) CloudTrajectories.push_back(traj);
             
     }
 
