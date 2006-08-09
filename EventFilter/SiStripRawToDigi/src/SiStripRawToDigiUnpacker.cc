@@ -167,18 +167,13 @@ void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling,
     }
     
     // Locate start of FED buffer within raw data
-    Fed9U::u32* data_u32 = 0;
-    Fed9U::u32  size_u32 = 0;
-    if ( headerBytes_ != 0 ) {
-      FEDRawData output; 
-      locateStartOfFedBuffer( *ifed, input, output );
-      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
-      size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-    } else {
-      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-      size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
-    }
-
+    FEDRawData output; 
+    locateStartOfFedBuffer( *ifed, input, output );
+    
+    // Recast data to suit Fed9UEvent
+    Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+    Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
+    
     // Check on FEDRawData pointer
     if ( !data_u32 ) {
       edm::LogError("SiStripRawToDigi") << "["<<method<<"] NULL pointer to FEDRawData!";
@@ -368,7 +363,6 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
 	data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
 	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-	//fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
 	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
 	if ( fed_trailer->conscheck == 0xDEADFACE ) { 
 	  triggerFedId_ = ifed; 
@@ -397,7 +391,6 @@ void SiStripRawToDigiUnpacker::triggerFed( const FedBuffers& buffers,
 	uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
 	data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
 	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-	//fedh_t* fed_header  = reinterpret_cast<fedh_t*>( temp );
 	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
 	if ( fed_trailer->conscheck != 0xDEADFACE ) { triggerFedId_ = 0; }
       }
@@ -471,9 +464,11 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
     uint16_t offset = headerBytes_ < 0 ? ichar : headerBytes_; // Negative value means use "search mode" to find DAQ header
     uint32_t* input_u32   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + offset );
     uint32_t* fed_trailer = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 8 );
+
     if ( (input_u32[0]    & 0xF0000000) == 0x50000000 &&
 	 (fed_trailer[0]  & 0xF0000000) == 0xA0000000 && 
 	 ((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+
       // Found DAQ header at byte position 'offset'
       found = true;
       output.resize( input.size()-offset );
@@ -489,15 +484,17 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 	   << " Adjust the configurable 'AppendedBytes' to " << offset;
 	edm::LogVerbatim("RawToDigi") << ss.str();
       }
+
     } else if ( (input_u32[1]    & 0xF0000000) == 0x50000000 &&
 		(fed_trailer[1]  & 0xF0000000) == 0xA0000000 &&
 		((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+
       // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
       found = true;
-      output.resize( input.size()-offset );
-      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) + offset );
-      uint16_t iter = 0; 
-      while ( iter < input.size() / sizeof(uint32_t) ) {
+      output.resize( input.size()-offset ); //@@ will output size always be even?
+      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) ); // + offset );
+      uint16_t iter = offset; 
+      while ( iter < output.size() / sizeof(uint32_t) ) {
 	output_u32[iter] = input_u32[iter+1];
 	output_u32[iter+1] = input_u32[iter];
 	iter+=2;
@@ -507,17 +504,20 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 	ss << "["<<method<<"]" 
 	   << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
 	   << " has been found at byte position " << offset
-	   << " with a size of " << input.size()-offset << " bytes."
+	   << " with a size of " << output.size() << " bytes."
 	   << " Adjust the configurable 'AppendedBytes' to " << offset;
 	edm::LogVerbatim("RawToDigi") << ss.str();
       }
+
     } else { headerBytes_ < 0 ? found = false : found = true; }
     ichar++;
   }      
   
   // Check size of output buffer
-  if ( output.size() == 0 ) { // Did not find DAQ header after search. 
-    output.resize( input.size() ); // Return UNadjusted buffer start position and size
+  if ( output.size() == 0 ) { 
+    
+    // Did not find DAQ header after search => return UNadjusted buffer start position and size
+    output.resize( input.size() ); 
     memcpy( output.data(), input.data(), input.size() );
     stringstream ss;
     if ( headerBytes_ < 0 ) {
@@ -537,13 +537,16 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
     }
     edm::LogError("SiStripRawToDigiUnpacker") << ss.str();
     //throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
+
   } else if ( output.size() < 24 ) { // Found DAQ header after search, but too few words
+
     stringstream ss; 
     ss << "["<<method<<"]"
        << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
        << " has size " << output.size();
     edm::LogError("RawToDigi") << ss.str();
     //throw cms::Exception("SiStripRawToDigiUnpacker") << ss.str();
+
   } 
   
 }
@@ -586,6 +589,9 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
     ss << "Cntr      <------- byte ------->    Cntr\n";
     ss << "          7  6  5  4  3  2  1  0\n";
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
+
+      if ( i>=20 && ((i+4)<(buffer.size()/8)) ) { continue; }
+
       unsigned int tmp0 = buffer.data()[i*8+0] & 0xFF;
       unsigned int tmp1 = buffer.data()[i*8+1] & 0xFF;
       unsigned int tmp2 = buffer.data()[i*8+2] & 0xFF;
