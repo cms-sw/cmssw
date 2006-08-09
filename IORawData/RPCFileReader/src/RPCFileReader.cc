@@ -220,18 +220,10 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 	  for(int iLb=0;iLb>-3;iLb--){//AK
 	    infile >> hex >> idummy;
 	    RPCPacData dummyPartData(idummy);
-	    for(int i=-1;i<2;i++){
-	      if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i)//Link data collected at L1A bx	     
-		linkData_[dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;
-	      /*
-	      if(dummyPartData.partitionNum()>11){
-		std::cout<<"RPCFileReader::buildCDWord partitionNum "
-			 <<dummyPartData.partitionNum()
-			 <<" lbNum: "<<dummyPartData.lbNum();
-		std::cout<<" link num: "<<iL+iLb<<std::endl;
+	    for(int i=-1;i<2;i++){	     
+	      if(bxLocal-dummyPartData.partitionDelay()==RPC_PAC_L1ACCEPT_BX+i){//Link data collected at L1A bx
+   		linkData_[dummyPartData.lbNum()][iL+iLb][i+1]=dummyPartData;	    	
 	      }
-	      else std::cout<<"Ok. link num: "<<iL+iLb<<std::endl;
-	      */
 	    }
 	  }
 	}
@@ -285,7 +277,7 @@ void RPCFileReader::readDataFromAsciiFile(string fileName, int *pos){
 
 // ------------ Methods called to form RPC word for DAQ ------------
 RPCFileReader::Word16 RPCFileReader::buildCDWord(RPCPacData linkData){//Chamber Data(Link Board Data)
- 
+
   Word16 word = (Word16(linkData.lbNum())<<14)
                |(Word16(linkData.partitionNum())<<10)
                |(Word16(linkData.endOfData())<<9)
@@ -349,7 +341,7 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   for(int iBX=beginBX;iBX<endBX;iBX++){
   //Check if an event consists data
   for(unsigned int iL=0; iL<18; iL++){
-    for(unsigned int iLb=0; iLb<2; iLb++){
+    for(unsigned int iLb=0; iLb<3; iLb++){
       if(linkData_[iLb][iL][iBX+1].partitionData()!=0)
 	empty=false;
     }
@@ -360,13 +352,13 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
     for(unsigned int iL=0; iL<18; iL++){
       //Check if data of current link exist
       empty=true;
-      for(unsigned int iLb=0; iLb<2; iLb++){
+      for(unsigned int iLb=0; iLb<3; iLb++){
 	if(linkData_[iLb][iL][iBX+1].partitionData()!=0)
 	  empty=false;
       }
       if(!empty){
 	words.push_back(buildSLDWord(tbNum_, iL));//FIMXE iL+1??
-	for(unsigned int iLb=0; iLb<2; iLb++){
+	for(unsigned int iLb=0; iLb<3; iLb++){
 	  if(linkData_[iLb][iL][iBX+1].partitionData()!=0){
 	    words.push_back(buildCDWord(linkData_[iLb][iL][iBX+1]));
 	  }
