@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.1 2006/06/09 17:30:20 dmytro Exp $
+// $Id: TrackAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
 //
 //
 
@@ -38,8 +38,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 class TrackAssociator {
  public:
@@ -124,8 +124,8 @@ class TrackAssociator {
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
 					       const reco::Track& );
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
-					       const EmbdSimTrack&, 
-					       const EmbdSimVertex& );
+					       const SimTrack&, 
+					       const SimVertex& );
    
  private:
    void       fillEcal( const edm::Event&,

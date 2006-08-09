@@ -8,7 +8,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 
-# <use name=Geometry/DTGeometry>
+<use name=Geometry/DTGeometry>
 # <use name=Geometry/RPCGeometry>
 # <use name=Geometry/CSCGeometry>
 
