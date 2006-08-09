@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/08 08:59:20 $
- * $Revision: 1.22 $
+ * $Date: 2006/08/09 08:19:25 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -1589,8 +1589,14 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     //objp1->SetStats(kTRUE);
     //gStyle->SetOptStat("e");
-    float dd = objp1->GetBinContent(2)+0.01;
-    objp1->Fill(21,dd);
+    float dd=0; 
+    int mbin =0;
+    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
+      float temp = objp1->GetBinContent(bin);
+      if(temp>0){ dd= temp+0.01; mbin=bin; break;}
+    }
+    if(mbin >0) { objp1->Fill(20*mbin-1,dd);}
+
     objp1->GetXaxis()->SetTitle("event");
     objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("crystal in beam");
