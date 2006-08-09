@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.3 2006/06/01 13:07:39 rahatlou Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.4 2006/08/09 13:03:43 dlevans Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -9,7 +9,7 @@
 #include <vector>
 
 EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise, 
-  EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity = pERROR)
+  EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity)
 {
   sigmaElectronicNoise_ = noise;
   verbosity_ = verbosity;
