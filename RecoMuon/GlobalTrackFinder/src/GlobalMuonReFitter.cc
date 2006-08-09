@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/08/01 01:58:23 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/08/03 13:16:52 $
+ *   $Revision: 1.7 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
@@ -90,7 +90,7 @@ void GlobalMuonReFitter::setES(const edm::EventSetup& iSetup) {
   thePropagator1 = new SmartPropagator(*eshPropagator2,*eshPropagator1, &*theField);
   thePropagator2 = new SmartPropagator(*eshPropagator4,*eshPropagator3, &*theField,oppositeToMomentum);
 
-  theTrajectoryUpdator = new MuonTrajectoryUpdator(thePropagator1, 1000.0, 0);
+  //theTrajectoryUpdator = new MuonTrajectoryUpdator(thePropagator1, 1000.0, 0);
 
 }
 
@@ -219,7 +219,7 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
   Trajectory myTraj(t.seed(), thePropagator2->propagationDirection());
 
   vector<TM> avtm = t.measurements();
-  if ( avtm.size() < 2 ) return vector<Trajectory>(); 
+  if ( avtm.size() < 2 ) return vector<Trajectory>();
 
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
@@ -310,6 +310,6 @@ vector<Trajectory> GlobalMuonReFitter::smooth(const Trajectory& t) const {
 		   avtm.front().layer()));
   }
 
-  return vector<Trajectory>(1, myTraj); 
+  return vector<Trajectory>(1, myTraj);
 
 }
