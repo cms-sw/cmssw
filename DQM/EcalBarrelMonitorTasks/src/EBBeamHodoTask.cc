@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/08/01 08:16:16 $
- * $Revision: 1.26 $
+ * $Date: 2006/08/03 06:35:09 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -368,7 +368,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       // can be done after the change in crystal in beam
       
       LogDebug("EcalBeamTask")  << "At event number : " << LV1_ <<  " switching table status: from moving to still. "
-				<< " cry in beam is: " << cryInBeam_;
+				<< " cry in beam is: " << cryInBeam_ << ", step being: " << cryInBeamCounter_ ;
 	
       // fill here plots which keep history of beamed crystals
       float HodoPosXMinusCaloPosXVsCry_mean  =0;
@@ -385,20 +385,29 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       if (meCaloVsHodoXPos_ -> getEntries()  > 10){
 	HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
 	HodoPosXMinusCaloPosXVsCry_rms  = meCaloVsHodoXPos_ -> getRMS(1);
-	meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
-	meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
+	meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
+	meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
+	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
+				  <<  " DeltaPosX is: " << (meCaloVsHodoXPos_ -> getMean(1))
+				  << " +-" << ( meCaloVsHodoXPos_ -> getRMS(1));
       }
       if (meCaloVsHodoYPos_ -> getEntries()  > 10){
 	HodoPosYMinusCaloPosYVsCry_mean = meCaloVsHodoYPos_ -> getMean(1);
 	HodoPosYMinusCaloPosYVsCry_rms  = meCaloVsHodoYPos_ -> getRMS(1);
-	meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
-	meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
+	meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
+	meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
+	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
+				  <<  " DeltaPosY is: " << (meCaloVsHodoYPos_ -> getMean(1))
+				  << " +-" << ( meCaloVsHodoYPos_ -> getRMS(1));
       }
       if (meCaloVsTDCTime_ -> getEntries()  > 10){
 	TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_    -> getMean(1);
 	TDCTimeMinusCaloTimeVsCry_rms      = meCaloVsTDCTime_    -> getRMS(1);
 	meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
 	meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
+	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
+				  <<  " DeltaT is: " << (meCaloVsTDCTime_ -> getMean(1))
+				  << " +-" << ( meCaloVsTDCTime_ -> getRMS(1));
       }
 
       LogDebug("EcalBeamTask")  << "At event number: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_=" 
