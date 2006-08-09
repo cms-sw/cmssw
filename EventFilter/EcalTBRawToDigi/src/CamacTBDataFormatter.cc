@@ -107,7 +107,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   // initializing array of statuses
   for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
-    { statusWords[wordNumber -1] = true;}
+    { statusWords[wordNumber ] = true;}
 
   //  for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
   //    { checkStatus( buffer[wordNumber],  wordNumber);}
@@ -431,11 +431,12 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
   
 
-  if ( wordNumber > nWordsPerEvent)
+  if ( wordNumber < 1 || wordNumber > nWordsPerEvent)
     { 
       LogWarning("CamacTBDataFormatter::checkStatus") << "checking word number: "
 						    <<  wordNumber << " which is out of allowed range (" 
 						    << nWordsPerEvent << ")" << endl;
+      return false;
     }
 
   bool isOk = true;
