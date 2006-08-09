@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/01 11:18:31 $
- * $Revision: 1.21 $
+ * $Date: 2006/08/08 08:59:20 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -72,6 +72,7 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   ///////// task specific histos 
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
+    hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;
@@ -187,6 +188,7 @@ void EBBeamCaloClient::cleanup(void) {
   if ( cloneME_ ) {
     for(int u=0;u<cryInArray_;u++){
       if(hBGains_[u]) delete hBGains_[u];
+      if(hBpulse_[u]) delete hBpulse_[u];
       //if(hBGainsMoving_[u])delete hBGainsMoving_[u];
     }
     if(hBEne1_) delete hBEne1_;
@@ -211,6 +213,7 @@ void EBBeamCaloClient::cleanup(void) {
   
   for(int u=0;u<cryInArray_;u++){
     hBGains_[u] = 0;
+    hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
   }
   hBEne1_ = 0;

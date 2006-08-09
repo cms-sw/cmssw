@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/07/26 22:35:17 $
- * $Revision: 1.12 $
+ * $Date: 2006/08/08 08:59:20 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -108,6 +108,8 @@ float prescaling_;
 //specific task me
 
 TH1F* hBGains_[cryInArray_];
+TProfile* hBpulse_[cryInArray_];
+
 TH1F* hBEne1_;
 
 //TH1F* hBGainsMoving_[cryInArray_];
@@ -146,7 +148,6 @@ TH1F* hbDesync_;
 
 TProfile* pBCriInBeamEvents_;
 
-TProfile* hBpulse_[cryInArray_];
 
 
 MonitorElement* meEBBCaloRedGreen_;
