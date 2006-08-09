@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/08/08 08:57:05 $
- * $Revision: 1.29 $
+ * $Date: 2006/08/08 11:42:47 $
+ * $Revision: 1.30 $
  * \author A. Ghezzi
  *
  */
@@ -467,11 +467,11 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       wasFakeChange_ = true;
     }
     // }
+  
+    PreviousCrystalinBeam_[0] = PreviousCrystalinBeam_[1];
+    PreviousCrystalinBeam_[1] = PreviousCrystalinBeam_[2];
+    PreviousCrystalinBeam_[2] =  cry_in_beam;
   }
-  PreviousCrystalinBeam_[0] = PreviousCrystalinBeam_[1];
-  PreviousCrystalinBeam_[1] = PreviousCrystalinBeam_[2];
-  PreviousCrystalinBeam_[2] =  cry_in_beam;
-
   //if (! changed_tb_status_ && ! changed_cry_in_beam_ ){// standard data taking
     
     if( !tb_moving ) {CrystalInBeam_vs_Event_->Fill(event,float(cry_in_beam));}
@@ -542,7 +542,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       //       meEBBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
       
       event_last_reset_ = event;
-      //cout<<" EBBeamCaloTask: event " << ievt_ << " setting crystal "<<last_cry_in_beam_<<" as done, for the step: "<<crystal_step_<<endl;
+      //cout<<" EBBeamCaloTask: event " << event << " resetting stable histos. Cry: "<<cry_in_beam<<" current step: "<<crystal_step_<<endl;
 
       last_cry_in_beam_ = cry_in_beam;
       crystal_step_++;
