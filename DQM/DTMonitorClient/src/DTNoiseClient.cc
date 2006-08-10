@@ -1,8 +1,8 @@
 /*
  * \file DTNoiseClient.cc
  * 
- * $Date: 2006/06/29 17:03:09 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/30 15:31:06 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -135,7 +135,7 @@ void DTNoiseClient::performCheck(MonitorUserInterface * mui_) {
 		if (noiseT) {
 
 		  float average=0;
-		  for (int i = 0; i <= noiseT->GetNbinsX(); i++){
+		  for (int i = 1; i <= noiseT->GetNbinsX(); i++){
 		    average += noiseT->GetBinContent(i); 
 		  }
 		  noiseStatistics[DTLayerId(w,st,se,sl,l)] =  average/noiseT->GetNbinsX();
