@@ -4,6 +4,8 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 namespace {
   namespace {
@@ -19,5 +21,10 @@ namespace {
      edm::Wrapper<l1extra::L1MuonParticleCollection> w_muonColl;
      edm::Wrapper<l1extra::L1EtMissParticle> w_etMiss;
      edm::Wrapper<l1extra::L1ParticleMapCollection> w_mapColl;
+
+     edm::RefVector<l1extra::L1EmParticleCollection> refVecEmColl ;
+     edm::RefVector<l1extra::L1JetParticleCollection> refVecJetColl ;
+     edm::RefVector<l1extra::L1MuonParticleCollection> refVecMuonColl ;
+     edm::RefProd<l1extra::L1EtMissParticle> refEtMiss ;
   }
 }
