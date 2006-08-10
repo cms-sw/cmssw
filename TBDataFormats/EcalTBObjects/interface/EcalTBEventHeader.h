@@ -8,7 +8,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.3 2006/07/28 00:04:27 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.4 2006/08/03 17:21:04 meridian Exp $
  */
 
 
@@ -148,6 +148,12 @@ class EcalTBEventHeader {
     }
     return laser_type; // returns laserTypeName
   }
+
+  //! returns S6 ADC value
+  int S6ADC () const { 
+    return S6ADC_ ; 
+    }
+
   ///////////////
   //Set Methods
 
@@ -195,6 +201,8 @@ class EcalTBEventHeader {
 
   void setLaserType(const int& laserType) { laserType_ = laserType; }
 
+  void setS6ADC (const int& S6ADC) { S6ADC_ = S6ADC ; }
+
  private:
 
   int      eventNumber_;      ///< The numner of the event 
@@ -231,6 +239,8 @@ class EcalTBEventHeader {
   //FIXME for use in CMSSW(Probably unuseful when reading from new RawData Information will be stored in EcalDCCHeaderBlock)
   int      lightIntensity_;   ///< The light intensity
   int      laserType_;        ///< The laser type --see enum LaserType
+
+  int      S6ADC_ ;           ///< ADC lecture of the S6 counter
 
   short smInBeam_;
 };
