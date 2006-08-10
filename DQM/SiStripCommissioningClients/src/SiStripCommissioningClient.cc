@@ -66,14 +66,14 @@ void SiStripCommissioningClient::onUpdate() const {
   sistrip::Task task = extractTask( added_contents );
 
   // Create histograms for given commissioning task
-  createTaskHistograms( task );
+  createHistograms( task );
 
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( added_contents ); }
   
   // Update monitorables using histogram analysis
   if ( histos_ ) { histos_->histoAnalysis(); }
-  
+
 }
 
 // -----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& add
 
 // -----------------------------------------------------------------------------
 /** Create histograms for given commissioning task. */
-void SiStripCommissioningClient::createTaskHistograms( const sistrip::Task& task ) const {
+void SiStripCommissioningClient::createHistograms( const sistrip::Task& task ) const {
 
   // Check if object already exists
   if ( histos_ ) { return; }

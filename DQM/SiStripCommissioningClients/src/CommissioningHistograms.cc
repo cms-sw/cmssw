@@ -7,6 +7,7 @@ using namespace std;
 CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui ) 
   : mui_(mui),
     collations_()
+    //factory_( new SummaryHistogramFactory<CommissioningAnalysis::Monitorables>() )
 {
   cout << "[CommissioningHistograms::CommissioningHistograms]" 
        << " Created base object!" << endl;
@@ -83,34 +84,11 @@ void CommissioningHistograms::histoAnalysis() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createSummaryHistos( const vector<SummaryFactory::Histo>& histos, 
+void CommissioningHistograms::createSummaryHistos( const vector<sistrip::SummaryHisto>& histos, 
+						   const sistrip::SummaryType& type, 
 						   const string& directory ) {
-  static const string method = "CommissioningHistograms::createSummaryHisto";
-  cout << "["<<method<<"]" << endl;
-  
-  // Book histos using DQM fwk
-  CommissioningSummary* summary;
-  vector<SummaryFactory::Histo>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
-    summary = SummaryFactory::book( *ihis, directory );
-    //if ( summary ) { insertIntoDqm( summary ); }
-  }
-  
-  // Create "APV timing" summary histogram object
-  //ApvTimingSummary* summary = new ApvTimingSummary( histos, directory );
-  
-//   // Update histogram contents
-//   Data::const_iterator iter = data_.begin();
-//   for ( ; iter != data_.end(); iter++ ) {
-//     summary->update( iter->first, iter->second ); 
-//   }
-  
-//   // Generate summary histogram
-//   summary->histogram();
-  
-//   // Retrieve summary histogram
-//   summary->getSummary();
-  
+  cout << "[CommissioningHistograms::createSummaryHistos]" 
+       << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------

@@ -1,14 +1,12 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
-#include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummary.h"
-#include <iostream>
 
 using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms(mui)
+  : CommissioningHistograms(mui),
+    factory_( new Factory )
 {
   cout << "[ApvTimingHistograms::ApvTimingHistograms]"
        << " Created object for APV TIMING histograms" << endl;
@@ -37,6 +35,8 @@ void ApvTimingHistograms::histoAnalysis() {
 	   << " Analyzing " << cntr << " of " 
 	   << nhis << " histograms..." << endl;
     }
+
+    
     
     // Extract profile histo from map	 
     MonitorElement* me = mui()->get( *ihis );
@@ -45,7 +45,7 @@ void ApvTimingHistograms::histoAnalysis() {
       cerr << "["<<method<<"] NULL pointer to MonitorElement!" << endl; 
       continue; 
     }
-
+    
     // Perform histo analysis
     ApvTimingAnalysis::Monitorables mons;
     ApvTimingAnalysis::analysis( prof, mons );
@@ -79,4 +79,29 @@ void ApvTimingHistograms::histoAnalysis() {
   
 }
 
+// -----------------------------------------------------------------------------
+/** */
+void ApvTimingHistograms::createSummaryHistos( const vector<sistrip::SummaryHisto>& histos, 
+					       const sistrip::SummaryType& type, 
+					       const string& directory ) {
+  cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;
+  
+  // Check view 
+  sistrip::View view = SiStripHistoNamingScheme::view(directory);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
+
+  // Create summary histograms and insert into DQM fwk
+  vector<sistrip::SummaryHisto>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    MonitorElement* me = mui()->getBEInterface()->book1D( "", "", 0, 0., 0. );
+    TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
+    factory_->generate( *ihis, 
+			type, 
+			view, 
+			directory, 
+			data_,
+			*summary );
+  }
+  
+}
 

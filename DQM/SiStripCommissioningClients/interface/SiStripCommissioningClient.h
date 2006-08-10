@@ -12,8 +12,7 @@
 class SiStripCommissioningWebClient;
 class CommissioningHistograms;
 
-class SiStripCommissioningClient : public DQMBaseClient, 
-				   public dqm::UpdateObserver {
+class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObserver {
   
  public:
   
@@ -28,20 +27,22 @@ class SiStripCommissioningClient : public DQMBaseClient,
   void endRun();
   void onUpdate() const;
   
-  /** */
-  sistrip::Task extractTask( const std::vector<std::string>& added_contents ) const;
-
-  /** */
-  void createTaskHistograms( const sistrip::Task& task ) const;
-
   /** Friend method to allow web interface access to commissioning histos. */
   friend CommissioningHistograms* histos( const SiStripCommissioningClient& );
   
   /** Answers all HTTP requests of the form ".../Request?RequestID=..." */
   void handleWebRequest( xgi::Input*, xgi::Output* );
-  
+    
   /** Outputs the page with the widgets (declared in DQMBaseClient) */
   void general( xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
+
+ private:
+  
+  /** */
+  sistrip::Task extractTask( const std::vector<std::string>& added_contents ) const;
+  
+  /** */
+  void createHistograms( const sistrip::Task& task ) const;
   
  private:
   

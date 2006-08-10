@@ -2,6 +2,7 @@
 #define DQM_SiStripCommissioningClients_SiStripCommissioningWebClient_H
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
+#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 
 class SiStripCommissioningClient;
 
@@ -19,16 +20,19 @@ class SiStripCommissioningWebClient : public WebInterface {
   
  private: // ----- private methods -----
   
-  void createSummaryHistos( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );  
-  void createTrackerMap( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
-  void uploadToConfigDb( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception ); 
-
+  void performAction();
+  void createSummaryHistos();
+  void createTrackerMap();
+  void uploadToConfigDb();
+  
  private: // ----- private data members -----
   
   /** */
   SiStripCommissioningClient* client_;
   /** */
   MonitorUserInterface* mui_;
+  /** */
+  sistrip::Action action_;
 
 };
 

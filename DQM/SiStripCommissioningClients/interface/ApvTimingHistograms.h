@@ -3,7 +3,7 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
-#include <map>
+#include "DQM/SiStripCommon/interface/SummaryHistogramFactory.h"
 
 class MonitorUserInterface;
 class SiStripSummary;
@@ -11,10 +11,9 @@ class SiStripSummary;
 class ApvTimingHistograms : public CommissioningHistograms {
 
  public:
-
-  // Key is SiStripControlKey
-  typedef std::map< uint32_t, ApvTimingAnalysis::Monitorables > Data;
   
+  typedef SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> Factory;
+
   /** */
   ApvTimingHistograms( MonitorUserInterface* );
   /** */
@@ -23,12 +22,18 @@ class ApvTimingHistograms : public CommissioningHistograms {
   /** */
   void histoAnalysis();
 
+  /** */
+  void createSummaryHistos( const std::vector<sistrip::SummaryHisto>&, 
+			    const sistrip::SummaryType&, 
+			    const std::string& directory );
+
  private:
-  
-  Data data_;
+
+  std::map<uint32_t,ApvTimingAnalysis::Monitorables> data_;
+
+  std::auto_ptr<Factory> factory_;
   
 };
 
 #endif // DQM_SiStripCommissioningClients_ApvTimingHistograms_H
-
 

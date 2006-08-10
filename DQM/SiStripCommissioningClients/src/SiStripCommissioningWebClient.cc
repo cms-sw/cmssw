@@ -10,6 +10,7 @@
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/Navigator.h"
 #include "DQMServices/WebComponents/interface/Button.h"
+//#include <SealBase/Callback.h>
 #include <iostream>
 #include <map>
 
@@ -23,7 +24,8 @@ SiStripCommissioningWebClient::SiStripCommissioningWebClient( SiStripCommissioni
 							      MonitorUserInterface** mui ) 
   : WebInterface( context_url, application_url, mui ),
     client_(client),
-    mui_(*mui)
+    mui_(*mui),
+    action_(sistrip::NO_ACTION)
 {
   
   // Define web page
@@ -62,16 +64,36 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   reader.read_form(requests);
   string request = get_from_multimap( requests, "RequestID" );
   if ( request != "" ) {
-    if ( request == "SummaryHistos" ) { createSummaryHistos( in, out ); }
-    if ( request == "TrackerMap" )    { createTrackerMap( in, out ); }
-    if ( request == "UploadToDb" )    { uploadToConfigDb( in, out ); }
+    if ( request == "SummaryHistos" ) { action_ = sistrip::CREATE_SUMMARY_HISTOS; }
+    if ( request == "TrackerMap" )    { action_ = sistrip::CREATE_TRACKER_MAP; }
+    if ( request == "UploadToDb" )    { action_ = sistrip::UPLOAD_TO_DATABASE; }
+    else                              { action_ = sistrip::UNKNOWN_ACTION; }
   }
+
+  //@@ how to move histo/type/view info to createSummaryHistos() method?
+
+  // Schedules actions
+  //   seal::Callback action( seal::CreateCallback( this, &SiStripCommissioningWebClient::performAction ) );
+  //   mui_->addCallback( action );
+  performAction(); //@@ temporarily here! should use Seal::Callback()!
+  
+}
+
+// -----------------------------------------------------------------------------
+/**  */
+void SiStripCommissioningWebClient::performAction() {
+  if      ( action_ == sistrip::CREATE_SUMMARY_HISTOS ) { createSummaryHistos(); }
+  else if ( action_ == sistrip::CREATE_TRACKER_MAP )    { createTrackerMap(); }
+  else if ( action_ == sistrip::UPLOAD_TO_DATABASE )    { uploadToConfigDb(); }
+  else if ( action_ == sistrip::UNKNOWN_ACTION ) {
+    cerr << "unknown action!" << endl;
+  }
+  action_ = sistrip::NO_ACTION;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningWebClient::createSummaryHistos( xgi::Input* in, 
-							 xgi::Output* out ) throw ( xgi::exception::Exception ) {
+void SiStripCommissioningWebClient::createSummaryHistos() {
   static const string method = "SiStripCommissioningWebClient::createSummaryHistos";
   cout << "["<<method<<"] Creating summary histograms..." << endl;
   
@@ -82,25 +104,20 @@ void SiStripCommissioningWebClient::createSummaryHistos( xgi::Input* in,
     return;
   }
   
-  // Summary histogram type and its directory
-  vector<SummaryFactory::Histo> histos( 1, SummaryFactory::APV_TIMING_DELAY ); 
-  string directory = "SiStrip/ControlView/FecCrate0/"; //@@ example
+  //@@ Example summary histogram type and its directory
+  vector<sistrip::SummaryHisto> histos( 1, sistrip::APV_TIMING_DELAY ); 
+  sistrip::SummaryType type = sistrip::SUMMARY_SIMPLE_DISTR;
+  string directory = "SiStrip/ControlView/FecCrate0/";
   
-  // Extract view and directory level
-  //   sistrip::View view = SiStripHistoNamingScheme::view( directory );
-  //   SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( directory ); 
-  //   string summary_dir = SiStripHistoNamingScheme::controlPath( path ); 
-  
-  // Create summary histogram
-  his->createSummaryHistos( histos, directory );
+  // Create summary histograms
+  his->createSummaryHistos( histos, type, directory );
   
   cout << "["<<method<<"] Created summary histograms!" << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningWebClient::createTrackerMap( xgi::Input* in, 
-						      xgi::Output* out ) throw ( xgi::exception::Exception ) {
+void SiStripCommissioningWebClient::createTrackerMap() {
   cout << "[SiStripCommissioningWebClient::createTrackerMap]"
        << " Creating Tracker map..." << endl;
   CommissioningHistograms* his = histos( *client_ );
@@ -116,8 +133,7 @@ void SiStripCommissioningWebClient::createTrackerMap( xgi::Input* in,
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningWebClient::uploadToConfigDb( xgi::Input* in, 
-						      xgi::Output* out ) throw ( xgi::exception::Exception ) {
+void SiStripCommissioningWebClient::uploadToConfigDb() {
   cout << "[SiStripCommissioningWebClient::uploadToConfigDb]"
        << " Uploading configurations to database..." << endl;
   CommissioningHistograms* his = histos( *client_ );
