@@ -1,27 +1,20 @@
 #ifndef DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
 #define DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include <string>
+#include "DQM/SiStripCommon/interface/SummaryHistogramFactory.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 
-class CommissioningSummary;
-
-class CommissioningSummaryFactory {
+template<>
+class SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> {
   
  public:
   
-  /** Defines the various summary histograms available. */
-  enum Histo { UNKNOWN_HISTO, UNDEFINED_HISTO,
-	       APV_TIMING_COARSE, APV_TIMING_FINE, APV_TIMING_DELAY, APV_TIMING_ERROR, APV_TIMING_BASE, APV_TIMING_PEAK, APV_TIMING_HEIGHT 
-	       //@@ Other summary histo types here...
-  };
-  
-  static CommissioningSummary* book( const sistrip::Task&,
-				     const Histo&, 
-				     const std::string& directory );
+  std::auto_ptr<TH1> summary( const sistrip::SummaryHisto&, 
+			      const sistrip::SummaryType&, 
+			      const sistrip::View&, 
+			      const std::string& directory, 
+			      const std::map<uint32_t,ApvTimingAnalysis::Monitorables>& );
   
 };
 
 #endif // DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
-
-
