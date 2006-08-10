@@ -20,10 +20,10 @@
 
 #ifndef MB_DT_STANDALONE
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
-#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc" // questo dove lo mettiamo??
+#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc" 
 #else
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
-#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc"
+#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc"
 #endif
 
 
