@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/10 09:25:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/10 09:50:15 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -31,10 +31,11 @@
 // constructors and destructor
 //
  
-HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
+HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig) :
+  jetsTag_ (iConfig.getParameter<edm::InputTag>("jetsTag")),
+  metsTag_ (iConfig.getParameter<edm::InputTag>("metsTag"))
 {
-   jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
-   metsTag_ = iConfig.getParameter< edm::InputTag > ("metsTag");
+  LogDebug("") << "Inputs: jets/mets: " << jetsTag_.encode() << " / " << metsTag_.encode();
 
    //register your products
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/27 08:44:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/09 06:20:19 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -25,9 +25,10 @@
 // constructors and destructor
 //
  
-HLTAnalFilt::HLTAnalFilt(const edm::ParameterSet& iConfig)
+HLTAnalFilt::HLTAnalFilt(const edm::ParameterSet& iConfig) :
+  inputTag_(iConfig.getParameter<edm::InputTag>("inputTag"))
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
+  LogDebug("") << "Input: " << inputTag_.encode();
 }
 
 HLTAnalFilt::~HLTAnalFilt()
@@ -43,20 +44,27 @@ void
 HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
+   using namespace edm;
    using namespace reco;
 
    // get hold of products from Event
 
-   edm::Handle<edm::TriggerResults> tref;
-   iEvent.getByType(tref);
-   LogDebug("") << "TriggerResults: " << (*tref);
+   // get hold of (single?) TriggerResults object
+   Handle<TriggerResults> trh;
+   iEvent.getByType(trh);
+   if (trh.isValid()) {
+     LogDebug("") << "TriggerResults: object not found!";
+   } else {
+     LogDebug("") << "TriggerResults: " << (*trh);
+   }
 
-   edm::Handle<HLTFilterObjectWithRefs> ref;
+   // get hold of requested filter object
+   Handle<HLTFilterObjectWithRefs> ref;
    iEvent.getByLabel(inputTag_,ref);
 
+   // some Xchecking
    HLTParticle particle;
    const Candidate* candidate;
-
    const unsigned int n(ref->size());
    LogDebug("") << inputTag_.encode() + " Size = " << n;
    for (unsigned int i=0; i!=n; i++) {

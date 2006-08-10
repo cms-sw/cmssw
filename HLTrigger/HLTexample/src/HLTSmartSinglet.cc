@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/03 20:22:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/10 09:29:55 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -24,12 +24,11 @@
 //
 template<typename T>
 HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
-  select_(iConfig)
+  inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
+  Min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
+  select_   (iConfig                                                 )
 {
-  inputTag_ = iConfig.template getParameter< edm::InputTag >("inputTag");
-  cut_      = iConfig.template getParameter< std::string>("cut");
-  Min_N_    = iConfig.template getParameter<int>("MinN");
-
    LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << Min_N_ ;
 
    //register your products
@@ -63,7 +62,7 @@ HLTSmartSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+     filterobject (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> ref;
 
@@ -79,7 +78,7 @@ HLTSmartSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (select_(*i)) {
        n++;
        ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -87,7 +86,7 @@ HLTSmartSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=Min_N_);
 
    // put filter object into the Event
-   iEvent.put(filterproduct);
+   iEvent.put(filterobject);
 
    return accept;
 }

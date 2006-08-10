@@ -12,6 +12,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
+#include "HLTrigger/HLTexample/interface/HLTLevel1Seed.h"
+
 #include "HLTrigger/HLTexample/interface/HLTDoublet.h"
 
 #include "HLTrigger/HLTexample/interface/HLTSinglet.h"
@@ -51,6 +53,7 @@ DEFINE_ANOTHER_FWK_MODULE(HLTProdCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalFilt)
 DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
+DEFINE_ANOTHER_FWK_MODULE(HLTLevel1Seed)
 DEFINE_ANOTHER_FWK_MODULE(HLTDoublet)
 
 DEFINE_ANOTHER_FWK_MODULE(HLT1Electron)

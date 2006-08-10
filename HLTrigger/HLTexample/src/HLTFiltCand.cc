@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/10 09:25:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/10 09:50:15 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -28,34 +28,32 @@
 // constructors and destructor
 //
  
-HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
+HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
+  photTag_ (iConfig.getParameter<edm::InputTag>("photTag")),
+  elecTag_ (iConfig.getParameter<edm::InputTag>("elecTag")),
+  muonTag_ (iConfig.getParameter<edm::InputTag>("muonTag")),
+  tausTag_ (iConfig.getParameter<edm::InputTag>("tausTag")),
+  jetsTag_ (iConfig.getParameter<edm::InputTag>("jetsTag")),
+  metsTag_ (iConfig.getParameter<edm::InputTag>("metsTag")),
+
+  phot_pt_ (iConfig.getParameter<double>("photPt")),
+  elec_pt_ (iConfig.getParameter<double>("elecPt")),
+  muon_pt_ (iConfig.getParameter<double>("muonPt")),
+  taus_pt_ (iConfig.getParameter<double>("tausPt")),
+  jets_pt_ (iConfig.getParameter<double>("jetsPt")),
+  mets_pt_ (iConfig.getParameter<double>("metsPt"))
 {
-
-   photTag_ = iConfig.getParameter< edm::InputTag > ("photTag");
-   elecTag_ = iConfig.getParameter< edm::InputTag > ("elecTag");
-   muonTag_ = iConfig.getParameter< edm::InputTag > ("muonTag");
-   tausTag_ = iConfig.getParameter< edm::InputTag > ("tausTag");
-   jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
-   metsTag_ = iConfig.getParameter< edm::InputTag > ("metsTag");
-
-   phot_pt_ = iConfig.getParameter< double > ("photPt");
-   elec_pt_ = iConfig.getParameter< double > ("elecPt");
-   muon_pt_ = iConfig.getParameter< double > ("muonPt");
-   taus_pt_ = iConfig.getParameter< double > ("tausPt");
-   jets_pt_ = iConfig.getParameter< double > ("jetsPt");
-   mets_pt_ = iConfig.getParameter< double > ("metsPt");
-
-   LogDebug("") << "created with:" <<
-     " g: " << photTag_.encode() << " " << phot_pt_ << 
-     " e: " << elecTag_.encode() << " " << elec_pt_ << 
-     " m: " << muonTag_.encode() << " " << muon_pt_ << 
-     " t: " << tausTag_.encode() << " " << taus_pt_ << 
-     " j: " << jetsTag_.encode() << " " << jets_pt_ <<
-     " M: " << metsTag_.encode() << " " << mets_pt_ ;
+   LogDebug("")
+   << " g: " << photTag_.encode() << " " << phot_pt_
+   << " e: " << elecTag_.encode() << " " << elec_pt_
+   << " m: " << muonTag_.encode() << " " << muon_pt_
+   << " t: " << tausTag_.encode() << " " << taus_pt_
+   << " j: " << jetsTag_.encode() << " " << jets_pt_
+   << " M: " << metsTag_.encode() << " " << mets_pt_
+   ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
-
 }
 
 HLTFiltCand::~HLTFiltCand()
@@ -80,7 +78,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs> 
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+     filterobject (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate objects to be recorded in filter object
    RefToBase<Candidate> ref;
 
@@ -115,7 +113,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (iphot->pt() >= phot_pt_) {
        bphot=true;
        ref=RefToBase<Candidate>(PhotonRef(photons,distance(aphot,iphot)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -128,7 +126,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ielec->pt() >= elec_pt_) {
        belec=true;
        ref=RefToBase<Candidate>(ElectronRef(electrons,distance(aelec,ielec)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -141,7 +139,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imuon->pt() >= muon_pt_) {
        bmuon=true;
        ref=RefToBase<Candidate>(MuonRef(muons,distance(amuon,imuon)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -154,7 +152,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itaus->pt() >= taus_pt_) {
        btaus=true;
        ref=RefToBase<Candidate>(CaloJetRef(taus,distance(ataus,itaus)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -167,7 +165,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ijets->pt() >= jets_pt_) {
        bjets=true;
        ref=RefToBase<Candidate>(CaloJetRef(jets,distance(ajets,ijets)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -180,7 +178,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imets->pt() >= mets_pt_) {
        bmets=true;
        ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -190,7 +188,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // All filters: put filter object into the Event
-   iEvent.put(filterproduct);
+   iEvent.put(filterobject);
 
    // return with final filter decision
    return accept;
