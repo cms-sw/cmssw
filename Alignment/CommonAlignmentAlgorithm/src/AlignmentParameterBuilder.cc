@@ -362,8 +362,8 @@ void AlignmentParameterBuilder::add( const std::vector<Alignable*>& alignables,
     }
   }
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Added " << num_adu << "Alignables\n"
-											<< "of which " << num_det << " are Dets\n"
+  edm::LogInfo("AlignmentParameterBuilder") << "Added " << num_adu << " alignables\n"
+											<< "of which  " << num_det << " are Dets\n"
 											<< "          " << num_hlo << " are higher level";
 
 }

@@ -24,9 +24,14 @@ AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec
   // Fill detId <-> Alignable map
   for ( std::vector<Alignable*>::iterator it = alivec.begin();
 		it != alivec.end(); it++ )
-	theActiveAlignablesByDetId[ theTrackerAlignableId->alignableId(*it) ] = *it;
+	{
+	  DetIds tmpDetIds = findDetIds(*it);
+	  for ( DetIds::iterator iDetId = tmpDetIds.begin();
+			iDetId != tmpDetIds.end(); iDetId++ )
+		theActiveAlignablesByDetId[ *iDetId ] = *it;
+	}
 
-  edm::LogInfo("AlignmentParameterStore") << "Created navigator map with"
+  edm::LogInfo("AlignmentParameterStore") << "Created navigator map with "
 										  << theNavigator->size() << " elements";
   
 
@@ -210,47 +215,51 @@ void AlignmentParameterStore::setCorrelations(Alignable* ap1, Alignable* ap2,
 
 
 //__________________________________________________________________________________________________
-Alignable* AlignmentParameterStore::alignableFromGeomDet( const GeomDet* geomDet ) const
+Alignable* 
+AlignmentParameterStore::alignableFromGeomDet( const GeomDet* geomDet ) const
 {
-
-  return theNavigator->alignableFromGeomDet( geomDet );
-
+  return alignableFromDetId( geomDet->geographicalId().rawId() );
 }
 
 
 //__________________________________________________________________________________________________
 Alignable* 
-AlignmentParameterStore::alignableFromDetId( unsigned int& detId ) const
+AlignmentParameterStore::alignableFromAlignableDet( const AlignableDet* alignableDet ) const
 {
-  ActiveAlignablesByDetIdMap::const_iterator iali = theActiveAlignablesByDetId.find( detId );
-  if ( iali != theActiveAlignablesByDetId.end() ) 
-	return (*iali).second;
-  else return 0;
+  return alignableFromDetId( alignableDet->geomDetId().rawId() );
 }
 
 
 //__________________________________________________________________________________________________
-std::vector<AlignableComposite*> 
-AlignmentParameterStore::findDets(AlignableComposite* alignable)
+Alignable* 
+AlignmentParameterStore::alignableFromDetId( const unsigned int& detId ) const
 {
-  std::vector<AlignableComposite*> result;
-  AlignableDet* alidet = dynamic_cast<AlignableDet*> (alignable);
-  if (alidet !=0) result.push_back(alignable);
-  else {
-    std::vector<Alignable*> alivec = alignable->components();
-    for ( std::vector<Alignable*>::const_iterator ib=alivec.begin();
-      ib!=alivec.end();  ib++ ) {
-      AlignableComposite* alib=dynamic_cast<AlignableComposite*>(*ib);
-      AlignableDet* alidet = dynamic_cast<AlignableDet*> (alib);
-      if (alidet != 0) result.push_back(alib);
-      else {
-        std::vector<AlignableComposite*> dets = findDets(alib);
-        for ( std::vector<AlignableComposite*>::const_iterator ic=dets.begin();
-          ic!=dets.end();  ic++ ) result.push_back(*ic);
-      }
-    }    
-  }
+
+  ActiveAlignablesByDetIdMap::const_iterator iali = theActiveAlignablesByDetId.find( detId );
+  if ( iali != theActiveAlignablesByDetId.end() ) 
+	return (*iali).second;
+  else return 0;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlignmentParameterStore::DetIds 
+AlignmentParameterStore::findDetIds(Alignable* alignable)
+{
+
+  DetIds result;
+  AlignableDet* alidet = dynamic_cast<AlignableDet*>( alignable );
+  if (alidet !=0) result.push_back( alignable->geomDetId().rawId() );
+  std::vector<Alignable*> comp = alignable->components();
+  if ( comp.size() > 1 )
+	for ( std::vector<Alignable*>::const_iterator ib = comp.begin(); ib != comp.end(); ib++ ) 
+	  {
+		DetIds tmpDetIds = findDetIds(*ib);
+		std::copy( tmpDetIds.begin(), tmpDetIds.end(), std::back_inserter( result ) );
+	  }
   return result;
+
 }
 
 

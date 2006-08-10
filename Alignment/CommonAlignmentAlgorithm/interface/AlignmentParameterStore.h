@@ -26,7 +26,8 @@ public:
 
   typedef std::vector<AlignmentParameters*> Parameters;
   typedef std::map< std::pair<Alignable*,Alignable*>,AlgebraicMatrix > Correlations;
-  typedef std::vector<Alignable*> Alignables;
+  typedef std::vector<Alignable*>   Alignables;
+  typedef std::vector<unsigned int> DetIds;
 
   /// constructor 
   AlignmentParameterStore( std::vector <Alignable*> alivec );
@@ -56,8 +57,11 @@ public:
   /// get Alignable which corresponds to a given GeomDet 
   Alignable* alignableFromGeomDet( const GeomDet* geomDet ) const;
 
-  /// get Alignable corresponding to AlignableDet 
-  Alignable* alignableFromDetId(unsigned int& detId) const;
+  /// get Alignable corresponding to given AlignableDet 
+  Alignable* alignableFromAlignableDet( const AlignableDet* alignableDet ) const;
+
+  /// get Alignable corresponding to given DetId
+  Alignable* alignableFromDetId(const unsigned int& detId) const;
 
   /// transform std::vector<TrackingRecHit> into corresponding std::vector<AlignableDet*> 
   std::vector<AlignableDet*> alignableDetsFromHits(const std::vector<TrackingRecHit>& hitvec);
@@ -115,11 +119,10 @@ private:
   // Methods to manage correlation map 
   AlgebraicMatrix correlations(Alignable* ap1, Alignable* ap2) const;
 
-  void setCorrelations(Alignable* ap1, Alignable* ap2, 
-    const AlgebraicMatrix& mat);
+  void setCorrelations(Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& mat);
 
-  // Celper used by constructor to get all Dets per Alignable 
-  std::vector <AlignableComposite*> findDets( AlignableComposite* alignable );
+  // Celper used by constructor to get all DetIds per Alignable
+  DetIds findDetIds( Alignable* alignable );
 
   // data members
 
