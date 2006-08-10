@@ -42,6 +42,7 @@ template HLTSmartSinglet<reco::CaloMET>  ;
 typedef HLTSmartSinglet<reco::Electron> HLT1SmartElectron;
 typedef HLTSmartSinglet<reco::Photon>   HLT1SmartPhoton;
 typedef HLTSmartSinglet<reco::Muon>     HLT1SmartMuon;
+typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartTau;
 typedef HLTSmartSinglet<reco::CaloJet>  HLT1SmartCaloJet;
 typedef HLTSmartSinglet<reco::CaloMET>  HLT1SmartCaloMET;
 
@@ -62,5 +63,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLT1CaloMET)
 DEFINE_ANOTHER_FWK_MODULE(HLT1SmartElectron)
 DEFINE_ANOTHER_FWK_MODULE(HLT1SmartPhoton)
 DEFINE_ANOTHER_FWK_MODULE(HLT1SmartMuon)
+DEFINE_ANOTHER_FWK_MODULE(HLT1SmartTau)
 DEFINE_ANOTHER_FWK_MODULE(HLT1SmartCaloJet)
 DEFINE_ANOTHER_FWK_MODULE(HLT1SmartCaloMET)
