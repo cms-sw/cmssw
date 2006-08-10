@@ -41,22 +41,16 @@ construct( const TrackingRecHit* outerHit,
   typedef TrajectoryMeasurement        TM;
 
 
-
-  // make a spiral
-  //MP
-  //  TrivialVertex vtx( vertexPos, vertexErr);
-  //  FastHelix helix(outerHit.globalPosition(), innerHit.globalPosition(), 
-  //		  vtx.position());
-  //   FastHelix helix(outerHit.globalPosition(), innerHit.globalPosition(), 
-  // 		  GlobalPoint(0.,0.,0.));
-
   // get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
   GlobalPoint inner = tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
   GlobalPoint outer = tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-  //  DetId outerDet(outerHit.geographicalId());
+
+  // make a spiral
+  //  TrivialVertex vtx( vertexPos, vertexErr);
+  //  FastHelix helix(outerHit.globalPosition(), innerHit.globalPosition(),vtx.position());
   FastHelix helix(outer, inner, 
 		  GlobalPoint(0.,0.,0.),iSetup);
 
@@ -74,30 +68,22 @@ construct( const TrackingRecHit* outerHit,
 
     KFUpdator     theUpdator;
 
-    //   TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit.geographicalId())->surface());
     const TSOS innerState = thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
     if ( !innerState.isValid()) 
       throw PropagationException("SeedFromConsecutiveHits first propagation failed");
 
+
     //
-    // get from the eventsetup
+    // get the transient builder
     //
-
-    
-
-    //    TkTransientTrackingRecHitBuilder TTTRHBuilder((tracker.product()));
-
-    //   intrhit=TTRHBuilder.build(&(*tracker),innerHit->clone());
-
-  //
-  // get the transient builder
-  //
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
     std::string builderName = p.getParameter<std::string>("TTRHBuilder");  
     iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
 
     intrhit=theBuilder.product()->build(innerHit);
+    // this could be an option. But it doesn't seem to help much
+    //intrhit=theBuilder.product()->build(innerHit)->clone(innerState);
 
     const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
 
@@ -109,14 +95,16 @@ construct( const TrackingRecHit* outerHit,
       throw PropagationException("SeedFromConsecutiveHits second propagation failed");
   
     outrhit=theBuilder.product()->build(outerHit);
+    // this could be an option. But it doesn't seem to help much
+    //outrhit=theBuilder.product()->build(outerHit)->clone(outerState);
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
  
 
     //MP
     //what is the estimate value?
-    theInnerMeas = TM( innerState, innerUpdated, intrhit, 0);
-    theOuterMeas = TM( outerState, outerUpdated, outrhit, 0);
+    //theInnerMeas = TM( innerState, innerUpdated, intrhit, 0);
+    //theOuterMeas = TM( outerState, outerUpdated, outrhit, 0);
  
 
 
