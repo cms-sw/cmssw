@@ -56,7 +56,7 @@ public:
       float ptMin, float originRadius, float originHalfLength,float originZPos);
 
   /// destructor
-  virtual ~SeedGeneratorFromLayerPairs();
+  virtual ~SeedGeneratorFromLayerPairs(){};
 
   virtual const TrackingRegion * trackingRegion() const;
 
@@ -66,7 +66,7 @@ protected:
   virtual HitPairGenerator * pairGenerator() const;
 
 private:
-  HitPairGenerator * thePairGenerator;
+  std::auto_ptr<HitPairGenerator> thePairGenerator;
   //  const TrackingRegionFactory * theRegionFactory;
   DeepCopyPointerByClone<TrackingRegion>  theRegion;
 

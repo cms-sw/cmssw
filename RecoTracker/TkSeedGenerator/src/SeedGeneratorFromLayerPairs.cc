@@ -10,19 +10,18 @@ void SeedGeneratorFromLayerPairs::initPairGenerator(SeedLayerPairs * layerPairs,
 						    const edm::EventSetup& iSetup) 
 {
   if (layerPairs) { 
-    thePairGenerator = new CombinedHitPairGenerator(*layerPairs,iSetup);
-  } else thePairGenerator = 0;
+    thePairGenerator.reset(new CombinedHitPairGenerator(*layerPairs,iSetup));
+  } else thePairGenerator.reset(0);
 }
 
 //SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
 //    const SeedLayerPairs * layerPairs)
-SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
-    SeedLayerPairs * layerPairs,  const edm::ParameterSet& conf)
+SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(SeedLayerPairs * layerPairs,
+							 const edm::ParameterSet& conf)
   :  SeedGeneratorFromHitPairsConsecutiveHits(conf),
-  //theRegionFactory(0), 
-theRegion(0)
-{ //initPairGenerator(layerPairs); 
-}
+     //theRegionFactory(0), 
+     thePairGenerator(0),
+     theRegion(0){}
 
 
 // SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
@@ -47,8 +46,6 @@ theRegion(0)
 //                                         originHalfLength, originZPos);
 // }
 
-SeedGeneratorFromLayerPairs::~SeedGeneratorFromLayerPairs()
-{ delete thePairGenerator; }
 
 const TrackingRegion * SeedGeneratorFromLayerPairs::trackingRegion() const
 {
@@ -62,11 +59,11 @@ const TrackingRegion * SeedGeneratorFromLayerPairs::trackingRegion() const
 
 HitPairGenerator * SeedGeneratorFromLayerPairs::pairGenerator() const
 {
-  if (!thePairGenerator) {
+  if (!thePairGenerator.get()) {
     //  throw DetLogicError("** SeedGeneratorFromLayerPairs **: pairGenerator() called but thePairGenerator is null!");
     cerr<< "** SeedGeneratorFromLayerPairs **: pairGenerator() called but thePairGenerator is null!"<<cerr;
     return 0;
   }
-  else return thePairGenerator;
+  else return thePairGenerator.get();
 }
 
