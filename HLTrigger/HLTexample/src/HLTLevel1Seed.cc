@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/28 01:41:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/10 17:09:24 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -107,8 +107,8 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      index[i]=-1;
      l1tt= (L1ParticleMap::L1TriggerType) (L1SeedsByType_[i]);
      for (unsigned int j=0; j!=m; j++) {
-       if ( (l1tt==(*l1pmch)[j].triggerType()) && 
-	    (      (*l1pmch)[j].triggerDecision()) ) {
+       const L1ParticleMap& l1pm((*l1pmch)[j]);
+       if ( (l1tt==l1pm.triggerType()) && (l1pm.triggerDecision()) ) {
 	 index[i]=j;
 	 break;
        }
@@ -125,7 +125,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (accept) {
      unsigned int m(0);
      for (unsigned int i=0; i!=n; i++) {
-       const L1ParticleMap& l1pm((*l1pmch)[i]);
+       const L1ParticleMap& l1pm((*l1pmch)[index[i]]);
        if (index[i]>=0) {
 	 // em particles (gamma+electron)
 	 m=l1pm.emParticles().size();
