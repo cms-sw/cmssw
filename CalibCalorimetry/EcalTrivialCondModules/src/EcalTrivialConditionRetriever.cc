@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.11 2006/07/25 11:23:52 azabi Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.12 2006/08/09 17:36:40 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -91,35 +91,35 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   // default weights for MGPA shape after pedestal subtraction
   getWeightsFromConfiguration(ps);
 
-  produceEcalPedestals_ = ps.getUntrackedParameter<bool>("produceEcalPedestals",true);
-  produceEcalWeights_ = ps.getUntrackedParameter<bool>("produceEcalWeights",true);
+  producedEcalPedestals_ = ps.getUntrackedParameter<bool>("producedEcalPedestals",true);
+  producedEcalWeights_ = ps.getUntrackedParameter<bool>("producedEcalWeights",true);
 
-  produceEcalGainRatios_ = ps.getUntrackedParameter<bool>("produceEcalGainRatios",true);
-  produceEcalADCToGeVConstant_ = ps.getUntrackedParameter<bool>("produceEcalADCToGeVConstant",true);
+  producedEcalGainRatios_ = ps.getUntrackedParameter<bool>("producedEcalGainRatios",true);
+  producedEcalADCToGeVConstant_ = ps.getUntrackedParameter<bool>("producedEcalADCToGeVConstant",true);
 
   verbose_ = ps.getUntrackedParameter<int>("verbose", 0);
 
   //Tell Producer what we produce
   //setWhatproduce(this);
-  if (produceEcalPedestals_)
+  if (producedEcalPedestals_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalPedestals );
 
-  if (produceEcalWeights_) {
+  if (producedEcalWeights_) {
       setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalWeightXtalGroups );
       setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTBWeights );
     }
 
-  if (produceEcalGainRatios_)
+  if (producedEcalGainRatios_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalGainRatios );
 
-  if (produceEcalADCToGeVConstant_)
+  if (producedEcalADCToGeVConstant_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalADCToGeVConstant );
 
   // intercalibration constants
-  produceEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("produceEcalIntercalibConstants",true);
+  producedEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstants",true);
   intercalibConstantsFile_ = ps.getUntrackedParameter<std::string>("intercalibConstantsFile","") ;
 
-  if (produceEcalIntercalibConstants_) { // user asks to produce constants
+  if (producedEcalIntercalibConstants_) { // user asks to produce constants
     if(intercalibConstantsFile_ != "") {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
@@ -129,16 +129,16 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   }
 
   //Tell Finder what records we find
-  if (produceEcalPedestals_)  findingRecord<EcalPedestalsRcd>();
+  if (producedEcalPedestals_)  findingRecord<EcalPedestalsRcd>();
 
-  if (produceEcalWeights_) {
+  if (producedEcalWeights_) {
       findingRecord<EcalWeightXtalGroupsRcd>();
       findingRecord<EcalTBWeightsRcd>();
     }
 
-  if (produceEcalGainRatios_)  findingRecord<EcalGainRatiosRcd>();
+  if (producedEcalGainRatios_)  findingRecord<EcalGainRatiosRcd>();
 
-  if (produceEcalADCToGeVConstant_)  findingRecord<EcalADCToGeVConstantRcd>();
+  if (producedEcalADCToGeVConstant_)  findingRecord<EcalADCToGeVConstantRcd>();
 
 }
 

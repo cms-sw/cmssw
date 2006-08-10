@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.6 2006/06/30 08:18:57 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.7 2006/08/09 17:36:39 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -127,11 +127,11 @@ private:
 
   bool getWeightsFromFile_;
   bool weightsForAsynchronousRunning_;
-  bool produceEcalPedestals_;
-  bool produceEcalWeights_;
-  bool produceEcalIntercalibConstants_;
-  bool produceEcalGainRatios_;
-  bool produceEcalADCToGeVConstant_;
+  bool producedEcalPedestals_;
+  bool producedEcalWeights_;
+  bool producedEcalIntercalibConstants_;
+  bool producedEcalGainRatios_;
+  bool producedEcalADCToGeVConstant_;
 
   int    verbose_; // verbosity
 
