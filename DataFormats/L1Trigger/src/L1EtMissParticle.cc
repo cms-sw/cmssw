@@ -8,14 +8,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.1 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1EtMissParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 using namespace l1extra ;
 
@@ -34,16 +33,18 @@ L1EtMissParticle::L1EtMissParticle()
 {
 }
 
-L1EtMissParticle::L1EtMissParticle( const LorentzVector& p4,
-				    const double& etTotal,
-				    const double& etHad,
-				    const L1Ref& aEtMissRef,
-				    const L1Ref& aEtTotalRef,
-				    const L1Ref& aEtHadRef )
+L1EtMissParticle::L1EtMissParticle(
+   const LorentzVector& p4,
+   const double& etTotal,
+   const double& etHad,
+   const edm::RefProd< L1GctEtMiss >& aEtMissRef,
+   const edm::RefProd< L1GctEtTotal >& aEtTotalRef,
+   const edm::RefProd< L1GctEtHad >& aEtHadRef )
 //   : ParticleKinematics( p4 ),
-   : L1PhysObjectBase( ( char ) 0, p4, aEtMissRef ),
+   : LeafCandidate( ( char ) 0, p4 ),
      etTot_( etTotal ),
      etHad_( etHad ),
+     etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
      etHadRef_( aEtHadRef )
 {
@@ -73,24 +74,6 @@ L1EtMissParticle::~L1EtMissParticle()
 //
 // member functions
 //
-
-const L1GctEtMiss*
-L1EtMissParticle::gctEtMiss() const
-{
-   return dynamic_cast< const L1GctEtMiss* >( triggerObjectPtr() ) ;
-}
-
-const L1GctEtTotal*
-L1EtMissParticle::gctEtTotal() const
-{
-   return dynamic_cast< const L1GctEtTotal* >( etTotRef_.get() ) ;
-}
-
-const L1GctEtHad*
-L1EtMissParticle::gctEtHad() const
-{
-   return dynamic_cast< const L1GctEtHad* >( etHadRef_.get() ) ;
-}
 
 //
 // const member functions

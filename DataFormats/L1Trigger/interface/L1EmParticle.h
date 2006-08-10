@@ -16,21 +16,22 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.3 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1EmParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 // forward declarations
-class L1GctEmCand ;
 
 namespace l1extra {
 
-   class L1EmParticle : public L1PhysObjectBase
+   class L1EmParticle : public reco::LeafCandidate
    {
 
       public:
@@ -45,7 +46,7 @@ namespace l1extra {
 	 L1EmParticle();
 
 	 L1EmParticle( const LorentzVector& p4,
-		       const L1Ref& aRef ) ;
+		       const edm::Ref< L1GctEmCandCollection >& aRef ) ;
 
          // Creates null Ref.
          L1EmParticle( const LorentzVector& p4,
@@ -54,10 +55,14 @@ namespace l1extra {
 	 virtual ~L1EmParticle();
 
 	 // ---------- const member functions ---------------------
-	 const L1GctEmCand* gctEmCand() const ;
-
          EmType type() const
          { return type_ ; }
+
+	 const edm::Ref< L1GctEmCandCollection >& gctEmCandRef() const
+	 { return ref_ ; }
+
+	 const L1GctEmCand* gctEmCand() const
+	 { return ref_.get() ; }
 
 	 // ---------- static member functions --------------------
 
@@ -72,6 +77,7 @@ namespace l1extra {
 
 	 // ---------- member data --------------------------------
          EmType type_ ;
+	 edm::Ref< L1GctEmCandCollection > ref_ ;
    };
 }
 

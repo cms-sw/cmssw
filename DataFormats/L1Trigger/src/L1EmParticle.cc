@@ -8,14 +8,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:56:47 EDT 2006
-// $Id: L1EmParticle.cc,v 1.1 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1EmParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 using namespace l1extra ;
 
@@ -35,11 +34,12 @@ L1EmParticle::L1EmParticle()
 }
 
 L1EmParticle::L1EmParticle( const LorentzVector& p4,
-			    const L1Ref& aRef )
+			    const edm::Ref< L1GctEmCandCollection >& aRef )
 //   : ParticleKinematics( p4 ),
-   : L1PhysObjectBase( ( char ) 0, p4, aRef )
+   : LeafCandidate( ( char ) 0, p4 ),
+     ref_( aRef )
 {
-   if( triggerObjectRef().isNonnull() )
+   if( ref_.isNonnull() )
    {
       type_ = gctEmCand()->isolated() ? kIsolated : kNonIsolated ;
    }
@@ -47,8 +47,10 @@ L1EmParticle::L1EmParticle( const LorentzVector& p4,
 
 L1EmParticle::L1EmParticle( const LorentzVector& p4,
 			    EmType type )
-   : L1PhysObjectBase( ( char ) 0, p4, L1Ref() ),
-     type_( type )
+   : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
+     ref_( edm::Ref< L1GctEmCandCollection >() )
+     
 {
 }
 
@@ -76,12 +78,6 @@ L1EmParticle::~L1EmParticle()
 //
 // member functions
 //
-
-const L1GctEmCand*
-L1EmParticle::gctEmCand() const
-{
-   return dynamic_cast< const L1GctEmCand* >( triggerObjectPtr() ) ;
-}
 
 //
 // const member functions

@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.6 2006/08/04 03:30:47 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.7 2006/08/06 15:32:26 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.7  2006/08/06 15:32:26  wsun
+// Added comment.
+//
 // Revision 1.6  2006/08/04 03:30:47  wsun
 // Separated tau/jet bookkeeping, added static function objectTypeIsGlobal().
 //
@@ -173,7 +176,7 @@ namespace l1extra {
 // 	 const reco::ParticleKinematics* particleInCombo(
 // 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
-	 const L1PhysObjectBase* physObjectInCombo(
+	 const reco::LeafCandidate* candidateInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1EmParticle* emParticleInCombo(
@@ -198,8 +201,8 @@ namespace l1extra {
 // 	    const L1IndexCombo& aCombo ) const ;
 
 	 // For a given particle combination, convert all the particles to
-	 // L1PhysObjectBase pointers.
-	 std::vector< const L1PhysObjectBase* > physObjectCombo(
+	 // reco::LeafCandidate pointers.
+	 std::vector< const reco::LeafCandidate* > candidateCombo(
 	    const L1IndexCombo& aCombo ) const ;
 
 	 // ---------- static member functions --------------------

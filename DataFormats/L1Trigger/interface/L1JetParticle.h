@@ -16,21 +16,22 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.3 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1JetParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 // forward declarations
-class L1GctJetCand ;
 
 namespace l1extra {
 
-   class L1JetParticle : public L1PhysObjectBase
+   class L1JetParticle : public reco::LeafCandidate
    {
 
       public:
@@ -46,7 +47,7 @@ namespace l1extra {
 	 L1JetParticle();
 
 	 L1JetParticle( const LorentzVector& p4,
-			const L1Ref& aRef ) ;
+			const edm::Ref< L1GctJetCandCollection >& aRef ) ;
 
          // Creates null Ref.
          L1JetParticle( const LorentzVector& p4,
@@ -55,10 +56,14 @@ namespace l1extra {
 	 virtual ~L1JetParticle();
 
 	 // ---------- const member functions ---------------------
-	 const L1GctJetCand* gctJetCand() const ;
-
          JetType type() const
          { return type_ ; }
+
+	 const edm::Ref< L1GctJetCandCollection >& gctJetCandRef() const
+	 { return ref_ ; }
+
+	 const L1GctJetCand* gctJetCand() const
+	 { return ref_.get() ; }
 
 	 // ---------- static member functions --------------------
 
@@ -73,6 +78,7 @@ namespace l1extra {
 
 	 // ---------- member data --------------------------------
          JetType type_ ;
+	 edm::Ref< L1GctJetCandCollection > ref_ ;
    };
 }
 

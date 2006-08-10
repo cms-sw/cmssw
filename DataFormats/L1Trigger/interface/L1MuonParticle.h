@@ -16,21 +16,22 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.3 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1PhysObjectBase.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 // forward declarations
-class L1MuGMTCand ;
 
 namespace l1extra {
 
-   class L1MuonParticle : public L1PhysObjectBase
+   class L1MuonParticle : public reco::LeafCandidate
    {
 
       public:
@@ -38,7 +39,7 @@ namespace l1extra {
 
 	 L1MuonParticle( Charge q,
 			 const LorentzVector& p4,
-			 const L1Ref& aRef ) ;
+			 const edm::Ref< std::vector< L1MuGMTCand> >& aRef ) ;
 
          // Creates null Ref.
          L1MuonParticle( Charge q,
@@ -49,13 +50,17 @@ namespace l1extra {
 	 virtual ~L1MuonParticle();
 
 	 // ---------- const member functions ---------------------
-	 const L1MuGMTCand* gmtMuonCand() const ;
-
          bool isIsolated() const
          { return isolated_ ; }
 
          bool isMip() const
          { return mip_ ; }
+
+	 const edm::Ref< std::vector< L1MuGMTCand> >& gmtMuonCandRef() const
+	 { return ref_ ; }
+
+	 const L1MuGMTCand* gmtMuonCand() const
+	 { return ref_.get() ; }
 
 	 // ---------- static member functions --------------------
 
@@ -74,6 +79,7 @@ namespace l1extra {
 	 // ---------- member data --------------------------------
          bool isolated_ ;
          bool mip_ ;
+	 edm::Ref< std::vector< L1MuGMTCand> > ref_ ;
    };
 }
 

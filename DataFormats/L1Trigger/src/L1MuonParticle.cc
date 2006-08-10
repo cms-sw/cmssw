@@ -8,14 +8,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1MuonParticle.cc,v 1.1 2006/07/26 00:05:40 wsun Exp $
+// $Id: L1MuonParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 using namespace l1extra ;
 
@@ -34,13 +33,15 @@ L1MuonParticle::L1MuonParticle()
 {
 }
 
-L1MuonParticle::L1MuonParticle( Charge q,
-				const LorentzVector& p4,
-				const L1Ref& aRef )
+L1MuonParticle::L1MuonParticle(
+   Charge q,
+   const LorentzVector& p4,
+   const edm::Ref< std::vector< L1MuGMTCand> >& aRef )
 //   : ParticleWithCharge( q, p4 ),
-   : L1PhysObjectBase( q, p4, aRef )
+   : LeafCandidate( q, p4 ),
+     ref_( aRef )
 {
-   if( triggerObjectRef().isNonnull() )
+   if( ref_.isNonnull() )
    {
       isolated_ = gmtMuonCand()->isol() ;
       mip_ = gmtMuonCand()->mip() ;
@@ -51,9 +52,10 @@ L1MuonParticle::L1MuonParticle( Charge q,
 				const LorentzVector& p4,
 				bool isolated,
 				bool mip )
-   : L1PhysObjectBase( q, p4, L1Ref() ),
+   : LeafCandidate( q, p4 ),
      isolated_( isolated ),
-     mip_( mip )
+     mip_( mip ),
+     ref_( edm::Ref< std::vector< L1MuGMTCand> >() )
 {
 }
 
@@ -81,12 +83,6 @@ L1MuonParticle::~L1MuonParticle()
 //
 // member functions
 //
-
-const L1MuGMTCand*
-L1MuonParticle::gmtMuonCand() const
-{
-   return dynamic_cast< const L1MuGMTCand* >( triggerObjectPtr() ) ;
-}
 
 //
 // const member functions

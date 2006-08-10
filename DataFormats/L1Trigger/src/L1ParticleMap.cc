@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.3 2006/08/02 20:48:56 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.4 2006/08/04 03:30:48 wsun Exp $
 //
 
 // system include files
@@ -222,36 +222,36 @@ L1ParticleMap::indexCombos() const
 //    }
 // }
 
-const L1PhysObjectBase*
-L1ParticleMap::physObjectInCombo( int aIndexInCombo,
-				  const L1IndexCombo& aCombo ) const
+const reco::LeafCandidate*
+L1ParticleMap::candidateInCombo( int aIndexInCombo,
+				 const L1IndexCombo& aCombo ) const
 {
    L1ObjectType type = objectTypes_[ aIndexInCombo ] ;
    int particleInList = aCombo[ aIndexInCombo ] ;
 
    if( type == kEM )
    {
-      return dynamic_cast< const L1PhysObjectBase* >(
+      return dynamic_cast< const reco::LeafCandidate* >(
 	 emParticles_[ particleInList ].get() ) ;
    }
    else if( type == kJet )
    {
-      return dynamic_cast< const L1PhysObjectBase* >(
+      return dynamic_cast< const reco::LeafCandidate* >(
 	 jetParticles_[ particleInList ].get() ) ;
    }
    else if( type == kTau )
    {
-      return dynamic_cast< const L1PhysObjectBase* >(
+      return dynamic_cast< const reco::LeafCandidate* >(
 	 tauParticles_[ particleInList ].get() ) ;
    }
    else if( type == kMuon )
    {
-      return dynamic_cast< const L1PhysObjectBase* >(
+      return dynamic_cast< const reco::LeafCandidate* >(
 	 muonParticles_[ particleInList ].get() ) ;
    }
    else if( type == kEtMiss || type == kEtTotal || type == kEtHad )
    {
-      return dynamic_cast< const L1PhysObjectBase* >(
+      return dynamic_cast< const reco::LeafCandidate* >(
 	 etMissParticle_.get() ) ;
    }
    else
@@ -357,14 +357,14 @@ L1ParticleMap::etMissParticleInCombo( int aIndexInCombo,
 //    return tmp ;
 // }
 
-std::vector< const L1PhysObjectBase* >
-L1ParticleMap::physObjectCombo( const L1IndexCombo& aCombo ) const
+std::vector< const reco::LeafCandidate* >
+L1ParticleMap::candidateCombo( const L1IndexCombo& aCombo ) const
 {
-   std::vector< const L1PhysObjectBase* > tmp ;
+   std::vector< const reco::LeafCandidate* > tmp ;
 
    for( int i = 0 ; i < numOfObjects() ; ++i )
    {
-      tmp.push_back( physObjectInCombo( i, aCombo ) ) ;
+      tmp.push_back( candidateInCombo( i, aCombo ) ) ;
    }
 
    return tmp ;
