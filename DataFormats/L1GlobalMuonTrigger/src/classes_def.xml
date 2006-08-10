@@ -4,6 +4,7 @@
  <class name="edm::Wrapper<std::vector<L1MuRegionalCand> >"/>
  <class name="L1MuGMTCand"/>
  <class name="std::vector<L1MuGMTCand>"/>
+ <class name="edm::Ref<std::vector<L1MuGMTCand>,L1MuGMTCand,edm::refhelper::FindUsingAdvance<std::vector<L1MuGMTCand>,L1MuGMTCand>>"/>
  <class name="edm::Wrapper<std::vector<L1MuGMTCand> >"/>
  <class name="L1MuGMTExtendedCand"/>
  <class name="L1MuGMTReadoutRecord"/>
