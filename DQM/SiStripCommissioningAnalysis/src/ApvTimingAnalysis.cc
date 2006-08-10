@@ -1,9 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
-#include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -22,7 +20,7 @@ void ApvTimingAnalysis::analysis( const TProfile* const histo,
 }
 
 // ----------------------------------------------------------------------------
-// temporarily is wrapping orginal analysis() method
+// 
 void ApvTimingAnalysis::Monitorables::print( stringstream& ss ) { 
   ss << " PLL coarse/fine delays:  " 
      << coarse_ << "/" 

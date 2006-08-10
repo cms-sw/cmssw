@@ -3,7 +3,6 @@
 
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include <boost/cstdint.hpp>
-#include <sstream>
 #include <vector>
 
 class TProfile;
@@ -23,7 +22,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 
   /** Simple container class that holds various parameter values that
       are extracted from the "tick mark" histogram by the analysis. */
-  class Monitorables {
+  class Monitorables : public CommissioningAnalysis::Monitorables {
   public:
     uint16_t coarse_; // PLL coarse delay setting
     uint16_t fine_;   // PLL fine delay setting

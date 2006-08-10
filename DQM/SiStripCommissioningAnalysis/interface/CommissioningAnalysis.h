@@ -1,6 +1,8 @@
 #ifndef DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 #define DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 
+#include <sstream>
+
 /**
    @file : DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h
    @class : CommissioningAnalysis
@@ -16,6 +18,15 @@ class CommissioningAnalysis {
   CommissioningAnalysis() {;}
   /** Destructor */
   virtual ~CommissioningAnalysis() {;}
+  
+  /** Abstract base class for holding various parameter values that
+      are extracted from the appropriate histogram analysis. */
+  class Monitorables  {
+  public:
+    Monitorables() {;}
+    virtual ~Monitorables() {;}
+    virtual void print( std::stringstream& ) {;}
+  };
   
 };
 
