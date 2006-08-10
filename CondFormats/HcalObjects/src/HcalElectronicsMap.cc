@@ -3,13 +3,14 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/06/30 22:23:40 $
-$Revision: 1.7 $
+$Date: 2006/07/29 00:21:33 $
+$Revision: 1.8 $
 */
 
 #include <iostream>
 #include <set>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalGenericDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
@@ -34,7 +35,8 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId,
     while (! (item == mItems.end() || (!less (*item,target) && !less (target, *item)))) item++;
     //    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
   }
-  if (item == mItems.end() || item->mId != fId) return 0;
+  if (item == mItems.end() || item->mId != fId) 
+    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
   return &*item;
 }
 
@@ -50,7 +52,8 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fE
     Item::LessByElId less;
     while (! (item == mItems.end() || ( !less (*item,target) && !less (target, *item)))) item++;
   }
-  if (item == mItems.end() || item->mElId != fElId) return 0;
+  if (item == mItems.end() || item->mElId != fElId)
+    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for e-cell " << fElId;
   return &*item;
 }
 
@@ -66,7 +69,8 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long 
     Item::LessByTrigId less;
     while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
   }
-  if (item == mItems.end() || item->mTrigId != fTrigId) return 0;
+  if (item == mItems.end() || item->mTrigId != fTrigId)
+    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for trig-cell " << fTrigId;
   return &*item;
 }
 
