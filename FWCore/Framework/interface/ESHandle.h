@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.6 2005/09/28 23:40:39 wmtan Exp $
+// $Id: ESHandle.h,v 1.7 2006/06/06 20:59:51 chrjones Exp $
 //
 
 // system include files
@@ -72,5 +72,13 @@ class ESHandle
       const edm::eventsetup::ComponentDescription* description_;
 };
 
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(ESHandle<T>& a, ESHandle<T>& b) 
+  {
+    a.swap(b);
+  }
 }
 #endif

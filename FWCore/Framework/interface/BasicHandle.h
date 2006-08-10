@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.9 2006/02/08 00:44:24 wmtan Exp $
+$Id: BasicHandle.h,v 1.10 2006/06/15 00:00:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -83,6 +83,14 @@ namespace edm {
     EDProduct const* wrap_;
     Provenance const* prov_;    
   };
+
+  // Free swap function
+  inline
+  void
+  swap(BasicHandle& a, BasicHandle& b) 
+  {
+    a.swap(b);
+  }
 }
 
 #endif

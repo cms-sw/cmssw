@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:03 EST 2005
-// $Id: DataKey.h,v 1.4 2005/09/01 05:43:26 wmtan Exp $
+// $Id: DataKey.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@ namespace edm {
 class DataKey
 {
 
+   friend void swap(DataKey&, DataKey&);
    public:
    enum DoNotCopyMemory { kDoNotCopyMemory };
    
@@ -89,6 +90,13 @@ class DataKey
       bool ownMemory_;
 };
 
-   }
+    // Free swap function
+    inline
+    void
+    swap(DataKey& a, DataKey& b) 
+    {
+      a.swap(b);
+    }
+  }
 }
 #endif

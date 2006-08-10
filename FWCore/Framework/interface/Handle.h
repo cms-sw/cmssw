@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.16 2006/03/03 04:29:32 chrjones Exp $
+$Id: Handle.h,v 1.17 2006/06/15 00:00:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -105,9 +105,11 @@ namespace edm
   void
   Handle<T>::swap(Handle<T>& other)
   {
+    // use unqualified swap for user defined class
+    using std::swap;
     std::swap(prod_, other.prod_);
     std::swap(prov_, other.prov_);
-    std::swap(id_, other.id_);
+    swap(id_, other.id_);
   }
 
   template <class T>
@@ -166,6 +168,15 @@ namespace edm
   //------------------------------------------------------------
   // Non-member functions
   //
+
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(Handle<T>& a, Handle<T>& b) 
+  {
+    a.swap(b);
+  }
 
   // Convert from handle-to-EDProduct to handle-to-T
   template <class T>

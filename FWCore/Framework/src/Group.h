@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.12.2.1 2006/06/30 04:31:26 wmtan Exp $
+$Id: Group.h,v 1.13 2006/07/06 19:11:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -63,6 +63,14 @@ namespace edm {
     Provenance*          provenance_;
     bool                 accessible_;
   };
+
+  // Free swap function
+  inline
+  void
+  swap(Group& a, Group& b) 
+  {
+    a.swap(b);
+  }
 
   inline
   std::ostream&

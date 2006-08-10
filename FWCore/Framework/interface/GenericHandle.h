@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.2 2006/02/01 00:40:25 wmtan Exp $
+// $Id: GenericHandle.h,v 1.3 2006/03/31 00:28:55 chrjones Exp $
 //
 
 // system include files
@@ -95,10 +95,12 @@ public:
       
    void swap(Handle<GenericObject>& other)
    {
-      std::swap(type_, other.type_);
+      // use unqualified swap for user defined classes
+      using std::swap;
+      swap(type_, other.type_);
       std::swap(prod_, other.prod_);
-      std::swap(prov_, other.prov_);
-      std::swap(id_, other.id_);
+      swap(prov_, other.prov_);
+      swap(id_, other.id_);
    }
    
    
