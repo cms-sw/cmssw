@@ -1,8 +1,10 @@
 #ifndef DQM_SiStripCommon_SiStripHistoNamingScheme_H
 #define DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+//#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DQM/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 #include <string>
 

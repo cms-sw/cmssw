@@ -17,8 +17,9 @@ class ExtractTObject {
       MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me );
       if ( tnamed ) {
 	T* histo = ExtractTObject::extract( tnamed->operator->() );
-	if ( histo ) { return histo; }
-	else { return 0; }
+	if ( histo ) { 
+	  return histo; 
+	} else { return 0; }
       } else { return 0; }
     } else { return 0; }
   }
@@ -26,25 +27,11 @@ class ExtractTObject {
   static T* extract( TNamed* tnamed ) {
     if ( tnamed ) {
       T* histo = dynamic_cast<T*>( tnamed );
-      if ( histo ) { return histo; }
-      else { return 0; }
+      if ( histo ) { 
+	return histo; 
+      } else { return 0; }
     } else { return 0; }
   }
-    
-  //@@ should return ME* (and not give in arg list) and books internally, based on T
-/*   T* insert( MonitorElement* me, T* new_histo, std::string new_name = "" ) {  */
-/*     if ( me ) { */
-/*       MonitorElementT<TNamed>* tnamed = dynamic_cast< MonitorElementT<TNamed>* >( me ); */
-/*       if ( tnamed ) { */
-/* 	T* old_histo = dynamic_cast<T*>( tnamed->operator->() ); */
-/* 	if ( old_histo ) {  */
-/* 	  tnamed->insert( new_histo, new_name ); */
-/* 	  return tnamed->operator->();  */
-/* 	} */
-/* 	else { return 0; } */
-/*       } else { return 0; } */
-/*     } else { return 0; } */
-/*   } */
   
 };
 
