@@ -8,14 +8,16 @@
  */
 
 function get_conn_params() {
-  return array('user' => "__CHANGE_ME__",
-	       'pass' => "__CHANGE_ME__",
-	       'sid'  => "__CHANGE_ME__");
+  return array('user' => "cond01",
+	       'pass' => "oracond01",
+	       'sid'  => "ecalh4db");
 }
 
 function get_dqm_url($location, $run) {
   if ($location && $location == 'H4B') {
     $url = "http://pctorino1.cern.ch/html/";
+  } elseif ($location && $location == 'H2') {
+    $url = "http://pctorino2.cern.ch/html/";
   } else {
     $url = "http://lxcms201.cern.ch/html/";
   }
