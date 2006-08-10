@@ -12,8 +12,8 @@ namespace reco {
       /// default constructor
       TestMuon() { }
       /// constructor from fit parameters and error matrix
-      TestMuon( float chi2, unsigned short ndof, int found, int invalid, int lost,
-		const Parameters &, const Covariance & );
+      TestMuon( double chi2, double ndof,
+		 const ParameterVector & par, double pt, const CovarianceMatrix & cov );
       
       // define containers
       struct MuonEnergy {

@@ -1,10 +1,8 @@
 #include "TrackingTools/TrackAssociator/interface/TestMuon.h"
-
-using namespace std;
 using namespace reco;
 
-TestMuon::TestMuon( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	    const Parameters & p, const Covariance & c ) :
-  TrackBase( chi2, ndof, found, invalid, lost, p, c ) {
+TestMuon::TestMuon( double chi2, double ndof,
+		    const ParameterVector & par, double pt, const CovarianceMatrix & cov ) :
+  TrackBase( chi2, ndof, par, pt, cov ) 
+{
 }
-
