@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/08/07 16:36:58 $
- *  $Revision: 1.33 $
+ *  $Date: 2006/08/09 22:36:47 $
+ *  $Revision: 1.34 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -96,14 +96,16 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
   theUpdator = new MuonUpdatorAtVertex(updatorPSet);
 
-  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
-  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TTRHBuilder");
 
   theTrackMatcherChi2Cut = par.getParameter<double>("Chi2CutTrackMatcher");
+
+  //theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut);
+  theTrackMatcher = new GlobalMuonTrackMatcher(theTrackMatcherChi2Cut,&*theField,&*theUpdator);
+
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
   thePtCut = par.getParameter<double>("PtCut");
