@@ -62,6 +62,14 @@ namespace edm {
     mutable ProcessHistoryID id_;
   };
 
+  // Free swap function
+  inline
+  void
+  swap(ProcessHistory& a, ProcessHistory& b) 
+  {
+    a.swap(b);
+  }
+
   inline
   bool
   operator==(ProcessHistory const& a, ProcessHistory const& b) {

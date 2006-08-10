@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.2 2006/02/07 07:01:50 wmtan Exp $
+$Id: SortedCollection.h,v 1.3 2006/06/14 23:25:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -354,6 +354,14 @@ namespace edm {
     sort();
   }
 
+  // Free swap function
+  template <class T, class SORT>
+  inline
+  void
+  swap(SortedCollection<T,SORT>& a, SortedCollection<T,SORT>& b) 
+  {
+    a.swap(b);
+  }
 
   //----------------------------------------------------------------------
   //
@@ -394,6 +402,12 @@ namespace edm {
   {
     return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());    
   }
+
+  // has swap function
+  template <class T, class SORT>
+  struct has_swap<edm::SortedCollection<T,SORT> > {
+    static bool const value = true;
+  };
 }
 
 

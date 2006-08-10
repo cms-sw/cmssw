@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.2 2006/05/11 20:04:45 paterno Exp $
+$Id: traits.h,v 1.3 2006/08/07 23:44:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id: traits.h,v 1.2 2006/05/11 20:04:45 paterno Exp $
 #include <map>
 #include <set>
 #include <vector>
+#include <string>
 
 namespace edm
 {
@@ -120,6 +121,12 @@ namespace edm
 
   template <class T, class A>
   struct has_swap<std::vector<T,A> >
+  {
+    static bool const value = true;
+  };
+
+  template <>
+  struct has_swap<std::string>
   {
     static bool const value = true;
   };

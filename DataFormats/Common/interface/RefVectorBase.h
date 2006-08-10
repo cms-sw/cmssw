@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.5 2006/06/12 22:32:16 wmtan Exp $
+$Id: RefVectorBase.h,v 1.6 2006/06/14 23:26:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -67,23 +67,38 @@ namespace edm {
       product_ = RefCore();
     }
 
+    /// swap two vectors
+    void swap(RefVectorBase<T> & other) {
+      std::swap(product_, other.product_);
+      items_.swap(other.items_);
+    }
+
   private:
     RefCore product_;
     RefItems items_;
   };
 
   /// Equality operator
-  template< typename T>
+  template<typename T>
   bool
   operator==(RefVectorBase<T> const& lhs, RefVectorBase<T> const& rhs) {
     return lhs.product() == rhs.product() && lhs.items() == rhs.items();
   }
 
   /// Inequality operator
-  template< typename T>
+  template<typename T>
   bool
   operator!=(RefVectorBase<T> const& lhs, RefVectorBase<T> const& rhs) {
     return !(lhs == rhs);
   }
+
+  /// swap two vectors
+  template<typename T>
+  inline
+  void
+  swap(RefVectorBase<T> & a, RefVectorBase<T> & b) {
+    a.swap(b);
+  }
+
 }
 #endif

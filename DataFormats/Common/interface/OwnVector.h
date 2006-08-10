@@ -1,8 +1,9 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.5 2006/05/18 06:15:39 llista Exp $
+// $Id: OwnVector.h,v 1.6 2006/05/24 10:31:03 llista Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
+#include "DataFormats/Common/interface/traits.h"
 #include <algorithm>
 #include <functional>
 
@@ -105,6 +106,8 @@ namespace edm {
       template<typename S> 
       void sort( S s );
       void sort();
+
+      void swap(OwnVector<T, P> & other);
       
     private:
       void destroy();
@@ -232,6 +235,21 @@ namespace edm {
     std::sort( data_.begin(), data_.end(), ordering( std::less<value_type>() ) );
   }
 
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::swap(OwnVector<T, P>& other) {
+    data_.swap(other.data_);
+  }
+    
+  template<typename T, typename P>
+  inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) {
+    a.swap(b);
+  }
+
+  /// has swap function
+  template<typename T, typename P>
+  struct has_swap<edm::OwnVector<T,P> > {
+    static bool const value = true;
+  };
 }
 
 #endif

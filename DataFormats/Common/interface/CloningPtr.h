@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id$
+// $Id: CloningPtr.h,v 1.1 2006/04/04 01:54:51 chrjones Exp $
 //
 
 // system include files
@@ -57,5 +57,14 @@ public:
 private:
     T* ptr_;
   };
+
+  // Free swap function
+  template <class T, class P>
+  inline
+  void
+  swap(CloningPtr<T,P>& a, CloningPtr<T,P>& b) 
+  {
+    a.swap(b);
+  }
 }
 #endif

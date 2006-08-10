@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.1 2006/03/30 20:46:58 chrjones Exp $
+$Id: DetSetRefVector.h,v 1.2 2006/06/14 23:42:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -234,6 +234,21 @@ namespace edm {
   {
     return sets_.end();
   }
+
+  // Free swap function
+  template <class T, class C>
+  inline
+  void
+  swap(DetSetRefVector<T,C>& a, DetSetRefVector<T,C>& b) 
+  {
+    a.swap(b);
+  }
+
+  // Has swap function
+  template <class T, class C>
+  struct has_swap<edm::DetSetRefVector<T,C> > {
+    static bool const value = true;
+  };
 
 
 //specialize behavior of edm::Ref to get access to the 'Det'

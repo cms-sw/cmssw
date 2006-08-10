@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.6 2006/05/19 18:56:12 paterno Exp $
+$Id: DetSetVector.h,v 1.7 2006/06/01 20:29:01 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -362,6 +362,22 @@ namespace edm {
   DetSetVector<T>::_sort() {
     std::sort(_sets.begin(), _sets.end());
   }
+
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(DetSetVector<T>& a, DetSetVector<T>& b) 
+  {
+    a.swap(b);
+  }
+
+  // has swap function
+  template <class T>
+  struct has_swap<edm::DetSetVector<T> > {
+    static bool const value = true;
+  };
+
 }
 
 

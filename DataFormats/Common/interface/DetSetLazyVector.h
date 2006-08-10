@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.2 2006/03/03 17:10:39 chrjones Exp $
+$Id: DetSetLazyVector.h,v 1.1 2006/03/30 20:46:58 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -250,6 +250,20 @@ private:
     return boost::make_transform_iterator(sets_.end(),adapter);
   }
 
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(DetSetLazyVector<T>& a, DetSetLazyVector<T>& b) 
+  {
+    a.swap(b);
+  }
+
+  // has swap function
+  template <class T>
+  struct has_swap<edm::DetSetLazyVector<T> > {
+    static bool const value = true;
+  };
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 

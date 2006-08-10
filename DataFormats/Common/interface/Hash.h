@@ -10,7 +10,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
+$Id: Hash.h,v 1.3 2006/07/28 16:59:31 chrjones Exp $
 ----------------------------------------------------------------------*/
 namespace edm {
   template <int I>
@@ -34,7 +34,6 @@ namespace edm {
     bool operator< (Hash<I> const& other) const 
     { return hash_ < other.hash_; }
 
-
     bool operator> (Hash<I> const& other) const 
     { return other.hash_ < hash_; }
 
@@ -47,13 +46,22 @@ namespace edm {
     std::ostream& print(std::ostream& os) const
     { return os << hash_; }
     
-    void swap( Hash<I>& other) {
-      std::swap( hash_, other.hash_);
+    void swap(Hash<I>& other) {
+      std::swap(hash_, other.hash_);
     }
     
   private:
     value_type hash_;
   };
+
+  // Free swap function
+  template <int I>
+  inline
+  void
+  swap(Hash<I>& a, Hash<I>& b) 
+  {
+    a.swap(b);
+  }
 
   template <int I>
   inline

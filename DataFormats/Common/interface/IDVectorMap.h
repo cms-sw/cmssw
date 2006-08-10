@@ -1,7 +1,8 @@
 #ifndef Common_IDVectorMap_h
 #define Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.6 2006/02/15 10:01:41 llista Exp $
+// $Id: IDVectorMap.h,v 1.1 2006/02/15 11:57:17 llista Exp $
 #include <map>
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
 
@@ -162,11 +163,33 @@ namespace edm {
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
     id_iterator id_end() const { return id_iterator( map_.end() ); }
     size_t id_size() const { return map_.size(); }
+    void swap ( IDVectorMap<ID, C, P> & other );
   private:
     C collection_;
     map map_;
   };
   
+  template <typename ID, typename C, typename P>
+  inline
+  void
+  IDVectorMap<ID, C, P>::swap( IDVectorMap<ID, C, P> & other ) {
+    swap(collection_, other.collection_);
+    map_.swap(other.map_);
+  }
+
+  template <typename ID, typename C, typename P>
+  inline
+  void
+  swap( IDVectorMap<ID, C, P> & a, IDVectorMap<ID, C, P> & b ) {
+    a.swap(b);
+  }
+
+  // has swap function
+  template <typename ID, typename C, typename P>
+  struct has_swap<edm::IDVectorMap<ID, C, P> > {
+    static bool const value = true;
+  };
+
 }
 
 #endif

@@ -8,12 +8,13 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: DetSet.h,v 1.3 2006/06/05 13:25:47 llista Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/cstdint.hpp"
 #include <vector>
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
   typedef uint32_t det_id_type;
@@ -47,6 +48,7 @@ namespace edm {
     void reserve( size_t s ) { data.reserve( s ); }
     void push_back( const T & t ) { data.push_back( t ); }
     void clear() { data.clear(); }
+    void swap(DetSet<T> & other);
 
     det_id_type detId() const { return id; }
 
@@ -81,6 +83,26 @@ namespace edm {
     return x < y.detId();
   }
 
+  template <class T>
+  inline
+  void
+  DetSet<T>::swap( DetSet<T> & other ) {
+    data.swap(other.data);
+    std::swap(id, other.id);
+  }
+
+  template <class T>
+  inline
+  void
+  swap( DetSet<T> & a, DetSet<T> & b ) {
+    a.swap(b);
+  }
+
+  //has swap function
+  template <class T>
+  struct has_swap<edm::DetSet<T> > {
+    static bool const value = true;
+  };
 } // namespace edm;
 
 #endif

@@ -6,11 +6,13 @@
 EDCollection: A collection of homogeneous objects that can be used for an EDProduct,
 or as a base class for an EDProduct.
 
-$Id: EDCollection.h,v 1.6 2005/09/07 21:12:12 wmtan Exp $
+$Id: EDCollection.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
+
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
   template <class T>
@@ -154,6 +156,20 @@ namespace edm {
   EDCollection<T>::end() const {
     return obj.end();
   }
+
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(EDCollection<T>& a, EDCollection<T>& b) 
+  {
+    a.swap(b);
+  }
+
+  template <class T>
+  struct has_swap<edm::EDCollection<T> > {
+    static bool const value = true;
+  };
 }
 
 #endif

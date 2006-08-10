@@ -1,6 +1,8 @@
 #ifndef Common_ext_collection_h
 #define Common_ext_collection_h
 
+#include "DataFormats/Common/interface/traits.h"
+
 namespace edm {
 
   template<typename C, typename Ext>
@@ -32,6 +34,7 @@ namespace edm {
     void reserve( size_type );
     void push_back( const value_type & );  
     void clear();
+    void swap(ExtCollection<C, Ext> & other);
     Ext & ext() { return ext_; }
     const Ext & ext() const { return ext_; }
   private:
@@ -118,6 +121,23 @@ namespace edm {
     data_.clear();
     ext_ = Ext();
   }
+
+  template<typename C, typename Ext>
+  inline void ExtCollection<C, Ext>::swap( ExtCollection<C, Ext> & other ) {
+    swap(data_, other.data_);
+    swap(ext_, other.ext_);
+  }
+
+  template<typename C, typename Ext>
+  inline void swap( ExtCollection<C, Ext> & a, ExtCollection<C, Ext> & b ) {
+    a.swap(b);
+  }
+
+  // has swap function
+  template<typename C, typename Ext>
+  struct has_swap<edm::ExtCollection<C, Ext> > {
+    static bool const value = true;
+  };
 
 }
 

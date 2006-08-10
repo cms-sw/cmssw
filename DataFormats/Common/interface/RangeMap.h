@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.25 $
  *
- * $Id: RangeMap.h,v 1.23 2006/04/03 09:18:24 tboccali Exp $
+ * $Id: RangeMap.h,v 1.25 2006/06/14 11:42:36 llista Exp $
  *
  */
 #include <map>
@@ -182,6 +182,9 @@ namespace edm {
     /// direct access to an object in the collection
     reference operator[]( size_type i ) { return collection_[ i ]; }
 
+    /// swap member function
+    void swap( RangeMap<ID, C, P> & other );
+
   private:
     /// stored collection
     C collection_;
@@ -189,7 +192,28 @@ namespace edm {
     mapType map_;
   };
   
-  /// has port insert function
+  template <typename ID, typename C, typename P>
+  inline
+  void
+  RangeMap<ID, C, P>::swap( RangeMap<ID, C, P> & other ) {
+    swap(collection_, other.collection_);
+    map_.swap(other.map_);
+  }
+
+  template <typename ID, typename C, typename P>
+  inline
+  void
+  swap( RangeMap<ID, C, P> & a, RangeMap<ID, C, P> & b ) {
+    a.swap(b);
+  }
+
+  /// has swap function
+  template<typename  ID, typename C, typename P > 
+  struct has_swap<edm::RangeMap<ID,C,P> > {
+    static bool const value = true;
+  };
+
+  /// has post insert trait
   template<typename  ID, typename C, typename P > 
   struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> >  { 
     static bool const value = true; 

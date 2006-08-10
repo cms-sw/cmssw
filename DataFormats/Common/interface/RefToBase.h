@@ -16,7 +16,7 @@ within the edm::Event where those objects are only related by a base class, T.
 \code
    edm::Ref<Foo> foo(...);
    std::vector<edm::RefToBase<Bar> > bars;
-   bars.push_back( edm::RefToBase<Bar>( foo ) );
+   bars.push_back(edm::RefToBase<Bar>(foo));
 \endcode
 
   Cast to concrete type can be done via the castTo<TRef> 
@@ -28,7 +28,7 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.3 2006/06/21 17:56:08 chrjones Exp $
+// $Id: RefToBase.h,v 1.6 2006/08/03 13:07:00 llista Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ namespace edm {
       template <class TRef>
       explicit RefToBase(const TRef& iRef) : holder_(new reftobase::Holder<T,TRef>(iRef)) {}
       RefToBase(const RefToBase<T>& iOther): 
-       holder_( (0==iOther.holder_) ? static_cast<reftobase::BaseHolder<T>*>(0) : iOther.holder_->clone() ) {
+       holder_((0==iOther.holder_) ? static_cast<reftobase::BaseHolder<T>*>(0) : iOther.holder_->clone()) {
       }
       const RefToBase& operator=(const RefToBase<T>& iRHS) {
         RefToBase<T> temp(iRHS);
@@ -97,8 +97,8 @@ namespace edm {
       template<typename TRef>
       TRef castTo() const {
 	typedef reftobase::Holder<T,TRef> Holder;
-	const Holder * h = dynamic_cast<Holder *>( holder_ );
-	if ( h == 0 ) {
+	const Holder * h = dynamic_cast<Holder *>(holder_);
+	if (h == 0) {
 	  throw edm::Exception(errors::InvalidReference) 
 	    << "trying to cast a RefToBase to the wrong type."
 	    << "Catch this exception in case you need to check"
@@ -117,7 +117,7 @@ namespace edm {
       bool operator!() const {return isNull();}
   
       // ---------- member functions ---------------------------
-      void swap( RefToBase<T>& iOther) {
+      void swap(RefToBase<T>& iOther) {
         std::swap(holder_, iOther.holder_);
       }
   
@@ -132,5 +132,13 @@ namespace edm {
       reftobase::BaseHolder<T>* holder_;
 };
 
+  // Free swap function
+  template <class T>
+  inline
+  void
+  swap(RefToBase<T>& a, RefToBase<T>& b) 
+  {
+    a.swap(b);
+  }
 }
 #endif
