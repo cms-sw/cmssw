@@ -60,7 +60,7 @@ class IslandClusterAlgo
     }
 
   // this is the method that will start the clusterisation
-  std::vector<reco::BasicCluster> makeClusters(RecHitsMap *the_rechitsMap_p,
+  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection *the_rechitsMap_p,
 					       const CaloSubdetectorGeometry *geometry,
 					       const CaloSubdetectorTopology *topology_p,
 					       EcalPart ecalPart);
@@ -75,7 +75,7 @@ class IslandClusterAlgo
   double ecalEndcapSeedThreshold;
   
   // The map of hits
-  RecHitsMap *rechitsMap_p;
+  const EcalRecHitCollection *rechitsMap_p;
 
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
@@ -99,7 +99,7 @@ class IslandClusterAlgo
   void searchWest (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
   void searchEast (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
 
-  bool shouldBeAdded(RecHitsMap::iterator candidate_it, RecHitsMap::iterator previous_it);
+  bool shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it);
 
   void makeCluster();
 

@@ -7,7 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.5 2006/06/06 17:26:11 rahatlou Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.6 2006/06/09 18:31:05 askew Exp $
  *
  */
 
@@ -18,6 +18,7 @@
 
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -27,7 +28,7 @@ class ClusterShapeAlgo
 {
 
  public:
-  static void Initialize(const std::map<DetId,EcalRecHit> *passedRecHitsMap,
+  static void Initialize(const EcalRecHitCollection *passedRecHitsMap,
 			 const edm::ESHandle<CaloGeometry> *geoHandle);
   static reco::ClusterShape Calculate(reco::BasicCluster passedCluster );
  
@@ -45,7 +46,7 @@ class ClusterShapeAlgo
   void Calculate_Covariances();
   
   static const edm::ESHandle<CaloGeometry> *storedGeoHandle_;
-  static const std::map<DetId,EcalRecHit> *storedRecHitsMap_;
+  static const EcalRecHitCollection *storedRecHitsMap_;
 
   std::pair<DetId, double> energyMap_[5][5];
 

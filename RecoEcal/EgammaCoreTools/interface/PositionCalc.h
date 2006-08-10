@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.3 2006/06/06 16:59:34 tkolberg Exp $
+ * \version $Id: PositionCalc.h,v 1.4 2006/06/09 18:32:28 askew Exp $
  *
  */
 
@@ -16,6 +16,7 @@
 #include <map>
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -27,7 +28,7 @@ class PositionCalc
   // covariances.
 
   static void Initialize(std::map<std::string,double> providedParameters,
-                         const std::map<DetId,EcalRecHit> *passedRecHitsMap,
+                         const EcalRecHitCollection *passedRecHitsMap,
                          const CaloSubdetectorGeometry *passedGeometry);  
 
   // Calculate_Location calculates an arithmetically or logarithmically
@@ -50,7 +51,7 @@ class PositionCalc
   static Double32_t  param_X0_;
   static Double32_t  param_T0_;
   static Double32_t  param_W0_;
-  static const std::map<DetId,EcalRecHit> *storedRecHitsMap_;
+  static const EcalRecHitCollection  *storedRecHitsMap_;
   static const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 
 };

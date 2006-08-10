@@ -62,7 +62,6 @@ class IslandClusterProducer : public edm::EDProducer
                                                  const std::string& hitProducer_,
                                                  const std::string& hitCollection_);
 
-      void makeRecHitsMap(std::map<DetId, EcalRecHit> &rechits_m, const EcalRecHitCollection *hitCollection);
 
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 			      const std::string& hitProducer,

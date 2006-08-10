@@ -25,7 +25,7 @@ class HybridClusterAlgo
   typedef math::XYZPoint Point;
 
   //Thresholds for seeds.
-  double eb_st, ec_st;
+  double eb_st;
 
   //Number of steps in phi that the Hybrid algorithm will take
   //when clustering.  Remember, uses phi_steps in positive direction
@@ -35,15 +35,17 @@ class HybridClusterAlgo
   //Threshold for basic cluster.
   double Ethres;
 
-  //Threshold for adding the additional two 'wing' cells to domino. 
-  double Ewing;
-
   //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
 
+  //Threshold for adding the additional two 'wing' cells to domino. 
+  double Ewing;
+
   //Map of DetId, RecHit relationship.  EcalRecHit knows what DetId it is,
   //but DetId doesn't  know what EcalRecHit it is. 
-  std::map<DetId, EcalRecHit>  rechits_m;
+  //  std::map<DetId, EcalRecHit>  rechits_m;
+
+  const EcalRecHitCollection *rechits_m;
 
   //Set of DetIds that have already been used.
   std::set<DetId> useddetids;
@@ -66,19 +68,18 @@ class HybridClusterAlgo
 
   //The real constructor
   HybridClusterAlgo(double eb_str, 
-		    double ec_str, 
 		    int step, 
 		    double ethresh, 
-		    double ewing,
 		    double eseed,
-		    DebugLevel debugLevel = pINFO) : eb_st(eb_str), ec_st(ec_str), 
-    phi_steps(step), Ethres(ethresh), Ewing(ewing), Eseed(eseed), debugLevel_(debugLevel)
+		    double ewing,
+		    DebugLevel debugLevel = pINFO) : eb_st(eb_str), 
+    phi_steps(step), Ethres(ethresh), Eseed(eseed),  Ewing(ewing), debugLevel_(debugLevel)
   {
     
   }
   
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(std::map<DetId, EcalRecHit>, const CaloSubdetectorGeometry *, reco::BasicClusterCollection &basicClusters);
+  void makeClusters(const EcalRecHitCollection* , const CaloSubdetectorGeometry *, reco::BasicClusterCollection &basicClusters);
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(const reco::BasicClusterRefVector&);

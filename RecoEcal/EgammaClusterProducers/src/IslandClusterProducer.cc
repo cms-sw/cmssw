@@ -117,17 +117,6 @@ const EcalRecHitCollection * IslandClusterProducer::getCollection(edm::Event& ev
 }
 
 
-void IslandClusterProducer::makeRecHitsMap(std::map<DetId, EcalRecHit> &rechits_m, const EcalRecHitCollection *hitCollection)
-{
-  EcalRecHitCollection::const_iterator it;
-  for (it = hitCollection->begin(); it != hitCollection->end(); it++)
-    {
-      //Make the map of DetID, EcalRecHit pairs
-      rechits_m.insert(std::make_pair(it->id(), *it));    
-    }
-}
-
-
 void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                                                const std::string& hitProducer,
                                                const std::string& hitCollection,
@@ -136,10 +125,6 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 {
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
-
-  // make the map of rechits:
-  std::map<DetId, EcalRecHit> rechits_m;
-  makeRecHitsMap(rechits_m, hitCollection_p);
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -166,14 +151,14 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   providedParameters.insert(std::make_pair("X0",clustershape_x0));
   providedParameters.insert(std::make_pair("T0",clustershape_t0));
   providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, &rechits_m, geometry_p);
+  PositionCalc::Initialize(providedParameters, hitCollection_p, geometry_p);
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(&rechits_m, geometry_p, topology_p, ecalPart);
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, ecalPart);
 
   //Code added by A. Askew to calculate clustershapes.
-  ClusterShapeAlgo::Initialize(&rechits_m, &geoHandle);
+  ClusterShapeAlgo::Initialize(hitCollection_p, &geoHandle);
 
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;

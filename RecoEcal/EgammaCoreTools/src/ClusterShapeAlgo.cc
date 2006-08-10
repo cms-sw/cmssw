@@ -8,9 +8,9 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
 const edm::ESHandle<CaloGeometry> *ClusterShapeAlgo::storedGeoHandle_ = NULL;
-const std::map<DetId,EcalRecHit>  *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
+const EcalRecHitCollection  *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
 
-void ClusterShapeAlgo::Initialize(const std::map<DetId,EcalRecHit> *passedRecHitsMap,
+void ClusterShapeAlgo::Initialize(EcalRecHitCollection const *passedRecHitsMap,
 				  const edm::ESHandle<CaloGeometry> *geoHandle)
 {
   storedRecHitsMap_ = passedRecHitsMap;
@@ -57,8 +57,9 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
   {
     if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
     {
-      testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
-
+      EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+      testEcalRecHit = *itt;
+      
       if(testEcalRecHit.energy() > eMax)
 	{
 	  eMax = testEcalRecHit.energy();
@@ -66,7 +67,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
 	} 
     }
   }
- 
+  
   eMax_ = eMax;
   eMaxId_ = eMaxId;
 }
@@ -85,8 +86,9 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
   { 
     if ((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
     {
-      testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
-
+      EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+      testEcalRecHit = *itt;
+      
       if(testEcalRecHit.energy() > e2nd && testEcalRecHit.id() != eMaxId_)
 	{
 	  e2nd = testEcalRecHit.energy();
@@ -120,13 +122,14 @@ void ClusterShapeAlgo::Create_Map()
 
       if((*posCurrent != DetId(0)) && (storedRecHitsMap_->find(*posCurrent) != storedRecHitsMap_->end()))
       {
-	tempEcalRecHit = storedRecHitsMap_->find(posCurrent.pos())->second;
+	EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*posCurrent);
+	tempEcalRecHit = *itt;
 	energyMap_[y][x] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
       }
       else
 	energyMap_[y][x] = std::make_pair(DetId(0), 0);  
     }
-
+  
   /*
   //Prints map for testing purposes, remove in final. 
   std::cout << "\n\n\n";

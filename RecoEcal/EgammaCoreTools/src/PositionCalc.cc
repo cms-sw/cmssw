@@ -8,11 +8,11 @@ bool        PositionCalc::param_LogWeighted_;
 Double32_t  PositionCalc::param_X0_;
 Double32_t  PositionCalc::param_T0_; 
 Double32_t  PositionCalc::param_W0_;
-const std::map<DetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
+const EcalRecHitCollection *PositionCalc::storedRecHitsMap_ = NULL;
 const CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
 
 void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
-			      const std::map<DetId,EcalRecHit> *passedRecHitsMap,
+			      EcalRecHitCollection const *passedRecHitsMap,
 			      const CaloSubdetectorGeometry *passedGeometry) 
 {
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
@@ -53,7 +53,9 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   double eTot = 0;
 
   DetId maxId_ = (*(passedDetIds.begin()));
-  double eMax = ((storedRecHitsMap_->find(maxId_))->second).energy();
+  EcalRecHitCollection::const_iterator itm = storedRecHitsMap_->find(maxId_);
+
+  double eMax = itm->energy();
 
   DetId id_;
   double e_i = 0;
@@ -61,7 +63,9 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   std::vector<DetId>::iterator i;
   for (i = passedDetIds.begin(); i !=  passedDetIds.end(); i++) {
     id_ = (*i);
-    e_i = ((storedRecHitsMap_->find(id_))->second).energy();
+    EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(id_);
+
+    e_i = itt->energy();
     if (e_i > eMax) {
       eMax = e_i;
       maxId_ = id_;
@@ -95,7 +99,8 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
   std::vector<DetId>::iterator j;
   for (j = passedDetIds.begin(); j != passedDetIds.end(); j++) {
     id_ = (*j);
-    double e_j = ((storedRecHitsMap_->find(id_))->second).energy();
+    EcalRecHitCollection::const_iterator itj = storedRecHitsMap_->find(id_);
+    double e_j = itj->energy();
 
     if (param_LogWeighted_) {
       weight = max(0., param_W0_ + log(e_j/eTot));
@@ -197,7 +202,8 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
   std::vector<DetId>::iterator n;
   
   for (n = passedDetIds.begin(); n != passedDetIds.end(); n++) {
-    eTot += ((storedRecHitsMap_->find((*n)))->second).energy();
+    EcalRecHitCollection::const_iterator itt = storedRecHitsMap_->find(*n);
+    eTot += itt->energy();
   }
 
   // Main loop to calculate covariances
@@ -219,8 +225,8 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
 
       kEta = -log(tan(atan(sqrt(kX*kX+kY*kY)/kZ)*0.5));
       kPhi = atan2(kY,kX);
-
-      double e_k = ((storedRecHitsMap_->find((*k)))->second).energy();
+      EcalRecHitCollection::const_iterator itk = storedRecHitsMap_->find(*k);
+      double e_k = itk->energy();
     
       // Do the log weighting
 

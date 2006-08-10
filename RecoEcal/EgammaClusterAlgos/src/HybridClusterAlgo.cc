@@ -10,12 +10,11 @@
 #include <set>
 
 // Return a vector of clusters from a collection of EcalRecHits:
-void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap, 
+void HybridClusterAlgo::makeClusters(EcalRecHitCollection const *recColl, 
 				     CaloSubdetectorGeometry const *geometry,
 				     reco::BasicClusterCollection &basicClusters)
 {
-  //Initialize my map.
-  rechits_m.clear();
+
   //clear vector of seeds
   seeds.clear();
   //clear map of supercluster/basiccluster association
@@ -23,33 +22,33 @@ void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap,
   //clear set of used detids
   useddetids.clear();
 
-  //Pass in the map
-  rechits_m = CorrMap;
+  //Pass in a pointer to the collection.
+  rechits_m = recColl;
   
   if ( debugLevel_ == pDEBUG ) {
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
   }
 
-  std::map<DetId, EcalRecHit>::iterator it;
+  EcalRecHitCollection::const_iterator it;
 
-  for (it = CorrMap.begin(); it != CorrMap.end(); it++){
+  for (it = rechits_m->begin(); it != rechits_m->end(); it++){
     
     //Make the vector of seeds that we're going to use.
     //One of the few places position is used, needed for ET calculation.    
-    const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->first);
+    const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
     GlobalPoint position = this_cell->getPosition();
-   
-    float ET = it->second.energy() * sin(position.theta());
+    float ET = it->energy() * sin(position.theta());
+
     //Must pass seed threshold.
     if (ET > eb_st){
-      seeds.push_back(it->second);
+      seeds.push_back(*it);
       if ( debugLevel_ == pDEBUG ){
 	std::cout << "Seed ET: " << ET << std::endl;
-	std::cout << "Seed E: " << it->second.energy() << std::endl;
+	std::cout << "Seed E: " << it->energy() << std::endl;
       }
     }
   }
-  
+   
   //Yay sorting.
   if ( debugLevel_ == pDEBUG )
     std::cout << "Built vector of seeds, about to sort them...";
@@ -361,12 +360,12 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //Ready?  Get the starting cell.
   DetId center = navigator.pos();
-  std::map<DetId, EcalRecHit>::iterator center_it = rechits_m.find(center);
+  EcalRecHitCollection::const_iterator center_it = rechits_m->find(center);
   
-  if (center_it==rechits_m.end()) return 0; //Didn't find that ID.
-  EcalRecHit SeedHit = center_it->second;
-  if (useddetids.find(center_it->first) != useddetids.end()) return 0; //Already used that ID.  Terminate either way.
-
+  if (center_it==rechits_m->end()) return 0; //Didn't find that ID.
+  EcalRecHit SeedHit = *center_it;
+  if (useddetids.find(center) != useddetids.end()) return 0; //Already used that ID.  Terminate either way.
+ 
   Etot += SeedHit.energy();
   cells.push_back(SeedHit);
   //Mark cell as used.
@@ -374,9 +373,9 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //One step upwards in Ieta:
   DetId ieta1 = navigator.west();
-  std::map<DetId, EcalRecHit >::iterator eta1_it = rechits_m.find(ieta1);
-  if (eta1_it !=rechits_m.end()){
-    EcalRecHit UpEta = eta1_it->second;
+  EcalRecHitCollection::const_iterator eta1_it = rechits_m->find(ieta1);
+  if (eta1_it !=rechits_m->end()){
+    EcalRecHit UpEta = *eta1_it;
     if (useddetids.find(ieta1) == useddetids.end()){
       Etot+=UpEta.energy();
       cells.push_back(UpEta);
@@ -390,9 +389,9 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //One step downwards in Ieta:
   DetId ieta2 = navigator.east();
-  std::map<DetId, EcalRecHit >::iterator eta2_it = rechits_m.find(ieta2);
-  if (eta2_it !=rechits_m.end()){
-    EcalRecHit DownEta = eta2_it->second;
+  EcalRecHitCollection::const_iterator eta2_it = rechits_m->find(ieta2);
+  if (eta2_it !=rechits_m->end()){
+    EcalRecHit DownEta = *eta2_it;
     if (useddetids.find(ieta2)==useddetids.end()){
       Etot+=DownEta.energy();
       cells.push_back(DownEta);
@@ -407,11 +406,11 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //Add the extra 'wing' cells.  Remember, we haven't sent the navigator home,
   //we're still on the DownEta cell.
-  if (eta2_it !=rechits_m.end()){
+  if (eta2_it !=rechits_m->end()){
     DetId ieta3 = navigator.east(); //Take another step downward.
-    std::map<DetId, EcalRecHit >::iterator eta3_it = rechits_m.find(ieta3);
-    if (eta3_it != rechits_m.end()){
-      EcalRecHit DownEta2 = eta3_it->second;
+    EcalRecHitCollection::const_iterator eta3_it = rechits_m->find(ieta3);
+    if (eta3_it != rechits_m->end()){
+      EcalRecHit DownEta2 = *eta3_it;
       if (useddetids.find(ieta3)==useddetids.end()){
 	Etot+=DownEta2.energy();
 	cells.push_back(DownEta2);
@@ -424,12 +423,12 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   //Now send the navigator home.
   navigator.home();
   //Recall, eta1_it is the position incremented one time.
-  if (eta1_it !=rechits_m.end()){
+  if (eta1_it !=rechits_m->end()){
     navigator.west(); //Now you're on eta1_it
     DetId ieta4 = navigator.west(); //Take another step upward.
-    std::map<DetId, EcalRecHit>::iterator eta4_it = rechits_m.find(ieta4);
-    if (eta4_it != rechits_m.end()){
-      EcalRecHit UpEta2 = eta4_it->second;
+    EcalRecHitCollection::const_iterator eta4_it = rechits_m->find(ieta4);
+    if (eta4_it != rechits_m->end()){
+      EcalRecHit UpEta2 = *eta4_it;
       if (useddetids.find(ieta4) == useddetids.end()){
 	Etot+=UpEta2.energy();
 	cells.push_back(UpEta2);

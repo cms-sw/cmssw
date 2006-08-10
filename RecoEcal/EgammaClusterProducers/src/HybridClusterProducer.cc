@@ -42,11 +42,10 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   else if (debugString == "INFO")    debugL = HybridClusterAlgo::pINFO;
   else                               debugL = HybridClusterAlgo::pERROR;
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
-				   ps.getParameter<double>("HybridEndcapSeedThr"),
 				   ps.getParameter<int>("step"),
 				   ps.getParameter<double>("ethresh"),
-				   ps.getParameter<double>("ewing"),
 				   ps.getParameter<double>("eseed"),
+				   ps.getParameter<double>("ewing"),
 				   debugL);
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
@@ -58,7 +57,6 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   clustershape_t0 = ps.getParameter<double>("coretools_t0");
   clustershape_w0 = ps.getParameter<double>("coretools_w0");
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
-
 
   produces< reco::ClusterShapeCollection>(clustershapecollection_);
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
@@ -84,15 +82,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       return;
     }
-  EcalRecHitCollection hit_collection = *rhcHandle;
-
-  //Make map:
-  EcalRecHitCollection::iterator it;
-  std::map<DetId, EcalRecHit> CorrMap;
-  for (it = hit_collection.begin(); it != hit_collection.end(); it++){
-    //Make the map of DetID, EcalRecHit pairs
-    CorrMap.insert(std::make_pair(it->id(), *it));
-  }
+  const EcalRecHitCollection *hit_collection = rhcHandle.product();
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -114,13 +104,13 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   providedParameters.insert(std::make_pair("X0",clustershape_x0));
   providedParameters.insert(std::make_pair("T0",clustershape_t0));
   providedParameters.insert(std::make_pair("W0",clustershape_w0));
-  PositionCalc::Initialize(providedParameters, &CorrMap, &(*geometry_p));
-  ClusterShapeAlgo::Initialize(&CorrMap, &geoHandle);
+  PositionCalc::Initialize(providedParameters, hit_collection, &(*geometry_p));
+  ClusterShapeAlgo::Initialize(hit_collection, &geoHandle);
   //Done with setup
   
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(CorrMap, geometry_p, basicClusters);
+  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters);
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
