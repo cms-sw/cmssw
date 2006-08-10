@@ -26,6 +26,8 @@ namespace reco {
 
     TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
+    TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+
     TransientTrack( const TransientTrack & tt );
     
     TransientTrack& operator=(const TransientTrack & tt);
