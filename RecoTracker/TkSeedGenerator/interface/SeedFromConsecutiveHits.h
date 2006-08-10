@@ -56,8 +56,8 @@ class SeedFromConsecutiveHits{
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
-  TrajectoryMeasurement theInnerMeas;
-  TrajectoryMeasurement theOuterMeas;
+  //TrajectoryMeasurement theInnerMeas;
+  //TrajectoryMeasurement theOuterMeas;
 
   void construct( const TrackingRecHit* outerHit,
 		  const TrackingRecHit* innerHit,
