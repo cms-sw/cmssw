@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/07/20 16:55:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/10 09:25:35 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -34,12 +34,14 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
    photTag_ = iConfig.getParameter< edm::InputTag > ("photTag");
    elecTag_ = iConfig.getParameter< edm::InputTag > ("elecTag");
    muonTag_ = iConfig.getParameter< edm::InputTag > ("muonTag");
+   tausTag_ = iConfig.getParameter< edm::InputTag > ("tausTag");
    jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
    metsTag_ = iConfig.getParameter< edm::InputTag > ("metsTag");
 
    phot_pt_ = iConfig.getParameter< double > ("photPt");
    elec_pt_ = iConfig.getParameter< double > ("elecPt");
    muon_pt_ = iConfig.getParameter< double > ("muonPt");
+   taus_pt_ = iConfig.getParameter< double > ("tausPt");
    jets_pt_ = iConfig.getParameter< double > ("jetsPt");
    mets_pt_ = iConfig.getParameter< double > ("metsPt");
 
@@ -47,6 +49,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
      " g: " << photTag_.encode() << " " << phot_pt_ << 
      " e: " << elecTag_.encode() << " " << elec_pt_ << 
      " m: " << muonTag_.encode() << " " << muon_pt_ << 
+     " t: " << tausTag_.encode() << " " << taus_pt_ << 
      " j: " << jetsTag_.encode() << " " << jets_pt_ <<
      " M: " << metsTag_.encode() << " " << mets_pt_ ;
 
@@ -89,17 +92,19 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<PhotonCollection>   photons;
    Handle<ElectronCollection> electrons;
    Handle<MuonCollection>     muons;
+   Handle<CaloJetCollection>  taus;
    Handle<CaloJetCollection>  jets;
    Handle<CaloMETCollection>  mets;
 
    iEvent.getByLabel(photTag_,photons  );
    iEvent.getByLabel(elecTag_,electrons);
    iEvent.getByLabel(muonTag_,muons    );
+   iEvent.getByLabel(tausTag_,taus     );
    iEvent.getByLabel(jetsTag_,jets     );
    iEvent.getByLabel(metsTag_,mets     );
 
 
-   // look for at least one g,e,m,j,M above its pt cut
+   // look for at least one g,e,m,t,j,M above its pt cut
 
    // photons
    bool         bphot(false);
@@ -140,6 +145,19 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // taus (are stored as jets)
+   bool         btaus(false);
+   CaloJetCollection::const_iterator ataus(taus->begin());
+   CaloJetCollection::const_iterator otaus(taus->end());
+   CaloJetCollection::const_iterator itaus;
+   for (itaus=ataus; itaus!=otaus; itaus++) {
+     if (itaus->pt() >= taus_pt_) {
+       btaus=true;
+       ref=RefToBase<Candidate>(CaloJetRef(taus,distance(ataus,itaus)));
+       filterproduct->putParticle(ref);
+     }
+   }
+
    // jets
    bool         bjets(false);
    CaloJetCollection::const_iterator ajets(jets->begin());
@@ -168,7 +186,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // final filter decision:
-   bool accept (bphot && belec && bmuon && bjets && bmets);
+   bool accept (bphot && belec && bmuon && btaus && bjets && bmets);
 
 
    // All filters: put filter object into the Event

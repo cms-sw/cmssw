@@ -26,6 +26,7 @@ template HLTSinglet<reco::CaloMET>  ;
 typedef HLTSinglet<reco::Electron> HLT1Electron;
 typedef HLTSinglet<reco::Photon>   HLT1Photon;
 typedef HLTSinglet<reco::Muon>     HLT1Muon;
+typedef HLTSinglet<reco::CaloJet>  HLT1Tau;
 typedef HLTSinglet<reco::CaloJet>  HLT1CaloJet;
 typedef HLTSinglet<reco::CaloMET>  HLT1CaloMET;
 
@@ -54,6 +55,7 @@ DEFINE_ANOTHER_FWK_MODULE(HLTDoublet)
 DEFINE_ANOTHER_FWK_MODULE(HLT1Electron)
 DEFINE_ANOTHER_FWK_MODULE(HLT1Photon)
 DEFINE_ANOTHER_FWK_MODULE(HLT1Muon)
+DEFINE_ANOTHER_FWK_MODULE(HLT1Tau)
 DEFINE_ANOTHER_FWK_MODULE(HLT1CaloJet)
 DEFINE_ANOTHER_FWK_MODULE(HLT1CaloMET)
 
