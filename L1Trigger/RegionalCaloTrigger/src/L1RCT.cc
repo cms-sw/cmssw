@@ -189,7 +189,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       regionPhi = (iphi % 8)/4;
     }
     else {
-      iphi = (18 + 5 - iphi) % 18;           // transformation for HF, since HF regions have 18 phi bins still 0-17 ???
+      iphi = iphi/4 + 1;                     // needed since HF raw iphi 1,5,9, . . . 69
+      iphi = (18 + 5 - iphi) % 18;           // transformation for HF, since HF regions have 18 phi bins (-> rct_phi 0-17)
       regionPhi = iphi%2;
     }
 //     if (hcalCollection[i].SOI_compressedEt()>0) { 
