@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/10 17:09:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/10 17:31:14 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
@@ -92,14 +93,14 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of (single?) L1ParticleMapCollection
    Handle<L1ParticleMapCollection> l1pmch;
    iEvent.getByType(l1pmch);
-   if (l1pmch.isValid()) {
+   if (!l1pmch.isValid()) {
      iEvent.put(filterobject);
      LogDebug("") << "No L1ParticleMapCollection found!";
      return false;
    }
    const unsigned int m(l1pmch->size());
 
-   // check requested L1 triggers, and get index into L1ParticleMapCollection
+   // get index into L1ParticleMapCollection for requested L1 triggers
    const unsigned int n(L1SeedsByName_.size());
    vector<int> index(n);
    L1ParticleMap::L1TriggerType l1tt;
@@ -115,54 +116,132 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   // have all (and-mode) or at least one (or-mode) trigger fired?
+   // filter result: have all (and-mode) / at least one of (or-mode)
+   // the requested L1 triggers fired?
    unsigned int fired(0);
    for (unsigned int i=0; i!=n; i++) if (index[i]>=0) fired++;
    const bool accept( ((!andOr_) && (fired==n)) ||
 		      (( andOr_) && (fired!=0)) );
 
-   // in case of accept, record all physics objects of all triggers
+   // number of of particles of each type eventually recorded in filter object
+   unsigned int ne(0);
+   unsigned int nm(0);
+   unsigned int nt(0);
+   unsigned int nj(0);
+   unsigned int nM(0);
+
+   // in case of accept, record all particles used
+   // by any requested L1 triggers which fired
    if (accept) {
-     unsigned int m(0);
+
+     // we do not want to store duplicates, hence we determine
+     // which L1 particle is used by one of the requested triggers
+     // and then store the used L1 particles only once
+
+     // get hold of overall collections of particles of each type
+     // will check later which are used by which requested L1 trigger
+     Handle<L1EmParticleCollection  > l1eh;
+     iEvent.getByType(l1eh);
+     unsigned int Ne(0);
+     if (l1eh.isValid()) Ne=l1eh->size();
+     vector<unsigned int> ve(Ne,0);
+     // keeps track how often each Em particle is used
+
+     Handle<L1MuonParticleCollection> l1mh;
+     iEvent.getByType(l1mh);
+     unsigned int Nm(0);
+     if (l1mh.isValid()) Nm=l1mh->size();
+     vector<unsigned int> vm(Nm,0);
+     // keeps track how often each Muon particle is used
+
+     Handle<L1JetParticleCollection>  l1th; // taus are stored as jets
+     iEvent.getByType(l1th);
+     unsigned int Nt(0);
+     if (l1th.isValid()) Nt=l1th->size();
+     vector<unsigned int> vt(Nt,0);
+     // keeps track how often each Tau particle is used
+
+     Handle<L1JetParticleCollection>  l1jh;
+     iEvent.getByType(l1jh);
+     unsigned int Nj(0);
+     if (l1jh.isValid()) Nj=l1th->size();
+     vector<unsigned int> vj(Nj,0);
+     // keeps track how often each Jet particle is used
+
+     Handle<L1EtMissParticle> l1Mh;
+     iEvent.getByType(l1Mh);
+     unsigned int NM(0);
+     if (l1Mh.isValid()) NM=1;
+     vector<unsigned int> vM(NM,0);
+     // keeps track how often the global EtMiss "particle" is used
+
+     // loop over requested triggers and count which particles are used
      for (unsigned int i=0; i!=n; i++) {
        const L1ParticleMap& l1pm((*l1pmch)[index[i]]);
-       if (index[i]>=0) {
+       if (index[i]>=0) { // requested and fired!
+         unsigned int m(0);
 	 // em particles (gamma+electron)
 	 m=l1pm.emParticles().size();
-         for (unsigned int j=0; j!=m; i++) {
-	   ref=RefToBase<Candidate>( l1pm.emParticles()[j] );
-	   filterobject->putParticle(ref);
-	 }
+         for (unsigned int j=0; j!=m; i++) ve[l1pm.emParticles()[j].key()]++;
 	 // muon particles
 	 m=l1pm.muonParticles().size();
-         for (unsigned int j=0; j!=m; i++) {
-	   ref=RefToBase<Candidate>( l1pm.muonParticles()[j] );
-	   filterobject->putParticle(ref);
-	 }
+         for (unsigned int j=0; j!=m; i++) vm[l1pm.muonParticles()[j].key()]++;
 	 // tau particles
 	 m=l1pm.tauParticles().size();
-         for (unsigned int j=0; j!=m; i++) {
-	   ref=RefToBase<Candidate>( l1pm.tauParticles()[j] );
-	   filterobject->putParticle(ref);
-	 }
+         for (unsigned int j=0; j!=m; i++) vt[l1pm.tauParticles()[j].key()]++;
 	 // jet particles
 	 m=l1pm.jetParticles().size();
-         for (unsigned int j=0; j!=m; i++) {
-	   ref=RefToBase<Candidate>( l1pm.jetParticles()[j] );
-	   filterobject->putParticle(ref);
-	 }
+         for (unsigned int j=0; j!=m; i++) vj[l1pm.jetParticles()[j].key()]++;
 	 // (single global) met "particle"
-         if (l1pm.etMissParticle() != L1EtMissParticleRefProd() ) {
-	   ref=RefToBase<Candidate>( l1pm.etMissParticle() );
-	   filterobject->putParticle(ref);
-	 }
-
+         if (l1pm.etMissParticle() != L1EtMissParticleRefProd() ) vM[0]++;
        }
      }
+
+     // record used physics objects in filterobject
+     for (unsigned int i=0; i!=Ne; i++) {
+       if (ve[i]>0) {
+	 ref=RefToBase<Candidate>(L1EmParticleRef  (l1eh,i));
+	 filterobject->putParticle(ref);
+	 ne++;
+       }
+     }
+     for (unsigned int i=0; i!=Nm; i++) {
+       if (vm[i]>0) {
+	 ref=RefToBase<Candidate>(L1MuonParticleRef(l1mh,i));
+	 filterobject->putParticle(ref);
+	 nm++;
+       }
+     }
+     for (unsigned int i=0; i!=Nt; i++) {
+       if (vt[i]>0) {             // taus are stored as jets
+	 ref=RefToBase<Candidate>(L1JetParticleRef (l1th,i));
+	 filterobject->putParticle(ref);
+	 nt++;
+       }
+     }
+     for (unsigned int i=0; i!=Nj; i++) {
+       if (vj[i]>0) {
+	 ref=RefToBase<Candidate>(L1JetParticleRef (l1jh,i));
+	 filterobject->putParticle(ref);
+	 nj++;
+       }
+     }
+     for (unsigned int i=0; i!=NM; i++) {
+       if (vM[i]>0) {
+	 ref=RefToBase<Candidate>(L1EtMissParticleRefProd(l1Mh));
+	 filterobject->putParticle(ref);
+	 nM++;
+       }
+     }
+
    }
 
    // put filter object into the Event
    iEvent.put(filterobject);
 
+   LogDebug("") << "Number of e/m/t/j/M particles used: "
+		<< ne << " " << nm << " " << nt << " " << nj << " " << nM;
+
    return accept;
+
 }
