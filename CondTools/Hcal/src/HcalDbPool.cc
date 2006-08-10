@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.12 2006/07/11 23:10:01 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.13 2006/07/26 21:00:31 fedor Exp $
 */
 
 // pool
@@ -342,6 +342,43 @@ namespace {
   const std::string METADATA_TOKEN_COLUMN ("TOKEN");
 }
 
+std::vector<std::string> HcalDbPool::metadataAllTags () {
+  std::vector<std::string> result;
+  std::auto_ptr<coral::ISession> coralSession;
+  try {
+    coralSession = session ();
+    if (mVerbose) std::cout << "HcalDbPool::metadataAllTags->connecting..." << std::endl;
+    coralSession->transaction().start(true);
+    if (coralSession->nominalSchema().existsTable(METADATA_TABLE)) {
+      coral::ITable& mytable=coralSession->nominalSchema().tableHandle (METADATA_TABLE);
+      std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+      query->setRowCacheSize( 100 );
+      coral::AttributeList emptyBindVariableList;
+      query->addToOutputList (METADATA_TAG_COLUMN);
+      coral::ICursor& cursor = query->execute();
+      while( cursor.next() ) {
+	const coral::AttributeList& row = cursor.currentRow();
+	result.push_back (row [METADATA_TAG_COLUMN].data<std::string>());
+      }
+    }
+    coralSession->transaction().commit();
+    coralSession->disconnect ();
+  }
+  catch (const pool::Exception& e) {
+    coralSession->transaction().rollback();
+    coralSession->disconnect ();
+    std::cerr<<"HcalDbPool::metadataAllTags-> POOL error: " << e.what() << std::endl;
+    mToken.clear ();
+  }
+  catch (...) {
+    coralSession->transaction().rollback();
+    coralSession->disconnect ();
+    std::cerr << "HcalDbPool::metadataAllTags-> General error" << std::endl;
+    mToken.clear ();
+  }
+  return result;
+}
+
 const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
   if (mTag != fTag) {
     mTag = fTag;
@@ -446,6 +483,24 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
   }
    if (mVerbose) std::cout << "HcalDbPool::metadataSetTag-> " << fTag << '/' << fToken << std::endl;
   return result;
+}
+
+bool HcalDbPool::getObject (cond::IOV* fObject, const std::string& fTag) {
+  if (!fObject) return false;
+  std::string metadataToken = metadataGetToken (fTag);
+  if (metadataToken.empty ()) {
+    std::cerr << "HcalDbPool::getObject IOV ERROR-> Can not find metadata for tag " << fTag << std::endl;
+    return false;
+  }
+  if (iovCache.toString () != metadataToken) {
+    getObject (metadataToken, &iovCache);
+  }
+  if (iovCache.isNull ()) {
+    std::cerr << "HcalDbPool::getObject ERROR: can not find IOV for token " << metadataToken << std::endl;;
+    return false;
+  }
+  *fObject = *iovCache;
+  return true;
 }
 
 bool HcalDbPool::getObject (HcalPedestals* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
