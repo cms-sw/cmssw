@@ -284,12 +284,21 @@ RFIOFile::resize (IOOffset /* size */)
 void          
 RFIOFile::preseek(const IOVec& iov) {
   m_lastIOV = iov;
-  serrno = 0;
+
   if (rfioreadopt (RFIO_READOPT)!=1) 
     throw RFIOError ("rfio_preseek(): readopt!=1", 0,0);
 
-  if ( rfio_preseek64(m_fd, 
-		      const_cast<struct iovec64*>(&iov[0]), iov.size()) == -1)
-    throw RFIOError ("rfio_preseek()", rfio_errno, serrno);
-  
+
+  serrno = 0;
+  int max_retry = 5;
+  while ( rfio_preseek64(m_fd, 
+			 const_cast<struct iovec64*>(&iov[0]), iov.size()) == -1) {
+    if (max_retry == 0)  
+      throw RFIOError ("rfio_preseek()", rfio_errno, serrno);
+
+    std::cerr << "error in RFIO preseek: retry" << std::endl;
+    max_retry--;
+    sleep(5);
+    serrno = 0;
+  }
 }
