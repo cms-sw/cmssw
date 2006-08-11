@@ -120,7 +120,7 @@ JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag){
 
 
 
-  if ( f1.isLocal() ){
+  //  if ( f1.isLocal() ){
     string line;
     while( std::getline( in, line) ){
       if(!line.size() || line[0]=='#') continue;
@@ -133,9 +133,9 @@ JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag){
       pars.push_back(vector<double>());
       while(linestream>>par)pars.back().push_back(par);
     }
-  }
-  else
-    if (tag!="no") { cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl; }
+    //  }
+    //  else
+    //    if (tag!="no") { cout<<"The file \""<<file<<"\" was not found in path \""<<f1.fullPath()<<"\"."<<endl; }
 }
 
 JetCalibratorJetParton::JetCalibratorJetParton()

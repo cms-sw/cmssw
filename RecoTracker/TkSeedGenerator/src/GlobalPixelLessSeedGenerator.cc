@@ -36,8 +36,8 @@ void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup&
 {  
   // get Inputs
   edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
-  edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
-  edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
+  edm::InputTag rphirecHitsTag    = conf_.getParameter<edm::InputTag>("rphiRecHits");
+  edm::InputTag stereorecHitsTag  = conf_.getParameter<edm::InputTag>("stereoRecHits");
 
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   e.getByLabel( matchedrecHitsTag, matchedrecHits );

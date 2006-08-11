@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/07/24 20:44:27 $
- * $Revision: 1.108 $
+ * $Date: 2006/07/23 07:23:09 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -360,7 +360,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -384,7 +383,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -408,7 +406,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -432,7 +429,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -456,7 +452,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -480,7 +475,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -504,7 +498,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -528,7 +521,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -552,7 +544,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;
@@ -576,7 +567,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
            << ") = " << it->getContents()
-           << " +- " << it->getRMS()
            << endl;
     }
     cout << endl;

@@ -1,7 +1,11 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace reco;
@@ -23,12 +27,32 @@ TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field
     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
+TransientTrack::TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false)
+  Track(tk), tkr_(0), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+{
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+}
+
+TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false)
+  Track(*tk), tkr_(&tk), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+{
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+}
+
 
 TransientTrack::TransientTrack( const TransientTrack & tt ) :
   Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), stateAtVertexAvailable(false) 
 {
+//   std::cout << "construct from TransientTrack" << std::endl;
   originalTSCP = tt.impactPointTSCP();
   if (tt.stateAtVertexAvailable) theStateAtVertex= tt.impactPointState();
+//   originalTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), covariance(), GlobalPoint(0.,0.,0.), theField);
+//   std::cout << "construct from TransientTrack OK" << std::endl;
 }
 
 
@@ -55,6 +79,18 @@ TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
   return *this;
 }
 
+void TransientTrack::setES(const edm::EventSetup& setup) {
+
+  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+
+}
+
+void TransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
+
+  theTrackingGeometry = tg;
+
+}
+
 
 TrajectoryStateOnSurface TransientTrack::impactPointState() const
 {
@@ -64,18 +100,27 @@ TrajectoryStateOnSurface TransientTrack::impactPointState() const
 
 TrajectoryStateOnSurface TransientTrack::outermostMeasurementState() const
 {
-
-    math::XYZPoint outPosXYZ = (*tkr_)->outerPosition();
-    //math::XYZVector outMomXYZ = (*tkr_)->outerMomentum();
+    math::XYZPoint outPosXYZ = (this)->outerPosition();
+    math::XYZVector outMomXYZ = (this)->outerMomentum();
 
     GlobalPoint outPos(outPosXYZ.x(),outPosXYZ.y(),outPosXYZ.z());
-    //GlobalVector outMom(outMomXYZ.x(),outMomXYZ.y(),outMomXYZ.z());
+    GlobalVector outMom(outMomXYZ.x(),outMomXYZ.y(),outMomXYZ.z());
+    // edm::LogInfo("TransientTrack")
+    //  << "outermost meas: pos: " <<outPos <<" mom: "<<outMom; 
 
-    TrajectoryStateOnSurface ipstate = impactPointState();
+    GlobalTrajectoryParameters par(outPos, outMom, (this)->charge(), theField);
+    FreeTrajectoryState fts(par,originalTSCP.theState().curvilinearError());
+    fts.rescaleError(5.0);
+    trackingRecHit_iterator last = (this)->recHitsEnd();
+    last--;
+ //  edm::LogInfo("TransientTrack")
+  //      << "id "<<(*last)->geographicalId().rawId();
 
-    TransverseImpactPointExtrapolator tipe(theField);
-
-    TrajectoryStateOnSurface result = tipe.extrapolate(ipstate, outPos);
+    TrajectoryStateOnSurface result(fts,theTrackingGeometry->idToDet((*last)->geographicalId())->surface());
+    
+    // if (result.isValid())
+    // edm::LogInfo("TransientTrack")
+    //  << "outermost TSOS result: pos: " <<result.globalPosition() <<" mom: "<<result.globalMomentum();
 
     return result;
 
@@ -83,29 +128,43 @@ TrajectoryStateOnSurface TransientTrack::outermostMeasurementState() const
 
 TrajectoryStateOnSurface TransientTrack::innermostMeasurementState() const
 {
-
-    math::XYZPoint inPosXYZ = (*tkr_)->innerPosition();
-    //math::XYZVector inMomXYZ = (*tkr_)->innerMomentum();
+    math::XYZPoint inPosXYZ = (this)->innerPosition();
+    math::XYZVector inMomXYZ = (this)->innerMomentum();
 
     GlobalPoint inPos(inPosXYZ.x(),inPosXYZ.y(),inPosXYZ.z());
-    //GlobalVector inMom(inMomXYZ.x(),inMomXYZ.y(),inMomXYZ.z());
+    GlobalVector inMom(inMomXYZ.x(),inMomXYZ.y(),inMomXYZ.z());
+    // edm::LogInfo("TransientTrack")
+    //  << "innermost meas: pos: " <<inPos <<" mom: "<<inMom;
 
-    TrajectoryStateOnSurface ipstate = impactPointState();
+    GlobalTrajectoryParameters par(inPos, inMom, (this)->charge(), theField);
 
-    TransverseImpactPointExtrapolator tipe(theField);
+    FreeTrajectoryState fts(par,originalTSCP.theState().curvilinearError());
+    fts.rescaleError(5.0);
+    trackingRecHit_iterator first = (this)->recHitsBegin();
+    //  edm::LogInfo("TransientTrack")
+    //      << "id "<<(*first)->geographicalId().rawId();
 
-    TrajectoryStateOnSurface result = tipe.extrapolate(ipstate, inPos);
+    TrajectoryStateOnSurface result(fts,theTrackingGeometry->idToDet((*(this)->recHitsBegin())->geographicalId())->surface());
 
+    //  if (result.isValid())
+    // edm::LogInfo("TransientTrack")
+    //   << "innermost TSOS result: " << result.isValid() << " " << "pos: " <<result.globalPosition() <<" mom: "<<result.globalMomentum();
+    
     return result;
 
 }
 
 void TransientTrack::calculateStateAtVertex() const
 {
-
+  //  edm::LogInfo("TransientTrack") 
+  //    << "initial state validity:" << originalTSCP.theState() << "\n";
   TransverseImpactPointExtrapolator tipe(theField);
   theStateAtVertex = tipe.extrapolate(
      originalTSCP.theState(), originalTSCP.position());
-
+ //   edm::LogInfo("TransientTrack") 
+//      << "extrapolated state validity:" 
+//      << theStateAtVertex.isValid() << "\n";
+  
   stateAtVertexAvailable = true;
 }
+

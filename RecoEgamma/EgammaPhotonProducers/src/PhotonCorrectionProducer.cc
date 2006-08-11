@@ -24,10 +24,9 @@ PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& conf
 
 {
 
-  edm::LogInfo(" PhotonCorrectionProducer CTOR ") << "\n";
+  edm::LogInfo(" PhotonCorrectionProducer CTOR ");
 
   // use onfiguration file to setup input/output collection names
- 
 
   photonCorrectionProducer_         = conf_.getParameter<std::string>("photonCorrectionProducer");
   uncorrectedPhotonCollection_     = conf_.getParameter<std::string>("uncorrectedPhotonCollection");
@@ -75,7 +74,7 @@ void PhotonCorrectionProducer::produce(edm::Event& theEvent, const edm::EventSet
   Handle<reco::PhotonCollection> uncorrectedPhotonHandle;
   theEvent.getByLabel(photonCorrectionProducer_,uncorrectedPhotonCollection_,uncorrectedPhotonHandle);
   reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
-  LogInfo("PhotonCorrectionProducer: Uncorrected Photon collection size ") << phoCollection.size() << "\n";
+  LogDebug("PhotonCorrectionProducer: Uncorrected Photon collection size ") << phoCollection.size() << "\n";
 
 
   //  Loop over the uncorrected photons and attach the corrections

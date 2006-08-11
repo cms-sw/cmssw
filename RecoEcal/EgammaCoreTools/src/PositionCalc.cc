@@ -136,8 +136,8 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 
   double cluster_eta = -log(tan(cluster_theta*0.5));
 
-  std::cout << "Cluster eta = " << cluster_eta << std::endl;
-  std::cout << "Cluster phi = " << cluster_phi << std::endl;
+  //std::cout << "Cluster eta = " << cluster_eta << std::endl;
+  //std::cout << "Cluster phi = " << cluster_phi << std::endl;
 
   double radius = sqrt(center_pos.x()*center_pos.x()
 		       + center_pos.y()*center_pos.y()

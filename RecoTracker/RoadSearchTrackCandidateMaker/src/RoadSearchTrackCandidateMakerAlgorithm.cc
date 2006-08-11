@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2006/07/31 20:17:58 $
-// $Revision: 1.14 $
+// $Date: 2006/08/01 20:27:39 $
+// $Revision: 1.15 $
 //
 
 #include <vector>
@@ -105,7 +105,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   int i_c = 0;
   for ( RoadSearchCloudCollection::const_iterator cloud = input->begin(); cloud != input->end(); ++cloud ) {
 
-    std::cout<<"Cloud #"<<i_c<<std::endl; ++i_c;
+    LogDebug("RoadSearch") << "Cloud #"<<i_c ; ++i_c;
     // fill rechits from cloud into new OwnVector
     edm::OwnVector<TrackingRecHit> recHits;
     RoadSearchCloud::RecHitOwnVector hits = cloud->recHits();
@@ -215,8 +215,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     theTrajectoryCleaner.clean(FinalTrajectories);
     for (vector<Trajectory>::const_iterator it = FinalTrajectories.begin();
 	 it != FinalTrajectories.end(); it++) {
-      std::cout<<"Trajectory has "<<it->recHits().size()<<" hits with chi2="
-             <<it->chiSquared()<<" and is valid? "<<it->isValid()<<std::endl;
+      LogDebug("RoadSearch") << "Trajectory has "<<it->recHits().size()<<" hits with chi2="
+			     <<it->chiSquared()<<" and is valid? "<<it->isValid();
       if (it->isValid()){
 
 	edm::OwnVector<TrackingRecHit> goodHits;
@@ -263,7 +263,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	}
 	
 	if (!valid){
-	  std::cout<<"Starting State Not Valid!!!"<<std::endl;
+	  //std::cout<<"Starting State Not Valid!!!"<<std::endl;
 	  continue;
 	}
 	//output.push_back(TrackCandidate(goodHits,it->seed(),state));

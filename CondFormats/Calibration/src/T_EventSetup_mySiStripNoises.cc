@@ -3,4 +3,4 @@
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(mySiStripNoises)
+EVENTSETUP_DATA_REG(mySiStripNoises);

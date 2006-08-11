@@ -34,8 +34,18 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
        MonitorElement * HLTDecision;
-       MonitorElement * ClusterCharge;
-       MonitorElement * NumberOfClustersAboveThreshold;
+       // all events
+       MonitorElement * SumOfClusterCharges_all;
+       MonitorElement * NumberOfClustersAboveThreshold_all;
+       MonitorElement * ChargeOfEachClusterTIB_all;
+       MonitorElement * ChargeOfEachClusterTOB_all;
+       MonitorElement * ChargeOfEachClusterTEC_all;
+       // events that passes the HLT
+       MonitorElement * SumOfClusterCharges_hlt;
+       MonitorElement * NumberOfClustersAboveThreshold_hlt;
+       MonitorElement * ChargeOfEachClusterTIB_hlt;
+       MonitorElement * ChargeOfEachClusterTOB_hlt;
+       MonitorElement * ChargeOfEachClusterTEC_hlt;
 };
 
 #endif

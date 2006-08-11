@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/08/03 15:03:54 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/09 16:40:29 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -10,10 +10,12 @@
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 using namespace std;
 using namespace edm;
@@ -28,7 +30,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2,
   theMinP = 2.5;
   theMinPt = 1.0;
   theField = field;
-//  theTTrackBuilder = new TransientTrackBuilder(field);
   theUpdator = updator;
 
 }
@@ -42,7 +43,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
   theMaxChi2 = chi2;
   theMinP = 2.5;
   theMinPt = 1.0;
-//  theTTrackBuilder = new TransientTrackBuilder(field);
   theUpdator = new MuonUpdatorAtVertex();
 
 }
@@ -54,8 +54,9 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(double chi2) {
 void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
 
   setup.get<IdealMagneticFieldRecord>().get(theField);
+  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   theUpdator->setES(setup);
-  return;
+
 }
 
 
@@ -66,32 +67,33 @@ void GlobalMuonTrackMatcher::setES(const edm::EventSetup& setup) {
 std::pair<bool, reco::TrackRef> 
 GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT, 
                                  const edm::Handle<reco::TrackCollection>& tkTs) const {
+
   bool hasMatchTk = false;
   reco::TrackRef result;
   double minChi2 = theMaxChi2;
   
-  reco::TransientTrack staTT(staT,&*theField);
+  reco::TransientTrack staTT(staT,&*theField,theTrackingGeometry);
   TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
 
   // extrapolate innermost standalone TSOS to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = 
     theUpdator->stateAtTracker(innerMuTsos);
-  
+
   for (unsigned int position = 0; position < tkTs->size(); ++position) {
     reco::TrackRef tkTRef(tkTs,position);
-    reco::TransientTrack tkTT(tkTRef,&*theField);
+    reco::TransientTrack tkTT(tkTRef,&*theField,theTrackingGeometry);
     // make sure the tracker Track has enough momentum to reach muon chambers
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
-    
+
     TrajectoryStateOnSurface outerTkTsos = tkTT.outermostMeasurementState();
     
     // extrapolate outermost tracker measurement TSOS to outer tracker surface
     TrajectoryStateOnSurface tkTsosFromTk = 
       theUpdator->stateAtTracker(outerTkTsos);
-    
+
     std::pair<bool,double> check = match(tkTsosFromMu,tkTsosFromTk);
-    
+
     if (!check.first) continue;
 
     if (check.second < minChi2) { 
@@ -99,7 +101,8 @@ GlobalMuonTrackMatcher::matchOne(const reco::TrackRef& staT,
       minChi2 = check.second;
       result = tkTRef;
     } 
-  } 
+  }     
+
   return(std::pair<bool, reco::TrackRef>(hasMatchTk, result));
 
 }
@@ -115,7 +118,7 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
   std::vector<reco::TrackRef> result;
 
-  reco::TransientTrack staTT(staT,&*theField);
+  reco::TransientTrack staTT(staT,&*theField,theTrackingGeometry);
 
   TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
 
@@ -125,7 +128,7 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
  
   for (unsigned int position = 0; position < tkTs->size(); position++) {
     reco::TrackRef tkTRef(tkTs,position);
-    reco::TransientTrack tkTT(tkTRef,&*theField);
+    reco::TransientTrack tkTT(tkTRef,&*theField,theTrackingGeometry);
     // make sure the tracker Track has enough momentum to reach muon chambers
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
@@ -153,7 +156,7 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
   std::vector<reco::TrackRef> result;
 
-  reco::TransientTrack staTT(staT,&*theField);
+  reco::TransientTrack staTT(staT,&*theField,theTrackingGeometry);
 
   TrajectoryStateOnSurface innerMuTsos = staTT.innermostMeasurementState();
 
@@ -163,7 +166,8 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
   for (std::vector<reco::TrackRef>::const_iterator tkTRef = tkTs.begin();
        tkTRef != tkTs.end(); tkTRef++) {
-    reco::TransientTrack tkTT(*tkTRef, &*theField);
+    reco::TransientTrack tkTT(*tkTRef, &*theField,theTrackingGeometry);
+
     // make sure the tracker Track has enough momentum to reach muon chambers
     const GlobalVector& mom = tkTT.impactPointState().globalMomentum();
     if ( mom.mag() < theMinP || mom.perp() < theMinPt ) continue;
@@ -176,7 +180,16 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 
     std::pair<bool,double> check = match(tkTsosFromMu,tkTsosFromTk);
 
-    if ( check.first ) result.push_back(*tkTRef);
+    bool goodCoords = false;
+    float dx(fabs(tkTsosFromMu.globalPosition().x() - tkTsosFromTk.globalPosition().x()));
+    float dy(fabs(tkTsosFromMu.globalPosition().y() - tkTsosFromTk.globalPosition().y()));
+    float dz(fabs(tkTsosFromMu.globalPosition().z() - tkTsosFromTk.globalPosition().z()));
+
+    float dd = 5.0;
+
+    if( (dx < dd) && (dy < dd) ) goodCoords = true;
+
+    if ( check.first || goodCoords ) result.push_back(*tkTRef);
   }
 
   return result;
@@ -190,8 +203,8 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& staT,
 std::pair<bool,double> 
 GlobalMuonTrackMatcher::match(const reco::TrackRef& sta, 
                               const reco::TrackRef& tk) const {
-  reco::TransientTrack staT(sta,&*theField);  
-  reco::TransientTrack tkT(tk,&*theField);
+  reco::TransientTrack staT(sta,&*theField,theTrackingGeometry);  
+  reco::TransientTrack tkT(tk,&*theField,theTrackingGeometry);
   
   // make sure the tracker Track has enough momentum to reach muon chambers
   const GlobalVector& mom = tkT.impactPointState().globalMomentum();
@@ -220,8 +233,8 @@ GlobalMuonTrackMatcher::match(const reco::TrackRef& sta,
 std::pair<bool,double> 
 GlobalMuonTrackMatcher::match(const reco::Track& sta, 
                               const reco::Track& tk) const {
-  reco::TransientTrack staT(sta,&*theField);  
-  reco::TransientTrack tkT(tk,&*theField);
+  reco::TransientTrack staT(sta,&*theField,theTrackingGeometry);  
+  reco::TransientTrack tkT(tk,&*theField,theTrackingGeometry);
   //FIXME: caution! no Track * stored in TransientTrack.
 
   // make sure the tracker Track has enough momentum to reach muon chambers

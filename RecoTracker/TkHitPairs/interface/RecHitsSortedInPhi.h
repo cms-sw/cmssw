@@ -2,8 +2,8 @@
 #define RecHitsSortedInPhi_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 //#include "Utilities/Notification/interface/TimingReport.h"
 #include <vector>

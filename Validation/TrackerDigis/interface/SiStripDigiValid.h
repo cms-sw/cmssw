@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
 
@@ -183,7 +184,7 @@ class  SiStripDigiValid: public EDAnalyzer {
     //Back-End Interface
     DaqMonitorBEInterface* dbe_;
     string outputFile_;
-
+    edm::InputTag src_;
 };
 
 

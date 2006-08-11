@@ -13,6 +13,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
 
@@ -269,7 +270,9 @@ class  SiPixelDigiValid: public EDAnalyzer {
    
  
   DaqMonitorBEInterface* dbe_;
+  edm::InputTag src_;  
 
+ 
 };
 #endif
 

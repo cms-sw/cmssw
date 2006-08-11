@@ -1,13 +1,12 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-#<use name=Foundation/PluginManager>
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripCommon>
+<use name=Foundation/PluginManager>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
-<use name=DQM/SiStripCommon>
 <use name=DQM/SiStripCommissioningAnalysis>
+<use name=DQM/SiStripCommon>
 <use name=root>
 
 <export>
@@ -15,12 +14,11 @@
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
-#   <use name=Foundation/PluginManager>
    <use name=DataFormats/Common>
-   <use name=DataFormats/SiStripCommon>
+   <use name=Foundation/PluginManager>
    <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiStripDigi>
-   <use name=DQM/SiStripCommon>
    <use name=DQM/SiStripCommissioningAnalysis>
+   <use name=DQM/SiStripCommon>
    <use name=root>
 </export>

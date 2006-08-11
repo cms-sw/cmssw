@@ -11,6 +11,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 using namespace std;
 SeedFromConsecutiveHits::
@@ -76,9 +77,7 @@ construct( const TrackingRecHit* outerHit,
     //   TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit.geographicalId())->surface());
     const TSOS innerState = thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
     if ( !innerState.isValid()) 
-      edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
-
-				    
+      throw PropagationException("SeedFromConsecutiveHits first propagation failed");
 
     //
     // get from the eventsetup
@@ -107,7 +106,7 @@ construct( const TrackingRecHit* outerHit,
 				tracker->idToDet(outerHit->geographicalId())->surface());
  
     if ( !outerState.isValid()) 
-     edm::LogError("Propagation") << " SeedFromConsecutiveHits second propagation failed ";
+      throw PropagationException("SeedFromConsecutiveHits second propagation failed");
   
     outrhit=theBuilder.product()->build(outerHit);
 

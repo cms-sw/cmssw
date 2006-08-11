@@ -16,8 +16,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -26,10 +24,9 @@ class Type1METAlgo
  public:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
-  typedef std::vector<const CaloJet*> JetInputColl;
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const CaloMETCollection*, JetInputColl, JetInputColl, METCollection &);
+  virtual void run(const METCollection*, METCollection &);
 };
 
 #endif // Type1METAlgo_h

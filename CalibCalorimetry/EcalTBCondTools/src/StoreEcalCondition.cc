@@ -7,8 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
-#include <time.h>
-#include <unistd.h> 
 
 using std::string;
 
@@ -38,7 +36,7 @@ void StoreEcalCondition::endJob() {
     return;
   }
 
-
+  // writeToLogFile(prog_name_, inpFileName_);
   for (unsigned int i=0;i<objectName_.size();i++)
     {
 
@@ -135,24 +133,23 @@ void StoreEcalCondition::endJob() {
 	  edm::LogError("StoreEcalCondition")<< "Object " << objectName_[i]  << " is not supported by this program." << endl;
 	}
 
-	writeToLogFile(objectName_[i], inpFileName_[i], appendCondition_[i]);
 
       } catch(cond::Exception &e) {
 
-	writeToLogFileResults("finished with exception\n");
+	//    writeToLogFileResults("finished with exception\n");
 	edm::LogError("StoreEcalCondition")<< e.what() ;
       } catch(std::exception &e) {
 
-	writeToLogFileResults("finished with exception\n");
+	// writeToLogFileResults("finished with exception\n");
 	edm::LogError("StoreEcalCondition")<< e.what() ;
       } catch(...) {
 
-	writeToLogFileResults("finished with exception\n");
+	//writeToLogFileResults("finished with exception\n");
 	edm::LogError("StoreEcalCondition") << "Unknown exception" ;
       }
     }
   //cout << "about to write to logfile " << endl ;
-  writeToLogFileResults("finished OK\n");
+  // writeToLogFileResults("finished OK\n");
   //cout << "done write to logfile " << endl ;
 
 
@@ -217,7 +214,7 @@ void StoreEcalCondition::readSMRunFile() {
 }
 
 //------------------------------------------------------------
-void StoreEcalCondition::writeToLogFile(string a, string b, bool append) {
+void StoreEcalCondition::writeToLogFile(string a, string b) {
 //-------------------------------------------------------------
   
     FILE *outFile; // output log file for appending 
@@ -226,15 +223,7 @@ void StoreEcalCondition::writeToLogFile(string a, string b, bool append) {
       edm::LogError("StoreEcalCondition") <<"*** Can not open file: /afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log";
       return;
     }
-    char header[256];
-    fillHeader(header);
-    char appendMode[10];
-    if (append)
-      sprintf(appendMode,"append");
-    else
-      sprintf(appendMode,"create");
-
-    fprintf(outFile, "%s %s condition from file %s written into DB for SM %d in %s mode\n", header, a.c_str(),b .c_str(), sm_constr_, appendMode);
+    fprintf(outFile, "%s %s \n", a.c_str(),b .c_str());
 
     fclose(outFile);           // close out file
 
@@ -249,23 +238,10 @@ void StoreEcalCondition::writeToLogFileResults(char* arg) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: /afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log";
       return;
     }
-    char header[256];
-    fillHeader(header);
-    fprintf(outFile, "%s %s\n", header,arg);
-    fclose(outFile);           // close out file
-}
+    fprintf(outFile, "%s \n", arg );
 
-//------------------------------------------------------------
-void StoreEcalCondition::fillHeader(char* header)
-//------------------------------------------------------------
-{
-  time_t rawtime;
-  struct tm * timeinfo;
-  time ( &rawtime );
-  timeinfo = localtime ( &rawtime );
-  char user[50];
-  sprintf(user,"%s",getlogin());
-  sprintf(header,"%s %s:",asctime(timeinfo),user);
+    fclose(outFile);           // close out file
+
 }
 
 /*
@@ -314,24 +290,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
     return 0;
   }  
 
-  int smnumber=-99999;
-
-  std::ostringstream str;
-  groupid_in >> smnumber;
-  if (smnumber == -99999)
-    return 0;
-
-  str << "sm= " << smnumber << endl;
-
-  char temp[256];
-  //Reading the other 5 header lines containing various informations
-  for (int i=0;i<=5;i++)
-    {
-      groupid_in.getline(temp,255);
-      str << temp << endl;
-    }
-
-  edm::LogInfo("StoreEcalCondition") << "GROUPID file " << str.str() ;
+  edm::LogInfo("StoreEcalCondition") << "LOADING GROUPID FILE" ;
 
   int xtals=0;
   while (groupid_in.good())
@@ -357,7 +316,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
     }//loop iphi
   
   edm::LogInfo("StoreEcalCondition") << "Groups for " << xtals << " xtals written into DB" ;
-  sm_constr_ = smnumber;
+  sm_constr_ = 22;
   readSMRunFile() ; // this to read the correct IOV from the official file 
   
   return xtalGroups;
@@ -377,25 +336,6 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
     edm::LogError("StoreEcalCondition")<< "*** Can not open file: "<< inputFile ;
     return 0;
   }
-
-  int smnumber=-99999;
-
-  std::ostringstream str;
-  WeightsFileTB >> smnumber;
-  if (smnumber == -99999)
-    return 0;
-
-  str << "sm= " << smnumber << endl;
-
-  char temp[256];
-  //Reading the other 5 header lines containing various informations
-  for (int i=0;i<=5;i++)
-    {
-      WeightsFileTB.getline(temp,255);
-      str << temp << endl;
-    }
-
-  edm::LogInfo("StoreEcalCondition") << "Weights file " << str.str() ;
 
   int ngroups=0;
   while (WeightsFileTB.good())
@@ -509,10 +449,10 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
       ngroups++;
     }//loop groupID
 
-  sm_constr_ = smnumber;
+  sm_constr_ = 22;
   readSMRunFile() ; // this to read the correct IOV from the official file 
 
-  edm::LogInfo("StoreEcalCondition") << "Weights for " << ngroups << " groups written into DB" ;
+  edm::LogInfo("StoreEcalCondition") << "Weights for " << ngroups << " xtals written into DB" ;
   return tbwgt;
 }
 
@@ -536,7 +476,6 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
 
     fgets(line,255,inpFile);
     int sm_number=atoi(line);
-    str << "sm= " << sm_number << endl ;  
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line); // not necessary here just for online conddb
@@ -598,7 +537,6 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
 
     fgets(line,255,inpFile);
     int sm_number=atoi(line);
-    str << "sm= " << sm_number << endl ;  
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line); // not necessary here just for online conddb
@@ -695,7 +633,6 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
               
     fgets(line,255,inpFile);
     int sm_number=atoi(line);
-    str << "sm= " << sm_number << endl ;  
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line);
@@ -757,8 +694,8 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
       EBDetId ebid(sm_db,cry_num[i],EBDetId::SMCRYSTALMODE);
       // cout << "ebid.rawId()"<< ebid.rawId()<< endl;
       EcalMGPAGainRatio gr;
-      gr.setGain12Over6( g6_g12[i] );
-      gr.setGain6Over1(g1_g12[i]/g6_g12[i]);
+      gr.setGain12Over6( g6_g12[ii] );
+      gr.setGain6Over1(g1_g12[ii]/g6_g12[ii]);
       gratio->setValue( ebid.rawId(), gr );
     } // loop over channels 
 

@@ -9,17 +9,15 @@
 
 PhotonDummyCorrection::PhotonDummyCorrection() {
 
-std::cout << " PhotonDummyCorrection CTOR  " << std::endl ; 
 
 }
 
 reco::Photon PhotonDummyCorrection::makeCorrections(const reco::Photon& pho) {
 
   using namespace edm;
-  
 
-  LogInfo(" PhotonDummyCorrection::makeCorrections  ") << "\n";
-  LogInfo("  Photon energy and position  " ) << pho.energy() << " " << pho.vertex() << "\n";
+  LogDebug(" PhotonDummyCorrection::makeCorrections  ");
+  LogDebug("  Photon energy and position  " ) << pho.energy() << " " << pho.vertex();
 
 
   // No coorections are applied. Here another cancidate is built taking the parameters of the initial one
@@ -28,9 +26,7 @@ reco::Photon PhotonDummyCorrection::makeCorrections(const reco::Photon& pho) {
   const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), pho.superCluster()->energy() );
 
   reco::Photon correctedCandidate(0, p4, vtx);
- 
- 
+
   return correctedCandidate;
 
-
-}    
+}

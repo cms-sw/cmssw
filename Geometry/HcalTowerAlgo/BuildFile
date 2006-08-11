@@ -9,5 +9,6 @@
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloTowers>
+<use name=FWCore/MessageLogger>
 <use name=clhep>
 

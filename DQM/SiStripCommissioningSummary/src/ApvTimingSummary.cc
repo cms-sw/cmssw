@@ -10,7 +10,7 @@ ApvTimingSummary::ApvTimingSummary(sistrip::View view) :
 
 //------------------------------------------------------------------------------
 //
-ApvTimingSummary::ApvTimingSummary( const CommissioningSummaryFactory::Histo& histo,
+ApvTimingSummary::ApvTimingSummary( const SummaryFactory::Histo& histo,
 				    const std::string& directory ) :
   CommissioningSummary( histo, directory ) 
 {

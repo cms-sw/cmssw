@@ -5,8 +5,8 @@
  *   a given vertex and 
  *   apply a vertex constraint
  *
- *   $Date: 2006/07/31 22:47:43 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/08/02 02:57:26 $
+ *   $Revision: 1.10 $
  *
  *   \author   N. Neumeister         Purdue University
  *   \porthing author C. Liu         Purdue University 
@@ -75,7 +75,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex() :
          theEstimator(0) {
 
   theOutPropagatorName = "SteppingHelixPropagatorAny";
-  theInPropagatorName = "MaterialPropagator";
+  theInPropagatorName = "PropagatorWithMaterial";
 
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns

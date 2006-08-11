@@ -24,12 +24,10 @@ StorageAccount::StorageStats StorageAccount::s_stats;
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 std::string
-StorageAccount::summaryText (bool banner /*=false*/)
+StorageAccount::summaryText (void)
 {
   bool first = true;
   std::ostringstream os;
-  if (banner) 
-    os << "stats: class/operation/attempts/successes/amount/tot time/min time/max time\n";
   for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
     for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
       os << (first ? "" : "; ")
@@ -38,9 +36,7 @@ StorageAccount::summaryText (bool banner /*=false*/)
 	 << j->second.attempts << '/'
 	 << j->second.successes << '/'
 	 << (j->second.amount / 1024 / 1024) << "MB/"
-	 << (j->second.time_tot / 1000 / 1000) << "ms/" 
-         << (j->second.time_min / 1000 / 1000) << "ms/" 
-         << (j->second.time_max / 1000 / 1000) << "ms";
+	 << (j->second.time / 1000 / 1000) << "ms";
   
   return os.str ();
 }
@@ -61,7 +57,7 @@ StorageAccount::counter (const std::string &storageClass, const std::string &ope
   OperationStats::iterator pos = opstats->find (operation);
   if (pos == opstats->end ())
     {
-      Counter x; x.idTag = storageClass + "/" + operation;
+      Counter x = { 0, 0, 0 }; x.idTag = storageClass + "/" + operation;
       pos = opstats->insert (OperationStats::value_type (operation, x)).first;
     }
   
@@ -87,9 +83,7 @@ StorageAccount::Stamp::tick (double amount) const
     double elapsed = seal::TimeInfo::realNsecs () - m_start;
     m_counter.successes++;
     m_counter.amount += amount;
-    m_counter.time_tot += elapsed;
-   if (elapsed < m_counter.time_min) m_counter.time_min=elapsed;
-   if (elapsed > m_counter.time_max) m_counter.time_max=elapsed;
+    m_counter.time += elapsed;
     StorageAccount::setCurrentOp(0,elapsed);
   }
 }

@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/08/03 03:24:41 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/03 13:17:57 $
+ *  $Revision: 1.23 $
  *  \author Norbert Neumeister - Purdue University
  *  \author Chang Liu - Purdue University
  */
@@ -31,6 +31,7 @@ class MuonDetLayerGeometry;
 class GlobalMuonReFitter;
 class Propagator;
 class TrajectoryFitter;
+class MuonDetLayerMeasurements;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -111,6 +112,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonUpdatorAtVertex* theUpdator;
     GlobalMuonTrackMatcher* theTrackMatcher;
     GlobalMuonReFitter* theRefitter;
+    MuonDetLayerMeasurements* theLayerMeasurements;
 
     float theTrackMatcherChi2Cut;
     int   theMuonHitsOption;

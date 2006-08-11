@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/04/07 04:04:18 $
-*  $Revision: 1.4 $
+*  $Date: 2006/07/06 16:02:00 $
+*  $Revision: 1.5 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
@@ -114,7 +114,7 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
                                    vt!=fEvt->vertices_end(); ++vt )
    {
       double x = (*vt)->position().x() + VtxPos->x() ;
-      double y = (*vt)->position().x() + VtxPos->y() ;
+      double y = (*vt)->position().y() + VtxPos->y() ;
       double z = (*vt)->position().z() + VtxPos->z() ;
       (*vt)->set_position( HepLorentzVector(x,y,z) ) ;      
    }

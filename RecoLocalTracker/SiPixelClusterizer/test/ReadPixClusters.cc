@@ -23,7 +23,6 @@ using namespace std;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -64,7 +63,6 @@ class ReadPixClusters : public edm::EDAnalyzer {
   
  private:
   edm::ParameterSet conf_;
-  edm::InputTag src_;
   const static bool PRINT = true;
   
   TFile* hFile;
@@ -92,7 +90,7 @@ class ReadPixClusters : public edm::EDAnalyzer {
 /////////////////////////////////////////////////////////////////
 // Contructor, empty.
 ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf) 
-  : conf_(conf), src_(conf.getParameter<edm::InputTag>( "src" )) { }
+  : conf_(conf) { }
 // Virtual destructor needed.
 ReadPixClusters::~ReadPixClusters() { }  
 
@@ -187,14 +185,22 @@ void ReadPixClusters::analyze(const edm::Event& e,
 			      const edm::EventSetup& es) {
   using namespace edm;
 
+  // Get the parametrs 
+  std::string rechitProducer = 
+    conf_.getParameter<std::string>("RecHitProducer"); 
+
   // Get event setup 
   edm::ESHandle<TrackerGeometry> geom;
   es.get<TrackerDigiGeometryRecord>().get( geom );
   const TrackerGeometry& theTracker(*geom);
 
-  // Get Cluster Collection from InputTag
+  // Clusters
+  //edm::Handle<SiPixelClusterCollection> clusters;
+  //e.getByLabel("pixClustMaker", clusters);
+  //e.getByLabel(rechitProducer, clusters);
+
   edm::Handle< edm::DetSetVector<SiPixelCluster> > clusters;
-  e.getByLabel( src_ , clusters);
+  e.getByLabel(rechitProducer, clusters);
 
   const edm::DetSetVector<SiPixelCluster>& input = *clusters;     
 

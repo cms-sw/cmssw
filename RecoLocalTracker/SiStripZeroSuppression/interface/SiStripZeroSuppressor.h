@@ -8,9 +8,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //SiStripPedestalsService
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 //SiStripNoiseService
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <vector>
 

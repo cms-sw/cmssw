@@ -21,8 +21,8 @@ case $# in
 esac
 
 #--- definition of shell variables 
-#RUN_ON_DISK0='no'
-RUN_ON_DISK0='cmsdisk0'
+RUN_ON_DISK0='no'
+#RUN_ON_DISK0='cmsdisk0'
 # this directory must be visible from remote batch machine
 DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3"
 # directory where the job is run or submitted
@@ -132,10 +132,10 @@ get_list_of_cmsdisk0_files(){
  echo "getting from cmsdisk0.cern.ch the list of files corresponding to run ${RUNNR}";
  if [ $MAX_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_DATA_FILES=`ssh ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root'`
+   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root'`
  else
    echo "   !!! Caution !!!      limiting max. nr. of files per run to ${MAX_FILES_TO_RUN_OVER}"
-   LIST_OF_DATA_FILES=`ssh ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root' | head  -${MAX_FILES_TO_RUN_OVER}`
+   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root' | head  -${MAX_FILES_TO_RUN_OVER}`
  fi
  if [ "$LIST_OF_DATA_FILES" == ""   ] ;
  then
@@ -193,10 +193,10 @@ get_list_of_cmsdisk0_pedestal_files(){
  echo "getting from cmsdisk0.cern.ch the list of files corresponding to pedestal run ${PED_RUNNR}";
  if [ $MAX_PED_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_PED_DATA_FILES=`ssh ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root'`
+   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root'`
  else
    echo "   !!! Caution !!!      limiting max. nr. of files per run to ${MAX_PED_FILES_TO_RUN_OVER}"
-   LIST_OF_PED_DATA_FILES=`ssh ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root' | head  -${MAX_PED_FILES_TO_RUN_OVER}`
+   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root' | head  -${MAX_PED_FILES_TO_RUN_OVER}`
  fi
  if [ "$LIST_OF_PED_DATA_FILES" == ""   ] ;
  then
@@ -359,6 +359,6 @@ time runcms > ${LOG_FILE} 2>&1 ;
 # FINAL TASKS
 ls -lh;
 ls -lh ${MTCC_INPUT_DIR};
-copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31"
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31"
 ###############################################################################################################
 

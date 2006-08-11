@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.6 2006/07/20 19:45:52 dkcira Exp $
+// $Id: SiStripMonitorCluster.h,v 1.8 2006/08/04 13:34:03 dkcira Exp $
 //
 
 // system include files
@@ -33,7 +33,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+//#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 class SiStripMonitorCluster : public edm::EDAnalyzer {
    public:

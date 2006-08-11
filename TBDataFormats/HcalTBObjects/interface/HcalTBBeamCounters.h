@@ -32,7 +32,7 @@
     double S3adc()     const { return S3adc_;     }
     double S4adc()     const { return S4adc_;     }
     double VMFadc()     const { return VMFadc_;     }
-    double VMBadc()     const { return VMFadc_;     }
+    double VMBadc()     const { return VMBadc_;     }
     double VM1adc()     const { return VM1adc_;     }
     double VM2adc()     const { return VM2adc_;     }
     double VM3adc()     const { return VM3adc_;     }

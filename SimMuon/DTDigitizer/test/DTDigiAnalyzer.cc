@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/03/17 13:33:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/01 15:24:07 $
+ *  $Revision: 1.4 $
  *  \authors: R. Bellan
  */
 
@@ -10,7 +10,6 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include "SimMuon/DTDigitizer/test/DTDigiAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
-#include "SimMuon/DTDigitizer/test/Histograms.h"
 
 // #include "SimMuon/DTDigitizer/test/analysis/DTMCStatistics.h"     
 // #include "SimMuon/DTDigitizer/test/analysis/DTMuonDigiStatistics.h" 
@@ -19,6 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -33,9 +33,19 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 #include <iostream>
+#include <string>
 
-#include "TH1F.h"  //FIXME
 #include "TFile.h"
+
+#include "SimMuon/DTDigitizer/test/Histograms.h"
+
+hDigis hDigis_global("Global");
+hDigis hDigis_W0("Wheel0");
+hDigis hDigis_W1("Wheel1");
+hDigis hDigis_W2("Wheel2");
+
+hHits hAllHits("AllHits");
+
 
 using namespace edm;
 using namespace std;
@@ -161,3 +171,9 @@ hDigis* DTDigiAnalyzer::WheelHistos(int wheel){
   default: return NULL;
   }
 }
+
+
+#include "PluginManager/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(DTDigiAnalyzer)
