@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/09 06:20:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/10 17:10:51 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -47,33 +47,33 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-   // get hold of products from Event
-
    // get hold of (single?) TriggerResults object
-   Handle<TriggerResults> trh;
-   iEvent.getByType(trh);
-   if (trh.isValid()) {
-     LogDebug("") << "TriggerResults: object not found!";
-   } else {
-     LogDebug("") << "TriggerResults: " << (*trh);
+   vector<Handle<TriggerResults> > trhv;
+   iEvent.getManyByType(trhv);
+   const unsigned int n(trhv->size());
+   LogDebug("") << "Number of TriggerResults objects found: " << n;
+   for (unsigned int i=0; i!=n; i++) {
+     LogDebug("") << "TriggerResult object " << i << " bits: " << (*trhv)[i];
    }
 
    // get hold of requested filter object
    Handle<HLTFilterObjectWithRefs> ref;
-   iEvent.getByLabel(inputTag_,ref);
-
-   // some Xchecking
-   HLTParticle particle;
-   const Candidate* candidate;
-   const unsigned int n(ref->size());
-   LogDebug("") << inputTag_.encode() + " Size = " << n;
-   for (unsigned int i=0; i!=n; i++) {
-     particle=ref->getParticle(i);
-     candidate=(ref->getParticleRef(i)).get();
-     LogTrace("") << i << " E: " 
-               << particle.energy() << " " << candidate->energy() << " "  
-		  << typeid(*candidate).name() << " "
-                  << particle.eta() << " " << particle.phi() ;
+   try {iEvent.getByLabel(inputTag_,ref);} catch(...) {;}
+   if (ref.isValid()) {
+     const unsigned int n(ref->size());
+     LogDebug("") << inputTag_.encode() + " Size = " << n;
+     for (unsigned int i=0; i!=n; i++) {
+       // some Xchecks
+       const Candidate* candidate;
+       HLTParticle particle(ref->getParticle(i));
+       const Candidate* candidate((ref->getParticleRef(i)).get());
+       LogTrace("") << i << " E: " 
+		    << particle.energy() << " " << candidate->energy() << " "  
+		    << typeid(*candidate).name() << " "
+		    << particle.eta() << " " << particle.phi() ;
+     }
+   } else {
+     LogDebug("") << "Filterobject " + inputTag_.encode() + " not found!";
    }
 
    return;
