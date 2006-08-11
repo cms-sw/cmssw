@@ -67,6 +67,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
 HybridClusterProducer::~HybridClusterProducer()
 {
+  delete hybrid_p;
 }
 
 
