@@ -10,7 +10,7 @@
 // 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
@@ -44,7 +44,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
-  produces< SiStripDigis >("SiStripDigis");
+  produces< SiStripDigiCollection >("SiStripDigiCollection");
   produces< SiStripEventSummary >();
   
 }
@@ -60,7 +60,7 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 /** 
     Retrieves cabling map from EventSetup, retrieves
     FEDRawDataCollection from Event, creates a DetSetVector of
-    SiStripDigis (EDProduct), uses RawToDigi converter to fill the
+    SiStripDigiCollection (EDProduct), uses RawToDigi converter to fill the
     DetSetVector, attaches StripDigiCollection to Event.
 */
 void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
@@ -80,7 +80,7 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  auto_ptr<SiStripDigis> digis( new SiStripDigis() );
+  auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
   // Create "real" or "pseudo" digis
   if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
@@ -93,7 +93,7 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
-  iEvent.put( digis, "SiStripDigis" );
+  iEvent.put( digis, "SiStripDigiCollection" );
   iEvent.put( summary );
   
 }
