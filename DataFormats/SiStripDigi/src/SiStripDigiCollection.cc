@@ -1,4 +1,4 @@
-#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,16 +9,16 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-const uint16_t SiStripDigis::invalid_ = 0xFFFF;
+const uint16_t SiStripDigiCollection::invalid_ = 0xFFFF;
 
 // -----------------------------------------------------------------------------
 //
-SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
-			    const vector<uint16_t>& fed_ids, 
-			    const vector<sistrip::FedBufferFormat>& format,
-			    const vector<sistrip::FedReadoutMode>& mode,
-			    const vector<uint8_t>& fe_enable_bits,
-			    const vector<uint16_t>& appended_bytes ) :
+SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollection>& buffers,
+					      const vector<uint16_t>& fed_ids, 
+					      const vector<sistrip::FedBufferFormat>& format,
+					      const vector<sistrip::FedReadoutMode>& mode,
+					      const vector<uint8_t>& fe_enable_bits,
+					      const vector<uint16_t>& appended_bytes ) :
   buffers_(buffers),
   feds_( vector<bool>( 1+FEDNumbering::lastFEDId(), false ) ),
   data_( vector<uint8_t*>( 1+FEDNumbering::lastFEDId(), static_cast<uint8_t*>(0) ) ),
@@ -28,12 +28,11 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
   payload_( 1+FEDNumbering::lastFEDId(), vector<uint16_t>( sistrip::FEUNITS_PER_FED, 0 ) ),
   error_("InvalidData") 
 {
-  static const string method = "SiStripDigis::SiStripDigis";
  
   // Check vector size
   if ( format.size() != static_cast<uint16_t>(1+FEDNumbering::lastFEDId()) ) {
     stringstream ss;
-    ss << "["<<method<<"]" 
+    ss << "["<<__PRETTY_FUNCTION__<<"]" 
        << "Unexpected size for vector of FedBufferFormat's! (" << format.size() 
        << "). Resizing to " << 1+FEDNumbering::lastFEDId() << "...";
     edm::LogWarning(error_) << ss.str();
@@ -43,7 +42,7 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
   // Check vector size
   if ( mode.size() != static_cast<uint16_t>(1+FEDNumbering::lastFEDId()) ) {
     stringstream ss;
-    ss << "["<<method<<"]" 
+    ss << "["<<__PRETTY_FUNCTION__<<"]" 
        << "Unexpected size for vector of FedReadoutMode's! (" << mode.size() 
        << "). Resizing to " << 1+FEDNumbering::lastFEDId() << "...";
     edm::LogWarning(error_) << ss.str();
@@ -74,16 +73,16 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
       } else { 
 	readoutPath_[*ifed] = sistrip::UNKNOWN_FED_READOUT_PATH; 
       }
-//       cout << " buffer_len[0]: 0x" 
-// 	   << hex << setw(8) << setfill('0') << static_cast<uint32_t>( buffer_len[0] ) << " dec"
-// 	   << dec << static_cast<uint32_t>( buffer_len[0] ) && 0xFFFFFF
-// 	   << " buffer_len[1]: 0x" 
-// 	   << hex << setw(8) << setfill('0') << static_cast<uint32_t>( buffer_len[1] ) << " dec"
-// 	   << dec << static_cast<uint32_t>( buffer_len[1] ) && 0xFFFFFF
-// 	   << " buffer_size: " 
-// 	   << hex << setw(8) << setfill('0') << (buffer_size>>3) << dec 
-// 	   << " readout path: " << readoutPath_[*ifed]
-// 	   << endl;
+      //       cout << " buffer_len[0]: 0x" 
+      // 	   << hex << setw(8) << setfill('0') << static_cast<uint32_t>( buffer_len[0] ) << " dec"
+      // 	   << dec << static_cast<uint32_t>( buffer_len[0] ) && 0xFFFFFF
+      // 	   << " buffer_len[1]: 0x" 
+      // 	   << hex << setw(8) << setfill('0') << static_cast<uint32_t>( buffer_len[1] ) << " dec"
+      // 	   << dec << static_cast<uint32_t>( buffer_len[1] ) && 0xFFFFFF
+      // 	   << " buffer_size: " 
+      // 	   << hex << setw(8) << setfill('0') << (buffer_size>>3) << dec 
+      // 	   << " readout path: " << readoutPath_[*ifed]
+      // 	   << endl;
       
       // Set position of payload blocks within FE units of FED buffer
       if ( format[*ifed] == sistrip::APV_ERROR_FORMAT )  { 
@@ -107,28 +106,28 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
 	  
 	  uint16_t fe_length = static_cast<uint16_t>( ((data_[*ifed][index0]&0xFF)<<0) | ((data_[*ifed][index1]&0xFF)<<8) );
 	  uint16_t fe_padded = static_cast<uint16_t>( (fe_length+7)&~7 );
-// 	  cout << "["<<method<<"]"
-// 	       << " FED id: " << *ifed
-// 	       << " FE unit: " << ii
-// 	       << " FE enable bits: 0x" << hex << setw(8) << setfill('0') << static_cast<uint16_t>( fe_enable_bits[*ifed] ) << dec
-// 	       << " FE enabled?: " << static_cast<uint16_t>( fe_enable_bits[*ifed] & (0x1<<ii) )
-// 	       << " FE start: " << payload_[*ifed][ii]
-// 	       << " index/index0/index1: " <<  index << "/" << index0 << "/" << index1
-// 	       << " FE length: " << fe_length
-// 	       << " FE padded: " << fe_padded;
+	  // 	  cout << "["<<__PRETTY_FUNCTION__<<"]"
+	  // 	       << " FED id: " << *ifed
+	  // 	       << " FE unit: " << ii
+	  // 	       << " FE enable bits: 0x" << hex << setw(8) << setfill('0') << static_cast<uint16_t>( fe_enable_bits[*ifed] ) << dec
+	  // 	       << " FE enabled?: " << static_cast<uint16_t>( fe_enable_bits[*ifed] & (0x1<<ii) )
+	  // 	       << " FE start: " << payload_[*ifed][ii]
+	  // 	       << " index/index0/index1: " <<  index << "/" << index0 << "/" << index1
+	  // 	       << " FE length: " << fe_length
+	  // 	       << " FE padded: " << fe_padded;
 	  if ( fe_enable_bits[*ifed] & (0x1<<ii) ) {
 	    payload_[*ifed][ii] += fe_offset;
 	    fe_offset += fe_length; 
-// 	    cout << " FE unit " << ii << " is used! ";
+	    // 	    cout << " FE unit " << ii << " is used! ";
 	  } else { payload_[*ifed][ii] = 0; }
-// 	  cout << " FE start (new): " << payload_[*ifed][ii] 
-// 	       << endl;
+	  // 	  cout << " FE start (new): " << payload_[*ifed][ii] 
+	  // 	       << endl;
 	}
       } else if ( format[*ifed] == sistrip::UNDEFINED_FED_BUFFER_FORMAT ) { 
 	//@@ anything here?
       } else {
 	stringstream ss;
-	ss << "["<<method<<"]"
+	ss << "["<<__PRETTY_FUNCTION__<<"]"
 	   << " Unexpected value for FedBufferformat! (" << format[*ifed]
 	   << "). Ignoring FED with id " << *ifed << "...";
 	edm::LogWarning(error_) << ss.str();
@@ -140,7 +139,7 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
       
     } else {
       stringstream ss;
-      ss << "["<<method<<"]"
+      ss << "["<<__PRETTY_FUNCTION__<<"]"
 	 << " Unexpected FED id! (" << *ifed
 	 << "). Allowed range is 0->"
 	 << ( FEDNumbering::lastFEDId() );
@@ -152,21 +151,20 @@ SiStripDigis::SiStripDigis( const edm::Handle<FEDRawDataCollection>& buffers,
 
 // -----------------------------------------------------------------------------
 //
-const uint16_t& SiStripDigis::adc( const uint16_t& fed_id, 
-				   const uint16_t& fed_ch, 
-				   const uint16_t& sample ) const { 
-  static const string method = "SiStripDigis::adc";
+const uint16_t& SiStripDigiCollection::adc( const uint16_t& fed_id, 
+					    const uint16_t& fed_ch, 
+					    const uint16_t& sample ) const { 
 
   // Check on FED id/channel and sample
   if ( fed_id > 1023 || fed_ch > 95 || sample > 1022 ) { 
-    edm::LogError(error_) << "["<<method<<"]" 
+    edm::LogError(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
 			  << "Invalid FED id/channel or sample: " 
 			  << fed_id << "/" << fed_ch << "/" << sample;
     return invalid_; 
   }
   
   if ( !feds_[fed_id] ) { 
-    edm::LogError(error_) << "["<<method<<"]" 
+    edm::LogError(error_) << "["<<__PRETTY_FUNCTION__<<"]" 
 			  << "FED id " << fed_id << "is not available!";
     return invalid_; 
   }
@@ -218,30 +216,30 @@ const uint16_t& SiStripDigis::adc( const uint16_t& fed_id,
 	adc_sample = ( (data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+0) ] << 8) |  // MSB (byte swapped!)
 		       (data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+1) ] << 0) ); // LSB (byte swapped!)
 	if ( sample < 3 ) {
-// 	  cout << " FedId: " << fed_id
-// 	       << " FedCh: " << fed_ch
-// 	       << " sample: " << sample
-// 	       << " offset0: " << (payload_[fed_id][fed_ch%8]+3+2*sample+0)
-// 	       << " offset1: " << (payload_[fed_id][fed_ch%8]+3+2*sample+1)
-// 	       << " swapped0: " << swap32(payload_[fed_id][fed_ch%8]+3+2*sample+0)
-// 	       << " swapped1: " << swap32(payload_[fed_id][fed_ch%8]+3+2*sample+1)
-// 	       << " data0: " << static_cast<uint16_t>( data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+0) ] )
-// 	       << " data1: " << static_cast<uint16_t>( data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+1) ] )
-// 	       << " data: " << adc_sample
-// 	       << endl;
+	  // 	  cout << " FedId: " << fed_id
+	  // 	       << " FedCh: " << fed_ch
+	  // 	       << " sample: " << sample
+	  // 	       << " offset0: " << (payload_[fed_id][fed_ch%8]+3+2*sample+0)
+	  // 	       << " offset1: " << (payload_[fed_id][fed_ch%8]+3+2*sample+1)
+	  // 	       << " swapped0: " << swap32(payload_[fed_id][fed_ch%8]+3+2*sample+0)
+	  // 	       << " swapped1: " << swap32(payload_[fed_id][fed_ch%8]+3+2*sample+1)
+	  // 	       << " data0: " << static_cast<uint16_t>( data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+0) ] )
+	  // 	       << " data1: " << static_cast<uint16_t>( data_[fed_id][ swap32( payload_[fed_id][fed_ch%8]+3+2*sample+1) ] )
+	  // 	       << " data: " << adc_sample
+	  // 	       << endl;
 	}
       } else {
 	adc_sample = ( (data_[fed_id][ payload_[fed_id][fed_ch%8]+3+2*sample+0 ] << 8) |  // MSB (byte swapped!)
 		       (data_[fed_id][ payload_[fed_id][fed_ch%8]+3+2*sample+1 ] << 0) ); // LSB (byte swapped!)
       }
-//       if ( !sample ) {
-// 	cout << "["<<method<<"]"
-// 	     << " FED id: " << fed_id
-// 	     << " FED ch: " << fed_ch
-// 	     << " sample: " << sample
-// 	     << " iterator: " << (payload_[fed_id][fed_ch%8]+3+2*sample)
-// 	     << endl;
-//       }
+      //       if ( !sample ) {
+      // 	cout << "["<<__PRETTY_FUNCTION__<<"]"
+      // 	     << " FED id: " << fed_id
+      // 	     << " FED ch: " << fed_ch
+      // 	     << " sample: " << sample
+      // 	     << " iterator: " << (payload_[fed_id][fed_ch%8]+3+2*sample)
+      // 	     << endl;
+      //       }
       return adc_sample;
     } else {
       // throw

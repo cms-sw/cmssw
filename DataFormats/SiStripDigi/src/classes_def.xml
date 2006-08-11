@@ -20,8 +20,8 @@
  <class name="edm::DoNotSortUponInsertion"/>
  <class name="edm::Wrapper< edm::DoNotSortUponInsertion >"/>
 
- <class name="SiStripDigis"/>
- <class name="edm::Wrapper< SiStripDigis >"/> 
+ <class name="SiStripDigiCollection"/>
+ <class name="edm::Wrapper< SiStripDigiCollection >"/> 
  <class name="FEDRawDataCollection"/>
  <class name="edm::RefProd<FEDRawDataCollection>"/> 
  <class name="std::vector<sistrip::FedReadoutMode>"/>

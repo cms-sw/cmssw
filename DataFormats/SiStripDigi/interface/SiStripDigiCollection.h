@@ -1,5 +1,5 @@
-#ifndef DataFormats_SiStripDigi_SiStripDigis_H
-#define DataFormats_SiStripDigi_SiStripDigis_H
+#ifndef DataFormats_SiStripDigi_SiStripDigiCollection_H
+#define DataFormats_SiStripDigi_SiStripDigiCollection_H
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -12,19 +12,19 @@
 /**  
      @brief 
 */
-class SiStripDigis {
+class SiStripDigiCollection {
   
- public:
+public:
   
-  SiStripDigis( const edm::Handle<FEDRawDataCollection>&,
-		const std::vector<uint16_t>& fed_ids, 
-		const std::vector<sistrip::FedBufferFormat>&,
-		const std::vector<sistrip::FedReadoutMode>&,
-		const std::vector<uint8_t>& fe_enable_bits,
-		const std::vector<uint16_t>& appended_bytes );
+  SiStripDigiCollection( const edm::Handle<FEDRawDataCollection>&,
+			 const std::vector<uint16_t>& fed_ids, 
+			 const std::vector<sistrip::FedBufferFormat>&,
+			 const std::vector<sistrip::FedReadoutMode>&,
+			 const std::vector<uint8_t>& fe_enable_bits,
+			 const std::vector<uint16_t>& appended_bytes );
   
-  SiStripDigis() {;}
-  ~SiStripDigis() {;}
+  SiStripDigiCollection() {;}
+  ~SiStripDigiCollection() {;}
   
   /** All methods return "invalid" (0xFFFF) if there are problems
       retrieving the ADC value for a given FED id/chan and sample. */
@@ -34,7 +34,7 @@ class SiStripDigis {
 		       const uint16_t& fed_ch, 
 		       const uint16_t& sample ) const;
   
- private:
+private:
 
   /** Returns iterator. */
   inline uint16_t swap32( const uint16_t& byte ) const; 
@@ -67,11 +67,11 @@ class SiStripDigis {
 
 // ---------- inline methods ----------
 
-uint16_t SiStripDigis::swap32( const uint16_t& byte ) const { 
+uint16_t SiStripDigiCollection::swap32( const uint16_t& byte ) const { 
   return ( ((byte/8)*8) + (((7-(byte%8))+4)%8) ); // ((byte+4)%8) ); 
 }
 
-#endif // DataFormats_SiStripDigi_SiStripDigis_H
+#endif // DataFormats_SiStripDigi_SiStripDigiCollection_H
 
 
 

@@ -32,14 +32,14 @@ namespace {
   }
 }
 
-#include "DataFormats/SiStripDigi/interface/SiStripDigis.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 namespace {
   namespace {
 
-    edm::Wrapper<SiStripDigis> digis;
+    edm::Wrapper<SiStripDigiCollection> digis;
 
     edm::Wrapper<FEDRawDataCollection> fed_buffers;
     edm::RefProd<FEDRawDataCollection> ref_to_fed_buffers;
