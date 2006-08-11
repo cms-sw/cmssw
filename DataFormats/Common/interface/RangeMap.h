@@ -16,13 +16,14 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.25 $
+ * \version $Revision: 1.26 $
  *
- * $Id: RangeMap.h,v 1.25 2006/06/14 11:42:36 llista Exp $
+ * $Id: RangeMap.h,v 1.26 2006/08/10 23:34:53 wmtan Exp $
  *
  */
 #include <map>
 #include <vector>
+#include <algorithm>
 #include <ext/functional>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -191,11 +192,14 @@ namespace edm {
     /// identifier map
     mapType map_;
   };
+
+  template <typename ID, typename C, typename P> inline void swap( RangeMap<ID, C, P> & a, RangeMap<ID, C, P> & b );
   
   template <typename ID, typename C, typename P>
   inline
   void
   RangeMap<ID, C, P>::swap( RangeMap<ID, C, P> & other ) {
+    using edm::swap;
     swap(collection_, other.collection_);
     map_.swap(other.map_);
   }

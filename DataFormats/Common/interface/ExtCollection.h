@@ -2,6 +2,7 @@
 #define Common_ext_collection_h
 
 #include "DataFormats/Common/interface/traits.h"
+#include <algorithm>
 
 namespace edm {
 
@@ -122,8 +123,11 @@ namespace edm {
     ext_ = Ext();
   }
 
+  template<typename C, typename Ext> inline void swap( ExtCollection<C, Ext> & a, ExtCollection<C, Ext> & b );
+
   template<typename C, typename Ext>
   inline void ExtCollection<C, Ext>::swap( ExtCollection<C, Ext> & other ) {
+    using edm::swap;
     swap(data_, other.data_);
     swap(ext_, other.ext_);
   }
