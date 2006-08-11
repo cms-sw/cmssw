@@ -113,6 +113,16 @@ void SiStripCommissioningSource::endJob() {
   stringstream ss; ss << name << "_" << setfill('0') << setw(7) << run_ << ".root";
   dqm()->save( ss.str() ); 
 
+//   // Remove all monitoring elements
+//   vector<string> contents;
+//   dqm()->getContents( contents );
+//   vector<string>::const_iterator idir;
+//   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
+//     string collector_dir = idir->substr( 0, idir->find(":") );
+//     dqm()->setCurrentFolder(collector_dir);
+//     dqm()->removeContents();
+//   }
+  
   // Delete commissioning task objects
   for ( TaskMap::iterator itask = tasks_.begin(); itask != tasks_.end(); itask++ ) { 
     if ( itask->second ) { delete itask->second; }
