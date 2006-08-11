@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/31 22:37:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/04 09:14:34 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -258,28 +258,12 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TransverseImpactPointExtrapolator tipe(*thePropagator);
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
+  if ( !tscp.isValid() ) return reco::Track();
   PerigeeConversions conv;
   double pt = 0.0;
   PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
   PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
 
-/*
-  try{
-    tscp = tscpBuilder( innerTSOS,vtx );
-  }
-  catch(const TrajectoryStateException &er){
-    edm::LogWarning("RecoMuon") << "caught TrajectoryStateException: "<< er.what() << std::endl;
-    return reco::Track(); 
-  }
-  catch(const std::exception& er){
-    edm::LogWarning("RecoMuon") << "caught std::exception: " << er.what() << std::endl;
-    return reco::Track(); 
-  }
-  catch(...){
-    edm::LogWarning("RecoMuon") << "Funny error" << std::endl;
-    return reco::Track(); 
-  }
-*/
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
   float dof=0.;
