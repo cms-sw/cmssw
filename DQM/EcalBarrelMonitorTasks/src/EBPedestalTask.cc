@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.43 $
+ * $Date: 2006/08/03 15:31:08 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -263,6 +263,10 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
 
     }
+
+    xmap12[ism-1][ie-1][ip-1]=xmap12[ism-1][ie-1][ip-1]/10.;
+    xmap06[ism-1][ie-1][ip-1]=xmap06[ism-1][ie-1][ip-1]/10.;
+    xmap01[ism-1][ie-1][ip-1]=xmap01[ism-1][ie-1][ip-1]/10.;
 
   }
 
