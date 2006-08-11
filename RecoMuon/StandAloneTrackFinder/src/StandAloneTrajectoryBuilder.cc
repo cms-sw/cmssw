@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/18 09:07:04 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/07/26 16:30:25 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -105,7 +105,7 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 MuonTrajectoryBuilder::TrajectoryContainer 
 StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){ 
 
-  std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;
 
   // FIXME put a flag

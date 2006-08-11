@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/18 09:07:47 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/07/26 09:27:14 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -201,7 +201,7 @@ vector<const DetLayer*> StandAloneMuonRefitter::compatibleLayers(const DetLayer 
 void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 				   const DetLayer* initialLayer, Trajectory &trajectory){
   
-  std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
   bool timing = true;
 
   // reset the refitter each seed refinement
