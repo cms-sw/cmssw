@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/09 08:19:25 $
- * $Revision: 1.23 $
+ * $Date: 2006/08/09 12:41:24 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -59,15 +59,15 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
 
   checkedSteps_.reserve(86);
   // there should be not more than a eta row in an autoscan
-  minEvtNum_ = 2000;//FIX ME, change in case of prescaling
+  minEvtNum_ = 1800;//
   //FIX ME, this should be configurable and change with the beam energy
-  aveEne1_    = 1300;  E1Th_   = 500;
-  aveEne3x3_  = 2000;  E3x3Th_ = 300;
-  RMSEne3x3_  = 500;
+  aveEne1_    = 1800;  E1Th_   = 800;
+  aveEne3x3_  = 2600;  E3x3Th_ = 600;
+  RMSEne3x3_  = 600;
 
   ReadCryErrThr_ = 0.01;// 1%
   //FIX ME, this should follow the prescaling in the monitoring
-  prescaling_ = 50;
+  prescaling_ = 20;
   
   ///////// task specific histos 
   for(int u=0;u<cryInArray_;u++){
@@ -1589,6 +1589,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     //objp1->SetStats(kTRUE);
     //gStyle->SetOptStat("e");
+
     float dd=0; 
     int mbin =0;
     for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
