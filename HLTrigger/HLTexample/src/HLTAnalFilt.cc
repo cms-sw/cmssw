@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/10 17:10:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/11 08:36:54 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -50,10 +50,10 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of (single?) TriggerResults object
    vector<Handle<TriggerResults> > trhv;
    iEvent.getManyByType(trhv);
-   const unsigned int n(trhv->size());
+   const unsigned int n(trhv.size());
    LogDebug("") << "Number of TriggerResults objects found: " << n;
    for (unsigned int i=0; i!=n; i++) {
-     LogDebug("") << "TriggerResult object " << i << " bits: " << (*trhv)[i];
+     LogDebug("") << "TriggerResult object " << i << " bits: " << *(trhv[i]);
    }
 
    // get hold of requested filter object
@@ -64,7 +64,6 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      LogDebug("") << inputTag_.encode() + " Size = " << n;
      for (unsigned int i=0; i!=n; i++) {
        // some Xchecks
-       const Candidate* candidate;
        HLTParticle particle(ref->getParticle(i));
        const Candidate* candidate((ref->getParticleRef(i)).get());
        LogTrace("") << i << " E: " 

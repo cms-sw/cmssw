@@ -1,16 +1,27 @@
+/** \class HLTPrescaler
+ *
+ *  
+ *  See header file for documentation.
+ *
+ *  $Date: 2006/06/25 22:25:38 $
+ *  $Revision: 1.5 $
+ *
+ *  \author Martin Grunewald
+ *
+ */
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
-using namespace std;
-
-HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps):
+HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   b_(ps.getParameter<bool>("makeFilterObject")),
   n_(ps.getParameter<unsigned int>("prescaleFactor")),
+  o_(ps.getParameter<unsigned int>("eventOffset")),
   count_()
 {
-  if (n_==0) n_=1; // accept all!
   if (b_) produces<reco::HLTFilterObjectWithRefs>();
+  if (n_==0) n_=1; // accept all!
+  count_ += o_;    // event offset
 }
     
 HLTPrescaler::~HLTPrescaler()

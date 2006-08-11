@@ -7,7 +7,7 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2006/06/25 19:03:02 $
+ *  $Date: 2006/06/25 22:25:38 $
  *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
@@ -28,6 +28,7 @@ class HLTPrescaler : public HLTFilter {
 
   bool         b_;       // to put a filterobject into the event?
   unsigned int n_;       // accept one in n_
+  unsigned int o_;       // offset in event number (usually 0)
   unsigned int count_;   // local event counter
 };
 
