@@ -35,10 +35,19 @@ class SiStripHistoNamingScheme {
     uint16_t ccuChan_;
   };
   
-  // ----- METHODS RETURNING SOME GENERIC STRINGS AND CONSTANTS -----
+  // ----- METHODS RETURNING SOME GENERIC STRINGS AND ENUMS -----
 
+  static std::string view( const sistrip::View& );
+  static std::string task( const sistrip::Task& );
+  static std::string contents( const sistrip::Contents& );
+  static std::string keyType( const sistrip::KeyType& );
+  static std::string granularity( const sistrip::Granularity& );
+  
   static sistrip::View view( const std::string& directory );
-  static const std::string& view( const sistrip::View& );
+  static sistrip::Task task( const std::string& task );
+  static sistrip::Contents contents( const std::string& contents );
+  static sistrip::KeyType keyType( const std::string& key_type );
+  static sistrip::Granularity granularity( const std::string& granularity );
   
   // ----- FORMULATION OF DIRECTORY PATHS -----
 
@@ -85,22 +94,17 @@ class SiStripHistoNamingScheme {
       values in the form of a HistoTitle struct. */
   static HistoTitle histoTitle( std::string histo_title );  
   
-  static std::string task( sistrip::Task task );
-  static std::string contents( sistrip::Contents contents );
-  static std::string keyType( sistrip::KeyType key_type );
-  static std::string granularity( sistrip::Granularity Granularity );
-
-  static sistrip::Task task( std::string task );
-  static sistrip::Contents contents( std::string contents );
-  static sistrip::KeyType keyType( std::string key_type );
-  static sistrip::Granularity granularity( std::string granularity );
-  
 };
 
 // inline method
 std::string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::HistoTitle title ) {
-  return histoTitle( title.task_, title.contents_, title.keyType_, title.keyValue_, 
-		     title.granularity_, title.channel_, title.extraInfo_ );
+  return histoTitle( title.task_, 
+		     title.contents_, 
+		     title.keyType_, 
+		     title.keyValue_, 
+		     title.granularity_, 
+		     title.channel_, 
+		     title.extraInfo_ );
 }
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H

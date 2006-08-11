@@ -9,6 +9,11 @@ class SummaryHistogramFactory<ApvTimingAnalysis::Monitorables> {
   
  public:
   
+  static std::string name( const sistrip::SummaryHisto& histo, 
+			   const sistrip::SummaryType& type,
+			   const sistrip::View& view, 
+			   const std::string& directory );
+  
   void generate( const sistrip::SummaryHisto& histo, 
 		 const sistrip::SummaryType& type,
 		 const sistrip::View& view, 

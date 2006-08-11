@@ -65,6 +65,21 @@ namespace sistrip {
   static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";
   static const std::string residualsAndNoise_ = "ResidualsAndNoise";
   static const std::string commonMode_        = "CommonMode";
+
+  // summary histogram names (general)
+  static const std::string summaryHisto_          = "SummaryHisto";
+  static const std::string unknownSummaryHisto_   = "UnknownSummaryHisto";
+  static const std::string undefinedSummaryHisto_ = "UndefinedSummaryHisto";
+  
+  // summary histo names (apv timing)
+  static const std::string apvTimingCoarse_ = "ApvTimingCoarse";
+  static const std::string apvTimingFine_   = "ApvTimingFine";
+  static const std::string apvTimingDelay_  = "apvTimingDelay";
+  static const std::string apvTimingError_  = "ApvTimingError";
+  static const std::string apvTimingBase_   = "ApvTimingBase";
+  static const std::string apvTimingPeak_   = "ApvTimingPeak";
+  static const std::string apvTimingHeight_ = "ApvTimingHeight";
+  
  
 }
 

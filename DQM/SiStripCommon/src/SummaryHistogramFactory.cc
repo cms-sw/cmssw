@@ -1,10 +1,24 @@
 #include "DQM/SiStripCommon/interface/SummaryHistogramFactory.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 #include <iostream>
+#include <sstream>
 
 using namespace std;
+
+// -----------------------------------------------------------------------------
+//
+template<class T> 
+string SummaryHistogramFactory<T>::name( const sistrip::SummaryHisto& histo, 
+					 const sistrip::SummaryType& type,
+					 const sistrip::View& view, 
+					 const string& directory ) {
+  stringstream ss;
+  ss << sistrip::summaryHisto_ << sistrip::sep_;
+  ss << sistrip::unknownSummaryHisto_;
+  ss << sistrip::sep_ << SiStripHistoNamingScheme::view( view );
+  return ss.str(); 
+  
+}
 
 // -----------------------------------------------------------------------------
 //
