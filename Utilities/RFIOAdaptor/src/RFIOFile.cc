@@ -81,6 +81,12 @@ RFIOFile::open (const char *name,
 		int flags /* = IOFlags::OpenRead */,
 		FileAcl perms /* = 066 */)
 {
+  /// save history
+  m_name = name;
+  m_flags = flags;
+  m_perms = perms;
+  m_lastIOV.clear();
+
   serrno = 0;
     // Disable buffering in rfio library?  Note that doing this on
     // one file disables it for everything.  Not much we can do...
@@ -191,6 +197,16 @@ namespace {
 }
 
 
+/// close and open again...
+void RFIOFile::reOpen() {
+  std::cerr << "reopen " << m_name
+	    << " with " << m_lastIOV.size() << " preseeks" << std::endl;
+  close();
+  sleep(5);
+  open(m_name, m_flags, m_perms);
+  if (!m_lastIOV.empty()) preseek(m_lastIOV);
+}
+
 ssize_t
 RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
   if (max_retry == 0) return -1;
@@ -204,9 +220,11 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
     if (s>int(n)) std::cerr << "error in read " << n << ", " << s << std::endl;
     sleep(5);
     max_retry--;
+    // close&open
+    reOpen();
     // re seek
     IOOffset l_pos = m_currentPosition;
-    position(0); // hope reset internal rfio state
+    // position(0); // hope reset internal rfio state
     position(l_pos);
     return retry_read (into, n, max_retry);
   } 
@@ -265,7 +283,7 @@ RFIOFile::resize (IOOffset /* size */)
 
 void          
 RFIOFile::preseek(const IOVec& iov) {
-
+  m_lastIOV = iov;
   serrno = 0;
   if (rfioreadopt (RFIO_READOPT)!=1) 
     throw RFIOError ("rfio_preseek(): readopt!=1", 0,0);

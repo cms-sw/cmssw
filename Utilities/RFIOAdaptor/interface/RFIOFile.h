@@ -79,10 +79,18 @@ private:
 
     ssize_t     retry_read (void *into, IOSize n, int max_retry=10);
 
+  void reOpen();
 
 private:
     IOFD		m_fd;
     bool		m_close;
+
+  /// history fro retry...
+  std::string m_name;
+  int m_flags;
+  FileAcl m_perms;
+  IOVec m_lastIOV;
+  
 
   IOOffset              m_currentPosition;
 };
