@@ -13,7 +13,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.5 2006/07/11 23:10:00 fedor Exp $
+   $Id: HcalDbPool.h,v 1.6 2006/08/10 23:13:35 fedor Exp $
 */
 
 namespace cond {
@@ -64,6 +64,7 @@ class HcalDbPool {
   bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun);
   bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun);
   bool getObject (cond::IOV* fObject, const std::string& fTag);
+  bool putObject (cond::IOV* fObject, const std::string& fTag);
  private:
   std::string mConnect;
   std::string mTag;

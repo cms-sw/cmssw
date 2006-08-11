@@ -63,7 +63,12 @@ std::vector<HcalDetId> undefinedCells (const T& fData) {
 	for (int depth = 1; depth < 5; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	    if (topology.valid(cell) && !fData.getValues (cell)) result.push_back (cell);
+	    try {
+	      fData.getValues (cell);
+	    }
+	    catch (...) {
+	      if (topology.valid(cell)) result.push_back (cell);
+	    }
 	  }
 	}
       }

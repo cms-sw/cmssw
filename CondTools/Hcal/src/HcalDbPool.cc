@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.13 2006/07/26 21:00:31 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.14 2006/08/10 23:13:36 fedor Exp $
 */
 
 // pool
@@ -58,6 +58,8 @@
 #include "CondCore/IOVService/interface/IOV.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondTools/Hcal/interface/HcalDbPool.h"
 
@@ -501,6 +503,28 @@ bool HcalDbPool::getObject (cond::IOV* fObject, const std::string& fTag) {
   }
   *fObject = *iovCache;
   return true;
+}
+
+bool HcalDbPool::putObject (cond::IOV* fObject, const std::string& fTag) {
+  std::string metadataToken = metadataGetToken (fTag);
+  if (metadataToken.empty ()) {
+    pool::Ref<cond::IOV> iov;
+    if (storeObject (fObject, "IOV", &iov)) {
+      metadataToken = iov.toString ();
+      return metadataSetTag (fTag, metadataToken);
+    }
+    else {
+      return false;
+    }
+  }
+  else if (iovCache.toString () != metadataToken) {
+    getObject (metadataToken, &iovCache);
+  }
+  if (iovCache.isNull ()) {
+    std::cerr << "HcalDbPool::putObject ERROR: can not find IOV for token " << metadataToken << std::endl;;
+    return false;
+  }
+  return updateObject (fObject, &iovCache);
 }
 
 bool HcalDbPool::getObject (HcalPedestals* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
