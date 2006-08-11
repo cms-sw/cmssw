@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2006/06/25 22:25:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/11 09:24:40 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   o_(ps.getParameter<unsigned int>("eventOffset")),
   count_()
 {
-  if (b_) produces<reco::HLTFilterObjectWithRefs>();
+  if (b_) produces<reco::HLTFilterObjectBase>();
   if (n_==0) n_=1; // accept all!
   count_ += o_;    // event offset
 }
@@ -40,8 +40,8 @@ bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
 
   // construct and place filter object if requested
   if (b_) {
-    auto_ptr<HLTFilterObjectWithRefs> 
-      filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+    auto_ptr<HLTFilterObjectBase> 
+      filterproduct (new HLTFilterObjectBase(path(),module()));
     e.put(filterproduct);
   }
 
