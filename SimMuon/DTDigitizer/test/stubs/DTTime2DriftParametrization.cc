@@ -20,10 +20,10 @@
 
 #ifndef MB_DT_STANDALONE
 #include "DTTime2DriftParametrization.h"
-#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc"
+#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc"
 #else
 #include "DTTime2DriftParametrization.h"
-#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc"
+#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc"
 #endif
 
 DTTime2DriftParametrization::DTTime2DriftParametrization(){}
