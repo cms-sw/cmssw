@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/25 17:10:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/31 21:45:49 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -19,50 +19,50 @@ MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 MuonDetLayerGeometry::~MuonDetLayerGeometry(){}
 
 void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+  
+  vector<DetLayer*>::const_iterator it;
+  for(it=csclayers.first.begin(); it!=csclayers.first.end(); it++) {
+    cscLayers_fw.push_back(*it);
+    cscLayers_all.push_back(*it);
+    allForward.push_back(*it);
+    allEndcap.push_back(*it);
+    allDetLayers.push_back(*it);
     
-    vector<DetLayer*>::const_iterator it;
-    for(it=csclayers.first.begin(); it!=csclayers.first.end(); it++) {
-        cscLayers_fw.push_back(*it);
-        cscLayers_all.push_back(*it);
-        allForward.push_back(*it);
-        allEndcap.push_back(*it);
-        allDetLayers.push_back(*it);
-
-	detLayersMap[ makeDetLayerId(*it) ] = *it;
-    }
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
+  }
+  
+  for(it=csclayers.second.begin(); it!=csclayers.second.end(); it++) {
+    cscLayers_bk.push_back(*it);
+    cscLayers_all.push_back(*it);
+    allBackward.push_back(*it);
+    allEndcap.push_back(*it);
+    allDetLayers.push_back(*it);
     
-    for(it=csclayers.second.begin(); it!=csclayers.second.end(); it++) {
-        cscLayers_bk.push_back(*it);
-        cscLayers_all.push_back(*it);
-        allBackward.push_back(*it);
-        allEndcap.push_back(*it);
-        allDetLayers.push_back(*it);
-
-	detLayersMap[ makeDetLayerId(*it) ] = *it;
-    }    
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
+  }    
 }    
 
 
 void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vector<DetLayer*>, vector<DetLayer*> > endcapLayers) {
-    
-//     layers_fw = endcapLayers.first;
-//     layers_bg = endcapLayers.second;
+  
+  //     layers_fw = endcapLayers.first;
+  //     layers_bg = endcapLayers.second;
 }    
 
 void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
-
-    vector<DetLayer*>::const_iterator it;
-    for(it=dtlayers.begin(); it!=dtlayers.end(); it++) {
-        dtLayers.push_back(*it);
-        allBarrel.push_back(*it);
-        allDetLayers.push_back(*it);
-
-	detLayersMap[ makeDetLayerId(*it) ] = *it;
-    }
+  
+  vector<DetLayer*>::const_iterator it;
+  for(it=dtlayers.begin(); it!=dtlayers.end(); it++) {
+    dtLayers.push_back(*it);
+    allBarrel.push_back(*it);
+    allDetLayers.push_back(*it);
+    
+    detLayersMap[ makeDetLayerId(*it) ] = *it;
+  }
 }    
 
 DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
-
+  
   if(detLayer->subDetector() ==  GeomDetEnumerators::CSC){
     CSCDetId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
     return CSCDetId(id.endcap(),id.station(),0,0,0);
@@ -77,87 +77,87 @@ DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::allDTLayers() const {    
-    return dtLayers; 
+  return dtLayers; 
 }
 
 const vector<DetLayer*>&
 MuonDetLayerGeometry::allCSCLayers() const {
-    return cscLayers_all;
+  return cscLayers_all;
 }
 
 
 const vector<DetLayer*>&
 MuonDetLayerGeometry::forwardCSCLayers() const {
-    return cscLayers_fw;
+  return cscLayers_fw;
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::backwardCSCLayers() const {
-    return cscLayers_bk;
+  return cscLayers_bk;
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::allRPCLayers() const {
-    return rpcLayers_all;    
+  return rpcLayers_all;    
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::barrelRPCLayers() const {
-    return rpcLayers_barrel; 
+  return rpcLayers_barrel; 
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::endcapRPCLayers() const {
-    return rpcLayers_endcap;    
+  return rpcLayers_endcap;    
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::forwardRPCLayers() const {
-     return rpcLayers_fw; 
+  return rpcLayers_fw; 
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::backwardRPCLayers() const {
-    return rpcLayers_bk; 
+  return rpcLayers_bk; 
 }
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allLayers() const {
-    return allDetLayers;    
+  return allDetLayers;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allBarrelLayers() const {
-    return allBarrel;    
+  return allBarrel;    
 }    
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allEndcapLayers() const {
-    return allEndcap;    
+  return allEndcap;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allForwardLayers() const {
-    return allForward;    
+  return allForward;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allBackwardLayers() const {
-    return allBackward;    
+  return allBackward;    
 }    
 
 const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
-
+  
   DetId id;
   
   if(detId.subdetId() == MuonSubdetId::CSC){
@@ -171,7 +171,7 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
   }
   
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
-
+  
   std::map<DetId,DetLayer*>::const_iterator layer = detLayersMap.find(id);
   if (layer == detLayersMap.end()) return 0;
   return layer->second; 

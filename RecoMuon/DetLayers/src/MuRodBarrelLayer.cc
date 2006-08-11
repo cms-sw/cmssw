@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/13 08:46:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/25 17:10:28 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,14 +12,14 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include "GeneralBinFinderInPhi.h"
 #include "PhiBorderFinder.h"
 
 #include <algorithm>
 #include <iostream>
-
-#define MDEBUG false //FIXME!
 
 using namespace std;
 
@@ -29,6 +29,9 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   theBinFinder(0),
   isOverlapping(false)
 {
+
+  const std::string metname = "RecoMuon|DetLayers|MuRodBarrelLayer";
+
   // Cache chamber pointers (the basic components_)
   for (vector<const DetRod*>::const_iterator it=rods.begin();
        it!=rods.end(); it++) {
@@ -50,14 +53,12 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   // Compute the layer's surface and bounds (from the components())
   BarrelDetLayer::initialize(); 
 
-  if ( MDEBUG ) 
-    cout << "Constructing MuRodBarrelLayer: "
-	 << basicComponents().size() << " Dets " 
-	 << theRods.size() << " Rods "
-	 << " R: " << specificSurface().radius()
-	 << " Per.: " << bf.isPhiPeriodic()
-	 << " Overl.: " << isOverlapping
-	 << endl;
+  LogTrace(metname) << "Constructing MuRodBarrelLayer: "
+                    << basicComponents().size() << " Dets " 
+                    << theRods.size() << " Rods "
+                    << " R: " << specificSurface().radius()
+                    << " Per.: " << bf.isPhiPeriodic()
+                    << " Overl.: " << isOverlapping;
 }
 
 
@@ -72,20 +73,20 @@ vector<GeometricSearchDet::DetWithState>
 MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
 				 const MeasurementEstimator& est) const {
+
+  const std::string metname = "RecoMuon|DetLayers|MuRodBarrelLayer";
   vector<DetWithState> result; 
 
-  if ( MDEBUG ) 
-    cout << "MuRodBarrelLayer::compatibleDets, Cyl R: " 
-	 << specificSurface().radius()
-	 << " TSOS at R: " << startingState.globalPosition().perp()
-	 << endl;
+ 
+  LogTrace(metname) << "MuRodBarrelLayer::compatibleDets, Cyl R: " 
+                    << specificSurface().radius()
+                    << " TSOS at R: " << startingState.globalPosition().perp();
 
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
   if (!compat.first) {
-    if ( MDEBUG )
-      cout << "     MuRodBarrelLayer::compatibleDets: not compatible"
-	   << " (should not have been selected!)" <<endl;
+    LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets: not compatible"
+                      << " (should not have been selected!)";
     return vector<DetWithState>();
   } 
 
@@ -96,11 +97,9 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
   const DetRod* closestRod = theRods[closest];
 
   // Check the closest rod
-  if ( MDEBUG ) 
-    cout << "     MuRodBarrelLayer::compatibleDets, closestRod: " << closest
-	 << " phi : " << closestRod->surface().position().phi()
-	 << " FTS phi: " << tsos.globalPosition().phi()
-	 << endl;
+  LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, closestRod: " << closest
+                    << " phi : " << closestRod->surface().position().phi()
+                    << " FTS phi: " << tsos.globalPosition().phi();
 
   result = closestRod->compatibleDets(tsos, prop, est);
 
@@ -139,9 +138,8 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
       dist = +1.;
     }
 
-    if ( MDEBUG ) 
-      cout << "     MuRodBarrelLayer::fastCompatibleDets, none on closest rod!"
-	   << endl;
+    
+    LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets, none on closest rod!";
   }
 
   if (checknext) {
@@ -152,12 +150,11 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
     next = theBinFinder->binIndex(next); // Bin Periodicity
     const DetRod* nextRod = theRods[next];
 
-    if ( MDEBUG ) 
-      cout << "     MuRodBarrelLayer::fastCompatibleDets, next-to closest"
-	   << " rod: " << next << " dist " << dist
-	   << " phi : " << nextRod->surface().position().phi()
-	   << " FTS phi: " << tsos.globalPosition().phi()
-	   << endl;    
+  
+    LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets, next-to closest"
+                      << " rod: " << next << " dist " << dist
+                      << " phi : " << nextRod->surface().position().phi()
+                      << " FTS phi: " << tsos.globalPosition().phi();   
     
     vector<DetWithState> nextRodDets =
       nextRod->compatibleDets(tsos, prop, est);
@@ -165,12 +162,11 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 		  nextRodDets.begin(), nextRodDets.end());
   }
   
-  if ( MDEBUG ) 
-    cout << "     MuRodBarrelLayer::fastCompatibleDets: found: "
-	 << result.size()
-	 << " on closest: " << nclosest
-	 << " # checked rods: " << 1 + int(checknext)
-	 << endl;
+  
+   LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets: found: "
+                     << result.size()
+                     << " on closest: " << nclosest
+                     << " # checked rods: " << 1 + int(checknext);
   
   return result;
 }

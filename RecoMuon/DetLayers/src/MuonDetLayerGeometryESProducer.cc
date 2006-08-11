@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/25 17:10:28 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/31 21:45:49 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - CERN
  */
 
@@ -38,18 +38,19 @@ MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 boost::shared_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
+  const std::string metname = "RecoMuon|DetLayers|MuonDetLayerGeometryESProducer";
   MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
-
+  
   // Build DT layers  
   try {
     edm::ESHandle<DTGeometry> dt;
     record.getRecord<MuonGeometryRecord>().get(dt);
     if (dt.isValid()) {
-        muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
+      muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
     }
   } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
     // No DT geo available: trap the exception.
-    LogInfo("RecoMuonDetLayers") << "No DT geometry is available."; 
+    LogInfo(metname) << "No DT geometry is available."; 
   }
 
   // Build CSC layers
@@ -57,11 +58,11 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     edm::ESHandle<CSCGeometry> csc;
     record.getRecord<MuonGeometryRecord>().get(csc);
     if (csc.isValid()) {
-        muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
+      muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
     }
   } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     // No CSC geo available: trap the exception.
-    LogInfo("RecoMuonDetLayers") << "No CSC geometry is available.";
+    LogInfo(metname) << "No CSC geometry is available.";
   }
   
   // Build RPC layers
@@ -71,12 +72,12 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     if (rpc.isValid()) {
       muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
     }
-  
+    
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     // No RPC geo available: trap the exception.
-    LogInfo("RecoMuonDetLayers") << "No RPC geometry is available.";
+    LogInfo(metname) << "No RPC geometry is available.";
   }  
-
+  
   return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }
 

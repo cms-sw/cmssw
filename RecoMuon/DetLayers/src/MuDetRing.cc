@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/27 12:31:19 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -9,13 +9,12 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <vector>
 
 using namespace std;
-
-#define MDEBUG false //FIXME!
 
 MuDetRing::MuDetRing(vector<const GeomDet*>::const_iterator first,
 		     vector<const GeomDet*>::const_iterator last) : 
@@ -54,23 +53,24 @@ pair<bool, TrajectoryStateOnSurface>
 MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 		      const MeasurementEstimator& est) const {
 
+  const std::string metname = "RecoMuon|DetLayers|MuDetRing";
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
-  if ( MDEBUG ) {
-    cout << "MuDetRing::compatible, Surface at Z: " 
-	 << specificSurface().position().z()
-	 << " R1: " << specificSurface().innerRadius()
-	 << " R2: " << specificSurface().outerRadius()
-	 << " TS   at Z,R: " << ts.globalPosition().z() << ","
-	 << ts.globalPosition().perp() << endl;
-    if (ms.isValid()) {
-      cout << " DEST at Z,R: " << ms.globalPosition().z() << ","
-	   << ms.globalPosition().perp()
-	   << " local Z: "   << ms.localPosition().z()  << endl;
-    }
-    else
-      cout << " DEST: not valid" <<endl;
+  
+  LogTrace(metname) << "MuDetRing::compatible, Surface at Z: " 
+                    << specificSurface().position().z()
+                    << " R1: " << specificSurface().innerRadius()
+                    << " R2: " << specificSurface().outerRadius()
+                    << " TS   at Z,R: " << ts.globalPosition().z() << ","
+                    << ts.globalPosition().perp();
+  if (ms.isValid()) {
+    cout << " DEST at Z,R: " << ms.globalPosition().z() << ","
+         << ms.globalPosition().perp()
+         << " local Z: "   << ms.localPosition().z()  << endl;
   }
-
+  else
+    cout << " DEST: not valid" <<endl;
+  
+  
   if (ms.isValid()) return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
   else return make_pair(false, ms);
 }
@@ -81,15 +81,14 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			   const Propagator& prop, 
 			   const MeasurementEstimator& est) const {
 
-  if ( MDEBUG ) cout << "MuDetRing::compatibleDets, Surface at Z: " 
-		     << surface().position().z()
-		     << " R1: " << specificSurface().innerRadius()
-		     << " R2: " << specificSurface().outerRadius()
-		     << " TS at Z,R: " << startingState.globalPosition().z() << ","
-		     << startingState.globalPosition().perp()
-		     << endl
-		     << "     DetRing pos." << position() 
-		     << endl;
+  const std::string metname = "RecoMuon|DetLayers|MuDetRing";
+
+  LogTrace(metname) << "MuDetRing::compatibleDets, Surface at Z: " 
+                    << surface().position().z()
+                    << " R1: " << specificSurface().innerRadius()
+                    << " R2: " << specificSurface().outerRadius()
+                    << " TS at Z,R: " << startingState.globalPosition().z() << ","
+                    << startingState.globalPosition().perp() << "     DetRing pos." << position();
 
   vector<DetWithState> result;
 
@@ -97,20 +96,19 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
   if (!compat.first) {
-    if ( MDEBUG ) cout << "    MuDetRing::compatibleDets: not compatible"
-		      << "    (should not have been selected!)" <<endl;
+    LogTrace(metname) << "    MuDetRing::compatibleDets: not compatible"
+                      << "    (should not have been selected!)";
     return result;
   }
-
+  
   // Find the most probable destination component
   TrajectoryStateOnSurface& tsos = compat.second;
   GlobalPoint startPos = tsos.globalPosition();  
   int closest = theBinFinder.binIndex(startPos.phi());
   const vector<const GeomDet*> dets = basicComponents();
-  if ( MDEBUG ) cout << "     MuDetRing::compatibleDets, closest det: " << closest 
-		    << " Phi: " << dets[closest]->surface().position().phi()
-		    << " impactPhi " << startPos.phi()
-		    << endl;  
+  LogTrace(metname) << "     MuDetRing::compatibleDets, closest det: " << closest 
+                    << " Phi: " << dets[closest]->surface().position().phi()
+                    << " impactPhi " << startPos.phi();
 
   // Add this detector, if it is compatible
   // NOTE: add performs a null propagation
@@ -124,57 +122,49 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
     float nSigmas = 3.;
     if (result.back().second.hasError()) {
       dphi = nSigmas*      
-	atan(sqrt(result.back().second.localError().positionError().xx())/
-	     result.back().second.globalPosition().perp());
+        atan(sqrt(result.back().second.localError().positionError().xx())/
+             result.back().second.globalPosition().perp());
     }  
   } else {
-    if ( MDEBUG ) 
-      cout << "     MuDetRing::compatibleDets, closest not compatible!" <<endl;
+    LogTrace(metname) << "     MuDetRing::compatibleDets, closest not compatible!";
     //FIXME:  if closest is not compatible the next cannot be either
   }
-
+  
   for (int idet=closest+1; idet < closest+int(dets.size())/4+1; idet++){
     // FIXME: should use dphi to decide if det must be queried.
     // Right now query until not compatible.
     int idetp = theBinFinder.binIndex(idet);
     {
-      if ( MDEBUG ) 
-	cout << "     next det:" << idetp
-	     << " at Z: " << dets[idetp]->position().z()
-	     << " phi: " << dets[idetp]->position().phi()
-	     << " FTS phi " << startPos.phi()
-	     << " max dphi " << dphi
-	     << endl;
+      LogTrace(metname) << "     next det:" << idetp
+                        << " at Z: " << dets[idetp]->position().z()
+                        << " phi: " << dets[idetp]->position().phi()
+                        << " FTS phi " << startPos.phi()
+                        << " max dphi " << dphi;
       nnextdet++;      
       if ( !add(idetp, result, tsos, prop, est)) break;
     }
   }
-
+  
   for (int idet=closest-1; idet > closest-int(dets.size())/4-1; idet--){
     // FIXME: should use dphi to decide if det must be queried.
     // Right now query until not compatible.
     int idetp = theBinFinder.binIndex(idet);
     {
-      if ( MDEBUG ) 
-	cout << "     previous det:" << idetp << " " << idet << " " << closest-dets.size()/4-1
-	     << " at Z: " << dets[idetp]->position().z()
-	     << " phi: " << dets[idetp]->position().phi()
-	     << " FTS phi " << startPos.phi()
-	     << " max dphi" << dphi
-	     << endl;
+      LogTrace(metname) << "     previous det:" << idetp << " " << idet << " " << closest-dets.size()/4-1
+                        << " at Z: " << dets[idetp]->position().z()
+                        << " phi: " << dets[idetp]->position().phi()
+                        << " FTS phi " << startPos.phi()
+                        << " max dphi" << dphi;
       nnextdet++;
       if ( !add(idetp, result, tsos, prop, est)) break;
     }
   }
+  
+  LogTrace(metname) << "     MuDetRing::compatibleDets, size: " << result.size()
+                    << " on closest: " << nclosest << " # checked dets: " << nnextdet+1;
 
-  if ( MDEBUG ) 
-    cout << "     MuDetRing::compatibleDets, size: " << result.size()
- 	 << " on closest: " << nclosest << " # checked dets: " << nnextdet+1
- 	 <<endl;
   if (result.size()==0) {
-    if ( MDEBUG )
-      cout << "   ***Ring not compatible,should have been discarded before!!!"
- 	   <<endl;
+    LogTrace(metname) << "   ***Ring not compatible,should have been discarded before!!!";
   }
   
   return result;
