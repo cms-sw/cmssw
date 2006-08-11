@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/10 17:10:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/11 07:02:55 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -79,10 +79,10 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int njets(-1);
    edm::Handle<GenJetCollection> mcjets;
-   try {iEvent.getByLabel(jetsTag_,mcjets);}
-   catch(...) {njets=mcjets->size();}
-   LogDebug("") << "MC truth jets found: " << njets;
-   for (unsigned int i=0; i!=njets; i++) {
+   try {iEvent.getByLabel(jetsTag_,mcjets);} catch (...) {;}
+   if (mcjets.isValid()) njets=mcjets->size();
+   LogDebug("") << "MC-truth jets found: " << njets;
+   for (int i=0; i<njets; i++) {
      math::XYZTLorentzVector p4(((*mcjets)[i]).p4());
      CaloJet::Specific specific;
      vector<CaloTowerDetId> ctdi(0);
@@ -91,10 +91,10 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int nmets(-1);
    edm::Handle<GenMETCollection> mcmets;
-   try {iEvent.getByLabel(metsTag_,mcmets);}
-   catch(...) { nmets=mcmets->size();}
-   LogDebug("") << "Found MC truth mets: " << foundMets;
-   for (unsigned int i=0; i!=nmets; i++) {
+   try {iEvent.getByLabel(metsTag_,mcmets);} catch(...) {;}
+   if (mcmets.isValid()) nmets=mcmets->size();
+   LogDebug("") << "MC-truth mets found: " << nmets;
+   for (int i=0; i<nmets; i++) {
      math::XYZTLorentzVector p4(((*mcmets)[i]).p4());
      SpecificCaloMETData specific;
      mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
