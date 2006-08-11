@@ -99,10 +99,12 @@ CompositeTECPetal::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     return closestResult;
   } 
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
+  LogDebug("TkDetLayers") << "in TECPetal, closestResult.size(): "<< closestResult.size();
 
   if (closestResult.empty()){
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult); 
+    LogDebug("TkDetLayers") << "in TECPetal, nextResult.size(): "<< nextResult.size() ;
     if(nextResult.empty())    return nextResult;
     
     DetGroupElement nextGel( nextResult.front().front());  
@@ -148,7 +150,13 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   }
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
+  LogDebug("TkDetLayers") 
+    << "in TECPetal,front crossing : r,z,phi: (" 
+    << gFrontPoint.perp() << ","
+    << gFrontPoint.z() << "," 
+    << gFrontPoint.phi() << ")";
   
+
   int frontIndex = findBin(gFrontPoint.perp(),0);
   float frontDist = fabs( findPosition(frontIndex,0).perp() - gFrontPoint.perp());
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
@@ -164,6 +172,12 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));
+  LogDebug("TkDetLayers") 
+    << "in TECPetal,back crossing r,z,phi: (" 
+    << gBackPoint.perp() << ","
+    << gBackPoint.z() << "," 
+    << gBackPoint.phi() << ")" ;
+
   int backIndex = findBin(gBackPoint.perp(),1);
   float backDist = fabs( findPosition(backIndex,1).perp() - gBackPoint.perp());
   
@@ -187,6 +201,16 @@ bool CompositeTECPetal::addClosest( const TrajectoryStateOnSurface& tsos,
 {
   const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
+
+  LogDebug("TkDetLayers") 
+    << "in TECPetal, adding Wedge at r,z,phi: (" 
+    << det->position().perp() << "," 
+    << det->position().z() << "," 
+    << det->position().phi() << ")" ;
+  LogDebug("TkDetLayers") 
+    << "wedge comps size: " 
+    << det->basicComponents().size();
+
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
 
