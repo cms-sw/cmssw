@@ -21,7 +21,7 @@ class SummaryGeneratorControlView : public SummaryGenerator {
   virtual ~SummaryGeneratorControlView() {;}
 
   /** Fills the map used to generate the histogram. */
-  void fillMap( const uint32_t& level, 
+  void fillMap( const std::string& directory_level,
 		const uint32_t& key, 
 		const float& value, 
 		const float& error = 0. );

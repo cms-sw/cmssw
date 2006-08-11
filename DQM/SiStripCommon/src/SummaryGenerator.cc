@@ -1,6 +1,22 @@
 #include "DQM/SiStripCommon/interface/SummaryGenerator.h"
+#include "DQM/SiStripCommon/interface/SummaryGeneratorControlView.h"
+//#include "DQM/SiStripCommon/interface/SummaryGeneratorReadoutView.h"
 
 using namespace std;
+
+// -----------------------------------------------------------------------------
+// 
+auto_ptr<SummaryGenerator> SummaryGenerator::instance( sistrip::View view ) {
+  auto_ptr<SummaryGenerator> generator;
+  if ( view == sistrip::CONTROL ) {
+    generator = auto_ptr<SummaryGenerator>( new SummaryGeneratorControlView() );
+  } else if ( view == sistrip::READOUT ) {
+    //generator = auto_ptr<SummaryGenerator>( new SummaryGeneratorReadoutView() );
+  } else { 
+    generator = auto_ptr<SummaryGenerator>( NULL );
+  }  
+  return generator;
+}
 
 // -----------------------------------------------------------------------------
 // 

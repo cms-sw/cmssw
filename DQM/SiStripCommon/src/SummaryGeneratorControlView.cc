@@ -9,7 +9,7 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-void SummaryGeneratorControlView::fillMap( const uint32_t& level,
+void SummaryGeneratorControlView::fillMap( const string& directory,
 					   const uint32_t& key, 
 					   const float& value,
 					   const float& error ) {
@@ -18,22 +18,22 @@ void SummaryGeneratorControlView::fillMap( const uint32_t& level,
   map_.clear();
 
   // Create control path structs for both histo level and key
-  SiStripControlKey::ControlPath level_path = SiStripControlKey::path( level );
-  SiStripControlKey::ControlPath key_path = SiStripControlKey::path( key );
+  SiStripHistoNamingScheme::ControlPath level = SiStripHistoNamingScheme::controlPath( directory );
+  SiStripControlKey::ControlPath path = SiStripControlKey::path( key );
 
-  if ( ( key_path.fecCrate_ && level_path.fecCrate_ == level_path.fecCrate_ ) && 
-       ( key_path.fecSlot_  && level_path.fecSlot_  == level_path.fecSlot_  ) && 
-       ( key_path.fecRing_  && level_path.fecRing_  == level_path.fecRing_  ) && 
-       ( key_path.ccuAddr_  && level_path.ccuAddr_  == level_path.ccuAddr_  ) && 
-       ( key_path.ccuChan_  && level_path.ccuChan_  == level_path.ccuChan_  ) ) { 
+  if ( ( path.fecCrate_ && level.fecCrate_ == level.fecCrate_ ) && 
+       ( path.fecSlot_  && level.fecSlot_  == level.fecSlot_  ) && 
+       ( path.fecRing_  && level.fecRing_  == level.fecRing_  ) && 
+       ( path.ccuAddr_  && level.ccuAddr_  == level.ccuAddr_  ) && 
+       ( path.ccuChan_  && level.ccuChan_  == level.ccuChan_  ) ) { 
     
     stringstream bin;
-    if ( key_path.fecCrate_ != sistrip::all_ ) { bin << key_path.fecCrate_ << sistrip::pipe_; }
-    if ( key_path.fecSlot_  != sistrip::all_ ) { bin << key_path.fecSlot_  << sistrip::pipe_; }
-    if ( key_path.fecRing_  != sistrip::all_ ) { bin << key_path.fecRing_  << sistrip::pipe_; }
-    if ( key_path.ccuAddr_  != sistrip::all_ ) { bin << key_path.ccuAddr_  << sistrip::pipe_; }
-    if ( key_path.ccuChan_  != sistrip::all_ ) { bin << key_path.ccuChan_  << sistrip::pipe_; }
-    if ( key_path.channel_  != sistrip::all_ ) { bin << key_path.channel_; }
+    if ( path.fecCrate_ != sistrip::all_ ) { bin << path.fecCrate_ << sistrip::pipe_; }
+    if ( path.fecSlot_  != sistrip::all_ ) { bin << path.fecSlot_  << sistrip::pipe_; }
+    if ( path.fecRing_  != sistrip::all_ ) { bin << path.fecRing_  << sistrip::pipe_; }
+    if ( path.ccuAddr_  != sistrip::all_ ) { bin << path.ccuAddr_  << sistrip::pipe_; }
+    if ( path.ccuChan_  != sistrip::all_ ) { bin << path.ccuChan_  << sistrip::pipe_; }
+    if ( path.channel_  != sistrip::all_ ) { bin << path.channel_; }
     
     if ( map_.find( bin.str() ) == map_.end() ) { 
       map_[bin.str()].first = value; 

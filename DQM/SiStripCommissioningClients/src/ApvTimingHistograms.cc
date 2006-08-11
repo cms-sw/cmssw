@@ -36,8 +36,6 @@ void ApvTimingHistograms::histoAnalysis() {
 	   << nhis << " histograms..." << endl;
     }
 
-    
-    
     // Extract profile histo from map	 
     MonitorElement* me = mui()->get( *ihis );
     TProfile* prof = ExtractTObject<TProfile>().extract( me );

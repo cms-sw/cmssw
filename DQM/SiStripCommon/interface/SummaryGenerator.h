@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommon_SummaryGenerator_H
 #define DQM_SiStripCommon_SummaryGenerator_H
 
+#include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 #include "TH1.h"
 #include <string>
@@ -20,9 +21,11 @@ class SummaryGenerator {
 
   SummaryGenerator() { map_.clear(); }
   virtual ~SummaryGenerator() {;}
+
+  static std::auto_ptr<SummaryGenerator> instance( sistrip::View );
   
   /** Fills the map used to generate the histogram. */
-  virtual void fillMap( const uint32_t& level, 
+  virtual void fillMap( const std::string& directory_level,
 			const uint32_t& key, 
 			const float& value, 
 			const float& error = 0. ) = 0;

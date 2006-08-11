@@ -5,43 +5,47 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::fill( const sistrip::SummaryHisto& histo, 
-								     const sistrip::View& view, 
-								     const uint32_t& key,
-								     const map<uint32_t,ApvTimingAnalysis::Monitorables>& data,
-								     auto_ptr<SummaryGenerator> generator ) {
+void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::generate( const sistrip::SummaryHisto& histo, 
+									 const sistrip::SummaryType& type,
+									 const sistrip::View& view, 
+									 const string& directory, 
+									 const map<uint32_t,ApvTimingAnalysis::Monitorables>& data,
+									 TH1& summary_histo ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+
+  // Check if data are present
+  if ( data.empty() ) { return ; } 
   
+  // Retrieve utility class used to generate summary histograms
+  auto_ptr<SummaryGenerator> generator = SummaryGenerator::instance( view );
+  if ( !generator.get() ) { return; }
+
   // Transfer appropriate data from map to generator object
   map<uint32_t,ApvTimingAnalysis::Monitorables>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     if ( histo == sistrip::APV_TIMING_COARSE ) {
-      generator->fillMap( key, iter->first, iter->second.coarse_ ); 
+      generator->fillMap( directory, iter->first, iter->second.coarse_ ); 
     } else if ( histo == sistrip::APV_TIMING_FINE ) { 
-      generator->fillMap( key, iter->first, iter->second.fine_ ); 
+      generator->fillMap( directory, iter->first, iter->second.fine_ ); 
     } else if ( histo == sistrip::APV_TIMING_DELAY ) { 
-      generator->fillMap( key, iter->first, iter->second.delay_ ); 
+      generator->fillMap( directory, iter->first, iter->second.delay_ ); 
     } else if ( histo == sistrip::APV_TIMING_ERROR ) { 
-      generator->fillMap( key, iter->first, iter->second.error_ ); 
+      generator->fillMap( directory, iter->first, iter->second.error_ ); 
     } else if ( histo == sistrip::APV_TIMING_BASE ) { 
-      generator->fillMap( key, iter->first, iter->second.base_ ); 
+      generator->fillMap( directory, iter->first, iter->second.base_ ); 
     } else if ( histo == sistrip::APV_TIMING_PEAK ) { 
-      generator->fillMap( key, iter->first, iter->second.peak_ ); 
+      generator->fillMap( directory, iter->first, iter->second.peak_ ); 
     } else if ( histo == sistrip::APV_TIMING_HEIGHT ) {
-      generator->fillMap( key, iter->first, iter->second.height_ ); 
+      generator->fillMap( directory, iter->first, iter->second.height_ ); 
     } else { return; } 
   }
   
-}
-
-// -----------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<ApvTimingAnalysis::Monitorables>::format( const sistrip::SummaryHisto& histo, 
-								       const sistrip::SummaryType& type,
-								       const sistrip::View& view, 
-								       const uint32_t& key,
-								       TH1& summary ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  // Generate appropriate summary histogram 
+  if ( type == sistrip::SUMMARY_SIMPLE_DISTR ) {
+    generator->simpleDistr( summary_histo );
+  } else if ( type == sistrip::SUMMARY_LOGICAL_VIEW ) {
+    generator->logicalView( summary_histo );
+  } else { return; }
 
   // Histogram formatting
   if ( histo == sistrip::APV_TIMING_COARSE ) {
