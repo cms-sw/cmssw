@@ -88,10 +88,15 @@ void ApvTimingHistograms::createSummaryHistos( const vector<sistrip::SummaryHist
   sistrip::View view = SiStripHistoNamingScheme::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
-  // Create summary histograms and insert into DQM fwk
+  // Change root directory
+  mui()->cd(directory);
+  
+  // Create MonitorElements (if they don't already exist) and update contents
   vector<sistrip::SummaryHisto>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
-    MonitorElement* me = mui()->getBEInterface()->book1D( "", "", 0, 0., 0. );
+    string name = factory_->name( *ihis, type, view, directory );
+    MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
+    if ( !me ) { me = mui()->getBEInterface()->book1D( name, "", 0, 0., 0. ); }
     TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
     factory_->generate( *ihis, 
 			type, 
