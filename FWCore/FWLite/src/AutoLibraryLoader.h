@@ -7,12 +7,15 @@
  *
  * \author Chirs Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.1 2006/05/17 16:43:44 wmtan Exp $
+ * $Id: AutoLibraryLoader.h,v 1.2 2006/08/08 23:57:33 chrjones Exp $
  *
  */
 #include "TClassGenerator.h"
 
+class DummyClassToStopCompilerWarning;
+
 class AutoLibraryLoader : public TClassGenerator {
+  friend class DummyClassToStopCompilerWarning;
 public:
   /// return class type
   virtual TClass *GetClass(const char* classname, Bool_t load);
