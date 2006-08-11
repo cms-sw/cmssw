@@ -24,7 +24,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 
@@ -126,145 +126,166 @@ void SiStripLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   using namespace edm;
   // Step A: Get Inputs 
   anglefinder_->init(e,es);
-  LogDebug("SiStripLorentzAngle::analyze")<<"Getting tracks";
-  
-  edm::Handle<reco::TrackCollection> trackCollection;
-    //  //    event.getByLabel("trackp", trackCollection);
-  e.getByType(trackCollection);
-  //edm::Handle<reco::TrackCollection> trackCollection;
-  //e.getByLabel("cosmictrackfinder",trackCollection);
-
-  LogDebug("SiStripLorentzAngle::analyze")<<"Getting seed";
-
- edm::Handle<TrajectorySeedCollection> seedcoll;
-  e.getByType(seedcoll);
-  LogDebug("SiStripLorentzAngle::analyze")<<"Getting used rechit";
-
-  edm::Handle<TrackingRecHitCollection> trackrechitCollection;
-  e.getByType(trackrechitCollection);
   std::vector<std::pair<const TrackingRecHit * ,float> > hitangle;
-  const reco::TrackCollection *tracks=trackCollection.product();
-  if((*seedcoll).size()>0){
-    if (tracks->size()>0){
-    trackcounter+=1;
-    reco::TrackCollection::const_iterator ibeg=trackCollection.product()->begin();
-      LogDebug("SiStripLorentzAngle::analyze")<<"Filling histograms";
+  
 
-      hphi->Fill((*ibeg).outerPhi());
-      hnhit->Fill((*ibeg).recHitsSize() );
-      LogDebug("SiStripLorentzAngle::analyze")<<"Finding TSOS";
-      hitangle =anglefinder_->findtrackangle((*(*seedcoll).begin()),*trackrechitCollection);
-      std::vector<std::pair<const TrackingRecHit * ,float> >::iterator iter;
-      for(iter=hitangle.begin();iter!=hitangle.end();iter++){
-        const SiStripRecHit2DLocalPos* hit=dynamic_cast<const SiStripRecHit2DLocalPos*>(iter->first);
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
-	size=(cluster->amplitudes()).size();
-	StripSubdetector detid=(StripSubdetector)hit->geographicalId();
-	type = detid.subdetId();
+  if((conf_.getParameter<bool>("MTCCtrack"))){
+  LogDebug("SiStripLorentzAngle::analyze")<<"Getting tracks";
+  //std::string src=conf_.getParameter<std::string>( "src" );
+  edm::Handle<reco::TrackCollection> trackCollection;
+  e.getByType(trackCollection);
+
+
+  const reco::TrackCollection *tracks=trackCollection.product();
+
+    LogDebug("SiStripLorentzAngle::analyze")<<"Getting seed";
+    edm::Handle<TrajectorySeedCollection> seedcoll;
+    e.getByType(seedcoll);
+    LogDebug("SiStripLorentzAngle::analyze")<<"Getting used rechit";
+ //    edm::Handle<TrackingRecHitCollection> trackrechitCollection;
+//     e.getByType(trackrechitCollection);
+
+    if((*seedcoll).size()>0){
+      if (tracks->size()>0){
+	trackcounter+=1;
+	reco::TrackCollection::const_iterator ibeg=trackCollection.product()->begin();
+	LogDebug("SiStripLorentzAngle::analyze")<<"Filling histograms";
+
+	hphi->Fill((*ibeg).outerPhi());
+	hnhit->Fill((*ibeg).recHitsSize() );
+	LogDebug("SiStripLorentzAngle::analyze")<<"Finding TSOS";
+	hitangle =anglefinder_->findtrackangle((*(*seedcoll).begin()),tracks->front());
+	//hitangle =anglefinder_->findtrackangle(tracks->front());
+      }
+    }
+  }
+  else{
+  LogDebug("SiStripLorentzAngle::analyze")<<"Getting tracks";
+  std::string src=conf_.getParameter<std::string>( "src" );
+  edm::Handle<reco::TrackCollection> trackCollection;
+  e.getByLabel(src, trackCollection);
+  const reco::TrackCollection *tracks=trackCollection.product();
+    reco::TrackCollection::const_iterator tciter;
+    if(tracks->size()>0){
+      for(tciter=tracks->begin();tciter!=tracks->end();tciter++){
+	std::vector<std::pair<const TrackingRecHit *,float> > tmphitangle=anglefinder_->findtrackangle(*tciter);
+	std::vector<std::pair<const TrackingRecHit *,float> >::iterator tmpiter;
+	for(tmpiter=tmphitangle.begin();tmpiter!=tmphitangle.end();tmpiter++){
+	  hitangle.push_back(*tmpiter); 
+	}
+      }
+    }
+  }
+  if(hitangle.size()!=0){
+    std::vector<std::pair<const TrackingRecHit * ,float> >::iterator iter;
+    for(iter=hitangle.begin();iter!=hitangle.end();iter++){
+      const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(iter->first);
+      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+      size=(cluster->amplitudes()).size();
+      StripSubdetector detid=(StripSubdetector)hit->geographicalId();
+      type = detid.subdetId();
 	module = (hit->geographicalId()).rawId();
 	angle=iter->second;
 	if(detid.subdetId() == int (StripSubdetector::TIB)){
-	TIBDetId id=TIBDetId(detid);
-	layer=id.layer();
-	string=id.string()[2];
-	extint=id.string()[1];
+	  TIBDetId id=TIBDetId(detid);
+	  layer=id.layer();
+	  string=id.string()[2];
+	  extint=id.string()[1];
+	  
+	  if(id.layer()==1){
+	    htaTIBL2->Fill(angle);
+	    hwvsaTIBL2->Fill(angle,size);
+	    if(extint==0){
+	      if(string==1){
+		hwvsaTIBL2intstr1->Fill(angle,size);}
+	      if(string==2){
+		hwvsaTIBL2intstr2->Fill(angle,size);}
+	    }
+	    if(extint==1){
+	      if(string==1){
+		hwvsaTIBL2extstr1->Fill(angle,size);}
+	      if(string==2){
+		hwvsaTIBL2extstr2->Fill(angle,size);}
+	      if(string==3){
+		hwvsaTIBL2extstr3->Fill(angle,size);}
+	    }
+	  }
+	  else if(id.layer()==2){
+	    htaTIBL3->Fill(angle);
+	    hwvsaTIBL3->Fill(angle,size);
+	    if(extint==0){
+	      if(string==1){
+		hwvsaTIBL3intstr1->Fill(angle,size);}
+	      if(string==2){
+		hwvsaTIBL3intstr2->Fill(angle,size);}
+	      if(string==3){
+		hwvsaTIBL3intstr3->Fill(angle,size);}
+	      if(string==4){
+		hwvsaTIBL3intstr4->Fill(angle,size);}
+	      if(string==5){
+		hwvsaTIBL3intstr5->Fill(angle,size);}
+	      if(string==6){
+		hwvsaTIBL3intstr6->Fill(angle,size);}
+	      if(string==7){
+		hwvsaTIBL3intstr7->Fill(angle,size);}
+	      if(string==8){
+		hwvsaTIBL3intstr8->Fill(angle,size);}
+	    }
+	    if(extint==1){
+	      if(string==1){
+		hwvsaTIBL3extstr1->Fill(angle,size);}
+	      if(string==2){
+		hwvsaTIBL3extstr2->Fill(angle,size);}
+	      if(string==3){
+		hwvsaTIBL3extstr3->Fill(angle,size);}
+	      if(string==4){
+		hwvsaTIBL3extstr4->Fill(angle,size);}
+	      if(string==5){
+		hwvsaTIBL3extstr5->Fill(angle,size);}
+	      if(string==6){
+		hwvsaTIBL3extstr6->Fill(angle,size);}
+	      if(string==7){
+		hwvsaTIBL3extstr7->Fill(angle,size);}
+	    }
+	  }
+	}
+	else if(detid.subdetId() == int (StripSubdetector::TOB)){
+	  TOBDetId id=TOBDetId(detid);
+	  layer=id.layer();
+	  string=id.rod()[1];
+	  extint=-1;
+	  
+	  if(id.layer()==1){
+	    htaTOB1->Fill(angle);
+	    hwvsaTOBL1->Fill(angle,size);
+	    if (string == 1){
+	      hwvsaTOBL1rod1->Fill(angle,size);}
+	    if (string == 2){
+	      hwvsaTOBL1rod2->Fill(angle,size);}
+	  }
+	  else if(id.layer()==2){
+	    htaTOB2->Fill(angle);
+	    hwvsaTOBL2->Fill(angle,size);
+	    if (string == 1){
+	      hwvsaTOBL2rod1->Fill(angle,size);}
+	    if (string == 2){
+	      hwvsaTOBL2rod2->Fill(angle,size);}
+	  }
+	  hwvsaTOB->Fill(angle,size);
+	}
 	
-	if(id.layer()==1){
-	  htaTIBL2->Fill(angle);
-	  hwvsaTIBL2->Fill(angle,size);
-	  if(extint==0){
-	  if(string==1){
-	  hwvsaTIBL2intstr1->Fill(angle,size);}
-	  if(string==2){
-	  hwvsaTIBL2intstr2->Fill(angle,size);}
-	  }
-	  if(extint==1){
-	  if(string==1){
-	  hwvsaTIBL2extstr1->Fill(angle,size);}
-	  if(string==2){
-	  hwvsaTIBL2extstr2->Fill(angle,size);}
-	  if(string==3){
-	  hwvsaTIBL2extstr3->Fill(angle,size);}
-	  }
-	}
-	else if(id.layer()==2){
-	  htaTIBL3->Fill(angle);
-	  hwvsaTIBL3->Fill(angle,size);
-	  if(extint==0){
-	  if(string==1){
-	  hwvsaTIBL3intstr1->Fill(angle,size);}
-	  if(string==2){
-	  hwvsaTIBL3intstr2->Fill(angle,size);}
-	  if(string==3){
-	  hwvsaTIBL3intstr3->Fill(angle,size);}
-	  if(string==4){
-	  hwvsaTIBL3intstr4->Fill(angle,size);}
-	  if(string==5){
-	  hwvsaTIBL3intstr5->Fill(angle,size);}
-	  if(string==6){
-	  hwvsaTIBL3intstr6->Fill(angle,size);}
-	  if(string==7){
-	  hwvsaTIBL3intstr7->Fill(angle,size);}
-	  if(string==8){
-	  hwvsaTIBL3intstr8->Fill(angle,size);}
-	  }
-	  if(extint==1){
-	  if(string==1){
-	  hwvsaTIBL3extstr1->Fill(angle,size);}
-	  if(string==2){
-	  hwvsaTIBL3extstr2->Fill(angle,size);}
-	  if(string==3){
-	  hwvsaTIBL3extstr3->Fill(angle,size);}
-	  if(string==4){
-	  hwvsaTIBL3extstr4->Fill(angle,size);}
-	  if(string==5){
-	  hwvsaTIBL3extstr5->Fill(angle,size);}
-	  if(string==6){
-	  hwvsaTIBL3extstr6->Fill(angle,size);}
-	  if(string==7){
-	  hwvsaTIBL3extstr7->Fill(angle,size);}
-	  }
-	}
-      }
-      else if(detid.subdetId() == int (StripSubdetector::TOB)){
-      	TOBDetId id=TOBDetId(detid);
-	layer=id.layer();
-	string=id.rod()[1];
-	extint=-1;
+	const GeomDetUnit * stripdet=(const GeomDetUnit*)tracker->idToDetUnit(detid);
+	const StripTopology& topol=(StripTopology&)stripdet->topology();
+	float thickness=stripdet->specificSurface().bounds().thickness();
+	float proj=tan(angle)*thickness/topol.pitch();
 	
-	if(id.layer()==1){
-	  htaTOB1->Fill(angle);
-	  hwvsaTOBL1->Fill(angle,size);
-	  if (string == 1){
-	  hwvsaTOBL1rod1->Fill(angle,size);}
-	  if (string == 2){
-	  hwvsaTOBL1rod2->Fill(angle,size);}
-	}
-	else if(id.layer()==2){
-	  htaTOB2->Fill(angle);
-	  hwvsaTOBL2->Fill(angle,size);
-	  if (string == 1){
-	  hwvsaTOBL2rod1->Fill(angle,size);}
-	  if (string == 2){
-	  hwvsaTOBL2rod2->Fill(angle,size);}
-       }
-       hwvsaTOB->Fill(angle,size);
-     }
-     
-     const GeomDetUnit * stripdet=(const GeomDetUnit*)tracker->idToDetUnit(detid);
-     const StripTopology& topol=(StripTopology&)stripdet->topology();
-     float thickness=stripdet->specificSurface().bounds().thickness();
-     float proj=tan(angle)*thickness/topol.pitch();
-         
-     //	hwvsa->Fill(angle,size);
-     hwvst->Fill(proj,size);
-     SiStripLorentzAngleTree->Fill();
-      
-      }
-      
+	//	hwvsa->Fill(angle,size);
+	hwvst->Fill(proj,size);
+	SiStripLorentzAngleTree->Fill();
     }
   }
 }
+
 
 void SiStripLorentzAngle::endJob(){
 

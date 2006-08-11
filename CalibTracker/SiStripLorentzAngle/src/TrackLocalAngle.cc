@@ -22,7 +22,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -51,12 +51,13 @@ void TrackLocalAngle::init(const edm::Event& e, const edm::EventSetup& es){
   //
   // get the fitter
   //
-  if(!(conf_.getParameter<bool>("MTCCtrack"))){
+    if(!(conf_.getParameter<bool>("MTCCtrack"))){
     edm::ESHandle<TrajectoryFitter> fitter;
     LogDebug("TrackLocalAngle") << "get the fitter from the ES" << "\n";
     std::string fitterName = conf_.getParameter<std::string>("Fitter");   
     es.get<TrackingComponentsRecord>().get(fitterName,fitter);
     theFitter=&(*fitter);
+
     //
   // get also the propagator
   //
@@ -65,7 +66,7 @@ void TrackLocalAngle::init(const edm::Event& e, const edm::EventSetup& es){
     std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
     es.get<TrackingComponentsRecord>().get(propagatorName,propagator);
     thePropagator=&(*propagator);
-  }
+    }
   //
   // get the builder
   //
@@ -84,7 +85,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
   //  int cont = 0;
     //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
     //meanwhile computes the number of degrees of freedom
-  
+ LogDebug("TrackLocalAngle") << "Start\n";
   TransientTrackingRecHit::RecHitContainer tmp;
   TransientTrackingRecHit::RecHitContainer hits;
   
@@ -98,38 +99,38 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
     if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
     //	  }
   }
-  
+   LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
   
   ndof = ndof - 5;
   
   //SORT RECHITS ALONGMOMENTUM
-  const TransientTrackingRecHit * firstHit;
+  const TransientTrackingRecHit::ConstRecHitPointer *firstHit;
   for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
-    if (it->isValid()) {
-      firstHit=&(*it);
+    if ((**it).isValid()) {
+      firstHit = &(*it);
       break;
     }
   }
-  const TransientTrackingRecHit * lastHit;
+  const TransientTrackingRecHit::ConstRecHitPointer *lastHit;
   for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
-    if (it->isValid()) {
-      lastHit=&(*it);
+    if ((**it).isValid()) {
+      lastHit= &(*it);
       break;
     }
   }
-  if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ){
+  if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){
     //FIXME temporary should use reverse
     for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
-      hits.push_back(it->clone());
+      hits.push_back(*it);
     }
   } else hits=tmp;
   
-  reco::TransientTrack theTT(theT);
+  reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   
   //       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
   //       theTSOS.rescaleError(100);
   
-  TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
+  TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
   AlgebraicSymMatrix C(5,1);
   C *= 100.;
   TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
@@ -144,7 +145,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 }
 
 std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrack(
-					 edm::OwnVector<const TransientTrackingRecHit>& hits,
+					 TransientTrackingRecHit::RecHitContainer& hits,
 					 TrajectoryStateOnSurface& theTSOS,
 					 const TrajectorySeed& seed)
 {
@@ -179,9 +180,9 @@ std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrac
     for (itm=TMeas.begin();itm!=TMeas.end();itm++){
       std::cout<<"hit: "<<i++<<std::endl;
       TrajectoryStateOnSurface tsos=itm->updatedState();
-      const TransientTrackingRecHit* thit=itm->recHit();
-      const SiStripRecHit2DMatchedLocalPos* matchedhit=dynamic_cast<const SiStripRecHit2DMatchedLocalPos*>(thit->hit());
-      const SiStripRecHit2DLocalPos* hit=dynamic_cast<const SiStripRecHit2DLocalPos*>(thit->hit());
+      const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
+      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
+      const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
       LocalVector trackdirection=tsos.localDirection();
       if(matchedhit){//if matched hit...
 	
@@ -193,7 +194,7 @@ std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrac
 	//cluster and trackdirection on mono det
 	
 	// THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT 
-	const SiStripRecHit2DLocalPos *monohit=matchedhit->monoHit();
+	const SiStripRecHit2D *monohit=matchedhit->monoHit();
 	    
 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=monohit->cluster();
 	const GeomDetUnit * monodet=gdet->monoDet();
@@ -212,7 +213,7 @@ std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrac
 	    //cluster and trackdirection on stereo det
 	    
 	    // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
-	  const SiStripRecHit2DLocalPos *stereohit=matchedhit->stereoHit();
+	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
 	   
 		
 	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=stereohit->cluster();
@@ -249,7 +250,7 @@ std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrac
 
 
 std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtrackangle(const TrajectorySeed& seed,
-										     const TrackingRecHitCollection &hits){
+										     const reco::Track& theT){
   std::vector<std::pair<const TrackingRecHit*,float> >hitangleassociation;
   seed_plus=(seed.direction()==alongMomentum);
   //services  
@@ -279,25 +280,64 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
   
   //  if (seed_plus) stable_sort(hits.begin(),hits.end(),CompareHitY_plus(*tracker));
   //  edm::OwnVector<TransientTrackingRecHit> tmp_trans_hits;
-  edm::OwnVector<const TransientTrackingRecHit> trans_hits;
-  for (unsigned int icosmhit=hits.size()-1;icosmhit>0;icosmhit--){
-    TransientTrackingRecHit* tmphit=RHBuilder->build(&(hits[icosmhit]));
-    //tmp_trans_hits.push_back(&(*tmphit));
-    trans_hits.push_back(&(*tmphit));
+  //edm::OwnVector<const TransientTrackingRecHit> trans_hits;
     
+  TransientTrackingRecHit::RecHitContainer tmp;
+  TransientTrackingRecHit::RecHitContainer hits;
+  
+  float ndof=0;
+  for (trackingRecHit_iterator i=theT.recHitsBegin();
+       i!=theT.recHitsEnd(); i++){
+    // 	hits.push_back(builder->build(&**i ));
+    // 	  if ((*i)->isValid()){
+    tmp.push_back(RHBuilder->build(&**i ));
+    //	  }
   }
-  const TransientTrackingRecHit* tmphit=RHBuilder->build(&(hits[0]));
-  //tmp_trans_hits.push_back(&(*tmphit));
-  trans_hits.push_back(&(*tmphit));
-   //const  edm::OwnVector<const TransientTrackingRecHit> trans_hits(tmp_trans_hits);
-  //  for (edm::OwnVector<const TransientTrackingRecHit>::const_iterator itp=trans_hits.begin();
-  //    itp!=trans_hits.end();itp++)  cout<<(*itp).globalPosition()<<endl;
+  
+  
+  //SORT RECHITS ALONGMOMENTUM
+  const TransientTrackingRecHit::ConstRecHitPointer *firstHit;
+  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
+    if ((**it).isValid()) {
+      firstHit = &(*it);
+      break;
+    }
+  }
+  const TransientTrackingRecHit::ConstRecHitPointer *lastHit;
+  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+    if ((**it).isValid()) {
+      lastHit= &(*it);
+      break;
+    }
+  }
+  //if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){
+    //FIXME temporary should use reverse
+    for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+      hits.push_back(*it);
+    }
+    //} else hits=tmp;
+  
+
+ //  TransientTrackingRecHit::RecHitContainer trans_hits;
+  
+//   for (unsigned int icosmhit=hits->size()-1;icosmhit>0;icosmhit--){
+//    const TransientTrackingRecHit::RecHitPointer tmphit=RHBuilder->build(&((*hits)[icosmhit]));
+//     //tmp_trans_hits.push_back(&(*tmphit));
+//     trans_hits.push_back(&(*tmphit));
+    
+//   }
+//   const TransientTrackingRecHit::RecHitPointer tmphit=RHBuilder->build(&((*hits)[0]));
+//   //tmp_trans_hits.push_back(&(*tmphit));
+//   trans_hits.push_back(&(*tmphit));
+//    //const  edm::OwnVector<const TransientTrackingRecHit> trans_hits(tmp_trans_hits);
+//   //  for (edm::OwnVector<const TransientTrackingRecHit>::const_iterator itp=trans_hits.begin();
+//   //    itp!=trans_hits.end();itp++)  cout<<(*itp).globalPosition()<<endl;
   
   LogDebug("AnalyzeMTCCTracks::findtrackangle")<<"Start fitting";
   
   std::vector<Trajectory> Traj1;
   std::vector<Trajectory> Traj2;
-  Traj1 = theFitter->fit(seed, trans_hits,startingState);
+  Traj1 = theFitter->fit(seed, hits,startingState);
   
   if (Traj1.size() != 0){
     const Trajectory ifitted=(Traj1.front());
@@ -311,15 +351,25 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
   
       std::vector<TrajectoryMeasurement> TMeas=ismoothed.measurements();
       //  cout<<"TM "<<TMeas.size()<<endl;
+
       vector<TrajectoryMeasurement>::iterator itm;
       int i=0;
       LogDebug("AnalyzeMTCCTracks::findtrackangle")<<"Loop on rechit and TSOS";
       for (itm=TMeas.begin();itm!=TMeas.end();itm++){
 	std::cout<<"hit: "<<i++<<std::endl;
 	TrajectoryStateOnSurface tsos=itm->updatedState();
-	const TransientTrackingRecHit* thit=itm->recHit();
-	const SiStripRecHit2DMatchedLocalPos* matchedhit=dynamic_cast<const SiStripRecHit2DMatchedLocalPos*>(thit->hit());
-	const SiStripRecHit2DLocalPos* hit=dynamic_cast<const SiStripRecHit2DLocalPos*>(thit->hit());
+	const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
+	//	TrackingRecHitCollection::const_iterator rhiterator;
+	//TrackingRecHitCollection::const_iterator righthit;
+// 	for(rhiterator=hits->begin();rhiterator!=hits->end();rhiterator++){
+// 	  if (((*thit).hit()->geographicalId()).rawId()==(rhiterator->geographicalId()).rawId()){
+// 	    rhiterator=righthit;
+// 	  }
+	  
+//	}
+      //const SiStripMatchedRecHit2D* matchedhit=(&(*righthit));
+       	const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
+	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
 	LocalVector trackdirection=tsos.localDirection();
 	if(matchedhit){//if matched hit...
 
@@ -330,7 +380,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 	  
 	  //cluster and trackdirection on mono det
 	  
-	  const SiStripRecHit2DLocalPos *monohit=matchedhit->monoHit();
+	  const SiStripRecHit2D *monohit=matchedhit->monoHit();
 
 	  const GeomDetUnit * monodet=gdet->monoDet();
 
@@ -344,7 +394,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
 	  
 	  //cluster and trackdirection on stereo det
 	  
-	  const SiStripRecHit2DLocalPos *stereohit=matchedhit->stereoHit();
+	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
 
 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
 

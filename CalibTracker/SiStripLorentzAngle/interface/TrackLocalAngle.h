@@ -27,16 +27,21 @@
 class TrackLocalAngle 
 {
  public:
+  
+  //  typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+  //typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
+  //typedef ConstReferenceCountingPointer<TransientTrackingRecHit> ConstRecHitPointer;
+  
   explicit TrackLocalAngle(const edm::ParameterSet& conf);
   
   virtual ~TrackLocalAngle();
   void init(const edm::Event& e,const edm::EventSetup& c);
 
   std::vector<std::pair<const TrackingRecHit*,float> > findtrackangle(const TrajectorySeed& seed,
-										       const TrackingRecHitCollection &hits);
+										       const reco::Track & theT);
 
   std::vector<std::pair<const TrackingRecHit *,float> > findtrackangle(const reco::Track & theT);
-  std::vector<std::pair<const TrackingRecHit *,float> > buildTrack(edm::OwnVector<const TransientTrackingRecHit>& hits,
+  std::vector<std::pair<const TrackingRecHit *,float> > buildTrack(TransientTrackingRecHit::RecHitContainer& hits,
 								   TrajectoryStateOnSurface& theTSOS,
 								   const TrajectorySeed& seed);
   TrajectoryStateOnSurface  startingTSOS(const TrajectorySeed& seed)const;
