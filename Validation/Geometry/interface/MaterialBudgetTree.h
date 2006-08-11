@@ -32,16 +32,47 @@ private:
 
   static const int MAXSTEPS = 5000;
   float t_MB;
-  float t_Eta;
-  float t_Phi;
+  //  float t_Eta;
+  //  float t_Phi;
+  // rr
+  int   t_ParticleID;
+  float t_ParticlePt;
+  float t_ParticleEta;
+  float t_ParticlePhi;
+  float t_ParticleEnergy;
+  // rr
   int t_Nsteps;
   float t_DeltaMB[MAXSTEPS];
   float t_X[MAXSTEPS];
   float t_Y[MAXSTEPS];
   float t_Z[MAXSTEPS];
-  float t_VoluID[MAXSTEPS];
-  float t_MateID[MAXSTEPS];
-
+  //  int t_VoluID[MAXSTEPS];
+  //  int t_MateID[MAXSTEPS];
+  // rr
+  int    t_VolumeID[MAXSTEPS];
+  char*  t_VolumeName[MAXSTEPS];
+  int    t_VolumeCopy[MAXSTEPS];
+  float  t_VolumeX[MAXSTEPS];
+  float  t_VolumeY[MAXSTEPS];
+  float  t_VolumeZ[MAXSTEPS];
+  float  t_VolumeXaxis1[MAXSTEPS];
+  float  t_VolumeXaxis2[MAXSTEPS];
+  float  t_VolumeXaxis3[MAXSTEPS];
+  float  t_VolumeYaxis1[MAXSTEPS];
+  float  t_VolumeYaxis2[MAXSTEPS];
+  float  t_VolumeYaxis3[MAXSTEPS];
+  float  t_VolumeZaxis1[MAXSTEPS];
+  float  t_VolumeZaxis2[MAXSTEPS];
+  float  t_VolumeZaxis3[MAXSTEPS];
+  int   t_MaterialID[MAXSTEPS];
+  char* t_MaterialName[MAXSTEPS];  
+  float t_MaterialX0[MAXSTEPS];  
+  int   t_ParticleStepID[MAXSTEPS];  
+  float t_ParticleStepPt[MAXSTEPS];  
+  float t_ParticleStepEta[MAXSTEPS];  
+  float t_ParticleStepPhi[MAXSTEPS];  
+  float t_ParticleStepEnergy[MAXSTEPS];  
+  // rr
 };
 
 

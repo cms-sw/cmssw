@@ -3,9 +3,15 @@
 
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
 #include "G4ThreeVector.hh"
+
+// rr
+#include <CLHEP/Vector/LorentzVector.h>
+// rr
+
 class MaterialBudgetData;
 class G4Step;
 class G4Track;
+
 
 typedef std::map< std::string, float > msf;
 
@@ -57,6 +63,15 @@ public:
     return theEta; }
   float getPhi() const {
     return thePhi; }
+  // rr
+  int getID() const {
+    return theID; }
+  float getPt() const {
+    return thePt; }
+  float getEnergy() const {
+    return theEnergy; }
+  // rr
+  
   int getNumberOfSteps() const {
     return theStepN; }
 
@@ -81,13 +96,68 @@ public:
   float getStepZ( int is ) {
     return theZ[is];
   }
-  float getStepVoluId( int is ) {
+  /*
+    int getStepVoluId( int is ) {
     return theVoluId[is];
-  }
-  float getStepMateId( int is ) {
+    }
+    int getStepMateId( int is ) {
     return theMateId[is];
+    }
+  */
+  int getStepID( int is) {
+    return theStepID[is];
   }
-
+  float getStepPt( int is) {
+    return theStepPt[is];
+  }
+  float getStepEta( int is) {
+    return theStepEta[is];
+  }
+  float getStepPhi( int is) {
+    return theStepPhi[is];
+  }
+  float getStepEnergy( int is) {
+    return theStepEnergy[is];
+  }
+  // rr
+  int getStepVolumeID( int is ) {
+    return theVolumeID[is];
+  }
+  std::string getStepVolumeName( int is ) {
+    return theVolumeName[is];
+  }
+  int getStepVolumeCopy( int is ) {
+    return theVolumeCopy[is];
+  }
+  float getStepVolumeX( int is ) {
+    return theVolumeX[is];
+  }
+  float getStepVolumeY( int is ) {
+    return theVolumeY[is];
+  }
+  float getStepVolumeZ( int is ) {
+    return theVolumeZ[is];
+  }
+  HepLorentzVector getStepVolumeXaxis( int is ) {
+    return HepLorentzVector(theVolumeXaxis1[is],theVolumeXaxis2[is],theVolumeXaxis3[is]);
+  }
+  HepLorentzVector getStepVolumeYaxis( int is ) {
+    return HepLorentzVector(theVolumeYaxis1[is],theVolumeYaxis2[is],theVolumeYaxis3[is]);
+  }
+  HepLorentzVector getStepVolumeZaxis( int is ) {
+    return HepLorentzVector(theVolumeZaxis1[is],theVolumeZaxis2[is],theVolumeZaxis3[is]);
+  }
+  int getStepMaterialID( int is ) {
+    return theMaterialID[is];
+  }
+  std::string getStepMaterialName( int is ) {
+    return theMaterialName[is];
+  }
+  float getStepMaterialX0( int is ) {
+    return theMaterialX0[is];
+  }
+  // rr
+  
   bool allStepsON() {
     return allStepsToTree;
   }
@@ -95,6 +165,9 @@ public:
  private:
   float theTotalMB, theEta, thePhi;
   // rr
+  float thePt;
+  int   theID;
+  float theEnergy;
   float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
     theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
   float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
@@ -102,8 +175,33 @@ public:
   int theStepN;
   float *theX, *theY, *theZ;
   float *theDmb;
-  int *theVoluId;
-  int *theMateId;
+  //  int *theVoluId;
+  //  int *theMateId;
+  // rr
+  int *theVolumeID;
+  std::string* theVolumeName;
+  int*   theVolumeCopy;
+  float* theVolumeX;
+  float* theVolumeY;
+  float* theVolumeZ;
+  float* theVolumeXaxis1;
+  float* theVolumeXaxis2;
+  float* theVolumeXaxis3;
+  float* theVolumeYaxis1;
+  float* theVolumeYaxis2;
+  float* theVolumeYaxis3;
+  float* theVolumeZaxis1;
+  float* theVolumeZaxis2;
+  float* theVolumeZaxis3;
+  int*         theMaterialID;
+  std::string* theMaterialName;
+  float*       theMaterialX0;
+  int*   theStepID;
+  float* theStepPt;
+  float* theStepEta;
+  float* theStepPhi;
+  float* theStepEnergy;
+  // rr
   float theTrkLen;
   std::string thePVname;
   int thePVcopyNo;

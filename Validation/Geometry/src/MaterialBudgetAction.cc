@@ -95,10 +95,12 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   if( saveToTreeFile != "None" ) {
     saveToTree = true;
     std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
-    theTree = new MaterialBudgetTree( theData, saveToTreeFile );
     
     bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");  
+    std::cout << "TestGeometry: all steps to ROOT TREE " << allSteps << std::endl;
     if( allSteps ) theData->SetAllStepsToTree();
+    
+    theTree = new MaterialBudgetTree( theData, saveToTreeFile );
     
   } else {
     saveToTree = false;
