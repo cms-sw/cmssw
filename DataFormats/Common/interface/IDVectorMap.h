@@ -1,8 +1,7 @@
 #ifndef Common_IDVectorMap_h
 #define Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
+// $Id: IDVectorMap.h,v 1.3 2006/08/11 15:48:21 wmtan Exp $
 #include <map>
-#include <algorithm>
 #include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
@@ -170,17 +169,15 @@ namespace edm {
     map map_;
   };
   
-  template <typename ID, typename C, typename P> inline void swap( IDVectorMap<ID, C, P> & a, IDVectorMap<ID, C, P> & b );
-
   template <typename ID, typename C, typename P>
   inline
   void
   IDVectorMap<ID, C, P>::swap( IDVectorMap<ID, C, P> & other ) {
-    using edm::swap;
-    swap(collection_, other.collection_);
+    collection_.swap(other.collection_);
     map_.swap(other.map_);
   }
 
+  // free swap function
   template <typename ID, typename C, typename P>
   inline
   void
