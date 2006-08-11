@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/07/21 12:47:22 $
- * $Revision: 1.174 $
+ * $Date: 2006/08/07 21:42:49 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -395,6 +395,8 @@ void EcalBarrelMonitorClient::beginJob(void){
   } else {
     mui_->setVerbose(0);
   }
+
+  mui_->setMaxAttempts2Reconnect(99999);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob(mui_);
