@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tmoulik $
-// $Date: 2006/07/25 20:25:16 $
-// $Revision: 1.17 $
+// $Author: tboccali $
+// $Date: 2006/07/26 13:16:44 $
+// $Revision: 1.18 $
 //
 
 #include <vector>
@@ -144,6 +144,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
   for ( Roads::NumberOfLayersPerSubdetectorConstIterator component = numberOfLayersPerSubdetector.begin(); component != numberOfLayersPerSubdetector.end(); ++component) {
     totalNumberOfLayersPerSubdetector += *component;
   }
+
   std::vector<bool> usedLayersArray(totalNumberOfLayersPerSubdetector);
 
   // get tracker geometry
@@ -167,8 +168,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       const TrackingRecHit *outerSeedRingHit = &(*(--(seed->recHits().second)));
 
       // get RoadSeed from Roads
-      DetId mono(innerSeedRingHit->geographicalId().rawId()+1);
-
+      //DetId mono(innerSeedRingHit->geographicalId().rawId()+1);
+      DetId mono(innerSeedRingHit->geographicalId().rawId()+2);
+      
       const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId());
       const Roads::type roadType = roads->getRoadType(roadSeed);
 
@@ -183,6 +185,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
       // calculate phi0 and k0 dependent on RoadType
       if ( roadType == Roads::RPhi ) {
+
 	double dr = outerSeedHitGlobalPosition.perp() - innerSeedHitGlobalPosition.perp();
 	const double dr_min = 1; // cm
 	if ( dr < dr_min ) {
@@ -225,6 +228,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	  }
 	}
       } else {
+
 	double dz = outerSeedHitGlobalPosition.z() - innerSeedHitGlobalPosition.z();
 	const double dz_min = 1.e-6; // cm;
 	if ( std::abs(dz) < dz_min ) {
@@ -575,8 +579,6 @@ void RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, const SiPi
     
     if ( roadType == Roads::RPhi ) {
       
-      edm::LogInfo("RoadSearchCloudMakerAlgoritm") << "road type is rphi " << std::endl;
-      
       if ( isBarrelSensor(id) ) {
 	// Barrel Pixel, RoadType RPHI
 
@@ -627,8 +629,6 @@ void RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, const SiPi
   
     else {
 
-      edm::LogInfo("RoadSearchCloudMakerAlgoritm") << "road type is ZPhi " << std::endl;
-      
       LocalPoint hit = recHit->localPosition();
 
       GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
@@ -745,7 +745,7 @@ void RoadSearchCloudMakerAlgorithm::setLayerNumberArray(DetId id, std::vector<bo
   if ( (index != 999999) && (index <= usedLayersArray.size()) ) {
     usedLayersArray[index-1] = true;
   } else {
-    edm::LogWarning("RoadSearch") << "SetLayerNumberArray couldn't set array entry for unknown Subdetector Component of DetId: " << id.rawId();
+    edm::LogWarning("RoadSearch") << "SetLayerNumberArray couldn't set array entry for unknown Subdetector Component of DetId: " << id.rawId() <<  "  " << index ;
   }
 }
 
