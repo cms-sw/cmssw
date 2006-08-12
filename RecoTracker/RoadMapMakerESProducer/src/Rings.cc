@@ -38,11 +38,15 @@
 
 Rings::Rings(const TrackerGeometry &tracker, unsigned int verbosity) : verbosity_(verbosity) {
 
+  fillTIBGeometryArray(tracker);
+  fillTOBGeometryArray(tracker);
+  fillTIDGeometryArray(tracker);
   fillTECGeometryArray(tracker);
+  fillPXBGeometryArray(tracker);
   fillPXFGeometryArray(tracker);
 
   constructTrackerRings(tracker);
-
+  
   // make same numbering scheme as ORCA RS
   fixIndexNumberingScheme();
 
@@ -60,7 +64,7 @@ void Rings::constructTrackerRings(const TrackerGeometry &tracker) {
   constructTrackerTECRings(tracker);
   constructTrackerPXBRings(tracker);
   constructTrackerPXFRings(tracker);
-
+  
   edm::LogInfo("RoadSearch") << "constructed " << rings_.size() << " rings"; 
 
 }
@@ -88,7 +92,6 @@ void Rings::constructTrackerTIBRings(const TrackerGeometry &tracker) {
       }    
     }    
   }
-
   LogDebug("RoadSearch") << "constructed " << counter << " TIB rings"; 
   
 }
@@ -106,7 +109,6 @@ Ring Rings::constructTrackerTIBRing(const TrackerGeometry &tracker,
   float zmax = -2800.;
 
   unsigned int string_max[4][2];
-
   // TIB 1 internal
   string_max[0][0] = 26;
   // TIB 1 external
@@ -123,24 +125,22 @@ Ring Rings::constructTrackerTIBRing(const TrackerGeometry &tracker,
   string_max[3][0] = 52;
   // TIB 4 external
   string_max[3][1] = 56;
-
+  
   Ring ring(Ring::TIBRing);
 
+  unsigned int stereo = 0;
   if ( (layer == 0) || (layer == 1) ) {
-    for ( unsigned int stereo = 1; stereo <= 2; ++stereo) {
-      for ( unsigned int string = 0; string < string_max[layer][ext_int]; ++string ) {
-	DetId id = constructTrackerTIBDetId(layer,fw_bw,ext_int,string,detector,stereo);
-	double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TIBRing);
-	ring.addId(phi,id);
-      }
-    }
-  } else {
-    for ( unsigned int string = 0; string < string_max[layer][ext_int]; ++string ) {
-      DetId id = constructTrackerTIBDetId(layer,fw_bw,ext_int,string,detector,0);
+    stereo = 2;
+  }
+  //for ( unsigned int stereo = 0; stereo < 3; ++stereo ) {
+  for ( unsigned int string = 0; string < string_max[layer][ext_int]; ++string) {
+    if ( tib_[layer][fw_bw][ext_int][detector][stereo] > 0 ) {
+      DetId id = constructTrackerTIBDetId(layer,fw_bw,ext_int,string,detector,stereo);
       double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TIBRing);
       ring.addId(phi,id);
     }
   }
+  //}
 
   LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
@@ -158,7 +158,8 @@ DetId Rings::constructTrackerTIBDetId(unsigned int layer,
 
   TIBDetId id(layer+1,fw_bw,ext_int,string+1,detector+1,stereo);
   LogDebug("RoadSearch") << "constructed TIB ring DetId for layer: " << id.layer() << " fw(0)/bw(1): " << id.string()[0]
-			 << " ext(0)/int(1): " << id.string()[1] << " string: " << id.string()[2] << " sensor: " << id.det()
+    //<< " ext(0)/int(1): " << id.string()[1] << " string: " << id.string()[2] << " sensor: " << id.module()
+			 << " ext(0)/int(1): " << id.string()[1] << " sensor: " << id.module()
 			 << " stereo: " << id.stereo(); 
 
   return DetId(id.rawId());
@@ -169,15 +170,15 @@ void Rings::constructTrackerTOBRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 72;
-
+ 
   unsigned int layer_max       = 6;
   unsigned int rod_fw_bw_max   = 2;
-  unsigned int detector_max      = 6;
+  unsigned int module_max      = 6; 
 
   for ( unsigned int layer = 0; layer < layer_max; ++layer ) {
     for ( unsigned int rod_fw_bw = 0; rod_fw_bw < rod_fw_bw_max; ++rod_fw_bw ) {
-      for ( unsigned int detector = 0; detector < detector_max; ++detector ) {
-	Ring ring = constructTrackerTOBRing(tracker,layer,rod_fw_bw,detector);
+      for ( unsigned int module = 0; module < module_max; ++module ) {
+	Ring ring = constructTrackerTOBRing(tracker,layer,rod_fw_bw,module);
 	ring.setindex(index++);
 	rings_.push_back(ring);
 	++counter;
@@ -193,8 +194,8 @@ void Rings::constructTrackerTOBRings(const TrackerGeometry &tracker) {
 Ring Rings::constructTrackerTOBRing(const TrackerGeometry &tracker,
 				    unsigned int layer,
 				    unsigned int rod_fw_bw,
-				    unsigned int detector) {
-
+				    unsigned int module) {
+  
   // variables for determinaton of rmin, rmax, zmin, zmax
   float rmin = 1200.;
   float rmax = 0.;
@@ -202,7 +203,8 @@ Ring Rings::constructTrackerTOBRing(const TrackerGeometry &tracker,
   float zmax = -2800.;
 
   unsigned int rod_max[6];
-  
+  //unsigned int stereo_max=3;
+
   // TOB 1
   rod_max[0] = 42;
   // TOB 2
@@ -216,24 +218,21 @@ Ring Rings::constructTrackerTOBRing(const TrackerGeometry &tracker,
   // TOB 6
   rod_max[5] = 74;
 
-
   Ring ring(Ring::TOBRing);
-  
-  if ( (layer == 0) || (layer == 1) ) {
-    for ( unsigned int stereo = 1; stereo <= 2; ++stereo) {
-      for ( unsigned int rod = 0; rod < rod_max[layer]; ++rod ) {
-	DetId id = constructTrackerTOBDetId(layer,rod_fw_bw,rod,detector,stereo);
-	double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TOBRing);
-	ring.addId(phi,id);
-      }
-    }
-  } else {
-    for ( unsigned int rod = 0; rod < rod_max[layer]; ++rod ) {
-      DetId id = constructTrackerTOBDetId(layer,rod_fw_bw,rod,detector,0);
+  for ( unsigned int rod = 0; rod < rod_max[layer]; ++rod ) {
+    //for ( unsigned int stereo = 0; stereo < stereo_max; ++stereo) {
+    unsigned int stereo = 0;
+    if ( (layer == 0) || (layer == 1) ) {
+      stereo = 2;
+    } 
+    
+    if ( tob_[layer][rod_fw_bw][rod][module][stereo] > 0 ) {
+      DetId id = constructTrackerTOBDetId(layer,rod_fw_bw,rod,module,stereo);
       double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TOBRing);
       ring.addId(phi,id);
     }
   }
+  
 
   LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
@@ -251,7 +250,7 @@ DetId Rings::constructTrackerTOBDetId(unsigned int layer,
   TOBDetId id(layer+1,rod_fw_bw,rod+1,detector+1,stereo);
 
   LogDebug("RoadSearch") << "constructed TOB ring DetId for layer: " << id.layer() << " rod fw(0)/bw(1): " << id.rod()[0] 
-			 << " rod: " << id.rod()[1] << " sensor: " << id.det() << " stereo: " << id.stereo(); 
+			 << " rod: " << id.rod()[1] << " module: " << id.module() << " stereo: " << id.stereo() << std::endl; 
 
   return DetId(id.rawId());
 }
@@ -307,26 +306,23 @@ Ring Rings::constructTrackerTIDRing(const TrackerGeometry &tracker,
 
   Ring tempring(Ring::TIDRing);
   
-  if ( (ring==0) || (ring==1) ) {
-    for ( unsigned int stereo = 1; stereo <= 2; ++stereo) {
-      for ( unsigned int detector_fw_bw = 0; detector_fw_bw < detector_fw_bw_max; ++detector_fw_bw ) {
-	for ( unsigned int detector = 0; detector < detector_max[ring]; ++detector ) {
-	  DetId id = constructTrackerTIDDetId(fw_bw,wheel,ring,detector_fw_bw,detector,stereo);
-	  double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TIDRing);
-	  tempring.addId(phi,id);
-	}
+  for ( unsigned int detector_fw_bw = 0; detector_fw_bw < detector_fw_bw_max; ++detector_fw_bw ) {
+    for ( unsigned int detector = 0; detector < detector_max[ring]; ++detector ) {
+      //for ( unsigned int stereo = 0; stereo < 3; ++stereo) {
+
+      unsigned int stereo = 0;
+      if ( (ring == 0) || (ring == 1) ) {
+	stereo = 2;
       }
-    }
-  } else {
-    for ( unsigned int detector_fw_bw = 0; detector_fw_bw < detector_fw_bw_max; ++detector_fw_bw ) {
-      for ( unsigned int detector = 0; detector < detector_max[ring]; ++detector ) {
-	DetId id = constructTrackerTIDDetId(fw_bw,wheel,ring,detector_fw_bw,detector,0);
+      if ( tid_[fw_bw][wheel][ring][detector_fw_bw][detector][stereo] > 0 ) {
+	DetId id = constructTrackerTIDDetId(fw_bw,wheel,ring,detector_fw_bw,detector,stereo);
 	double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TIDRing);
 	tempring.addId(phi,id);
       }
+      //}
     }
   }
-	
+  	
   LogDebug("RoadSearch") << "Ring with index: " << tempring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   tempring.initialize(rmin,rmax,zmin,zmax);
@@ -421,20 +417,26 @@ Ring Rings::constructTrackerTECRing(const TrackerGeometry &tracker,
   unsigned int petal_max       = 8;
   unsigned int petal_fw_bw_max = 2;
   unsigned int module_max = 20;
-  unsigned int stereo_max = 3;
+  //unsigned int stereo_max = 2;
 
   Ring tempring(Ring::TECRing);
 	
   for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
     for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
       for ( unsigned int module = 0; module < module_max; ++module ) {
-	for ( unsigned int stereo = 0; stereo < stereo_max; ++stereo) {
-	  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] > 0 ) {
-	    DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module,stereo);
-	    double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
-	    tempring.addId(phi,id);
-	  }
+	//for ( unsigned int stereo = 0; stereo < stereo_max; ++stereo) {
+
+	unsigned int stereo = 0;
+	if ( (ring == 0) || (ring == 1) || (ring == 4) ) {
+	  stereo = 2;
 	}
+
+	if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] > 0 ) {
+	  DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module,stereo);
+	  double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
+	  tempring.addId(phi,id);
+	}
+	//}
       }
     }
   }
@@ -507,9 +509,11 @@ Ring Rings::constructTrackerPXBRing(const TrackerGeometry &tracker,
   Ring ring(Ring::PXBRing);
 
   for ( unsigned int ladder = 0; ladder < ladder_max[layer]; ++ladder ) {
-    DetId id = constructTrackerPXBDetId(layer,ladder,detector);
-    double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::PXBRing);
-    ring.addId(phi,id);
+    if ( pxb_[layer][ladder][detector] > 0 ) {
+      DetId id = constructTrackerPXBDetId(layer,ladder,detector);
+      double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::PXBRing);
+      ring.addId(phi,id);
+    }
   }
   
   LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
@@ -551,18 +555,18 @@ void Rings::constructTrackerPXFRings(const TrackerGeometry &tracker) {
 	  ++counter;
 	}
       }
-    }
-  }
+    }    
+  }    
 
-  LogDebug("RoadSearch") << "constructed " << counter << " PXF rings";
+  LogDebug("RoadSearch") << "constructed " << counter << " PXF rings"; 
   
 }
 
 Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
-                                    unsigned int fw_bw,
-                                    unsigned int disk,
-                                    unsigned int panel,
-                                    unsigned int module) {
+				    unsigned int fw_bw,
+				    unsigned int disk,
+				    unsigned int panel,
+				    unsigned int module) {
 
   // variables for determinaton of rmin, rmax, zmin, zmax
   float rmin = 1200.;
@@ -579,49 +583,42 @@ Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
       DetId id = constructTrackerPXFDetId(fw_bw,disk,blade,panel,module);
       double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::PXFRing);
       ring.addId(phi,id);
-    }
+    } 
   }
 
   LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
-
+    
   ring.initialize(rmin,rmax,zmin,zmax);
-
-
-
-  //  std::cout << "Done TrackerPXFRing " << std::endl;
 
   return ring;
 }
 
 DetId Rings::constructTrackerPXFDetId(unsigned int fw_bw,
-                                      unsigned int disk,
-                                      unsigned int blade,
-                                      unsigned int panel,
-                                      unsigned int module) {
-
+				      unsigned int disk,
+				      unsigned int blade,
+				      unsigned int panel,
+				      unsigned int module) {
 
   PXFDetId id(fw_bw+1,disk+1,blade+1,panel+1,module+1);
 
-  LogDebug("RoadSearch") << "constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk()
-                         << " blade: " << id.blade() << " panel: " << id.panel() << " module: " << id.module();
-
+  LogDebug("RoadSearch") << "constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk() 
+			 << " blade: " << id.blade() << " panel: " << id.panel() << " module: " << id.module(); 
+	
   return DetId(id.rawId());
 }
 
-
 Ring* Rings::getTrackerRing(DetId id) {
-
+  
   for ( iterator ring = rings_.begin(); ring != rings_.end(); ++ring ) {
     Ring *temp = &*ring;
     if ( temp->containsDetId(id)) {
       return temp;
     }
   }
-
-  edm::LogError("RoadSearch") << "could not find Ring with DetId: " << id.rawId();
+  
+  edm::LogError("RoadSearch") << "could not find Ring with DetId: " << id.rawId() << " " << (unsigned int)id.subdetId();
   return 0;
 }
-
 
 Ring* Rings::getTrackerTIBRing(unsigned int layer,
 			       unsigned int fw_bw,
@@ -632,11 +629,11 @@ Ring* Rings::getTrackerTIBRing(unsigned int layer,
 
   unsigned int stereo = 0;
   if ( (layer == 0) || (layer == 1) ) {
-    stereo = 1;
+    stereo = 2;
   }
 
   TIBDetId id(layer+1,fw_bw,ext_int,1,detector+1,stereo);
-
+  
   return getTrackerRing(DetId(id.rawId()));
 }
 
@@ -648,7 +645,7 @@ Ring* Rings::getTrackerTIDRing(unsigned int fw_bw,
 
   unsigned int stereo = 0;
   if ( (ring==0) || (ring==1) ) {
-    stereo = 1;
+    stereo = 2;
   }
 
   TIDDetId id(fw_bw+1,wheel+1,ring+1,0,1,stereo);
@@ -670,30 +667,33 @@ Ring* Rings::getTrackerTECRing(unsigned int fw_bw,
   int module = 0;
   int stereo = 0;
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    stereo = 1;
-  }
-
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+  if (ring==0 || ring==1 || ring==4) {
     stereo = 2;
   }
+//    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+//    stereo = 1;
+//    }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    petal_fw_bw = 1;
-    stereo = 0;
-  }
+//    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+//    stereo = 2;
+//    }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    stereo = 1;
-  }
+//    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+//    petal_fw_bw = 1;
+//    stereo = 0;
+//    }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    stereo = 2;
-  }
+//    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+//    stereo = 1;
+//    }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    edm::LogError("RoadSearch") << "problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1;
-  }
+//    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+//    stereo = 2;
+//    }
+
+   if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+     edm::LogError("RoadSearch") << "problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1;
+   }
 
   TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,stereo);
 
@@ -707,11 +707,12 @@ Ring* Rings::getTrackerTOBRing(unsigned int layer,
   // construct DetID from info using else the first of all entities and return Ring
   unsigned int stereo = 0;
   if ( (layer == 0) || (layer == 1) ) {
-    stereo = 1;
+    stereo = 2;
   }
 
   TOBDetId id(layer+1,rod_fw_bw,1,detector+1,stereo);
-
+  
+  //edm::LogError("RoadSearch") << "ly/fw_bw/rod/mod/stereo: " << layer+1 << "/"<<rod_fw_bw<<"/1/"<<detector+1<<"/"<<stereo;
   return getTrackerRing(DetId(id.rawId()));
 }
 
@@ -726,22 +727,23 @@ Ring* Rings::getTrackerPXBRing(unsigned int layer,
   return getTrackerRing(DetId(id.rawId()));
 }
 
+
 Ring* Rings::getTrackerPXFRing(unsigned int fw_bw,
 			       unsigned int disk,
 			       unsigned int panel,
 			       unsigned int module) {
-
+  
   // construct DetID from info using else the first of all entities and return Ring
   unsigned int detector = 0;
-
+  
   PXFDetId id(fw_bw+1,disk+1,detector+1,panel+1,module+1);
-
+  
   return getTrackerRing(DetId(id.rawId()));
-
   
   std::cout << "Done getTrackerPXFRing" << std::endl;
-
+ 
 }
+
 
 void Rings::fixIndexNumberingScheme() {
 
@@ -1030,9 +1032,74 @@ void Rings::fixIndexNumberingScheme() {
 
 double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, float &rmin, float &rmax, float &zmin, float& zmax, Ring::type type) {
 
-  const GeomDetUnit *det = tracker.idToDetUnit(id);
-	
+  //solution for double modules: loop over r-phi and stereo sensors is required
+  std::vector<unsigned int> UseRingIds;
+
+  if ( type == Ring::TOBRing ) {
+    //TOBDetId tob_axial(id.rawId());
+    //UseRingIds.push_back(tob_axial.rawId());
+    TOBDetId tob_axial(id.rawId());
+    UseRingIds.push_back(tob_axial.rawId());
+    if ( tob_axial.partnerDetId() != 0 ) {
+    //if ( ((int)tib_axial.partnerDetId() - (int)tib_axial.rawId()) == 0 ) {
+      TOBDetId tob_stereo(tob_axial.partnerDetId());
+      UseRingIds.push_back(tob_stereo.rawId());
+      //LogDebug("RoadSearch") << "CARSTEN: axial/stereo " << tob_axial.rawId() << " " <<tob_stereo.rawId();
+    }
+  }
+  if ( type == Ring::TIDRing ) {
+    //TIDDetId tid_axial(id.rawId());
+    //UseRingIds.push_back(tid_axial.rawId());
+    TIDDetId tid_axial(id.rawId());
+    UseRingIds.push_back(tid_axial.rawId());
+    if ( tid_axial.partnerDetId() != 0 ) {
+      //if ( ((int)tib_axial.partnerDetId() - (int)tib_axial.rawId()) == 0 ) {
+      TIDDetId tid_stereo(tid_axial.partnerDetId());
+      UseRingIds.push_back(tid_stereo.rawId());
+      //LogDebug("RoadSearch") << "CARSTEN: axial/stereo " << tid_axial.rawId() << " " <<tid_stereo.rawId();
+    }
+  }
+  if ( type == Ring::TECRing ) {
+    //TECDetId tec_axial(id.rawId());
+    //UseRingIds.push_back(tec_axial.rawId());
+    TECDetId tec_axial(id.rawId());
+    UseRingIds.push_back(tec_axial.rawId());
+    if ( tec_axial.partnerDetId() != 0 ) {
+      TECDetId tec_stereo(tec_axial.partnerDetId());
+      UseRingIds.push_back(tec_stereo.rawId());
+      //LogDebug("RoadSearch") << "CARSTEN: axial/stereo " << tec_axial.rawId() << " " <<tec_stereo.rawId();
+    }
+  }
+  if ( type == Ring::PXBRing ) {
+    PXBDetId pxb_axial(id.rawId());
+    UseRingIds.push_back(pxb_axial.rawId());
+  }
+  if ( type == Ring::PXFRing ) {
+    PXFDetId pxf_axial(id.rawId());
+    UseRingIds.push_back(pxf_axial.rawId());
+  }
+
+
+  if ( type == Ring::TIBRing ) {
+    TIBDetId tib_axial(id.rawId());
+    UseRingIds.push_back(tib_axial.rawId());
+    if ( tib_axial.partnerDetId() != 0 ) {
+    //if ( ((int)tib_axial.partnerDetId() - (int)tib_axial.rawId()) == 0 ) {
+      TIBDetId tib_stereo(tib_axial.partnerDetId());
+      UseRingIds.push_back(tib_stereo.rawId());
+      //LogDebug("RoadSearch") << "CARSTEN: axial/stereo " << tib_axial.rawId() << " " <<tib_stereo.rawId();
+    }
+  }
   double phi = 0.;
+  for ( std::vector<unsigned int>::iterator it = UseRingIds.begin(); it != UseRingIds.end(); ++it) {
+    LogDebug("RoadSearch") << "check: " << (*it);
+
+
+
+    //const GeomDetUnit *det = tracker.idToDetUnit(id);
+    const GeomDetUnit *det = tracker.idToDetUnit(DetId(*it));
+	
+    //double phi = 0.;
 
   if ( det != 0 ) {
 
@@ -1094,7 +1161,7 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
     if ( local_rmax > rmax ) rmax = local_rmax;
     if ( local_zmin < zmin ) zmin = local_zmin;
     if ( local_zmax > zmax ) zmax = local_zmax;
-    
+  
   } else {
     
     if ( type == Ring::TIBRing ) {
@@ -1104,7 +1171,7 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
 				  << " fw(0)/bw(1): " << tibid.string()[0]
 				  << " ext(0)/int(0): " << tibid.string()[1] 
 				  << " string: " << tibid.string()[2] 
-				  << " detector: " << tibid.det()
+				  << " module: " << tibid.module()
 				  << " not stereo(0)/stereo(1): " << tibid.stereo() 
 				  << " not glued(0)/glued(1): " << tibid.glued(); 
     } else if ( type == Ring::TOBRing ) {
@@ -1122,8 +1189,8 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
 				  << " side neg(1)/pos(2): " << tidid.side() 
 				  << " wheel: " << tidid.wheel()
 				  << " ring: " << tidid.ring()
-				  << " detector fw(0)/bw(1): " << tidid.module()[0]
-				  << " detector: " << tidid.module()[1] 
+				  << " module fw(0)/bw(1): " << tidid.module()[0]
+				  << " module: " << tidid.module()[1] 
 				  << " not stereo(0)/stereo(1): " << tidid.stereo() 
 				  << " not glued(0)/glued(1): " << tidid.glued(); 
     } else if ( type == Ring::TECRing ) {
@@ -1142,17 +1209,19 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
       edm::LogError("RoadSearch") << "problem resolving DetUnit for PXB ring DetId: " << id.rawId() 
 				  << " layer: " << pxbid.layer()
 				  << " ladder: " << pxbid.ladder()
-				  << " detector: " << pxbid.module(); 
+				  << " module: " << pxbid.module(); 
     } else if ( type == Ring::PXFRing ) {
       PXFDetId pxfid(id.rawId()); 
       edm::LogError("RoadSearch") << "problem resolving DetUnit for PXF ring DetId: " << id.rawId() 
 				  << " side: " << pxfid.side()
 				  << " disk: " << pxfid.disk()
 				  << " blade: " << pxfid.blade()
-				  << " detector: " << pxfid.module(); 
+	                          << " panel: " << pxfid.panel()
+				  << " module: " << pxfid.module(); 
     }
   }
-
+  }
+  LogDebug("RoadSearch") << "CARSTEN: id/rmin/rmax/zmin/zmax " << id.rawId() << "/" << rmin <<"/"<<rmax<<"/"<<zmin<<"/"<<zmax;
   return phi;
 
 }
@@ -1333,19 +1402,19 @@ std::string Rings::dumpOldStyleTEC(unsigned int &nLayers) {
   // TEC WHEEL 4
   ring_min[3] = 1;
   ring_max[3] = 7;
-  // TEC WHEEL 5 
+  // TEC WHEEL 5
   ring_min[4] = 1;
   ring_max[4] = 7;
-  // TEC WHEEL 6 
+  // TEC WHEEL 6
   ring_min[5] = 1;
   ring_max[5] = 7;
-  // TEC WHEEL 7 
+  // TEC WHEEL 7
   ring_min[6] = 2;
   ring_max[6] = 7;
-  // TEC WHEEL 8 
+  // TEC WHEEL 8
   ring_min[7] = 2;
   ring_max[7] = 7;
-  // TEC WHEEL 9 
+  // TEC WHEEL 9
   ring_min[8] = 3;
   ring_max[8] = 7;
 
@@ -1417,30 +1486,159 @@ std::string Rings::dumpOldStylePXF(unsigned int &nLayers) {
   
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int disk = 0; disk < disk_max; ++disk ) {
-	++nLayers;
-	std::ostringstream tempstream;
-	unsigned int nRings = 0;
-	for ( unsigned int panel = 0; panel < panel_max; ++panel ) {
-	  if (panel==0) module_max = 3;
-	  for ( unsigned int module = 0; module < module_max; ++module ) {
-	    ++nRings;
-	    Ring *ring = getTrackerPXFRing(fw_bw,disk,panel,module);
-	    tempstream << ring->getrmin() << " "
-		       << ring->getrmax() << " "
-		       << ring->getzmin() << " "
-		       << ring->getzmax() << " ";
-	  }
+      ++nLayers;
+      std::ostringstream tempstream;
+      unsigned int nRings = 0;
+      for ( unsigned int panel = 0; panel < panel_max; ++panel ) {
+	if (panel==0) module_max = 3;
+	for ( unsigned int module = 0; module < module_max; ++module ) {
+	  ++nRings;
+	  Ring *ring = getTrackerPXFRing(fw_bw,disk,panel,module);
+	  tempstream << ring->getrmin() << " "
+		     << ring->getrmax() << " "
+		     << ring->getzmin() << " "
+		     << ring->getzmax() << " ";
 	}
-	stream << "0 0.0";
-	stream << nRings;
-	stream << tempstream.str();
-	
-	LogDebug("RoadSearch") << "wrote out " << nRings << " PXF rings in old style."; 
+      }
+      stream << "0 0.0";
+      stream << nRings;
+      stream << tempstream.str();
+      
+      LogDebug("RoadSearch") << "wrote out " << nRings << " PXF rings in old style.";
+      
     }
   }
   
   return stream.str();
   
+}
+
+void Rings::fillTIBGeometryArray(const TrackerGeometry &tracker) {
+  // fill hardcoded TIB geometry array
+  // tib[layer][str_fw_bw][str_int_ext][module][stereo]
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      for (int k = 0; k < 2; ++k) {
+	for (int l = 0; l < 3; ++l) {
+	  for (int m =0; m < 3; ++m) {
+	    tib_[i][j][k][l][m] = 0;
+	  }
+	}
+      }
+    }
+  }
+
+  std::vector<DetId> detIds = tracker.detUnitIds();
+  
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
+      TIBDetId tibid(id.rawId());
+      
+      if( (int)tibid.rawId()-(int)tibid.glued() == (int)tibid.rawId()) {
+	//single sided: r-phi 
+	//double sided: matched
+	tib_[tibid.layer()-1][tibid.string()[0]][tibid.string()[1]][tibid.module()-1][0] += 1;
+      } else if ( (int)tibid.rawId()-(int)tibid.glued() == 1) {
+	//double sided: stereo
+	tib_[tibid.layer()-1][tibid.string()[0]][tibid.string()[1]][tibid.module()-1][1] += 1;
+      } else if ( (int)tibid.rawId()-(int)tibid.glued() == 2) { 
+	//double sided: r-phi
+	tib_[tibid.layer()-1][tibid.string()[0]][tibid.string()[1]][tibid.module()-1][2] += 1;
+      } else {
+	edm::LogError("RoadSearch") << "stereo of TIBId: " << id.rawId() << " could not be determined." << (int)tibid.glued(); 
+      }
+
+    }
+  }
+}
+
+void Rings::fillTIDGeometryArray(const TrackerGeometry &tracker) {
+  // fills hardcoded TID geometry array
+  // tid[side][wheel][ring][module_fw_bw][module][stereo]
+  // where stereo gives the int of the last constructor parameter
+  // the content inidicates if detector with combination exists (>0) or not (==0)
+
+  for (int i = 0; i < 2; ++i ) {
+    for (int j = 0; j < 3; ++j ) {
+      for (int k = 0; k < 3; ++k ) {
+	for (int l = 0; l < 2; ++l ) {
+	  for (int m = 0; m < 20; ++m ) {
+	    for (int n = 0; n < 3; ++n ) {
+	      tid_[i][j][k][l][m][n] = 0;
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  std::vector<DetId> detIds = tracker.detUnitIds();
+  
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
+      TIDDetId tidid(id.rawId());
+
+      if( (int)tidid.rawId()-(int)tidid.glued() == (int)tidid.rawId()) {
+	//single sided: r-phi 
+	//double sided: matched
+	tid_[tidid.side()-1][tidid.wheel()-1][tidid.ring()-1][tidid.module()[0]][tidid.module()[1]-1][0] += 1;
+      } else if ( (int)tidid.rawId()-(int)tidid.glued() == 1) {
+	//double sided: stereo
+	tid_[tidid.side()-1][tidid.wheel()-1][tidid.ring()-1][tidid.module()[0]][tidid.module()[1]-1][1] += 1;
+      } else if ( (int)tidid.rawId()-(int)tidid.glued() == 2) { 
+	//double sided: r-phi
+	tid_[tidid.side()-1][tidid.wheel()-1][tidid.ring()-1][tidid.module()[0]][tidid.module()[1]-1][2] += 1;
+      } else {
+	edm::LogError("RoadSearch") << "stereo of TIDId: " << id.rawId() << " could not be determined."; 
+      }
+
+    }
+  }
+}
+
+void Rings::fillTOBGeometryArray(const TrackerGeometry &tracker) {
+  // fills hardcoded TOB geometry array
+  // tob[layer][rod_fw_bw][rod][module][stereo]
+  for (int i = 0; i < 6; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      for (int k = 0; k < 74; ++k) {
+	for (int l = 0; l < 6; ++l) {
+	  for (int m = 0; m < 3; ++m) {
+	    tob_[i][j][k][l][m] = 0;
+	  }
+	}
+      }
+    }
+  }
+
+  std::vector<DetId> detIds = tracker.detUnitIds();
+  
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
+      TOBDetId tobid(id.rawId());
+
+      if( (int)tobid.rawId()-(int)tobid.glued() == (int)tobid.rawId()) {
+	//single sided: r-phi 
+	//double sided: matched
+	tob_[tobid.layer()-1][tobid.rod()[0]][tobid.rod()[1]-1][tobid.module()-1][0] += 1;
+      } else if ( (int)tobid.rawId()-(int)tobid.glued() == 1) {
+	//double sided: stereo
+	tob_[tobid.layer()-1][tobid.rod()[0]][tobid.rod()[1]-1][tobid.module()-1][1] += 1;
+      } else if ( (int)tobid.rawId()-(int)tobid.glued() == 2) { 
+	//double sided: r-phi
+	tob_[tobid.layer()-1][tobid.rod()[0]][tobid.rod()[1]-1][tobid.module()-1][2] += 1;
+      } else {
+	edm::LogError("RoadSearch") << "stereo of TOBId: " << id.rawId() << " could not be determined."; 
+      }
+
+    }
+  }
 }
 
 void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
@@ -1473,12 +1671,16 @@ void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
     if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
       TECDetId tecid(id.rawId());
 
-      if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == 1 ) {
-	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][1] += 1;
-      } else if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == -1 ) {
-	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][2] += 1;
-      } else if ( tecid.partnerDetId() == 0 ) {
+      if( (int)tecid.rawId()-(int)tecid.glued() == (int)tecid.rawId()) {
+	//single sided: r-phi 
+	//double sided: matched
 	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][0] += 1;
+      } else if ( (int)tecid.rawId()-(int)tecid.glued() == 1) {
+	//double sided: stereo
+	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][1] += 1;
+      } else if ( (int)tecid.rawId()-(int)tecid.glued() == 2) { 
+	//double sided: r-phi
+	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][2] += 1;
       } else {
 	edm::LogError("RoadSearch") << "stereo of TECId: " << id.rawId() << " could not be determined."; 
       }
@@ -1487,41 +1689,62 @@ void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
   }
 }
 
+void Rings::fillPXBGeometryArray(const TrackerGeometry &tracker) {
+  // fills hardcoded PXB geometry array: pxb[layer][ladder][module]
+  // module gives the int of the last constructor parameter
+  // content of [module] indicates if module with combination exists (>0) or not (==0)
+
+  for (int i = 0; i < 3; ++i ) {
+    for (int j = 0; j < 8; ++j ) {
+      for (int k = 0; k < 44; ++k ) {
+	pxb_[i][j][k] = 0;
+      }
+    }
+  }
+
+  std::vector<DetId> detIds = tracker.detUnitIds();
+  
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
+      PXBDetId pxbid(id.rawId());
+
+      //sanity check with partner ID not possible
+      pxb_[pxbid.layer()-1][pxbid.ladder()-1][pxbid.module()-1] += 1;
+      
+    }
+  }
+}
 
 void Rings::fillPXFGeometryArray(const TrackerGeometry &tracker) {
   // fills hardcoded PXF geometry array: pxf[side][disk][blade][panel][module]
   // module gives the int of the last constructor parameter
   // content of [module] indicates if module with combination exists (>0) or not (==0)
 
-  for (int i = 0; i < 2; i++ ) {
-    for (int j = 0; j < 2; j++ ) {
-      for (int k = 0; k < 24; k++ ) {
-        for (int l = 0; l < 2; l++ ) {
-          for (int m = 0; m < 4; m++ ) {
-            pxf_[i][j][k][l][m] = 0;
-          }
-        }
+  for (int i = 0; i < 2; ++i ) {
+    for (int j = 0; j < 2; ++j ) {
+      for (int k = 0; k < 24; ++k ) {
+	for (int l = 0; l < 2; ++l ) {
+	  for (int m = 0; m < 4; ++m ) {
+	    pxf_[i][j][k][l][m] = 0;
+	  }
+	}
       }
     }
   }
 
-  //  std::cout << "Done with INITIALIZATION " << std::endl;
-
   std::vector<DetId> detIds = tracker.detUnitIds();
-
+  
   for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
     DetId id = *detiterator;
 
     if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
       PXFDetId pxfid(id.rawId());
-      
-      //      std::cout << "FPIXELS " << pxfid.side()-1 << " " << pxfid.disk()-1 << " " << pxfid.blade()-1 << " " << pxfid.panel()-1 << " " << pxfid.module()-1 << std::endl;
+
       //sanity check with partner ID not possible
       pxf_[pxfid.side()-1][pxfid.disk()-1][pxfid.blade()-1][pxfid.panel()-1][pxfid.module()-1] += 1;
-
-
+      
     }
   }
-
-  std::cout << "Constructed pXF detids" << std::endl;
 }

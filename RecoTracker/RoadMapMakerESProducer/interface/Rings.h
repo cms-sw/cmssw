@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/23 01:55:47 $
-// $Revision: 1.4 $
+// $Author: tmoulik $
+// $Date: 2006/07/25 20:22:51 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -105,13 +105,13 @@ class Rings {
 			       unsigned int fw_bw,
 			       unsigned int disk,
 			       unsigned int panel,
-			       unsigned int detector);
+			       unsigned int module);
 
   DetId constructTrackerPXFDetId(unsigned int fw_bw,
 				 unsigned int disk,
 				 unsigned int blade,
 				 unsigned int panel,
-				 unsigned int detector);
+				 unsigned int module);
 
   Ring* getTrackerRing(DetId id);
 
@@ -163,6 +163,10 @@ class Rings {
   std::string dumpOldStylePXF(unsigned int &nLayer);
 
   void fillTECGeometryArray(const TrackerGeometry &tracker);
+  void fillTIBGeometryArray(const TrackerGeometry &tracker);
+  void fillTIDGeometryArray(const TrackerGeometry &tracker);
+  void fillTOBGeometryArray(const TrackerGeometry &tracker);
+  void fillPXBGeometryArray(const TrackerGeometry &tracker);
   void fillPXFGeometryArray(const TrackerGeometry &tracker);
 
  private:
@@ -170,10 +174,13 @@ class Rings {
   int verbosity_;
 
   std::vector<Ring> rings_;
-
-  int tec_[2][9][2][8][7][20][3];
+  
+  int tec_[2][9][2][8][7][20][3]; // tec[fw_bw][wheel][ring][petal][petal_fw_bw][module][stereo]
+  int tib_[4][2][2][3][3];        // tib[layer][str_fw_bw][str_int_ext][module][stereo]
+  int tid_[2][3][3][2][20][3];    // tid[side][wheel][ring][module_fw_bw][module][stereo]
+  int tob_[6][2][74][6][3];       // tob[layer][rod_fw_bw][rod][module][stereo]
+  int pxb_[3][8][44];             // pxb[layer][ladder][module]
   int pxf_[2][2][24][2][4];       // pxf[side][disk][blade][panel][module]
-
 
 };
 
