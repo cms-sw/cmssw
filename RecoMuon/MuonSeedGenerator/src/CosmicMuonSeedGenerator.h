@@ -4,16 +4,19 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2006/07/15 18:34:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu - Purdue University 
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include <vector>
+
+class MuonDetLayerGeometry;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -59,6 +62,7 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   /// the maximum chi2 required for dt and csc rechits
   double theMaxDTChi2;
   double theMaxCSCChi2;
+  edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
  
 };
 #endif
