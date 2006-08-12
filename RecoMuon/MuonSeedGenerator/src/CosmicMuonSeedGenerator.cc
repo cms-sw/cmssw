@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/12 19:44:41 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -68,7 +68,6 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   TrajectorySeedCollection theSeeds;
 
   // Muon Geometry - DT, CSC and RPC 
-  edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(theMuonLayers);
 
   // get the DT layers
@@ -264,7 +263,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
 
   edm::LogInfo(metname)<<"Trajectory State on Surface before the extrapolation";
   edm::LogInfo(metname)<<"mom: "<<tsos.globalMomentum();
-  edm::LogInfo(metname)<<" pos: " << tsos.globalPosition(); 
+  edm::LogInfo(metname)<<"pos: " << tsos.globalPosition(); 
 
  // ask for compatible layers
   DirectMuonNavigation theNavigation(&*theMuonLayers);
