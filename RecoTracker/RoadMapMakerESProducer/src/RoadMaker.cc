@@ -11,8 +11,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:55:48 $
-// $Revision: 1.5 $
+// $Date: 2006/03/28 22:48:06 $
+// $Revision: 1.6 $
 //
 
 #include <iostream>
@@ -206,7 +206,7 @@ void RoadMaker::collectInnerSeedRings(std::vector<Ring*>& set) {
   collectInnerTIDSeedRings(set);
   collectInnerTECSeedRings(set);
 
-  LogDebug("RoadSearch") << "collected " << set.size() << " inner seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << set.size() << " inner seed rings"; 
   
 }
 
@@ -226,13 +226,13 @@ void RoadMaker::collectInnerTIBSeedRings(std::vector<Ring*>& set) {
 	  Ring* temp_ring = rings_->getTrackerTIBRing(layer,fw_bw,ext_int,detector);
 	  set.push_back(temp_ring);
 	  ++counter;
-	  LogDebug("RoadSearch") << "collected TIB inner seed ring with index: " << temp_ring->getindex(); 
+	  //edm::LogError("RoadSearch") << "collected TIB inner seed ring with index: " << temp_ring->getindex(); 
 	}    
       }    
     }
   }
 
-  LogDebug("RoadSearch") << "collected " << counter << " TIB inner seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << counter << " TIB inner seed rings"; 
 
 }
 
@@ -249,14 +249,14 @@ void RoadMaker::collectInnerTIDSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       for ( unsigned int ring = 0; ring < ring_max; ++ring ) {
 	Ring* temp_ring = rings_->getTrackerTIDRing(fw_bw,wheel,ring);
-	LogDebug("RoadSearch") << "collected TID inner seed ring with index: " << temp_ring->getindex(); 
+	//edm::LogError("RoadSearch") << "collected TID inner seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  LogDebug("RoadSearch") << "collected " << counter << " TID inner seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << counter << " TID inner seed rings"; 
 
 }
 
@@ -293,14 +293,14 @@ void RoadMaker::collectInnerTECSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       for ( unsigned int ring = ring_min[wheel]; ring < ring_max[wheel]; ++ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,ring);
-	LogDebug("RoadSearch") << "collected TEC inner seed ring with index: " << temp_ring->getindex(); 
+	//edm::LogError("RoadSearch") << "collected TEC inner seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  LogDebug("RoadSearch") << "collected " << counter << " TEC inner seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << counter << " TEC inner seed rings"; 
 
 }
 
@@ -309,7 +309,7 @@ void RoadMaker::collectOuterSeedRings(std::vector<Ring*>& set) {
   collectOuterTOBSeedRings(set);
   collectOuterTECSeedRings(set);
 
-  LogDebug("RoadSearch") << "collected " << set.size() << " outer seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << set.size() << " outer seed rings"; 
 }
 
 void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
@@ -325,7 +325,7 @@ void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int rod_fw_bw = 0; rod_fw_bw < rod_fw_bw_max; ++rod_fw_bw ) {
       for ( unsigned int detector = 0; detector < detector_max; ++detector ) {
 	Ring* temp_ring = rings_->getTrackerTOBRing(layer,rod_fw_bw,detector);
-	LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+	//edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
@@ -334,31 +334,31 @@ void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
   
   // add most outer rings
   Ring* temp_ring = rings_->getTrackerTOBRing(1,0,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(1,1,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(2,0,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(2,1,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(3,0,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(3,1,5);
-  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+  //edm::LogError("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
 
-  LogDebug("RoadSearch") << "collected " << counter << " TOB outer seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << counter << " TOB outer seed rings"; 
 
 }
 
@@ -372,7 +372,7 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,6);
-      LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
+      //edm::LogError("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
       set.push_back(temp_ring);
       ++counter;
     }
@@ -417,14 +417,14 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = wheel_start; wheel < wheel_max; ++wheel ) {
       for ( unsigned int second_ring = second_ring_min[wheel]; second_ring < second_ring_max[wheel]; ++second_ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,second_ring);
-	LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
+	//edm::LogError("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  LogDebug("RoadSearch") << "collected " << counter << " TEC outer seed rings"; 
+  edm::LogError("RoadSearch") << "collected " << counter << " TEC outer seed rings"; 
 
 }
 
