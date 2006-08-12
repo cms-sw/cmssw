@@ -15,14 +15,16 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/DetId>
+<use name=DataFormats/SiStripDetId>
 
 <use name=RecoTracker/RoadMapRecord>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkTrackingRegions>
 
 <use name=TrackingTools/KalmanUpdators>
-<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TrajectoryState
 <use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/RoadSearchHitAccess>
 
 <use name=MagneticField/Records>
 
@@ -44,7 +46,7 @@
  <use name=DataFormats/TrackerRecHit2D>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/DetId>
-
+ <use name=DataFormats/SiStripDetId>
  <use name=RecoTracker/RoadMapRecord>
  <use name=RecoTracker/TkSeedGenerator>
  <use name=RecoTracker/TkTrackingRegions>
@@ -52,6 +54,7 @@
  <use name=TrackingTools/KalmanUpdators>
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/GeomPropagators>
+ <use name=TrackingTools/RoadSearchHitAccess>	
 
  <use name=MagneticField/Records>
 

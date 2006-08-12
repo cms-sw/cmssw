@@ -48,6 +48,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -56,17 +57,33 @@ RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
 }
 
 
-void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2DCollection> &handle,
-                                        const edm::Handle<SiStripRecHit2DCollection> &handle2,
-			      const edm::EventSetup& es,
-			      TrajectorySeedCollection &output)
+void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRecHits,
+					const SiStripRecHit2DCollection* stereoRecHits,
+					const SiStripMatchedRecHit2DCollection* matchedRecHits,
+					const SiPixelRecHitCollection* pixelRecHits,
+					const edm::EventSetup& es,
+					TrajectorySeedCollection &output)
 {
 
-  const SiStripMatchedRecHit2DCollection* input = handle.product();
-  const SiStripRecHit2DCollection* input2 = handle2.product();
+  const std::vector<DetId> availableIDs = matchedRecHits->ids();
+  const std::vector<DetId> availableIDs2 = rphiRecHits->ids();
+  const std::vector<DetId> availableIDs3 = stereoRecHits->ids();
 
-  const std::vector<DetId> availableIDs = input->ids();
-  const std::vector<DetId> availableIDs2 = input2->ids();
+  //for (int i=0;i<(int) availableIDs.size();++i) {
+  //edm::LogError("RoadSearch") << "ID matched " << availableIDs[i].rawId();
+  //}
+
+  //for (int i=0;i<(int) availableIDs2.size();++i) {
+  //edm::LogError("RoadSearch") << "ID " << availableIDs2[i].rawId();
+   //if ( (unsigned int)availableIDs2[i].subdetId() == StripSubdetector::TIB ) {
+    //TIBDetId tibid(availableIDs2[i].rawId()); 
+    //if (tibid.glued())     edm::LogError("RoadSearch") << "ID " << availableIDs2[i].rawId();
+    //}
+  //} 
+ 
+  //for (int i=0;i<(int) availableIDs3.size();++i) {
+  //edm::LogError("RoadSearch") << "ID stereo " << availableIDs3[i].rawId();
+  //} 
 
   // get roads
   edm::ESHandle<Roads> roads;
@@ -82,30 +99,77 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2D
   // B in T, right now hardcoded, has to come from magnetic field service
   double B = 4.0;
 
-  // loop over seed Ring pairs
+  // initialize general hit access for road search
+  DetHitAccess innerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
+  DetHitAccess outerSeedHitVector(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
+
+   // loop over seed Ring pairs
   for ( Roads::const_iterator road = roads->begin(); road != roads->end(); ++road ) {
 
     Roads::RoadSeed seed = (*road).first;
-
+    //edm::LogError("RoadSearch") << "ROAD SEEDS: " << seed.first.getindex() << " " << seed.second.getindex();
     // loop over detid's in seed rings
     for ( Ring::const_iterator innerRingDetId = seed.first.begin(); innerRingDetId != seed.first.end(); ++innerRingDetId ) {
 
-      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second) ) {
+      //uint32_t detId_rawid = innerRingDetId->second.rawId();
+      //DetId detId_tmp(detId_rawid);
+
+      //uint32_t detId_tmp = innerRingDetId->second.rawId();
+      StripSubdetector StripDetId(innerRingDetId->second);
+      DetId tmp(StripDetId.glued());
+      //edm::LogError("RoadSearch") << "try to fine detid: " << tmp.rawId() << " oldid: " << innerRingDetId->second.rawId();
+
+
+      //for (int i=0;i<availableIDs.size();++i) {
+      //edm::LogError("RoadSearch") << "ID " << availableIDs[i].rawId();
+      //}
+
+      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second.glued()) ) {
+      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),tmp) ) {
+      //if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second) ) {
+	//edm::LogError("RoadSearch") << " cmp: " << innerRingDetId->second.rawId() << "  " << tmp.rawId();
+      
+      //for (int i=0; i<availableIDs.size(); ++i) {
+      //edm::LogError("RoadSearch") << " available ID: " << availableIDs[i].rawId();
+      //}
+      
+	//if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detId_tmp) ) 
+	//edm::LogError("RoadSearch") << "WRONG!!!";
+
+	//if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detId_tmp) ) {
 
 	for ( Ring::const_iterator outerRingDetId = seed.second.begin(); outerRingDetId != seed.second.end(); ++outerRingDetId ) {
 
+	  StripSubdetector OuterStripDetId(outerRingDetId->second);
+	  uint32_t test=OuterStripDetId.rawId();
+	  if (OuterStripDetId.glued()!=0) {
+	    test =  OuterStripDetId.glued();
+	  }
+	  //DetId out_tmp(OuterStripDetId.glued());
+	  //DetId out_tmp(test);
 	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
+	  //if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),out_tmp) ) {
 
-	    SiStripMatchedRecHit2DCollection::range innerSeedDetHits = input->get(innerRingDetId->second);
-      
+	    	        
+	    // loop over outer dethits
+	    //edm::LogError("RoadSearch") << "outerSeedDetHits... " ;
+	    //edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
+	    //for (edm::OwnVector<TrackingRecHit>::const_iterator outerSeedDetHit = outerSeedDetHits.begin();
+	    // outerSeedDetHit != outerSeedDetHits.end(); ++outerSeedDetHit) {
+
+	    //edm::LogError("RoadSearch") << "innerSeedDetHits: "  << seed.first.print() ;
+	    edm::OwnVector<TrackingRecHit> innerSeedDetHits = innerSeedHitVector.getHitVector(&(innerRingDetId->second));
+	    
 	    // loop over inner dethits
-	    for ( SiStripMatchedRecHit2DCollection::const_iterator innerSeedDetHit = innerSeedDetHits.first;
-		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
+	    for (edm::OwnVector<TrackingRecHit>::const_iterator innerSeedDetHit = innerSeedDetHits.begin();
+		 innerSeedDetHit != innerSeedDetHits.end(); ++innerSeedDetHit) {
 
-	      SiStripRecHit2DCollection::range outerSeedDetHits = input2->get(outerRingDetId->second);
-
-	      for ( SiStripRecHit2DCollection::const_iterator outerSeedDetHit = outerSeedDetHits.first;
-		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
+	      //edm::LogError("RoadSearch") << "outerSeedDetHits: " << seed.second.print() ;
+	      edm::OwnVector<TrackingRecHit> outerSeedDetHits = outerSeedHitVector.getHitVector(&(outerRingDetId->second));
+	        
+	      //loop over outer dethits
+	      for (edm::OwnVector<TrackingRecHit>::const_iterator outerSeedDetHit = outerSeedDetHits.begin();
+		   outerSeedDetHit != outerSeedDetHits.end(); ++outerSeedDetHit) {
 
 		// get tracker geometry
 		edm::ESHandle<TrackerGeometry> tracker;
@@ -163,9 +227,9 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2D
 
                   AnalyticalPropagator  thePropagator(&(*pSetup), alongMomentum);
 
-                  KFUpdator     theUpdator;
+                  KFUpdator theUpdator;
 
-                  const TrajectoryStateOnSurface  innerState = thePropagator.propagate(fts,tracker->idToDet(innerSeedDetHit->geographicalId())->surface());
+                  const TrajectoryStateOnSurface innerState = thePropagator.propagate(fts,tracker->idToDet(innerSeedDetHit->geographicalId())->surface());
 
 		  if (innerState.isValid()){
 		    //
@@ -183,11 +247,11 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2D
 		    PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
 		    TrajectorySeed ts(*PTraj,rh,alongMomentum);
 		    
-                    // 060811/OLI: memory leak fix as suggested by Chris
-                    delete PTraj;
-		    
-                    // add seed to collection
+		    // add seed to collection
 		    output.push_back(ts);
+		    
+		    //edm::LogError("RoadSearch") << "innerSeedDetHits: "  << innerRingDetId->second.rawId() << "; " <<seed.first.print() ;
+		    //edm::LogError("RoadSearch") << "outerSeedDetHits: " << outerRingDetId->second.rawId() << "; " << seed.second.print() ;
 		  }
 		}
 	      }

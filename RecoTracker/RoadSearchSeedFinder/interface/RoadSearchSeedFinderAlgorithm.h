@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/04/03 22:33:37 $
-// $Revision: 1.4 $
+// $Author: tboccali $
+// $Date: 2006/07/24 19:44:41 $
+// $Revision: 1.5 $
 //
 
 #include <string>
@@ -34,6 +34,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
 class RoadSearchSeedFinderAlgorithm 
 {
@@ -42,12 +43,14 @@ class RoadSearchSeedFinderAlgorithm
   RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf);
   ~RoadSearchSeedFinderAlgorithm();
 
-  /// Runs the algorithm
-  void run(const edm::Handle<SiStripMatchedRecHit2DCollection> &handle,
-           const edm::Handle<SiStripRecHit2DCollection> &handle2,
+  // Runs the algorithm
+  void run(const SiStripRecHit2DCollection* rphiRecHits,
+	   const SiStripRecHit2DCollection* stereoRecHits,
+	   const SiStripMatchedRecHit2DCollection* matchedRecHits,
+	   const SiPixelRecHitCollection* pixelRecHits,
 	   const edm::EventSetup& es,
 	   TrajectorySeedCollection &output);
-
+  
   CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
 					   const TrackingRecHit* innerHit,
 					   const GlobalPoint& vertexPos,

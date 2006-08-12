@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 22:54:07 $
-// $Revision: 1.5 $
+// $Author: tboccali $
+// $Date: 2006/07/24 19:44:42 $
+// $Revision: 1.6 $
 //
 
 #include <iostream>
@@ -47,16 +47,42 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
   // get Inputs
-  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-  e.getByLabel(recHitProducer,"matchedRecHit" ,matchedrecHits);
-  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel(recHitProducer,"rphiRecHit" ,rphirecHits);
-
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
+  e.getByLabel(recHitProducer,"matchedRecHit" ,matchedRecHits);
+  edm::Handle<SiStripRecHit2DCollection> rphiRecHits;
+  e.getByLabel(recHitProducer,"rphiRecHit" ,rphiRecHits);
+  edm::Handle<SiStripRecHit2DCollection> stereoRecHits;
+  e.getByLabel(recHitProducer,"stereoRecHit" ,stereoRecHits);
+ 
+  // special treatment for getting pixel collection
+  // if collection exists in file, use collection from file
+  // if collection does not exist in file, create empty collection
+  const SiPixelRecHitCollection *pixelRecHitCollection = 0;
+  
+  try {
+    edm::Handle<SiPixelRecHitCollection> pixelRecHits;
+    //e.getByLabel(pixelRecHitProducer, pixelRecHits);
+    e.getByLabel(recHitProducer, pixelRecHits);
+    pixelRecHitCollection = pixelRecHits.product();
+  }
+  catch (edm::Exception const& x) {
+    if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+      if ( x.history().size() == 1 ) {
+	pixelRecHitCollection = new SiPixelRecHitCollection();
+      }
+    }
+  }
+  
   // create empty output collection
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   
   // invoke the seed finding algorithm
-  roadSearchSeedFinderAlgorithm_.run(matchedrecHits,rphirecHits,es,*output);
+  roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
+				     stereoRecHits.product(),
+				     matchedRecHits.product(),
+				     pixelRecHitCollection,
+				     es,
+				     *output);
   
   // write output to file
   e.put(output);
