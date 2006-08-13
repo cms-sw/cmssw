@@ -57,8 +57,10 @@ namespace cms
     setupClusterizer();
   }
 
-  // Virtual destructor needed, just in case.
-  SiPixelClusterProducer::~SiPixelClusterProducer() { }  
+  // Destructor
+  SiPixelClusterProducer::~SiPixelClusterProducer() { 
+    delete clusterizer_;
+  }  
 
 
   //---------------------------------------------------------------------------
