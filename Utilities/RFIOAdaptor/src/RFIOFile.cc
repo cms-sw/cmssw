@@ -4,6 +4,7 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "SealBase/DebugAids.h"
+#include <iostream>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -154,8 +155,12 @@ RFIOFile::close (void)
     ASSERT (m_fd != IOFD_INVALID);
     serrno = 0;
 
-    if (rfio_close64 (m_fd) == -1)
-	throw RFIOError ("rfio_close()", rfio_errno, serrno);
+    if (rfio_close64 (m_fd) == -1) {
+      //throw RFIOError ("rfio_close()", rfio_errno, serrno);
+      std::cerr << "error in rfio_close() " << rfio_errno
+		<< " " << serrno << std::endl;
+      sleep(5);
+    }
 
     m_close = false;
     m_fd = IOFD_INVALID;
