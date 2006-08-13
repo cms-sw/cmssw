@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/07/18 13:25:49 $
- * $Revision: 1.8 $
+ * $Date: 2006/08/01 18:02:52 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -85,7 +85,7 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
   // Get the pedestals 
   // tTrig 
-  if ( !parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) 
+  if ( !parameters.getUntrackedParameter<bool>("readDB", true)) 
     context.get<DTTtrigRcd>().get(tTrigMap);
   // t0s 
   if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
@@ -153,12 +153,13 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
   if ( folder == "TimeBoxes") {
     string histoTitle = histoName + " (TDC Counts)";
     if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+      int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
       (digiHistos[histoTag])[DTLayerId(dtLayer.wheel(),
 				       dtLayer.station(),
 				       dtLayer.sector(),
 				       dtLayer.superlayer(),
 				       dtLayer.layer()).rawId()] = 
-	dbe->book1D(histoName,histoTitle, 2000, 0, 10000);
+	dbe->book1D(histoName,histoTitle, maxTDCCounts/parameters.getUntrackedParameter<int>("timeBoxGranularity",4), 0, maxTDCCounts);
       
     }    
     else {
@@ -168,7 +169,7 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
 				       dtLayer.superlayer(),
 				       dtLayer.layer()).rawId()] = 
 	dbe->book1D(histoName,histoTitle, 
-		    2*tMax/parameters.getUntrackedParameter<int>("timeBoxGranularity",1), tTrig-tMax, tTrig+2*tMax);
+		    2*tMax/parameters.getUntrackedParameter<int>("timeBoxGranularity",4), tTrig-tMax, tTrig+2*tMax);
     }
   }
 
