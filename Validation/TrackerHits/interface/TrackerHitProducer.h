@@ -119,7 +119,19 @@ class TrackerHitProducer : public edm::EDProducer
   FloatVector HitsEnPz;
   FloatVector HitsEloss; 
   FloatVector HitsToF;
-
+  
+  edm::InputTag SiTIBLowSrc_;
+  edm::InputTag SiTIBHighSrc_;
+  edm::InputTag SiTOBLowSrc_;
+  edm::InputTag SiTOBHighSrc_;
+  edm::InputTag SiTIDLowSrc_;
+  edm::InputTag SiTIDHighSrc_;
+  edm::InputTag SiTECLowSrc_;
+  edm::InputTag SiTECHighSrc_;
+  edm::InputTag PxlBrlLowSrc_;
+  edm::InputTag PxlBrlHighSrc_;
+  edm::InputTag PxlFwdLowSrc_;
+  edm::InputTag PxlFwdHighSrc_;
 
   // private statistics information
   unsigned int count;
