@@ -58,8 +58,10 @@ namespace cms
   }
 
 
-  // Virtual destructor needed, just in case.
-  SiPixelRecHitConverter::~SiPixelRecHitConverter() { }  
+  // Destructor
+  SiPixelRecHitConverter::~SiPixelRecHitConverter() { 
+    delete cpe_;
+  }  
 
   //---------------------------------------------------------------------------
   // Begin job: get magnetic field
