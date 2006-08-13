@@ -20,18 +20,18 @@ ESRecHitSimAlgo::ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double M
   // 2 : high gain for calibration
   if (gain_ == 0) {
     pw[0] = -1.12521;
-    pw[1] = 0.877968;
-    pw[2] = 0.247238;
+    pw[1] =  0.877968;
+    pw[2] =  0.247238;
   }
   else if (gain_ == 1) {
-    pw[0] = -0.0739126;
-    pw[1] = 0.7815982;
-    pw[2] = 0.3691372;
+    pw[0] = -0.0772417;
+    pw[1] =  0.8168024;
+    pw[2] =  0.3857636;
   }
   else if (gain_ == 2) {
-    pw[0] = -0.01632344;
-    pw[1] = 0.7515172;
-    pw[2] = 0.4028312;
+    pw[0] = -0.01687177;
+    pw[1] =  0.77676196;
+    pw[2] =  0.416363;
   }
 
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : Gain "<<gain_<<" Weights : "<<pw[0]<<" "<<pw[1]<<" "<<pw[2];
