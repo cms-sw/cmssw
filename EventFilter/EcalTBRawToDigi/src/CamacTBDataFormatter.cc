@@ -385,7 +385,8 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   a = buffer[wordCounter];      wordCounter++;  // read out
   b = (a&0xffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b << endl;
-
+  if (ADCIsGood) tbEventHeader.setS6ADC ( b ) ;
+  else tbEventHeader.setS6ADC ( -1 ) ;
 
   
   /**********************************
