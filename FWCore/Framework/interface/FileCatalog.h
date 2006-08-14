@@ -2,7 +2,7 @@
 #define Framework_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.2 2006/06/07 20:29:29 wmtan Exp $
+// $Id: FileCatalog.h,v 1.3 2006/08/03 23:01:24 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -42,7 +42,10 @@ namespace edm {
   public:
     explicit InputFileCatalog(ParameterSet const& pset);
     virtual ~InputFileCatalog();
-    std::vector<std::string> const&  fileNames() const {
+    std::vector<std::string> const& logicalFileNames() const {
+      return logicalFileNames_;
+    }
+    std::vector<std::string> const& fileNames() const {
       return fileNames_;
     }
   private:

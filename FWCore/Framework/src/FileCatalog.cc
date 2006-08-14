@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.4 2006/08/03 23:01:25 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.5 2006/08/04 16:24:10 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -120,6 +120,10 @@ namespace edm {
       action.registerPFN(pfn, fileType, fid);
     }
     if (!lfn.empty()) {
+      if (isPhysical(lfn)) {
+        throw cms::Exception("IllegalCharacter") << "Logical file name '" << lfn
+        << "' contains a colon (':'), which is illegal in an LFN.\n";
+      }
       pool::FileCatalog::FileID fidl;
       {
         pool::FCregister action;
