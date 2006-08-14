@@ -3,6 +3,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/MuonReco>
 
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>

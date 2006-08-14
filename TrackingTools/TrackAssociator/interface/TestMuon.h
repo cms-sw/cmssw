@@ -3,17 +3,24 @@
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TrackingTools/TrackAssociator/interface/TestMuonFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 namespace reco {
-   class TestMuon : public TrackBase {
+   // class TestMuon : public TrackBase {
+   class TestMuon : public Muon {
     public:
       /// default constructor
       TestMuon() { }
+      
       /// constructor from fit parameters and error matrix
-      TestMuon( double chi2, double ndof,
-		 const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+      // TestMuon( double chi2, double ndof,
+      //		 const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+      
+      /// Muon constructor
+      TestMuon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
       
       // define containers
       struct MuonEnergy {

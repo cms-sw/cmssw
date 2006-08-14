@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.2 2006/07/05 08:34:05 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.3 2006/08/09 14:44:48 dmytro Exp $
 //
 //
 
@@ -141,7 +141,7 @@ void TrackAssociator::init( const edm::EventSetup& iSetup )
       edm::ESHandle<MagneticField> bField;
       iSetup.get<IdealMagneticFieldRecord>().get(bField);
       
-      SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField);
+      SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField,anyDirection);
       prop->setMaterialMode(false);
       prop->applyRadX0Correction(true);
       // prop->setDebug(true); // tmp
