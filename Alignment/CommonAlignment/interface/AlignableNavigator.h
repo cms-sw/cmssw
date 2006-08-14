@@ -6,6 +6,8 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 class Alignable;
 
 /// A class to navigate from a DetId to an Alignable
@@ -32,6 +34,15 @@ public:
 
   /// Returns pointer to Alignable corresponding to given GeomDet
   Alignable* alignableFromGeomDet( const GeomDet* geomDet );
+
+  /// Returns pointer to AlignableDet corresponding to given GeomDet
+  AlignableDet* alignableDetFromGeomDet( const GeomDet* geomDet );
+
+  /// Returns pointer to AlignableDet corresponding to given DetId
+  AlignableDet* alignableDetFromDetId( const DetId& detid );
+
+  /// Returns vector of AlignableDet* for given vector of Hits
+  std::vector<AlignableDet*> alignableDetsFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
 
   /// Returns number of elements in map
   int size( void ) { return theMap.size(); }

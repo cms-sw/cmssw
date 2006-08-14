@@ -61,7 +61,6 @@ AlignableObjectId::nameToType( const std::string name ) const
 //__________________________________________________________________________________________________
 const std::string AlignableObjectId::typeToName( const int type ) const
 {
-
   AlignableObjectIdType m_IdType = AlignableObjectIdType( type );
 
   if ( theMap.find(m_IdType) != theMap.end() ) return ( theMap.find(m_IdType) )->second;
