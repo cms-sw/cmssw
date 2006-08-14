@@ -34,12 +34,9 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       ieta *= cellId.zside();
 
       // now for phi
-      // HF towers are quad, 18 in phi.  
-      // go two cells per trigger tower.  
-      int iphi = cellId.iphi();
-      if(cellId.ietaAbs() < theTopology.firstHFQuadPhiRing()) { 
-	iphi = (((iphi+1)/4)* 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
-      }
+      // HF towers are quad, 18 in phi.
+      // go two cells per trigger tower.
+      int iphi = (((cellId.iphi()+1)/4) * 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
       if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
         results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
@@ -50,10 +47,11 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       results.push_back( HcalTrigTowerDetId(cellId.ieta(), cellId.iphi()) );
     } else {
       // the remaining rings are two-to-one in phi
-      int iphi1 = (cellId.iphi()-1)*2 + 1;
+      int iphi1 = cellId.iphi();
       int ieta = cellId.ieta();
       // the last eta ring in HE is split.  Recombine.
       if(ieta == theTopology.lastHERing()) --ieta;
+      if(ieta == -theTopology.lastHERing()) ++ieta;
 
       results.push_back( HcalTrigTowerDetId(ieta, iphi1) );
       results.push_back( HcalTrigTowerDetId(ieta, iphi1+1) );
