@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/28 01:41:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/14 15:48:48 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -22,12 +22,11 @@
 //
 // constructors and destructor
 //
-HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
+HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig) :
+  inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
+  ptcut_    (iConfig.getParameter<double>       ("ptcut"   )),
+  njcut_    (iConfig.getParameter<int>          ("njcut"   ))
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   ptcut_  = iConfig.getParameter<double> ("ptcut");
-   njcut_  = iConfig.getParameter<int> ("njcut");
-
    LogDebug("") << "Input/ptcut/njcut : " << inputTag_.encode() << " " << ptcut_ << " " << njcut_;
 
    //register your products
@@ -56,7 +55,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+     filterobject (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> ref;
 
@@ -72,7 +71,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( (jet->pt()) >= ptcut_) {
        n++;
        ref=RefToBase<Candidate>(CaloJetRef(jets,distance(jets->begin(),jet)));
-       filterproduct->putParticle(ref);
+       filterobject->putParticle(ref);
      }
    }
 
@@ -80,7 +79,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=njcut_);
 
    // put filter object into the Event
-   iEvent.put(filterproduct);
+   iEvent.put(filterobject);
 
    return accept;
 }
