@@ -17,7 +17,7 @@ void ClusterShapeAlgo::Initialize(EcalRecHitCollection const *passedRecHitsMap,
   storedGeoHandle_ = geoHandle;
 }
 
-reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
+reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster)
 {
  if(storedRecHitsMap_ == NULL || storedGeoHandle_ == NULL)
     throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo::Calculate called unitialized.\n\n"));
@@ -43,7 +43,7 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
 			     dataHolder.e3x2Ratio_, dataHolder.location_);
 }
 
-void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
+void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster)
 {
   double eMax=0;
   DetId eMaxId;
@@ -72,7 +72,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
   eMaxId_ = eMaxId;
 }
 
-void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
+void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster &passedCluster)
 {
   double e2nd=0;
   DetId e2ndId;
