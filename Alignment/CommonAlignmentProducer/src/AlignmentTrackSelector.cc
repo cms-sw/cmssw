@@ -36,8 +36,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "apply multiplicity filter N>=" << minMultiplicity;
 
-  edm::LogInfo("AlignmentTrackSelector") << "Constructed";
-
 }
 
 // destructor -----------------------------------------------------------------
@@ -64,8 +62,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
     if (result.size()<(unsigned int)minMultiplicity) result.clear();
   }
 
-  edm::LogInfo("AlignmentTrackSelector") << "tracks all,kept: "
-										 << tracks.size() << "," << result.size();
+  //edm::LogDebug("AlignmentTrackSelector") << "tracks all,kept: " << tracks.size() << "," << result.size();
 
   return result;
 
@@ -86,8 +83,8 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     float phi=trackp->phi();
     int nhit = trackp->recHitsSize(); 
 
-	edm::LogInfo("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
-										   <<pt<<","<<eta<<","<<phi<<","<<nhit;
+    //edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
+    //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
     if (pt>ptMin && pt<ptMax 
        && eta>etaMin && eta<etaMax 

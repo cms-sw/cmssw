@@ -46,7 +46,8 @@ class AlignableDataIORoot : public AlignmentIORootBase,
 
   /// root tree contents 
   int ObjId;
-  unsigned int Id;
+  //unsigned int Id;
+  int Id;
   double Pos[3];
   double Rot[9];
 

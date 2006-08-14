@@ -29,10 +29,10 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theSrc( iConfig.getParameter<std::string>( "src" ) ),
   stParameterSelector(iConfig.getParameter<std::string>("parameterSelector") ),
   stAlignableSelector(iConfig.getParameter<std::string>("alignableSelector") ),
+  stAlgorithm(iConfig.getParameter<std::string>("algorithm")),
   stNFixAlignables(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift(iConfig.getParameter<double>("randomShift")),
-  stRandomRotation(iConfig.getParameter<double>("randomRotation")),
-  stAlgorithm(iConfig.getParameter<std::string>("algorithm"))
+  stRandomRotation(iConfig.getParameter<double>("randomRotation"))
 {
 
   edm::LogWarning("Alignment") << "[AlignmentProducer] Constructor called ...";
@@ -290,6 +290,7 @@ simpleMisalignment(Alignables alivec, std::vector<bool> sel,
       else {
         globalshift = Global3DVector(s[0],s[1],s[2]);
       }
+      edm::LogInfo("Alignment") <<"misalignment shift: " << globalshift;
       ali->move(globalshift);
 
       //AlignmentPositionError ape(dx,dy,dz);
@@ -316,6 +317,7 @@ simpleMisalignment(Alignables alivec, std::vector<bool> sel,
       Surface::RotationType mrot = TkAT.rotationType(TkAT.rotMatrix3(r));
       if (local) ali->rotateInLocalFrame(mrot);
       else ali->rotateInGlobalFrame(mrot);
+      edm::LogInfo("Alignment") <<"misalignment rot: " << mrot;
 
       //ali->addAlignmentPositionErrorFromRotation(mrot);
       if (first) edm::LogWarning("Alignment") <<"yes adding rot!\n";
