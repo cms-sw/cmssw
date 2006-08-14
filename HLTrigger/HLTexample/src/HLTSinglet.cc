@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:26:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/07/27 08:09:07 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -23,12 +23,13 @@
 // constructors and destructor
 //
 template<typename T>
-HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) :
-  inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  Min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
-  Max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
-  Min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
+HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig)
 {
+  inputTag_ = iConfig.template getParameter< edm::InputTag >("inputTag");
+  Min_Pt_   = iConfig.template getParameter<double>("MinPt");
+  Max_Eta_  = iConfig.template getParameter<double>("MaxEta");
+  Min_N_    = iConfig.template getParameter<int>("MinN");
+
    LogDebug("") << "Input/ptcut/etacut/ncut : " << inputTag_.encode() << " " << Min_Pt_ << " " << Max_Eta_ << " " << Min_N_ ;
 
    //register your products
@@ -62,7 +63,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> ref;
 
@@ -78,7 +79,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( (i->pt() >= Min_Pt_) && (abs(i->eta()) <= Max_Eta_) ) {
        n++;
        ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
-       filterobject->putParticle(ref);
+       filterproduct->putParticle(ref);
      }
    }
 
@@ -86,7 +87,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=Min_N_);
 
    // put filter object into the Event
-   iEvent.put(filterobject);
+   iEvent.put(filterproduct);
 
    return accept;
 }
