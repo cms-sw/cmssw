@@ -128,8 +128,10 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId
 // Return string name corresponding to alignable
 const std::string TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
 {
+  if (alignable)
+    return this->alignableTypeIdToName( alignable->alignableObjectId() );
 
-  return this->alignableTypeIdToName( alignable->alignableObjectId() );
+  throw cms::Exception("LogicError") << "Alignable=0";
 
 }
 
