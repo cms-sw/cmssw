@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 14:52:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/27 08:44:30 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -24,25 +24,29 @@
 //
 // constructors and destructor
 //
-HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig) :
-  inputTag1_(iConfig.getParameter<edm::InputTag>("inputTag1")),
-  inputTag2_(iConfig.getParameter<edm::InputTag>("inputTag2")),
-  Min_Dphi_ (iConfig.getParameter<double>("MinDphi")),
-  Max_Dphi_ (iConfig.getParameter<double>("MaxDphi")),
-  Min_Deta_ (iConfig.getParameter<double>("MinDeta")),
-  Max_Deta_ (iConfig.getParameter<double>("MaxDeta")),
-  Min_Minv_ (iConfig.getParameter<double>("MinMinv")),
-  Max_Minv_ (iConfig.getParameter<double>("MaxMinv")),
-  Min_N_    (iConfig.getParameter<int>("MinN"))
+HLTDoublet::HLTDoublet(const edm::ParameterSet& iConfig)
 {
+   inputTag1_ = iConfig.getParameter< edm::InputTag >("inputTag1");
+   inputTag2_ = iConfig.getParameter< edm::InputTag >("inputTag2");
    same = (inputTag1_.encode()==inputTag2_.encode());
+
+   Min_Dphi_  = iConfig.getParameter<double>("MinDphi");
+   Max_Dphi_  = iConfig.getParameter<double>("MaxDphi");
+
+   Min_Deta_  = iConfig.getParameter<double>("MinDeta");
+   Max_Deta_  = iConfig.getParameter<double>("MaxDeta");
+
+   Min_Minv_  = iConfig.getParameter<double>("MinMinv");
+   Max_Minv_  = iConfig.getParameter<double>("MaxMinv");
+
+   Min_N_     = iConfig.getParameter<int>("MinN");
 
    LogDebug("") << "Inputs and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
 		<< " Dphi [" << Min_Dphi_ << " " << Max_Dphi_ << "]"
                 << " Deta [" << Min_Deta_ << " " << Max_Deta_ << "]"
                 << " Minv [" << Min_Minv_ << " " << Max_Minv_ << "]"
-                << " MinN =" << Min_N_ ;
+                << Min_N_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -70,7 +74,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> r1,r2;
 
@@ -103,8 +107,8 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             (Min_Deta_ <= Deta_) && (Deta_ <= Max_Deta_) &&
             (Min_Minv_ <= Minv_) && (Minv_ <= Max_Minv_) ){
 	 n++;
-         filterobject->putParticle(r1);
-         filterobject->putParticle(r2);
+         filterproduct->putParticle(r1);
+         filterproduct->putParticle(r2);
        }
 
      }
@@ -114,7 +118,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=Min_N_);
 
    // put filter object into the Event
-   iEvent.put(filterobject);
+   iEvent.put(filterproduct);
 
    return accept;
 }
