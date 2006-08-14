@@ -1,7 +1,7 @@
-#ifndef HLTSinglet_h
-#define HLTSinglet_h
+#ifndef HLTSmartSinglet_h
+#define HLTSmartSinglet_h
 
-/** \class HLTSinglet
+/** \class HLTSmartSinglet
  *
  *  
  *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
@@ -9,7 +9,7 @@
  *  variables relating to their 4-momentum representation
  *
  *  $Date: 2006/08/14 14:52:54 $
- *  $Revision: 1.5 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -18,24 +18,28 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
 
+#include "PhysicsTools/Utilities/interface/SingleObjectSelector.h"
+#include<string>
+
 //
 // class decleration
 //
 
 template<typename T>
-class HLTSinglet : public HLTFilter {
+class HLTSmartSinglet : public HLTFilter {
 
    public:
 
-      explicit HLTSinglet(const edm::ParameterSet&);
-      ~HLTSinglet();
+      explicit HLTSmartSinglet(const edm::ParameterSet&);
+      ~HLTSmartSinglet();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product
-      double Min_Pt_;          // pt threshold in GeV 
-      double Max_Eta_;         // eta range (symmetric)
+      std::string   cut_;      // smart cut
       int    Min_N_;           // number of objects passing cuts required
+
+      SingleObjectSelector<T> select_; // smart selector
 };
 
-#endif //HLTSinglet_h
+#endif //HLTSmartSinglet_h

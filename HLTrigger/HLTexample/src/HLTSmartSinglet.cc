@@ -1,4 +1,4 @@
-/** \class HLTSinglet
+/** \class HLTSmartSinglet
  *
  * See header file for documentation
  *
@@ -10,7 +10,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTexample/interface/HLTSinglet.h"
+#include "HLTrigger/HLTexample/interface/HLTSmartSinglet.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -23,20 +23,20 @@
 // constructors and destructor
 //
 template<typename T>
-HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) :
+HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  Min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
-  Max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
-  Min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
+  cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
+  Min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
+  select_   (iConfig                                                 )
 {
-   LogDebug("") << "Input/ptcut/etacut/ncut : " << inputTag_.encode() << " " << Min_Pt_ << " " << Max_Eta_ << " " << Min_N_ ;
+   LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << Min_N_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
 }
 
 template<typename T>
-HLTSinglet<T>::~HLTSinglet()
+HLTSmartSinglet<T>::~HLTSmartSinglet()
 {
 }
 
@@ -47,7 +47,7 @@ HLTSinglet<T>::~HLTSinglet()
 // ------------ method called to produce the data  ------------
 template<typename T> 
 bool
-HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSmartSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
@@ -75,7 +75,7 @@ HLTSinglet<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    typename TCollection::const_iterator i ( objects->begin() );
    for (; i!=objects->end(); i++) {
-     if ( (i->pt() >= Min_Pt_) && (abs(i->eta()) <= Max_Eta_) ) {
+     if (select_(*i)) {
        n++;
        ref=RefToBase<Candidate>(TRef(objects,distance(objects->begin(),i)));
        filterobject->putParticle(ref);
