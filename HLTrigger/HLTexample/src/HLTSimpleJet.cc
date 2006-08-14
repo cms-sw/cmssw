@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/26 23:39:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/10 17:10:51 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
 
 #include "FWCore/Framework/interface/Handle.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloJetCandidate.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -22,12 +22,11 @@
 //
 // constructors and destructor
 //
-HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
+HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig) :
+  inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
+  ptcut_    (iConfig.getParameter<double>       ("ptcut"   )),
+  njcut_    (iConfig.getParameter<int>          ("njcut"   ))
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   ptcut_  = iConfig.getParameter<double> ("ptcut");
-   njcut_  = iConfig.getParameter<int> ("njcut");
-
    LogDebug("") << "Input/ptcut/njcut : " << inputTag_.encode() << " " << ptcut_ << " " << njcut_;
 
    //register your products
@@ -56,23 +55,23 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
+     filterobject (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> ref;
 
 
    // get hold of jets
-   Handle<RecoCaloJetCandidateCollection> jets;
+   Handle<CaloJetCollection> jets;
    iEvent.getByLabel (inputTag_,jets);
 
    // look at all jets,  check cuts and add to filter object
    int n(0);
-   RecoCaloJetCandidateCollection::const_iterator jet(jets->begin());
+   CaloJetCollection::const_iterator jet(jets->begin());
    for (; jet!=jets->end(); jet++) {
      if ( (jet->pt()) >= ptcut_) {
        n++;
-       ref=RefToBase<Candidate>(RecoCaloJetCandidateRef(jets,distance(jets->begin(),jet)));
-       filterproduct->putParticle(ref);
+       ref=RefToBase<Candidate>(CaloJetRef(jets,distance(jets->begin(),jet)));
+       filterobject->putParticle(ref);
      }
    }
 
@@ -80,7 +79,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=njcut_);
 
    // put filter object into the Event
-   iEvent.put(filterproduct);
+   iEvent.put(filterobject);
 
    return accept;
 }
