@@ -18,7 +18,6 @@ AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec
 {
 
 
-  theNavigator = new AlignableNavigator( alivec );
   theTrackerAlignableId = new TrackerAlignableId;
 
   // Fill detId <-> Alignable map
@@ -31,12 +30,9 @@ AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec
 		theActiveAlignablesByDetId[ *iDetId ] = *it;
 	}
 
-  edm::LogInfo("AlignmentParameterStore") << "Created navigator map with "
-										  << theNavigator->size() << " elements";
-  
 
+  edm::LogWarning("Alignment") << "[AlignmentParameterStore] Created.";
 }
-
 
 //__________________________________________________________________________________________________
 CompositeAlignmentParameters 
@@ -165,8 +161,8 @@ std::vector<Alignable*> AlignmentParameterStore::validAlignables(void) const
 	   iali != theAlignables.end(); iali++)
 	if ( (*iali)->alignmentParameters()->isValid() ) result.push_back(*iali);
 
-  edm::LogInfo("AlignmentParameterStore") << "Valid alignables: " << result.size()
-										  << "out of " << theAlignables.size();
+  edm::LogInfo("Alignment") << "Valid alignables: " << result.size()
+    << "out of " << theAlignables.size();
   return result;
 
 }
@@ -262,27 +258,6 @@ AlignmentParameterStore::findDetIds(Alignable* alignable)
 
 }
 
-
-//__________________________________________________________________________________________________
-std::vector<AlignableDet*> 
-AlignmentParameterStore::alignableDetsFromHits( const std::vector<TrackingRecHit>& hitvec )
-{
-
-  std::vector<AlignableDet*> alidetvec;
-  for ( std::vector<TrackingRecHit>::const_iterator ih=hitvec.begin();
-		ih!=hitvec.end(); ih++ ) 
-	{
-	  AlignableDet* aliDet 
-		= dynamic_cast<AlignableDet*>( theNavigator->alignableFromDetId(ih->geographicalId()) );
-	  if ( aliDet )
-		alidetvec.push_back( aliDet );
-	  else
-		throw cms::Exception("BadAssociation") << "Couldn't find AlignableDet"
-											   << " associated to hit";
-	}
-  return alidetvec;
-
-}
 
 
 //__________________________________________________________________________________________________

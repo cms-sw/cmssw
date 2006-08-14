@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 class Trajectory;
 
@@ -25,24 +26,22 @@ public:
  typedef std::vector< TrajTrackPair >  TrajTrackPairCollection;
   
   /// Constructor
-  AlignmentAlgorithmBase() {}
+  AlignmentAlgorithmBase() {};
   AlignmentAlgorithmBase(const edm::ParameterSet& cfg) {};
 
   /// Destructor
-  virtual ~AlignmentAlgorithmBase() {}
+  virtual ~AlignmentAlgorithmBase() {};
 
   /// Call at beginning of job
-  virtual void initialize( const edm::EventSetup& setup, AlignableTracker* tracker ) {}
+  virtual void initialize( const edm::EventSetup& setup, 
+    AlignableTracker* tracker, AlignmentParameterStore* store ) {};
 
   /// Call at end of job
-  virtual void terminate(void) {}
+  virtual void terminate(void) {};
 
   /// Run the algorithm on trajectories and tracks
-  //virtual void run(const std::vector<Trajectory*>& trajectories ) {}
-  virtual void run(const TrajTrackPairCollection& tracks ) {}
+  virtual void run(const TrajTrackPairCollection& tracks ) {};
 
 };
-
-
 
 #endif

@@ -31,7 +31,7 @@ AlignmentParameterBuilder::AlignmentParameterBuilder( AlignableTracker* alignabl
 void AlignmentParameterBuilder::addSelection( std::string name, std::vector<bool> sel )
 {
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Called for selection > " << name;
+  edm::LogWarning("Alignment") << "[AlignmentParameterBuilder] Called for selection >" << name<<"<";
 
   if      (name == "AllDets")       addAllDets(sel);
   else if (name == "AllRods")       addAllRods(sel);
@@ -210,10 +210,10 @@ void AlignmentParameterBuilder::addSelection( std::string name, std::vector<bool
   }
 
   else 
-	edm::LogError("BadConfig") << "Selection invalid!";
+    edm::LogError("BadConfig")<<"[AlignmentParameterBuilder] Selection invalid!";
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Added " << theAlignables.size() 
-											<< " alignables in total";
+  edm::LogInfo("Warning") << "[AlignmentParameterBuilder] Added " 
+    << theAlignables.size()<< " alignables in total";
 
 }
 
@@ -228,7 +228,7 @@ void AlignmentParameterBuilder::addAllDets( std::vector<bool>sel )
   add(theAlignableTracker->pixelHalfBarrelGeomDets(),sel); // PixelBarrel
   add(theAlignableTracker->pixelEndcapGeomDets(),sel);     // PixelEndcap
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Initialized for "
+  edm::LogInfo("Alignment") << "Initialized for "
 											<< theAlignables.size() << " dets";
 }
 
@@ -242,7 +242,7 @@ void AlignmentParameterBuilder::addAllRods(std::vector<bool>sel)
   add(theAlignableTracker->TIDRings(),sel);
   add(theAlignableTracker->pixelEndcapPetals(),sel);
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Initialized for "
+  edm::LogInfo("Alignment") << "Initialized for "
 											<< theAlignables.size() << " rods";
 }
 
@@ -256,7 +256,7 @@ void AlignmentParameterBuilder::addAllLayers(std::vector<bool>sel)
   add(theAlignableTracker->TIDLayers(),sel);
   add(theAlignableTracker->pixelEndcapLayers(),sel);
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Initialized for "
+  edm::LogInfo("Alignment") << "Initialized for "
 											<< theAlignables.size() << " layers";
 
 }
@@ -266,7 +266,7 @@ void AlignmentParameterBuilder::addAllLayers(std::vector<bool>sel)
 void AlignmentParameterBuilder::addAllComponents(std::vector<bool>sel)
 {
   add(theAlignableTracker->components(),sel);
-  edm::LogInfo("AlignmentParameterBuilder") << "Initialized for "
+  edm::LogInfo("Alignment") << "Initialized for "
 											<< theAlignables.size() 
 											<< " Components (HalfBarrel/Endcap)";
 }
@@ -297,7 +297,7 @@ void AlignmentParameterBuilder::addAllAlignables(std::vector<bool>sel)
   add(theAlignableTracker->components(),sel);
 
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Initialized for "
+  edm::LogInfo("Alignment") << "Initialized for "
 											<< theAlignables.size() 
 											<< " Components (HalfBarrel/Endcap)";
 
@@ -362,9 +362,9 @@ void AlignmentParameterBuilder::add( const std::vector<Alignable*>& alignables,
     }
   }
 
-  edm::LogInfo("AlignmentParameterBuilder") << "Added " << num_adu << " alignables\n"
-											<< "of which  " << num_det << " are Dets\n"
-											<< "          " << num_hlo << " are higher level";
+  edm::LogWarning("Alignment") << "Added " << num_adu 
+    << " Alignables, of which " << num_det << " are Dets and "
+    << num_hlo << " are higher level.";
 
 }
 
@@ -373,8 +373,8 @@ void AlignmentParameterBuilder::add( const std::vector<Alignable*>& alignables,
 void AlignmentParameterBuilder::fixAlignables(int n)
 {
 
-  if (n<0 || n>3) {
-	edm::LogError("BadArgument") << " n = " << n << " is not in [0,3]";
+  if (n<1 || n>3) {
+	edm::LogError("BadArgument") << " n = " << n << " is not in [1,3]";
     return;
   }
 
@@ -391,14 +391,12 @@ void AlignmentParameterBuilder::fixAlignables(int n)
 		theNewAlignables.push_back(*ia);
 	  else if ( n==3 && i>2 && i<imax) 
 		theNewAlignables.push_back(*ia);
-	  else 
-		theNewAlignables.push_back(*ia);
 	}
 
   theAlignables = theNewAlignables;
 
-  edm::LogInfo("AlignmentParameterBuilder") << "removing " << n << " alignables\n"
-											<< theAlignables.size() << " alignables left";
+  edm::LogWarning("Alignment") << "removing " << n 
+    << " alignables, so that " << theAlignables.size() << " alignables left";
   
 }
 

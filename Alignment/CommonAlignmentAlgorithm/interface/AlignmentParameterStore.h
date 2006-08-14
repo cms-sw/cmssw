@@ -13,7 +13,7 @@
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include <map>
 
@@ -64,7 +64,8 @@ public:
   Alignable* alignableFromDetId(const unsigned int& detId) const;
 
   /// transform std::vector<TrackingRecHit> into corresponding std::vector<AlignableDet*> 
-  std::vector<AlignableDet*> alignableDetsFromHits(const std::vector<TrackingRecHit>& hitvec);
+    //  std::vector<AlignableDet*> alignableDetsFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
+    // MOVED TO ALIGNABLENAVIGATOR
 
   /// apply all valid parameters to their alignables 
   void applyParameters(void);
@@ -137,7 +138,7 @@ private:
   ActiveAlignablesByDetIdMap theActiveAlignablesByDetId;
 
   TrackerAlignableId* theTrackerAlignableId;
-  AlignableNavigator* theNavigator;
+  //AlignableNavigator* theNavigator;
 
 };
 
