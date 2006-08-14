@@ -15,7 +15,8 @@
 //  #include "CommonDet/DetGeometry/interface/ActiveMediaShape.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
-//#define DEBUG
+//#define TPDEBUG
+#define CORRECT_FOR_BIG_PIXELS
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,7 +30,6 @@ using namespace std;
 const float PI = 3.141593;
 const float degsPerRad = 57.29578;
 
-
 //-----------------------------------------------------------------------------
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
@@ -42,7 +42,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 
   //--- Algorithm's verbosity
   theVerboseLevel = 
-    conf.getUntrackedParameter<int>("VerboseLevel",20);
+    conf.getUntrackedParameter<int>("VerboseLevel",0);
 
   //-- Magnetic Field
   magfield_ = mag;
@@ -76,7 +76,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det )const
     break;
   default:
     LogDebug("PixelCPEBase") 
-      << "PixelCPEBase:: a non-pixel detector type in here? Yuck!" ;
+      << "PixelCPEBase:: a non-pixel detector type in here?" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
@@ -120,13 +120,15 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det )const
   //--- The Lorentz shift.
   theLShift = lorentzShift();
 
-  if (theVerboseLevel > 5) {
-    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" << " theThickness = " << theThickness
-    << " thePitchX  = " << thePitchX 
-    << " thePitchY  = " << thePitchY 
-    << " theOffsetX = " << theOffsetX 
-    << " theOffsetY = " << theOffsetY 
-    << " theLShift  = " << theLShift;
+  if (theVerboseLevel > 1) {
+    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
+			     << " thePart = " << thePart
+			     << " theThickness = " << theThickness
+			     << " thePitchX  = " << thePitchX 
+			     << " thePitchY  = " << thePitchY 
+			     << " theOffsetX = " << theOffsetX 
+			     << " theOffsetY = " << theOffsetY 
+			     << " theLShift  = " << theLShift;
   }
 }
 
@@ -135,6 +137,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det )const
 //-----------------------------------------------------------------------------
 //  Compute alpha_ and beta_ from the position of this DetUnit.
 //  &&& DOES NOT WORK FOR NOW. d.k. 6/06
+// The angles from dets are calculated in ternaly in the PixelCPEInitial class
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
 computeAnglesFromDetPosition(const SiPixelCluster & cl, 
@@ -176,8 +179,6 @@ computeAnglesFromTrajectory(const SiPixelCluster & cl,
   beta_ = acos(locy/sqrt(locy*locy+locz*locz));
 }
 
-
-
 //-----------------------------------------------------------------------------
 //  Estimate theAlpha for barrel, based on the det position.
 //  &&& Needs to be consolidated from the above.
@@ -194,13 +195,54 @@ computeAnglesFromTrajectory(const SiPixelCluster & cl,
 //  The local position.
 //-----------------------------------------------------------------------------
 LocalPoint
-PixelCPEBase::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
-{
+PixelCPEBase::localPosition(const SiPixelCluster& cluster, 
+			    const GeomDetUnit & det) const {
   setTheDet( det );
-  //return theTopol->localPosition(measurementPosition(cluster, det)); 
-  MeasurementPoint mp = measurementPosition(cluster, det);
-  LocalPoint lp = theTopol->localPosition(mp);
-  return lp;
+
+#ifdef CORRECT_FOR_BIG_PIXELS
+  MeasurementPoint ssss( xpos(cluster),ypos(cluster));
+  LocalPoint lp = theTopol->localPosition(ssss);
+  float lshift = theLShift * thePitchX;  // shift in cm
+  LocalPoint cdfsfs(lp.x()-lshift, lp.y());
+#else
+  MeasurementPoint ssss = measurementPosition(cluster, det);
+  LocalPoint cdfsfs = theTopol->localPosition(ssss);
+#endif
+
+  return cdfsfs;
+}
+
+//-----------------------------------------------------------------------------
+//  Takes the cluster, calculates xpos() and ypos(), applies the Lorentz
+//  shift, and then makes a MeasurementPoint.  This could really be
+//  folded back into the localPosition().
+//-----------------------------------------------------------------------------
+MeasurementPoint 
+PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
+				   const GeomDetUnit & det) const {
+  if (theVerboseLevel > 9) {
+    LogDebug("PixelCPEBase") <<
+      "X-pos = " << xpos(cluster) << 
+      " Y-pos = " << ypos(cluster) << 
+      " Lshf = " << theLShift ;
+  }
+
+  // Fix to take into account the large pixels
+#ifdef CORRECT_FOR_BIG_PIXELS
+  // correct the measurement for Lorentz shift
+  float xPos = xpos(cluster); // x position in the measurement frame
+  float lshift = theLShift; // nominal lorentz shift
+  if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big
+    lshift = theLShift/2.;  // reduce the shift
+  return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
+#else
+  return MeasurementPoint( xpos(cluster)-theLShift,
+                           ypos(cluster));
+  // skip the correction, do it only for the local position
+  // in this mode the measurements are NOT corrected for the Lorentz shift
+  //return MeasurementPoint( xpos(cluster),ypos(cluster));
+#endif
+
 }
 
 //-----------------------------------------------------------------------------
@@ -215,26 +257,6 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
   LocalError le( localError(   cluster, det) );
   return theTopol->measurementError( lp, le );
 }
-
-
-//-----------------------------------------------------------------------------
-//  Takes the cluster, calculates xpos() and ypos(), applies the Lorentz
-//  shift, and then makes a MeasurementPoint.  This could really be
-//  folded back into the localPosition().
-//-----------------------------------------------------------------------------
-MeasurementPoint 
-PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
-  if (theVerboseLevel > 15) {
-    LogDebug("PixelCPEBase") <<
-      "X-pos = " << xpos(cluster) << 
-      " Y-pos = " << ypos(cluster) << 
-      " Lshf = " << theLShift ;
-  }
-  return MeasurementPoint( xpos(cluster)-theLShift, 
-  			   ypos(cluster));
-}
-
 
 //-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.
@@ -256,20 +278,6 @@ bool PixelCPEBase::isFlipped() const {
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }
-
-
-//-----------------------------------------------------------------------------
-// From Danek: "geomCorrection() is sort of second order effect, ignore it for 
-// the moment. I have to to derive it again and understand better what it means."
-//-----------------------------------------------------------------------------
-//float 
-//PixelCPEBase::geomCorrection() const
-//{ 
-//  //@@ the geometrical correction are calculated only
-//  //@@ for the barrel part (am I right?)  &&& ??????????????????
-//  if (thePart == GeomDetEnumerators::PixelEndcap) return 0;
-//  else return theThickness / theDetR;
-//}
 
 
 //-----------------------------------------------------------------------------
@@ -364,7 +372,7 @@ PixelCPEBase::driftDirection( GlobalVector bfield )const
   float dir_z = -1.; // E field always in z direction, so electrons go to -z.
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
-  if (theVerboseLevel > 0) {
+  if (theVerboseLevel > 9) {
     LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
   	 << theDriftDirection    ;
   }

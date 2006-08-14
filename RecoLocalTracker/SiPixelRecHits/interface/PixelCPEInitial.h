@@ -40,7 +40,7 @@ class PixelCPEInitial : public PixelCPEBase
   // PixelCPEInitial( const DetUnit& det );
   PixelCPEInitial(edm::ParameterSet const& conf, const MagneticField*);
     
-  LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
+  //LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   
 
