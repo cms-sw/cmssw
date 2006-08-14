@@ -1,0 +1,14 @@
+hlt = Executable python script that creates a trigger table in memory,
+writes a config file with prescale definitions, and then executes
+cmsRun to run the HLTs. At the moment, the cmsRun part is commented out.
+
+If you execute 'hlt' you should see the same output as in hlt.stdout and
+file 'triggers.cfi' will be created and should be identifical to 
+triggers.cfi.ref.
+
+If you get 'CMSSW_SEARCH_PATH is not defined.' that is because you have
+not definied a runtime release with scramv1.
+
+This is a work in progress. Comments are welcome.
+
+Original Authors: David Lange, Doug Wright
