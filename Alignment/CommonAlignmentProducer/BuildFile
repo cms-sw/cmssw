@@ -1,0 +1,39 @@
+<use name=Alignment/CSA06AlignmentAlgorithm>
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/CommonAlignmentParametrization>
+<use name=Alignment/TrackerAlignment>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=RecoTracker/TransientTrackingRecHit> 
+<use name=TrackingTools/TransientTrack> 
+<use name=RecoTracker/TrackProducer>
+<use name=rootrflx>
+
+<export>
+   <lib name=AlignmentCommonAlignmentProducer>
+   <use name=Alignment/CSA06AlignmentAlgorithm>
+   <use name=Alignment/CommonAlignmentAlgorithm>
+   <use name=Alignment/CommonAlignmentParametrization>
+   <use name=Alignment/TrackerAlignment>
+   <use name=PhysicsTools/RecoAlgos>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=TrackingTools/TrackFitters>
+   <use name=TrackingTools/PatternTools>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/Math>
+   <use name=MagneticField/Engine>
+   <use name=RecoTracker/TrackProducer>
+   <use name=MagneticField/Records>
+   <use name=rootrflx>
+</export>
+<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentProducer">
