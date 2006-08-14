@@ -7,10 +7,9 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.6 2006/06/09 18:31:05 askew Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.8 2006/08/10 13:42:59 mbalazs Exp $
  *
  */
-
 
 #include <map>
 
@@ -30,13 +29,13 @@ class ClusterShapeAlgo
  public:
   static void Initialize(const EcalRecHitCollection *passedRecHitsMap,
 			 const edm::ESHandle<CaloGeometry> *geoHandle);
-  static reco::ClusterShape Calculate(reco::BasicCluster passedCluster );
+  static reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster );
  
   private:
   ClusterShapeAlgo(){};
 
-  void Calculate_TopEnergy(reco::BasicCluster passedCluster);
-  void Calculate_2ndEnergy(reco::BasicCluster passedCluster);
+  void Calculate_TopEnergy(const reco::BasicCluster &passedCluster);
+  void Calculate_2ndEnergy(const reco::BasicCluster &passedCluster);
   void Create_Map(); 
   void Calculate_e2x2();
   void Calculate_e3x2(); 
