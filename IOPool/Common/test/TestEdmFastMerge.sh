@@ -70,6 +70,6 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg || die 'Failur
 # Merge files
 #---------------------------
 
-EdmFastMerge -i file:${INPUT_1} ${LOGICAL_INPUT_2} -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root -c ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml || die 'Failure using EdmFastMerge' $?
+EdmFastMerge -i file:${INPUT_1} ${LOGICAL_INPUT_2} -j ${LOCAL_TMP_DIR}/FrameworkJobReport.xml -o ${LOCAL_TMP_DIR}/EdmFastMerge_out.root -c ${LOCAL_TMP_DIR}/EdmFastMergeTestCatalog.xml || die 'Failure using EdmFastMerge' $?
 
 
