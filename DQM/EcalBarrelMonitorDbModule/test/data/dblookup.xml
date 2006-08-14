@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<servicelist>
-
- <logicalservice name="ECAL CondDB">
-   <service name="oracle://pccmsecdb:1521/ecalh4db/cond01" accessMode="readonly" authentication="password" />
- </logicalservice>
-
-</servicelist>

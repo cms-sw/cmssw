@@ -11,10 +11,14 @@
   <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
   <class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
   <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos,edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+  <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos,edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >::const_iterator"/>
   <class name="edm::OwnVector<SiStripRecHit2DLocalPos,edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
+  <class name="edm::OwnVector<SiStripRecHit2DLocalPos,edm::ClonePolicy<SiStripRecHit2DLocalPos> >::const_iterator"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> >::id_iterator"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> > >" />
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >::id_iterator"/>
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > >" />
   <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >" />
@@ -25,7 +29,9 @@
   <class name="SiPixelCluster" />
   <class name="std::vector<SiPixelRecHit*>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
+  <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >::const_iterator"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >::id_iterator"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >" />
   <class name="edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> >" />
 

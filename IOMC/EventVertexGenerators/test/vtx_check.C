@@ -1,7 +1,7 @@
 
 {
 
-   gSystem->Load("libPhysicsToolsFWLite") ;
+   gSystem->Load("libFWCoreFWLite") ;
    AutoLibraryLoader::enable() ;
    
    TFile* f = new TFile("pgun.root") ;
@@ -13,7 +13,7 @@
    
    edm::HepMCProduct EvtProd ;
    TBranch* bhepmc =
-      tevt->GetBranch( "edmHepMCProduct_VtxSmeared.obj") ;
+      tevt->GetBranch( "edmHepMCProduct_VtxSmeared__PROD.obj") ;
 
    bhepmc->SetAddress( & EvtProd ) ;
    

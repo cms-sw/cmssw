@@ -13,9 +13,7 @@ public:
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
 private:
-  edm::InputTag wireDigiTag_;
-  edm::InputTag stripDigiTag_;
-  edm::InputTag comparatorDigiTag_;
+  std::string label_;
 };
 
 #endif

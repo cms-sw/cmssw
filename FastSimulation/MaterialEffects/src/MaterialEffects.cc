@@ -103,12 +103,9 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //-------------------
 //  Photon Conversion
 //-------------------
-
   if ( PairProduction && myTrack.pid()==22 ) {
     
-    theNormalVector = normalVector(layer,myTrack);
     radlen = radLengths(layer,myTrack);
-    //
     PairProduction->updateState(myTrack,radlen);
 
     if ( PairProduction->nDaughters() ) {	
@@ -130,10 +127,6 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   } 
 
   if ( myTrack.charge() == 0 ) return;
-
-  if ( !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
-
-  theNormalVector = normalVector(layer,myTrack);
   radlen = radLengths(layer,myTrack);
 
 //----------------
@@ -184,8 +177,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 ///-----------------------
 
   if ( MultipleScattering && myTrack.perp() > pTmin ) {
-    //    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
-    MultipleScattering->setNormalVector(theNormalVector);
+    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
     MultipleScattering->updateState(myTrack,radlen);
   }
     
@@ -195,10 +187,9 @@ double
 MaterialEffects::radLengths(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack ) const {
 
-  //  const Surface& surface = layer.surface();
-  //  const MediumProperties& mp = *surface.mediumProperties();
-  //  double radlen = mp.radLen();
-  double radlen = layer.surface().mediumProperties()->radLen();
+  const Surface& surface = layer.surface();
+  const MediumProperties& mp = *surface.mediumProperties();
+  double radlen = mp.radLen();
 
   GlobalVector P(myTrack.px(),myTrack.py(),myTrack.pz());
   
@@ -207,10 +198,9 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   //    GlobalVector(myTrack.x()/myTrack.vertex().perp(),
   //		 myTrack.y()/myTrack.vertex().perp(),
   //		 0.0);
-  //  GlobalVector normal = normalVector(layer,myTrack);
+  GlobalVector normal = normalVector(layer,myTrack);
 
-  //  radlen /= fabs(P.dot(normal)/(P.mag()*normal.mag()));
-  radlen /= fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
+  radlen /= fabs(P.dot(normal)/(P.mag()*normal.mag()));
 
   // This is disgusting. It should be in the geometry description, by there
   // is no way to define a cylinder with a hole in the middle...
@@ -233,9 +223,8 @@ GlobalVector
 MaterialEffects::normalVector(const TrackerLayer& layer,
 			      ParticlePropagator& myTrack ) const {
   return layer.forward() ?  
-    //    (dynamic_cast<const Plane*>(&(layer.surface())))->normalVector() : 
-    layer.disk()->normalVector() :
-    GlobalVector(myTrack.x(),myTrack.y(),0.)/myTrack.vertex().perp();
-  //		 myTrack.y()/myTrack.vertex().perp(),
-  //		 0.0);
+    (dynamic_cast<const Plane*>(&(layer.surface())))->normalVector() : 
+    GlobalVector(myTrack.x()/myTrack.vertex().perp(),
+		 myTrack.y()/myTrack.vertex().perp(),
+		 0.0);
 }

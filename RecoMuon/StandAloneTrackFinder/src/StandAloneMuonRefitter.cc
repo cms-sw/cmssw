@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/04 09:26:17 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/06/21 18:23:57 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -19,14 +19,11 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+// FIXME
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-// FIXME!! use this (i.e. take the estimator from the esetup)
-// #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -42,7 +39,7 @@
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropagator(0){
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
   
   // FIXME
   // I am not yet sure if I want to pass it by paset or have it hard-coded...
@@ -75,14 +72,6 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   // theMuonUpdatorName = par.getParameter<string>("MuonUpdatorName");
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet); //FIXME this is very very temp!!!
-
-  thePropagatorName = par.getParameter<string>("Propagator");
-
-  // Measurement Extractor: enable the measure for each muon sub detector
-  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
-  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
-
-  theMeasurementExtractor = new MuonDetLayerMeasurements(enableDTMeasurement,enableCSCMeasurement);
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
@@ -94,7 +83,6 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   //delete thePropagator;
   delete theEstimator;
   delete theMuonUpdator;
-  delete theMeasurementExtractor;
 }
 
 
@@ -113,31 +101,34 @@ void StandAloneMuonRefitter::setES(const EventSetup& setup){
 }
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
-  theMeasurementExtractor->setEvent(event);
+  theMeasurementExtractor.setEvent(event);
+  // reset the refitter each event
+  reset();
 }
 
 void StandAloneMuonRefitter::init(const EventSetup& setup){
+  cout<<"StandAloneMuonRefitter::init"<<endl;
+
+  // FIXME: it is temporary solution waiting for the es_producers...
+
+  // set the magnetic field
+  edm::ESHandle<MagneticField> mgField;
+  setup.get<IdealMagneticFieldRecord>().get(mgField);
+  
   // Init each event the members of the class
   
-  ESHandle<Propagator> eshPropagator;
-  setup.get<TrackingComponentsRecord>().get(thePropagatorName, eshPropagator);
-
-  if(thePropagator) delete thePropagator;
-
-  thePropagator = eshPropagator->clone();
-
-  // Consistency check
-  if( propagator()->propagationDirection() != propagationDirection() )
-    propagator()->setPropagationDirection( propagationDirection() );
+  // The propagator: it propagates a state
+  // the propagation direction must be set via parameter set
   
+  // FIXME: take it from the event setup. This is very temp!!!!!
+  SteppingHelixPropagator prop(&*mgField,thePropagationDirection);
+
+  thePropagator = prop.clone();
 
   // the muon updator (it doesn't inhert from an updator, but it has one!)
   // the updator is suitable both for FW and BW filtering. The difference between the two fitter are two:
   // the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
   // parameter set, and the propagation direction which is embeded in the propagator.
-
-  
-  // FIXME: it is temporary solution waiting for the es_producers...
 
   // TODO fare che theMuonUpdatorName = MuonUpdator + nome Propagator
   // FIXME put it into the event setup and extract it from es. i.e.:
@@ -159,18 +150,48 @@ void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
   totalChambers++;
 }
 
-void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
-				   const DetLayer* initialLayer, Trajectory &trajectory){
+void 
+StandAloneMuonRefitter::vectorLimits(vector<const DetLayer*> &vect,
+				     vector<const DetLayer*>::const_iterator &vector_begin,
+				     vector<const DetLayer*>::const_iterator &vector_end) const{
+  
+  if( propagationDirection() == alongMomentum ){
+    vector_begin = vect.begin();
+    vector_end = vect.end();
+  }
+  else if( propagationDirection() == oppositeToMomentum ){
+    vector_begin = vect.end()-1;
+    vector_end = vect.begin()-1;
+  }
+  else{
+    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in vectorLimits!!";
+  }
+}
+
+void 
+StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterator &iter) const{
+
+  if( propagationDirection() == alongMomentum )
+    ++iter;
+  
+  else if( propagationDirection() == oppositeToMomentum )
+    --iter;
+  
+  else{
+    LogError("Muon|RecoMuon|StandAloneMuonRefitter") <<"Wrong propagation direction in incrementIterator!!";
+  }
+}
+
+
+
+void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
   
   std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
   bool timing = true;
-
-  // reset the refitter each seed refinement
-  reset();
   
   MuonPatternRecoDumper debug;
   
-  LogDebug(metname) << "Starting the refit"<<endl; 
+  LogDebug(metname) << "Starting the refit"; 
   TimeMe t(metname,timing);
   
   // The best measurement finder: search for the best measurement among the TMs available
@@ -182,24 +203,33 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   TrajectoryStateOnSurface lastButOneUpdatedTSOS;
   // this is the most outward TSOS (updated or predicted) onto a DetLayer
   TrajectoryStateOnSurface lastTSOS;
-  
+
   lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
   
-  // ask for compatible layers
-  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
+  // FIXME: check the prop direction!
+  // it must be alongMomentum for the in-out refit
+    vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
 								     propagationDirection());  
-    
+
+  // FIXME FIXME
   // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
   // In fact the first layer is not returned by initialLayer->compatibleLayers.
   detLayers.insert(detLayers.begin(),initialLayer);
-  
+
   LogDebug(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
   
   vector<const DetLayer*>::const_iterator layer;
+  // vector<const DetLayer*>::const_iterator detLayers_begin;
+  // vector<const DetLayer*>::const_iterator detLayers_end;
 
-  // the layers are ordered in agreement with the propagation direction 
+  // FIXME check the layer order!  
+  // Set the limits according to the propagation direction
+  //  vectorLimits(detLayers,detLayers_begin,detLayers_end);
+  
+  // increment/decrement the iterator according to the propagation direction 
+  //  for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
   for ( layer = detLayers.begin(); layer!= detLayers.end(); ++layer ) {
-    
+
     //    bool firstTime = true;
 
     debug.dumpLayer(*layer,metname);
@@ -207,7 +237,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
     
     vector<TrajectoryMeasurement> measL = 
-      theMeasurementExtractor->measurements(*layer,
+      theMeasurementExtractor.measurements(*layer,
       					   lastTSOS, 
       					   *propagator(), 
 					   *estimator());
@@ -234,7 +264,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
-      measL = theMeasurementExtractor->measurements(*layer,
+      measL = theMeasurementExtractor.measurements(*layer,
 						   lastButOneUpdatedTSOS, 
 						   *propagator(), 
 						   *estimator());
@@ -251,7 +281,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
       LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
 
-      measL = theMeasurementExtractor->measurements(*layer,
+      measL = theMeasurementExtractor.measurements(*layer,
 						   initialTSOS, 
 						   *propagator(), 
 						   *estimator());
@@ -263,7 +293,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
     // check if the there is a measurement
     if(bestMeasurement){
-      LogDebug(metname)<<"best measurement found" << "\n"
+      LogDebug(metname)<<"best measurement found"<<endl
 		       <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
       LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;

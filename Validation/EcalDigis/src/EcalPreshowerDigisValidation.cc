@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/05/04 11:16:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/06/20 16:26:00 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -50,7 +50,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
     for ( int i = 0; i < 3 ; i++ ) {
       
       sprintf (histo, "EcalDigiTask Preshower ADC pulse %02d", i+1) ;
-      meESDigiADC_[i] = dbe_->book1D(histo, histo, 512, 0., 4096.) ;
+      meESDigiADC_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
     }
 
   }

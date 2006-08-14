@@ -93,8 +93,13 @@ void DoCompare( char* Energy ){
    h2temp2[i]  = dynamic_cast<TH2F*>(curfile->Get(label2[i]));
    if( h2temp1[i] == 0 || h2temp2[i] == 0) continue; 
    c1.cd(1);
+   h2temp1[i]->SetMarkerColor(2);
+   h2temp1[i]->SetMarkerStyle(7);
    h2temp1[i]->Draw();
+   
    c1.cd(2);
+   h2temp2[i]->SetMarkerColor(4);
+   h2temp2[i]->SetMarkerStyle(7);
    h2temp2[i]->Draw();
    myPV->PVCompute(h2temp1[i],h2temp2[i], te);
    sprintf(title,"%s%s%s", Energy, label2[i],".eps");

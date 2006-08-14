@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ProductID.h"
@@ -62,9 +61,8 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
 	 it != reg->productList().end(); ++it) {
       edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName_.compare(0,18,"EBDataFramesSorted")) {
-      edm::ParameterSet result;
-      edm::pset::Registry::instance()->getParameterSet(desc.psetID(), result);
+      if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted")) {
+      edm::ParameterSet result = getParameterSet(desc.psetID());
       binOfMaximum_=result.getParameter<int>("binOfMaximum");
       break;
       }

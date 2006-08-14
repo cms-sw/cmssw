@@ -2,10 +2,10 @@
 #define MuonDetId_DTChamberId_H
 
 /** \class DTChamberId
- *  DetUnit identifier for DT chambers
- *
- *  $Date: 2006/05/19 13:28:04 $
- *  $Revision: 1.5 $
+ *  DetUnit identifier for DT chambers.
+ *  
+ *  $Date: 2006/06/06 16:24:14 $
+ *  $Revision: 1.6 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -56,11 +56,14 @@ public:
   }
 
 
-  /// Return the sector number
+  /// Return the sector number. Sectors are numbered from 1 to 12,
+  /// starting at phi=0 and increasing with phi.
+  /// In station 4, where the top and bottom setcors are made of two chambers,
+  /// two additional sector numbers are used, 13 (after sector 4, top)
+  /// and 14 (after sector 10, bottom).
   int sector() const {
     return ((id_>>sectorStartBit_)& sectorMask_);
   }
-
 
 
   /// lowest station id

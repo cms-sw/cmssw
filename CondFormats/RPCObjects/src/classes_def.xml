@@ -1,28 +1,11 @@
 <lcgdict>
-  <class name="ChamberStripSpec"/>
-
-  <class name="FebSpec">
-  <field name="theRawId" transient="true"/>
-  </class>
-  <class name="std::vector<ChamberStripSpec>"/>
-
-  <class name="ChamberLocationSpec"/>
-
-  <class name="LinkBoardSpec"/>
-  <class name="std::vector<FebSpec>"/>
-
-  <class name="LinkConnSpec"/>
-  <class name="std::vector<LinkBoardSpec>"/>
-
-  <class name="TriggerBoardSpec"/>
-  <class name="std::vector<LinkConnSpec>"/>
-
-  <class name="DccSpec"/>
-  <class name="std::vector<TriggerBoardSpec>"/>
-
   <class name="RPCReadOutMapping"/>
-  <class name="std::map<int,DccSpec>"/>
-
-  <class pattern="*vector*"/>
-  <class pattern="*map*"/>
+  <class name="RPCReadOutLink"/>
+  <class name="RPCdeteIndex"/>
+  <class name="RPCelecIndex"/>
+  <class name="std::vector<RPCReadOutLink>"/>
+  <class name="std::map<RPCdeteIndex,RPCelecIndex>"/>
+  <class name="std::map<RPCelecIndex,RPCdeteIndex>"/>
+  <class pattern="*pair*"/>
 </lcgdict>
+

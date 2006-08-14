@@ -28,12 +28,23 @@ namespace {
 }
     
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 namespace {
   namespace {
-    edm::Wrapper<sistrip::Task> task;
-    edm::Wrapper<sistrip::FedReadoutMode> fed_mode;
+    edm::Wrapper<SiStripEventSummary::Task> task;
+    edm::Wrapper<SiStripEventSummary::FedReadoutMode> fed_mode;
     edm::Wrapper<SiStripEventSummary> summary;
+
+  }
+}
+
+#include "DataFormats/SiStripDigi/interface/Profile.h"
+#include "DataFormats/SiStripDigi/interface/Histo.h"
+namespace {
+  namespace {
+    edm::Wrapper<Profile> profile;
+    edm::Wrapper< edm::DetSetVector<Profile> > profiles;
+    edm::Wrapper<Histo> histo;
+    edm::Wrapper< edm::DetSetVector<Histo> > histos;
 
   }
 }

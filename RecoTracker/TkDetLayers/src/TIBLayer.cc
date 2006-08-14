@@ -40,6 +40,7 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
   setSurface( cylinder(theComps) );
+
   
   LogDebug("TkDetLayers") << "==== DEBUG TIBLayer =====" ; 
   for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
@@ -123,13 +124,11 @@ TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
   float thick = leftBounds.thickness() / 2;
   float zmin = leftPos  - leftBounds.length() / 2;
   float zmax = rightPos + rightBounds.length() / 2;
-  float rmin = r-thick;
-  float rmax = r+thick;
   float zpos = 0.5*(leftPos+rightPos);
 
   return new BoundCylinder( Surface::PositionType( 0, 0, zpos), 
 			    rings.front()->surface().rotation(),
-			    SimpleCylinderBounds( rmin, rmax,
+			    SimpleCylinderBounds( r-thick, r+thick,
 						  zmin-zpos, zmax-zpos));
 }
 

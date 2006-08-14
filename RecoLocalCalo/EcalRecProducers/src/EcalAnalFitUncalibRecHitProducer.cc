@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.7 2006/06/19 18:50:06 meridian Exp $
-  *  $Date: 2006/06/19 18:50:06 $
-  *  $Revision: 1.7 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.9 2006/07/11 12:20:34 meridian Exp $
+  *  $Date: 2006/07/11 12:20:34 $
+  *  $Revision: 1.9 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -67,8 +67,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    const EEDigiCollection* EEdigis =0;
    
    try {
-     //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-     evt.getByLabel( digiProducer_, pEBDigis);
+     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+     //evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the produc
      edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
    } catch ( std::exception& ex ) {
@@ -76,8 +76,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    }
 
    try {
-     //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-     evt.getByLabel( digiProducer_, pEEDigis);
+     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
+     //evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the product
      edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {
@@ -135,7 +135,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	   continue;
 	 }
 	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
@@ -149,7 +149,8 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	   continue;
 	 }
 	 std::vector<double> gainRatios;
-	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
+
 	 EcalUncalibratedRecHit aHit =
 	   EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
 
@@ -181,7 +182,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	   continue;
 	 }
 	 std::vector<double> pedVec;
-	 pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
+	 pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
@@ -195,7 +196,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	   continue;
 	 }
 	 std::vector<double> gainRatios;
-	 gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(1.);
+	 gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 	 
 	 EcalUncalibratedRecHit aHit =
 	   EEalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);

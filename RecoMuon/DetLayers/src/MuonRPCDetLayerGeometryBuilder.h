@@ -5,22 +5,20 @@
  *
  *  Build the RPC DetLayers.
  *
- *  $Date: 2006/06/02 12:21:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/02 08:46:32 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
 class DetLayer;
-class MuRingForwardLayer;
-
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <vector>
 
 class MuonRPCDetLayerGeometryBuilder {
  public:
-  /// Constructor (disabled, only static access is allowed)
-  MuonRPCDetLayerGeometryBuilder(){}
+  /// Constructor
+  MuonRPCDetLayerGeometryBuilder();
 
   /// Destructor
   virtual ~MuonRPCDetLayerGeometryBuilder();
@@ -31,7 +29,6 @@ class MuonRPCDetLayerGeometryBuilder {
   static std::vector<DetLayer*> buildBarrelLayers(const RPCGeometry& geo);
     
  private:
-  static MuRingForwardLayer* buildLayer(int endcap,int ring, int station,int layer, std::vector<int>& rolls,const RPCGeometry& geo);          
     
 };
 #endif

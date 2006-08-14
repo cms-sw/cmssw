@@ -1,6 +1,7 @@
 #ifndef Common_ProcessHistory_h
 #define Common_ProcessHistory_h
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -71,6 +72,8 @@ namespace edm {
   operator!=(ProcessHistory const& a, ProcessHistory const& b) {
     return !(a==b);
   }
+
+  std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);
 }
 
 #endif

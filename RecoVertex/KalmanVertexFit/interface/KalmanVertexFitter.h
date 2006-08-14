@@ -3,22 +3,12 @@
 
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 
-/** Least-squares vertex fitter implemented in the Kalman Filter formalism 
- *  Fits vertex position and, if smoothing is requested at construction, 
- *  constrains track parameters at the vertex. 
- *  A beam spot constraint can also be specified in form of a 3D point 
- *  and a 3D matrix describing a Gaussian beam spread. 
- *
- *  References: 
- *
- * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_032.pdf"> T.Speer, K.Prokofiev, R.Fruhwirth, W.Waltenberger, P.Vanlaer, "Vertex Fitting in the CMS Tracker", CMS Note 2006/032</a>
- *
- * P.Billoir, S.Qian, "Fast vertex fitting...", NIM A311 (1992) 139. 
- *
- * R.Fruhwirth, R.Kubinec, W.Mitaroff, M.Regler, Comp. Physics Comm. 96, 189 (1996)
- * 
- * <a href="http://www.phys.ufl.edu/~avery/fitting.html"> P.Avery, lectures 
-on track and vertex fitting" </a>
+/** An easy way to use the SequentialVertexFitter with the Kalman filter.
+ *  As it is a VertexFitter, it is then to be used as such.
+ *  The configurable parameters of the SequentialVertexFitter can still be
+ *  set with either the set methods or the simpleConfigurables.
+ *  By default, no smoothing is done, but it can still be chosen by the 
+ *  boolean parameter in the constructor.
  */
 
 class KalmanVertexFitter : public VertexFitter {

@@ -22,17 +22,16 @@ class MuonTransientTrackingRecHit;
 
 class RecHit;
 class BoundPlane;
-class GeomDet;
 
 namespace edm {class EventSetup;}
 
 class MuonSeedFromRecHits {
   typedef std::vector<MuonTransientTrackingRecHit*>  RecHitContainer;
   typedef RecHitContainer::const_iterator            RecHitIterator;
-  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
   public:
   MuonSeedFromRecHits(){
+    debug = true;
   }
 
   void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
@@ -41,8 +40,6 @@ class MuonSeedFromRecHits {
   unsigned int nrhit() const { return  theRhits.size(); }
 
   private:
-  friend class MuonSeedFinder;
-
   MuonTransientTrackingRecHit *best_cand() const;
   // was
   // TrackingRecHit best_cand() const;
@@ -51,12 +48,11 @@ class MuonSeedFromRecHits {
   void computePtWithoutVtx(double* pt, double* spt) const;
   void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
-  TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit *last,
-			    const edm::EventSetup& eSetup) const;
+  TrajectorySeed createSeed(float ptmean, float sptmean,const edm::EventSetup& eSetup) const;
 
   private:
   RecHitContainer theRhits;
+  bool debug;
 };
 
 #endif

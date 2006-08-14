@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/07 14:26:40 $
- * $Revision: 1.109 $
+ * $Date: 2006/06/24 08:36:04 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,24 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   runType_ = -1;
 
   // this should come from the EcalBarrel run header
+  string s = ps.getUntrackedParameter<string>("runType", "unknown");
+
+  if ( s == "COSMIC" ) {
+    runType_ = EcalDCCHeaderBlock::COSMIC;
+  } else if ( s == "LASER" ) {
+    runType_ = EcalDCCHeaderBlock::LASER_STD;
+  } else if ( s == "PEDESTAL" ) {
+    runType_ = EcalDCCHeaderBlock::PEDESTAL_STD;
+  } else if ( s == "TEST_PULSE" ) {
+    runType_ = EcalDCCHeaderBlock::TESTPULSE_MGPA;
+  } else if ( s == "ELECTRON" ) {
+    runType_ = EcalDCCHeaderBlock::BEAMH4;
+  } else if ( s == "ELECTRON2" ) {
+    runType_ = EcalDCCHeaderBlock::BEAMH2;
+  }
+
+  LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
+
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
   LogInfo("EcalBarrelMonitor") << " Processing run: " << irun_;
@@ -95,12 +113,13 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
-    dbe_->rmdir("EcalBarrel/EcalInfo");
-    dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
-    dbe_->rmdir("EcalBarrel/EcalEvent");
-  }
+  // begin-of-run
+  if ( meStatus_ ) meStatus_->Fill(0);
+
+//  if ( meRun_ ) meRun_->Fill(irun_);
+//  if ( meEvt_ ) meEvt_->Fill(ievt_);
+
+//  if ( meRunType_ ) meRunType_->Fill(runType_);
 
 }
 
@@ -109,7 +128,7 @@ void EcalBarrelMonitorModule::setup(void){
   init_ = true;
 
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dbe_->setCurrentFolder("EcalBarrel");
 
     meStatus_ = dbe_->bookInt("STATUS");
 
@@ -130,12 +149,12 @@ void EcalBarrelMonitorModule::setup(void){
   // this should give enough time to our control MEs to reach the Collector,
   // and then hopefully the Client
 
-  sleep(5);
+  sleep(1);
 
   Char_t histo[20];
 
   if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dbe_->setCurrentFolder("EcalBarrel");
 
     meEBDCC_ = dbe_->book1D("EBMM SM", "EBMM SM", 36, 1, 37.);
 
@@ -159,7 +178,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
   if ( dbe_ ) {
 
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dbe_->setCurrentFolder("EcalBarrel");
 
     if ( meStatus_ ) dbe_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
@@ -199,8 +218,6 @@ void EcalBarrelMonitorModule::cleanup(void){
 
   }
 
-  init_ = false;
-
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
@@ -222,7 +239,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   // we should always sleep at least a little ...
 
-  sleep(5);
+  sleep(1);
 
   this->cleanup();
 
@@ -259,14 +276,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
 
-      if ( dccMap[dcch.id()].getRunType() != -1 ) runType_ = dccMap[dcch.id()].getRunType();
-
       if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
       // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
       // if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCHeaderBlock::LASER_STD;
 
-      if ( evtType_ < 0 || evtType_ > 10 ) {
+      if ( evtType_ < 0 || evtType_ > 9 ) {
         LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
@@ -284,7 +299,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
-      runType_ = EcalDCCHeaderBlock::BEAMH4;
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
       LogWarning("EcalBarrelMonitorModule") << "EcalTBEventHeader found, instead" << endl;
@@ -316,7 +330,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
 
-  if ( ievt_ == 1 ) sleep(5);
+  if ( ievt_ == 1 ) sleep(1);
 
   Handle<EBDigiCollection> digis;
   //  e.getByLabel("ecalEBunpacker", digis);

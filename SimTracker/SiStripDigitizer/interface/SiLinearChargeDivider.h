@@ -39,7 +39,6 @@ class SiLinearChargeDivider : public SiChargeDivider{
   bool fluctuateCharge;
   int  chargedivisionsPerStrip;
   double deltaCut ;
-  double cosmicShift;
   SiG4UniversalFluctuation fluctuate; 
   //  HepPDTable * particleTable;
 };

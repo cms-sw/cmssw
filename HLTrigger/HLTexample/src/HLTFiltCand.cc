@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/06/28 01:25:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/09 08:15:58 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+// #include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -34,17 +35,20 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig)
    elecTag_ = iConfig.getParameter< edm::InputTag > ("elecTag");
    muonTag_ = iConfig.getParameter< edm::InputTag > ("muonTag");
    jetsTag_ = iConfig.getParameter< edm::InputTag > ("jetsTag");
+   //   metsTag_ = iConfig.getParameter< edm::InputTag > ("metsTag");
 
    phot_pt_ = iConfig.getParameter< double > ("photPt");
    elec_pt_ = iConfig.getParameter< double > ("elecPt");
    muon_pt_ = iConfig.getParameter< double > ("muonPt");
    jets_pt_ = iConfig.getParameter< double > ("jetsPt");
+   //   mets_pt_ = iConfig.getParameter< double > ("metsPt");
 
    LogDebug("") << "created with:" <<
      " g: " << photTag_.encode() << " " << phot_pt_ << 
      " e: " << elecTag_.encode() << " " << elec_pt_ << 
      " m: " << muonTag_.encode() << " " << muon_pt_ << 
-     " j: " << jetsTag_.encode() << " " << jets_pt_ ;
+     " j: " << jetsTag_.encode() << " " << jets_pt_ ; // <<
+     //     " M: " << metsTag_.encode() << " " << mets_pt_ ;
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -86,14 +90,16 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<ElectronCollection> electrons;
    Handle<MuonCollection>     muons;
    Handle<CaloJetCollection>  jets;
+   //   Handle<CaloMETCollection>  mets;
 
    iEvent.getByLabel(photTag_,photons  );
    iEvent.getByLabel(elecTag_,electrons);
    iEvent.getByLabel(muonTag_,muons    );
    iEvent.getByLabel(jetsTag_,jets     );
+   //   iEvent.getByLabel(metsTag_,mets     );
 
 
-   // look for at least one g,e,m,j above its pt cut
+   // look for at least one g,e,m,j,M above its pt cut
 
    // photons
    bool         bphot(false);
@@ -121,7 +127,6 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-
    // muon
    bool         bmuon(false);
    MuonCollection::const_iterator amuon(muons->begin());
@@ -148,9 +153,24 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // mets
+   bool         bmets(false);
+   /*
+   CaloMETCollection::const_iterator amets(mets->begin());
+   CaloMETCollection::const_iterator omets(mets->end());
+   CaloMETCollection::const_iterator imets;
+   for (imets=amets; imets!=omets; imets++) {
+     if (imets->pt() >= mets_pt_) {
+       bmets=true;
+       ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
+       filterproduct->putParticle(ref);
+     }
+   }
+   */
+   bmets=true;
 
    // final filter decision:
-   bool accept (bphot && belec && bmuon && bjets);
+   bool accept (bphot && belec && bmuon && bjets && bmets);
 
 
    // All filters: put filter object into the Event
