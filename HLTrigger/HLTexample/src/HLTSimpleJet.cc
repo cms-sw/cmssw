@@ -22,11 +22,12 @@
 //
 // constructors and destructor
 //
-HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig) :
-  inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  ptcut_    (iConfig.getParameter<double>       ("ptcut"   )),
-  njcut_    (iConfig.getParameter<int>          ("njcut"   ))
+HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
 {
+   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
+   ptcut_  = iConfig.getParameter<double> ("ptcut");
+   njcut_  = iConfig.getParameter<int> ("njcut");
+
    LogDebug("") << "Input/ptcut/njcut : " << inputTag_.encode() << " " << ptcut_ << " " << njcut_;
 
    //register your products
@@ -55,7 +56,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // The filter object
    auto_ptr<HLTFilterObjectWithRefs>
-     filterobject (new HLTFilterObjectWithRefs(path(),module()));
+     filterproduct (new HLTFilterObjectWithRefs(path(),module()));
    // Ref to Candidate object to be recorded in filter object
    RefToBase<Candidate> ref;
 
@@ -71,7 +72,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( (jet->pt()) >= ptcut_) {
        n++;
        ref=RefToBase<Candidate>(CaloJetRef(jets,distance(jets->begin(),jet)));
-       filterobject->putParticle(ref);
+       filterproduct->putParticle(ref);
      }
    }
 
@@ -79,7 +80,7 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept(n>=njcut_);
 
    // put filter object into the Event
-   iEvent.put(filterobject);
+   iEvent.put(filterproduct);
 
    return accept;
 }

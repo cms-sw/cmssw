@@ -7,50 +7,26 @@
 #
 # Original Authors: David Lange, Doug Wright
 
-from manyhlt import *
+from hlt import *
 
 #....set default values
 nhlt    =   100
 nevents = 10000
-nfilter =    10
-tname   = "triggers.cfi"
 
 #....process command line arguments
 previous = ''
 for arg in sys.argv:
-    if previous == '-nhlt' : nhlt    = int(arg)
-    if previous == '-nev'  : nevents = int(arg)
-    if previous == '-nfilt': nfilter = int(arg) 
+    if previous == '-nhlt' : nhlt    = arg
+    if previous == '-nev'  : nevents = arg
     previous = arg
 
 #....setup triggers (count from 1 to nhlt)
-nEvts(nevents)
 for i in range(1,nhlt+1):
-    trig( "Trig"+str(i), i*3,nfilter)
+    trig( "Trig"+str(i), i*3)
 
 #....Make the conf files for this trigger table
-make_cfg_file(tname)
+make_cfg_file('triggers.cfi')
  
 #....Now run the job
-import popen2
-import subprocess
-
-p = subprocess.Popen("time -p cmsRun manyhlt.cfg", shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-
-sts = os.waitpid(p.pid, 0)
-
-errors=p.stderr.read()
-out=p.stdout.read()
-
-cpu=0.
-sp=errors.split('\n')
-for line in sp:
-  sp2=line.split(' ',9)
-  if sp2[0] == 'user': cpu = cpu + float(sp2[1])
-  if sp2[0] == 'sys' : cpu = cpu + float(sp2[1])
-
-  
-print "Nhlt= %s NEv= %s NF= %s CPU= %s\n" % (str(nhlt),str(nevents),str(nfilter),str(cpu))
-
-
+#os.system("cmsRun hlt.cfg");
 
