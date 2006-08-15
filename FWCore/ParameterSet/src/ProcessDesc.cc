@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.4 2006/07/23 01:24:36 valya Exp $
+   \version $Id: ProcessDesc.cc,v 1.5 2006/08/07 23:52:36 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.4 2006/07/23 01:24:36 valya Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.5 2006/08/07 23:52:36 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -109,11 +109,11 @@ namespace edm
       }
 
     ParameterSet paths_trig;
-    paths_trig.insert(true,"@paths",Entry(triggerpaths,true));
-    paths_trig.insert(true,"@end_paths",Entry(endpaths,true));
+    paths_trig.addParameter("@paths",triggerpaths);
+    paths_trig.addParameter("@end_paths",endpaths);
 
-    pset_->insert(true,"@trigger_paths",Entry(paths_trig,false));
-    pset_->insert(true,"@paths",Entry(pathnames,true));
+    pset_->addUntrackedParameter("@trigger_paths",paths_trig);
+    pset_->addParameter("@paths",pathnames);
    
     validator_= 
       new ScheduleValidator(pathFragments_,*pset_); 
@@ -130,7 +130,7 @@ namespace edm
 
   void ProcessDesc::writeBookkeeping(const std::string & name)
   {
-    pset_->insert(true, name, Entry(bookkeeping_[name], true));
+    pset_->addParameter(name, bookkeeping_[name]);
   }
  
 
@@ -151,7 +151,7 @@ namespace edm
   
     Strs names;
     getNames(n->wrapped().get(),names);    
-    pset_->insert(true,n->name(),Entry(names,true));
+    pset_->addParameter(n->name(),names);
     paths.push_back(n->name()); // add to the list of paths
   
   } // fillPath(..) 

@@ -78,7 +78,7 @@ namespace edm {
       // handle the labels
       if(type() == "service")
       {
-        pset->insert(true, "@service_type", Entry(class_,true));
+        pset->addParameter("@service_type", class_);
         procDesc.getServicesPSets()->push_back(*pset);
       }
       else
@@ -87,8 +87,8 @@ namespace edm {
         string bookkeepingIndex(""); 
         if(type() =="module")
         {
-          pset->insert(true, "@module_label", Entry(name(), true));
-          pset->insert(true, "@module_type", Entry(class_,true));
+          pset->addParameter("@module_label", name());
+          pset->addParameter("@module_type", class_);
           label = name();
           bookkeepingIndex = "@all_modules";
         }
@@ -96,45 +96,45 @@ namespace edm {
         {
           label = name();
           if (label.empty()) label = "@main_input";
-          pset->insert(true, "@module_label", Entry(label, true));
+          pset->addParameter("@module_label", label);
           std::string tmpClass = (class_=="secsource") ? "source" : class_;
-          pset->insert(true, "@module_type", Entry(tmpClass,true));
+          pset->addParameter("@module_type", tmpClass);
           bookkeepingIndex = "@all_sources";
         }
         else if(type() =="looper")
         {
           label = name();
           if (label.empty()) label = "@main_looper";
-          pset->insert(true, "@module_label", Entry(label, true));
-          pset->insert(true, "@module_type", Entry(class_,true));
+          pset->addParameter("@module_label", label);
+          pset->addParameter("@module_type", class_);
           bookkeepingIndex = "@all_loopers";
         }
         else if(type() =="es_module")
         {
           string sublabel = (name() == "nameless") ? "" : name();
-          pset->insert(true, "@module_label", Entry(sublabel, true));
-          pset->insert(true, "@module_type", Entry(class_,true));
+          pset->addParameter("@module_label", sublabel);
+          pset->addParameter("@module_type", class_);
           label = class_+"@"+sublabel;
           bookkeepingIndex = "@all_esmodules";
         }
         else if(type() =="es_source")
         {
           string sublabel = (name() == "main_es_input") ? "" : name();
-          pset->insert(true, "@module_label", Entry(sublabel, true));
-          pset->insert(true, "@module_type", Entry(class_,true));
+          pset->addParameter("@module_label", sublabel);
+          pset->addParameter("@module_type", class_);
           label = class_+"@"+sublabel;
           bookkeepingIndex = "@all_essources";
         }
         else if(type() =="es_prefer")
         {
           string sublabel = (name() == "nameless") ? "" : name();
-          pset->insert(true, "@module_label", Entry(sublabel, true));
-          pset->insert(true, "@module_type", Entry(class_,true));
+          pset->addParameter("@module_label", sublabel);
+          pset->addParameter("@module_type", class_);
           label = "esprefer_" + class_+"@"+sublabel;
           bookkeepingIndex = "@all_esprefers";
         }
 
-        procDesc.getProcessPSet()->insert(true, label , Entry(*pset,true));
+        procDesc.getProcessPSet()->addParameter(label , *pset);
         procDesc.record(bookkeepingIndex, label); 
       } // if not a service
     }
