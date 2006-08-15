@@ -44,30 +44,29 @@ void analyzeJetsChain()
    // Number of entries in chain
   Int_t   nevent = chain.GetEntries();
 
-  // Open first file and set addresses. This needed in addition to what is done in  event loop.
-  chain.GetEvent(0);  
-  chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
-
   // Tell root we only want the CaloJets branches.
   chain.SetBranchStatus("*",0);
   chain.SetBranchStatus("recoCaloJets*",1);
 
-  int treenumber = 0;
   // Loop over events
   for ( int index = 0; index < nevent; ++index ) {
 
-    // Begin magic from Phillipe Canal to insure that for each file
-    // we read the first entry twice.  Necessary, for the chain to work.
+    // Load the TTree corresponding to event index and return the entry with respect to that tree.
     int current = chain.LoadTree(index);
-    if (treenumber!=current) {
-       chain.GetEvent(index); 
-       chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
 
-       treenumber = current;
+    // Check if we are on the first entry in the tree
+    if (current==0) {
+
+       //Read the first entry in this new tree, needed to set branch address.
+       chain.GetEvent(index); 
+
+       //Set the branch address for this new tree
+       chain.SetBranchAddress(chain.GetAlias("MC5CaloJet"),&CaloJetCollection);
     }
-    // End magic from Phillipe Canal.
     
+    // Read the event.
     chain.GetEvent(index);
+
     double px[2], py[2], pz[2], E[2];
     std::cout << "Entry index: " << index << std::endl;  
     //chain.SetBranchAddress("CaloJets_midPointCone5CaloJets.obj",&CaloJetCollection);
