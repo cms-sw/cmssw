@@ -5,7 +5,18 @@
 
 HcalPedestalMonitor::HcalPedestalMonitor() {m_doPerChannel = false;}
 
-HcalPedestalMonitor::~HcalPedestalMonitor() {}
+HcalPedestalMonitor::~HcalPedestalMonitor() {
+  if ( m_dbe ) {
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
+    m_dbe->removeContents();
+  }
+}
 
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
@@ -13,6 +24,14 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
   if ( ps.getUntrackedParameter<bool>("PedestalsPerChannel", false) ) {
     m_doPerChannel = true;
   }
+
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
+  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
+  etaBins_ = (int)(etaMax_ - etaMin_);
+
+  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
+  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
+  phiBins_ = (int)(phiMax_ - phiMin_);
 
   ievt_=0;
 
@@ -29,7 +48,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hbHists.CAPIDMEAN =  m_dbe->book1D("HBHE CapID Mean Variance","HBHE CapID Mean Variance",50,0,3);
     hbHists.QIERMS  =  m_dbe->book1D("HBHE QIE RMS Values","HBHE QIE RMS Values",50,0,3);
     hbHists.QIEMEAN =  m_dbe->book1D("HBHE QIE Mean Values","HBHE QIE Mean Values",50,0,3);
-    hbHists.ERRGEO =  m_dbe->book2D("HBHE Pedestal Geo Error Map","HBHE Pedestal Geo Error Map",59,-29.5,29.5,74,0,73);
+    hbHists.ERRGEO =  m_dbe->book2D("HBHE Pedestal Geo Error Map","HBHE Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.ERRELEC =  m_dbe->book2D("HBHE Pedestal Elec Error Map","HBHE Pedestal Elec Error Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
@@ -40,7 +59,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hfHists.CAPIDMEAN =  m_dbe->book1D("HF CapID Mean Variance","HF CapID Mean Variance",50,0,3);
     hfHists.QIERMS  =  m_dbe->book1D("HF QIE RMS Values","HF QIE RMS Values",50,0,3);
     hfHists.QIEMEAN =  m_dbe->book1D("HF QIE Mean Values","HF QIE Mean Values",50,0,3);
-    hfHists.ERRGEO =  m_dbe->book2D("HF Pedestal Geo Error Map","HF Pedestal Geo Error Map",59,-29.5,29.5,74,0,73);
+    hfHists.ERRGEO =  m_dbe->book2D("HF Pedestal Geo Error Map","HF Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.ERRELEC =  m_dbe->book2D("HF Pedestal Elec Error Map","HF Pedestal Elec Error Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
@@ -51,7 +70,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hoHists.CAPIDMEAN =  m_dbe->book1D("HO CapID Mean Variance","HO CapID Mean Variance",50,0,3);
     hoHists.QIERMS  =  m_dbe->book1D("HO QIE RMS Values","HO QIE RMS Values",50,0,3);
     hoHists.QIEMEAN =  m_dbe->book1D("HO QIE Mean Values","HO QIE Mean Values",50,0,3);
-    hoHists.ERRGEO =  m_dbe->book2D("HO Pedestal Geo Error Map","HO Pedestal Geo Error Map",59,-29.5,29.5,74,0,73);
+    hoHists.ERRGEO =  m_dbe->book2D("HO Pedestal Geo Error Map","HO Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.ERRELEC =  m_dbe->book2D("HO Pedestal Elec Error Map","HO Pedestal Elec Error Map",20,0,20,20,0,20);
   }
 

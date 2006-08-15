@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2006/04/04 19:27:03 $
-  * $Revision: 1.4 $
+  * $Date: 2006/06/23 16:08:13 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -25,6 +25,9 @@ private:  ///Monitoring elements
   bool doPerChannel_;
   float occThresh_;
   int ievt_;
+
+  double etaMax_, etaMin_, phiMax_, phiMin_;
+  int etaBins_, phiBins_;
 
   struct{
     MonitorElement* meOCC_MAP_GEO;

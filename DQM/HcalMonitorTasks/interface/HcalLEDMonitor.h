@@ -11,8 +11,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/04/10 16:31:26 $
-  * $Revision: 1.2 $
+  * $Date: 2006/06/23 16:08:13 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -35,6 +35,9 @@ private:
   bool m_doPerChannel;
   map<HcalDetId, MonitorElement*>::iterator _meo;
 
+  double etaMax_, etaMin_, phiMax_, phiMin_;
+  int etaBins_, phiBins_;
+  
   int ievt_, jevt_;
   MonitorElement* meEVT_;
 

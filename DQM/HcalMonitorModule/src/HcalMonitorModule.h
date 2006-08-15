@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/06/23 16:07:16 $
- * $Revision: 1.2 $
+ * $Date: 2006/08/01 20:47:49 $
+ * $Revision: 1.3 $
  * \author W. Fisher
  *
 */
@@ -29,6 +29,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
 #include <memory>
 #include <iostream>
@@ -64,6 +65,7 @@ private:
 
   int m_ievt;
   int m_runNum;
+  bool m_verbose;
   DaqMonitorBEInterface* m_dbe;
   
   MonitorElement* m_meStatus;
@@ -71,6 +73,7 @@ private:
   MonitorElement* m_meRunType;
   MonitorElement* m_meEvtNum;
   MonitorElement* m_meEvtMask;
+  MonitorElement* m_meBeamE;
   
   HcalMonitorSelector*    m_evtSel;
   HcalDigiMonitor*        m_digiMon;

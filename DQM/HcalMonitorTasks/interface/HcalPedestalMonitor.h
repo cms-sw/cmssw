@@ -11,8 +11,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2006/04/10 16:31:26 $
-  * $Revision: 1.2 $
+  * $Date: 2006/06/23 16:08:13 $
+  * $Revision: 1.3 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -39,6 +39,9 @@ private:
 
   MonitorElement* meEVT_;
   int ievt_;
+  
+  double etaMax_, etaMin_, phiMax_, phiMin_;
+  int etaBins_, phiBins_;
 
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;

@@ -3,7 +3,20 @@
 
 HcalLEDMonitor::HcalLEDMonitor() {m_doPerChannel = false;}
 
-HcalLEDMonitor::~HcalLEDMonitor() {}
+HcalLEDMonitor::~HcalLEDMonitor() {
+
+   if ( m_dbe ) {
+    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HBHE");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
+    m_dbe->removeContents();
+  }
+
+}
 
 void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
@@ -11,6 +24,13 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
   if ( ps.getUntrackedParameter<bool>("LEDPerChannel", false) ) {
     m_doPerChannel = true;
   }
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
+  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
+  etaBins_ = (int)(etaMax_ - etaMin_);
+
+  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
+  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
+  phiBins_ = (int)(phiMax_ - phiMin_);
 
   ievt_=0;
 
@@ -31,7 +51,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hbHists.mean_tail =  m_dbe->book1D("HBHE LED Tail Region Mean Values","HBHE LED Tail Region Mean Values",100,8,10);
     hbHists.rms_time =  m_dbe->book1D("HBHE LED Time RMS Values","HBHE LED Time RMS Values",100,0,0.02);
     hbHists.mean_time =  m_dbe->book1D("HBHE LED Time Mean Values","HBHE LED Time Mean Values",100,4,8);
-    hbHists.err_map_geo =  m_dbe->book2D("HBHE LED Geo Error Map","HBHE LED Geo Error Map",59,-29.5,29.5,74,0,73);
+    hbHists.err_map_geo =  m_dbe->book2D("HBHE LED Geo Error Map","HBHE LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.err_map_elec =  m_dbe->book2D("HBHE LED Elec Error Map","HBHE LED Elec Error Map",20,0,20,20,0,20);
     
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
@@ -45,7 +65,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hfHists.mean_tail =  m_dbe->book1D("HF LED Tail Region Mean Values","HF LED Tail Region Mean Values",100,8,10);
     hfHists.rms_time =  m_dbe->book1D("HF LED Time RMS Values","HF LED Time RMS Values",100,0,0.02);
     hfHists.mean_time =  m_dbe->book1D("HF LED Time Mean Values","HF LED Time Mean Values",100,4,8);
-    hfHists.err_map_geo =  m_dbe->book2D("HF LED Geo Error Map","HF LED Geo Error Map",59,-29.5,29.5,74,0,73);
+    hfHists.err_map_geo =  m_dbe->book2D("HF LED Geo Error Map","HF LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.err_map_elec =  m_dbe->book2D("HF LED Elec Error Map","HF LED Elec Error Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
@@ -59,7 +79,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hoHists.mean_tail =  m_dbe->book1D("HO LED Tail Region Mean Values","HO LED Tail Region Mean Values",100,8,10);
     hoHists.rms_time =  m_dbe->book1D("HO LED Time RMS Values","HO LED Time RMS Values",100,0,0.02);
     hoHists.mean_time =  m_dbe->book1D("HO LED Time Mean Values","HO LED Time Mean Values",100,4,8);
-    hoHists.err_map_geo =  m_dbe->book2D("HO LED Geo Error Map","HO LED Geo Error Map",59,-29.5,29.5,74,0,73);
+    hoHists.err_map_geo =  m_dbe->book2D("HO LED Geo Error Map","HO LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.err_map_elec =  m_dbe->book2D("HO LED Elec Error Map","HO LED Elec Error Map",20,0,20,20,0,20);
   }
 
@@ -81,7 +101,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   try{
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      if(digi.size()<10) continue;
+      //      if(digi.size()<10) continue;
       float vals[10];
       float ped = (digi.sample(0).adc()+digi.sample(1).adc()+digi.sample(2).adc()+digi.sample(3).adc())/4.0;      
       float t = (digi.sample(4).adc()-ped
