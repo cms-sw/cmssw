@@ -14,6 +14,8 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
+
 
 #include "Alignment/CSA06AlignmentAlgorithm/interface/CSA06AlignmentAlgorithm.h"
 
@@ -231,6 +233,11 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   edm::Handle<reco::TrackCollection> m_TrackCollection;
   event.getByLabel( theSrc, m_TrackCollection );
   //getFromEvt( event, m_TrackCollection );
+
+  // actually execute all misalignments
+  TrackerGeometryAligner aligner;
+  Alignments* alignments = theAlignableTracker->alignments(); 
+  aligner.applyAlignments( &(*theTracker),alignments);
     
   // Run the refitter algorithm  
   AlgoProductCollection m_algoResults;
