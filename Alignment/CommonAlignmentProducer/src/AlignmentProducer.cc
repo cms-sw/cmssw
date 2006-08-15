@@ -14,7 +14,9 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
 
 
 #include "Alignment/CSA06AlignmentAlgorithm/interface/CSA06AlignmentAlgorithm.h"
@@ -143,7 +145,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignmentParameterBuilder->addSelection(stAlignableSelector,sel);
 
   // fix alignables
-  theAlignmentParameterBuilder->fixAlignables(stNFixAlignables);
+  if (stNFixAlignables>0) theAlignmentParameterBuilder->fixAlignables(stNFixAlignables);
 
   // get alignables
   Alignables theAlignables = theAlignmentParameterBuilder->alignables();
@@ -161,6 +163,14 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
     theAlignmentParameterStore );
   edm::LogWarning("Alignment") <<"[AlignmentProducer] after call init algo...";
+
+  // actually execute all misalignments
+  edm::LogWarning("Alignment") <<"[AlignmentProducer] Now physically apply alignments to tracker geometry...";
+   TrackerGeometryAligner aligner;
+   std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
+   aligner.applyAlignments( &(*theTracker),&(*alignments));
+
+
 
 }
 
@@ -234,16 +244,42 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   event.getByLabel( theSrc, m_TrackCollection );
   //getFromEvt( event, m_TrackCollection );
 
-  // actually execute all misalignments
-  TrackerGeometryAligner aligner;
-  Alignments* alignments = theAlignableTracker->alignments(); 
-  aligner.applyAlignments( &(*theTracker),alignments);
+  //dump original tracks
+  //printf("Original tracks:\n");
+  //for( reco::TrackCollection::const_iterator itrack = m_TrackCollection->begin(); 
+  //  itrack != m_TrackCollection->end(); ++ itrack ) {
+  //  reco::Track track=*itrack;
+  //  float pt = track.pt();
+  //  float eta = track.eta();
+  //  float phi = track.phi();
+  //  int nhit = track.recHitsSize(); 
+  //  float chi2n = track.normalizedChi2();
+  //  printf("Org track pt,eta,phi,hits,chi2: %12.5f %12.5f %12.5f %5d %12.5f\n",
+  //	   pt,eta,phi,nhit,chi2n);
+  //}
     
   // Run the refitter algorithm  
   AlgoProductCollection m_algoResults;
   theRefitterAlgo.runWithTrack( m_Geometry.product(),m_MagneticField.product(),
     *m_TrackCollection, m_TrajectoryFitter.product(), m_Propagator.product(), 
     m_RecHitBuilder.product(), m_algoResults );
+
+
+  //dump refitted tracks
+  //printf("Refitted tracks:\n");
+  //for( AlgoProductCollection::const_iterator it=m_algoResults.begin();
+  //     it!=m_algoResults.end();it++) {
+  //  Trajectory* traj = (*it).first;
+  //  reco::Track* track = (*it).second;
+  //  float pt    = track->pt();
+  //  float eta   = track->eta();
+  //  float phi   = track->phi();
+  //  float chi2n = track->normalizedChi2();
+  //  int nhit    = traj->measurements().size(); 
+  //  printf("Fit track pt,eta,phi,hits: %12.5f %12.5f %12.5f %5d %12.5f\n",
+  //	   pt,eta,phi,nhit,chi2n);
+  //}
+
 
   edm::LogInfo("Alignment") << "[AlignmentProducer] call algorithm for #Tracks: " << m_algoResults.size();
   // Run the alignment algorithm
@@ -297,7 +333,7 @@ simpleMisalignment(Alignables alivec, std::vector<bool> sel,
       else {
         globalshift = Global3DVector(s[0],s[1],s[2]);
       }
-      edm::LogInfo("Alignment") <<"misalignment shift: " << globalshift;
+      //edm::LogInfo("Alignment") <<"misalignment shift: " << globalshift;
       ali->move(globalshift);
 
       //AlignmentPositionError ape(dx,dy,dz);
@@ -324,7 +360,7 @@ simpleMisalignment(Alignables alivec, std::vector<bool> sel,
       Surface::RotationType mrot = TkAT.rotationType(TkAT.rotMatrix3(r));
       if (local) ali->rotateInLocalFrame(mrot);
       else ali->rotateInGlobalFrame(mrot);
-      edm::LogInfo("Alignment") <<"misalignment rot: " << mrot;
+      //edm::LogInfo("Alignment") <<"misalignment rot: " << mrot;
 
       //ali->addAlignmentPositionErrorFromRotation(mrot);
       if (first) edm::LogWarning("Alignment") <<"yes adding rot!\n";
