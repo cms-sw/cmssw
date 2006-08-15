@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/07/04 16:53:35 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/07/06 09:19:05 $
+ *   $Revision: 1.13 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -68,7 +68,7 @@ StandAloneMuonProducer::~StandAloneMuonProducer(){
 
 /// reconstruct muons
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
-  std::string metname = "Muon|RecoMuon|StandAloneMuonProducer";
+  const std::string metname = "Muon|RecoMuon|StandAloneMuonProducer";
   
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"Stand Alone Muon Reconstruction Started"<<endl;
