@@ -962,6 +962,7 @@ Alignments* AlignableTracker::alignments( void ) const
       Alignments* tmpAlignments = (*i)->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 				 std::back_inserter(m_alignments->m_align) );
+	  delete tmpAlignments;
     }
 
   std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end(), 
@@ -985,6 +986,7 @@ AlignmentErrors* AlignableTracker::alignmentErrors( void ) const
 	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
       std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
 				 std::back_inserter(m_alignmentErrors->m_alignError) );
+	  delete tmpAlignmentErrors;
     }
 
   std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 

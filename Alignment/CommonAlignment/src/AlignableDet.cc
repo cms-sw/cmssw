@@ -154,6 +154,7 @@ Alignments* AlignableDet::alignments() const
 		Alignments* tmpAlignments = (*i)->alignments();
 		std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 				   std::back_inserter(m_alignments->m_align) );
+		delete tmpAlignments;
       }
   
   return m_alignments;
@@ -184,6 +185,7 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
 		AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
 		std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
 				   std::back_inserter(m_alignmentErrors->m_alignError) );
+		delete tmpAlignmentErrors;
       }
   
   return m_alignmentErrors;
