@@ -36,11 +36,21 @@ void MaterialBudgetTree::book()
   if( theData->allStepsON() ) {
     theTree->Branch("Nsteps", &t_Nsteps, "Nsteps/I");
     theTree->Branch("DeltaMB", t_DeltaMB, "DeltaMB[Nsteps]/F");
-    theTree->Branch("X", t_X, "X[Nsteps]/F");
-    theTree->Branch("Y", t_Y, "Y[Nsteps]/F");
-    theTree->Branch("Z", t_Z, "Z[Nsteps]/F");
-    //    theTree->Branch("VoluID", t_VoluID, "VoluID[Nsteps]/I");
-    //    theTree->Branch("MateID", t_MateID, "MateID[Nsteps]/I");
+    // rr
+    theTree->Branch("DeltaMB_SUP", t_DeltaMB_SUP, "DeltaMB_SUP[Nsteps]/F");
+    theTree->Branch("DeltaMB_SEN", t_DeltaMB_SEN, "DeltaMB_SEN[Nsteps]/F");
+    theTree->Branch("DeltaMB_CAB", t_DeltaMB_CAB, "DeltaMB_CAB[Nsteps]/F");
+    theTree->Branch("DeltaMB_COL", t_DeltaMB_COL, "DeltaMB_COL[Nsteps]/F");
+    theTree->Branch("DeltaMB_ELE", t_DeltaMB_ELE, "DeltaMB_ELE[Nsteps]/F");
+    theTree->Branch("DeltaMB_OTH", t_DeltaMB_OTH, "DeltaMB_OTH[Nsteps]/F");
+    theTree->Branch("DeltaMB_AIR", t_DeltaMB_AIR, "DeltaMB_AIR[Nsteps]/F");
+    // rr
+    theTree->Branch("Initial X", t_InitialX, "Initial_X[Nsteps]/D");
+    theTree->Branch("Initial Y", t_InitialY, "Initial_Y[Nsteps]/D");
+    theTree->Branch("Initial Z", t_InitialZ, "Initial_Z[Nsteps]/D");
+    theTree->Branch("Final X",   t_FinalX,   "Final_X[Nsteps]/D");
+    theTree->Branch("Final Y",   t_FinalY,   "Final_Y[Nsteps]/D");
+    theTree->Branch("Final Z",   t_FinalZ,   "Final_Z[Nsteps]/D");
     // rr
     theTree->Branch("Volume ID",       t_VolumeID,     "VolumeID[Nsteps]/I");
     theTree->Branch("Volume Name",     t_VolumeName,   "VolumeName[Nsteps]/C");
@@ -57,16 +67,21 @@ void MaterialBudgetTree::book()
     theTree->Branch("Volume Z axis 1", t_VolumeZaxis1, "VolumeZaxis1[Nsteps]/F");
     theTree->Branch("Volume Z axis 2", t_VolumeZaxis2, "VolumeZaxis2[Nsteps]/F");
     theTree->Branch("Volume Z axis 3", t_VolumeZaxis3, "VolumeZaxis3[Nsteps]/F");
-
+    
     theTree->Branch("Material ID",   t_MaterialID,   "MaterialID[Nsteps]/I");
     theTree->Branch("Material Name", t_MaterialName, "MaterialName[Nsteps]/C");
     theTree->Branch("Material X0",   t_MaterialX0,   "MaterialX0[Nsteps]/F");
-
-    theTree->Branch("Particle Step ID",     t_ParticleStepID,     "Step_ID[Nsteps]/I");
-    theTree->Branch("Particle Step Pt",     t_ParticleStepPt,     "Step_Pt[Nsteps]/F");
-    theTree->Branch("Particle Step Eta",    t_ParticleStepEta,    "Step_Eta[Nsteps]/F");
-    theTree->Branch("Particle Step Phi",    t_ParticleStepPhi,    "Step_Phi[Nsteps]/F");
-    theTree->Branch("Particle Step Energy", t_ParticleStepEnergy, "Step_E[Nsteps]/F");
+    
+    theTree->Branch("Particle Step ID",             t_ParticleStepID,            "Step_ID[Nsteps]/I");
+    theTree->Branch("Particle Step Initial Pt",     t_ParticleStepInitialPt,     "Step_Initial_Pt[Nsteps]/F");
+    theTree->Branch("Particle Step Initial Eta",    t_ParticleStepInitialEta,    "Step_Initial_Eta[Nsteps]/F");
+    theTree->Branch("Particle Step Initial Phi",    t_ParticleStepInitialPhi,    "Step_Initial_Phi[Nsteps]/F");
+    theTree->Branch("Particle Step Initial Energy", t_ParticleStepInitialEnergy, "Step_Initial_E[Nsteps]/F");
+    theTree->Branch("Particle Step Final Pt",       t_ParticleStepFinalPt,       "Step_Final_Pt[Nsteps]/F");
+    theTree->Branch("Particle Step Final Eta",      t_ParticleStepFinalEta,      "Step_Final_Eta[Nsteps]/F");
+    theTree->Branch("Particle Step Final Phi",      t_ParticleStepFinalPhi,      "Step_Final_Phi[Nsteps]/F");
+    theTree->Branch("Particle Step Final Energy",   t_ParticleStepFinalEnergy,   "Step_Final_E[Nsteps]/F");
+    theTree->Branch("Particle Step Interaction",    t_ParticleStepInteraction,   "Step_Interaction[Nsteps]/I");
     // rr
   }
   
@@ -107,9 +122,20 @@ void MaterialBudgetTree::fillEndTrack()
     std::cout << " Number of Steps into the tree " << t_Nsteps << std::endl;
     for(int ii=0;ii<t_Nsteps;ii++) {
       t_DeltaMB[ii] = theData->getStepDmb(ii);
-      t_X[ii] = theData->getStepX(ii);
-      t_Y[ii] = theData->getStepY(ii);
-      t_Z[ii] = theData->getStepZ(ii);
+      t_DeltaMB_SUP[ii] = theData->getSupportDmb(ii);
+      t_DeltaMB_SEN[ii] = theData->getSensitiveDmb(ii);
+      t_DeltaMB_CAB[ii] = theData->getCablesDmb(ii);
+      t_DeltaMB_COL[ii] = theData->getCoolingDmb(ii);
+      t_DeltaMB_ELE[ii] = theData->getElectronicsDmb(ii);
+      t_DeltaMB_OTH[ii] = theData->getOtherDmb(ii);
+      t_DeltaMB_AIR[ii] = theData->getAirDmb(ii);
+      
+      t_InitialX[ii] = theData->getStepInitialX(ii);
+      t_InitialY[ii] = theData->getStepInitialY(ii);
+      t_InitialZ[ii] = theData->getStepInitialZ(ii);
+      t_FinalX[ii]   = theData->getStepFinalX(ii);
+      t_FinalY[ii]   = theData->getStepFinalY(ii);
+      t_FinalZ[ii]   = theData->getStepFinalZ(ii);
       
       t_VolumeID[ii]     = theData->getStepVolumeID(ii);
       t_VolumeName[ii]   = theData->getStepVolumeName(ii).c_str();
@@ -126,16 +152,21 @@ void MaterialBudgetTree::fillEndTrack()
       t_VolumeZaxis1[ii] = theData->getStepVolumeZaxis(ii).x();
       t_VolumeZaxis2[ii] = theData->getStepVolumeZaxis(ii).y();
       t_VolumeZaxis3[ii] = theData->getStepVolumeZaxis(ii).z();
-
+      
       t_MaterialID[ii]   = theData->getStepMaterialID(ii);
       t_MaterialName[ii] = theData->getStepMaterialName(ii).c_str();
       t_MaterialX0[ii]   = theData->getStepMaterialX0(ii);
       
-      t_ParticleStepID[ii]     = theData->getStepID(ii);
-      t_ParticleStepPt[ii]     = theData->getStepPt(ii);
-      t_ParticleStepEta[ii]    = theData->getStepEta(ii);
-      t_ParticleStepPhi[ii]    = theData->getStepPhi(ii);
-      t_ParticleStepEnergy[ii] = theData->getStepEnergy(ii);
+      t_ParticleStepID[ii]            = theData->getStepID(ii);
+      t_ParticleStepInitialPt[ii]     = theData->getStepInitialPt(ii);
+      t_ParticleStepInitialEta[ii]    = theData->getStepInitialEta(ii);
+      t_ParticleStepInitialPhi[ii]    = theData->getStepInitialPhi(ii);
+      t_ParticleStepInitialEnergy[ii] = theData->getStepInitialEnergy(ii);
+      t_ParticleStepFinalPt[ii]       = theData->getStepFinalPt(ii);
+      t_ParticleStepFinalEta[ii]      = theData->getStepFinalEta(ii);
+      t_ParticleStepFinalPhi[ii]      = theData->getStepFinalPhi(ii);
+      t_ParticleStepFinalEnergy[ii]   = theData->getStepFinalEnergy(ii);
+      t_ParticleStepInteraction[ii]   = theData->getStepProcess(ii);
       
       // rr
     }

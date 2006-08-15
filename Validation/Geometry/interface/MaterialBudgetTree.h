@@ -43,11 +43,19 @@ private:
   // rr
   int t_Nsteps;
   float t_DeltaMB[MAXSTEPS];
-  float t_X[MAXSTEPS];
-  float t_Y[MAXSTEPS];
-  float t_Z[MAXSTEPS];
-  //  int t_VoluID[MAXSTEPS];
-  //  int t_MateID[MAXSTEPS];
+  float t_DeltaMB_SUP[MAXSTEPS];
+  float t_DeltaMB_SEN[MAXSTEPS];
+  float t_DeltaMB_CAB[MAXSTEPS];
+  float t_DeltaMB_COL[MAXSTEPS];
+  float t_DeltaMB_ELE[MAXSTEPS];
+  float t_DeltaMB_OTH[MAXSTEPS];
+  float t_DeltaMB_AIR[MAXSTEPS];
+  double t_InitialX[MAXSTEPS];
+  double t_InitialY[MAXSTEPS];
+  double t_InitialZ[MAXSTEPS];
+  double t_FinalX[MAXSTEPS];
+  double t_FinalY[MAXSTEPS];
+  double t_FinalZ[MAXSTEPS];
   // rr
   int    t_VolumeID[MAXSTEPS];
   char*  t_VolumeName[MAXSTEPS];
@@ -68,10 +76,15 @@ private:
   char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
   int   t_ParticleStepID[MAXSTEPS];  
-  float t_ParticleStepPt[MAXSTEPS];  
-  float t_ParticleStepEta[MAXSTEPS];  
-  float t_ParticleStepPhi[MAXSTEPS];  
-  float t_ParticleStepEnergy[MAXSTEPS];  
+  float t_ParticleStepInitialPt[MAXSTEPS];  
+  float t_ParticleStepInitialEta[MAXSTEPS];  
+  float t_ParticleStepInitialPhi[MAXSTEPS];  
+  float t_ParticleStepInitialEnergy[MAXSTEPS];  
+  float t_ParticleStepFinalPt[MAXSTEPS];  
+  float t_ParticleStepFinalEta[MAXSTEPS];  
+  float t_ParticleStepFinalPhi[MAXSTEPS];  
+  float t_ParticleStepFinalEnergy[MAXSTEPS];  
+  int   t_ParticleStepInteraction[MAXSTEPS];  
   // rr
 };
 

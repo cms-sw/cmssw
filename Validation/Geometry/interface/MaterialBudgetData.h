@@ -83,41 +83,72 @@ public:
     return thePVcopyNo; }
   float getRadLen() const {
     return theRadLen; }
-
+  
   float getStepDmb( int is ) {
     return theDmb[is];
   }
-  float getStepX( int is ) {
-    return theX[is];
+  float getSupportDmb( int is ) const {
+    return theSupportDmb[is]; }
+  float getSensitiveDmb( int is ) const {
+    return theSensitiveDmb[is]; }
+  float getCablesDmb( int is ) const {
+    return theCablesDmb[is]; }
+  float getCoolingDmb( int is ) const {
+    return theCoolingDmb[is]; }
+  float getElectronicsDmb( int is ) const {
+    return theElectronicsDmb[is]; }
+  float getOtherDmb( int is ) const {
+    return theOtherDmb[is]; }
+  float getAirDmb( int is ) const {
+    return theAirDmb[is]; }
+  
+  double getStepInitialX( int is ) {
+    return theInitialX[is];
   }
-  float getStepY( int is ) {
-    return theY[is];
+  double getStepInitialY( int is ) {
+    return theInitialY[is];
   }
-  float getStepZ( int is ) {
-    return theZ[is];
+  double getStepInitialZ( int is ) {
+    return theInitialZ[is];
   }
-  /*
-    int getStepVoluId( int is ) {
-    return theVoluId[is];
-    }
-    int getStepMateId( int is ) {
-    return theMateId[is];
-    }
-  */
+  double getStepFinalX( int is ) {
+    return theFinalX[is];
+  }
+  double getStepFinalY( int is ) {
+    return theFinalY[is];
+  }
+  double getStepFinalZ( int is ) {
+    return theFinalZ[is];
+  }
   int getStepID( int is) {
     return theStepID[is];
   }
-  float getStepPt( int is) {
-    return theStepPt[is];
+  float getStepInitialPt( int is) {
+    return theStepInitialPt[is];
   }
-  float getStepEta( int is) {
-    return theStepEta[is];
+  float getStepInitialEta( int is) {
+    return theStepInitialEta[is];
   }
-  float getStepPhi( int is) {
-    return theStepPhi[is];
+  float getStepInitialPhi( int is) {
+    return theStepInitialPhi[is];
   }
-  float getStepEnergy( int is) {
-    return theStepEnergy[is];
+  float getStepInitialEnergy( int is) {
+    return theStepInitialEnergy[is];
+  }
+  float getStepFinalPt( int is) {
+    return theStepFinalPt[is];
+  }
+  float getStepFinalEta( int is) {
+    return theStepFinalEta[is];
+  }
+  float getStepFinalPhi( int is) {
+    return theStepFinalPhi[is];
+  }
+  float getStepFinalEnergy( int is) {
+    return theStepFinalEnergy[is];
+  }
+  int getStepProcess( int is) {
+    return theStepProcess[is];
   }
   // rr
   int getStepVolumeID( int is ) {
@@ -173,8 +204,10 @@ public:
   float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
   // rr
   int theStepN;
-  float *theX, *theY, *theZ;
+  double *theInitialX, *theInitialY, *theInitialZ;
+  double *theFinalX,   *theFinalY,   *theFinalZ;
   float *theDmb;
+  float *theSupportDmb, *theSensitiveDmb, *theCablesDmb, *theCoolingDmb, *theElectronicsDmb, *theOtherDmb, *theAirDmb;
   //  int *theVoluId;
   //  int *theMateId;
   // rr
@@ -197,10 +230,15 @@ public:
   std::string* theMaterialName;
   float*       theMaterialX0;
   int*   theStepID;
-  float* theStepPt;
-  float* theStepEta;
-  float* theStepPhi;
-  float* theStepEnergy;
+  float* theStepInitialPt;
+  float* theStepInitialEta;
+  float* theStepInitialPhi;
+  float* theStepInitialEnergy;
+  float* theStepFinalPt;
+  float* theStepFinalEta;
+  float* theStepFinalPhi;
+  float* theStepFinalEnergy;
+  int*   theStepProcess;
   // rr
   float theTrkLen;
   std::string thePVname;
