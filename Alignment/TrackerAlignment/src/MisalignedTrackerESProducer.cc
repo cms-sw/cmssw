@@ -12,7 +12,7 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
+#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -20,6 +20,8 @@
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
+
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
 #include "Alignment/TrackerAlignment/interface/MisalignedTrackerESProducer.h"
 
@@ -89,7 +91,12 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 									   << (*it).rawId() << " " << (*it).translation();
     }
   
-  // Write alignments to DB
+  // Write alignments to DB: have to sort beforhand!
+  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
+			 lessAlignmentDetId<AlignTransform>() );
+  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
+			 lessAlignmentDetId<AlignTransformError>() );
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{
 
@@ -102,13 +109,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
 	  
-	  // Retrieve, sort and store
-	  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
-	  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
-				 lessAlignmentDetId<AlignTransform>() );
-	  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
-				 lessAlignmentDetId<AlignTransformError>() );
-	  
+	  // Store
 	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
 														   poolDbService->endOfTime(),
 														   alignmentsToken );
@@ -117,11 +118,11 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 																alignmentErrorsToken );
 	}
   
-  edm::LogInfo("MisalignedTracker") << "Producer done";
-
   // Store result to EventSetup
-  TrackerGeometryAligner aligner;
-  aligner.applyAlignments( &(*theTracker), alignments );
+  GeometryAligner aligner;
+  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
+
+  edm::LogInfo("MisalignedTracker") << "Producer done";
   return theTracker;
   
 }
