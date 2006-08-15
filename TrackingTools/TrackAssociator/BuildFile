@@ -1,4 +1,5 @@
 # -*-SH-*-
+<flags SEAL_PLUGIN_NAME="TrackingToolsTrackAssociator">
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
@@ -38,8 +39,5 @@
    <lib name=TrackingToolsTrackAssociator>
 </export>
    
-# <lib name=MuonTest>
-# <flags SEAL_PLUGIN_NAME="MuonTestMuonTest">
-# </lib>
 # add debug symbols
 # <Flags CXXFLAGS=-g>

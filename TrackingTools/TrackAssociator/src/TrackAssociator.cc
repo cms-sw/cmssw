@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.3 2006/08/09 14:44:48 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.4 2006/08/14 16:19:36 dmytro Exp $
 //
 //
 
@@ -288,7 +288,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 	if(hit != (*EBRecHits).end()) 
 	  info.crossedEcalRecHits.push_back(*hit);
 	else  
-	   LogDebug("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+	   LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
      }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
      {
@@ -296,7 +296,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 	if(hit != (*EBRecHits).end()) 
 	  info.ecalRecHits.push_back(*hit);
 	else 
-	  LogDebug("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+	  LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
      }
 }
 
@@ -348,7 +348,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
-	  LogDebug("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -358,7 +358,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.towers.push_back(*tower);
 	else 
-	  LogDebug("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
    
 }
@@ -414,17 +414,17 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 	   recseg!=range.second;
 	   recseg++){
 	 
-	 LogDebug("TrackAssociator::fillDTSegments")
+	 LogTrace("TrackAssociator::fillDTSegments")
 	   << "Segment local position: " << recseg->localPosition() << "\n"
 	   << std::hex << recseg->geographicalId().rawId() << "\n";
 	 
 	 GlobalPoint dtSeg = surf.toGlobal(recseg->localPosition());
 	 
-	 LogDebug("TrackAssociator::fillDTSegments")
+	 LogTrace("TrackAssociator::fillDTSegments")
 	   << "Segment global position: " << dtSeg << " \t (R_xy,eta,phi): "
 	   << dtSeg.perp() << "," << dtSeg.eta() << "," << dtSeg.phi() << "\n";
 	 
-	 LogDebug("TrackAssociator::fillDTSegments")
+	 LogTrace("TrackAssociator::fillDTSegments")
 	   << "\teta hit: " << dtSeg.eta() << " \tpropagator: " << tSOSDest.freeState()->position().eta() << "\n"
 	   << "\tphi hit: " << dtSeg.phi() << " \tpropagator: " << tSOSDest.freeState()->position().phi() << std::endl;
 	 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.2 2006/07/05 08:34:05 dmytro Exp $
 //
 //
 
@@ -41,7 +41,7 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
       Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
 					Surface::RotationType());
       
-      LogDebug("StartingPoint")<< "Propagate from "<< "\n"
+      LogTrace("StartingPoint")<< "Propagate from "<< "\n"
 	<< "\tx: " << ftsStart.position().x()<< "\n"
 	<< "\ty: " << ftsStart.position().y()<< "\n"
 	<< "\tz: " << ftsStart.position().z()<< "\n"
@@ -70,7 +70,7 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 
       if (! tSOSDest.isValid()) throw cms::Exception("FatalError") << "Failed to propagate the track\n";
       
-      LogDebug("SuccessfullPropagation") << "Great, I reached something." << "\n"
+      LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
 	<< "\tx: " << tSOSDest.freeState()->position().x() << "\n"
 	<< "\ty: " << tSOSDest.freeState()->position().y() << "\n"
 	<< "\tz: " << tSOSDest.freeState()->position().z() << "\n"
@@ -90,10 +90,10 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
    std::set<DetId> set;
    check_setup();
    if (! theMap_) buildMap();
-   LogDebug("MatchPoint") << "point (eta,phi): " << direction.eta() << "," << direction.phi() << "\n";
+   LogTrace("MatchPoint") << "point (eta,phi): " << direction.eta() << "," << direction.phi() << "\n";
    int ieta = iEta(direction);
    int iphi = iPhi(direction);
-   LogDebug("MatchPoint") << "(ieta,iphi): " << ieta << "," << iphi << "\n";
+   LogTrace("MatchPoint") << "(ieta,iphi): " << ieta << "," << iphi << "\n";
    if (ieta>=0 && ieta<nEta_ && iphi>=0 && iphi<nPhi_){
       set = (*theMap_)[ieta][iphi];
       /*      if (debug_>1)
@@ -101,11 +101,11 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	     itr!=set.end(); itr++)
 	  {
 	     GlobalPoint point = getPosition(*itr);
-	     LogDebug("MatchPoint") << "\t\tDetId: " <<itr->rawId()<<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
+	     LogTrace("MatchPoint") << "\t\tDetId: " <<itr->rawId()<<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
 	  }
        */    
       if (idR>0){
-	  LogDebug("MatchPoint") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi << "\n";
+	  LogTrace("MatchPoint") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi << "\n";
 	 //add neighbors
 	 int maxIEta = ieta+idR;
 	 int minIEta = ieta-idR;
@@ -117,8 +117,8 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	    minIPhi+=nPhi_;
 	    maxIPhi+=nPhi_;
 	 }
-	 LogDebug("MatchPoint") << "\tieta (min,max): " << minIEta << "," << maxIEta<< "\n";
-	 LogDebug("MatchPoint") << "\tiphi (min,max): " << minIPhi << "," << maxIPhi<< "\n";
+	 LogTrace("MatchPoint") << "\tieta (min,max): " << minIEta << "," << maxIEta<< "\n";
+	 LogTrace("MatchPoint") << "\tiphi (min,max): " << minIPhi << "," << maxIPhi<< "\n";
 	 for (int i=minIEta;i<=maxIEta;i++)
 	   for (int j=minIPhi;j<=maxIPhi;j++) {
 	      if( i==ieta && j==iphi) continue; // already in the set
@@ -151,7 +151,7 @@ int DetIdAssociator::iPhi (const GlobalPoint& point)
 void DetIdAssociator::buildMap()
 {
    check_setup();
-   LogDebug("DetIdAssociator")<<"building map" << "\n";
+   LogTrace("DetIdAssociator")<<"building map" << "\n";
    if(theMap_) delete theMap_;
    theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,nPhi_);
    int numberOfDetIdsOutsideEtaRange = 0;
@@ -169,7 +169,7 @@ void DetIdAssociator::buildMap()
 	   int ieta = iEta(*iter);
 	   int iphi = iPhi(*iter);
 	   if (ieta<0 || ieta>=nEta_) {
-	      LogDebug("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " 
+	      LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " 
 		<< ieta << "," << iphi << "\n" << "Point: " << *iter << "\t(eta,phi): " << (*iter).eta() 
 		  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr) <<"\n";
 	      continue;
@@ -182,7 +182,7 @@ void DetIdAssociator::buildMap()
 	   if ( phiMax < iphi) phiMax = iphi;
 	}
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogDebug("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
+	 LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
 	   "\nTower id: " << id_itr->rawId() << "\n";
@@ -200,9 +200,9 @@ void DetIdAssociator::buildMap()
 	  (*theMap_)[ieta][iphi%nPhi_].insert(*id_itr);
       numberOfDetIdsActive++;
    }
-   LogDebug("DetIdAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
+   LogTrace("DetIdAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
      nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
-   LogDebug("DetIdAssociator") << "Number of active DetId's mapped: " << 
+   LogTrace("DetIdAssociator") << "Number of active DetId's mapped: " << 
      numberOfDetIdsActive << "\n";
 /*   if (debug_){
       std::cout << "The map:" << std::endl;
