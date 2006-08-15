@@ -1,10 +1,10 @@
 #include "Calibration/EcalTBTools/interface/TB06Reco.h"
 
 /* 
-    $Date: $
-    $Revision: $
-    $Id: $ 
-    $Author: $
+    $Date: 2006/08/01 09:45:13 $
+    $Revision: 1.1 $
+    $Id: TB06Reco.cc,v 1.1 2006/08/01 09:45:13 govoni Exp $ 
+    $Author: govoni $
 */
 
 //FIXME ClassImp (TB06Reco)
@@ -14,6 +14,7 @@ void TB06Reco::reset ()
   run = 0 ;
   event = 0 ;
   tableIsMoving = 0 ;
+  S6ADC = 0 ;
 
   MEXTLindex = 0 ;
   MEXTLeta = 0 ;

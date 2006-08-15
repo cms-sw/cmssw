@@ -45,15 +45,16 @@ TB06Tree::~TB06Tree ()
 // -------------------------------------------------------------------   
 
 //! to be called at each loop
-void TB06Tree::store (const int tableIsMoving,
-                      const int run, const int event,
-                      const double xhodo, const double yhodo, 
-                      const double xslope, const double yslope, 
-                      const double xquality, const double yquality,
-		                  const int icMax,
-                      const int ietaMax, const int iphiMax,
-                      const double beamEnergy, 
-                      const double ampl[49])
+  void TB06Tree::store (const int & tableIsMoving,
+                      const int & run, const int & event,
+                      const int & S6adc ,
+                      const double & xhodo, const double & yhodo, 
+                      const double & xslope, const double & yslope, 
+                      const double & xquality, const double & yquality,
+                      const int & icMax,
+                      const int & ietaMax, const int & iphiMax,
+                      const double & beamEnergy, 
+                      const double ampl[49]) 
 {
 
   m_data->Clear () ;
@@ -65,6 +66,7 @@ void TB06Tree::store (const int tableIsMoving,
   entry->tableIsMoving = tableIsMoving ;
   entry->run = run ;
   entry->event = event ;
+  entry->S6ADC = S6adc ;
 
   entry->MEXTLindex = icMax ;
   entry->MEXTLeta = ietaMax ;

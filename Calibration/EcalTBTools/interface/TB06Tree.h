@@ -23,14 +23,15 @@ class TB06Tree {
   //! dtor
   ~TB06Tree () ;
 
-  void store (const int tableIsMoving,
-              const int run, const int event,
-              const double xhodo, const double yhodo, 
-              const double xslope, const double yslope, 
-              const double xquality, const double yquality,
-              const int icMax,
-	            const int ietaMax, const int iphiMax,
-              const double beamEnergy, 
+  void store (const int & tableIsMoving,
+              const int & run, const int & event,
+              const int & S6adc ,
+              const double & xhodo, const double & yhodo, 
+              const double & xslope, const double & yslope, 
+              const double & xquality, const double & yquality,
+              const int & icMax,
+	            const int & ietaMax, const int & iphiMax,
+              const double & beamEnergy, 
               const double ampl[49]) ;
   
   void reset (float crystal[11][21]) ;

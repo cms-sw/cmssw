@@ -3,10 +3,10 @@
 
 /** \class TB06Reco
     compact reco dataset for ECAL TB 2006 data
-    $Date: $
-    $Revision: $
-    $Id: $ 
-    \author $Author: $
+    $Date: 2006/08/01 09:45:13 $
+    $Revision: 1.1 $
+    $Id: TB06Reco.h,v 1.1 2006/08/01 09:45:13 govoni Exp $ 
+    \author $Author: govoni $
 */
 
 #include "TObject.h"
@@ -21,6 +21,8 @@ class TB06Reco : public TObject
   Int_t event ;
   /// if the table is moving
   Int_t tableIsMoving ;
+  /// ADC output of the S6 integrated signal
+  Int_t S6ADC ;
   
    /// most energetic crystal index
   Int_t MEXTLindex ; //.ic() in CMSSW 
@@ -63,7 +65,7 @@ class TB06Reco : public TObject
   /// set all the values to 0
   void reset () ;
                                                                                       
-  ClassDef (TB06Reco,3) 
+  ClassDef (TB06Reco,4) 
     };
 
 #endif                                   
