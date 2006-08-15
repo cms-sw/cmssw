@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/08/12 19:44:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/12 22:58:53 $
+ *  $Revision: 1.4 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -45,10 +45,17 @@ using namespace std;
 CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
   
-  // the name of the DT rec hits collection
-  theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");
-  // the name of the CSC rec hits collection
-  theCSCRecSegmentLabel = pset.getParameter<string>("CSCRecSegmentLabel");
+  // enable the DT chamber
+  theEnableDTFlag = pset.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  // enable the CSC chamber
+  theEnableCSCFlag = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+
+  if(theEnableDTFlag)
+    theDTRecSegmentLabel = pset.getUntrackedParameter<string>("DTRecSegmentLabel");
+
+  if(theEnableCSCFlag)
+    theCSCRecSegmentLabel = pset.getUntrackedParameter<string>("CSCRecSegmentLabel");
+
   // the maximum number of TrajectorySeed
   theMaxSeeds = pset.getParameter<int>("MaxSeeds");
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
@@ -98,7 +105,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements(true,true,false, 
+  MuonDetLayerMeasurements muonMeasurements(theEnableDTFlag,theEnableCSCFlag,false, 
 				    theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   muonMeasurements.setEvent(event);
@@ -168,8 +175,6 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
     }
 
   }
-  edm::LogInfo("CosmicMuonSeedGenerator")<<" "<<theSeeds.size()<<". ";
-
 
   for(std::vector<TrajectorySeed>::iterator seed = theSeeds.begin();
       seed != theSeeds.end(); ++seed)

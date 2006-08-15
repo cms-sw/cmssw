@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/07/26 17:56:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/01 15:29:22 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -52,7 +52,14 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   theMaxChi2 = par.getParameter<double>("MaxChi2");;
   thePropagatorName = par.getParameter<string>("Propagator");
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
-  theLayerMeasurements = new MuonDetLayerMeasurements(true, true, false, "dt4DSegments","cscSegments");
+
+  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+  bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
+
+  theLayerMeasurements= new MuonDetLayerMeasurements(enableDTMeasurement,
+						     enableCSCMeasurement,
+						     enableRPCMeasurement);
 
 
 }
@@ -102,8 +109,9 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetId did(ptsd1.detId());
   const BoundPlane& bp = theTrackingGeometry->idToDet(did)->surface();
   TrajectoryStateOnSurface lastTsos = tsTransform.transientState(ptsd1,&bp,&*theField);
+  if ( !lastTsos.isValid() ) return trajL;
 
-   vector<const DetLayer*> navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
+  vector<const DetLayer*> navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
   edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"found "<<navLayerCBack.size()<<" compatible DetLayers for the Seed";
   if (navLayerCBack.size() == 0) {
     return std::vector<Trajectory*>();
@@ -129,15 +137,16 @@ edm::LogInfo("CosmicMuonTrajectoryBuilder")<<"measurements in DetLayer "<<measL.
         pair<bool,TrajectoryStateOnSurface> result
             = updator()->update(theMeas, *theTraj);
 
-        if (result.first) {
+        if (result.first ) {
    edm::LogInfo("CosmicMuonTrajectoryBuilder")<< "update successfully";
           if((*rnxtlayer)-> subDetector() == GeomDetEnumerators::DT) DTChamberUsedBack++;
           else if((*rnxtlayer)->subDetector() == GeomDetEnumerators::CSC) CSCChamberUsedBack++;
           else if((*rnxtlayer)->subDetector() == GeomDetEnumerators::RPCBarrel || (*rnxtlayer)->subDetector() == GeomDetEnumerators::RPCEndcap) RPCChamberUsedBack++;
           TotalChamberUsedBack++;
 
-          if ( !theTraj->empty() ) lastTsos = result.second;
-          else lastTsos = theMeas->predictedState();
+          if ( (!theTraj->empty()) && result.second.isValid() ) 
+             lastTsos = result.second;
+          else if (theMeas->predictedState().isValid()) lastTsos = theMeas->predictedState();
         }
       }
   } 
