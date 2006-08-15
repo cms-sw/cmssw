@@ -291,6 +291,7 @@ void HybridClusterAlgo::mainSearch(void)
 	totChi2 +=0;
 	totE+=recHits[blarg].energy();
 	usedHits.push_back(recHits[blarg].id());
+	useddetids.insert(recHits[blarg].id());
       }
       if (totE>0)
 	totChi2/=totE;
@@ -362,15 +363,13 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   DetId center = navigator.pos();
   EcalRecHitCollection::const_iterator center_it = rechits_m->find(center);
   
-  if (center_it==rechits_m->end()) return 0; //Didn't find that ID.
-  EcalRecHit SeedHit = *center_it;
-  if (useddetids.find(center) != useddetids.end()) return 0; //Already used that ID.  Terminate either way.
- 
-  Etot += SeedHit.energy();
-  cells.push_back(SeedHit);
-  //Mark cell as used.
-  useddetids.insert(center);
-
+  if (center_it!=rechits_m->end()){
+    EcalRecHit SeedHit = *center_it;
+    if (useddetids.find(center) == useddetids.end()){ 
+      Etot += SeedHit.energy();
+      cells.push_back(SeedHit);
+    }
+  }
   //One step upwards in Ieta:
   DetId ieta1 = navigator.west();
   EcalRecHitCollection::const_iterator eta1_it = rechits_m->find(ieta1);
@@ -379,14 +378,12 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
     if (useddetids.find(ieta1) == useddetids.end()){
       Etot+=UpEta.energy();
       cells.push_back(UpEta);
-      //Mark cell as used.
-      useddetids.insert(ieta1);
     }
   }
-
+  
   //Go back to the middle.
   navigator.home();
-
+  
   //One step downwards in Ieta:
   DetId ieta2 = navigator.east();
   EcalRecHitCollection::const_iterator eta2_it = rechits_m->find(ieta2);
@@ -395,45 +392,35 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
     if (useddetids.find(ieta2)==useddetids.end()){
       Etot+=DownEta.energy();
       cells.push_back(DownEta);
-      //Mark cell as used.
-      useddetids.insert(ieta2);
     }
   }
-
+  
   //Now check the energy.  If smaller than Ewing, then we're done.  If greater than Ewing, we have to
   //add two additional cells, the 'wings'
   if (Etot < Ewing) return Etot;  //Done!  Not adding 'wings'.
-
+  
   //Add the extra 'wing' cells.  Remember, we haven't sent the navigator home,
   //we're still on the DownEta cell.
-  if (eta2_it !=rechits_m->end()){
-    DetId ieta3 = navigator.east(); //Take another step downward.
-    EcalRecHitCollection::const_iterator eta3_it = rechits_m->find(ieta3);
-    if (eta3_it != rechits_m->end()){
-      EcalRecHit DownEta2 = *eta3_it;
-      if (useddetids.find(ieta3)==useddetids.end()){
-	Etot+=DownEta2.energy();
-	cells.push_back(DownEta2);
-	//Mark cell as used.
-	useddetids.insert(ieta3);
-      }
+  DetId ieta3 = navigator.east(); //Take another step downward.
+  EcalRecHitCollection::const_iterator eta3_it = rechits_m->find(ieta3);
+  if (eta3_it != rechits_m->end()){
+    EcalRecHit DownEta2 = *eta3_it;
+    if (useddetids.find(ieta3)==useddetids.end()){
+      Etot+=DownEta2.energy();
+      cells.push_back(DownEta2);
     }
   }
-
+  
   //Now send the navigator home.
   navigator.home();
-  //Recall, eta1_it is the position incremented one time.
-  if (eta1_it !=rechits_m->end()){
-    navigator.west(); //Now you're on eta1_it
-    DetId ieta4 = navigator.west(); //Take another step upward.
-    EcalRecHitCollection::const_iterator eta4_it = rechits_m->find(ieta4);
-    if (eta4_it != rechits_m->end()){
-      EcalRecHit UpEta2 = *eta4_it;
-      if (useddetids.find(ieta4) == useddetids.end()){
-	Etot+=UpEta2.energy();
-	cells.push_back(UpEta2);
-	useddetids.insert(ieta4);
-      }
+  navigator.west(); //Now you're on eta1_it
+  DetId ieta4 = navigator.west(); //Take another step upward.
+  EcalRecHitCollection::const_iterator eta4_it = rechits_m->find(ieta4);
+  if (eta4_it != rechits_m->end()){
+    EcalRecHit UpEta2 = *eta4_it;
+    if (useddetids.find(ieta4) == useddetids.end()){
+      Etot+=UpEta2.energy();
+      cells.push_back(UpEta2);
     }
   }
   navigator.home();
