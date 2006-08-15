@@ -1,7 +1,7 @@
 void test_LaserOverPNMap(){
 
 /*connect with oracle server */
-TSQLServer *db=TSQLServer::Connect("oracle://pccmsecdb:1521/ecalh4db","cond01","oracond01");
+TSQLServer *db=TSQLServer::Connect("oracle://pccmsecdb:1521/ecalh4db","cond01","XXXpasswordXXX");
 
  gStyle->SetOptStat(0);
  gStyle->SetOptFit();

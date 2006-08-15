@@ -23,7 +23,7 @@ void test_AnyHistory(){
  Int_t sm_num=1041000000+10000*sm+sm;
 
 /*connect with oracle server */
-TSQLServer *db=TSQLServer::Connect("oracle://pccmsecdb:1521/ecalh4db","cond01","XXXpasswordXXX");
+TSQLServer *db=TSQLServer::Connect("oracle://pccmsecdb:1521/ecalh4db","read01","XXXpasswordXXX");
 
  gStyle->SetOptStat(0);
  gStyle->SetOptFit();
