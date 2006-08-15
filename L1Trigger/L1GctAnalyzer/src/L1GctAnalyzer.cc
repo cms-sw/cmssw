@@ -23,16 +23,14 @@
 // constructors and destructor
 //
 L1GctAnalyzer::L1GctAnalyzer(const edm::ParameterSet& iConfig) :
+  m_histFileName(iConfig.getUntrackedParameter<string>( "histogramFileName", "testHisto.root" )),
   doBasicHist(false),
-  doJetCheckHist(false),
-  doMETCheckHist(false)
-{
+							       doJetCheckHist(false) //,
+//   doMETCheckHist(false)
+ {
   std::cout << "In L1GctAnalyzer ctor" << std::endl;
   // Read the options from the configuration file into local strings
   // These are then used in beginJob() to setup the histogramming
-
-  // Get the fileName for storing the histograms
-  m_histFileName = iConfig.getUntrackedParameter<string>( "histogramFileName", "testHisto.root" );
 
   // Get the list of histogram types
   vector<string> histogramModules = iConfig.getUntrackedParameter< vector<string> >( "histogramModules" );
@@ -47,8 +45,8 @@ L1GctAnalyzer::L1GctAnalyzer(const edm::ParameterSet& iConfig) :
 	doJetCheckHist = true;
 	jetCheckOptions = histogramOptions;
       } else if (*module == "mETCheck") {
-	doMETCheckHist = true;
-	mETCheckOptions = histogramOptions;
+// 	doMETCheckHist = true;
+// 	mETCheckOptions = histogramOptions;
       } else {
 	throw cms::Exception("L1GctAnalyzer setup error") << " invalid histogramModule argument, " << *module  
 							  << " to L1GctAnalyzer in configuration file " << std::endl;
@@ -57,7 +55,6 @@ L1GctAnalyzer::L1GctAnalyzer(const edm::ParameterSet& iConfig) :
 
   }
 }
-
 
 L1GctAnalyzer::~L1GctAnalyzer()
 {
@@ -108,20 +105,53 @@ L1GctAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   if (doMETCheckHist) {
-     Handle<METCollection> genMET;
-     for (unsigned i=0; i<mETCheckHist.size(); ++i) {
-       string label=mETCheckOptions.at(i);
-       iEvent.getByLabel(label,genMET);
-       mETCheckHist.at(i)->setInputProduct(genMET);
-       mETCheckHist.at(i)->fillHistograms(gctdata);
-     }
-   }
+//    if (doMETCheckHist) {
+//      Handle<METCollection> genMET;
+//      for (unsigned i=0; i<mETCheckHist.size(); ++i) {
+//        string label=mETCheckOptions.at(i);
+//        iEvent.getByLabel(label,genMET);
+//        mETCheckHist.at(i)->setInputProduct(genMET);
+//        mETCheckHist.at(i)->fillHistograms(gctdata);
+//      }
+//    }
 
-   Handle<SuperClusterCollection>SuperClusters;
+   Handle<SuperClusterCollection> SuperClusters;
    iEvent.getByLabel("correctedHybridSuperClusters","",SuperClusters);
    std::cout << "Size of SuperClusters is " << SuperClusters->size() << std::endl;
+   if (SuperClusters->size() != 0) {
+     int i=0;
+     for (SuperClusterCollection::const_iterator sc=SuperClusters->begin(); sc != SuperClusters->end(); ++sc) {
+       std::cout << "SuperCluster " << i << " energy " << sc->energy() << " eta " << sc->eta() << " phi " << sc->phi() << std::endl;
+       ++i;
+     }
+   }
   
+   iEvent.getByLabel("correctedIslandBarrelSuperClusters","",SuperClusters);
+   std::cout << "Size of SuperClusters is " << SuperClusters->size() << std::endl;
+   if (SuperClusters->size() != 0) {
+     int i=0;
+     for (SuperClusterCollection::const_iterator sc=SuperClusters->begin(); sc != SuperClusters->end(); ++sc) {
+       std::cout << "SuperCluster " << i << " energy " << sc->energy() << " eta " << sc->eta() << " phi " << sc->phi() << std::endl;
+       ++i;
+     }
+   }
+  
+   iEvent.getByLabel("correctedIslandEndcapSuperClusters","",SuperClusters);
+   std::cout << "Size of SuperClusters is " << SuperClusters->size() << std::endl;
+   if (SuperClusters->size() != 0) {
+     int i=0;
+     for (SuperClusterCollection::const_iterator sc=SuperClusters->begin(); sc != SuperClusters->end(); ++sc) {
+       std::cout << "SuperCluster " << i << " energy " << sc->energy() << " eta " << sc->eta() << " phi " << sc->phi() << std::endl;
+       ++i;
+     }
+   }
+  
+   for (unsigned i=0; i<gctdata.electrons.size(); ++i) {
+     for (unsigned j=0; j<gctdata.electrons.at(i)->size(); ++j) {
+       L1GctEmCand ele = gctdata.electrons.at(i)->at(j);
+       std::cout << "gct electron energy " << ele.rank() << " eta " << ele.etaIndex() << " phi " << ele.phiIndex() << std::endl;
+     }
+   }
 }
 
 
@@ -129,7 +159,6 @@ L1GctAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 L1GctAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
-  std::cout << "begin job" << std::endl;
   // Open rootfile for histograms
   m_file = new TFile( m_histFileName.c_str(), "RECREATE" );
 
@@ -147,13 +176,12 @@ L1GctAnalyzer::beginJob(const edm::EventSetup& iSetup)
   }
 
   // Histogrammers for comparison with missing Et reconstruction
-  if (doMETCheckHist) {
-    for (vector<string>::const_iterator option=mETCheckOptions.begin(); option != mETCheckOptions.end(); ++option) {
-      string directory = *option + "METCheck";
-      mETCheckHist.push_back(new L1GctMETCheckHistogrammer(m_file, directory));
-    }
-  }
-  std::cout << "begin job done" << std::endl;
+//   if (doMETCheckHist) {
+//     for (vector<string>::const_iterator option=mETCheckOptions.begin(); option != mETCheckOptions.end(); ++option) {
+//       string directory = *option + "METCheck";
+//       mETCheckHist.push_back(new L1GctMETCheckHistogrammer(m_file, directory));
+//     }
+//   }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -165,11 +193,11 @@ L1GctAnalyzer::endJob() {
       delete jetCheckHist.at(i);
     }
   }
-  if (doMETCheckHist) {
-    for (unsigned i=0; i<mETCheckHist.size(); ++i) {
-      delete mETCheckHist.at(i);
-    }
-  }
+//   if (doMETCheckHist) {
+//     for (unsigned i=0; i<mETCheckHist.size(); ++i) {
+//       delete mETCheckHist.at(i);
+//     }
+//   }
   delete m_file;
 }
 
