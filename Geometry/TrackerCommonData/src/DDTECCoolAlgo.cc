@@ -17,7 +17,7 @@
 
 
 DDTECCoolAlgo::DDTECCoolAlgo(): coolName(0),coolR(0),coolInsert(0) {
-  edm::LogInfo("TECGeom") << "DDTECCoolAlgo info: Creating an instance";
+  LogDebug("TECGeom") << "DDTECCoolAlgo info: Creating an instance";
 }
 
 DDTECCoolAlgo::~DDTECCoolAlgo() {}

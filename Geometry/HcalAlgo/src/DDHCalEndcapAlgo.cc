@@ -26,7 +26,7 @@ DDHCalEndcapAlgo::DDHCalEndcapAlgo():
   layerN2(0),layerN3(0),layerN4(0),layerN5(0),thick(0),trimLeft(0),
   trimRight(0),zminBlock(0),zmaxBlock(0),rinBlock1(0),routBlock1(0),
   rinBlock2(0),routBlock2(0),layerType(0),layerT(0),scintT(0) {
-  edm::LogInfo("HCalGeom") << "DDHCalEndcapAlgo info: Creating an instance";
+  LogDebug("HCalGeom") << "DDHCalEndcapAlgo info: Creating an instance";
 }
 
 DDHCalEndcapAlgo::~DDHCalEndcapAlgo() {}

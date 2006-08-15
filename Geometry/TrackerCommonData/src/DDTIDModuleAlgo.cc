@@ -19,7 +19,7 @@
 
 
 DDTIDModuleAlgo::DDTIDModuleAlgo() {
-  edm::LogInfo("TIDGeom") << "DDTIDModuleAlgo info: Creating an instance";
+  LogDebug("TIDGeom") << "DDTIDModuleAlgo info: Creating an instance";
 }
 
 DDTIDModuleAlgo::~DDTIDModuleAlgo() {}

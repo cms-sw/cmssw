@@ -20,7 +20,7 @@ DDTOBRodAlgo::DDTOBRodAlgo():
   clampX(0),clampZ(0),sideCoolX(0),sideCoolZ(0),optFibreX(0),optFibreZ(0),
   sideClampX(0),sideClamp1DZ(0),sideClamp2DZ(0), moduleRot(0),moduleY(0),
   moduleZ(0),connect(0),connectY(0),connectZ(0) {
-  edm::LogInfo("TOBGeom") << "DDTOBRodAlgo info: Creating an instance";
+  LogDebug("TOBGeom") << "DDTOBRodAlgo info: Creating an instance";
 }
 
 DDTOBRodAlgo::~DDTOBRodAlgo() {}

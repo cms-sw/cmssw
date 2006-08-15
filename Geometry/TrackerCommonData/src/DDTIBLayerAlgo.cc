@@ -20,7 +20,7 @@
 
 
 DDTIBLayerAlgo::DDTIBLayerAlgo(): ribW(0),ribPhi(0) {
-  edm::LogInfo("TIBGeom") << "DDTIBLayerAlgo info: Creating an instance";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo info: Creating an instance";
 }
 
 DDTIBLayerAlgo::~DDTIBLayerAlgo() {}

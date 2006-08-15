@@ -63,10 +63,10 @@ DDPixFwdBlades::~DDPixFwdBlades() {}
 // Initialization :  ---------------------------------------------------------------------
 
 void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
-				  const DDVectorArguments & vArgs,
-				  const DDMapArguments & ,
-				  const DDStringArguments & sArgs,
-				  const DDStringVectorArguments & ) {
+				const DDVectorArguments & vArgs,
+				const DDMapArguments & ,
+				const DDStringArguments & sArgs,
+				const DDStringVectorArguments & ) {
 				  	
   try {
     endcap = nArgs["Endcap"];

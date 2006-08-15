@@ -17,7 +17,7 @@
 
 
 DDTrackerAngular::DDTrackerAngular() {
-  edm::LogInfo("TrackerGeom") << "DDTrackerAngular info: Creating an instance";
+  LogDebug("TrackerGeom") << "DDTrackerAngular info: Creating an instance";
 }
 
 DDTrackerAngular::~DDTrackerAngular() {}

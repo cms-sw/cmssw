@@ -19,8 +19,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDTECAxialCableAlgo::DDTECAxialCableAlgo() {
-  edm::LogInfo("TECGeom") << "DDTECAxialCableAlgo info: Creating an "
-			  << "instance";
+  LogDebug("TECGeom") << "DDTECAxialCableAlgo info: Creating an instance";
 }
 
 DDTECAxialCableAlgo::~DDTECAxialCableAlgo() {}

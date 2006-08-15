@@ -18,7 +18,7 @@
 
 
 DDTIDRingAlgo::DDTIDRingAlgo() {
-  edm::LogInfo("TIDGeom") << "DDTIDRingAlgo info: Creating an instance";
+  LogDebug("TIDGeom") << "DDTIDRingAlgo info: Creating an instance";
 }
 
 DDTIDRingAlgo::~DDTIDRingAlgo() {}

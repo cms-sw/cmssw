@@ -20,7 +20,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalXtalAlgo::DDHCalXtalAlgo() {
-  edm::LogInfo("HCalGeom") << "DDHCalXtalAlgo info: Creating an instance";
+  LogDebug("HCalGeom") << "DDHCalXtalAlgo info: Creating an instance";
 }
 
 DDHCalXtalAlgo::~DDHCalXtalAlgo() {}

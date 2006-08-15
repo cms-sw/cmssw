@@ -26,7 +26,7 @@ DDHCalBarrelAlgo::DDHCalBarrelAlgo():
   layerWidth(0),layerD1(0),layerD2(0),layerAlpha(0),layerT(0),layerAbsorb(0),
   layerGap(0),absorbName(0),absorbMat(0),absorbD(0),absorbAlpha(0),absorbT(0),
   detType(0),detT1(0),detTsc(0),detT2(0),detWidth1(0),detWidth2(0),detPosY(0) {
-  edm::LogInfo("HCalGeom") << "DDHCalBarrelAlgo info: Creating an instance";
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo info: Creating an instance";
 }
 
 DDHCalBarrelAlgo::~DDHCalBarrelAlgo() {}

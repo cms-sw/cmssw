@@ -21,7 +21,7 @@
 DDTECModuleAlgo::DDTECModuleAlgo():
   topFrameZ(0),sideFrameZ(0),waferRot(0),activeThick(0),activeZ(0),hybridZ(0),
   pitchZ(0) {
-  edm::LogInfo("TECGeom") << "DDTECModuleAlgo info: Creating an instance";
+  LogDebug("TECGeom") << "DDTECModuleAlgo info: Creating an instance";
 }
 
 DDTECModuleAlgo::~DDTECModuleAlgo() {}

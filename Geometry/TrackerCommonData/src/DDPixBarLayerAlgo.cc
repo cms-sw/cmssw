@@ -20,7 +20,7 @@
 
 
 DDPixBarLayerAlgo::DDPixBarLayerAlgo() {
-  edm::LogInfo("PixelGeom") <<"DDPixBarLayerAlgo info: Creating an instance";
+  LogDebug("PixelGeom") <<"DDPixBarLayerAlgo info: Creating an instance";
 }
 
 DDPixBarLayerAlgo::~DDPixBarLayerAlgo() {}

@@ -21,7 +21,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalTBCableAlgo::DDHCalTBCableAlgo(): theta(0),rmax(0),zoff(0) {
-  edm::LogInfo("HCalGeom") << "DDHCalTBCableAlgo info: Creating an instance";
+  LogDebug("HCalGeom") << "DDHCalTBCableAlgo info: Creating an instance";
 }
 
 DDHCalTBCableAlgo::~DDHCalTBCableAlgo() {}
