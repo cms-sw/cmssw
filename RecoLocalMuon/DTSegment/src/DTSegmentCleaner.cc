@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 15:43:06 $
- * $Revision: 1.3 $
+ * $Date: 2006/07/28 16:26:51 $
+ * $Revision: 1.4 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -124,7 +124,7 @@ DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
        cand!=inputCands.end(); ++cand) {
     for (vector<DTSegmentCand*>::iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
-	 int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
+	 unsigned int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
        // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
        //   << " < " << ((**cand)<(**cand2)) << endl;
        	 if ((nSharedHits==((*cand)->nHits())) && (nSharedHits==((*cand2)->nHits()))
@@ -133,7 +133,7 @@ DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
 	 {
 	   continue;
 	 }
-	 if (nSharedHits >= nSharedHitsMax ) {
+	 if ((int)nSharedHits >= nSharedHitsMax ) {
 	   if ((**cand)<(**cand2)) {
 	     // cout << (**cand) << " is ghost " << endl;
 	     ghosts.push_back(*cand);
