@@ -74,6 +74,14 @@
 //      assumption being that at some later time there will be a file and
 //      the message logger will be configured again.
 //
+//      Note: The change made in (12) and un-done here was necessary to
+//            prevent segfault behavior when a job is done with external
+//            destinations and no .cfg file under some circumstances.
+//            D. Evans (who was being hit with that behavior due to an
+//	      accidental .cfg omission) asserts (8/16) that running with
+//            no .cfg file is a sufficient anomoly that the current change
+//            is acceptable. 
+//
 // ----------------------------------------------------------------------
 
 
