@@ -15,6 +15,10 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTID.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerCompositeBuilder.h"
 
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
+
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 
@@ -621,7 +625,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelGeomDets()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2;i++ )
+  for ( unsigned int i=0; i<theOuterHalfBarrels.size();i++ )
 	for ( int j=0; j<outerHalfBarrel(i).size(); j++ )
 	  for ( int k=0; k<outerHalfBarrel(i).layer(j).size();k++ )
 		for ( int l=0; l<outerHalfBarrel(i).layer(j).rod(k).size(); l++ )
@@ -637,7 +641,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelGeomDets()
 {  
 
   std::vector<Alignable*> result;  
-  for ( int i=0; i<2;i++ )   
+  for ( unsigned int i=0; i<thePixelHalfBarrels.size();i++ )   
 	for ( int j=0; j<pixelHalfBarrel(i).size(); j++ )  
 	  for ( int k=0; k<pixelHalfBarrel(i).layer(j).size(); k++ )   
 		for ( int l=0; l<pixelHalfBarrel(i).layer(j).ladder(k).size(); l++) 
@@ -653,7 +657,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelGeomDets()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<theInnerHalfBarrels.size(); i++ )
     for ( int j=0; j<innerHalfBarrel(i).size(); j++ )
       for ( int k=0; k<innerHalfBarrel(i).layer(j).size(); k++ ) 
 		for ( int l=0; l<innerHalfBarrel(i).layer(j).rod(k).size(); l++ ) 
@@ -669,7 +673,7 @@ std::vector<Alignable*> AlignableTracker::endcapGeomDets()
 {
 
   std::vector<Alignable*> result;
-  for (int i=0; i<2;i++)
+  for (unsigned int i=0; i<theEndcaps.size();i++)
 	for (int j=0; j<endCap(i).size(); j++)
 	  for (int k=0; k<endCap(i).layer(j).size(); k++) 
 		for (int l=0; l<endCap(i).layer(j).petal(k).size(); l++) 
@@ -731,7 +735,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelRods()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2;i++ )
+  for ( unsigned int i=0; i<theOuterHalfBarrels.size();i++ )
     for ( int j=0; j<outerHalfBarrel(i).size(); j++ )
       for ( int k=0; k<outerHalfBarrel(i).layer(j).size(); k++ )
 		result.push_back(&outerHalfBarrel(i).layer(j).rod(k));
@@ -746,7 +750,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelRods()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2;i++ )
+  for ( unsigned int i=0; i<theInnerHalfBarrels.size();i++ )
     for ( int j=0; j<innerHalfBarrel(i).size(); j++ )
       for ( int k=0; k<innerHalfBarrel(i).layer(j).size(); k++ ) 
 		result.push_back(&innerHalfBarrel(i).layer(j).rod(k));
@@ -761,7 +765,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLadders()
 {  
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<thePixelHalfBarrels.size(); i++ )
     for ( int j=0; j<pixelHalfBarrel(i).size(); j++ )
       for ( int k=0; k<pixelHalfBarrel(i).layer(j).size(); k++ )
 		result.push_back(&pixelHalfBarrel(i).layer(j).ladder(k));
@@ -776,7 +780,7 @@ std::vector<Alignable*> AlignableTracker::endcapPetals()
 {
   
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<theEndcaps.size(); i++ )
     for ( int j=0; j<endCap(i).size(); j++ )
       for ( int k=0; k<endCap(i).layer(j).size(); k++ ) 
 		result.push_back(&endCap(i).layer(j).petal(k));
@@ -834,7 +838,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelLayers()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<theOuterHalfBarrels.size(); i++ )
     for ( int j=0; j<outerHalfBarrel(i).size(); j++ ) 
 	  result.push_back(&outerHalfBarrel(i).layer(j));
 
@@ -848,7 +852,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLayers()
 {  
 
   std::vector<Alignable*> result;           
-  for ( int i=0; i<2;i++)               
+  for ( unsigned int i=0; i<thePixelHalfBarrels.size();i++)               
     for ( int j=0; j<pixelHalfBarrel(i).size(); j++ ) 
 	  result.push_back(&pixelHalfBarrel(i).layer(j)); 
 
@@ -862,7 +866,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelLayers()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<theInnerHalfBarrels.size(); i++ )
     for ( int j=0; j<innerHalfBarrel(i).size(); j++ ) 
 	  result.push_back(&innerHalfBarrel(i).layer(j));
 
@@ -876,7 +880,7 @@ std::vector<Alignable*> AlignableTracker::endcapLayers()
 {
 
   std::vector<Alignable*> result;
-  for ( int i=0; i<2; i++ )
+  for ( unsigned int i=0; i<theEndcaps.size(); i++ )
     for ( int j=0; j<endCap(i).size(); j++ ) 
 	  result.push_back(&endCap(i).layer(j));
 
@@ -942,6 +946,51 @@ void AlignableTracker::dump( void ) const
 	(*iDet)->dump();
 
   std::cout << "--------------" << std::endl;
+
+}
+
+
+//__________________________________________________________________________________________________
+Alignments* AlignableTracker::alignments( void ) const
+{
+
+  std::vector<Alignable*> comp = this->components();
+  Alignments* m_alignments = new Alignments();
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    {
+      Alignments* tmpAlignments = (*i)->alignments();
+      std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				 std::back_inserter(m_alignments->m_align) );
+    }
+
+  std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end(), 
+			 lessAlignmentDetId<AlignTransform>() );
+
+  return m_alignments;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableTracker::alignmentErrors( void ) const
+{
+
+  std::vector<Alignable*> comp = this->components();
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+    {
+	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+      std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				 std::back_inserter(m_alignmentErrors->m_alignError) );
+    }
+
+  std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
+			 lessAlignmentDetId<AlignTransformError>() );
+
+  return m_alignmentErrors;
 
 }
 

@@ -119,6 +119,12 @@ public:
   /// Return alignable object identifier 
   virtual int alignableObjectId() const { return AlignableObjectId::AlignableTracker; }
 
+  /// Return alignments, sorted by DetId
+  Alignments* alignments() const;
+
+  /// Return alignment errors, sorted by DetId
+  AlignmentErrors* alignmentErrors() const;
+
 private:
   
   /// Get the position (centered at 0 by default)
