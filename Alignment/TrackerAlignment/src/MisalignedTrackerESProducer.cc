@@ -93,10 +93,6 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   
   // Write alignments to DB: have to sort beforhand!
   AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
-  std::sort( alignments->m_align.begin(), alignments->m_align.end(), 
-			 lessAlignmentDetId<AlignTransform>() );
-  std::sort( alignmentErrors->m_alignError.begin(), alignmentErrors->m_alignError.end(), 
-			 lessAlignmentDetId<AlignTransformError>() );
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{
 
