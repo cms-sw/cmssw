@@ -114,10 +114,10 @@ get_list_of_pedestal_castor_files(){
  echo "getting from CASTOR the list of files corresponding to pedestal run ${PED_RUNNR}";
  if [ $MAX_PED_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
+   LIST_OF_PED_DATA_FILES=`rfdir $PED_CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
  else
    echo "   !!! Caution !!!      limiting nr. of files for calculating pedestals to ${MAX_PED_FILES_TO_RUN_OVER}"
-   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | head -${MAX_PED_FILES_TO_RUN_OVER} | sed 's/^.* //'`
+   LIST_OF_PED_DATA_FILES=`rfdir $PED_CASTOR_DIR | head -${MAX_PED_FILES_TO_RUN_OVER} | sed 's/^.* //'`
  fi
  if [ "$LIST_OF_PED_DATA_FILES" == ""   ] ;
  then
