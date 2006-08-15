@@ -5,10 +5,10 @@
 //
 using namespace reco;
 
-const int L1GctMETCheckHistogrammer::NGENMETVALUE=NGCTMETVALUE;
-const double L1GctMETCheckHistogrammer::MINGENMETVALUE= MINGCTMETVALUE;
-const double L1GctMETCheckHistogrammer::MAXGENMETVALUE= MAXGCTMETVALUE; 
-const int L1GctMETCheckHistogrammer::NGENMETPHI=NGCTMETPHI;
+const    int L1GctMETCheckHistogrammer::NGENMETVALUE=  NGCTMETVALUE;
+const double L1GctMETCheckHistogrammer::MINGENMETVALUE=MINGCTMETVALUE;
+const double L1GctMETCheckHistogrammer::MAXGENMETVALUE=MAXGCTMETVALUE; 
+const    int L1GctMETCheckHistogrammer::NGENMETPHI=    NGCTMETPHI;
 const double L1GctMETCheckHistogrammer::MINGENMETPHI=-M_PI;
 const double L1GctMETCheckHistogrammer::MAXGENMETPHI= M_PI; 
 
@@ -30,10 +30,11 @@ L1GctMETCheckHistogrammer::L1GctMETCheckHistogrammer(TFile* tf, const std::strin
 ///destructor
 L1GctMETCheckHistogrammer::~L1GctMETCheckHistogrammer()
 {
-  setHistogramDirectory();
-  missingEtValueGCTVsGen.Write();
-  missingEtPhiGCTVsGen.Write();
-  missingEtRatioVsGCTJetEta.Write();
+  if (setHistogramDirectory()) {
+    missingEtValueGCTVsGen.Write();
+    missingEtPhiGCTVsGen.Write();
+    missingEtRatioVsGCTJetEta.Write();
+  }
 }
 
 ///event processor

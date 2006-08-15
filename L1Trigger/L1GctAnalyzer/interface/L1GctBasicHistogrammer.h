@@ -22,7 +22,7 @@ class L1GctBasicHistogrammer : public L1GctHistogrammer {
  public:
 
   ///constructor
-  L1GctBasicHistogrammer(TFile* tf, const std::string dir="default");
+  L1GctBasicHistogrammer(TFile* tf=0, const std::string dir="default");
 
   ///destructor
   virtual ~L1GctBasicHistogrammer();

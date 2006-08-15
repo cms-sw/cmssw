@@ -33,10 +33,11 @@ L1GctJetCheckHistogrammer::L1GctJetCheckHistogrammer(TFile* tf, const std::strin
 ///destructor
 L1GctJetCheckHistogrammer::~L1GctJetCheckHistogrammer()
 {
-  setHistogramDirectory();
-  topJetRankVsGenEt.Write();
-  topJetEtaVsGen.Write();
-  topJetPhiVsGen.Write();
+  if (setHistogramDirectory()) {
+    topJetRankVsGenEt.Write();
+    topJetEtaVsGen.Write();
+    topJetPhiVsGen.Write();
+  }
 }
 
 ///event processor

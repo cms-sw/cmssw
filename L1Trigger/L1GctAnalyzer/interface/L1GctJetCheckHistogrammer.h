@@ -25,7 +25,7 @@ class L1GctJetCheckHistogrammer : public L1GctCorrelator<reco::GenJetCollection>
  public:
 
   ///constructor
-  L1GctJetCheckHistogrammer(TFile* tf, const std::string dir="default");
+  L1GctJetCheckHistogrammer(TFile* tf=0, const std::string dir="default");
 
   ///destructor
   virtual ~L1GctJetCheckHistogrammer();

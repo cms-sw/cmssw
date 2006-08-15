@@ -24,7 +24,7 @@ class L1GctMETCheckHistogrammer : public L1GctCorrelator<reco::METCollection> {
  public:
 
   ///constructor
-  L1GctMETCheckHistogrammer(TFile* tf, const std::string dir="default");
+  L1GctMETCheckHistogrammer(TFile* tf=0, const std::string dir="default");
 
   ///destructor
   virtual ~L1GctMETCheckHistogrammer();

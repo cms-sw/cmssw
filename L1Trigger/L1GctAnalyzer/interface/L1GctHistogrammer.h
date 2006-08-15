@@ -35,7 +35,7 @@ class L1GctHistogrammer {
  public:
 
   ///constructor
-  L1GctHistogrammer(TFile* tf, const std::string dir="default");
+  L1GctHistogrammer(TFile* tf=0, const std::string dir="default");
 
   ///destructor
   virtual ~L1GctHistogrammer();
@@ -53,7 +53,8 @@ class L1GctHistogrammer {
   static const double MAXGCTMETVALUE, MAXGCTMETPHI;
 
   const char* HistogramDirectory() const { return m_dir.c_str(); }
-  bool setHistogramDirectory() { return (m_file->cd() ? m_file->cd(HistogramDirectory()) : false); }
+  bool   setHistogramDirectory() { return ( resetHistogramDirectory() ? m_file->cd(HistogramDirectory()) : false ); }
+  bool resetHistogramDirectory() { return ( (m_file==0) ? false : m_file->cd() ); }
 
   L1GctJetCand topJet(const GctOutputData gct);
   unsigned gctEta(L1GctJetCand jet);

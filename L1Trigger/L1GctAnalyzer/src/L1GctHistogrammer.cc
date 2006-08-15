@@ -8,8 +8,9 @@ L1GctHistogrammer::L1GctHistogrammer(TFile* tf, const std::string dir) :
   m_file(tf),
   m_dir(dir)
 {
-  m_file->cd();
-  m_file->mkdir(HistogramDirectory(), HistogramDirectory());
+  if (resetHistogramDirectory()) {
+    m_file->mkdir(HistogramDirectory(), HistogramDirectory());
+  }
 }
 
 ///destructor

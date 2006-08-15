@@ -18,13 +18,14 @@ L1GctBasicHistogrammer::L1GctBasicHistogrammer(TFile* tf, const std::string dir)
 ///destructor
 L1GctBasicHistogrammer::~L1GctBasicHistogrammer()
 {
-  setHistogramDirectory();
-  allJetsRank.Write();
-  allJetsEta.Write();
-  allJetsPhi.Write();
-  allJetsGctEta.Write();
-  metValue.Write();
-  metAngle.Write();
+  if (setHistogramDirectory()) {
+    allJetsRank.Write();
+    allJetsEta.Write();
+    allJetsPhi.Write();
+    allJetsGctEta.Write();
+    metValue.Write();
+    metAngle.Write();
+  }
 }
 
 ///event processor
