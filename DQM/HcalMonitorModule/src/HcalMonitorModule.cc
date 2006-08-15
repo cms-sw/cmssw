@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/01 20:47:49 $
- * $Revision: 1.11 $
+ * $Date: 2006/08/15 19:58:37 $
+ * $Revision: 1.12 $
  * \author W Fisher
  *
 */
@@ -158,7 +158,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   m_ievt++;
   m_evtSel->processEvent(e);
   int evtMask = m_evtSel->getEventMask();
-  m_runNum = m_evtSel->getRunNumber();
+
+  edm::EventID id_ = e.id();
+  m_runNum = (int)(id_.run());
+
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
     m_meRunNum->Fill(m_runNum);
