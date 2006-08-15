@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/12 19:44:24 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -50,6 +50,12 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
                                          const edm::EventSetup&) const;
 
  private: 
+  /// enable DT Segment Flag
+  bool theEnableDTFlag;
+
+  /// enable CSCSegment Flag
+  bool theEnableCSCFlag;
+
   /// the name of the DT rec hits collection
   std::string theDTRecSegmentLabel;
 
