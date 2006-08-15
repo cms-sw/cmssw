@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/04 09:14:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/08/11 01:43:44 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -258,7 +258,7 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TransverseImpactPointExtrapolator tipe(*thePropagator);
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
-  if ( !tscp.isValid() ) return reco::Track();
+  if ( !tscp.isValid() ) return reco::Track(); // FIXME: how to report this?
   PerigeeConversions conv;
   double pt = 0.0;
   PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
