@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.21 2006/08/16 14:16:30 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.22 2006/08/16 14:48:53 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -13,6 +13,7 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   class DetIdLess {
@@ -353,11 +354,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 12) {
-      if (items.size () > 0) {
-	std::cerr << "HcalElectronicsMap-> Bad line: " << buffer 
-		  << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth" << std::endl;
+      if (items.size()==0) continue; // no warning here
+      if (items.size()<9) {
+	edm::LogError("MapFormat") << "HcalElectronicsMap-> line too short: " << buffer;
+	continue;
       }
-      continue;
+      if (items[8]=="NA" || items[8]=="NT") {
+	while (items.size()<12) items.push_back(""); // don't worry here
+      } else if (items[8]=="HT") {
+	if (items.size()==11) items.push_back("");
+	else {
+	  edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer 
+				     << "\n HT line must contain at least 11 items: i  cr sl tb dcc spigot fiber fiberchan subdet=HT ieta iphi";
+	  continue;
+	}
+      } else {
+	edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer 
+				   << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth";
+	continue;
+      }
     }
     //    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
