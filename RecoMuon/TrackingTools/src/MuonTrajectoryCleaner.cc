@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/07/11 15:01:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/25 16:21:53 $
+ *  $Revision: 1.5 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -12,7 +12,7 @@
 using namespace std; 
 
 void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
-  std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
+  const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
   LogDebug(metname) << "Muon Trajectory Cleaner called" << endl;
 

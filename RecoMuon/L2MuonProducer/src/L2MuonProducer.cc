@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/07/04 17:07:17 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/07/06 09:19:04 $
+ *   $Revision: 1.8 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -67,7 +67,7 @@ L2MuonProducer::~L2MuonProducer(){
 /// reconstruct muons
 void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
-  std::string metname = "Muon|RecoMuon|L2MuonProducer";
+ const std::string metname = "Muon|RecoMuon|L2MuonProducer";
   
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"L2 Muon Reconstruction Started"<<endl;

@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/07/18 10:18:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/02 08:08:30 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -117,7 +117,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField); 
     
-    debug.dumpFTS(track.impactPointTSCP().theState());
+    cout << debug.dumpFTS(track.impactPointTSCP().theState());
     
     recPt = track.impactPointTSCP().momentum().perp();    
     cout<<" p: "<<track.impactPointTSCP().momentum().mag()<< " pT: "<<recPt<<endl;

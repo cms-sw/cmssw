@@ -4,8 +4,8 @@
 /** \class MuonPatternRecoDumper
  *  A class to print information used for debugging
  *
- *  $Date: 2006/05/23 13:48:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/07/06 08:19:19 $
+ *  $Revision: 1.5 $
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -26,34 +26,21 @@ public:
   virtual ~MuonPatternRecoDumper();
 
   // Operations
-  void dumpLayer(const DetLayer* layer) const;
+  std::string dumpLayer(const DetLayer* layer) const;
 
-  void dumpFTS(FreeTrajectoryState& fts) const;
-  void dumpFTS(const FreeTrajectoryState& fts) const {
-      dumpFTS(const_cast<FreeTrajectoryState&>(fts));
+  std::string dumpFTS(FreeTrajectoryState& fts) const;
+  std::string dumpFTS(const FreeTrajectoryState& fts) const {
+      return dumpFTS(const_cast<FreeTrajectoryState&>(fts));
   }
-  void dumpTSOS(TrajectoryStateOnSurface& tsos) const;
-  void dumpTSOS(const TrajectoryStateOnSurface& tsos) const {
-      dumpTSOS(const_cast<TrajectoryStateOnSurface&>(tsos));
+  std::string dumpTSOS(TrajectoryStateOnSurface& tsos) const;
+  std::string dumpTSOS(const TrajectoryStateOnSurface& tsos) const {
+      return dumpTSOS(const_cast<TrajectoryStateOnSurface&>(tsos));
   }
-  void dumpLayer(const DetLayer* layer, std::string &where) const;
 
-  void dumpFTS(FreeTrajectoryState& fts, std::string &where) const;
-  void dumpFTS(const FreeTrajectoryState& fts, std::string &where) const {
-      dumpFTS(const_cast<FreeTrajectoryState&>(fts), where);
-  }
-  void dumpTSOS(TrajectoryStateOnSurface& tsos, std::string &where) const;
-  void dumpTSOS(const TrajectoryStateOnSurface& tsos, std::string &where) const {
-      dumpTSOS(const_cast<TrajectoryStateOnSurface&>(tsos), where);
-  }
-  
-  void dumpMuonId(const DetId &id) const;
-  void dumpMuonId(const DetId &id, std::string &where) const;
-
+  std::string dumpMuonId(const DetId &id) const;
 protected:
 
 private:
-
 };
 #endif
 

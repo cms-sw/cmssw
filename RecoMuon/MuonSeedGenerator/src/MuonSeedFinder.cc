@@ -1,9 +1,10 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/26 09:26:03 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.13 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
+ *  \author porting  R. Bellan
  *
  */
 
@@ -50,7 +51,7 @@ MuonSeedFinder::MuonSeedFinder(){
 
 vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) const {
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
 
   //  MuonDumper debug;
   vector<TrajectorySeed> theSeeds;
@@ -154,7 +155,7 @@ MuonSeedFinder::createEndcapSeed(MuonRecHitPointer last,
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
@@ -232,7 +233,7 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me,
 				 vector<TrajectorySeed>& theSeeds,
 				 const edm::EventSetup& eSetup) const {
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
@@ -295,7 +296,7 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me,
   const FreeTrajectoryState state = *(tsos.freeState());
 
   MuonPatternRecoDumper debugDumper;
-  debugDumper.dumpFTS(state,metname);
+  LogDebug(metname) << debugDumper.dumpFTS(state);
 
   float z=0;
   /// magic number: eta=1.479 correspond to upper corner of ME1/1
@@ -347,7 +348,7 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me,
     theSeeds.push_back(seed);
     
     LogDebug(metname)<<"  Propag.oppositeToMomentum "<<endl;
-    debugDumper.dumpTSOS(trj,metname);
+    LogDebug(metname)<< debugDumper.dumpTSOS(trj);
     LogDebug(metname) << "=== Successfull propagation" << endl;  // +v
     
     result=true;

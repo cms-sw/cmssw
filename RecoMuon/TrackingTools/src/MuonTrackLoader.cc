@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/08/11 01:43:44 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/08/15 10:57:09 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -56,7 +56,7 @@ edm::OrphanHandle<reco::TrackCollection>
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
-  const std::string metname = "RecoMuon|MuonTrackLoader";
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // *** first loop: create the full collection of TrackingRecHit ***
   
@@ -191,7 +191,7 @@ edm::OrphanHandle<reco::MuonCollection>
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    edm::Event& event) {
 
-  const std::string metname = "RecoMuon|MuonTrackLoader";
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event
   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
@@ -235,23 +235,24 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 //
 reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+
   MuonPatternRecoDumper debug;
   
   // FIXME: check the prop direction
   TrajectoryStateOnSurface innerTSOS;
   
   if (trajectory.direction() == alongMomentum) {
-    LogDebug("RecoMuon")<<"alongMomentum";
+    LogDebug(metname)<<"alongMomentum";
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if (trajectory.direction() == oppositeToMomentum) { 
-    LogDebug("RecoMuon")<<"oppositeToMentum";
+    LogDebug(metname)<<"oppositeToMentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
-  else edm::LogError("RecoMuon")<<"Wrong propagation direction!";
+  else edm::LogError(metname)<<"Wrong propagation direction!";
   
-  std::string metname = "RecoMuon";
-  debug.dumpTSOS(innerTSOS,metname);
+  LogDebug(metname) << debug.dumpTSOS(innerTSOS);
 
   // This is needed to extrapolate the tsos at vertex
   GlobalPoint vtx(0,0,0); 
@@ -289,6 +290,8 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 //
 reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const {
 
+  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
   // put the collection of TrackingRecHit in the event
@@ -299,16 +302,16 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   TrajectoryStateOnSurface innerTSOS;
   
   if(trajectory.direction() == alongMomentum) {
-    LogDebug("RecoMuon")<<"alongMomentum";
+    LogDebug(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if(trajectory.direction() == oppositeToMomentum) {
-      LogDebug("RecoMuon")<<"oppositeToMentum";
+      LogDebug(metname)<<"oppositeToMentum";
       outerTSOS = trajectory.firstMeasurement().updatedState();
       innerTSOS = trajectory.lastMeasurement().updatedState();
     }
-  else edm::LogError("RecoMuon")<<"Wrong propagation direction!";
+  else edm::LogError(metname)<<"Wrong propagation direction!";
   
   //build the TrackExtra
   GlobalPoint v = outerTSOS.globalParameters().position();

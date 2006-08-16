@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/08/12 22:58:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/15 00:58:36 $
+ *  $Revision: 1.5 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -221,7 +221,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
 
   std::vector<TrajectorySeed> result;
 
-  std::string metname = "CosmicMuonSeedGenerator";
+  const std::string metname = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   MuonPatternRecoDumper debug;
   

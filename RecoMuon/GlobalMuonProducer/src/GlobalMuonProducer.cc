@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/07/18 05:57:28 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/07/21 21:53:05 $
+ *   $Revision: 1.10 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -75,7 +75,7 @@ GlobalMuonProducer::~GlobalMuonProducer() {
 // reconstruct muons
 //
 void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
-  std::string metname = "Muon|RecoMuon|GlobalMuonProducer";  
+  const std::string metname = "Muon|RecoMuon|GlobalMuonProducer";  
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
   

@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/07/26 16:30:25 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/11 11:06:09 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -132,13 +132,13 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   LogDebug(metname)<<"Seed Pt: "<<seedTSOS.freeState()->momentum().perp()<<endl;
 
   LogDebug(metname)<< "Seed id in: "<< endl ;
-  debug.dumpMuonId(seedDetId,metname);
+  LogDebug(metname) << debug.dumpMuonId(seedDetId);
   
   // Get the layer from which start the trajectory building
   const DetLayer *seedDetLayer = theDetLayerGeometry->idToLayer( seedDetId );
 
   LogDebug(metname)<< "---StandAloneMuonTrajectoryBuilder SEED:" << endl;
-  debug.dumpTSOS(seedTSOS,metname);
+  LogDebug(metname) << debug.dumpTSOS(seedTSOS);
   
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
@@ -151,10 +151,11 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
 
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
-  debug.dumpTSOS(tsosAfterRefit,metname);
+  LogDebug(metname) << debug.dumpTSOS(tsosAfterRefit);
   
 
-  if( refitter()->layers().size() ) debug.dumpLayer( refitter()->lastDetLayer(), metname);
+  if( refitter()->layers().size() ) 
+    LogDebug(metname) << debug.dumpLayer( refitter()->lastDetLayer());
   else return trajectoryContainer; 
   
   LogDebug(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
@@ -197,7 +198,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
 
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
-  debug.dumpTSOS(tsosAfterBWRefit,metname);
+  LogDebug(metname) << debug.dumpTSOS(tsosAfterBWRefit);
   LogDebug(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
     << "Number of DT/CSC/RPC chamber used (bw): " 

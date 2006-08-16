@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/07/26 09:27:14 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/11 11:06:09 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -241,7 +241,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     
     //    bool firstTime = true;
 
-    debug.dumpLayer(*layer,metname);
+    LogDebug(metname) << debug.dumpLayer(*layer);
     
     LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
     
@@ -306,7 +306,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 		       <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
       LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;
-      debug.dumpTSOS(result.second,metname);
+      LogDebug(metname) << debug.dumpTSOS(result.second);
 
       if(result.first){ 
 	lastTSOS = result.second;

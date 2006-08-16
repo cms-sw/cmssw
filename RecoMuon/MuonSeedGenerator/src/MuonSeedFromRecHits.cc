@@ -2,9 +2,10 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/07/31 21:42:49 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/01 15:53:04 $
+ *  $Revision: 1.14 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
+ *  \author porting  R. Bellan
  *
  */
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
@@ -56,7 +57,7 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   double pt[8] = { 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 };
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
 
   /// compute pts with vertex constraint
   computePtWithVtx(pt, spt);
@@ -357,7 +358,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
                                            float& ptmean,
                                            float& sptmean) const {
 
-  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
 
   int nTotal=8;
   int igood=-1;
@@ -483,7 +484,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 					       ConstMuonRecHitPointer last,
 					       const edm::EventSetup& eSetup) const{
   
-  std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
+  const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
 
   MuonPatternRecoDumper debug;
   
@@ -563,7 +564,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   const FreeTrajectoryState state = *(tsos.freeState());
   
   LogDebug(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  debug.dumpFTS(state,metname);
+  LogDebug(metname) << debug.dumpFTS(state);
   
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
@@ -571,7 +572,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   // Segment layer
   LogDebug(metname) << "The RecSegment relies on: "<<endl;
-  debug.dumpMuonId(last->geographicalId(),metname);
+  LogDebug(metname) << debug.dumpMuonId(last->geographicalId());
 
   // ask for compatible layers
   vector<const DetLayer*> detLayers;
@@ -591,15 +592,16 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   if(detLayers.size()){
     LogDebug(metname) <<"Compatible layers:"<<endl;
-    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); layer != detLayers.end(); layer++){
-      debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId(),metname);
-      debug.dumpLayer(*layer,metname);
+    for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
+	 layer != detLayers.end(); layer++){
+      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
+      LogDebug(metname) << debug.dumpLayer(*layer);
     }
     
     // ask for compatible dets
     LogDebug(metname) <<"Most internal one:"<<endl;
-    debug.dumpLayer(detLayers.back(),metname);
-    debug.dumpTSOS(tsos,metname);
+    LogDebug(metname) << debug.dumpLayer(detLayers.back());
+    LogDebug(metname) << debug.dumpTSOS(tsos);
     detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
     LogDebug(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
   }
@@ -615,10 +617,10 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     if ( newTSOS.isValid() ) {
       
       LogDebug(metname)<<"Most compatible det: "<<endl;
-      debug.dumpMuonId(newTSOSDet->geographicalId(),metname);
+      LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
 
       LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
-      debug.dumpTSOS(newTSOS, metname);
+      LogDebug(metname) << debug.dumpTSOS(newTSOS);
       
       // Transform it in a TrajectoryStateOnSurface
       TrajectoryStateTransform tsTransform;

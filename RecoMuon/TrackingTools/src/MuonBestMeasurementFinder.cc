@@ -6,8 +6,8 @@
  *  chi2, but without any cut. The decision whether to use or not the
  *  measurement is taken in the caller class.
  *
- *  $Date: 2006/07/04 16:55:38 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/31 22:26:58 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -38,7 +38,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
   typedef TransientTrackingRecHit::ConstRecHitContainer MuonRecHitContainer;
     
-  std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
+  const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   TimeMe time(metname);
 
@@ -128,7 +128,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 TrajectoryMeasurement* 
 MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasurement>& measC){
 
-  std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
+  const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
 
   TimeMe time(metname);
 

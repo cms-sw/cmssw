@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/26 09:27:41 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/07/31 22:43:07 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -92,7 +92,7 @@ pair<bool,TrajectoryStateOnSurface>
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas, 
 			      Trajectory& theTraj){
   
-  std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
+  const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
   TimeMe t(metname);
   MuonPatternRecoDumper muonDumper;
 
@@ -249,7 +249,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 			    << lastUpdatedTSOS.globalPosition().perp()
 			    << "filter updated" << endl;
 	  
-	  muonDumper.dumpTSOS(lastUpdatedTSOS,metname);
+	  LogDebug(metname) << muonDumper.dumpTSOS(lastUpdatedTSOS);
 	  
 	  LogDebug(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
