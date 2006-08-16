@@ -16,11 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:47:10 CEST 2005
-// $Id: SignallingProductRegistry.h,v 1.2 2005/10/11 19:29:38 chrjones Exp $
+// $Id: SignallingProductRegistry.h,v 1.3 2006/02/08 00:44:25 wmtan Exp $
 //
 
 // system include files
-#include "boost/signal.hpp"
+#include "sigc++/signal.h"
 #include <map>
 #include <string>
 
@@ -34,7 +34,7 @@ namespace edm {
 
    public:
       SignallingProductRegistry() {}
-      boost::signal<void(BranchDescription const&)> productAddedSignal_;
+      sigc::signal<void, BranchDescription const&> productAddedSignal_;
       
    private:
       SignallingProductRegistry(const SignallingProductRegistry&); // stop default

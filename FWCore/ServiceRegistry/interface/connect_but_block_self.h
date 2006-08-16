@@ -17,12 +17,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 20:42:32 CEST 2005
-// $Id$
+// $Id: connect_but_block_self.h,v 1.1 2005/09/26 23:15:03 chrjones Exp $
 //
 
 // system include files
 #include "boost/shared_ptr.hpp"
-#include "boost/signal.hpp"
+#include "sigc++/signal.h"
+#include "sigc++/connection.h"
 #include "boost/bind.hpp"
 
 // user include files
@@ -51,12 +52,12 @@ namespace edm {
 
          void operator()(T1 iT1, T2 iT2) {
             boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(iT,iT2); }
+            if( startBlocking() ) { func_(iT1,iT2); }
          }
 
          void operator()(T1 iT1, T2 iT2, T3 iT3) {
             boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(iT,iT2,iT3); }
+            if( startBlocking() ) { func_(iT1,iT2,iT3); }
          }
          
          // ---------- static member functions --------------------
@@ -77,12 +78,12 @@ namespace edm {
       
       template<class T>
          BlockingWrapper<T> make_blockingwrapper(T iT,
-                                                 const boost::function0<void,std::allocator<void> >*){
+                                                 const sigc::slot<void>*){
             return BlockingWrapper<T>(iT);
          }
       template<class T, class TArg>
          BlockingWrapper<T,TArg> make_blockingwrapper(T iT,
-                                                      const boost::function1<void,TArg,std::allocator<void> >*){
+                                                      const sigc::slot<void,TArg>*){
             return BlockingWrapper<T,TArg>(iT);
          }
       
@@ -90,12 +91,12 @@ namespace edm {
       template<class Func, class Signal>
       void 
       connect_but_block_self(Signal& oSignal, const Func& iFunc) {
-         using boost::signals::connection;
+         using sigc::connection;
          boost::shared_ptr<boost::shared_ptr<connection> > holder(new boost::shared_ptr<connection>());
          *holder = boost::shared_ptr<connection>(
                     new connection(oSignal.connect(
                                                    make_blockingwrapper(iFunc,
-                                                                        static_cast<const typename Signal::slot_function_type*>(0)))));
+                                                                        static_cast<const typename Signal::slot_type*>(0)))));
       }
    }
 }

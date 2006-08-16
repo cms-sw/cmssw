@@ -7,9 +7,9 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.1 2006/07/07 14:00:56 chrjones Exp $
+// $Id: Timing.h,v 1.2 2006/07/31 21:21:55 evansde Exp $
 //
-#include "boost/signal.hpp"
+#include "sigc++/signal.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -23,7 +23,7 @@ namespace edm {
       Timing(const ParameterSet&,ActivityRegistry&);
       ~Timing();
 
-      boost::signal<void (const edm::ModuleDescription&, double)> newMeasurementSignal;
+      sigc::signal<void, const edm::ModuleDescription&, double> newMeasurementSignal;
     private:
       void postBeginJob();
       void postEndJob();

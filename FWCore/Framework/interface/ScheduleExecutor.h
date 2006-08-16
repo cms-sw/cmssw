@@ -8,12 +8,12 @@
    Declaration of class ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.h,v 1.6 2005/09/08 11:02:53 chrjones Exp $
+   \version $Id: ScheduleExecutor.h,v 1.7 2006/06/20 23:13:27 paterno Exp $
    \date 18 May 2005
 */
 
 #include <list>
-#include "boost/signal.hpp"
+#include "sigc/signal.h"
 
 namespace edm {
  
@@ -44,8 +44,8 @@ namespace edm {
     /** return 0 on success (need to define codes) */
     int  runOneEvent(EventPrincipal& eventPrincipal, EventSetup const& eventSetup);
 
-    boost::signal<void (const ModuleDescription&)> preModuleSignal;
-    boost::signal<void (const ModuleDescription&)> postModuleSignal;
+    sigc::signal<void, const ModuleDescription&> preModuleSignal;
+    sigc::signal<void, const ModuleDescription&> postModuleSignal;
 
   private:
     PathList m_pathlist;
