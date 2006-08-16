@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.6 2005/09/01 05:42:17 wmtan Exp $
+// $Id: DataProxyTemplate.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 // forward declarations
 
