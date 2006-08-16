@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:26:43 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/08/16 11:56:23 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -77,21 +77,25 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    LogDebug("") << "Number of filter objects found: " << n0 << " " << n1 << " " << n2;
 
 
-   // store RefToBases to all filter objects found in a vector
-   // in order to allow unified treatment
+   // store RefToBases and their labels, to all filter objects found,
+   // in single vectors in order to allow unified treatment
    const unsigned int n(n0+n1+n2);
    vector<RefToBase<HLTFilterObjectBase> > fobs(n);
+   vector<string> fobnames(n);
    unsigned int i(0);
    for (unsigned int i0=0; i0!=n0; i0++) {
      fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectBase>(fob0[i0]));
+     fobnames[i]=fob0[i0].provenance()->moduleLabel();
      i++;
    }
    for (unsigned int i1=0; i1!=n1; i1++) {
      fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObject    >(fob1[i1]));
+     fobnames[i]=fob1[i1].provenance()->moduleLabel();
      i++;
    }
    for (unsigned int i2=0; i2!=n2; i2++) {
      fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectWithRefs>(fob2[i2]));
+     fobnames[i]=fob2[i2].provenance()->moduleLabel();
      i++;
    }
    // from now on, use only this combined vector!
@@ -128,8 +132,7 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        // loop over filter objects actually in this event
        for (unsigned int i=0; i!=n; i++) {
 	 // filter object fobs[i] produced by module instance name?
-//	 if (name==tns->getTrigPathModule(fobs[i]->path(),fobs[i]->module())) {
-	 if (name==iEvent.getProvenance(fobs[i].id()).moduleLabel()) {
+	 if (name==fobnames[i]) {
 	   // no other found already?
 	   if (count==0) {
 	     // insert and document
