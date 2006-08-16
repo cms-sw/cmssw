@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.23 2006/06/06 21:23:39 wmtan Exp $
+$Id: PoolSource.h,v 1.24 2006/08/01 05:39:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,6 +41,7 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
+    virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
     void init(std::string const& file);
     void updateProductRegistry() const;
@@ -50,6 +51,8 @@ namespace edm {
 
     std::vector<std::string>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
+    RootFileSharedPtr origRootFile_;
+    EntryNumber origEntryNumber_;
     BranchDescription::MatchMode matchMode_;
     bool mainInput_;
   }; // class PoolSource

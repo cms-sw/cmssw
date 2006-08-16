@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.25 2006/07/26 21:20:03 wmtan Exp $
+$Id: RootFile.cc,v 1.26 2006/07/27 06:25:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -148,7 +148,10 @@ namespace edm {
 
   RootFile::EntryNumber
   RootFile::getEntryNumber(EventID const& eventID) const {
-    return eventTree_->GetEntryNumberWithIndex(eventID.run(), eventID.event());
+    RootFile::EntryNumber index = eventTree_->GetEntryNumberWithIndex(eventID.run(), eventID.event());
+    if (index < 0) index = eventTree_->GetEntryNumberWithBestIndex(eventID.run(), eventID.event()) + 1;
+    if (index >= entries_) index = -1;
+    return index;
   }
 
   // read() is responsible for creating, and setting up, the

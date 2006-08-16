@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.32 2006/07/06 19:25:00 wmtan Exp $
+$Id: PoolSource.cc,v 1.33 2006/08/01 05:39:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -18,6 +18,8 @@ namespace edm {
     VectorInputSource(pset, desc),
     fileIter_(fileNames().begin()),
     rootFile_(),
+    origRootFile_(),
+    origEntryNumber_(),
     matchMode_(BranchDescription::Permissive),
     mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
   {
@@ -43,21 +45,25 @@ namespace edm {
       EventID id = EventID(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
 		  pset.getUntrackedParameter<unsigned int>("firstEvent", 1));
       RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
-      if (entry >= 0) {
-        rootFile_->setEntryNumber(entry - 1);
-      } else {
-        throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
-	  << "File " << *fileIter_ << "\n has no " << id << "\n";
+      while (entry < 0) {
+        // Set the entry to the last entry in this file
+        rootFile_->setEntryNumber(rootFile_->entries()-1);
+
+        // Advance to the first entry of the next file, if there is a next file.
+        if(!next()) {
+          throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
+	    << "Input files have no " << id << "\n";
+        }
+        entry = rootFile_->getEntryNumber(id);
       }
+      rootFile_->setEntryNumber(entry - 1);
     }
     int eventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents", 0);
     if (eventsToSkip > 0) {
-      if (firstEventID == EventID()) {
-        skip(eventsToSkip);
-      } else {
-        LogWarning("'skipEvents' ignored because\n'firstRun' or 'firstEvent' also specified");
-      }
+      skip(eventsToSkip);
     }
+    origRootFile_ = rootFile_;
+    origEntryNumber_ = rootFile_->entryNumber();
   }
 
   void PoolSource::init(std::string const& file) {
@@ -171,6 +177,13 @@ namespace edm {
     }
   }
 
+  // Rewind to before the first event that was read.
+  void
+  PoolSource::rewind_() {
+    rootFile_ = origRootFile_;
+    rootFile_->setEntryNumber(origEntryNumber_);
+  }
+
   // Advance "offset" events. Entry numbers begin at 0.
   // The current entry number is the last one read, not the next one read.
   // The current entry number may be -1, if none have been read yet.
@@ -185,7 +198,7 @@ namespace edm {
       int increment = rootFile_->entries() - rootFile_->entryNumber();    
 
       // Set the entry to the last entry in this file
-      rootFile_->setEntryNumber(rootFile_->entries() -1);
+      rootFile_->setEntryNumber(rootFile_->entries()-1);
 
       // Advance to the first entry of the next file, if there is a next file.
       if(!next()) return;
