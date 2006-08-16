@@ -1,6 +1,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TrackingTools/TrackAssociator/interface/TestMuon.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfoCollection.h"
+#include "TrackingTools/TrackAssociator/interface/MuonSegmentMatchCollection.h"
 
 #include <vector>
 
@@ -15,6 +17,8 @@ namespace {
     edm::RefVector<std::vector<reco::TestMuon> > rv1;
      
     TrackDetMatchInfo tdi1;
+    edm::Wrapper<TrackDetMatchInfoCollection> trackDetMatchInfoCollectionWrapper;
+    edm::Wrapper<MuonSegmentMatchCollection> muonSegmentMatchCollectionWrapper;
     reco::TestMuon::MuonMatch mm1;
     std::vector<reco::TestMuon::MuonMatch> vmm1;
     reco::TestMuon::MuonIsolation mi1;

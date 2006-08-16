@@ -8,10 +8,13 @@
   <class name="edm::RefProd<std::vector<reco::TestMuon> >"/>
   <class name="edm::RefVector<std::vector<reco::TestMuon>,reco::TestMuon,edm::refhelper::FindUsingAdvance<std::vector<reco::TestMuon>,reco::TestMuon> >"/>
   <class name="TrackDetMatchInfo"/>
+  <class name="std::vector<TrackDetMatchInfo>"/>
+  <class name="edm::Wrapper<std::vector<TrackDetMatchInfo> >"/>
   <class name="MuonSegmentMatch"/>
+  <class name="std::vector<MuonSegmentMatch>"/>
+  <class name="edm::Wrapper<std::vector<MuonSegmentMatch> >"/>
   <class name="reco::TestMuon::MuonEnergy"/>
   <class name="reco::TestMuon::MuonIsolation"/>
   <class name="reco::TestMuon::MuonMatch"/>
   <class name="std::vector<reco::TestMuon::MuonMatch>"/>
-  <class name="std::vector<MuonSegmentMatch>"/>
 </lcgdict>
