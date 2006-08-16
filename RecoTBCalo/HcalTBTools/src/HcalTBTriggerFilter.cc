@@ -8,13 +8,18 @@ HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
   allowPedestalOutSpill_(ps.getParameter<bool>("AllowPedestalOutSpill")),
   allowLaser_(ps.getParameter<bool>("AllowLaser")),
   allowLED_(ps.getParameter<bool>("AllowLED")),
-  allowBeam_(ps.getParameter<bool>("AllowBeam"))
+  allowBeam_(ps.getParameter<bool>("AllowBeam")),
+  label_(ps.getUntrackedParameter<std::string>("label",""))
 {
 }
 
 bool HcalTBTriggerFilter::filter(edm::Event& e, edm::EventSetup const& c) {
   edm::Handle<HcalTBTriggerData> h;
-  e.getByType(h);
+
+  if (label_.length()<2) 
+    e.getByType(h);
+  else
+    e.getByLabel(label_,h);
 
   bool allowed=false;
 
