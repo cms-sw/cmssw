@@ -12,7 +12,7 @@
 
 <use name=Geometry/DTGeometry>
 # <use name=Geometry/RPCGeometry>
-# <use name=Geometry/CSCGeometry>
+<use name=Geometry/CSCGeometry>
 
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit>
