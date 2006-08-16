@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.5.2.1 2006/07/04 14:03:43 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.6 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,10 +17,12 @@ namespace edm {
     InputSource(pset, desc),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
+    origTime_(presentTime_),
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     numberEventsInThisRun_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
-    eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_)
+    eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
+    origEventID_(eventID_)
   { }
 
   ConfigurableInputSource::~ConfigurableInputSource() {
