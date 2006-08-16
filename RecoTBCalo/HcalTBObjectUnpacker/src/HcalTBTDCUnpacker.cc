@@ -217,8 +217,7 @@ const int HcalTBTDCUnpacker::WC_CHANNELIDS[PLANECOUNT*3] = {
 						    107, 108, 109, // WCG LR plane (was WC2)
 						    110, 111, 112, // WCG UD plane (was WC2)
 						    113, 114, 115, // WCH LR plane (was WC3)
-						    116, 117, 118, // WCH UD plane (was WC3)
-
+						    116, 117, 118  // WCH UD plane (was WC3)
 };
 
 static const double TDC_OFFSET_CONSTANT = 12000;
@@ -268,6 +267,7 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
     n1=0; n2=0; nA=0;
 
     std::vector<double> plane_hits;
+    double hit_time;
 
     chan1=WC_CHANNELIDS[plane*3];
     chan2=WC_CHANNELIDS[plane*3+1];
@@ -300,8 +300,14 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
 	}	      
       }
       if (jmin>=0) {
-	plane_hits.push_back(wc_[plane].b0 + 
-			     wc_[plane].b1 * (hits1[ii]-hits2[jmin]));
+	hit_time = wc_[plane].b0 +
+                             wc_[plane].b1 * (hits1[ii]-hits2[jmin]);
+	if((plane%2)==0)
+		{
+		plane_hits.push_back(-hit_time);
+		}else{
+		plane_hits.push_back(hit_time);
+		}
 	hits1[ii]=-99999;
 	hits2[jmin]=-99999;
 	hitsA[lmin]=99999;
@@ -313,8 +319,14 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
 	if (hits1[ii]<-99990) continue;
 	for (int jj=0; jj<n2; jj++) {
 	  if (hits2[jj]<-99990) continue;
-	  plane_hits.push_back(wc_[plane].b0 + 
-			       wc_[plane].b1 * (hits1[ii]-hits2[jj]));
+	  hit_time = wc_[plane].b0 +
+                             wc_[plane].b1 * (hits1[ii]-hits2[jj]);
+	  if((plane%2)==0)
+		{
+		plane_hits.push_back(-hit_time);
+		}else{
+		plane_hits.push_back(hit_time);
+		}
 	}
       }
 
