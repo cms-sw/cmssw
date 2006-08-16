@@ -33,7 +33,10 @@ namespace HcalUnpacker_impl {
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 			  Collections& colls) {
 
-  if (raw.size()<16) return;
+  if (raw.size()<16) {
+    edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
+    return;
+  }
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -51,9 +54,14 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 
     dccHeader->getSpigotData(spigot,htr);
     // check
-    if (!htr.check() || htr.isHistogramEvent()) {
-      // TODO: log error!
+    if (!htr.check()) {
+      edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
+    }
+    if (htr.isHistogramEvent()) {
+      edm::LogWarning("Invalid Data") << "Histogram data passed to non-histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+      continue;
+
     }
     // calculate "real" number of presamples
     int nps=htr.getNPS()-startSample_;
@@ -86,12 +94,13 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	DetId did=emap.lookupTrigger(eid);
 	if (did.null()) {
 	  if (unknownIds_.find(eid)==unknownIds_.end()) {
-	    edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
 	    unknownIds_.insert(eid);
 	  }
 	  valid=false;
 	  continue;
-	} else if (did.det()==DetId::Hcal && did.subdetId()==0) {
+	} else if (did==HcalTrigTowerDetId::Undefined || 
+		   (did.det()==DetId::Hcal && did.subdetId()==0)) {
 	  // known to be unmapped
 	  valid=false;
 	  continue;
@@ -226,12 +235,11 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     dccHeader->getSpigotData(spigot,htr);
     // check
     if (!htr.check()) {
-      // TODO: log error!
-      std::cout << "What is up here!" << std::endl;
+      edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
     }
     if (!htr.isHistogramEvent()) {
-      std::cout << "Must be histogram data!" << std::endl;
+      edm::LogWarning("Invalid Data") << "Non-histogram data passed to histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
     }
 
@@ -253,7 +261,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 
 	if (did.null() || did.det()!=DetId::Hcal || did.subdetId()==0) {
 	  if (unknownIds_.find(eid)==unknownIds_.end()) {
-	    edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    edm::LogWarning("HCAL") << "HcalHistogramUnpacker: No match found for electronics id :" << eid;
 	    unknownIds_.insert(eid);
 	  }	  
 	  continue;
