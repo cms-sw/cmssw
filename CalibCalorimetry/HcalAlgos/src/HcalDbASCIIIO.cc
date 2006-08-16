@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.23 2006/08/16 15:10:50 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.24 2006/08/16 15:15:33 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -384,6 +384,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
 
+    HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
+    elId.setHTR (crate, slot, top);
+
     // first, handle undefined cases
     if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
@@ -393,8 +396,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     } else {
     
       HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
-      HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
-      elId.setHTR (crate, slot, top);
       if (converter.isHcalDetId ()) { 
 	fObject->mapEId2chId (elId, converter.getId ());
       }
