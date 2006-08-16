@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.5 2005/09/01 05:44:55 wmtan Exp $
+// $Id: Callback.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -88,7 +88,7 @@ namespace edm {
          template<class RemainingContainerT, class DataT, class ProductsT>
             void setData(ProductsT& iProducts, const RemainingContainerT*, const DataT*) {
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               if(0 != temp) { produce::copyFromTo(iProducts, *temp); }
+               if(0 != temp) { copyFromTo(iProducts, *temp); }
                setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(0),
                        static_cast< const typename RemainingContainerT::tail_type *>(0));
             }
@@ -97,7 +97,7 @@ namespace edm {
                
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
                //std::cout <<" setData["<< produce::find_index<TReturn,DataT>::value<<"] "<< temp <<std::endl;
-               if(0 != temp) { produce::copyFromTo(iProducts, *temp); } 
+               if(0 != temp) { copyFromTo(iProducts, *temp); } 
             };
          void newRecordComing() {
             wasCalledForThisRecord_ = false;

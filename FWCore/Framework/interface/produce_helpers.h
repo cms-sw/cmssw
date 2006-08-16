@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 15 10:25:20 EDT 2005
-// $Id: produce_helpers.h,v 1.4 2005/09/01 04:48:09 wmtan Exp $
+// $Id: produce_helpers.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -30,7 +30,12 @@ namespace edm {
       
       namespace produce { struct Null;}
       
-      namespace produce { 
+     template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
+                                                            ToT & iTo) {
+       iTo = iFrom;
+     }
+
+     namespace produce { 
          struct Null {};
          template <typename T> struct EndList {
             typedef T tail_type;

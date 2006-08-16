@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.7 2005/09/12 19:54:20 chrjones Exp $
+// $Id: ESProducts.h,v 1.8 2005/10/01 18:05:31 chrjones Exp $
 //
 
 // system include files
@@ -190,16 +190,12 @@ namespace edm {
             return ESProducts<T,S,U>(produced << i1 << i2 << i3);
          }
    }
-   
-   namespace eventsetup {
-      namespace produce {
-         template<typename T1, typename T2, typename T3, typename ToT> 
-         void copyFromTo(ESProducts<T1,T2,T3>& iFrom,
-                         ToT& iTo) {
-            iFrom.assignTo(iTo);
-         }
-      }
-   }
+
+   template<typename T1, typename T2, typename T3, typename ToT> 
+     void copyFromTo(ESProducts<T1,T2,T3>& iFrom,
+                     ToT& iTo) {
+       iFrom.assignTo(iTo);
+     }
 }
 
 
