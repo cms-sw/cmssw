@@ -8,6 +8,7 @@ cmsRun -p runP_TIDB.cfg
 cmsRun -p runP_TOB.cfg
 cmsRun -p runP_TEC.cfg
 cmsRun -p runP_Tracker.cfg
+cmsRun -p runP_BeamPipe.cfg
 
 root -b -q 'MaterialBudget.C("TIB")'
 root -b -q 'MaterialBudget.C("TIDF")'
@@ -20,4 +21,6 @@ root -b -q 'MaterialBudget.C("PixFwdPlus")'
 root -b -q 'MaterialBudget.C("PixFwdMinus")'
 root -b -q 'MaterialBudget.C("Tracker")'
 root -b -q 'MaterialBudget.C("TrackerSum")'
+
+root -b -q 'MaterialBudget_TDR.C()'
 

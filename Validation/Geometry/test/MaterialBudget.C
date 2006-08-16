@@ -164,7 +164,7 @@ MaterialBudget(TString detector) {
   //
   
   // stack
-  TString stackTitle = "Material Budget " + theDetector + ";|#eta|;X/X_{0}";
+  TString stackTitle = "Material Budget " + theDetector + ";#eta;X/X_{0}";
   THStack stack_x0("stack_x0",stackTitle);
   stack_x0.Add(hist_x0_SUP);
   stack_x0.Add(hist_x0_SEN);
