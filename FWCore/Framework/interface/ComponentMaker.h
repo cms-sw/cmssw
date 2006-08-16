@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.11 2006/07/06 19:11:42 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.12 2006/07/23 01:24:33 valya Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 // forward declarations
 
@@ -37,6 +38,7 @@ namespace edm {
 template <class T>
       class ComponentMakerBase {
 public:
+         virtual ~ComponentMakerBase() {}
          typedef typename T::base_type base_type;
          virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
                      ParameterSet const& iConfiguration,
