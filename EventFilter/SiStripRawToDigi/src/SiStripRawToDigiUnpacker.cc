@@ -9,7 +9,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 //
@@ -54,91 +54,91 @@ SiStripRawToDigiUnpacker::~SiStripRawToDigiUnpacker() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling, 
-					    const FedBuffers& buffers, 
-					    auto_ptr<SiStripDigiCollection>& digis ) {
+// void SiStripRawToDigiUnpacker::createDigis( const FedCabling& cabling, 
+// 					    const FedBuffers& buffers, 
+// 					    auto_ptr<SiStripDigiCollection>& digis ) {
 
-  // Information for the pseudo-digis object
-  vector<sistrip::FedBufferFormat> formats;
-  vector<sistrip::FedReadoutMode> modes;
-  vector<uint8_t> fe_enable_bits;
-  vector<uint16_t> appended_bytes; 
+//   // Information for the pseudo-digis object
+//   vector<sistrip::FedBufferFormat> formats;
+//   vector<sistrip::FedReadoutMode> modes;
+//   vector<uint8_t> fe_enable_bits;
+//   vector<uint16_t> appended_bytes; 
   
-  formats.resize(1024);
-  modes.resize(1024);
-  fe_enable_bits.resize(1024);
-  appended_bytes.resize(1024);
+//   formats.resize(1024);
+//   modes.resize(1024);
+//   fe_enable_bits.resize(1024);
+//   appended_bytes.resize(1024);
   
-  // Retrieve FED ids from cabling map and iterate through 
-  vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
-  for ( ; ifed != cabling->feds().end(); ifed++ ) {
-    LogDebug("RawToDigi") << "["<<__PRETTY_FUNCTION__<<"] Handling FED id: " << *ifed;
+//   // Retrieve FED ids from cabling map and iterate through 
+//   vector<uint16_t>::const_iterator ifed = cabling->feds().begin();
+//   for ( ; ifed != cabling->feds().end(); ifed++ ) {
+//     LogDebug("RawToDigi") << "["<<__PRETTY_FUNCTION__<<"] Handling FED id: " << *ifed;
     
-    // Retrieve FED raw data for given FED 
-    const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
+//     // Retrieve FED raw data for given FED 
+//     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     
-    // Locate start of FED buffer within raw data
-    Fed9U::u32* data_u32 = 0;
-    Fed9U::u32  size_u32 = 0;
-    if ( headerBytes_ != 0 ) {
-      FEDRawData output; 
-      locateStartOfFedBuffer( *ifed, input, output );
-      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
-      size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-      appended_bytes[*ifed] = input.size() - output.size();
-    } else {
-      data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-      size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
-    }
+//     // Locate start of FED buffer within raw data
+//     Fed9U::u32* data_u32 = 0;
+//     Fed9U::u32  size_u32 = 0;
+//     if ( headerBytes_ != 0 ) {
+//       FEDRawData output; 
+//       locateStartOfFedBuffer( *ifed, input, output );
+//       data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+//       size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
+//       appended_bytes[*ifed] = input.size() - output.size();
+//     } else {
+//       data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
+//       size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
+//     }
       
-    // Check on FEDRawData pointer
-    if ( !data_u32 ) {
-      edm::LogError("SiStripRawToDigi") << "["<<__PRETTY_FUNCTION__<<"] NULL pointer to FEDRawData!";
-      continue;
-    }	
+//     // Check on FEDRawData pointer
+//     if ( !data_u32 ) {
+//       edm::LogError("SiStripRawToDigi") << "["<<__PRETTY_FUNCTION__<<"] NULL pointer to FEDRawData!";
+//       continue;
+//     }	
 
-    // Check on FEDRawData size
-    if ( !size_u32 ) {
-      edm::LogError("SiStripRawToDigi") << "["<<__PRETTY_FUNCTION__<<"] FEDRawData has zero size!";
-      continue;
-    }	
+//     // Check on FEDRawData size
+//     if ( !size_u32 ) {
+//       edm::LogError("SiStripRawToDigi") << "["<<__PRETTY_FUNCTION__<<"] FEDRawData has zero size!";
+//       continue;
+//     }	
 
-    // Initialise Fed9UEvent using present FED buffer and retrive readout mode
-    try {
-      fedEvent_->Init( data_u32, 0, size_u32 ); 
-      fedEvent_->checkEvent();
-    } catch(...) { handleException( __PRETTY_FUNCTION__, "Problem when creating and checking Fed9UEvent" ); } 
+//     // Initialise Fed9UEvent using present FED buffer and retrive readout mode
+//     try {
+//       fedEvent_->Init( data_u32, 0, size_u32 ); 
+//       fedEvent_->checkEvent();
+//     } catch(...) { handleException( __PRETTY_FUNCTION__, "Problem when creating and checking Fed9UEvent" ); } 
     
-    // Information for the pseudo-digis object
-    try {
-      formats[*ifed] = fedBufferFormat( static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() ) ); 
-      modes[*ifed] = fedReadoutMode( static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() ) );
-      fe_enable_bits[*ifed] = fedEvent_->getSpecialFeEnableReg();
-    } catch(...) { handleException( __PRETTY_FUNCTION__, "Problem when using Fed9UEvent" ); } 
+//     // Information for the pseudo-digis object
+//     try {
+//       formats[*ifed] = fedBufferFormat( static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() ) ); 
+//       modes[*ifed] = fedReadoutMode( static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() ) );
+//       fe_enable_bits[*ifed] = fedEvent_->getSpecialFeEnableReg();
+//     } catch(...) { handleException( __PRETTY_FUNCTION__, "Problem when using Fed9UEvent" ); } 
     
-    //     cout << " FedId: " << *ifed
-    // 	 << " BufferSize: " << ( 4 * size_u32 )
-    // 	 << hex
-    // 	 << " BufferFormat: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() )
-    // 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedBufferFormat( fedEvent_->getSpecialHeaderFormat() ) )
-    // 	 << " ReadoutMode: 0x"  << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() )
-    // 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedReadoutMode( fedEvent_->getSpecialTrackerEventType() ) )
-    // 	 << " FeEnableBits: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialFeEnableReg() )
-    // 	 << dec
-    // 	 << " AppendedBytes: " << ( input.size() - output.size() )
-    // 	 << endl;
+//     //     cout << " FedId: " << *ifed
+//     // 	 << " BufferSize: " << ( 4 * size_u32 )
+//     // 	 << hex
+//     // 	 << " BufferFormat: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialHeaderFormat() )
+//     // 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedBufferFormat( fedEvent_->getSpecialHeaderFormat() ) )
+//     // 	 << " ReadoutMode: 0x"  << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialTrackerEventType() )
+//     // 	 << "/"                 << setw(8) << setfill('0') << static_cast<uint16_t>( fedReadoutMode( fedEvent_->getSpecialTrackerEventType() ) )
+//     // 	 << " FeEnableBits: 0x" << setw(8) << setfill('0') << static_cast<uint16_t>( fedEvent_->getSpecialFeEnableReg() )
+//     // 	 << dec
+//     // 	 << " AppendedBytes: " << ( input.size() - output.size() )
+//     // 	 << endl;
     
-  }
+//   }
   
-  // Create SiStripDigiCollection object
-  digis = auto_ptr<SiStripDigiCollection>( new SiStripDigiCollection( buffers, 
-								      cabling->feds(), 
-								      formats,
-								      modes,
-								      fe_enable_bits,
-								      appended_bytes ) );
+//   // Create SiStripDigiCollection object
+//   digis = auto_ptr<SiStripDigiCollection>( new SiStripDigiCollection( buffers, 
+// 								      cabling->feds(), 
+// 								      formats,
+// 								      modes,
+// 								      fe_enable_bits,
+// 								      appended_bytes ) );
   
-}
+// }
 
 // -----------------------------------------------------------------------------
 /** */
