@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
+// $Id: NoDataException.h,v 1.8 2005/11/12 16:18:04 chrjones Exp $
 //
 
 // system include files
@@ -87,9 +87,20 @@ template <class T>
 
       // ---------- Constructors and destructor ----------------
       NoDataException(const EventSetupRecordKey& iRecordKey,
+                      const DataKey& iDataKey,
+                      const char* category_name = "NoDataException") : 
+        cms::Exception(category_name),
+        record_(iRecordKey),
+        dataKey_(iDataKey)
+        {
+          this->append(dataTypeMessage()+std::string("\n "));
+          this->append(standardMessage(iRecordKey));
+        }
+
+      NoDataException(const EventSetupRecordKey& iRecordKey,
 		      const DataKey& iDataKey,
-		      const char* category_name = "NoDataException",
-                      const std::string& iExtraInfo=standardMessage(iRecordKey) ) : 
+		      const char* category_name ,
+                      const std::string& iExtraInfo ) : 
 	cms::Exception(category_name),
 	record_(iRecordKey),
 	dataKey_(iDataKey)
