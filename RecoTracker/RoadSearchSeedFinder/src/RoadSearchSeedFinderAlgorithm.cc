@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/07/10 22:08:37 $
-// $Revision: 1.10 $
+// $Author: tboccali $
+// $Date: 2006/07/24 19:44:42 $
+// $Revision: 1.11 $
 //
 
 #include <vector>
@@ -183,7 +183,10 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripMatchedRecHit2D
 		    PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
 		    TrajectorySeed ts(*PTraj,rh,alongMomentum);
 		    
-		    // add seed to collection
+                    // 060811/OLI: memory leak fix as suggested by Chris
+                    delete PTraj;
+		    
+                    // add seed to collection
 		    output.push_back(ts);
 		  }
 		}

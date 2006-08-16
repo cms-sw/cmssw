@@ -90,7 +90,6 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
      std::auto_ptr<EventMsgView> eview = pr_->getNextEvent();
      if (eview.get() == 0)  
                           {
-                          cout<<"Empty event........"<<endl; 
                           return  std::auto_ptr<edm::EventPrincipal>();
                           }
      return StreamTranslator::deserializeEvent(*eview, productRegistry());

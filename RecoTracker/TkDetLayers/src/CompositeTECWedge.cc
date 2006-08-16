@@ -108,6 +108,10 @@ CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     return closestResult;
   }
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
+  LogDebug("TkDetLayers") 
+    << "in CompositeTECWedge::groupedCompatibleDets,closestResult.size(): "
+    << closestResult.size() ;
+
   if (closestResult.empty()) return closestResult;
   
   DetGroupElement closestGel( closestResult.front().front());
@@ -148,6 +152,12 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
     throw DetLayerException("CompositeTECWedge: front sector not crossed by track");
   }
   GlobalPoint gFrontPoint( crossing.position(frontPath.second));
+  LogDebug("TkDetLayers") << "in TECWedge,front crossing r,z,phi: (" 
+       << gFrontPoint.perp() << ","
+       << gFrontPoint.z() << "," 
+       << gFrontPoint.phi() << ")" ;
+
+
   int frontIndex = findClosestDet(gFrontPoint,0); 
   float frontDist = theFrontDets[frontIndex]->surface().position().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
@@ -158,6 +168,12 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
     throw DetLayerException("CompositeTECWedge: back sector not crossed by track");
   }
   GlobalPoint gBackPoint( crossing.position(backPath.second));
+  LogDebug("TkDetLayers") 
+    << "in TECWedge,back crossing r,z,phi: (" 
+    << gBackPoint.perp() << ","
+    << gBackPoint.z() << "," 
+    << gBackPoint.phi() << ")" << endl;
+  
   int backIndex = findClosestDet(gBackPoint,1);
   float backDist = theBackDets[backIndex]->surface().position().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
@@ -184,6 +200,13 @@ bool CompositeTECWedge::addClosest( const TrajectoryStateOnSurface& tsos,
 				    vector<DetGroup>& result) const
 {
   const vector<const GeomDet*>& sWedge( subWedge( crossing.subLayerIndex()));
+
+  LogDebug("TkDetLayers")  
+    << "in CompositeTECWedge,adding GeomDet at r,z,phi: (" 
+    << sWedge[crossing.closestDetIndex()]->position().perp() << "," 
+    << sWedge[crossing.closestDetIndex()]->position().z() << "," 
+    << sWedge[crossing.closestDetIndex()]->position().phi() << ")" ;
+
   return CompatibleDetToGroupAdder().add( *sWedge[crossing.closestDetIndex()], 
 					  tsos, prop, est, result);
 }

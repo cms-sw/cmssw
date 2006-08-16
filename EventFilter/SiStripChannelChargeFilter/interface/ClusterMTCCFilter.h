@@ -1,6 +1,15 @@
 #ifndef ClusterMTCCFilter_H
 #define ClusterMTCCFilter_H 
 
+// -*- C++ -*-
+//
+// Package:     SiStripChannelChargeFilter
+// Class  :     ClusterMTCCFilter
+// 
+//
+// Original Author:  dkcira
+
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,7 +32,7 @@ namespace cms
    uint ChargeThresholdTEC;
    uint MinClustersDiffComponents;
    // uint: generalized_layer: 10*subdetId + layer
-   std::map<uint, std::pair<SiStripCluster,uint32_t> > clusters_in_subcomponents;
+   std::map<uint,std::vector<SiStripCluster> > clusters_in_subcomponents;
   };
 }
 #endif

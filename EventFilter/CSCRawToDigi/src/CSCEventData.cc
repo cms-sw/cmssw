@@ -200,11 +200,11 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer) const {
 }
 
 
-std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer, unsigned icfeb) const {
-  assert(ilayer > 0 && ilayer <= 6);
+std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned idlayer, unsigned icfeb) const {
+  //  assert(ilayer > 0 && ilayer <= 6); // off because now idlayer is raw cscdetid
   std::vector<CSCStripDigi> result;
   if(theCFEBData[icfeb] != NULL) {
-    std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(ilayer);
+    std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(idlayer);
     result.insert(result.end(), newDigis.begin(), newDigis.end());
   }
   

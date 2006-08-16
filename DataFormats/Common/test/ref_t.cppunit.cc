@@ -38,12 +38,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testRef);
 
 namespace {
   struct Dummy { 
-    Dummy() {} 
-    ~Dummy() {}
-    bool operator==(Dummy const& iRHS) const {return this == &iRHS;} 
+    Dummy() {} bool 
+    operator==(Dummy const& iRHS) const {return this == &iRHS;} 
     void const* address() const {return this;}
   };
-
   typedef std::vector<Dummy> DummyCollection;
 }
 

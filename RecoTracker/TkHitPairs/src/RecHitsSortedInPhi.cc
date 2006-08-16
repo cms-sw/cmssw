@@ -6,12 +6,12 @@
 using namespace std;
 
 RecHitsSortedInPhi::RecHitsSortedInPhi( const vector<const TrackingRecHit*>& hits,
-					const TrackerGeometry* theBuilder) 
+					const TrackerGeometry* theGeometry) 
 {
   //initTiming();
   // TimeMe tm1( *theFillTimer, false);
   for (vector<const TrackingRecHit*>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
-    theHits.push_back( Hit(*i,theBuilder));
+    theHits.push_back( Hit(*i,theGeometry));
   }
   //TimeMe tm2( *theSortTimer, false);
   sort( theHits.begin(), theHits.end(), HitLessPhi());

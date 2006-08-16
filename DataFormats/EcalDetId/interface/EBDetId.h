@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.7 2005/12/19 17:50:41 rahatlou Exp $
+ *  $Id: EBDetId.h,v 1.8 2006/04/07 02:45:23 mansj Exp $
  */
 
 
@@ -45,7 +45,7 @@ class EBDetId : public DetId {
   /// get the HCAL/trigger ieta of this crystal
   int tower_ieta() const { return ((ietaAbs()-1)/5+1)*zside(); }
   /// get the HCAL/trigger iphi of this crystal
-  int tower_iphi() const { return ((iphi()-1)/5)+1; }
+  int tower_iphi() const;
   /// get the HCAL/trigger iphi of this crystal
   EcalTrigTowerDetId tower() const { return EcalTrigTowerDetId(zside(),EcalBarrel,abs(tower_ieta()),tower_iphi()); }
   /// get the ECAL/SM id

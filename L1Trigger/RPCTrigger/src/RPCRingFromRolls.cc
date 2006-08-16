@@ -1,7 +1,7 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/07/27 09:08:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/27 08:59:04 $
+ *  $Revision: 1.1.2.1 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
@@ -153,11 +153,21 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
     return -1;
   }
   
+  const float pi = 3.141592654;
       
   // \note The  m_stripPhiMap is sorted in a special way (see header)
   GlobalStripPhiMap::const_iterator it = m_stripPhiMap.lower_bound(phiCentre);
   if (it==m_stripPhiMap.end()){
+    if (it->first<2*pi){
       it == m_stripPhiMap.begin();
+    }
+    else{
+      
+      LogDebug("RPCTrigger") << "Trouble. Phi to big " 
+          << "(" << phiCentre << ")";
+      return -1;
+      
+    }
   }
     
   // XXX - possible source of logical errors - cones may be shifted +-1 comparing to ORCA
@@ -170,7 +180,7 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
   
   for (int i=0; i < logplaneSize; i++){
     stripCords scTemp = it->second;
-    newConnection.posInCone = i;
+    newConnection.posInCone = i+1;
     m_links[it->second].push_back(newConnection);
 
     it++;
@@ -191,7 +201,9 @@ RPCRingFromRolls::RPCLinks RPCRingFromRolls::giveConnections(){
  *
  * \brief Makes connections for reference curls
  * \todo Calculate centrePhi in more elegant way
- * \note Conevention: first strip in logplane is no. 0
+ * \todo The loop over phi strips should be done once - loop over otherRingFromRollss should be here, not in RPCTriggerGeo.
+ * \note Conevention: first strip in logplane is no. 1
+ * \todo Check if strip numbering convention is same as in ORCA
 *
  */
 //#############################################################################
@@ -247,7 +259,7 @@ int RPCRingFromRolls::makeRefConnections(RPCRingFromRolls *otherRingFromRolls){
     RPCConnection newConnection;
     newConnection.PAC = curPacNo;
     newConnection.tower = m_towerMin; // For refRingFromRolls m_towerMin and m_towerMax are equal
-    newConnection.posInCone = curStripNo-curBegStripNo;  // Conevention: first strip in logplane is no. 0 
+    newConnection.posInCone = curStripNo-curBegStripNo+1;  // Conevention: first strip in logplane is no. 1
     
     newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
   
@@ -418,10 +430,8 @@ void RPCRingFromRolls::doVirtualStrips(){
     
     if (delta<0)
       continue;
-
-    int stripsToAdd = (int)std::floor(delta/dphi)-1;
-    if ( isRefPlane() && m_hwPlane==6)
-       stripsToAdd++; 
+    
+    int stripsToAdd = (int)((delta)/dphi+0.5)-1;
     
     stripCords sc;
     sc.detRawId = rawDetIDLast;

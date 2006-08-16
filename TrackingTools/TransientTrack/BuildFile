@@ -9,6 +9,8 @@
 <use name=DataFormats/Math>
 <use name=TrackingTools/Records>
 <use name=DataFormats/Common>
+<use name=Geometry/CommonDetUnit>
+<use name=boost>
 
 <export>
   <lib name=TrackingToolsTransientTrack>
@@ -22,7 +24,9 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Math>
   <use name=TrackingTools/Records>
-<use name=DataFormats/Common>
+  <use name=DataFormats/Common>
+  <use name=Geometry/CommonDetUnit>
+  <use name=boost>
 </export>
 
 <flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">

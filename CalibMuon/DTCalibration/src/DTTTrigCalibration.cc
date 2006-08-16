@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/15 13:47:33 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/21 11:01:39 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -98,6 +98,11 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
   Handle<DTDigiCollection> digis; 
   event.getByLabel(digiLabel, digis);
 
+  ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels) {
+    // Get the map of noisy channels
+    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+  }
 
 
   if(doSubtractT0)
@@ -147,16 +152,12 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       // Check for noisy channels and skip them
       if(checkNoisyChannels) {
 	bool isNoisy = false;
-	if(setOfNoisy.find(wireId) != setOfNoisy.end())
-	  isNoisy = true;
-
-// 	bool isNoisy = false;
-// 	bool isFEMasked = false;
-// 	bool isTDCMasked = false;
-// 	bool isTrigMask = false;
-// 	bool isDead = false;
-// 	bool isNohv = false;
-// 	theStatusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	bool isFEMasked = false;
+	bool isTDCMasked = false;
+	bool isTrigMask = false;
+	bool isDead = false;
+	bool isNohv = false;
+	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
 	if(isNoisy) {
 	  if(debug)
 	    cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
@@ -273,38 +274,11 @@ void DTTTrigCalibration::dumpTTrigMap(const DTTtrig* tTrig) const {
   static const double convToNs = 25./32.;
   for(DTTtrig::const_iterator ttrig = tTrig->begin();
       ttrig != tTrig->end(); ttrig++) {
-    cout << "Wh: " << (*ttrig).wheelId
-	 << " St: " << (*ttrig).stationId
-	 << " Sc: " << (*ttrig).sectorId
-	 << " Sl: " << (*ttrig).slId
-	 << " TTrig mean (ns): " << (*ttrig).tTrig * convToNs
-	 << " TTrig sigma (ns): " << (*ttrig).tTrms * convToNs<< endl;
-  }
-}
-
-
-
-void DTTTrigCalibration::beginJob(const edm::EventSetup& eventSetup) {
-  // FIXME: this is a temporary workaraound!This should be moved to the analyze method
-  ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels) {
-    // Get the map of noisy channels
-    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
-  
-    theStatusMap = &*statusMap;
-    for(DTStatusFlag::const_iterator statusFlag = theStatusMap->begin();
-	statusFlag != theStatusMap->end(); statusFlag++) {
-      if((*statusFlag).noiseFlag == true) {
-	
-	DTWireId wireId((*statusFlag).wheelId,
-			(*statusFlag).stationId,
-			(*statusFlag).sectorId,
-			(*statusFlag).slId,
-			(*statusFlag).layerId,
-			(*statusFlag).cellId);
-	setOfNoisy.insert(wireId);
-      }
-    }
-
+    cout << "Wh: " << (*ttrig).first.wheelId
+	 << " St: " << (*ttrig).first.stationId
+	 << " Sc: " << (*ttrig).first.sectorId
+	 << " Sl: " << (*ttrig).first.slId
+	 << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
+	 << " TTrig sigma (ns): " << (*ttrig).second.tTrms * convToNs<< endl;
   }
 }

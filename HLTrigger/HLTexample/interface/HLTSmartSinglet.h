@@ -8,7 +8,7 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/07/26 17:09:25 $
+ *  $Date: 2006/08/03 20:22:58 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -39,7 +39,7 @@ class HLTSmartSinglet : public HLTFilter {
       std::string   cut_;      // smart cut
       int    Min_N_;           // number of objects passing cuts required
 
-      SingleObjectSelector<T> select_ // smart selector
+      SingleObjectSelector<T> select_; // smart selector
 };
 
 #endif //HLTSmartSinglet_h

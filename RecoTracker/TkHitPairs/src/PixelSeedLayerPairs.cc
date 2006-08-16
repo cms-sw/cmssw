@@ -24,16 +24,20 @@ vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()()
   result.push_back( LayerPair(lh1,lh2));
   result.push_back( LayerPair(lh1,lh3));
   result.push_back( LayerPair(lh2,lh3));
-  //seeds from the forward
-  result.push_back( LayerPair(pos1,pos2));
-  result.push_back( LayerPair(neg1,neg2));
+
   //seeds from the forward-barrel
   result.push_back( LayerPair(lh1,pos1));
   result.push_back( LayerPair(lh1,neg1));
   result.push_back( LayerPair(lh1,pos2));
   result.push_back( LayerPair(lh1,neg2));
+  result.push_back( LayerPair(lh2,pos1));
+  result.push_back( LayerPair(lh2,neg1));
   result.push_back( LayerPair(lh2,pos2));
   result.push_back( LayerPair(lh2,neg2));
+
+  //seeds from the forward
+  result.push_back( LayerPair(pos1,pos2));
+  result.push_back( LayerPair(neg1,neg2));
 
   return result;
 }

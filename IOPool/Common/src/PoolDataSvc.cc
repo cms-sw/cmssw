@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.cc,v 1.2 2006/01/25 01:28:02 wmtan Exp $
+// $Id: PoolDataSvc.cc,v 1.3 2006/04/06 23:45:51 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -9,14 +9,14 @@
 
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "FWCore/Framework/interface/FileCatalog.h"
-#include "DataSvc/IDataSvc.h"
-#include "DataSvc/DataSvcContext.h"
-#include "DataSvc/DataSvcFactory.h"
-#include "PersistencySvc/ISession.h"
-#include "PersistencySvc/IDatabase.h"
-#include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "StorageSvc/DbLonglong.h"
+#include "PersistencySvc/IDatabase.h"
+#include "DataSvc/IDataSvc.h"
+#include "PersistencySvc/ITechnologySpecificAttributes.h"
+#include "PersistencySvc/ISession.h"
+#include "DataSvc/DataSvcContext.h"
+#include "PersistencySvc/DatabaseConnectionPolicy.h"
+#include "DataSvc/DataSvcFactory.h"
 
 namespace edm {
   PoolDataSvc::PoolDataSvc(InputFileCatalog & catalog_, bool del) : context_(0) {
@@ -45,9 +45,30 @@ namespace edm {
   }
 
   size_t
-  PoolDataSvc::getFileSize(std::string const& fileName) {
+  PoolDataSvc::getFileSize(std::string const& fileName) const {
+    return getAttribute<pool::DbLonglong>(std::string("FILE_SIZE"), fileName);
+  }
+
+  void
+  PoolDataSvc::setCompressionLevel(std::string const& fileName, int value) const {
+      setAttribute<int>(std::string("COMPRESSION_LEVEL"), fileName, value);
+  }
+
+  // These templated functions are called only from this file, so they need not be in a header.
+  template <typename T>
+  T
+  PoolDataSvc::getAttribute(std::string const& attributeName, std::string const& fileName) const {
     std::auto_ptr<pool::IDatabase>
       idb(context_->session().databaseHandle(fileName, pool::DatabaseSpecification::PFN));
-    return idb->technologySpecificAttributes().attribute<pool::DbLonglong>("FILE_SIZE");
+    return idb->technologySpecificAttributes().template attribute<T>(attributeName);
   }
+
+  template <typename T>
+  void
+  PoolDataSvc::setAttribute(std::string const& attributeName, std::string const& fileName, T const& value) const {
+    std::auto_ptr<pool::IDatabase>
+      idb(context_->session().databaseHandle(fileName, pool::DatabaseSpecification::PFN));
+      idb->technologySpecificAttributes().template setAttribute<T>(attributeName, value);
+  }
+
 }

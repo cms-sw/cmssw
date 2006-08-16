@@ -68,6 +68,12 @@
 //	Clear the list of external dests needing configuration, if there
 //	is no configuration file available.
 //
+//  13 - 8/7/06 mf  - in configure_external_dests()
+//	Undo change 12: the list of external dests needing configuration
+//      is left intact if there is no configuration file available, the
+//      assumption being that at some later time there will be a file and
+//      the message logger will be configured again.
+//
 // ----------------------------------------------------------------------
 
 
@@ -620,7 +626,8 @@ void
 {
   if( ! job_pset_p )  
   {
-    extern_dests.clear();					// change log 12
+//  extern_dests.clear();				
+//  change log 12, removed by change log 13
     return;
   }
 

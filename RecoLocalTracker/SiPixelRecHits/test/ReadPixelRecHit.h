@@ -3,12 +3,11 @@
 
 /** \class ReadPixelRecHit
  *
- * ReadPixelRecHit is the EDProducer subclass which finds seeds
+ * ReadPixelRecHit: Example of how to read Pixel RecHits
  *
- * \author Oliver Gutsche, Fermilab
+ * \author Vincenzo Chiochia 
  *
- * \version   1st Version Aug. 01, 2005  
-
+ * \version   August 2006  
  *
  ************************************************************/
 
@@ -34,7 +33,7 @@ class ReadPixelRecHit : public edm::EDAnalyzer
   
  private:
   edm::ParameterSet conf_;
-  
+  edm::InputTag src_;
 };
 
 

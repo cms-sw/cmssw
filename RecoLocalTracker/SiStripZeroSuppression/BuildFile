@@ -21,7 +21,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>	
 
-<use name=RecoLocalTracker/SiStripClusterizer>	
+<use name=CommonTools/SiStripZeroSuppression>	
 
 <export>
 <lib name=RecoLocalTrackerSiStripZeroSuppression>
@@ -47,5 +47,5 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>	
 
-<use name=RecoLocalTracker/SiStripClusterizer>	
+<use name=CommonTools/SiStripZeroSuppression>	
 </export>

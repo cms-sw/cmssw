@@ -1,4 +1,4 @@
-// This is CSCLayerGeometry.cc 
+// This is CSCLayerGeometry.cc
 
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -12,6 +12,7 @@
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 
@@ -180,26 +181,6 @@ CSCLayerGeometry::stripWireIntersection( int strip, float wire ) const
   float xs = xOfStrip(strip);
   float xi = ( ms * xs + yOfWire(wire) ) / ( ms - mw );
   float yi = ms * (xi - xs );
-
-  //@@ Magic numbers for ME11 geometry since we need approximate knowledge of
-  // ME1a when dealing with ME1b and vice-versa.
-
-  // ME1a height = 440 mm
-  const float lenOfme1a = 44.0;
-  // ME1b height = 1065 mm
-  const float lenOfme1b = 106.5;
-
-  // Restrict to active area of ME11
-  if ( chamberType == 1 ) {
-    // Dealing with ME1a, but allow y in ME1b 
-    yi = std::max( -apothem, yi );           // restrict at bottom edge ME1a
-    yi = std::min( apothem+lenOfme1b, yi );  // restrict at top edge ME1b
-  } 
-  else if (chamberType == 2 ) {
-    // Dealing with ME1b, but allow y in ME1a 
-    yi = std::max( -apothem-lenOfme1a, yi ); // restrict at bottom edge ME1a
-    yi = std::min( apothem, yi );            // restrict at top edge ME1b
-  }
 
   return LocalPoint(xi, yi);
 }

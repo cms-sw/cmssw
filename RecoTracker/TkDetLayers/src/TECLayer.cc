@@ -122,11 +122,13 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
+  LogDebug("TkDetLayers") << "in TECLayer, closestResult.size(): " << closestResult.size();
 
   // this differs from other groupedCompatibleDets logic, which DON'T check next in such cases!!!
   if(closestResult.empty()){
     vector<DetGroup> nextResult;
-    addClosest( tsos, prop, est, crossings.other(), nextResult);     
+    addClosest( tsos, prop, est, crossings.other(), nextResult);   
+    LogDebug("TkDetLayers") << "in TECLayer, nextResult.size(): " << nextResult.size();
     if(nextResult.empty())       return nextResult;
     
 
@@ -168,6 +170,12 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
   }
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
+  LogDebug("TkDetLayers") 
+    << "in TECLayer,front crossing point: r,z,phi: (" 
+    << gFrontPoint.perp() << ","
+    << gFrontPoint.z() << "," 
+    << gFrontPoint.phi() << ")" << endl;
+  
 
   int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi());
   float frontDist = theFrontComps[frontIndex]->position().phi()  - gFrontPoint.phi(); 
@@ -183,6 +191,13 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));
+  LogDebug("TkDetLayers") 
+    << "in TECLayer,back crossing point: r,z,phi: (" 
+    << gBackPoint.perp() << "," 
+    << gFrontPoint.z() << "," 
+    << gBackPoint.phi() << ")" << endl;
+
+
   int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
   float backDist = theBackComps[backIndex]->position().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
@@ -210,6 +225,13 @@ bool TECLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 {
   const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
+
+  LogDebug("TkDetLayers")  
+    << "in TECLayer, adding petal at r,z,phi: (" 
+    << det->position().perp() << "," 
+    << det->position().z() << "," 
+    << det->position().phi() << ")" << endl;
+
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result); 
 }
 

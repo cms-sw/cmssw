@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.1 2006/05/02 12:38:57 futyand Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.2 2006/05/11 13:42:00 futyand Exp $
 //
 //
 
@@ -37,10 +37,18 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
+
+     // the debug level
+     EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
+
+     // pointer to the correction algo object
      EgammaSCEnergyCorrectionAlgo *energyCorrector_;
-     
+    
+     // vars for the correction algo
      bool applyEnergyCorrection_;
      double sigmaElectronicNoise_;
+
+     // vars to get products
      std::string rHInputProducer_;
      std::string rHInputCollection_;
      reco::AlgoId sCAlgo_;

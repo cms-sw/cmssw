@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cmath>
 
 DivisiveVertexFinder::DivisiveVertexFinder(double zOffset, int ntrkMin, 
 					   bool useError, double zSeparation, bool wtAverage,
@@ -61,7 +62,7 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     //    trkps.push_back( temp );
     //in.push_back( PVCluster( Measurement1D(trks[i]->dz(), trks[i]->covariance().dzError()),
     //		     temp ) );
-    in.push_back( PVCluster( Measurement1D(trks[i]->dz(), trks[i]->dzError()), temp ) );
+    in.push_back( PVCluster( Measurement1D(trks[i]->dz(), std::sqrt(trks[i]->dzError())), temp ) );
     mapa[temp[0]] = trks[i];
   }
 
@@ -70,8 +71,10 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     for (unsigned int i=0; i<in.size(); ++i) {
       edm::LogInfo("DivisiveVertexFinder") << "Track " << i << " addr " << in[i].tracks()[0] 
 					   << " dz " << in[i].tracks()[0]->dz()
+					   << " +- " << std::sqrt(in[i].tracks()[0]->dzError())
 					   << " prodID " << mapa[in[i].tracks()[0]].id()
-					   << " dz from RefTrack " << mapa[in[i].tracks()[0]]->dz();
+					   << " dz from RefTrack " << mapa[in[i].tracks()[0]]->dz()
+					   << " +- " << std::sqrt(mapa[in[i].tracks()[0]]->dzError());
     }
   }
 

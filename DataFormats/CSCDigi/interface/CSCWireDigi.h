@@ -31,6 +31,10 @@ public:
   /// Print content of digi
   void print() const;
 
+  /// set wiregroup number
+  void setWireGroup(unsigned int wiregroup) {wire_= wiregroup;}
+
+
 private:
   friend class testCSCDigis; //@@ Do we really want friend access for a test?
   uint16_t wire_;

@@ -24,6 +24,8 @@ fi
 MWC_LIB=$(echo "$MWC_LIB1" | sed 's/\//\\\//g')
 echo $MWC_LIB1
 
+SERVED_DIR="http://${HOSTNAME}:1972/temporary"
+
 if [ -e profile.xml ]; then
     rm profile.xml
 fi 
@@ -37,6 +39,9 @@ fi
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .profile.xml > profile.xml
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g"  -e "s/.collector/${COLLECTOR_NODE}/g" .SiStripClient.xml > SiStripClient.xml 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .startMonitorClient > startMonitorClient
+
+sed -e "s@SERVED_DIRECTORY_URL@${SERVED_DIR}@g" .WebLib.js > WebLib.js
+
 
 chmod 751 profile.xml
 chmod 751 SiStripClient.xml

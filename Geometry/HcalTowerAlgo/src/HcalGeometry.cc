@@ -17,13 +17,6 @@ HcalGeometry::~HcalGeometry() {
   cellGeometries_.clear();
 }
 
-bool HcalGeometry::present(const DetId& id) const {
-  return CaloSubdetectorGeometry::present(HcalDetId(id)); // handle conversion if needed
-}
-
-const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
-  return CaloSubdetectorGeometry::getGeometry(HcalDetId(id)); // handle conversion if needed
-}
 
 std::vector<DetId> HcalGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
   if (lastReqDet_!=det || lastReqSubdet_!=subdet) {

@@ -12,12 +12,6 @@ public:
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
   
-  /// overriden to deal with detid representation issues
-  virtual bool present(const DetId& id) const;
-  /// overriden to deal with detid representation issues
-  virtual const CaloCellGeometry* getGeometry(const DetId& id) const;
-  
-
   virtual std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
   virtual const DetId getClosestCell(const GlobalPoint& r) const ;
 

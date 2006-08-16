@@ -61,7 +61,7 @@ class SiStripDigis {
   std::vector< std::vector<uint16_t> > payload_;
   
   /** String defining error category. */
-  const std::string error_;
+  std::string error_;
   
 };
 

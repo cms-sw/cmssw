@@ -13,9 +13,9 @@
 
 // Return a vector of clusters from a collection of EcalRecHits:
 std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_rechitsMap_p,
-								const CaloSubdetectorGeometry *geometry_p,
-								CaloSubdetectorTopology *topology_p,
-								EcalPart ecalPart)
+                                                                const CaloSubdetectorGeometry *geometry_p,
+                                                                const CaloSubdetectorTopology *topology_p,
+                                                                EcalPart ecalPart)
 {
   seeds.clear();
   used_s.clear();
@@ -74,7 +74,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(RecHitsMap *the_
 }
 
 
-void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *topology_p)
+void IslandClusterAlgo::mainSearch(EcalPart ecalPart, const CaloSubdetectorTopology *topology_p)
 {
   if (verbosity < pINFO)
     {
@@ -113,16 +113,16 @@ void IslandClusterAlgo::mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *t
       navigator.home();
       searchSouth(navigator);
       navigator.home();
-      searchWest(navigator, *topology_p);
+      searchWest(navigator, topology_p);
       navigator.home();
-      searchEast(navigator, *topology_p);
+      searchEast(navigator, topology_p);
  
       makeCluster();
    }
 }
 
 
-void IslandClusterAlgo::searchNorth(CaloNavigator<DetId> &navigator)
+void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
 {
   DetId southern = navigator.pos();
   RecHitsMap::iterator southern_it = rechitsMap_p->find(southern);
@@ -143,7 +143,7 @@ void IslandClusterAlgo::searchNorth(CaloNavigator<DetId> &navigator)
 }
 
 
-void IslandClusterAlgo::searchSouth(CaloNavigator<DetId> &navigator)
+void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator)
 {
   DetId northern = navigator.pos();
   RecHitsMap::iterator northern_it = rechitsMap_p->find(northern);
@@ -163,7 +163,7 @@ void IslandClusterAlgo::searchSouth(CaloNavigator<DetId> &navigator)
 }
 
 
-void IslandClusterAlgo::searchWest(CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology)
+void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology)
 {
   DetId eastern = navigator.pos();
   RecHitsMap::iterator eastern_it = rechitsMap_p->find(eastern);
@@ -174,21 +174,21 @@ void IslandClusterAlgo::searchWest(CaloNavigator<DetId> &navigator, CaloSubdetec
 
   if (shouldBeAdded(western_it, eastern_it))
     {
-      CaloNavigator<DetId> nsNavigator(western, &topology);
-      
+      CaloNavigator<DetId> nsNavigator(western, topology);
+
       searchNorth(nsNavigator);
       nsNavigator.home();
       searchSouth(nsNavigator);
       nsNavigator.home();
       searchWest(navigator, topology);
-      
+
       current_v.push_back(western);
       used_s.insert(western_it->first);
     }
 }
 
 
-void IslandClusterAlgo::searchEast(CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology)
+void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology)
 {
   DetId western = navigator.pos();
   RecHitsMap::iterator western_it = rechitsMap_p->find(western);
@@ -199,7 +199,7 @@ void IslandClusterAlgo::searchEast(CaloNavigator<DetId> &navigator, CaloSubdetec
 
   if (shouldBeAdded(eastern_it, western_it))
     {
-      CaloNavigator<DetId> nsNavigator(eastern, &topology);
+      CaloNavigator<DetId> nsNavigator(eastern, topology);
 
       searchNorth(nsNavigator);
       nsNavigator.home();

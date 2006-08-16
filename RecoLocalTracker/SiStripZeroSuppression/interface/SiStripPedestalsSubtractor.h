@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 //SiStripPedestalsService
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 
 #include <vector>
 

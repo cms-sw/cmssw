@@ -279,9 +279,9 @@ void CocoaToDDLMgr::so(OpticalObject * opto)
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
     file_ << " <Box name=\"" << opto->name() << "\"";
-    file_ << " dx=\"0.*mm" 
-	  << "\" dy=\"0.*mm" 
-	  << "\" dz=\"0.*mm" 
+    file_ << " dx=\"0.*m" 
+	  << "\" dy=\"0.*m" 
+	  << "\" dz=\"0.*m" 
 	  << "\"/>" << std::endl;
     return;
   }
@@ -472,7 +472,7 @@ void CocoaToDDLMgr::lv(OpticalObject * opto)
     file_ << " <LogicalPart name=\"" 
 	  <<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	  << "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	  << "  <rMaterial name=\"Hydrogen\"" 
+	  << "  <rMaterial name=\"NONE\"" 
 	  << "/>" << std::endl
 	  << " </LogicalPart>" << std::endl;			
     return;
@@ -533,14 +533,14 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    int rotNumber = buildRotationNumber( opto );
    //CocoaDDLRotation* rot = buildRotationNotRepeated( opto );
    
-   if( rotNumber != -1 ) file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
+   file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
 
-   Hep3Vector t =  opto->centreLocal();
+   Hep3Vector t =  opto->centreGlob();
    if(t != Hep3Vector()) { //if (0,0,0) write nothing
-     const Hep3Vector t = opto->centreLocal();
+     const Hep3Vector t = opto->centreGlob();
      file_ << "  <Translation x=\"" <<  UC(t[0],"Length") << "\""
-           <<               " y=\"" << UC(t[1],"Length") << "\""
-	   <<               " z=\"" << UC(t[2],"Length")<< "\" />"
+           <<                " y=\"" << UC(t[1],"Length") << "\""
+	   <<                " z=\"" << UC(t[2],"Length")<< "\" />"
            << std::endl;
    }	      	 	 
     
@@ -578,8 +578,7 @@ void CocoaToDDLMgr::ro(const HepRotation& ro, int n)
   ALIstring tag = " <Rotation name=\"R";
   identity=roinv.isIdentity();  
   
-  //---- DDD convention is to use the inverse matrix, COCOA is the direct one!!!
-  if (! identity) {     
+  //  if (! identity) {     
     file_ << tag << n << "\"";
     file_ << " phiX=\""   << UC(roinv.phiX(),"Angle")   << "\""
 	  << " thetaX=\"" << UC(roinv.thetaX(),"Angle") << "\""
@@ -589,7 +588,7 @@ void CocoaToDDLMgr::ro(const HepRotation& ro, int n)
 	  << " thetaZ=\"" << UC(roinv.thetaZ(),"Angle") << "\""
       //<< " angleUnit=\"degree\"/>" 
 	  << " />" << std::endl;
-  }	     
+    //  }	     
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -606,26 +605,16 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
    #ifdef gdebug
     cout << " sect-lv-pre:" << name << '-'  << std::endl;
    #endif
-    //-   newSectPre(filename_,std::string("SpecParSection"));
-   file_ << "<SpecParSection label=\"" << filename_ << "\" eval=\"true\">" << std::endl;
-
+   newSectPre(filename_,std::string("SpecParSection"));
 }    
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
-  file_ << " <SpecPar name=\"" << opto->name() << "_PARAMS\">" << std::endl;
-  file_ << "    <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
-  file_ << "   <Parameter name=\"cocoa_type\""  << " value=\"" << opto->type() << "\"   eval=\"false\" /> " << std::endl;
-
+  file_ << " <SpecPar name=\"" << opto->name() << "_EXTRA_ENTRIES\">" << std::endl;
+  file_ << "    <PartSelector path=\"//" << opto->name() << "\"/> " << std::endl;
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
-  for( int ii=3; ii<6; ii++ ){
-    Entry* ent = coord[ii];
-    file_ << "   <Parameter name=\"" << ent->name()+std::string("_value") << "\" value=\"";
-    file_ << UC(ent->value(),"Angle");
-    file_ << "\" /> " << std::endl;
-  }
   for( int ii=0; ii<6; ii++ ){
     Entry* ent = coord[ii];
     file_ << "   <Parameter name=\"" << ent->name()+std::string("_sigma") << "\" value=\"";
@@ -639,11 +628,11 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
   }
   
   const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
-  for( uint ii=0; ii<extraEnt.size(); ii++ ){
+  for( int ii=0; ii<extraEnt.size(); ii++ ){
     Entry* ent = extraEnt[ii]; 
-    file_ << "   <Parameter name=\"extra_entry\" value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
-    file_ << "   <Parameter name=\"dimType\" value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
-    file_ << "   <Parameter name=\"value\" value=\"";
+    file_ << "   <Parameter name=\"OptiProp_name\"" << " value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_dimType\"")  << " value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_value") << "\" value=\"";
     if( ent->type() == "nodim" ) {
       file_ << ent->value();
     }else if( ent->type() == "length" ) {
@@ -651,9 +640,9 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
     }else if( ent->type() == "angle" ) {
       file_ << UC(ent->value(),"Angle");
     }
-    file_ << "\"  eval=\"true\" /> " << std::endl;
+    file_ << "\" /> " << std::endl;
 
-    file_ << "   <Parameter name=\"sigma\" value=\"";
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_sigma") << "\" value=\"";
     if( ent->type() == "nodim" ) {
       file_ << ent->sigma();
     }else if( ent->type() == "length" ) {
@@ -661,9 +650,9 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
     }else if( ent->type() == "angle" ) {
       file_ << UC(ent->sigma(),"Angle");
     }
-    file_ << "\"  eval=\"true\" /> " << std::endl;
+    file_ << "\" /> " << std::endl;
 
-    file_ << "   <Parameter name=\"quality\" value=\"" << ent->quality() << "\"  eval=\"true\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_quality") << "\" value=\"" << ent->quality() << "\" /> " << std::endl;
   }
 
   file_ << " </SpecPar>" << std::endl;
@@ -677,45 +666,19 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::vector< Measurement* > measlist = Model::MeasurementList();
   std::vector< Measurement* >::iterator mite;
   std::vector<ALIstring>::iterator site;
-  std::multimap<OpticalObject*,Measurement*> optoMeasMap;
+
   for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
+    std::vector<ALIstring> namelist = (*mite)->OptONameList();
     std::vector<OpticalObject*> optolist = (*mite)->OptOList();
     OpticalObject* opto = optolist[optolist.size()-1];
-    optoMeasMap.insert( std::multimap<OpticalObject*,Measurement*>::value_type(opto, *mite) );
-  }
-
-  typedef std::multimap<OpticalObject*,Measurement*>::const_iterator itemom;
-  itemom omite;
-  std::pair<itemom, itemom > omitep;
-  itemom omite2, omite3;
-
-  for( omite = optoMeasMap.begin(); omite != optoMeasMap.end(); omite++ ){
-    omitep = optoMeasMap.equal_range( (*omite).first );
-    if( omite != optoMeasMap.begin() && (*omite).first == (*omite3).first ) continue; // check that it is not the same OptO than previous one
-    omite3 = omite;
-    for( omite2 = omitep.first; omite2 != omitep.second; omite2++ ){
-      OpticalObject* opto = (*(omite2)).first;
-      Measurement* meas = (*(omite2)).second;
-      std::vector<ALIstring> namelist = meas->OptONameList();
-      if( omite2 == omitep.first ){
-	file_ << " <SpecPar name=\"" << meas->name() << "_MEASUREMENT\">" << std::endl;
-	file_ << "   <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
-      }
-
-      file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << meas->name() << "\"  eval=\"false\" /> " << std::endl;
-      file_ << "   <Parameter name=\"" << std::string("meas_type") << "\" value=\"" << meas->type() << "\"  eval=\"false\" /> " << std::endl;
-      for( site = namelist.begin(); site != namelist.end(); site++ ){     
-	file_ << "   <Parameter name=\"" << std::string("meas_object_name_")+meas->name() << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
-      }
-      for( uint ii = 0; ii < meas->dim(); ii++ ){
-	file_ << "   <Parameter name=\"" << std::string("meas_value_name_")+meas->name() << "\" value=\"" << meas->valueType(ii) << "\"  eval=\"false\" /> " << std::endl;
-	file_ << "   <Parameter name=\"" << std::string("meas_value_")+meas->name() << "\" value=\"" << meas->value(ii) << "\"  eval=\"true\" /> " << std::endl;
-	file_ << "   <Parameter name=\"" << std::string("meas_sigma_")+meas->name() << "\" value=\"" << meas->sigma(ii) << "\"  eval=\"true\" /> " << std::endl;
-	file_ << "   <Parameter name=\"" << std::string("meas_is_simulated_value_")+meas->name() << "\" value=\"" << meas->valueIsSimulated(ii) << "\"  eval=\"true\" /> " << std::endl;
-      }
-      
+    file_ << " <SpecPar name=\"" << opto->name() << "_MEASUREMENT\">" << std::endl;
+    file_ << "   <PartSelector path=\"//" << opto->name() << "\"/> " << std::endl;
+    for( site = namelist.begin(); site != namelist.end(); site++ ){     
+      file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
     }
+
     file_ << " </SpecPar>" << std::endl;
+
   }
 }
 
@@ -730,10 +693,10 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
-    file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
+    file_ << "    <PartSelector path=\"//" << (*ite)->name() << "\"/> " << std::endl;
   }
    
-  file_ << "   <String name=\"COCOA\" value=\"COCOA\"/> " << std::endl
+  file_ << "   <Parameter name=\"COCOA\" value=\"COCOA\"/> " << std::endl
 	<< "  </SpecPar> " << std::endl;
 
 }
@@ -814,13 +777,11 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
 {
   ALIint rotnum = -1;
 
-  if(opto->rmLocal().isIdentity() ) return rotnum;
-
   std::vector<HepRotation>::const_iterator ite;
 
   int nc = 0;
   for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {
-    if( (*ite) == opto->rmLocal() ) {
+    if( (*ite) == opto->rmGlob() ) {
       rotnum = nc;
       break;
     }
@@ -828,7 +789,7 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
   }
 
   if( rotnum == -1 ) {
-    theRotationList.push_back( opto->rmLocal() );
+    theRotationList.push_back( opto->rmGlob() );
     rotnum = theRotationList.size()-1;
   }
 

@@ -8,6 +8,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include <iostream>
 #include <string>
@@ -42,11 +43,6 @@ class TrackValidator : public edm::EDAnalyzer {
       etaintervals.push_back(d+step);
       totSIM.push_back(0);
       totREC.push_back(0);
-//       name.str("");
-//       title.str("");
-//       name <<"missingtracks_vs_eta["<<d<<","<<d+step<<"]";
-//       title <<"(Missing Tracks)/(Total Tracks) "<< d << "<#eta<"<<d+step;
-//       missingtracks.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 5, -2, 2 ));
       name.str("");
       title.str("");
       name <<"pt["<<d<<","<<d+step<<"]";
@@ -62,8 +58,11 @@ class TrackValidator : public edm::EDAnalyzer {
     h_ptSIM     = new TH1F("ptSIM", "generated p_{t}", 5500, 0, 110 );
     h_etaSIM    = new TH1F("etaSIM", "generated pseudorapidity", 500, 0, 5 );
     h_tracksSIM = new TH1F("tracksSIM","number of simluated tracks",100,-0.5,99.5);
+    h_vertposSIM= new TH1F("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5);
 
+//     h_pt     = new TH1F("pt", "p_{t} residue", 2000, -500, 500 );
     h_pt     = new TH1F("pt", "p_{t} residue", 200, -2, 2 );
+    h_pt2    = new TH1F("pt2", "p_{t} residue (#tracks>1)", 300, -15, 15 );
     h_eta    = new TH1F("eta", "pseudorapidity residue", 1000, -0.1, 0.1 );
     h_tracks = new TH1F("tracks","number of reconstructed tracks",10,-0.5,9.5);
     h_nchi2  = new TH1F("nchi2", "normalized chi2", 200, 0, 20 );
@@ -94,6 +93,10 @@ class TrackValidator : public edm::EDAnalyzer {
     event.getByLabel(sim, simTrackCollection);
     const SimTrackContainer simTC = *(simTrackCollection.product());
 
+    edm::Handle<SimVertexContainer> simVertexCollection;
+    event.getByLabel(sim, simVertexCollection);
+    const SimVertexContainer simVC = *(simVertexCollection.product());
+
     edm::Handle<reco::TrackCollection> trackCollection;
     event.getByLabel(label, trackCollection);
     const reco::TrackCollection tC = *(trackCollection.product());
@@ -103,25 +106,32 @@ class TrackValidator : public edm::EDAnalyzer {
     //
     h_tracksSIM->Fill(simTC.size());
     for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-      if (simTrack->type()!=13) continue;
       h_ptSIM->Fill(simTrack->momentum().perp());
       h_etaSIM->Fill(simTrack->momentum().pseudoRapidity());
-//       if (simTC.size()>1){
-// 	cout << "MULTITRACK EVENT" << endl;
-// 	cout << "simTrack->momentum().perp()" << simTrack->momentum().perp() << endl;
-// 	cout << "simTrack->momentum().pseudoRapidity()" << simTrack->momentum().pseudoRapidity() << endl;
-//       }
 
-      //compute number of sim tracks per eta interval
+      if (simTrack->type()!=13) continue;
+      //compute number of tracks per eta interval
       int i=0;
       for (vector<double>::iterator h=etaintervals.begin(); h!=etaintervals.end()-1; h++){
-//       for (vector<TH1F*>::iterator h=missingtracks.begin(); h!=missingtracks.end(); h++){
 	if (abs(simTrack->momentum().pseudoRapidity())>etaintervals[i]&&
 	    abs(simTrack->momentum().pseudoRapidity())<etaintervals[i+1]) {
-	  // 	  (*h)->Fill(simTC.size()-tC.size());
 	  totSIM[i]++;
+	  bool doit=false;
+	  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+	    if (abs(track->pt()-simTrack->momentum().perp())<(simTrack->momentum().perp()*0.1)) doit=true; 
+	  }
+	  if (doit) totREC[i]++;
 	}
 	i++;
+      }
+    }
+
+    for (SimVertexContainer::const_iterator simVertex=simVC.begin(); simVertex!=simVC.end(); simVertex++){
+      h_vertposSIM->Fill(simVertex->position().perp());
+      if (0.5 < simVertex->position().perp() && simVertex->position().perp() < 1000) {
+	cout << "" << endl;
+	cout << "simVertex->position().perp(): " << simVertex->position().perp() << endl;
+	cout << "simVertex->position().z()   : " << simVertex->position().z() << endl;
       }
     }
 
@@ -142,17 +152,6 @@ class TrackValidator : public edm::EDAnalyzer {
       nhits_vs_eta->Fill(track->eta(),track->found());
       h_charge->Fill( track->charge() );
 
-      //compute number of reco tracks per eta interval
-      int i=0;
-      for (vector<double>::iterator h=etaintervals.begin(); h!=etaintervals.end()-1; h++){
-	if (abs(track->eta())>etaintervals[i]&&
-	    abs(track->eta())<etaintervals[i+1]) {
-	  totREC[i]++;
-	}
-	i++;
-      }
-
-
       //pt, eta residue, theta, phi0, d0, dz pull
       double ptres =1000;
       double etares=1000;
@@ -163,9 +162,7 @@ class TrackValidator : public edm::EDAnalyzer {
       for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
 	if (simTrack->type()!=13) continue;
 	double tmp=track->pt()-simTrack->momentum().perp();
-// 	double tmp2=track->eta()-simTrack->momentum().pseudoRapidity();
-// 	double tmp3=(track->theta()-simTrack->momentum().theta())/sqrt(track->thetaError());
-//  	double tmp4=(track->phi0()-simTrack->momentum().phi())/sqrt(track->phi0Error());
+	if (tC.size()>1) h_pt2->Fill(tmp);
 	if (abs(tmp)<abs(ptres)) {
 	  ptres=tmp; 
 	  etares=track->eta()-simTrack->momentum().pseudoRapidity();
@@ -180,8 +177,9 @@ class TrackValidator : public edm::EDAnalyzer {
       h_pullTheta->Fill(thetares);
       h_pullPhi0->Fill(phi0res);
 
+
       //pt residue distribution per eta interval
-      i=0;
+      int i=0;
       for (vector<TH1F*>::iterator h=ptdistrib.begin(); h!=ptdistrib.end(); h++){
 	for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
 	  if (simTrack->type()!=13) continue;
@@ -230,17 +228,7 @@ class TrackValidator : public edm::EDAnalyzer {
     h_ptSIM->Write();
     h_etaSIM->Write();
     h_tracksSIM->Write();
-
-//     //fill efficiency plot versus eta and write missingtracks histos
-//     TDirectory * misD = p->mkdir("missingtracks");
-//     misD->cd();
-//     int i=0;
-//     for (vector<TH1F*>::iterator h=missingtracks.begin(); h!=missingtracks.end(); h++){
-//       if (tot[i]!=0) (*h)->Scale(1.0/(float)tot[i]);
-//       (*h)->Write();
-//       h_effic->Fill(etaintervals[i+1]-0.00001 ,(*h)->GetBinContent((*h)->FindBin(0)));
-//       i++;
-//     }
+    h_vertposSIM->Write();
 
     //fill pt rms plot versus eta and write pt residue distribution per eta interval histo
     TDirectory * ptD = p->mkdir("ptdistribution");
@@ -266,13 +254,14 @@ class TrackValidator : public edm::EDAnalyzer {
     p->cd();
     int j=0;
     for (vector<int>::iterator h=totSIM.begin(); h!=totSIM.end(); h++){
-      cout << "etaintervals[j+1]: " << etaintervals[j+1] << endl;
-      cout << "((double) totREC[j])/((double) totSIM[j]): " << ((double) totREC[j])/((double) totSIM[j]) << endl;
+//       cout << "etaintervals[j+1]: " << etaintervals[j+1] << endl;
+//       cout << "((double) totREC[j])/((double) totSIM[j]): " << ((double) totREC[j])/((double) totSIM[j]) << endl;
       h_effic->Fill(etaintervals[j+1]-0.00001, ((double) totREC[j])/((double) totSIM[j]));
       j++;
     }
 
     h_pt->Write();
+    h_pt2->Write();
     h_eta->Write();
     h_tracks->Write();
     h_nchi2->Write();
@@ -290,15 +279,6 @@ class TrackValidator : public edm::EDAnalyzer {
     h_pullTheta->Write();
     h_pullPhi0->Write();
 
-    //     gROOT->SetBatch();
-    //     gROOT->SetStyle("Plain");
-    //     TCanvas c;
-    //     h_ptCTF.GetXaxis()->SetTitle( "p_{t} (GeV/c^{2})" );
-    //     h_ptCTF.SetFillColor( kRed );
-    //     h_ptCTF.SetLineWidth( 2 );
-    //     h_ptCTF.Draw();
-    //     c.SaveAs( "ptCTF.jpg" );
-    
     hFile.Close();
   }
 
@@ -306,13 +286,12 @@ private:
   string sim,label,out;
   double  min,max;
   int nint;
-  TH1F *h_ptSIM, *h_etaSIM, *h_tracksSIM;
-  TH1F *h_pt, *h_eta, *h_tracks, *h_nchi2, *h_hits, *h_effic, *h_ptrmsh, *h_deltaeta, *h_charge;
-  TH1F *h_pullTheta,*h_pullPhi0,*h_pullD0,*h_pullDz;
+  TH1F *h_ptSIM, *h_etaSIM, *h_tracksSIM, *h_vertposSIM;
+  TH1F *h_tracks, *h_nchi2, *h_hits, *h_effic, *h_ptrmsh, *h_deltaeta, *h_charge;
+  TH1F *h_pt, *h_eta, *h_pullTheta,*h_pullPhi0,*h_pullD0,*h_pullDz, *h_pt2;
   TH2F *chi2_vs_nhits, *chi2_vs_eta, *nhits_vs_eta, *ptres_vs_eta, *etares_vs_eta;
   vector<double> etaintervals;
   vector<int> totSIM,totREC;
-//   vector<TH1F*> missingtracks;
   vector<TH1F*> ptdistrib;
   vector<TH1F*> etadistrib;
  

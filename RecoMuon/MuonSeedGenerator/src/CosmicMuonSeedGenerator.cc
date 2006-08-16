@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/07/15 18:33:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/12 22:58:53 $
+ *  $Revision: 1.4 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -18,6 +18,7 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,26 +28,38 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+
 
 #include <vector>
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
+using namespace edm;
 using namespace std;
 
 // Constructor
 CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
   
-  // the name of the DT rec hits collection
-  theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");
-  // the name of the CSC rec hits collection
-  theCSCRecSegmentLabel = pset.getParameter<string>("CSCRecSegmentLabel");
+  // enable the DT chamber
+  theEnableDTFlag = pset.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  // enable the CSC chamber
+  theEnableCSCFlag = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+
+  if(theEnableDTFlag)
+    theDTRecSegmentLabel = pset.getUntrackedParameter<string>("DTRecSegmentLabel");
+
+  if(theEnableCSCFlag)
+    theCSCRecSegmentLabel = pset.getUntrackedParameter<string>("CSCRecSegmentLabel");
+
   // the maximum number of TrajectorySeed
-  theMaxSeeds = 100;
-  theMaxDTChi2 = 1000.0; //FIXME
-  theMaxCSCChi2 = 1000.0;//FIXME
+  theMaxSeeds = pset.getParameter<int>("MaxSeeds");
+  theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
+  theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
 }
 
@@ -62,15 +75,14 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   TrajectorySeedCollection theSeeds;
 
   // Muon Geometry - DT, CSC and RPC 
-  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-  eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+  eSetup.get<MuonRecoGeometryRecord>().get(theMuonLayers);
 
   // get the DT layers
-  vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
+  vector<DetLayer*> dtLayers = theMuonLayers->allDTLayers();
 
   // get the CSC layers
-  vector<DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
-  vector<DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
+  vector<DetLayer*> cscForwardLayers = theMuonLayers->forwardCSCLayers();
+  vector<DetLayer*> cscBackwardLayers = theMuonLayers->backwardCSCLayers();
     
   // Backward (z<0) EndCap disk
   const DetLayer* ME4Bwd = cscBackwardLayers[4];
@@ -93,7 +105,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements(true,true,false, 
+  MuonDetLayerMeasurements muonMeasurements(theEnableDTFlag,theEnableCSCFlag,false, 
 				    theDTRecSegmentLabel,theCSCRecSegmentLabel);
 
   muonMeasurements.setEvent(event);
@@ -136,11 +148,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
                                          <<RHFME12.size()<<" : "
                                          <<RHFME11.size()<<" .\n"; 
 
-  // generate Seeds outside in (try the outermost and innermost first)
-
-  createSeeds(theSeeds,RHMB4,eSetup);
-  createSeeds(theSeeds,RHFME4,eSetup);
-  createSeeds(theSeeds,RHBME4,eSetup);
+  // generate Seeds upside-down (try the nnermost first)
+  // only lower part works now
 
   createSeeds(theSeeds,RHMB1,eSetup);
   createSeeds(theSeeds,RHFME12,eSetup);
@@ -149,17 +158,23 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   createSeeds(theSeeds,RHFME11,eSetup);
   createSeeds(theSeeds,RHBME11,eSetup);
 
-  createSeeds(theSeeds,RHMB3,eSetup);
-  createSeeds(theSeeds,RHFME3,eSetup);
-  createSeeds(theSeeds,RHBME3,eSetup);
+  if ( theSeeds.empty() ) {
 
+    createSeeds(theSeeds,RHMB2,eSetup);
+    createSeeds(theSeeds,RHFME2,eSetup);
+    createSeeds(theSeeds,RHBME2,eSetup);
 
-  createSeeds(theSeeds,RHMB2,eSetup);
-  createSeeds(theSeeds,RHFME2,eSetup);
-  createSeeds(theSeeds,RHBME2,eSetup);
+    if ( theSeeds.empty() ) {
+       createSeeds(theSeeds,RHMB3,eSetup);
+       createSeeds(theSeeds,RHFME3,eSetup);
+       createSeeds(theSeeds,RHBME3,eSetup);
 
-  edm::LogInfo("CosmicMuonSeedGenerator")<<" "<<theSeeds.size()<<". ";
+       createSeeds(theSeeds,RHMB4,eSetup);
+       createSeeds(theSeeds,RHFME4,eSetup);
+       createSeeds(theSeeds,RHBME4,eSetup);
+    }
 
+  }
 
   for(std::vector<TrajectorySeed>::iterator seed = theSeeds.begin();
       seed != theSeeds.end(); ++seed)
@@ -169,13 +184,13 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
 
 bool CosmicMuonSeedGenerator::checkQuality(MuonRecHitPointer hit) const {
-  return true; //FIXME
+//  return true; //FIXME
 
   // only use 4D segments ?  try another way for 2D segments
-  if (hit->degreesOfFreedom() < 4) {
-    edm::LogInfo("CosmicMuonSeedGenerator")<<"dim < 4";
-    return false;
-  }
+//  if (hit->degreesOfFreedom() < 4) {
+//    edm::LogInfo("CosmicMuonSeedGenerator")<<"dim < 4";
+//    return false;
+//  }
   if (hit->isDT() && ( hit->chi2()> theMaxDTChi2 )) {
     edm::LogInfo("CosmicMuonSeedGenerator")<<"DT chi2 too large";
     return false;
@@ -212,6 +227,14 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
+  // FIXME: put it into a parameter set  
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
+  eSetup.get<TrackingComponentsRecord>().get("Chi2MeasurementEstimator",estimator);
+  
+  // FIXME: put it into a parameter set
+  edm::ESHandle<Propagator> propagator;
+  eSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propagator);
+
 
   // set the pt and spt by hand
   double pt = 5.0;
@@ -245,18 +268,57 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
 
   edm::LogInfo(metname)<<"Trajectory State on Surface before the extrapolation";
   edm::LogInfo(metname)<<"mom: "<<tsos.globalMomentum();
-  edm::LogInfo(metname)<<" pos: " << tsos.globalPosition(); 
+  edm::LogInfo(metname)<<"pos: " << tsos.globalPosition(); 
 
-  // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
-     
-  PTrajectoryStateOnDet *seedPTSOD =
-  tsTransform.persistentState( tsos,hit->geographicalId().rawId());
-     
-  edm::OwnVector<TrackingRecHit> container;
-  TrajectorySeed theSeed(*seedPTSOD,container,alongMomentum);
+ // ask for compatible layers
+  DirectMuonNavigation theNavigation(&*theMuonLayers);
+  vector<const DetLayer*> detLayers = theNavigation.compatibleLayers(*(tsos.freeState()),oppositeToMomentum);
+  
+  edm::LogInfo(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
+  
+  vector<DetWithState> detsWithStates;
 
-  result.push_back(theSeed);    
+  if(detLayers.size()){
+    
+    // ask for compatible dets
+    detsWithStates = detLayers.back()->compatibleDets(tsos, *propagator, *estimator);
+    edm::LogInfo(metname)<<"Number of compatible dets: "<<detsWithStates.size()<<endl;
+  }
+  else
+    LogInfo(metname)<<"No compatible layers found"<<endl;
+
+  if(detsWithStates.size()){
+    // get the updated TSOS
+    TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
+    const GeomDet *newTSOSDet = detsWithStates.front().first;
+    
+    if ( newTSOS.isValid() ) {
+      
+      // Transform it in a TrajectoryStateOnSurface
+      TrajectoryStateTransform tsTransform;
+      
+      PTrajectoryStateOnDet *seedTSOS =
+	tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+      
+      edm::OwnVector<TrackingRecHit> container;
+      TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+      
+      result.push_back(theSeed);
+    } 
+  }
+  else{
+    
+    // Transform it in a TrajectoryStateOnSurface
+    TrajectoryStateTransform tsTransform;
+    
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState(tsos ,hit->geographicalId().rawId());
+    
+    edm::OwnVector<TrackingRecHit> container;
+    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+    result.push_back(theSeed); 
+  }
+
 /*
   // set backup seeds with guessed directions 
   // for DT Segment that only hasZed or hasPhi

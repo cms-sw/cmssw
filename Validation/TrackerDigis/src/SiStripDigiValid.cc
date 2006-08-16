@@ -18,6 +18,8 @@
 SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "stripdigihisto.root");
+    src_ =  ps.getParameter<edm::InputTag>( "src" );
+
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 if ( dbe_ ) {
@@ -375,7 +377,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
  std::string digiProducer = "siStripDigis";
  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
- e.getByLabel(digiProducer, stripDigis);
+ e.getByLabel(src_, stripDigis);
  edm::DetSetVector<SiStripDigi>::const_iterator DSViter = stripDigis->begin();
  for( ; DSViter != stripDigis->end(); DSViter++) {
          unsigned int id = DSViter->id;

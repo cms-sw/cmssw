@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.38 2006/08/01 05:58:49 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.40 2006/08/07 22:10:14 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -47,6 +47,7 @@ namespace edm {
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
+    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
     poolFile_() {
@@ -103,10 +104,11 @@ namespace edm {
       runBlockPlacement_(),
       luminosityBlockPlacement_(),
       om_(om) {
-    std::string const suffix(".root");
+    std::string suffix(".root");
     std::string::size_type offset = om_->fileName_.rfind(suffix);
     bool ext = (offset == om_->fileName_.size() - suffix.size());
-    std::string fileBase(ext ? om_->fileName_.substr(0, offset): om_->fileName_);
+    if (!ext) suffix.clear();
+    std::string fileBase(ext ? om_->fileName_.substr(0, offset) : om_->fileName_);
     if (om_->fileCount_) {
       std::ostringstream ofilename;
       ofilename << fileBase << std::setw(3) << std::setfill('0') << om_->fileCount_ << suffix;
@@ -159,6 +161,9 @@ namespace edm {
 
     pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
     fft.markWrite(fileFormatVersionPlacement_);
+
+    // Now, we can set the ROOT compression level
+    om_->context_.setCompressionLevel(file_, om_->compressionLevel_);
 
     // For now, just one run block per file.
     RunBlock runBlock;

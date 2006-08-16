@@ -42,10 +42,9 @@ class PixelCPEParmError : public PixelCPEBase
   PixelCPEParmError(edm::ParameterSet const& conf, const MagneticField*);
   ~PixelCPEParmError();
 
-  LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
+  //LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   
-
  private:
   //--------------------------------------------------------------------
   //  Methods.  For now (temporarily) they are all protected.
@@ -58,8 +57,6 @@ class PixelCPEParmError : public PixelCPEBase
   // Quantities needed to calculate xpos() and ypos()
   float chargeWidthX()const;
   float chargeWidthY()const;
-
-
 
  private:
   PixelErrorParametrization * pixelErrorParametrization_;

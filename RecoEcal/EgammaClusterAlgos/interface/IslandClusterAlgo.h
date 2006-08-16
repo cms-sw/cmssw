@@ -62,7 +62,7 @@ class IslandClusterAlgo
   // this is the method that will start the clusterisation
   std::vector<reco::BasicCluster> makeClusters(RecHitsMap *the_rechitsMap_p,
 					       const CaloSubdetectorGeometry *geometry,
-					       CaloSubdetectorTopology *topology_p,
+					       const CaloSubdetectorTopology *topology_p,
 					       EcalPart ecalPart);
 
   /// point in the space
@@ -92,12 +92,12 @@ class IslandClusterAlgo
   // The verbosity level
   VerbosityLevel verbosity;
 
-  void mainSearch(EcalPart ecalPart, CaloSubdetectorTopology *topology_p); 
+  void mainSearch(EcalPart ecalPart, const CaloSubdetectorTopology *topology_p); 
  
-  void searchNorth(CaloNavigator<DetId> &navigator);
-  void searchSouth(CaloNavigator<DetId> &navigator);
-  void searchWest (CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology);
-  void searchEast (CaloNavigator<DetId> &navigator, CaloSubdetectorTopology &topology);
+  void searchNorth(const CaloNavigator<DetId> &navigator);
+  void searchSouth(const CaloNavigator<DetId> &navigator);
+  void searchWest (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
+  void searchEast (const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology);
 
   bool shouldBeAdded(RecHitsMap::iterator candidate_it, RecHitsMap::iterator previous_it);
 

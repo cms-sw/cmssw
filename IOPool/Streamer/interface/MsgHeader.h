@@ -12,7 +12,8 @@ struct Header
   char_uint32 size_; // of entire message including all headers
 
   // 20-Jul-2006, KAB: added enumeration for message types
-  enum Codes { INVALID = 0, INIT = 1, EVENT = 2, DONE = 3, EOFRECORD = 4 };
+  enum Codes { INVALID = 0, INIT = 1, EVENT = 2, DONE = 3, EOFRECORD = 4,
+               HEADER_REQUEST = 5 };
 };
 
 // as we need to see it

@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/07/31 11:10:33 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/11 01:43:44 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -56,7 +56,7 @@ edm::OrphanHandle<reco::TrackCollection>
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    edm::Event& event) {
   
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const std::string metname = "RecoMuon|MuonTrackLoader";
   
   // *** first loop: create the full collection of TrackingRecHit ***
   
@@ -191,11 +191,10 @@ edm::OrphanHandle<reco::MuonCollection>
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    edm::Event& event) {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const std::string metname = "RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event
   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
-
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
@@ -259,28 +258,12 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
   TransverseImpactPointExtrapolator tipe(*thePropagator);
   TrajectoryStateOnSurface tscp = tipe.extrapolate(innerTSOS,vtx);
   
+  if ( !tscp.isValid() ) return reco::Track(); // FIXME: how to report this?
   PerigeeConversions conv;
   double pt = 0.0;
   PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
   PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
 
-/*
-  try{
-    tscp = tscpBuilder( innerTSOS,vtx );
-  }
-  catch(const TrajectoryStateException &er){
-    edm::LogWarning("RecoMuon") << "caught TrajectoryStateException: "<< er.what() << std::endl;
-    return reco::Track(); 
-  }
-  catch(const std::exception& er){
-    edm::LogWarning("RecoMuon") << "caught std::exception: " << er.what() << std::endl;
-    return reco::Track(); 
-  }
-  catch(...){
-    edm::LogWarning("RecoMuon") << "Funny error" << std::endl;
-    return reco::Track(); 
-  }
-*/
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
   float dof=0.;

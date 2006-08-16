@@ -19,8 +19,8 @@
  average of the tracks. Weighted means weighted with the error
  of the data point.
 
- $Date: 2006/06/06 22:28:25 $
- $Revision: 1.3 $
+ $Date: 2006/08/10 02:11:03 $
+ $Revision: 1.5 $
  \author Aaron Dominguez (UNL)
 */
 #include <vector>
@@ -50,6 +50,7 @@ class DivisiveVertexFinder {
 
   /// We use Wolfgang's templated class that implements the actual divisive method
   pixeltemp::DivisiveClusterizer1D< reco::Track > divmeth_;
+  //  DivisiveClusterizer1D< reco::Track > divmeth_;
 
   // How loud should I be?
   int verbose_;

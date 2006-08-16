@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="2.0" >
+  <Class table="HCALGAINS" id_columns="IOV_VALUE_ID" name="HcalGains" >
+    <Container table="HCALGAINS_MITEMS" id_columns="IOV_VALUE_ID" name="mItems" position_column="POS" >
+      <Object table="HCALGAINS_MITEMS" id_columns="POS IOV_VALUE_ID" name="HcalGain" >
+        <Primitive column="HCALGAIN_MID" name="mId" />
+        <Primitive column="HCALGAIN_MVALUE1" name="mValue1" />
+        <Primitive column="HCALGAIN_MVALUE2" name="mValue2" />
+        <Primitive column="HCALGAIN_MVALUE3" name="mValue3" />
+        <Primitive column="HCALGAIN_MVALUE4" name="mValue4" />
+      </Object >
+    </Container >
+    <Primitive column="MSORTED" name="mSorted" />
+  </Class >
+</Mapping >

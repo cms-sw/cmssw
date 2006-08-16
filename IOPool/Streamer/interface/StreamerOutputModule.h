@@ -82,7 +82,7 @@ template <class Consumer>
 StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps):
   OutputModule(ps),
   selections_(&descVec_),
-  prod_reg_buf_(100 * 1000),
+  prod_reg_buf_(1000 * 1000),
   maxEventSize_(ps.template getParameter<int>("max_event_size")),
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
   translator_(new StreamTranslator(selections_))

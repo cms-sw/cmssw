@@ -155,15 +155,15 @@ PixelLessSeedLayerPairs::selectHitTIB(const SiStripMatchedRecHit2DCollection &co
   }
   
   
-  /*  
+    
   SiStripRecHit2DCollection::range rangeRphi = collrphi.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DCollection::const_iterator it = rangeRphi.first;
       it != rangeRphi.second; it++){
     //add a filter to avoid double counting rphi hit of matcherRecHit
     theChoosedHits.push_back( &(*it) );
   }
-
-
+  
+  /*
   SiStripRecHit2DCollection::range rangeStereo = collstereo.get(acc.stripTIBLayer(tibNumber));
   for(SiStripRecHit2DCollection::const_iterator it = rangeStereo.first;
       it != rangeStereo.second; it++){
@@ -192,7 +192,6 @@ PixelLessSeedLayerPairs::selectHitTID(const SiStripMatchedRecHit2DCollection &co
   for(SiStripMatchedRecHit2DCollection::const_iterator it = range2D.first;
       it != range2D.second; it++){
     int ring = TIDDetId( it->geographicalId() ).ring();
-    cout << "TIDDetId( it->geographicalId() ).ring(): " << ring << endl;
     if(ring>=firstRing && ring<=lastRing) theChoosedHits.push_back( &(*it) );
   }
   

@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/08/01 14:17:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/02 08:02:52 $
+ *  $Revision: 1.6 $
  *  \author M. Sani
  */
 
@@ -167,9 +167,9 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
 
     for(CSCSegmentCollection::const_iterator its = cscSegments->begin(); its != cscSegments->end(); its++) {
         
-        double segX, segY;
+        double segX=-99999., segY=-99999.;
         double sim1X = 100., sim1Y = 100.;
-        double sim2X, sim2Y;
+        double sim2X=0., sim2Y=0.;
         double resoPhi = 1., resoTheta = 1.;
         double minPhi = 1, minTheta = 1;
         unsigned int simTrack = 0;

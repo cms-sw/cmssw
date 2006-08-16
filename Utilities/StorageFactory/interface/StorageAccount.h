@@ -25,14 +25,10 @@ public:
 
   struct Counter
   {
-    inline Counter() : attempts(0),successes(0), amount(0), 
-	time_tot(0), time_min(10E10), time_max(0){}
     seal::ULongLong	attempts;
     seal::ULongLong	successes;
     double		amount;
-    double              time_tot;
-    double              time_min;
-    double		time_max;
+    double		time;
     std::string         idTag;
   };
   
@@ -52,7 +48,7 @@ public:
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
   
   static const StorageStats &	summary (void);
-  static std::string		summaryText (bool banner=false);
+  static std::string		summaryText (void);
   static Counter &		counter (const std::string &storageClass,
 					 const std::string &operation);
   
