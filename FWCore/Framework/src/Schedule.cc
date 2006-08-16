@@ -140,7 +140,8 @@ namespace edm
 
       ~CallPrePost() 
       {
-	a_->postProcessEventSignal_(Event(*ep_, ModuleDescription()),
+        Event ev(*ep_, ModuleDescription());
+	a_->postProcessEventSignal_(ev,
 				    *es_);
       }
 
