@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.4 2006/08/14 16:19:36 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.5 2006/08/15 23:03:53 dmytro Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 // calorimeter info
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -48,6 +49,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "Geometry/Surface/interface/Plane.h"
@@ -69,6 +72,7 @@
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 //
@@ -112,6 +116,12 @@ void TrackAssociator::addDataLabels( const std::string className,
 	DTRecSegment4DCollectionLabels.clear();
 	DTRecSegment4DCollectionLabels.push_back(moduleLabel);
 	DTRecSegment4DCollectionLabels.push_back(productInstanceLabel);
+     }
+   if (className == "CSCSegmentCollection")
+     {
+	CSCSegmentCollectionLabels.clear();
+	CSCSegmentCollectionLabels.push_back(moduleLabel);
+	CSCSegmentCollectionLabels.push_back(productInstanceLabel);
      }
 }
 
@@ -167,8 +177,11 @@ TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
 
    if (parameters.useEcal) fillEcal( iEvent, iSetup, info, currentPosition, parameters.dREcal);
    if (parameters.useHcal) fillCaloTowers( iEvent, iSetup, info, currentPosition, parameters.dRHcal);
-   if (parameters.useMuon) fillDTSegments( iEvent, iSetup, info, currentPosition, parameters.dRMuon);
-   
+   if (parameters.useMuon) {
+     fillDTSegments( iEvent, iSetup, info, currentPosition, parameters.dRMuon);
+     fillCSCSegments( iEvent, iSetup, info, currentPosition, parameters.dRMuon);
+   }
+
    return info;
 }
 
@@ -459,7 +472,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 	      muonSegment.trajectoryLocalErrorYY = errYY;
 	      muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
 	      muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
-	      muonSegment.id = (*detUnitIt).rawId();
+				muonSegment.id = DetId((*detUnitIt).rawId());
 	      info.segments.push_back(muonSegment);
 	      
 		  // Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
@@ -467,6 +480,108 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 	   }
       }
    }
+}
+
+void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
+				      const edm::EventSetup& iSetup,
+				      TrackDetMatchInfo& info,
+				      const FreeTrajectoryState& trajectoryPoint,
+				      const double dR)
+{
+	TimerStack timers;
+	timers.push("TrackAssociator::fillCSCSegments");
+	using namespace edm;
+	TrajectoryStateOnSurface tSOSDest;
+
+	// Get the CSC Geometry
+	ESHandle<CSCGeometry> cscGeom;
+	iSetup.get<MuonGeometryRecord>().get(cscGeom);
+
+	// Get the rechit collection from the event
+	timers.push("TrackAssociator::fillCSCSegments::access");
+	Handle<CSCSegmentCollection> cscSegments;
+	if (CSCSegmentCollectionLabels.empty())
+		// iEvent_->getByType (cscSegments);
+		throw cms::Exception("FatalError") << "Module lable is not set for CSCSegmentCollection.\n";
+	else
+		iEvent.getByLabel (CSCSegmentCollectionLabels[0], CSCSegmentCollectionLabels[1], cscSegments);
+	if (! cscSegments.isValid()) 
+		throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
+
+	// Iterate over all detunits
+	CSCSegmentCollection::id_iterator detUnitIt;
+	for (detUnitIt = cscSegments->id_begin(); detUnitIt != cscSegments->id_end(); ++detUnitIt){
+		// Get the GeomDet from the setup
+		const CSCChamber* chamber = cscGeom->chamber(*detUnitIt);
+		if (chamber == 0){
+			std::cout<<"Failed to get detector unit"<<std::endl;
+			continue;
+		}
+		const Surface& surf = chamber->surface();
+
+		if (debug_){
+			std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
+		}
+		tSOSDest = ivProp_->Propagator::propagate(trajectoryPoint, surf);
+
+		// Get the range for the corresponding LayerId
+		CSCSegmentCollection::range  range = cscSegments->get((*detUnitIt));
+		// Loop over the rechits of this DetUnit
+		for (CSCSegmentCollection::const_iterator recseg = range.first; recseg!=range.second; recseg++){
+
+			LogDebug("TrackAssociator::fillCSCSegments")
+				<< "Segment local position: " << recseg->localPosition() << "\n"
+				<< std::hex << recseg->geographicalId().rawId() << "\n";
+
+			GlobalPoint cscSeg = surf.toGlobal(recseg->localPosition());
+
+			LogDebug("TrackAssociator::fillCSCSegments")
+				<< "Segment global position: " << cscSeg << " \t (R_xy,eta,phi): "
+					<< cscSeg.perp() << "," << cscSeg.eta() << "," << cscSeg.phi() << "\n";
+
+			LogDebug("TrackAssociator::fillCSCSegments")
+				<< "\teta hit: " << cscSeg.eta() << " \tpropagator: " << tSOSDest.freeState()->position().eta() << "\n"
+				<< "\tphi hit: " << cscSeg.phi() << " \tpropagator: " << tSOSDest.freeState()->position().phi() << std::endl;
+
+			if (sqrt( pow(cscSeg.eta()-tSOSDest.freeState()->position().eta(),2) + 
+						pow(cscSeg.phi()-tSOSDest.freeState()->position().phi(),2) ) < dR)
+			{
+				MuonSegmentMatch muonSegment;
+				muonSegment.segmentGlobalPosition = getPoint(cscSeg);
+				muonSegment.segmentLocalPosition = getPoint( recseg->localPosition() );
+				muonSegment.segmentLocalDirection = getVector( recseg->localDirection() );
+				muonSegment.segmentLocalErrorXX = recseg->localPositionError().xx();
+				muonSegment.segmentLocalErrorYY = recseg->localPositionError().yy();
+				muonSegment.segmentLocalErrorXY = recseg->localPositionError().xy();
+				muonSegment.segmentLocalErrorDxDz = recseg->localDirectionError().xx();
+				muonSegment.segmentLocalErrorDyDz = recseg->localDirectionError().yy();
+
+				// muon.segmentPosition_.push_back(getPoint(cscSeg));
+				muonSegment.trajectoryGlobalPosition = getPoint(tSOSDest.freeState()->position()) ;
+				muonSegment.trajectoryLocalPosition = getPoint(surf.toLocal(tSOSDest.freeState()->position()));
+				muonSegment.trajectoryLocalDirection = getVector(surf.toLocal(tSOSDest.freeState()->momentum()));
+				// muon.trajectoryDirection_.push_back(getVector(tSOSDest.freeState()->momentum()));
+				float errXX(-1.), errYY(-1.), errXY(-1.);
+				float err_dXdZ(-1.), err_dYdZ(-1.);
+				if (tSOSDest.freeState()->hasError()){
+					LocalError err = ErrorFrameTransformer().transform( tSOSDest.freeState()->cartesianError().position(), surf );
+					errXX = err.xx();
+					errXY = err.xy();
+					errYY = err.yy();
+				}
+				muonSegment.trajectoryLocalErrorXX = errXX;
+				muonSegment.trajectoryLocalErrorXY = errXY;
+				muonSegment.trajectoryLocalErrorYY = errYY;
+				muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
+				muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
+				muonSegment.id = DetId((*detUnitIt).rawId());
+				info.segments.push_back(muonSegment);
+
+				// Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
+				// LocalError transform(const GlobalError& ge, const Surface& surf)
+			}
+		}
+	}
 }
 
 

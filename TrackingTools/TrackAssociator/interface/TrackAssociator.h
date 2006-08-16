@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
+// $Id: TrackAssociator.h,v 1.2 2006/08/09 14:51:58 dmytro Exp $
 //
 //
 
@@ -145,6 +145,12 @@ class TrackAssociator {
 			TrackDetMatchInfo&,
 			const FreeTrajectoryState&,
 			const double);
+
+   void fillCSCSegments( const edm::Event&,
+			const edm::EventSetup&,
+			TrackDetMatchInfo&,
+			const FreeTrajectoryState&,
+			const double);
   
    void           init( const edm::EventSetup&);
    
@@ -186,5 +192,6 @@ class TrackAssociator {
    std::vector<std::string> CaloTowerCollectionLabels;
    /// Muons
    std::vector<std::string> DTRecSegment4DCollectionLabels;
+   std::vector<std::string> CSCSegmentCollectionLabels;
 };
 #endif
