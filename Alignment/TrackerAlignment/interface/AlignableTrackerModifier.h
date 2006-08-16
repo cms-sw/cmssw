@@ -27,7 +27,7 @@ public:
   AlignableTrackerModifier();
 
   /// Destructor
-  ~AlignableTrackerModifier() {};
+  ~AlignableTrackerModifier();
 
   /// Modify given set of alignables according to parameters
   bool modify( Alignable* alignable, const edm::ParameterSet& pSet );

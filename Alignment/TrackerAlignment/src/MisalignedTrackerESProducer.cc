@@ -66,33 +66,13 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
-  // Dump alignments BEFORE
-  Alignments* alignments;
-  if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) )
-    {
-      alignments = theAlignableTracker->alignments();
-      for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
-	    it != alignments->m_align.end(); it++ )
-	edm::LogInfo("DumpPositions")  << std::endl
-				       << (*it).rawId() << " " << (*it).translation();
-    }
-  
   // Create misalignment scenario, apply to geometry
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
-  alignments = theAlignableTracker->alignments();
-  
-  // Dump alignments AFTER
-  if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
-    {
-      for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
-			it != alignments->m_align.end(); it++ )
-		edm::LogInfo("DumpPositions")  << std::endl
-									   << (*it).rawId() << " " << (*it).translation();
-    }
+  std::auto_ptr<Alignments> alignments( theAlignableTracker->alignments() );
+  std::auto_ptr<AlignmentErrors> alignmentErrors( theAlignableTracker->alignmentErrors() );
   
   // Write alignments to DB: have to sort beforhand!
-  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
 	{
 
@@ -106,17 +86,17 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
 	  
 	  // Store
-	  poolDbService->newValidityForNewPayload<Alignments>( alignments, 
+	  poolDbService->newValidityForNewPayload<Alignments>( &(*alignments), 
 														   poolDbService->endOfTime(),
 														   alignmentsToken );
-	  poolDbService->newValidityForNewPayload<AlignmentErrors>( alignmentErrors, 
+	  poolDbService->newValidityForNewPayload<AlignmentErrors>( &(*alignmentErrors), 
 																poolDbService->endOfTime(),
 																alignmentErrorsToken );
 	}
   
   // Store result to EventSetup
   GeometryAligner aligner;
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
+  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors) );
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
   return theTracker;

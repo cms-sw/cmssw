@@ -18,6 +18,15 @@ AlignableTrackerModifier::AlignableTrackerModifier( void )
 
 }
 
+
+//__________________________________________________________________________________________________
+AlignableTrackerModifier::~AlignableTrackerModifier()
+{
+
+  delete theDRand48Engine;
+
+}
+
 //__________________________________________________________________________________________________
 void AlignableTrackerModifier::init_( void )
 {
