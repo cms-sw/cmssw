@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 14:52:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/14 15:26:43 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -128,7 +128,8 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        // loop over filter objects actually in this event
        for (unsigned int i=0; i!=n; i++) {
 	 // filter object fobs[i] produced by module instance name?
-	 if (name==tns->getTrigPathModule(fobs[i]->path(),fobs[i]->module())) {
+//	 if (name==tns->getTrigPathModule(fobs[i]->path(),fobs[i]->module())) {
+	 if (name==iEvent.getProvenance(fobs[i].id()).moduleLabel()) {
 	   // no other found already?
 	   if (count==0) {
 	     // insert and document
