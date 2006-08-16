@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.8 2005/09/30 20:39:01 chrjones Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.9 2006/06/06 20:58:53 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 
 // forward declarations
 namespace edm {
