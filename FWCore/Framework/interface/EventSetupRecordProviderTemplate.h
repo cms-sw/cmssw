@@ -67,7 +67,7 @@ protected:
          typedef DataProxyProvider::KeyedProxies ProxyList ;
          typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
-         const ProxyList& keyedProxies(iProvider->keyedProxies(key())) ;
+         const ProxyList& keyedProxies(iProvider->keyedProxies(this->key())) ;
          ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
          for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
                keyedProxy != finishedProxyList ;
