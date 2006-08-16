@@ -9,7 +9,6 @@
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "IOPool/Streamer/interface/HLTInfo.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GlobalMutex.h"
 
