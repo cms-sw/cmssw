@@ -40,7 +40,12 @@ AlignableDet::AlignableDet( const GeomDet* geomDet ) :
 
 //__________________________________________________________________________________________________
 AlignableDet::~AlignableDet() {
+
   delete theAlignmentPositionError;
+  for ( std::vector<AlignableDetUnit*>::iterator iter = theDetUnits.begin();
+		iter != theDetUnits.end(); iter++ )
+	delete *iter;
+
 };
 
 
