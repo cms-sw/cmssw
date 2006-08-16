@@ -5,10 +5,10 @@
 //
 using namespace reco;
 
-const    int L1GctMETCheckHistogrammer::NGENMETVALUE=  NGCTMETVALUE;
-const double L1GctMETCheckHistogrammer::MINGENMETVALUE=MINGCTMETVALUE;
-const double L1GctMETCheckHistogrammer::MAXGENMETVALUE=MAXGCTMETVALUE; 
-const    int L1GctMETCheckHistogrammer::NGENMETPHI=    NGCTMETPHI;
+const    int L1GctMETCheckHistogrammer::NGENMETVALUE=  L1GctHistogrammer::NGCTMETVALUE;
+const double L1GctMETCheckHistogrammer::MINGENMETVALUE=L1GctHistogrammer::MINGCTMETVALUE;
+const double L1GctMETCheckHistogrammer::MAXGENMETVALUE=L1GctHistogrammer::MAXGCTMETVALUE; 
+const    int L1GctMETCheckHistogrammer::NGENMETPHI=    L1GctHistogrammer::NGCTMETPHI;
 const double L1GctMETCheckHistogrammer::MINGENMETPHI=-M_PI;
 const double L1GctMETCheckHistogrammer::MAXGENMETPHI= M_PI; 
 
