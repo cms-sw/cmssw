@@ -20,13 +20,16 @@ case $# in
 	;;
 esac
 
+# for online db access. some variables for the oracle tool of cmssw are not set anymore
+LOCAL_ORACLE_ADMINDIR="/afs/cern.ch/project/oracle/admin/"
+
 #--- definition of shell variables 
 RUN_ON_DISK0='no'
 #RUN_ON_DISK0='cmsdisk0'
 # this directory must be visible from remote batch machine
-DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/CMSSW_0_8_0_pre3"
-# example pedestals
-PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_07_31_code_with_cluster_filter/pedestals/"
+DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_08_14_code_090/CMSSW_0_9_0"
+# if you want some example pedestals
+PEDESTAL_DIR="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_08_14_code_090/pedestals";
 # directory where the job is run or submitted
 if [ "${LS_SUBCWD+set}" = set ]; then
   LK_WKDIR="${LS_SUBCWD}" # directory where you submit in case of bsub
@@ -81,6 +84,7 @@ general_checks(){
     echo "file ${CMSSW_CFG} already exists, stopping here";
     exit 1;
   fi
+  echo "Using code from ${DIR_WHERE_TO_EVAL}";
 }
 
 #---
@@ -116,10 +120,10 @@ get_list_of_pedestal_castor_files(){
  echo "getting from CASTOR the list of files corresponding to pedestal run ${PED_RUNNR}";
  if [ $MAX_PED_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_PED_DATA_FILES=`rfdir $PED_CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
+   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
  else
    echo "   !!! Caution !!!      limiting nr. of files for calculating pedestals to ${MAX_PED_FILES_TO_RUN_OVER}"
-   LIST_OF_PED_DATA_FILES=`rfdir $PED_CASTOR_DIR | head -${MAX_PED_FILES_TO_RUN_OVER} | sed 's/^.* //'`
+   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | head -${MAX_PED_FILES_TO_RUN_OVER} | sed 's/^.* //'`
  fi
  if [ "$LIST_OF_PED_DATA_FILES" == ""   ] ;
  then
@@ -245,7 +249,7 @@ create_cmssw_config_file(){
     if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
        LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
     else
-       LIST_WITH_PATH="${LIST_WITH_PATH},\"castor:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
+       LIST_WITH_PATH="${LIST_WITH_PATH},\"rfio:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
     fi
   done
   # remove first comma
@@ -264,7 +268,7 @@ create_pedestal_config_file(){
     if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
        PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"file:${PED_MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
     else
-       PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"castor:${PED_CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
+       PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"rfio:${PED_CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
     fi
   done
   # remove first comma
@@ -281,6 +285,8 @@ runped(){
   echo "# ************************************************* CALCULATING THE PEDESTALS USING THE CFG FILE ${PED_CFG}"
   cat ${PED_CFG}
   echo "# *************************************************"
+  export TNS_ADMIN=${LOCAL_ORACLE_ADMINDIR}
+  export ORACLE_ADMINDIR=${LOCAL_ORACLE_ADMINDIR}
   cmsRun  -p ${PED_CFG}
   echo "pedestal jobstatus: $?";
 }
@@ -293,6 +299,8 @@ runcms(){
   echo "# ************************************************* RUNNING THE RECONSTRUCTION USING THE CFG FILE ${CMSSW_CFG}"
   cat ${CMSSW_CFG}
   echo "# *************************************************"
+  export TNS_ADMIN=${LOCAL_ORACLE_ADMINDIR}
+  export ORACLE_ADMINDIR=${LOCAL_ORACLE_ADMINDIR}
   cmsRun  -p ${CMSSW_CFG}
   echo "reconstruction jobstatus: $?";
 }
@@ -316,7 +324,8 @@ esac
    rfcp $PED_LOG_FILE ${OUTPUT_CASTOR_DIR}/.
    rfcp $POOL_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
    rfcp $DQM_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
-   rfcp ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt ${OUTPUT_CASTOR_DIR}/mtcc_dqm_summary_${RUNNR}.txt
+   rfcp ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt ${OUTPUT_CASTOR_DIR}/mtcc_dqm_cluster_summary_${RUNNR}.txt
+#   rfcp ${MTCC_OUTPUT_DIR}/monitor_digi_summary.txt ${OUTPUT_CASTOR_DIR}/mtcc_dqm_digi_summary_${RUNNR}.txt
    rfcp ${MTCC_OUTPUT_DIR}/Source*${PED_RUNNR}.root ${OUTPUT_CASTOR_DIR}/pedestal_histograms${PED_RUNNR}.root
    # copy automatically also the STDOUT
 #   rfcp ${LS_SUBCWD}/LSFJOB_${LSB_BATCH_JID}/STDOUT ${OUTPUT_CASTOR_DIR}/stdout_${RUNNR}.log
@@ -359,7 +368,5 @@ time runcms > ${LOG_FILE} 2>&1 ;
 
 # FINAL TASKS
 ls -lh;
-ls -lh ${MTCC_INPUT_DIR};
-#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31"
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_08_09_recdata_090pre3"
 ###############################################################################################################
-
