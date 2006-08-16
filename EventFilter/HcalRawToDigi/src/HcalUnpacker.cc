@@ -93,9 +93,9 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	eid.setHTR(htr_cr,htr_slot,htr_tb);
 	DetId did=emap.lookupTrigger(eid);
 	if (did.null()) {
-	  if (unknownIds_.find(eid)==unknownIds_.end()) {
+	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
 	    edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
-	    unknownIds_.insert(eid);
+	    unknownIdsTrig_.insert(eid);
 	  }
 	  valid=false;
 	  continue;
