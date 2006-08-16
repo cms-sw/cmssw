@@ -22,7 +22,9 @@ public:
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator		         genp_iterator;
   typedef SimTrackRefVector::iterator				 g4t_iterator;
-  typedef TrackPSimHitRefVector::iterator 			 pSH_iterator;
+  typedef TrackPSimHitRefToBaseVector::iterator                  pSH_iterator;
+
+//  typedef TrackPSimHitRefVector::iterator 			 pSH_iterator;
 //  typedef std::map<int, TrackPSimHitRefVector> 			 TrackIdPSimHitMap;
   
   /// default constructor
@@ -56,8 +58,8 @@ public:
   GenParticleRefVector	genParticle() const { return genParticles_; }
   SimTrackRefVector	g4Tracks() const { return g4Tracks_ ; }
  
-  TrackPSimHitRefVector trackPSimHit() const { return trackPSimHit_; }
-//  TrackPSimHitRefToBaseVector trackPSimHit() const { return trackPSimHit_; }
+//  TrackPSimHitRefVector trackPSimHit() const { return trackPSimHit_; }
+  TrackPSimHitRefToBaseVector trackPSimHit() const { return trackPSimHit_; }
   
 private:
   /// production time
@@ -70,8 +72,8 @@ private:
   SimTrackRefVector g4Tracks_;
   GenParticleRefVector  genParticles_;
  
-  TrackPSimHitRefVector trackPSimHit_;
-//    TrackPSimHitRefToBaseVector trackPSimHit_;
+//  TrackPSimHitRefVector trackPSimHit_;
+    TrackPSimHitRefToBaseVector trackPSimHit_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
