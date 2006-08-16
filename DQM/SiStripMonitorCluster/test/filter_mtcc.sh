@@ -43,7 +43,7 @@ DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_filter_dqm_${RUNNR}.root"
 # template
 TEMPLATE_FILTER_CFG="${LK_WKDIR}/template_filter.cfg"
 # have to find smth. more clever for below
-CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_08_09_recdata_090pre3"
+CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_08_16_090"
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
 BATCH_USER_NAME=`whoami`
 # for testing, if 0 no limit is set
@@ -84,7 +84,7 @@ create_output_directory(){
 #---
 get_list_of_castor_reco_files(){
  echo "getting from CASTOR the list of files corresponding to run ${RUNNR}";
- LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | grep "mtcc_rec_${RUNNR}" | grep '\.root' | sed 's/^.* //'`
+ LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | grep "${RUNNR}_rec" | grep '\.root' | sed 's/^.* //'`
  if [ "$LIST_OF_DATA_FILES" == ""   ] ;
  then
    echo "No input files found!!!!!! Stopping here";
@@ -101,7 +101,7 @@ create_filter_config_file(){
     if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
        LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
     else
-       LIST_WITH_PATH="${LIST_WITH_PATH},\"castor:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
+       LIST_WITH_PATH="${LIST_WITH_PATH},\"rfio:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
     fi
   done
   # remove first comma
@@ -115,9 +115,8 @@ create_filter_config_file(){
 runfilter(){
   cd ${DIR_WHERE_TO_EVAL}; eval `scramv1 runtime -sh`;
   cd ${MTCC_OUTPUT_DIR};
-  echo "# ************************************************* RUNNING THE RECONSTRUCTION USING THE CFG FILE ${FILTER_CFG}"
+  echo "##### RUNNING THE RECONSTRUCTION USING THE CFG FILE ${FILTER_CFG}"
   cat ${FILTER_CFG}
-  echo "# *************************************************"
   cmsRun  -p ${FILTER_CFG}
   echo "filter jobstatus: $?";
 }

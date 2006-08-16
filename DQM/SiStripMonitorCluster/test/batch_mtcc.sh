@@ -24,8 +24,15 @@ esac
 LOCAL_ORACLE_ADMINDIR="/afs/cern.ch/project/oracle/admin/"
 
 #--- definition of shell variables 
-RUN_ON_DISK0='no'
-#RUN_ON_DISK0='cmsdisk0'
+# where to look for input files, best would be castor but is not working properly
+#RUN_ON_DISK0='no'
+RUN_ON_DISK0='cmsdisk0'
+# username to connect to cmsdisk0.cern.ch for asking list of files and copying them
+BATCH_USER_NAME=`whoami`
+# these have changed completely, need to find out
+CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${RUNNR}/A"
+PED_CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${PED_RUNNR}/A"
+#
 # this directory must be visible from remote batch machine
 DIR_WHERE_TO_EVAL="/afs/cern.ch/user/d/dkcira/scratch0/MTCC/2006_08_14_code_090/CMSSW_0_9_0"
 # if you want some example pedestals
@@ -44,27 +51,19 @@ MTCC_OUTPUT_DIR="${WWDIR}/mtcc_${RUNNR}"
 # directory where to copy locally input files, separate from above as this does not necessarely need to be recreated each time
 MTCC_INPUT_DIR="${WWDIR}/InputFiles"
 PED_MTCC_INPUT_DIR="${WWDIR}/InputFiles"
-#config files
-CMSSW_CFG="${MTCC_OUTPUT_DIR}/mtccoffline_${RUNNR}.cfg";
-PED_CFG="${MTCC_OUTPUT_DIR}/mtccped_${RUNNR}.cfg";
-# log files
-LOG_FILE="${MTCC_OUTPUT_DIR}/mtcc_${RUNNR}.log";
-PED_LOG_FILE="${MTCC_OUTPUT_DIR}/mtcc_pedestals_${RUNNR}.log";
-# histograms + pool
-POOL_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_rec_${RUNNR}.root";
-DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_dqm_${RUNNR}.root"
-# template
-#TEMPLATE_CMSSW_CFG="/afs/cern.ch/user/d/dkcira/public/MTCC/2006_07_25_template/template_mtccoffline.cfg"
+# pedestals
+PED_CFG="${MTCC_OUTPUT_DIR}/${RUNNR}_mtccped.cfg";
+PED_LOG_FILE="${MTCC_OUTPUT_DIR}/${RUNNR}_mtcc_pedestals.log";
+# reconstruction
+LIST_OF_CFG_FILES=""; # start empty, cfg files are added from script
+GENERAL_LOG_FILE="${MTCC_OUTPUT_DIR}/${RUNNR}_reco.log"
+# templates
 TEMPLATE_CMSSW_CFG="${LK_WKDIR}/template_mtccoffline.cfg"
 TEMPLATE_PED_CFG="${LK_WKDIR}/template_mtccped.cfg"
-# have to find smth. more clever for below
-CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${RUNNR}/A"
-PED_CASTOR_DIR="/castor/cern.ch/cms/MTCC/data/0000${PED_RUNNR}/A"
-# need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
-BATCH_USER_NAME=`whoami`
 # for testing, if 0 no limit is set
 MAX_FILES_TO_RUN_OVER=0;
-MAX_PED_FILES_TO_RUN_OVER=3;
+# this will probably remain always 1 from now on
+MAX_PED_FILES_TO_RUN_OVER=1;
 
 # echo '###########################################################'
 # echo 'SHELL VARIABLES'
@@ -80,8 +79,8 @@ general_checks(){
     echo "file ${TEMPLATE_CMSSW_CFG} does not exist, stopping here";
     exit 1;
   fi
-  if [ -f "$CMSSW_CFG" ]; then
-    echo "file ${CMSSW_CFG} already exists, stopping here";
+  if [ ! -f "$TEMPLATE_PED_CFG" ]; then
+    echo "file ${TEMPLATE_PED_CFG} does not exist, stopping here";
     exit 1;
   fi
   echo "Using code from ${DIR_WHERE_TO_EVAL}";
@@ -134,14 +133,36 @@ get_list_of_pedestal_castor_files(){
 }
 
 #---
+copy_castor_files_locally(){ # this might not be necessary, if rfio: in poolsource works
+  echo "will copy locally the castor files";
+  #
+  if [ -d "$MTCC_INPUT_DIR" ]; then
+    echo "directory ${MTCC_INPUT_DIR} already exists. copying files there";
+  else
+    echo "creating directory ${MTCC_INPUT_DIR}"
+    mkdir $MTCC_INPUT_DIR;
+  fi
+  #
+  for rfile in $LIST_OF_DATA_FILES
+  do
+    if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
+      echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
+    else
+      echo "copying $CASTOR_DIR/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
+      rfcp $CASTOR_DIR/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+    fi
+  done
+}
+
+#---
 get_list_of_cmsdisk0_files(){
  echo "getting from cmsdisk0.cern.ch the list of files corresponding to run ${RUNNR}";
  if [ $MAX_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root'`
+   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_0_9_0/' | grep ${RUNNR} | grep '\.dat'`
  else
    echo "   !!! Caution !!!      limiting max. nr. of files per run to ${MAX_FILES_TO_RUN_OVER}"
-   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${RUNNR} | grep '\.root' | head  -${MAX_FILES_TO_RUN_OVER}`
+   LIST_OF_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_0_9_0/' | grep ${RUNNR} | grep '\.dat' | head  -${MAX_FILES_TO_RUN_OVER}`
  fi
  if [ "$LIST_OF_DATA_FILES" == ""   ] ;
  then
@@ -166,30 +187,8 @@ copy_cmsdisk0_files_locally(){
     if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
       echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
     else
-      echo "copying  ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
-      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} ${MTCC_INPUT_DIR}/${rfile}
-    fi
-  done
-}
-
-#---
-copy_castor_files_locally(){ # this might not be necessary, if rfio: in poolsource works
-  echo "will copy locally the castor files";
-  #
-  if [ -d "$MTCC_INPUT_DIR" ]; then
-    echo "directory ${MTCC_INPUT_DIR} already exists. copying files there";
-  else
-    echo "creating directory ${MTCC_INPUT_DIR}"
-    mkdir $MTCC_INPUT_DIR;
-  fi
-  #
-  for rfile in $LIST_OF_DATA_FILES
-  do
-    if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
-      echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
-    else
-      echo "copying $CASTOR_DIR/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
-      rfcp $CASTOR_DIR/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+      echo "copying  ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
+      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
     fi
   done
 }
@@ -199,10 +198,10 @@ get_list_of_cmsdisk0_pedestal_files(){
  echo "getting from cmsdisk0.cern.ch the list of files corresponding to pedestal run ${PED_RUNNR}";
  if [ $MAX_PED_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root'`
+   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0 'ls /data0/mtcc_0_9_0/' | grep ${PED_RUNNR} | grep '\.dat'`
  else
-   echo "   !!! Caution !!!      limiting max. nr. of files per run to ${MAX_PED_FILES_TO_RUN_OVER}"
-   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_test/' | grep ${PED_RUNNR} | grep '\.root' | head  -${MAX_PED_FILES_TO_RUN_OVER}`
+   echo "   !!! Caution !!!      limiting max. nr. of pedestal files per run to ${MAX_PED_FILES_TO_RUN_OVER}"
+   LIST_OF_PED_DATA_FILES=`ssh -n ${BATCH_USER_NAME}@cmsdisk0.cern.ch 'ls /data0/mtcc_0_9_0/' | grep ${PED_RUNNR} | grep '\.dat' | head  -${MAX_PED_FILES_TO_RUN_OVER}`
  fi
  if [ "$LIST_OF_PED_DATA_FILES" == ""   ] ;
  then
@@ -227,36 +226,40 @@ copy_cmsdisk0_ped_files_locally(){
     if [ -f ${MTCC_INPUT_DIR}/${rfile} ]; then
       echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
     else
-      echo "copying ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
-      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_test/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+      echo "copying ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
+      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
     fi
   done
 }
 
 #---
-copy_pedestal_files(){
-  echo "copying pedestals";
+copy_example_pedestal_files(){
+  echo "copying example pedestals from ${PEDESTAL_DIR}";
   cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesDB ${MTCC_OUTPUT_DIR}/.
   cp ${PEDESTAL_DIR}/insert_SiStripPedNoisesCatalog ${MTCC_OUTPUT_DIR}/.
 }
 
 #---
-create_cmssw_config_file(){
-# create list with full paths
-  LIST_WITH_PATH="";
+create_cmssw_config_files(){
+# create the cfg files according to the number of files the run is split from DAQ
   for rfile in $LIST_OF_DATA_FILES
   do
     if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
-       LIST_WITH_PATH="${LIST_WITH_PATH},\"file:${MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
+       FILE_FULL_PATH="\"${MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have also to copy files locally
     else
-       LIST_WITH_PATH="${LIST_WITH_PATH},\"rfio:${CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
+       FILE_FULL_PATH="\"rfio:${CASTOR_DIR}/${rfile}\"" # more elegant solution in the case of CASTOR
     fi
+    # cfg and log
+    CMSSW_CFG="${MTCC_OUTPUT_DIR}/${RUNNR}_mtccoffline_${rfile}.cfg"
+    LOG_FILE="${MTCC_OUTPUT_DIR}/${RUNNR}_mtccoffline_${rfile}.log"
+    POOL_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/${RUNNR}_rec_${rfile}.root"
+    DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/${RUNNR}_dqm_${rfile}.root"
+    #
+    LIST_OF_CFG_FILES="${LIST_OF_CFG_FILES} ${CMSSW_CFG}"
+    echo "creating $CMSSW_CFG";
+    touch $CMSSW_CFG;
+    cat  "$TEMPLATE_CMSSW_CFG" | sed "s@SCRIPT_POOL_OUTPUT_FILE@${POOL_OUTPUT_FILE}@" | sed "s@SCRIPT_DQM_OUTPUT_FILE@${DQM_OUTPUT_FILE}@" | sed "s@SCRIPT_LIST_OF_FILES@${FILE_FULL_PATH}@" >>  ${CMSSW_CFG}
   done
-  # remove first comma
-  LIST_WITH_PATH=`echo $LIST_WITH_PATH | sed 's/\,//'`;
-  echo "creating $CMSSW_CFG";
-  touch $CMSSW_CFG;
-  cat  "$TEMPLATE_CMSSW_CFG" | sed "s@SCRIPT_POOL_OUTPUT_FILE@${POOL_OUTPUT_FILE}@" | sed "s@SCRIPT_DQM_OUTPUT_FILE@${DQM_OUTPUT_FILE}@" | sed "s@SCRIPT_LIST_OF_FILES@${LIST_WITH_PATH}@" >>  ${CMSSW_CFG}
 }
 
 #---
@@ -266,7 +269,7 @@ create_pedestal_config_file(){
   for rfile in $LIST_OF_PED_DATA_FILES
   do
     if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
-       PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"file:${PED_MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
+       PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"${PED_MTCC_INPUT_DIR}/${rfile}\"" # in the case of cmsdisk0 have to copy files locally
     else
        PED_LIST_WITH_PATH="${PED_LIST_WITH_PATH},\"rfio:${PED_CASTOR_DIR}/${rfile}\""                 # more elegant solution in the case of CASTOR
     fi
@@ -281,28 +284,33 @@ create_pedestal_config_file(){
 #---
 runped(){
   cd ${DIR_WHERE_TO_EVAL}; eval `scramv1 runtime -sh`;
+  export TNS_ADMIN=${LOCAL_ORACLE_ADMINDIR}
+  export ORACLE_ADMINDIR=${LOCAL_ORACLE_ADMINDIR}
   cd ${MTCC_OUTPUT_DIR};
   echo "# ************************************************* CALCULATING THE PEDESTALS USING THE CFG FILE ${PED_CFG}"
   cat ${PED_CFG}
-  echo "# *************************************************"
-  export TNS_ADMIN=${LOCAL_ORACLE_ADMINDIR}
-  export ORACLE_ADMINDIR=${LOCAL_ORACLE_ADMINDIR}
   cmsRun  -p ${PED_CFG}
   echo "pedestal jobstatus: $?";
+  mv ${MTCC_OUTPUT_DIR}/Source_*${PED_RUNNR=}.root  ${PED_CFG}_pedestal_histograms.root
 }
-
 
 #---
 runcms(){
   cd ${DIR_WHERE_TO_EVAL}; eval `scramv1 runtime -sh`;
-  cd ${MTCC_OUTPUT_DIR};
-  echo "# ************************************************* RUNNING THE RECONSTRUCTION USING THE CFG FILE ${CMSSW_CFG}"
-  cat ${CMSSW_CFG}
-  echo "# *************************************************"
   export TNS_ADMIN=${LOCAL_ORACLE_ADMINDIR}
   export ORACLE_ADMINDIR=${LOCAL_ORACLE_ADMINDIR}
-  cmsRun  -p ${CMSSW_CFG}
-  echo "reconstruction jobstatus: $?";
+  cd ${MTCC_OUTPUT_DIR};
+  for I_CFG in ${LIST_OF_CFG_FILES}
+  do
+    echo ""
+    echo "########################################################################"
+    echo "###### RUNNING THE RECONSTRUCTION USING THE CFG FILE ${I_CFG}"
+    cmsRun  -p ${I_CFG}
+    echo "reconstruction jobstatus: $?";
+    mv ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt  ${I_CFG}_cluster_summary.txt
+  done
+  cp  ${MTCC_OUTPUT_DIR}/insert_SiStripPedNoisesDB  ${MTCC_OUTPUT_DIR}/${RUNNR}_insert_SiStripPedNoisesDB
+  cp  ${MTCC_OUTPUT_DIR}/insert_SiStripPedNoisesCatalog  ${MTCC_OUTPUT_DIR}/${RUNNR}_insert_SiStripPedNoisesCatalog
 }
 
 #---
@@ -318,17 +326,10 @@ esac
  # copy (some) output files to castor
  if [ $? ]; then # if above commands were successful
    echo "copying output files to $OUTPUT_CASTOR_DIR"
-   rfcp $CMSSW_CFG ${OUTPUT_CASTOR_DIR}/.
-   rfcp $PED_CFG ${OUTPUT_CASTOR_DIR}/.
-   rfcp $LOG_FILE ${OUTPUT_CASTOR_DIR}/.
-   rfcp $PED_LOG_FILE ${OUTPUT_CASTOR_DIR}/.
-   rfcp $POOL_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
-   rfcp $DQM_OUTPUT_FILE ${OUTPUT_CASTOR_DIR}/.
-   rfcp ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt ${OUTPUT_CASTOR_DIR}/mtcc_dqm_cluster_summary_${RUNNR}.txt
-#   rfcp ${MTCC_OUTPUT_DIR}/monitor_digi_summary.txt ${OUTPUT_CASTOR_DIR}/mtcc_dqm_digi_summary_${RUNNR}.txt
-   rfcp ${MTCC_OUTPUT_DIR}/Source*${PED_RUNNR}.root ${OUTPUT_CASTOR_DIR}/pedestal_histograms${PED_RUNNR}.root
-   # copy automatically also the STDOUT
-#   rfcp ${LS_SUBCWD}/LSFJOB_${LSB_BATCH_JID}/STDOUT ${OUTPUT_CASTOR_DIR}/stdout_${RUNNR}.log
+   for ifile in ${MTCC_OUTPUT_DIR}/${RUNNR}*
+   do
+    rfcp ${ifile}  ${OUTPUT_CASTOR_DIR}/.
+   done
  fi
 }
 
@@ -352,7 +353,7 @@ if [ -n "$PED_RUNNR" ]; then
  echo "Running pedestals. Log file: ${PED_LOG_FILE}";
  time runped > ${PED_LOG_FILE} 2>&1;
 else
-  copy_pedestal_files;
+  copy_example_pedestal_files;
 fi
 
 # RECONSTRUCTION
@@ -362,11 +363,11 @@ if [ "$RUN_ON_DISK0" == "cmsdisk0" ]; then
 else
    get_list_of_castor_files;
 fi
-create_cmssw_config_file;
-echo "Running reconstruction and monitoring. Log file: ${LOG_FILE}";
-time runcms > ${LOG_FILE} 2>&1 ;
+create_cmssw_config_files;
+echo "Running reconstruction and monitoring. Log file: ${GENERAL_LOG_FILE}";
+time runcms > ${GENERAL_LOG_FILE} 2>&1;
 
 # FINAL TASKS
 ls -lh;
-#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_08_09_recdata_090pre3"
+#copy_output_to_castor "/castor/cern.ch/user/d/dkcira/MTCC/2006_08_16_090"
 ###############################################################################################################
