@@ -19,12 +19,12 @@ using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   eventCounter_(0),
-  productLabel_(""),
-  fedCablingMap_(0)
+  fedCablingMap_(0),
+  src_( pset.getParameter<edm::InputTag>( "src" ) )
 {
 
   // Set some private data members
-  productLabel_ = pset.getParameter<std::string>("DigiProducer");
+  //productLabel_ = pset.getParameter<std::string>("DigiProducer");
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
@@ -53,7 +53,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   PixelDataFormatter formatter;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
-  ev.getByLabel(productLabel_, digiCollection);
+  ev.getByLabel( src_ , digiCollection);
 
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
