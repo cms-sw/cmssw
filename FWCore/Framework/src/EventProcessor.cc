@@ -317,7 +317,7 @@ namespace edm {
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ =
-	main_input.template getParameter<std::string>("@module_type");
+	main_input.getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so 
       // just use "source".
       md.moduleLabel_ = "source";
