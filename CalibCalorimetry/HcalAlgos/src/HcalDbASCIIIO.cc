@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.19 2006/07/29 00:17:58 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.20 2006/08/16 14:11:39 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -383,7 +383,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     }
     else if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
-      fObject->mapEId2tId (slId, DetId (HcalTrigTowerDetId::Undefined));
+      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     }
     else {
       std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
