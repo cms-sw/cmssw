@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.2 2005/11/21 22:36:45 paterno Exp $
+// $Id: TestHelper.cc,v 1.3 2005/12/12 23:06:46 paterno Exp $
 //------------------------------------------------------------
 #include <iostream>
 #include <string>
@@ -32,6 +32,7 @@ int run_script(const std::string& shell, const std::string& script)
   if (pid==0) // child
     {
       execlp(shell.c_str(), "sh", "-c", script.c_str(), 0);
+      std::cerr <<"child failed becuase '"<<strerror(errno)<<"'\n";
       _exit(127); // signal parent and children processes
     }
   else // parent
@@ -40,10 +41,21 @@ int run_script(const std::string& shell, const std::string& script)
 	{
 	  if (errno!=EINTR)
 	    {
+              std::cerr <<"child process failed "<<strerror(errno)<<"\n";
 	      status=-1;
 	      break;
-	    }
+	    } else {
+              if( WIFSIGNALED(status) ) {
+                std::cerr << "child existed because of a signal "<<WTERMSIG(status)<<"\n";
+              }
+            }
 	}
+    if( WIFSIGNALED(status) ) {
+      std::cerr << "child existed because of a signal "<<WTERMSIG(status)<<"\n";
+    }
+    if(WIFEXITED(status)) {
+    }
+    
     }
   return status;
 }
