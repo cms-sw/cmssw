@@ -1,6 +1,20 @@
 #include <algorithm>
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 
+int TrackDetMatchInfo::numberOfSegmentsInStation(int station) const {
+	int numSegments = 0;
+	for(std::vector<MuonSegmentMatch>::const_iterator segment=segments.begin(); segment!=segments.end(); segment++)
+		if(segment->station()==station) numSegments++;
+	return numSegments;
+}
+
+int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
+	int numSegments = 0;
+	for(std::vector<MuonSegmentMatch>::const_iterator segment=segments.begin(); segment!=segments.end(); segment++)
+		if(segment->detector()==detector) numSegments++;
+	return numSegments;
+}
+
 double TrackDetMatchInfo::ecalEnergy()
 {
    double energy(0);

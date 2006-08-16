@@ -19,6 +19,8 @@ class TrackDetMatchInfo {
    double outerHcalConeEnergy();
    
    int numberOfSegments(){ return segments.size(); }
+   int numberOfSegmentsInStation(int station) const;
+   int numberOfSegmentsInDetector(int detector) const;
      
    double dX(int i){ 
       if (numberOfSegments()<=i) return -999.;
