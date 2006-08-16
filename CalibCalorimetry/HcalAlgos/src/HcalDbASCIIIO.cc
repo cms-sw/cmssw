@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.20 2006/08/16 14:11:39 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.21 2006/08/16 14:16:30 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -359,7 +359,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
       }
       continue;
     }
-    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
+    //    std::cout << "HcalElectronicsMap-> processing line: " << buffer << std::endl;
     int crate = atoi (items [1].c_str());
     int slot = atoi (items [2].c_str());
     int top = 1;
@@ -383,6 +383,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     }
     else if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
+      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
+    }
+    else if (items [8] == "NT") { // undefined trigger channel
       fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     }
     else {
