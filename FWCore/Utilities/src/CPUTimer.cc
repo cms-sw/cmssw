@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Apr 16 20:32:20 EDT 2006
-// $Id$
+// $Id: CPUTimer.cc,v 1.1 2006/04/19 17:56:00 chrjones Exp $
 //
 
 // system include files
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <errno.h>
 
 // user include files
 #include "FWCore/Utilities/interface/CPUTimer.h"
