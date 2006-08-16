@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.22 2006/08/16 14:48:53 mansj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.23 2006/08/16 15:10:50 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -384,28 +384,30 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
 
-    HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
-    HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
-    elId.setHTR (crate, slot, top);
-    if (converter.isHcalDetId ()) { 
-      fObject->mapEId2chId (elId, converter.getId ());
-    }
-    else if (converter.isHcalTrigTowerDetId ()) {
-	fObject->mapEId2tId (elId, converter.getId ());
-    }
-    else if (converter.isHcalCalibDetId ()) {
-	fObject->mapEId2chId (elId, converter.getId ());
-    }
-    else if (items [8] == "NA") { // undefined channel
+    // first, handle undefined cases
+    if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
       fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
-    }
-    else if (items [8] == "NT") { // undefined trigger channel
+    } else if (items [8] == "NT") { // undefined trigger channel
       fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
-    }
-    else {
-      std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
-		<< items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
+    } else {
+    
+      HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
+      HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
+      elId.setHTR (crate, slot, top);
+      if (converter.isHcalDetId ()) { 
+	fObject->mapEId2chId (elId, converter.getId ());
+      }
+      else if (converter.isHcalTrigTowerDetId ()) {
+	fObject->mapEId2tId (elId, converter.getId ());
+      }
+      else if (converter.isHcalCalibDetId ()) {
+	fObject->mapEId2chId (elId, converter.getId ());
+      }
+      else {
+	std::cerr << "HcalElectronicsMap-> Unknown subdetector: " 
+		  << items [8] << '/' << items [9] << '/' << items [10] << '/' << items [11] << std::endl; 
+      }
     }
   }
   fObject->sort ();
