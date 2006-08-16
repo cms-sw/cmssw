@@ -13,7 +13,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Wed Aug  9 16:02:54 CEST 2006
-// $Id: L1GctAnalyzer.h,v 1.1 2006/08/15 08:27:00 heath Exp $
+// $Id: L1GctAnalyzer.h,v 1.2 2006/08/15 14:36:59 heath Exp $
 //
 //
 
@@ -53,11 +53,11 @@ class L1GctAnalyzer : public edm::EDAnalyzer {
   TFile* m_file;
   bool doBasicHist;
   bool doJetCheckHist;
-//   bool doMETCheckHist;
+  bool doMETCheckHist;
   L1GctBasicHistogrammer* basicHist;
   std::vector<L1GctJetCheckHistogrammer*> jetCheckHist;
   std::vector<std::string> jetCheckOptions;
-//   std::vector<L1GctMETCheckHistogrammer*> mETCheckHist;
-//   std::vector<std::string> mETCheckOptions;
+  std::vector<L1GctMETCheckHistogrammer*> mETCheckHist;
+  std::vector<std::string> mETCheckOptions;
 };
 

@@ -25,8 +25,8 @@
 L1GctAnalyzer::L1GctAnalyzer(const edm::ParameterSet& iConfig) :
   m_histFileName(iConfig.getUntrackedParameter<string>( "histogramFileName", "testHisto.root" )),
   doBasicHist(false),
-							       doJetCheckHist(false) //,
-//   doMETCheckHist(false)
+  doJetCheckHist(false),
+  doMETCheckHist(false)
  {
   std::cout << "In L1GctAnalyzer ctor" << std::endl;
   // Read the options from the configuration file into local strings
@@ -45,8 +45,8 @@ L1GctAnalyzer::L1GctAnalyzer(const edm::ParameterSet& iConfig) :
 	doJetCheckHist = true;
 	jetCheckOptions = histogramOptions;
       } else if (*module == "mETCheck") {
-// 	doMETCheckHist = true;
-// 	mETCheckOptions = histogramOptions;
+	doMETCheckHist = true;
+	mETCheckOptions = histogramOptions;
       } else {
 	throw cms::Exception("L1GctAnalyzer setup error") << " invalid histogramModule argument, " << *module  
 							  << " to L1GctAnalyzer in configuration file " << std::endl;
@@ -105,15 +105,15 @@ L1GctAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-//    if (doMETCheckHist) {
-//      Handle<METCollection> genMET;
-//      for (unsigned i=0; i<mETCheckHist.size(); ++i) {
-//        string label=mETCheckOptions.at(i);
-//        iEvent.getByLabel(label,genMET);
-//        mETCheckHist.at(i)->setInputProduct(genMET);
-//        mETCheckHist.at(i)->fillHistograms(gctdata);
-//      }
-//    }
+   if (doMETCheckHist) {
+     Handle<METCollection> genMET;
+     for (unsigned i=0; i<mETCheckHist.size(); ++i) {
+       string label=mETCheckOptions.at(i);
+       iEvent.getByLabel(label,genMET);
+       mETCheckHist.at(i)->setInputProduct(genMET);
+       mETCheckHist.at(i)->fillHistograms(gctdata);
+     }
+   }
 
    Handle<SuperClusterCollection> SuperClusters;
    iEvent.getByLabel("correctedHybridSuperClusters","",SuperClusters);
@@ -176,12 +176,12 @@ L1GctAnalyzer::beginJob(const edm::EventSetup& iSetup)
   }
 
   // Histogrammers for comparison with missing Et reconstruction
-//   if (doMETCheckHist) {
-//     for (vector<string>::const_iterator option=mETCheckOptions.begin(); option != mETCheckOptions.end(); ++option) {
-//       string directory = *option + "METCheck";
-//       mETCheckHist.push_back(new L1GctMETCheckHistogrammer(m_file, directory));
-//     }
-//   }
+  if (doMETCheckHist) {
+    for (vector<string>::const_iterator option=mETCheckOptions.begin(); option != mETCheckOptions.end(); ++option) {
+      string directory = *option + "METCheck";
+      mETCheckHist.push_back(new L1GctMETCheckHistogrammer(m_file, directory));
+    }
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -193,11 +193,11 @@ L1GctAnalyzer::endJob() {
       delete jetCheckHist.at(i);
     }
   }
-//   if (doMETCheckHist) {
-//     for (unsigned i=0; i<mETCheckHist.size(); ++i) {
-//       delete mETCheckHist.at(i);
-//     }
-//   }
+  if (doMETCheckHist) {
+    for (unsigned i=0; i<mETCheckHist.size(); ++i) {
+      delete mETCheckHist.at(i);
+    }
+  }
   delete m_file;
 }
 
