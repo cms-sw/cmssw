@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/08/09 12:41:24 $
- * $Revision: 1.24 $
+ * $Date: 2006/08/11 08:19:33 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -247,7 +247,7 @@ void EBBeamCaloClient::cleanup(void) {
 
 
 void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
-
+  
   EcalLogicID ecid;
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
@@ -274,7 +274,7 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
         num02 = hBMaxEneCry_->GetBinContent(hBMaxEneCry_->GetBin(ie, ip));
         update_channel = true;
       }
-
+      
       mean01 = 0.;
       //int cry = ip+20*(ie-1);
       int ic = (ip-1) + 20*(ie-1) + 1;
@@ -282,13 +282,14 @@ void EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, in
       if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
       if( step > 0 && step < 86){
 	//if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
-	if( hBE1vsCry_){mean01 = hBE1vsCry_->GetBinContent(step);} // E1
+	if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
       }
       //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
       if ( update_channel ) {
 
         if ( ie == 1 && ip == 1 ) {
+	//if ( mean01 !=0) {
 
           cout << "Preparing dataset for SM=" << ism << endl;
 
