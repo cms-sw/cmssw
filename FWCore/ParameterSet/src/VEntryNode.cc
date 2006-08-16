@@ -126,31 +126,31 @@ namespace edm {
        {
          vector<string> usethis;
          for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
-         return Entry(usethis, !tracked_);
+         return Entry(name(), usethis, !tracked_);
        }
      else if(type()=="vdouble")
        {
          vector<double> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="vint32")
        {
          vector<int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="vuint32")
        {
          vector<unsigned int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else if(type()=="VInputTag")
        {
          vector<InputTag> d ;
          for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
-         return Entry(d, !tracked_);
+         return Entry(name(), d, !tracked_);
        }
      else
        {

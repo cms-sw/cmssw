@@ -57,9 +57,9 @@ namespace edm {
        boost::shared_ptr<ParameterSet> pset(new ParameterSet);
        // do all the subnodes
        CompositeNode::insertInto(*pset);
-       pset->insert(false, "@module_type", Entry(class_, true));
-       pset->insert(false, "@module_label", Entry(name(), true));
-       return Entry(*pset, true);
+       pset->addParameter("@module_type", class_);
+       pset->addParameter("@module_label", name());
+       return Entry(name(), *pset, true);
     }
 
 
