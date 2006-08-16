@@ -277,7 +277,7 @@ void testEventsetup::producerConflictTest()
       provider.add(dummyProv);
    }
    //checking for conflicts is now delayed until first time EventSetup is requested
-   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+   /*EventSetup const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
 
 }
 void testEventsetup::sourceConflictTest()
@@ -296,7 +296,7 @@ void testEventsetup::sourceConflictTest()
       provider.add(dummyProv);
    }
    //checking for conflicts is now delayed until first time EventSetup is requested
-   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+   /*EventSetup const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    
 }
 //#define TEST_EXCLUDE_DEF
@@ -322,7 +322,7 @@ void testEventsetup::twoSourceTest()
     provider.add(finderPtr);
   }
   //checking for conflicts is now delayed until first time EventSetup is requested
-  EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  /*EventSetup const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
   
 }
 void testEventsetup::provenanceTest()
