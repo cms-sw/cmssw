@@ -43,7 +43,7 @@ DQM_OUTPUT_FILE="${MTCC_OUTPUT_DIR}/mtcc_filter_dqm_${RUNNR}.root"
 # template
 TEMPLATE_FILTER_CFG="${LK_WKDIR}/template_filter.cfg"
 # have to find smth. more clever for below
-CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_07_31"
+CASTOR_DIR="/castor/cern.ch/user/d/dkcira/MTCC/2006_08_09_recdata_090pre3"
 # need username to connect to cmsdisk0.cern.ch for asking list of files and then copying them
 BATCH_USER_NAME=`whoami`
 # for testing, if 0 no limit is set
