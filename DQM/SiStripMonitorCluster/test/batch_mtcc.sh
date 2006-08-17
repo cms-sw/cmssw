@@ -102,7 +102,7 @@ get_list_of_castor_files(){
  echo "getting from CASTOR the list of files corresponding to run ${RUNNR}";
  if [ $MAX_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
+   LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.dat' | sed 's/^.* //'`
  else
    echo "   !!! Caution !!!      limiting max. nr. of files per run to ${MAX_FILES_TO_RUN_OVER}"
    LIST_OF_DATA_FILES=`rfdir $CASTOR_DIR | head -${MAX_FILES_TO_RUN_OVER} | sed 's/^.* //'`
@@ -119,7 +119,7 @@ get_list_of_pedestal_castor_files(){
  echo "getting from CASTOR the list of files corresponding to pedestal run ${PED_RUNNR}";
  if [ $MAX_PED_FILES_TO_RUN_OVER -eq 0 ]
  then
-   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.root' | sed 's/^.* //'`
+   LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | grep '\.dat' | sed 's/^.* //'`
  else
    echo "   !!! Caution !!!      limiting nr. of files for calculating pedestals to ${MAX_PED_FILES_TO_RUN_OVER}"
    LIST_OF_PED_DATA_FILES=`rfdir $CASTOR_DIR | head -${MAX_PED_FILES_TO_RUN_OVER} | sed 's/^.* //'`
@@ -188,7 +188,7 @@ copy_cmsdisk0_files_locally(){
       echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
     else
       echo "copying  ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
-      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+      scp -c blowfish ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
     fi
   done
 }
@@ -227,7 +227,7 @@ copy_cmsdisk0_ped_files_locally(){
       echo " ${MTCC_INPUT_DIR}/${rfile} exists already, not copying."
     else
       echo "copying ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} to ${MTCC_INPUT_DIR}/${rfile}"
-      scp ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
+      scp -c blowfish ${BATCH_USER_NAME}@cmsdisk0.cern.ch:/data0/mtcc_0_9_0/${rfile} ${MTCC_INPUT_DIR}/${rfile}
     fi
   done
 }
@@ -308,6 +308,7 @@ runcms(){
     cmsRun  -p ${I_CFG}
     echo "reconstruction jobstatus: $?";
     mv ${MTCC_OUTPUT_DIR}/monitor_cluster_summary.txt  ${I_CFG}_cluster_summary.txt
+    mv ${MTCC_OUTPUT_DIR}/monitor_digi_summary.txt  ${I_CFG}_digi_summary.txt
   done
   cp  ${MTCC_OUTPUT_DIR}/insert_SiStripPedNoisesDB  ${MTCC_OUTPUT_DIR}/${RUNNR}_insert_SiStripPedNoisesDB
   cp  ${MTCC_OUTPUT_DIR}/insert_SiStripPedNoisesCatalog  ${MTCC_OUTPUT_DIR}/${RUNNR}_insert_SiStripPedNoisesCatalog
