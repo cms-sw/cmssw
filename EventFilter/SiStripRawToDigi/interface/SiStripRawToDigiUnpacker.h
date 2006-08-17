@@ -13,7 +13,7 @@
 namespace Fed9U { class Fed9UEvent; }
 class FEDRawDataCollection;
 class FEDRawData;
-//class SiStripDigiCollection;
+class SiStripDigiCollection;
 class SiStripDigi;
 class SiStripRawDigi;
 class SiStripEventSummary;
@@ -41,10 +41,10 @@ class SiStripRawToDigiUnpacker {
   typedef edm::DetSetVector<SiStripDigi>    Digis;
   typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
   
-  /** Creates "pseudo" digis */
-  /*   void createDigis( const FedCabling&,  */
-  /* 		    const FedBuffers&,  */
-  /* 		    std::auto_ptr<SiStripDigiCollection>& ); */
+  /** Creates "pseudo" digis. */
+  void createDigis( const FedCabling&,
+  		    const FedBuffers&,
+  		    std::auto_ptr<SiStripDigiCollection>& );
   
   /** Creates "real" digis. */
   void createDigis( const FedCabling&,

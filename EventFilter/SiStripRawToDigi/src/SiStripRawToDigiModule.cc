@@ -10,7 +10,7 @@
 // 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
@@ -27,7 +27,8 @@ using namespace std;
 //
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
+  createDigis_( true ) //@@ force this for the time being...
+  //createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
 {
   edm::LogVerbatim("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
   
@@ -44,7 +45,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
-  //produces< SiStripDigiCollection >("SiStripDigiCollection");
+  produces< SiStripDigiCollection >("SiStripDigiCollection");
   produces< SiStripEventSummary >();
   
 }
@@ -80,12 +81,11 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  //auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
+  auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
   // Create "real" or "pseudo" digis
-  //if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
-  //else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
-  rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); 
+  if ( !createDigis_ ) { rawToDigi_->createDigis( cabling, buffers, digis ); }
+  else { rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs ); }
 
   // Populate SiStripEventSummary object with "trigger FED" info
   rawToDigi_->triggerFed( buffers, summary ); 
@@ -94,7 +94,7 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
-  //iEvent.put( digis, "SiStripDigiCollection" );
+  iEvent.put( digis, "SiStripDigiCollection" );
   iEvent.put( summary );
   
 }
