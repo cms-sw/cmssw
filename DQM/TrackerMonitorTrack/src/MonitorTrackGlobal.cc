@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.8 2006/06/27 07:52:57 dkcira Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.10 2006/08/06 21:26:11 dkcira Exp $
 //
 //
 
@@ -33,11 +33,9 @@ MonitorTrackGlobal::MonitorTrackGlobal(const edm::ParameterSet& iConfig)
   MTCCData = conf_.getParameter<bool>("MTCCData"); // if MTCC data certain histograms are not relevant
 }
 
-
 MonitorTrackGlobal::~MonitorTrackGlobal()
 {
 }
-
 
 void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
 {
