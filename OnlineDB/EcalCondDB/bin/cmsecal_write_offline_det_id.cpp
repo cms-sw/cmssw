@@ -3,7 +3,7 @@
  *
  *   Reads the ECAL CondDB 'channelview' table a list of crystal IDs
  *   (logic_id) and writes back a mapping of EBDetId.rawId() to
- *   logic_id 
+ *   logic_id as well as a mapping of ieta, iphi to logic_id
  *   
  *   Author: Ricky Egeland, with help by Zhen Xie!
  */
@@ -122,7 +122,7 @@ public:
     cvQuery->setCondition( where, whereData );
     cvQuery->setRowCacheSize(61200); // number of crystals in barrel
 
-    std::cout << "Getting editor..." << std::flush;
+    std::cout << "Getting editor for CHANNELVIEW..." << std::flush;
     coral::ITableDataEditor& cvEditor = m_session->nominalSchema().tableHandle("CHANNELVIEW").dataEditor();
     
     std::cout << "Setting up buffers..." << std::flush;
@@ -135,13 +135,13 @@ public:
     rowBuffer.extend<int>( "LOGIC_ID" );
 
     std::string& name = rowBuffer[0].data<std::string>();
-    int& detId = rowBuffer[1].data<int>();
+    int& id1 = rowBuffer[1].data<int>();
     int& id2 = rowBuffer[2].data<int>();
     int& id3 = rowBuffer[3].data<int>();
     std::string& mapsTo = rowBuffer[4].data<std::string>();
     int& logicId = rowBuffer[5].data<int>();
     
-    coral::IBulkOperation* bulkInserter = cvEditor.bulkInsert(rowBuffer, 61200); // number of crystals in barrel
+    coral::IBulkOperation* bulkInserter = cvEditor.bulkInsert(rowBuffer, 37*1700*2); // number of crystals in barrel * number of mappings
     std::cout << "Done." << std::endl;
     
     std::cout << "Looping over supermodule" << std::endl;
@@ -149,9 +149,10 @@ public:
     int SM = 0;
     int offSM = 0; // SM slot in the offline
     int xtal = 0;
-    id2 = id3 = 0;
-    name = "Offline_det_id";
-    mapsTo = "EB_crystal_number";
+    int detId = 0;
+    int ieta = 0;
+    int iphi = 0;
+    id1 = id2 = id3 = 0;
     coral::ICursor& cvCursor = cvQuery->execute();
     while (cvCursor.next()) {
       SM = cvCursor.currentRow()["ID1"].data<int>();
@@ -168,19 +169,73 @@ public:
 
       ebid = EBDetId(offSM, xtal, EBDetId::SMCRYSTALMODE);
       detId = ebid.rawId();
+      ieta = ebid.ieta();
+      iphi = ebid.iphi();
 
       std::cout << "SM " << SM
 		<< " xtal " << xtal
 		<< " logic_id " << logicId
+	        << " ieta " << ieta
+	        << " iphi " << iphi
 		<< " det_id " << detId << std::endl;
+      name = "Offline_det_id";
+      mapsTo = "EB_crystal_number";
+      id1 = detId;
+      rowBuffer[ "ID2" ].setNull( true );
+      rowBuffer[ "ID3" ].setNull( true );
+      bulkInserter->processNextIteration();
+
+      name = "EB_crystal_angle";
+      mapsTo = "EB_crystal_number";
+      id1 = ieta;
+      rowBuffer[ "ID2" ].setNull( false );
+      id2 = iphi;
+      rowBuffer[ "ID3" ].setNull( true );
       bulkInserter->processNextIteration();
     }
     bulkInserter->flush();
     delete bulkInserter;
     std::cout << "Done." << std::endl;
+
+    std::cout << "Getting editor for VIEWDESCRIPTION..." << std::flush;
+    coral::ITableDataEditor& vdEditor = m_session->nominalSchema().tableHandle("VIEWDESCRIPTION").dataEditor();
+    
+    std::cout << "Setting up buffers..." << std::flush;
+    coral::AttributeList rowBuffer2;
+    rowBuffer2.extend<std::string>( "NAME" );
+    rowBuffer2.extend<std::string>( "ID1NAME" );
+    rowBuffer2.extend<std::string>( "ID2NAME" );
+    rowBuffer2.extend<std::string>( "ID3NAME" );
+    rowBuffer2.extend<std::string>( "DESCRIPTION" );
+
+    std::string& vdname = rowBuffer2["NAME"].data<std::string>();
+    std::string& id1name = rowBuffer2["ID1NAME"].data<std::string>();
+    std::string& id2name = rowBuffer2["ID2NAME"].data<std::string>();
+    std::string& id3name = rowBuffer2["ID3NAME"].data<std::string>();
+    std::string& description = rowBuffer2["DESCRIPTION"].data<std::string>();
+
+    id3name = "";  // Always null; using to get rid of warning
+
+    vdname = "Offline_det_id";
+    id1name = "det_id";
+    rowBuffer2[ "ID2NAME" ].setNull( true );
+    rowBuffer2[ "ID3NAME" ].setNull( true );
+    description = "DetID rawid() as used in CMSSW";
+    vdEditor.insertRow(rowBuffer2);
+
+    vdname = "EB_crystal_angles";
+    id1name = "ieta";
+    rowBuffer2[ "ID2NAME" ].setNull( false );
+    id2name = "iphi";
+    rowBuffer2[ "ID3NAME" ].setNull( true );
+    description = "Crystals in ECAL barrel super-modules by angle index";
+    vdEditor.insertRow(rowBuffer2);
+    
+
     std::cout << "Committing..." << std::flush;
     m_session->transaction().commit();
     std::cout << "Done." << std::endl;    
+
   }
 
 
