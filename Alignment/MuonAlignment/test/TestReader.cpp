@@ -27,12 +27,16 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/DataRecord/interface/MuonAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/DataRecord/interface/MuonAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
 
 //
 //
@@ -73,16 +77,16 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
    
-  edm::LogInfo("TrackerAlignment") << "Starting!";
+  edm::LogInfo("MuonAlignment") << "Starting!";
 
-  // Retrieve alignment[Error]s from DBase
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  // Retrieve DT alignment[Error]s from DBase
+  edm::ESHandle<Alignments> dtAlignments;
+  iSetup.get<DTAlignmentRcd>().get( dtAlignments );
+  edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
+  iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
 
-  for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
-		it != alignments->m_align.end(); it++ )
+  for ( std::vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin();
+		it != dtAlignments->m_align.end(); it++ )
 	{
 	  HepRotation fromAngles( (*it).eulerAngles()  );
 	  Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
@@ -101,8 +105,8 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	}
   std::cout << std::endl << "----------------------" << std::endl;
 
-  for ( std::vector<AlignTransformError>::const_iterator it = alignmentErrors->m_alignError.begin();
-		it != alignmentErrors->m_alignError.end(); it++ )
+  for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
+		it != dtAlignmentErrors->m_alignError.end(); it++ )
 	{
 	  HepSymMatrix error = (*it).matrix();
 	  std::cout << (*it).rawId() << " ";
@@ -113,7 +117,46 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	}
 
 
-  edm::LogInfo("TrackerAlignment") << "Done!";
+
+  // Retrieve CSC alignment[Error]s from DBase
+  edm::ESHandle<Alignments> cscAlignments;
+  iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
+  edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
+  iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
+
+  for ( std::vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin();
+		it != cscAlignments->m_align.end(); it++ )
+	{
+	  HepRotation fromAngles( (*it).eulerAngles()  );
+	  Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
+									  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
+									  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
+
+	  std::cout << (*it).rawId()
+				<< "  " << (*it).translation().x()
+				<< " " << (*it).translation().y()
+				<< " " << (*it).translation().z()
+				<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
+				<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
+				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
+				<< std::endl;
+
+	}
+  std::cout << std::endl << "----------------------" << std::endl;
+
+  for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
+		it != cscAlignmentErrors->m_alignError.end(); it++ )
+	{
+	  HepSymMatrix error = (*it).matrix();
+	  std::cout << (*it).rawId() << " ";
+	  for ( int i=0; i<error.num_row(); i++ )
+		for ( int j=0; j<=i; j++ ) 
+		  std::cout << " " << error[i][j];
+	  std::cout << std::endl;
+	}
+
+
+  edm::LogInfo("MuonAlignment") << "Done!";
 
 }
 
