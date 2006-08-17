@@ -14,8 +14,8 @@
 
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2006/03/15 23:40:27 $
-$Revision: 1.5 $
+$Date: 2006/06/26 22:12:52 $
+$Revision: 1.1 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {
@@ -26,7 +26,7 @@ public:
 private:
   HcalZSAlgoEnergy algo_;
   HcalSubdetector subdet_;
-  std::string inputLabel_;
+  edm::InputTag inputLabel_;
 };
 
 #endif

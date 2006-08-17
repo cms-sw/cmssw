@@ -17,7 +17,7 @@ using namespace std;
 
 HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   algo_(conf.getParameter<int>("level"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("twoSided")),
-  inputLabel_(conf.getParameter<string>("digiLabel"))
+  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"HBHE")) {
