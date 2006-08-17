@@ -20,7 +20,7 @@
 HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 : theCoderFactory(HcalCoderFactory::DB),
   theAlgo(&theCoderFactory),
-  inputLabel_(ps.getParameter<std::string>("inputLabel")),
+  inputLabel_(ps.getParameter<edm::InputTag>("inputLabel")),
   emScale_(ps.getParameter<int>("egammaScaleMeV")),
   jetScale_(ps.getParameter<int>("jetScaleMeV"))  
 {
