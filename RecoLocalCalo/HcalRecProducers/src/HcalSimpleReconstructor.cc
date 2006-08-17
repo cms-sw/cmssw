@@ -17,7 +17,7 @@ using namespace std;
     
     HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
       reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew")),
-      inputLabel_(conf.getParameter<string>("digiLabel"))
+      inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 	
     {
       std::string subd=conf.getParameter<std::string>("Subdetector");
