@@ -365,9 +365,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   // Provide further identification:
   //
-  bool needAspace;
+  bool needAspace = true;
   if  ( !msg.is_verbatim() ) {
-    needAspace = true;
     if ( wantEpilogueSeparate )  {
       if ( xid.module.length() + xid.subroutine.length() > 0 )  {
 	emit("\n");
