@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -69,20 +69,21 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   cout << "run: " << runn << ", event: " << eventn << endl;
 
 
-
+  
   // Get GMTReadoutCollection
 
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
   e.getByType(gmtrc_handle);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
-
+  
   int idt = 0;
   int icsc = 0;
   int irpcb = 0;
   int irpcf = 0;
   int igmt = 0;
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
-  for(igmtrr=gmtrc->getRecords().begin(); igmtrr!=gmtrc->getRecords().end(); igmtrr++) {
+  for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
 
     vector<L1MuRegionalCand>::const_iterator iter1;
     vector<L1MuRegionalCand> rmc;;
@@ -125,6 +126,8 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
         ntsc[icsc]= 0; //(*iter2).trackStubList().size();
         rankc[icsc]=0; //(*iter2).trackId().rank();
 
+        cout << "csc track " << icsc << " word: " << hex << (*iter1).getDataWord() << dec << endl;
+
 	icsc++;
       }
     }
@@ -132,7 +135,6 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
     //
     // RPCb Trigger
     //
-
     rmc = igmtrr->getBrlRPCCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
       if ( irpcb < MAXRPC ) {
@@ -150,7 +152,6 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
     //
     // RPCf Trigger
     //
-
     rmc = igmtrr->getFwdRPCCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
       if ( irpcf < MAXRPC ) {
@@ -304,7 +305,6 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
          << "detectors = " << setw(2) << idxDTBX[igmt] << idxRPCb[igmt] 
                                       << idxCSC[igmt] << idxRPCf[igmt] << endl;
   }
-
 
 
 }
