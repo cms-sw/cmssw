@@ -68,6 +68,6 @@ inline
 unsigned short evf::compute_crc_64bit(unsigned short crc,unsigned char *p64)
 {
   unsigned short result(crc);
-  for (unsigned int i=7;i>=0;i--) result=compute_crc(result,p64[i]);
+  for (int i=7;i>=0;i--) result=evf::compute_crc(result,p64[i]);
   return result;
 }
