@@ -82,18 +82,18 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
 
-  event.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-  event.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-  event.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
-  event.getByLabel("SimG4Object","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
-  event.getByLabel("SimG4Object","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
-  event.getByLabel("SimG4Object","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
-  event.getByLabel("SimG4Object","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
+  event.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
+  event.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
+  event.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
+  event.getByLabel("g4SimHits","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
+  event.getByLabel("g4SimHits","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
+  event.getByLabel("g4SimHits","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
+  event.getByLabel("g4SimHits","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
   
 //  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
   const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
@@ -116,10 +116,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   AlltheConteiners.push_back(TOBHitsHighTof);
   AlltheConteiners.push_back(TECHitsLowTof);
   AlltheConteiners.push_back(TECHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
-  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
-  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
-  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
+//  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
+//  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
+//  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
+//  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
 //  
   
 //  genEvent.print();
@@ -136,54 +136,54 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   int iG4Track = 0;
   edm::SimTrackContainer::const_iterator itP;
   for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
-       TrackingParticle::Charge q = 0;
-       CLHEP::HepLorentzVector p = itP -> momentum();
-       const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
-       double time =  0; 
-       int pdgId = 0;
-       EncodedEventId trackEventId = itP->eventId(); 
-       const HepMC::GenParticle * gp = 0;       
-       int genPart = itP -> genpartIndex();
-       if (genPart >= 0) {
-           gp = genEvent -> barcode_to_particle(genPart);  //pointer to the generating part.
-	   pdgId = gp -> pdg_id();
-       }
-        math::XYZPoint theVertex;
-       // = Point(0, 0, 0);
-       int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
-       if (genVert >= 0){
-           const SimVertex &gv = (*G4VtxContainer)[genVert];
-	   const CLHEP::HepLorentzVector &v = gv.position();
-	   theVertex = math::XYZPoint(v.x(), v.y(), v.z());
-	   time = v.t(); 
-       }
-       TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
-       
-      typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
-//      map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
-      int simtrackId = itP -> trackId();
-     for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
-     int  index = 0;
-      	 for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
-     	     if( simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
-     	   tp.addPSimHit(TrackPSimHitRef(*allCont, index));
+    TrackingParticle::Charge q = 0;
+    CLHEP::HepLorentzVector p = itP -> momentum();
+    const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
+    double time =  0; 
+    int pdgId = 0;
+    EncodedEventId trackEventId = itP->eventId(); 
+    const HepMC::GenParticle * gp = 0;       
+    int genPart = itP -> genpartIndex();
+    if (genPart >= 0) {
+      gp = genEvent -> barcode_to_particle(genPart);  //pointer to the generating part.
+      pdgId = gp -> pdg_id();
+    }
+    math::XYZPoint theVertex;
+    // = Point(0, 0, 0);
+    int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
+    if (genVert >= 0){
+      const SimVertex &gv = (*G4VtxContainer)[genVert];
+      const CLHEP::HepLorentzVector &v = gv.position();
+      theVertex = math::XYZPoint(v.x(), v.y(), v.z());
+      time = v.t(); 
+    }
+    TrackingParticle tp(q, theMomentum, theVertex, time, pdgId, trackEventId);
+    
+    typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
+//    map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
+    int simtrackId = itP -> trackId();
+    for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
+      int  index = 0;
+      for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
+     	if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ){
+     	  tp.addPSimHit(TrackPSimHitRef(*allCont, index));
 //     	   trackIdPSimHitMap[hit->trackId()].push_back(TrackPSimHitRef(*allCont, index));
-      	     }
-      	 }
+        }
       }
+    }
 //      int index = 0;
 //      for(edm::PSimHitContainer::const_iterator itSimHit =  TIBHitsLowTof->begin(); itSimHit !=TIBHitsLowTof->end();
 //	 ++itSimHit, ++index){
 //	 tp.addPSimHit(TrackPSimHitRef(TIBHitsLowTof, index));
 //      }
 	
-	tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
-	if (genPart >= 0) {
-	  tp.addGenParticle(GenParticleRef(hepMC,genPart));
-	}
-	productionVertex.insert(pair<int,int>(tPC->size(),genVert));
-	tPC -> push_back(tp);
-	++iG4Track;
+    tp.addG4Track(SimTrackRef(G4TrkContainer,iG4Track));
+    if (genPart >= 0) {
+      tp.addGenParticle(GenParticleRef(hepMC,genPart));
+    }
+    productionVertex.insert(pair<int,int>(tPC->size(),genVert));
+    tPC -> push_back(tp);
+    ++iG4Track;
   }
 
 // Put TrackingParticles in event and get handle to access them    
@@ -280,7 +280,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
   edm::OrphanHandle<TrackingVertexCollection> tvcHandle = event.put(tVC);
 //  TrackingVertexCollection vertexCollection = *tvcHandle;
-  cout << "Multimap dump: " << endl;
   for (multimap<int,int>::const_iterator a = tmpTrackVertexMap.begin();
       a !=   tmpTrackVertexMap.end(); ++a) {
      int iVertex = a -> second;
@@ -291,8 +290,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
                              TrackingParticleRef(tpcHandle,iTrack));
   }
   
-  event.put(trackVertexMap); 
-  event.put(vertexTrackMap); 
+  event.put(trackVertexMap);
+  event.put(vertexTrackMap);
 }
   
 DEFINE_FWK_MODULE(TrackingTruthProducer)
