@@ -5,6 +5,8 @@
 
 // Geometry interface
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 // Tracker components
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerHalfBarrel.h"
@@ -96,6 +98,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
   // and layers are ordered by layer number, alternating positive and negative z.
   // Thus, when the Z coordinate of the rods goes from >0 to <0 (and vice-versa),
   // a new layer is started (see implementation below). Same in TIB and TOB.
+  // P.S. To make it more stable, a check on the detId is also performed...
   
   LogDebug("Position") << "Constructing TOB"; 
   
@@ -108,6 +111,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
   std::vector<AlignableTrackerBarrelLayer*> m_forwardLayers;
   std::vector<AlignableTrackerBarrelLayer*> m_backwardLayers;
   float curZ = 0;
+  TOBDetId curDetId;
   for ( _DetContainer::iterator iRod = m_geometricRods.begin(); 
 		iRod != m_geometricRods.end(); iRod++ )
 	{
@@ -115,7 +119,9 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
 															theTrackerGeometry );
 	  
 	  // When Z changes sign, we start a new layer...
-	  if ( m_tmpRods.size() > 0 && tmpRod->globalPosition().z()*curZ<0 )
+	  TOBDetId tmpDetId( (*iRod)->geographicalID() );
+	  if ( m_tmpRods.size() > 0 && 
+		   ( tmpRod->globalPosition().z()*curZ<0 || tmpDetId.layer() != curDetId.layer() ) )
 		{
 		  AlignableTrackerBarrelLayer* tmpLayer = new AlignableTrackerBarrelLayer( m_tmpRods );
 		  if ( tmpLayer->globalPosition().z() > 0 ) m_forwardLayers.push_back( tmpLayer );
@@ -125,6 +131,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
 		}
 
 	  curZ = tmpRod->globalPosition().z();
+	  curDetId = TOBDetId( (*iRod)->geographicalID() );
 	  m_tmpRods.push_back( tmpRod );
 	}
   // Special treatment for last layer (outside loop)
@@ -158,6 +165,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
   // and layers are ordered by layer number, alternating positive and negative z.
   // Thus, when the Z coordinate of the rods goes from >0 to <0 (and vice-versa),
   // a new layer is started (see implementation below). Same in TIB and TOB.
+  // P.S. To make it more stable, a check on the detId is also performed...
 
   LogDebug("AlignableTracker") << "Constructing TIB"; 
 
@@ -170,6 +178,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
   std::vector<AlignableTrackerBarrelLayer*> m_forwardLayers;
   std::vector<AlignableTrackerBarrelLayer*> m_backwardLayers;
   float curZ = 0;
+  TIBDetId curDetId;
   for ( _DetContainer::iterator iRod = m_geometricRods.begin(); 
 		iRod != m_geometricRods.end(); iRod++ )
 	{
@@ -177,7 +186,9 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
 															theTrackerGeometry );
 
 	  // When Z changes, we start a new layer...
-	  if ( m_tmpRods.size() > 0 && tmpRod->globalPosition().z()*curZ<0 )
+	  TIBDetId tmpDetId( (*iRod)->geographicalID() );
+	  if ( m_tmpRods.size() > 0 && 
+		   ( tmpRod->globalPosition().z()*curZ<0 || tmpDetId.layer() != curDetId.layer() ) )
 		{
 		  AlignableTrackerBarrelLayer* tmpLayer = new AlignableTrackerBarrelLayer( m_tmpRods );
 		  if ( tmpLayer->globalPosition().z() > 0 ) m_forwardLayers.push_back( tmpLayer );
@@ -187,6 +198,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
 		}
 
 	  curZ = tmpRod->globalPosition().z();
+	  curDetId = TIBDetId( (*iRod)->geographicalID() );
 	  m_tmpRods.push_back( tmpRod );
 	}
   // Special treatment for last layer (outside loop)
@@ -267,7 +279,7 @@ void AlignableTracker::buildTID( const GeometricDet* navigator )
 void AlignableTracker::buildTEC( const GeometricDet* navigator )
 {
 
-  // The TEC rings contain the DetUnits, but they are not (currently)
+  // The TEC rings contain the DetUnits, but they are not
   // implemented in the alignable hierarchy. So we collect the petals,
   // and build them into layers. 
   // Note: This routine is called twice (once for forward, once for backward EC)
