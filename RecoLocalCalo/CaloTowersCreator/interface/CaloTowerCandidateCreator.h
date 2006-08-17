@@ -8,17 +8,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CaloTowerCandidateCreator.h,v 1.2 2006/05/23 01:14:09 fedor Exp $
+ * $Id: CaloTowerCandidateCreator.h,v 1.3 2006/05/23 19:56:30 mansj Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
-namespace edm {
-  class ParameterSet;
-}
 
 class CaloTowerCandidateCreator : public edm::EDProducer {
  public:
@@ -33,7 +31,7 @@ class CaloTowerCandidateCreator : public edm::EDProducer {
   /// verbosity
   int mVerbose;
   /// label of source collection
-  std::string mSource;
+  edm::InputTag mSource;
   /// ET threshold
   double mEtThreshold;
   /// E threshold

@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2006/03/15 23:40:24 $
-  * $Revision: 1.4 $
+  * $Date: 2006/05/01 19:21:05 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -26,10 +26,8 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
   CaloTowersCreationAlgo algo_;
-  std::string hbheLabel_,hoLabel_,hfLabel_;
-  std::vector<std::string> ecalLabels_;
-  typedef std::pair<std::string, std::string> Bilabeled;
-  std::vector<Bilabeled> ecalFullLabels_;
+  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  std::vector<edm::InputTag> ecalLabels_;
   bool allowMissingInputs_;
 };
 

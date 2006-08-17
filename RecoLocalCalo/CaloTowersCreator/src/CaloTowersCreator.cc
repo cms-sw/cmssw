@@ -25,25 +25,13 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("EBSumThreshold"),
 	conf.getParameter<double>("EESumThreshold"),
 	true), // always uses HO!
-  hbheLabel_(conf.getParameter<std::string>("hbheInput")),
-  hoLabel_(conf.getParameter<std::string>("hoInput")),
-  hfLabel_(conf.getParameter<std::string>("hfInput")),
-  ecalLabels_(conf.getParameter<std::vector<std::string> >("ecalInputs")),
+  hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),
+  hoLabel_(conf.getParameter<edm::InputTag>("hoInput")),
+  hfLabel_(conf.getParameter<edm::InputTag>("hfInput")),
+  ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",false))
 {
   produces<CaloTowerCollection>();
-
-  for (std::vector<std::string>::iterator i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    if (i->find("/")==std::string::npos) ecalFullLabels_.push_back(Bilabeled("",*i));
-    else {
-      std::string l1=*i;
-      l1.erase(l1.find("/"));
-      std::string l2=*i;
-      l2.erase(0,l2.find("/")+1);
-      ecalFullLabels_.push_back(Bilabeled(l2,l1));
-    }
-  }
-
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -60,44 +48,35 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.begin(); // clear the internal buffer
   
   // Step A/C: Get Inputs and process (repeatedly)
-  if (!hbheLabel_.empty()) {
-    try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      e.getByLabel(hbheLabel_,hbhe);
-      algo_.process(*hbhe);
-    } catch (std::exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-    }
-  }
-
-  if (!hoLabel_.empty()) {
-    try {
-      edm::Handle<HORecHitCollection> ho;
-      e.getByLabel(hoLabel_,ho);
-      algo_.process(*ho);
-    } catch (std::exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-    }
-  }
-
-  if (!hfLabel_.empty()) {
-    try {
-      edm::Handle<HFRecHitCollection> hf;
-      e.getByLabel(hfLabel_,hf);
-      algo_.process(*hf);
-    } catch (std::exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-    }
+  try {
+    edm::Handle<HBHERecHitCollection> hbhe;
+    e.getByLabel(hbheLabel_,hbhe);
+    algo_.process(*hbhe);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
   }
 
   try {
-    std::vector<Bilabeled>::const_iterator i;
-    for (i=ecalFullLabels_.begin(); i!=ecalFullLabels_.end(); i++) {
+    edm::Handle<HORecHitCollection> ho;
+    e.getByLabel(hoLabel_,ho);
+    algo_.process(*ho);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
+
+  try {
+    edm::Handle<HFRecHitCollection> hf;
+    e.getByLabel(hfLabel_,hf);
+    algo_.process(*hf);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
+
+  try {
+    std::vector<edm::InputTag>::const_iterator i;
+    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
       edm::Handle<EcalRecHitCollection> ec;
-      if (i->first.empty()) 
-	e.getByLabel(i->second,ec);
-      else
-	e.getByLabel(i->second,i->first,ec);
+      e.getByLabel(*i,ec);
       algo_.process(*ec);
     }
   } catch (std::exception& e) { // can't find it!
