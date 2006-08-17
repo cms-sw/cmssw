@@ -266,30 +266,38 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   static string method = "SiStripCommissioningSource::createTask";
   LogDebug("Commissioning") << "["<<method<<"]";
   
-  // Check if summary information is available
-  cout << "["<<method<<"] ptr: " << summary << endl;
-  sistrip::Task task = sistrip::UNKNOWN_TASK;
-  if ( summary ) { task = summary->task(); } // Retrieve commissioning task 
-  else { task = sistrip::PHYSICS; }          // Otherwise, assume "physics" run
+  cout << "[" << __PRETTY_FUNCTION__ << "]"
+       << " SiStripEventSummary ptr: " << summary << endl;
   
+  // Check if summary information is available and retrieve commissioning task 
+  sistrip::Task task;
+  if ( summary ) { task = summary->task(); } 
+  else { 
+    task = sistrip::UNKNOWN_TASK; 
+    edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				   << " NULL pointer to SiStripEventSummary!"
+				   << " Unknown commissioning task!"; 
+  } 
+
+  // Override task with configurable (if set)
+  sistrip::Task configurable = SiStripHistoNamingScheme::task( task_ );
+  if ( configurable != sistrip::UNDEFINED_TASK ) { task = configurable; }
+
+  // Create ME (string) that identifies commissioning task
+  dqm()->setCurrentFolder( sistrip::root_ );
+  string task_str = SiStripHistoNamingScheme::task( task );
+  dqm()->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_str, task_str ); 
+
   // Check commissioning task is known
-  if ( task == sistrip::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
-    edm::LogError("Commissioning") << "["<<method<<"] Unknown commissioning task!"; 
+  if ( task == sistrip::UNKNOWN_TASK ) {
+    edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+				   << " Unknown commissioning task!"; 
     return; 
   }
   
   // Check if commissioning task is FED cabling 
-  if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == sistrip::FED_CABLING ) ) { cablingTask_ = true; }
+  if ( task == sistrip::FED_CABLING ) { cablingTask_ = true; }
   else { cablingTask_ = false; }
-
-  // Create ME (string) that identifies commissioning task
-  dqm()->setCurrentFolder( sistrip::root_ );
-  if ( task_ != "UNDEFINED" ) { 
-    dqm()->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_, task_ ); 
-  } else { 
-    string temp = SiStripHistoNamingScheme::task( task );
-    dqm()->bookString( sistrip::commissioningTask_ + sistrip::sep_ + temp, temp ); 
-  }
   
   // Iterate through FEC cabling and create commissioning task objects
   for ( vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
@@ -312,52 +320,51 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 	      // Retrieve FED channel in order to create key for task map
 	      FedChannelConnection conn = fedCabling_->connection( iconn->second.first,
 								   iconn->second.second );
-	      uint32_t fed_key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
-	      uint32_t fec_key = SiStripControlKey::key( conn.fecCrate(),
-							 conn.fecSlot(),
-							 conn.fecRing(),
-							 conn.ccuAddr(),
-							 conn.ccuChan(),
-							 conn.lldChannel() );
-	      uint32_t key = cablingTask_ ? fec_key : fed_key;
+
+	      // Define key (FEC for cabling task, FED for all other tasks) 
+	      uint32_t key;
+	      if ( cablingTask_ ) {
+		key = SiStripControlKey::key( conn.fecCrate(),
+					      conn.fecSlot(),
+					      conn.fecRing(),
+					      conn.ccuAddr(),
+					      conn.ccuChan(),
+					      conn.lldChannel() );
+	      } else {
+		key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
+	      }
+	      
 	      // Create commissioning task objects
 	      if ( tasks_.find( key ) == tasks_.end() ) {
-		if      ( task_ == "FED_CABLING" ) { tasks_[key] = new FedCablingTask( dqm(), conn ); }
-		else if ( task_ == "PEDESTALS" )   { tasks_[key] = new PedestalsTask( dqm(), conn ); }
-		else if ( task_ == "APV_TIMING" )  { tasks_[key] = new ApvTimingTask( dqm(), conn ); }
-		else if ( task_ == "OPTO_SCAN" )   { tasks_[key] = new OptoScanTask( dqm(), conn ); }
-		else if ( task_ == "VPSP_SCAN" )   { tasks_[key] = new VpspScanTask( dqm(), conn ); }
-		else if ( task_ == "FED_TIMING" )  { tasks_[key] = new FedTimingTask( dqm(), conn ); }
-		else if ( task_ == "UNDEFINED" )   {
-		  //  Use data stream to determine which task objects are created!
-		  if      ( task == sistrip::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm(), conn ); }
-		  else if ( task == sistrip::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm(), conn ); }
-		  else if ( task == sistrip::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm(), conn ); } 
-		  else if ( task == sistrip::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm(), conn ); }
-		  else if ( task == sistrip::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm(), conn ); }
-		  else if ( task == sistrip::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm(), conn ); }
-		  else if ( task == sistrip::UNKNOWN_TASK ) {
-		    edm::LogError("Commissioning") << "["<<method<<"]"
-						   << " Unknown commissioning task in data stream! " << task_;
-		  }
-		} else {
-		  edm::LogError("Commissioning") << "["<<method<<"]"
-						 << " Unable to handle this commissioning task! " << task_;
+		if      ( task == sistrip::FED_CABLING )    { tasks_[key] = new FedCablingTask( dqm(), conn ); }
+		else if ( task == sistrip::PEDESTALS )      { tasks_[key] = new PedestalsTask( dqm(), conn ); }
+		else if ( task == sistrip::APV_TIMING )     { tasks_[key] = new ApvTimingTask( dqm(), conn ); } 
+		else if ( task == sistrip::OPTO_SCAN )      { tasks_[key] = new OptoScanTask( dqm(), conn ); }
+		else if ( task == sistrip::VPSP_SCAN )      { tasks_[key] = new VpspScanTask( dqm(), conn ); }
+		else if ( task == sistrip::FED_TIMING )     { tasks_[key] = new FedTimingTask( dqm(), conn ); }
+		else if ( task == sistrip::UNDEFINED_TASK ) { tasks_[key] = 0; } // new DefaultTask( dqm(), conn ); }
+		else { 
+		  edm::LogError("Commissioning") << "[" << __PRETTY_FUNCTION__ << "]"
+						 << " Cannot (yet) handle this commissioning task: " << task;
 		}
 		
 		// Check if key is found and, if so, book histos and set update freq
 		if ( tasks_.find( key ) != tasks_.end() ) {
 		  stringstream ss;
-		  ss << "["<<method<<"]"
-		     << " Created task '" << tasks_[key]->myName() << "' for key "
-		     << hex << setfill('0') << setw(8) << key << dec 
+		  ss << "[" << __PRETTY_FUNCTION__ << "]";
+		  if ( tasks_[key] ) {
+		    ss << " Created task '" << tasks_[key]->myName() << "' for key ";
+		    tasks_[key]->bookHistograms(); 
+		    tasks_[key]->updateFreq( updateFreq_ ); 
+		  } else {
+		    ss << " NULL pointer to commissioning task for key ";
+		  }
+		  ss << hex << setfill('0') << setw(8) << key << dec 
 		     << " in directory " << dir; 
 		  edm::LogInfo("Commissioning") << ss.str();
-		  tasks_[key]->bookHistograms(); 
-		  tasks_[key]->updateFreq( updateFreq_ ); 
 		} else {
 		  stringstream ss;
-		  ss << "["<<method<<"]"
+		  ss << "[" << __PRETTY_FUNCTION__ << "]"
 		     << " Commissioning task with key " 
 		     << hex << setfill('0') << setw(8) << key << dec
 		     << " not found in list!"; 
@@ -366,7 +373,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 		
 	      } else {
 		stringstream ss;
-		ss << "["<<method<<"]"
+		ss << "[" << __PRETTY_FUNCTION__ << "]"
 		   << " Task '" << tasks_[key]->myName()
 		   << "' already exists for key "
 		   << hex << setfill('0') << setw(8) << key << dec; 
