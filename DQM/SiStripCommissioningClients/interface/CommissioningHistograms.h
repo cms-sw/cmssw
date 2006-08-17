@@ -32,13 +32,18 @@ class CommissioningHistograms {
   virtual ~CommissioningHistograms();
   
   /** */
-  void createCollations( const std::vector<std::string>& added_contents );
+  void subscribeNew();
+  /** */
+  void createCollations( const std::vector<std::string>& contents );
   /** */
   virtual void histoAnalysis();
+  
   /** */
-  virtual void createSummaryHistos( const std::vector<sistrip::SummaryHisto>&, 
-				    const sistrip::SummaryType&, 
-				    const std::string& directory );
+  virtual void saveHistos( std::string filename );
+  /** */
+  virtual void createSummaryHisto( const sistrip::SummaryHisto&, 
+				   const sistrip::SummaryType&, 
+				   const std::string& directory );
   /** */
   virtual void createTrackerMap();
   /** */
@@ -50,12 +55,6 @@ class CommissioningHistograms {
   inline MonitorUserInterface* const mui() const;
   /** */
   inline const std::vector<std::string>& collations() const;
-  /** */
-  //inline SummaryHistogramFactory<CommissioningAnalysis::Monitorables>* const factory() const;
-  /** */
-  //inline void factory( CommissioningSummaryFactory* );
-  /** */
-  //inline std::map<uint32_t,CommissioningAnalysis::Monitorables*>& data();
 
  private:
   
@@ -66,20 +65,14 @@ class CommissioningHistograms {
   std::vector<std::string> collations_;
 
   /** */
-  //SummaryHistogramFactory<CommissioningAnalysis::Monitorables>* factory_;
-
-  /** */
-  //std::map<uint32_t,CommissioningAnalysis::Monitorables*> data_;
-
+  sistrip::Action action_;
+  
 };
 
 // ----- inline methods -----
 
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 const std::vector<std::string>& CommissioningHistograms::collations() const { return collations_; }
-//SummaryHistogramFactory<CommissioningAnalysis::Monitorables>* const CommissioningHistograms::factory() const { return factory_; } 
-//void CommissioningHistograms::factory( CommissioningSummaryFactory* factory ) { factory_ = factory; } 
-//std::map<uint32_t,CommissioningAnalysis::Monitorables*>& CommissioningHistograms::data() { return data_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 

@@ -23,9 +23,9 @@ class ApvTimingHistograms : public CommissioningHistograms {
   void histoAnalysis();
 
   /** */
-  void createSummaryHistos( const std::vector<sistrip::SummaryHisto>&, 
-			    const sistrip::SummaryType&, 
-			    const std::string& directory );
+  void createSummaryHisto( const sistrip::SummaryHisto&, 
+			   const sistrip::SummaryType&, 
+			   const std::string& directory );
 
  private:
 

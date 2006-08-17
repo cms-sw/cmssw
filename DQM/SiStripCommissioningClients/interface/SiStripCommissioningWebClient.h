@@ -3,6 +3,8 @@
 
 #include "DQMServices/WebComponents/interface/WebInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include <string>
+#include <map>
 
 class SiStripCommissioningClient;
 
@@ -14,16 +16,15 @@ class SiStripCommissioningWebClient : public WebInterface {
 				 std::string, 
 				 std::string, 
 				 MonitorUserInterface** mui );
-  ~SiStripCommissioningWebClient();
+  ~SiStripCommissioningWebClient() {;}
   
   virtual void handleCustomRequest( xgi::Input* in, xgi::Output* out ) throw ( xgi::exception::Exception );
   
  private: // ----- private methods -----
   
-  void performAction();
-  void createSummaryHistos();
-  void createTrackerMap();
-  void uploadToConfigDb();
+  void scheduleCustomRequest( std::multimap<std::string,std::string> ) throw ( xgi::exception::Exception );
+  
+  void defineWidgets();
   
  private: // ----- private data members -----
   
@@ -31,9 +32,7 @@ class SiStripCommissioningWebClient : public WebInterface {
   SiStripCommissioningClient* client_;
   /** */
   MonitorUserInterface* mui_;
-  /** */
-  sistrip::Action action_;
-
+  
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningWebClient_H

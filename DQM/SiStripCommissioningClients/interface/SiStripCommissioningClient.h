@@ -48,11 +48,15 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   /** Web-based commissioning client. */
   SiStripCommissioningWebClient* web_;
-
+  
   /** Object holding commissioning histograms (mutable as used in
       const onUpdate() method). */
   mutable CommissioningHistograms* histos_;
+
+  mutable sistrip::Task task_;
   
+  mutable bool first_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
