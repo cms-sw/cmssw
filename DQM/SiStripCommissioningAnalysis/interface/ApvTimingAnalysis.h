@@ -2,6 +2,7 @@
 #define DQM_SiStripCommissioningAnalysis_ApvTimingAnalysis_H
 
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
 #include <vector>
 
@@ -32,9 +33,10 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
     float peak_;      // Level of tick mark "peak" [adc]
     float height_;    // Tick mark height [ADC]
     Monitorables() : 
-      coarse_(0), fine_(0), 
-      delay_(0.), error_(0.), 
-      base_(0.), peak_(0.), height_(0.) {;}
+      coarse_(sistrip::invalid_), fine_(sistrip::invalid_),
+      delay_(sistrip::invalid_), error_(sistrip::invalid_), 
+      base_(sistrip::invalid_), peak_(sistrip::invalid_), 
+      height_(sistrip::invalid_) {;}
     void print( std::stringstream& );
   };
   

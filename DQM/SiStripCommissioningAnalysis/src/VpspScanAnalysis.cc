@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <vector>
 #include <cmath>
@@ -10,26 +9,30 @@ using namespace std;
 //
 void VpspScanAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables ) {
-    edm::LogInfo("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
-
-    //extract root histogram
-    //check 
-    if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
-    
+  //edm::LogInfo("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
+  
+  //extract root histogram
+  //check 
+  if (histos.size() != 1) { 
+    //     edm::LogError("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
     monitorables.push_back(0);
-    return; }
-    const TProfile* histo = histos[0];
-
+    return; 
+  }
+  const TProfile* histo = histos[0];
 
 // checks
 
-    if ( (unsigned short)histo->GetNbinsX() < 58) {edm::LogError("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Insufficient number of bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << ". Minimum required: 58.";
+    if ( (unsigned short)histo->GetNbinsX() < 58) {
+//       edm::LogError("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Insufficient number of bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << ". Minimum required: 58.";
 
     monitorables.push_back(0);
     return;}
 
   for ( unsigned int k = 1; k < 59; k++) {
-    if ( (float)histo->GetBinContent(k) == 0. ) { LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Baseline of 0 recorded at VPSP = " << k - 1 << ". Range required 0 - 58 inclusive.";}}
+    if ( (float)histo->GetBinContent(k) == 0. ) { 
+//       LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Baseline of 0 recorded at VPSP = " << k - 1 << ". Range required 0 - 58 inclusive.";
+    }
+  }
 
   vector<float> reduced_noise_histo; reduced_noise_histo.reserve(58); reduced_noise_histo.resize(58,0.);
   vector<float> second_deriv; second_deriv.reserve(54); second_deriv.resize(54,0.);
@@ -65,7 +68,9 @@ void VpspScanAnalysis::analysis( const vector<const TProfile*>& histos,
 
   //check minimum 2nd derivative VPSP < maximum 2nd derivative VPSP
 
-  if (plateau_edges.first > plateau_edges.second) {LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Minimum second derivative found at higher VPSP value than the maximum. Min VPSP = " << plateau_edges.first << " and Max VPSP = " << plateau_edges.second << ".";}
+  if (plateau_edges.first > plateau_edges.second) {
+//     LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: Minimum second derivative found at higher VPSP value than the maximum. Min VPSP = " << plateau_edges.first << " and Max VPSP = " << plateau_edges.second << ".";
+  }
 
 
  // loop bins and find mean and sigma of noise of second deriv avoiding the peaks
@@ -84,9 +89,13 @@ float sigma_2D_noise = sqrt(fabs(mean_2D_noise * mean_2D_noise - mean2_2D_noise)
 
 //check peaks ARE above mean of the noise +- 2*sigma 
 
- if (second_deriv[plateau_edges.first] > (mean_2D_noise - 2*sigma_2D_noise)) { LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: noise of second derivative large. Minimum second derivative = " << second_deriv[plateau_edges.first] << ". Mean and S.D. of 2nd derivative noise are " << mean_2D_noise << " and " << sigma_2D_noise << " respectively."; }
+ if (second_deriv[plateau_edges.first] > (mean_2D_noise - 2*sigma_2D_noise)) { 
+ //   LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: noise of second derivative large. Minimum second derivative = " << second_deriv[plateau_edges.first] << ". Mean and S.D. of 2nd derivative noise are " << mean_2D_noise << " and " << sigma_2D_noise << " respectively."; 
+ }
 
- if (second_deriv[plateau_edges.second] < (mean_2D_noise + 2*sigma_2D_noise)) { LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: noise of second derivative large. Maximum second derivative = " << second_deriv[plateau_edges.second] << ". Mean and S.D. of 2nd derivative noise are " << mean_2D_noise << " and " << sigma_2D_noise << " respectively."; }
+ if (second_deriv[plateau_edges.second] < (mean_2D_noise + 2*sigma_2D_noise)) { 
+ //   LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Warning: noise of second derivative large. Maximum second derivative = " << second_deriv[plateau_edges.second] << ". Mean and S.D. of 2nd derivative noise are " << mean_2D_noise << " and " << sigma_2D_noise << " respectively."; 
+ }
 
 //find positions where 2nd deriv peaks flatten
 

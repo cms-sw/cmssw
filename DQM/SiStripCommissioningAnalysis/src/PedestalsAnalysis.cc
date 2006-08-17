@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iomanip>
 #include <cmath>
@@ -25,50 +24,51 @@ void PedestalsAnalysis::analysis( const vector<const TProfile*>& histos,
 // ----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::Monitorables::print( stringstream& ss ) { 
-  ss << " FED calibration constants for APV0: " 
+  ss << "FED calibration constants for APV0: " 
      << " Number of pedestal/noise values: " 
      << peds_[0].size() << "/" << noise_[0].size() << "\n"
      << " Number of dead/noisy strips: " 
      << dead_[0].size() << "/" << noisy_[0].size() << "\n"
      << " Mean/Spread/Median/Max/Min pedestal values: "
-     << setprecision(1) << pedsMean_[0] << "/" 
-     << setprecision(1) << pedsSpread_[0] << "/" 
-     << setprecision(1) << pedsMedian_[0] << "/" 
-     << setprecision(1) << pedsMax_[0] << "/" 
-     << setprecision(1) << pedsMin_[0] << "\n"
+     << pedsMean_[0] << "/" 
+     << pedsSpread_[0] << "/" 
+     << pedsMedian_[0] << "/" 
+     << pedsMax_[0] << "/" 
+     << pedsMin_[0] << "\n"
      << " Mean/Spread/Median/Max/Min noise values: "
-     << setprecision(1) << noiseMean_[0] << "/" 
-     << setprecision(1) << noiseSpread_[0] << "/" 
-     << setprecision(1) << noiseMedian_[0] << "/" 
-     << setprecision(1) << noiseMax_[0] << "/" 
-     << setprecision(1) << noiseMin_[0] << "\n";
-  ss << " FED calibration constants for APV0: " 
+     << noiseMean_[0] << "/" 
+     << noiseSpread_[0] << "/" 
+     << noiseMedian_[0] << "/" 
+     << noiseMax_[0] << "/" 
+     << noiseMin_[0] << "\n";
+  ss << "FED calibration constants for APV0: " 
      << " Number of pedestal/noise values: " 
      << peds_[1].size() << "/" << noise_[1].size() << "\n"
      << " Number of dead/noisy strips: " 
      << dead_[1].size() << "/" << noisy_[1].size() << "\n"
      << " Mean/Spread/Median/Max/Min pedestal values: "
-     << setprecision(1) << pedsMean_[1] << "/" 
-     << setprecision(1) << pedsSpread_[1] << "/" 
-     << setprecision(1) << pedsMedian_[1] << "/" 
-     << setprecision(1) << pedsMax_[1] << "/" 
-     << setprecision(1) << pedsMin_[1] << "\n"
+     << pedsMean_[1] << "/" 
+     << pedsSpread_[1] << "/" 
+     << pedsMedian_[1] << "/" 
+     << pedsMax_[1] << "/" 
+     << pedsMin_[1] << "\n"
      << " Mean/Spread/Median/Max/Min noise values: "
-     << setprecision(1) << noiseMean_[1] << "/" 
-     << setprecision(1) << noiseSpread_[1] << "/" 
-     << setprecision(1) << noiseMedian_[1] << "/" 
-     << setprecision(1) << noiseMax_[1] << "/" 
-     << setprecision(1) << noiseMin_[1] << "\n";
+     << noiseMean_[1] << "/" 
+     << noiseSpread_[1] << "/" 
+     << noiseMedian_[1] << "/" 
+     << noiseMax_[1] << "/" 
+     << noiseMin_[1] << "\n";
 }
 
 // -----------------------------------------------------------------------------
 //
 void PedestalsAnalysis::analysis( const vector<const TProfile*>& histos, 
 				  vector< vector<float> >& monitorables ) {
-  edm::LogInfo("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]";
+  //edm::LogInfo("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]";
  
     //check 
-  if (histos.size() != 2) { edm::LogError("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 2. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+  if (histos.size() != 2) { 
+//     edm::LogError("Commissioning|Analysis") << "[PedestalsAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 2. Actual size: " << histos.size() << ". Monitorables set to 0."; 
   
   monitorables.push_back(vector<float>(1,0.)); monitorables.push_back(vector<float>(1,0.));
   return; }

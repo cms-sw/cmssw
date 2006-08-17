@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <vector>
 #include <cmath>
@@ -10,14 +9,17 @@ using namespace std;
 
 void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<float>& monitorables ) {
-  edm::LogInfo("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]";
+  //edm::LogInfo("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]";
   
   //extract root histograms
   //check 
-  if (histos.size() != 2) { edm::LogError("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 2. Actual size: " << histos.size() << ". Monitorables set to 0."; 
-  
-  monitorables.push_back(0); monitorables.push_back(0);
-  return; }
+  if (histos.size() != 2) { 
+//     edm::LogError("Commissioning|Analysis") 
+//       << "[OptoScanAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 2. Actual size: " 
+//       << histos.size() << ". Monitorables set to 0."; 
+    monitorables.push_back(0); monitorables.push_back(0);
+    return; 
+  }
 
   //relabel
   const TProfile* base = histos[0];
@@ -47,7 +49,11 @@ void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos,
 
      //check
 
-     if (slope_edges_base.first > slope_edges_base.second) {LogDebug("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]: Warning: Maximum second derivative of tick base occurs at higher bias: " << slope_edges_base.first <<  " than the minimum: " << slope_edges_base.second << ".";}
+     if (slope_edges_base.first > slope_edges_base.second) {
+//        LogDebug("Commissioning|Analysis") 
+// 	 << "[OptoScanAnalysis::analysis]: Warning: Maximum second derivative of tick base occurs at higher bias: " 
+// 	 << slope_edges_base.first <<  " than the minimum: " << slope_edges_base.second << ".";
+     }
 
      //CALCULATE BIAS
      //find position of - first point after 2nd deriv max below 0.2 x max (for base) - and - first point before 2nd deriv min above 0.2 x min (for base and peak).
@@ -72,8 +78,9 @@ void OptoScanAnalysis::analysis( const vector<const TProfile*>& histos,
  
      //check
      if (((peak->GetBinContent((Int_t)(slope_centerx_peak)) - base->GetBinContent((Int_t)(slope_centerx_base)))/ (float)base->GetBinContent((Int_t)(slope_centerx_base))) > 0.1) { 
-
-       LogDebug("Commissioning|Analysis") << "[OptoScanAnalysis::analysis]: Warning: No tick height found to match tick base at 70% off its maximum (> 10% difference between histograms)."; }
+//        LogDebug("Commissioning|Analysis") 
+// 	 << "[OptoScanAnalysis::analysis]: Warning: No tick height found to match tick base at 70% off its maximum (> 10% difference between histograms)."; 
+     }
 
      //Gain
      float gain = (slope_centerx_base - slope_centerx_peak) * slope_grad_base / 800.;

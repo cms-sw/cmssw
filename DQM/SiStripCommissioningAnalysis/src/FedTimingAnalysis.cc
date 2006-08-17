@@ -1,5 +1,4 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <vector>
 #include <cmath>
@@ -11,11 +10,12 @@ using namespace std;
 //
 void FedTimingAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables ) {
-  edm::LogInfo("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]";
+  //edm::LogInfo("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]";
 
    //extract root histogram
   //check 
-  if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+  if (histos.size() != 1) { 
+//     edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
 
   monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
 return; }
@@ -25,7 +25,8 @@ return; }
   const TProfile* histo = histos[0];
 
   //check
-  if ((unsigned short)histo->GetNbinsX() <= 2) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2."; 
+  if ((unsigned short)histo->GetNbinsX() <= 2) { 
+//     edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2."; 
 
 monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
 return; }
@@ -73,10 +74,11 @@ return; }
   // check 35 elements after max dervivative are > meanNoise + 2*sigmaNoise
   
   for (unsigned short ii = 0; ii < 35; ii++) {
-    if ((short)histo->GetBinContent(ideriv + ii) < (meanNoise + 2*sigmaNoise))  LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Warning: large noise levels or no ticks.";
-continue;
-
-}
+    if ((short)histo->GetBinContent(ideriv + ii) < (meanNoise + 2*sigmaNoise)) {
+//       LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Warning: large noise levels or no ticks.";
+    }
+    continue;
+  }
 
   ////Method 1: Take start of tick as the max derivative
   /*
@@ -133,7 +135,7 @@ continue;
   if (ticks.size() > 2) os << " FED fine delay settings, respectively.";
   else { os << " PLL fine delay settings.";}
 
-   LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Multiple ticks found in sample. Number of ticks: " << ticks.size() << " at a separation: " << os.str();
+//    LogDebug("Commissioning|Analysis") << "[ApvTimingAnalysis::analysis]: Multiple ticks found in sample. Number of ticks: " << ticks.size() << " at a separation: " << os.str();
 }
 
   else if (ticks.size() == 1) {
@@ -144,7 +146,7 @@ continue;
   // or no ticks...
 
   else { 
- LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: No ticks found in sample.";
+//     LogDebug("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: No ticks found in sample.";
   coarse_fine.first = 0;
   coarse_fine.second = 0;
   }

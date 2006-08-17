@@ -2,6 +2,7 @@
 #define DQM_SiStripCommissioningAnalysis_PedestalsAnalysis_H
 
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
 #include <vector>
 
@@ -43,13 +44,13 @@ class PedestalsAnalysis : public CommissioningAnalysis {
     VFloats  pedsMin_;     // min peds value (1 value per APV)
     VFloats  noiseMin_;    // min noise value (1 value per APV)
     Monitorables() : 
-      peds_(2,VFloats(128,0.)), noise_(2,VFloats(128,0.)), 
-      dead_(2,VInts(0,0)), noisy_(2,VInts(0,0)),
-      pedsMean_(2,0.), noiseMean_(2,0.), 
-      pedsMedian_(2,0.), noiseMedian_(2,0.), 
-      pedsSpread_(2,0.), noiseSpread_(2,0.), 
-      pedsMax_(2,0.), noiseMax_(2,0.), 
-      pedsMin_(2,0.), noiseMin_(2,0.) 
+      peds_(2,VFloats(128,sistrip::invalid_)), noise_(2,VFloats(128,sistrip::invalid_)), 
+      dead_(2,VInts(0,sistrip::invalid_)), noisy_(2,VInts(0,sistrip::invalid_)),
+      pedsMean_(2,sistrip::invalid_), noiseMean_(2,sistrip::invalid_), 
+      pedsMedian_(2,sistrip::invalid_), noiseMedian_(2,sistrip::invalid_), 
+      pedsSpread_(2,sistrip::invalid_), noiseSpread_(2,sistrip::invalid_), 
+      pedsMax_(2,sistrip::invalid_), noiseMax_(2,sistrip::invalid_), 
+      pedsMin_(2,sistrip::invalid_), noiseMin_(2,sistrip::invalid_) 
       {
 	peds_.reserve(256); noise_.reserve(256); 
 	dead_.reserve(256); noisy_.reserve(256);
