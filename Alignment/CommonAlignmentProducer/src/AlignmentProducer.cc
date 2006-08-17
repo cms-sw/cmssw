@@ -11,12 +11,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+// Conditions database
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryAligner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
 
 
 #include "Alignment/CSA06AlignmentAlgorithm/interface/CSA06AlignmentAlgorithm.h"
@@ -36,10 +41,15 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   stAlgorithm(iConfig.getParameter<std::string>("algorithm")),
   stNFixAlignables(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift(iConfig.getParameter<double>("randomShift")),
-  stRandomRotation(iConfig.getParameter<double>("randomRotation"))
+  stRandomRotation(iConfig.getParameter<double>("randomRotation")),
+  debug(iConfig.getParameter<bool>("debug")),
+  doMisalignmentScenario(iConfig.getParameter<bool>("doMisalignmentScenario")),
+  saveToDB(iConfig.getParameter<bool>("saveToDB"))
 {
 
   edm::LogWarning("Alignment") << "[AlignmentProducer] Constructor called ...";
+
+  theParameterSet=iConfig;
 
   nevent=0;
 
@@ -155,6 +165,16 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignmentParameterStore = new AlignmentParameterStore(theAlignables);
   edm::LogWarning("Alignment") <<"[AlignmentProducer] AlignmentParameterStore created!";
 
+  // Create misalignment scenario, apply to geometry
+  if (doMisalignmentScenario) {
+    edm::LogWarning("Alignment") <<"[AlignmentProducer] applying misalignment scenario ...";
+    edm::ParameterSet scenarioConfig 
+      = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
+    MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
+    scenarioBuilder.applyScenario( scenarioConfig );
+  }
+  else edm::LogWarning("Alignment") <<"[AlignmentProducer] NOT applying misalignment scenario!";
+
   // apply simple misalignment
   simpleMisalignment(theAlignables,sel,stRandomShift,stRandomRotation,true);
   edm::LogWarning("Alignment") <<"[AlignmentProducer] simple misalignment done!";
@@ -166,11 +186,29 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // actually execute all misalignments
   edm::LogWarning("Alignment") <<"[AlignmentProducer] Now physically apply alignments to tracker geometry...";
-   TrackerGeometryAligner aligner;
-   std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-   aligner.applyAlignments( &(*theTracker),&(*alignments));
+  TrackerGeometryAligner aligner;
+  std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
+  aligner.applyAlignments( &(*theTracker),&(*alignments));
 
+  // book track debugging tree
+  if(debug) {
+   theFile = new TFile("AlignmentProducer.root","update");
+   theTree  = new TTree("AlignmentProducer","AlignmentProducer");
 
+   theTree->Branch("Ntracks", &m_Ntracks, "Ntracks/I");
+   theTree->Branch("Nhits",    m_Nhits,   "Nhits[Ntracks]/I");       
+   theTree->Branch("Pt",       m_Pt,      "Pt[Ntracks]/F");
+   theTree->Branch("Eta",      m_Eta,     "Eta[Ntracks]/F");
+   theTree->Branch("Phi",      m_Phi,     "Phi[Ntracks]/F");
+   theTree->Branch("Chi2n",    m_Chi2n,   "Chi2n[Ntracks]/F");
+
+   theTree->Branch("FitNtracks", &m_FitNtracks, "FitNtracks/I");
+   theTree->Branch("FitNhits",    m_FitNhits,   "FitNhits[FitNtracks]/I");  
+   theTree->Branch("FitPt",       m_FitPt,      "FitPt[FitNtracks]/F");
+   theTree->Branch("FitEta",      m_FitEta,     "FitEta[FitNtracks]/F");
+   theTree->Branch("FitPhi",      m_FitPhi,     "FitPhi[FitNtracks]/F");
+   theTree->Branch("FitChi2n",    m_FitChi2n,   "FitChi2n[FitNtracks]/F");
+  }
 
 }
 
@@ -183,8 +221,38 @@ void AlignmentProducer::endOfJob()
   edm::LogWarning("Alignment") << "[AlignmentProducer] At end of job: terminating algorithm";
   theAlignmentAlgo->terminate();
 
-}
+  // write out trees and close root file
 
+  if (debug) {
+    theFile->cd();
+    theTree->Write();
+    theFile->Close();
+    delete theFile;
+  }
+
+  // write alignments to database
+
+  if (saveToDB) {
+    edm::LogWarning("Alignment") << "[AlignmentProducer] Writing Alignments to DB...";
+    // Call service
+    edm::Service<cond::service::PoolDBOutputService> poolDbService;
+    if( !poolDbService.isAvailable() ) // Die if not available
+	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+    // get alignments+errors
+    Alignments* alignments = theAlignableTracker->alignments();
+    AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+    // Define callback tokens for the two records
+    size_t alignmentsToken = poolDbService->callbackToken("Alignments");
+    size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
+    // Store
+    poolDbService->newValidityForNewPayload<Alignments>(alignments, 
+      poolDbService->endOfTime(), alignmentsToken);
+    poolDbService->newValidityForNewPayload<AlignmentErrors>(alignmentErrors, 
+      poolDbService->endOfTime(), alignmentErrorsToken);
+  }
+
+
+}
 
 //_____________________________________________________________________________
 // Called at beginning of loop
@@ -245,19 +313,32 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   //getFromEvt( event, m_TrackCollection );
 
   //dump original tracks
+  if (debug) {
   //printf("Original tracks:\n");
-  //for( reco::TrackCollection::const_iterator itrack = m_TrackCollection->begin(); 
-  //  itrack != m_TrackCollection->end(); ++ itrack ) {
-  //  reco::Track track=*itrack;
-  //  float pt = track.pt();
-  //  float eta = track.eta();
-  //  float phi = track.phi();
-  //  int nhit = track.recHitsSize(); 
-  //  float chi2n = track.normalizedChi2();
-  //  printf("Org track pt,eta,phi,hits,chi2: %12.5f %12.5f %12.5f %5d %12.5f\n",
+  int itr=0;
+  m_Ntracks=0;
+  for( reco::TrackCollection::const_iterator itrack = m_TrackCollection->begin(); 
+    itrack != m_TrackCollection->end(); ++ itrack ) {
+    reco::Track track=*itrack;
+    float pt = track.pt();
+    float eta = track.eta();
+    float phi = track.phi();
+    int nhit = track.recHitsSize(); 
+    float chi2n = track.normalizedChi2();
+  //printf("Org track pt,eta,phi,hits,chi2: %12.5f %12.5f %12.5f %5d %12.5f\n",
   //	   pt,eta,phi,nhit,chi2n);
-  //}
-    
+    if (itr<MAXREC) {
+      m_Nhits[itr]=nhit;
+      m_Pt[itr]=pt;
+      m_Eta[itr]=eta;
+      m_Phi[itr]=phi;
+      m_Chi2n[itr]=chi2n;
+      itr++;
+      m_Ntracks=itr;
+    }
+  }
+  }
+
   // Run the refitter algorithm  
   AlgoProductCollection m_algoResults;
   theRefitterAlgo.runWithTrack( m_Geometry.product(),m_MagneticField.product(),
@@ -266,20 +347,34 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 
 
   //dump refitted tracks
+  if (debug) {
   //printf("Refitted tracks:\n");
-  //for( AlgoProductCollection::const_iterator it=m_algoResults.begin();
-  //     it!=m_algoResults.end();it++) {
-  //  Trajectory* traj = (*it).first;
-  //  reco::Track* track = (*it).second;
-  //  float pt    = track->pt();
-  //  float eta   = track->eta();
-  //  float phi   = track->phi();
-  //  float chi2n = track->normalizedChi2();
-  //  int nhit    = traj->measurements().size(); 
+  int itr2=0;
+  m_FitNtracks=0;
+  for( AlgoProductCollection::const_iterator it=m_algoResults.begin();
+       it!=m_algoResults.end();it++) {
+    Trajectory* traj = (*it).first;
+    reco::Track* track = (*it).second;
+    float pt    = track->pt();
+    float eta   = track->eta();
+    float phi   = track->phi();
+    float chi2n = track->normalizedChi2();
+    int nhit    = traj->measurements().size(); 
   //  printf("Fit track pt,eta,phi,hits: %12.5f %12.5f %12.5f %5d %12.5f\n",
   //	   pt,eta,phi,nhit,chi2n);
-  //}
+    if (itr2<MAXREC) {
+      m_FitNhits[itr2]=nhit;
+      m_FitPt[itr2]=pt;
+      m_FitEta[itr2]=eta;
+      m_FitPhi[itr2]=phi;
+      m_FitChi2n[itr2]=chi2n;
+      itr2++;
+      m_FitNtracks=itr2;
+    }
+  }
 
+  theTree->Fill();
+  }
 
   edm::LogInfo("Alignment") << "[AlignmentProducer] call algorithm for #Tracks: " << m_algoResults.size();
   // Run the alignment algorithm

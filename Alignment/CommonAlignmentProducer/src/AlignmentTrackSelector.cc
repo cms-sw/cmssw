@@ -17,7 +17,8 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   phiMin( cfg.getParameter<double>( "phiMin" ) ),
   phiMax( cfg.getParameter<double>( "phiMax" ) ),
   nHitMin( cfg.getParameter<double>( "nHitMin" ) ),
-  nHitMax( cfg.getParameter<double>( "nHitMax" ) )
+  nHitMax( cfg.getParameter<double>( "nHitMax" ) ),
+  chi2nMax( cfg.getParameter<double>( "chi2nMax" ) )
 {
 
   if (applyBasicCuts)
@@ -26,7 +27,8 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  << "\nptmin,ptmax:     " << ptMin   << "," << ptMax 
 	  << "\netamin,etamax:   " << etaMin  << "," << etaMax
 	  << "\nphimin,phimax:   " << phiMin  << "," << phiMax
-	  << "\nnhitmin,nhitmax: " << nHitMin << "," << nHitMax;
+	  << "\nnhitmin,nhitmax: " << nHitMin << "," << nHitMax
+	  << "\nchi2nmax:        " << chi2nMax;
 
   if (applyNHighestPt)
 	edm::LogInfo("AlignmentTrackSelector") 
@@ -82,6 +84,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     float eta=trackp->eta();
     float phi=trackp->phi();
     int nhit = trackp->recHitsSize(); 
+    float chi2n = trackp->normalizedChi2();
 
     //edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
@@ -89,7 +92,8 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     if (pt>ptMin && pt<ptMax 
        && eta>etaMin && eta<etaMax 
        && phi>phiMin && phi<phiMax 
-       && nhit>=nHitMin && nhit<=nHitMax) {
+       && nhit>=nHitMin && nhit<=nHitMax
+       && chi2n<chi2nMax) {
       result.push_back(trackp);
     }
   }

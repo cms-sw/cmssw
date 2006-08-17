@@ -42,7 +42,7 @@ class AlignmentTrackSelector
   /// private data members
   bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter;
   int nHighestPt,minMultiplicity;
-  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax;
+  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax,nHitMin,nHitMax,chi2nMax;
 
 };
 
