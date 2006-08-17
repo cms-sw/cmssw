@@ -208,7 +208,7 @@ void AlignableTrackerModifier::setSeed( const long seed )
 	  m_seed = rng->mySeed();
 	}
 
-  edm::LogInfo("PrintArgs") << "Setting generator seed to " << m_seed;
+  LogDebug("PrintArgs") << "Setting generator seed to " << m_seed;
 
   theDRand48Engine->setSeed( m_seed );
 
@@ -243,9 +243,9 @@ void AlignableTrackerModifier::moveAlignable( Alignable* alignable, bool random,
   
   message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
 
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  LogDebug("PrintArgs") << message.str(); // Arguments
 
-  edm::LogInfo("PrintMovement") << "applied displacement: " << moveV; // Actual movements
+  LogDebug("PrintMovement") << "applied displacement: " << moveV; // Actual movements
   alignable->move(moveV);
   m_modified++;
 
@@ -282,9 +282,9 @@ void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool rando
   
   message << "global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
 
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  LogDebug("PrintArgs") << message.str(); // Arguments
 
-  edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
+  LogDebug("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
   if ( fabs(sigmaPhiX) ) alignable->rotateAroundGlobalX( rotV.x() );
   if ( fabs(sigmaPhiY) ) alignable->rotateAroundGlobalY( rotV.y() );
   if ( fabs(sigmaPhiZ) ) alignable->rotateAroundGlobalZ( rotV.z() );
@@ -323,9 +323,9 @@ AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool rando
   
   message << "local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
   
-  edm::LogInfo("PrintArgs") << message.str(); // Arguments
+  LogDebug("PrintArgs") << message.str(); // Arguments
   
-  edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
+  LogDebug("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
   if ( fabs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
   if ( fabs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
   if ( fabs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );
@@ -404,7 +404,7 @@ void AlignableTrackerModifier::addAlignmentPositionError( Alignable* alignable,
 														  float dx, float dy, float dz )
 {
 
-  edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError of size " 
+  LogDebug("PrintArgs") << "Adding an AlignmentPositionError of size " 
 							<< dx << " "  << dy << " "  << dz;
 
   AlignmentPositionError ape(dx,dy,dz);
@@ -451,7 +451,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromRotation( Alignable*
 																	  RotationType& rotation )
 { 
 
-  edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
+  LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
 							<< rotation;
 
   alignable->addAlignmentPositionErrorFromRotation( rotation );
@@ -464,7 +464,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromLocalRotation( Align
 																		   RotationType& rotation )
 { 
   
-  edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 
+  LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 
 							<< rotation;
   
   alignable->addAlignmentPositionErrorFromLocalRotation( rotation );
