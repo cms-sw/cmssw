@@ -25,7 +25,8 @@ void Consumer::operator()()
     {
       EventBuffer::ConsumerBuffer ob(*b_);
       if(ob.size()==0) break;
-      int* i = (int*)ob.buffer();
+      (int*)ob.buffer();
+      // int* i = (int*)ob.buffer();
       //cout << "C" << *i << endl;
     }
 }

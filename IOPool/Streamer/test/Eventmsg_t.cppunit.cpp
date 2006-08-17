@@ -124,6 +124,7 @@ void testeventmsg::eventMsg()
   int sz_out = from_new.codeSize() + sizeof(EventMsg::Header);
 
   // -----------
+  CPPUNIT_ASSERT( setup.msgSize() == setup.msgSize() ); // gets rid of unused variable warning
   CPPUNIT_ASSERT( from_code.getDataSize() == bufsz-sz );
   CPPUNIT_ASSERT( from_code.dataSize() == bufsz-from_code.codeSize() );
   CPPUNIT_ASSERT( (char*)from_code.data() == buf+sz );
