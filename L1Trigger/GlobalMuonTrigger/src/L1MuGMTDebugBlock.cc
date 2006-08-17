@@ -3,8 +3,8 @@
 //   Class: L1MuGMTDebugBlock
 //
 //
-//   $Date: 2003/12/19 10:22:03 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                HEPHY Vienna
@@ -55,7 +55,7 @@ L1MuGMTDebugBlock::L1MuGMTDebugBlock(int minbx, int maxbx) :
 //--------------
 
 L1MuGMTDebugBlock::~L1MuGMTDebugBlock() {
-  for (int bx=_minbx; bx<=_maxbx; bx++) {
+  for (int bx=0; bx<=(_maxbx-_minbx); bx++) {
     _prophi[bx].clear();
     _proeta[bx].clear();
     _phisel[bx].clear();
