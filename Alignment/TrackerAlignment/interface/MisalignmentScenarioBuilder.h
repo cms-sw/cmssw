@@ -63,6 +63,8 @@ private: // Members
   AlignableTracker* theTracker;                 ///< Pointer to alignable tracker object
   edm::ParameterSet theScenario;                ///< Misalignment scenario to apply (from config file)
   AlignableTrackerModifier theTrackerModifier;  ///< Helper class for random movements
+  
+  int theModifierCounter;                       ///< Counter for applied modification
 
   std::string indent;                           ///< Depth in hierarchy
   

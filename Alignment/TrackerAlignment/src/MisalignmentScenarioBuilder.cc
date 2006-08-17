@@ -17,7 +17,7 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
 
   // Apply the scenario to all main components of tracker.
   theScenario = scenario;
-
+  theModifierCounter = 0;
 
   // Seed is set at top-level, and is mandatory
   if ( this->hasParameter_( "seed", theScenario ) )
@@ -26,28 +26,55 @@ void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenar
 	throw cms::Exception("BadConfig") << "No generator seed defined!";  
   
   // TPB
-  std::vector<Alignable*> pixelBarrels = theTracker->pixelHalfBarrels();
-  this->decodeMovements_( theScenario, pixelBarrels, "TPB" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTPB",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTPB",     false) )
+	{
+	  std::vector<Alignable*> pixelBarrels = theTracker->pixelHalfBarrels();
+	  this->decodeMovements_( theScenario, pixelBarrels, "TPB" );
+	}
 
   // TPE
-  std::vector<Alignable*> pixelEndcaps = theTracker->pixelEndCaps();
-  this->decodeMovements_( theScenario, pixelEndcaps, "TPE" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTPE",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTPE",     false) )
+	{
+	  std::vector<Alignable*> pixelEndcaps = theTracker->pixelEndCaps();
+	  this->decodeMovements_( theScenario, pixelEndcaps, "TPE" );
+	}
 
   // TIB
-  std::vector<Alignable*> innerBarrels = theTracker->innerHalfBarrels();
-  this->decodeMovements_( theScenario, innerBarrels, "TIB" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTIB",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTIB",     false) )
+	{
+	  std::vector<Alignable*> innerBarrels = theTracker->innerHalfBarrels();
+	  this->decodeMovements_( theScenario, innerBarrels, "TIB" );
+	}
 
   // TID
-  std::vector<Alignable*> innerDisks   = theTracker->TIDs();
-  this->decodeMovements_( theScenario, innerDisks, "TID" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTID",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTID",     false) )
+	{
+	  std::vector<Alignable*> innerDisks   = theTracker->TIDs();
+	  this->decodeMovements_( theScenario, innerDisks, "TID" );
+	}
 
   // TOB
-  std::vector<Alignable*> outerBarrels = theTracker->outerHalfBarrels();
-  this->decodeMovements_( theScenario, outerBarrels, "TOB" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTOB",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTOB",     false) )
+	{
+	  std::vector<Alignable*> outerBarrels = theTracker->outerHalfBarrels();
+	  this->decodeMovements_( theScenario, outerBarrels, "TOB" );
+	}
 
   // TEC
-  std::vector<Alignable*> endcaps = theTracker->endCaps();
-  this->decodeMovements_( theScenario, endcaps, "TEC" );
+  if ( theScenario.getUntrackedParameter<bool>( "misalignTEC",true) && 
+	   !theScenario.getUntrackedParameter<bool>("fixTEC",     false) )
+	{
+	  std::vector<Alignable*> endcaps = theTracker->endCaps();
+	  this->decodeMovements_( theScenario, endcaps, "TEC" );
+	}
+
+  edm::LogInfo("MisalignmentScenarioBuilder") 
+	<< "Applied modifications to " << theModifierCounter << " alignables";
 
 }
 
@@ -109,7 +136,10 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  LogDebug("PrintParameters")  << indent << " parameters to apply:" << std::endl;
 	  this->printParameters_( localParameters, true );
 	  if ( theTrackerModifier.modify( (*iter), localParameters ) )
-		LogDebug("PrintParameters") << indent << "Movements applied to " << name.str();
+		{
+		  theModifierCounter++;
+		  LogDebug("PrintParameters") << indent << "Movements applied to " << name.str();
+		}
 
 	  // Apply movements to components
 	  std::vector<std::string> parameterSetNames;
