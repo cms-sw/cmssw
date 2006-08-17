@@ -5,12 +5,19 @@
 #include <string>
 
 // -----------------------------------------------------------------------------
+// Some Generic constants
+namespace sistrip { 
+  
+  // Invalid value
+  static const uint16_t invalid_ = 0xFFFF;
+
+}
+
+// -----------------------------------------------------------------------------
 // Useful constants associated with the FED
 namespace sistrip { 
 
-  // FED = Front-End Driver
-  // FEUNIT = Front-End Unit
-  // FEDCH = Fed Channel
+  // FED = Front-End Driver, FEUNIT = Front-End Unit, FEDCH = Fed Channel
   static const uint16_t FEDCH_PER_FEUNIT = 12;
   static const uint16_t FEUNITS_PER_FED  = 8;
   static const uint16_t FEDCH_PER_FED    = FEDCH_PER_FEUNIT * FEUNITS_PER_FED; // 96
