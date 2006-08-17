@@ -13,9 +13,11 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.12 2006/06/04 13:48:58 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.13 2006/06/27 07:52:34 dkcira Exp $
 //
 //
+
+#include<fstream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,6 +37,7 @@
 
 using namespace std;
 using namespace edm;
+
 
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
 {
@@ -144,7 +147,7 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //  edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
 //  iEvent.getByLabel(digiProducer, digiLabel, digi_detsetvektor);
 
-// get all digis Domenico's way
+// get all digi collections
    edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
    typedef std::vector<edm::ParameterSet> Parameters;
    Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
@@ -154,7 +157,7 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
    iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor);
 
-    // loop over all MEs
+   // loop over all MEs
     for (map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
       uint32_t detid = iterMEs->first; ModMEs local_modmes = iterMEs->second; // get detid and type of ME
       // get from DetSetVector the DetSet of digis belonging to one detid - first make sure there exists digis with this id
@@ -185,12 +188,21 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 }
 
-
 void SiStripMonitorDigi::endJob(void){
    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
    string outputFileName = conf_.getParameter<string>("OutputFileName");
-//  dbe_->showDirStructure();
   if(outputMEsInRootFile){
+    ofstream monitor_summary("monitor_digi_summary.txt");
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    monitor_summary<<"SiStripMonitorDigi::endJob DigiMEs.size()="<<DigiMEs.size()<<endl;
+    for(std::map<uint32_t, ModMEs>::const_iterator idet = DigiMEs.begin(); idet!= DigiMEs.end(); idet++ ){
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"      ++++++detid  "<<idet->first<<endl<<endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ NumberOfDigis "<<(idet->second).NumberOfDigis->getEntries()<<" "<<(idet->second).NumberOfDigis->getMean()<<" "<<(idet->second).NumberOfDigis->getRMS()<<endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsHottestStrip "<<(idet->second).ADCsHottestStrip->getEntries()<<" "<<(idet->second).ADCsHottestStrip->getMean()<<" "<<(idet->second).ADCsHottestStrip->getRMS()<<endl;
+     monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsCoolestStrip "<<(idet->second).ADCsCoolestStrip->getEntries()<<" "<<(idet->second).ADCsCoolestStrip->getMean()<<" "<<(idet->second).ADCsCoolestStrip->getRMS()<<endl;
+    }
+    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    // save histograms in a file
     dbe_->save(outputFileName);
   }
 }
