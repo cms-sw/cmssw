@@ -8,8 +8,8 @@
 
 /** \class HcalTBTriggerFilter
     
-   $Date: 2006/04/21 01:46:32 $
-   $Revision: 1.3 $
+   $Date: 2006/08/16 21:17:54 $
+   $Revision: 1.4 $
    \author J. Mans - Minnesota
 */
 class HcalTBTriggerFilter : public edm::EDFilter {
@@ -24,7 +24,7 @@ private:
   bool allowLaser_;
   bool allowLED_;
   bool allowBeam_;
-  std::string label_;
+  edm::InputTag label_;
 };
 
 #endif
