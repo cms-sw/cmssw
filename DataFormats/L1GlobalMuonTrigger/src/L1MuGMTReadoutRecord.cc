@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2004/02/04 18:33:00 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -50,6 +50,10 @@
 // Constructors --
 //----------------
 
+L1MuGMTReadoutRecord::L1MuGMTReadoutRecord() {
+  reset();
+};
+ 
 L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxnr) {
   reset();
   m_BxCounter = bxnr;
