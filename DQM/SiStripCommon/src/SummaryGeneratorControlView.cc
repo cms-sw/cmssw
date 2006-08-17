@@ -28,12 +28,12 @@ void SummaryGeneratorControlView::fillMap( const string& directory,
        ( path.ccuChan_  && level.ccuChan_  == level.ccuChan_  ) ) { 
     
     stringstream bin;
-    if ( path.fecCrate_ != sistrip::all_ ) { bin << path.fecCrate_ << sistrip::pipe_; }
-    if ( path.fecSlot_  != sistrip::all_ ) { bin << path.fecSlot_  << sistrip::pipe_; }
-    if ( path.fecRing_  != sistrip::all_ ) { bin << path.fecRing_  << sistrip::pipe_; }
-    if ( path.ccuAddr_  != sistrip::all_ ) { bin << path.ccuAddr_  << sistrip::pipe_; }
-    if ( path.ccuChan_  != sistrip::all_ ) { bin << path.ccuChan_  << sistrip::pipe_; }
-    if ( path.channel_  != sistrip::all_ ) { bin << path.channel_; }
+    if ( path.fecCrate_ != sistrip::invalid_ ) { bin << path.fecCrate_ << sistrip::pipe_; }
+    if ( path.fecSlot_  != sistrip::invalid_ ) { bin << path.fecSlot_  << sistrip::pipe_; }
+    if ( path.fecRing_  != sistrip::invalid_ ) { bin << path.fecRing_  << sistrip::pipe_; }
+    if ( path.ccuAddr_  != sistrip::invalid_ ) { bin << path.ccuAddr_  << sistrip::pipe_; }
+    if ( path.ccuChan_  != sistrip::invalid_ ) { bin << path.ccuChan_  << sistrip::pipe_; }
+    if ( path.channel_  != sistrip::invalid_ ) { bin << path.channel_; }
     
     if ( map_.find( bin.str() ) == map_.end() ) { 
       map_[bin.str()].first = value; 
@@ -96,11 +96,11 @@ void SummaryGeneratorControlView::simpleDistr( TH1& histo ) {
 
 /*
   OLD:
-  if ( ( ( device_path.fecCrate_ == path.fecCrate_ ) || ( path.fecCrate_ == sistrip::all_ ) ) &&
-  ( ( device_path.fecSlot_  == path.fecSlot_  ) || ( path.fecSlot_  == sistrip::all_ ) ) &&
-  ( ( device_path.fecRing_  == path.fecRing_  ) || ( path.fecRing_  == sistrip::all_ ) ) && 
-  ( ( device_path.ccuAddr_  == path.ccuAddr_  ) || ( path.ccuAddr_  == sistrip::all_ ) ) &&
-  ( ( device_path.ccuChan_  == path.ccuChan_  ) || ( path.ccuChan_  == sistrip::all_ ) ) ) { }
+  if ( ( ( device_path.fecCrate_ == path.fecCrate_ ) || ( path.fecCrate_ == sistrip::invalid_ ) ) &&
+  ( ( device_path.fecSlot_  == path.fecSlot_  ) || ( path.fecSlot_  == sistrip::invalid_ ) ) &&
+  ( ( device_path.fecRing_  == path.fecRing_  ) || ( path.fecRing_  == sistrip::invalid_ ) ) && 
+  ( ( device_path.ccuAddr_  == path.ccuAddr_  ) || ( path.ccuAddr_  == sistrip::invalid_ ) ) &&
+  ( ( device_path.ccuChan_  == path.ccuChan_  ) || ( path.ccuChan_  == sistrip::invalid_ ) ) ) { }
 */
 
 /*

@@ -34,11 +34,11 @@ string SiStripHistoNamingScheme::task( const sistrip::Task& task ) {
   else if ( task == sistrip::FED_TIMING )     { return sistrip::fedTiming_; }
   else if ( task == sistrip::FED_CABLING )    { return sistrip::fedCabling_; }
   else if ( task == sistrip::VPSP_SCAN )      { return sistrip::vpspScan_; }
-  else if ( task == sistrip::UNDEFINED_TASK ) { return ""; }
+  else if ( task == sistrip::UNDEFINED_TASK ) { return sistrip::undefinedTask_; }
   else if ( task == sistrip::UNKNOWN_TASK )   { return sistrip::unknownTask_; }
   else { 
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::task]"
-			 << " Unexpected histogram task!"; 
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			 << " Unexpected histogram task!"; 
     return "";
   }
 }
@@ -46,16 +46,24 @@ string SiStripHistoNamingScheme::task( const sistrip::Task& task ) {
 // -----------------------------------------------------------------------------
 // 
 sistrip::Task SiStripHistoNamingScheme::task( const string& task ) {
-  if      ( task == "" )                   { return sistrip::UNDEFINED_TASK; }
-  else if ( task == sistrip::fedCabling_ ) { return sistrip::FED_CABLING; }
-  else if ( task == sistrip::apvTiming_ )  { return sistrip::APV_TIMING; }
-  else if ( task == sistrip::fedTiming_ )  { return sistrip::FED_TIMING; }
-  else if ( task == sistrip::optoScan_ )   { return sistrip::OPTO_SCAN; }
-  else if ( task == sistrip::vpspScan_ )   { return sistrip::VPSP_SCAN; }
-  else if ( task == sistrip::pedestals_ )  { return sistrip::PEDESTALS; }
-  else if ( task == sistrip::apvLatency_ ) { return sistrip::APV_LATENCY; }
+  if      ( task == "UNDEFINED" || 
+	    task == sistrip::undefinedTask_ ) { return sistrip::UNDEFINED_TASK; }
+  else if ( task == "FED_CABLING" || 
+	    task == sistrip::fedCabling_ )    { return sistrip::FED_CABLING; }
+  else if ( task == "APV_TIMING" || 
+	    task == sistrip::apvTiming_ )     { return sistrip::APV_TIMING; }
+  else if ( task == "FED_TIMING" || 
+	    task == sistrip::fedTiming_ )     { return sistrip::FED_TIMING; }
+  else if ( task == "OPTO_SCAN" || 
+	    task == sistrip::optoScan_ )      { return sistrip::OPTO_SCAN; }
+  else if ( task == "VPSP_SCAN" || 
+	    task == sistrip::vpspScan_ )      { return sistrip::VPSP_SCAN; }
+  else if ( task == "PEDESTALS" || 
+	    task == sistrip::pedestals_ )     { return sistrip::PEDESTALS; }
+  else if ( task == "APV_LATENCY" || 
+	    task == sistrip::apvLatency_ )    { return sistrip::APV_LATENCY; }
   else { return sistrip::UNKNOWN_TASK; }
-}  
+}
 
 // -----------------------------------------------------------------------------
 // 
@@ -66,8 +74,8 @@ string SiStripHistoNamingScheme::contents( const sistrip::Contents& contents ) {
   else if ( contents == sistrip::NUM )               { return sistrip::num_; }
   else if ( contents == sistrip::UNKNOWN_CONTENTS )  { return sistrip::unknownContents_; }
   else { 
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::contents]"
-			 << " Unexpected histogram contents!"; 
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			 << " Unexpected histogram contents!"; 
     return "";
   }
 }
@@ -91,8 +99,8 @@ string SiStripHistoNamingScheme::keyType( const sistrip::KeyType& key_type ) {
   else if ( key_type == sistrip::DET )          { return sistrip::detKey_; }
   else if ( key_type == sistrip::UNKNOWN_KEY )  { return sistrip::unknownKey_; }
   else { 
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::keyType]"
-			 << " Unexpected histogram key type!"; 
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			 << " Unexpected histogram key type!"; 
     return "";
   }
 }
@@ -116,8 +124,8 @@ string SiStripHistoNamingScheme::granularity( const sistrip::Granularity& granul
   else if ( granularity == sistrip::APV )          { return sistrip::apv_; }
   else if ( granularity == sistrip::UNKNOWN_GRAN ) { return sistrip::unknownGranularity_; }
   else { 
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::granularity]"
-			 << " Unexpected histogram granularity!"; 
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			 << " Unexpected histogram granularity!"; 
     return "";
   }
 }
@@ -143,22 +151,22 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
   stringstream folder; 
   //folder.reserve(65536); //@@ possible to reserve space???
   folder << sistrip::root_ << sistrip::dir_ << sistrip::controlView_ << sistrip::dir_;
-  if ( fec_crate != sistrip::all_ ) {
+  if ( fec_crate != sistrip::invalid_ ) {
     folder << sistrip::fecCrate_ << fec_crate << sistrip::dir_;
-    if ( fec_slot != sistrip::all_ ) {
+    if ( fec_slot != sistrip::invalid_ ) {
       folder << sistrip::fecSlot_ << fec_slot << sistrip::dir_;
-      if ( fec_ring != sistrip::all_ ) {
+      if ( fec_ring != sistrip::invalid_ ) {
 	folder << sistrip::fecRing_ << fec_ring << sistrip::dir_;
-	if ( ccu_addr != sistrip::all_ ) {
+	if ( ccu_addr != sistrip::invalid_ ) {
 	  folder << sistrip::ccuAddr_ << ccu_addr << sistrip::dir_;
-	  if ( ccu_chan != sistrip::all_ ) {
+	  if ( ccu_chan != sistrip::invalid_ ) {
 	    folder << sistrip::ccuChan_ << ccu_chan << sistrip::dir_;
 	  }
 	}
       }
     }
   }
-  LogDebug("DQM") << "[SiStripHistoNamingScheme::controlPath]  " << folder.str();
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "] " << folder.str();
   return folder.str();
 }
 
@@ -167,11 +175,11 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
 const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPath( const string& directory ) {
 
   static ControlPath path;
-  path.fecCrate_ = sistrip::all_;
-  path.fecSlot_ = sistrip::all_;
-  path.fecRing_ = sistrip::all_;
-  path.ccuAddr_ = sistrip::all_;
-  path.ccuChan_ = sistrip::all_;
+  path.fecCrate_ = sistrip::invalid_;
+  path.fecSlot_ = sistrip::invalid_;
+  path.fecRing_ = sistrip::invalid_;
+  path.ccuAddr_ = sistrip::invalid_;
+  path.ccuChan_ = sistrip::invalid_;
 
   uint32_t curr = 0; // current string position
   uint32_t next = 0; // next string position
@@ -229,16 +237,17 @@ const SiStripHistoNamingScheme::ControlPath& SiStripHistoNamingScheme::controlPa
       }
     }
   } else {
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::controlPath]" 
-			 << " Unexpected view! Not " << sistrip::controlView_ << "!";
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 			 << " Unexpected view! Not " << sistrip::controlView_ << "!";
   }
   
-  LogDebug("DQM") << "[SiStripHistoNamingScheme::controlPath]" 
-		  << "  FecCrate: " << path.fecCrate_
-		  << "  FecSlot: " << path.fecSlot_
-		  << "  FecRing: " << path.fecRing_
-		  << "  CcuAddr: " << path.ccuAddr_
-		  << "  CcuChan: " << path.ccuChan_;
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 		  << "  FecCrate: " << path.fecCrate_
+// 		  << "  FecSlot: " << path.fecSlot_
+// 		  << "  FecRing: " << path.fecRing_
+// 		  << "  CcuAddr: " << path.ccuAddr_
+// 		  << "  CcuChan: " << path.ccuChan_;
+
   return path;
   
 }
@@ -250,9 +259,9 @@ string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
   
   stringstream folder;
   folder << sistrip::root_ << sistrip::dir_ << sistrip::readoutView_ << sistrip::dir_;
-  if ( fed_id != sistrip::all_ ) {
+  if ( fed_id != sistrip::invalid_ ) {
     folder << sistrip::fedId_ << fed_id << sistrip::dir_;
-    if ( fed_channel != sistrip::all_ ) {
+    if ( fed_channel != sistrip::invalid_ ) {
       folder << sistrip::fedChannel_ << fed_channel << sistrip::dir_;
     }
   }
@@ -264,8 +273,8 @@ string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
  std::pair<uint16_t,uint16_t> SiStripHistoNamingScheme::readoutPath( const std::string& directory ) { 
 
    pair<unsigned int,unsigned int> path;
-   path.first = sistrip::all_;
-   path.second = sistrip::all_;
+   path.first = sistrip::invalid_;
+   path.second = sistrip::invalid_;
 
   uint32_t curr = 0; // current string position
   uint32_t next = 0; // next string position
@@ -294,13 +303,13 @@ string SiStripHistoNamingScheme::readoutPath( uint16_t fed_id,
       }
     }
   } else {
-    edm::LogError("DQM") << "[SiStripHistoNamingScheme::readoutPath]" 
-			 << " Unexpected view! Not " << sistrip::readoutView_ << "!";
+//     edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 			 << " Unexpected view! Not " << sistrip::readoutView_ << "!";
   }
   
-  LogDebug("DQM") << "[SiStripHistoNamingScheme::readoutPath]" 
-		  << "  FedId: " << path.first
-		  << "  FedChannel: " << path.second;
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "]" 
+// 		  << "  FedId: " << path.first
+// 		  << "  FedChannel: " << path.second;
   return path;
  }
 
@@ -315,7 +324,7 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
 					     string               extra_info ) {
   
   stringstream title;
-
+  
   stringstream task;
   if      ( histo_task == sistrip::PEDESTALS )      { task << sistrip::pedestals_; }
   else if ( histo_task == sistrip::OPTO_SCAN )      { task << sistrip::optoScan_; }
@@ -326,8 +335,8 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   else if ( histo_task == sistrip::VPSP_SCAN )      { task << sistrip::vpspScan_; }
   else if ( histo_task == sistrip::UNDEFINED_TASK ) { /* add nothing */ }
   else if ( histo_task == sistrip::UNKNOWN_TASK )   { task << sistrip::sep_ << sistrip::unknownTask_; }
-  else { edm::LogError("DQM") << "[SiStripHistoNamingScheme::histoTitle]"
-			      << " Unexpected histogram task!"; }
+//   else { edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			      << " Unexpected histogram task!"; }
   title << task.str();
 
   stringstream contents;
@@ -336,8 +345,8 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   else if ( histo_contents == sistrip::NUM )              { contents << sistrip::sep_ << sistrip::num_; }
   else if ( histo_contents == sistrip::COMBINED )         { /* add nothing */ }
   else if ( histo_contents == sistrip::UNKNOWN_CONTENTS ) { contents << sistrip::sep_ << sistrip::unknownContents_; }
-  else { edm::LogError("DQM") << "[SiStripHistoNamingScheme::histoTitle]"
-			      << " Unexpected histogram contents!"; }
+//   else { edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			      << " Unexpected histogram contents!"; }
   title << contents.str();
   
   stringstream key;
@@ -346,8 +355,8 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   else if ( key_type == sistrip::DET )         { key << sistrip::sep_ << sistrip::detKey_ << setfill('0') << setw(8) << hex << key_value; }
   else if ( key_type == sistrip::NO_KEY )      { /* add nothing */ }
   else if ( key_type == sistrip::UNKNOWN_KEY ) { key << sistrip::sep_ << sistrip::unknownKey_; }
-  else { edm::LogError("DQM") << "[SiStripHistoNamingScheme::histoTitle]"
-			      << " Unexpected key type!"; }
+//   else { edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			      << " Unexpected key type!"; }
   title << key.str();
 
   stringstream gran;
@@ -356,13 +365,13 @@ string SiStripHistoNamingScheme::histoTitle( sistrip::Task        histo_task,
   else if ( granularity == sistrip::APV )          { gran << sistrip::sep_ << sistrip::apv_     << channel; }
   else if ( granularity == sistrip::MODULE )       { /* add nothing */ }
   else if ( granularity == sistrip::UNKNOWN_GRAN ) { gran << sistrip::sep_ << sistrip::unknownGranularity_; }
-  else { edm::LogError("DQM") << "[SiStripHistoNamingScheme::histoTitle]"
-			      << " Unexpected granularity!"; }
+//   else { edm::LogError("DQM") << "[" << __PRETTY_FUNCTION__ << "]"
+// 			      << " Unexpected granularity!"; }
   title << gran.str();
 
   if ( extra_info != "" ) { title << sistrip::sep_ << extra_info; }
   
-  LogDebug("DQM") << "[SiStripHistoNamingScheme::histoTitle] " << title.str();
+//   LogDebug("DQM") << "[" << __PRETTY_FUNCTION__ << "] " << title.str();
   return title.str();
   
 }

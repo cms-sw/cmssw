@@ -9,7 +9,6 @@
 namespace sistrip { 
   
   // generic constants
-  static const uint16_t    all_  = 0xFFFF;
   static const std::string root_ = "SiStrip";
   static const std::string dir_  = "/";
   static const std::string sep_  = "_";
@@ -32,14 +31,15 @@ namespace sistrip {
   static const std::string fedChannel_  = "FedChannel";
 
   // commissioning task
-  static const std::string fedCabling_  = "FedCabling";
-  static const std::string apvTiming_   = "ApvTiming";
-  static const std::string fedTiming_   = "FedTiming";
-  static const std::string optoScan_    = "OptoScan";
-  static const std::string vpspScan_    = "VpspScan";
-  static const std::string pedestals_   = "Pedestals";
-  static const std::string apvLatency_  = "ApvLatency";
-  static const std::string unknownTask_ = "UnknownTask";
+  static const std::string fedCabling_    = "FedCabling";
+  static const std::string apvTiming_     = "ApvTiming";
+  static const std::string fedTiming_     = "FedTiming";
+  static const std::string optoScan_      = "OptoScan";
+  static const std::string vpspScan_      = "VpspScan";
+  static const std::string pedestals_     = "Pedestals";
+  static const std::string apvLatency_    = "ApvLatency";
+  static const std::string undefinedTask_ = "UndefinedTask";
+  static const std::string unknownTask_   = "UnknownTask";
 
   // histo contents
   static const std::string sum2_            = "SumOfSquares";
@@ -80,7 +80,6 @@ namespace sistrip {
   static const std::string apvTimingPeak_   = "ApvTimingPeak";
   static const std::string apvTimingHeight_ = "ApvTimingHeight";
   
- 
 }
 
 #endif // DQM_SiStripCommon_SiStripConstants_H

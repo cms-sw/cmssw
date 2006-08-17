@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommon_SiStripHistoNamingScheme_H
 #define DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
-//#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DQM/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/SiStripEnumeratedTypes.h"
@@ -33,10 +33,16 @@ class SiStripHistoNamingScheme {
     uint16_t fecRing_;
     uint16_t ccuAddr_;
     uint16_t ccuChan_;
+    ControlPath() : 
+      fecCrate_(sistrip::invalid_), 
+      fecSlot_(sistrip::invalid_), 
+      fecRing_(sistrip::invalid_), 
+      ccuAddr_(sistrip::invalid_), 
+      ccuChan_(sistrip::invalid_) {;} 
   };
   
   // ----- METHODS RETURNING SOME GENERIC STRINGS AND ENUMS -----
-
+  
   static std::string view( const sistrip::View& );
   static std::string task( const sistrip::Task& );
   static std::string contents( const sistrip::Contents& );
@@ -53,11 +59,15 @@ class SiStripHistoNamingScheme {
 
   /** Returns directory path in the form of a string, based on control
       params (FEC crate, slot and ring, CCU address and channel). */ 
-  static std::string controlPath( uint16_t fec_crate = sistrip::all_, 
-				  uint16_t fec_slot  = sistrip::all_, 
-				  uint16_t fec_ring  = sistrip::all_, 
-				  uint16_t ccu_addr  = sistrip::all_, 
-				  uint16_t ccu_chan  = sistrip::all_ );
+  static std::string controlPath( uint16_t fec_crate = sistrip::invalid_, 
+				  uint16_t fec_slot  = sistrip::invalid_, 
+				  uint16_t fec_ring  = sistrip::invalid_, 
+				  uint16_t ccu_addr  = sistrip::invalid_, 
+				  uint16_t ccu_chan  = sistrip::invalid_ );
+
+  /** Returns directory path in the form of a string, based on control
+      path (FEC crate, slot and ring, CCU address and channel). */ 
+  inline static std::string controlPath( const ControlPath& );
   
   /** Returns control parameters in the form of a "ControlPath" struct,
       based on directory path string of the form
@@ -66,8 +76,8 @@ class SiStripHistoNamingScheme {
   
   /** Returns directory path in the form of a string, based on readout
       parameters (FED id and channel). */ 
-  static std::string readoutPath( uint16_t fed_id = sistrip::all_, 
-				  uint16_t fed_ch = sistrip::all_ );
+  static std::string readoutPath( uint16_t fed_id = sistrip::invalid_, 
+				  uint16_t fed_ch = sistrip::invalid_ );
   
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
@@ -96,7 +106,8 @@ class SiStripHistoNamingScheme {
   
 };
 
-// inline method
+// ---------- inline methods ----------
+
 std::string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::HistoTitle title ) {
   return histoTitle( title.task_, 
 		     title.contents_, 
@@ -105,6 +116,14 @@ std::string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::Hist
 		     title.granularity_, 
 		     title.channel_, 
 		     title.extraInfo_ );
+}
+  
+std::string SiStripHistoNamingScheme::controlPath( const ControlPath& path ) {
+  return controlPath( path.fecCrate_,
+		      path.fecSlot_,
+		      path.fecRing_,
+		      path.ccuAddr_,
+		      path.ccuChan_ );
 }
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H

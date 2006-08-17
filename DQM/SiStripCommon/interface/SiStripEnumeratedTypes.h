@@ -58,11 +58,13 @@ namespace sistrip {
   /** Defines action to be taken by web client. */
   enum Action { UNKNOWN_ACTION, 
 		NO_ACTION, 
+		ANALYZE_HISTOS,
+		SAVE_HISTOS_TO_DISK,
 		CREATE_SUMMARY_HISTOS, 
 		CREATE_TRACKER_MAP,
 		UPLOAD_TO_DATABASE
   };
- 
+  
 }
 
 #endif // DQM_SiStripCommon_SiStripEnumeratedTypes_H
