@@ -27,8 +27,8 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
 string MessageCategory = "TrackingTruthProducer";
 
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
-  produces<TrackingVertexCollection>();
-  produces<TrackingParticleCollection>();
+  produces<TrackingVertexCollection>("VertexTruth");
+  produces<TrackingParticleCollection>("TrackTruth");
   produces<TrackVertexAssociationCollection>();
   produces<VertexTrackAssociationCollection>();
   conf_ = conf;
@@ -90,10 +90,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
   event.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
   event.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
-  event.getByLabel("g4SimHits","PixelBarrelHitsHighTof", PixelBarrelHitsHighTof);
-  event.getByLabel("g4SimHits","PixelBarrelHitsLowTof", PixelBarrelHitsLowTof);  
-  event.getByLabel("g4SimHits","PixelEndcapHitsHighTof", PixelEndcapHitsHighTof);  
-  event.getByLabel("g4SimHits","PixelEndcapHitsLowTof", PixelEndcapHitsLowTof);
+  event.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
+  event.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);  
+  event.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);  
+  event.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
   
 //  const HepMC::GenEvent            &genEvent = hepMC -> getHepMCData();
   const HepMC::GenEvent *genEvent = mcp -> GetEvent(); // faster?
@@ -120,7 +120,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 //  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
 //  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
 //  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
-//  
+  
   
 //  genEvent.print();
 //  genEvent ->  signal_process_id();
@@ -131,6 +131,12 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
 //Put TrackingParticle here... need charge, momentum, vertex position, time, pdg id
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
+
+  edm::RefProd<TrackingParticleCollection> refTPC =
+      event.getRefBeforePut<TrackingParticleCollection>("TrackTruth");
+  edm::RefProd<TrackingVertexCollection> refTVC =
+      event.getRefBeforePut<TrackingVertexCollection>("VertexTruth");
+  
   std::map<int,int> productionVertex;
   std::multimap<int,int> tmpTrackVertexMap;
   int iG4Track = 0;
@@ -161,7 +167,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     
     typedef vector<edm::Handle<edm::PSimHitContainer> >::const_iterator cont_iter;
 //    map<int, TrackPSimHitRefVector> trackIdPSimHitMap;
-    int simtrackId = itP -> trackId();
+    unsigned int simtrackId = itP -> trackId();
     for( cont_iter allCont = AlltheConteiners.begin(); allCont != AlltheConteiners.end(); ++allCont ){
       int  index = 0;
       for (edm::PSimHitContainer::const_iterator hit = (*allCont)->begin(); hit != (*allCont)->end(); ++hit, ++index) {
@@ -188,7 +194,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
 // Put TrackingParticles in event and get handle to access them    
   
-  edm::OrphanHandle<TrackingParticleCollection> tpcHandle = event.put(tPC);
+  edm::OrphanHandle<TrackingParticleCollection> tpcHandle =
+      event.put(tPC,"TrackTruth");
 //  TrackingParticleCollection trackCollection = *tpcHandle;
        
 // Find and loop over EmbdSimVertex vertices
@@ -278,7 +285,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
 // Put TrackingVertices in event and get handle to access them    
   
-  edm::OrphanHandle<TrackingVertexCollection> tvcHandle = event.put(tVC);
+  edm::OrphanHandle<TrackingVertexCollection> tvcHandle =
+      event.put(tVC,"VertexTruth");
 //  TrackingVertexCollection vertexCollection = *tvcHandle;
   for (multimap<int,int>::const_iterator a = tmpTrackVertexMap.begin();
       a !=   tmpTrackVertexMap.end(); ++a) {
