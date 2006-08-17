@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 3rd Aug 2006 $
- *  $Revision: 0.0 $
+ *  $Date: 2006/08/17 07:23:36 $
+ *  $Revision: 1.1 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *
@@ -29,7 +29,7 @@ HLTJetTag::HLTJetTag(const edm::ParameterSet& iConfig) :
   Max_Tag_(iConfig.getParameter<double>("MaxTag")),
   Min_N_  (iConfig.getParameter<int>("MinN"))
 {
-  LogDebug ("") << "Inputs and cuts: " << JetTag_.encode() 
+  LogDebug ("") << "Input and cuts: " << JetTag_.encode() 
 		<< " Tag value [" << Min_Tag_ << " " << Max_Tag_ << "]"
 		<< " MinN = " << Min_N_;
 
@@ -77,12 +77,13 @@ HLTJetTag::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 << " , No. of tracks = " << jet->tracks().size()
 		 << " , tag value = " << jet->discriminator();
     nJet++;
-    //  Check if jet is b tagged.
+    //  Check if jet is tagged.
     if ( (Min_Tag_ <= jet->discriminator()) && 
 	 (jet->discriminator() <= Max_Tag_) ) {
       nTag++;
       // Store jets which passed tagging cuts
-      // need to construct a Ref to the Jet
+
+      // Need to construct a Ref to the Jet
       // from the "jet" used as key of the association map
       // ref = RefToBase<Candidate>(...);
       // filterproduct->putParticle(ref);
@@ -96,7 +97,7 @@ HLTJetTag::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(filterproduct);
 
   LogDebug("") << "accept = " << accept
-	       << " nTag/nJet = "<< nTag <<"/" << nJet;
+	       << " nTag/nJet = " << nTag << "/" << nJet;
 
   return accept;
 }
