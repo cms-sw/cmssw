@@ -159,6 +159,14 @@ foreach my $detector (@detectors) {
     my $offline_connect = "oracle://".$offline_db.'/'.$offline_schema;
     my ($offline_user, $offline_pass) = CMSDBA::connection_test($auth, $offline_connect);
 
+    # Create a database link from offline schema to online schema
+    $sql = qq[CREATE DATABASE LINK $online_db CONNECT TO $online_schema IDENTIFIED BY $online_pass USING '$online_db'];
+    $cmd = CMSDBA::get_sqlplus_cmd('user' => $offline_user, 'pass' => $offline_pass, 'db' => $offline_db, 
+				   'sql' => $sql);
+    push(@commands, { 'info' => "Creating database link from $offline_db to $online_db",
+		      'cmd'  => $cmd });
+
+
     foreach my $object (keys %{$o2o_config->{detector}->{$detector}->{object}}) {
 	my $object_name = $object;
 	$object = $o2o_config->{detector}->{$detector}->{object}->{$object_name};
@@ -166,37 +174,31 @@ foreach my $detector (@detectors) {
         # Add time column to top-level-table in offline schema
 	my $table = $object->{table};
 	my $sql = qq[ALTER TABLE $table ADD time NUMBER(38)];
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
+	$cmd = CMSDBA::get_sqlplus_cmd('user' => $offline_user, 'pass' => $offline_pass, 'db' => $offline_db, 
 				       'sql' => $sql);
 	push(@commands, { 'info' => "Adding TIME column to $table",
 			  'cmd'  => $cmd });
 
-	# Create a database link from offline schema to online schema
-	$sql = qq[CREATE DATABASE LINK $online_db CONNECT TO $online_schema IDENTIFIED BY $online_pass USING '$online_db'];
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
-				       'sql' => $sql);
-	push(@commands, { 'info' => "Creating database link from $offline_db to $online_db",
-			  'cmd'  => $cmd });
 
 	# Write payload procedure to offline schema
 	my $procedure = $object_name.'_payload_o2o';  # XXX Should this be hardcoded?
 	my $procedure_sqlfile = $o2o_sqldir.'/'.$procedure.'.sql';
 	
 	CMSDBA::check_files($procedure_sqlfile);
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
+	$cmd = CMSDBA::get_sqlplus_cmd('user' => $offline_user, 'pass' => $offline_pass, 'db' => $offline_db, 
 				       'file' => $procedure_sqlfile);
 	push(@commands, { 'info' => "Adding $procedure to offline schema",
 			  'cmd'  => $cmd });
 
 	# Grant access to top-level-table and procedure to general schema
 	$sql = qq[GRANT SELECT ON $table TO $general_schema];
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
+	$cmd = CMSDBA::get_sqlplus_cmd('user' => $offline_user, 'pass' => $offline_pass, 'db' => $offline_db, 
 				       'sql' => $sql);
 	push(@commands, { 'info' => "Granting $general_schema access to $table",
 			  'cmd'  => $cmd });
 	
 	$sql = qq[GRANT EXECUTE ON $procedure TO $general_schema];
-	$cmd = CMSDBA::get_sqlplus_cmd('user' => $general_user, 'pass' => $general_pass, 'db' => $offline_db, 
+	$cmd = CMSDBA::get_sqlplus_cmd('user' => $offline_user, 'pass' => $offline_pass, 'db' => $offline_db, 
 				       'sql' => $sql);
 	push(@commands, { 'info' => "Granting $general_schema access to $procedure",
 			  'cmd'  => $cmd });
