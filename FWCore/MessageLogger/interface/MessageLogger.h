@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.15 2006/07/24 21:50:51 marafino Exp $
+// $Id: MessageLogger.h,v 1.16 2006/08/18 16:28:43 marafino Exp $
 //
 // =================================================
 // Change log
@@ -183,8 +183,8 @@ private:
 
 };  // LogTrace_
 
-static LogDebug_ dummyLogDebugObject_( "dummy_id", __FILE__, __LINE__ );
-static LogTrace_ dummyLogTraceObject_( "dummy_id" );
+extern LogDebug_ dummyLogDebugObject_;
+extern LogTrace_ dummyLogTraceObject_;
 
 class Suppress_LogDebug_ 
 { 
