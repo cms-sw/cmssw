@@ -20,5 +20,7 @@ private:
   std::string testname;
   CSCAFEBThrAnalysis analysisthr_;
   CSCAFEBConnectAnalysis analysiscnt_;
+
+  edm::InputTag CSCSrc_;
 };
 
