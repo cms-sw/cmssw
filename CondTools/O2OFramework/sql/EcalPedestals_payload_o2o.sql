@@ -26,7 +26,7 @@ BEGIN
   AND riov.tag_id = rtag.tag_id
   AND rdef.def_id = rtag.run_type_id
   AND ldef.def_id = rtag.location_id
-  AND ldef.location='H4'
+  AND ldef.location='P5_MT'
   AND rdef.run_type='PEDESTAL'
   AND miov.iov_id > last_id
 ;
