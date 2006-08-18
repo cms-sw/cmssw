@@ -11,8 +11,8 @@
 This class contains timing information unpacked from the
 Time-to-Digital Converter (TDC).
       
-  $Date: 2006/07/27 03:03:31 $
-  $Revision: 1.5 $
+  $Date: 2006/08/03 23:50:32 $
+  $Revision: 1.6 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -34,10 +34,14 @@ Time-to-Digital Converter (TDC).
     /// Returns the QIE phase for 2003 testbeam data (zero otherwise)
     double qiePhase()        const { return qiePhase_;        }
 
-    /// Returns the TOF1 time (zero otherwise)
-    double TOF1time()        const { return TOF1time_;        }
-    /// Returns the TOF2 time (zero otherwise)
-    double TOF2time()        const { return TOF2time_;        }
+    /// Returns the TOF1S time (zero otherwise)
+    double TOF1Stime()       const { return TOF1Stime_;       }
+    /// Returns the TOF1J time (zero otherwise)
+    double TOF1Jtime()       const { return TOF1Jtime_;       }
+    /// Returns the TOF2S time (zero otherwise)
+    double TOF2Stime()       const { return TOF2Stime_;       }
+    /// Returns the TOF2J time (zero otherwise)
+    double TOF2Jtime()       const { return TOF2Jtime_;       }
 
     /// Returns the number of hits from muon veto scintillator M1
     int    M1Count()         const { return m1hits_.size();   }
@@ -95,8 +99,10 @@ Time-to-Digital Converter (TDC).
 		     const double beam_coincidence,
 		     const double laser_flash,
 		     const double qie_phase,
-		     const double TOF1_time,
-		     const double TOF2_time);
+		     const double TOF1S_time,
+		     const double TOF1J_time,
+		     const double TOF2S_time,
+		     const double TOF2J_time);
 
     void   setHits  (const std::vector<double>& m1hits,
 		     const std::vector<double>& m2hits,
@@ -116,8 +122,10 @@ Time-to-Digital Converter (TDC).
     double beamCoincidence_;
     double laserFlash_;
     double qiePhase_;
-    double TOF1time_;
-    double TOF2time_;
+    double TOF1Stime_;
+    double TOF1Jtime_;
+    double TOF2Stime_;
+    double TOF2Jtime_;
 
     std::vector<double> m1hits_;
     std::vector<double> m2hits_;

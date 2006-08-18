@@ -41,8 +41,10 @@
     double VM6adc()     const { return VM6adc_;     }
     double VM7adc()     const { return VM7adc_;     }
     double VM8adc()     const { return VM8adc_;     }
-    double TOF1adc()     const { return TOF1adc_;     }
-    double TOF2adc()     const { return TOF2adc_;     }
+    double TOF1Sadc()   const { return TOF1Sadc_;   }
+    double TOF1Jadc()   const { return TOF1Jadc_;   }
+    double TOF2Sadc()   const { return TOF2Sadc_;   }
+    double TOF2Jadc()   const { return TOF2Jadc_;   }
     double BH1adc()     const { return BH1adc_;     }
     double BH2adc()     const { return BH2adc_;     }
     double BH3adc()     const { return BH3adc_;     }
@@ -59,7 +61,8 @@
                                      double VM5adc ,double VM6adc,double VM7adc,double VM8adc,
                                      double CK1adc,double CK2adc,double CK3adc,
                                      double S1adc,double S2adc,double S3adc,double S4adc,
-				     double TOF1adc,double TOF2adc,double Sci521adc,double Sci528adc,
+				     double TOF1Sadc,double TOF1Jadc,double TOF2Sadc,double TOF2Jadc,
+                                     double Sci521adc,double Sci528adc,
 				     double BH1adc ,double BH2adc,double BH3adc,double BH4adc);
 
   private:
@@ -94,8 +97,10 @@
 	double    VM6adc_ ; // Muon veto wall
 	double    VM7adc_ ; // Muon veto wall
 	double    VM8adc_ ; // Muon veto wall
-	double    TOF1adc_ ; // TOF1
-	double    TOF2adc_ ; // TOF2
+	double    TOF1Sadc_ ; // TOF1S (Saleve side)
+	double    TOF1Jadc_ ; // TOF1J (Jura side)
+	double    TOF2Sadc_ ; // TOF2S (Saleve side)
+	double    TOF2Jadc_ ; // TOF2J (Jura side)
 	double    BH1adc_ ; // beam halo up
 	double    BH2adc_ ; // beam halo left from particle view
 	double    BH3adc_ ; // beam halo right from particle view

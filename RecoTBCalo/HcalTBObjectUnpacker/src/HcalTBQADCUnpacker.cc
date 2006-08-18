@@ -40,10 +40,12 @@ static const int bScint4           = 15;  // 14x14 cm
 static const int bCerenkov1        = 16;  // 
 static const int bCerenkov2        = 17;  // el id
 static const int bCerenkov3        = 18;  // pi/proton id
-static const int bTOF1             = 20;  // TOF1
-static const int bTOF2             = 21;  // TOF2
-static const int bSCI_521          = 22;
-static const int bSCI_528          = 23;
+static const int bTOF1S            = 20;  // TOF1S (S=Saleve side, TOF1 upstream)
+static const int bTOF1J            = 21;  // TOF1J (J=Jura side)
+static const int bTOF2S            = 22;  // TOF2S (TOF2 downstream)
+static const int bTOF2J            = 23;  // TOF2J
+static const int bSCI_521          = 26;
+static const int bSCI_528          = 27;
 static const int bVH1              = 28;  // beam halo up
 static const int bVH2              = 29;  // beam halo left from particle view
 static const int bVH3              = 30;  // beam halo right from particle view
@@ -135,7 +137,8 @@ void HcalTBQADCUnpacker::unpack(const FEDRawData& raw,
                     qdc_calib_hits[bCerenkov1], qdc_calib_hits[bCerenkov2], qdc_calib_hits[bCerenkov3],
                     qdc_calib_hits[bScint1], qdc_calib_hits[bScint2], 
 		    qdc_calib_hits[bScint3], qdc_calib_hits[bScint4],
-                    qdc_calib_hits[bTOF1], qdc_calib_hits[bTOF2],
+                    qdc_calib_hits[bTOF1S], qdc_calib_hits[bTOF1J],
+                    qdc_calib_hits[bTOF2S], qdc_calib_hits[bTOF2J],
 		    qdc_calib_hits[bSCI_521],qdc_calib_hits[bSCI_528],
 		    qdc_calib_hits[bVH1],qdc_calib_hits[bVH2],
 		    qdc_calib_hits[bVH3],qdc_calib_hits[bVH4]);

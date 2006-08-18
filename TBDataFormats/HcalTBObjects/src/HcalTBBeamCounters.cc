@@ -7,7 +7,7 @@ using namespace std;
     Sci521adc_(0),Sci528adc_(0),CK1adc_(0),CK2adc_(0),CK3adc_(0),SciVLEadc_(0),
     S1adc_(0),S2adc_(0),S3adc_(0),S4adc_(0),VMFadc_(0),VMBadc_(0),
     VM1adc_(0),VM2adc_(0),VM3adc_(0),VM4adc_(0),VM5adc_(0),VM6adc_(0),VM7adc_(0),VM8adc_(0),
-    TOF1adc_(0),TOF2adc_(0),BH1adc_(0),BH2adc_(0),BH3adc_(0),BH4adc_(0){}
+    TOF1Sadc_(0),TOF1Jadc_(0),TOF2Sadc_(0),TOF2Jadc_(0),BH1adc_(0),BH2adc_(0),BH3adc_(0),BH4adc_(0){}
 
   void HcalTBBeamCounters::setADCs04  (double VMadc,double V3adc,double V6adc,
 				     double VH1adc ,double VH2adc,double VH3adc,double VH4adc,
@@ -39,7 +39,8 @@ using namespace std;
                                      double VM5adc ,double VM6adc,double VM7adc,double VM8adc,
                                      double CK1adc,double CK2adc,double CK3adc,
                                      double S1adc,double S2adc,double S3adc,double S4adc,
-                                     double TOF1adc,double TOF2adc,double Sci521adc,double Sci528adc,
+                                     double TOF1Sadc,double TOF1Jadc,double TOF2Sadc,double TOF2Jadc,
+                                     double Sci521adc,double Sci528adc,
 				     double BH1adc ,double BH2adc,double BH3adc,double BH4adc)
   {
    VMFadc_    = VMFadc ;
@@ -59,8 +60,10 @@ using namespace std;
    S2adc_     = S2adc ;
    S3adc_     = S3adc ;
    S4adc_     = S4adc ;
-   TOF1adc_   = TOF1adc ;
-   TOF2adc_   = TOF2adc ;
+   TOF1Sadc_  = TOF1Sadc ;
+   TOF1Jadc_  = TOF1Jadc ;
+   TOF2Sadc_  = TOF2Sadc ;
+   TOF2Jadc_  = TOF2Jadc ;
    Sci521adc_ = Sci521adc ;
    Sci528adc_ = Sci528adc ;
    BH1adc_ = BH1adc ;

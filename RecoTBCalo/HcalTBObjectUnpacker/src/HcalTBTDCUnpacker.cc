@@ -15,12 +15,14 @@ static const int lcScint1          = 93;
 static const int lcScint2          = 94;
 static const int lcScint3          = 95;
 static const int lcScint4          = 96;
-static const int lcBeamHalo1       = 97;
-static const int lcBeamHalo2       = 98;
-static const int lcBeamHalo3       = 99;
-static const int lcBeamHalo4       = 100;
-static const int lcTOF1            = 129;
-static const int lcTOF2            = 130;
+static const int lcBeamHalo1       = 50;
+static const int lcBeamHalo2       = 51;
+static const int lcBeamHalo3       = 55;
+static const int lcBeamHalo4       = 63;
+static const int lcTOF1S           = 129;
+static const int lcTOF1J           = 130;
+static const int lcTOF2S           = 131;
+static const int lcTOF2J           = 132;
 
 namespace hcaltb {
 
@@ -166,8 +168,10 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
   double beam_coinc=0;
   double laser_flash=0;
   double qie_phase=0;
-  double TOF1_time=0;
-  double TOF2_time=0;
+  double TOF1S_time=0;
+  double TOF1J_time=0;
+  double TOF2S_time=0;
+  double TOF2J_time=0;
   
   std::vector<double> m1hits, m2hits, m3hits, s1hits, s2hits, s3hits, s4hits,
                       bh1hits, bh2hits, bh3hits, bh4hits;
@@ -186,8 +190,10 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     case lcScint2:          s2hits.push_back(j->time-tdc_ped[lcScint2]); break;
     case lcScint3:          s3hits.push_back(j->time-tdc_ped[lcScint3]); break;
     case lcScint4:          s4hits.push_back(j->time-tdc_ped[lcScint4]); break;
-    case lcTOF1:            TOF1_time   = j->time-tdc_ped[lcTOF1];  break;
-    case lcTOF2:            TOF2_time   = j->time-tdc_ped[lcTOF2];  break;
+    case lcTOF1S:           TOF1S_time   = j->time-tdc_ped[lcTOF1S];  break;
+    case lcTOF1J:           TOF1J_time   = j->time-tdc_ped[lcTOF1J];  break;
+    case lcTOF2S:           TOF2S_time   = j->time-tdc_ped[lcTOF2S];  break;
+    case lcTOF2J:           TOF2J_time   = j->time-tdc_ped[lcTOF2J];  break;
     case lcBeamHalo1:       bh1hits.push_back(j->time-tdc_ped[lcBeamHalo1]); break;
     case lcBeamHalo2:       bh2hits.push_back(j->time-tdc_ped[lcBeamHalo2]); break;
     case lcBeamHalo3:       bh3hits.push_back(j->time-tdc_ped[lcBeamHalo3]); break;
@@ -196,7 +202,7 @@ void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
     }
   }
 
-  timing.setTimes(trigger_time,ttc_l1a_time,beam_coinc,laser_flash,qie_phase,TOF1_time,TOF2_time);
+  timing.setTimes(trigger_time,ttc_l1a_time,beam_coinc,laser_flash,qie_phase,TOF1S_time,TOF1J_time,TOF2S_time,TOF2J_time);
   timing.setHits (m1hits,m2hits,m3hits,s1hits,s2hits,s3hits,s4hits,bh1hits,bh2hits,bh3hits,bh4hits);
 
 }
@@ -208,16 +214,16 @@ const int HcalTBTDCUnpacker::WC_CHANNELIDS[PLANECOUNT*3] = {
 						     20, 21, 25, // WCB UD plane
 						     32, 33, 34, // WCC LR plane
 						     30, 31, 35, // WCC UD plane
-						     42, 43, 44, // WCD LR plane
-						     40, 41, 45, // WCD UD plane
-						     52, 53, 54, // WCE LR plane
-						     50, 51, 55, // WCE UD plane 
-						    101, 102, 103, // WCF LR plane (was WC1)
-						    104, 105, 106, // WCF UD plane (was WC1)
-						    107, 108, 109, // WCG LR plane (was WC2)
-						    110, 111, 112, // WCG UD plane (was WC2)
-						    113, 114, 115, // WCH LR plane (was WC3)
-						    116, 117, 118  // WCH UD plane (was WC3)
+						     101, 102, 104, // WCD LR plane
+						     107, 108, 110, // WCD UD plane
+						     113, 114, 116, // WCE LR plane
+						     97, 98, 99, // WCE UD plane 
+						    42, 43, -1, // WCF LR plane (was WC1)
+						    44, 60, -1, // WCF UD plane (was WC1)
+						    40, 41, -1, // WCG LR plane (was WC2)
+						    45, 61, -1, // WCG UD plane (was WC2)
+						    52, 53, -1, // WCH LR plane (was WC3)
+						    54, 62, -1  // WCH UD plane (was WC3)
 };
 
 static const double TDC_OFFSET_CONSTANT = 12000;
@@ -314,7 +320,7 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
       }
     }
 
-    if (includeUnmatchedHits_)   // unmatched hits (all pairs get in here)
+    if (includeUnmatchedHits_||plane>9)   // unmatched hits (all pairs get in here)
       for (int ii=0; ii<n1; ii++) {
 	if (hits1[ii]<-99990) continue;
 	for (int jj=0; jj<n2; jj++) {
