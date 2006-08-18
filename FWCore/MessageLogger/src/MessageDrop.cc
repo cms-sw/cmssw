@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.1 2006/02/15 00:40:33 fischler Exp $
+// $Id: MessageDrop.cc,v 1.2 2006/02/16 17:52:06 fischler Exp $
 //
 
 // system include files
@@ -33,3 +33,16 @@ MessageDrop::instance()
   }
   return drop;
 }
+
+  bool edm::isDebugEnabled() {
+    return ( edm::MessageDrop::instance()->debugEnabled );
+  }
+
+  bool edm::isInfoEnabled() {
+    return( edm::MessageDrop::instance()->infoEnabled );
+  }
+
+  bool edm::isWarningEnabled() {
+    return( edm::MessageDrop::instance()->warningEnabled );
+  }
+

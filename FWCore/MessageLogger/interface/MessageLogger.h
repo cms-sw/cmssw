@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.14 2006/06/12 22:16:00 fischler Exp $
+// $Id: MessageLogger.h,v 1.15 2006/07/24 21:50:51 marafino Exp $
 //
 // =================================================
 // Change log
@@ -183,6 +183,9 @@ private:
 
 };  // LogTrace_
 
+static LogDebug_ dummyLogDebugObject_( "dummy_id", __FILE__, __LINE__ );
+static LogTrace_ dummyLogTraceObject_( "dummy_id" );
+
 class Suppress_LogDebug_ 
 { 
   // With any decent optimization, use of Suppress_LogDebug_ (...)
@@ -214,12 +217,14 @@ public:
 #define LogDebug(id) edm::Suppress_LogDebug_();
 #define LogTrace(id) edm::Suppress_LogDebug_();
 #else
-#define LogDebug(id)                                            \
-  if ( edm::MessageDrop::instance()->debugEnabled )       	 \
-          edm::LogDebug_(id, __FILE__, __LINE__)  		       
-#define LogTrace(id)                                            \
-  if ( edm::MessageDrop::instance()->debugEnabled )              \
-          edm::LogTrace_(id)                               
+#define LogDebug(id)                                 \
+  ( !edm::MessageDrop::instance()->debugEnabled )    \
+    ?  edm::dummyLogDebugObject_                     \
+    :  edm::LogDebug_(id, __FILE__, __LINE__)
+#define LogTrace(id)                                 \
+  ( !edm::MessageDrop::instance()->debugEnabled )    \
+    ?  edm::dummyLogTraceObject_                     \
+    :  edm::LogTrace_(id)
 #endif
 #undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
 							// change log 1, 2
