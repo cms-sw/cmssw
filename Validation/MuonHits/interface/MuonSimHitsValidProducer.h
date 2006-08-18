@@ -179,6 +179,12 @@ class MuonSimHitsValidProducer : public edm::EDProducer
   FloatVector   RPCHitsEnLoss; 
   FloatVector   RPCHitsTimeOfFlight;
 
+  /// Input tags
+
+  edm::InputTag CSCHitsSrc_;
+  edm::InputTag DTHitsSrc_;
+  edm::InputTag RPCHitsSrc_;                                                
+  
 
   /// private statistics information
   unsigned int count;

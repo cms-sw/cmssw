@@ -16,6 +16,11 @@ MuonSimHitsValidProducer::MuonSimHitsValidProducer(const edm::ParameterSet& iPSe
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
+  /// get labels for input tags
+   CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
+   DTHitsSrc_  = iPSet.getParameter<edm::InputTag>("DTHitsSrc");
+   RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
+
   /// use value of first digit to determine default output level (inclusive)
   /// 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -33,6 +38,12 @@ MuonSimHitsValidProducer::MuonSimHitsValidProducer(const edm::ParameterSet& iPSe
       << "    Label     = " << label << "\n"
       << "    GetProv   = " << getAllProvenances << "\n"
       << "    PrintProv = " << printProvenanceInfo << "\n"
+      << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
+      << ":" << CSCHitsSrc_.instance() << "\n"
+      << "    DTHitsSrc =  " <<DTHitsSrc_.label()
+      << ":" << DTHitsSrc_.instance() << "\n"
+      << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
+      << ":" << RPCHitsSrc_.instance() << "\n"
       << "===============================\n";
   }
 }
@@ -305,7 +316,8 @@ void MuonSimHitsValidProducer::fillCSC(edm::Event& iEvent,
 
   /// get  CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
-  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
+  iEvent.getByLabel(CSCHitsSrc_,MuonCSCContainer);
+//  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidProducer::fillCSC")
       << "Unable to find MuonCSCHits in event!";
@@ -425,7 +437,8 @@ void MuonSimHitsValidProducer::fillDT(edm::Event& iEvent,
 
   /// get DT information
   edm::Handle<edm::PSimHitContainer> MuonDTContainer;
-  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDTContainer);
+  iEvent.getByLabel(DTHitsSrc_,MuonDTContainer);
+//  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDTContainer);
   if (!MuonDTContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidProducer::fillDT")
       << "Unable to find MuonDTHits in event!";
@@ -539,7 +552,8 @@ void MuonSimHitsValidProducer::fillRPC(edm::Event& iEvent,
 
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
-  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
+  iEvent.getByLabel(RPCHitsSrc_,MuonRPCContainer);
+//  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidProducer::fillRPC")
       << "Unable to find MuonRPCHits in event!";
