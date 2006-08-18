@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -12,6 +12,9 @@
 #include "HLTrigger/HLTexample/interface/HLTProdCand.h"
 
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -23,8 +26,12 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -62,10 +69,13 @@ void
 HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
+   using namespace edm;
    using namespace reco;
 
-   // produce collections of photons, electrons, muons, taus, jets, MET
+   ESHandle<DefaultConfig::ParticleDataTable> pdt;
+   iSetup.getData(pdt);
 
+   // produce collections of photons, electrons, muons, taus, jets, MET
    auto_ptr<PhotonCollection>   phot (new PhotonCollection);
    auto_ptr<ElectronCollection> elec (new ElectronCollection);
    auto_ptr<MuonCollection>     muon (new MuonCollection);
@@ -73,10 +83,12 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<CaloJetCollection>  jets (new CaloJetCollection);
    auto_ptr<CaloMETCollection>  mets (new CaloMETCollection);
 
-   // photons, electrons, muons and taus: generator level
+   // as well as charged tracks and elmg. superclusters
+   auto_ptr<RecoChargedCandidateCollection> trck (new RecoChargedCandidateCollection);
+   auto_ptr<RecoEcalCandidateCollection>    ecal (new RecoEcalCandidateCollection);
+
    // jets and MET are special: check whether clustered jets and mets
    // exist already
-
    int njets(-1);
    edm::Handle<GenJetCollection> mcjets;
    try {iEvent.getByLabel(jetsTag_,mcjets);} catch (...) {;}
@@ -100,6 +112,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
    }
 
+   // photons, electrons, muons and taus: generator level
+   // tracks: all charged particles; superclusters: electrons and photons
 
    // get hold of generator records
    vector<edm::Handle<edm::HepMCProduct> > hepmcs;
@@ -115,26 +129,38 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        // stable particles only!
        if ( (*pitr)->status()==1) {
-	 // 4-momentum
-	 HepLorentzVector p((*pitr)->momentum()) ;
-         math::XYZTLorentzVector 
-	   p4(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
-
 	 // particle type
-	 int ipdg = (*pitr)->pdg_id();
+	 const int ipdg((*pitr)->pdg_id());
+	 // 4-momentum
+	 const HepLorentzVector p((*pitr)->momentum());
+         const math::XYZTLorentzVector 
+	   p4(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
+	 // charge from HepPDT
+	 const int charge((int)(pdt->particle(ipdg)->charge()));
+
+	 // charged particles yield tracks
+	 if ( charge!= 0 ) {
+	   trck->push_back(RecoChargedCandidate(charge/abs(charge),p4));
+	 }
+
 	 if (abs(ipdg)==11) {
-	   elec->push_back(Electron(-ipdg/abs(ipdg),p4));
+	   // e+ e-
+	   elec->push_back(    Electron     (-ipdg/abs(ipdg),p4));
+	   ecal->push_back(RecoEcalCandidate(-ipdg/abs(ipdg),p4));
 	 } else if (abs(ipdg)==13) {
+	   // mu+ mu-
 	   muon->push_back(Muon(-ipdg/abs(ipdg),p4));
-	 } else if (abs(ipdg)==15) {
-	   // taus
+	 } else if (abs(ipdg)==15 || abs(ipdg)==17) {
+	   // tau+ tau- or 4th generation tau'+ tau'-
 	   CaloJet::Specific specific;
 	   vector<CaloTowerDetId> ctdi(0);
 	   taus->push_back(CaloJet(p4,specific,ctdi));
 	 } else if (abs(ipdg)==22) {
-	   phot->push_back(Photon(0,p4));
-	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16) {
-	   // neutrinos
+	   // photon
+	   phot->push_back(    Photon       (0,p4));
+	   ecal->push_back(RecoEcalCandidate(0,p4));
+	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16 || abs(ipdg)==18) {
+	   // neutrinos (e mu tau 4th generation)
 	   if (nmets==-1) {
 	     SpecificCaloMETData specific;
 	     mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
@@ -151,13 +177,15 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   LogTrace("") << "Number of g/e/m/t/j/M objects reconstructed:"
+   LogTrace("") << "Number of g/e/m/t/j/M/SC/TR objects reconstructed:"
 		<< " " << phot->size()
 		<< " " << elec->size()
 		<< " " << muon->size()
 		<< " " << taus->size()
 		<< " " << jets->size()
 		<< " " << mets->size()
+		<< " " << ecal->size()
+		<< " " << trck->size()
                 ;
 
    // put them into the event
@@ -168,6 +196,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(taus,"taus");
    iEvent.put(jets,"jets");
    iEvent.put(mets);
+   iEvent.put(ecal);
+   iEvent.put(trck);
 
    return;
 }

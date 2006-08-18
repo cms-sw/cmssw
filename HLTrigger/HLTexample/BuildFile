@@ -1,5 +1,6 @@
 <use name=PhysicsTools/Utilities>
 <use name=SimDataFormats/HepMCProduct>
+<use name=SimGeneral/HepPDTRecord>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/MuonReco>
