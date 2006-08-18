@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,9 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -35,13 +38,17 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   tausTag_ (iConfig.getParameter<edm::InputTag>("tausTag")),
   jetsTag_ (iConfig.getParameter<edm::InputTag>("jetsTag")),
   metsTag_ (iConfig.getParameter<edm::InputTag>("metsTag")),
+  trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
+  ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
 
   phot_pt_ (iConfig.getParameter<double>("photPt")),
   elec_pt_ (iConfig.getParameter<double>("elecPt")),
   muon_pt_ (iConfig.getParameter<double>("muonPt")),
   taus_pt_ (iConfig.getParameter<double>("tausPt")),
   jets_pt_ (iConfig.getParameter<double>("jetsPt")),
-  mets_pt_ (iConfig.getParameter<double>("metsPt"))
+  mets_pt_ (iConfig.getParameter<double>("metsPt")),
+  trck_pt_ (iConfig.getParameter<double>("trckPt")),
+  ecal_pt_ (iConfig.getParameter<double>("ecalPt"))
 {
    LogDebug("")
    << " g: " << photTag_.encode() << " " << phot_pt_
@@ -50,6 +57,8 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
    << " t: " << tausTag_.encode() << " " << taus_pt_
    << " j: " << jetsTag_.encode() << " " << jets_pt_
    << " M: " << metsTag_.encode() << " " << mets_pt_
+   <<" TR: " << trckTag_.encode() << " " << trck_pt_
+   <<" SC: " << ecalTag_.encode() << " " << ecal_pt_
    ;
 
    //register your products
@@ -93,6 +102,8 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<CaloJetCollection>  taus;
    Handle<CaloJetCollection>  jets;
    Handle<CaloMETCollection>  mets;
+   Handle<RecoChargedCandidateCollection> trcks;
+   Handle<RecoEcalCandidateCollection>    ecals;
 
    iEvent.getByLabel(photTag_,photons  );
    iEvent.getByLabel(elecTag_,electrons);
@@ -100,95 +111,133 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(tausTag_,taus     );
    iEvent.getByLabel(jetsTag_,jets     );
    iEvent.getByLabel(metsTag_,mets     );
+   iEvent.getByLabel(trckTag_,trcks    );
+   iEvent.getByLabel(metsTag_,ecals    );
 
 
-   // look for at least one g,e,m,t,j,M above its pt cut
+   // look for at least one g,e,m,t,j,M,TR,SC above its pt cut
 
    // photons
-   bool         bphot(false);
+   int nphot(0);
    PhotonCollection::const_iterator aphot(photons->begin());
    PhotonCollection::const_iterator ophot(photons->end());
    PhotonCollection::const_iterator iphot;
    for (iphot=aphot; iphot!=ophot; iphot++) {
      if (iphot->pt() >= phot_pt_) {
-       bphot=true;
+       nphot++;
        ref=RefToBase<Candidate>(PhotonRef(photons,distance(aphot,iphot)));
        filterobject->putParticle(ref);
      }
    }
 
    // electrons
-   bool         belec(false);
+   int nelec(0);
    ElectronCollection::const_iterator aelec(electrons->begin());
    ElectronCollection::const_iterator oelec(electrons->end());
    ElectronCollection::const_iterator ielec;
    for (ielec=aelec; ielec!=oelec; ielec++) {
      if (ielec->pt() >= elec_pt_) {
-       belec=true;
+       nelec++;
        ref=RefToBase<Candidate>(ElectronRef(electrons,distance(aelec,ielec)));
        filterobject->putParticle(ref);
      }
    }
 
    // muon
-   bool         bmuon(false);
+   int nmuon(0);
    MuonCollection::const_iterator amuon(muons->begin());
    MuonCollection::const_iterator omuon(muons->end());
    MuonCollection::const_iterator imuon;
    for (imuon=amuon; imuon!=omuon; imuon++) {
      if (imuon->pt() >= muon_pt_) {
-       bmuon=true;
+       nmuon++;
        ref=RefToBase<Candidate>(MuonRef(muons,distance(amuon,imuon)));
        filterobject->putParticle(ref);
      }
    }
 
    // taus (are stored as jets)
-   bool         btaus(false);
+   int ntaus(0);
    CaloJetCollection::const_iterator ataus(taus->begin());
    CaloJetCollection::const_iterator otaus(taus->end());
    CaloJetCollection::const_iterator itaus;
    for (itaus=ataus; itaus!=otaus; itaus++) {
      if (itaus->pt() >= taus_pt_) {
-       btaus=true;
+       ntaus++;
        ref=RefToBase<Candidate>(CaloJetRef(taus,distance(ataus,itaus)));
        filterobject->putParticle(ref);
      }
    }
 
    // jets
-   bool         bjets(false);
+   int njets(0);
    CaloJetCollection::const_iterator ajets(jets->begin());
    CaloJetCollection::const_iterator ojets(jets->end());
    CaloJetCollection::const_iterator ijets;
    for (ijets=ajets; ijets!=ojets; ijets++) {
      if (ijets->pt() >= jets_pt_) {
-       bjets=true;
+       njets++;
        ref=RefToBase<Candidate>(CaloJetRef(jets,distance(ajets,ijets)));
        filterobject->putParticle(ref);
      }
    }
 
    // mets
-   bool         bmets(false);
+   int nmets(0);
    CaloMETCollection::const_iterator amets(mets->begin());
    CaloMETCollection::const_iterator omets(mets->end());
    CaloMETCollection::const_iterator imets;
    for (imets=amets; imets!=omets; imets++) {
      if (imets->pt() >= mets_pt_) {
-       bmets=true;
+       nmets++;
        ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
        filterobject->putParticle(ref);
      }
    }
 
+   // trcks
+   int ntrck(0);
+   RecoChargedCandidateCollection::const_iterator atrcks(trcks->begin());
+   RecoChargedCandidateCollection::const_iterator otrcks(trcks->end());
+   RecoChargedCandidateCollection::const_iterator itrcks;
+   for (itrcks=atrcks; itrcks!=otrcks; itrcks++) {
+     if (itrcks->pt() >= trck_pt_) {
+       ntrck++;
+       ref=RefToBase<Candidate>(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
+       filterobject->putParticle(ref);
+     }
+   }
+
+   // ecals
+   int necal(0);
+   RecoEcalCandidateCollection::const_iterator aecals(ecals->begin());
+   RecoEcalCandidateCollection::const_iterator oecals(ecals->end());
+   RecoEcalCandidateCollection::const_iterator iecals;
+   for (iecals=aecals; iecals!=oecals; iecals++) {
+     if (iecals->pt() >= ecal_pt_) {
+       necal++;
+       ref=RefToBase<Candidate>(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
+       filterobject->putParticle(ref);
+     }
+   }
 
    // final filter decision:
-   bool accept (bphot && belec && bmuon && btaus && bjets && bmets);
-
+   const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&
+		       (njets>0) && (nmets>0) && (ntrck>0) && (necal>0) );
 
    // All filters: put filter object into the Event
    iEvent.put(filterobject);
+
+   LogDebug("") << "Number of g/e/m/t/j/M/SC/TR objects accepted:"
+		<< " " << nphot
+		<< " " << nelec
+		<< " " << nmuon
+		<< " " << ntaus
+		<< " " << njets
+		<< " " << nmets
+		<< " " << necal
+		<< " " << ntrck
+                ;
 
    // return with final filter decision
    return accept;

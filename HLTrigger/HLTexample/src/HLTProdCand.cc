@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/18 13:21:28 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/08/18 13:35:34 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *
@@ -177,7 +177,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   LogTrace("") << "Number of g/e/m/t/j/M/SC/TR objects reconstructed:"
+   LogDebug("") << "Number of g/e/m/t/j/M/SC/TR objects reconstructed:"
 		<< " " << phot->size()
 		<< " " << elec->size()
 		<< " " << muon->size()
