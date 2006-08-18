@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/18 11:23:03 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/18 13:21:28 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -160,12 +160,14 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16 || abs(ipdg)==18) {
 	   // neutrinos (e mu tau 4th generation)
 	   if (nmets==-1) {
+	     // if no prepared mets, each becomes a met on its own (crude)!
 	     SpecificCaloMETData specific;
 	     mets->push_back(CaloMET(specific,p4.Et(),p4,math::XYZPoint(0,0,0)));
 	   }
 	 } else {
-	   // any other particle becomes a jet on its own (very crude)!
+	   // any other particle
 	   if (njets==-1) {
+	     // if no prepared jets, each becomes a jet on its own (crude)!
 	     CaloJet::Specific specific;
 	     vector<CaloTowerDetId> ctdi(0);
 	     jets->push_back(CaloJet(p4,specific,ctdi));
