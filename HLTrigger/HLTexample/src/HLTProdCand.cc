@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/18 11:23:03 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,6 @@
 
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -53,6 +52,8 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig) :
    produces<reco::CaloJetCollection>("taus");
    produces<reco::CaloJetCollection>("jets");
    produces<reco::CaloMETCollection>();
+   produces<reco::RecoChargedCandidateCollection>();
+   produces<reco::RecoEcalCandidateCollection>();
 
 }
 
@@ -71,9 +72,6 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace edm;
    using namespace reco;
-
-   ESHandle<DefaultConfig::ParticleDataTable> pdt;
-   iSetup.getData(pdt);
 
    // produce collections of photons, electrons, muons, taus, jets, MET
    auto_ptr<PhotonCollection>   phot (new PhotonCollection);
@@ -135,12 +133,12 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 const HepLorentzVector p((*pitr)->momentum());
          const math::XYZTLorentzVector 
 	   p4(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
-	 // charge from HepPDT
-	 const int charge((int)(pdt->particle(ipdg)->charge()));
+	 // charge
+	 const int qX3(HepPDT::ParticleID(ipdg).threeCharge());
 
 	 // charged particles yield tracks
-	 if ( charge!= 0 ) {
-	   trck->push_back(RecoChargedCandidate(charge/abs(charge),p4));
+	 if ( qX3 != 0 ) {
+	   trck->push_back(RecoChargedCandidate(qX3/abs(qX3),p4));
 	 }
 
 	 if (abs(ipdg)==11) {
