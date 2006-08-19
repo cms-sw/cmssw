@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.35 2006/07/23 01:24:36 valya Exp $
+ * $Id: pset_parse.y,v 1.36 2006/08/02 20:02:04 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -160,7 +160,13 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %%
 
 /* set global_gunk to be a NodePtrList pointer */
-main:            process
+main:            /*empty */
+                 {
+                   DBPRINT("main: empty");
+                   NodePtrList* p(new NodePtrList);
+                   global_gunk = p;
+                 }
+               | process
                  {
                    DBPRINT("main: process");
                    global_gunk = $<_NodePtrList>1;
