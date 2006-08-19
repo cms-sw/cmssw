@@ -21,6 +21,7 @@
     <query name="addToOrderList" arg="CHANNELVIEW.ID2" />
   </me> 
 
+  <me> 
     <th2d title="Occupancy Crystal with Max Energy SM22" xbins="85" xfrom="-0.5" xto="84.5" ybins="20" yfrom="-0.5" yto="19.5" ncycle="1" loop="1700"/>
     <query name="addToTableList"  arg="CHANNELVIEW" />
     <query name="addToTableList"  arg="MON_OCCUPANCY_DAT" />
@@ -54,6 +55,7 @@
     <query name="addToOrderList" arg="CHANNELVIEW.ID2" />
   </me> 
 
+  <me> 
     <th2d title="Occupancy Crystal with Max Energy SM18" xbins="85" xfrom="-0.5" xto="84.5" ybins="20" yfrom="-0.5" yto="19.5" ncycle="1" loop="1700"/>
     <query name="addToTableList"  arg="CHANNELVIEW" />
     <query name="addToTableList"  arg="MON_OCCUPANCY_DAT" />
@@ -87,6 +89,7 @@
     <query name="addToOrderList" arg="CHANNELVIEW.ID2" />
   </me> 
 
+  <me> 
     <th2d title="Occupancy Crystal with Max Energy SM16" xbins="85" xfrom="-0.5" xto="84.5" ybins="20" yfrom="-0.5" yto="19.5" ncycle="1" loop="1700"/>
     <query name="addToTableList"  arg="CHANNELVIEW" />
     <query name="addToTableList"  arg="MON_OCCUPANCY_DAT" />
