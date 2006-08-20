@@ -1,0 +1,25 @@
+<use name=boost>
+<use name=root> 
+<use name=DQM/SiStripCommon>
+<use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=xdaq>
+<use name=xerces-c>
+<export>
+  <lib name=DQMSiStripHistoricClient>
+  <use name=root>
+  <use name=boost>
+  <use name=DQM/SiStripCommon>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/NodeROOT>
+  <use name=DQMServices/Daemon>
+  <use name=DQMServices/UI>
+  <use name=DQMServices/Components>
+  <use name=DQMServices/WebComponents>
+  <use name=xdaq>
+  <use name=xerces-c>
+</export>
