@@ -37,10 +37,9 @@ show_usage(){
 if [ -z $1 ]; then show_usage; exit $OPTERROR; fi
 #
 # echo "OPTIND=$OPTIND"; echo "#=$#";
-while getopts ":r:p:f:l:w:d:t:h" Option
+while getopts ":r:p:f:l:w:o:t:h" Option
 do
   case $Option in
-    h)	show_usage; exit 0;;
     r)	RUNNR=$OPTARG; echo "will reconstruct RUNNR=$RUNNR" ;;
     p)	PED_RUNNR=$OPTARG; echo "will create pedestals from PED_RUNNR=$PED_RUNNR" ;;
     f)	FIRSTFILE=$OPTARG; echo "first file of run to be reconstructed FIRSTFILE=$FIRSTFILE" ;;
@@ -48,6 +47,7 @@ do
     w)	WHICH_INPUT_FILES=$OPTARG; echo "WHICH_INPUT_FILES=$WHICH_INPUT_FILES" ;;
     o)  WHERE_TO_COPY_OUTPUT=$OPTARG; echo "WHERE_TO_COPY_OUTPUT=$WHERE_TO_COPY_OUTPUT" ;;
     t)  INPUT_FILE_ENDING=$OPTARG; echo "INPUT_FILE_ENDING=$INPUT_FILE_ENDING" ;;
+    h)	show_usage; exit 0;;
     *)	echo "No such option -${Option}";;
   esac
 done

@@ -36,13 +36,13 @@ show_usage(){
 if [ -z $1 ]; then show_usage; exit $OPTERROR; fi
 #
 # echo "OPTIND=$OPTIND"; echo "#=$#";
-while getopts ":r:i:o:t:h" Option
+while getopts ":r:i:o:h" Option
 do
   case $Option in
-    h)  show_usage; exit 0;;
     r)  RUNNR=$OPTARG; echo "will reconstruct RUNNR=$RUNNR" ;;
     i)  WHICH_INPUT_DIRECTORY=$OPTARG; echo "WHICH_INPUT_DIRECTORY=$WHICH_INPUT_DIRECTORY" ;;
     o)  WHERE_TO_COPY_OUTPUT=$OPTARG; echo "WHERE_TO_COPY_OUTPUT=$WHERE_TO_COPY_OUTPUT" ;;
+    h)  show_usage; exit 0;;
     *)  echo "No such option -${Option}";;
   esac
 done
