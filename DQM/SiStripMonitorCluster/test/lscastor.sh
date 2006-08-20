@@ -1,6 +1,7 @@
 #!/bin/sh
 RUNNR=$1
 CASTOR_MTCC_DIR="/castor/cern.ch/cms/MTCC/data/"
+echo $CASTOR_MTCC_DIR
 
 case $# in
 0)
