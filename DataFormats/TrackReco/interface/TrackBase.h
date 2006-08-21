@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.30 2006/08/03 14:06:55 vanlaer Exp $
+ * \version $Id: TrackBase.h,v 1.31 2006/08/03 14:20:19 vanlaer Exp $
  *
  */
 
@@ -110,15 +110,15 @@ namespace reco {
     double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
     
     /// error on signed transverse curvature
-    double transverseCurvatureError() const { return covariance_[ idx( i_transverseCurvature, i_transverseCurvature ) ]; }
+    double transverseCurvatureError() const { error( i_transverseCurvature ); }
     /// error on theta
-    double thetaError() const { return covariance_[ idx( i_theta, i_theta ) ]; }
+    double thetaError() const { return error( i_theta ); }
     /// error on phi0
-    double phi0Error() const { return covariance_[ idx ( i_phi0, i_phi0 ) ]; }
+    double phi0Error() const { return error( i_phi0 ); }
     /// error on d0
-    double d0Error() const { return covariance_[ idx( i_d0, i_d0 ) ]; }
+    double d0Error() const { return error( i_d0 ); }
     /// error on dx
-    double dzError() const { return covariance_[ idx( i_dz, i_dz ) ]; }
+    double dzError() const { return error( i_dz ); }
     /// return SMatrix
     CovarianceMatrix covariance() const { CovarianceMatrix m; fill( m ); return m; }
     /// fill SMatrix
