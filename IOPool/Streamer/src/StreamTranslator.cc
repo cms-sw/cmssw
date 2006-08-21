@@ -12,6 +12,8 @@
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "zlib.h"
+
 using namespace std;
 
 namespace edm
@@ -86,7 +88,8 @@ namespace edm
    * Serializes the specified event into the specified event message.
    */
   int StreamTranslator::serializeEvent(EventPrincipal const& eventPrincipal,
-                                       EventMsgBuilder& eventMessage)
+                                       EventMsgBuilder& eventMessage,
+                                       bool use_compression, int compression_level)
   {
     SendEvent se(eventPrincipal.id(),eventPrincipal.time());
 
@@ -158,7 +161,48 @@ namespace edm
       }
      
     eventMessage.setEventLength(rootbuf.Length()); 
-    return rootbuf.Length();
+    // compress before return if we need to
+    // should test if compressed already - should never be?
+    //   as double compression can have problems
+    if(use_compression)
+    {
+      vector<unsigned char> dest;
+      //unsigned long dest_size = 7008*1000; //(should be > rootbuf.Length()*1.001 + 12)
+      unsigned long dest_size = (unsigned long)(double(rootbuf.Length())*1.002 + 1.0) + 12;
+      FDEBUG(10) << "rootbuf size = " << rootbuf.Length() << " dest_size = "
+           << dest_size << endl;
+      dest.resize(dest_size);
+      // compression 1-9, 6 is zlib default, 0 none
+      int ret = compress2(&dest[0], &dest_size, (unsigned char*)eventMessage.eventAddr(),
+                          rootbuf.Length(), compression_level); 
+      if(ret == Z_OK) {
+        // copy compressed data back into buffer and resize
+        unsigned char* pos = (unsigned char*) eventMessage.eventAddr();
+        unsigned char* from = (unsigned char*) &dest[0];
+        unsigned int oldsize = rootbuf.Length();
+        copy(from,from+dest_size,pos);
+        eventMessage.setEventLength(dest_size);
+        // and set reserved to original size for test and needed for buffer size
+        eventMessage.setReserved(oldsize);
+        // return the correct length
+        FDEBUG(10) << " original size = " << oldsize << " final size = " << dest_size
+             << " ratio = " << double(dest_size)/double(oldsize) << endl;
+        return dest_size;
+      }
+      else
+      {
+        // compression failed, just return the original buffer
+        FDEBUG(9) <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
+        // do we throw an exception here?
+        cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
+        return rootbuf.Length();
+      }
+    }
+    else
+    {
+      // just return the original buffer
+      return rootbuf.Length();
+    }
   }
 
   /**
@@ -207,8 +251,59 @@ namespace edm
          << eventView.eventLength() << " "
          << eventView.eventData()
          << endl;
-    TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
-                 (char*) eventView.eventData(),kFALSE);
+    // uncompress if we need to
+    // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
+    // need to get rid of this when 090 MTCC streamers are gotten rid of
+    unsigned long origsize = eventView.reserved();
+    ///unsigned char dest[7008*1000];
+    vector<unsigned char> dest;
+    unsigned long dest_size = 7008*1000; //(should be >= eventView.reserved() )
+    if(eventView.reserved() != 78 && eventView.reserved() != 0)
+    {
+      dest_size = eventView.reserved();
+      dest.resize(dest_size);
+      int ret = uncompress(&dest[0], &dest_size, (unsigned char*)eventView.eventData(),
+                          eventView.eventLength()); // do not need compression level
+      //cout<<"unCompress Return value: "<<ret<< " Okay = " << Z_OK << endl;
+      if(ret == Z_OK) {
+        // check the length against original uncompressed length
+        FDEBUG(10) << " original size = " << origsize << " final size = " 
+                   << dest_size << endl;
+        if(origsize != dest_size) {
+          cerr << "deserializeEvent: Problem with uncompress, original size = "
+               << origsize << " uncompress size = " << dest_size << endl;
+          // we throw an error and return without event! null pointer
+          throw cms::Exception("StreamTranslation","Deserialization error")
+            << "mismatch event lengths should be" << origsize << " got "
+            << dest_size << "\n";
+          // do I need to return here?
+          return (std::auto_ptr<edm::EventPrincipal>)NULL;
+        }
+      }
+      else
+      {
+        // we throw an error and return without event! null pointer
+        cerr << "deserializeEvent: Problem with uncompress, return value = "
+             << ret << endl;
+        throw cms::Exception("StreamTranslation","Deserialization error")
+            << "Error code = " << ret << "\n ";
+        // do I need to return here?
+        return (std::auto_ptr<edm::EventPrincipal>)NULL;
+      }
+    }
+    else // not compressed
+    {
+      // we need to copy anyway the buffer as we are using dest in xbuf
+      dest_size = eventView.eventLength();
+      dest.resize(dest_size);
+      unsigned char* pos = (unsigned char*) &dest[0];
+      unsigned char* from = (unsigned char*) eventView.eventData();
+      copy(from,from+dest_size,pos);
+    }
+    TBuffer xbuf(TBuffer::kRead, dest_size,
+                 (char*) &dest[0],kFALSE);
+    //TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
+    //             (char*) eventView.eventData(),kFALSE);
     RootDebug tracer(10,10);
     TClass* tc = getTClass(typeid(SendEvent));
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(tc));

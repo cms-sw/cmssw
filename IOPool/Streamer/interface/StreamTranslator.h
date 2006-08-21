@@ -28,7 +28,8 @@ namespace edm
 
     int serializeRegistry(InitMsgBuilder& initMessage);   
     int serializeEvent(EventPrincipal const& eventPrincipal,
-                       EventMsgBuilder& eventMessage);
+                       EventMsgBuilder& eventMessage,
+                       bool use_compression, int compression_level);
 
     static std::auto_ptr<SendJobHeader>
         deserializeRegistry(InitMsgView const& initView);
