@@ -27,7 +27,7 @@ int AlignmentIORootBase::openRoot(char* filename, int iteration, bool write)
 		  << "Write to existing file; highest iteration: " << iter;
       }
       else {
-        if (iteration==0 || iteration<=iterfile) {
+        if (iteration<=iterfile) {
 		  edm::LogError("AlignmentIORootBase") 
 			<< "Iteration " << iteration 
 			<<" invalid or already exists for tree " << treename;
@@ -53,7 +53,7 @@ int AlignmentIORootBase::openRoot(char* filename, int iteration, bool write)
     if ( iterfile == -1 ) {
 	  edm::LogError("AlignmentIORootBase") << "File does not exist!";
       return -1;
-    } else if ( iterfile == 0 ) {
+    } else if ( iterfile == -2 ) {
 	  edm::LogError("AlignmentIORootBase") << "Tree " << treename 
 										   << " does not exist in file " << filename;
       return -1;
@@ -62,7 +62,7 @@ int AlignmentIORootBase::openRoot(char* filename, int iteration, bool write)
         iter=iterfile;
 		edm::LogInfo("AlignmentIORootBase") << "Read from highest iteration: " << iter;
       } else {
-        if (iteration<1 || iteration>iterfile) {
+        if (iteration>iterfile) {
 		  edm::LogError("AlignmentIORootBase")
 			<<"Iteration " << iteration << " does not exist for tree " << treename;
 		  return -1;
@@ -120,9 +120,9 @@ int AlignmentIORootBase::testFile(char* filename, TString tname)
   }
   else {
     fclose(testFILE);
-    int ihighest=0;
+    int ihighest=-2;
     TFile IORoot(filename,"update");
-    for (int iter=1; iter<itermax; iter++) {
+    for (int iter=0; iter<itermax; iter++) {
       if ((0 != (TTree*)IORoot.Get(treeName(iter,tname))) 
          && (iter>ihighest)) ihighest=iter; 
     }
