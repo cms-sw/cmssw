@@ -23,7 +23,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer
  *
- * \version $Id: TrackBase.h,v 1.31 2006/08/03 14:20:19 vanlaer Exp $
+ * \version $Id: TrackBase.h,v 1.32 2006/08/21 13:15:40 llista Exp $
  *
  */
 
@@ -110,7 +110,7 @@ namespace reco {
     double error( int i ) const { return sqrt( covariance_[ idx( i, i ) ] ); }
     
     /// error on signed transverse curvature
-    double transverseCurvatureError() const { error( i_transverseCurvature ); }
+    double transverseCurvatureError() const { return error( i_transverseCurvature ); }
     /// error on theta
     double thetaError() const { return error( i_theta ); }
     /// error on phi0
