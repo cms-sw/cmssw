@@ -11,6 +11,7 @@
 #include <fstream>
 #include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
+#include "OnlineDB/CSCCondDB/interface/SaturationFit.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -40,7 +41,7 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
 #define DDU_sat 2
 
   ~CSCSaturationAnalyzer();
-  
+ 
  private:
   std::vector<int> newadc; 
   std::string chamber_id;
@@ -59,6 +60,15 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  float myCharge[25];
+  float myCharge[25],aVar,bVar;
   TH2F gain_vs_charge;
+  TH2F gain1_vs_charge;
+  TH2F gain2_vs_charge;
+  TH2F gain3_vs_charge;
+  TH2F gain4_vs_charge;
+  TH2F gain5_vs_charge;
+  TH2F gain6_vs_charge;
+  // float (*charge_ptr)[NUMBERPLOTTED_sat];
+  // float (*adc_ptr)[NUMMODTEN_sat];
+   
 };

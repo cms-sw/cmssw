@@ -36,8 +36,16 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
+  aVar=0.0,bVar=0.0;
 
-  gain_vs_charge = TH2F("Saturation","gain_vs_charge", 100,0,5000,100,0,600);
+  gain_vs_charge  = TH2F("Saturation ","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain1_vs_charge = TH2F("Saturation1","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain2_vs_charge = TH2F("Saturation2","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain3_vs_charge = TH2F("Saturation3","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain4_vs_charge = TH2F("Saturation4","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain5_vs_charge = TH2F("Saturation5","ADC_vs_charge", 100,0,600,100,0,4000);
+  gain6_vs_charge = TH2F("Saturation6","ADC_vs_charge", 100,0,600,100,0,4000);
+
 
   for (int i=0; i<NUMMODTEN_sat; i++){
     for (int j=0; j<CHAMBERS_sat; j++){
@@ -49,11 +57,11 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
     }
   }
   
-
+  
   for (int i=0; i<CHAMBERS_sat; i++){
     size[i]  = 0;
   }
-
+  
   for (int iii=0;iii<DDU_sat;iii++){
     for (int i=0; i<CHAMBERS_sat; i++){
       for (int j=0; j<LAYERS_sat; j++){
@@ -64,7 +72,7 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
       }
     }
   }
-
+  
   for (int i=0; i<480; i++){
     newGain[i]     =0.0;
     newIntercept[i]=0.0;
@@ -91,7 +99,7 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-
+      
       evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
@@ -150,7 +158,7 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	    }
 	  }
 	}
-
+	
       	eventNumber++;
 	edm::LogInfo ("CSCSaturationAnalyzer")  << "end of event number " << eventNumber;
       }
@@ -159,6 +167,8 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 }
 
 CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
+  //  delete theOBJfun;
+
   //get time of Run file for DB transfer
   filein.open("../test/CSCsaturation.cfg");
   filein.ignore(1000,'\n');
@@ -194,19 +204,25 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   CSCobject *cn = new CSCobject();
   cscmap *map = new cscmap();
   condbon *dbon = new condbon();
-    
+  
   //root ntuple information
   TCalibSaturationEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Saturation");
   calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I");
   gain_vs_charge.Write();
-
+  gain1_vs_charge.Write();
+  gain2_vs_charge.Write();
+  gain3_vs_charge.Write();
+  gain4_vs_charge.Write();
+  gain5_vs_charge.Write();
+  gain6_vs_charge.Write();
+  
   for (int dduiter=0;dduiter<Nddu;dduiter++){
     for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
       for (int cham=0;cham<NChambers;cham++){
 	if (cham !=chamberiter) continue;
-	  
+	
 	//get chamber ID from DB mapping        
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
@@ -215,7 +231,7 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
 	calib_evt.id=chamber_num;
-
+	
 	for (int layeriter=0; layeriter<LAYERS_sat; layeriter++){
 	  for (int stripiter=0; stripiter<STRIPS_sat; stripiter++){
 	    
@@ -234,57 +250,75 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		float gainSlope = 0.0;
 		float gainIntercept = 0.0;
 		float chi2      = 0.0;
+		float chi2_sat  = 0.0;
 		
-		float charge[NUMBERPLOTTED_sat]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0, 246.4, 268.8, 291.2, 313.6, 336.0, 358.4, 380.8, 403.2, 425.6, 448.0, 470.4, 492.8, 515.2, 537.6, 560.0};
+		float charge[NUMBERPLOTTED_sat]={22.4, 44.8, 67.2, 89.6, 112.0, 134.4, 156.8, 179.2, 201.6, 224.0, 246.4, 268.8, 291.2, 313.6, 336.0, 358.4, 380.8, 403.2, 425.6, 448.0, 470.4, 492.8, 515.2, 537.6, 560.0};
 		
+
 		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
 		  sumOfX  += charge[ii];
 		  sumOfY  += maxmodten[ii][cham][j][k];
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
 		  myCharge[ii] = 22.4 +(22.4*ii);
-		  gain_vs_charge.Fill(maxmodten[ii][cham][j][k],myCharge[ii]);
-		}
-		
-		//Fit parameters for straight line
-		gainSlope     = ((NUMBERPLOTTED_sat*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_sat*sumx2) - (sumOfX*sumOfX));//k
-		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_sat*sumx2)-(sumOfX*sumOfX));//m
-		
-		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){
-		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_sat*NUMBERPLOTTED_sat);
+		  gain_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==0 && j==1 && k==10) {
+		    gain1_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		    std::cout <<" this are my pairs "<<myCharge[ii]<<"   "<<maxmodten[ii][cham][j][k]<<std::endl;
 		  }
-		
-		std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
-		
-		calib_evt.slope     = gainSlope;
-		calib_evt.intercept = gainIntercept;
-		calib_evt.chi2      = chi2;
-		calib_evt.strip     = k;
-		calib_evt.layer     = j;
-		calib_evt.cham      = cham;
+		  if(cham==0 && j==1 && k==20) gain2_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==0 && j==1 && k==30) gain3_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==0 && j==1 && k==40) gain4_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==0 && j==1 && k==50) gain5_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==0 && j==1 && k==60) gain6_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		  
-		calibtree.Fill();
+		  float (*charge_ptr)[NUMBERPLOTTED_sat] = &charge;
+		  float (*adc_ptr)[NUMBERPLOTTED_sat]    = &maxmodten;
+
+		  //Fit parameters for straight line
+		  gainSlope     = ((NUMBERPLOTTED_sat*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_sat*sumx2) - (sumOfX*sumOfX));//k
+		  gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_sat*sumx2)-(sumOfX*sumOfX));//m
 		  
-		cn->obj[layer_id][k].resize(3);
-		cn->obj[layer_id][k][0] = gainSlope;
-		cn->obj[layer_id][k][1] = gainIntercept;
-		cn->obj[layer_id][k][2] = chi2;
-	      }//k loop
+		  for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){
+		    chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_sat*NUMBERPLOTTED_sat);
+
+		    chi2_sat +=gainSlope -(aVar*charge[ii]/(bVar+charge[ii]));
+		  }
+		  
+		  calib_evt.slope     = gainSlope;
+		  calib_evt.intercept = gainIntercept;
+		  calib_evt.chi2      = chi2;
+		  calib_evt.strip     = k;
+		  calib_evt.layer     = j;
+		  calib_evt.cham      = cham;
+		  
+		  calibtree.Fill();
+		  
+		  cn->obj[layer_id][k].resize(3);
+		  cn->obj[layer_id][k][0] = gainSlope;
+		  cn->obj[layer_id][k][1] = gainIntercept;
+		  cn->obj[layer_id][k][2] = chi2;
+		}//number_plotted
+	      }//strip
 	    }//j loop
 	  }//stripiter loop
 	}//layiter loop
       }//cham 
     }//chamberiter
   }//dduiter
-    
+
   //send data to DB
   dbon->cdbon_last_record("gains",&record);
   std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
   gain_vs_charge.Write();
+  gain1_vs_charge.Write();
+  gain2_vs_charge.Write();
+  gain3_vs_charge.Write();
+  gain4_vs_charge.Write();
+  gain5_vs_charge.Write();
+  gain6_vs_charge.Write();
+  
   calibfile.Write();
   calibfile.Close();
-  }
-
-
-
+}
