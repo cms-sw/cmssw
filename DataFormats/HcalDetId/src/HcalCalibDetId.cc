@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 HcalCalibDetId::HcalCalibDetId() : HcalOtherDetId() {
 }
@@ -14,21 +15,21 @@ HcalCalibDetId::HcalCalibDetId(SectorId sector, int rbx, int channel) : HcalOthe
 
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   if (subdet()!=HcalCalibration) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
   }
 }
 
 HcalCalibDetId& HcalCalibDetId::operator=(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   if (subdet()!=HcalCalibration) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   return *this;
 }

@@ -1,4 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include <ostream>
 
 HcalOtherDetId::HcalOtherDetId() {
 }
@@ -13,14 +15,14 @@ HcalOtherDetId::HcalOtherDetId(HcalOtherSubdetector other_type)
   
 HcalOtherDetId::HcalOtherDetId(const DetId& gen) {
   if (gen.det()!=Hcal || gen.subdetId()!=HcalOther) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize HcalOtherDetId from " << std::hex << gen.rawId() << std::dec;
   }
   id_=gen.rawId();    
 }
   
 HcalOtherDetId& HcalOtherDetId::operator=(const DetId& gen) {
   if (gen.det()!=Hcal || gen.subdetId()!=HcalOther) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign HcalOtherDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   return *this;

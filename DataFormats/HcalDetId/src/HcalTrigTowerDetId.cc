@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 const HcalTrigTowerDetId HcalTrigTowerDetId::Undefined(0x4a000000u);
 
@@ -16,14 +17,14 @@ HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi) : DetId(Hcal,HcalTrig
 
 HcalTrigTowerDetId::HcalTrigTowerDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize HcalTrigTowerDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
 }
 
 HcalTrigTowerDetId& HcalTrigTowerDetId::operator=(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign HcalTrigTowerDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   return *this;

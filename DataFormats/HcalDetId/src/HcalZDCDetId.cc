@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 HcalZDCDetId::HcalZDCDetId() : HcalOtherDetId() {
 }
@@ -15,21 +16,21 @@ HcalZDCDetId::HcalZDCDetId(Section section, bool true_for_positive_eta, int dept
 
 HcalZDCDetId::HcalZDCDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize ZDCDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   if (subdet()!=HcalZDC) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot initialize ZDCDetId from " << std::hex << gen.rawId() << std::dec; 
   }
 }
 
 HcalZDCDetId& HcalZDCDetId::operator=(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign ZDCDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   id_=gen.rawId();
   if (subdet()!=HcalZDC) {
-    throw new std::exception();
+    throw cms::Exception("Invalid DetId") << "Cannot assign ZDCDetId from " << std::hex << gen.rawId() << std::dec; 
   }
   return *this;
 }

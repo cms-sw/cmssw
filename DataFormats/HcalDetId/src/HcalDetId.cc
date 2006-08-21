@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 
@@ -22,7 +23,7 @@ HcalDetId::HcalDetId(const DetId& gen) {
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
 	 subdet!=HcalOuter && subdet!=HcalForward ))
       {
-	throw new std::exception();
+	throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
       }  
   }
   id_=gen.rawId();
@@ -35,7 +36,7 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
 	 subdet!=HcalOuter && subdet!=HcalForward ))
       {
-	throw new std::exception();
+	throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
       }  
   }
   id_=gen.rawId();
