@@ -71,6 +71,8 @@ namespace edm
     SBuffer bufs_;
 
     int maxEventSize_;
+    bool useCompression_;
+    int compressionLevel_;
 
     Consumer* c_;
     StreamTranslator* translator_;
@@ -84,9 +86,24 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   selections_(&descVec_),
   prod_reg_buf_(1000 * 1000),
   maxEventSize_(ps.template getParameter<int>("max_event_size")),
+  useCompression_(ps.template getParameter<bool>("use_compression")),
+  compressionLevel_(ps.template getParameter<int>("compression_level")),
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
   translator_(new StreamTranslator(selections_))
   {
+    if(useCompression_ == true)
+    {
+      if(compressionLevel_ <= 0) {
+        FDEBUG(9) << "Compression Level = " << compressionLevel_ 
+                  << " no compression" << std::endl;
+        compressionLevel_ = 0;
+        useCompression_ = false;
+      } else if(compressionLevel_ > 9) {
+        FDEBUG(9) << "Compression Level = " << compressionLevel_ 
+                  << " using max compression level 9" << std::endl;
+        compressionLevel_ = 9;
+      }
+    }
     bufs_.resize(maxEventSize_);
     edm::loadExtraClasses();
   }
@@ -188,16 +205,16 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;
     uint8 hltbits[] = "4567";
     const int hltsize = 9;//(sizeof(hltbits)-1)*4;
-    uint32 reserved=78;
+    uint32 reserved=0; // no compression as default value - we need this!
     //End of dummy data
 
     std::auto_ptr<EventMsgBuilder> msg( 
                            new EventMsgBuilder(&bufs_[0], bufs_.size(),
                            e.id().run(), e.id().event(), lumi,
                            l1bit, hltbits, hltsize) );
-    msg->setReserved(reserved);
+    msg->setReserved(reserved); // we need this set to zero
 
-    translator_->serializeEvent(e, *msg);
+    translator_->serializeEvent(e, *msg, useCompression_, compressionLevel_);
 
     return msg;
 }
