@@ -2,7 +2,7 @@
 #define Utilities_PersistentNames_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PersistentNames.h,v 1.3 2006/07/06 01:41:03 wmtan Exp $
+// $Id: PersistentNames.h,v 1.4 2006/07/11 22:40:00 wmtan Exp $
 //
 // Functions defining tree, branch, and container names.
 // Namespace rootNames. Defined names of ROOT trees and branches
@@ -11,6 +11,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <string>
 namespace edm {
 
   namespace poolNames {
