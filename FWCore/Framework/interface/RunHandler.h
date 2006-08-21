@@ -8,6 +8,7 @@
 //    How many other sorts of interface should there be?
 
 namespace edm {
+  class Run;
   class RunHandler {
   public:
     virtual ~RunHandler();
