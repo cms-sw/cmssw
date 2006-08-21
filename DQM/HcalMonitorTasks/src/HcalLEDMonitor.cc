@@ -173,6 +173,9 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   } catch (...) {
     cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
   }
+
+  return;
+
 }
 
 void HcalLEDMonitor::done(){

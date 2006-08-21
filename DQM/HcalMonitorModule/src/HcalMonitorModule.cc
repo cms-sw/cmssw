@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/15 19:58:37 $
- * $Revision: 1.12 $
+ * $Date: 2006/08/15 23:04:17 $
+ * $Revision: 1.13 $
  * \author W Fisher
  *
 */
@@ -90,7 +90,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   offline_ = ps.getUntrackedParameter<bool>("OffLine", false);
 
-  if ( m_dbe ) m_dbe->showDirStructure();
+  //  if ( m_dbe ) m_dbe->showDirStructure();
   
 }
 
@@ -136,17 +136,17 @@ void HcalMonitorModule::endJob(void) {
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_meRunNum ) m_meRunNum->Fill(m_runNum);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-
+  cout << "HcalMonitorModule::endJob, snooze..."<< endl;
   sleep(10);  
-
+  cout << "HcalMonitorModule::endJob, AWAKE!!..."<< endl;
   if(m_rhMon!=NULL) m_rhMon->done();
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_pedMon!=NULL) m_pedMon->done();
   if(m_ledMon!=NULL) m_ledMon->done();
-
+  cout << "HcalMonitorModule::endJob, done..."<< endl;
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
-
+  cout << "HcalMonitorModule::endJob, saved..."<< endl;
   return;
 }
 
@@ -173,7 +173,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // which contains it and then extract the object you need
   // edm::ESHandle<CaloGeometry> geometry;
   // eventSetup.get<IdealGeometryRecord>().get(geometry);
-
+  
   // get the hcal mapping
   edm::ESHandle<HcalDbService> pSetup;
   eventSetup.get<HcalDbRecord>().get( pSetup );
@@ -194,12 +194,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     try{e.getByType(hf);} catch(...){};
     try{e.getByType(ho);} catch(...){};
   }
-
+  
   // Digi-dependent monitor tasks
   if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) m_digiMon->processEvent(*hbhe,*ho,*hf);
   if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) m_pedMon->processEvent(*hbhe,*ho,*hf,*conditions);
   if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe,*ho,*hf,*conditions);
-
+  
   // Data Format monitor task
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
