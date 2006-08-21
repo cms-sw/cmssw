@@ -2,8 +2,8 @@
   <td class="colgroup" colspan=5>B and Tau tagging collections</td>
 </tr>
 <tr>
-  <td><a href="JetTracksAssociation_8h-source.html">reco::JetTrackAssociation</a></td>
-  <td><a href="DataFormats_BTauReco.html">reco::JetTracksAssociation</a></td>
+  <td><a href="JetTracksAssociation_8h-source.html">reco::JetTracksAssociation</a></td>
+  <td><a href="DataFormats_BTauReco.html">reco::JetTracksAssociationCollection</a></td>
   <td><a href="RecoBTau_JetTracksAssociator.html">jetTracksAssociator</a></td>
   <td class="description">Cone based tracks to jet associator</td>
   <td>A.Rizzi</td>
