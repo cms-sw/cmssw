@@ -11,14 +11,14 @@
 <tr>
   <td><a href="classreco_1_1JetTag.html">reco::JetTag</a></td>
   <td><a href="DataFormats_BTauReco.html">reco::JetTagCollection</a></td>
-  <td><a href="RecoVertex_PrimaryVertexProducer.html"> trackCountingJetTags::trackCountingJetTags</a></td>
+  <td><a href="RecoVertex_PrimaryVertexProducer.html"> trackCountingJetTags : : trackCountingJetTags</a></td>
   <td class="description">Base tagging information from track counting b-tagging</td>
   <td>A.Rizzi</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1TrackCountingTagInfo.html">reco::TrackCountingTagInfo</a></td>
   <td><a href="DataFormats_BTauReco.html">reco::TrackCountingTagInfoCollection</a></td>
-  <td><a href="RecoVertex_PrimaryVertexProducer.html"> JetTagsTrackCounting::trackCountingTagInfo</a></td>
+  <td><a href="RecoVertex_PrimaryVertexProducer.html"> JetTagsTrackCounting : : trackCountingTagInfo</a></td>
   <td class="description">Extended tagging information from track counting b-tagging</td>
   <td>A.Rizzi</td>
 </tr>
