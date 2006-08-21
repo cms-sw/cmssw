@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Apr 16 20:32:13 EDT 2006
-// $Id$
+// $Id: CPUTimer.h,v 1.1 2006/04/19 17:56:07 chrjones Exp $
 //
 
 // system include files
 #include <unistd.h>
+#include <sys/time.h>
 
 // user include files
 
