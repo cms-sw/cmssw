@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="IOPoolStreamer">
 <use name=boost>
+<use name=zlib>
 <use name=rootcore>
 <use name=FWCore/Framework>
 <use name=IOPool/Common>
@@ -7,6 +8,7 @@
 <export>
  <lib name=IOPoolStreamer>
  <use name=boost>
+ <use name=zlib>
  <use name=rootcore>
  <use name=FWCore/Framework>
  <use name=IOPool/Common>
