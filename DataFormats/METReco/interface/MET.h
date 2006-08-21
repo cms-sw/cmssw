@@ -21,7 +21,6 @@
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include <Rtypes.h>
 #include <cmath>

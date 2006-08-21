@@ -6,6 +6,9 @@
   <class name="SpecificCaloMETData"/>
   <class name="SpecificGenMETData"/>
 
+  <class name="CommonMETData"/>
+  <class name="std::vector<CommonMETData>"/>
+
   <class name="reco::MET"/>
   <class name="edm::Wrapper<reco::MET>"/>
   <class name="edm::Wrapper<std::vector<reco::MET> >"/>
