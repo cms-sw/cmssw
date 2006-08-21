@@ -5,7 +5,6 @@
 #include "HLTrigger/HLTexample/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 #include "HLTrigger/HLTexample/interface/HLTSimpleJet.h"
-#include "HLTrigger/HLTexample/interface/HLTJetTag.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -64,7 +63,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLTProdCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTFiltCand)
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalFilt)
 DEFINE_ANOTHER_FWK_MODULE(HLTSimpleJet)
-DEFINE_ANOTHER_FWK_MODULE(HLTJetTag)
 DEFINE_ANOTHER_FWK_MODULE(HLTLevel1Seed)
 DEFINE_ANOTHER_FWK_MODULE(HLTDoublet)
 
