@@ -10,7 +10,8 @@
 //      0 - static inefficency only
 //    1,2 - low-lumi rate dependent inefficency added
 //     10 - high-lumi inefficiency added
-
+// Adopt the correct drift sign convetion from Morris Swartz. d.k. 8/06
+ 
 #include <vector>
 #include <iostream>
 //#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
@@ -83,7 +84,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   //pixel inefficiency
   // the first 3 settings [0],[1],[2] are for the barrel pixels
-  // the 2nd 3 setting [3],[4],[5] are for the endcaps (undecided how)  
+  // the next  3 settings [3],[4],[5] are for the endcaps (undecided how)  
   if (thePixelLuminosity==-1) {  // No indefficiency, all 100% efficient
     pixelInefficiency=false;
     for (int i=0; i<6;i++) {
@@ -97,13 +98,23 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     pixelInefficiency=true;
     // Default efficiencies 
     for (int i=0; i<6;i++) {
-      // Assume 1% inefficiency for single pixels, 
-      // this is given by faulty bump-bonding and seus.  
-      thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
-      // For columns make 0.1% default.
-      thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
-      // A flat 0.1% inefficiency due to lost rocs
-      thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+      if(i<3) {  // For the barrel
+	// Assume 1% inefficiency for single pixels, 
+	// this is given by faulty bump-bonding and seus.  
+	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	// For columns make 0.1% default.
+	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
+	// A flat 0.1% inefficiency due to lost rocs
+	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+      } else { // For the endcaps
+	// Assume 1% inefficiency for single pixels, 
+	// this is given by faulty bump-bonding and seus.  
+	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	// For columns make 0.1% default.
+	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
+	// A flat 0.1% inefficiency due to lost rocs
+	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+      }
     }
 
   // Include also luminosity ratre dependent inefficieny
@@ -111,16 +122,26 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     pixelInefficiency=true;
     // Default efficiencies 
     for (int i=0; i<6;i++) {
-      // Assume 1% inefficiency for single pixels, 
-      // this is given by faulty bump-bonding and seus.  
-      thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
-      // For columns make 1% default.
-      thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
-      // A flat 0.25% inefficiency due to lost data packets from TBM
-      thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+      if(i<3) { // For the barrel
+	// Assume 1% inefficiency for single pixels, 
+	// this is given by faulty bump-bonding and seus.  
+	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	// For columns make 1% default.
+	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
+	// A flat 0.25% inefficiency due to lost data packets from TBM
+	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+      } else { // For the endcaps
+	// Assume 1% inefficiency for single pixels, 
+	// this is given by faulty bump-bonding and seus.  
+	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	// For columns make 1% default.
+	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
+	// A flat 0.25% inefficiency due to lost data packets from TBM
+	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+      }
     }
    
-    // Special cases ( High-lumi for 4cm layer)
+    // Special cases ( High-lumi for 4cm layer) where the readout losses are higher
     if(thePixelLuminosity==10) { // For high luminosity, bar layer 1
       thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
       thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
@@ -380,14 +401,17 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   _collection_points.resize( _ionization_points.size()); // set size
   
   LocalVector driftDir=DriftDirection();  // get the charge drift direction
-
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
     return;
-  }
+  }  
 
-  float TanLorenzAngleX = driftDir.x()/driftDir.z(); // tangen of Lorentz angle
-  float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
+  //float TanLorenzAngleX = driftDir.x()/driftDir.z(); // tangen of Lorentz angle
+  //float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
+  float TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
+  float TanLorenzAngleY = 0.; // force to =0, driftDir.y();
+  float dir_z = driftDir.z(); // The z drift direction
+
   // I also need cosines to estimate the path length
   float CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
   float CosLorenzAngleY = 1.;
@@ -413,8 +437,10 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     SegZ = _ionization_points[i].z();
 
     // Distance from the collection plane
-     DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
-    
+    //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
+    // Include explixitely the E drift direction (for CMS dir_z=-1)
+    DriftDistance = moduleThickness/2. - (dir_z * SegZ); // Drift to -z 
+   
     if( DriftDistance < 0.)
       DriftDistance = 0.;
     else if ( DriftDistance > moduleThickness )
@@ -910,18 +936,19 @@ float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
 //******************************************************************************
 // Set the drift direction accoring to the Bfield in local det-unit frame
 // Works for both barrel and forward pixels.
+// Replace the sign convention to fit M.Swartz's formulaes.
 LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
-  //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
-    float dir_x = tanLorentzAnglePerTesla * Bfield.y();
-    float dir_y = -tanLorentzAnglePerTesla * Bfield.x();
-    float dir_z = -1.; // E field always in z direction, so electrons go to -z
-    LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
-  
-    LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
-				 << theDriftDirection ;
+  float dir_x = -tanLorentzAnglePerTesla * Bfield.y();
+  float dir_y = +tanLorentzAnglePerTesla * Bfield.x();
+  float dir_z = -1.; // E field always in z direction, so electrons go to -z
+  // The dir_z has to be +/- 1. !
+
+  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);  
+  LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
+			       << theDriftDirection ;
    
-    return theDriftDirection;
+  return theDriftDirection;
 }
 
