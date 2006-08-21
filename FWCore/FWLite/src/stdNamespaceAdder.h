@@ -16,10 +16,11 @@
 //
 // Original Author:  
 //         Created:  Tue Dec  6 09:18:09 EST 2005
-// $Id: stdNamespaceAdder.h,v 1.1 2005/12/06 17:06:23 chrjones Exp $
+// $Id: stdNamespaceAdder.h,v 1.1 2006/05/17 16:43:44 wmtan Exp $
 //
 
 // system include files
+#include <string>
 
 // user include files
 
