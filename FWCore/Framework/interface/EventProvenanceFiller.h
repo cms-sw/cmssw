@@ -19,7 +19,7 @@ such a datum and then see if the provenance information is a match.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Feb 15 14:54:43 IST 2006
-// $Id$
+// $Id: EventProvenanceFiller.h,v 1.1 2006/03/05 21:40:25 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@ such a datum and then see if the provenance information is a match.
 
 // forward declarations
 namespace edm {
+class Provenance;
 class EventProvenanceFiller
 {
 
