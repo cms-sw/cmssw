@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tmoulik $
-// $Date: 2006/07/25 20:25:16 $
-// $Revision: 1.9 $
+// $Author: tboccali $
+// $Date: 2006/07/26 13:16:44 $
+// $Revision: 1.10 $
 //
 
 #include <string>
@@ -108,7 +108,7 @@ class RoadSearchCloudMakerAlgorithm
 
   double phiFromExtrapolation(double d0, double phi0, double k0, double ringRadius, Roads::type roadType);
 
-  double phiMax(const TrajectorySeed *seed, double phi0, double k0);
+  double phiMax(const TrajectorySeed *seed, Roads::type roadType, double phi0, double k0);
 
   double map_phi(double phi);
   double map_phi2(double phi);
