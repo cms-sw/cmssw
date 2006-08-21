@@ -4,19 +4,16 @@
 #ifndef MeasurementDetExceptions_H
 #define MeasurementDetExceptions_H
 
-#include <exception>
 #include <string>
+#include "FWCore/Utilities/interface/Exception.h"
 
 /// Common base class
 
-class MeasurementDetException : public std::exception {
+class MeasurementDetException : cms::Exception {
 public:
-  MeasurementDetException() throw() {}
-  MeasurementDetException( const std::string& message) throw() : theMessage(message) {}
+  MeasurementDetException( const std::string& message) throw() :  cms::Exception(message)  {}
   virtual ~MeasurementDetException() throw() {}
-  virtual const char* what() const throw() { return theMessage.c_str();}
-private:
-  std::string theMessage;
+
 };
 
 #endif
