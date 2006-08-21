@@ -7,6 +7,7 @@
 
 namespace edm
 {
+  class CurrentProcessingContext;
   namespace detail
   {
 
