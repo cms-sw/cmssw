@@ -8,11 +8,11 @@ ParameterSetBlob: A string in which to store a parameter set so that it can be m
 The ParameterSetBlob is a concatenation of the names and values of the
 tracked parameters within a ParameterSet,
 
-$Id: ParameterSetBlob.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: ParameterSetBlob.h,v 1.1 2006/03/10 17:54:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <iostream>
+//INCLUDECHECKER: Removed this line: #include <iostream>
 #include <string>
 
 namespace edm {

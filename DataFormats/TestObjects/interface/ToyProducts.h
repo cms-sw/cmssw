@@ -10,7 +10,7 @@ Toy EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 
-#include "DataFormats/Common/interface/traits.h"
+//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 

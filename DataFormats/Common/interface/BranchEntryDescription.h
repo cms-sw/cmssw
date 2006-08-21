@@ -6,9 +6,9 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: BranchEntryDescription.h,v 1.1.2.7 2006/07/05 23:55:14 wmtan Exp $
+$Id: BranchEntryDescription.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include <ostream>
+//INCLUDECHECKER: Removed this line: #include <ostream>
 #include <vector>
 #include "boost/shared_ptr.hpp"
 

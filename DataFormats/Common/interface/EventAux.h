@@ -1,7 +1,7 @@
 #ifndef Common_EventAux_h
 #define Common_EventAux_h
 
-#include <iostream>
+//INCLUDECHECKER: Removed this line: #include <iostream>
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"

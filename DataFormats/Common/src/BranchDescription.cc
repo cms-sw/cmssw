@@ -1,10 +1,10 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.11 2006/08/01 05:34:43 wmtan Exp $
+$Id: BranchDescription.cc,v 1.12 2006/08/01 20:54:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -12,11 +12,11 @@
   is captured in the SendEvent structure.
  */
 
-#include <vector>
+//INCLUDECHECKER: Removed this line: #include <vector>
 
-#include "DataFormats/Common/interface/EDProduct.h"
+//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/EventID.h"
 
