@@ -5,8 +5,8 @@
 //   Description: GMT Eta Projection Unit
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.6 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -39,6 +39,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUEtaProLUT.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // --------------------------------
@@ -129,11 +131,11 @@ void L1MuGMTEtaProjectionUnit::reset() {
 //
 void L1MuGMTEtaProjectionUnit::print() const {
 
-  cout << "Eta select bits: ";
+  edm::LogVerbatim("GMT_EtaProjection_info") << "Eta select bits: ";
   for ( int i=0; i<14; i++ ) {
-    cout << m_eta_select[i] << "  ";
+    edm::LogVerbatim("GMT_EtaProjection_info") << m_eta_select[i] << "  ";
   }
-  cout << endl;
+  edm::LogVerbatim("GMT_EtaProjection_info") << endl;
 }
 
 

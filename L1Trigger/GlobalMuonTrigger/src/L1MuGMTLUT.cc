@@ -7,8 +7,8 @@
  * 
 */ 
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -27,6 +27,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1MuGMTLUT::~L1MuGMTLUT() {
   if (! m_UseLookupFunction ) {
@@ -60,10 +62,9 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
   m_distrRAM = distrRAM;
 
   if (m_distrRAM && (m_TotalInWidth != vme_addr_width) ) {
-    cout << "***" << endl; 
-    cout << "*** Error in L1MuGMTLUT::Init(): for distributed RAM the GMT (Input) address width " << endl; 
-    cout << "***                              has to match the VME address width. Core Generation will not work." << endl; 
-    cout << "***" << endl; 
+    edm::LogWarning("AddressMismatch")
+         << "L1MuGMTLUT::Init(): for distributed RAM the GMT (Input) address width " 
+         << "has to match the VME address width. Core Generation will not work." << endl; 
   }
 
   m_initialized = true; 
@@ -72,7 +73,7 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
 
 void L1MuGMTLUT::Save(const char* path) {
   if (! m_initialized) {
-    cout << "Error in L1MuGMTLUT::Save: LUT not initialized. " << endl;
+    edm::LogWarning("LUTNotInitialized") << "L1MuGMTLUT::Save: LUT not initialized. " << endl;
     return;
   }
 
@@ -166,22 +167,22 @@ void L1MuGMTLUT::Save(const char* path) {
 
 void L1MuGMTLUT::Set (int idx, unsigned address, unsigned value) {
   if (! m_initialized) {
-    cout << "Error in L1MuGMTLUT::Set: LUT not initialized. " << endl;
+     edm::LogWarning("LUTNotInitialized") << "L1MuGMTLUT::Set: LUT not initialized. " << endl;
     return;
   }
 
   if ( idx >= m_NLUTS ) {
-    cout << "Error in L1MuGMTLUT::Set: LUT index exceeds range (0 to " << ( m_NLUTS -1 ) << ")." 
+    edm::LogWarning("LUTRangeViolation") << "L1MuGMTLUT::Set: LUT index exceeds range (0 to " << ( m_NLUTS -1 ) << ")." 
 	 << endl;
     return;
   }
   if ( address >= (unsigned)(1 << m_TotalInWidth) ) {
-    cout << "Error in L1MuGMTLUT::Set: LUT input exceeds range (0 to " << ( (1 << m_TotalInWidth) -1 ) << ")." 
+    edm::LogWarning("LUTRangeViolation") << "Error in L1MuGMTLUT::Set: LUT input exceeds range (0 to " << ( (1 << m_TotalInWidth) -1 ) << ")." 
 	 << endl;
     return;
   }
   if ( value >= (unsigned)(1 << m_TotalOutWidth) ) {
-    cout << "Error in L1MuGMTLUT::Set: LUT output exceeds range (0 to " << ( (1 << m_TotalOutWidth) -1 ) << ")." 
+    edm::LogWarning("LUTRangeViolation") << "Error in L1MuGMTLUT::Set: LUT output exceeds range (0 to " << ( (1 << m_TotalOutWidth) -1 ) << ")." 
 	 << endl;
     return;
   }
@@ -243,7 +244,8 @@ void L1MuGMTLUT::Load(const char* path) {
 	m_Outputs != lf_Outputs ||
 	m_vme_addr_width != lf_vme_addr_width ||
 	m_distrRAM != lf_distrRAM) {
-      cout << "L1MuGMTLUT::Load: error: parameters in file do not match configuration of LUT. Load failed." << endl;
+      edm::LogWarning("LUTParmasMismatch") 
+          << "L1MuGMTLUT::Load: error: parameters in file do not match configuration of LUT. Load failed." << endl;
       return;
     }
   }
@@ -271,7 +273,7 @@ void L1MuGMTLUT::Load(const char* path) {
     if (tok.size() == 2 && tok[0].find("CONTENTS") != string::npos) {
       L1MuGMTLUTHelpers::Tokenizer tok1("_",tok[0]);
       if (tok1.size() !=2) {
-	cout << "L1MuGMTLUT::Load: error parsing contents tag " << tok[0] << "." << endl;
+	edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: error parsing contents tag " << tok[0] << "." << endl;
 	break;
       }	
 
@@ -279,10 +281,10 @@ void L1MuGMTLUT::Load(const char* path) {
       int newindex; 
       is >> newindex;
       if (newindex != current_index+1)
-	cout << "L1MuGMTLUT::Load: warning: LUTS in LUT file are not in order." << endl;
+	edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: warning: LUTS in LUT file are not in order." << endl;
 
       if (newindex > m_NLUTS-1) {
-	cout << "L1MuGMTLUT::Load: warning: LUT file contains LUT with too high index (" 
+	edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: warning: LUT file contains LUT with too high index (" 
 	     << tok[0] 
 	     << "). max = " << m_NLUTS << " skipping." << endl;
 	newindex = -1;
@@ -291,7 +293,7 @@ void L1MuGMTLUT::Load(const char* path) {
 
       if (row != 0) {
 	if ( row < maxrows ) 
-	  cout << "L1MuGMTLUT::Load: warning: LUT file only contains part of LUT contents." << endl;
+	  edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: warning: LUT file only contains part of LUT contents." << endl;
 	row = 0;
       }
       istringstream is1(tok[1].c_str());
@@ -310,7 +312,8 @@ void L1MuGMTLUT::Load(const char* path) {
 	    Set (current_index, row++, value);	
 	}
 	else
-	  cout << "L1MuGMTLUT::Load: warning: LUT file only contains LUT with too many entries. skipping." << endl;
+	  edm::LogWarning("LUTParsingProblem") 
+                   << "L1MuGMTLUT::Load: warning: LUT file only contains LUT with too many entries. skipping." << endl;
       }
     }
   } while ( in.getline(buf, sz) );

@@ -3,8 +3,8 @@
 //   Class: L1MuGMTDebugBlock
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/17 16:09:57 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                HEPHY Vienna
@@ -45,7 +45,7 @@ L1MuGMTDebugBlock::L1MuGMTDebugBlock(int minbx, int maxbx) :
   _fwdmuons(maxbx-minbx+1, vector<L1MuGMTExtendedCand>(4))
   // will not work w/o copy constructor  
 {
-  if (maxbx < minbx) cout << "*** error in L1MuGMTDebugBlock::L1MuGMTDebugBlock(): minbx > maxbx" << endl; 
+  if (maxbx < minbx) edm::LogWarning("BxRangeMismatch") << "*** error in L1MuGMTDebugBlock::L1MuGMTDebugBlock(): minbx > maxbx" << endl; 
   reset(); 
 };
 

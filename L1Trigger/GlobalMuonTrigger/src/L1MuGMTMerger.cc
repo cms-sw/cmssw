@@ -58,7 +58,10 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"  
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"
+  
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //---------------------------------
 //       class L1MuGMTMerger
 //---------------------------------
@@ -120,14 +123,14 @@ void L1MuGMTMerger::reset() {
 //
 void L1MuGMTMerger::print() const {
 
-  cout << endl;
+  edm::LogVerbatim("GMT_Merger_info") << endl;
 
   vector<L1MuGMTExtendedCand*>::const_iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     if ( *iter && !(*iter)->empty() ) (*iter)->print();
   }
   
-  cout << endl;
+  edm::LogVerbatim("GMT_Merger_info") << endl;
 
 }
 

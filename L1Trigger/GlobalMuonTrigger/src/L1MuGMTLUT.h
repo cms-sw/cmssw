@@ -32,8 +32,8 @@
  * 
 */ 
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -66,6 +66,8 @@ class L1MuGMTLUTConverter;
 //------------------------------------
 #include <L1Trigger/GlobalMuonTrigger/src/L1MuGMTLUTHelpers.h>
 
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 //              ---------------------
@@ -174,7 +176,7 @@ class L1MuGMTLUT {
 	  if (obrace != string::npos && cbrace != string::npos) 
 	    push_back( port ( tok[i].substr(0,obrace), (unsigned) atoi (tok[i].substr(obrace+1,cbrace-obrace-1).c_str() ) ) );
 	  else 
-	    cout << "L1MuGMTLUT::PortDecoder: error decoding port " << tok[i] << endl; 
+	    edm::LogWarning("LUTMismatch") << "L1MuGMTLUT::PortDecoder: error decoding port " << tok[i] << endl; 
 	}
       };
       string str() {
@@ -213,7 +215,7 @@ class L1MuGMTLUT {
 
 unsigned L1MuGMTLUT::vec2u (const vector <unsigned>& vec, const vector<port>& widths) const{
   if (vec.size() != widths.size()) {
-    cout << "Error in L1MuGMTLUT::vec2u: number of LUT inputs/outputs does not match definition" << endl;
+    edm::LogWarning("LUTMismatch") << "Error in L1MuGMTLUT::vec2u: number of LUT inputs/outputs does not match definition" << endl;
     return (0);
   }
   
@@ -222,7 +224,7 @@ unsigned L1MuGMTLUT::vec2u (const vector <unsigned>& vec, const vector<port>& wi
 
   for (int i=vec.size()-1; i>=0; i--) {
     if ( vec[i] >= (unsigned) (1 << widths[i].second) ) {
-      cout << "Error in L1MuGMTLUT::vec2u: LUT input/output number " << i 
+      edm::LogWarning("LUTMismatch") << "Error in L1MuGMTLUT::vec2u: LUT input/output number " << i 
 	   << " exceeds range (0 to " << ( (1 << widths[i].second) -1 ) << ")." 
 	   << endl;
     }
@@ -259,16 +261,16 @@ vector <unsigned> L1MuGMTLUT::u2vec (unsigned value, const vector<port>& widths)
 //
 unsigned L1MuGMTLUT::LookupPacked (int idx, unsigned address) const {
   if (! m_initialized) {
-    cout << "Error in L1MuGMTLUT::LookupPacked: LUT not initialized. " << endl;
+    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT not initialized. " << endl;
     return 0;
   }
   if ( idx >= m_NLUTS ) {
-    cout << "Error in L1MuGMTLUT::LookupPacked: LUT index exceeds range (0 to " << ( m_NLUTS -1 ) << ")." 
+    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT index exceeds range (0 to " << ( m_NLUTS -1 ) << ")." 
 	 << endl;
     return 0;
   }
   if ( address >= (unsigned) (1 << m_TotalInWidth) ) {
-    cout << "Error in L1MuGMTLUT::LookupPacked: LUT input exceeds range (0 to " << ( (1 << m_TotalInWidth) -1 ) << ")." 
+    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT input exceeds range (0 to " << ( (1 << m_TotalInWidth) -1 ) << ")." 
 	 << endl;
     return 0;
   }
@@ -282,14 +284,14 @@ unsigned L1MuGMTLUT::LookupPacked (int idx, unsigned address) const {
 
   // check range of output
   if ( value >= (unsigned) (1 << m_TotalOutWidth) ) {
-    cout << "Error in L1MuGMTLUT::LookupPacked(): LUT output value " << value
+    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked(): LUT output value " << value
 	 << " exceeds range (0 to " << ( (1 << m_TotalOutWidth) -1 ) << ")." 
 	 << endl;
-    cout << "  LUT name: " << m_name << endl;
+    edm::LogWarning("LUTMismatch")  << "  LUT name: " << m_name << endl;
     if (m_UseLookupFunction) 
-      cout << "  Lookup Function has to be corrected!!!" << endl;
+      edm::LogWarning("LUTMismatch")  << "  Lookup Function has to be corrected!!!" << endl;
     else
-      cout << "  LUT File has to be corrected!!!" << endl;
+      edm::LogWarning("LUTMismatch")  << "  LUT File has to be corrected!!!" << endl;
     return (1 << m_TotalOutWidth) - 1;
   }
   return value;

@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/03 15:18:05 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -33,8 +33,10 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
 #include "SimG4Core/Notification/interface/Singleton.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------------------------
 //       class L1MuGMTCand
@@ -156,9 +158,8 @@ bool L1MuGMTCand::operator!=(const L1MuGMTCand& cand) const {
 void L1MuGMTCand::print() const {
 
   if ( !empty() ) {
-    cout.setf(ios::showpoint);
-    cout.setf(ios::right,ios::adjustfield);
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMT_Candidate_info")
+         << setiosflags(ios::right | ios::adjustfield | ios::showpoint | ios::fixed)
          << "bx = " << setw(2) << bx() << " " << endl
          << "pt = "  << setw(5) << setprecision(1) << ptValue() << " GeV  "
          << "charge = " << setw(2) << charge() << "  "

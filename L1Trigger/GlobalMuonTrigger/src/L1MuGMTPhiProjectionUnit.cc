@@ -5,8 +5,8 @@
 //   Description: GMT Phi Projection Unit
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.7 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -43,6 +43,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUEtaConvLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro1LUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro2LUT.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // --------------------------------
 //       class L1MuGMTPhiProjectionUnit
@@ -137,11 +139,11 @@ void L1MuGMTPhiProjectionUnit::reset() {
 //
 void L1MuGMTPhiProjectionUnit::print() const {
 
-  cout << "Phi select bits: ";
+  edm::LogVerbatim("GMT_PhiProjection_info") << "Phi select bits: ";
   for ( int i=0; i<18; i++ ) {
-    cout << m_phi_select[i] << "  ";
+    edm::LogVerbatim("GMT_PhiProjection_info") << m_phi_select[i] << "  ";
   }
-  cout << endl;
+  edm::LogVerbatim("GMT_PhiProjection_info") << endl;
 }
 
 

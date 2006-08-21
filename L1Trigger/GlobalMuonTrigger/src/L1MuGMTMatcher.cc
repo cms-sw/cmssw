@@ -5,8 +5,8 @@
 //   Description: Matcher 
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.14 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -50,6 +50,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFDisableHotLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // --------------------------------
 //       class L1MuGMTMatcher
@@ -111,16 +113,16 @@ void L1MuGMTMatcher::reset() {
 //
 void L1MuGMTMatcher::print() {
 
-  cout << endl;
+  edm::LogVerbatim("GMT_Matcher_info") << endl;
   if ( L1MuGMTConfig::Debug(4) ) {
-    cout << "MATCH Quality : " << endl;
+    edm::LogVerbatim("GMT_Matcher_info") << "MATCH Quality : " << endl;
     matchQuality.print();
   }
 
-  cout << "PAIR Matrix : " << endl;
+  edm::LogVerbatim("GMT_Matcher_info") << "PAIR Matrix : " << endl;
   pairMatrix.print();
 
-  cout << endl;
+  edm::LogVerbatim("GMT_Matcher_info") << endl;
 
 }
 

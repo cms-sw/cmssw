@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin        HEPHY Vienna
@@ -33,6 +33,8 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------------------------
 //       class L1MuGMTExtendedCand
@@ -125,9 +127,8 @@ void L1MuGMTExtendedCand::print() const {
 
   L1MuGMTCand::print();
   if ( !empty() ) {
-    cout.setf(ios::showpoint);
-    cout.setf(ios::right,ios::adjustfield);
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMT_Candidate_info")
+         << setiosflags(ios::right | ios::adjustfield | ios::showpoint | ios::fixed)
          << "rank = " << setw(3) << rank() << "  " 
          << "idxdtcsc = " << setw(1) << getDTCSCIndex() << "  "
          << "idxrpc = " << setw(1) << getRPCIndex() << "  "

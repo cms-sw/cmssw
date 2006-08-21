@@ -6,8 +6,8 @@
  *  general matrix
 */
 //
-//   $Date: 2003/12/19 10:22:03 $
-//   $Revision: 1.7 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -25,6 +25,10 @@
 
 #include <iostream>
 #include <cassert>
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 //----------------------
 // Base Class Headers --
@@ -34,6 +38,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 //              ---------------------
@@ -357,11 +363,11 @@ template<class T>
 void L1MuGMTMatrix<T>::print() const {
 
   for (int r = 0; r < r_size; r++) {
-    for (int c = 0; c < c_size; c++) cout << p[r][c] << "\t";
-    cout << endl;
+    stringstream output;
+    for (int c = 0; c < c_size; c++) output << p[r][c] << "\t";
+    edm::LogVerbatim("GMTMatrix_print") << output.str() << endl;
   }
-
-  cout << endl;
+  edm::LogVerbatim("GMTMatrix_print") << endl;
 
 }
 

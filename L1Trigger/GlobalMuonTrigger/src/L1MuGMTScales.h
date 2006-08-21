@@ -8,8 +8,8 @@
  *   An automatic check is done for the calo eta scales.
 */                  
 //                
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.4 $ 
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $ 
 //
 //   Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -26,6 +26,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuScale.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class L1MuGMTScales {
  public:
@@ -105,13 +106,13 @@ class L1MuGMTScales {
   
   /// get the recuced eta scale for matching in the overlap region (4 bit); isys = 0(DT), 1(bRPC), 2(CSC), 3(fwdRPC)
   L1MuScale* getReducedEtaScale(int isys) const { 
-    if (isys<0 || isys>3) cout << "Error in L1MuGMTScales:: isys out of range: " << isys << endl; 
+    if (isys<0 || isys>3) edm::LogWarning("GMTScaleRangeViolation") << "Error in L1MuGMTScales:: isys out of range: " << isys << endl; 
     return m_ReducedEtaScale[isys]; 
   };
 
   /// get the delta eta scale; idx = 0(DT=RPC), 1(CSC-RPC), 2(DT-CSC), 3(CSC-DT), 4(bRPC-CSC), 5(fRPC-DT)
   L1MuScale* getDeltaEtaScale(int idx) const { 
-    if (idx<0 || idx>5) cout << "Error in L1MuGMTScales:: isys out of range: " << idx << endl; 
+    if (idx<0 || idx>5) edm::LogWarning("GMTScaleRangeViolation") << "Error in L1MuGMTScales:: isys out of range: " << idx << endl; 
     return m_DeltaEtaScale[idx]; 
   };
 
@@ -120,7 +121,7 @@ class L1MuGMTScales {
 
   /// get the overlap eta scale (4 bits);  isys = 0(DT), 1(bRPC), 2(CSC), 3(fwdRPC)
   L1MuScale* getOvlEtaScale(int isys) const { 
-    if (isys<0 || isys>3) cout << "Error in L1MuGMTScales:: isys out of range: " << isys << endl; 
+    if (isys<0 || isys>3) edm::LogWarning("GMTScaleRangeViolation") << "Error in L1MuGMTScales:: isys out of range: " << isys << endl; 
     return m_OvlEtaScale[isys]; 
   };
 

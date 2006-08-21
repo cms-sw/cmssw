@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -34,6 +34,8 @@
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //-------------------
 // InitParameters  --
@@ -87,7 +89,8 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
 
   if ( (isRPC && isFWD && fabs(oldeta) < 1.04  ) ||
        (isRPC && !isFWD && fabs(oldeta) > 1.04 ) ) {
-    if(!m_saveFlag) cout << "L1MuGMTMIAUEtaProLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") 
+    if(!m_saveFlag) edm::LogWarning("LUTRangeViolation") 
+                         << "L1MuGMTMIAUEtaProLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") 
 	                 << " eta value out of range: " << oldeta << endl;
   }
 

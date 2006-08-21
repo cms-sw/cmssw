@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -61,6 +61,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro1LUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro2LUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // --------------------------------
 //       class L1MuGMTConfig
@@ -132,28 +134,31 @@ void L1MuGMTConfig::setDefaults() {
 
   m_DoOvlRpcAnd = m_ps->getParameter<bool>("DoOvlRpcAnd");  
 
-  if ( Debug(1) ) cout << endl;
-  if ( Debug(1) ) cout << "*******************************************" << endl;
-  if ( Debug(1) ) cout << "**** L1 Global Muon Trigger settings : ****" << endl;
-  if ( Debug(1) ) cout << "*******************************************" << endl;
-  if ( Debug(1) ) cout << endl;
+  if ( Debug(1) ) {
+    edm::LogVerbatim("GMT_Config_info")
+        << endl
+        << "*******************************************" << endl
+        << "**** L1 Global Muon Trigger settings : ****" << endl
+        << "*******************************************" << endl
+        << endl
 
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : debug level : " << m_dbgLevel << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : minimal bunch-crossing : " << m_BxMin << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : maximal bunch-crossing : " << m_BxMax << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : barrel eta weight : " << m_EtaWeight_barrel << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : barrel phi weight : " << m_PhiWeight_barrel << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : barrel eta-phi threshold : " << m_EtaPhiThreshold_barrel << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : endcap eta weight : " << m_EtaWeight_endcap << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : endcap phi weight : " << m_PhiWeight_endcap << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : endcap eta-phi threshold : " << m_EtaPhiThreshold_endcap << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : cancel out unit eta weight : " << m_EtaWeight_COU << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : cancel out unit phi weight : " << m_PhiWeight_COU << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : cancel out unit eta-phi threshold : " << m_EtaPhiThreshold_COU << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : calorimeter trigger : " << m_CaloTrigger << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : muon isolation cell size (eta) : " << m_IsolationCellSizeEta << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl;
-  if ( Debug(1) ) cout << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl;
+        << "L1 Global Muon Trigger : debug level : " << m_dbgLevel << endl
+        << "L1 Global Muon Trigger : minimal bunch-crossing : " << m_BxMin << endl
+        << "L1 Global Muon Trigger : maximal bunch-crossing : " << m_BxMax << endl
+        << "L1 Global Muon Trigger : barrel eta weight : " << m_EtaWeight_barrel << endl
+        << "L1 Global Muon Trigger : barrel phi weight : " << m_PhiWeight_barrel << endl
+        << "L1 Global Muon Trigger : barrel eta-phi threshold : " << m_EtaPhiThreshold_barrel << endl
+        << "L1 Global Muon Trigger : endcap eta weight : " << m_EtaWeight_endcap << endl
+        << "L1 Global Muon Trigger : endcap phi weight : " << m_PhiWeight_endcap << endl
+        << "L1 Global Muon Trigger : endcap eta-phi threshold : " << m_EtaPhiThreshold_endcap << endl
+        << "L1 Global Muon Trigger : cancel out unit eta weight : " << m_EtaWeight_COU << endl
+        << "L1 Global Muon Trigger : cancel out unit phi weight : " << m_PhiWeight_COU << endl
+        << "L1 Global Muon Trigger : cancel out unit eta-phi threshold : " << m_EtaPhiThreshold_COU << endl
+        << "L1 Global Muon Trigger : calorimeter trigger : " << m_CaloTrigger << endl
+        << "L1 Global Muon Trigger : muon isolation cell size (eta) : " << m_IsolationCellSizeEta << endl
+        << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl
+        << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl;
+  }
 
   m_PropagatePhi = m_ps->getParameter<bool>("PropagatePhi");  
 
@@ -228,13 +233,15 @@ void L1MuGMTConfig::dumpLUTs(string dir) {
 
   vector<L1MuGMTLUT*>::iterator it = theLUTs.begin();
   for (;it != theLUTs.end(); it++) {
-    cout << "**** Generating " << (*it)->Name() << " LUT ****" << endl;
-    cout << "saving" << endl;
+    edm::LogVerbatim("GMT_LUTGen_info")
+     << "**** Generating " << (*it)->Name() << " LUT ****" << endl
+     << "saving" << endl;
     string fn = dir + "/" + (*it)->Name() + ".lut";
     (*it)->Save(fn.c_str());    
   }
 
-  cout << "Successfully created all GMT look-up tables in directory './" << dir << "'" << endl << endl;
+  edm::LogVerbatim("GMT_LUTGen_info") 
+      << "Successfully created all GMT look-up tables in directory './" << dir << "'" << endl << endl;
 
 }
 

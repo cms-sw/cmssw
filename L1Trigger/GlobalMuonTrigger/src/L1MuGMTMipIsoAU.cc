@@ -5,8 +5,8 @@
 //   Description:  GMT MIP & ISO bit assignment unit
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -29,6 +29,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -41,6 +43,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaProjectionUnit.h"
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // --------------------------------
 //       class L1MuGMTMipIsoAU
 //---------------------------------
@@ -173,18 +177,20 @@ void L1MuGMTMipIsoAU::reset() {
 //
 void L1MuGMTMipIsoAU::print() const {
 
-  cout << "Assigned MIP bits : ";
+  stringstream outmip;
+  outmip << "Assigned MIP bits : ";
   vector<bool>::const_iterator iter;
   for ( iter = m_MIP.begin(); iter != m_MIP.end(); iter++ ) {
-    cout << (*iter) << "  ";
+    outmip << (*iter) << "  ";
   }
-  cout << endl;
+  edm::LogVerbatim("GMT_MipIso_info") << outmip.str() << endl << endl;
 
-  cout << "Assigned ISO bits : ";
+  stringstream outiso;
+  outiso << "Assigned ISO bits : ";
   for ( iter = m_ISO.begin(); iter != m_ISO.end(); iter++ ) {
-    cout << (*iter) << "  ";
+    outiso << (*iter) << "  ";
   }
-  cout << endl << endl;
+  edm::LogVerbatim("GMT_MipIso_info") << outiso.str() << endl << endl;
 }
 
 
@@ -232,7 +238,7 @@ void L1MuGMTMipIsoAU::assignMIP() {
 	  if (m_MIP_PPUs[imuon]->isSelected(iphi) &&
 	      m_MIP_EPUs[imuon]->isSelected(ieta) ) {
 	    tmpMIP |= mip(ieta, iphi);
-	    if ( L1MuGMTConfig::Debug(3) ) cout << "L1MuGMTMipIsoAU::assignMIP() checking calo region phi=" << 
+	    if ( L1MuGMTConfig::Debug(3) ) edm::LogVerbatim("GMT_MipIso_info") << "L1MuGMTMipIsoAU::assignMIP() checking calo region phi=" << 
 	      iphi << ", eta="  << ieta << endl;
 	  }
 	}
@@ -261,12 +267,12 @@ void L1MuGMTMipIsoAU::assignISO() {
 	      m_ISO_EPUs[imuon]->isSelected(ieta) ) {
 	    tmpISO &= isol(ieta, iphi);
 	    any  = true;
-	    if ( L1MuGMTConfig::Debug(3) ) cout << "L1MuGMTMipIsoAU::assignISO() checking calo region phi=" << 
+	    if ( L1MuGMTConfig::Debug(3) ) edm::LogVerbatim("GMT_MipIso_info") << "L1MuGMTMipIsoAU::assignISO() checking calo region phi=" << 
 	      iphi << ", eta="  << ieta << endl;
 	  }
 	}
       if (any) m_ISO[imuon] = tmpISO;
-      else cout << "*** error in L1MuGMTMipIsoAU::assignISO(): no calo region was checked!!" << endl; 
+      else edm::LogWarning("MipISOProblem") << "L1MuGMTMipIsoAU::assignISO(): no calo region was checked!!" << endl; 
 
       m_gmt.DebugBlockForFill()->SetIsMIPISO( m_ISO_PPUs[imuon]->id(), m_ISO[imuon]?1:0) ;      
     }

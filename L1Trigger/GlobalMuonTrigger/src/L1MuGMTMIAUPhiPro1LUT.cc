@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUPhiPro1LUT
 //
 // 
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -32,6 +32,8 @@
 #include "SimG4Core/Notification/interface/Singleton.h"
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //-------------------
 // InitParameters  --
@@ -105,8 +107,9 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   float calophi = phi_fine *  2.5 / 180. * M_PI - dphi - m_calo_align;
 
   if (charge == 0 && calophi < 0.) { // plus charge
-    cout << "warning: calo offset goes into wrong direction. charge is plus and calophi < 0deg" << endl;
-    cout << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
+    edm::LogWarning("LUTMismatch")
+         << "warning: calo offset goes into wrong direction. charge is plus and calophi < 0deg" << endl
+         << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
 	 << " ISO = " << isISO
 	 << " etabin = " << eta
 	 << " pval = " << m_theTriggerScales->getPtScale()->getLowEdge(pt)
@@ -116,8 +119,9 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
 	 << endl;
   }
   else if (charge == 1 && calophi > 20. / 180. * M_PI) { // neg charge
-    cout << "warning: calo offset goes into wrong direction. charge is minus and calophi > 20deg" << endl;	
-    cout << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
+     edm::LogWarning("LUTMismatch")
+         << "warning: calo offset goes into wrong direction. charge is minus and calophi > 20deg" << endl	
+         << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
 	 << " ISO = " << isISO
 	 << " etabin = " << eta
 	 << " pval = " << m_theTriggerScales->getPtScale()->getLowEdge(pt)
@@ -138,14 +142,16 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   calophi += 20. / 180 * M_PI;
 
   if (calophi < 0.) {
-    cout << "warning: calo offset goes into wrong direction by more than 20deg !!!! please correct!" << endl;	
+    edm::LogWarning("LUTMismatch")
+        << "warning: calo offset goes into wrong direction by more than 20deg !!!! please correct!" << endl;	
     calophi = 0.;
   }
   int cphi_ofs =  (int) ( calophi / ( 20. / 180. * M_PI) ); // in 20 deg regions
   // 0; -1 region; 1 no offset; 2: +1 region , ... 7: +6 regions
 
   if (cphi_ofs > 7) {
-    cout << "warning: calo offset is larger than 6 regions !!!! please correct!" << endl;	
+    edm::LogWarning("LUTMismatch")
+        << "warning: calo offset is larger than 6 regions !!!! please correct!" << endl;	
     cphi_ofs = 7;
   }
 

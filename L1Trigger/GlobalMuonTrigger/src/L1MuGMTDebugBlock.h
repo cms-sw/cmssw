@@ -9,8 +9,8 @@
  *                with the hardware model)
 */
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -39,6 +39,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMatrix.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -60,7 +62,8 @@ class L1MuGMTDebugBlock {
 
     /// Set the current bunch crossing
     void SetBX(int bx) { 
-      if (bx < _minbx || bx > _maxbx) cout << "*** error in L1MuGMTDebugBlock::SetBX(): bx out of range " << endl;
+      if (bx < _minbx || bx > _maxbx) edm::LogWarning("RangeViolation") 
+                                    << "L1MuGMTDebugBlock::SetBX(): bx out of range " << endl;
       else _bx=bx;
     };
 

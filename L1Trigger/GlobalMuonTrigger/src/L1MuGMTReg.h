@@ -9,8 +9,8 @@
  *   multiple instances of the register in the hardware (by default 2)
 */ 
 //
-//   $Date: 2004/02/04 14:54:25 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -35,6 +35,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //              ---------------------
 //              -- Class Interface --
@@ -105,7 +107,7 @@ class L1MuGMTRegMMConfig : public L1MuGMTReg {
       
       m_value[i] = 1 << (5-(int) MergeMethods(mm));
 
-      if ( L1MuGMTConfig::Debug(1) ) cout << " " << conf_name
+      if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_Info") << " " << conf_name
 				       //					  << " is " << mm.get() 
 					  << " is " << mm
 					  << "( value " << m_value[i] << " )" << endl;
@@ -180,7 +182,7 @@ class L1MuGMTRegMMConfigMIPISO : public L1MuGMTRegMMConfig {
 
       if (doAND) m_value[i] |= 64;
       
-      if ( L1MuGMTConfig::Debug(1) ) cout << " " << conf_name
+      if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_Info") << " " << conf_name
 					  << " is " << doAND << endl;
     }
   };
@@ -230,7 +232,7 @@ class L1MuGMTRegMMConfigSRK : public L1MuGMTRegMMConfig {
 
       if (haloOverwrites) m_value[i] |= 64;
       
-      if ( L1MuGMTConfig::Debug(1) ) cout << " " << conf_name
+      if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name
 					  << " is " << haloOverwrites << endl;
     }
   };
@@ -259,7 +261,7 @@ class L1MuGMTRegSortRankOffset : public L1MuGMTReg {
 
       m_value[i] = ofs;
       
-      if ( L1MuGMTConfig::Debug(1) ) cout << " " << conf_name 
+      if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name 
 					  << " is " << ofs << endl;
     }
   };
@@ -304,7 +306,7 @@ class L1MuGMTRegCDLConfig : public L1MuGMTReg {
 
       m_value[i] = cfgword;
       
-      if ( L1MuGMTConfig::Debug(1) ) cout << " " << conf_name 
+      if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name 
 					  << " is " << cfgword << endl;
     }    
   };

@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/17 16:08:16 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -33,7 +33,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //----------------
 // Constructors --
 //----------------
@@ -66,7 +66,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   runn = e.id().run();
   eventn = e.id().event();
 
-  cout << "run: " << runn << ", event: " << eventn << endl;
+  edm::LogVerbatim("GMTDump") << "run: " << runn << ", event: " << eventn << endl;
 
 
   
@@ -125,8 +125,6 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
       
         ntsc[icsc]= 0; //(*iter2).trackStubList().size();
         rankc[icsc]=0; //(*iter2).trackId().rank();
-
-        cout << "csc track " << icsc << " word: " << hex << (*iter1).getDataWord() << dec << endl;
 
 	icsc++;
       }
@@ -216,11 +214,11 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // DT Trigger print
   //
   ndt = idt;
-  cout << "Number of muons found by the L1 DTBX TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 DTBX TRIGGER : "
        << ndt << endl;
-  cout << "L1 DT TRIGGER muons: " << endl;
+  edm::LogVerbatim("GMTDump") << "L1 DT TRIGGER muons: " << endl;
   for(idt=0; idt<ndt; idt++) {
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
          << setw(2) << idt+1 << " : "
          << "pt = " << setw(5) << setprecision(1) << ptd[idt] << " GeV  "
          << "charge = " << setw(2) << chad[idt] << " "
@@ -234,11 +232,11 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // CSC Trigger print
   //
   ncsc = icsc;
-  cout << "Number of muons found by the L1 CSC  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 CSC  TRIGGER : "
        << ncsc << endl;
-  cout << "L1 CSC TRIGGER muons: " << endl;
+  edm::LogVerbatim("GMTDump") << "L1 CSC TRIGGER muons: " << endl;
   for(icsc=0; icsc<ncsc; icsc++) {
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
          << setw(2) << icsc+1 << " : "
          << "pt = " << setw(5) << setprecision(1) << ptc[icsc] << " GeV  "
          << "charge = " << setw(2) << chac[icsc] << " "
@@ -252,11 +250,11 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // RPCb Trigger print
   //
   nrpcb = irpcb;
-  cout << "Number of muons found by the L1 RPCb  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCb  TRIGGER : "
        << nrpcb << endl;
-  cout << "L1 RPCb TRIGGER muons: " << endl;
+  edm::LogVerbatim("GMTDump") << "L1 RPCb TRIGGER muons: " << endl;
   for(irpcb=0; irpcb<nrpcb; irpcb++) {
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
          << setw(2) << irpcb+1 << " : "
          << "pt = " << setw(5) << setprecision(1) << ptrb[irpcb] << " GeV  "
          << "charge = " << setw(2) << charb[irpcb] << " "
@@ -270,11 +268,11 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // Rpcf Trigger print
   //
   nrpcf = irpcf;
-  cout << "Number of muons found by the L1 RPCf  TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCf  TRIGGER : "
        << nrpcf << endl;
-  cout << "L1 RPCf TRIGGER muons: " << endl;
+  edm::LogVerbatim("GMTDump") << "L1 RPCf TRIGGER muons: " << endl;
   for(irpcf=0; irpcf<nrpcf; irpcf++) {
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
          << setw(2) << irpcf+1 << " : "
          << "pt = " << setw(5) << setprecision(1) << ptrf[irpcf] << " GeV  "
          << "charge = " << setw(2) << charf[irpcf] << " "
@@ -288,12 +286,12 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // GMT Trigger print
   //
   ngmt = igmt;
-  cout << "Number of muons found by the L1 Global Muon TRIGGER : "
+  edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 Global Muon TRIGGER : "
        << ngmt << endl;
-  cout << "L1 GMT muons: " << endl;
+  edm::LogVerbatim("GMTDump") << "L1 GMT muons: " << endl;
   for(igmt=0; igmt<ngmt; igmt++) {
-    if(igmt==4) {cout << "Additional muon candidates" << endl;}
-    cout << setiosflags(ios::showpoint | ios::fixed)
+    if(igmt==4) {edm::LogVerbatim("GMTDump") << "Additional muon candidates" << endl;}
+    edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
          << setw(2) << igmt+1 << " : "
          << "pt = " << setw(5) << setprecision(1) << ptg[igmt] << " GeV  "
          << "charge = " << setw(2) << chag[igmt] << " "

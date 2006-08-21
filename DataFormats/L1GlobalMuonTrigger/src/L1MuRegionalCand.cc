@@ -4,8 +4,8 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2004/03/31 10:11:10 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -33,6 +33,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 #include "SimG4Core/Notification/interface/Singleton.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //              ---------------------
 //              -- Class Interface --
@@ -95,10 +96,9 @@ void L1MuRegionalCand::setEtaValue(float etaVal) {
 }; 
 
 void L1MuRegionalCand::print() const {
-  if ( !empty() ) { 
-    cout.setf(ios::showpoint);
-    cout.setf(ios::right,ios::adjustfield);
-    cout << setiosflags(ios::showpoint | ios::fixed | ios::right | ios::adjustfield)
+  if ( !empty() ) {
+    edm::LogVerbatim("GMT_Input_info")
+         << setiosflags(ios::showpoint | ios::fixed | ios::right | ios::adjustfield)
 	 << "pt = " << setw(5) << setprecision(1) << ptValue() << " GeV  "
 	 << "charge = " << setw(2) << chargeValue() << " "
 	 << "eta = " << setw(6) << setprecision(3) << etaValue() << "  "
@@ -118,8 +118,8 @@ unsigned L1MuRegionalCand::readDataField(unsigned start, unsigned count) const {
 }
 
 void L1MuRegionalCand::writeDataField(unsigned start, unsigned count, unsigned value) {
-  if ( value < (unsigned)0 || value >= (unsigned)( 1 << count ) )
-    cout << "*** error in L1MuRegionalCand::writeDataField(): value " << value  
+  if ( value < (unsigned)0 || value >= (unsigned)( 1 << count ) ) edm::LogWarning("ValueOutOfRange") 
+         << "L1MuRegionalCand::writeDataField(): value " << value  
 	 << " out of range for data field with bit width "  << count << endl << endl << endl;
 
   unsigned mask = ( (1 << count) - 1 ) << start;

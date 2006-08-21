@@ -5,8 +5,8 @@
 //   Description: GMT Muon Sorter
 //
 //
-//   $Date: 2003/12/19 10:22:03 $
-//   $Revision: 1.7 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -41,6 +41,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // --------------------------------
 //       class L1MuGMTSorter
@@ -138,7 +140,7 @@ void L1MuGMTSorter::run() {
 
   // print input data
   if ( L1MuGMTConfig::Debug(5) ) {
-    cout << "GMT Sorter input: "
+    edm::LogVerbatim("GMT_Sorter_info") << "GMT Sorter input: "
          << mycands.size() << endl;
     vector<L1MuGMTExtendedCand*>::const_iterator iter;
     for ( iter = mycands.begin(); iter != mycands.end(); iter++ ) {
@@ -183,15 +185,15 @@ void L1MuGMTSorter::reset() {
 //
 void L1MuGMTSorter::print() {
 
-  cout << endl;
-  cout << "Muon candidates found by the L1 Global Muon Trigger : "
+  edm::LogVerbatim("GMT_Sorter_info") << endl;
+  edm::LogVerbatim("GMT_Sorter_info") << "Muon candidates found by the L1 Global Muon Trigger : "
        << numberOfCands() << endl;
   vector<const L1MuGMTExtendedCand*>::const_iterator iter = m_MuonCands.begin();
   while ( iter != m_MuonCands.end() ) {
     if ( *iter ) (*iter)->print();
     iter++;
   }
-  cout << endl;
+  edm::LogVerbatim("GMT_Sorter_info") << endl;
 
 }
 

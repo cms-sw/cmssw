@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProEtaConvLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/07 16:57:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -32,6 +32,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 #include "SimG4Core/Notification/interface/Singleton.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //-------------------
 // InitParameters  --
@@ -63,7 +65,8 @@ unsigned L1MuGMTLFPhiProEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in)
   unsigned eta4bit = 0;
   if ( (isRPC && isFWD && fabs(etaValue) < m_theGMTScales->getReducedEtaScale(3)->getScaleMin() ) ||
        (isRPC && !isFWD && fabs(etaValue) > m_theGMTScales->getReducedEtaScale(1)->getScaleMax() )) {
-    if(!m_saveFlag) cout << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue << endl;
+    if(!m_saveFlag) edm::LogWarning("LUTRangeViolation") 
+     << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue << endl;
   }
   else 
     eta4bit = m_theGMTScales->getReducedEtaScale(idx)->getPacked( etaValue );

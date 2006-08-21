@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event
 //
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -30,6 +30,8 @@
 //-------------------------------
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //----------------
 // Constructors --
 //----------------
@@ -45,7 +47,7 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps,
   if(!fileNames().size()) {
     throw runtime_error("L1MuGMTHWFileReader: no input file");
   }
-  cout << "opening file " << fileNames()[0] << endl;
+  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames()[0] << endl;
   m_in.open((fileNames()[0].substr(fileNames()[0].find(":")+1)).c_str());
   if(!m_in) {
     throw runtime_error("L1MuGMTHWFileReader: file " + fileNames()[0]
@@ -69,7 +71,7 @@ void L1MuGMTHWFileReader::setRunAndEventInfo() {
   setRunNumber(m_evt.getRunNumber());
   setEventNumber(m_evt.getEventNumber());
 
-  cout << "run: " << m_evt.getRunNumber() << 
+  edm::LogInfo("GMT_HWFileReader_info") << "run: " << m_evt.getRunNumber() << 
           "   evt: " << m_evt.getEventNumber() << endl;
 }
 

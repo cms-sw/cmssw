@@ -5,8 +5,8 @@
 //   Description: DT/CSC cancel-out unit
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.6 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -29,6 +29,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -73,7 +75,7 @@ void L1MuGMTCancelOutUnit::run() {
 
   m_matcher.run();
   if (L1MuGMTConfig::Debug(3)) {
-    cout << "result of cancel-out matcher: " << endl;
+    edm::LogVerbatim("GMT_CancelOut_info") << "result of cancel-out matcher: " << endl;
     m_matcher.print();
   }
   decide(); 
@@ -98,22 +100,24 @@ void L1MuGMTCancelOutUnit::reset() {
 //
 void L1MuGMTCancelOutUnit::print() {
 
+  stringstream outmy;
   switch (m_id) {
-    case 0 : cout << "DT  " ; break;
-    case 1 : cout << "CSC " ; break;
-    case 2 : cout << "bRPC" ; break;
-    case 3 : cout << "fRPC" ; break;
+    case 0 : outmy << "DT  " ; break;
+    case 1 : outmy << "CSC " ; break;
+    case 2 : outmy << "bRPC" ; break;
+    case 3 : outmy << "fRPC" ; break;
   }
-  cout << "(my chip) cancel-bits : " ;
-  for ( int i = 0; i < 4; i++ ) cout << m_MyChipCancelbits[i] << "  ";
-  cout << endl;
+  outmy << "(my chip) cancel-bits : " ;
+  for ( int i = 0; i < 4; i++ ) outmy << m_MyChipCancelbits[i] << "  ";
+  edm::LogVerbatim("GMT_CancelOut_info") << outmy.str() << endl;
 
+  stringstream outother;
   if (m_id==2 || m_id==3) {
-    cout << (m_id==2 ? "CSC" : "DT" ) <<  "(other chip) cancel-bits : " ;
-    for ( int i = 0; i < 4; i++ ) cout << m_OtherChipCancelbits[i] << "  ";
-    cout << endl;
+    outother << (m_id==2 ? "CSC" : "DT" ) <<  "(other chip) cancel-bits : " ;
+    for ( int i = 0; i < 4; i++ ) outother << m_OtherChipCancelbits[i] << "  ";
+    outother << endl;
   }
-  cout << endl;
+  edm::LogVerbatim("GMT_CancelOut_info") << outother.str() << endl;
 }
 
 

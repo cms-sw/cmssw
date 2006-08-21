@@ -5,8 +5,8 @@
 //   Description: Look-up table for GMT Eta Projection Unit
 //
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -34,6 +34,8 @@
 // Collaborating Class Headers --
 //-------------------------------
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // --------------------------------
 //       class L1MuGMTEtaLUT
 //---------------------------------
@@ -59,7 +61,7 @@ int L1MuGMTEtaLUT::etabin(float eta, int isys) {
   int i;
   for (i=0; i<(int)NETA;i++)
     if (eta >= etabins[isys][i] && eta < etabins[isys][i+1]) break;
-  if (i>=(int)NETA) cout << "error in L1MuGMTEtaLUT::etabin(): could not assign eta bin " << endl;
+  if (i>=(int)NETA) edm::LogWarning("LUTProblem") << "L1MuGMTEtaLUT::etabin(): could not assign eta bin " << endl;
   return i;
 }
 

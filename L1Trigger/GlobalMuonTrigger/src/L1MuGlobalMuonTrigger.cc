@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -45,6 +45,8 @@
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //----------------
 // Constructors --
 //----------------
@@ -58,39 +60,39 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   if(!m_config) m_config = new L1MuGMTConfig(ps);
 
   // build GMT
-  if ( L1MuGMTConfig::Debug(1) ) cout << endl;
-  if ( L1MuGMTConfig::Debug(1) ) cout << "**** L1GlobalMuonTrigger building ****"
+  if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_info") << endl;
+  if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_info") << "**** L1GlobalMuonTrigger building ****"
                                       << endl;
-  if ( L1MuGMTConfig::Debug(1) ) cout << endl;
+  if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_info") << endl;
 
   // create new PSB
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT PSB" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT PSB" << endl;
   m_PSB = new L1MuGMTPSB(*this);
 
   // create new matcher
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT Matcher (0,1)" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT Matcher (0,1)" << endl;
   m_Matcher[0] = new L1MuGMTMatcher(*this,0);   // barrel
   m_Matcher[1] = new L1MuGMTMatcher(*this,1);   // endcap
 
   // create new cancel-out units
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT Cancel Out Unit (0,1,2,3)" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT Cancel Out Unit (0,1,2,3)" << endl;
   m_CancelOutUnit[0] = new L1MuGMTCancelOutUnit(*this,0);   // barrel
   m_CancelOutUnit[1] = new L1MuGMTCancelOutUnit(*this,1);   // endcap
   m_CancelOutUnit[2] = new L1MuGMTCancelOutUnit(*this,2);   // CSC/bRPC
   m_CancelOutUnit[3] = new L1MuGMTCancelOutUnit(*this,3);   // DT/fRPC
 
   // create new MIP & ISO bit assignment units
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT MIP & ISO bit Assigment Unit (0,1)" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT MIP & ISO bit Assigment Unit (0,1)" << endl;
   m_MipIsoAU[0] = new L1MuGMTMipIsoAU(*this,0);   // barrel
   m_MipIsoAU[1] = new L1MuGMTMipIsoAU(*this,1);   // endcap
 
   // create new Merger
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT Merger (0,1)" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT Merger (0,1)" << endl;
   m_Merger[0] = new L1MuGMTMerger(*this,0);   // barrel
   m_Merger[1] = new L1MuGMTMerger(*this,1);   // endcap
 
   // create new sorter
-  if ( L1MuGMTConfig::Debug(2) ) cout << "creating GMT Sorter" << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT Sorter" << endl;
   m_Sorter = new L1MuGMTSorter(*this);   // barrel
 
   if(!m_db) m_db = new L1MuGMTDebugBlock(m_config->getBxMin(),m_config->getBxMax());
@@ -129,10 +131,10 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // process the event
-  if ( L1MuGMTConfig::Debug(2) ) cout << endl;
-  if ( L1MuGMTConfig::Debug(2) ) cout << "**** L1GlobalMuonTrigger processing ****"
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "**** L1GlobalMuonTrigger processing ****"
                                       << endl;
-  if ( L1MuGMTConfig::Debug(2) ) cout << endl;
+  if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << endl;
 
   int bx_min = L1MuGMTConfig::getBxMin();
   int bx_max = L1MuGMTConfig::getBxMax();
@@ -152,10 +154,10 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
     // create new element in readout ring buffer
     m_ReadoutRingbuffer.push_back( new L1MuGMTReadoutRecord(bx) );
 
-    if ( L1MuGMTConfig::Debug(2) ) cout << "L1GlobalMuonTrigger processing bunch-crossing : " << bx << endl;
+    if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "L1GlobalMuonTrigger processing bunch-crossing : " << bx << endl;
 
     // get data into the data buffer
-    if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT PSB" << endl;
+    if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT PSB" << endl;
     if ( m_PSB ) {
       m_PSB->receiveData(e,bx);
       if ( L1MuGMTConfig::Debug(4) ) m_PSB->print();
@@ -164,48 +166,48 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
     if ( m_PSB && !m_PSB->empty() ) {
 
       // run matcher
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT barrel Matcher" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT barrel Matcher" << endl;
       if ( m_Matcher[0] ) m_Matcher[0]->run();
       if ( L1MuGMTConfig::Debug(3) && m_Matcher[0] ) m_Matcher[0]->print();
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT endcap Matcher" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT endcap Matcher" << endl;
       if ( m_Matcher[1] ) m_Matcher[1]->run();
       if ( L1MuGMTConfig::Debug(3) && m_Matcher[1] ) m_Matcher[1]->print();
 
       // run cancel-out units
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT barrel Cancel Out Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT barrel Cancel Out Unit" << endl;
       if ( m_CancelOutUnit[0] ) m_CancelOutUnit[0]->run();
       if ( L1MuGMTConfig::Debug(3) && m_CancelOutUnit[0] ) m_CancelOutUnit[0]->print();
 
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT endcap Cancel Out Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT endcap Cancel Out Unit" << endl;
       if ( m_CancelOutUnit[1] ) m_CancelOutUnit[1]->run();
       if ( L1MuGMTConfig::Debug(3) && m_CancelOutUnit[1] ) m_CancelOutUnit[1]->print();
 
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT CSC/fRPC Cancel Out Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT CSC/fRPC Cancel Out Unit" << endl;
       if ( m_CancelOutUnit[2] ) m_CancelOutUnit[2]->run();
       if ( L1MuGMTConfig::Debug(3) && m_CancelOutUnit[2] ) m_CancelOutUnit[2]->print();
 
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT DT/bRPC Cancel Out Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT DT/bRPC Cancel Out Unit" << endl;
       if ( m_CancelOutUnit[3] ) m_CancelOutUnit[3]->run();
       if ( L1MuGMTConfig::Debug(3) && m_CancelOutUnit[3] ) m_CancelOutUnit[3]->print();
 
       // run MIP & ISO bit assignment units
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT barrel MIP & ISO bit Assignment Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT barrel MIP & ISO bit Assignment Unit" << endl;
       if ( m_MipIsoAU[0] ) m_MipIsoAU[0]->run();
       if ( L1MuGMTConfig::Debug(3) && m_MipIsoAU[0] ) m_MipIsoAU[0]->print();
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT endcap MIP & ISO bit Assignment Unit" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT endcap MIP & ISO bit Assignment Unit" << endl;
       if ( m_MipIsoAU[1] ) m_MipIsoAU[1]->run();
       if ( L1MuGMTConfig::Debug(3) && m_MipIsoAU[1] ) m_MipIsoAU[1]->print();
 
       // run Merger
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT barrel Merger" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT barrel Merger" << endl;
       if ( m_Merger[0] ) m_Merger[0]->run();
       if ( L1MuGMTConfig::Debug(3) && m_Merger[0] ) m_Merger[0]->print();
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT endcap Merger" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT endcap Merger" << endl;
       if ( m_Merger[1] ) m_Merger[1]->run();
       if ( L1MuGMTConfig::Debug(3) && m_Merger[1] ) m_Merger[1]->print();
 
       // run sorter
-      if ( L1MuGMTConfig::Debug(2) ) cout << "running GMT Sorter" << endl;
+      if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "running GMT Sorter" << endl;
       if ( m_Sorter ) m_Sorter->run();
       if ( L1MuGMTConfig::Debug(1) && m_Sorter ) m_Sorter->print();
 
