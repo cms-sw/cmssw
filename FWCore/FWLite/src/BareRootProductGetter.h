@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id$
+// $Id: BareRootProductGetter.h,v 1.1 2006/05/29 12:52:06 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include "boost/shared_ptr.hpp"
+#include "Rtypes.h"
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
