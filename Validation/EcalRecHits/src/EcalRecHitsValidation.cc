@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2006/05/22 $
+ * $Date: 2006/06/29 11:07:41 $
  * \author C. Rovelli
  *
 */
@@ -14,7 +14,7 @@
 EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 
   // ---------------------- 
-  HepMCLabel                 = ps.getUntrackedParameter("moduleLabelMC", string("PythiaSource")); 
+  HepMCLabel                 = ps.getParameter<std::string>("moduleLabelMC"); 
   recHitProducer_            = ps.getParameter<std::string>("recHitProducer");
   ESrecHitProducer_          = ps.getParameter<std::string>("ESrecHitProducer");
   EBrechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
