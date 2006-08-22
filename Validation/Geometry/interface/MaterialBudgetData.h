@@ -135,6 +135,21 @@ public:
   float getStepInitialEnergy( int is) {
     return theStepInitialEnergy[is];
   }
+  float getStepInitialPx( int is) {
+    return theStepInitialPx[is];
+  }
+  float getStepInitialPy( int is) {
+    return theStepInitialPy[is];
+  }
+  float getStepInitialPz( int is) {
+    return theStepInitialPz[is];
+  }
+  float getStepInitialBeta( int is) {
+    return theStepInitialBeta[is];
+  }
+  float getStepInitialGamma( int is) {
+    return theStepInitialGamma[is];
+  }
   float getStepFinalPt( int is) {
     return theStepFinalPt[is];
   }
@@ -146,6 +161,21 @@ public:
   }
   float getStepFinalEnergy( int is) {
     return theStepFinalEnergy[is];
+  }
+  float getStepFinalPx( int is) {
+    return theStepFinalPx[is];
+  }
+  float getStepFinalPy( int is) {
+    return theStepFinalPy[is];
+  }
+  float getStepFinalPz( int is) {
+    return theStepFinalPz[is];
+  }
+  float getStepFinalBeta( int is) {
+    return theStepFinalBeta[is];
+  }
+  float getStepFinalGamma( int is) {
+    return theStepFinalGamma[is];
   }
   int getStepProcess( int is) {
     return theStepProcess[is];
@@ -234,10 +264,20 @@ public:
   float* theStepInitialEta;
   float* theStepInitialPhi;
   float* theStepInitialEnergy;
+  float* theStepInitialPx;
+  float* theStepInitialPy;
+  float* theStepInitialPz;
+  float* theStepInitialBeta;
+  float* theStepInitialGamma;
   float* theStepFinalPt;
   float* theStepFinalEta;
   float* theStepFinalPhi;
   float* theStepFinalEnergy;
+  float* theStepFinalPx;
+  float* theStepFinalPy;
+  float* theStepFinalPz;
+  float* theStepFinalBeta;
+  float* theStepFinalGamma;
   int*   theStepProcess;
   // rr
   float theTrkLen;

@@ -45,7 +45,7 @@ void MaterialBudgetCategorizer::buildMaps()
     sup=sen=cab=col=ele=0.;
     oth=1.;
     air=0;
-    cout << " material " << (*matTable)[ii]->GetName() << " prepared" << endl;
+    cout << " material " << (*matTable)[ii]->GetName() << " prepared X0 = " << (*matTable)[ii]->GetRadlen() << " mm" << endl;
     if((*matTable)[ii]->GetName()=="Air") {
       air=1.000; 
       oth=0.000;

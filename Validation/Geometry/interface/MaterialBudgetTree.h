@@ -80,10 +80,20 @@ private:
   float t_ParticleStepInitialEta[MAXSTEPS];  
   float t_ParticleStepInitialPhi[MAXSTEPS];  
   float t_ParticleStepInitialEnergy[MAXSTEPS];  
+  float t_ParticleStepInitialPx[MAXSTEPS];  
+  float t_ParticleStepInitialPy[MAXSTEPS];  
+  float t_ParticleStepInitialPz[MAXSTEPS];  
+  float t_ParticleStepInitialBeta[MAXSTEPS];  
+  float t_ParticleStepInitialGamma[MAXSTEPS];  
   float t_ParticleStepFinalPt[MAXSTEPS];  
   float t_ParticleStepFinalEta[MAXSTEPS];  
   float t_ParticleStepFinalPhi[MAXSTEPS];  
   float t_ParticleStepFinalEnergy[MAXSTEPS];  
+  float t_ParticleStepFinalPx[MAXSTEPS];  
+  float t_ParticleStepFinalPy[MAXSTEPS];  
+  float t_ParticleStepFinalPz[MAXSTEPS];  
+  float t_ParticleStepFinalBeta[MAXSTEPS];  
+  float t_ParticleStepFinalGamma[MAXSTEPS];  
   int   t_ParticleStepInteraction[MAXSTEPS];  
   // rr
 };

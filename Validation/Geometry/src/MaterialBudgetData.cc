@@ -59,10 +59,20 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepInitialEta     = new float[MAXNUMBERSTEPS];
   theStepInitialPhi     = new float[MAXNUMBERSTEPS];
   theStepInitialEnergy  = new float[MAXNUMBERSTEPS];
+  theStepInitialPx      = new float[MAXNUMBERSTEPS];
+  theStepInitialPy      = new float[MAXNUMBERSTEPS];
+  theStepInitialPz      = new float[MAXNUMBERSTEPS];
+  theStepInitialBeta    = new float[MAXNUMBERSTEPS];
+  theStepInitialGamma   = new float[MAXNUMBERSTEPS];
   theStepFinalPt        = new float[MAXNUMBERSTEPS];
   theStepFinalEta       = new float[MAXNUMBERSTEPS];
   theStepFinalPhi       = new float[MAXNUMBERSTEPS];
   theStepFinalEnergy    = new float[MAXNUMBERSTEPS];
+  theStepFinalPx        = new float[MAXNUMBERSTEPS];
+  theStepFinalPy        = new float[MAXNUMBERSTEPS];
+  theStepFinalPz        = new float[MAXNUMBERSTEPS];
+  theStepFinalBeta      = new float[MAXNUMBERSTEPS];
+  theStepFinalGamma     = new float[MAXNUMBERSTEPS];
   theStepProcess        = new int[MAXNUMBERSTEPS];
   // rr
 }
@@ -149,7 +159,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   //  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
      
   G4LogicalVolume* lv = aStep->GetTrack()->GetVolume()->GetLogicalVolume();
-
+  
   // instantiate the categorizer
   int volumeID   = myMaterialBudgetCategorizer->volume( lv->GetName() );
   int materialID = myMaterialBudgetCategorizer->material( lv->GetMaterial()->GetName() );
@@ -231,10 +241,20 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepInitialEta[theStepN]     = prePoint->GetMomentum().eta();
     theStepInitialPhi[theStepN]     = prePoint->GetMomentum().phi();
     theStepInitialEnergy[theStepN]  = prePoint->GetTotalEnergy();
+    theStepInitialPx[theStepN]      = prePoint->GetMomentum().x();
+    theStepInitialPy[theStepN]      = prePoint->GetMomentum().y();
+    theStepInitialPz[theStepN]      = prePoint->GetMomentum().z();
+    theStepInitialBeta[theStepN]    = prePoint->GetBeta();
+    theStepInitialGamma[theStepN]   = prePoint->GetGamma();
     theStepFinalPt[theStepN]        = postPoint->GetMomentum().perp();
     theStepFinalEta[theStepN]       = postPoint->GetMomentum().eta();
     theStepFinalPhi[theStepN]       = postPoint->GetMomentum().phi();
     theStepFinalEnergy[theStepN]    = postPoint->GetTotalEnergy();
+    theStepFinalPx[theStepN]        = postPoint->GetMomentum().x();
+    theStepFinalPy[theStepN]        = postPoint->GetMomentum().y();
+    theStepFinalPz[theStepN]        = postPoint->GetMomentum().z();
+    theStepFinalBeta[theStepN]      = postPoint->GetBeta();
+    theStepFinalGamma[theStepN]     = postPoint->GetGamma();
     theStepProcess[theStepN] = interactionPre->GetProcessType();
     std::cout << " step " << theStepN
 	      << "\tDelta MB = " << theDmb[theStepN]
@@ -274,11 +294,21 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << "\tmaterial " << theMaterialID[theStepN] << " " << theMaterialName[theStepN]
 	      << "\tX0 = " << theMaterialX0[theStepN] << " mm"
 	      << std::endl;
-    std::cout << "\t\tParticle " << theStepID[theStepN] 
-	      << " Pt = "        << theStepInitialPt[theStepN]     << " MeV/c"
-	      << " eta = "       << theStepInitialEta[theStepN]
-	      << " phi = "       << theStepInitialPhi[theStepN]
-	      << " Energy = "    << theStepInitialEnergy[theStepN] << " MeV"
+    std::cout << "\t\tParticle "  << theStepID[theStepN] 
+	      << " Initial Pt = " << theStepInitialPt[theStepN]     << " MeV/c"
+	      << " eta = "        << theStepInitialEta[theStepN]
+	      << " phi = "        << theStepInitialPhi[theStepN]
+	      << " Energy = "     << theStepInitialEnergy[theStepN] << " MeV"
+	      << " Beta = "       << theStepInitialBeta[theStepN]
+	      << " Gamma = "      << theStepInitialGamma[theStepN]
+	      << std::endl
+	      << "\t\tParticle "  << theStepID[theStepN]
+	      << " Final Pt = "   << theStepFinalPt[theStepN]       << " MeV/c"
+	      << " eta = "        << theStepFinalEta[theStepN]
+	      << " phi = "        << theStepFinalPhi[theStepN]
+	      << " Energy = "     << theStepFinalEnergy[theStepN]   << " MeV"
+	      << " Beta = "       << theStepFinalBeta[theStepN]
+	      << " Gamma = "      << theStepFinalGamma[theStepN]
 	      << std::endl;
     std:: cout << "\tVolume Centre x = " << theVolumeX[theStepN]
 	       << "\ty = "               << theVolumeY[theStepN]
