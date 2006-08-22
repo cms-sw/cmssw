@@ -5,11 +5,10 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
+$Id: RefItem.h,v 1.4 2006/06/14 23:40:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
-#include <iostream>
 
 #include "DataFormats/Common/interface/RefCore.h"
 

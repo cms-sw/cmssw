@@ -8,13 +8,11 @@ ModuleDescription: The description of a producer module.
 $Id: ModuleDescription.h,v 1.5 2006/07/21 21:56:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-//INCLUDECHECKER: Removed this line: #include <iostream>
+#include <ostream>
 
-//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/PassID.h"
-//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/ParameterSetID.h"
+#include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "DataFormats/Common/interface/ProcessConfigurationID.h"
-//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
 
 namespace edm {

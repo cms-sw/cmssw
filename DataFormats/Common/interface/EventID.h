@@ -17,11 +17,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.1.2.1 2006/07/05 23:55:14 wmtan Exp $
+// $Id: EventID.h,v 1.2 2006/07/06 18:34:05 wmtan Exp $
 //
 
 // system include files
-#include <iostream>
+#include <ostream>
 
 // user include files
 

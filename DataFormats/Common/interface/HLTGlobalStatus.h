@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/07/13 15:12:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/25 18:10:25 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
 #include <vector>
-#include <iostream>
+#include <ostream>
 
 namespace edm
 {

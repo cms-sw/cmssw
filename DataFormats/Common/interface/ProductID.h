@@ -5,11 +5,11 @@
   
 ProductID: A unique identifier for each EDProduct within a process.
 
-$Id: ProductID.h,v 1.4 2005/07/30 23:40:36 wmtan Exp $
+$Id: ProductID.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <iostream>
+#include <ostream>
 
 namespace edm {
   struct ProductID {

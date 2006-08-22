@@ -1,7 +1,7 @@
 #ifndef Common_ProcessHistory_h
 #define Common_ProcessHistory_h
 
-//INCLUDECHECKER: Removed this line: #include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 

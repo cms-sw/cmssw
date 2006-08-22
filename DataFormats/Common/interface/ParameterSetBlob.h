@@ -12,7 +12,7 @@ $Id: ParameterSetBlob.h,v 1.1 2006/03/10 17:54:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-//INCLUDECHECKER: Removed this line: #include <iostream>
+#include <ostream>
 #include <string>
 
 namespace edm {
