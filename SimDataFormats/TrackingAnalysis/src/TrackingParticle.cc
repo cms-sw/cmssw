@@ -1,5 +1,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
+
 TrackingParticle::TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
 				    double t, const int pdgId, const EncodedEventId eventId) :
   reco::Particle( q, p4, vtx ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
@@ -47,3 +49,11 @@ TrackingParticle::pSH_iterator TrackingParticle::pSimHit_begin() const {
 TrackingParticle::pSH_iterator TrackingParticle::pSimHit_end() const {
     return trackPSimHit_.end();
 }
+
+void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
+  parentVertex_ = ref;
+}  
+
+void TrackingParticle::setDecayVertex(const TrackingVertexRef &ref) {
+  decayVertex_ = ref;
+}  

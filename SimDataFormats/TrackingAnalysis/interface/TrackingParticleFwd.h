@@ -1,5 +1,5 @@
-#ifndef TrackingAnalysis_TrackingParticle_h
-#define TrackingAnalysis_TrackingParticle_h
+#ifndef TrackingAnalysis_TrackingParticleFwd_h
+#define TrackingAnalysis_TrackingParticleFwd_h
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
