@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/06/24 21:04:46 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/27 08:42:23 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/ProductID.h"
 
 #include <cassert>
 #include <vector>
@@ -80,12 +81,13 @@ namespace reco
   class HLTFilterObjectWithRefs : public HLTFilterObject {
 
   private:
-    std::vector<edm::RefToBase<Candidate> > refs_;
+    std::vector<edm::RefToBase<Candidate> > refs_; // Refs into original collections
+    std::vector<edm::ProductID>             pids_; // PIDs of AssociationMaps and alike
 
   public:
 
     HLTFilterObjectWithRefs(int path=0, int module=0)
-      : HLTFilterObject(path,module), refs_() { }
+      : HLTFilterObject(path,module), refs_(), pids_() { }
 
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       this->HLTFilterObject::putParticle(ref);
@@ -94,6 +96,16 @@ namespace reco
 
     const edm::RefToBase<Candidate>& getParticleRef(const unsigned int i) const {
       return refs_.at(i);
+    }
+
+    void putPID(const edm::ProductID& pid) {
+      pids_.push_back(pid);
+    }
+
+    unsigned int nPID() const {return pids_.size();}
+
+    const edm::ProductID& getPID(const unsigned int i) const {
+      return pids_.at(i);
     }
  
   };
