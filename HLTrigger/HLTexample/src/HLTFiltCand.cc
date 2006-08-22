@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/08/18 16:49:59 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -112,7 +112,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(jetsTag_,jets     );
    iEvent.getByLabel(metsTag_,mets     );
    iEvent.getByLabel(trckTag_,trcks    );
-   iEvent.getByLabel(metsTag_,ecals    );
+   iEvent.getByLabel(ecalTag_,ecals    );
 
 
    // look for at least one g,e,m,t,j,M,TR,SC above its pt cut
