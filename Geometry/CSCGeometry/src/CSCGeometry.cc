@@ -38,7 +38,7 @@ void CSCGeometry::addDetType(GeomDetType* type) {
 void CSCGeometry::addDet(GeomDet* det){
   theDets.push_back(det);  
   theDetIds.push_back(det->geographicalId());
-  theDetMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
+  theMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
 }
 
 
@@ -79,8 +79,8 @@ const GeomDetUnit* CSCGeometry::idToDetUnit(DetId id) const
 
 
 const GeomDet* CSCGeometry::idToDet(DetId id) const{
-  CSCDetMap::const_iterator i = theDetMap.find(id);
-  return (i != theDetMap.end()) ?
+  CSCDetMap::const_iterator i = theMap.find(id);
+  return (i != theMap.end()) ?
     i->second : 0 ;
 }
 

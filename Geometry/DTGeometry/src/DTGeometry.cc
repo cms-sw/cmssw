@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/21 17:13:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/12 18:19:05 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,14 +31,14 @@ const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
 void DTGeometry::add(DTChamber* ch) {
   theDets.push_back(ch);
   theChambers.push_back(ch);
-  theDetMap.insert(DTDetMap::value_type(ch->geographicalId(),ch));
+  theMap.insert(DTDetMap::value_type(ch->geographicalId(),ch));
 }
 
 
 void DTGeometry::add(DTSuperLayer* sl) {
   theDets.push_back(sl);
   theSuperLayers.push_back(sl);
-  theDetMap.insert(DTDetMap::value_type(sl->geographicalId(),sl));
+  theMap.insert(DTDetMap::value_type(sl->geographicalId(),sl));
 }
 
 
@@ -46,7 +46,7 @@ void DTGeometry::add(DTLayer* l) {
   theDetUnits.push_back(l);
   theDets.push_back(l);
   theLayers.push_back(l); 
-  theDetMap.insert(DTDetMap::value_type(l->geographicalId(),l));
+  theMap.insert(DTDetMap::value_type(l->geographicalId(),l));
 }
 
 
@@ -82,8 +82,8 @@ const GeomDetUnit* DTGeometry::idToDetUnit(DetId id) const{
 const GeomDet* DTGeometry::idToDet(DetId id) const{
   // Strip away wire#, if any!
   DTLayerId lId(id.rawId());
-  DTDetMap::const_iterator i = theDetMap.find(lId);
-  return (i != theDetMap.end()) ?
+  DTDetMap::const_iterator i = theMap.find(lId);
+  return (i != theMap.end()) ?
     i->second : 0 ;
 }
 
