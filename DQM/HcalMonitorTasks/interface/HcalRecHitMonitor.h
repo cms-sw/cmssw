@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2006/06/23 16:08:13 $
-  * $Revision: 1.5 $
+  * $Date: 2006/08/15 19:58:52 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -32,6 +32,7 @@ private:  ///Monitoring elements
   struct{
     MonitorElement* meOCC_MAP_GEO;
     MonitorElement* meRECHIT_E_all;
+    MonitorElement* meRECHIT_E_low;
     MonitorElement* meRECHIT_E_tot;
     MonitorElement* meRECHIT_T_tot;
     std::map<HcalDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  // complicated per-channel histogram setup

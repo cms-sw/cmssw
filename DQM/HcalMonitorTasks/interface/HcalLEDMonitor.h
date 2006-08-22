@@ -11,8 +11,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/06/23 16:08:13 $
-  * $Revision: 1.1 $
+  * $Date: 2006/08/15 19:58:52 $
+  * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -48,6 +48,7 @@ private:
     map<HcalDetId,MonitorElement*> sigRange;
     map<HcalDetId,MonitorElement*> tailRange;
 
+    MonitorElement* shapePED;
     MonitorElement* shapeALL;
     MonitorElement* timeALL;
     MonitorElement* rms_ped;

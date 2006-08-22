@@ -41,7 +41,8 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     meEVT_->Fill(ievt_);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HBHE");
-    hbHists.shapeALL =  m_dbe->book1D("HBHE Average Pulse Shape","HBHE Average Pulse Shape",10,0,9);
+    hbHists.shapePED =  m_dbe->book1D("HBHE Ped Subtracted Pulse Shape","HBHE Ped Subtracted Pulse Shape",10,-0.5,9.5);
+    hbHists.shapeALL =  m_dbe->book1D("HBHE Average Pulse Shape","HBHE Average Pulse Shape",10,-0.5,9.5);
     hbHists.timeALL =  m_dbe->book1D("HBHE Average Pulse Time","HBHE Average Pulse Time",200,0,4);
     hbHists.rms_ped =  m_dbe->book1D("HBHE LED Ped Region RMS Values","HBHE LED Ped Region RMS Values",100,0,2);
     hbHists.mean_ped =  m_dbe->book1D("HBHE LED Ped Region Mean Values","HBHE LED Ped Region Mean Values",100,0,4);
@@ -55,7 +56,8 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hbHists.err_map_elec =  m_dbe->book2D("HBHE LED Elec Error Map","HBHE LED Elec Error Map",20,0,20,20,0,20);
     
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
-    hfHists.shapeALL =  m_dbe->book1D("HF Average Pulse Shape","HF Average Pulse Shape",10,0,9);
+    hfHists.shapePED =  m_dbe->book1D("HF Ped Subtracted Pulse Shape","HF Ped Subtracted Pulse Shape",10,-0.5,9.5);
+    hfHists.shapeALL =  m_dbe->book1D("HF Average Pulse Shape","HF Average Pulse Shape",10,-0.5,9.5);
     hfHists.timeALL =  m_dbe->book1D("HF Average Pulse Time","HF Average Pulse Time",200,0,4);
     hfHists.rms_ped =  m_dbe->book1D("HF LED Ped Region RMS Values","HF LED Ped Region RMS Values",100,0,2);
     hfHists.mean_ped =  m_dbe->book1D("HF LED Ped Region Mean Values","HF LED Ped Region Mean Values",100,0,4);
@@ -69,7 +71,8 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hfHists.err_map_elec =  m_dbe->book2D("HF LED Elec Error Map","HF LED Elec Error Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
-    hoHists.shapeALL =  m_dbe->book1D("HO Average Pulse Shape","HO Average Pulse Shape",10,0,9);
+    hoHists.shapePED =  m_dbe->book1D("HO Ped Subtracted Pulse Shape","HO Ped Subtracted Pulse Shape",10,-0.5,9.5);
+    hoHists.shapeALL =  m_dbe->book1D("HO Average Pulse Shape","HO Average Pulse Shape",10,-0.5,9.5);
     hoHists.timeALL =  m_dbe->book1D("HO Average Pulse Time","HO Average Pulse Time",200,0,4);
     hoHists.rms_ped =  m_dbe->book1D("HO LED Ped Region RMS Values","HO LED Ped Region RMS Values",100,0,2);
     hoHists.mean_ped =  m_dbe->book1D("HO LED Ped Region Mean Values","HO LED Ped Region Mean Values",100,0,4);
@@ -112,7 +115,8 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if(b!=0) hbHists.timeALL->Fill(t/b);
       for (int i=0; i<digi.size(); i++) {
 	if(i<10){
-	  hbHists.shapeALL->Fill(i,digi.sample(i).adc()-ped);
+	  hbHists.shapeALL->Fill(i,digi.sample(i).adc());
+	  hbHists.shapePED->Fill(i,digi.sample(i).adc()-ped);
 	  vals[i] = digi.sample(i).adc()-ped;
 	}
       }
@@ -127,7 +131,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   try{
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
-      if(digi.size()<10) continue;
+      if(digi.size()!=10) continue;
       float vals[10];
       float ped = (digi.sample(0).adc()+digi.sample(1).adc()+digi.sample(2).adc()+digi.sample(3).adc())/4.0;      
       float t = (digi.sample(4).adc()-ped
@@ -137,10 +141,9 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       float b = (digi.sample(4).adc()+digi.sample(5).adc()+digi.sample(6).adc()+digi.sample(7).adc()-4.0*ped);
       if(b!=0) hoHists.timeALL->Fill(t/b);
       for (int i=0; i<digi.size(); i++) {
-	if(i<10){
-	  hoHists.shapeALL->Fill(i,digi.sample(i).adc()-ped);
-	  vals[i] = digi.sample(i).adc()-ped;
-	}
+	hoHists.shapeALL->Fill(i,digi.sample(i).adc());
+	hoHists.shapePED->Fill(i,digi.sample(i).adc()-ped);
+	vals[i] = digi.sample(i).adc()-ped;
       }
       if(m_doPerChannel) perChanHists(1,digi.id(),vals,hoHists.shape, hoHists.pedRange, 
 				      hoHists.sigRange, hoHists.tailRange, hoHists.time);
@@ -163,7 +166,8 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if(b!=0) hfHists.timeALL->Fill(t/b);
       for (int i=0; i<digi.size(); i++) {
 	if(i<10){
-	  hfHists.shapeALL->Fill(i,digi.sample(i).adc()-ped);
+	  hfHists.shapePED->Fill(i,digi.sample(i).adc()-ped);
+	  hfHists.shapeALL->Fill(i,digi.sample(i).adc());
 	  vals[i] = digi.sample(i).adc()-ped;
 	}
       }
@@ -227,7 +231,7 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals, ma
     char name[1024];
     sprintf(name,"%s LED Shape ieta=%d iphi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());      
     MonitorElement* insert1;
-    insert1 =  m_dbe->book1D(name,name,10,0,9);
+    insert1 =  m_dbe->book1D(name,name,10,-0.5,9.5);
     for(int i=0; i<10; i++)
       insert1->Fill(i,vals[i]); 
     tShape[detid] = insert1;

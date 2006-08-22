@@ -90,6 +90,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     meEVT_->Fill(ievt_);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HBHE");
+    hbHists.SHAPE =  m_dbe->book1D("HBHE Digi Shape","HBHE Digi Shape",10,-0.5,9.5);
+    hbHists.SHAPE_THR =  m_dbe->book1D("HBHE Digi Shape, over thresh","HBHE Digi Shape, over thresh",10,-0.5,9.5);
+
     hbHists.DIGI_NUM =  m_dbe->book1D("HBHE # of Digis","HBHE # of Digis",200,0,1000);
     hbHists.DIGI_SIZE =  m_dbe->book1D("HBHE Digi Size","HBHE Digi Size",50,0,50);
     hbHists.DIGI_PRESAMPLE =  m_dbe->book1D("HBHE Digi Presamples","HBHE Digi Presamples",50,0,50);
@@ -102,6 +105,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.OCC_MAP_ELEC = m_dbe->book2D("HBHE Digi Elec Occupancy Map","HBHE Digi Elec Occupancy Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
+    hfHists.SHAPE =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
+    hfHists.SHAPE_THR =  m_dbe->book1D("HF Digi Shape, over thresh","HF Digi Shape, over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",200,0,1000);
     hfHists.DIGI_SIZE =  m_dbe->book1D("HF Digi Size","HF Digi Size",50,0,50);
     hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,0,50);
@@ -114,6 +119,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hfHists.OCC_MAP_ELEC = m_dbe->book2D("HF Digi Elec Occupancy Map","HF Digi Elec Occupancy Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
+    hoHists.SHAPE =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
+    hoHists.SHAPE_THR =  m_dbe->book1D("HO Digi Shape, over thresh","HO Digi Shape, over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",200,0,1000);
     hoHists.DIGI_SIZE =  m_dbe->book1D("HO Digi Size","HO Digi Size",50,0,50);
     hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,0,50);
@@ -142,6 +149,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   try{
     hbHists.DIGI_NUM->Fill(hbhe.size());
+ 
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
       HcalDigiMap::fillErrors<HBHEDataFrame>(digi,hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_ELEC);	  
@@ -149,7 +157,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       hbHists.DIGI_SIZE->Fill(digi.size());
       hbHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
+      float max=-100;
+      for (int i=0; i<digi.size(); i++) {
+	if(digi.sample(i).adc()>max) max = digi.sample(i).adc();	
+      }
       for (int i=0; i<digi.size(); i++) {	    
+	hbHists.SHAPE->Fill(i,digi.sample(i).adc());
+	if(max>occThresh_) hbHists.SHAPE_THR->Fill(i,digi.sample(i).adc());
 	hbHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hbHists.QIE_ADC->Fill(digi.sample(i).adc());
 	hbHists.QIE_CAPID->Fill(5,bitUpset(last,digi.sample(i).capid()));
@@ -172,7 +186,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       hoHists.DIGI_SIZE->Fill(digi.size());
       hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
+      float max=-100;
+      for (int i=0; i<digi.size(); i++) {
+	if(digi.sample(i).adc()>max) max = digi.sample(i).adc();	
+      }
       for (int i=0; i<digi.size(); i++) {	    
+	hoHists.SHAPE->Fill(i,digi.sample(i).adc());
+	if(max>occThresh_) hoHists.SHAPE_THR->Fill(i,digi.sample(i).adc());
 	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hoHists.QIE_ADC->Fill(digi.sample(i).adc());
 	hoHists.QIE_CAPID->Fill(5,bitUpset(last,digi.sample(i).capid()));
@@ -194,7 +214,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       hfHists.DIGI_SIZE->Fill(digi.size());
       hfHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
+      float max=-100;
+      for (int i=0; i<digi.size(); i++) {
+	if(digi.sample(i).adc()>max) max = digi.sample(i).adc();	
+      }
       for (int i=0; i<digi.size(); i++) {	    
+	hfHists.SHAPE->Fill(i,digi.sample(i).adc());
+	if(max>occThresh_) hfHists.SHAPE_THR->Fill(i,digi.sample(i).adc());
 	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hfHists.QIE_ADC->Fill(digi.sample(i).adc());
 	hfHists.QIE_CAPID->Fill(5,bitUpset(last,digi.sample(i).capid()));
