@@ -32,7 +32,15 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   EcalDCCHeaderInfos->setMemGain( int ((headerWord / GainModeOffSet)  & ThirdBitMask)/ThirdBitMask );
   //  EcalDCCHeaderInfos.Setting       = int ( headerWord / SettingOffSet);
 
+
   if (type ==0 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::COSMIC);}
+// begin: added for XDAQ 3
+  else if (type ==0 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::COSMIC);}
+  else if (type ==0 && sequence == 2){
+    EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::BEAMH4);}
+  else if (type ==0 && sequence == 3){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::BEAMH2);}
+  else if (type ==0 && sequence == 4){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::MTCC);}
+// end: added for XDAQ 3
   else if (type ==1 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_STD);}
   else if (type ==1 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_POWER_SCAN);}
   else if (type ==1 && sequence == 2){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_DELAY_SCAN);}
@@ -60,12 +68,18 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;// = new EcalDCCEventSettings;
   CleanEcalDCCSettingsInfo(&theSettings);
 
-  if(theHeader->getRunType() == EcalDCCHeaderBlock::COSMIC){;}//no settings foreseen
-  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_STD){
-    theSettings.LaserPower = (Setting & 8128)/64;
-    theSettings.LaserFilter = (Setting & 56)/8;
-    theSettings.wavelength = Setting & 7;
-  }
+  if( theHeader->getRunType() == EcalDCCHeaderBlock::COSMIC || 
+      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH2 || 
+      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH4 || 
+      theHeader->getRunType() == EcalDCCHeaderBlock::MTCC 
+      )
+    {;}//no settings foreseen
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_STD)
+    {
+      theSettings.LaserPower = (Setting & 8128)/64;
+      theSettings.LaserFilter = (Setting & 56)/8;
+      theSettings.wavelength = Setting & 7;
+    }
   else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_POWER_SCAN){
     theSettings.LaserPower = (Setting & 8128)/64;
     theSettings.LaserFilter = (Setting & 56)/8;
