@@ -12,7 +12,6 @@ $Id: BranchKey.h,v 1.2 2006/08/01 05:29:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
-//INCLUDECHECKER: Removed this line: #include <utility>
 
 namespace edm {
   class BranchDescription;

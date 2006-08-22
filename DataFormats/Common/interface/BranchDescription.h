@@ -8,7 +8,7 @@ This description also applies to every product instance on the branch.
 
 $Id: BranchDescription.h,v 1.15 2006/08/01 05:34:43 wmtan Exp $
 ----------------------------------------------------------------------*/
-//INCLUDECHECKER: Removed this line: #include <ostream>
+#include <ostream>
 #include <string>
 #include <set>
 

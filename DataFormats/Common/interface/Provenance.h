@@ -8,10 +8,10 @@ existence.
 
 $Id: Provenance.h,v 1.6 2006/07/06 18:34:05 wmtan Exp $
 ----------------------------------------------------------------------*/
-//INCLUDECHECKER: Removed this line: #include <ostream>
+#include <ostream>
 
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
-//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
 
 /*
