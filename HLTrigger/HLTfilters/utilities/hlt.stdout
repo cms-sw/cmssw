@@ -1,6 +1,0 @@
-Creating file: triggers.cfi with trigger definition.
-Skipping missing include HLTrigger/HLTfilters/utilities/HLTMuonLooseSequence.cfi
-Skipping missing include HLTrigger/HLTfilters/utilities/HLTPassThroughSequence.cfi
-Skipping missing include HLTrigger/HLTfilters/utilities/HLTMuonTightSequence.cfi
-Skipping missing include HLTrigger/HLTfilters/utilities/HLTElectronTightSequence.cfi
-Skipping missing include HLTrigger/HLTfilters/utilities/HLTElectronLooseSequence.cfi
