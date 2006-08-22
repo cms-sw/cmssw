@@ -36,7 +36,7 @@ public:
 private:
 
   /// Aligner has access to map
-  friend class TrackerGeometryAligner;
+  friend class GeometryAligner;
 
   DetTypeContainer  theDetTypes;
   DetUnitContainer  theDetUnits;
