@@ -9,7 +9,7 @@
 
 /// Common base class
 
-class MeasurementDetException : cms::Exception {
+class MeasurementDetException : public cms::Exception {
 public:
   MeasurementDetException( const std::string& message) throw() :  cms::Exception(message)  {}
   virtual ~MeasurementDetException() throw() {}
