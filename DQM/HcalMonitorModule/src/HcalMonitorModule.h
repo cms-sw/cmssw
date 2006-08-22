@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/08/15 19:58:37 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/15 23:04:17 $
+ * $Revision: 1.5 $
  * \author W. Fisher
  *
 */
@@ -29,6 +29,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
@@ -81,7 +82,8 @@ private:
   HcalDataFormatMonitor*  m_dfMon;
   HcalRecHitMonitor*      m_rhMon;
   HcalPedestalMonitor*    m_pedMon;
-  HcalLEDMonitor*    m_ledMon;
+  HcalLEDMonitor*         m_ledMon;
+  HcalMTCCMonitor*        m_mtccMon;
   
   bool m_monitorDaemon;
   bool offline_;

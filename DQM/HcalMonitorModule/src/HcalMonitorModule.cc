@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/15 23:04:17 $
- * $Revision: 1.13 $
+ * $Date: 2006/08/21 20:03:49 $
+ * $Revision: 1.14 $
  * \author W Fisher
  *
 */
@@ -18,30 +18,29 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   m_logFile.open("HcalMonitorModule.log");
 
-  m_dbe = 0;
+  m_dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
+    printf("\nGetting the m_dbe!!!\n");
     m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
     m_dbe->setVerbose(0);
   }
-
+  
   m_monitorDaemon = false;
   if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
     edm::Service<MonitorDaemon> daemon;
     daemon.operator->();
     m_monitorDaemon = true;
   }
-
   m_outputFile = ps.getUntrackedParameter<string>("outputFile", "");
   if ( m_outputFile.size() != 0 ) {
     cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
   }
-
   
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
   m_meEvtNum=0; m_meEvtMask=0;
   
-  if ( m_dbe ) {
+  if ( m_dbe !=NULL ) {
     m_dbe->setCurrentFolder("HcalMonitor");
     m_meStatus  = m_dbe->bookInt("STATUS");
     m_meRunNum  = m_dbe->bookInt("RUN NUMBER");
@@ -61,7 +60,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_evtSel = new HcalMonitorSelector(ps);
   m_digiMon = NULL; m_dfMon = NULL; 
   m_rhMon = NULL;   m_pedMon = NULL; 
-  m_ledMon = NULL;
+  m_ledMon = NULL;  m_mtccMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
     m_rhMon = new HcalRecHitMonitor();
@@ -88,6 +87,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_ledMon->setup(ps, m_dbe);
   }
 
+  if ( ps.getUntrackedParameter<bool>("MTCCMonitor", false) ) {
+    m_mtccMon = new HcalMTCCMonitor();
+    m_mtccMon->setup(ps, m_dbe);
+  }
+
   offline_ = ps.getUntrackedParameter<bool>("OffLine", false);
 
   //  if ( m_dbe ) m_dbe->showDirStructure();
@@ -106,6 +110,7 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_dfMon!=NULL) { delete m_dfMon; m_dfMon=NULL; }
   if(m_pedMon!=NULL) { delete m_pedMon; m_pedMon=NULL; }
   if(m_ledMon!=NULL) { delete m_ledMon; m_ledMon=NULL; }
+  if(m_mtccMon!=NULL) { delete m_mtccMon; m_mtccMon=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
   delete m_evtSel;
 
@@ -144,6 +149,7 @@ void HcalMonitorModule::endJob(void) {
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_pedMon!=NULL) m_pedMon->done();
   if(m_ledMon!=NULL) m_ledMon->done();
+  if(m_mtccMon!=NULL) m_mtccMon->done();
   cout << "HcalMonitorModule::endJob, done..."<< endl;
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
   cout << "HcalMonitorModule::endJob, saved..."<< endl;
@@ -208,16 +214,20 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   }
 
   // Rec Hit monitor task
+  edm::Handle<HBHERecHitCollection> hb_hits;
+  edm::Handle<HORecHitCollection> ho_hits;
+  edm::Handle<HFRecHitCollection> hf_hits;
+  try{e.getByType(hb_hits);} catch(...){}; 
+  try{e.getByType(ho_hits);} catch(...){}; 
+  try{e.getByType(hf_hits);} catch(...){}; 
   if((m_rhMon != NULL) && (evtMask&DO_HCAL_RECHITMON)){
-    edm::Handle<HBHERecHitCollection> hb_hits;
-    edm::Handle<HORecHitCollection> ho_hits;
-    edm::Handle<HFRecHitCollection> hf_hits;
-    try{e.getByType(hb_hits);} catch(...){}; 
-    try{e.getByType(ho_hits);} catch(...){}; 
-    try{e.getByType(hf_hits);} catch(...){}; 
     m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
   }
 
+  edm::Handle<LTCDigiCollection> ltc;
+  try{e.getByType(ltc);} catch(...){}; 
+  if(m_mtccMon != NULL) m_mtccMon->processEvent(*hb_hits,*ho_hits, *ltc);
+  
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 
