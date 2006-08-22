@@ -31,6 +31,7 @@ namespace cms
    uint ChargeThresholdTOB;
    uint ChargeThresholdTEC;
    uint MinClustersDiffComponents;
+   std::vector<uint32_t> ModulesToBeExcluded;
    // uint: generalized_layer: 10*subdetId + layer
    std::map<uint,std::vector<SiStripCluster> > clusters_in_subcomponents;
   };
