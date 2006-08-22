@@ -31,6 +31,7 @@ using namespace edm;
 
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 {
+  HLTDirectory="HLTResults";
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
   conf_ = iConfig;
 }
@@ -39,7 +40,7 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 void SiStripMonitorHLT::beginJob(const edm::EventSetup& es){
   using namespace edm;
 
-  dbe_->setCurrentFolder("HLTResults");
+  dbe_->setCurrentFolder(HLTDirectory);
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
   HLTDecision = dbe_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
   // all
@@ -116,5 +117,14 @@ void SiStripMonitorHLT::endJob(void){
   if(outputMEsInRootFile){
     dbe_->save(outputFileName);
   }
+
+  // delete MEs
+//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dbe_->pwd();
+////  std::string folder_to_delete = dbe_->monitorDirName + "/" + HLTDirectory;
+//  dbe_->cd();
+//  std::string folder_to_delete = HLTDirectory;
+//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<" Removing whole directory "<<folder_to_delete;
+//  dbe_->rmdir(folder_to_delete);
+
 }
 

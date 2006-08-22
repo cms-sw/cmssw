@@ -46,6 +46,8 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
        MonitorElement * ChargeOfEachClusterTIB_hlt;
        MonitorElement * ChargeOfEachClusterTOB_hlt;
        MonitorElement * ChargeOfEachClusterTEC_hlt;
+       //
+       std::string HLTDirectory;
 };
 
 #endif

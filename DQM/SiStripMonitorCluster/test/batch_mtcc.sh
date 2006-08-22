@@ -171,7 +171,7 @@ get_list_of_local_files(){
  echo "FIRSTFILE=$FIRSTFILE LASTFILE=$LASTFILE HOWMANYFILES=$HOWMANYFILES"
  #
  # the funny sort is done so that the files are ordered 1, 2, 3, ..., 10, 11, ..., and not 1,10,11,...,2,20, and so on
- LIST_OF_DATA_FILES = `ls $LOCAL_INPUT_DIRECTORY |  grep ${RUNNR} | grep "\.${INPUT_FILE_ENDING}" | sed 's/^.* //' | sort -n -t . +4 | head -${LASTFILE} | tail -${HOWMANYFILES}`
+ LIST_OF_DATA_FILES=`ls $LOCAL_INPUT_DIRECTORY |  grep ${RUNNR} | grep "\.${INPUT_FILE_ENDING}" | sed 's/^.* //' | sort -n -t . +4 | head -${LASTFILE} | tail -${HOWMANYFILES}`
  if [ "$LIST_OF_DATA_FILES" == "" ] ; then echo "No input reco files found!!!!!! Stopping here"; exit $OPTERROR; fi
 }
 

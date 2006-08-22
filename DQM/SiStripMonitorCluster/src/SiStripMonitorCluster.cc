@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.20 2006/08/04 13:34:04 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.21 2006/08/17 07:57:36 dkcira Exp $
 //
 //
 
@@ -279,6 +279,15 @@ void SiStripMonitorCluster::endJob(void){
     // save histos in a file
      dbe_->save(outputFileName);
    }
+
+  // delete MEs
+//  LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"pwd="<<dbe_->pwd();
+//  SiStripFolderOrganizer folder_organizer;
+////  std::string folder_to_delete = dbe_->monitorDirName + "/" + folder_organizer.getSiStripFolder();
+//  dbe_->cd();
+//  std::string folder_to_delete = folder_organizer.getSiStripFolder();
+//  LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<" Removing whole directory "<<folder_to_delete;
+//  dbe_->rmdir(folder_to_delete);
 }
 
 
