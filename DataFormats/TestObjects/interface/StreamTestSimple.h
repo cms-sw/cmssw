@@ -2,7 +2,6 @@
 #define TestObjects_StreamTestSimple_h
 
 #include "DataFormats/Common/interface/SortedCollection.h"
-//INCLUDECHECKER: Removed this line: #include <vector>
 
 namespace edmtestprod
 {

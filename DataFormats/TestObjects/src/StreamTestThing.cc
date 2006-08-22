@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-//INCLUDECHECKER: Removed this line: #include <iterator>
 
 using namespace std;
 

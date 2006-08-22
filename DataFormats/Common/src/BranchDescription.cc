@@ -1,5 +1,4 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
-//INCLUDECHECKER: Removed this line: #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 /*----------------------------------------------------------------------
