@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/08/01 15:29:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/15 01:00:30 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -87,7 +87,7 @@ void CosmicMuonTrajectoryBuilder::setES(const edm::EventSetup& setup) {
   thePropagator = eshPropagator->clone();
 
   theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator);
-  theUpdator = new MuonTrajectoryUpdator(thePropagator, theMaxChi2, 0);
+  theUpdator = new MuonTrajectoryUpdator(thePropagator,oppositeToMomentum, theMaxChi2, 0);
 
 }
 
