@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.3 2006/08/08 23:57:33 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.4 2006/08/22 18:28:35 chrjones Exp $
 //
 
 // system include files
@@ -104,6 +104,13 @@ void registerTypes() {
   unsigned                            i;
   const std::string mycat("Capability");
 
+  //in order to determine if a name is from a class or a namespace, we will order
+  // all the classes in descending order so that embedded classes will be seen before
+  // their containing classes, that way we can say the containing class is a namespace
+  // before finding out it is actually a class
+  std::vector<std::string> classes;
+  classes.reserve(1000);
+  
   for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
     for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
       for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
@@ -115,23 +122,31 @@ void registerTypes() {
           static const std::string cPrefix("LCGReflex/");
           if(cPrefix == cap.substr(0,cPrefix.size())) {
             std::string className = classNameForRoot( cap.c_str()+cPrefix.size() );
-            //need to register namespaces and figure out if we have an embedded class
-            static const std::string toFind(":<");
-            std::string::size_type pos=0;
-            while(std::string::npos != (pos = className.find_first_of(toFind,pos)) ) {
-              if( className[pos] == '<') {break;}
-              if (className.size() <= pos+1 or className[pos+1] != ':') {break;}
-              //should check to see if this is a class or not
-              G__set_class_autoloading_table(const_cast<char*>( className.substr(0,pos).c_str() ),"");
-              //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
-              pos +=2;
-            }
-            G__set_class_autoloading_table(const_cast<char*>( className.c_str()),"dummy");
-            //std::cout <<"class "<<className.c_str()<<std::endl;
+            classes.push_back(className);
           }
         }
       }
     }
+  }
+  std::sort(classes.begin(), classes.end(), std::greater<std::string>() );
+  for(std::vector<std::string>::iterator itClass = classes.begin();
+      itClass != classes.end();
+      ++itClass ) {
+    
+    const std::string& className = *itClass;
+    //need to register namespaces and figure out if we have an embedded class
+    static const std::string toFind(":<");
+    std::string::size_type pos=0;
+    while(std::string::npos != (pos = className.find_first_of(toFind,pos)) ) {
+      if( className[pos] == '<') {break;}
+      if (className.size() <= pos+1 or className[pos+1] != ':') {break;}
+      //should check to see if this is a class or not
+      G__set_class_autoloading_table(const_cast<char*>( className.substr(0,pos).c_str() ),"");
+      std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
+      pos +=2;
+    }
+    G__set_class_autoloading_table(const_cast<char*>( className.c_str()),"dummy");
+    std::cout <<"class "<<className.c_str()<<std::endl;
   }
 }
 
