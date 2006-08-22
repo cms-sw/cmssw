@@ -15,20 +15,19 @@ using std::string;
 StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
 
   prog_name_ = "StoreEcalCondition";
+
+  logfile_ = iConfig.getParameter< std::string >("logfile");
+
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
-
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) 
     {
       inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
       objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
-      appendCondition_.push_back(itToPut->getUntrackedParameter<bool>("appendCondition"));
+      since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
     }
 
-  sm_constr_=0;
-  firstrun_=0;
-  lastrun_=0;
-
+  sm_constr_ = -1;
 }
 
 void StoreEcalCondition::endJob() {
@@ -39,123 +38,62 @@ void StoreEcalCondition::endJob() {
   }
 
 
-  for (unsigned int i=0;i<objectName_.size();i++)
-    {
-
-      size_t callbackToken=mydbservice->callbackToken( objectName_[i]);
-
-      //   unsigned int irun=evt.id().run();
-
-      // FC I think we must change the mydbservice->currentTime() in 
-      //here 	mydbservice->newValidityForNewPayload<EcalWeightXtalGroups>(mycali,mydbservice->endOfTime(),callbackToken);
-      // to start from the firstrun
-
-
-      unsigned long long tillTime;
-      if(appendCondition_[i])   tillTime = (unsigned long long)(firstrun_ - 1); // close exisiting payload at first run of new payload; new payload valid until endOfTime
-      else                   tillTime = (unsigned long long)lastrun_; // create new payload for 1st time until last run
-
-      try{
-	if (objectName_[i] == "EcalWeightXtalGroups") {
-	  EcalWeightXtalGroups* mycali = readEcalWeightXtalGroupsFromFile(inpFileName_[i].c_str());
-      
-	  try{
-	    edm::LogInfo("StoreEcalCondition") <<"current time "<<mydbservice->currentTime();
-	    mydbservice->newValidityForNewPayload<EcalWeightXtalGroups>(mycali,tillTime,callbackToken);
-
-	  }catch(const cond::Exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(const std::exception& er){
-	    edm::LogError("StoreEcalCondition")<<"caught std::exception "<<er.what();
-	  }catch(...){
-	    edm::LogError("StoreEcalCondition")<<"Funny error";
-	  }
-	} else if (objectName_[i]  =="EcalTBWeights") {
-
-	  EcalTBWeights* mycali=readEcalTBWeightsFromFile(inpFileName_[i].c_str());
-
-	  try{
-	    edm::LogInfo("StoreEcalCondition")<<"current time "<<mydbservice->currentTime();
-	    mydbservice->newValidityForNewPayload<EcalTBWeights>(mycali,tillTime,callbackToken);
-
-	  }catch(const cond::Exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(const std::exception& er){
-	    edm::LogError("StoreEcalCondition")<<"caught std::exception "<<er.what();
-	  }catch(...){
-	    edm::LogError("StoreEcalCondition")<<"Funny error";
-	  }
-
-	}else if (objectName_[i]  == "EcalADCToGeVConstant") {
-
-
-	  EcalADCToGeVConstant* mycali=readEcalADCToGeVConstantFromFile(inpFileName_[i].c_str());
-	  try{
-	    edm::LogInfo("StoreEcalCondition")<<"current time "<<mydbservice->currentTime();
-	    mydbservice->newValidityForNewPayload<EcalADCToGeVConstant>(mycali,tillTime,callbackToken);
-
-	  }catch(const cond::Exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(const std::exception& er){
-	    edm::LogError("StoreEcalCondition")<<"caught std::exception "<<er.what();
-	  }catch(...){
-	    edm::LogError("StoreEcalCondition")<<"Funny error";
-	  }
-
-	} else if (objectName_[i]  ==  "EcalIntercalibConstants") {
-	  EcalIntercalibConstants* mycali=readEcalIntercalibConstantsFromFile(inpFileName_[i].c_str());
-	  try{
-	    edm::LogInfo("StoreEcalCondition")<<"current time "<<mydbservice->currentTime();
-	    mydbservice->newValidityForNewPayload<EcalIntercalibConstants>(mycali,tillTime,callbackToken);
-
-	  }catch(const cond::Exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(const std::exception& er){
-	    edm::LogError("StoreEcalCondition")<<"caught std::exception "<<er.what();
-	  }catch(...){
-	    edm::LogError("StoreEcalCondition")<<"Funny error";
-	  }
-
-	} else if (objectName_[i]  ==  "EcalGainRatios") {
-
-	  EcalGainRatios* mycali=readEcalGainRatiosFromFile(inpFileName_[i].c_str());
-	  try{
-	    edm::LogInfo("StoreEcalCondition")<<"current time "<<mydbservice->currentTime();
-	    mydbservice->newValidityForNewPayload<EcalGainRatios>(mycali,tillTime,callbackToken);
-
-	  }catch(const cond::Exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(const std::exception& er){
-	    edm::LogError("StoreEcalCondition")<<er.what();
-	  }catch(...){
-	    edm::LogError("StoreEcalCondition")<<"Funny error";
-	  }
-
-	} else {
-	  edm::LogError("StoreEcalCondition")<< "Object " << objectName_[i]  << " is not supported by this program." << endl;
-	}
-
-	writeToLogFile(objectName_[i], inpFileName_[i], appendCondition_[i]);
-
-      } catch(cond::Exception &e) {
-
-	writeToLogFileResults("finished with exception\n");
-	edm::LogError("StoreEcalCondition")<< e.what() ;
-      } catch(std::exception &e) {
-
-	writeToLogFileResults("finished with exception\n");
-	edm::LogError("StoreEcalCondition")<< e.what() ;
-      } catch(...) {
-
-	writeToLogFileResults("finished with exception\n");
-	edm::LogError("StoreEcalCondition") << "Unknown exception" ;
+  for (unsigned int i=0;i<objectName_.size();i++) {
+    try{
+      unsigned long long newTime;
+      if (since_[i] == 0) {
+	// This is the first object for this tag.
+	// Append mode should be off.
+	// newTime is the end of this new objects IOV.
+	newTime = mydbservice->endOfTime();
+      } else {
+	// There should already be an object in the DB for this tag.
+	// Append IOV mode should be on.
+	// newTime is the beginning of this new objects IOV.
+	newTime = since_[i];
       }
+	
+      edm::LogInfo("StoreEcalCondition") << "Reading " << objectName_[i] 
+					 << " from file and writing to DB with newTime " << newTime << endl;
+	
+	
+      size_t callbackToken=mydbservice->callbackToken( objectName_[i]);
+	
+      if (objectName_[i] == "EcalWeightXtalGroups") {
+	EcalWeightXtalGroups* mycali = readEcalWeightXtalGroupsFromFile(inpFileName_[i].c_str());
+	mydbservice->newValidityForNewPayload<EcalWeightXtalGroups>(mycali,newTime,callbackToken);
+      } else if (objectName_[i]  =="EcalTBWeights") {
+	EcalTBWeights* mycali=readEcalTBWeightsFromFile(inpFileName_[i].c_str());
+	mydbservice->newValidityForNewPayload<EcalTBWeights>(mycali,newTime,callbackToken);
+      } else if (objectName_[i]  == "EcalADCToGeVConstant") {
+	EcalADCToGeVConstant* mycali=readEcalADCToGeVConstantFromFile(inpFileName_[i].c_str());
+	mydbservice->newValidityForNewPayload<EcalADCToGeVConstant>(mycali,newTime,callbackToken);
+      } else if (objectName_[i]  ==  "EcalIntercalibConstants") {
+	EcalIntercalibConstants* mycali=readEcalIntercalibConstantsFromFile(inpFileName_[i].c_str());
+	mydbservice->newValidityForNewPayload<EcalIntercalibConstants>(mycali,newTime,callbackToken);
+      } else if (objectName_[i]  ==  "EcalGainRatios") {
+	EcalGainRatios* mycali=readEcalGainRatiosFromFile(inpFileName_[i].c_str());
+	mydbservice->newValidityForNewPayload<EcalGainRatios>(mycali,newTime,callbackToken);
+      } else {
+	edm::LogError("StoreEcalCondition")<< "Object " << objectName_[i]  << " is not supported by this program." << endl;
+      }
+
+      writeToLogFile(objectName_[i], inpFileName_[i], since_[i]);
+
+    } catch(cond::Exception &e) {
+      writeToLogFileResults("finished with exception\n");
+      edm::LogError("StoreEcalCondition")<< e.what() ;
+    } catch(std::exception &e) {
+      writeToLogFileResults("finished with exception\n");
+      edm::LogError("StoreEcalCondition")<< e.what() ;
+    } catch(...) {
+      writeToLogFileResults("finished with exception\n");
+      edm::LogError("StoreEcalCondition") << "Unknown exception" ;
     }
-  //cout << "about to write to logfile " << endl ;
+  }
+
   writeToLogFileResults("finished OK\n");
-  //cout << "done write to logfile " << endl ;
-
-
+  edm::LogInfo("StoreEcalCondition") << "Finished endJob" << endl;
 }
 
 
@@ -170,71 +108,26 @@ void StoreEcalCondition::analyze( const edm::Event& evt, const edm::EventSetup& 
 }
 
 
-//-------------------------------------------------------------
-void StoreEcalCondition::readSMRunFile() {
-//-------------------------------------------------------------
-
-  int sm_num[100]={0};
-  int start_run[100]={0};
-  int end_run[100]={0};
-  
-  FILE *inpFile; // input file
-  inpFile = fopen("/afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/sm_run.txt","r");
-  if(!inpFile) {
-    edm::LogError("StoreEcalCondition")<<"*** Can not open file: /afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/sm_run.txt"<<endl<<endl;
-    return;
-  }
-
-  char line[256];
-  
-  
-  int ii = 0;
-  //  cout << "reading file ...  " << endl;
-  
-  std::ostringstream str;
-  while(fgets(line,255,inpFile)) {
-    sscanf(line, "%d %d %d",  &sm_num[ii], &start_run[ii],&end_run[ii] );
-     str << "sm="<<sm_num[ii]<<" start run " << start_run[ii] << " end run"  << end_run[ii] <<endl;
-    
-    ii++ ;
-  }
-
-  edm::LogInfo("StoreEcalCondition") << str.str() ;
-  fclose(inpFile);           // close inp. file
-  
-  for (int ism=0; ism<ii; ism++){
-    if(sm_constr_ ==sm_num[ism]) {
-      firstrun_=start_run[ism];
-      lastrun_=end_run[ism];
-      edm::LogInfo("StoreEcalCondition")  << "sm required is ="<<sm_num[ism]<<" start run " << start_run[ism] << " end run"  << end_run[ism] ;
-    } 
-  }
-  
-  if(firstrun_ ==0 && lastrun_==0) {
-    edm::LogError("StoreEcalCondition") << "no run number found in file for SM="<<endl;	
-  }
-  
-}
-
 //------------------------------------------------------------
-void StoreEcalCondition::writeToLogFile(string a, string b, bool append) {
+void StoreEcalCondition::writeToLogFile(string a, string b, unsigned long long since) {
 //-------------------------------------------------------------
   
     FILE *outFile; // output log file for appending 
-    outFile = fopen("/afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log","a");  
+    outFile = fopen(logfile_.c_str(),"a");  
     if(!outFile) {
-      edm::LogError("StoreEcalCondition") <<"*** Can not open file: /afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log";
+      edm::LogError("StoreEcalCondition") <<"*** Can not open file: " << logfile_;
       return;
     }
     char header[256];
     fillHeader(header);
     char appendMode[10];
-    if (append)
+    if (since != 0)
       sprintf(appendMode,"append");
     else
       sprintf(appendMode,"create");
 
-    fprintf(outFile, "%s %s condition from file %s written into DB for SM %d in %s mode\n", header, a.c_str(),b .c_str(), sm_constr_, appendMode);
+    fprintf(outFile, "%s %s condition from file %s written into DB for SM %d in %s mode (since run %u)\n", 
+	    header, a.c_str(),b .c_str(), sm_constr_, appendMode, (unsigned int)since);
 
     fclose(outFile);           // close out file
 
@@ -244,9 +137,9 @@ void StoreEcalCondition::writeToLogFileResults(char* arg) {
 //-------------------------------------------------------------
   
     FILE *outFile; // output log file for appending 
-    outFile = fopen("/afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log","a");  
+    outFile = fopen(logfile_.c_str(),"a");  
     if(!outFile) {
-      edm::LogError("StoreEcalCondition")<<"*** Can not open file: /afs/cern.ch/cms/ECAL/testbeam/pedestal/2006/LOGFILE/offdb.log";
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: " << logfile_;
       return;
     }
     char header[256];
@@ -318,47 +211,50 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 
   std::ostringstream str;
   groupid_in >> smnumber;
-  if (smnumber == -99999)
+  if (smnumber == -99999) {
+    edm::LogError("StoreEcalCondition") << "ERROR: SM number not found in file" << endl;
     return 0;
-
+  }
   str << "sm= " << smnumber << endl;
+  sm_constr_ = smnumber;
 
   char temp[256];
   //Reading the other 5 header lines containing various informations
-  for (int i=0;i<=5;i++)
-    {
-      groupid_in.getline(temp,255);
-      str << temp << endl;
-    }
+  for (int i=0;i<=5;i++) {
+    groupid_in.getline(temp,255);
+    str << temp << endl;
+  }
+
+  // Skip the nGroup/Mean line
+  groupid_in.getline(temp, 255);
+  str << temp << endl;
 
   edm::LogInfo("StoreEcalCondition") << "GROUPID file " << str.str() ;
 
-  int xtals=0;
-  while (groupid_in.good())
-    {
-      int xtal_  = -99999;
-      int ietaf   = -99999;
-      int iphif   = -99999;
-      int groupID = -99999;
-      groupid_in >> xtal_ >> ietaf >> iphif >> groupID;
+  int xtals = 0;
+  int xtal, ietaf, iphif, groupID;
+  while (groupid_in.good()) {
+    groupid_in >> xtal >> ietaf >> iphif >> groupID;
+    if (groupid_in.eof()) { break; }
+    
+    LogDebug("StoreEcalCondition") << "XTAL=" << xtal << " ETA=" << ietaf << " PHI=" << iphif 
+				       << " GROUP=" << groupID ;
 
-      if (xtal_  == -99999 || groupID == -99999 || iphif  == -99999 || ietaf  == -99999 )
-	  break;
+    //EBDetId ebid(ieta,iphi);	
+    // Creating DetId for SM #1
+    EBDetId ebid(1,xtal,EBDetId::SMCRYSTALMODE);	
+    // xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( ebid.hashedIndex()) );
+    xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( groupID ) );
+    xtals++;
+  }//loop iphi
 
-      LogDebug("StoreEcalCondition") << "XTAL=" << xtal_ << " ETA=" << ietaf << " PHI=" << iphif 
-				     << " GROUP=" << groupID ;
-      
-        //EBDetId ebid(ieta,iphi);	
-	// Creating DetId for SM #1
-      EBDetId ebid(1,xtal_,EBDetId::SMCRYSTALMODE);	
-      //         xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( ebid.hashedIndex()) );
-      xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId( groupID ) );
-      xtals++;
-    }//loop iphi
+  if (xtals != 1700) {
+    edm::LogError("StoreEcalCondition") << "ERROR:  GROUPID file did not contain data for 1700 crystals" << endl;
+    return 0;
+  }
   
   edm::LogInfo("StoreEcalCondition") << "Groups for " << xtals << " xtals written into DB" ;
   sm_constr_ = smnumber;
-  readSMRunFile() ; // this to read the correct IOV from the official file 
   
   return xtalGroups;
 }
@@ -510,7 +406,7 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
     }//loop groupID
 
   sm_constr_ = smnumber;
-  readSMRunFile() ; // this to read the correct IOV from the official file 
+
 
   edm::LogInfo("StoreEcalCondition") << "Weights for " << ngroups << " groups written into DB" ;
   return tbwgt;
@@ -566,9 +462,7 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
     
     fclose(inpFile);           // close inp. file
 
-    sm_constr_ =sm_number;
-    readSMRunFile() ; // this to read the correct IOV from the official file 
-
+    sm_constr_ = sm_number;
 
     // barrel and endcaps the same 
     EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(adc_to_gev,adc_to_gev );
@@ -648,10 +542,7 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
 
     // Get channel ID 
     
-    sm_constr_ =sm_number;
-
-    readSMRunFile() ; // this to read the correct IOV from the official file 
-
+    sm_constr_ = sm_number;
 
     // Set the data
     
@@ -746,8 +637,7 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     if(ii!=1700) edm::LogWarning("StoreEcalCondition") << " Missing crystals:: missing channels will be set to 0" << endl;
 
     // Get channel ID 
-    sm_constr_ =sm_number;
-    readSMRunFile() ; // this to read the correct IOV from the official file 
+    sm_constr_ = sm_number;
 
     // DB supermodule always set to 1 
     int sm_db=1;

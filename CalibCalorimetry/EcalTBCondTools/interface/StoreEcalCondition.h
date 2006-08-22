@@ -52,8 +52,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char *);
   EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
-  void readSMRunFile() ;
-  void writeToLogFile(string , string, bool) ;
+  void writeToLogFile(string , string, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
 
   explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
@@ -68,15 +67,11 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
 
   std::vector< std::string > objectName_ ;
   // it can be of type: EcalWeightXtalGroups, EcalTBWeights, EcalADCToGeVConstant, EcalIntercalibConstants, EcalGainRatios
-
   std::vector< std::string > inpFileName_ ;
   std::string prog_name_ ;
-
-  int sm_constr_;
-  unsigned long firstrun_;
-  unsigned long lastrun_;
-
-  std::vector< bool > appendCondition_; // by default append to exisiting tag
+  int sm_constr_;  // SM number from data file
+  std::vector< unsigned long long > since_; // beginning IOV for objects
+  std::string logfile_;
 
   std::string to_string( char value[]) {
     std::ostringstream streamOut;
