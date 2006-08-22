@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.13 2006/07/10 21:28:22 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.14 2006/07/25 20:11:08 ewv Exp $
  *
  */
  
@@ -48,9 +48,11 @@ class TrackingVertex {
 
 // Add references to TrackingParticle, Geant4, and HepMC vertices to correct containers
 //  void add(         const TrackingParticleRef&);
-  void addG4Vertex( const SimVertexRef&       );
-  void addGenVertex(const GenVertexRef&       );
-  
+  void addG4Vertex(     const SimVertexRef&       );
+  void addGenVertex(    const GenVertexRef&       );
+  void addDaughterTrack(const TrackingParticleRef&);
+  void addParentTrack(  const TrackingParticleRef&);
+ 
 // Getters for RefVectors   
   const SimVertexRefVector         g4Vertices()       const;
   const GenVertexRefVector        genVertices()       const;
@@ -71,9 +73,10 @@ class TrackingVertex {
   
 // References to G4 and generator vertices and tracks
 
-  SimVertexRefVector  g4Vertices_;
-  GenVertexRefVector genVertices_;
-//  TrackingParticleContainer tracks_;
+  SimVertexRefVector              g4Vertices_;
+  GenVertexRefVector             genVertices_;
+  TrackingParticleRefVector daughterTracks_;
+  TrackingParticleRefVector   sourceTracks_;
 };
 
 #endif

@@ -29,8 +29,8 @@ string MessageCategory = "TrackingTruthProducer";
 TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   produces<TrackingVertexCollection>("VertexTruth");
   produces<TrackingParticleCollection>("TrackTruth");
-  produces<TrackVertexAssociationCollection>();
-  produces<VertexTrackAssociationCollection>();
+//  produces<TrackVertexAssociationCollection>();
+// produces<VertexTrackAssociationCollection>();
   conf_ = conf;
   distanceCut_      = conf_.getParameter<double>("vertexDistanceCut");
   dataLabels_       = conf_.getParameter<vector<string> >("HepMCDataLabels");
@@ -116,10 +116,10 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   AlltheConteiners.push_back(TOBHitsHighTof);
   AlltheConteiners.push_back(TECHitsLowTof);
   AlltheConteiners.push_back(TECHitsHighTof);
-//  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
-//  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
-//  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
-//  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
+  AlltheConteiners.push_back(PixelBarrelHitsHighTof);
+  AlltheConteiners.push_back(PixelBarrelHitsLowTof);
+  AlltheConteiners.push_back(PixelEndcapHitsHighTof);
+  AlltheConteiners.push_back(PixelEndcapHitsLowTof);
   
   
 //  genEvent.print();
@@ -134,11 +134,17 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
   edm::RefProd<TrackingParticleCollection> refTPC =
       event.getRefBeforePut<TrackingParticleCollection>("TrackTruth");
-  edm::RefProd<TrackingVertexCollection> refTVC =
+  edm::RefProd<TrackingVertexCollection>   refTVC =
       event.getRefBeforePut<TrackingVertexCollection>("VertexTruth");
   
   std::map<int,int> productionVertex;
   std::multimap<int,int> tmpTrackVertexMap;
+  
+  map<int,int> g4T_TP;
+  map<int,int> g4T_G4SourceV;
+  map<int,int> g4T_G4DecayV;
+  map<int,int> g4V_TV;
+  
   int iG4Track = 0;
   edm::SimTrackContainer::const_iterator itP;
   for (itP = G4TrkContainer->begin(); itP !=  G4TrkContainer->end(); ++itP){
@@ -158,6 +164,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     // = Point(0, 0, 0);
     int genVert = itP -> vertIndex(); // Is this a HepMC vertex # or GenVertex #?
     if (genVert >= 0){
+      g4T_G4SourceV.insert(pair<int,int>(iG4Track,genVert));
       const SimVertex &gv = (*G4VtxContainer)[genVert];
       const CLHEP::HepLorentzVector &v = gv.position();
       theVertex = math::XYZPoint(v.x(), v.y(), v.z());
@@ -187,15 +194,12 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     if (genPart >= 0) {
       tp.addGenParticle(GenParticleRef(hepMC,genPart));
     }
-    productionVertex.insert(pair<int,int>(tPC->size(),genVert));
+//    productionVertex.insert(pair<int,int>(tPC->size(),genVert));
+    g4T_TP.insert(pair<int,int>(iG4Track,tPC->size()));
     tPC -> push_back(tp);
     ++iG4Track;
   }
 
-// Put TrackingParticles in event and get handle to access them    
-  
-  edm::OrphanHandle<TrackingParticleCollection> tpcHandle =
-      event.put(tPC,"TrackTruth");
 //  TrackingParticleCollection trackCollection = *tpcHandle;
        
 // Find and loop over EmbdSimVertex vertices
@@ -242,7 +246,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }   
     }
 
-// If outside cutoff, create another TrackingVertex, set nearest to it
+// If outside cutoff, create another TrackingVertex, set nearestVertex to it
     
     if (closest > distanceCut_) {
       tVC -> push_back(TrackingVertex(position,inVolume,vertEvtId));
@@ -256,17 +260,20 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
 
-// Identify and add child tracks       
+    g4V_TV.insert(pair<int,int>(index,tVC->size()-1));
+    
+// Identify and add child and parent tracks     
 
-    for (std::map<int,int>::iterator mapIndex = productionVertex.begin(); 
-         mapIndex != productionVertex.end();
-         ++mapIndex) {
+    for (std::map<int,int>::iterator mapIndex = g4T_G4SourceV.begin(); 
+         mapIndex != g4T_G4SourceV.end(); ++mapIndex) {
       if (mapIndex -> second == index) {
-//        (*nearestVertex).add(TrackingParticleRef(tpcHandle,mapIndex -> first));
-        tmpTrackVertexMap.insert(pair<int,int>(mapIndex -> first,tVC->size()-1));
+        int indexTP = g4T_TP[mapIndex -> first];
+        (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
       }
     }
-         
+    if (vtxParent >= 0) {
+      (*nearestVertex).addParentTrack(TrackingParticleRef(refTPC,vtxParent));
+    }  
   }
 
   edm::LogInfo (MessageCategory) << "TrackingTruth found " << tVC->size() << " unique vertices";
@@ -283,23 +290,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     ++index;  
   }        
   
-// Put TrackingVertices in event and get handle to access them    
-  
-  edm::OrphanHandle<TrackingVertexCollection> tvcHandle =
-      event.put(tVC,"VertexTruth");
-//  TrackingVertexCollection vertexCollection = *tvcHandle;
-  for (multimap<int,int>::const_iterator a = tmpTrackVertexMap.begin();
-      a !=   tmpTrackVertexMap.end(); ++a) {
-     int iVertex = a -> second;
-     int iTrack  = a -> first;
-    (*trackVertexMap).insert(TrackingParticleRef(tpcHandle,iTrack),
-                             TrackingVertexRef(tvcHandle,iVertex));
-    (*vertexTrackMap).insert(TrackingVertexRef(tvcHandle,iVertex),
-                             TrackingParticleRef(tpcHandle,iTrack));
-  }
-  
-  event.put(trackVertexMap);
-  event.put(vertexTrackMap);
+// Put TrackingParticles and TrackingVertices in event
+  event.put(tPC,"TrackTruth");
+  event.put(tVC,"VertexTruth");
 }
   
 DEFINE_FWK_MODULE(TrackingTruthProducer)

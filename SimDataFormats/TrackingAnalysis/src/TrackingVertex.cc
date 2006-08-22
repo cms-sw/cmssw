@@ -25,6 +25,14 @@ void TrackingVertex::addGenVertex(const GenVertexRef &ref){
   genVertices_.push_back(ref);
 }
     
+void TrackingVertex::addDaughterTrack(const TrackingParticleRef &ref){ 
+  daughterTracks_.push_back(ref);
+}
+    
+void TrackingVertex::addParentTrack(const TrackingParticleRef &ref){ 
+  sourceTracks_.push_back(ref);
+}
+    
 /// Iterators over tracks and vertices
 //TrackingVertex::track_iterator TrackingVertex::tracks_begin()      const { return      tracks_.begin(); }
 //TrackingVertex::track_iterator TrackingVertex::tracks_end()        const { return      tracks_.end();   }
