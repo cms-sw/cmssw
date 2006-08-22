@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/EventID.h"
 
@@ -23,6 +22,8 @@ namespace edm {
 
   // ------------------------------------------
 
+  class BranchDescription;
+  class BranchEntryDescription;
   class EDProduct;
   struct ProdPair
   {
