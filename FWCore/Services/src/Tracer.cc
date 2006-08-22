@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.7 2006/04/20 16:54:07 chrjones Exp $
+// $Id: Tracer.cc,v 1.9 2006/04/22 03:57:16 wmtan Exp $
 //
 
 // system include files
+#include <iostream>
 
 // user include files
 #include "FWCore/Services/src/Tracer.h"

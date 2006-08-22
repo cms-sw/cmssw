@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstddef>
 #include <string>
+#include <iostream>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
@@ -80,27 +81,25 @@ int work()
   return 0;
 }
 
-using namespace std;
-
 int main()
 {
   int rc = -1;
   try { rc = work(); }
   catch ( cms::Exception& x )
     {
-      cerr << "cms::Exception caught\n";
-      cerr << x.what() << '\n';
+      std::cerr << "cms::Exception caught\n";
+      std::cerr << x.what() << '\n';
       rc = -2;
     }
   catch ( std::exception& x )
     {
-      cerr << "std::exception caught\n";
-      cerr << x.what() << '\n';
+      std::cerr << "std::exception caught\n";
+      std::cerr << x.what() << '\n';
       rc = -3;
     }
   catch ( ... )
     {
-      cerr << "Unknown exception caught\n";
+      std::cerr << "Unknown exception caught\n";
       rc = -4;
     }
   return rc;      

@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.15.2.1 2006/06/30 04:31:26 wmtan Exp $
+$Id: OutputModule.cc,v 1.16 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
+#include <iostream>
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"

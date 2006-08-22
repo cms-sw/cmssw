@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
-using namespace std;
-
 int work()
 {
   edm::CurrentProcessingContext ctx;
@@ -28,19 +26,19 @@ int main()
   try { rc = work(); }
   catch ( cms::Exception& x )
     {
-      cerr << "cms::Exception caught\n";
-      cerr << x.what() << '\n';
+      std::cerr << "cms::Exception caught\n";
+      std::cerr << x.what() << '\n';
       rc = -2;
     }
   catch ( std::exception& x )
     {
-      cerr << "std::exception caught\n";
-      cerr << x.what() << '\n';
+      std::cerr << "std::exception caught\n";
+      std::cerr << x.what() << '\n';
       rc = -3;
     }
   catch ( ... )
     {
-      cerr << "Unknown exception caught\n";
+      std::cerr << "Unknown exception caught\n";
       rc = -4;
     }
   return rc;      
