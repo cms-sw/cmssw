@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/21 20:03:49 $
- * $Revision: 1.14 $
+ * $Date: 2006/08/22 20:40:23 $
+ * $Revision: 1.15 $
  * \author W Fisher
  *
 */
@@ -31,11 +31,18 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     daemon.operator->();
     m_monitorDaemon = true;
   }
+
   m_outputFile = ps.getUntrackedParameter<string>("outputFile", "");
   if ( m_outputFile.size() != 0 ) {
-    cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
+    cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;    
+    for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
+      if ( m_outputFile.substr(i, 5) == ".root" )  {
+        m_outputFile.replace(i, 5, "");
+      }
+    }
   }
-  
+
+
   m_runNum = 0; m_meStatus=0;
   m_meRunNum=0; m_meRunType=0;
   m_meEvtNum=0; m_meEvtMask=0;
@@ -151,7 +158,11 @@ void HcalMonitorModule::endJob(void) {
   if(m_ledMon!=NULL) m_ledMon->done();
   if(m_mtccMon!=NULL) m_mtccMon->done();
   cout << "HcalMonitorModule::endJob, done..."<< endl;
-  if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
+
+  char tmp[150];
+  sprintf(tmp,"%09d.root", m_runNum);
+  string saver = m_outputFile+tmp;
+  if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(saver);
   cout << "HcalMonitorModule::endJob, saved..."<< endl;
   return;
 }
