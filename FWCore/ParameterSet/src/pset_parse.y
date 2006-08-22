@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.36 2006/08/02 20:02:04 rpw Exp $
+ * $Id: pset_parse.y,v 1.37 2006/08/19 00:15:14 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -137,6 +137,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token SECSOURCE_tok
 %token ES_SOURCE_tok
 %token PATH_tok
+%token SCHEDULE_tok
 %token SEQUENCE_tok
 %token BLOCK_tok
 %token ENDPATH_tok
@@ -937,6 +938,14 @@ toplevelnode:    SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                    string name(toString($<str>2));
                    NodePtr path($<_Node>5);
                    WrapperNode* wn(new WrapperNode("path",name,path,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 SCHEDULE_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: SCHEDULE");
+                   NodePtr path($<_Node>4);
+                   WrapperNode* wn(new WrapperNode("schedule", "" ,path,lines));
                    $<_Node>$ = wn;
                  }
                |

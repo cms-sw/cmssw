@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.22 2006/08/02 20:02:07 rpw Exp $
+ * $Id: pset_lex.l,v 1.23 2006/08/04 19:25:20 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -79,6 +79,7 @@ comment2        "//".*[\n]?
 "es_source"     { return ES_SOURCE_tok; }
 "path"          { return PATH_tok; }
 "sequence"      { return SEQUENCE_tok; }
+"schedule"      { return SCHEDULE_tok; }
 "block"         { return BLOCK_tok; }
 "endpath"       { return ENDPATH_tok; }
 "using"         { return USING_tok; }
@@ -210,6 +211,7 @@ namespace edm {
        // Do the parsing; this sets global_gunk. Immediately grab
        // ownership of the created structure.
        pset_parse();
+
        ParseResults ps(global_gunk);
 
        yy_delete_buffer(buf);
