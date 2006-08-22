@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.5 2006/08/07 23:52:36 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.5 2006/08/07 23:52:36 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.6 2006/08/15 22:34:36 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -77,27 +77,26 @@ namespace edm
       }
      
       if ((*pathIt)->type()=="path") {
+        //FIXME order-dependent
 	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),triggerpaths);
       }
 
+
       if ((*pathIt)->type()=="endpath") {
-	//cout << "got endpath = " << (*pathIt)->name << endl;
-	//cout << "pointer = " << typeid(*(*pathIt)->wrapped().get()).name << endl;
 	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),endpaths);
       }
      
      
     } // loop on path fragments
-    
-    Strs pathnames(triggerpaths);
-    pathnames.insert(pathnames.end(),endpaths.begin(),endpaths.end());
+
+    Strs schedule(findSchedule(triggerpaths, endpaths));
 
     if(1 <= edm::debugit())
       {
-	std::cerr << "\npathnames=\n  ";
-	std::copy(pathnames.begin(),pathnames.end(),
+	std::cerr << "\nschedule=\n  ";
+	std::copy(schedule.begin(),schedule.end(),
 		  std::ostream_iterator<std::string>(std::cerr,","));
 	std::cerr << "\ntriggernames=\n  ";
 	std::copy(triggerpaths.begin(),triggerpaths.end(),
@@ -113,13 +112,11 @@ namespace edm
     paths_trig.addParameter("@end_paths",endpaths);
 
     pset_->addUntrackedParameter("@trigger_paths",paths_trig);
-    pset_->addParameter("@paths",pathnames);
+    pset_->addParameter("@paths",schedule);
    
     validator_= 
       new ScheduleValidator(pathFragments_,*pset_); 
-   
     validator_->validate();
-//std::cout << *pset_ << std::endl; 
   }
 
 
@@ -135,7 +132,7 @@ namespace edm
  
 
   void 
-  ProcessDesc::getNames(const edm::pset::Node* n, Strs& out){
+  ProcessDesc::getNames(const edm::pset::Node* n, Strs& out) const {
     if(n->type()=="operand"){ 
       out.push_back(n->name());
     } else {	
@@ -220,4 +217,55 @@ namespace edm
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
+
+  ProcessDesc::Strs ProcessDesc::findSchedule(const ProcessDesc::Strs & triggerPaths,
+                                              const ProcessDesc::Strs & endPaths) const
+  {
+    Strs result;
+    bool found = false;
+    ProcessDesc::PathContainer::const_iterator pathIt;
+
+    for(pathIt= pathFragments_.begin();
+        pathIt!=pathFragments_.end(); ++pathIt)
+    {
+
+      if ((*pathIt)->type()=="schedule") 
+      {
+        // no duplicates
+        if(found)
+        {
+          std::ostringstream trace;
+          (*pathIt)->printTrace(trace);
+          throw edm::Exception(errors::Configuration,"duplicate schedule")
+             << "Second schedule statement found at " << trace.str();
+        }
+        else 
+        {
+          found = true;
+          getNames((*pathIt)->wrapped().get(), result);
+        }
+      }
+    }
+
+    if(!found)
+    {
+        // only take defaults if there's only one path and at most one endpath
+//        if(triggerPaths.size() > 1 || endPaths.size() > triggerPaths.size())
+//        {
+//          throw edm::Exception(errors::Configuration,"No schedule")
+//             << "More than one path found, so a schedule statement is needed.";
+//        }
+///        else 
+//        {
+          // just take defaults
+          result = triggerPaths;
+          result.insert(result.end(), endPaths.begin(), endPaths.end());
+//        }
+    }
+    return result;
+  }
+
+
+
+
 } // namespace edm

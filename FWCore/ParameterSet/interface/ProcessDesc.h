@@ -51,14 +51,14 @@ namespace edm
     void writeBookkeeping(const std::string & index);
 
   //TODO make this private
-  public:
+  private:
 
     typedef std::vector<std::string> Strs;
     typedef std::map<std::string, edm::WrapperNodePtr > SeqMap;
     typedef boost::shared_ptr<pset::Node> NodePtr;
 
     /// recursively extract names of modules and store them in Strs;
-    void getNames(const pset::Node* n, Strs& out);
+    void getNames(const pset::Node* n, Strs& out) const;
 
     /// perform sequence substitution for this node
     void sequenceSubstitution(NodePtr& node, SeqMap&  sequences);
@@ -67,6 +67,8 @@ namespace edm
     /** put the name of this path in @param paths
      *  and put the names of the modules for this path in @param out */
     void fillPath(WrapperNodePtr n, Strs& paths);
+
+    Strs findSchedule(const Strs & triggerPaths, const Strs & endPaths) const;
 
     /// diagnostic function
     void dumpTree(NodePtr& node);
