@@ -16,27 +16,28 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
 namespace cms
 {
-  class IterativeConeJetProducer : public edm::EDProducer
+  class IterativeConeJetProducer : public cms::BaseJetProducer
   {
   public:
 
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit IterativeConeJetProducer(const edm::ParameterSet& ps);
+    IterativeConeJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~IterativeConeJetProducer();
+    virtual ~IterativeConeJetProducer() {}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    /** run algorithm itself */
+    virtual bool runAlgorithm (const InputCollection& fInput, 
+			       OutputCollection* fOutput);
 
   private:
     CMSIterativeConeAlgorithm alg_;
-    std::string src_;
-    std::string jetType_;
   };
 }
 

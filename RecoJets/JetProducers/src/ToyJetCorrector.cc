@@ -1,7 +1,7 @@
 /* Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id: ToyJetCorrector.cc,v 1.3 2006/03/31 20:57:52 fedor Exp $
+    $Id: ToyJetCorrector.cc,v 1.4 2006/06/27 23:15:08 fedor Exp $
 */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -19,7 +19,7 @@ namespace cms
 {
   ToyJetCorrector::ToyJetCorrector(edm::ParameterSet const& conf) :
     mAlgorithm (conf.getParameter<double>  ("scale")),
-    mInput (conf.getParameter<string>  ("src"))
+    mInput (conf.getParameter<edm::InputTag>  ("src"))
   {
     produces<CaloJetCollection>();
   }

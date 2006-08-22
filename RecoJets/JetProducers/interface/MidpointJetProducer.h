@@ -10,7 +10,7 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: MidpointJetProducer.h,v 1.5 2006/03/15 23:40:22 wmtan Exp $
+ * $Id: MidpointJetProducer.h,v 1.6 2006/04/08 00:37:07 fedor Exp $
  *
  ************************************************************/
 
@@ -22,27 +22,25 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
 namespace cms
 {
-  class MidpointJetProducer : public edm::EDProducer
+  class MidpointJetProducer : public cms::BaseJetProducer
   {
   public:
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
-    explicit MidpointJetProducer(const edm::ParameterSet& ps);
+    MidpointJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~MidpointJetProducer();
+    virtual ~MidpointJetProducer() {};
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
+    /** run algorithm itself */
+    virtual bool runAlgorithm (const InputCollection& fInput, 
+			       OutputCollection* fOutput);
   private:
     CMSMidpointAlgorithm alg_;
-    std::string src_;
-    std::string jetType_;
   };
 }
 

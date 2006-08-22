@@ -12,7 +12,7 @@
  *
  * \version   1st Version Apr. 22, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. work from Candidate
- * $Id: KtJetProducer.h,v 1.6 2006/03/15 23:40:22 wmtan Exp $
+ * $Id: KtJetProducer.h,v 1.7 2006/04/08 00:37:07 fedor Exp $
  *
  ************************************************************/
 
@@ -24,29 +24,25 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSKtJetAlgorithm.h"
 
 namespace cms
 {
-  class KtJetProducer : public edm::EDProducer
+  class KtJetProducer : public cms::BaseJetProducer
   {
   public:
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
-    explicit KtJetProducer(const edm::ParameterSet& ps);
+    KtJetProducer(const edm::ParameterSet& ps);
 
     /**Default destructor*/
-    virtual ~KtJetProducer();
-    /**Produces the EDM products, .e Kt Jets*/
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual ~KtJetProducer() {}
+    /** run algorithm itself */
+    virtual bool runAlgorithm (const InputCollection& fInput, OutputCollection* fOutput);
 
   private:
     /** Reconstruction algorithm*/
     CMSKtJetAlgorithm alg_;
-    std::string src_;
-    std::string jetType_;
   };
 }
 

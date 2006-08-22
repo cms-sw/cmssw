@@ -4,7 +4,7 @@
 /** Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id: ToyJetCorrector.h,v 1.2 2006/03/08 20:34:19 fedor Exp $
+    $Id: ToyJetCorrector.h,v 1.3 2006/03/15 23:40:22 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,7 +35,7 @@ namespace cms
 
   private:
     ToyJetCorrection mAlgorithm;
-    std::string mInput;
+    edm::InputTag mInput;
   };
 }
 
