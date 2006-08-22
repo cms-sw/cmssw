@@ -13,7 +13,7 @@ static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.7 2006/08/09 05:29:01 w
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//INCLUDECHECKER: Removed this line: #include <algorithm>
+#include <algorithm>
 
 namespace edm {
   void
