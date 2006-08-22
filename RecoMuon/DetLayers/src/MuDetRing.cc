@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/27 12:31:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/11 10:56:10 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -52,7 +52,7 @@ MuDetRing::components() const {
 pair<bool, TrajectoryStateOnSurface>
 MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 		      const MeasurementEstimator& est) const {
-
+  
   const std::string metname = "RecoMuon|DetLayers|MuDetRing";
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
   
@@ -63,12 +63,12 @@ MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop
                     << " TS   at Z,R: " << ts.globalPosition().z() << ","
                     << ts.globalPosition().perp();
   if (ms.isValid()) {
-    cout << " DEST at Z,R: " << ms.globalPosition().z() << ","
-         << ms.globalPosition().perp()
-         << " local Z: "   << ms.localPosition().z()  << endl;
+    LogTrace(metname) << " DEST at Z,R: " << ms.globalPosition().z() << ","
+		      << ms.globalPosition().perp()
+		      << " local Z: "   << ms.localPosition().z()  << endl;
   }
   else
-    cout << " DEST: not valid" <<endl;
+    LogTrace(metname) << " DEST: not valid" <<endl;
   
   
   if (ms.isValid()) return make_pair(est.estimate(ms, specificSurface()) != 0, ms);
