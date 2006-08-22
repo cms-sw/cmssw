@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.13 2006/07/25 20:10:02 marafino Exp $
+// $Id: MessageLogger.cc,v 1.14 2006/08/06 03:29:14 chrjones Exp $
 //
 // Change log
 //
@@ -43,12 +43,6 @@
 #include "DataFormats/Common/interface/Timestamp.h"
 
 #include <sstream>
-
-//#define JMM
-
-#ifdef JMM
-#include <iostream>		// JMM debugging
-#endif
 
 static const std::string kPostModule("PostModule");
 static const std::string kSource("main_input:source");
@@ -123,31 +117,16 @@ MessageLogger( ParameterSet const & iPS
   for( vString::const_iterator it  = suppressDebug.begin();
                                it != suppressDebug.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_success;
-
-#ifdef JMM
-    std::cout << "suppression_levels_ for module " << *it
-              << " set to " << ELseverityLevel::ELsev_success << std::endl; 
-#endif
   }
   
   for( vString::const_iterator it  = suppressInfo.begin();
                                it != suppressInfo.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_info;
-
-#ifdef JMM
-    std::cout << "suppression_levels_ for module " << *it
-              << " set to " << ELseverityLevel::ELsev_info << std::endl; 
-#endif
   }
   
   for( vString::const_iterator it  = suppressWarning.begin();
                                it != suppressWarning.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
-
-#ifdef JMM
-    std::cout << "suppression_levels_ for module " << *it
-              << " set to " << ELseverityLevel::ELsev_warning << std::endl; 
-#endif
   }
   
 
@@ -161,16 +140,6 @@ MessageLogger( ParameterSet const & iPS
     MessageDrop::instance()->debugEnabled = true;
     // this will be over-ridden when specific modules are entered
   }
-
-
-#ifdef NEVER
-// JMM testing 						17 July 2006
-// For lowest order testing, unconditionally set infoEnabled and
-// warningEnabled to false
-  MessageDrop::instance()->infoEnabled = false;	
-  MessageDrop::instance()->warningEnabled = false;	
-// End JMM testing 					17 July 2006
-#endif
 
   if ( debugModules.empty()) anyDebugEnabled_ = true;
   for( vString::const_iterator it  = debugModules.begin();
@@ -344,17 +313,9 @@ MessageLogger::preModule(const ModuleDescription& desc)
     			debugEnabledModules_.count(desc.moduleLabel_);
   }
 
-#ifdef JMM
-  std::cout << "Searching map for " << desc.moduleLabel_ << std::endl;
-#endif
-
   std::map<const std::string,ELseverityLevel>::const_iterator it =
        suppression_levels_.find(desc.moduleLabel_);
   if ( it != suppression_levels_.end() ) {
-#ifdef JMM
-    std::cout << "Module name found.  Selected severity level = " 
-                    << it->second << std::endl;
-#endif
     messageDrop->debugEnabled  = messageDrop->debugEnabled 
                                            && (it->second < ELseverityLevel::ELsev_success );
     messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
@@ -363,14 +324,6 @@ MessageLogger::preModule(const ModuleDescription& desc)
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
   }
-#ifdef JMM
-  std::cout << "MessageDrop::debugEnabled = "
-            << MessageDrop::instance()->debugEnabled << std::endl;
-  std::cout << "MessageDrop::infoEnabled = "
-            << MessageDrop::instance()->infoEnabled << std::endl;
-  std::cout << "MessageDrop::warningEnabled = " 
-            << MessageDrop::instance()->warningEnabled << std::endl;
-#endif
 }
 
 void
