@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace HcalUnpacker_impl {
   template <class DigiClass>
@@ -91,27 +92,36 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	// lookup the right channel
 	HcalElectronicsId eid(tp_work->fiberChan(),tp_work->fiber(),spigot,dccid);
 	eid.setHTR(htr_cr,htr_slot,htr_tb);
-	DetId did=emap.lookupTrigger(eid);
-	if (did.null()) {
-	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
+
+	if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
+	
+	  DetId did;
+	  try {
+	    did=emap.lookupTrigger(eid);
+	  } catch (cms::Exception e) {
+	    did=DetId(0);
+	  }
+	  if (did.null()) {
 	    edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
 	    unknownIdsTrig_.insert(eid);
+	  
+	    valid=false;
+	    continue;
+	  } else if (did==HcalTrigTowerDetId::Undefined || 
+		     (did.det()==DetId::Hcal && did.subdetId()==0)) {
+	    // known to be unmapped
+	    unknownIdsTrig_.insert(eid);
+	    valid=false;
+	    continue;
 	  }
-	  valid=false;
-	  continue;
-	} else if (did==HcalTrigTowerDetId::Undefined || 
-		   (did.det()==DetId::Hcal && did.subdetId()==0)) {
-	  // known to be unmapped
-	  valid=false;
-	  continue;
+	  HcalTrigTowerDetId id(did);
+	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
+	  // set the various bits
+	  colls.tpCont->back().setPresamples(nps);
+	  // no hits recorded for current
+	  ncurr=0;
+	  valid=true;
 	}
-	HcalTrigTowerDetId id(did);
-	colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
-	// set the various bits
-	colls.tpCont->back().setPresamples(nps);
-	// no hits recorded for current
-	ncurr=0;
-	valid=true;
       }
       // add the word (if within settings) [ TODO: correct behavior when just one TP... ]
       if (valid && ncurr>=startSample_ && ncurr<=endSample_) {
@@ -141,49 +151,59 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       // lookup the right channel
       HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
       eid.setHTR(htr_cr,htr_slot,htr_tb);
-      DetId did=emap.lookup(eid);
 
-      if (!did.null()) {
-	switch (((HcalSubdetector)did.subdetId())) {
-	case (HcalBarrel):
-	case (HcalEndcap): {
-	  colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalOuter): {
-	  colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, colls.hoCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalForward): {
-	  colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, colls.hfCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalOther) : {
-	  HcalOtherDetId odid(did);
-	  if (odid.subdet()==HcalCalibration) {
-	    colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
-	  } else if (odid.subdet()==HcalZDC) {
-	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+      // check known-unknown first!
+      if (unknownIds_.find(eid)==unknownIds_.end()) {
+ 	for (int fiberC=qie_work->fiberAndChan();
+	     qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
+	     qie_work++);
+      } else {
+	DetId did;
+	try {
+	  did=emap.lookup(eid);
+	} catch (cms::Exception e) {
+	  did=DetId(0);
+	}
+	if (!did.null()) {
+	  switch (((HcalSubdetector)did.subdetId())) {
+	  case (HcalBarrel):
+	  case (HcalEndcap): {
+	    colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalOuter): {
+	    colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, colls.hoCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalForward): {
+	    colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, colls.hfCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalOther) : {
+	    HcalOtherDetId odid(did);
+	    if (odid.subdet()==HcalCalibration) {
+	      colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	    } else if (odid.subdet()==HcalZDC) {
+	      colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	    }
+	  } break;
+	  case (HcalEmpty): 
+	  default: {
+	    for (int fiberC=qie_work->fiberAndChan();
+		 qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
+		 qie_work++);
 	  }
-	} break;
-	case (HcalEmpty): 
-	default: {
+	    break;
+	  }
+	} else {
+	  edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	  unknownIds_.insert(eid);
 	  for (int fiberC=qie_work->fiberAndChan();
 	       qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
 	       qie_work++);
 	}
-	  break;
-	}
-      } else {
-	if (unknownIds_.find(eid)==unknownIds_.end()) {
-	  edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
-	  unknownIds_.insert(eid);
-	}
-	for (int fiberC=qie_work->fiberAndChan();
-	     qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
-	     qie_work++);
       }
     }
   }
@@ -257,8 +277,12 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       for (fc=0; fc<=2; fc++) {
 	HcalElectronicsId eid(fc,f[nf],spigot,dccid);	  
 	eid.setHTR(htr_cr,htr_slot,htr_tb);
-	DetId did=emap.lookup(eid);
-
+	DetId did;
+	try {
+	  did=emap.lookup(eid);
+	} catch (cms::Exception& e) {
+	  did=DetId(0);
+	}
 	if (did.null() || did.det()!=DetId::Hcal || did.subdetId()==0) {
 	  if (unknownIds_.find(eid)==unknownIds_.end()) {
 	    edm::LogWarning("HCAL") << "HcalHistogramUnpacker: No match found for electronics id :" << eid;
