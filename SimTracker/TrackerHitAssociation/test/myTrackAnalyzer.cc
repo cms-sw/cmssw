@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-using namespace edm;
+//using namespace edm;
 class TrackerHitAssociator;
 
   void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
@@ -37,7 +37,7 @@ class TrackerHitAssociator;
 
     //NEW
     std::vector<PSimHit> matched;
-    TrackerHitAssociator associate(event);
+    TrackerHitAssociator associate(event, conf_);
     std::vector<unsigned int> SimTrackIds;
 
     const reco::TrackCollection tC = *(trackCollection.product());

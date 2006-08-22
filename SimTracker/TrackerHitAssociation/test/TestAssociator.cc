@@ -91,7 +91,7 @@ using namespace edm;
       DetId detid = ((*it)->geographicalId());
       
       //construct the associator object
-      TrackerHitAssociator  associate(e);
+      TrackerHitAssociator  associate(e,conf_);
       
       edm::OwnVector<SiStripRecHit2D> collector; 
       if(myid!=999999999){ //if is valid detector
@@ -221,6 +221,7 @@ using namespace edm;
 TestAssociator::TestAssociator(edm::ParameterSet const& conf) : conf_(conf) 
 {
   cout << " Constructor " << endl;
+ 
 }
 
   TestAssociator::~TestAssociator() 

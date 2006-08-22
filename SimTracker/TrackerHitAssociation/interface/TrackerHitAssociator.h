@@ -39,12 +39,18 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
+#include <string>
+#include <vector>
+
+
 
 class TrackerHitAssociator {
   
  public:
   
-  TrackerHitAssociator(const edm::Event& e);
+  TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf);
   virtual ~TrackerHitAssociator(){}
   
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
@@ -62,9 +68,13 @@ class TrackerHitAssociator {
   typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
   std::vector<PSimHit> thePixelHits;
-  
+ 
  private:
   const edm::Event& myEvent_;
+  const edm::ParameterSet& conf_;
+  typedef std::vector<std::string> vstring;
+  vstring trackerContainers;
+
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   //vector with the trackIds

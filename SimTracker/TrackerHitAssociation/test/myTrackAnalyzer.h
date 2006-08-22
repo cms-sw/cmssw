@@ -37,7 +37,7 @@
 #include <map>
 #include <set>
 
-using namespace edm;
+//using namespace edm;
 using namespace std;
 
 class SiStripHitAssociator;
@@ -49,13 +49,14 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
   typedef map<const TrackingRecHit*, int > sim_id_map;
   sim_id_map SimIdMap;
 
-  myTrackAnalyzer(const edm::ParameterSet& pset) {}
+  myTrackAnalyzer(const edm::ParameterSet& conf): conf_(conf) {}
 
   ~myTrackAnalyzer(){}
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
-
+ private:
+const   edm::ParameterSet& conf_;
 
  };
 
