@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/07/21 11:01:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/04 09:31:24 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -59,11 +59,17 @@ private:
   // Print computed ttrig
   void dumpTTrigMap(const DTTtrig* tTrig) const;
 
+  // Plot computed ttrig
+  void plotTTrig(const DTTtrig* tTrig) const;
+
   // Debug flag
   bool debug;
 
   // The label used to retrieve digis from the event
   std::string digiLabel;
+
+  // The TDC time-window
+  int maxTDCCounts;
 
   // The file which will contain the time boxes
   TFile *theFile;

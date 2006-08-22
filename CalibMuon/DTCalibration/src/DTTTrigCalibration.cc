@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/21 11:01:39 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/04 09:31:24 $
+ *  $Revision: 1.15 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -31,6 +31,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include "TGraph.h"
 
 class DTLayer;
 
@@ -47,6 +48,9 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+
+  // the TDC time-window (ns)
+  maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);
 
   // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -123,7 +127,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
     if(hTBox == 0) {
       // Book the histogram
       theFile->cd();
-      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", 12800, -1000, 9000);
+      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", int(maxTDCCounts/2.5), 0, maxTDCCounts);
       if(debug)
 	cout << "  New Time Box: " << hTBox->GetName() << endl;
       theHistoMap[slId] = hTBox;
@@ -223,14 +227,17 @@ void DTTTrigCalibration::endJob() {
 
   // Print the ttrig map
   dumpTTrigMap(tTrig);
+  
+  // Plot the tTrig
+  plotTTrig(tTrig);
 
   if(debug) 
    cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
 
   // Write the ttrig object to DB
   edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
- if( dbOutputSvc.isAvailable() ){
-   size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
+  if( dbOutputSvc.isAvailable() ){
+    size_t callbackToken = dbOutputSvc->callbackToken("DTTtrig");
     try{
       dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
     }catch(const cond::Exception& er){
@@ -243,7 +250,7 @@ void DTTTrigCalibration::endJob() {
   }else{
     cout << "Service PoolDBOutputService is unavailable" << endl;
   }
-
+  
 
 
 }
@@ -281,4 +288,65 @@ void DTTTrigCalibration::dumpTTrigMap(const DTTtrig* tTrig) const {
 	 << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
 	 << " TTrig sigma (ns): " << (*ttrig).second.tTrms * convToNs<< endl;
   }
+}
+
+
+void DTTTrigCalibration::plotTTrig(const DTTtrig* tTrig) const {
+
+  TH1F* tTrig_YB1_Se10 = new TH1F("tTrig_YB1_Se10","tTrig YB1_Se10",15,1,16);
+  TH1F* tTrig_YB2_Se10 = new TH1F("tTrig_YB2_Se10","tTrig YB2_Se10",15,1,16);
+  TH1F* tTrig_YB2_Se11 = new TH1F("tTrig_YB2_Se11","tTrig YB2_Se11",12,1,13);
+
+  static const double convToNs = 25./32.;
+  for(DTTtrig::const_iterator ttrig = tTrig->begin();
+      ttrig != tTrig->end(); ttrig++) {
+
+    // avoid to have wired numbers in the plot
+    float tTrigValue=0;
+    float tTrmsValue=0;
+    if ((*ttrig).second.tTrig * convToNs > 0 &&
+	(*ttrig).second.tTrig * convToNs < 32000 ) {
+      tTrigValue = (*ttrig).second.tTrig * convToNs;
+      tTrmsValue = (*ttrig).second.tTrms * convToNs;
+    }
+
+    int binx;
+    string binLabel;
+    stringstream binLabelStream;
+    if ((*ttrig).first.sectorId != 14) {
+      binx = ((*ttrig).first.stationId-1)*3  + (*ttrig).first.slId;
+      binLabelStream << "MB"<<(*ttrig).first.stationId<<"_SL"<<(*ttrig).first.slId;
+    }
+    else {
+      binx = 12  + (*ttrig).first.slId;
+      binLabelStream << "MB14_SL"<<(*ttrig).first.slId;
+    }
+    binLabelStream >> binLabel;
+
+    if ((*ttrig).first.wheelId == 2) {
+      if ((*ttrig).first.sectorId == 10 || (*ttrig).first.sectorId == 14) {
+	tTrig_YB2_Se10->Fill( binx,tTrigValue);
+	tTrig_YB2_Se10->SetBinError( binx, tTrmsValue);
+	tTrig_YB2_Se10->GetXaxis()->SetBinLabel(binx,binLabel.c_str());
+	tTrig_YB2_Se10->GetYaxis()->SetTitle("ns");
+      }
+      else {
+	tTrig_YB2_Se11->Fill( binx,tTrigValue);
+	tTrig_YB2_Se11->SetBinError( binx,tTrmsValue);
+	tTrig_YB2_Se11->GetXaxis()->SetBinLabel(binx,binLabel.c_str());
+	tTrig_YB2_Se11->GetYaxis()->SetTitle("ns");
+      }
+    }
+    else {
+      tTrig_YB1_Se10->Fill( binx,tTrigValue);
+      tTrig_YB1_Se10->SetBinError( binx,tTrmsValue);
+      tTrig_YB1_Se10->GetXaxis()->SetBinLabel(binx,binLabel.c_str());
+      tTrig_YB1_Se10->GetYaxis()->SetTitle("ns");
+    }
+  }
+
+  tTrig_YB1_Se10->Write();
+  tTrig_YB2_Se10->Write();
+  tTrig_YB2_Se11->Write();
+
 }
