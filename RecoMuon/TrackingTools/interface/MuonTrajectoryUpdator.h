@@ -10,14 +10,15 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/06 16:17:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/31 22:20:34 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include <functional>
 
 class Propagator;
@@ -31,14 +32,14 @@ class DetLayer;
 namespace edm{class ParameterSet;}
 
 class MuonTrajectoryUpdator {
-public:
+ public:
 
   //<< very temp
   
   // FIXME: this c'tor is temp!!
   // It will that as the Updator will be loaded in the es
   /// Constructor with Parameter set
-  MuonTrajectoryUpdator(const edm::ParameterSet& par);
+  MuonTrajectoryUpdator(const edm::ParameterSet& par, PropagationDirection fitDirection);
   // FIXME: this function is temp!!
   // It will dis as the Updator will be loaded in the es
   void setPropagator(Propagator* prop) {thePropagator = prop;}
@@ -47,10 +48,12 @@ public:
 
   /// Constructor from Propagator and Parameter set
   MuonTrajectoryUpdator(Propagator *propagator,
+			PropagationDirection fitDirection,
 			const edm::ParameterSet& par);
 
   /// Constructor from Propagator, chi2 and the granularity flag
   MuonTrajectoryUpdator(Propagator *propagator,
+			PropagationDirection fitDirection,
 			double chi2, int granularity);
 
   /// Destructor
@@ -78,9 +81,9 @@ public:
   /// set max chi2
   void setMaxChi2(double chi2) { theMaxChi2=chi2; }
 
-protected:
+ protected:
   
-private:
+ private:
 
   /// Propagate the state to the hit surface if it's a multi hit RecHit.
   /// i.e.: if "current" is a sub-rechit of the mesurement (i.e. a 1/2D RecHit)
@@ -107,33 +110,37 @@ private:
 
   /// Ordering along increasing radius (for DT rechits)
   struct RadiusComparatorInOut{
-    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().perp() < b.det()->surface().position().perp(); 
+    bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
+		    const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+      return a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
     }
   };
   
   /// Ordering along decreasing radius (for DT rechits)
   struct RadiusComparatorOutIn{
-    bool operator()(const TransientTrackingRecHit& a, const TransientTrackingRecHit& b) const{ 
-      return a.det()->surface().position().perp() > b.det()->surface().position().perp();
+    bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a, 
+		    const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+      return a->det()->surface().position().perp() > b->det()->surface().position().perp();
     }
   };
   
   /// Ordering along increasing zed (for CSC rechits)
   struct ZedComparatorInOut{  
-    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit& b) const{ 
-      return a.globalPosition().z() < b.globalPosition().z(); 
+    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
+		     const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+      return a->globalPosition().z() < b->globalPosition().z(); 
     }
   };
   
   /// Ordering along decreasing zed (for CSC rechits)
   struct ZedComparatorOutIn{
-    bool operator()(const TransientTrackingRecHit &a, const TransientTrackingRecHit &b) const{ 
-      return a.globalPosition().z() > b.globalPosition().z(); 
+    bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
+		     const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+      return a->globalPosition().z() > b->globalPosition().z(); 
     }
   };
 
-  void sort(edm::OwnVector<const TransientTrackingRecHit>&, const DetLayer*);
+  void sort(TransientTrackingRecHit::ConstRecHitContainer&, const DetLayer*);
   
   /// Return the trajectory measurement. It handles both the fw and the bw propagation
   TrajectoryMeasurement updateMeasurement( const TrajectoryStateOnSurface &propagatedTSOS, 
@@ -146,7 +153,11 @@ private:
   Propagator *thePropagator;
   MeasurementEstimator *theEstimator;
   TrajectoryStateUpdator *theUpdator;
-  
+
+  // The fit direction.This is the global fit direction and it could be (LOCALLY!) different w.r.t. the 
+  // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
+  // This data member is not set via parameter set since it must be consistent with the RefitterParameter.
+  PropagationDirection theFitDirection;
 };
 #endif
 

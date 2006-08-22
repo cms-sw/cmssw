@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/08/11 11:06:09 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/08/16 10:07:10 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -81,7 +81,7 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par):thePropa
   // FIXME: Do I need it??
   // theMuonUpdatorName = par.getParameter<string>("MuonUpdatorName");
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
-  theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet); //FIXME this is very very temp!!!
+  theMuonUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet,propagationDirection() ); //FIXME this is very very temp!!!
 
   thePropagatorName = par.getParameter<string>("Propagator");
 

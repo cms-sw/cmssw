@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/31 22:43:07 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/16 10:07:11 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -34,11 +34,13 @@
 #include <algorithm>
 
 using namespace edm;
-using namespace std;;
+using namespace std;
 
 /// Constructor from Propagator and Parameter set
 MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
-					     const edm::ParameterSet& par):thePropagator(propagator){
+					     PropagationDirection fitDirection,
+					     const edm::ParameterSet& par):thePropagator(propagator),
+									   theFitDirection(fitDirection){
   
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
@@ -52,9 +54,11 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
 }
 
 MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
+					     PropagationDirection fitDirection,
 					     double chi2, int granularity):theMaxChi2(chi2),
 									   theGranularity(granularity),
-									   thePropagator(propagator){
+									   thePropagator(propagator),
+									   theFitDirection(fitDirection){
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
   
   // The KF updator
@@ -65,7 +69,8 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,
 
 // FIXME: this c'tor is TMP since it could be dangerous
 /// Constructor with Propagator and Parameter set
-MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par){
+MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
+					     PropagationDirection fitDirection):theFitDirection(fitDirection){
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
@@ -77,16 +82,12 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par){
   theGranularity = par.getParameter<int>("Granularity");
 }
 
-
-
-
 /// Destructor
 MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
   delete thePropagator;
   delete theEstimator;
   delete theUpdator;
 }
-
 
 pair<bool,TrajectoryStateOnSurface> 
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas, 
@@ -107,36 +108,36 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 
   // Must be an own vector.
   // The KFUpdator takes TransientTrackingRecHits as arg.
- TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
  
- // this are the 4D segment for the CSC/DT and a point for the RPC 
- TransientTrackingRecHit::ConstRecHitPointer muonRecHit=  ((theMeas->recHit()));
+  // this are the 4D segment for the CSC/DT and a point for the RPC 
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit=  ((theMeas->recHit()));
  
- //   LogDebug(metname)<<"The granulaity is "<<theGranularity;
- //   LogDebug(metname)<<"The detLayer type is ";
+  //   LogDebug(metname)<<"The granulaity is "<<theGranularity;
+  //   LogDebug(metname)<<"The detLayer type is ";
  
- //   if(detLayer->module() == dt)
- //     LogDebug(metname)<<"DT"<<endl;
- //   else if(detLayer->module() == csc)
- //     LogDebug(metname)<<"CSC"<<endl;
- //   else if(detLayer->module() == rpc)
- //     LogDebug(metname)<<"RPC"<<endl;
- //   else 
- //     LogDebug(metname)<<"I don't know!"<<endl;
+  //   if(detLayer->module() == dt)
+  //     LogDebug(metname)<<"DT"<<endl;
+  //   else if(detLayer->module() == csc)
+  //     LogDebug(metname)<<"CSC"<<endl;
+  //   else if(detLayer->module() == rpc)
+  //     LogDebug(metname)<<"RPC"<<endl;
+  //   else 
+  //     LogDebug(metname)<<"I don't know!"<<endl;
  
- switch(theGranularity){
- case 0:
-   {
-     // Asking for 4D segments for the CSC/DT and a point for the RPC
-     //     recHitsForFit.push_back( muonRecHit->clone() );
-     recHitsForFit.push_back( muonRecHit );
-     break;
-   }
+  switch(theGranularity){
+  case 0:
+    {
+      // Asking for 4D segments for the CSC/DT and a point for the RPC
+      //     recHitsForFit.push_back( muonRecHit->clone() );
+      recHitsForFit.push_back( muonRecHit );
+      break;
+    }
   case 1:
     {
       if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
 	// Asking for 2D segments. theMeas->recHit() returns a 4D segment
-	 TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
+	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), segments2D.begin(), segments2D.end());
 	
@@ -188,7 +189,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
       
       else if(detLayer->subDetector()==GeomDetEnumerators::CSC) {
 	// Asking for 2D points. theMeas->recHit() returns a 4D segment
-	 TransientTrackingRecHit::ConstRecHitContainer rechit2D = (*muonRecHit).transientHits();
+	TransientTrackingRecHit::ConstRecHitContainer rechit2D = (*muonRecHit).transientHits();
 
 	// FIXME: this function is not yet available!
 	// recHitsForFit.insert(recHitsForFit.end(), rechit2D.begin(), rechit2D.end());
@@ -210,12 +211,27 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
 
   // sort the container in agreement with the porpagation direction
   // FIXME NCA: to be debugged!
-  // sort(recHitsForFit,detLayer);
+
+  //<< tmp
+  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForFit.begin(); 
+      it != recHitsForFit.end(); it++){
+    LogDebug(metname)<<"PreSort: Radius"<<(*it)->det()->surface().position().perp();
+    LogDebug(metname)<<"PreSort: Z"<<(*it)->globalPosition().z();
+  }
+  //>>
+  sort(recHitsForFit,detLayer);
+  //<< tmp
+  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForFit.begin(); 
+      it != recHitsForFit.end(); it++){
+    LogDebug(metname)<<"PostSort: Radius"<<(*it)->det()->surface().position().perp();
+    LogDebug(metname)<<"PostSort: Z"<<(*it)->globalPosition().z();
+  }
+  //>>
 
   TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
-  
+ 
   LogDebug(metname)<<"Own vector size: "<<recHitsForFit.size()<<endl;
-
+ 
   TransientTrackingRecHit::ConstRecHitContainer::iterator recHit;
   for(recHit = recHitsForFit.begin(); recHit != recHitsForFit.end(); ++recHit ) {
     if ((*recHit)->isValid() ) {
@@ -294,7 +310,7 @@ TrajectoryMeasurement MuonTrajectoryUpdator::updateMeasurement(  const Trajector
 								 const TransientTrackingRecHit::ConstRecHitPointer &recHit,
 								 const double &chi2, const DetLayer *detLayer, 
 								 const TrajectoryMeasurement *initialMeasurement){
-     return TrajectoryMeasurement(propagatedTSOS, lastUpdatedTSOS, 
+  return TrajectoryMeasurement(propagatedTSOS, lastUpdatedTSOS, 
 			       recHit,chi2,detLayer);
 
   //   // FIXME: put a better check! One could fit in first out-in and then in - out 
@@ -313,8 +329,8 @@ TrajectoryMeasurement MuonTrajectoryUpdator::updateMeasurement(  const Trajector
 }
 
 
-  void MuonTrajectoryUpdator::insert (TransientTrackingRecHit::ConstRecHitContainer & to,
-				      TransientTrackingRecHit::ConstRecHitContainer & from){
+void MuonTrajectoryUpdator::insert (TransientTrackingRecHit::ConstRecHitContainer & to,
+				    TransientTrackingRecHit::ConstRecHitContainer & from){
 
 
   for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = from.begin();
@@ -323,22 +339,40 @@ TrajectoryMeasurement MuonTrajectoryUpdator::updateMeasurement(  const Trajector
 }
 
 
-void MuonTrajectoryUpdator::sort(edm::OwnVector<const TransientTrackingRecHit>& recHitsForFit, const DetLayer* detLayer){
-  
+void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& recHitsForFit, const DetLayer* detLayer){
+
   if(detLayer->subDetector()==GeomDetEnumerators::DT){
     if(propagator()->propagationDirection() == alongMomentum)
-      recHitsForFit.sort( RadiusComparatorInOut() );
+      stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
     else if(propagator()->propagationDirection() == oppositeToMomentum)
-      recHitsForFit.sort( RadiusComparatorOutIn() );
+      stable_sort(recHitsForFit.begin(),recHitsForFit.end(),RadiusComparatorOutIn() );
+
+    // If the propagation direction is "undefined" then use the global fit direction to sort the RecHits
+    else if(propagator()->propagationDirection() == anyDirection){
+      if(theFitDirection == alongMomentum)
+	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
+      else if(theFitDirection == oppositeToMomentum)
+	stable_sort(recHitsForFit.begin(),recHitsForFit.end(),RadiusComparatorOutIn() );
+    }      
+
     else{
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
   }
   else if(detLayer->subDetector()==GeomDetEnumerators::CSC){
     if(propagator()->propagationDirection() == alongMomentum)
-      recHitsForFit.sort( ZedComparatorInOut() );
+      stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
     else if(propagator()->propagationDirection() == oppositeToMomentum)
-      recHitsForFit.sort( ZedComparatorOutIn() );
+      stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorOutIn() );
+
+    // If the propagation direction is "undefined" then use the global fit direction to sort the RecHits
+    else if(propagator()->propagationDirection() == anyDirection){
+      if(theFitDirection == alongMomentum)
+	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
+      else if(theFitDirection == oppositeToMomentum)
+	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorOutIn() );
+    }
+    
     else{
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
