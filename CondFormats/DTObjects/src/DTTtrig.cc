@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/12 13:45:00 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/07/19 09:32:10 $
+ *  $Revision: 1.10 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -77,9 +77,13 @@ DTTtrigData::~DTTtrigData() {
 bool DTTtrigCompare::operator()( const DTTtrigId& idl,
                                  const DTTtrigId& idr ) const {
   if ( idl.  wheelId < idr.  wheelId ) return true;
+  if ( idl.  wheelId > idr.  wheelId ) return false;
   if ( idl.stationId < idr.stationId ) return true;
+  if ( idl.stationId > idr.stationId ) return false;
   if ( idl. sectorId < idr. sectorId ) return true;
+  if ( idl. sectorId > idr. sectorId ) return false;
   if ( idl.     slId < idr.     slId ) return true;
+  if ( idl.     slId > idr.     slId ) return false;
   return false;
 }
 

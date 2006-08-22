@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/28 17:00:00 $
+ *  $Date: 2006/07/19 09:32:10 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -80,9 +80,13 @@ DTPerformanceId::~DTPerformanceId() {
 bool DTPerformanceCompare::operator()( const DTPerformanceId& idl,
                                        const DTPerformanceId& idr ) const {
   if ( idl.  wheelId < idr.  wheelId ) return true;
+  if ( idl.  wheelId > idr.  wheelId ) return false;
   if ( idl.stationId < idr.stationId ) return true;
+  if ( idl.stationId > idr.stationId ) return false;
   if ( idl. sectorId < idr. sectorId ) return true;
+  if ( idl. sectorId > idr. sectorId ) return false;
   if ( idl.     slId < idr.     slId ) return true;
+  if ( idl.     slId > idr.     slId ) return false;
   return false;
 }
 
