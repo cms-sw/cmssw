@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2006/06/27 16:29:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -77,8 +77,7 @@ void checkCalibrations(const edm::EventSetup & c);
 private:
 
  string HepMCLabel;
- string SimTkLabel;
- string SimVtxLabel;
+ string g4InfoLabel;
  
  bool verbose_;
  

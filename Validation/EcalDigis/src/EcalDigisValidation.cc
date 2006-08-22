@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/07/10 11:31:19 $
- * $Revision: 1.12 $
+ * $Date: 2006/07/26 14:55:26 $
+ * $Revision: 1.13 $
  * \author F. Cossutti
  *
 */
@@ -14,9 +14,8 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
-  HepMCLabel(ps.getUntrackedParameter("moduleLabelMC",string("PythiaSource"))),
-  SimTkLabel(ps.getUntrackedParameter("moduleLabelTk",string("SimTrack"))),
-  SimVtxLabel(ps.getUntrackedParameter("moduleLabelVtx",string("SimVertex"))){
+  HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
+  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")){
 
  
   // DQM ROOT output
@@ -143,8 +142,8 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<ESDigiCollection> EcalDigiES;
 
   e.getByLabel(HepMCLabel, MCEvt);
-  e.getByLabel(SimTkLabel,SimTk);
-  e.getByLabel(SimVtxLabel,SimVtx);
+  e.getByLabel(g4InfoLabel,SimTk);
+  e.getByLabel(g4InfoLabel,SimVtx);
   e.getByType(crossingFrame);
 
   const EBDigiCollection* EBdigis =0;
