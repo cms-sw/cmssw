@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 15:48:48 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/08/14 16:29:12 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -28,56 +28,65 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   andOr_     (iConfig.getParameter<bool> ("andOr" )),
   byName_    (iConfig.getParameter<bool> ("byName"))
 {
-   unsigned int n(0);
+  const string invalid("@@invalid@@");
+ 
+  unsigned int n(0);
 
-   if (byName_) {
-     // have names, need to get slot numbers
-     L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1SeedsByName");
-     n=L1SeedsByName_.size();
-     L1SeedsByType_.resize(n);
-     std::string name;
-     for (unsigned int i=0; i!=n; i++) {
-       name=L1SeedsByName_[i];
-       L1SeedsByType_[i]=(unsigned int) (l1extra::L1ParticleMap::triggerType(name));
-     }
-   } else {
-     // have slot numbers, need to get names
-     L1SeedsByType_= iConfig.getParameter<std::vector<unsigned int> >("L1SeedsByType");
-     n=L1SeedsByType_.size();
-     L1SeedsByName_.resize(n);
-     for (unsigned int i=0; i!=n; i++) {
-       l1extra::L1ParticleMap::L1TriggerType type;
-       type=(l1extra::L1ParticleMap::L1TriggerType) (L1SeedsByType_[i]);
-       L1SeedsByName_[i]=l1extra::L1ParticleMap::triggerName(type);
-     }
-   }
+  if (byName_) {
+    // have names, need to get slot numbers
+    L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1SeedsByName");
+    n=L1SeedsByName_.size();
+    L1SeedsByType_.resize(n);
+    std::string name;
+    for (unsigned int i=0; i!=n; i++) {
+      name=L1SeedsByName_[i];
+      L1SeedsByType_[i]=l1extra::L1ParticleMap::triggerType(name);
+    }
+  } else {
+    // have slot numbers, need to get names
+    L1SeedsByType_= iConfig.getParameter<std::vector<unsigned int> >("L1SeedsByType");
+    n=L1SeedsByType_.size();
+    L1SeedsByName_.resize(n);
+    for (unsigned int i=0; i!=n; i++) {
+      if (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) {
+	l1extra::L1ParticleMap::L1TriggerType 
+	  type(static_cast<l1extra::L1ParticleMap::L1TriggerType>(L1SeedsByType_[i]));
+	L1SeedsByName_[i]=l1extra::L1ParticleMap::triggerName(type);
+      } else {
+	L1SeedsByName_[i]=invalid;
+      }
+    }
+  }
+  
+  // for empty input vectors (n=0), default to all triggers!
+  if (n==0) {
+    n=(unsigned int) (l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
+    L1SeedsByName_.resize(n);
+    L1SeedsByType_.resize(n);
+    for (unsigned int i=0; i!=n; i++) {
+      L1SeedsByType_[i]=i;
+      l1extra::L1ParticleMap::L1TriggerType type;
+      type=(l1extra::L1ParticleMap::L1TriggerType) (L1SeedsByType_[i]);
+      L1SeedsByName_[i]=l1extra::L1ParticleMap::triggerName(type);
+    }
+  }
+  
+  LogDebug("") << "Level-1 triggers: " +L1ExtraTag_.encode()
+	       << " - Number requested: " << n 
+	       << " - andOr mode: " << andOr_
+	       << " - byName: " << byName_;
+  if (n>0) {
+    LogDebug("") << "  Level-1 triggers requestd: type, name and status:";
+    for (unsigned int i=0; i!=n; i++) {
+      LogTrace("") << " " << L1SeedsByType_[i]
+		   << " " << L1SeedsByName_[i]
+		   << " " <<( (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) &&
+			      (L1SeedsByName_[i]!=invalid) ) ;
+    }
+  }
 
-   // for empty input vectors (n=0), default to all triggers!
-   if (n==0) {
-     n=(unsigned int) (l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
-     L1SeedsByName_.resize(n);
-     L1SeedsByType_.resize(n);
-     for (unsigned int i=0; i!=n; i++) {
-       L1SeedsByType_[i]=i;
-       l1extra::L1ParticleMap::L1TriggerType type;
-       type=(l1extra::L1ParticleMap::L1TriggerType) (L1SeedsByType_[i]);
-       L1SeedsByName_[i]=l1extra::L1ParticleMap::triggerName(type);
-     }
-   }
-
-   LogDebug("") << "Level-1 triggers: " +L1ExtraTag_.encode()
-		<< " - Number requested: " << n 
-		<< " - andOr mode: " << andOr_
-		<< " - byName: " << byName_;
-   if (n>0) {
-     LogDebug("") << "  Level-1 triggers requestd: type and name:";
-     for (unsigned int i=0; i!=n; i++) {
-       LogTrace("") << " " << L1SeedsByType_[i] << " " << L1SeedsByName_[i];
-     }
-   }
-
-   //register your products
-   produces<reco::HLTFilterObjectWithRefs>();
+  //register your products
+  produces<reco::HLTFilterObjectWithRefs>();
 }
 
 HLTLevel1Seed::~HLTLevel1Seed()
@@ -148,7 +157,7 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    vector<int> index(n,-1);
    L1ParticleMap::L1TriggerType l1tt;
    for (unsigned int i=0; i!=n; i++) {
-     l1tt= (L1ParticleMap::L1TriggerType) (L1SeedsByType_[i]);
+     l1tt=static_cast<L1ParticleMap::L1TriggerType>(L1SeedsByType_[i]);
      for (unsigned int j=0; j!=m; j++) {
        const L1ParticleMap& l1pm((*l1pmch)[j]);
        if ( (l1tt==l1pm.triggerType()) && (l1pm.triggerDecision()) ) {
@@ -229,8 +238,10 @@ HLTLevel1Seed::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      // loop over requested triggers
      for (unsigned int i=0; i!=n; i++) {
-       //       LogDebug("") << "Accessing L1 trigger: " 
-       //		    << i << "=" << L1SeedsByName_[i] << " " << index[i];
+       //       LogDebug("") << "Accessing L1 trigger: " << i
+       //		    << "=" << L1SeedsByName_[i]
+       //		    << ":" << L1SeedsByType_[i]
+       //		    << " " << index[i];
        // has requested trigger fired?
        if (index[i]>=0) { // requested and fired!
 	 // if yes, count which particles of each type have been used
