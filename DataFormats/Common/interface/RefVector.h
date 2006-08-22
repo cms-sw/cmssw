@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.8 2006/07/18 20:20:13 wmtan Exp $
+$Id: RefVector.h,v 1.9 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -149,7 +149,7 @@ namespace edm {
     typename RefVectorBase<key_type>::RefItems::size_type index = pos - begin();
     typename RefVectorBase<key_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
     RefCore const& product = refVector_.product();
-    return RefVector<C, T, F>::iterator(product, newPos);
+    return typename RefVector<C, T, F>::iterator(product, newPos);
 
   }
 
