@@ -5,6 +5,14 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
+// Alignments
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -44,6 +52,9 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 
   if ( useGangedStripsInME1a ) useOnlyWiresInME1a = false; // override possible inconsistentcy
 
+  // Switch to apply the alignment corrections
+  applyAlignment_ = p.getParameter<bool>("applyAlignment");
+
   // Feed these value to where I need them
   CSCChamberSpecs::setUseRadialStrips( useRadialStrips );
   CSCChamberSpecs::setUseRealWireGeometry( useRealWireGeometry );
@@ -61,7 +72,21 @@ CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
   edm::ESHandle<DDCompactView> cpv;
   record.getRecord<IdealGeometryRecord>().get(cpv);
   CSCGeometryBuilderFromDDD builder;
-  return boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv)));
+  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv)));
+
+  // Retrieve and apply alignments
+  if ( applyAlignment_ ) {
+    edm::ESHandle<Alignments> alignments;
+    record.getRecord<CSCAlignmentRcd>().get( alignments );
+    edm::ESHandle<AlignmentErrors> alignmentErrors;
+    record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
+    GeometryAligner aligner;
+    aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
+                                         &(*alignments), &(*alignmentErrors) );
+  }
+
+  return _cscGeometry;
+
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule)

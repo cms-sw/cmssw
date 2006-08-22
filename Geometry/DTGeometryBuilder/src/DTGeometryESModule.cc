@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 10:59:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/27 13:40:35 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,6 +10,14 @@
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <DetectorDescription/Core/interface/DDCompactView.h>
+
+// Alignments
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
+#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -20,6 +28,9 @@
 using namespace edm;
 
 DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p){
+
+  applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
+
   setWhatProduced(this);
 }
 
@@ -32,7 +43,21 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
   edm::ESHandle<DDCompactView> cpv;
   record.getRecord<IdealGeometryRecord>().get(cpv);
   DTGeometryBuilderFromDDD builder;
-  return boost::shared_ptr<DTGeometry>(builder.build(&(*cpv)));
+  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv)));
+
+  // Retrieve and apply alignments
+  if ( applyAlignment_ ) {
+    edm::ESHandle<Alignments> alignments;
+    record.getRecord<DTAlignmentRcd>().get( alignments );
+    edm::ESHandle<AlignmentErrors> alignmentErrors;
+    record.getRecord<DTAlignmentErrorRcd>().get( alignmentErrors );
+    GeometryAligner aligner;
+    aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
+                                         &(*alignments), &(*alignmentErrors) );
+  }
+
+  return _dtGeometry;
+
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule)
