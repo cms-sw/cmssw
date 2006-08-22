@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id$
+// $Id: SiStripHistoricInfoClient.cc,v 1.1 2006/08/20 19:40:30 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -76,7 +76,6 @@ void SiStripHistoricInfoClient::configure()
 void SiStripHistoricInfoClient::newRun()
 {
   upd_->registerObserver(this);   // upd_ is a pointer to dqm::Updater, protected data member of DQMBaseClient
-
 }
 
 //  this obligatory method is called whenever the client enters the "Halted" state:
@@ -93,6 +92,9 @@ void SiStripHistoricInfoClient::endRun()
      }
   }
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
+  std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
+  mui_->save(final_filename);
 
 //  tstore_connect();
 }
