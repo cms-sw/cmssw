@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/07/31 22:20:34 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/08/22 09:34:07 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -128,7 +128,7 @@ class MuonTrajectoryUpdator {
   struct ZedComparatorInOut{  
     bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
 		     const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
-      return a->globalPosition().z() < b->globalPosition().z(); 
+      return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z()); 
     }
   };
   
@@ -136,7 +136,7 @@ class MuonTrajectoryUpdator {
   struct ZedComparatorOutIn{
     bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
 		     const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
-      return a->globalPosition().z() > b->globalPosition().z(); 
+      return fabs(a->globalPosition().z()) > fabs(b->globalPosition().z()); 
     }
   };
 

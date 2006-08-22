@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/08/22 09:34:08 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -210,26 +210,10 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* theMeas,
   }
 
   // sort the container in agreement with the porpagation direction
-  // FIXME NCA: to be debugged!
-
-  //<< tmp
-  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForFit.begin(); 
-      it != recHitsForFit.end(); it++){
-    LogDebug(metname)<<"PreSort: Radius"<<(*it)->det()->surface().position().perp();
-    LogDebug(metname)<<"PreSort: Z"<<(*it)->globalPosition().z();
-  }
-  //>>
   sort(recHitsForFit,detLayer);
-  //<< tmp
-  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForFit.begin(); 
-      it != recHitsForFit.end(); it++){
-    LogDebug(metname)<<"PostSort: Radius"<<(*it)->det()->surface().position().perp();
-    LogDebug(metname)<<"PostSort: Z"<<(*it)->globalPosition().z();
-  }
-  //>>
-
+  
   TrajectoryStateOnSurface lastUpdatedTSOS = theMeas->predictedState();
- 
+  
   LogDebug(metname)<<"Own vector size: "<<recHitsForFit.size()<<endl;
  
   TransientTrackingRecHit::ConstRecHitContainer::iterator recHit;
@@ -353,8 +337,10 @@ void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& 
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
       else if(theFitDirection == oppositeToMomentum)
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(),RadiusComparatorOutIn() );
+      else
+	LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong fit direction!!";
     }      
-
+    
     else{
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
     }
@@ -371,6 +357,8 @@ void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& 
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
       else if(theFitDirection == oppositeToMomentum)
 	stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorOutIn() );
+      else
+	LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong fit direction!!";
     }
     
     else{
