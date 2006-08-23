@@ -4,11 +4,16 @@
  <use name=Geometry/Records>
  <use name=Geometry/DTGeometry>
  <use name=DetectorDescription/Core>
+ <use name=CondFormats/Alignment>
+ <use name=DataFormats/TrackingRecHit>
 </export>
 
+<use name=CondFormats/Alignment>
 <use name=Geometry/MuonNumbering>
 <use name=Geometry/Records>
 <use name=Geometry/DTGeometry>
 <use name=DetectorDescription/Core>
+<use name=DataFormats/TrackingRecHit>
+
 
 <flags SEAL_PLUGIN_NAME="GeometryDTGeometryBuilder">
