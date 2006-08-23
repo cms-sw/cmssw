@@ -9,7 +9,21 @@
 //using namespace edm;
 class TrackerHitAssociator;
 
-  void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
+myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf) : 
+  conf_(conf),
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ) {
+  cout << " Constructor " << endl;
+}
+
+myTrackAnalyzer::~myTrackAnalyzer()
+{
+  cout << " Destructor " << endl;
+}
+
+
+
+void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   {
     //
     // extract tracker geometry
@@ -35,6 +49,7 @@ class TrackerHitAssociator;
    theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
    theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
 
+    if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
     //NEW
     std::vector<PSimHit> matched;
     TrackerHitAssociator associate(event, conf_);

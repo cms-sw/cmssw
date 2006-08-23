@@ -49,15 +49,15 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
   typedef map<const TrackingRecHit*, int > sim_id_map;
   sim_id_map SimIdMap;
 
-  myTrackAnalyzer(const edm::ParameterSet& conf): conf_(conf) {}
-
-  ~myTrackAnalyzer(){}
-
+  explicit myTrackAnalyzer(const edm::ParameterSet& conf);
+  
+  virtual ~myTrackAnalyzer();
+  
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-
+  
  private:
-const   edm::ParameterSet& conf_;
-
- };
+  edm::ParameterSet conf_;
+  bool doPixel_, doStrip_;
+};
 
 #endif
