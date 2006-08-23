@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/07/06 02:23:56 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/13 18:14:00 $
+ *  $Revision: 1.8 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.7 2006/07/06 02:23:56 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.8 2006/07/13 18:14:00 slava77 Exp $
 //
 //
 
@@ -112,10 +112,12 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   SurfaceSide side = atCenterOfSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
+  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
+    ? FreeTrajectoryState(tParsDest, tCovDest) 
+    : FreeTrajectoryState(tParsDest);
+  ftsDest.curvilinearError(); //call it so it gets created
 
-  TrajectoryStateOnSurface tsosDest = (ftsStart.hasError() && !noErrorPropagation_) 
-    ? TrajectoryStateOnSurface(tParsDest, tCovDest, pDest, side) 
-    : TrajectoryStateOnSurface(tParsDest, pDest, side);
+  TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, pDest, side);
   int cInd = cIndex_(nPoints_-1);
   
   return TsosPP(tsosDest, path_[cInd]);
@@ -153,10 +155,12 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   SurfaceSide side = atCenterOfSurface;
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
+  FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
+    ? FreeTrajectoryState(tParsDest, tCovDest) 
+    : FreeTrajectoryState(tParsDest);
+  ftsDest.curvilinearError(); //call it so it gets created
 
-  TrajectoryStateOnSurface tsosDest = (ftsStart.hasError()  && !noErrorPropagation_) 
-    ? TrajectoryStateOnSurface(tParsDest, tCovDest, cDest, side) 
-    : TrajectoryStateOnSurface(tParsDest, cDest, side);
+  TrajectoryStateOnSurface tsosDest = TrajectoryStateOnSurface(ftsDest, cDest, side);
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
@@ -197,6 +201,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
+  ftsDest.curvilinearError(); //call it so it gets created
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
@@ -238,6 +243,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest = (ftsStart.hasError()  && !noErrorPropagation_) 
     ? FreeTrajectoryState(tParsDest, tCovDest) 
     : FreeTrajectoryState(tParsDest);
+  ftsDest.curvilinearError(); //call it so it gets created
   int cInd = cIndex_(nPoints_-1);
 
   return FtsPP(ftsDest, path_[cInd]);
