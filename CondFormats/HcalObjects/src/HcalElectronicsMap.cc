@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/08/10 22:51:50 $
-$Revision: 1.9 $
+$Date: 2006/08/23 20:14:54 $
+$Revision: 1.10 $
 */
 
 #include <iostream>
@@ -79,8 +79,7 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long 
 
 
 const DetId HcalElectronicsMap::lookup(HcalElectronicsId fId, bool fWarning ) const {
-  const Item* item = 0;
-    item = findByElId (fId.rawId (), fWarning);
+  const Item* item = findByElId (fId.rawId (), fWarning);
   return DetId (item ? item->mId : 0);
 }
 
