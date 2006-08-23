@@ -36,9 +36,8 @@
 
 EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitProducer(const edm::ParameterSet& ps) {
 
-  EBdigiCollection_ = ps.getParameter<std::string>("EBdigiCollection");
-  EEdigiCollection_ = ps.getParameter<std::string>("EEdigiCollection");
-  digiProducer_   = ps.getParameter<std::string>("digiProducer");
+  EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
+  EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
   EBhitCollection_  = ps.getParameter<std::string>("EBhitCollection");
   EEhitCollection_  = ps.getParameter<std::string>("EEhitCollection");
 
@@ -101,20 +100,20 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
    const EEDigiCollection* EEdigis =0;
 
    try {//Barrel
-     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
+     evt.getByLabel( EBdigiCollection_, pEBDigis);
      //     evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the EB product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size();
-   } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product for EB: " << EBdigiCollection_.c_str() << std::endl;
+   } catch (...) {
+     //     std::cerr << "Error! can't get the product for EB: " << EBdigiCollection_.c_str() << std::endl;
    }
    try {//Endcap
-     evt.getByLabel( digiProducer_, EEdigiCollection_, pEBDigis);
+     evt.getByLabel( EEdigiCollection_, pEBDigis);
      //     evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the EE product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
-   } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EE: " << EEdigiCollection_.c_str() ;
+   } catch (...) {
+     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EE: " << EEdigiCollection_.c_str() ;
    }
 
    // Gain Ratios

@@ -27,8 +27,7 @@ class ESRecHitProducer : public edm::EDProducer {
 
   const CaloGeometry * theGeometry;
 
-  std::string digiProducer_; // name of module/plugin/producer making digis
-  std::string digiCollection_; // secondary name given to collection of digis
+  edm::InputTag digiCollection_; // secondary name given to collection of digis
   std::string rechitCollection_; // secondary name to be given to collection of hits
 
   ESRecHitSimAlgo *algo_;

@@ -21,9 +21,10 @@ class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
     virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   private:
-    std::string digiProducer_; // name of module/plugin/producer making digis
-    std::string EBdigiCollection_; // secondary name given to collection of digis
-    std::string EEdigiCollection_; // secondary name given to collection of digis
+
+    edm::InputTag EBdigiCollection_; // collection of EB digis
+    edm::InputTag EEdigiCollection_; // collection of EE digis
+
     std::string EBhitCollection_; // secondary name to be given to collection of hit
     std::string EEhitCollection_; // secondary name to be given to collection of hits
 

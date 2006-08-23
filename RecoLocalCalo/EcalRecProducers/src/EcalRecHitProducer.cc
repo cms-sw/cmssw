@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.5 2006/04/21 10:45:54 meridian Exp $
- *  $Date: 2006/04/21 10:45:54 $
- *  $Revision: 1.5 $
+ *  $Id: EcalRecHitProducer.cc,v 1.6 2006/05/13 07:29:21 meridian Exp $
+ *  $Date: 2006/05/13 07:29:21 $
+ *  $Revision: 1.6 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -35,9 +35,8 @@
 
 EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
 
-   EBuncalibRecHitCollection_ = ps.getParameter<std::string>("EBuncalibRecHitCollection");
-   EEuncalibRecHitCollection_ = ps.getParameter<std::string>("EEuncalibRecHitCollection");
-   uncalibRecHitProducer_   = ps.getParameter<std::string>("uncalibRecHitProducer");
+   EBuncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection");
+   EEuncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection");
    EBrechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
    EErechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
    //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
@@ -72,18 +71,18 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    const EEUncalibratedRecHitCollection*  EEuncalibRecHits = 0; 
 
    try {
-     evt.getByLabel( uncalibRecHitProducer_, EBuncalibRecHitCollection_, pEBUncalibRecHits);
+     evt.getByLabel( EBuncalibRecHitCollection_, pEBUncalibRecHits);
      EBuncalibRecHits = pEBUncalibRecHits.product(); // get a ptr to the product
      LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << EBuncalibRecHits->size();
-   } catch ( std::exception& ex ) {
+   } catch (...) {
      //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_.c_str() ;
    }
    
    try {
-     evt.getByLabel( uncalibRecHitProducer_, EEuncalibRecHitCollection_, pEEUncalibRecHits);
+     evt.getByLabel( EEuncalibRecHitCollection_, pEEUncalibRecHits);
      EEuncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
      LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << EEuncalibRecHits->size();
-   } catch ( std::exception& ex ) {
+   } catch (...) {
      //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_.c_str() ;
    }
 

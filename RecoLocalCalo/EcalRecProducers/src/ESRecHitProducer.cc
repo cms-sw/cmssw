@@ -14,9 +14,8 @@
 
 ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
 {
-  digiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
-  digiProducer_   = ps.getParameter<std::string>("digiProducer");
-  rechitCollection_        = ps.getParameter<std::string>("ESrechitCollection");
+  digiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
+  rechitCollection_ = ps.getParameter<std::string>("ESrechitCollection");
   produces<ESRecHitCollection>(rechitCollection_);
   
   //These should be taken from a DB
@@ -40,7 +39,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
    edm::Handle<ESDigiCollection> digiHandle;  
    const ESDigiCollection* digi=0;
    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-   e.getByLabel( digiProducer_, digiHandle);
+   e.getByLabel( digiCollection_, digiHandle);
    digi=digiHandle.product();
 
    edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  

@@ -3,9 +3,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.1 2006/03/10 08:43:15 rahatlou Exp $
- *  $Date: 2006/03/10 08:43:15 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecHitProducer.h,v 1.2 2006/04/07 12:47:07 meridian Exp $
+ *  $Date: 2006/04/07 12:47:07 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -27,9 +27,8 @@ class EcalRecHitProducer : public edm::EDProducer {
 
   private:
 
-    std::string uncalibRecHitProducer_; // name of module/plugin/producer making uncalib rechits
-    std::string EBuncalibRecHitCollection_; // secondary name given to collection of EB uncalib rechits
-    std::string EEuncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits
+    edm::InputTag EBuncalibRecHitCollection_; // secondary name given to collection of EB uncalib rechits
+    edm::InputTag EEuncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits
     std::string EBrechitCollection_; // secondary name to be given to EB collection of hits
     std::string EErechitCollection_; // secondary name to be given to EE collection of hits
 
