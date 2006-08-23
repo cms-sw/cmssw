@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/08/22 20:40:23 $
- * $Revision: 1.15 $
+ * $Date: 2006/08/22 21:22:16 $
+ * $Revision: 1.16 $
  * \author W Fisher
  *
 */
@@ -35,11 +35,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_outputFile = ps.getUntrackedParameter<string>("outputFile", "");
   if ( m_outputFile.size() != 0 ) {
     cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;    
-    for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
-      if ( m_outputFile.substr(i, 5) == ".root" )  {
-        m_outputFile.replace(i, 5, "");
-      }
-    }
+  }
+  else{
+    m_outputFile = "DQM_Hcal_";
   }
 
 
@@ -160,10 +158,16 @@ void HcalMonitorModule::endJob(void) {
   cout << "HcalMonitorModule::endJob, done..."<< endl;
 
   char tmp[150];
-  sprintf(tmp,"%09d.root", m_runNum);
+  if ( outputFile_.substr(i, 5) == ".root" )  {
+    tmp = "";
+  }
+  else{
+    sprintf(tmp,"%09d.root", m_runNum);
+  }
   string saver = m_outputFile+tmp;
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(saver);
   cout << "HcalMonitorModule::endJob, saved..."<< endl;
+  
   return;
 }
 
