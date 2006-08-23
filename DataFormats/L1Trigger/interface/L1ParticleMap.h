@@ -16,8 +16,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.7 2006/08/06 15:32:26 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.8 2006/08/10 18:47:41 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.8  2006/08/10 18:47:41  wsun
+// Removed L1PhysObjectBase; particle classes now derived from LeafCandidate.
+//
 // Revision 1.7  2006/08/06 15:32:26  wsun
 // Added comment.
 //
@@ -61,7 +64,8 @@ namespace l1extra {
       public:
          enum L1ObjectType
 	 {
-            kEM,
+            kIsoEM,
+            kNonIsoEM,
             kJet,  // = non-tau jets
             kTau,
             kMuon,
@@ -75,8 +79,10 @@ namespace l1extra {
 	 // http://monicava.web.cern.ch/monicava/hlt_rates.htm#l1bits
 	 enum L1TriggerType
 	 {
-	    kSingleEM,
-	    kDoubleEM,
+	    kSingleIsoEM,
+	    kDoubleIsoEM,
+	    kSingleNonIsoEM,
+	    kDoubleNonIsoEM,
 	    kSingleMuon,
 	    kDoubleMuon,
 	    kSingleTau,
@@ -91,12 +97,12 @@ namespace l1extra {
 	    kJetMET,
 	    kTauMET,
 	    kMuonMET,
-	    kEMMET,
+	    kIsoEMMET,
 	    kMuonJet,
-	    kEMJet,
+	    kIsoEMJet,
 	    kMuonTau,
-	    kEMTau,
-	    kEMMuon,
+	    kIsoEMTau,
+	    kIsoEMMuon,
 	    kSingleJet140,
 	    kSingleJet60,
 	    kSingleJet20,
@@ -112,7 +118,9 @@ namespace l1extra {
 	    L1TriggerType triggerType,
 	    bool triggerDecision,
 	    const L1ObjectTypeVector& objectTypes,
-	    const L1EmParticleRefVector& emParticles =
+	    const L1EmParticleRefVector& isoEmParticles =
+	       L1EmParticleRefVector(),
+	    const L1EmParticleRefVector& nonIsoEmParticles =
 	       L1EmParticleRefVector(),
 	    const L1JetParticleRefVector& jetParticles =
 	       L1JetParticleRefVector(),
@@ -148,8 +156,11 @@ namespace l1extra {
 	 int numOfObjects() const
 	 { return objectTypes_.size() ; }
 
-	 const L1EmParticleRefVector& emParticles() const
-	 { return emParticles_ ; }
+	 const L1EmParticleRefVector& isoEmParticles() const
+	 { return isoEmParticles_ ; }
+
+	 const L1EmParticleRefVector& nonIsoEmParticles() const
+	 { return nonIsoEmParticles_ ; }
 
 	 const L1JetParticleRefVector& jetParticles() const
 	 { return jetParticles_ ; }
@@ -179,7 +190,10 @@ namespace l1extra {
 	 const reco::LeafCandidate* candidateInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
-	 const L1EmParticle* emParticleInCombo(
+	 const L1EmParticle* isoEmParticleInCombo(
+	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
+
+	 const L1EmParticle* nonIsoEmParticleInCombo(
 	    int aIndexInCombo, const L1IndexCombo& aCombo ) const ;
 
 	 const L1JetParticle* jetParticleInCombo(
@@ -230,7 +244,8 @@ namespace l1extra {
 
 	 // Lists of particles that fired this trigger, perhaps in combination
 	 // with another particle.
-	 L1EmParticleRefVector emParticles_ ;
+	 L1EmParticleRefVector isoEmParticles_ ;
+	 L1EmParticleRefVector nonIsoEmParticles_ ;
 	 L1JetParticleRefVector jetParticles_ ;
 	 L1JetParticleRefVector tauParticles_ ;
 	 L1MuonParticleRefVector muonParticles_ ;
